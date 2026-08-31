@@ -1,0 +1,72 @@
+name: Native Renode client experiment
+
+on:
+  pull_request:
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/renode-client/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/renode-client.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/renode-client/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/renode-client.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renode-client-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    name: SN-019 (Windows x64)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download and verify the pinned Renode package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/deps/downloads | Out-Null
+          $manifest = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
+          $asset = $manifest.archives | Where-Object { $_.path.StartsWith('downloads/renode-') }
+          curl.exe --fail --location --silent --show-error --max-time 180 $asset.url --output (Join-Path build/deps $asset.path)
+          if ($LASTEXITCODE -ne 0) { throw 'Package download failed' }
+          python tools/check_backend_assets.py --renode-only --archives-only
+          if ($LASTEXITCODE -ne 0) { throw 'Archive verification failed' }
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+          & $sevenZip x (Join-Path build/deps $asset.path) '-obuild/deps/renode' -y
+          if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
+          python tools/check_backend_assets.py --renode-only
+      - name: Prepare the verified client and loopback extension
+        run: python tests/experiments/renode-client/prepare.py --download
+      - name: Build native normal and fragmented clients
+        shell: pwsh
+        run: |
+          python --version
+          cmake --version
+          $prepared = (Resolve-Path build/sn019/generated).Path
+          cmake -S tests/experiments/renode-client -B build/sn019/native -A x64 "-DPREPARED_ROOT=$prepared"
+          if ($LASTEXITCODE -ne 0) { throw 'Configuration failed' }
+          cmake --build build/sn019/native --config Debug
+      - name: Run real Renode and fault/input cases
+        run: python tests/experiments/renode-client/run.py --output build/sn019/results
+      - name: Repeat the complete suite
+        run: python tests/experiments/renode-client/run.py --output build/sn019/repeat
+      - name: Record compact results
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path build/sn019/results/summary.json) { Get-Content build/sn019/results/summary.json }
+          if (Test-Path build/sn019/repeat/summary.json) { Get-Content build/sn019/repeat/summary.json }

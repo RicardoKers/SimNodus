@@ -53,7 +53,7 @@ This checks repository structure and documentation; **it does not simulate circu
 
 The opt-in Windows [E-01 experiment](tests/experiments/ngspice/README.md) runs real RC circuits through ngspice 47 and verifies analytical accuracy, external voltage callbacks, pause/resume, resets, and invalid-netlist recovery. See [measured results and limitations](docs/experiments/E-01-results.md). A separate Windows workflow repeats these checks.
 
-SN-010 also provides a C++ dependency probe and verified Renode headless startup. See [backend setup](docs/development/WINDOWS_BACKENDS.md). Native Renode client integration, firmware execution, and coupled simulation are still pending.
+The [SN-019 Windows control experiment](tests/experiments/renode-client/README.md) also runs the adapted native client against real Renode, with a verified loopback-only server, exact empty-machine time advances, reconnection, and fault tests. See [results and limits](docs/experiments/SN-019-results.md). Firmware execution, GPIO/ADC validation, and coupled simulation are still pending.
 
 ## License and publication
 

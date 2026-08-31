@@ -2,7 +2,7 @@
 
 ## Foundation checks
 
-Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; a separate Windows workflow runs E-01.
+Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01 and SN-019.
 
 Local foundation verification on 2026-08-31:
 
@@ -35,6 +35,16 @@ The [native Windows workflow](../../.github/workflows/ngspice.yml) verifies the 
 The [first hosted E-01 run](https://github.com/RicardoKers/SimNodus/actions/runs/33406697838) passed both suites on Windows Server 2025 / MSVC 19.51.36256.0. [Foundation checks](https://github.com/RicardoKers/SimNodus/actions/runs/33406697777) also passed on Windows and Ubuntu for that revision.
 
 These checks establish only the reported ideal RC/voltage-source profile. Firmware, nonlinear/digital models, coupled causality, forced crash/timeout paths, long-duration leak behavior, and production adapters remain untested.
+
+## SN-019 Windows control checks
+
+The [SN-019 report](../experiments/SN-019-results.md) records two complete 20-case local runs. Each includes real Renode control using normal and one-byte transfers, six connections, 36 exact time advancements, machine lookup/error recovery, and observed loopback endpoint/PID and shutdown checks. Nineteen separate input/fault cases exercise missing peers, closed/slow/incomplete streams, malformed/fatal frames, error ownership, rejected connection cleanup, and invalid ports. The real time results repeated identically; timeout and handle metrics are reported with their actual limits.
+
+The [dedicated workflow](../../.github/workflows/renode-client.yml) repeats the full suite on Windows. Source and package hashes are verified before generated client/extension use; the original all-interface server is not opened. The checker now includes C source text. These results do not validate firmware, peripheral APIs, in-flight cancellation, coupled timing, Linux execution, or leak endurance.
+
+Local repository verification passed for 88 text files, Python syntax and whitespace checks, and the root CMake configure/check target. The existing eight-case ngspice suite also passed after adding the Renode-only dependency-check option.
+
+[Hosted SN-019 verification](https://github.com/RicardoKers/SimNodus/actions/runs/33437509897) passed both complete suites on Windows Server 2025 / MSVC 19.51.36256.0 / Python 3.12.10. The report links the accompanying passing foundation and ngspice regression checks.
 
 ## Engine verification layers
 

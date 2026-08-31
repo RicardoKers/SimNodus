@@ -1,0 +1,886 @@
+{
+  "recorded_on": "2026-08-31",
+  "scope": "SN-019 Windows x64 only: real empty Renode machine and separate fault peers",
+  "runs": [
+    {
+      "status": "passed",
+      "operation_deadline_ms": 1000,
+      "cases": {
+        "real-renode": {
+          "listener": {
+            "address": "127.0.0.1",
+            "ephemeral_port": true,
+            "owner_matches": true
+          },
+          "normal": {
+            "transfer_limit": 2147483647,
+            "cycles": [
+              {
+                "initial_us": 0,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 0,
+                    "after_us": 0
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 0,
+                    "after_us": 1
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 1,
+                    "after_us": 1000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1000,
+                    "after_us": 2000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2000,
+                    "after_us": 3000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 3000,
+                    "after_us": 1003000
+                  }
+                ]
+              },
+              {
+                "initial_us": 1003000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 1003000,
+                    "after_us": 1003000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 1003000,
+                    "after_us": 1003001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 1003001,
+                    "after_us": 1004000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1004000,
+                    "after_us": 1005000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1005000,
+                    "after_us": 1006000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 1006000,
+                    "after_us": 2006000
+                  }
+                ]
+              },
+              {
+                "initial_us": 2006000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 2006000,
+                    "after_us": 2006000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 2006000,
+                    "after_us": 2006001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 2006001,
+                    "after_us": 2007000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2007000,
+                    "after_us": 2008000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2008000,
+                    "after_us": 2009000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 2009000,
+                    "after_us": 3009000
+                  }
+                ]
+              }
+            ]
+          },
+          "fragmented": {
+            "transfer_limit": 1,
+            "cycles": [
+              {
+                "initial_us": 3009000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 3009000,
+                    "after_us": 3009000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 3009000,
+                    "after_us": 3009001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 3009001,
+                    "after_us": 3010000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 3010000,
+                    "after_us": 3011000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 3011000,
+                    "after_us": 3012000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 3012000,
+                    "after_us": 4012000
+                  }
+                ]
+              },
+              {
+                "initial_us": 4012000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 4012000,
+                    "after_us": 4012000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 4012000,
+                    "after_us": 4012001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 4012001,
+                    "after_us": 4013000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 4013000,
+                    "after_us": 4014000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 4014000,
+                    "after_us": 4015000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 4015000,
+                    "after_us": 5015000
+                  }
+                ]
+              },
+              {
+                "initial_us": 5015000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 5015000,
+                    "after_us": 5015000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 5015000,
+                    "after_us": 5015001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 5015001,
+                    "after_us": 5016000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 5016000,
+                    "after_us": 5017000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 5017000,
+                    "after_us": 5018000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 5018000,
+                    "after_us": 6018000
+                  }
+                ]
+              }
+            ]
+          },
+          "process_exit": 0,
+          "listener_removed": true,
+          "status": "passed"
+        },
+        "refused": {
+          "connect_code": 4,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 1.01098,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-close": {
+          "connect_code": 0,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0202429,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-timeout": {
+          "connect_code": 4,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 1.00534,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-invalid": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0159485,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "response-close": {
+          "connect_code": -1,
+          "operation_code": 0,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0018799,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "response-timeout": {
+          "connect_code": -1,
+          "operation_code": 4,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 1.01303,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "slow-response": {
+          "connect_code": -1,
+          "operation_code": 4,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 1.02324,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-code": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0029464,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "wrong-command": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0169813,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "oversized-error": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0033611,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "oversized-event": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0256138,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "fatal-error": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0255493,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-event-run": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0217745,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "short-error": {
+          "connect_code": -1,
+          "operation_code": 5,
+          "reuse_code": -1,
+          "value_us": 123,
+          "wall_seconds": 0.0019922,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "empty-error": {
+          "connect_code": -1,
+          "operation_code": 5,
+          "reuse_code": -1,
+          "value_us": 123,
+          "wall_seconds": 0.002772,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "stress": {
+          "attempts": 21,
+          "handles_before": 63,
+          "handles_after": 64,
+          "status": "passed"
+        },
+        "invalid-port-0": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0001664,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-port-65536": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0001877,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-port-invalid": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.000238,
+          "handle_cleared": true,
+          "status": "passed"
+        }
+      },
+      "sha256": {
+        "probe_fragmented.exe": "609452eeb20951b897323d98430d498aaf61b6e1fe4132e1bc842c888f7bc36d",
+        "probe_normal.exe": "5120823d0fcda86d94a18f747526ad9a284791417742305c017c5966da9c6534",
+        "renode_api.c": "0c4716152bf9f4f4bb15c87ecdf581079027fe3e82fb7e6e7722780514c43f5b",
+        "renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee",
+        "LoopbackControl.cs": "4866987b6e5db5283fd0fe1ae84c867c951568dc3176d43ae0f0f951e9d7014b",
+        "prepare.py": "71aa13dda319a525c57a8ab0a990498350aae73e79b2a6d7b28245cef414eec5",
+        "run.py": "0b97b2f537ad7ded98ffc57d88b20473649dc5524a058e4c4f4824bf5da492e9",
+        "transport.c": "4787169ce7513490f98c0cc0304885e7d322bce937b300822b1f051c81e3fb77",
+        "probe.cpp": "4167c1e5e2bff81d23aa2a28102594a28f092560fb7bf2357ae634a04441f36f",
+        "transport.h": "7017f8b3c07890440efc3221c76a1260e802d6180f2876269f6fbfc55bd82059",
+        "CMakeLists.txt": "e27294e159e2eb49e88e9848fbd5fde561904961cc88bd2db5f7d48a210f0de9",
+        "upstream.json": "f7f4950723bb6b346b13bc14f62d1f2cea8296a816bdf661dc1ff618e451efc5"
+      },
+      "provenance": {
+        "ADC.cs": "c96fef6a28c125df0e5aac442f2ec1bac6ac28659744d051fd14e3c6a5287278",
+        "ExternalControlServer.cs": "d93877ed5d13300fc44de2deff314a4bb30c96c957c75b941121edb2d8d63c5b",
+        "GetMachine.cs": "60ca009399e05bbf16e7a6eb14e25641ac05d3e51318069f5979ea632880ca96",
+        "GetTime.cs": "62d2ab5cbb1e51e08ad821203a18c153f127860ae0c8d9c22058d10ea8c033b6",
+        "GPIOPort.cs": "623848c38f8e2397488b6755ee5f011d464419d5f6c3ebe4d9672c22d85c4b09",
+        "ICommand.cs": "d656c0da8a5990cd29e9116ff2bc482bf25b94425425b86d01b3cd10573361bb",
+        "IInstanceBasedCommand.cs": "ec9d36bb60f76d6bf5bb5c4fb9538621a674a688cec50a9ac310d606c94526db",
+        "Response.cs": "b9ab2cf041c7c3567bfce94bf2b0b36a94d456dc0899688a07a9ab7694a96e64",
+        "RunFor.cs": "8a424cc21d2f2cd5b0870c45eaa54a5526cb3cc3d3989191d0c27396a7f3a658",
+        "SocketServerProvider.cs": "1fc8d2c015d9cdb01abaf630fb77cd26514b3527d1379dc558909b63553e704e",
+        "SocketsManager.cs": "f93a7ae6695b5ab184dc850cefa558444a65045921406c3d7e81a974be37407e",
+        "SystemBus.cs": "44b46235ca4a8ba4096ff46c861a48012bda08d850dd5d236fea67c5674d6457",
+        "LICENSE": "f81b19ff9bc4b30fae51a59452ed227cbf35af683c50e7e5b443fd4eb04881c7",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385",
+        "renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee",
+        "renode_api.c": "7e210d973799f131fcd4fcfd0540d02ceb7919968e1d0d5bc34d8e0d7de36dec",
+        "stm32f103.repl": "6fc49804f4483cc6b9d97120736809cee42b5a005c5ce537559d99e2dd008e41",
+        "generated/LoopbackControl.cs": "4866987b6e5db5283fd0fe1ae84c867c951568dc3176d43ae0f0f951e9d7014b",
+        "generated/renode_api.c": "0c4716152bf9f4f4bb15c87ecdf581079027fe3e82fb7e6e7722780514c43f5b",
+        "generated/renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee"
+      }
+    },
+    {
+      "status": "passed",
+      "operation_deadline_ms": 1000,
+      "cases": {
+        "real-renode": {
+          "listener": {
+            "address": "127.0.0.1",
+            "ephemeral_port": true,
+            "owner_matches": true
+          },
+          "normal": {
+            "transfer_limit": 2147483647,
+            "cycles": [
+              {
+                "initial_us": 0,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 0,
+                    "after_us": 0
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 0,
+                    "after_us": 1
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 1,
+                    "after_us": 1000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1000,
+                    "after_us": 2000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2000,
+                    "after_us": 3000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 3000,
+                    "after_us": 1003000
+                  }
+                ]
+              },
+              {
+                "initial_us": 1003000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 1003000,
+                    "after_us": 1003000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 1003000,
+                    "after_us": 1003001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 1003001,
+                    "after_us": 1004000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1004000,
+                    "after_us": 1005000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 1005000,
+                    "after_us": 1006000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 1006000,
+                    "after_us": 2006000
+                  }
+                ]
+              },
+              {
+                "initial_us": 2006000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 2006000,
+                    "after_us": 2006000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 2006000,
+                    "after_us": 2006001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 2006001,
+                    "after_us": 2007000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2007000,
+                    "after_us": 2008000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 2008000,
+                    "after_us": 2009000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 2009000,
+                    "after_us": 3009000
+                  }
+                ]
+              }
+            ]
+          },
+          "fragmented": {
+            "transfer_limit": 1,
+            "cycles": [
+              {
+                "initial_us": 3009000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 3009000,
+                    "after_us": 3009000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 3009000,
+                    "after_us": 3009001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 3009001,
+                    "after_us": 3010000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 3010000,
+                    "after_us": 3011000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 3011000,
+                    "after_us": 3012000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 3012000,
+                    "after_us": 4012000
+                  }
+                ]
+              },
+              {
+                "initial_us": 4012000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 4012000,
+                    "after_us": 4012000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 4012000,
+                    "after_us": 4012001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 4012001,
+                    "after_us": 4013000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 4013000,
+                    "after_us": 4014000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 4014000,
+                    "after_us": 4015000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 4015000,
+                    "after_us": 5015000
+                  }
+                ]
+              },
+              {
+                "initial_us": 5015000,
+                "steps": [
+                  {
+                    "requested_us": 0,
+                    "before_us": 5015000,
+                    "after_us": 5015000
+                  },
+                  {
+                    "requested_us": 1,
+                    "before_us": 5015000,
+                    "after_us": 5015001
+                  },
+                  {
+                    "requested_us": 999,
+                    "before_us": 5015001,
+                    "after_us": 5016000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 5016000,
+                    "after_us": 5017000
+                  },
+                  {
+                    "requested_us": 1000,
+                    "before_us": 5017000,
+                    "after_us": 5018000
+                  },
+                  {
+                    "requested_us": 1000000,
+                    "before_us": 5018000,
+                    "after_us": 6018000
+                  }
+                ]
+              }
+            ]
+          },
+          "process_exit": 0,
+          "listener_removed": true,
+          "status": "passed"
+        },
+        "refused": {
+          "connect_code": 4,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 1.01398,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-close": {
+          "connect_code": 0,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0022438,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-timeout": {
+          "connect_code": 4,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 1.00985,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "handshake-invalid": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0175328,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "response-close": {
+          "connect_code": -1,
+          "operation_code": 0,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0249294,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "response-timeout": {
+          "connect_code": -1,
+          "operation_code": 4,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 1.01298,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "slow-response": {
+          "connect_code": -1,
+          "operation_code": 4,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 1.02161,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-code": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0188877,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "wrong-command": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0157294,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "oversized-error": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0023538,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "oversized-event": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.001808,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "fatal-error": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0018412,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-event-run": {
+          "connect_code": -1,
+          "operation_code": 1,
+          "reuse_code": 2,
+          "value_us": 0,
+          "wall_seconds": 0.0020552,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "short-error": {
+          "connect_code": -1,
+          "operation_code": 5,
+          "reuse_code": -1,
+          "value_us": 123,
+          "wall_seconds": 0.016446,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "empty-error": {
+          "connect_code": -1,
+          "operation_code": 5,
+          "reuse_code": -1,
+          "value_us": 123,
+          "wall_seconds": 0.0022006,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "stress": {
+          "attempts": 21,
+          "handles_before": 63,
+          "handles_after": 63,
+          "status": "passed"
+        },
+        "invalid-port-0": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.000155,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-port-65536": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0001577,
+          "handle_cleared": true,
+          "status": "passed"
+        },
+        "invalid-port-invalid": {
+          "connect_code": 1,
+          "operation_code": -1,
+          "reuse_code": -1,
+          "value_us": 0,
+          "wall_seconds": 0.0001636,
+          "handle_cleared": true,
+          "status": "passed"
+        }
+      },
+      "sha256": {
+        "probe_fragmented.exe": "609452eeb20951b897323d98430d498aaf61b6e1fe4132e1bc842c888f7bc36d",
+        "probe_normal.exe": "5120823d0fcda86d94a18f747526ad9a284791417742305c017c5966da9c6534",
+        "renode_api.c": "0c4716152bf9f4f4bb15c87ecdf581079027fe3e82fb7e6e7722780514c43f5b",
+        "renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee",
+        "LoopbackControl.cs": "4866987b6e5db5283fd0fe1ae84c867c951568dc3176d43ae0f0f951e9d7014b",
+        "prepare.py": "71aa13dda319a525c57a8ab0a990498350aae73e79b2a6d7b28245cef414eec5",
+        "run.py": "0b97b2f537ad7ded98ffc57d88b20473649dc5524a058e4c4f4824bf5da492e9",
+        "transport.c": "4787169ce7513490f98c0cc0304885e7d322bce937b300822b1f051c81e3fb77",
+        "probe.cpp": "4167c1e5e2bff81d23aa2a28102594a28f092560fb7bf2357ae634a04441f36f",
+        "transport.h": "7017f8b3c07890440efc3221c76a1260e802d6180f2876269f6fbfc55bd82059",
+        "CMakeLists.txt": "e27294e159e2eb49e88e9848fbd5fde561904961cc88bd2db5f7d48a210f0de9",
+        "upstream.json": "f7f4950723bb6b346b13bc14f62d1f2cea8296a816bdf661dc1ff618e451efc5"
+      },
+      "provenance": {
+        "ADC.cs": "c96fef6a28c125df0e5aac442f2ec1bac6ac28659744d051fd14e3c6a5287278",
+        "ExternalControlServer.cs": "d93877ed5d13300fc44de2deff314a4bb30c96c957c75b941121edb2d8d63c5b",
+        "GetMachine.cs": "60ca009399e05bbf16e7a6eb14e25641ac05d3e51318069f5979ea632880ca96",
+        "GetTime.cs": "62d2ab5cbb1e51e08ad821203a18c153f127860ae0c8d9c22058d10ea8c033b6",
+        "GPIOPort.cs": "623848c38f8e2397488b6755ee5f011d464419d5f6c3ebe4d9672c22d85c4b09",
+        "ICommand.cs": "d656c0da8a5990cd29e9116ff2bc482bf25b94425425b86d01b3cd10573361bb",
+        "IInstanceBasedCommand.cs": "ec9d36bb60f76d6bf5bb5c4fb9538621a674a688cec50a9ac310d606c94526db",
+        "Response.cs": "b9ab2cf041c7c3567bfce94bf2b0b36a94d456dc0899688a07a9ab7694a96e64",
+        "RunFor.cs": "8a424cc21d2f2cd5b0870c45eaa54a5526cb3cc3d3989191d0c27396a7f3a658",
+        "SocketServerProvider.cs": "1fc8d2c015d9cdb01abaf630fb77cd26514b3527d1379dc558909b63553e704e",
+        "SocketsManager.cs": "f93a7ae6695b5ab184dc850cefa558444a65045921406c3d7e81a974be37407e",
+        "SystemBus.cs": "44b46235ca4a8ba4096ff46c861a48012bda08d850dd5d236fea67c5674d6457",
+        "LICENSE": "f81b19ff9bc4b30fae51a59452ed227cbf35af683c50e7e5b443fd4eb04881c7",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385",
+        "renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee",
+        "renode_api.c": "7e210d973799f131fcd4fcfd0540d02ceb7919968e1d0d5bc34d8e0d7de36dec",
+        "stm32f103.repl": "6fc49804f4483cc6b9d97120736809cee42b5a005c5ce537559d99e2dd008e41",
+        "generated/LoopbackControl.cs": "4866987b6e5db5283fd0fe1ae84c867c951568dc3176d43ae0f0f951e9d7014b",
+        "generated/renode_api.c": "0c4716152bf9f4f4bb15c87ecdf581079027fe3e82fb7e6e7722780514c43f5b",
+        "generated/renode_api.h": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee"
+      }
+    }
+  ]
+}
