@@ -2,7 +2,7 @@
 
 States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 critical path, P1 near-term, P2 later. Dependencies are task IDs. No simulator implementation work is currently in progress.
 
-`SN-001` is the repository-foundation task. All engine and application tasks below remain unimplemented. Once issues exist, add their URLs without changing these IDs.
+`SN-001` is the repository-foundation task. All engine and application tasks below remain unimplemented. The initial SN-010 through SN-018 issues are linked below. Keep the Markdown status and GitHub issue status consistent; do not maintain independent competing queues.
 
 ## Foundation and technical proof
 
@@ -45,7 +45,21 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 | SN-035 | P2 | planned | Evaluate HDL integration | SN-017 | ADR chooses one integration path; reproducible HDL example |
 | SN-036 | P2 | planned | Ship a Linux application build | SN-027 | Linux integration tests, packaging, documentation, clean-machine run |
 | SN-040 | P1 | done | Resolve GitHub owner/name and publication review | SN-001 | RicardoKers/SimNodus and Ricardo Kerschbaumer confirmed; privacy review completed |
-| SN-041 | P1 | in_progress | Publish initial public source repository | SN-040 | Authorized push; CI observed; issue links and security contact configured |
+| SN-041 | P1 | done | Publish initial public source repository | SN-040 | Public first commit; Windows/Ubuntu CI passed; issue links, branch protection, and private security reporting configured |
+
+## GitHub issue mapping
+
+| Task | Issue |
+|---|---|
+| SN-010 | [#1 — Toolchain and backend revisions](https://github.com/RicardoKers/SimNodus/issues/1) |
+| SN-011 | [#2 — Standalone ngspice](https://github.com/RicardoKers/SimNodus/issues/2) |
+| SN-012 | [#3 — Standalone Renode](https://github.com/RicardoKers/SimNodus/issues/3) |
+| SN-013 | [#4 — Temporal capability profile](https://github.com/RicardoKers/SimNodus/issues/4) |
+| SN-014 | [#5 — GPIO and feedback causality](https://github.com/RicardoKers/SimNodus/issues/5) |
+| SN-015 | [#6 — ADC path](https://github.com/RicardoKers/SimNodus/issues/6) |
+| SN-016 | [#7 — Coordinated debugging](https://github.com/RicardoKers/SimNodus/issues/7) |
+| SN-017 | [#8 — Verified headless kernel](https://github.com/RicardoKers/SimNodus/issues/8) |
+| SN-018 | [#9 — Reproducibility and performance](https://github.com/RicardoKers/SimNodus/issues/9) |
 
 ## Definition of ready
 

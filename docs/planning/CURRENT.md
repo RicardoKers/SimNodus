@@ -4,7 +4,7 @@ Updated: 2026-08-31.
 
 ## Snapshot
 
-- Stage: M0 repository foundation.
+- Stage: M0 foundation published; ready for M1 standalone backend experiments.
 - Simulator implementation: not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
@@ -12,8 +12,10 @@ Updated: 2026-08-31.
 - License: MIT for original project material, selected with the owner's authorization.
 - Intended classroom use: February 2027; January is stabilization/rehearsal time.
 - Author and maintainer: Ricardo Kerschbaumer.
-- Git: initial commit and public remote are being prepared.
-- Publication: authorized at `RicardoKers/SimNodus`; SN-041 is in progress.
+- Git: public [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus), default branch `main`.
+- Publication: first commit `b3163a1` published on 2026-08-31; SN-041 complete.
+- Hosted checks: Windows and Ubuntu foundation jobs passed; simulator behavior is still untested.
+- Collaboration: nine initial issues, four milestones, protected `main`, and private vulnerability reporting enabled.
 
 ## Completed work
 
@@ -24,6 +26,8 @@ The [backlog](BACKLOG.md) owns task status. Local verification results are recor
 ## Next task: SN-010
 
 Inventory the Windows toolchain and select an exact Renode executable/client/platform revision and ngspice shared-library revision. Record provenance, license details, download/build recipe, and checksums in [DEPENDENCIES](../research/DEPENDENCIES.md).
+
+Track this work in [SN-010 / issue #1](https://github.com/RicardoKers/SimNodus/issues/1). Implementation changes now use a branch and pull request; the initial publication does not authorize bypassing branch protection.
 
 Then execute E-01 and E-02 from the [experiment plan](../experiments/README.md). The first useful deliverable is a reproducible standalone engine report, not a GUI.
 

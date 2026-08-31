@@ -21,4 +21,8 @@ Do not describe mocked results as integration tests. Backend work must report ex
 
 Submit only material you have the right to contribute. Original contributions are offered under the project's MIT license unless clearly identified third-party material has been reviewed with its original terms. This is not a copyright assignment.
 
-Be respectful, keep discussion focused on the work, and do not publish personal information. Security-sensitive reports follow [SECURITY](SECURITY.md). Maintainer contact and repository-specific links will be finalized at publication.
+Be respectful, keep discussion focused on the work, and do not publish personal information. Security-sensitive reports follow [SECURITY](SECURITY.md). The maintainer is Ricardo Kerschbaumer ([RicardoKers](https://github.com/RicardoKers)); use [issues](https://github.com/RicardoKers/SimNodus/issues) for ordinary project discussion.
+
+## Protected main branch
+
+Changes enter `main` through pull requests after the Windows and Ubuntu foundation checks pass on an up-to-date branch. No separate reviewer approval is required while the project has one maintainer. Resolve review conversations before merging. Squash merging is enabled; force pushes and deletion of `main` are blocked, including for administrators. Do not bypass or weaken these rules to complete a task.
