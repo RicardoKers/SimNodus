@@ -62,8 +62,9 @@ jobs:
         run: |
           python tests/experiments/renode-client/prepare.py --download
           python tests/experiments/renode-stm32/audit.py --download
-          $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json
-          python tests/experiments/renode-stm32/build_firmware.py --toolchain (Join-Path build/deps/toolchain $compiler.directory 'bin')
+          $compilers = @(Get-ChildItem build/deps/toolchain -Filter arm-none-eabi-gcc.exe -File -Recurse)
+          if ($compilers.Count -ne 1) { throw "Expected one extracted compiler, found $($compilers.Count)" }
+          python tests/experiments/renode-stm32/build_firmware.py --toolchain $compilers[0].Directory.FullName
       - name: Build the native client
         shell: pwsh
         run: |
