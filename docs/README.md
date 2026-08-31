@@ -25,6 +25,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 ## Development and evidence
 
 - [Getting started](development/GETTING_STARTED.md).
+- [Windows backend setup](development/WINDOWS_BACKENDS.md) and [SN-010 results](experiments/SN-010-results.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).

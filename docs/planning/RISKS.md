@@ -12,7 +12,7 @@ Baseline: 2026-08-31. Likelihood and impact are qualitative estimates, not measu
 | R-06 | Native backend crashes/hangs | Medium / high | Process exits, callbacks stall, resources leak | Timeouts, lifecycle tests, simulation-worker isolation for desktop |
 | R-07 | Third-party redistribution restrictions | Medium / high | Vendor model or Qt module lacks suitable terms | Inventory per asset/module; avoid unreviewed bundles |
 | R-08 | February scope exceeds capacity | High / high | M2 slips past October | Freeze a tested teaching subset; defer SDK/HDL/catalog expansion |
-| R-09 | Windows setup friction | Medium / high | Native ABI/runtime or library-path failures | Clean-machine recipe, matched architectures, early Windows tests |
+| R-09 | Windows setup friction | Observed / high | SN-010: native Renode client build failure; ngspice missing audio DLLs and pre-init crash | Tested ngspice setup; SN-019 client adaptation; E-01 lifecycle audit; clean-machine rehearsal still pending |
 | R-10 | Untrusted project/model execution | Medium / high | Path escape, native load, excessive allocation | Validate before simulation; safe defaults; trust boundary tests |
 | R-11 | Lab constraints discovered late | Medium / high | No admin rights, low RAM, no network | Ask early; rehearsal in January; offline-ready materials |
 | R-12 | Name/ownership or private-data issue at publication | Unknown / medium | Collision, personal paths, unclear attribution | Publication review; no raw chat export; confirm copyright contact |

@@ -2,7 +2,7 @@
 
 ## What exists
 
-The repository is a documentation and build foundation. There are no C++ simulation sources, firmware examples, Qt application, or linked backends yet. Do not interpret a successful configure/check as a working simulator.
+The repository is a documentation/build foundation with an optional C++ ngspice dependency probe. There are no simulation-engine sources, firmware examples, or Qt application yet. Do not interpret a successful configure/check or DLL startup as a working simulator.
 
 ## Documentation check
 
@@ -33,12 +33,12 @@ The optional `bootstrap` configure/build presets run the same steps. Build outpu
 
 ## First development task
 
-Execute SN-010, then E-01/E-02. Record the exact Renode client/executable/platform combination and ngspice shared-library build. Audit compiler architecture and native runtime compatibility. Qt is not needed for the initial experiments.
+SN-010 is complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md) to reproduce its artifact and startup checks, then execute SN-011 / E-01. SN-019 must adapt the native Windows Renode client before E-02 external-control acceptance. Qt is not needed for these experiments.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 
 ## Local baseline observed on 2026-08-31
 
-Git 2.53.0.windows.1, Python 3.14.4, CMake 4.2.3-msvc3, and a Visual Studio Build Tools installation were found. Renode, ngspice, and an ARM compiler were not validated. Commands missing from PATH do not establish that software is absent from the computer.
+The [dependency inventory](../research/DEPENDENCIES.md) records the exact host, compiler, SDK, Renode/ngspice packages, and existing CubeIDE ARM tools. Startup checks passed with documented limitations; firmware and circuit behavior remain untested. Commands missing from PATH do not establish that software is absent from the computer.
 
 Machine-specific paths are intentionally not committed.

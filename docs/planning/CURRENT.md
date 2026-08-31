@@ -4,7 +4,7 @@ Updated: 2026-08-31.
 
 ## Snapshot
 
-- Stage: M0 foundation published; ready for M1 standalone backend experiments.
+- Stage: M0 published; SN-010 Windows dependency baseline complete, ready for E-01.
 - Simulator implementation: not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
@@ -21,19 +21,22 @@ Updated: 2026-08-31.
 
 Requirements from the two architecture conversations have been consolidated. Architecture, temporal risks, component/subcircuit design, debugging requirements, ADRs, milestone planning, and experiment specifications have been prepared. Repository conventions, MIT licensing, contribution/security guidance, issue/PR templates, and a local/CI documentation check are included.
 
-The [backlog](BACKLOG.md) owns task status. Local verification results are recorded in [QUALITY](../development/QUALITY.md); no backend experiment has passed.
+SN-010 selected Renode 1.16.1 and ngspice 47, verified archive/file hashes, inventoried the existing C++/ARM tools, and added a real C++ DLL startup probe. Renode headless startup and ngspice load/init/version/quit passed locally. A Windows Renode client build failure and an ngspice pre-init crash were recorded, with a tested ngspice setup workaround.
 
-## Next task: SN-010
+The [backlog](BACKLOG.md) owns task status. See the [SN-010 report](../experiments/SN-010-results.md) and [QUALITY](../development/QUALITY.md). No E-01 through E-06 experiment has passed; no circuit or firmware has run.
 
-Inventory the Windows toolchain and select an exact Renode executable/client/platform revision and ngspice shared-library revision. Record provenance, license details, download/build recipe, and checksums in [DEPENDENCIES](../research/DEPENDENCIES.md).
+## Next task: SN-011 / E-01
 
-Track this work in [SN-010 / issue #1](https://github.com/RicardoKers/SimNodus/issues/1). Implementation changes now use a branch and pull request; the initial publication does not authorize bypassing branch protection.
+Use the [Windows setup](../development/WINDOWS_BACKENDS.md) to run the standalone ngspice RC/lifecycle experiment. Follow [SN-011 / #2](https://github.com/RicardoKers/SimNodus/issues/2) and the [experiment plan](../experiments/README.md), preserving the exact binaries and recorded startup limitation.
 
-Then execute E-01 and E-02 from the [experiment plan](../experiments/README.md). The first useful deliverable is a reproducible standalone engine report, not a GUI.
+[SN-019 / #11](https://github.com/RicardoKers/SimNodus/issues/11) is also ready: adapt and test the pinned Renode external client on native Windows. It is a prerequisite for E-02 external control. No GUI or SDK work is needed yet. Use a branch and pull request; do not bypass main protection.
 
 ## Known uncertainties
 
-- API versions found during research differ; match documentation, headers, and binaries.
+- Renode's pinned client uses microseconds and does not compile unchanged with MSVC.
+- The generic STM32F103 platform is not a validated C8 memory/clock profile and includes an external SVD download; E-02 needs an offline configuration.
+- ngspice startup is verified only with the owned initialization file; the pre-init call crash and full lifecycle still need investigation.
+- Bundled runtimes and transitive licenses require review before distributing binaries.
 - Feedback causality and debugger arbitration are unproven.
 - STM32F103 ADC integration and GPIO mode coverage require auditing.
 - Laboratory Windows versions, hardware limits, and exact first lesson are not yet known.

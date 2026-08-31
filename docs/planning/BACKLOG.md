@@ -2,16 +2,17 @@
 
 States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 critical path, P1 near-term, P2 later. Dependencies are task IDs. No simulator implementation work is currently in progress.
 
-`SN-001` is the repository-foundation task. All engine and application tasks below remain unimplemented. The initial SN-010 through SN-018 issues are linked below. Keep the Markdown status and GitHub issue status consistent; do not maintain independent competing queues.
+`SN-001` is the repository-foundation task. SN-010 completed dependency selection and startup checks; engine and application features remain unimplemented. Keep the Markdown status and GitHub issue status consistent; do not maintain independent competing queues.
 
 ## Foundation and technical proof
 
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
 | SN-001 | P0 | done | Establish architecture, planning, license, scaffolding, checks | — | English files and local structural verification |
-| SN-010 | P0 | ready | Inventory environment and pin backend revisions | SN-001 | Reproduction recipe, origin, license, hashes, toolchain versions |
-| SN-011 | P0 | planned | Run E-01 standalone ngspice | SN-010 | RC reference, external-source timing, pause/reset report |
-| SN-012 | P0 | planned | Run E-02 standalone Renode | SN-010 | Rebuildable ELF, timed GPIO, input injection, peripheral audit |
+| SN-010 | P0 | done | Inventory environment and pin backend revisions | SN-001 | [Version, provenance, hashes, setup and startup report](../experiments/SN-010-results.md); integration limitations explicit |
+| SN-011 | P0 | ready | Run E-01 standalone ngspice | SN-010 | RC reference, external-source timing, pause/reset report; audit recorded pre-init crash |
+| SN-019 | P0 | ready | Adapt the pinned Renode external client for native Windows | SN-010 | Native build, real loopback handshake/time/advance, socket failure/timeout tests |
+| SN-012 | P0 | blocked | Run E-02 standalone Renode | SN-010, SN-019 | Rebuildable ELF, offline C8 profile, timed GPIO, input injection, peripheral audit; external client currently fails MSVC build |
 | SN-013 | P0 | planned | Define supported temporal capability profile | SN-011, SN-012 | Explicit units, callback timing, advancement/stop semantics |
 | SN-014 | P0 | planned | Run E-03 coupled GPIO and digital feedback | SN-013 | Boundary/late-event tests; error measured; no hidden causality violation |
 | SN-015 | P0 | planned | Run E-04 ADC path | SN-012, SN-014 | Conversion unit/timing audit and voltage sweep |
@@ -60,6 +61,7 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 | SN-016 | [#7 — Coordinated debugging](https://github.com/RicardoKers/SimNodus/issues/7) |
 | SN-017 | [#8 — Verified headless kernel](https://github.com/RicardoKers/SimNodus/issues/8) |
 | SN-018 | [#9 — Reproducibility and performance](https://github.com/RicardoKers/SimNodus/issues/9) |
+| SN-019 | [#11 — Native Windows Renode client](https://github.com/RicardoKers/SimNodus/issues/11) |
 
 ## Definition of ready
 

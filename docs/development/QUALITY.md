@@ -14,7 +14,15 @@ Local foundation verification on 2026-08-31:
 
 Hosted verification of the first public commit `b3163a1` passed on both `windows-latest` and `ubuntu-latest`: [run 33399498653](https://github.com/RicardoKers/SimNodus/actions/runs/33399498653). Both jobs checked repository files, configured CMake with a C++ compiler, and ran the check target.
 
-No backend experiment or simulator test has run. Local and hosted results validate the foundation, not application compilation, simulation behavior, or a supported Linux application release.
+No E-01 through E-06 experiment or simulator test has run. Hosted results validate the foundation, not application compilation, simulation behavior, or a supported Linux application release.
+
+## SN-010 local Windows checks
+
+The [SN-010 report](../experiments/SN-010-results.md) records 14 verified archive/file hashes, a real C++20 ngspice DLL load/init/version/quit, rejected missing/invalid dependency setups, ignored local user initialization, and Renode headless startup. The ngspice probe compiled with MSVC warnings treated as errors. ARM GCC and GDB version queries passed; firmware compilation/debugging did not run.
+
+The repository checker passed for 62 text files after this change; CMake foundation configuration/check and Python syntax checks also passed locally. C++/header text and the owned `spinit` are now included in text hygiene checks.
+
+Failures are part of the record: the official Renode C client does not build unchanged with MSVC, and ngspice's documented pre-init call crashed the selected DLL. The startup workaround passed, without proving full lifecycle semantics. The optional probe is not built/run in foundation CI and downloads no dependencies by itself.
 
 ## Engine verification layers
 

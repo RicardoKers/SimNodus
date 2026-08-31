@@ -17,6 +17,6 @@ Target direction: STM32F103C8/Blue Pill. **No feature has been validated in SimN
 | Flash programming/USB/CAN/RTC/watchdogs | Deferred | No SimNodus evidence | Future scoped tasks |
 | GDB/CubeIDE | Required | GDB documented; coordinated circuit state untested | SN-016 |
 
-Source: [upstream platform](https://github.com/renode/renode/blob/master/platforms/cpus/stm32f103.repl), inspected 2026-08-31. It is a generic file, not a complete declaration of the selected board or all supported behaviors.
+Source: [pinned Renode 1.16.1 platform](https://github.com/renode/renode/blob/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/platforms/cpus/stm32f103.repl), inspected and hash-checked in SN-010 on 2026-08-31. It is a generic file, not a complete declaration of the selected board or all supported behaviors. It has oversized flash/SRAM maps, no ADC instance, an external SVD download in initialization, and a fixed RCC tag. E-02 must establish an offline C8 profile before interpreting firmware behavior as target support. No platform was loaded in SN-010.
 
 For each validated feature, add exact revision, owned test firmware, command, expected result, actual result, and limitations. Separate “model present,” “firmware runs,” and “electrical coupling validated.”

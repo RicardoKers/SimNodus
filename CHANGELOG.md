@@ -6,6 +6,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added
 
+- Pinned Windows backend packages, SHA-256 verifier, C++20 ngspice startup probe, reproducible setup guide, and SN-010 execution report.
+- ADR 0006 and SN-019 for the verified native Windows Renode client incompatibility; E-01 is ready, while E-02 external control requires that adaptation.
 - English product requirements, architecture, backend/time contracts, and component/subcircuit design.
 - Architecture decisions and a Windows-first roadmap targeting classroom use in February 2027.
 - Backlog, risk register, open questions, and reproducible experiment specifications.
