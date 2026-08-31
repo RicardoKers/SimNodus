@@ -91,10 +91,12 @@ cmake -S build/deps/renode/renode_1.16.1-dotnet_portable/tools/external_control_
 cmake --build build/sn010-renode-client --config Debug
 ```
 
-CMake 4 needs the policy minimum override for this old upstream project. With it, configuration passes; the MSVC build fails with D8021 for `/Werror`. Fixing flags alone is insufficient: source also includes POSIX sockets/`unistd.h` and GCC-specific constructs. [SN-019 / #11](https://github.com/RicardoKers/SimNodus/issues/11) owns the bounded Windows adaptation and real loopback/time test. No alternative protocol is assumed here.
+CMake 4 needs the policy minimum override for this old upstream project. With it, the unchanged client configures but fails with D8021 for `/Werror`. Source also includes POSIX sockets/`unistd.h` and GCC-specific constructs. [SN-019](../experiments/SN-019-results.md) now provides a tested native adaptation while preserving the protocol. Follow its [reproduction recipe](../../tests/experiments/renode-client/README.md), not this expected-failure command, for the working experiment.
+
+The original external-control server binds all IPv4 interfaces. Do not start it as a shortcut: use SN-019's explicitly generated loopback extension and endpoint/PID check. It also supplies isolated configuration and temporary directories for the selected runtime.
 
 ## Firmware tools and next experiments
 
 Use the `arm-none-eabi-gcc.exe` and `arm-none-eabi-gdb.exe` bundled in the selected CubeIDE installation, under its GNU-tools plugin's `tools/bin` directory. Run each with `--version` and compare with the inventory. Keep the installation path in local configuration, not committed files. Do not download an additional ARM toolchain just because these executables are absent from PATH.
 
-E-01 has passed its bounded RC/lifecycle profile; see [results](../experiments/E-01-results.md) and [reproduction commands](../../tests/experiments/ngspice/README.md). E-02 may prepare owned firmware and an offline C8 platform, but its external-control acceptance requires SN-019. Qt is unnecessary for both experiments. No upstream SVD/model URL should be downloaded automatically when opening a user project.
+E-01 has passed its bounded RC/lifecycle profile; see [results](../experiments/E-01-results.md) and [reproduction commands](../../tests/experiments/ngspice/README.md). SN-019 has passed the Windows control/time prerequisite; E-02 is now ready for owned firmware and an offline C8 platform. Qt is unnecessary. No upstream SVD/model URL should be downloaded automatically when opening a user project.

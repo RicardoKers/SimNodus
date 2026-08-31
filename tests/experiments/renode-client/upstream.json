@@ -1,0 +1,71 @@
+{
+  "renode_revision": "d66b0c2aa3d420408eccecfd1d3bab0fd702a6db",
+  "infrastructure_revision": "add012af003a0f620d3da52828262676f374d121",
+  "files": [
+    {
+      "file": "ADC.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/ADC.cs",
+      "sha256": "c96fef6a28c125df0e5aac442f2ec1bac6ac28659744d051fd14e3c6a5287278"
+    },
+    {
+      "file": "ExternalControlServer.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/ExternalControlServer.cs",
+      "sha256": "d93877ed5d13300fc44de2deff314a4bb30c96c957c75b941121edb2d8d63c5b"
+    },
+    {
+      "file": "GetMachine.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/GetMachine.cs",
+      "sha256": "60ca009399e05bbf16e7a6eb14e25641ac05d3e51318069f5979ea632880ca96"
+    },
+    {
+      "file": "GetTime.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/GetTime.cs",
+      "sha256": "62d2ab5cbb1e51e08ad821203a18c153f127860ae0c8d9c22058d10ea8c033b6"
+    },
+    {
+      "file": "GPIOPort.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/GPIOPort.cs",
+      "sha256": "623848c38f8e2397488b6755ee5f011d464419d5f6c3ebe4d9672c22d85c4b09"
+    },
+    {
+      "file": "ICommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/ICommand.cs",
+      "sha256": "d656c0da8a5990cd29e9116ff2bc482bf25b94425425b86d01b3cd10573361bb"
+    },
+    {
+      "file": "IInstanceBasedCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/IInstanceBasedCommand.cs",
+      "sha256": "ec9d36bb60f76d6bf5bb5c4fb9538621a674a688cec50a9ac310d606c94526db"
+    },
+    {
+      "file": "Response.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/Response.cs",
+      "sha256": "b9ab2cf041c7c3567bfce94bf2b0b36a94d456dc0899688a07a9ab7694a96e64"
+    },
+    {
+      "file": "RunFor.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/RunFor.cs",
+      "sha256": "8a424cc21d2f2cd5b0870c45eaa54a5526cb3cc3d3989191d0c27396a7f3a658"
+    },
+    {
+      "file": "SocketServerProvider.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Utilities/SocketServerProvider.cs",
+      "sha256": "1fc8d2c015d9cdb01abaf630fb77cd26514b3527d1379dc558909b63553e704e"
+    },
+    {
+      "file": "SocketsManager.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Sockets/SocketsManager.cs",
+      "sha256": "f93a7ae6695b5ab184dc850cefa558444a65045921406c3d7e81a974be37407e"
+    },
+    {
+      "file": "SystemBus.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/src/Renode/Network/ExternalControl/SystemBus.cs",
+      "sha256": "44b46235ca4a8ba4096ff46c861a48012bda08d850dd5d236fea67c5674d6457"
+    },
+    {
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/renode/renode/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/LICENSE",
+      "sha256": "f81b19ff9bc4b30fae51a59452ed227cbf35af683c50e7e5b443fd4eb04881c7"
+    }
+  ]
+}

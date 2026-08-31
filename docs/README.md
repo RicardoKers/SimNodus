@@ -27,6 +27,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [Getting started](development/GETTING_STARTED.md).
 - [Windows backend setup](development/WINDOWS_BACKENDS.md) and [SN-010 results](experiments/SN-010-results.md).
 - [E-01 ngspice results](experiments/E-01-results.md) and [executable experiment](../tests/experiments/ngspice/README.md).
+- [SN-019 Windows Renode control results](experiments/SN-019-results.md) and [reproduction](../tests/experiments/renode-client/README.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).

@@ -18,7 +18,7 @@ Exercise loading, external-source callbacks, time points, discontinuities, pause
 
 **Question:** Can a matching executable/client/platform run the target firmware and expose usable I/O?
 
-Prerequisite: SN-019 must resolve the pinned external client's native Windows build failure. Use an offline C8 platform; the generic upstream STM32F103 file has oversized memory regions and an external SVD reference. Neither may be mistaken for a validated board configuration.
+Prerequisite complete: [SN-019](SN-019-results.md) provides native Windows client/time evidence and a verified loopback-only server variant. Use that explicit control recipe and an offline C8 platform; the generic upstream STM32F103 file has oversized memory regions and an external SVD reference. Neither transport success nor a generic platform establishes a validated board configuration.
 
 Build a minimal owned-source ELF for the selected STM32F103C8 profile. Record startup, memory map, clocks, toolchain, and linker configuration. Toggle a documented external GPIO; inject input and observe a firmware read/interrupt. Probe mode changes, pulls, alternate functions, and GPIO timestamps.
 

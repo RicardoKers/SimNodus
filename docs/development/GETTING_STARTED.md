@@ -2,7 +2,7 @@
 
 ## What exists
 
-The repository contains the documentation/build foundation, a C++ ngspice dependency probe, and a working standalone RC/lifecycle experiment. There is no production simulation kernel, coupled firmware example, or Qt application yet. A successful foundation check or bounded backend experiment does not establish a complete simulator.
+The repository contains the documentation/build foundation, a C++ ngspice dependency probe, a working RC/lifecycle experiment, and a native Windows Renode control/time experiment. There is no production simulation kernel, coupled firmware example, or Qt application yet. A successful foundation check or bounded backend experiment does not establish a complete simulator.
 
 ## Documentation check
 
@@ -33,7 +33,7 @@ The optional `bootstrap` configure/build presets run the same steps. Build outpu
 
 ## First development task
 
-SN-010 and SN-011 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md) and [E-01 commands](../../tests/experiments/ngspice/README.md) to reproduce their checks. Next, SN-019 must adapt the native Windows Renode client before E-02 external-control acceptance. Qt is not needed for these experiments.
+SN-010, SN-011, and SN-019 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), and [SN-019 commands](../../tests/experiments/renode-client/README.md) to reproduce their checks. Next is SN-012 / E-02: owned firmware, an offline C8 platform, and GPIO/input evidence. Use the loopback-only server variant; Qt is not needed.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 
