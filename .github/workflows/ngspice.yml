@@ -31,7 +31,7 @@ jobs:
   ngspice:
     name: E-01 (Windows x64)
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Check out sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -46,7 +46,9 @@ jobs:
           foreach ($asset in $manifest.archives) {
             if (-not $asset.path.StartsWith('downloads/ngspice-')) { continue }
             $destination = Join-Path build/deps $asset.path
-            curl.exe --fail --location --silent --show-error --max-time 180 $asset.url --output $destination
+            # SourceForge may throttle one transfer. Resume the exact same
+            # checksum-pinned file instead of restarting from zero.
+            curl.exe --fail --location --silent --show-error --continue-at - --retry 2 --retry-delay 2 --retry-all-errors --max-time 180 $asset.url --output $destination
             if ($LASTEXITCODE -ne 0) { throw "Download failed: $($asset.path)" }
           }
           python tools/check_backend_assets.py --ngspice-only --archives-only
