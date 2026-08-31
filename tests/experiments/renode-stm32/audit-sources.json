@@ -1,0 +1,76 @@
+{
+  "purpose": "Read-only model/control audit; sources are not vendored or compiled by E-02",
+  "revision": "add012af003a0f620d3da52828262676f374d121",
+  "files": [
+    {
+      "file": "BaseGPIOPort.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Peripherals/GPIOPort/BaseGPIOPort.cs",
+      "sha256": "344fe291d642aa90d0119cb4192884ac3ef018fbdc353d1768edf74831851d3c"
+    },
+    {
+      "file": "ContinueCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/ContinueCommand.cs",
+      "sha256": "6291cd33e3fe2c25dcfa0a80de2ed132be91c35f89e130d6e1c3f3d406b6a158"
+    },
+    {
+      "file": "CortexM.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Cores/Arm-M/CortexM.cs",
+      "sha256": "e8c21b1db8c779651947cb31c9df9818c1dcbe921fba1a15c471819c8399a5d9"
+    },
+    {
+      "file": "DetachCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/DetachCommand.cs",
+      "sha256": "7387f9260845d9faeb302fb6de6a89c4e7966a0708d1da5ffd5ed0534467af9e"
+    },
+    {
+      "file": "GdbStub.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Utilities/GDB/GdbStub.cs",
+      "sha256": "20dd6b3e8f17bcd0616fe178a721d268266df597a8d88218ce937848fdeb3ec4"
+    },
+    {
+      "file": "GPIO.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Core/GPIO.cs",
+      "sha256": "1bc8c43067336768b064033e0852e7e17347ccde7d44bb37be3df360d072b14f"
+    },
+    {
+      "file": "Machine.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Core/Machine.cs",
+      "sha256": "1d0e31d922e2bf831a2b9d6813228edc605c2ba72ddb1fba50fce07defebe520"
+    },
+    {
+      "file": "NVIC.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Cores/Arm-M/NVIC.cs",
+      "sha256": "fa08ed77f8344f4c677fea34b1b675be60e298237cded518b9a33e9a27f9b15e"
+    },
+    {
+      "file": "SingleStepCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/SingleStepCommand.cs",
+      "sha256": "18f0819d2dec8418013755ce5a37922523cad52c4ea4bc01ff64bec155219164"
+    },
+    {
+      "file": "STM32_ADC.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/Analog/STM32_ADC.cs",
+      "sha256": "0282f59846413c292b3eb8d7985cca23331c0c8421081c3813ab2de7ae9592ec"
+    },
+    {
+      "file": "STM32_EXTICore.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/IRQControllers/STM32_EXTICore.cs",
+      "sha256": "64fad8321f28f039fcefaa77e7f4ef033bd34e1637d0fb8cc23c172e0a905fa8"
+    },
+    {
+      "file": "STM32F1AFIO.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/GPIOPort/STM32F1AFIO.cs",
+      "sha256": "73f69a23f5e7659f333a3d871fa606931c7745fa4dc217d3e828413cb97afe67"
+    },
+    {
+      "file": "STM32F1GPIOPort.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/GPIOPort/STM32F1GPIOPort.cs",
+      "sha256": "a54d449964e721796b9545b4a9403f9fd6659bbc1144cf50fcbde6b7cd797a2b"
+    },
+    {
+      "file": "STM32F4_EXTI.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/IRQControllers/STM32F4_EXTI.cs",
+      "sha256": "f973f50fe1f2f280d0104e204835e54b549bf9e8109304862bef8c19a0dd83be"
+    }
+  ]
+}

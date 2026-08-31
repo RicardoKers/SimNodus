@@ -2,7 +2,7 @@
 
 ## Foundation checks
 
-Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01 and SN-019.
+Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01, SN-019, and E-02.
 
 Local foundation verification on 2026-08-31:
 
@@ -45,6 +45,14 @@ The [dedicated workflow](../../.github/workflows/renode-client.yml) repeats the 
 Local repository verification passed for 88 text files, Python syntax and whitespace checks, and the root CMake configure/check target. The existing eight-case ngspice suite also passed after adding the Renode-only dependency-check option.
 
 [Hosted SN-019 verification](https://github.com/RicardoKers/SimNodus/actions/runs/33437509897) passed both complete suites on Windows Server 2025 / MSVC 19.51.36256.0 / Python 3.12.10. The report links the accompanying passing foundation and ngspice regression checks.
+
+## SN-012 / E-02 firmware and I/O checks
+
+The [E-02 report](../experiments/E-02-results.md) records two fresh runs, each with a 100 us and 1000 us profile. The owned ELF built twice identically. The checks cover vector/flash alias, initialized data/BSS startup, exact RunFor endpoints, periodic output, persistent input, both-edge EXTI, a 20 us pulse, same-time input collapse, GPIO modes, missing ADC, loopback ownership, and normal cleanup.
+
+The [dedicated workflow](../../.github/workflows/renode-stm32.yml) verifies the pinned Renode and compiler archives, prepares source-verified control/audit files, rebuilds the firmware and native probe, and repeats both profiles twice. It does not distribute generated artifacts. [Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33441607168) passed all four profile runs with the same ELF hash as the local build; foundation, SN-019, and E-01 regressions also passed for that revision.
+
+Local repository verification passed for 104 text files, Python syntax, JSON parsing, and whitespace checks after E-02. The root CMake check and full SN-019/ngspice regression are repeated before publication.
 
 ## Engine verification layers
 

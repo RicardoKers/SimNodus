@@ -19,7 +19,7 @@ EXCLUDED = {
     "build", "out", "dist", ".venv", "venv", "__pycache__",
     ".cache", ".pytest_cache", "node_modules",
 }
-TEXT_SUFFIXES = {".md", ".json", ".yml", ".yaml", ".py", ".cmake", ".txt", ".cpp", ".c", ".h", ".hpp", ".cir"}
+TEXT_SUFFIXES = {".md", ".json", ".yml", ".yaml", ".py", ".cmake", ".txt", ".cpp", ".c", ".h", ".hpp", ".cir", ".ld", ".repl"}
 TEXT_NAMES = {"LICENSE", ".gitignore", ".gitattributes", ".editorconfig", "spinit"}
 REQUIRED = {
     "README.md", "AGENTS.md", "LICENSE", "CONTRIBUTING.md", "SECURITY.md",

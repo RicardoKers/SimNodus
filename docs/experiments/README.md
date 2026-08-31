@@ -1,6 +1,6 @@
 # Experiment plan
 
-[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile. **E-02 through E-06 have not run.** [SN-010](SN-010-results.md) records the earlier dependency/startup checks. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
+[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, and [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI. **E-03 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.
 
@@ -24,7 +24,7 @@ Build a minimal owned-source ELF for the selected STM32F103C8 profile. Record st
 
 Compare requested and actual advancement, callback timing, and time units. Inspect ADC availability and the exact GDB control behavior without claiming coupled operation.
 
-**Pass:** Rebuildable boot/GPIO/input demonstration and completed initial coverage audit. Missing capabilities are explicit findings, not automatically a whole-experiment failure.
+**Result:** Passed for the [bounded offline profile](E-02-results.md): reproducible boot, timed GPIO, persistent and 20 us EXTI input, callback boundaries, and initial mode/peripheral audit. Electrical modes, clock propagation, ADC, and GDB are explicitly outside the achieved profile.
 
 ## E-03: GPIO and feedback causality — SN-014
 

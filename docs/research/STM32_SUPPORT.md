@@ -1,22 +1,22 @@
 # STM32F103 support matrix
 
-Target direction: STM32F103C8/Blue Pill. **No feature has been validated in SimNodus.** The exact part, board wiring, memory map, clocks, and platform revision must be fixed in E-02.
+Target direction: STM32F103C8/Blue Pill. E-02 validates only the bounded offline firmware/digital-I/O profile below. It does not validate complete hardware or board fidelity.
 
 | Feature | Initial need | Current evidence | Validation task |
 |---|---|---|---|
-| Cortex-M3, boot, memory | Required | Upstream platform exists; exact C8 mapping unverified | SN-012 |
-| GPIO output/input | Required | Upstream GPIO model declared; electrical mode coverage unverified | SN-012, SN-014 |
-| GPIO mode/pulls/open-drain | Required subset | Callback-level logic is insufficient evidence | SN-012, SN-013 |
-| EXTI/NVIC | Required for input lesson | Generic platform wiring visible; behavior untested | SN-014 |
-| SysTick/delay/clock setup | Required subset | Firmware startup and clock assumptions untested | SN-012 |
+| Cortex-M3, boot, memory | Required | Owned ELF booted twice in 64 KiB flash/20 KiB SRAM; startup data/BSS verified | SN-012 passed; broaden in SN-032 |
+| GPIO output/input | Required | PA0 output and injected PA1 sampled onto PA2 in two fine/coarse runs | SN-012 passed bounded digital profile; couple in SN-014 |
+| GPIO mode/pulls/open-drain | Required subset | Mode bits/guards audited; pulls, analog isolation and open-drain electrical release not modeled | SN-013, SN-014 |
+| EXTI/NVIC | Required for input lesson | PA1 rising/falling and 20 us pulse handled; same-time edges collapsed to one pending interrupt | SN-012 passed bounded path; causal profile SN-013/014 |
+| SysTick/delay/clock setup | Required subset | Fixed 8 MHz SysTick generated 998-1000 us callback gaps; RCC only stores registers | SN-012 passed fixed profile; real clock tree SN-032 |
 | Timers/PWM/alternate functions | Useful after GPIO | Models/routing visible; timing/fidelity untested | SN-012, SN-032 |
-| ADC acquisition/conversion | Required for ADC lesson | No ADC instance visible in inspected generic file; exact setup pending | SN-015 |
+| ADC acquisition/conversion | Required for ADC lesson | No IADC instance in tested profile; external lookup failed as expected | SN-015 |
 | UART | Required for reports/lesson | Model declared; target firmware path untested | SN-012, SN-026 |
 | SPI/I2C | Later coverage | Upstream declarations are not integration proof | SN-032 |
 | DMA | Later coverage | Some upstream wiring exists; exact behavior untested | SN-032 |
 | Flash programming/USB/CAN/RTC/watchdogs | Deferred | No SimNodus evidence | Future scoped tasks |
 | GDB/CubeIDE | Required | GDB documented; coordinated circuit state untested | SN-016 |
 
-Source: [pinned Renode 1.16.1 platform](https://github.com/renode/renode/blob/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/platforms/cpus/stm32f103.repl), inspected and hash-checked in SN-010 on 2026-08-31. It is a generic file, not a complete declaration of the selected board or all supported behaviors. It has oversized flash/SRAM maps, no ADC instance, an external SVD download in initialization, and a fixed RCC tag. E-02 must establish an offline C8 profile before interpreting firmware behavior as target support. No platform was loaded in SN-010.
+Sources: the [pinned generic platform](https://github.com/renode/renode/blob/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/platforms/cpus/stm32f103.repl) remains unsuitable as a C8 declaration; [E-02](../experiments/E-02-results.md) uses a smaller offline subset and audits the matching pinned model sources. The subset is intentionally incomplete and does not replace a product platform.
 
 For each validated feature, add exact revision, owned test firmware, command, expected result, actual result, and limitations. Separate “model present,” “firmware runs,” and “electrical coupling validated.”

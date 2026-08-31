@@ -29,7 +29,9 @@ Graph-to-netlist conversion, stable node names, ground reference, external sourc
 
 Pin the executable, client, and platform revisions. Observe execution, pins, and debugging without adopting register polling as the final integration strategy. A logical GPIO callback does not necessarily expose drive mode, pulls, or alternate-function routing.
 
-[SN-019](../experiments/SN-019-results.md) validates native Windows handshake/time control on an empty machine, reconnects, fragmented transfers, and bounded failure handling. Use its verified loopback server variant; the original server binds every IPv4 interface. A client deadline or disconnect does not establish cancellation of an accepted RunFor. Peripheral operations and joint pause semantics remain unvalidated.
+[SN-019](../experiments/SN-019-results.md) validates native Windows handshake/time control on an empty machine, reconnects, fragmented transfers, and bounded failure handling. Use its verified loopback server variant; the original server binds every IPv4 interface. A client deadline or disconnect does not establish cancellation of an accepted RunFor.
+
+[E-02](../experiments/E-02-results.md) verifies GPIO callbacks during native `RunFor`: timestamps fall inside the active request, persistent and 20 us input transitions reach firmware, and same-time transitions can collapse into one pending EXTI interrupt. This does not establish an instruction-level stop, lookahead, cancellation, or feedback-causality guarantee. Callback unregistration, concurrent sessions, and production ownership remain unresolved.
 
 CPU execution is separate from electrical pin modeling. The integration profile owns the board/pin assumptions. Track firmware tests by feature in the [coverage matrix](../research/STM32_SUPPORT.md).
 

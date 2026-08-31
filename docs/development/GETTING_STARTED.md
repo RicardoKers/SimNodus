@@ -33,7 +33,7 @@ The optional `bootstrap` configure/build presets run the same steps. Build outpu
 
 ## First development task
 
-SN-010, SN-011, and SN-019 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), and [SN-019 commands](../../tests/experiments/renode-client/README.md) to reproduce their checks. Next is SN-012 / E-02: owned firmware, an offline C8 platform, and GPIO/input evidence. Use the loopback-only server variant; Qt is not needed.
+SN-010, SN-011, SN-019, and SN-012 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), [SN-019 control](../../tests/experiments/renode-client/README.md), and [E-02 firmware/I/O](../../tests/experiments/renode-stm32/README.md) to reproduce them. Next is SN-013: define the temporal capability profile before coupling the engines. Qt is not needed.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 

@@ -4,4 +4,4 @@ The [E-01 standalone ngspice suite](experiments/ngspice/README.md) runs eight re
 
 Create domain/kernel invariant tests as implementation appears, real-backend contract tests during experiments, and integrated firmware/circuit/debugging tests before the GUI is declared usable. Follow [QUALITY](../docs/development/QUALITY.md); do not count mocks as real integration evidence.
 
-[SN-019](experiments/renode-client/README.md) separately checks native Windows control against real Renode and uses scripted local peers for fault injection. Its empty-machine timing evidence does not validate firmware, GPIO/ADC, or coupled execution.
+[SN-019](experiments/renode-client/README.md) separately checks native Windows control against real Renode and uses scripted local peers for fault injection. [E-02](experiments/renode-stm32/README.md) builds owned firmware and checks bounded GPIO/input/EXTI behavior through that real client. Neither validates ADC or coupled execution.

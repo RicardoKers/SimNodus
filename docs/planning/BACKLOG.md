@@ -12,8 +12,8 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 | SN-010 | P0 | done | Inventory environment and pin backend revisions | SN-001 | [Version, provenance, hashes, setup and startup report](../experiments/SN-010-results.md); integration limitations explicit |
 | SN-011 | P0 | done | Run E-01 standalone ngspice | SN-010 | [Eight real cases, three local runs, numeric/lifecycle evidence](../experiments/E-01-results.md); pre-init crash remains an unsupported route |
 | SN-019 | P0 | done | Adapt the pinned Renode external client for native Windows | SN-010 | [Native build, verified loopback server, real time/reconnect and fault evidence](../experiments/SN-019-results.md); two complete 20-case local runs |
-| SN-012 | P0 | ready | Run E-02 standalone Renode | SN-010, SN-019 | Rebuildable ELF, offline C8 profile, timed GPIO, input injection, peripheral audit; reuse the verified loopback control profile |
-| SN-013 | P0 | planned | Define supported temporal capability profile | SN-011, SN-012 | Explicit units, callback timing, advancement/stop semantics |
+| SN-012 | P0 | done | Run E-02 standalone Renode | SN-010, SN-019 | [Rebuildable ELF, offline C8 profile, real timed GPIO/input/EXTI evidence and coverage audit](../experiments/E-02-results.md) in two local runs |
+| SN-013 | P0 | ready | Define supported temporal capability profile | SN-011, SN-012 | Explicit units, callback timing, advancement/stop semantics |
 | SN-014 | P0 | planned | Run E-03 coupled GPIO and digital feedback | SN-013 | Boundary/late-event tests; error measured; no hidden causality violation |
 | SN-015 | P0 | planned | Run E-04 ADC path | SN-012, SN-014 | Conversion unit/timing audit and voltage sweep |
 | SN-016 | P0 | planned | Run E-05 GDB and CubeIDE coordination | SN-014 | Breakpoint, step, continue, reset, disconnect, timeout evidence |
