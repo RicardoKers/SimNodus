@@ -1,0 +1,10 @@
+{
+  "purpose": "Portable compiler for the isolated Windows CI experiment; not an application dependency or a redistributed asset",
+  "version": "Arm GNU Toolchain 14.3.Rel1, Windows x86_64, arm-none-eabi",
+  "archive": "arm-gnu-toolchain-14.3.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+  "directory": "arm-gnu-toolchain-14.3.rel1-mingw-w64-x86_64-arm-none-eabi",
+  "url": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-mingw-w64-x86_64-arm-none-eabi.zip",
+  "sha256": "864c0c8815857d68a1bbba2e5e2782255bb922845c71c97636004a3d74f60986",
+  "checksum_source": "https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-mingw-w64-x86_64-arm-none-eabi.zip.sha256asc",
+  "license_scope": "Development tools only. Preserve the package licenses. Firmware is freestanding and links no compiler runtime or C library. Do not infer permission to redistribute the toolchain."
+}

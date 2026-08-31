@@ -18,6 +18,8 @@ Baseline: 2026-08-31. Likelihood and impact are qualitative estimates, not measu
 | R-12 | Name/ownership or private-data issue at publication | Unknown / medium | Collision, personal paths, unclear attribution | Publication review; no raw chat export; confirm copyright contact |
 | R-13 | Documentation drifts from implementation | Medium / medium | Roadmap says done without report | CURRENT/backlog discipline; ADRs and automated link checks |
 | R-14 | Control server exposed to the network | Observed / high | Pinned Renode provider binds every IPv4 interface | SN-019 explicit loopback variant; verify actual address/port/PID; never assume a localhost client restricts its server |
+| R-15 | Boolean GPIO behavior mistaken for electrical pin fidelity | Observed / high | Pulls, analog mode and open-drain release differ from hardware | Publish E-02 mode findings; model electrical behavior at an explicit coupling boundary |
+| R-16 | Input edges delivered too late or collapsed | Observed / high | Same-time input edges produced one pending EXTI interrupt in E-02 | Define SN-013 capability; test boundaries/short pulses in E-03; never silently retimestamp |
 
 ## Escalation rules
 

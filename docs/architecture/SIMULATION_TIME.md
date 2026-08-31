@@ -1,6 +1,6 @@
 # Virtual time and causality
 
-Status: design invariants, informed by [standalone E-01 evidence](../experiments/E-01-results.md). Joint timing and feedback remain hypotheses for E-02 through E-05. No scheduler is implemented.
+Status: design invariants, informed by standalone [E-01](../experiments/E-01-results.md) and [E-02](../experiments/E-02-results.md) evidence. Joint timing and feedback remain hypotheses for E-03 through E-05. No scheduler is implemented.
 
 ## Representation
 

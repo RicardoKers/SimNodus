@@ -1,0 +1,84 @@
+name: STM32 firmware and I/O experiment
+
+on:
+  pull_request:
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/renode-client/**'
+      - 'tests/experiments/renode-stm32/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/renode-stm32.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/renode-client/**'
+      - 'tests/experiments/renode-stm32/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/renode-stm32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renode-stm32-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    name: SN-012 (Windows x64)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download and verify the pinned development tools
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/deps/downloads,build/deps/toolchain | Out-Null
+          $backend = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
+          $renode = $backend.archives | Where-Object { $_.path.StartsWith('downloads/renode-') }
+          $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json
+          curl.exe --fail --location --silent --show-error --max-time 180 $renode.url --output (Join-Path build/deps $renode.path)
+          if ($LASTEXITCODE -ne 0) { throw 'Renode download failed' }
+          $compilerArchive = Join-Path build/deps/downloads $compiler.archive
+          curl.exe --fail --location --silent --show-error --max-time 300 $compiler.url --output $compilerArchive
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler download failed' }
+          if ((Get-FileHash -Algorithm SHA256 $compilerArchive).Hash.ToLowerInvariant() -ne $compiler.sha256) { throw 'Compiler archive verification failed' }
+          python tools/check_backend_assets.py --renode-only --archives-only
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+          & $sevenZip x (Join-Path build/deps $renode.path) '-obuild/deps/renode' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Renode extraction failed' }
+          & $sevenZip x $compilerArchive '-obuild/deps/toolchain' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler extraction failed' }
+          python tools/check_backend_assets.py --renode-only
+      - name: Verify sources and build the owned firmware
+        shell: pwsh
+        run: |
+          python tests/experiments/renode-client/prepare.py --download
+          python tests/experiments/renode-stm32/audit.py --download
+          $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json
+          python tests/experiments/renode-stm32/build_firmware.py --toolchain (Join-Path build/deps/toolchain $compiler.directory 'bin')
+      - name: Build the native client
+        shell: pwsh
+        run: |
+          $prepared = (Resolve-Path build/sn019/generated).Path
+          $firmware = (Resolve-Path build/sn012/firmware).Path
+          cmake -S tests/experiments/renode-stm32 -B build/sn012/native -A x64 "-DPREPARED_ROOT=$prepared" "-DFIRMWARE_ROOT=$firmware"
+          if ($LASTEXITCODE -ne 0) { throw 'Configuration failed' }
+          cmake --build build/sn012/native --config Debug
+      - name: Run fine and coarse profiles twice
+        run: |
+          python tests/experiments/renode-stm32/run.py --output build/sn012/results
+          python tests/experiments/renode-stm32/run.py --output build/sn012/repeat
+      - name: Record compact results
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path build/sn012/results/summary.json) { Get-Content build/sn012/results/summary.json }
+          if (Test-Path build/sn012/repeat/summary.json) { Get-Content build/sn012/repeat/summary.json }

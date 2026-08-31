@@ -1,6 +1,6 @@
 # Dependency inventory
 
-Updated: 2026-08-31, through SN-019. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), and [Windows control report](../experiments/SN-019-results.md).
+Updated: 2026-08-31, through SN-012. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), and [firmware/I/O report](../experiments/E-02-results.md).
 
 ## Selected and observed versions
 
@@ -15,13 +15,13 @@ Updated: 2026-08-31, through SN-019. This is a **Windows x64 experiment baseline
 | 7-Zip | 26.02, x64 | Extracted the official ZIP and 7z packages |
 | Renode | 1.16.1.19220, Release, build `d66b0c2a-202602161036` | Official Windows portable .NET package; version and headless start/quit passed |
 | Renode runtime | Bundled .NET 8.0.10 | Self-contained package uses this runtime, not the host's installed 8.0.22; security/update review needed before distribution |
-| Renode client/platform | Commit `d66b0c2aa3d420408eccecfd1d3bab0fd702a6db` | SN-019 adapted client passed native Windows control/time tests; C8 platform and peripherals still unvalidated |
-| Renode infrastructure | Submodule `add012af003a0f620d3da52828262676f374d121` | Socket provider audited and used in SN-019's generated loopback variant |
+| Renode client/platform | Commit `d66b0c2aa3d420408eccecfd1d3bab0fd702a6db` | SN-019 control passed; E-02 passed an incomplete offline C8 firmware/GPIO profile |
+| Renode infrastructure | Submodule `add012af003a0f620d3da52828262676f374d121` | Socket provider and E-02 GPIO/EXTI/NVIC/ADC/GDB paths audited |
 | ngspice | 47, official Windows VS x64 shared library, created Aug 11 2026 14:25:06 | Startup and [E-01 RC/lifecycle profile](../experiments/E-01-results.md) passed; coupled simulation untested |
 | ngspice audio dependencies | libsndfile 1.2.2; libsamplerate 0.2.2 | Version functions queried; obtain DLLs from the matching official console package |
 | OpenMP runtime | `libomp140.x86_64.dll`, pinned by file hash | Included in the ngspice DLL package; semantic runtime version not independently established |
 | STM32CubeIDE | Installed package 2.1.1 | Installation discovered; GUI/debugger session not tested |
-| ARM GCC | GNU Tools for STM32 14.3.rel1.20251027-0700; GCC 14.3.1 20250623 | Bundled compiler `--version` ran; ELF compilation/boot remains E-02 |
+| ARM GCC | GNU Tools for STM32 14.3.rel1.20251027-0700; GCC 14.3.1 20250623 | E-02 built the owned ELF twice identically and booted it; compiler hash/flags recorded |
 | ARM GDB | Same toolchain; 15.2.90.20241229-git | `--version` ran; no target/debugger connection |
 | Qt | Installed directory 6.11.1 observed | Not selected, built, or used; modules/compiler/license review deferred to SN-022 |
 | WASM / Verilator | Deferred | No runtime selected or downloaded |
@@ -62,7 +62,7 @@ Original SimNodus material remains MIT. Development use and selecting an experim
 | libsamplerate | [Upstream BSD-2-Clause terms](https://libsndfile.github.io/libsamplerate/license.html); retain applicable notices |
 | OpenMP/native runtimes | Preserve exact runtime provenance/notices; redistributable packaging not approved by this experiment |
 | ngspice manual / COPYING document | Source declares CC-BY-SA 4.0 for these documents; not copied into SimNodus |
-| CubeIDE / GNU Tools for STM32 | Existing local installation only; GDB reports GPLv3+; toolchain/runtime and ST package terms must be reviewed before any redistribution. No ST firmware copied |
+| CubeIDE / GNU Tools for STM32 | Existing local installation only; GDB reports GPLv3+; toolchain/runtime and ST package terms require review before redistribution. No ST firmware copied; E-02 links no toolchain runtime |
 | Visual Studio / SDK / 7-Zip | External development tools, not shipped as SimNodus artifacts |
 
 These are engineering inventory findings, not a guarantee of legal or security compliance. Do not distribute the entire downloaded directories as a shortcut.

@@ -4,6 +4,8 @@
 .gitignore text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
+*.ld text eol=lf
+*.repl text eol=lf
 *.py text eol=lf
 *.json text eol=lf
 *.yml text eol=lf

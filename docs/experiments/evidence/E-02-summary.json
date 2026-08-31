@@ -1,0 +1,1250 @@
+{
+  "schema": 1,
+  "experiment": "SN-012 / E-02",
+  "date": "2026-08-31",
+  "status": "passed",
+  "runs": [
+    {
+      "name": "final-1",
+      "status": "passed",
+      "firmware_elf_sha256": "7895196a7e63134e5576f9bae2f4b124e7b0f1a3487891bea5a6ad56576b3689",
+      "profiles": {
+        "100": {
+          "status": "passed",
+          "final_time_us": 23900,
+          "tick_gaps_us": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            998,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ],
+          "snapshots": [
+            {
+              "name": "boot",
+              "time_us": 500,
+              "ticks": 0,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "before_rise",
+              "time_us": 2500,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_rise",
+              "time_us": 2600,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 0,
+              "pa4": 1
+            },
+            {
+              "name": "sampled_high",
+              "time_us": 4500,
+              "ticks": 4,
+              "input": 1,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 1,
+              "pa4": 1
+            },
+            {
+              "name": "after_fall",
+              "time_us": 5600,
+              "ticks": 5,
+              "input": 1,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 1,
+              "pa4": 0
+            },
+            {
+              "name": "sampled_low",
+              "time_us": 7500,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_20us_pulse",
+              "time_us": 7800,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 4,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_same_time_edges",
+              "time_us": 7900,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 5,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            }
+          ],
+          "pin_event_timestamps_us": {
+            "0": [
+              1000,
+              2000,
+              3000,
+              4000,
+              5000,
+              6000,
+              7000,
+              8000,
+              8998,
+              9998,
+              10998,
+              11998,
+              12998,
+              13998,
+              14998,
+              15998,
+              16997,
+              17997,
+              18997,
+              19997,
+              20997,
+              21997,
+              22997
+            ],
+            "2": [
+              3000,
+              6000
+            ],
+            "4": [
+              2500,
+              5500,
+              7600,
+              7620
+            ]
+          },
+          "mode_observations": [
+            {
+              "name": "floating",
+              "cnf_mode": 4,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_down",
+              "cnf_mode": 8,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_up",
+              "cnf_mode": 8,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "analog",
+              "cnf_mode": 0,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "push_pull",
+              "cnf_mode": 2,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "open_drain",
+              "cnf_mode": 6,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "alternate_push_pull",
+              "cnf_mode": 10,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 0
+            }
+          ],
+          "rcc_audit": {
+            "stored_enable": 0,
+            "ticks_before": 21,
+            "ticks_after": 23
+          },
+          "all_callbacks_during_run": true,
+          "callback_request_intervals": [
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 1000,
+              "begin_us": 1000,
+              "end_us": 1100
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 2000,
+              "begin_us": 2000,
+              "end_us": 2100
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 2500,
+              "begin_us": 2500,
+              "end_us": 2600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 3000,
+              "begin_us": 3000,
+              "end_us": 3100
+            },
+            {
+              "pin": 2,
+              "state": 1,
+              "timestamp_us": 3000,
+              "begin_us": 3000,
+              "end_us": 3100
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 4000,
+              "begin_us": 4000,
+              "end_us": 4100
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 5000,
+              "begin_us": 5000,
+              "end_us": 5100
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 5500,
+              "begin_us": 5500,
+              "end_us": 5600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 6000,
+              "begin_us": 6000,
+              "end_us": 6100
+            },
+            {
+              "pin": 2,
+              "state": 0,
+              "timestamp_us": 6000,
+              "begin_us": 6000,
+              "end_us": 6100
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 7000,
+              "begin_us": 7000,
+              "end_us": 7100
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 7600,
+              "begin_us": 7600,
+              "end_us": 7620
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 7620,
+              "begin_us": 7620,
+              "end_us": 7720
+            }
+          ],
+          "loopback_verified": true,
+          "listener_removed": true,
+          "process_exit": 0
+        },
+        "1000": {
+          "status": "passed",
+          "final_time_us": 23900,
+          "tick_gaps_us": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ],
+          "snapshots": [
+            {
+              "name": "boot",
+              "time_us": 500,
+              "ticks": 0,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "before_rise",
+              "time_us": 2500,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_rise",
+              "time_us": 2600,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 0,
+              "pa4": 1
+            },
+            {
+              "name": "sampled_high",
+              "time_us": 4500,
+              "ticks": 4,
+              "input": 1,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 1,
+              "pa4": 1
+            },
+            {
+              "name": "after_fall",
+              "time_us": 5600,
+              "ticks": 5,
+              "input": 1,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 1,
+              "pa4": 0
+            },
+            {
+              "name": "sampled_low",
+              "time_us": 7500,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_20us_pulse",
+              "time_us": 7800,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 4,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_same_time_edges",
+              "time_us": 7900,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 5,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            }
+          ],
+          "pin_event_timestamps_us": {
+            "0": [
+              999,
+              1999,
+              2999,
+              3999,
+              4999,
+              5999,
+              6999,
+              7999,
+              8998,
+              9998,
+              10998,
+              11998,
+              12998,
+              13998,
+              14998,
+              15998,
+              16997,
+              17997,
+              18997,
+              19997,
+              20997,
+              21997,
+              22997
+            ],
+            "2": [
+              2999,
+              5999
+            ],
+            "4": [
+              2500,
+              5500,
+              7600,
+              7620
+            ]
+          },
+          "mode_observations": [
+            {
+              "name": "floating",
+              "cnf_mode": 4,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_down",
+              "cnf_mode": 8,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_up",
+              "cnf_mode": 8,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "analog",
+              "cnf_mode": 0,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "push_pull",
+              "cnf_mode": 2,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "open_drain",
+              "cnf_mode": 6,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "alternate_push_pull",
+              "cnf_mode": 10,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 0
+            }
+          ],
+          "rcc_audit": {
+            "stored_enable": 0,
+            "ticks_before": 21,
+            "ticks_after": 23
+          },
+          "all_callbacks_during_run": true,
+          "callback_request_intervals": [
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 999,
+              "begin_us": 500,
+              "end_us": 1500
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 1999,
+              "begin_us": 1500,
+              "end_us": 2500
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 2500,
+              "begin_us": 2500,
+              "end_us": 2600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 2999,
+              "begin_us": 2600,
+              "end_us": 3600
+            },
+            {
+              "pin": 2,
+              "state": 1,
+              "timestamp_us": 2999,
+              "begin_us": 2600,
+              "end_us": 3600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 3999,
+              "begin_us": 3600,
+              "end_us": 4500
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 4999,
+              "begin_us": 4500,
+              "end_us": 5500
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 5500,
+              "begin_us": 5500,
+              "end_us": 5600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 5999,
+              "begin_us": 5600,
+              "end_us": 6600
+            },
+            {
+              "pin": 2,
+              "state": 0,
+              "timestamp_us": 5999,
+              "begin_us": 5600,
+              "end_us": 6600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 6999,
+              "begin_us": 6600,
+              "end_us": 7500
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 7600,
+              "begin_us": 7600,
+              "end_us": 7620
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 7620,
+              "begin_us": 7620,
+              "end_us": 7800
+            }
+          ],
+          "loopback_verified": true,
+          "listener_removed": true,
+          "process_exit": 0
+        }
+      }
+    },
+    {
+      "name": "final-2",
+      "status": "passed",
+      "firmware_elf_sha256": "7895196a7e63134e5576f9bae2f4b124e7b0f1a3487891bea5a6ad56576b3689",
+      "profiles": {
+        "100": {
+          "status": "passed",
+          "final_time_us": 23900,
+          "tick_gaps_us": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            998,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ],
+          "snapshots": [
+            {
+              "name": "boot",
+              "time_us": 500,
+              "ticks": 0,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "before_rise",
+              "time_us": 2500,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_rise",
+              "time_us": 2600,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 0,
+              "pa4": 1
+            },
+            {
+              "name": "sampled_high",
+              "time_us": 4500,
+              "ticks": 4,
+              "input": 1,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 1,
+              "pa4": 1
+            },
+            {
+              "name": "after_fall",
+              "time_us": 5600,
+              "ticks": 5,
+              "input": 1,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 1,
+              "pa4": 0
+            },
+            {
+              "name": "sampled_low",
+              "time_us": 7500,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_20us_pulse",
+              "time_us": 7800,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 4,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_same_time_edges",
+              "time_us": 7900,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 5,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            }
+          ],
+          "pin_event_timestamps_us": {
+            "0": [
+              1000,
+              2000,
+              3000,
+              4000,
+              5000,
+              6000,
+              7000,
+              8000,
+              8998,
+              9998,
+              10998,
+              11998,
+              12998,
+              13998,
+              14998,
+              15998,
+              16997,
+              17997,
+              18997,
+              19997,
+              20997,
+              21997,
+              22997
+            ],
+            "2": [
+              3000,
+              6000
+            ],
+            "4": [
+              2500,
+              5500,
+              7600,
+              7620
+            ]
+          },
+          "mode_observations": [
+            {
+              "name": "floating",
+              "cnf_mode": 4,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_down",
+              "cnf_mode": 8,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_up",
+              "cnf_mode": 8,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "analog",
+              "cnf_mode": 0,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "push_pull",
+              "cnf_mode": 2,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "open_drain",
+              "cnf_mode": 6,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "alternate_push_pull",
+              "cnf_mode": 10,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 0
+            }
+          ],
+          "rcc_audit": {
+            "stored_enable": 0,
+            "ticks_before": 21,
+            "ticks_after": 23
+          },
+          "all_callbacks_during_run": true,
+          "callback_request_intervals": [
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 1000,
+              "begin_us": 1000,
+              "end_us": 1100
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 2000,
+              "begin_us": 2000,
+              "end_us": 2100
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 2500,
+              "begin_us": 2500,
+              "end_us": 2600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 3000,
+              "begin_us": 3000,
+              "end_us": 3100
+            },
+            {
+              "pin": 2,
+              "state": 1,
+              "timestamp_us": 3000,
+              "begin_us": 3000,
+              "end_us": 3100
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 4000,
+              "begin_us": 4000,
+              "end_us": 4100
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 5000,
+              "begin_us": 5000,
+              "end_us": 5100
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 5500,
+              "begin_us": 5500,
+              "end_us": 5600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 6000,
+              "begin_us": 6000,
+              "end_us": 6100
+            },
+            {
+              "pin": 2,
+              "state": 0,
+              "timestamp_us": 6000,
+              "begin_us": 6000,
+              "end_us": 6100
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 7000,
+              "begin_us": 7000,
+              "end_us": 7100
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 7600,
+              "begin_us": 7600,
+              "end_us": 7620
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 7620,
+              "begin_us": 7620,
+              "end_us": 7720
+            }
+          ],
+          "loopback_verified": true,
+          "listener_removed": true,
+          "process_exit": 0
+        },
+        "1000": {
+          "status": "passed",
+          "final_time_us": 23900,
+          "tick_gaps_us": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            999,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ],
+          "snapshots": [
+            {
+              "name": "boot",
+              "time_us": 500,
+              "ticks": 0,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "before_rise",
+              "time_us": 2500,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 0,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_rise",
+              "time_us": 2600,
+              "ticks": 2,
+              "input": 0,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 0,
+              "pa4": 1
+            },
+            {
+              "name": "sampled_high",
+              "time_us": 4500,
+              "ticks": 4,
+              "input": 1,
+              "exti_count": 1,
+              "exti_input": 1,
+              "pa2": 1,
+              "pa4": 1
+            },
+            {
+              "name": "after_fall",
+              "time_us": 5600,
+              "ticks": 5,
+              "input": 1,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 1,
+              "pa4": 0
+            },
+            {
+              "name": "sampled_low",
+              "time_us": 7500,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 2,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_20us_pulse",
+              "time_us": 7800,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 4,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            },
+            {
+              "name": "after_same_time_edges",
+              "time_us": 7900,
+              "ticks": 7,
+              "input": 0,
+              "exti_count": 5,
+              "exti_input": 0,
+              "pa2": 0,
+              "pa4": 0
+            }
+          ],
+          "pin_event_timestamps_us": {
+            "0": [
+              999,
+              1999,
+              2999,
+              3999,
+              4999,
+              5999,
+              6999,
+              7999,
+              8998,
+              9998,
+              10998,
+              11998,
+              12998,
+              13998,
+              14998,
+              15998,
+              16997,
+              17997,
+              18997,
+              19997,
+              20997,
+              21997,
+              22997
+            ],
+            "2": [
+              2999,
+              5999
+            ],
+            "4": [
+              2500,
+              5500,
+              7600,
+              7620
+            ]
+          },
+          "mode_observations": [
+            {
+              "name": "floating",
+              "cnf_mode": 4,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_down",
+              "cnf_mode": 8,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "pull_up",
+              "cnf_mode": 8,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "analog",
+              "cnf_mode": 0,
+              "drive": 0,
+              "before": 1,
+              "injected_low": 0,
+              "injected_high": 1
+            },
+            {
+              "name": "push_pull",
+              "cnf_mode": 2,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "open_drain",
+              "cnf_mode": 6,
+              "drive": 1,
+              "before": 1,
+              "injected_low": 1,
+              "injected_high": 1
+            },
+            {
+              "name": "alternate_push_pull",
+              "cnf_mode": 10,
+              "drive": 0,
+              "before": 0,
+              "injected_low": 0,
+              "injected_high": 0
+            }
+          ],
+          "rcc_audit": {
+            "stored_enable": 0,
+            "ticks_before": 21,
+            "ticks_after": 23
+          },
+          "all_callbacks_during_run": true,
+          "callback_request_intervals": [
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 999,
+              "begin_us": 500,
+              "end_us": 1500
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 1999,
+              "begin_us": 1500,
+              "end_us": 2500
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 2500,
+              "begin_us": 2500,
+              "end_us": 2600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 2999,
+              "begin_us": 2600,
+              "end_us": 3600
+            },
+            {
+              "pin": 2,
+              "state": 1,
+              "timestamp_us": 2999,
+              "begin_us": 2600,
+              "end_us": 3600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 3999,
+              "begin_us": 3600,
+              "end_us": 4500
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 4999,
+              "begin_us": 4500,
+              "end_us": 5500
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 5500,
+              "begin_us": 5500,
+              "end_us": 5600
+            },
+            {
+              "pin": 0,
+              "state": 0,
+              "timestamp_us": 5999,
+              "begin_us": 5600,
+              "end_us": 6600
+            },
+            {
+              "pin": 2,
+              "state": 0,
+              "timestamp_us": 5999,
+              "begin_us": 5600,
+              "end_us": 6600
+            },
+            {
+              "pin": 0,
+              "state": 1,
+              "timestamp_us": 6999,
+              "begin_us": 6600,
+              "end_us": 7500
+            },
+            {
+              "pin": 4,
+              "state": 1,
+              "timestamp_us": 7600,
+              "begin_us": 7600,
+              "end_us": 7620
+            },
+            {
+              "pin": 4,
+              "state": 0,
+              "timestamp_us": 7620,
+              "begin_us": 7620,
+              "end_us": 7800
+            }
+          ],
+          "loopback_verified": true,
+          "listener_removed": true,
+          "process_exit": 0
+        }
+      }
+    }
+  ]
+}

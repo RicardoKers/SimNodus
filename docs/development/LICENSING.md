@@ -30,6 +30,8 @@ No engine binaries, vendor models, firmware packages, fonts, or copied upstream 
 
 SN-019 subsequently adds a source-transformation recipe and the [upstream Renode MIT terms](../../tests/experiments/renode-client/UPSTREAM-LICENSE.txt). Its [manifest](../../tests/experiments/renode-client/upstream.json) records exact official sources and hashes. Generated files retain Antmicro and Realtime Embedded notices and remain in ignored build output. This limited source adaptation does not approve shipping the complete Renode runtime or its other dependencies.
 
+E-02's firmware, linker script, platform subset, and host probe are original MIT project material. Matching Renode model sources are fetched only for read-only audit and remain ignored with upstream notices. The Arm/CubeIDE compiler is a development tool; the freestanding ELF links no compiler runtime or C library. Preserve toolchain package licenses and do not redistribute vendor tools or manuals without a separate review.
+
 ## Publication and maintenance
 
 Review attribution and private-data removal before source publication. Review the full packaged dependency set before binary releases. Keep legal names/contact details owner-confirmed; do not invent them. Revisit this policy when packaging or dependencies change.

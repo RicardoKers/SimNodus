@@ -21,6 +21,7 @@ These are synthesized requirements, not instructions copied from assistant sugge
 | [Renode time framework](https://renode.readthedocs.io/en/latest/advanced/time_framework.html) | Virtual time, quanta, pause/halt distinctions | Cycle accuracy or automatic ngspice synchronization |
 | [Renode GDB](https://renode.readthedocs.io/en/latest/debugging/gdb.html) | GDB remote debugging facilities | A tested CubeIDE launch configuration or coupled pause |
 | [STM32F103 platform description](https://github.com/renode/renode/blob/master/platforms/cpus/stm32f103.repl) | Declared peripheral/platform wiring | Complete, accurate F103C8 behavior |
+| [STM32F103C8 product page](https://www.st.com/en/microcontrollers-microprocessors/stm32f103c8) and [documentation](https://www.st.com/en/microcontrollers-microprocessors/stm32f103/documentation.html) | Hardware memory/peripheral baseline and register manual location | Fidelity of Renode's implementation |
 | [ngspice shared library](https://ngspice.sourceforge.io/shared.html) | Host control and callbacks | A finished Renode coupling algorithm |
 | [ngspice documentation](https://ngspice.sourceforge.io/docs.html) | Manual and API investigation starting point | Compatibility of every vendor model |
 
@@ -31,6 +32,8 @@ The recent Renode API documentation includes nanosecond time units; a separately
 The inspected generic STM32F103 platform description declares GPIO, timers, interrupts, and other peripherals but does not visibly declare an ADC instance in that file. A board overlay or another revision can change this; inspect the selected complete configuration. Never infer all peripheral coverage from a platform name.
 
 Renode's documented GDB facilities justify an experiment, not an already-supported SimNodus feature. The original discussions were optimistic about whole-circuit debugging; E-05 is the required validation gate.
+
+E-02 records fourteen exact Renode-infrastructure source URLs and hashes in `tests/experiments/renode-stm32/audit-sources.json`. The files are downloaded only for read-only audit and are not committed or compiled. Its CI compiler archive and vendor checksum source are recorded separately in `ci-toolchain.json`; the compiler is not redistributed.
 
 ## Licensing and automation references
 
