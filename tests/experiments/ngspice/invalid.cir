@@ -1,0 +1,5 @@
+SimNodus E-01 intentionally missing diode model
+Vdrive in 0 3.3
+D1 in 0 no_such_model
+.tran 1u 5m
+.end

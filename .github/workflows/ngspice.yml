@@ -1,0 +1,80 @@
+name: Standalone ngspice experiment
+
+on:
+  pull_request:
+    paths:
+      - 'tests/experiments/ngspice/**'
+      - 'tools/backend_probe/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/ngspice.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/experiments/ngspice/**'
+      - 'tools/backend_probe/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/ngspice.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ngspice-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ngspice:
+    name: E-01 (Windows x64)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download and verify the pinned ngspice packages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force build/deps/downloads | Out-Null
+          $manifest = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
+          foreach ($asset in $manifest.archives) {
+            if (-not $asset.path.StartsWith('downloads/ngspice-')) { continue }
+            $destination = Join-Path build/deps $asset.path
+            curl.exe --fail --location --silent --show-error --max-time 180 $asset.url --output $destination
+            if ($LASTEXITCODE -ne 0) { throw "Download failed: $($asset.path)" }
+          }
+          python tools/check_backend_assets.py --ngspice-only --archives-only
+          if ($LASTEXITCODE -ne 0) { throw 'Archive verification failed' }
+      - name: Extract verified packages
+        shell: pwsh
+        run: |
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+          & $sevenZip x build/deps/downloads/ngspice-47_dll_64.7z '-obuild/deps/ngspice' -y
+          if ($LASTEXITCODE -ne 0) { throw 'DLL extraction failed' }
+          & $sevenZip x build/deps/downloads/ngspice-47_64.7z '-obuild/deps/ngspice-console' -y
+          if ($LASTEXITCODE -ne 0) { throw 'Console extraction failed' }
+          New-Item -ItemType Directory -Force build/deps/ngspice-source | Out-Null
+          tar -xf build/deps/downloads/ngspice-47.tar.gz -C build/deps/ngspice-source
+          if ($LASTEXITCODE -ne 0) { throw 'Source extraction failed' }
+          python tools/check_backend_assets.py --ngspice-only
+      - name: Build the native experiment
+        shell: pwsh
+        run: |
+          $spiceRoot = (Resolve-Path build/deps/ngspice/Spice64_dll).Path
+          cmake -S tests/experiments/ngspice -B build/e01 -A x64 "-DNGSPICE_ROOT=$spiceRoot"
+          if ($LASTEXITCODE -ne 0) { throw 'Configuration failed' }
+          cmake --build build/e01 --config Debug
+      - name: Run the eight real-backend cases
+        run: python tests/experiments/ngspice/run.py
+      - name: Repeat and compare deterministic final vectors
+        run: python tests/experiments/ngspice/run.py --output build/e01-repeat --compare-with build/e01-results
+      - name: Record compact results in the build log
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path build/e01-results/summary.json) { Get-Content build/e01-results/summary.json }
+          if (Test-Path build/e01-repeat/summary.json) { Get-Content build/e01-repeat/summary.json }

@@ -10,5 +10,6 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 | [0004](0004-license-language-platform.md) | MIT, English repository, Windows first | Accepted under owner authorization |
 | [0005](0005-classroom-scope.md) | February 2027 teaching target with a January readiness gate | Accepted target; delivery scope conditional |
 | [0006](0006-windows-backend-baseline.md) | Exact Windows experiment packages and native client prerequisite | Accepted for experiments; distribution/integration unproven |
+| [0007](0007-ngspice-experiment-contract.md) | Measured ngspice trial/output, pause, reset, and lifecycle semantics | Accepted for bounded E-01 profile; coupled algorithm pending |
 
 Use the [template](TEMPLATE.md) for new decisions.

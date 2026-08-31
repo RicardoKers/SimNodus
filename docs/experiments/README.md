@@ -1,6 +1,6 @@
 # Experiment plan
 
-E-01 through E-06 are **not run**. [SN-010](SN-010-results.md) records the completed dependency/startup checks; these do not satisfy the experiments below. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
+[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile. **E-02 through E-06 have not run.** [SN-010](SN-010-results.md) records the earlier dependency/startup checks. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.
 

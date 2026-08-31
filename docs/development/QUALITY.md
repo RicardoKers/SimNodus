@@ -2,7 +2,7 @@
 
 ## Foundation checks
 
-Run `python tools/check_repository.py` for documentation/link/JSON hygiene. CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The CI workflow currently checks only this foundation.
+Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; a separate Windows workflow runs E-01.
 
 Local foundation verification on 2026-08-31:
 
@@ -14,7 +14,7 @@ Local foundation verification on 2026-08-31:
 
 Hosted verification of the first public commit `b3163a1` passed on both `windows-latest` and `ubuntu-latest`: [run 33399498653](https://github.com/RicardoKers/SimNodus/actions/runs/33399498653). Both jobs checked repository files, configured CMake with a C++ compiler, and ran the check target.
 
-No E-01 through E-06 experiment or simulator test has run. Hosted results validate the foundation, not application compilation, simulation behavior, or a supported Linux application release.
+Those initial hosted results validate the foundation, not application compilation, simulation behavior, or a supported Linux application release. Subsequent E-01 results are recorded separately below.
 
 ## SN-010 local Windows checks
 
@@ -23,6 +23,16 @@ The [SN-010 report](../experiments/SN-010-results.md) records 14 verified archiv
 The repository checker passed for 62 text files after this change; CMake foundation configuration/check and Python syntax checks also passed locally. C++/header text and the owned `spinit` are now included in text hygiene checks.
 
 Failures are part of the record: the official Renode C client does not build unchanged with MSVC, and ngspice's documented pre-init call crashed the selected DLL. The startup workaround passed, without proving full lifecycle semantics. The optional probe is not built/run in foundation CI and downloads no dependencies by itself.
+
+## SN-011 / E-01 checks
+
+The [E-01 report](../experiments/E-01-results.md) records eight real ngspice cases in three local runs. An independent Python analyzer checks analytical voltage errors, finite/monotonic vectors, exact callback/vector agreement, reset/repeat tolerances, pause behavior, rejected trial points, and invalid-netlist recovery. Deliberately corrupted evidence was rejected. The refactored SN-010 startup probe also compiled and passed.
+
+The local repository checker passed for 75 text files after this change, including `.hpp` and `.cir` fixtures. Python syntax, SVG XML parsing, and whitespace checks passed.
+
+The [native Windows workflow](../../.github/workflows/ngspice.yml) verifies the three pinned ngspice archives before extraction, builds the C++20 host, and runs the suite twice. It prints compact results in the build log. It is separate from foundation CI and does not establish Linux runtime support. Raw local logs/CSV and downloaded packages stay in ignored build output; sanitized metrics and an analytical comparison chart are committed.
+
+These checks establish only the reported ideal RC/voltage-source profile. Firmware, nonlinear/digital models, coupled causality, forced crash/timeout paths, long-duration leak behavior, and production adapters remain untested.
 
 ## Engine verification layers
 

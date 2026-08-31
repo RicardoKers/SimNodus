@@ -1,8 +1,8 @@
 # Backlog
 
-States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 critical path, P1 near-term, P2 later. Dependencies are task IDs. No simulator implementation work is currently in progress.
+States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 critical path, P1 near-term, P2 later. Dependencies are task IDs. Production kernel/application implementation has not started.
 
-`SN-001` is the repository-foundation task. SN-010 completed dependency selection and startup checks; engine and application features remain unimplemented. Keep the Markdown status and GitHub issue status consistent; do not maintain independent competing queues.
+`SN-001` is the repository-foundation task. SN-010 completed dependency selection and startup checks; SN-011 passed the standalone RC/lifecycle experiment. Coupled engine and application features remain unimplemented. Keep the Markdown status and GitHub issue status consistent; do not maintain independent competing queues.
 
 ## Foundation and technical proof
 
@@ -10,7 +10,7 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 |---|---|---|---|---|---|
 | SN-001 | P0 | done | Establish architecture, planning, license, scaffolding, checks | — | English files and local structural verification |
 | SN-010 | P0 | done | Inventory environment and pin backend revisions | SN-001 | [Version, provenance, hashes, setup and startup report](../experiments/SN-010-results.md); integration limitations explicit |
-| SN-011 | P0 | ready | Run E-01 standalone ngspice | SN-010 | RC reference, external-source timing, pause/reset report; audit recorded pre-init crash |
+| SN-011 | P0 | done | Run E-01 standalone ngspice | SN-010 | [Eight real cases, three local runs, numeric/lifecycle evidence](../experiments/E-01-results.md); pre-init crash remains an unsupported route |
 | SN-019 | P0 | ready | Adapt the pinned Renode external client for native Windows | SN-010 | Native build, real loopback handshake/time/advance, socket failure/timeout tests |
 | SN-012 | P0 | blocked | Run E-02 standalone Renode | SN-010, SN-019 | Rebuildable ELF, offline C8 profile, timed GPIO, input injection, peripheral audit; external client currently fails MSVC build |
 | SN-013 | P0 | planned | Define supported temporal capability profile | SN-011, SN-012 | Explicit units, callback timing, advancement/stop semantics |
