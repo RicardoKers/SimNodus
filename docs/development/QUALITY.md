@@ -32,6 +32,8 @@ The local repository checker passed for 75 text files after this change, includi
 
 The [native Windows workflow](../../.github/workflows/ngspice.yml) verifies the three pinned ngspice archives before extraction, builds the C++20 host, and runs the suite twice. It prints compact results in the build log. It is separate from foundation CI and does not establish Linux runtime support. Raw local logs/CSV and downloaded packages stay in ignored build output; sanitized metrics and an analytical comparison chart are committed.
 
+The [first hosted E-01 run](https://github.com/RicardoKers/SimNodus/actions/runs/33406697838) passed both suites on Windows Server 2025 / MSVC 19.51.36256.0. [Foundation checks](https://github.com/RicardoKers/SimNodus/actions/runs/33406697777) also passed on Windows and Ubuntu for that revision.
+
 These checks establish only the reported ideal RC/voltage-source profile. Firmware, nonlinear/digital models, coupled causality, forced crash/timeout paths, long-duration leak behavior, and production adapters remain untested.
 
 ## Engine verification layers

@@ -25,6 +25,8 @@ Follow [the experiment commands](../../tests/experiments/ngspice/README.md). The
 
 The separate [Windows experiment workflow](../../.github/workflows/ngspice.yml) downloads only the three pinned ngspice archives, verifies them, builds the native host, runs all eight cases, and repeats the deterministic comparisons. It does not change the root CMake configuration or imply Linux simulation support. Hosted results are available in [workflow runs](https://github.com/RicardoKers/SimNodus/actions/workflows/ngspice.yml); this committed evidence file records the local runs.
 
+The first [hosted E-01 run, 33406697838](https://github.com/RicardoKers/SimNodus/actions/runs/33406697838), passed both complete suites on Windows Server 2025, image `windows-2025-vs2026` revision `20260824.214.3`, with MSVC 19.51.36256.0. Its RC and external-pulse errors matched the local values above; its own deterministic repeats passed. This is independent Windows execution evidence, not a clean classroom-machine packaging test.
+
 ## Observations
 
 All **eight cases passed in three independent local runs** (24 child processes). Every copied data callback matched the corresponding stored vector exactly, including resumed runs and the three reset segments. The seven foreground cases repeated within the declared 1 ps / 1 nV bounds. Background pause location is deliberately not treated as deterministic.

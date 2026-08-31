@@ -64,6 +64,8 @@ jobs:
       - name: Build the native experiment
         shell: pwsh
         run: |
+          python --version
+          cmake --version
           $spiceRoot = (Resolve-Path build/deps/ngspice/Spice64_dll).Path
           cmake -S tests/experiments/ngspice -B build/e01 -A x64 "-DNGSPICE_ROOT=$spiceRoot"
           if ($LASTEXITCODE -ne 0) { throw 'Configuration failed' }
