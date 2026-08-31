@@ -2,7 +2,7 @@
 
 ## What exists
 
-The repository is a documentation/build foundation with an optional C++ ngspice dependency probe. There are no simulation-engine sources, firmware examples, or Qt application yet. Do not interpret a successful configure/check or DLL startup as a working simulator.
+The repository contains the documentation/build foundation, a C++ ngspice dependency probe, and a working standalone RC/lifecycle experiment. There is no production simulation kernel, coupled firmware example, or Qt application yet. A successful foundation check or bounded backend experiment does not establish a complete simulator.
 
 ## Documentation check
 
@@ -33,12 +33,12 @@ The optional `bootstrap` configure/build presets run the same steps. Build outpu
 
 ## First development task
 
-SN-010 is complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md) to reproduce its artifact and startup checks, then execute SN-011 / E-01. SN-019 must adapt the native Windows Renode client before E-02 external-control acceptance. Qt is not needed for these experiments.
+SN-010 and SN-011 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md) and [E-01 commands](../../tests/experiments/ngspice/README.md) to reproduce their checks. Next, SN-019 must adapt the native Windows Renode client before E-02 external-control acceptance. Qt is not needed for these experiments.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 
 ## Local baseline observed on 2026-08-31
 
-The [dependency inventory](../research/DEPENDENCIES.md) records the exact host, compiler, SDK, Renode/ngspice packages, and existing CubeIDE ARM tools. Startup checks passed with documented limitations; firmware and circuit behavior remain untested. Commands missing from PATH do not establish that software is absent from the computer.
+The [dependency inventory](../research/DEPENDENCIES.md) records the exact host, compiler, SDK, Renode/ngspice packages, and existing CubeIDE ARM tools. Startup and [E-01 RC/lifecycle checks](../experiments/E-01-results.md) passed with documented limitations; firmware and coupled behavior remain untested. Commands missing from PATH do not establish that software is absent from the computer.
 
 Machine-specific paths are intentionally not committed.

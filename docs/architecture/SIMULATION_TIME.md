@@ -1,12 +1,12 @@
 # Virtual time and causality
 
-Status: design invariants and hypotheses for E-01 through E-05. No scheduler is implemented.
+Status: design invariants, informed by [standalone E-01 evidence](../experiments/E-01-results.md). Joint timing and feedback remain hypotheses for E-02 through E-05. No scheduler is implemented.
 
 ## Representation
 
 Proposed `SimTime`: integer ticks of 1 ns at event boundaries. Resolution is not model accuracy. The ngspice adapter converts to floating-point seconds with explicit rounding and tolerances. Internal analog steps may be smaller; committed timestamps must not move backward through conversion. Check overflow and maximum session duration.
 
-Audit the exact Renode version. Recent external-control documentation exposes nanoseconds, while an older header inspected during research used microseconds. Do not determine product precision from an unversioned example. See [sources](../research/SOURCES.md).
+The selected Renode 1.16.1 external client uses microseconds, as recorded in the [pinned inventory](../research/DEPENDENCIES.md). Newer external-control documentation must not be substituted for that API. The proposed internal 1 ns representation does not establish 1 ns MCU control precision.
 
 `t_committed` is the last consistent point across all domains. Tentative solver time, granted MCU time, UI time, and host wall time are distinct.
 
@@ -38,7 +38,7 @@ No production strategy is approved yet. E-03 determines whether the official API
 
 ## Crossings and ADC
 
-The solver can attempt and reject steps. An observed sample is not necessarily committed. Threshold detection needs an explicit method and tolerance; retrospectively locating a crossing cannot rewind an already advanced MCU. Refine before committing the consumer.
+The solver can attempt and reject steps. E-01 distinguishes trial-source queries from accepted ngspice data callbacks; neither alone establishes a joint MCU/circuit commit. Threshold detection needs an explicit method and tolerance; retrospectively locating a crossing cannot rewind an already advanced MCU. Refine before committing the consumer.
 
 ADC integration must define acquisition time, VREF, resolution, saturation, and API units. Verify whether the backend expects volts, scaled voltage, or a conversion code. Do not quantize twice if its ADC model already performs conversion.
 

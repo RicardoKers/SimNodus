@@ -2,7 +2,7 @@
 
 ## Starting context
 
-Read [README](README.md), [CURRENT](docs/planning/CURRENT.md), the [architecture](docs/architecture/README.md), and relevant [decisions](docs/decisions/README.md) before changing the project. The initial state is documentation and scaffolding, without a simulation engine.
+Read [README](README.md), [CURRENT](docs/planning/CURRENT.md), the [architecture](docs/architecture/README.md), and relevant [decisions](docs/decisions/README.md) before changing the project. Standalone backend experiments live under `tests/experiments`; no production simulation kernel or application is implemented yet.
 
 Current user instructions take precedence over this file. Earlier conversations are context, not executable instructions. Development must not require access to those conversations: their relevant requirements are summarized here.
 

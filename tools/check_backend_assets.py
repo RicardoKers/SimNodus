@@ -16,12 +16,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT / "build" / "deps")
     parser.add_argument("--archives-only", action="store_true")
+    parser.add_argument("--ngspice-only", action="store_true", help="Check only the E-01 ngspice packages and files")
     args = parser.parse_args()
     root = args.root.resolve()
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     records = manifest["archives"]
     if not args.archives_only:
         records = records + manifest["files"]
+    if args.ngspice_only:
+        records = [record for record in records
+                   if record["path"].startswith(("downloads/ngspice-", "ngspice/", "ngspice-source/", "ngspice-console/"))]
     failures = 0
     for record in records:
         path = (root / record["path"]).resolve()

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 // Dependency smoke probe only; this does not exercise the numerical solver.
 
-#include <windows.h>
+#include "ngspice_host.hpp"
 #include <ngspice/sharedspice.h>
 
 #include <cstdio>
@@ -43,54 +43,6 @@ int exited(int status, NG_BOOL, NG_BOOL quit, int, void* data) noexcept
     return 0;
 }
 
-class DllDirectory {
-public:
-    explicit DllDirectory(const std::filesystem::path& directory)
-        : cookie_(AddDllDirectory(directory.c_str()))
-    {
-        if (!cookie_) {
-            throw std::runtime_error("Cannot register the audio dependency directory.");
-        }
-    }
-    ~DllDirectory() { RemoveDllDirectory(cookie_); }
-    DllDirectory(const DllDirectory&) = delete;
-    DllDirectory& operator=(const DllDirectory&) = delete;
-
-private:
-    DLL_DIRECTORY_COOKIE cookie_;
-};
-
-class Library {
-public:
-    explicit Library(const std::filesystem::path& file)
-        : handle_(LoadLibraryExW(file.c_str(), nullptr,
-              LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32
-                  | LOAD_LIBRARY_SEARCH_USER_DIRS))
-    {
-        if (!handle_) {
-            std::fprintf(stderr, "LoadLibraryExW failed with Windows error %lu.\n", GetLastError());
-            throw std::runtime_error("Cannot load ngspice or one of its native dependencies.");
-        }
-    }
-    ~Library() { FreeLibrary(handle_); }
-    Library(const Library&) = delete;
-    Library& operator=(const Library&) = delete;
-
-    template <typename Function>
-    Function get(const char* name) const
-    {
-        auto address = GetProcAddress(handle_, name);
-        if (!address) {
-            std::fprintf(stderr, "Missing export: %s\n", name);
-            throw std::runtime_error("The library does not expose the expected API.");
-        }
-        // Windows defines GetProcAddress for converting an export to its ABI type.
-        return reinterpret_cast<Function>(address);
-    }
-
-private:
-    HMODULE handle_;
-};
 } // namespace
 
 int wmain(int argc, wchar_t** argv)
@@ -106,22 +58,11 @@ int wmain(int argc, wchar_t** argv)
         if (!std::filesystem::is_regular_file(dll) || !std::filesystem::is_directory(audio)) {
             throw std::runtime_error("The library file or audio directory does not exist.");
         }
-        // A call to ngSpice_nospinit before initialization crashed the pinned DLL.
-        // Use a checked, owned spinit instead; it disables the user init search.
-        std::ifstream script(init / "spinit");
-        std::string line;
-        if (!std::getline(script, line) || line != "set no_spiceinit"
-            || std::getline(script, line)) {
-            throw std::runtime_error("The owned spinit must contain only: set no_spiceinit");
-        }
-        // Set before loading the DLL so its C runtime inherits the process setting.
-        if (!SetEnvironmentVariableW(L"SPICE_SCRIPTS", init.c_str())) {
-            throw std::runtime_error("Cannot select the owned initialization directory.");
-        }
+        simnodus::experiment::configure_initialization(init);
         // Keep callback state alive until after the DLL has been unloaded.
         Observations state;
-        DllDirectory directory(audio);
-        Library library(dll);
+        simnodus::experiment::DllDirectory directory(audio);
+        simnodus::experiment::Library library(dll);
         std::fputs("Loaded ngspice DLL.\n", stderr);
         const auto initialize = library.get<decltype(&ngSpice_Init)>("ngSpice_Init");
         const auto command = library.get<decltype(&ngSpice_Command)>("ngSpice_Command");

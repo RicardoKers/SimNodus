@@ -21,6 +21,8 @@ Use domain IDs and types internally. Adapters own resources; exceptions must not
 
 The shared library provides controls and callbacks; temporal behavior must be tested against the selected version. Begin with one session/instance, explicit buffer ownership, and reentrancy rules. Do not assume arbitrary callbacks can safely invoke control commands or that a halt occurs exactly at a requested time. [Official overview](https://ngspice.sourceforge.io/shared.html).
 
+[E-01](../experiments/E-01-results.md) now supplies bounded ngspice 47 evidence: trial-source requests can reverse time, copied data callbacks match accepted analog vectors, integration breakpoints do not pause execution, and zero command returns can accompany a parse failure. Full reset requires reinitialization; background notification must be followed by worker termination before releasing resources. Preserve [ADR 0007](../decisions/0007-ngspice-experiment-contract.md) when implementing an adapter; the conceptual contract above is not implemented yet.
+
 Graph-to-netlist conversion, stable node names, ground reference, external sources, and source mappings belong to the adapter and circuit compiler. Untrusted `.control`, `.include`, and native code models need specific handling, not unrestricted forwarding.
 
 ## Renode

@@ -1,0 +1,1088 @@
+{
+  "recorded_on": "2026-08-31",
+  "scope": "Local Windows x64, ngspice 47, Debug C++20; E-01 only",
+  "runs": [
+    {
+      "voltage_tolerance_v": 0.0165,
+      "time_tolerance_s": 1e-12,
+      "cases": {
+        "rc": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "external": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0011026181104427657,
+            "max_error_including_edges_v": 0.0011053919882630936
+          },
+          "source_queries": 12263,
+          "source_time_reversals": 19,
+          "sync_calls": 12243,
+          "sync_redo_calls": 19,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "breakpoint": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "set_breakpoint": 1,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "nearest_breakpoint_sample_s": 0.0,
+          "status": "passed"
+        },
+        "pause": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "delete_conditions": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "resume": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "stop_condition": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 2013,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0020001,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "resumed": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "reset": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "circuit_reset": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "full_reset": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 3,
+            "quit": 1,
+            "quit_requested": 1,
+            "reinitialized_run": 0,
+            "rerun": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "circuit-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "full-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 30072,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 15036,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "invalid": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 2,
+            "exit_status": 0,
+            "full_reset_after_invalid": 0,
+            "idle_before_quit": 1,
+            "invalid_callback_samples": 0,
+            "invalid_diagnostics": 1,
+            "invalid_exit_callback": 0,
+            "invalid_exit_status": -1,
+            "invalid_load": 0,
+            "invalid_run": 0,
+            "invalid_vector_present": 0,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "retry": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0015137611414006713,
+            "max_error_including_edges_v": 0.0015175641606837154
+          },
+          "source_queries": 12265,
+          "source_time_reversals": 20,
+          "sync_calls": 12244,
+          "sync_redo_calls": 19,
+          "requested_retries": 1.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "rejected_trial_time_s": 0.0012346595917545158,
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        },
+        "background": {
+          "process_exit": 0,
+          "metrics": {
+            "actual_pause_time_s": 0.0009897740552655104,
+            "background_halt": 0,
+            "background_resume": 0,
+            "background_retire": 0,
+            "background_run": 0,
+            "callback_fault": 0,
+            "data_on_main_thread": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "halt_wall_seconds": 0.1125635,
+            "idle_before_quit": 1,
+            "pause_request_observed_time_s": 0.0009887740552655105,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "source_on_main_thread": 0,
+            "background_flags": [
+              0,
+              1,
+              0,
+              1
+            ]
+          },
+          "first": {
+            "samples": 1001,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0009897740552655104,
+            "max_error_v": 9.884246843228084e-08,
+            "max_error_including_edges_v": 9.884246843228084e-08
+          },
+          "resumed": {
+            "samples": 50012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.04999999999999999,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 100024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 50012,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        }
+      },
+      "sha256": {
+        "e01.exe": "19abc7d5bc3d687beb77cd4394b2089c5bb741596e8771d25ba1990bc330251a",
+        "external.cir": "f7325367743b578dbecce500cc2ccc8d6ed5c834f8df718df357949b63efc3e4",
+        "invalid.cir": "0ca4e136f86c0f77ec12c1473d43864d173633cd77c6c7c8d88de3b2a19324cc",
+        "rc.cir": "33fa257870363de978316d3189a0c243044fc6fb919582336901e5c062f2475f",
+        "e01.cpp": "fe5ec01a1eaf466535191557a334505da2928bb30e5147f5a27a8882d7015669",
+        "CMakeLists.txt": "5cffde058e358a1a2653932616e939e3022a930e5a6e7f7d76b322483d7c4b90",
+        "run.py": "2340a79ac27f4c142ed202e5c2cc36a9a8bcce0f1c8ee4dbb3903773332f4461",
+        "ngspice_host.hpp": "3b74e36a68f4d052ecf6ace36a678440322f14e7f4ff129adaf997a328597f57",
+        "spinit": "6232d70a07ca63aeee0581b23cde5d4384e0c1b0541d0206a7011700e16339f9",
+        "backend-baseline.json": "cc56c5b13e9e3dc6ce134ebbcd1a5ff200013f55ff06b40367855d2b220c6e73"
+      },
+      "status": "passed"
+    },
+    {
+      "voltage_tolerance_v": 0.0165,
+      "time_tolerance_s": 1e-12,
+      "cases": {
+        "rc": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "external": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0011026181104427657,
+            "max_error_including_edges_v": 0.0011053919882630936
+          },
+          "source_queries": 12263,
+          "source_time_reversals": 19,
+          "sync_calls": 12243,
+          "sync_redo_calls": 19,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "breakpoint": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "set_breakpoint": 1,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "nearest_breakpoint_sample_s": 0.0,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "pause": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "delete_conditions": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "resume": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "stop_condition": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 2013,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0020001,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "resumed": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "reset": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "circuit_reset": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "full_reset": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 3,
+            "quit": 1,
+            "quit_requested": 1,
+            "reinitialized_run": 0,
+            "rerun": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "circuit-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "full-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 30072,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 15036,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "invalid": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 2,
+            "exit_status": 0,
+            "full_reset_after_invalid": 0,
+            "idle_before_quit": 1,
+            "invalid_callback_samples": 0,
+            "invalid_diagnostics": 1,
+            "invalid_exit_callback": 0,
+            "invalid_exit_status": -1,
+            "invalid_load": 0,
+            "invalid_run": 0,
+            "invalid_vector_present": 0,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "retry": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0015137611414006713,
+            "max_error_including_edges_v": 0.0015175641606837154
+          },
+          "source_queries": 12265,
+          "source_time_reversals": 20,
+          "sync_calls": 12244,
+          "sync_redo_calls": 19,
+          "requested_retries": 1.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "rejected_trial_time_s": 0.0012346595917545158,
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "background": {
+          "process_exit": 0,
+          "metrics": {
+            "actual_pause_time_s": 0.0009897740552655104,
+            "background_halt": 0,
+            "background_resume": 0,
+            "background_retire": 0,
+            "background_run": 0,
+            "callback_fault": 0,
+            "data_on_main_thread": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "halt_wall_seconds": 0.1102019,
+            "idle_before_quit": 1,
+            "pause_request_observed_time_s": 0.0009887740552655105,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "source_on_main_thread": 0,
+            "background_flags": [
+              0,
+              1,
+              0,
+              1
+            ]
+          },
+          "first": {
+            "samples": 1001,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0009897740552655104,
+            "max_error_v": 9.884246843228084e-08,
+            "max_error_including_edges_v": 9.884246843228084e-08
+          },
+          "resumed": {
+            "samples": 50012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.04999999999999999,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 100024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 50012,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        }
+      },
+      "sha256": {
+        "e01.exe": "19abc7d5bc3d687beb77cd4394b2089c5bb741596e8771d25ba1990bc330251a",
+        "external.cir": "f7325367743b578dbecce500cc2ccc8d6ed5c834f8df718df357949b63efc3e4",
+        "invalid.cir": "0ca4e136f86c0f77ec12c1473d43864d173633cd77c6c7c8d88de3b2a19324cc",
+        "rc.cir": "33fa257870363de978316d3189a0c243044fc6fb919582336901e5c062f2475f",
+        "e01.cpp": "fe5ec01a1eaf466535191557a334505da2928bb30e5147f5a27a8882d7015669",
+        "CMakeLists.txt": "5cffde058e358a1a2653932616e939e3022a930e5a6e7f7d76b322483d7c4b90",
+        "run.py": "2340a79ac27f4c142ed202e5c2cc36a9a8bcce0f1c8ee4dbb3903773332f4461",
+        "ngspice_host.hpp": "3b74e36a68f4d052ecf6ace36a678440322f14e7f4ff129adaf997a328597f57",
+        "spinit": "6232d70a07ca63aeee0581b23cde5d4384e0c1b0541d0206a7011700e16339f9",
+        "backend-baseline.json": "cc56c5b13e9e3dc6ce134ebbcd1a5ff200013f55ff06b40367855d2b220c6e73"
+      },
+      "status": "passed"
+    },
+    {
+      "voltage_tolerance_v": 0.0165,
+      "time_tolerance_s": 1e-12,
+      "cases": {
+        "rc": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "external": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0011026181104427657,
+            "max_error_including_edges_v": 0.0011053919882630936
+          },
+          "source_queries": 12263,
+          "source_time_reversals": 19,
+          "sync_calls": 12243,
+          "sync_redo_calls": 19,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "breakpoint": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "set_breakpoint": 1,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "nearest_breakpoint_sample_s": 0.0,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "pause": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "delete_conditions": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "resume": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "stop_condition": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 2013,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0020001,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "resumed": {
+            "samples": 5015,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10030,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5015,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "reset": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "circuit_reset": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "full_reset": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 3,
+            "quit": 1,
+            "quit_requested": 1,
+            "reinitialized_run": 0,
+            "rerun": 0,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "circuit-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "full-reset.csv": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 30072,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 15036,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "invalid": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 2,
+            "exit_status": 0,
+            "full_reset_after_invalid": 0,
+            "idle_before_quit": 1,
+            "invalid_callback_samples": 0,
+            "invalid_diagnostics": 1,
+            "invalid_exit_callback": 0,
+            "invalid_exit_status": -1,
+            "invalid_load": 0,
+            "invalid_run": 0,
+            "invalid_vector_present": 0,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 0,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 5012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.004999999999999989,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 10024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 5012,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "retry": {
+          "process_exit": 0,
+          "metrics": {
+            "callback_fault": 0,
+            "data_on_main_thread": 1,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "idle_before_quit": 1,
+            "plot_initializations": 1,
+            "quit": 1,
+            "quit_requested": 1,
+            "run": 0,
+            "source_on_main_thread": 1,
+            "background_flags": []
+          },
+          "first": {
+            "samples": 6112,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.005999999999999989,
+            "max_error_v": 0.0015137611414006713,
+            "max_error_including_edges_v": 0.0015175641606837154
+          },
+          "source_queries": 12265,
+          "source_time_reversals": 20,
+          "sync_calls": 12244,
+          "sync_redo_calls": 19,
+          "requested_retries": 1.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "rejected_trial_time_s": 0.0012346595917545158,
+          "callback_samples": 6112,
+          "callbacks_match_vectors": true,
+          "matches_previous_run": true,
+          "status": "passed"
+        },
+        "background": {
+          "process_exit": 0,
+          "metrics": {
+            "actual_pause_time_s": 0.0009897740552655104,
+            "background_halt": 0,
+            "background_resume": 0,
+            "background_retire": 0,
+            "background_run": 0,
+            "callback_fault": 0,
+            "data_on_main_thread": 0,
+            "diagnostics": 0,
+            "exit_status": 0,
+            "halt_wall_seconds": 0.1138857,
+            "idle_before_quit": 1,
+            "pause_request_observed_time_s": 0.0009887740552655105,
+            "plot_initializations": 2,
+            "quit": 1,
+            "quit_requested": 1,
+            "source_on_main_thread": 0,
+            "background_flags": [
+              0,
+              1,
+              0,
+              1
+            ]
+          },
+          "first": {
+            "samples": 1001,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.0009897740552655104,
+            "max_error_v": 9.884246843228084e-08,
+            "max_error_including_edges_v": 9.884246843228084e-08
+          },
+          "resumed": {
+            "samples": 50012,
+            "first_time_s": 1e-08,
+            "final_time_s": 0.04999999999999999,
+            "max_error_v": 9.889724283951296e-08,
+            "max_error_including_edges_v": 9.889724283951296e-08
+          },
+          "source_queries": 0,
+          "source_time_reversals": 0,
+          "sync_calls": 100024,
+          "sync_redo_calls": 0,
+          "requested_retries": 0.0,
+          "sync_locations": [
+            0,
+            1
+          ],
+          "callback_samples": 50012,
+          "callbacks_match_vectors": true,
+          "status": "passed"
+        }
+      },
+      "sha256": {
+        "e01.exe": "19abc7d5bc3d687beb77cd4394b2089c5bb741596e8771d25ba1990bc330251a",
+        "external.cir": "f7325367743b578dbecce500cc2ccc8d6ed5c834f8df718df357949b63efc3e4",
+        "invalid.cir": "0ca4e136f86c0f77ec12c1473d43864d173633cd77c6c7c8d88de3b2a19324cc",
+        "rc.cir": "33fa257870363de978316d3189a0c243044fc6fb919582336901e5c062f2475f",
+        "e01.cpp": "fe5ec01a1eaf466535191557a334505da2928bb30e5147f5a27a8882d7015669",
+        "CMakeLists.txt": "5cffde058e358a1a2653932616e939e3022a930e5a6e7f7d76b322483d7c4b90",
+        "run.py": "2340a79ac27f4c142ed202e5c2cc36a9a8bcce0f1c8ee4dbb3903773332f4461",
+        "ngspice_host.hpp": "3b74e36a68f4d052ecf6ace36a678440322f14e7f4ff129adaf997a328597f57",
+        "spinit": "6232d70a07ca63aeee0581b23cde5d4384e0c1b0541d0206a7011700e16339f9",
+        "backend-baseline.json": "cc56c5b13e9e3dc6ce134ebbcd1a5ff200013f55ff06b40367855d2b220c6e73"
+      },
+      "status": "passed"
+    }
+  ]
+}
