@@ -44,6 +44,8 @@ The [dedicated workflow](../../.github/workflows/renode-client.yml) repeats the 
 
 Local repository verification passed for 88 text files, Python syntax and whitespace checks, and the root CMake configure/check target. The existing eight-case ngspice suite also passed after adding the Renode-only dependency-check option.
 
+[Hosted SN-019 verification](https://github.com/RicardoKers/SimNodus/actions/runs/33437509897) passed both complete suites on Windows Server 2025 / MSVC 19.51.36256.0 / Python 3.12.10. The report links the accompanying passing foundation and ngspice regression checks.
+
 ## Engine verification layers
 
 | Layer | Required evidence |

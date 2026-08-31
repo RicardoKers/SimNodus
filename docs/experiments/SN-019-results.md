@@ -12,6 +12,8 @@ Environment: Windows 11 x64 10.0.26200; MSVC 19.51.36246.0, Windows SDK 10.0.261
 
 The separate [Windows workflow](../../.github/workflows/renode-client.yml) obtains and verifies the pinned files, builds both clients, and runs the complete suite twice. Hosted executions are listed in [workflow runs](https://github.com/RicardoKers/SimNodus/actions/workflows/renode-client.yml); committed evidence here records local execution.
 
+[Hosted run 33437509897](https://github.com/RicardoKers/SimNodus/actions/runs/33437509897) passed both 20-case suites on Windows Server 2025, image `windows-2025-vs2026` revision `20260824.214.3`, with MSVC 19.51.36256.0, CMake 4.4.2, and Python 3.12.10. [Foundation checks](https://github.com/RicardoKers/SimNodus/actions/runs/33437509849) passed on Windows/Ubuntu, and the [ngspice regression](https://github.com/RicardoKers/SimNodus/actions/runs/33437509866) passed both suites. This is independent host verification, not a classroom installation rehearsal.
+
 ## Why a loopback server variant was necessary
 
 The pinned `ExternalControlServer` delegates socket creation to `SocketServerProvider.Start`, which supplies `IPAddress.Any`; `SocketsManager` binds that endpoint without narrowing it. Connecting from localhost does not restrict such a server to localhost. **The original all-interface listener was not started for this experiment.**

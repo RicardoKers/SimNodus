@@ -3,6 +3,7 @@ name: Native Renode client experiment
 on:
   pull_request:
     paths:
+      - '.gitattributes'
       - 'tests/experiments/renode-client/**'
       - 'tools/backend-baseline.json'
       - 'tools/check_backend_assets.py'
@@ -10,6 +11,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.gitattributes'
       - 'tests/experiments/renode-client/**'
       - 'tools/backend-baseline.json'
       - 'tools/check_backend_assets.py'

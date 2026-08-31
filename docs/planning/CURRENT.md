@@ -14,7 +14,7 @@ Updated: 2026-08-31.
 - Author and maintainer: Ricardo Kerschbaumer.
 - Git: public [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus), default branch `main`.
 - Publication: first commit `b3163a1` published on 2026-08-31; SN-041 complete.
-- Checks: Windows/Ubuntu foundation checks and two complete E-01 suites on GitHub's Windows runner passed. Local E-01 evidence records three passing runs; hosted results are linked in its report.
+- Checks: Windows/Ubuntu foundation checks and repeated E-01 and SN-019 suites on GitHub's Windows runners passed. Local evidence records three E-01 runs and two SN-019 runs; hosted results are linked in their reports.
 - Collaboration: nine initial issues, four milestones, protected `main`, and private vulnerability reporting enabled.
 
 ## Completed work
