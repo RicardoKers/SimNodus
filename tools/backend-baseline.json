@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-08-31",
+  "purpose": "SN-010 Windows x64 experiment baseline; not a simulator release lockfile",
+  "renode_revision": "d66b0c2aa3d420408eccecfd1d3bab0fd702a6db",
+  "renode_infrastructure_revision": "add012af003a0f620d3da52828262676f374d121",
+  "archives": [
+    {
+      "path": "downloads/renode-1.16.1.windows-portable-dotnet.zip",
+      "url": "https://github.com/renode/renode/releases/download/v1.16.1/renode-1.16.1.windows-portable-dotnet.zip",
+      "sha256": "d09b7934cfd560cd06bde8f131ef78f521f10d423d5aac6096f2a583224aeb3e",
+      "hash_source": "GitHub release asset digest, matched locally"
+    },
+    {
+      "path": "downloads/ngspice-47_dll_64.7z",
+      "url": "https://master.dl.sourceforge.net/project/ngspice/ng-spice-rework/47/ngspice-47_dll_64.7z?viasf=1",
+      "sha256": "5bf5eec7db989f74849cdb32f7df62693f4f149cceeebcbd222eb35c2bb821eb",
+      "hash_source": "SourceForge download page, matched locally"
+    },
+    {
+      "path": "downloads/ngspice-47_64.7z",
+      "url": "https://master.dl.sourceforge.net/project/ngspice/ng-spice-rework/47/ngspice-47_64.7z?viasf=1",
+      "sha256": "59225971bd68cdd1199443649aa4615a9e6d684933f205ab49006a3942518f5a",
+      "hash_source": "SourceForge download page, matched locally"
+    },
+    {
+      "path": "downloads/ngspice-47.tar.gz",
+      "url": "https://netix.dl.sourceforge.net/project/ngspice/ng-spice-rework/47/ngspice-47.tar.gz",
+      "sha256": "894e649651f1838a14095e5a5439e7d3aa63e87ede14d283173fda4fcdef675f",
+      "hash_source": "SourceForge download page, matched locally"
+    }
+  ],
+  "files": [
+    {
+      "path": "renode/renode_1.16.1-dotnet_portable/Renode.exe",
+      "sha256": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+    },
+    {
+      "path": "renode/renode_1.16.1-dotnet_portable/tools/external_control_client/include/renode_api.h",
+      "sha256": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee"
+    },
+    {
+      "path": "renode/renode_1.16.1-dotnet_portable/tools/external_control_client/lib/renode_api.c",
+      "sha256": "7e210d973799f131fcd4fcfd0540d02ceb7919968e1d0d5bc34d8e0d7de36dec"
+    },
+    {
+      "path": "renode/renode_1.16.1-dotnet_portable/platforms/cpus/stm32f103.repl",
+      "sha256": "6fc49804f4483cc6b9d97120736809cee42b5a005c5ce537559d99e2dd008e41"
+    },
+    {
+      "path": "ngspice/Spice64_dll/dll-vs/ngspice.dll",
+      "sha256": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e"
+    },
+    {
+      "path": "ngspice/Spice64_dll/include/ngspice/sharedspice.h",
+      "sha256": "dc265f89ef7d0a47969d773147ae250cc53c95a6cd595c66954159e9858848d5"
+    },
+    {
+      "path": "ngspice-source/ngspice-47/src/include/ngspice/sharedspice.h",
+      "sha256": "dc265f89ef7d0a47969d773147ae250cc53c95a6cd595c66954159e9858848d5"
+    },
+    {
+      "path": "ngspice/Spice64_dll/dll-vs/libomp140.x86_64.dll",
+      "sha256": "644c49149f8a5d9275a83e9331a0adbd14620f930190e985d30b842107123597"
+    },
+    {
+      "path": "ngspice-console/Spice64/bin/sndfile.dll",
+      "sha256": "4e3bd2de8e1485110eaebef8e1239471f73d608773831c323bf528e05645655e"
+    },
+    {
+      "path": "ngspice-console/Spice64/bin/samplerate.dll",
+      "sha256": "2e24802f94b584173de7358a5f26d3147226f417dcebeb69bee98994022483ce"
+    }
+  ]
+}

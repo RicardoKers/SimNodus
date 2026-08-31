@@ -51,6 +51,8 @@ python tools/check_repository.py
 
 This checks repository structure and documentation; **it does not simulate circuits**. The CMake foundation reserves C++20 settings and exposes the same check. See [setup instructions](docs/development/GETTING_STARTED.md).
 
+SN-010 also provides an opt-in Windows C++ dependency probe: the pinned ngspice DLL initializes and quits, and Renode starts headlessly. See [backend setup](docs/development/WINDOWS_BACKENDS.md) and [results/limitations](docs/experiments/SN-010-results.md). Circuit simulation and native Renode client integration are still pending.
+
 ## License and publication
 
 Original SimNodus code and associated documentation are licensed under the [MIT License](LICENSE). Third-party software, firmware, models, fonts, and other assets keep their own terms; see the [licensing policy](docs/development/LICENSING.md).
