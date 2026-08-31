@@ -6,7 +6,7 @@ There are no released or supported simulator versions yet. This repository curre
 
 ## Reporting a vulnerability
 
-Do not put exploit details, credentials, private firmware, or personal information in a public issue. Once the repository is published, use GitHub's private vulnerability reporting if it is enabled. The maintainer must enable that channel or publish a private contact before accepting external security reports.
+Do not put exploit details, credentials, private firmware, or personal information in a public issue. Private vulnerability reporting is enabled: [report a vulnerability privately](https://github.com/RicardoKers/SimNodus/security/advisories/new). The maintainer is Ricardo Kerschbaumer ([RicardoKers](https://github.com/RicardoKers)).
 
 If no private channel is available, request a contact through a public issue **without sensitive details**. No response-time guarantee is currently offered.
 

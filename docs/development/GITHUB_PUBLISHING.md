@@ -1,6 +1,6 @@
-# GitHub publication checklist
+# GitHub setup and publication record
 
-The owner authorized the first public source publication at `RicardoKers/SimNodus`, with Ricardo Kerschbaumer as author. No raw private conversations or binary simulator release are included. See [current state](../planning/CURRENT.md) for progress.
+The owner authorized the first public source publication at `RicardoKers/SimNodus`, with Ricardo Kerschbaumer as author. The first commit, `b3163a1`, was published on 2026-08-31. No raw private conversations or binary simulator release are included. See [current state](../planning/CURRENT.md) for ongoing work.
 
 ## Source publication gate
 
@@ -14,13 +14,14 @@ The owner authorized the first public source publication at `RicardoKers/SimNodu
 - [x] Public metadata and files reviewed for personal paths, credentials, and student information.
 - [x] Preliminary GitHub name search completed; no matching repository found before publication.
 - [x] Commit identity confirmed against the authenticated account and existing Git configuration.
-- [ ] Initial commit reviewed and recorded.
-- [ ] Remote created as public and initial push authorized/performed.
-- [ ] Hosted CI observed; private vulnerability reporting/contact configured.
+- [x] Initial commit reviewed and recorded.
+- [x] Remote created as public and initial push authorized/performed.
+- [x] Hosted CI passed on Windows and Ubuntu; private vulnerability reporting configured.
+- [x] Nine initial issues and four milestones created; `main` protection enabled.
 
 Do not publish raw chat transcripts. The research synthesis is sufficient and does not expose private conversation identifiers.
 
-## Proposed remote setup
+## Remote setup
 
 Repository: [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus). Description: “Open-source mixed-signal and embedded systems simulator, starting with STM32.”
 
@@ -30,9 +31,13 @@ Use a reviewed initial commit and an empty remote, then add the remote and push 
 
 ## Collaboration setup
 
-Create milestones from the roadmap and issues from ready backlog tasks, retaining `SN-xxx` IDs. Suggested labels: `type:bug`, `type:feature`, `type:experiment`, `type:docs`, `priority:P0`, `platform:windows`, `platform:linux`.
+Initial issues cover SN-010 through SN-018. See the [backlog mapping](../planning/BACKLOG.md) and [GitHub issues](https://github.com/RicardoKers/SimNodus/issues). Labels identify work type, priority, platform, and ready/waiting status. No contributors were invited and no separate project board was created.
 
-Protect `main` with the checks actually produced by CI after its first successful run. Do not invent CODEOWNERS usernames or require multiple maintainers in a one-person project. Dependency-update PRs should be reviewed, not automatically merged.
+Milestones: [M1](https://github.com/RicardoKers/SimNodus/milestone/1) (September 30), [M2](https://github.com/RicardoKers/SimNodus/milestone/2) (October 31), [M3](https://github.com/RicardoKers/SimNodus/milestone/3) (December 15), and [classroom readiness](https://github.com/RicardoKers/SimNodus/milestone/4) (January 31, 2027). These are planning targets, not delivery guarantees.
+
+`main` requires pull requests, an up-to-date branch, resolved conversations, and successful `Foundation (windows-latest)` and `Foundation (ubuntu-latest)` checks from GitHub Actions. Separate reviewer approval count is zero for the single-maintainer phase. Rules include administrators; force pushes and branch deletion are disabled. Squash merging is the enabled merge method and merged source branches are automatically deleted.
+
+The wiki is disabled so documentation stays versioned with code. Private reports use the [security advisory form](https://github.com/RicardoKers/SimNodus/security/advisories/new). Dependency-update PRs should be reviewed, not automatically merged.
 
 ## Before a binary release
 

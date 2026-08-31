@@ -11,6 +11,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 - Backlog, risk register, open questions, and reproducible experiment specifications.
 - MIT license for original project material and third-party review guidance.
 - Development scaffolding, repository checks, and GitHub issue/PR/CI templates.
+- Public repository under RicardoKers, with Ricardo Kerschbaumer as the initial author.
+- Nine initial issues, four dated milestones, private vulnerability reporting, and main-branch protection requiring Windows/Ubuntu checks.
 
 ### Not implemented
 

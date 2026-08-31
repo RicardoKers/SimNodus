@@ -10,9 +10,11 @@ Local foundation verification on 2026-08-31:
 - CMake configuration passed with Visual Studio 18 2026, MSVC 19.51.36246.0, and Python 3.14.4.
 - The CMake `check-repository` target passed in Debug configuration.
 - Repository text was reviewed for the English-only requirement; no private chat exports or runtime binaries were added.
-- Git was initialized on `main`; no commits or remotes exist, and build output is ignored.
+- The initial 54-file staged snapshot passed whitespace checks and a targeted credential/private-path scan before publication. Build output and local publication helpers are ignored.
 
-Hosted GitHub Actions and Linux configuration have not been run. No backend experiment or simulator test has run. The local CMake result validates configuration and the check target, not application compilation or runtime behavior.
+Hosted verification of the first public commit `b3163a1` passed on both `windows-latest` and `ubuntu-latest`: [run 33399498653](https://github.com/RicardoKers/SimNodus/actions/runs/33399498653). Both jobs checked repository files, configured CMake with a C++ compiler, and ran the check target.
+
+No backend experiment or simulator test has run. Local and hosted results validate the foundation, not application compilation, simulation behavior, or a supported Linux application release.
 
 ## Engine verification layers
 

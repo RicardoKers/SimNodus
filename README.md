@@ -16,7 +16,7 @@ SimNodus is a desktop simulator for teaching and exploring the interaction betwe
 | Plan the work | [Roadmap](docs/planning/ROADMAP.md) and [backlog](docs/planning/BACKLOG.md) |
 | Set up development | [Getting started](docs/development/GETTING_STARTED.md) |
 | Find documentation | [Documentation index](docs/README.md) |
-| Prepare the public repository | [GitHub publication checklist](docs/development/GITHUB_PUBLISHING.md) |
+| Contribute and follow progress | [GitHub setup and publication record](docs/development/GITHUB_PUBLISHING.md) |
 
 ## First technical milestone
 
@@ -55,6 +55,6 @@ This checks repository structure and documentation; **it does not simulate circu
 
 Original SimNodus code and associated documentation are licensed under the [MIT License](LICENSE). Third-party software, firmware, models, fonts, and other assets keep their own terms; see the [licensing policy](docs/development/LICENSING.md).
 
-Created and maintained by **Ricardo Kerschbaumer** ([RicardoKers](https://github.com/RicardoKers)). The public source destination is [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus); see [current state](docs/planning/CURRENT.md) for publication progress. No simulator release is available yet.
+Created and maintained by **Ricardo Kerschbaumer** ([RicardoKers](https://github.com/RicardoKers)). Source code and documentation are public at [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus). Follow [issues](https://github.com/RicardoKers/SimNodus/issues), [milestones](https://github.com/RicardoKers/SimNodus/milestones), and [checks](https://github.com/RicardoKers/SimNodus/actions). No simulator release is available yet.
 
 STM32 and other product names identify third-party technologies, not affiliations. A preliminary GitHub name search found no matching repository before publication; formal trademark and domain clearance remain unverified.
