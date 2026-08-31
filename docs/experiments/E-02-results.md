@@ -42,6 +42,13 @@ GDB commands exist upstream, but runtime GDB/CubeIDE coordination was not tested
   source, compiler flags, commands, hashes, and checks are in the
   [reproduction directory](../../tests/experiments/renode-stm32/README.md).
 
+[Hosted run 33441607168](https://github.com/RicardoKers/SimNodus/actions/runs/33441607168)
+passed two repetitions of both profiles on Windows Server 2025. The verified Arm
+GNU Toolchain 14.3.Rel1 (Build arm-14.174) produced the same ELF SHA-256 as the
+local CubeIDE-bundled compiler. Foundation, SN-019, and E-01 checks also passed on
+the same revision. This establishes clean-runner reproducibility for the experiment,
+not a packaged application or supported Windows release.
+
 The firmware is freestanding C11 with its own vector table, reset handler, linker
 map, mailbox, interrupt handlers, and direct register access. It links no HAL,
 CMSIS, compiler runtime, or C library. The 64 KiB and 20 KiB bounds match the

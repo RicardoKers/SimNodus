@@ -50,7 +50,7 @@ Local repository verification passed for 88 text files, Python syntax and whites
 
 The [E-02 report](../experiments/E-02-results.md) records two fresh runs, each with a 100 us and 1000 us profile. The owned ELF built twice identically. The checks cover vector/flash alias, initialized data/BSS startup, exact RunFor endpoints, periodic output, persistent input, both-edge EXTI, a 20 us pulse, same-time input collapse, GPIO modes, missing ADC, loopback ownership, and normal cleanup.
 
-The [dedicated workflow](../../.github/workflows/renode-stm32.yml) verifies the pinned Renode and compiler archives, prepares source-verified control/audit files, rebuilds the firmware and native probe, and repeats both profiles twice. It does not distribute generated artifacts. Hosted verification is pending the E-02 pull request.
+The [dedicated workflow](../../.github/workflows/renode-stm32.yml) verifies the pinned Renode and compiler archives, prepares source-verified control/audit files, rebuilds the firmware and native probe, and repeats both profiles twice. It does not distribute generated artifacts. [Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33441607168) passed all four profile runs with the same ELF hash as the local build; foundation, SN-019, and E-01 regressions also passed for that revision.
 
 Local repository verification passed for 104 text files, Python syntax, JSON parsing, and whitespace checks after E-02. The root CMake check and full SN-019/ngspice regression are repeated before publication.
 
