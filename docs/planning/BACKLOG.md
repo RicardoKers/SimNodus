@@ -1,0 +1,56 @@
+# Backlog
+
+States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 critical path, P1 near-term, P2 later. Dependencies are task IDs. No simulator implementation work is currently in progress.
+
+`SN-001` is the repository-foundation task. All engine and application tasks below remain unimplemented. Once issues exist, add their URLs without changing these IDs.
+
+## Foundation and technical proof
+
+| ID | Priority | State | Task | Depends on | Acceptance evidence |
+|---|---|---|---|---|---|
+| SN-001 | P0 | done | Establish architecture, planning, license, scaffolding, checks | — | English files and local structural verification |
+| SN-010 | P0 | ready | Inventory environment and pin backend revisions | SN-001 | Reproduction recipe, origin, license, hashes, toolchain versions |
+| SN-011 | P0 | planned | Run E-01 standalone ngspice | SN-010 | RC reference, external-source timing, pause/reset report |
+| SN-012 | P0 | planned | Run E-02 standalone Renode | SN-010 | Rebuildable ELF, timed GPIO, input injection, peripheral audit |
+| SN-013 | P0 | planned | Define supported temporal capability profile | SN-011, SN-012 | Explicit units, callback timing, advancement/stop semantics |
+| SN-014 | P0 | planned | Run E-03 coupled GPIO and digital feedback | SN-013 | Boundary/late-event tests; error measured; no hidden causality violation |
+| SN-015 | P0 | planned | Run E-04 ADC path | SN-012, SN-014 | Conversion unit/timing audit and voltage sweep |
+| SN-016 | P0 | planned | Run E-05 GDB and CubeIDE coordination | SN-014 | Breakpoint, step, continue, reset, disconnect, timeout evidence |
+| SN-017 | P0 | planned | Extract tested kernel/adapters from experiments | SN-014, SN-015, SN-016 | Headless runner and contract tests using real engines |
+| SN-018 | P1 | planned | Establish reproducibility/performance baseline | SN-017 | Fixed reference examples, latency/error/memory measurements |
+
+## Teaching MVP
+
+| ID | Priority | State | Task | Depends on | Acceptance evidence |
+|---|---|---|---|---|---|
+| SN-020 | P1 | planned | Specify circuit/component schema and validation | SN-013 | Versioned schema; stable IDs; valid/invalid round-trip fixtures |
+| SN-021 | P1 | planned | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph |
+| SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
+| SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
+| SN-024 | P1 | planned | Add scope, logic view, and UART terminal | SN-018, SN-023 | Responsive plots; units/provenance; exportable full traces |
+| SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
+| SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
+| SN-027 | P0 | planned | Package and test Windows classroom candidate | SN-026 | Clean/offline install rehearsal; dependency notices; known limitations |
+| SN-028 | P0 | planned | Conduct January classroom readiness review | SN-027 | Owner go/no-go with exact release and fallback materials |
+
+## Reuse, extensions, and public project
+
+| ID | Priority | State | Task | Depends on | Acceptance evidence |
+|---|---|---|---|---|---|
+| SN-030 | P1 | planned | Implement project-local subcircuits | SN-021, SN-023 | Two RC instances, independent state, explicit ports, recursion rejection |
+| SN-031 | P2 | planned | Implement user library and dependency locking | SN-030 | Conflict/update behavior; portable exported package |
+| SN-032 | P2 | planned | Expand validated peripheral and component coverage | SN-018 | Feature-specific firmware reports and licensed models |
+| SN-033 | P2 | planned | Add node/peripheral/software inspection | SN-024, SN-032 | Traceable fields and explicit unavailable values |
+| SN-034 | P2 | planned | Design and implement WASM SDK | SN-031 | Versioned capabilities, execution limits, malicious-package tests |
+| SN-035 | P2 | planned | Evaluate HDL integration | SN-017 | ADR chooses one integration path; reproducible HDL example |
+| SN-036 | P2 | planned | Ship a Linux application build | SN-027 | Linux integration tests, packaging, documentation, clean-machine run |
+| SN-040 | P1 | done | Resolve GitHub owner/name and publication review | SN-001 | RicardoKers/SimNodus and Ricardo Kerschbaumer confirmed; privacy review completed |
+| SN-041 | P1 | in_progress | Publish initial public source repository | SN-040 | Authorized push; CI observed; issue links and security contact configured |
+
+## Definition of ready
+
+A task has bounded scope, dependencies, acceptance evidence, and required inputs. Missing laboratory details do not block standalone backend experiments.
+
+## Definition of done
+
+The result exists, relevant checks passed, limitations and evidence are recorded, licensing is accounted for, and status/ADRs are updated. A design document, mock, or passing repository check never counts as a working engine feature.

@@ -1,0 +1,39 @@
+# Build outputs and generated firmware
+/build/
+/out/
+/dist/
+**/firmware/build/
+*.elf
+*.hex
+*.o
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Local configuration and caches
+CMakeUserPresets.json
+.vs/
+.vscode/
+*.user
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+.DS_Store
+Thumbs.db
+
+# Credentials and private working material
+.env
+.env.*
+!.env.example
+.private/
+.codex/
+.agents/
+
+# Do not ignore *.lib globally: SPICE model libraries can be source assets.
