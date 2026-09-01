@@ -35,6 +35,8 @@ No tolerance was changed after observing results.
 
 The dedicated firmware drives PA0 HIGH at its first 1 ms SysTick and LOW at 4 ms. The longer pulse is intentional: a 1 ms HIGH cannot reach the 0.70 VDD threshold through a 1 ms time-constant RC. PA1 receives resolved feedback; EXTI1 records both edges and PA4 acknowledges the state. Sources, build flags, commands, raw CSV fields, and analysis are in the [reproduction directory](../../tests/experiments/coupling/README.md). The committed [compact evidence](evidence/E-03-summary.json) summarizes the final local run; large raw traces remain ignored.
 
+The [hosted E-03 run](https://github.com/RicardoKers/SimNodus/actions/runs/33462555508) independently rebuilt the owned firmware and native host, verified every pinned archive, and passed the complete 54-case matrix on a clean GitHub-hosted Windows runner in 8 minutes 51 seconds. This clean-runner result validates reproducibility of the experiment; it is not an application packaging test.
+
 ## Execution coverage
 
 The complete run executed **54 isolated cases**. Every case launched a fresh

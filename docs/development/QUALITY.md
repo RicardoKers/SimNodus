@@ -55,6 +55,11 @@ checks producer/observation/application times, repeats discrete signatures, and
 exercises boundary, pulse, late-input, and worker-recreation cases. It reports
 sampled exchange as approximate even when every numerical gate passes.
 
+The [hosted E-03 run](https://github.com/RicardoKers/SimNodus/actions/runs/33462555508)
+verified the pinned archives, rebuilt the owned firmware and native host, and
+passed all 54 isolated cases on a clean Windows runner in 8 minutes 51 seconds.
+The foundation checks also passed on Windows and Ubuntu for that revision.
+
 The result does not validate a production scheduler, general causal feedback,
 nonlinear circuits, ADC, GDB, or Linux runtime. Keep raw traces outside Git and
 commit only the compact summary and a sanitized figure.
