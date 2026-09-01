@@ -4,8 +4,8 @@ Updated: 2026-09-01.
 
 ## Snapshot
 
-- Stage: M2 technical proof in progress; restricted E-03 coupling is complete and SN-015's ADC audit is active.
-- Implementation: real experiment hosts run replay and approximate sampled coupling; production kernel and application not started.
+- Stage: M2 technical proof in progress; restricted E-03 coupling and focused E-04 ADC evidence are complete; SN-016 debugging is next.
+- Implementation: real experiment hosts run replay, approximate sampled coupling, and a direct-voltage ADC path; production kernel and application not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
 - Repository language: English only.
@@ -33,17 +33,19 @@ SN-013 combined E-01 and E-02 into an [evidence-bounded temporal capability prof
 
 SN-014 executed [E-03](../experiments/E-03-results.md) through real Renode and ngspice processes. Three replay runs met 1.103 mV / 0.353 us maxima and ended at an exact 10 ms common boundary. The 1000 us, 100 us, and 20 us sampled profiles met their declared `Q + 2 us` bounds with maximum delays of 846 us, 95 us, and 15 us, but every standard threshold was late to Renode and every intermediate ngspice stop was 100 ns beyond the request. Twenty-seven boundary cases, direct pulses, same-time collapse, past-input rejection, and three forced-failure/fresh-recovery pairs passed. [ADR 0011](../decisions/0011-e03-restricted-feedback.md) retains causal replay, permits only labelled sampled approximation, and keeps general live causal feedback unsupported.
 
-The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), [E-03](../experiments/E-03-results.md), and [QUALITY](../development/QUALITY.md). E-04 through E-06 have not run. No production simulator has been extracted.
+SN-015 executed [E-04](../experiments/E-04-results.md) through three fresh real Renode processes after rejecting the incompatible pinned generic ADC model. The focused owned F103 extension accepted integer microvolts and performed the only 12-bit quantization. Across 363 conversions, static and boundary points, saturation, two channels, a 101-point firmware ramp, all eight timing selections, and start-time sample retention repeated exactly with zero maximum code error. Invalid channels and disabled start were rejected without hidden advancement. [ADR 0012](../decisions/0012-focused-stm32f103-adc.md) keeps the extension limited to the experiment. ngspice and electrical acquisition were not part of this evidence.
 
-## Active task: SN-015 ADC path
+The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), [E-03](../experiments/E-03-results.md), [E-04](../experiments/E-04-results.md), and [QUALITY](../development/QUALITY.md). E-05 and E-06 have not run. No production simulator has been extracted.
 
-Follow [SN-015 / #6](https://github.com/RicardoKers/SimNodus/issues/6). The pinned generic `STM32_ADC` was rejected for this path because its register map does not match the F103 software-start position, it accepts queued raw codes, and it does not implement the external microvolt `IADC` contract. The [predeclared E-04 profile](../../tests/experiments/adc/README.md) selects a focused owned F103 register subset with single quantization, fixed VREF/sample timing, three fresh repetitions, static and boundary points, a 101-point ramp, channel mapping, and adverse cases. The experiment has not run yet.
+## Next task: SN-016 coordinated debugging
 
-Use known-schedule voltage application for this isolated ADC boundary experiment; do not infer complete electrical coupling or general feedback causality. Do not start GUI or production adapter extraction before the ADC and debugger gates.
+Follow [SN-016 / #7](https://github.com/RicardoKers/SimNodus/issues/7). Run plain GDB against the pinned Renode and owned firmware before attempting the selected STM32CubeIDE version. Break on a GPIO change and the E-04 ADC read, then test continue, instruction-step, step-over, pause, reset, disconnect, backend failure, and timeout while recording effective stop state in every active domain.
+
+Predeclare debugger ownership, permitted scheduler/debugger actions, consistency criteria, overshoot detection, and failure recovery before execution. Do not allow Renode to free-run independently of the experiment host. Do not start GUI or production adapter extraction before this debugger gate.
 
 ## Known uncertainties
 
-- The adapted Renode client now covers the reported transport/time and bounded GPIO/EXTI profile. ADC, broader system-bus behavior, callback unregistration/concurrency, and long sessions remain unvalidated.
+- The adapted Renode client now covers the reported transport/time, bounded GPIO/EXTI profile, and focused ADC path. Broader system-bus behavior, callback unregistration/concurrency, and long sessions remain unvalidated.
 - Client timeout/disconnect does not establish that an accepted Renode run stopped. The 1000 ms deadline is an experiment setting, not a product timing guarantee.
 - The explicit loopback extension, paths without whitespace, and per-run temporary directories are experiment constraints, not a finished packaging design.
 - E-02's offline profile has exact C8 memory bounds but only a fixed SysTick clock and RCC storage. It is not a complete Blue Pill or MCU platform.
@@ -52,7 +54,7 @@ Use known-schedule voltage application for this isolated ADC boundary experiment
 - Bundled runtimes and transitive licenses require review before distributing binaries.
 - Known-schedule replay is the only selected causality-preserving profile. Bounded sampled feedback passed only as an approximation; general live feedback and debugger arbitration remain unsupported.
 - Same-time input edges can collapse into one EXTI interrupt. Renode GPIO pulls, analog mode, open-drain electrical release, and RCC propagation are not hardware-faithful in the tested profile.
-- STM32F103 ADC integration remains absent and requires E-04.
+- The E-04 ADC is an owned experiment extension with fixed VREF/clock and a narrow register subset. Electrical acquisition, ngspice coupling, ADC2, interrupts/DMA, and complete peripheral fidelity remain unsupported.
 - Laboratory Windows versions, hardware limits, and exact first lesson are not yet known.
 
 ## Resume checklist
@@ -61,4 +63,4 @@ Use known-schedule voltage application for this isolated ADC boundary experiment
 2. Check local changes before editing; do not overwrite unrelated work.
 3. Select the next ready task and review its acceptance criteria.
 4. Record execution evidence and update only genuinely completed states.
-5. For E-04, fix ADC units, timing, quantization, and sweep gates before execution.
+5. For E-05, fix debugger ownership, stop-state consistency, overshoot, failure, and timeout gates before execution.

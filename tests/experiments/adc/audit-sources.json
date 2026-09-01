@@ -1,0 +1,35 @@
+{
+  "purpose": "Read-only ADC contract and register audit; sources are not vendored or compiled",
+  "sources": [
+    {
+      "file": "STM32_ADC.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/Analog/STM32_ADC.cs",
+      "sha256": "0282f59846413c292b3eb8d7985cca23331c0c8421081c3813ab2de7ae9592ec"
+    },
+    {
+      "file": "IADC.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Peripherals/Sensor/IADC.cs",
+      "sha256": "f71819fbcde5c6b13464bdca498d4c35b7438a58cf867b7e9597fa7cffbdb9f4"
+    },
+    {
+      "file": "ADCChannel.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Peripherals/Peripherals/Analog/ADCChannel.cs",
+      "sha256": "e4754bb7b2fd3be4c331c646bef3c741c9cd2d0eed9c75dde6b976f48e888dd0"
+    },
+    {
+      "file": "stm32f103xb.h",
+      "url": "https://raw.githubusercontent.com/STMicroelectronics/cmsis_device_f1/c8e9a4a4f16b6d2cb2a2083cbe5161025280fb22/Include/stm32f103xb.h",
+      "sha256": "d9c7c613d9fea74220892b4fbc3e80617493acad82a04bafadab2b4a7198399c"
+    },
+    {
+      "file": "stm32f1xx_hal_adc.h",
+      "url": "https://raw.githubusercontent.com/STMicroelectronics/stm32f1xx-hal-driver/baeff0a8dcb23c72012170a0978254a238f1f980/Inc/stm32f1xx_hal_adc.h",
+      "sha256": "2d9b47cc8d9700a82289829e6f7aebb882924e424820fb8f3f50fac54c640f06"
+    },
+    {
+      "file": "stm32f1xx_hal_adc.c",
+      "url": "https://raw.githubusercontent.com/STMicroelectronics/stm32f1xx-hal-driver/baeff0a8dcb23c72012170a0978254a238f1f980/Src/stm32f1xx_hal_adc.c",
+      "sha256": "dc65f89fdd6ee2ffb1b1303e5c7077502d5c0ec010681a20411e88673f670aee"
+    }
+  ]
+}

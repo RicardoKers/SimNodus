@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "experiment": "E-04",
+  "task": "SN-015",
+  "date": "2026-09-01",
+  "result": "passed_focused_adc_profile",
+  "model_scope": "owned_experiment_extension_not_complete_stm32f103_adc",
+  "complete_local_run": {
+    "fresh_renode_processes": 3,
+    "native_host_processes": 3,
+    "repeated_discrete_results": true,
+    "final_virtual_time_us_per_run": [
+      7413,
+      7413,
+      7413
+    ],
+    "minimum_process_duration_s": 12.641337799985195,
+    "maximum_process_duration_s": 13.785680799977854,
+    "total_process_duration_s": 39.855517599964514,
+    "firmware_elf_sha256": "76e0e8655ed2ef44e87a2416d6dd850f02229ca21c6c50bd50b9cee8ce042b46",
+    "identical_firmware_rebuild": true,
+    "native_host_sha256": "1f41aa5dfce608068200aba94474c25a87eefa4fc7207bb47b5172514f341f53",
+    "extension_sha256": "ba0b8ef485e70883a02f1a73a13f58df7faafcb55fd0957df48ae7c9ea893d57"
+  },
+  "contract": {
+    "reference_uv": 3300000,
+    "resolution_bits": 12,
+    "quantization": "min(4095,floor(input_uv*4096/3300000))",
+    "adc_clock_hz": 1000000,
+    "repetitions": 3
+  },
+  "audit": {
+    "status": "passed",
+    "fingerprints": {
+      "STM32_ADC.cs": "0282f59846413c292b3eb8d7985cca23331c0c8421081c3813ab2de7ae9592ec",
+      "IADC.cs": "f71819fbcde5c6b13464bdca498d4c35b7438a58cf867b7e9597fa7cffbdb9f4",
+      "ADCChannel.cs": "e4754bb7b2fd3be4c331c646bef3c741c9cd2d0eed9c75dde6b976f48e888dd0",
+      "stm32f103xb.h": "d9c7c613d9fea74220892b4fbc3e80617493acad82a04bafadab2b4a7198399c",
+      "stm32f1xx_hal_adc.h": "2d9b47cc8d9700a82289829e6f7aebb882924e424820fb8f3f50fac54c640f06",
+      "stm32f1xx_hal_adc.c": "dc65f89fdd6ee2ffb1b1303e5c7077502d5c0ec010681a20411e88673f670aee"
+    },
+    "findings": {
+      "generic_model_selected": false,
+      "generic_model_implements_iadc": false,
+      "generic_model_swstart_bit": 30,
+      "stm32f103_swstart_bit": 22,
+      "iadc_unit": "integer_microvolts",
+      "conversion_processing_cycles": 12.5
+    }
+  },
+  "static_points": [
+    {
+      "input_uv": 0,
+      "expected_code": 0,
+      "actual_code": 0
+    },
+    {
+      "input_uv": 825000,
+      "expected_code": 1024,
+      "actual_code": 1024
+    },
+    {
+      "input_uv": 1650000,
+      "expected_code": 2048,
+      "actual_code": 2048
+    },
+    {
+      "input_uv": 2475000,
+      "expected_code": 3072,
+      "actual_code": 3072
+    },
+    {
+      "input_uv": 3300000,
+      "expected_code": 4095,
+      "actual_code": 4095
+    }
+  ],
+  "quantization_and_saturation": [
+    {
+      "input_uv": 805,
+      "expected_code": 0,
+      "actual_code": 0
+    },
+    {
+      "input_uv": 806,
+      "expected_code": 1,
+      "actual_code": 1
+    },
+    {
+      "input_uv": 3299999,
+      "expected_code": 4095,
+      "actual_code": 4095
+    },
+    {
+      "input_uv": 3400000,
+      "expected_code": 4095,
+      "actual_code": 4095
+    }
+  ],
+  "channel_mapping": [
+    {
+      "channel": 0,
+      "input_uv": 825000,
+      "actual_code": 1024
+    },
+    {
+      "channel": 1,
+      "input_uv": 2475000,
+      "actual_code": 3072
+    }
+  ],
+  "ramp": {
+    "samples": 101,
+    "start_uv": 0,
+    "end_uv": 3300000,
+    "step_uv": 33000,
+    "start_code": 0,
+    "end_code": 4095,
+    "monotonic": true,
+    "maximum_code_error": 0
+  },
+  "conversion_timing": [
+    {
+      "sample_setting": 0,
+      "duration_us": 14,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 1,
+      "duration_us": 20,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 2,
+      "duration_us": 26,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 3,
+      "duration_us": 41,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 4,
+      "duration_us": 54,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 5,
+      "duration_us": 68,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 6,
+      "duration_us": 84,
+      "actual_code": 2048
+    },
+    {
+      "sample_setting": 7,
+      "duration_us": 252,
+      "actual_code": 2048
+    }
+  ],
+  "sample_instant": {
+    "started_us": 7379,
+    "updated_us": 7380,
+    "completed_us": 7393,
+    "start_input_uv": 825000,
+    "updated_input_uv": 2475000,
+    "actual_code": 1024
+  },
+  "adverse_cases": {
+    "invalid_channels": {
+      "negative_code": 5,
+      "high_code": 5,
+      "time_unchanged": true,
+      "valid_value_preserved": true
+    },
+    "disabled_start": {
+      "started_us": 7393,
+      "checked_us": 7413,
+      "eoc": false
+    }
+  },
+  "unsupported": [
+    "dynamic_vdda_or_vref",
+    "negative_voltage_api_input",
+    "electrical_acquisition_effects",
+    "scan",
+    "continuous",
+    "injected",
+    "external_trigger",
+    "interrupt",
+    "dma",
+    "watchdog",
+    "dual_adc",
+    "internal_temperature_or_vref_channels",
+    "general_live_coupling"
+  ]
+}

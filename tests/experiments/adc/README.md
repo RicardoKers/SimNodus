@@ -16,7 +16,7 @@ model is not suitable for the E-04 path:
 - feeding an already quantized code through that route would leave voltage
   units outside the backend contract and invite double quantization.
 
-E-04 therefore uses an owned, focused `STM32F103ADC` experiment extension. Its
+E-04 therefore uses an owned, focused `SimNodusSTM32F103ADC` experiment extension. Its
 register subset is checked against the pinned official ST CMSIS and HAL sources.
 The extension implements Renode's pinned `IADC` contract directly, so the native
 client passes voltage once in integer microvolts and the peripheral performs the
@@ -90,3 +90,30 @@ relaxed after observing results.
 - [Pinned ST STM32F1 HAL ADC contract](https://github.com/STMicroelectronics/stm32f1xx-hal-driver/blob/baeff0a8dcb23c72012170a0978254a238f1f980/Inc/stm32f1xx_hal_adc.h)
 
 The sources above are audit inputs and are not redistributed by this directory.
+
+## Reproduce on Windows
+
+Use the exact Renode and Arm compiler packages from the repository manifests.
+SN-019's preparation step creates the source-pinned native client and
+loopback-only server under ignored build output.
+
+```powershell
+python tests/experiments/renode-client/prepare.py --download
+python tests/experiments/adc/audit.py --download
+python tests/experiments/adc/build_firmware.py --toolchain <arm-toolchain-bin>
+cmake -S tests/experiments/adc -B build/sn015/native -A x64 `
+  -DPREPARED_ROOT=<absolute-prepared-root> `
+  -DFIRMWARE_ROOT=<absolute-firmware-root>
+cmake --build build/sn015/native --config Debug --target e04_probe
+python tests/experiments/adc/run.py --output build/sn015/results
+python tests/experiments/adc/summarize.py `
+  build/sn015/results/summary.json build/sn015/compact.json
+python tests/experiments/adc/plot.py `
+  build/sn015/results/summary.json build/sn015/e04-adc.svg
+```
+
+Replace the angle-bracket placeholders with machine-local absolute paths; do
+not commit them. The runner's defaults use `build/deps/renode`,
+`build/sn019/generated`, `build/sn015/firmware`, and
+`build/sn015/native/Debug/e04_probe.exe`. The dedicated Windows workflow
+downloads and verifies the same packages and executes this complete profile.

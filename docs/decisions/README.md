@@ -15,5 +15,6 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 | [0009](0009-stm32-experiment-profile.md) | Owned firmware, exact C8 memory, bounded digital GPIO/EXTI profile | Accepted for E-02 evidence; electrical modes, ADC, and coupling pending |
 | [0010](0010-temporal-capability-profile.md) | Evidence-bounded replay, sampled exchange, time conversion, and unsupported feedback operations | Accepted for SN-013; evaluated by E-03 / ADR 0011 |
 | [0011](0011-e03-restricted-feedback.md) | Retain causal known-schedule replay and explicitly approximate sampled feedback | Accepted from E-03 evidence; production extraction pending |
+| [0012](0012-focused-stm32f103-adc.md) | Use an owned F103-compatible ADC subset with microvolt input and single quantization | Accepted for E-04 evidence; production integration pending |
 
 Use the [template](TEMPLATE.md) for new decisions.

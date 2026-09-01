@@ -2,7 +2,7 @@
 
 ## Foundation checks
 
-Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01, SN-019, and E-02.
+Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01, SN-019, E-02, E-03, and E-04.
 
 Local foundation verification on 2026-08-31:
 
@@ -63,6 +63,31 @@ The foundation checks also passed on Windows and Ubuntu for that revision.
 The result does not validate a production scheduler, general causal feedback,
 nonlinear circuits, ADC, GDB, or Linux runtime. Keep raw traces outside Git and
 commit only the compact summary and a sanitized figure.
+
+## SN-015 / E-04 ADC checks
+
+The [E-04 report](../experiments/E-04-results.md) records three fresh real Renode
+processes and 363 accepted conversions through an owned F103-compatible
+experiment extension. The source audit pins the exact generic Renode model,
+`IADC` contract, channel implementation, and official ST CMSIS/HAL files. The
+generic model is rejected explicitly rather than treated as F103-compatible.
+
+The suite round-trips integer microvolts without host quantization, rebuilds the
+owned ELF identically, and checks static points, first-code and saturation
+boundaries, two channels, a 101-point firmware ramp, all eight fixed-clock timing
+settings, start-time sample retention, disabled start, invalid channels,
+loopback ownership, exact repeated results, and an expected-diagnostic allowlist.
+The local final run had zero maximum code error and exact declared virtual-time
+endpoints in every repetition.
+
+The [dedicated Windows workflow](../../.github/workflows/adc.yml) downloads and
+verifies the pinned Renode and Arm compiler packages, verifies the source audit,
+rebuilds the firmware/native host, and runs the complete three-process profile.
+Hosted verification is pending for the branch containing E-04.
+
+These checks do not include ngspice, electrical acquisition, dynamic VDDA/VREF,
+complete ADC modes, ADC2, production adapter ownership, GDB, or Linux runtime.
+The direct known-schedule voltage path does not broaden E-03's causality result.
 
 ## SN-012 / E-02 firmware and I/O checks
 

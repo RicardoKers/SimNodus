@@ -32,6 +32,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [E-02 STM32 firmware/I/O results](experiments/E-02-results.md) and [reproduction](../tests/experiments/renode-stm32/README.md).
 - [SN-013 temporal capability profile](architecture/TEMPORAL_CAPABILITY_PROFILE.md) and [ADR 0010](decisions/0010-temporal-capability-profile.md).
 - [E-03 GPIO/RC coupling results](experiments/E-03-results.md), [reproduction](../tests/experiments/coupling/README.md), and [ADR 0011](decisions/0011-e03-restricted-feedback.md).
+- [E-04 focused STM32F103 ADC results](experiments/E-04-results.md), [reproduction](../tests/experiments/adc/README.md), and [ADR 0012](decisions/0012-focused-stm32f103-adc.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).

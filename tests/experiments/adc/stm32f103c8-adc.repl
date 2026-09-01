@@ -1,0 +1,33 @@
+// Copyright (c) 2026 Ricardo Kerschbaumer; SPDX-License-Identifier: MIT
+// Offline E-04 subset, not a complete MCU or board description.
+flash: Memory.MappedMemory @ {
+    sysbus 0x08000000;
+    sysbus 0x00000000
+}
+    size: 0x10000
+
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x5000
+
+// Explicit stub: read/write storage, with no clock-tree or gating behavior.
+rccRegisterStorage: Memory.ArrayMemory @ sysbus 0x40021000
+    size: 0x400
+
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    priorityMask: 0xF0
+    systickFrequency: 8000000
+    IRQ -> cpu@0
+
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m3"
+    nvic: nvic
+    PerformanceInMips: 8
+
+gpioPortA: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010800, +0x400>
+
+adc1: SimNodusSTM32F103ADC @ sysbus 0x40012400
+    referenceMicrovolts: 3300000
+    adcClockFrequency: 1000000
+    IRQ -> nvic@18
+    preinit:
+        include @stm32f103_adc.cs
