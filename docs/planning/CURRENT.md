@@ -4,7 +4,7 @@ Updated: 2026-09-01.
 
 ## Snapshot
 
-- Stage: M2 technical proof in progress; restricted E-03 coupling and focused E-04 ADC evidence are complete; SN-016 debugging is next.
+- Stage: M2 technical proof in progress; restricted E-03 coupling and focused E-04 ADC evidence are complete; SN-016 debugging gates are fixed and execution is in progress.
 - Implementation: real experiment hosts run replay, approximate sampled coupling, and a direct-voltage ADC path; production kernel and application not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
@@ -37,11 +37,11 @@ SN-015 executed [E-04](../experiments/E-04-results.md) through three fresh real 
 
 The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), [E-03](../experiments/E-03-results.md), [E-04](../experiments/E-04-results.md), and [QUALITY](../development/QUALITY.md). E-05 and E-06 have not run. No production simulator has been extracted.
 
-## Next task: SN-016 coordinated debugging
+## Active task: SN-016 coordinated debugging
 
 Follow [SN-016 / #7](https://github.com/RicardoKers/SimNodus/issues/7). Run plain GDB against the pinned Renode and owned firmware before attempting the selected STM32CubeIDE version. Break on a GPIO change and the E-04 ADC read, then test continue, instruction-step, step-over, pause, reset, disconnect, backend failure, and timeout while recording effective stop state in every active domain.
 
-Predeclare debugger ownership, permitted scheduler/debugger actions, consistency criteria, overshoot detection, and failure recovery before execution. Do not allow Renode to free-run independently of the experiment host. Do not start GUI or production adapter extraction before this debugger gate.
+The [E-05 experiment contract](../../tests/experiments/debugging/README.md) now predeclares debugger ownership, permitted scheduler/debugger actions, consistency criteria, overshoot detection, loopback-only transport, and failure recovery. The source audit found that Renode's pinned standard GDB server binds all IPv4 interfaces, so E-05 must generate a source-pinned loopback-only variant and verify listener ownership before connecting. Execution has not started. Do not allow Renode to free-run independently of the experiment host, and do not start production adapter extraction before this debugger gate.
 
 ## Known uncertainties
 
@@ -63,4 +63,4 @@ Predeclare debugger ownership, permitted scheduler/debugger actions, consistency
 2. Check local changes before editing; do not overwrite unrelated work.
 3. Select the next ready task and review its acceptance criteria.
 4. Record execution evidence and update only genuinely completed states.
-5. For E-05, fix debugger ownership, stop-state consistency, overshoot, failure, and timeout gates before execution.
+5. For E-05, preserve the fixed contract while implementing and executing plain GDB first, then the actual CubeIDE launch.

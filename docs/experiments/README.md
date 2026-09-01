@@ -70,6 +70,8 @@ execution.
 
 Test plain GDB first, then the chosen CubeIDE version. Break on a GPIO change and ADC read. Exercise continue, instruction-step, step-over, pause, session reset, debugger reset, disconnect, backend failure, and timeout.
 
+**Predeclared contract:** The [E-05 experiment README](../../tests/experiments/debugging/README.md) fixes time ownership, joint-stop consistency, overshoot, loopback-only GDB transport, supported/unsupported commands, failure recovery, repetitions, and the actual-IDE requirement before execution.
+
 Record effective stop times in each domain. Test a breakpoint inside an advancement interval to detect overshoot. Specify who controls Renode advancement while GDB is attached. Never enable independent free-running GDB and scheduler control without an explicit design.
 
 **Pass:** Consistent committed state on every supported action; unsupported commands are rejected or diagnosed. Produce the actual tested CubeIDE launch recipe and versions.

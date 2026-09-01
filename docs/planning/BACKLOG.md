@@ -16,7 +16,7 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 | SN-013 | P0 | done | Define supported temporal capability profile | SN-011, SN-012 | [Evidence-bounded units, timing, operating modes, failure semantics, and predeclared E-03 gates](../architecture/TEMPORAL_CAPABILITY_PROFILE.md) |
 | SN-014 | P0 | done | Run E-03 coupled GPIO and digital feedback | SN-013 | [54 fresh real-backend cases: replay passed; sampled delays measured and explicitly approximate](../experiments/E-03-results.md) |
 | SN-015 | P0 | done | Run E-04 ADC path | SN-012, SN-014 | [Focused microvolt-to-firmware path, timing, sampling, boundaries, mapping, ramp, and limitations](../experiments/E-04-results.md) |
-| SN-016 | P0 | ready | Run E-05 GDB and CubeIDE coordination | SN-014 | Breakpoint, step, continue, reset, disconnect, timeout evidence |
+| SN-016 | P0 | in progress | Run E-05 GDB and CubeIDE coordination | SN-014 | [Predeclared GDB/CubeIDE ownership, consistency, failure, and transport gates](../../tests/experiments/debugging/README.md); execution pending |
 | SN-017 | P0 | planned | Extract tested kernel/adapters from experiments | SN-014, SN-015, SN-016 | Headless runner and contract tests using real engines |
 | SN-018 | P1 | planned | Establish reproducibility/performance baseline | SN-017 | Fixed reference examples, latency/error/memory measurements |
 
