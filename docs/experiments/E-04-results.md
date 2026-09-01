@@ -36,6 +36,8 @@ No tolerance was changed after observing a result. Commit `6504069` records the 
 
 The source verifier pins and hashes the three Renode model/contract files and three official ST register/HAL files used by the audit. The complete fingerprints are retained in the [compact evidence](evidence/E-04-summary.json). Upstream audit inputs and downloaded packages remain outside Git.
 
+The [hosted E-04 run](https://github.com/RicardoKers/SimNodus/actions/runs/33484129645) independently downloaded and verified the pinned packages and audit sources, rebuilt the firmware and native verifier, and passed the complete three-process profile on a clean GitHub-hosted Windows runner. The accompanying foundation checks passed on Windows and Ubuntu. This establishes experiment reproducibility, not application packaging or Linux simulation support.
+
 ## Voltage and channel results
 
 All three repetitions returned the same values:

@@ -83,7 +83,9 @@ endpoints in every repetition.
 The [dedicated Windows workflow](../../.github/workflows/adc.yml) downloads and
 verifies the pinned Renode and Arm compiler packages, verifies the source audit,
 rebuilds the firmware/native host, and runs the complete three-process profile.
-Hosted verification is pending for the branch containing E-04.
+[Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33484129645)
+passed the complete profile on a clean Windows runner in 1 minute 29 seconds.
+Foundation checks for the same revision passed on Windows and Ubuntu.
 
 These checks do not include ngspice, electrical acquisition, dynamic VDDA/VREF,
 complete ADC modes, ADC2, production adapter ownership, GDB, or Linux runtime.
