@@ -1,0 +1,106 @@
+name: Coupled GPIO and feedback experiment
+
+on:
+  pull_request:
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/coupling/**'
+      - 'tests/experiments/renode-client/**'
+      - 'tests/experiments/renode-stm32/stm32f103c8.repl'
+      - 'tests/experiments/renode-stm32/ci-toolchain.json'
+      - 'tools/backend_probe/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/coupling.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.gitattributes'
+      - 'tests/experiments/coupling/**'
+      - 'tests/experiments/renode-client/**'
+      - 'tests/experiments/renode-stm32/stm32f103c8.repl'
+      - 'tests/experiments/renode-stm32/ci-toolchain.json'
+      - 'tools/backend_probe/**'
+      - 'tools/backend-baseline.json'
+      - 'tools/check_backend_assets.py'
+      - '.github/workflows/coupling.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coupling-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    name: E-03 (Windows x64)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download and verify pinned packages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force build/deps/downloads,build/deps/toolchain | Out-Null
+          $backend = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
+          foreach ($asset in $backend.archives) {
+            $destination = Join-Path build/deps $asset.path
+            curl.exe --fail --location --silent --show-error --continue-at - --retry 2 --retry-delay 2 --retry-all-errors --max-time 300 $asset.url --output $destination
+            if ($LASTEXITCODE -ne 0) { throw "Backend download failed: $($asset.path)" }
+          }
+          $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json
+          $compilerArchive = Join-Path build/deps/downloads $compiler.archive
+          curl.exe --fail --location --silent --show-error --max-time 300 $compiler.url --output $compilerArchive
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler download failed' }
+          if ((Get-FileHash -Algorithm SHA256 $compilerArchive).Hash.ToLowerInvariant() -ne $compiler.sha256) { throw 'Compiler archive verification failed' }
+          python tools/check_backend_assets.py --archives-only
+      - name: Extract verified packages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+          & $sevenZip x build/deps/downloads/renode-1.16.1.windows-portable-dotnet.zip '-obuild/deps/renode' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Renode extraction failed' }
+          & $sevenZip x build/deps/downloads/ngspice-47_dll_64.7z '-obuild/deps/ngspice' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'ngspice DLL extraction failed' }
+          & $sevenZip x build/deps/downloads/ngspice-47_64.7z '-obuild/deps/ngspice-console' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'ngspice console extraction failed' }
+          New-Item -ItemType Directory -Force build/deps/ngspice-source | Out-Null
+          tar -xf build/deps/downloads/ngspice-47.tar.gz -C build/deps/ngspice-source
+          if ($LASTEXITCODE -ne 0) { throw 'ngspice source extraction failed' }
+          $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json
+          & $sevenZip x (Join-Path build/deps/downloads $compiler.archive) '-obuild/deps/toolchain' -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler extraction failed' }
+          python tools/check_backend_assets.py
+      - name: Prepare control source and owned firmware
+        shell: pwsh
+        run: |
+          python tests/experiments/renode-client/prepare.py --download
+          $compilers = @(Get-ChildItem build/deps/toolchain -Filter arm-none-eabi-gcc.exe -File -Recurse)
+          if ($compilers.Count -ne 1) { throw "Expected one extracted compiler, found $($compilers.Count)" }
+          python tests/experiments/coupling/build_firmware.py --toolchain $compilers[0].Directory.FullName
+      - name: Build the native coupling host
+        shell: pwsh
+        run: |
+          $prepared = (Resolve-Path build/sn019/generated).Path
+          $firmware = (Resolve-Path build/sn014/firmware).Path
+          $spice = (Resolve-Path build/deps/ngspice/Spice64_dll).Path
+          cmake -S tests/experiments/coupling -B build/sn014/native -A x64 "-DPREPARED_ROOT=$prepared" "-DFIRMWARE_ROOT=$firmware" "-DNGSPICE_ROOT=$spice"
+          if ($LASTEXITCODE -ne 0) { throw 'Configuration failed' }
+          cmake --build build/sn014/native --config Debug --target e03_probe
+      - name: Run the complete predeclared E-03 matrix
+        run: python tests/experiments/coupling/run.py --output build/sn014/results
+      - name: Record compact results
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path build/sn014/results/summary.json) {
+            python tests/experiments/coupling/summarize.py build/sn014/results/summary.json build/sn014/compact.json
+            Get-Content build/sn014/compact.json
+          }

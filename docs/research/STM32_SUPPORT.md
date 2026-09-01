@@ -1,13 +1,13 @@
 # STM32F103 support matrix
 
-Target direction: STM32F103C8/Blue Pill. E-02 validates only the bounded offline firmware/digital-I/O profile below. It does not validate complete hardware or board fidelity.
+Target direction: STM32F103C8/Blue Pill. E-02 validates the bounded offline firmware/digital-I/O profile; E-03 validates one restricted GPIO/RC/EXTI coupling path. Neither validates complete hardware or board fidelity.
 
 | Feature | Initial need | Current evidence | Validation task |
 |---|---|---|---|
 | Cortex-M3, boot, memory | Required | Owned ELF booted twice in 64 KiB flash/20 KiB SRAM; startup data/BSS verified | SN-012 passed; broaden in SN-032 |
-| GPIO output/input | Required | PA0 output and injected PA1 sampled onto PA2 in two fine/coarse runs | SN-012 passed bounded digital profile; couple in SN-014 |
+| GPIO output/input | Required | PA0 drove a real ngspice RC; threshold feedback reached PA1/EXTI and PA4 in E-03 | SN-014 passed replay and approximate sampled profile |
 | GPIO mode/pulls/open-drain | Required subset | Mode bits/guards audited; pulls, analog isolation and open-drain electrical release not modeled | SN-013, SN-014 |
-| EXTI/NVIC | Required for input lesson | PA1 rising/falling and 20 us pulse handled; same-time edges collapsed to one pending interrupt | SN-012 passed bounded path; causal profile SN-013/014 |
+| EXTI/NVIC | Required for input lesson | E-03 handled distinct direct pulses down to 1 us in its profile; same-time edges collapsed; sampled feedback was late | Restricted E-03 profile; general causal feedback unsupported |
 | SysTick/delay/clock setup | Required subset | Fixed 8 MHz SysTick generated 998-1000 us callback gaps; RCC only stores registers | SN-012 passed fixed profile; real clock tree SN-032 |
 | Timers/PWM/alternate functions | Useful after GPIO | Models/routing visible; timing/fidelity untested | SN-012, SN-032 |
 | ADC acquisition/conversion | Required for ADC lesson | No IADC instance in tested profile; external lookup failed as expected | SN-015 |

@@ -17,7 +17,7 @@ Updated: 2026-08-31, through SN-012. This is a **Windows x64 experiment baseline
 | Renode runtime | Bundled .NET 8.0.10 | Self-contained package uses this runtime, not the host's installed 8.0.22; security/update review needed before distribution |
 | Renode client/platform | Commit `d66b0c2aa3d420408eccecfd1d3bab0fd702a6db` | SN-019 control passed; E-02 passed an incomplete offline C8 firmware/GPIO profile |
 | Renode infrastructure | Submodule `add012af003a0f620d3da52828262676f374d121` | Socket provider and E-02 GPIO/EXTI/NVIC/ADC/GDB paths audited |
-| ngspice | 47, official Windows VS x64 shared library, created Aug 11 2026 14:25:06 | Startup and [E-01 RC/lifecycle profile](../experiments/E-01-results.md) passed; coupled simulation untested |
+| ngspice | 47, official Windows VS x64 shared library, created Aug 11 2026 14:25:06 | [E-01 RC/lifecycle](../experiments/E-01-results.md) and restricted [E-03 coupling](../experiments/E-03-results.md) passed; general causal feedback unsupported |
 | ngspice audio dependencies | libsndfile 1.2.2; libsamplerate 0.2.2 | Version functions queried; obtain DLLs from the matching official console package |
 | OpenMP runtime | `libomp140.x86_64.dll`, pinned by file hash | Included in the ngspice DLL package; semantic runtime version not independently established |
 | STM32CubeIDE | Installed package 2.1.1 | Installation discovered; GUI/debugger session not tested |
