@@ -4,7 +4,7 @@ Baseline: 2026-08-31. Likelihood and impact are qualitative estimates, not measu
 
 | ID | Risk | Likelihood / impact | Early signal | Mitigation / decision |
 |---|---|---|---|---|
-| R-01 | Feedback breaks causality | High / critical | GPIO/input discovered after consumer has advanced | E-03; conservative boundary integration or explicitly limited scope |
+| R-01 | Feedback breaks causality | High / critical | GPIO/input discovered after consumer has advanced | SN-013 limits current support to replay and measured sampled approximation; E-03 must prove any causal profile or require an extension |
 | R-02 | Renode version/API mismatch | Medium / high | Headers, docs, and binary disagree about time units | Pin matching executable/client/platform; record API behavior |
 | R-03 | STM32F103 peripheral gaps | High / high | Missing ADC, mode changes, clock or interrupt behavior | Per-feature audit; focused extensions with tests, not global support claims |
 | R-04 | Debugger bypasses scheduler | High / critical | GDB continue/step advances MCU independently | E-05; arbitration and failure reporting before GUI integration |
@@ -19,7 +19,7 @@ Baseline: 2026-08-31. Likelihood and impact are qualitative estimates, not measu
 | R-13 | Documentation drifts from implementation | Medium / medium | Roadmap says done without report | CURRENT/backlog discipline; ADRs and automated link checks |
 | R-14 | Control server exposed to the network | Observed / high | Pinned Renode provider binds every IPv4 interface | SN-019 explicit loopback variant; verify actual address/port/PID; never assume a localhost client restricts its server |
 | R-15 | Boolean GPIO behavior mistaken for electrical pin fidelity | Observed / high | Pulls, analog mode and open-drain release differ from hardware | Publish E-02 mode findings; model electrical behavior at an explicit coupling boundary |
-| R-16 | Input edges delivered too late or collapsed | Observed / high | Same-time input edges produced one pending EXTI interrupt in E-02 | Define SN-013 capability; test boundaries/short pulses in E-03; never silently retimestamp |
+| R-16 | Input edges delivered too late or collapsed | Observed / high | Same-time input edges produced one pending EXTI interrupt in E-02 | SN-013 coalesces and diagnoses equal-time levels; E-03 measures boundaries, delay, and short pulses; never silently retimestamp |
 
 ## Escalation rules
 

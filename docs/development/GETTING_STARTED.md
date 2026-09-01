@@ -33,7 +33,7 @@ The optional `bootstrap` configure/build presets run the same steps. Build outpu
 
 ## First development task
 
-SN-010, SN-011, SN-019, and SN-012 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), [SN-019 control](../../tests/experiments/renode-client/README.md), and [E-02 firmware/I/O](../../tests/experiments/renode-stm32/README.md) to reproduce them. Next is SN-013: define the temporal capability profile before coupling the engines. Qt is not needed.
+SN-010, SN-011, SN-019, SN-012, and SN-013 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), [SN-019 control](../../tests/experiments/renode-client/README.md), and [E-02 firmware/I/O](../../tests/experiments/renode-stm32/README.md) to reproduce the execution evidence. Read the [temporal capability profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md) before SN-014 implements E-03. Qt is not needed.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 
@@ -41,4 +41,6 @@ Do not download arbitrary model packs or install all future dependencies in adva
 
 The [dependency inventory](../research/DEPENDENCIES.md) records the exact host, compiler, SDK, Renode/ngspice packages, and existing CubeIDE ARM tools. Startup and [E-01 RC/lifecycle checks](../experiments/E-01-results.md) passed with documented limitations; firmware and coupled behavior remain untested. Commands missing from PATH do not establish that software is absent from the computer.
 
-Machine-specific paths are intentionally not committed.
+Machine-specific paths are intentionally not committed. E-03 is the next task;
+its thresholds, tolerances, quanta, repetitions, and adversarial cases are already
+fixed in the temporal profile and must not be changed after observing results.

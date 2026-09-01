@@ -65,6 +65,7 @@ Qt Widgets versus Qt Quick, plotting implementation, worker IPC, and a dependenc
 ## Detailed contracts
 
 - [Time and causality](SIMULATION_TIME.md).
+- [Temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md).
 - [Backend and electrical coupling](BACKEND_CONTRACTS.md).
 - [Components and hierarchy](COMPONENTS.md).
 - [Persistence](PROJECT_FORMAT.md).

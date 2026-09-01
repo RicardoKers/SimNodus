@@ -1,6 +1,6 @@
 # Experiment plan
 
-[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, and [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI. **E-03 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
+[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, and [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI. SN-013 combined their evidence in the [temporal capability profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md) and predeclared the E-03 gates below. **E-03 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.
 
@@ -34,7 +34,9 @@ First replay known GPIO into the E-01 RC circuit. Then close a digital feedback 
 
 Use known transitions at a boundary, just before/after a boundary, within a proposed quantum, and with pulses shorter than that quantum. Capture request, observation, application, and commit times. If only sampled exchange works, report delay/error and classify it approximate.
 
-**Pass for the causal profile:** No event is committed in the consumer's past; the tested threshold error is within the report's predeclared tolerance; repeated runs preserve discrete event ordering. The tolerance and supported signal range must be agreed from E-01/E-02 before measuring. Reducing a quantum without evaluating missed pulses does not establish correctness.
+The criteria are fixed before execution in the [SN-013 profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md): 1 kOhm/1 uF and 3.3 V, 0.70/0.30 VDD Schmitt thresholds, 16.5 mV voltage tolerance, 2 us crossing tolerance, three fresh repetitions, and sampled quanta of 1000 us, 100 us, and 20 us. It also defines forward microsecond quantization, `Q + 2 us` approximate-delay bounds, qualifying pulses, same-time collapse, boundary cases, and failure evidence. Do not relax those gates after observing a run; record a failed classification instead.
+
+**Pass for a causal profile:** No event is committed in the consumer's past; the tested threshold error is within the predeclared tolerance; repeated runs preserve discrete event ordering; and evidence shows that the consumer did not advance beyond the effective crossing before input application. Meeting only the sampled delay gate earns an approximate classification. Reducing a quantum without evaluating missed pulses does not establish correctness.
 
 **Decision:** Accept the verified transport/algorithm, implement a focused extension, or publish a deliberately restricted experiment profile. Do not proceed with full-feedback claims on one-way evidence.
 

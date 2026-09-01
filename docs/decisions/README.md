@@ -13,5 +13,6 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 | [0007](0007-ngspice-experiment-contract.md) | Measured ngspice trial/output, pause, reset, and lifecycle semantics | Accepted for bounded E-01 profile; coupled algorithm pending |
 | [0008](0008-windows-renode-control.md) | Native Windows client, verified loopback exposure, bounded operation failures | Accepted for SN-019 control/time profile; firmware and coupling pending |
 | [0009](0009-stm32-experiment-profile.md) | Owned firmware, exact C8 memory, bounded digital GPIO/EXTI profile | Accepted for E-02 evidence; electrical modes, ADC, and coupling pending |
+| [0010](0010-temporal-capability-profile.md) | Evidence-bounded replay, sampled exchange, time conversion, and unsupported feedback operations | Accepted for SN-013; E-03 execution pending |
 
 Use the [template](TEMPLATE.md) for new decisions.

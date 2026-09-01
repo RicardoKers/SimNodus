@@ -1,12 +1,12 @@
 # Virtual time and causality
 
-Status: design invariants, informed by standalone [E-01](../experiments/E-01-results.md) and [E-02](../experiments/E-02-results.md) evidence. Joint timing and feedback remain hypotheses for E-03 through E-05. No scheduler is implemented.
+Status: design invariants, informed by standalone [E-01](../experiments/E-01-results.md) and [E-02](../experiments/E-02-results.md) evidence. The [SN-013 temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) now selects known-schedule replay and defines the bounded sampled candidate for E-03. No scheduler is implemented.
 
 ## Representation
 
-Proposed `SimTime`: integer ticks of 1 ns at event boundaries. Resolution is not model accuracy. The ngspice adapter converts to floating-point seconds with explicit rounding and tolerances. Internal analog steps may be smaller; committed timestamps must not move backward through conversion. Check overflow and maximum session duration.
+Selected `SimTime`: unsigned, checked integer ticks of 1 ns at orchestration boundaries. Resolution is not model accuracy. The ngspice adapter converts to floating-point seconds with explicit rounding and tolerances. Internal analog steps may be smaller; committed timestamps must not move backward through conversion. Check overflow and maximum session duration. Round input forward, never into a consumer's past, when converting to Renode's microsecond grid.
 
-The selected Renode 1.16.1 external client uses microseconds, as recorded in the [pinned inventory](../research/DEPENDENCIES.md). Newer external-control documentation must not be substituted for that API. The proposed internal 1 ns representation does not establish 1 ns MCU control precision.
+The selected Renode 1.16.1 external client uses microseconds, as recorded in the [pinned inventory](../research/DEPENDENCIES.md). Newer external-control documentation must not be substituted for that API. The selected internal 1 ns representation does not establish 1 ns MCU control precision.
 
 `t_committed` is the last consistent point across all domains. Tentative solver time, granted MCU time, UI time, and host wall time are distinct.
 
@@ -34,7 +34,7 @@ Therefore a conceptual `advance_until(T)` interface is not proof of synchronizat
 | Conservative I/O-boundary advancement | Preferred direction for feedback | Must intervene before a consumer passes a causal event |
 | Coordinated rollback/checkpoints | Later research | Requires restoration of all engine state, queues, and analog history |
 
-No production strategy is approved yet. E-03 determines whether the official API suffices or a focused Renode extension is necessary. Failure is useful evidence and must not be hidden by smoothing traces.
+Known-schedule replay is approved for the bounded first E-03 phase. Sampled exchange remains explicitly approximate, with predeclared measurement gates. General live feedback is unsupported. E-03 determines whether the official API suffices for a narrower causal profile or a focused Renode extension is necessary. Failure is useful evidence and must not be hidden by smoothing traces.
 
 ## Crossings and ADC
 
