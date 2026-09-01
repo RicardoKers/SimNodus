@@ -1,6 +1,6 @@
 # Backend contracts and electrical coupling
 
-These are SimNodus requirements. Conceptual operation names are not claims about existing engine APIs.
+These are SimNodus requirements. Conceptual operation names are not claims about existing engine APIs. The [temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) maps the measured E-01/E-02 behavior onto the currently permitted operating modes.
 
 ## Minimum contract to demonstrate
 
@@ -14,6 +14,11 @@ These are SimNodus requirements. Conceptual operation names are not claims about
 | `reset` | Restore initial domain state as part of coordinated session reset |
 | `shutdown` | Release callbacks, handles, threads, and processes after failures |
 | `diagnostic` | Stable code, severity, backend, entity, time, useful message |
+
+`advance` must keep requested end, actual end, observation interval, stop reason,
+and committed time distinct. `apply_input` must retain producer, crossing,
+quantization, command, and effective times where applicable. A timeout or callback
+does not synthesize missing actual-time or confirmed-stop evidence.
 
 Use domain IDs and types internally. Adapters own resources; exceptions must not cross C interfaces. Implement only verified operations, not empty methods that report success.
 
@@ -32,6 +37,11 @@ Pin the executable, client, and platform revisions. Observe execution, pins, and
 [SN-019](../experiments/SN-019-results.md) validates native Windows handshake/time control on an empty machine, reconnects, fragmented transfers, and bounded failure handling. Use its verified loopback server variant; the original server binds every IPv4 interface. A client deadline or disconnect does not establish cancellation of an accepted RunFor.
 
 [E-02](../experiments/E-02-results.md) verifies GPIO callbacks during native `RunFor`: timestamps fall inside the active request, persistent and 20 us input transitions reach firmware, and same-time transitions can collapse into one pending EXTI interrupt. This does not establish an instruction-level stop, lookahead, cancellation, or feedback-causality guarantee. Callback unregistration, concurrent sessions, and production ownership remain unresolved.
+
+For the selected contract, exact Renode request/input times lie on the integer-us
+grid. Convert a sub-us analog crossing forward to that grid and record the delay.
+Equal-time commands for one Boolean pin are resolved before execution; they do not
+promise preservation of a zero-duration pulse.
 
 CPU execution is separate from electrical pin modeling. The integration profile owns the board/pin assumptions. Track firmware tests by feature in the [coverage matrix](../research/STM32_SUPPORT.md).
 

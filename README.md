@@ -4,7 +4,7 @@
 
 SimNodus is a desktop simulator for teaching and exploring the interaction between real firmware, microcontrollers, analog circuits, and digital logic. Its first target is the STM32F103C8/Blue Pill, using Renode, ngspice/XSPICE, a C++ co-simulation kernel, and a Qt 6 interface.
 
-**Status: standalone backend experiments. ngspice RC/lifecycle and bounded STM32 firmware/digital-I/O experiments work; the SimNodus application is not implemented yet.** Coupled backend integration, electrical GPIO, ADC, and STM32CubeIDE compatibility still require experimental validation. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
+**Status: standalone backend experiments and the initial temporal contract. ngspice RC/lifecycle and bounded STM32 firmware/digital-I/O experiments work; the SimNodus application is not implemented yet.** Known-schedule replay is the only currently selected causality-preserving integration profile. Coupled backend integration, live feedback, electrical GPIO, ADC, and STM32CubeIDE compatibility still require experimental validation. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
 
 ## Start here
 
@@ -53,7 +53,7 @@ This checks repository structure and documentation; **it does not simulate circu
 
 The opt-in Windows [E-01 experiment](tests/experiments/ngspice/README.md) runs real RC circuits through ngspice 47 and verifies analytical accuracy, external voltage callbacks, pause/resume, resets, and invalid-netlist recovery. See [measured results and limitations](docs/experiments/E-01-results.md). A separate Windows workflow repeats these checks.
 
-The [SN-019 Windows control experiment](tests/experiments/renode-client/README.md) runs the adapted native client against real Renode with a verified loopback-only server. [E-02](tests/experiments/renode-stm32/README.md) builds owned STM32F103C8 firmware and validates bounded SysTick GPIO, injected input, and EXTI behavior in an offline profile. See [results and limits](docs/experiments/E-02-results.md). Electrical GPIO, ADC, and coupled simulation are still pending.
+The [SN-019 Windows control experiment](tests/experiments/renode-client/README.md) runs the adapted native client against real Renode with a verified loopback-only server. [E-02](tests/experiments/renode-stm32/README.md) builds owned STM32F103C8 firmware and validates bounded SysTick GPIO, injected input, and EXTI behavior in an offline profile. See [results and limits](docs/experiments/E-02-results.md). The [SN-013 temporal profile](docs/architecture/TEMPORAL_CAPABILITY_PROFILE.md) defines supported replay, approximate sampled exchange, unsupported operations, and fixed E-03 gates. Electrical GPIO, ADC, and coupled simulation are still pending.
 
 ## License and publication
 
