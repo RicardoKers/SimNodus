@@ -1,10 +1,10 @@
 # Current state
 
-Updated: 2026-08-31.
+Updated: 2026-09-01.
 
 ## Snapshot
 
-- Stage: M2 technical proof in progress; standalone backends and restricted E-03 GPIO/RC/EXTI coupling complete.
+- Stage: M2 technical proof in progress; restricted E-03 coupling is complete and SN-015's ADC audit is active.
 - Implementation: real experiment hosts run replay and approximate sampled coupling; production kernel and application not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
@@ -35,9 +35,11 @@ SN-014 executed [E-03](../experiments/E-03-results.md) through real Renode and n
 
 The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), [E-03](../experiments/E-03-results.md), and [QUALITY](../development/QUALITY.md). E-04 through E-06 have not run. No production simulator has been extracted.
 
-## Next task: SN-015 ADC path
+## Active task: SN-015 ADC path
 
-Follow [SN-015 / #6](https://github.com/RicardoKers/SimNodus/issues/6): audit the selected Renode ADC model or a focused extension, define exact voltage/code/reference/acquisition semantics, then run E-04 static points and a ramp. Use replay or explicitly approximate sampled coupling; do not treat Boolean GPIO injection as ADC evidence or infer complete STM32 ADC fidelity from model presence. Do not start GUI or production adapter extraction before the ADC and debugger gates.
+Follow [SN-015 / #6](https://github.com/RicardoKers/SimNodus/issues/6). The pinned generic `STM32_ADC` was rejected for this path because its register map does not match the F103 software-start position, it accepts queued raw codes, and it does not implement the external microvolt `IADC` contract. The [predeclared E-04 profile](../../tests/experiments/adc/README.md) selects a focused owned F103 register subset with single quantization, fixed VREF/sample timing, three fresh repetitions, static and boundary points, a 101-point ramp, channel mapping, and adverse cases. The experiment has not run yet.
+
+Use known-schedule voltage application for this isolated ADC boundary experiment; do not infer complete electrical coupling or general feedback causality. Do not start GUI or production adapter extraction before the ADC and debugger gates.
 
 ## Known uncertainties
 

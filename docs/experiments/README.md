@@ -53,6 +53,13 @@ Audit the selected ADC implementation, API units, conversion timing, reference, 
 
 For an idealized ADC profile, propose agreement within one LSB of the documented quantization rule at static points. More detailed models need their own reference; out-of-range behavior must be reported explicitly.
 
+The detailed [predeclared E-04 profile](../../tests/experiments/adc/README.md)
+selects a focused owned STM32F103 register subset after rejecting the pinned
+generic model for this path. It fixes microvolt units, one internal quantization,
+VREF, sample instant, conversion timing, three repetitions, static/boundary/
+saturation points, a 101-point ramp, channel mapping, and adverse cases before
+execution.
+
 **Pass:** Verified unit mapping without double quantization, known sampling semantics, voltage sweep, and recorded unsupported modes. DMA and every ADC mode are not implied.
 
 ## E-05: Coordinated debugging — SN-016
