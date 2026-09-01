@@ -1,6 +1,6 @@
 # Experiment plan
 
-[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, and [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI. SN-013 combined their evidence in the [temporal capability profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md) and predeclared the E-03 gates below. **E-03 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
+[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI, and [E-03 passed](E-03-results.md) for known-schedule replay plus an explicitly approximate sampled feedback profile. General live causal feedback remains unsupported. **E-04 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.
 
@@ -39,6 +39,11 @@ The criteria are fixed before execution in the [SN-013 profile](../architecture/
 **Pass for a causal profile:** No event is committed in the consumer's past; the tested threshold error is within the predeclared tolerance; repeated runs preserve discrete event ordering; and evidence shows that the consumer did not advance beyond the effective crossing before input application. Meeting only the sampled delay gate earns an approximate classification. Reducing a quantum without evaluating missed pulses does not establish correctness.
 
 **Decision:** Accept the verified transport/algorithm, implement a focused extension, or publish a deliberately restricted experiment profile. Do not proceed with full-feedback claims on one-way evidence.
+
+**Result:** The [restricted profile](E-03-results.md) was selected. Replay is the
+causality-preserving path; sampled exchange met its declared approximation gates
+but every standard feedback event was late. No general causal algorithm or focused
+extension was approved.
 
 ## E-04: ADC path — SN-015
 

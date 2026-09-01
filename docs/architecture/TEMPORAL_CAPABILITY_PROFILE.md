@@ -1,8 +1,9 @@
 # Temporal capability profile
 
-Date: 2026-08-31. Status: accepted contract for SN-013 and input to E-03. This
-document defines what the current evidence permits an orchestrator to claim. It
-does not describe an implemented scheduler or a completed coupled simulation.
+Date: 2026-08-31. Status: accepted SN-013 contract, now evaluated by
+[E-03](../experiments/E-03-results.md) and [ADR 0011](../decisions/0011-e03-restricted-feedback.md).
+This document defines what the evidence permits an orchestrator to claim. The
+E-03 host is experiment code, not an implemented production scheduler.
 
 ## Evidence boundary
 
@@ -16,6 +17,9 @@ The profile combines two independent experiments:
 
 Neither experiment coupled the engines. Statements below are classified as
 **measured**, **selected contract**, **candidate for E-03**, or **unsupported**.
+
+E-03 subsequently coupled the pinned engines. It confirmed P0 replay and measured
+P1 as an approximation; it did not establish P2 live causal feedback.
 
 ## Time representation and conversion
 
@@ -73,7 +77,7 @@ reproduction and the first E-03 phase; it is not evidence of live feedback.
 
 ### P1: bounded sampled exchange
 
-**Candidate for E-03: approximate.** Domains exchange their last resolved values
+**Measured by E-03: approximate.** Domains exchange their last resolved values
 at a configured quantum `Q`. Every observation records producer time, host
 observation time, consumer application time, and the consumer time when the value
 became effective. The profile is acceptable only with a measured delay bound and
@@ -183,7 +187,8 @@ wall-supervision timestamps.
 
 ## Decision after E-03
 
-E-03 selects one of three outcomes: retain P0 plus a measured P1 approximation,
-approve a newly proven restricted causal profile, or require a focused backend
-extension before live feedback. It cannot broaden the result beyond the tested
-firmware, circuit, versions, thresholds, quanta, and pulse range.
+E-03 retained P0 plus a measured P1 approximation. P1 met its numerical, delay,
+boundary, pulse, and recovery gates, but every standard feedback crossing was late
+to Renode and intermediate ngspice stops were 100 ns beyond the request. P2 remains
+unsupported; [ADR 0011](../decisions/0011-e03-restricted-feedback.md) defers a
+focused extension until a bounded lesson or experiment requires exact feedback.

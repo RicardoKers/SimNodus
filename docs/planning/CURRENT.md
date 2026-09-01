@@ -4,8 +4,8 @@ Updated: 2026-08-31.
 
 ## Snapshot
 
-- Stage: M0 published; standalone backend experiments and SN-013 temporal capability contract complete.
-- Implementation: standalone ngspice and Renode firmware/digital-I/O experiments work; production kernel and application not started.
+- Stage: M2 technical proof in progress; standalone backends and restricted E-03 GPIO/RC/EXTI coupling complete.
+- Implementation: real experiment hosts run replay and approximate sampled coupling; production kernel and application not started.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
 - Repository language: English only.
@@ -14,7 +14,7 @@ Updated: 2026-08-31.
 - Author and maintainer: Ricardo Kerschbaumer.
 - Git: public [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus), default branch `main`.
 - Publication: first commit `b3163a1` published on 2026-08-31; SN-041 complete.
-- Checks: Windows/Ubuntu foundation and repeated E-01/SN-019/E-02 suites passed on GitHub. E-02 also passed twice locally in both 100 us and 1000 us profiles; SN-013 is a documentation/decision task and does not claim a coupled run.
+- Checks: Windows/Ubuntu foundation and repeated E-01/SN-019/E-02 suites passed on GitHub. The complete E-03 matrix passed locally and in a [clean hosted Windows run](https://github.com/RicardoKers/SimNodus/actions/runs/33462555508), each with 54 isolated real-backend cases.
 - Collaboration: nine initial issues, four milestones, protected `main`, and private vulnerability reporting enabled.
 
 ## Completed work
@@ -31,11 +31,13 @@ SN-012 built an owned freestanding STM32F103C8 ELF twice identically, booted it 
 
 SN-013 combined E-01 and E-02 into an [evidence-bounded temporal capability profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md). It selects checked integer-nanosecond orchestration with forward conversion to Renode's microsecond grid, distinguishes trial/observed/effective/committed time, approves known-schedule replay, labels bounded sampled exchange approximate, and keeps general live feedback, exact joint pause, cancellation, prediction, and rollback unsupported. E-03 thresholds, tolerances, quanta, repetitions, boundary cases, pulse classification, and failure behavior are fixed before execution in [ADR 0010](../decisions/0010-temporal-capability-profile.md).
 
-The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), the [temporal profile](../architecture/TEMPORAL_CAPABILITY_PROFILE.md), and [QUALITY](../development/QUALITY.md). E-03 through E-06 have not run. No coupled simulation has run.
+SN-014 executed [E-03](../experiments/E-03-results.md) through real Renode and ngspice processes. Three replay runs met 1.103 mV / 0.353 us maxima and ended at an exact 10 ms common boundary. The 1000 us, 100 us, and 20 us sampled profiles met their declared `Q + 2 us` bounds with maximum delays of 846 us, 95 us, and 15 us, but every standard threshold was late to Renode and every intermediate ngspice stop was 100 ns beyond the request. Twenty-seven boundary cases, direct pulses, same-time collapse, past-input rejection, and three forced-failure/fresh-recovery pairs passed. [ADR 0011](../decisions/0011-e03-restricted-feedback.md) retains causal replay, permits only labelled sampled approximation, and keeps general live causal feedback unsupported.
 
-## Next task: SN-014 coupled GPIO and feedback causality
+The [backlog](BACKLOG.md) owns task status. See [SN-010](../experiments/SN-010-results.md), [E-01](../experiments/E-01-results.md), [SN-019](../experiments/SN-019-results.md), [E-02](../experiments/E-02-results.md), [E-03](../experiments/E-03-results.md), and [QUALITY](../development/QUALITY.md). E-04 through E-06 have not run. No production simulator has been extracted.
 
-Follow [SN-014 / #5](https://github.com/RicardoKers/SimNodus/issues/5): implement and run E-03 first as known-schedule GPIO replay into the reference RC circuit, then as explicitly approximate bounded sampled feedback. Use the predeclared profile without relaxing criteria after measurement. A causal classification additionally requires proof that Renode did not advance past an effective crossing before input application; otherwise retain the measured approximation or justify a focused extension. Do not start GUI or production adapter extraction before this gate.
+## Next task: SN-015 ADC path
+
+Follow [SN-015 / #6](https://github.com/RicardoKers/SimNodus/issues/6): audit the selected Renode ADC model or a focused extension, define exact voltage/code/reference/acquisition semantics, then run E-04 static points and a ramp. Use replay or explicitly approximate sampled coupling; do not treat Boolean GPIO injection as ADC evidence or infer complete STM32 ADC fidelity from model presence. Do not start GUI or production adapter extraction before the ADC and debugger gates.
 
 ## Known uncertainties
 
@@ -46,7 +48,7 @@ Follow [SN-014 / #5](https://github.com/RicardoKers/SimNodus/issues/5): implemen
 - ngspice still requires the owned initialization file; the known pre-init call crash is not fixed. E-01 covers bounded RC lifecycle behavior, not arbitrary reentrancy, nonlinear models, leak endurance, or all crash/timeout paths.
 - ngspice integration breakpoints do not pause execution. Trial-source time can reverse; accepted analog samples do not establish a joint MCU/circuit commit.
 - Bundled runtimes and transitive licenses require review before distributing binaries.
-- Known-schedule replay is the only selected causality-preserving profile. Bounded sampled feedback is an E-03 candidate and general live feedback remains unsupported; debugger arbitration is also unproven.
+- Known-schedule replay is the only selected causality-preserving profile. Bounded sampled feedback passed only as an approximation; general live feedback and debugger arbitration remain unsupported.
 - Same-time input edges can collapse into one EXTI interrupt. Renode GPIO pulls, analog mode, open-drain electrical release, and RCC propagation are not hardware-faithful in the tested profile.
 - STM32F103 ADC integration remains absent and requires E-04.
 - Laboratory Windows versions, hardware limits, and exact first lesson are not yet known.
@@ -57,4 +59,4 @@ Follow [SN-014 / #5](https://github.com/RicardoKers/SimNodus/issues/5): implemen
 2. Check local changes before editing; do not overwrite unrelated work.
 3. Select the next ready task and review its acceptance criteria.
 4. Record execution evidence and update only genuinely completed states.
-5. For E-03, preserve the criteria in the temporal profile exactly as predeclared.
+5. For E-04, fix ADC units, timing, quantization, and sweep gates before execution.

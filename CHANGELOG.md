@@ -6,6 +6,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added
 
+- E-03 real Renode/ngspice GPIO/RC/EXTI coupling host, owned firmware, 54-case repeated matrix, compact evidence, result report, ADR 0011, and Windows workflow.
+- Measured known-schedule replay and bounded sampled feedback at 1000 us, 100 us, and 20 us, including boundary, pulse, late-input, forced-failure, and fresh-recovery cases.
 - SN-013 temporal capability profile and ADR 0010: checked time conversion, measured backend semantics, supported replay, explicitly approximate sampled exchange, unsupported live-feedback operations, and predeclared E-03 gates.
 - Owned STM32F103C8 firmware, offline exact-memory profile, real GPIO/input/EXTI experiment, coverage audit, evidence report, ADR 0009, and repeated Windows workflow.
 - Native Windows Renode control/time experiment, generated loopback-only server, 20-case suite, pinned source provenance, and a dedicated Windows workflow.
@@ -24,4 +26,4 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Not implemented
 
-Production simulation kernel/adapters, coupled backend integration, circuit editor, project loader, component runtime, and synchronized debugging.
+Production simulation kernel/adapters, general causal feedback, ADC coupling, circuit editor, project loader, component runtime, and synchronized debugging.

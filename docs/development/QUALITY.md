@@ -34,7 +34,7 @@ The [native Windows workflow](../../.github/workflows/ngspice.yml) verifies the 
 
 The [first hosted E-01 run](https://github.com/RicardoKers/SimNodus/actions/runs/33406697838) passed both suites on Windows Server 2025 / MSVC 19.51.36256.0. [Foundation checks](https://github.com/RicardoKers/SimNodus/actions/runs/33406697777) also passed on Windows and Ubuntu for that revision.
 
-These checks establish only the reported ideal RC/voltage-source profile. Firmware, nonlinear/digital models, coupled causality, forced crash/timeout paths, long-duration leak behavior, and production adapters remain untested.
+These checks establish only the reported ideal RC/voltage-source profile. Nonlinear/digital models, long-duration leak behavior, and production adapters remain untested. Firmware coupling and forced Renode termination now have their own bounded E-03 evidence; they do not broaden E-01.
 
 ## SN-019 Windows control checks
 
@@ -45,6 +45,24 @@ The [dedicated workflow](../../.github/workflows/renode-client.yml) repeats the 
 Local repository verification passed for 88 text files, Python syntax and whitespace checks, and the root CMake configure/check target. The existing eight-case ngspice suite also passed after adding the Renode-only dependency-check option.
 
 [Hosted SN-019 verification](https://github.com/RicardoKers/SimNodus/actions/runs/33437509897) passed both complete suites on Windows Server 2025 / MSVC 19.51.36256.0 / Python 3.12.10. The report links the accompanying passing foundation and ngspice regression checks.
+
+## Coupled GPIO/RC evidence
+
+[E-03](../experiments/E-03-results.md) has a dedicated real-backend host and
+[Windows workflow](../../.github/workflows/coupling.yml). The analyzer compares
+accepted ngspice samples with the analytical RC, localizes Schmitt crossings,
+checks producer/observation/application times, repeats discrete signatures, and
+exercises boundary, pulse, late-input, and worker-recreation cases. It reports
+sampled exchange as approximate even when every numerical gate passes.
+
+The [hosted E-03 run](https://github.com/RicardoKers/SimNodus/actions/runs/33462555508)
+verified the pinned archives, rebuilt the owned firmware and native host, and
+passed all 54 isolated cases on a clean Windows runner in 8 minutes 51 seconds.
+The foundation checks also passed on Windows and Ubuntu for that revision.
+
+The result does not validate a production scheduler, general causal feedback,
+nonlinear circuits, ADC, GDB, or Linux runtime. Keep raw traces outside Git and
+commit only the compact summary and a sanitized figure.
 
 ## SN-012 / E-02 firmware and I/O checks
 

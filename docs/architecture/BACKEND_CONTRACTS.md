@@ -38,6 +38,12 @@ Pin the executable, client, and platform revisions. Observe execution, pins, and
 
 [E-02](../experiments/E-02-results.md) verifies GPIO callbacks during native `RunFor`: timestamps fall inside the active request, persistent and 20 us input transitions reach firmware, and same-time transitions can collapse into one pending EXTI interrupt. This does not establish an instruction-level stop, lookahead, cancellation, or feedback-causality guarantee. Callback unregistration, concurrent sessions, and production ownership remain unresolved.
 
+[E-03](../experiments/E-03-results.md) verifies the bounded coupled path. Distinct
+direct pulses down to 1 us reached both EXTI edges in its exact firmware/profile;
+equal-time opposite levels still collapsed. Sampled threshold feedback met its
+declared delay bounds but was late to the MCU, so the adapter contract must expose
+the approximation rather than presenting the result as causal.
+
 For the selected contract, exact Renode request/input times lie on the integer-us
 grid. Convert a sub-us analog crossing forward to that grid and record the delay.
 Equal-time commands for one Boolean pin are resolved before execution; they do not

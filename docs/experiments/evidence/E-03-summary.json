@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "experiment": "E-03",
+  "task": "SN-014",
+  "date": "2026-08-31",
+  "result": "passed_known_schedule_replay_and_sampled_approximation",
+  "live_causal_feedback": "unsupported",
+  "complete_local_run": {
+    "isolated_case_executions": 54,
+    "fresh_renode_processes": 54,
+    "native_host_processes": 54,
+    "ngspice_dll_case_executions": 39,
+    "repetitions_per_case": 3,
+    "discrete_order_repeated": true,
+    "final_executable_sha256": "ccdccfa043b4106cf14e53f592a27883a2fd259841376b1c1001526a187a41d5",
+    "firmware_elf_sha256": "a961e7f283e7a9cbc07cc00cb289653d46bbea3fa6595f6387fad6ede2e4ff01",
+    "identical_firmware_rebuild": true,
+    "wall_supervision_recorded": true,
+    "minimum_case_duration_s": 10.22268089998397,
+    "maximum_case_duration_s": 11.524737800005823,
+    "total_case_duration_s": 579.7424612999312
+  },
+  "contract": {
+    "voltage_tolerance_v": 0.0165,
+    "crossing_tolerance_s": 2e-06,
+    "quanta_us": [
+      1000,
+      100,
+      20
+    ],
+    "repetitions": 3,
+    "thresholds_v": {
+      "rising": 2.31,
+      "falling": 0.99
+    }
+  },
+  "known_schedule_replay": {
+    "runs": 3,
+    "exact_final_joint_boundaries": 3,
+    "maximum_voltage_error_v": 0.0011026499758099995,
+    "maximum_crossing_error_s": 3.5265768419997373e-07,
+    "accepted_crossings_per_run": 2
+  },
+  "sampled_profiles": {
+    "1000": {
+      "runs": 3,
+      "rising_delays_us": [
+        795.0,
+        795.0,
+        795.0
+      ],
+      "falling_delays_us": [
+        846.0,
+        846.0,
+        846.0
+      ],
+      "maximum_delay_us": 846.0,
+      "delay_limit_us": 1002,
+      "late_thresholds_per_run": [
+        2,
+        2,
+        2
+      ],
+      "late_source_edges_per_run": [
+        2,
+        2,
+        2
+      ],
+      "exact_joint_boundaries_per_run": [
+        1,
+        1,
+        1
+      ],
+      "boundary_count_per_run": [
+        10,
+        10,
+        10
+      ],
+      "maximum_voltage_error_v": 0.0006417657657693532,
+      "maximum_crossing_error_s": 2.0519741028048044e-07
+    },
+    "100": {
+      "runs": 3,
+      "rising_delays_us": [
+        95.0,
+        95.0,
+        95.0
+      ],
+      "falling_delays_us": [
+        46.0,
+        46.0,
+        46.0
+      ],
+      "maximum_delay_us": 95.0,
+      "delay_limit_us": 102,
+      "late_thresholds_per_run": [
+        2,
+        2,
+        2
+      ],
+      "late_source_edges_per_run": [
+        2,
+        2,
+        2
+      ],
+      "exact_joint_boundaries_per_run": [
+        1,
+        1,
+        1
+      ],
+      "boundary_count_per_run": [
+        100,
+        100,
+        100
+      ],
+      "maximum_voltage_error_v": 0.0006416952124759234,
+      "maximum_crossing_error_s": 2.0522616082929712e-07
+    },
+    "20": {
+      "runs": 3,
+      "rising_delays_us": [
+        15.0,
+        15.0,
+        15.0
+      ],
+      "falling_delays_us": [
+        6.0,
+        6.0,
+        6.0
+      ],
+      "maximum_delay_us": 15.0,
+      "delay_limit_us": 22,
+      "late_thresholds_per_run": [
+        2,
+        2,
+        2
+      ],
+      "late_source_edges_per_run": [
+        2,
+        2,
+        2
+      ],
+      "exact_joint_boundaries_per_run": [
+        1,
+        1,
+        1
+      ],
+      "boundary_count_per_run": [
+        500,
+        500,
+        500
+      ],
+      "maximum_voltage_error_v": 0.0006415943065030127,
+      "maximum_crossing_error_s": 2.0542989444261028e-07
+    }
+  },
+  "boundary_cases": {
+    "1000": {
+      "before": {
+        "desired_crossing_us": 3999,
+        "measured_crossing_us": [
+          3998.9997717687447,
+          3998.9997717687447,
+          3998.9997717687447
+        ],
+        "application_delays_us": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "exact": {
+        "desired_crossing_us": 4000,
+        "measured_crossing_us": [
+          3999.9997093804536,
+          3999.9997093804536,
+          3999.9997093804536
+        ],
+        "application_delays_us": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "after": {
+        "desired_crossing_us": 4001,
+        "measured_crossing_us": [
+          4000.9997893063946,
+          4000.9997893063946,
+          4000.9997893063946
+        ],
+        "application_delays_us": [
+          999.0,
+          999.0,
+          999.0
+        ]
+      }
+    },
+    "100": {
+      "before": {
+        "desired_crossing_us": 3999,
+        "measured_crossing_us": [
+          3998.999828199244,
+          3998.999828199244,
+          3998.999828199244
+        ],
+        "application_delays_us": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "exact": {
+        "desired_crossing_us": 4000,
+        "measured_crossing_us": [
+          3999.9997657968656,
+          3999.9997657968656,
+          3999.9997657968656
+        ],
+        "application_delays_us": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "after": {
+        "desired_crossing_us": 4001,
+        "measured_crossing_us": [
+          4000.9998457496067,
+          4000.9998457496067,
+          4000.9998457496067
+        ],
+        "application_delays_us": [
+          99.0,
+          99.0,
+          99.0
+        ]
+      }
+    },
+    "20": {
+      "before": {
+        "desired_crossing_us": 3999,
+        "measured_crossing_us": [
+          3999.000074441445,
+          3999.000074441445,
+          3999.000074441445
+        ],
+        "application_delays_us": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "exact": {
+        "desired_crossing_us": 4000,
+        "measured_crossing_us": [
+          4000.0000119832025,
+          4000.0000119832025,
+          4000.0000119832025
+        ],
+        "application_delays_us": [
+          19.0,
+          19.0,
+          19.0
+        ]
+      },
+      "after": {
+        "desired_crossing_us": 4001,
+        "measured_crossing_us": [
+          4001.0000920472044,
+          4001.0000920472044,
+          4001.0000920472044
+        ],
+        "application_delays_us": [
+          18.0,
+          18.0,
+          18.0
+        ]
+      }
+    }
+  },
+  "digital_pulses": {
+    "1000": {
+      "runs": 3,
+      "width_to_interrupt_delta": {
+        "1": 2,
+        "5": 2,
+        "20": 2,
+        "999": 2,
+        "1000": 2,
+        "1001": 2
+      },
+      "same_time_opposite_level_interrupts": [
+        1,
+        1,
+        1
+      ],
+      "past_inputs_rejected": [
+        true,
+        true,
+        true
+      ]
+    },
+    "100": {
+      "runs": 3,
+      "width_to_interrupt_delta": {
+        "1": 2,
+        "5": 2,
+        "20": 2,
+        "99": 2,
+        "100": 2,
+        "101": 2
+      },
+      "same_time_opposite_level_interrupts": [
+        1,
+        1,
+        1
+      ],
+      "past_inputs_rejected": [
+        true,
+        true,
+        true
+      ]
+    },
+    "20": {
+      "runs": 3,
+      "width_to_interrupt_delta": {
+        "1": 2,
+        "5": 2,
+        "19": 2,
+        "20": 2,
+        "21": 2
+      },
+      "same_time_opposite_level_interrupts": [
+        1,
+        1,
+        1
+      ],
+      "past_inputs_rejected": [
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "failure_recovery": {
+    "runs": 3,
+    "joint_commits_after_failure": 0,
+    "fresh_recoveries_at_us": [
+      600,
+      600,
+      600
+    ],
+    "connection_error_codes": [
+      0,
+      0,
+      0
+    ]
+  }
+}

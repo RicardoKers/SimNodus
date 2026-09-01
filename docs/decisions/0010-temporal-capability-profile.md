@@ -1,6 +1,6 @@
 # ADR 0010: evidence-bounded temporal capability profile
 
-Date: 2026-08-31. Status: accepted for SN-013; E-03 execution pending.
+Date: 2026-08-31. Status: accepted for SN-013; evaluated by [ADR 0011](0011-e03-restricted-feedback.md).
 
 ## Context
 

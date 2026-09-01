@@ -1,6 +1,6 @@
 # Virtual time and causality
 
-Status: design invariants, informed by standalone [E-01](../experiments/E-01-results.md) and [E-02](../experiments/E-02-results.md) evidence. The [SN-013 temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) now selects known-schedule replay and defines the bounded sampled candidate for E-03. No scheduler is implemented.
+Status: design invariants, informed by [E-01](../experiments/E-01-results.md), [E-02](../experiments/E-02-results.md), and coupled [E-03](../experiments/E-03-results.md) evidence. The [temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) selects known-schedule replay and a bounded sampled approximation. No production scheduler is implemented.
 
 ## Representation
 
@@ -34,7 +34,7 @@ Therefore a conceptual `advance_until(T)` interface is not proof of synchronizat
 | Conservative I/O-boundary advancement | Preferred direction for feedback | Must intervene before a consumer passes a causal event |
 | Coordinated rollback/checkpoints | Later research | Requires restoration of all engine state, queues, and analog history |
 
-Known-schedule replay is approved for the bounded first E-03 phase. Sampled exchange remains explicitly approximate, with predeclared measurement gates. General live feedback is unsupported. E-03 determines whether the official API suffices for a narrower causal profile or a focused Renode extension is necessary. Failure is useful evidence and must not be hidden by smoothing traces.
+Known-schedule replay is approved for the bounded profile. Sampled exchange remains explicitly approximate: E-03 measured maximum standard delays of 846 us, 95 us, and 15 us at `Q` values of 1000 us, 100 us, and 20 us, while every standard crossing remained late to Renode. General live causal feedback is unsupported. A focused extension is deferred until a bounded requirement needs it. Failure is useful evidence and must not be hidden by smoothing traces.
 
 ## Crossings and ADC
 
