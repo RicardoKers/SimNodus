@@ -1,6 +1,6 @@
 # Experiment plan
 
-[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI, and [E-03 passed](E-03-results.md) for known-schedule replay plus an explicitly approximate sampled feedback profile. General live causal feedback remains unsupported. **E-04 through E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
+[E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI, [E-03 passed](E-03-results.md) for known-schedule replay plus an explicitly approximate sampled feedback profile, and [E-04 passed](E-04-results.md) for a focused direct-voltage STM32F103 ADC path. General live causal feedback and electrical ADC coupling remain unsupported. **E-05 and E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.
 
@@ -53,7 +53,16 @@ Audit the selected ADC implementation, API units, conversion timing, reference, 
 
 For an idealized ADC profile, propose agreement within one LSB of the documented quantization rule at static points. More detailed models need their own reference; out-of-range behavior must be reported explicitly.
 
+The detailed [predeclared E-04 profile](../../tests/experiments/adc/README.md)
+selects a focused owned STM32F103 register subset after rejecting the pinned
+generic model for this path. It fixes microvolt units, one internal quantization,
+VREF, sample instant, conversion timing, three repetitions, static/boundary/
+saturation points, a 101-point ramp, channel mapping, and adverse cases before
+execution.
+
 **Pass:** Verified unit mapping without double quantization, known sampling semantics, voltage sweep, and recorded unsupported modes. DMA and every ADC mode are not implied.
+
+**Result:** Passed for the [focused owned extension](E-04-results.md). Three fresh Renode processes produced identical results for 363 accepted conversions in total, with zero maximum code error and exact declared conversion endpoints. Voltage was injected directly through `IADC`; ngspice, electrical acquisition, dynamic VREF, and unsupported ADC modes were not tested.
 
 ## E-05: Coordinated debugging — SN-016
 

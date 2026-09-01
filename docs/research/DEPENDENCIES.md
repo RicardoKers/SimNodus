@@ -1,6 +1,6 @@
 # Dependency inventory
 
-Updated: 2026-08-31, through SN-012. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), and [firmware/I/O report](../experiments/E-02-results.md).
+Updated: 2026-09-01, through SN-015. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), [firmware/I/O report](../experiments/E-02-results.md), and [ADC report](../experiments/E-04-results.md).
 
 ## Selected and observed versions
 
@@ -16,7 +16,7 @@ Updated: 2026-08-31, through SN-012. This is a **Windows x64 experiment baseline
 | Renode | 1.16.1.19220, Release, build `d66b0c2a-202602161036` | Official Windows portable .NET package; version and headless start/quit passed |
 | Renode runtime | Bundled .NET 8.0.10 | Self-contained package uses this runtime, not the host's installed 8.0.22; security/update review needed before distribution |
 | Renode client/platform | Commit `d66b0c2aa3d420408eccecfd1d3bab0fd702a6db` | SN-019 control passed; E-02 passed an incomplete offline C8 firmware/GPIO profile |
-| Renode infrastructure | Submodule `add012af003a0f620d3da52828262676f374d121` | Socket provider and E-02 GPIO/EXTI/NVIC/ADC/GDB paths audited |
+| Renode infrastructure | Submodule `add012af003a0f620d3da52828262676f374d121` | Socket provider and GPIO/EXTI/NVIC/GDB paths audited; E-04 rejected the generic ADC and verified a focused `IADC` extension |
 | ngspice | 47, official Windows VS x64 shared library, created Aug 11 2026 14:25:06 | [E-01 RC/lifecycle](../experiments/E-01-results.md) and restricted [E-03 coupling](../experiments/E-03-results.md) passed; general causal feedback unsupported |
 | ngspice audio dependencies | libsndfile 1.2.2; libsamplerate 0.2.2 | Version functions queried; obtain DLLs from the matching official console package |
 | OpenMP runtime | `libomp140.x86_64.dll`, pinned by file hash | Included in the ngspice DLL package; semantic runtime version not independently established |
@@ -37,6 +37,8 @@ Updated: 2026-08-31, through SN-012. This is a **Windows x64 experiment baseline
 - SourceForge publishes hashes on the [DLL](https://sourceforge.net/projects/ngspice/files/ng-spice-rework/47/ngspice-47_dll_64.7z/download), [console](https://sourceforge.net/projects/ngspice/files/ng-spice-rework/47/ngspice-47_64.7z/download), and [source](https://sourceforge.net/projects/ngspice/files/ng-spice-rework/47/ngspice-47.tar.gz/download) download pages.
 
 Complete upstream sources, headers, DLLs, models, firmware, and packages stay under ignored build output. CMake does not download them. SN-019 commits a reviewed transformation recipe, source/hash manifest, and upstream MIT terms; generated client/server variants and copied headers remain outside Git.
+
+E-04 additionally pins the exact Renode `STM32_ADC`, `IADC`, and channel sources plus official ST CMSIS device commit `c8e9a4a4f16b6d2cb2a2083cbe5161025280fb22` and HAL driver commit `baeff0a8dcb23c72012170a0978254a238f1f980`. The audit downloads and verifies those read-only source inputs; they are not copied into the repository or a distribution.
 
 [SN-019's additional manifest](../../tests/experiments/renode-client/upstream.json) pins 13 official source/license files from these same revisions. The generated server changes namespace and binding address, preserving the command handlers. The client uses native Winsock plus reviewed packing, cleanup, frame/error, and size-validation changes. Renode's bundled C# compiler loads the trusted generated extension explicitly; no separate .NET SDK was installed.
 

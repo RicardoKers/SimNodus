@@ -1,6 +1,6 @@
 # Virtual time and causality
 
-Status: design invariants, informed by [E-01](../experiments/E-01-results.md), [E-02](../experiments/E-02-results.md), and coupled [E-03](../experiments/E-03-results.md) evidence. The [temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) selects known-schedule replay and a bounded sampled approximation. No production scheduler is implemented.
+Status: design invariants, informed by [E-01](../experiments/E-01-results.md), [E-02](../experiments/E-02-results.md), coupled [E-03](../experiments/E-03-results.md), and focused ADC [E-04](../experiments/E-04-results.md) evidence. The [temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md) selects known-schedule replay and a bounded sampled approximation. No production scheduler is implemented.
 
 ## Representation
 
@@ -41,6 +41,8 @@ Known-schedule replay is approved for the bounded profile. Sampled exchange rema
 The solver can attempt and reject steps. E-01 distinguishes trial-source queries from accepted ngspice data callbacks; neither alone establishes a joint MCU/circuit commit. Threshold detection needs an explicit method and tolerance; retrospectively locating a crossing cannot rewind an already advanced MCU. Refine before committing the consumer.
 
 ADC integration must define acquisition time, VREF, resolution, saturation, and API units. Verify whether the backend expects volts, scaled voltage, or a conversion code. Do not quantize twice if its ADC model already performs conversion.
+
+E-04 fixes the experiment boundary at unsigned integer microvolts and performs the only 12-bit quantization inside the focused peripheral. Its fixed 1 MHz model captures voltage when `SWSTART` is accepted and raises EOC after the selected 14-252 us duration. A voltage change after start did not alter the in-flight code. This defines the measured isolated ADC semantics; it does not define when a live ngspice node becomes safe to sample or establish a joint commit.
 
 ## Reproducibility and speed
 

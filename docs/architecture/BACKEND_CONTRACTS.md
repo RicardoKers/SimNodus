@@ -38,6 +38,8 @@ Pin the executable, client, and platform revisions. Observe execution, pins, and
 
 [E-02](../experiments/E-02-results.md) verifies GPIO callbacks during native `RunFor`: timestamps fall inside the active request, persistent and 20 us input transitions reach firmware, and same-time transitions can collapse into one pending EXTI interrupt. This does not establish an instruction-level stop, lookahead, cancellation, or feedback-causality guarantee. Callback unregistration, concurrent sessions, and production ownership remain unresolved.
 
+[E-04](../experiments/E-04-results.md) verifies an experiment-only F103-compatible ADC subset through the pinned integer-microvolt `IADC` contract. The peripheral performs one 12-bit conversion, saturates at fixed 3.3 V, captures voltage at accepted software start, and exposes measured conversion completion. The pinned generic `STM32_ADC` is not selected. This direct known-schedule path does not establish ngspice electrical coupling or production adapter ownership.
+
 [E-03](../experiments/E-03-results.md) verifies the bounded coupled path. Distinct
 direct pulses down to 1 us reached both EXTI edges in its exact firmware/profile;
 equal-time opposite levels still collapsed. Sampled threshold feedback met its

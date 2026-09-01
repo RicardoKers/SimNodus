@@ -6,7 +6,7 @@ Baseline: 2026-08-31. Likelihood and impact are qualitative estimates, not measu
 |---|---|---|---|---|
 | R-01 | Feedback breaks causality | Observed / critical | E-03 applied every standard threshold after Renode passed it | Keep replay causal and sampled exchange explicitly approximate; require a focused extension before general causal feedback |
 | R-02 | Renode version/API mismatch | Medium / high | Headers, docs, and binary disagree about time units | Pin matching executable/client/platform; record API behavior |
-| R-03 | STM32F103 peripheral gaps | High / high | Missing ADC, mode changes, clock or interrupt behavior | Per-feature audit; focused extensions with tests, not global support claims |
+| R-03 | STM32F103 peripheral gaps | Observed / high | Generic ADC mismatch; missing modes, clock propagation, or interrupt behavior | E-04 focused ADC extension and per-feature audits; never convert bounded evidence into global support claims |
 | R-04 | Debugger bypasses scheduler | High / critical | GDB continue/step advances MCU independently | E-05; arbitration and failure reporting before GUI integration |
 | R-05 | Numerical issues or false electrical fidelity | Medium / high | Nonconvergence, step-dependent result, unexplained thresholds | Reference circuits, finite drivers, tolerances and model assumptions |
 | R-06 | Native backend crashes/hangs | Medium / high | Process exits, callbacks stall, resources leak | Timeouts, lifecycle tests, simulation-worker isolation for desktop |
