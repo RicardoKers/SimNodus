@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SimNodus E-05 CubeIDE Runner
+Bundle-SymbolicName: org.simnodus.e05.runner;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.equinox.app,
+ org.eclipse.ui,
+ org.eclipse.ui.console,
+ org.eclipse.text,
+ org.eclipse.debug.core,
+ org.eclipse.cdt.debug.core,
+ org.eclipse.cdt.dsf,
+ org.eclipse.cdt.debug.gdbjtag.core,
+ org.eclipse.cdt.dsf.gdb,
+ org.eclipse.cdt.launch
+Export-Package: org.simnodus.e05

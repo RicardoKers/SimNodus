@@ -1,0 +1,295 @@
+{
+  "format": "simnodus-topology",
+  "version": "0.2",
+  "root": "main",
+  "components": [
+    {
+      "id": "resistor",
+      "name": "resistor topology",
+      "pins": [
+        {
+          "id": "p",
+          "name": "1",
+          "domain": "electrical"
+        },
+        {
+          "id": "n",
+          "name": "2",
+          "domain": "electrical"
+        }
+      ],
+      "parameters": [
+        {
+          "id": "resistance",
+          "name": "resistance",
+          "unit": "ohm",
+          "default": "1000",
+          "minimum": "1",
+          "maximum": "1000000"
+        }
+      ]
+    },
+    {
+      "id": "capacitor",
+      "name": "capacitor topology",
+      "pins": [
+        {
+          "id": "p",
+          "name": "1",
+          "domain": "electrical"
+        },
+        {
+          "id": "n",
+          "name": "2",
+          "domain": "electrical"
+        }
+      ],
+      "parameters": [
+        {
+          "id": "capacitance",
+          "name": "capacitance",
+          "unit": "F",
+          "default": "0.000001",
+          "minimum": "0.000000001",
+          "maximum": "0.001"
+        }
+      ]
+    }
+  ],
+  "circuits": [
+    {
+      "id": "main",
+      "name": "Two RC topology instances",
+      "ports": [
+        {
+          "id": "source",
+          "name": "source",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        },
+        {
+          "id": "reference",
+          "name": "reference",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        },
+        {
+          "id": "left_out",
+          "name": "left_out",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        },
+        {
+          "id": "right_out",
+          "name": "right_out",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        }
+      ],
+      "instances": [
+        {
+          "id": "left",
+          "name": "left",
+          "kind": "circuit",
+          "definition": "rc",
+          "overrides": {
+            "resistance": {
+              "value": "1",
+              "unit": "kohm"
+            }
+          }
+        },
+        {
+          "id": "right",
+          "name": "right",
+          "kind": "circuit",
+          "definition": "rc",
+          "overrides": {
+            "resistance": {
+              "value": "2.2",
+              "unit": "kohm"
+            },
+            "capacitance": {
+              "value": "220",
+              "unit": "nF"
+            }
+          }
+        }
+      ],
+      "nets": [
+        {
+          "id": "drive",
+          "name": "drive",
+          "terminals": [
+            {
+              "port": "source"
+            },
+            {
+              "instance": "left",
+              "terminal": "input"
+            },
+            {
+              "instance": "right",
+              "terminal": "input"
+            }
+          ]
+        },
+        {
+          "id": "return",
+          "name": "return",
+          "terminals": [
+            {
+              "port": "reference"
+            },
+            {
+              "instance": "left",
+              "terminal": "reference"
+            },
+            {
+              "instance": "right",
+              "terminal": "reference"
+            }
+          ]
+        },
+        {
+          "id": "out_left",
+          "name": "out_left",
+          "terminals": [
+            {
+              "port": "left_out"
+            },
+            {
+              "instance": "left",
+              "terminal": "output"
+            }
+          ]
+        },
+        {
+          "id": "out_right",
+          "name": "out_right",
+          "terminals": [
+            {
+              "port": "right_out"
+            },
+            {
+              "instance": "right",
+              "terminal": "output"
+            }
+          ]
+        }
+      ],
+      "parameters": []
+    },
+    {
+      "id": "rc",
+      "name": "Reusable RC topology",
+      "ports": [
+        {
+          "id": "input",
+          "name": "input",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        },
+        {
+          "id": "output",
+          "name": "output",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        },
+        {
+          "id": "reference",
+          "name": "reference",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        }
+      ],
+      "instances": [
+        {
+          "id": "r",
+          "name": "r",
+          "kind": "component",
+          "definition": "resistor",
+          "overrides": {
+            "resistance": {
+              "parameter": "resistance"
+            }
+          }
+        },
+        {
+          "id": "c",
+          "name": "c",
+          "kind": "component",
+          "definition": "capacitor",
+          "overrides": {
+            "capacitance": {
+              "parameter": "capacitance"
+            }
+          }
+        }
+      ],
+      "nets": [
+        {
+          "id": "drive",
+          "name": "drive",
+          "terminals": [
+            {
+              "port": "input"
+            },
+            {
+              "instance": "r",
+              "terminal": "p"
+            }
+          ]
+        },
+        {
+          "id": "junction",
+          "name": "junction",
+          "terminals": [
+            {
+              "instance": "r",
+              "terminal": "n"
+            },
+            {
+              "instance": "c",
+              "terminal": "p"
+            },
+            {
+              "port": "output"
+            }
+          ]
+        },
+        {
+          "id": "return",
+          "name": "return",
+          "terminals": [
+            {
+              "instance": "c",
+              "terminal": "n"
+            },
+            {
+              "port": "reference"
+            }
+          ]
+        }
+      ],
+      "parameters": [
+        {
+          "id": "resistance",
+          "name": "resistance",
+          "unit": "ohm",
+          "default": "1000",
+          "minimum": "100",
+          "maximum": "10000"
+        },
+        {
+          "id": "capacitance",
+          "name": "capacitance",
+          "unit": "F",
+          "default": "0.000001",
+          "minimum": "0.000000001",
+          "maximum": "0.001"
+        }
+      ]
+    }
+  ]
+}

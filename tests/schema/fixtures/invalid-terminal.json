@@ -1,0 +1,35 @@
+{
+  "format": "simnodus-topology",
+  "version": "0.1",
+  "root": "main",
+  "components": [],
+  "circuits": [
+    {
+      "id": "main",
+      "name": "Missing port",
+      "ports": [
+        {
+          "id": "a",
+          "name": "a",
+          "domain": "electrical",
+          "direction": "bidirectional"
+        }
+      ],
+      "instances": [],
+      "nets": [
+        {
+          "id": "wire",
+          "name": "wire",
+          "terminals": [
+            {
+              "port": "a"
+            },
+            {
+              "port": "missing"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

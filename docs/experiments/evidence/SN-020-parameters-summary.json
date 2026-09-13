@@ -1,0 +1,153 @@
+{
+  "task": "SN-020",
+  "date": "2026-09-13",
+  "slice": "exact-parameters-0.2",
+  "status": "passed",
+  "complete_SN020": false,
+  "tests": {
+    "command": "python -m unittest discover -s tests/schema -p 'test_*.py' -v",
+    "total": 29,
+    "topology": 15,
+    "parameters": 14,
+    "result": "OK"
+  },
+  "cli_results": [
+    {
+      "fixture": "two-rc-parameters",
+      "exit_code": 0,
+      "result": {
+        "status": "valid-parameters-only",
+        "declared_entities": 26,
+        "root_expanded_instances": 6,
+        "root_depth": 2,
+        "parameter_entries": 9,
+        "resolved_entries": 14,
+        "instances": [
+          {
+            "path": [
+              "main",
+              "left"
+            ],
+            "definition": "rc",
+            "parameters": {
+              "resistance": {
+                "value": "1000",
+                "unit": "ohm",
+                "origin": "literal"
+              },
+              "capacitance": {
+                "value": "0.000001",
+                "unit": "F",
+                "origin": "default"
+              }
+            }
+          },
+          {
+            "path": [
+              "main",
+              "left",
+              "r"
+            ],
+            "definition": "resistor",
+            "parameters": {
+              "resistance": {
+                "value": "1000",
+                "unit": "ohm",
+                "origin": "containing-circuit:resistance"
+              }
+            }
+          },
+          {
+            "path": [
+              "main",
+              "left",
+              "c"
+            ],
+            "definition": "capacitor",
+            "parameters": {
+              "capacitance": {
+                "value": "0.000001",
+                "unit": "F",
+                "origin": "containing-circuit:capacitance"
+              }
+            }
+          },
+          {
+            "path": [
+              "main",
+              "right"
+            ],
+            "definition": "rc",
+            "parameters": {
+              "resistance": {
+                "value": "2200",
+                "unit": "ohm",
+                "origin": "literal"
+              },
+              "capacitance": {
+                "value": "0.000000220",
+                "unit": "F",
+                "origin": "literal"
+              }
+            }
+          },
+          {
+            "path": [
+              "main",
+              "right",
+              "r"
+            ],
+            "definition": "resistor",
+            "parameters": {
+              "resistance": {
+                "value": "2200",
+                "unit": "ohm",
+                "origin": "containing-circuit:resistance"
+              }
+            }
+          },
+          {
+            "path": [
+              "main",
+              "right",
+              "c"
+            ],
+            "definition": "capacitor",
+            "parameters": {
+              "capacitance": {
+                "value": "0.000000220",
+                "unit": "F",
+                "origin": "containing-circuit:capacitance"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "invalid-parameter-dimension",
+      "exit_code": 1,
+      "result": {
+        "status": "invalid",
+        "code": "unit",
+        "location": "$/main/instances/left/overrides",
+        "message": "Incompatible quantity dimension"
+      }
+    }
+  ],
+  "prior_01_hashes_match": true,
+  "sha256": {
+    "tests/schema/parameters.py": "a201cd4e16b2ccef6c67c4fee8c6ef63f058cb7b2cdc971a669784a7f812cb64",
+    "tests/schema/test_parameters.py": "570549c146fdd532f77292be0b612c019278cd71af569d752755b3f04a0b3420",
+    "tests/schema/fixtures/two-rc-parameters.json": "e1d592cb4b2b39221c714cf0b26626216ef4a95340ba5bac95e516d240f5c606",
+    "tests/schema/fixtures/invalid-parameter-dimension.json": "afb48499a5c3e101be9ce987621a7ef95a6ee023a4784944edd0c7b0e682cfad",
+    "docs/architecture/PARAMETERS_DRAFT.md": "7077e1ba612b3d7d6109a6d1810b543ec05a9ec7d28e4ad120820593bdd44cb7",
+    "docs/decisions/0046-exact-parameter-draft.md": "3d80c4c9c4a7f51b829386b28e45cfca400a8fc3f9239b0c4f4a865dd324a975"
+  },
+  "limitations": [
+    "Developer document validation/resolution only; no model or engine selected.",
+    "No expression evaluator, root runtime override, resource loading or 0.1 migration.",
+    "Full component/project schema remains pending."
+  ],
+  "publication": "No commit, issue synchronization or remote publication."
+}

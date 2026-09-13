@@ -33,3 +33,7 @@ jobs:
         run: cmake -S . -B build/bootstrap
       - name: Run the CMake check target
         run: cmake --build build/bootstrap --target check-repository --config Debug
+      - name: Build the foundation tests
+        run: cmake --build build/bootstrap --config Debug
+      - name: Run declaration and foundation tests
+        run: ctest --test-dir build/bootstrap -C Debug --output-on-failure

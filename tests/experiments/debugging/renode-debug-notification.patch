@@ -1,0 +1,25 @@
+diff --git a/src/Emulator/Peripherals/Peripherals/CPU/BaseCPU.cs b/src/Emulator/Peripherals/Peripherals/CPU/BaseCPU.cs
+index 1e4d2cc..2d22a2d 100644
+--- a/src/Emulator/Peripherals/Peripherals/CPU/BaseCPU.cs
++++ b/src/Emulator/Peripherals/Peripherals/CPU/BaseCPU.cs
+@@ -557,6 +557,20 @@ protected virtual void DisposeInner(bool silent = false)
+             EmulationManager.Instance.CurrentEmulation.SingleStepBlockingChanged -= UpdateHaltedState;
+         }
+ 
++        // SimNodus experiment: notify only an already quiescent, time-verified CPU.
++        // The host owns cancellation and must validate all participating domains first.
++        public void NotifyCancelledRunPause(ulong expectedTicks)
++        {
++            if(!isPaused || (cpuThread != null && cpuThread.IsAlive)
++                || TimeHandle.TotalElapsedTime.Ticks != expectedTicks
++                || TimeHandle.TimeSource.ElapsedVirtualTime.Ticks != expectedTicks)
++            {
++                throw new InvalidOperationException("CPU is not quiescent at the acknowledged cancellation time");
++            }
++            ExecutionMode = ExecutionMode.SingleStep;
++            InvokeHalted(new HaltArguments(HaltReason.Pause, this));
++        }
++
+         protected void InvokeHalted(HaltArguments arguments)
+         {
+             var halted = Halted;

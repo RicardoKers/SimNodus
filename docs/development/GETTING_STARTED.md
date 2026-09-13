@@ -31,9 +31,20 @@ If the intended Python is not selected, pass `-DPython3_EXECUTABLE=/path/to/pyth
 
 The optional `bootstrap` configure/build presets run the same steps. Build output belongs under `build/`.
 
+Repeated Windows experiments can accumulate extracted Renode runtimes. Follow
+the [safe cache cleanup procedure](BUILD_STORAGE.md) after stopping the runners.
+Do not delete all of `build/` while unfinished prototype sources or unrecorded
+evidence remain there.
+
 ## First development task
 
-SN-010 through SN-015 and SN-019 are complete. Follow the [Windows backend recipe](WINDOWS_BACKENDS.md), [E-01 commands](../../tests/experiments/ngspice/README.md), [SN-019 control](../../tests/experiments/renode-client/README.md), [E-02 firmware/I/O](../../tests/experiments/renode-stm32/README.md), [E-03 coupling](../../tests/experiments/coupling/README.md), and [E-04 ADC path](../../tests/experiments/adc/README.md) to reproduce the execution evidence. Next is SN-016/E-05: coordinate plain GDB and then STM32CubeIDE with consistent simulation stopping. Qt is not needed.
+SN-010 through SN-017 and SN-019 are complete for their declared bounded profiles.
+[ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md) and the
+[SN-017 audit](../experiments/SN-017-acceptance.md) define the native/Python headless
+composition and its remaining host responsibilities. Next is SN-018: establish
+reproducibility/performance measurements for the same fixed profile. Follow
+[CURRENT](../planning/CURRENT.md) and retain real-engine evidence. Qt is not needed.
+General unpaced debugging and production readiness remain unapproved.
 
 Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
 

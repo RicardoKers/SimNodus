@@ -1,6 +1,19 @@
 # Project format
 
-Status: persistence requirements. Extensions such as `.snod` and `.snodsub` and the exact schema are **not finalized**. No loader exists.
+Status: [project declaration baseline 0.1](PROJECT_SCHEMA.md) is accepted for
+SN-020 specification/reference validation. Runtime persistence and extensions
+such as `.snod` and `.snodsub` remain unimplemented/unselected. No loader exists.
+
+The [topology-only 0.1 draft](TOPOLOGY_DRAFT.md) is the first SN-020 slice, with
+structural validation and JSON round-trip fixtures. It does not define the whole
+project format below or implement resource handling, saving or compilation.
+The separate [0.2 parameter draft](PARAMETERS_DRAFT.md) adds exact quantities and
+scoped instance overrides; it did not cover the later project/resource contracts.
+The [0.3 descriptor draft](BINDINGS_DRAFT.md) separates symbols and model interfaces
+with explicit mappings; it does not open graphical/model resources.
+The separate [resource lock 0.1](RESOURCE_LOCK_DRAFT.md) validates an inert file
+inventory and lexical paths. Physical containment and resource loading remain
+pending; declared hashes and license metadata are not verification or approval.
 
 ## Principle
 
@@ -31,6 +44,17 @@ Names are illustrative. No executable circuit project is included in this founda
 - Model/license references without credentials or mandatory personal paths.
 
 Results, caches, and debugging sessions are not source documents. Trace exports include a reproduction manifest and do not modify the original circuit.
+
+[Persistent probes](DESKTOP_UX.md#shared-definitions-and-data-ownership) are
+editable measurement definitions associated with stable entity/instance IDs,
+quantity and explicit reference/orientation, rather than labels alone. Their
+captured samples/events remain results. Temporary inspection does not create
+persistent project edits. The probe schema and migration rules remain pending;
+this requirement does not extend the experimental SN-020 drafts.
+
+[Workspace geometry](DESKTOP_UX.md#circuit-editor-layout) is desirable presentation
+state. Its storage location, format and relationship to portable project data
+remain open; no personal monitor layout is made mandatory for opening a project.
 
 ## Validation and evolution
 

@@ -1,0 +1,35 @@
+{
+  "format": "simnodus-resource-lock",
+  "version": "0.1",
+  "dependencies": [
+    {
+      "id": "owned-bindings-fixture",
+      "version": "0.3.0",
+      "origin": {
+        "kind": "owned",
+        "author": "Ricardo Kerschbaumer",
+        "reference": "SimNodus repository: owned declarative fixture and project license",
+        "revision": "b3ce6748fcf18ca996dac655d54a9858e39c64a1"
+      },
+      "license": {
+        "identifier": "MIT",
+        "notice": "license"
+      },
+      "files": [
+        {
+          "id": "bindings",
+          "path": "../outside.json",
+          "bytes": 9068,
+          "sha256": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64"
+        },
+        {
+          "id": "license",
+          "path": "LICENSE",
+          "bytes": 1077,
+          "sha256": "dcf7e4380ad153d1b43c5bfffebce6a46af0b10572280c8032775bd4e7ee7147"
+        }
+      ],
+      "content_sha256": "9bc792d517b4f02ad8be5ea66d47738ed269d67bee65d47a3368524ee63ebf96"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "status": "passed",
+  "complete_e05_profile": false,
+  "scope": "Known future boundaries in one persistent foreground RC circuit",
+  "time_tolerance_s": 1e-12,
+  "voltage_tolerance_v": 1e-05,
+  "pause_observation_wall_ms": 100,
+  "reference": {
+    "target_ns": 5000000,
+    "actual_s": 0.004999999999999998,
+    "input_v": 3.3,
+    "output_v": 3.277764775048202,
+    "samples": 40012
+  },
+  "repetitions": [
+    [
+      {
+        "boundary_ns": 2010875,
+        "actual_s": 0.002010875,
+        "output_v": 2.8582240978204467,
+        "samples": 16099
+      },
+      {
+        "boundary_ns": 2011375,
+        "actual_s": 0.002011375,
+        "output_v": 2.858444930524429,
+        "samples": 16106
+      },
+      {
+        "boundary_ns": 4010750,
+        "actual_s": 0.0040107499999999996,
+        "output_v": 3.240204659348106,
+        "samples": 32104
+      },
+      {
+        "boundary_ns": 4027000,
+        "actual_s": 0.004027,
+        "output_v": 3.241168481367406,
+        "samples": 32237
+      },
+      {
+        "target_ns": 5000000,
+        "actual_s": 0.004999999999999998,
+        "input_v": 3.3,
+        "output_v": 3.2777647750411987,
+        "samples": 40024,
+        "all_boundaries_exact": true
+      }
+    ],
+    [
+      {
+        "boundary_ns": 2010875,
+        "actual_s": 0.002010875,
+        "output_v": 2.8582240978204467,
+        "samples": 16099
+      },
+      {
+        "boundary_ns": 2011375,
+        "actual_s": 0.002011375,
+        "output_v": 2.858444930524429,
+        "samples": 16106
+      },
+      {
+        "boundary_ns": 4010750,
+        "actual_s": 0.0040107499999999996,
+        "output_v": 3.240204659348106,
+        "samples": 32104
+      },
+      {
+        "boundary_ns": 4027000,
+        "actual_s": 0.004027,
+        "output_v": 3.241168481367406,
+        "samples": 32237
+      },
+      {
+        "target_ns": 5000000,
+        "actual_s": 0.004999999999999998,
+        "input_v": 3.3,
+        "output_v": 3.2777647750411987,
+        "samples": 40024,
+        "all_boundaries_exact": true
+      }
+    ],
+    [
+      {
+        "boundary_ns": 2010875,
+        "actual_s": 0.002010875,
+        "output_v": 2.8582240978204467,
+        "samples": 16099
+      },
+      {
+        "boundary_ns": 2011375,
+        "actual_s": 0.002011375,
+        "output_v": 2.858444930524429,
+        "samples": 16106
+      },
+      {
+        "boundary_ns": 4010750,
+        "actual_s": 0.0040107499999999996,
+        "output_v": 3.240204659348106,
+        "samples": 32104
+      },
+      {
+        "boundary_ns": 4027000,
+        "actual_s": 0.004027,
+        "output_v": 3.241168481367406,
+        "samples": 32237
+      },
+      {
+        "target_ns": 5000000,
+        "actual_s": 0.004999999999999998,
+        "input_v": 3.3,
+        "output_v": 3.2777647750411987,
+        "samples": 40024,
+        "all_boundaries_exact": true
+      }
+    ]
+  ],
+  "sha256": {
+    "tests/experiments/debugging/persistent_analog.py": "f9da1ae08e8750928026fb298b6e2a401f2d023dbe52e6960b89499a127de062",
+    "tests/experiments/debugging/persistent_circuit.cpp": "62c93af219a588b66424e536252288e3df51831e743dc7d1bef3b449eaadf2c5",
+    "tests/experiments/debugging/circuit.cpp": "78a9cf54811f27ea46c7a1084327a9000c3f2cd882a42fda02d25ec6ebc9ed74",
+    "build/deps/ngspice/Spice64_dll/dll-vs/ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+    "build/sn016/persistent-native/Debug/e05_persistent_circuit.exe": "f42d5988c1ee2a349944bc37f8fd2fcdb54006168989b032cd9f9592be8b2400",
+    "build/sn016/persistent-native/Debug/e05_circuit.exe": "783ab2bcba8d602dd87e0dffa7352437b1cb0d0bb6f3f075803614185722c59d"
+  },
+  "raw_evidence": "build/sn016/persistent-analog-02",
+  "preliminary_evidence": "build/sn016/persistent-analog-01",
+  "limitations": [
+    "Known future boundaries only; no asynchronous analog halt.",
+    "No integrated CPU/analog pause or dynamic GPIO exchange tested.",
+    "Paused-state observation covers emitted sample count/time/voltage, not all solver memory."
+  ]
+}

@@ -10,6 +10,13 @@ The owner has experienced stability and component/subcircuit authoring difficult
 
 An instructor prepares a circuit, firmware, and lesson notes. A student opens the project, runs it, changes controls, observes instruments, and connects STM32CubeIDE for debugging. A circuit function can become a reusable subcircuit with explicit ports.
 
+The [desktop experience](architecture/DESKTOP_UX.md) separates a Circuit Editor
+for assembly, interaction and immediate observation from an independent Signal
+Analyzer window for detailed history and analysis. Keep the canvas central,
+preview library symbols before insertion, and allow side panels to collapse for
+viewing. Shared measurements preserve context across both windows on one or
+multiple monitors. This is product direction, not an implemented interface.
+
 The baseline should run locally without an account or continuous network access. Offline classroom operation is a proposed requirement to confirm against laboratory constraints. Dependency downloads belong in setup, not silent project loading.
 
 ## First scope

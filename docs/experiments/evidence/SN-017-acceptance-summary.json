@@ -1,0 +1,99 @@
+{
+  "task": "SN-017",
+  "date": "2026-09-12",
+  "audit": "acceptance",
+  "status": "passed",
+  "complete_SN017": true,
+  "accepted_scope": "Bounded ADR 0014 Windows x64 headless fixture composition: native C++ core/adapters/application session plus the explicit Python/C# experiment driver. Not a standalone general simulator.",
+  "criterion": "Headless runner and contract tests using real engines",
+  "decision": "Close the bounded extraction task; retain harness orchestration as an explicit runtime boundary. Proceed to SN-018 measurement baseline, not general capability expansion.",
+  "reference": {
+    "path": "docs/experiments/evidence/SN-017-application-session-summary.json",
+    "sha256": "e9e8c99f4f0e2d13722a8ec47fa4f9abca0864f4b0f87581b88a79b99ccc5bc8"
+  },
+  "checks": {
+    "recorded_source_hashes_match_workspace": true,
+    "real_engine_and_binary_hashes_match_workspace": true,
+    "all_raw_report_hashes_match": true,
+    "gdb_log_hashes_match": true,
+    "protocol_process_cases": 358,
+    "ctest_targets": 14,
+    "python_unit_tests": 18,
+    "initial_real_sessions": 6,
+    "recovery_real_sessions": 6,
+    "fixed_recovery_checkpoints": 54,
+    "real_fault_controls": 4,
+    "native_rc_checks": 60,
+    "adc": 3541
+  },
+  "case_counts": {
+    "cpu-command": 17,
+    "cpu-ingress": 15,
+    "grant": 21,
+    "debug-command": 21,
+    "debug-ingress": 33,
+    "command": 13,
+    "ingress": 25,
+    "exchange": 19,
+    "process": 21,
+    "adc": 18,
+    "cases": 15,
+    "interval": 15,
+    "request": 15,
+    "reference": 11,
+    "time": 22,
+    "mailbox": 14,
+    "mi": 23,
+    "normalized": 16,
+    "session": 15,
+    "rc": 9
+  },
+  "code_source_sha256": {
+    "CMakeLists.txt": "8268cd4d060e56866c6a5b456a348c947a2db18811829af6f0f86a15910fb5d5",
+    "apps/cli/session_contract_main.cpp": "0dc91d4c82eca126c998c5856fe7c8d3e1f4252a8107802a478855514135dfd2",
+    "src/application/fixture_adc.hpp": "ffde2073adacc55d786c64fca923cf92f9e4cc0e3ddb3e0581b866f2a8b52e28",
+    "src/application/fixture_inspection.hpp": "d60e59a2673fd35a492283b1ca0bbbbf33a6de01eb7f0793f0a53c1cf0ea4548",
+    "src/application/fixture_analog.hpp": "7c143bd2038bd3e8c1de7f86e31a5df83c15ebe2b28edf87fa98c029d7718468",
+    "src/application/fixture_execution.hpp": "f36a3053ed6e9fcb9a63865203ef0b0def971978c2e99e91156a0c2d23d4dbf9",
+    "src/application/fixture_session.hpp": "e8e7544865f2d53b11671bed4a0a1659ad4bf67c22b3b622ac63a235acd8c1db",
+    "src/adapters/renode/cancellation_result.cpp": "a35bec75d93ee83657cb1911b844ad240365b83f565799b093288e5fd541695d",
+    "src/adapters/renode/control_channel.cpp": "43cdb58d8b1cc4314d5453c47a5c8c7f8de56f2e39a023327a7491f7f9f2f9e8",
+    "src/adapters/ngspice/worker_channel.cpp": "fc2ea1dcf9c3b63335ae6244b0a7ef9eea1936938d19dca374f64c5fd4f9053e",
+    "src/adapters/ngspice/worker_reply.cpp": "9758e06c69b7be22ecf7d63d9923ed81b6164197b300bfde2903a8a5cfbb0dec",
+    "src/adapters/renode/adc_process.cpp": "dac8c6e1d9dfee4781683cb7d95933cfd2029e6fb8e43104222f3c7117adc2ea",
+    "src/adapters/renode/adc_process.hpp": "d408d8b68412069e4abf529deaa2895f125d4fe4083399199d189c7032c6ebc1",
+    "tests/headless/fixture_session.cpp": "2d19c1170c733a906c4fbbf8e1c66d54f0d40d0c555a61cb8b40b2ea24c9a707",
+    "tests/experiments/debugging/joint_persistent.py": "f560d6791529ad1075868a7e66e8de4e150bcedb54f08ada74c0014b8f48de47",
+    "tests/experiments/debugging/cubeide.py": "862c669f2bb7f18a3245cf038886357ceb5bc64695a6dff84aa8579d54f84c36",
+    "tests/experiments/debugging/native_process.py": "aff0ea2eb2a5e49e5fc55f4ea56b0acf76b7dd98af8ba6504fd09e1044f4887e"
+  },
+  "voltage_differences": [
+    {
+      "session": 1,
+      "time_ns": 4010750,
+      "current_v": 2.853114350057248,
+      "reference_v": 2.853114350057229,
+      "absolute_difference_v": 1.865174681370263e-14
+    },
+    {
+      "session": 1,
+      "time_ns": 4027000,
+      "current_v": 2.860317557277434,
+      "reference_v": 2.8603175572774178,
+      "absolute_difference_v": 1.6431300764452317e-14
+    }
+  ],
+  "validation_method": "Read-only source/contract audit and hash revalidation of the immediately preceding real-engine and regression cycle. No new engine execution or IDE matrix is claimed.",
+  "retained_host_responsibilities": [
+    "Trusted dependency/profile preparation and process-supervisor invocation.",
+    "GDB/MI transport, relay authorization, fixture schedule and debug action selection.",
+    "Association of untagged MI time streams, independent reference assertions, fault injection and report collection."
+  ],
+  "not_accepted": [
+    "Autonomous all-C++ orchestration or a general simulation kernel/application.",
+    "Fresh E-05 IDE recertification, arbitrary firmware/circuits or further MCU/peripheral support.",
+    "General unpaced execution, prediction, rollback, physical ADC acquisition or general causal feedback.",
+    "Project loading, GUI/instruments, packaging, binary redistribution or classroom readiness."
+  ],
+  "publication": "Local documentation only; no commit, remote issue update or publication."
+}

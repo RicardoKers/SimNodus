@@ -1,0 +1,56 @@
+{
+  "task": "SN-020",
+  "date": "2026-09-13",
+  "slice": "declarative-bindings-0.3",
+  "status": "passed",
+  "complete_SN020": false,
+  "tests": {
+    "command": "python -m unittest discover -s tests/schema -p 'test_*.py' -v",
+    "total": 46,
+    "prior": 29,
+    "bindings": 17,
+    "result": "OK"
+  },
+  "cli_results": [
+    {
+      "fixture": "two-rc-bindings",
+      "exit_code": 0,
+      "result": {
+        "status": "valid-descriptors-only",
+        "declared_entities": 26,
+        "root_expanded_instances": 6,
+        "root_depth": 2,
+        "parameter_entries": 9,
+        "resolved_entries": 14,
+        "descriptor_entries": 36,
+        "symbol_bindings": 3,
+        "model_bindings": 2,
+        "simulation_ready": false
+      }
+    },
+    {
+      "fixture": "invalid-model-alias",
+      "exit_code": 1,
+      "result": {
+        "status": "invalid",
+        "code": "mapping",
+        "location": "$/components/resistor/model/pin_map",
+        "message": "Mapping must cover descriptor IDs without aliases or omissions"
+      }
+    }
+  ],
+  "prior_01_and_02_hashes_match": true,
+  "sha256": {
+    "tests/schema/bindings.py": "86ef86e1ae07fe675aad70565df05aaf9084d8fe2819b8dcf68908df700bac9c",
+    "tests/schema/test_bindings.py": "e284faff4f04abf7c888e4cf3e998269d5974a358e7d8d4fc27094bb281610b1",
+    "tests/schema/fixtures/two-rc-bindings.json": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64",
+    "tests/schema/fixtures/invalid-model-alias.json": "155152b8fbe2b12f3988409fe3d9d2e7dac9fc43d7e62dfac9d567fa9880fe06",
+    "docs/architecture/BINDINGS_DRAFT.md": "b0fde6cce1a43f2652dc8a055d6a077e3d474ae19db728155d215ec63f064b7d",
+    "docs/decisions/0047-declarative-bindings-draft.md": "6077c32a85f96d4567d32a16a99f20b63c95b1e45e0d490a43db9e45b9117d4f"
+  },
+  "limitations": [
+    "Descriptor validation only; simulation_ready is false.",
+    "No graphics, model implementations, external assets or backend execution.",
+    "Complete project/component schema remains pending."
+  ]
+}

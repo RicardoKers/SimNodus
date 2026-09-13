@@ -1,0 +1,840 @@
+{
+  "status": "partial; full joint-debugging contract not passed",
+  "date": "2026-09-07",
+  "normal_repetitions_identical": true,
+  "normal_common_stops_match_plain_gdb": true,
+  "launch_type": "org.eclipse.cdt.debug.gdbjtag.launchConfigurationType",
+  "launch_attributes": {
+    "org.eclipse.cdt.debug.gdbjtag.core.connection": "tcp:127.0.0.1:58275",
+    "org.eclipse.cdt.debug.gdbjtag.core.doHalt": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.doReset": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.initCommands": "",
+    "org.eclipse.cdt.debug.gdbjtag.core.ipAddress": "127.0.0.1",
+    "org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId": "org.eclipse.cdt.debug.gdbjtag.core.jtagdevice.genericDevice",
+    "org.eclipse.cdt.debug.gdbjtag.core.loadImage": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.loadSymbols": "true",
+    "org.eclipse.cdt.debug.gdbjtag.core.portNumber": "58275",
+    "org.eclipse.cdt.debug.gdbjtag.core.protocol": "remote",
+    "org.eclipse.cdt.debug.gdbjtag.core.runCommands": "",
+    "org.eclipse.cdt.debug.gdbjtag.core.setPcRegister": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.setResume": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.setStopAt": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.symbolsFileName": "<checkout>\\build\\sn016\\firmware\\firmware.elf",
+    "org.eclipse.cdt.debug.gdbjtag.core.useFileForSymbols": "true",
+    "org.eclipse.cdt.debug.gdbjtag.core.useProjBinaryForSymbols": "false",
+    "org.eclipse.cdt.debug.gdbjtag.core.useRemoteTarget": "true",
+    "org.eclipse.cdt.dsf.gdb.DEBUG_NAME": "<cubeide>\\plugins\\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_1.0.100.202602081740\\tools\\bin\\arm-none-eabi-gdb.exe",
+    "org.eclipse.cdt.dsf.gdb.GDB_INIT": "",
+    "org.eclipse.cdt.dsf.gdb.HOST": "127.0.0.1",
+    "org.eclipse.cdt.dsf.gdb.NON_STOP": "false",
+    "org.eclipse.cdt.dsf.gdb.PORT": "58275",
+    "org.eclipse.cdt.dsf.gdb.REMOTE_TCP": "true",
+    "org.eclipse.cdt.dsf.gdb.REMOTE_TIMEOUT_ENABLED": "true",
+    "org.eclipse.cdt.dsf.gdb.REMOTE_TIMEOUT_VALUE": "20",
+    "org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR": "0",
+    "org.eclipse.cdt.launch.DEBUGGER_START_MODE": "remote",
+    "org.eclipse.cdt.launch.PROGRAM_NAME": "<checkout>\\build\\sn016\\firmware\\firmware.elf",
+    "org.eclipse.cdt.launch.PROJECT_ATTR": "",
+    "org.eclipse.dsf.launch.MEMORY_BLOCKS": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><memoryBlockExpressionList context=\"reserved-for-future-use\"/>",
+    "process_factory_id": "org.eclipse.cdt.dsf.gdb.GdbProcessFactory"
+  },
+  "plain_gdb": {
+    "raw_summary_sha256": "de5b1b285679eed1df2afce12a0ec78ba749e299420c605d6dac0e87aa4ceeb5",
+    "repetitions": 3,
+    "signature": {
+      "attach_time_ns": 0,
+      "gpio": {
+        "reason": "breakpoint-hit",
+        "pc": 134217976,
+        "function": "gpio_change_marker",
+        "time_ns": 2010875
+      },
+      "instruction": {
+        "reason": "end-stepping-range",
+        "pc": 134217978,
+        "function": "gpio_change_marker",
+        "time_ns": 2011000
+      },
+      "edge": {
+        "reason": "breakpoint-hit",
+        "pc": 134217986,
+        "function": "gpio_change_marker",
+        "time_ns": 2011375
+      },
+      "step_target": {
+        "reason": "breakpoint-hit",
+        "pc": 134218016,
+        "function": "step_target",
+        "time_ns": 2012125
+      },
+      "next": [
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218018,
+          "function": "step_target",
+          "time_ns": 2012250
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218022,
+          "function": "step_target",
+          "time_ns": 2012500
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218026,
+          "function": "step_target",
+          "time_ns": 2012875
+        }
+      ],
+      "adc": {
+        "reason": "breakpoint-hit",
+        "pc": 134218036,
+        "function": "adc_read_marker",
+        "time_ns": 4010750
+      },
+      "adc_finish": {
+        "reason": "function-finished",
+        "pc": 134218164,
+        "function": "SysTick_Handler",
+        "time_ns": 4026750
+      },
+      "adc_assignment": [
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218166,
+          "function": "SysTick_Handler",
+          "time_ns": 4026875
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218168,
+          "function": "SysTick_Handler",
+          "time_ns": 4027000
+        }
+      ],
+      "mailbox": [
+        1397633077,
+        4,
+        1,
+        1,
+        2048,
+        1,
+        0,
+        0
+      ],
+      "coordinated_stop_time_ns": 4027000
+    },
+    "gdb": {
+      "version": "GNU gdb (GNU Tools for STM32 14.3.rel1.20251027-0700) 15.2.90.20241229-git",
+      "sha256": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc"
+    },
+    "audit": {
+      "revision": "add012af003a0f620d3da52828262676f374d121",
+      "source_sha256": {
+        "ContinueCommand.cs": "6291cd33e3fe2c25dcfa0a80de2ed132be91c35f89e130d6e1c3f3d406b6a158",
+        "DetachCommand.cs": "7387f9260845d9faeb302fb6de6a89c4e7966a0708d1da5ffd5ed0534467af9e",
+        "GdbStub.cs": "20dd6b3e8f17bcd0616fe178a721d268266df597a8d88218ce937848fdeb3ec4",
+        "Machine.cs": "1d0e31d922e2bf831a2b9d6813228edc605c2ba72ddb1fba50fce07defebe520",
+        "SingleStepCommand.cs": "18f0819d2dec8418013755ce5a37922523cad52c4ea4bc01ff64bec155219164",
+        "SocketServerProvider.cs": "1fc8d2c015d9cdb01abaf630fb77cd26514b3527d1379dc558909b63553e704e"
+      },
+      "standard_listener": "IPAddress.Any",
+      "experiment_listener": "IPAddress.Loopback",
+      "private_shape_verified": true
+    },
+    "inputs_sha256": {
+      "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+      "control.cpp": "3a5ec1f420b7c650aedfc8471c58b3a509a35ae627c5c5fea85d1bc405348fc7",
+      "circuit.cpp": "78a9cf54811f27ea46c7a1084327a9000c3f2cd882a42fda02d25ec6ebc9ed74",
+      "firmware.c": "740d13cc2cd607ad152c7bab54538fcf41d5583e42836d3072a7dfe372234f48",
+      "firmware.ld": "be0ccbfd87ac3a22e7fd09f7004e49604893ca65dbdf36d4f4ddaaff88ce0cb3",
+      "mailbox.h": "fc0a11755319ccd38695d55e46a0ad296204ca2c2777025ced41fce8b2b6fdc9",
+      "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+      "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+      "CMakeLists.txt": "7d5905bb9bfe1e7fa737301d728715123b5e61ac5b350761c907e1c76f2326ae",
+      "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+      "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+      "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+      "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+      "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+    }
+  },
+  "cubeide_runs": [
+    {
+      "status": "partial_probe_passed",
+      "complete_e05_profile": false,
+      "profile": "normal",
+      "started_utc": "2026-09-07T13:05:51.044616+00:00",
+      "inputs_sha256": {
+        "cubeide.py": "906dbf71c21d70999b54c64aec89a089286690b0f7a85252f487962801d12425",
+        "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "18b33ddc8ae85399e2db291e65f4ca58ca5016845d40ceec99a4da6be430bf5f",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "0aac85b67a9f5e3bf8f9ee9703634eb67d934fdb2a3ede4c7955474ba5300936",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "listeners": [
+        {
+          "address": "127.0.0.1",
+          "port": 58274,
+          "owner_matches": true
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 58275,
+          "owner_matches": true
+        }
+      ],
+      "ide_exit": 0,
+      "stops": [
+        {
+          "label": "gpio",
+          "reason": "BREAKPOINT",
+          "time_ns": 2010875,
+          "pc": 134217976,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "instruction",
+          "reason": "STEP",
+          "time_ns": 2011000,
+          "pc": 134217978,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "gpioEdge",
+          "reason": "BREAKPOINT",
+          "time_ns": 2011375,
+          "pc": 134217986,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "stepTarget",
+          "reason": "BREAKPOINT",
+          "time_ns": 2012125,
+          "pc": 134218016,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next1",
+          "reason": "STEP",
+          "time_ns": 2012250,
+          "pc": 134218018,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next2",
+          "reason": "STEP",
+          "time_ns": 2012500,
+          "pc": 134218022,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next3",
+          "reason": "STEP",
+          "time_ns": 2012875,
+          "pc": 134218026,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "adc",
+          "reason": "BREAKPOINT",
+          "time_ns": 4010750,
+          "pc": 134218036,
+          "mailbox": "35304e5304000000010000000000000000000000010000000000000000000000"
+        },
+        {
+          "label": "adcCommitted",
+          "reason": "BREAKPOINT",
+          "time_ns": 4027000,
+          "pc": 134218168,
+          "mailbox": "35304e5304000000010000000100000000080000010000000000000000000000"
+        }
+      ],
+      "circuits": [
+        {
+          "target_ns": 2010875,
+          "actual_s": 0.0020108749999999988,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16098
+        },
+        {
+          "target_ns": 2011000,
+          "actual_s": 0.0020109999999999985,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16099
+        },
+        {
+          "target_ns": 2011375,
+          "actual_s": 0.002011374999999999,
+          "input_v": 3.3,
+          "output_v": 4.99601168536786e-12,
+          "samples": 16160
+        },
+        {
+          "target_ns": 2012125,
+          "actual_s": 0.0020121249999999987,
+          "input_v": 3.3,
+          "output_v": 0.002474072116621261,
+          "samples": 16168
+        },
+        {
+          "target_ns": 2012250,
+          "actual_s": 0.002012249999999999,
+          "input_v": 3.3,
+          "output_v": 0.0028862370972953908,
+          "samples": 16169
+        },
+        {
+          "target_ns": 2012500,
+          "actual_s": 0.0020124999999999987,
+          "input_v": 3.3,
+          "output_v": 0.003710412512873253,
+          "samples": 16171
+        },
+        {
+          "target_ns": 2012875,
+          "actual_s": 0.002012874999999999,
+          "input_v": 3.3,
+          "output_v": 0.0049462893683967935,
+          "samples": 16174
+        },
+        {
+          "target_ns": 4010750,
+          "actual_s": 0.004010749999999998,
+          "input_v": 3.3,
+          "output_v": 2.8531143502154785,
+          "samples": 32157
+        },
+        {
+          "target_ns": 4027000,
+          "actual_s": 0.0040269999999999985,
+          "input_v": 3.3,
+          "output_v": 2.860317557467566,
+          "samples": 32287
+        }
+      ],
+      "listeners_removed": true,
+      "completed_utc": "2026-09-07T13:06:16.790134+00:00",
+      "raw_directory": "build/sn016/resume-normal-04",
+      "raw_sha256": {
+        "summary.json": "2454f76665d07f120dc5977b97ab83e47e36cb245d2128606531f813c0b0842b",
+        "runner.txt": "52eef0993f200835444a55a9ebe8d3ab34f8d766c484ab59f35221f2feae2f71",
+        "cubeide-console.log": "248b95a30dd66a662e7d7f6a2da0b4ab10ece0fd1b8734a58601357335966caa",
+        "renode/renode.log": "127f3255ef0f54711b60ba79310a04441b0c54390d1bffe36cf8d676c3e61470"
+      }
+    },
+    {
+      "status": "partial_probe_passed",
+      "complete_e05_profile": false,
+      "profile": "normal",
+      "started_utc": "2026-09-07T13:06:49.763810+00:00",
+      "inputs_sha256": {
+        "cubeide.py": "906dbf71c21d70999b54c64aec89a089286690b0f7a85252f487962801d12425",
+        "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "18b33ddc8ae85399e2db291e65f4ca58ca5016845d40ceec99a4da6be430bf5f",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "0aac85b67a9f5e3bf8f9ee9703634eb67d934fdb2a3ede4c7955474ba5300936",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "listeners": [
+        {
+          "address": "127.0.0.1",
+          "port": 58467,
+          "owner_matches": true
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 58468,
+          "owner_matches": true
+        }
+      ],
+      "ide_exit": 0,
+      "stops": [
+        {
+          "label": "gpio",
+          "reason": "BREAKPOINT",
+          "time_ns": 2010875,
+          "pc": 134217976,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "instruction",
+          "reason": "STEP",
+          "time_ns": 2011000,
+          "pc": 134217978,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "gpioEdge",
+          "reason": "BREAKPOINT",
+          "time_ns": 2011375,
+          "pc": 134217986,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "stepTarget",
+          "reason": "BREAKPOINT",
+          "time_ns": 2012125,
+          "pc": 134218016,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next1",
+          "reason": "STEP",
+          "time_ns": 2012250,
+          "pc": 134218018,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next2",
+          "reason": "STEP",
+          "time_ns": 2012500,
+          "pc": 134218022,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next3",
+          "reason": "STEP",
+          "time_ns": 2012875,
+          "pc": 134218026,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "adc",
+          "reason": "BREAKPOINT",
+          "time_ns": 4010750,
+          "pc": 134218036,
+          "mailbox": "35304e5304000000010000000000000000000000010000000000000000000000"
+        },
+        {
+          "label": "adcCommitted",
+          "reason": "BREAKPOINT",
+          "time_ns": 4027000,
+          "pc": 134218168,
+          "mailbox": "35304e5304000000010000000100000000080000010000000000000000000000"
+        }
+      ],
+      "circuits": [
+        {
+          "target_ns": 2010875,
+          "actual_s": 0.0020108749999999988,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16098
+        },
+        {
+          "target_ns": 2011000,
+          "actual_s": 0.0020109999999999985,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16099
+        },
+        {
+          "target_ns": 2011375,
+          "actual_s": 0.002011374999999999,
+          "input_v": 3.3,
+          "output_v": 4.99601168536786e-12,
+          "samples": 16160
+        },
+        {
+          "target_ns": 2012125,
+          "actual_s": 0.0020121249999999987,
+          "input_v": 3.3,
+          "output_v": 0.002474072116621261,
+          "samples": 16168
+        },
+        {
+          "target_ns": 2012250,
+          "actual_s": 0.002012249999999999,
+          "input_v": 3.3,
+          "output_v": 0.0028862370972953908,
+          "samples": 16169
+        },
+        {
+          "target_ns": 2012500,
+          "actual_s": 0.0020124999999999987,
+          "input_v": 3.3,
+          "output_v": 0.003710412512873253,
+          "samples": 16171
+        },
+        {
+          "target_ns": 2012875,
+          "actual_s": 0.002012874999999999,
+          "input_v": 3.3,
+          "output_v": 0.0049462893683967935,
+          "samples": 16174
+        },
+        {
+          "target_ns": 4010750,
+          "actual_s": 0.004010749999999998,
+          "input_v": 3.3,
+          "output_v": 2.8531143502154785,
+          "samples": 32157
+        },
+        {
+          "target_ns": 4027000,
+          "actual_s": 0.0040269999999999985,
+          "input_v": 3.3,
+          "output_v": 2.860317557467566,
+          "samples": 32287
+        }
+      ],
+      "listeners_removed": true,
+      "completed_utc": "2026-09-07T13:07:15.567162+00:00",
+      "raw_directory": "build/sn016/resume-normal-05",
+      "raw_sha256": {
+        "summary.json": "e215ee0a90950dd615da215b23a2205afd3553964297dc94d392557c2ff49f75",
+        "runner.txt": "52eef0993f200835444a55a9ebe8d3ab34f8d766c484ab59f35221f2feae2f71",
+        "cubeide-console.log": "9e1e9a916511b12ada2dea262d4fb604f78ccca3ddba5197660d1bf88d8899ce",
+        "renode/renode.log": "8b4b0e52bdc09383bfafca0ebc0dcb78bd2b553bc8326d01d995e9a81a486a4d"
+      }
+    },
+    {
+      "status": "partial_probe_passed",
+      "complete_e05_profile": false,
+      "profile": "normal",
+      "started_utc": "2026-09-07T13:07:18.846492+00:00",
+      "inputs_sha256": {
+        "cubeide.py": "906dbf71c21d70999b54c64aec89a089286690b0f7a85252f487962801d12425",
+        "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "18b33ddc8ae85399e2db291e65f4ca58ca5016845d40ceec99a4da6be430bf5f",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "0aac85b67a9f5e3bf8f9ee9703634eb67d934fdb2a3ede4c7955474ba5300936",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "listeners": [
+        {
+          "address": "127.0.0.1",
+          "port": 61905,
+          "owner_matches": true
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 61906,
+          "owner_matches": true
+        }
+      ],
+      "ide_exit": 0,
+      "stops": [
+        {
+          "label": "gpio",
+          "reason": "BREAKPOINT",
+          "time_ns": 2010875,
+          "pc": 134217976,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "instruction",
+          "reason": "STEP",
+          "time_ns": 2011000,
+          "pc": 134217978,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "gpioEdge",
+          "reason": "BREAKPOINT",
+          "time_ns": 2011375,
+          "pc": 134217986,
+          "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "stepTarget",
+          "reason": "BREAKPOINT",
+          "time_ns": 2012125,
+          "pc": 134218016,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next1",
+          "reason": "STEP",
+          "time_ns": 2012250,
+          "pc": 134218018,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next2",
+          "reason": "STEP",
+          "time_ns": 2012500,
+          "pc": 134218022,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "next3",
+          "reason": "STEP",
+          "time_ns": 2012875,
+          "pc": 134218026,
+          "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+        },
+        {
+          "label": "adc",
+          "reason": "BREAKPOINT",
+          "time_ns": 4010750,
+          "pc": 134218036,
+          "mailbox": "35304e5304000000010000000000000000000000010000000000000000000000"
+        },
+        {
+          "label": "adcCommitted",
+          "reason": "BREAKPOINT",
+          "time_ns": 4027000,
+          "pc": 134218168,
+          "mailbox": "35304e5304000000010000000100000000080000010000000000000000000000"
+        }
+      ],
+      "circuits": [
+        {
+          "target_ns": 2010875,
+          "actual_s": 0.0020108749999999988,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16098
+        },
+        {
+          "target_ns": 2011000,
+          "actual_s": 0.0020109999999999985,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16099
+        },
+        {
+          "target_ns": 2011375,
+          "actual_s": 0.002011374999999999,
+          "input_v": 3.3,
+          "output_v": 4.99601168536786e-12,
+          "samples": 16160
+        },
+        {
+          "target_ns": 2012125,
+          "actual_s": 0.0020121249999999987,
+          "input_v": 3.3,
+          "output_v": 0.002474072116621261,
+          "samples": 16168
+        },
+        {
+          "target_ns": 2012250,
+          "actual_s": 0.002012249999999999,
+          "input_v": 3.3,
+          "output_v": 0.0028862370972953908,
+          "samples": 16169
+        },
+        {
+          "target_ns": 2012500,
+          "actual_s": 0.0020124999999999987,
+          "input_v": 3.3,
+          "output_v": 0.003710412512873253,
+          "samples": 16171
+        },
+        {
+          "target_ns": 2012875,
+          "actual_s": 0.002012874999999999,
+          "input_v": 3.3,
+          "output_v": 0.0049462893683967935,
+          "samples": 16174
+        },
+        {
+          "target_ns": 4010750,
+          "actual_s": 0.004010749999999998,
+          "input_v": 3.3,
+          "output_v": 2.8531143502154785,
+          "samples": 32157
+        },
+        {
+          "target_ns": 4027000,
+          "actual_s": 0.0040269999999999985,
+          "input_v": 3.3,
+          "output_v": 2.860317557467566,
+          "samples": 32287
+        }
+      ],
+      "listeners_removed": true,
+      "completed_utc": "2026-09-07T13:07:43.561257+00:00",
+      "raw_directory": "build/sn016/resume-normal-06",
+      "raw_sha256": {
+        "summary.json": "c1979ec22d40b455112a36c0af3a5817473927d0c1c72216f3e97f1d194cf94e",
+        "runner.txt": "52eef0993f200835444a55a9ebe8d3ab34f8d766c484ab59f35221f2feae2f71",
+        "cubeide-console.log": "d90b370ccca1a9728876e6431619b6f5c3dddc4698ae79fa2dfda764c1a810a7",
+        "renode/renode.log": "9177f93ef5199f06b71c0fc874f3d9e1509ddae854283a400b95a9851ca0dbab"
+      }
+    },
+    {
+      "status": "partial_probe_passed",
+      "complete_e05_profile": false,
+      "profile": "reset",
+      "started_utc": "2026-09-07T13:07:46.700178+00:00",
+      "inputs_sha256": {
+        "cubeide.py": "906dbf71c21d70999b54c64aec89a089286690b0f7a85252f487962801d12425",
+        "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "18b33ddc8ae85399e2db291e65f4ca58ca5016845d40ceec99a4da6be430bf5f",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "0aac85b67a9f5e3bf8f9ee9703634eb67d934fdb2a3ede4c7955474ba5300936",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "listeners": [
+        {
+          "address": "127.0.0.1",
+          "port": 59101,
+          "owner_matches": true
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 59102,
+          "owner_matches": true
+        }
+      ],
+      "disconnect_time": {
+        "command": "time",
+        "before_us": 0,
+        "after_us": 0
+      },
+      "ide_exit": 0,
+      "listeners_removed": true,
+      "completed_utc": "2026-09-07T13:08:12.006828+00:00",
+      "raw_directory": "build/sn016/resume-reset-03",
+      "raw_sha256": {
+        "summary.json": "25f3a9d71b64cfe35719d1a2148253117505cfd1a8443ccc65e7f880562e3428",
+        "runner.txt": "251ef6e52c5cc6e33bc07c0dc29a5ac97f5b7e1145bc4b73fbcf8a6087ce31cf",
+        "cubeide-console.log": "7bcabf206a14c6dc57433d6d82d08940c777ed0c3d0b4dc6b1cee92b1195cef6",
+        "renode/renode.log": "e3f69a9edbd9e0484979295e99caf162850dd62df96bdad0bb66fb1e3ef93130"
+      },
+      "action_log": [
+        "SIMNODUS_CUBEIDE_RUNNER_START",
+        "product=com.st.stm32cube.ide.mcu.rcp.product",
+        "productName=STM32CubeIDE",
+        "buildId=Version 2.2.0",
+        "bundle=org.eclipse.cdt.dsf.gdb version=7.3.0.202512020204",
+        "bundle=org.eclipse.cdt.debug.gdbjtag.core version=10.8.500.202512020204",
+        "bundle=org.eclipse.debug.core version=3.23.200.v20251107-0507",
+        "launchClass=org.eclipse.cdt.dsf.gdb.launching.GdbLaunch",
+        "attachTimeNs=0",
+        "RESET timeNs=0 mailbox=0000000000000000000000000000000000000000000000000000000000000000",
+        "RESET_CIRCUIT {\"target_ns\":0,\"actual_s\":0,\"input_v\":0,\"output_v\":0,\"samples\":0}",
+        "DISCONNECTED",
+        "SIMNODUS_CUBEIDE_RUNNER_START",
+        "product=com.st.stm32cube.ide.mcu.rcp.product",
+        "productName=STM32CubeIDE",
+        "buildId=Version 2.2.0",
+        "bundle=org.eclipse.cdt.dsf.gdb version=7.3.0.202512020204",
+        "bundle=org.eclipse.cdt.debug.gdbjtag.core version=10.8.500.202512020204",
+        "bundle=org.eclipse.debug.core version=3.23.200.v20251107-0507",
+        "launchClass=org.eclipse.cdt.dsf.gdb.launching.GdbLaunch",
+        "attachTimeNs=0",
+        "RECONNECTED timeNs=0",
+        "SIMNODUS_CUBEIDE_SESSION_CLOSED",
+        "DEBUGGER_RESET_REJECTED debugger-only reset is unsupported",
+        "SIMNODUS_CUBEIDE_SESSION_CLOSED"
+      ]
+    },
+    {
+      "status": "partial_probe_passed",
+      "complete_e05_profile": false,
+      "profile": "pause",
+      "started_utc": "2026-09-07T13:08:15.072813+00:00",
+      "inputs_sha256": {
+        "cubeide.py": "906dbf71c21d70999b54c64aec89a089286690b0f7a85252f487962801d12425",
+        "run.py": "e12546b6b1a7d84d0b89b123b1ebf9adcbbf17e16469001a3528e714ef12342f",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "18b33ddc8ae85399e2db291e65f4ca58ca5016845d40ceec99a4da6be430bf5f",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "0aac85b67a9f5e3bf8f9ee9703634eb67d934fdb2a3ede4c7955474ba5300936",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "listeners": [
+        {
+          "address": "127.0.0.1",
+          "port": 60489,
+          "owner_matches": true
+        },
+        {
+          "address": "127.0.0.1",
+          "port": 60490,
+          "owner_matches": true
+        }
+      ],
+      "ide_exit": 0,
+      "listeners_removed": true,
+      "completed_utc": "2026-09-07T13:08:38.951494+00:00",
+      "raw_directory": "build/sn016/resume-pause-02",
+      "raw_sha256": {
+        "summary.json": "f65d3610e43903c4bdb9c70e04741fd7c38016be1fbef4fb98e90ebc8ca92298",
+        "runner.txt": "7296444d2a9b1ca72942bdf1868fce0889d8cb71c4923edf089e3f7d05f5b597",
+        "cubeide-console.log": "3ea5e0535a9225f63fa8d05577db739919624bed231b29dcc37c9473cd742263",
+        "renode/renode.log": "5a2331f4ae82420fd3510ce3989ab49a19d52ca3ca5505b39eae71603770c750"
+      },
+      "action_log": [
+        "SIMNODUS_CUBEIDE_RUNNER_START",
+        "product=com.st.stm32cube.ide.mcu.rcp.product",
+        "productName=STM32CubeIDE",
+        "buildId=Version 2.2.0",
+        "bundle=org.eclipse.cdt.dsf.gdb version=7.3.0.202512020204",
+        "bundle=org.eclipse.cdt.debug.gdbjtag.core version=10.8.500.202512020204",
+        "bundle=org.eclipse.debug.core version=3.23.200.v20251107-0507",
+        "launchClass=org.eclipse.cdt.dsf.gdb.launching.GdbLaunch",
+        "attachTimeNs=0",
+        "PAUSE observedNs=8000 effectiveNs=100000000 wallNs=26321400 committed=false supported=false grant={\"command\":\"run\",\"before_us\":0,\"after_us\":100000}",
+        "SIMNODUS_CUBEIDE_SESSION_CLOSED"
+      ]
+    }
+  ]
+}

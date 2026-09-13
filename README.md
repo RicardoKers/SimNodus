@@ -4,7 +4,7 @@
 
 SimNodus is a desktop simulator for teaching and exploring the interaction between real firmware, microcontrollers, analog circuits, and digital logic. Its first target is the STM32F103C8/Blue Pill, using Renode, ngspice/XSPICE, a C++ co-simulation kernel, and a Qt 6 interface.
 
-**Status: standalone backend experiments, a bounded GPIO/RC coupling experiment, and a focused STM32F103 ADC path work; the SimNodus application is not implemented yet.** Known-schedule replay is the selected causality-preserving profile. Live sampled feedback works only as an explicitly approximate experiment; general causal feedback remains unsupported. Electrical GPIO/ADC coupling and STM32CubeIDE compatibility still require experimental validation. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
+**Status: standalone backend experiments, a bounded GPIO/RC coupling experiment, and a focused STM32F103 ADC path work; the SimNodus application is not implemented yet.** Known-schedule replay is the selected causality-preserving profile. Live sampled feedback works only as an explicitly approximate experiment; general causal feedback remains unsupported. Bounded cooperative STM32CubeIDE/GDB debugging passed E-05; physical GPIO/ADC acquisition and general debugging workloads remain unvalidated. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
 
 ## Start here
 
@@ -53,7 +53,30 @@ This checks repository structure and documentation; **it does not simulate circu
 
 The opt-in Windows [E-01 experiment](tests/experiments/ngspice/README.md) runs real RC circuits through ngspice 47 and verifies analytical accuracy, external voltage callbacks, pause/resume, resets, and invalid-netlist recovery. See [measured results and limitations](docs/experiments/E-01-results.md). A separate Windows workflow repeats these checks.
 
-The [SN-019 Windows control experiment](tests/experiments/renode-client/README.md) runs the adapted native client against real Renode with a verified loopback-only server. [E-02](tests/experiments/renode-stm32/README.md) builds owned STM32F103C8 firmware and validates bounded SysTick GPIO, injected input, and EXTI behavior in an offline profile. [E-03](tests/experiments/coupling/README.md) couples real Renode GPIO to a real ngspice RC and returns threshold feedback to firmware. [E-04](tests/experiments/adc/README.md) verifies a focused F103-compatible ADC extension from integer microvolts through firmware readback, including quantization, timing, saturation, and sampling. See the measured [E-03 restrictions](docs/experiments/E-03-results.md) and [E-04 scope](docs/experiments/E-04-results.md). Electrical pin/ADC coupling, general causal feedback, and coordinated debugging remain pending.
+The [SN-019 Windows control experiment](tests/experiments/renode-client/README.md) runs the adapted native client against real Renode with a verified loopback-only server. [E-02](tests/experiments/renode-stm32/README.md) builds owned STM32F103C8 firmware and validates bounded SysTick GPIO, injected input, and EXTI behavior in an offline profile. [E-03](tests/experiments/coupling/README.md) couples real Renode GPIO to a real ngspice RC and returns threshold feedback to firmware. [E-04](tests/experiments/adc/README.md) verifies a focused F103-compatible ADC extension from integer microvolts through firmware readback, including quantization, timing, saturation, and sampling. See the measured [E-03 restrictions](docs/experiments/E-03-results.md) and [E-04 scope](docs/experiments/E-04-results.md). Physical pin/ADC acquisition and general causal feedback remain outside the validated profile; bounded debugging evidence is described below.
+
+The bounded [E-05 debugging gate](docs/experiments/E-05-gate-review.md) is complete:
+real GDB and CubeIDE exercise persistent CPU/RC checkpoints, cooperative pause,
+steps, recreated lifecycle and fault recovery. The selected profile requires
+the measured backend extension and explicit pacing constraints; general unpaced
+debugging remains unapproved. [ADR 0014](docs/decisions/0014-bounded-cooperative-debugging.md)
+opened SN-017 headless extraction, now [accepted for the bounded composition](docs/experiments/SN-017-acceptance.md).
+Native contracts, adapters and application session run with the declared Python/C#
+fixture driver. GDB transport and fixture scheduling remain host-owned; the
+complete production kernel/application remain pending. SN-018 has a
+[first local reproducibility/performance baseline](docs/experiments/SN-018-baseline.md)
+accepted for the [bounded local reference scenarios](docs/experiments/SN-018-acceptance.md).
+Product performance targets and portable setup remain unvalidated.
+
+SN-020 has an [experimental topology schema](docs/experiments/SN-020-topology.md)
+with [exact parameters](docs/experiments/SN-020-parameters.md) and
+[separate symbol/model interface bindings](docs/experiments/SN-020-bindings.md).
+An [inert resource lock](docs/experiments/SN-020-resource-lock.md) validates file
+inventory metadata and lexical paths; physical resource verification is pending.
+The composed [project declaration baseline](docs/experiments/SN-020-acceptance.md)
+is accepted for SN-020, including board/firmware metadata and requested temporal
+policy. Its hierarchical JSON fixtures remain non-executable; physical resource
+verification, runtime negotiation and native loading/saving are pending.
 
 ## License and publication
 

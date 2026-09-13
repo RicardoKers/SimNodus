@@ -1,0 +1,465 @@
+{
+  "date": "2026-09-08",
+  "raw_path": "build/sn016/pause-candidates-02/summary.json",
+  "raw_sha256": "de3efd7a63f61545c79173ab28f92161bbdd1d79426711487849140248c2719d",
+  "source_audit": [
+    {
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Core/Emulation.cs",
+      "file": "Emulation.cs",
+      "sha256": "6210a18534fb89a6eb36ee3fef1c888ace3766da20b9e39f8f3d7ee8b8bded60"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Time/MasterTimeSource.cs",
+      "file": "MasterTimeSource.cs",
+      "sha256": "c3f24e18bdbc2358412c41217c559dfd00ece775e4abefa8ef25abe463ab5c38"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Time/TimeSourceBase.cs",
+      "file": "TimeSourceBase.cs",
+      "sha256": "9b3abe65f5a4d103ac75f6053ddf72699b222ead0f98eb49c26f1349b3dc0f66"
+    }
+  ],
+  "joint_pause_supported": false,
+  "runs": [
+    {
+      "case": "machine_request",
+      "monitor_command": "machine PauseAndRequestEmulationPause false",
+      "joint_commit": false,
+      "before": {
+        "reason": "breakpoint-hit",
+        "pc": 134217976,
+        "function": "gpio_change_marker",
+        "time_ns": 2010875
+      },
+      "monitor_tail": "machine PauseAndRequestEmulationPause false\n\r(sn016) \n\r(sn016) echo \"SIMNODUS_PAUSE_COMMAND_RETURNED\"\n\rSIMNODUS_PAUSE_COMMAND_RETURNED\r\r\r\n(sn016) \n\r(sn016) ",
+      "monitor_returned": true,
+      "monitor_wall_ns": 98957500,
+      "observations": [
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        },
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        },
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        }
+      ],
+      "inspection": {
+        "before_ns": 2010875,
+        "after_ns": 2010875,
+        "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"},{number=\"15\",value=\"0x80000f8\"}]\n(gdb) ",
+        "mailbox": [
+          1397633077,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "classification": "no_grant_cancellation",
+      "grant_after_cleanup": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "E-05 control failed: Backend error 0: Loopback connection failed or closed\n"
+      },
+      "listeners_removed": true,
+      "fresh_recovery": {
+        "attach_time_ns": 0,
+        "gpio_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134217976,
+          "function": "gpio_change_marker",
+          "time_ns": 2010875,
+          "circuit": {
+            "target_ns": 2010875,
+            "actual_s": 0.0020108749999999988,
+            "input_v": 0,
+            "output_v": 0,
+            "samples": 16098
+          },
+          "inspection": {
+            "before_ns": 2010875,
+            "after_ns": 2010875,
+            "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"},{number=\"15\",value=\"0x80000f8\"}]\n(gdb) ",
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "instruction_step": {
+          "reason": "end-stepping-range",
+          "pc": 134217978,
+          "function": "gpio_change_marker",
+          "time_ns": 2011000,
+          "circuit": {
+            "target_ns": 2011000,
+            "actual_s": 0.0020109999999999985,
+            "input_v": 0,
+            "output_v": 0,
+            "samples": 16099
+          }
+        },
+        "gpio_edge_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134217986,
+          "function": "gpio_change_marker",
+          "time_ns": 2011375,
+          "gpio_odr": 1,
+          "circuit": {
+            "target_ns": 2011375,
+            "actual_s": 0.002011374999999999,
+            "input_v": 3.3,
+            "output_v": 4.99601168536786e-12,
+            "samples": 16160
+          }
+        },
+        "step_target_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134218016,
+          "function": "step_target",
+          "time_ns": 2012125,
+          "circuit": {
+            "target_ns": 2012125,
+            "actual_s": 0.0020121249999999987,
+            "input_v": 3.3,
+            "output_v": 0.002474072116621261,
+            "samples": 16168
+          }
+        },
+        "next_stops": [
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218018,
+            "function": "step_target",
+            "time_ns": 2012250
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218022,
+            "function": "step_target",
+            "time_ns": 2012500
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218026,
+            "function": "step_target",
+            "time_ns": 2012875,
+            "circuit": {
+              "target_ns": 2012875,
+              "actual_s": 0.002012874999999999,
+              "input_v": 3.3,
+              "output_v": 0.0049462893683967935,
+              "samples": 16174
+            }
+          }
+        ],
+        "adc_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134218036,
+          "function": "adc_read_marker",
+          "time_ns": 4010750,
+          "circuit": {
+            "target_ns": 4010750,
+            "actual_s": 0.004010749999999998,
+            "input_v": 3.3,
+            "output_v": 2.8531143502154785,
+            "samples": 32157
+          }
+        },
+        "adc_finish_stop": {
+          "reason": "function-finished",
+          "pc": 134218164,
+          "function": "SysTick_Handler",
+          "time_ns": 4026750,
+          "circuit": {
+            "target_ns": 4026750,
+            "actual_s": 0.004026749999999998,
+            "input_v": 3.3,
+            "output_v": 2.8602076231155675,
+            "samples": 32285
+          }
+        },
+        "adc_assignment_steps": [
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218166,
+            "function": "SysTick_Handler",
+            "time_ns": 4026875
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218168,
+            "function": "SysTick_Handler",
+            "time_ns": 4027000
+          }
+        ],
+        "final_circuit": {
+          "target_ns": 4027000,
+          "actual_s": 0.0040269999999999985,
+          "input_v": 3.3,
+          "output_v": 2.860317557467566,
+          "samples": 32287
+        },
+        "final_mailbox": [
+          1397633077,
+          4,
+          1,
+          1,
+          2048,
+          1,
+          0,
+          0
+        ],
+        "coordinated_stop_time_ns": 4027000,
+        "pending_grant_after_session_stop": {
+          "exit": 1,
+          "stdout": "",
+          "diagnostic": "E-05 control failed: Backend error 0: Loopback connection failed or closed",
+          "committed": false
+        },
+        "listener_addresses": [
+          "127.0.0.1",
+          "127.0.0.1"
+        ]
+      }
+    },
+    {
+      "case": "emulation_pause",
+      "monitor_command": "emulation PauseAll",
+      "joint_commit": false,
+      "before": {
+        "reason": "breakpoint-hit",
+        "pc": 134217976,
+        "function": "gpio_change_marker",
+        "time_ns": 2010875
+      },
+      "monitor_tail": "emulation PauseAll\n\r07:19:58.9738 [INFO] sn016: Machine paused.\r\n(sn016) \n\r(sn016) echo \"SIMNODUS_PAUSE_COMMAND_RETURNED\"\n\rSIMNODUS_PAUSE_COMMAND_RETURNED\r\r\r\n(sn016) \n\r(sn016) ",
+      "monitor_returned": true,
+      "monitor_wall_ns": 99214000,
+      "observations": [
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        },
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        },
+        {
+          "time_ns": 2010875,
+          "grant_exit": null
+        }
+      ],
+      "inspection": {
+        "before_ns": 2010875,
+        "after_ns": 2010875,
+        "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"},{number=\"15\",value=\"0x80000f8\"}]\n(gdb) ",
+        "mailbox": [
+          1397633077,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "classification": "no_grant_cancellation",
+      "grant_after_cleanup": {
+        "exit": 1,
+        "stdout": "",
+        "stderr": "E-05 control failed: Backend error 0: Loopback connection failed or closed\n"
+      },
+      "listeners_removed": true,
+      "fresh_recovery": {
+        "attach_time_ns": 0,
+        "gpio_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134217976,
+          "function": "gpio_change_marker",
+          "time_ns": 2010875,
+          "circuit": {
+            "target_ns": 2010875,
+            "actual_s": 0.0020108749999999988,
+            "input_v": 0,
+            "output_v": 0,
+            "samples": 16098
+          },
+          "inspection": {
+            "before_ns": 2010875,
+            "after_ns": 2010875,
+            "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"},{number=\"15\",value=\"0x80000f8\"}]\n(gdb) ",
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "instruction_step": {
+          "reason": "end-stepping-range",
+          "pc": 134217978,
+          "function": "gpio_change_marker",
+          "time_ns": 2011000,
+          "circuit": {
+            "target_ns": 2011000,
+            "actual_s": 0.0020109999999999985,
+            "input_v": 0,
+            "output_v": 0,
+            "samples": 16099
+          }
+        },
+        "gpio_edge_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134217986,
+          "function": "gpio_change_marker",
+          "time_ns": 2011375,
+          "gpio_odr": 1,
+          "circuit": {
+            "target_ns": 2011375,
+            "actual_s": 0.002011374999999999,
+            "input_v": 3.3,
+            "output_v": 4.99601168536786e-12,
+            "samples": 16160
+          }
+        },
+        "step_target_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134218016,
+          "function": "step_target",
+          "time_ns": 2012125,
+          "circuit": {
+            "target_ns": 2012125,
+            "actual_s": 0.0020121249999999987,
+            "input_v": 3.3,
+            "output_v": 0.002474072116621261,
+            "samples": 16168
+          }
+        },
+        "next_stops": [
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218018,
+            "function": "step_target",
+            "time_ns": 2012250
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218022,
+            "function": "step_target",
+            "time_ns": 2012500
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218026,
+            "function": "step_target",
+            "time_ns": 2012875,
+            "circuit": {
+              "target_ns": 2012875,
+              "actual_s": 0.002012874999999999,
+              "input_v": 3.3,
+              "output_v": 0.0049462893683967935,
+              "samples": 16174
+            }
+          }
+        ],
+        "adc_stop": {
+          "reason": "breakpoint-hit",
+          "pc": 134218036,
+          "function": "adc_read_marker",
+          "time_ns": 4010750,
+          "circuit": {
+            "target_ns": 4010750,
+            "actual_s": 0.004010749999999998,
+            "input_v": 3.3,
+            "output_v": 2.8531143502154785,
+            "samples": 32157
+          }
+        },
+        "adc_finish_stop": {
+          "reason": "function-finished",
+          "pc": 134218164,
+          "function": "SysTick_Handler",
+          "time_ns": 4026750,
+          "circuit": {
+            "target_ns": 4026750,
+            "actual_s": 0.004026749999999998,
+            "input_v": 3.3,
+            "output_v": 2.8602076231155675,
+            "samples": 32285
+          }
+        },
+        "adc_assignment_steps": [
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218166,
+            "function": "SysTick_Handler",
+            "time_ns": 4026875
+          },
+          {
+            "reason": "end-stepping-range",
+            "pc": 134218168,
+            "function": "SysTick_Handler",
+            "time_ns": 4027000
+          }
+        ],
+        "final_circuit": {
+          "target_ns": 4027000,
+          "actual_s": 0.0040269999999999985,
+          "input_v": 3.3,
+          "output_v": 2.860317557467566,
+          "samples": 32287
+        },
+        "final_mailbox": [
+          1397633077,
+          4,
+          1,
+          1,
+          2048,
+          1,
+          0,
+          0
+        ],
+        "coordinated_stop_time_ns": 4027000,
+        "pending_grant_after_session_stop": {
+          "exit": 1,
+          "stdout": "",
+          "diagnostic": "E-05 control failed: Backend error 0: Loopback connection failed or closed",
+          "committed": false
+        },
+        "listener_addresses": [
+          "127.0.0.1",
+          "127.0.0.1"
+        ]
+      }
+    }
+  ],
+  "inputs_sha256": {
+    "pause_candidate.py": "9fa2b211508a919cdb12c178488060625480e04e1ad3684b72d1d6a55760bc02",
+    "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+    "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+    "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+    "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385",
+    "LoopbackControl.cs": "4866987b6e5db5283fd0fe1ae84c867c951568dc3176d43ae0f0f951e9d7014b"
+  }
+}

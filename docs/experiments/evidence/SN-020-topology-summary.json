@@ -1,0 +1,61 @@
+{
+  "task": "SN-020",
+  "date": "2026-09-12",
+  "slice": "topology-only-0.1",
+  "status": "passed",
+  "complete_SN020": false,
+  "unit_tests": {
+    "command": "python -m unittest discover -s tests/schema -p test_topology.py -v",
+    "tests": 15,
+    "result": "OK"
+  },
+  "cli_results": [
+    {
+      "fixture": "two-rc",
+      "exit_code": 0,
+      "result": {
+        "status": "valid-topology-only",
+        "declared_entities": 26,
+        "root_expanded_instances": 6,
+        "root_depth": 2
+      }
+    },
+    {
+      "fixture": "invalid-cycle",
+      "exit_code": 1,
+      "result": {
+        "status": "invalid",
+        "code": "hierarchy",
+        "location": "$/main",
+        "message": "Recursive circuit definitions"
+      }
+    },
+    {
+      "fixture": "invalid-terminal",
+      "exit_code": 1,
+      "result": {
+        "status": "invalid",
+        "code": "reference",
+        "location": "$/main/nets/0",
+        "message": "Unknown local port"
+      }
+    }
+  ],
+  "sha256": {
+    "tests/schema/topology.py": "ca04ccd60a4d632becd4742eb9fd97dc70e151d1322fab21505fcca85a08d821",
+    "tests/schema/test_topology.py": "874a978c5a57597d66ed7b4e4626d07e5d0961ef1d497b2d55b6d1df78972cef",
+    "docs/architecture/TOPOLOGY_DRAFT.md": "6e36416ac0a473f4f7c7e94a5331d70985b517bbbd9020a3e2b902b384098af6",
+    "docs/decisions/0045-experimental-topology-draft.md": "57f431738b22dcd65be0c8122d4389aa9c0519008446bab671848e1ffc65f05d",
+    "tests/schema/fixtures/invalid-cycle.json": "97fec142887fd1006f852e57a02b04de9f22335855644d7833d06234ef2854d0",
+    "tests/schema/fixtures/invalid-terminal.json": "968cf5c99e8da6e2a53ea2a03410d5a81a0ab9aaaf17d78154d3fc3e024a0d98",
+    "tests/schema/fixtures/two-rc.json": "c74cacce8ece00f67b329303ce3fd07814538a17c65a48df1e824195e680759a"
+  },
+  "implemented": "Experimental structural validator and explicit topology contract; no native loader or simulator",
+  "remaining": "Unit-bearing parameters/overrides, symbol/model separation, resources/dependencies, board/firmware and temporal configuration",
+  "limitations": [
+    "Two RC instances validate distinct structural paths, not independent engine state.",
+    "JSON decoded-tree round trip is tested; atomic persistence/migration is not.",
+    "No engines, external resources, code execution or capability expansion."
+  ],
+  "publication": "No commit, issue synchronization or remote publication"
+}

@@ -1,0 +1,974 @@
+{
+  "status": "race_live_analog_timeout_abort_and_fresh_recovery_verified",
+  "complete_e05_profile": false,
+  "date": "2026-09-09",
+  "pairs": [
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/race-timeout-01",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 24339900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 47262900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 69152900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 92065600
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 114258800
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 137330500
+            },
+            {
+              "cpu_time_ns": 2104000,
+              "host_elapsed_ns": 162084400
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 172019700,
+          "cpu_after_retained_interrupt_ns": 2657000,
+          "delay_progress_ns": [
+            3926000,
+            4010750
+          ],
+          "injected_delay_wall_ns": 98267000,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 334953100,
+          "breakpoint_collision": true,
+          "failure": {
+            "kind": "timeout",
+            "analog_exit": 1,
+            "worker_alive_at_failure": true,
+            "wait_wall_ns": 2002243100,
+            "analog_before_loss": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 98000625,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "Analog acknowledgement exceeded two seconds",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 2262885100
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/race-timeout-recovery-01",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 98000625,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143502144816,
+                "samples": 32116
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "stop_kind": "breakpoint_collision",
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557432128,
+                "samples": 32249
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 32697000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 56062400
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 78336000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 100993000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 123565000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 146056500
+            },
+            {
+              "cpu_time_ns": 2281000,
+              "host_elapsed_ns": 168838900
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 192471500,
+          "cpu_after_retained_interrupt_ns": 3525000,
+          "delay_progress_ns": [
+            4010750
+          ],
+          "injected_delay_wall_ns": 67357700,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 343574900,
+          "breakpoint_collision": true,
+          "pause_wall_ns": 270674400,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    },
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/race-timeout-02",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 23169400
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 44982900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 68028700
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 92584300
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 115912900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 137932600
+            },
+            {
+              "cpu_time_ns": 2280000,
+              "host_elapsed_ns": 160090100
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 177932000,
+          "cpu_after_retained_interrupt_ns": 3221000,
+          "delay_progress_ns": [
+            4010750
+          ],
+          "injected_delay_wall_ns": 65189400,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 301594100,
+          "breakpoint_collision": true,
+          "failure": {
+            "kind": "timeout",
+            "analog_exit": 1,
+            "worker_alive_at_failure": true,
+            "wait_wall_ns": 2005785800,
+            "analog_before_loss": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 98000625,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "Analog acknowledgement exceeded two seconds",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 2240675200
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/race-timeout-recovery-02",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 98000625,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143502144816,
+                "samples": 32116
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "stop_kind": "breakpoint_collision",
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557432128,
+                "samples": 32249
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 24841000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 47916300
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 69970900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 92092100
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 115630300
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 138495800
+            },
+            {
+              "cpu_time_ns": 2011500,
+              "host_elapsed_ns": 163551000
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 177542700,
+          "cpu_after_retained_interrupt_ns": 2603000,
+          "delay_progress_ns": [
+            4010750
+          ],
+          "injected_delay_wall_ns": 70847700,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 331278900,
+          "breakpoint_collision": true,
+          "pause_wall_ns": 280985800,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    },
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/race-timeout-03",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 30229600
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 52211500
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 74393500
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 96812700
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 119200300
+            },
+            {
+              "cpu_time_ns": 2011500,
+              "host_elapsed_ns": 142026500
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 146907200,
+          "cpu_after_retained_interrupt_ns": 2507000,
+          "delay_progress_ns": [
+            3888000,
+            4010750
+          ],
+          "injected_delay_wall_ns": 88448900,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 317804300,
+          "breakpoint_collision": true,
+          "failure": {
+            "kind": "timeout",
+            "analog_exit": 1,
+            "worker_alive_at_failure": true,
+            "wait_wall_ns": 2006851200,
+            "analog_before_loss": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 98000625,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "Analog acknowledgement exceeded two seconds",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 2273737100
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/race-timeout-recovery-03",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 98000625,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143502144816,
+                "samples": 32116
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "stop_kind": "breakpoint_collision",
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557432128,
+                "samples": 32249
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high",
+          "wall_pace_ms": 0,
+          "breakpoint_first": false,
+          "race": true,
+          "race_delay_ms": 50,
+          "async_observations": [
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 33794900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 57523000
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 80066900
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 102652700
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 125300300
+            },
+            {
+              "cpu_time_ns": 2011375,
+              "host_elapsed_ns": 147879800
+            },
+            {
+              "cpu_time_ns": 2154000,
+              "host_elapsed_ns": 174876500
+            }
+          ],
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "interrupt_host_elapsed_ns": 196364000,
+          "cpu_after_retained_interrupt_ns": 3163000,
+          "delay_progress_ns": [
+            4010750
+          ],
+          "injected_delay_wall_ns": 61284000,
+          "async_candidate_outcome": {
+            "start": 2011375,
+            "requested": 100000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 98000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "cancel_host_elapsed_ns": 349840800,
+          "breakpoint_collision": true,
+          "pause_wall_ns": 293618200,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    }
+  ],
+  "default_regression": "build/sn016/race-timeout-default-regression-01",
+  "limits": [
+    "One delayed-host breakpoint race and missing response from a live analog worker before joint acknowledgement; not solver nonconvergence.",
+    "Abort and fresh recovery only; no rollback or continuation of the failed session.",
+    "Other arbitration faults and full E-05 approval remain open."
+  ],
+  "analog_loss_regression": "build/sn016/race-timeout-loss-regression-01",
+  "inputs_sha256": {
+    "cubeide.py": "e044cca3679f4f5da1c3df1447d8a0df862877d4a3fb8033984d3e4fd71ec687",
+    "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+    "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+    "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+    "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+    "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+    "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+    "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+    "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+    "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+    "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+    "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+  },
+  "sources_sha256": {
+    "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+    "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+    "src/org/simnodus/e05/CubeIdeRunner.java": "6301bc7eaa00d8f08d39c6b78f4784a763a08904797acc8a3cd8cd1cd9a4aee6",
+    "src/org/simnodus/e05/CubeIdeStartup.java": "d621273b89d29d86d88a8fddf695ccd1b3a0e322568bb5798c743aa27e94b303"
+  },
+  "joint_inputs_sha256": {
+    "joint_ide.py": "548bd1e220cb9650dee9bab5a8d87d99961a7acf82e9babb91103884203f8709",
+    "joint_persistent.py": "b37a0c01a97faad1a97fff40c5838d4c80316dffa08fc1d5bdc313335e83732e",
+    "joint_circuit.cpp": "b589bc09e0df3f7bcb1913daed5f3063bd4c30b83727ee9f7806baee0268d366",
+    "cancel_joint_bridge.cs": "11e72870b8447934b53594f2cc34b1f7ba0be6521afdfa4b9f1bf4cf5387e468",
+    "e05_joint_circuit.exe": "24bf2d082285b97c313876a4957cc4a258bc5b4c8d3c617606f3ce9086b1df45",
+    "e05_control.exe": "e1fc40de419444ffb0e46193612629d30cee3a21755b63f6ebf056094ebea2f4"
+  },
+  "cooperative_inputs_sha256": {
+    "cooperative_debug.py": "cc958fd6c79756e949dce8d8adc57a64cc0e946316dcc9a2837f958a13ed5545",
+    "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+    "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+    "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+  },
+  "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4"
+}

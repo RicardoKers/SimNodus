@@ -1,0 +1,84 @@
+diff --git a/src/Emulator/Main/Core/Emulation.cs b/src/Emulator/Main/Core/Emulation.cs
+index b049f76..b83937c 100644
+--- a/src/Emulator/Main/Core/Emulation.cs
++++ b/src/Emulator/Main/Core/Emulation.cs
+@@ -121,6 +121,24 @@ public void RunToNearestSyncPoint()
+             PauseAll();
+         }
+ 
++        // SimNodus experiment: return unused time instead of reporting full completion.
++        public TimeInterval RunForCancellable(TimeInterval period, System.Threading.CancellationToken cancellation, Action ready)
++        {
++            if(IsStarted)
++            {
++                throw new RecoverableException("This action is not available when emulation is already started");
++            }
++            InnerStartAll();
++            try
++            {
++                return MasterTimeSource.RunForCancellable(period, cancellation, ready);
++            }
++            finally
++            {
++                PauseAll();
++            }
++        }
++
+         public void RunFor(TimeInterval period)
+         {
+             if(IsStarted)
+diff --git a/src/Emulator/Main/Time/MasterTimeSource.cs b/src/Emulator/Main/Time/MasterTimeSource.cs
+index f55c0bf..50fe8f1 100644
+--- a/src/Emulator/Main/Time/MasterTimeSource.cs
++++ b/src/Emulator/Main/Time/MasterTimeSource.cs
+@@ -57,6 +57,29 @@ public override void Dispose()
+         /// This method is blocking. It can be interrupted by disposing the time source.
+         /// </remarks>
+         /// <param name="period">Amount of virtual time to pass.</param>
++        // Separate exploratory operation; the upstream RunFor remains unchanged.
++        public TimeInterval RunForCancellable(TimeInterval period, CancellationToken cancellation, Action ready)
++        {
++            EnsureDispatcherExited();
++            using(ObtainStartedState())
++            using(this.ObtainSourceActiveState())
++            using(TimeDomainsManager.Instance.RegisterCurrentThread(() => new TimeStamp(ElapsedVirtualTime, Domain)))
++            {
++                ready?.Invoke();
++                while(!isDisposed && period.Ticks > 0 && !cancellation.IsCancellationRequested)
++                {
++                    WaitIfBlocked(cancellation);
++                    if(cancellation.IsCancellationRequested)
++                    {
++                        break;
++                    }
++                    InnerExecute(out var timeElapsed, period);
++                    period -= timeElapsed;
++                }
++            }
++            return period;
++        }
++
+         public void RunFor(TimeInterval period)
+         {
+             EnsureDispatcherExited();
+diff --git a/src/Emulator/Main/Time/TimeSourceBase.cs b/src/Emulator/Main/Time/TimeSourceBase.cs
+index 90b4060..0ad0dd4 100644
+--- a/src/Emulator/Main/Time/TimeSourceBase.cs
++++ b/src/Emulator/Main/Time/TimeSourceBase.cs
+@@ -450,6 +450,16 @@ protected void DeactivateSlavesSourceSide()
+         /// <remarks>
+         /// This is just to improve performance of the emulation - avoid spinning when any of the sinks is blocking.
+         /// </remarks>
++        // SimNodus experiment: wake only the blocked outer dispatch loop.
++        // In-flight sink reporting must still finish before cancellation returns.
++        protected void WaitIfBlocked(CancellationToken cancellation)
++        {
++            if(isBlocked)
++            {
++                WaitHandle.WaitAny(new[] { blockingEvent, cancellation.WaitHandle }, 10);
++            }
++        }
++
+         protected void WaitIfBlocked()
+         {
+             // this 'if' statement and 'canBeBlocked' variable are here for performance only
