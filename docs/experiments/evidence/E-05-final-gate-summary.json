@@ -1,0 +1,5598 @@
+{
+  "status": "bounded_e05_gate_passed",
+  "general_debugging_supported": false,
+  "production_implemented": false,
+  "date": "2026-09-10",
+  "guarded_gdb": {
+    "raw_evidence": "build/sn016/final-guarded-gdb-01",
+    "summary_sha256": "54e2f44fd91c64c50692c3644715e1e3a241ef08a48870866300a3c87898b2ee",
+    "sha256": {
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\joint_persistent.py": "3e626e409fadbf202dcfe24f48243f7a59bbd28c4acd80689dba2c5a8f8367be",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\joint_circuit.cpp": "b589bc09e0df3f7bcb1913daed5f3063bd4c30b83727ee9f7806baee0268d366",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\gdb_guard.py": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\cooperative_debug.py": "1980b6e3f6780ad8460b290289684dc7e49a322f280f58fc0d9afa822cba6d5b",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\cancel_joint_bridge.cs": "0dad032de48f6456692945c0e70213046b3f65a5a40144a1beacda9eee3fa26b",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\adc\\stm32f103_adc.cs": "0151c455139cf5cd5af5d056fce308c65e5b66a12feb46f8428b6d8e51de82b6",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\source-notification\\Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\source-notification\\Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\deps\\ngspice\\Spice64_dll\\dll-vs\\ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\persistent-native\\Debug\\e05_joint_circuit.exe": "24bf2d082285b97c313876a4957cc4a258bc5b4c8d3c617606f3ce9086b1df45",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\persistent-native\\Debug\\e05_control.exe": "e1fc40de419444ffb0e46193612629d30cee3a21755b63f6ebf056094ebea2f4",
+      "C:\\ST\\STM32CubeIDE_2.1.1\\STM32CubeIDE\\plugins\\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_1.0.100.202602081740\\tools\\bin\\arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\firmware\\firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c"
+    },
+    "sequences": [
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 60423300,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true,
+        "recreated_session": {
+          "checkpoints": [
+            {
+              "joint_time_ns": 2010875,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217976,
+                "function": "gpio_change_marker",
+                "time_ns": 2010875
+              },
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011000,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134217978,
+                "function": "gpio_change_marker",
+                "time_ns": 2011000
+              },
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011000,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2011000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011000,
+                "actual_s": 0.0020109999999999998,
+                "output_v": 0,
+                "samples": 16102
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011375,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217986,
+                "function": "gpio_change_marker",
+                "time_ns": 2011375
+              },
+              "grant": {
+                "start": 2011000,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16108
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {
+                "gpio_high_at_ns": 2011375
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012125,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218016,
+                "function": "step_target",
+                "time_ns": 2012125,
+                "source_line": 58
+              },
+              "grant": {
+                "start": 2011375,
+                "requested": 5000000,
+                "end": 2012125,
+                "reason": "cancelled",
+                "unused": 4999250,
+                "sinks": [
+                  2012125
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012125,
+                "actual_s": 0.002012125,
+                "output_v": 0.0024740721093106355,
+                "samples": 16130
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012250,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218018,
+                "function": "step_target",
+                "time_ns": 2012250,
+                "source_line": 59
+              },
+              "grant": {
+                "start": 2012125,
+                "requested": 5000000,
+                "end": 2012250,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2012250
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012250,
+                "actual_s": 0.00201225,
+                "output_v": 0.002886236831916344,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012500,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218022,
+                "function": "step_target",
+                "time_ns": 2012500,
+                "source_line": 60
+              },
+              "grant": {
+                "start": 2012250,
+                "requested": 5000000,
+                "end": 2012500,
+                "reason": "cancelled",
+                "unused": 4999750,
+                "sinks": [
+                  2012500
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012500,
+                "actual_s": 0.0020125,
+                "output_v": 0.0037104121208697454,
+                "samples": 16139
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012875,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218026,
+                "function": "step_target",
+                "time_ns": 2012875,
+                "source_line": 61
+              },
+              "grant": {
+                "start": 2012500,
+                "requested": 5000000,
+                "end": 2012875,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2012875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012875,
+                "actual_s": 0.0020128750000000003,
+                "output_v": 0.004946288718275893,
+                "samples": 16145
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4010750,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218036,
+                "function": "adc_read_marker",
+                "time_ns": 4010750
+              },
+              "grant": {
+                "start": 2014000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3003250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.853114350057229,
+                "samples": 32134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              "exchange": {
+                "adc_microvolts": 2853114,
+                "expected_adc_code": 3541,
+                "control": {
+                  "command": "adc",
+                  "before_us": 4010,
+                  "after_us": 4010
+                }
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4027000,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218168,
+                "function": "SysTick_Handler",
+                "time_ns": 4027000
+              },
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.8603175572774178,
+                "samples": 32267
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                1,
+                3541,
+                1,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            }
+          ],
+          "reconnect": {
+            "same_gdb_process": true,
+            "initial_cpu": {
+              "before_ns": 0,
+              "after_ns": 0,
+              "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+              "mailbox": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "detached_time": {
+              "command": "time",
+              "before_us": 0,
+              "after_us": 0
+            },
+            "initial_analog": {
+              "time_ns": 0,
+              "actual_s": 0,
+              "output_v": 0,
+              "samples": 0
+            },
+            "inspection_stable": true
+          },
+          "async_pause": {
+            "joint_time_ns": 2014000,
+            "cpu": {
+              "reason": "signal-received",
+              "pc": 134217936,
+              "function": "Reset_Handler",
+              "time_ns": 2014000
+            },
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2014000,
+              "reason": "cancelled",
+              "unused": 99998875,
+              "sinks": [
+                2014000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2014000,
+              "actual_s": 0.002014,
+              "output_v": 0.008651139520845317,
+              "samples": 16157
+            },
+            "progress_observations_ns": [
+              2013000
+            ],
+            "acknowledgement_wall_ns": 41593200,
+            "inspection_stable": true,
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+              "(gdb) "
+            ],
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "notification": "after-analog-agreement",
+            "request": "guarded-mi-interrupt"
+          },
+          "analog_exit": 0,
+          "renode_exit": 0,
+          "guard": {
+            "interrupts": [
+              {
+                "interrupt_intercepted": true,
+                "forwarded": false,
+                "generation": 8
+              }
+            ],
+            "cpu_acknowledgements": 10,
+            "armed": false,
+            "diagnostic": null
+          },
+          "guard_listener_removed": true,
+          "gdb_exit": 0,
+          "listeners_removed": true
+        }
+      },
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "reconnect": {
+          "same_gdb_process": true,
+          "initial_cpu": {
+            "before_ns": 0,
+            "after_ns": 0,
+            "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+            "mailbox": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "detached_time": {
+            "command": "time",
+            "before_us": 0,
+            "after_us": 0
+          },
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "inspection_stable": true
+        },
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 41593200,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true
+      },
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 68502800,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true,
+        "recreated_session": {
+          "checkpoints": [
+            {
+              "joint_time_ns": 2010875,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217976,
+                "function": "gpio_change_marker",
+                "time_ns": 2010875
+              },
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011000,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134217978,
+                "function": "gpio_change_marker",
+                "time_ns": 2011000
+              },
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011000,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2011000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011000,
+                "actual_s": 0.0020109999999999998,
+                "output_v": 0,
+                "samples": 16102
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011375,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217986,
+                "function": "gpio_change_marker",
+                "time_ns": 2011375
+              },
+              "grant": {
+                "start": 2011000,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16108
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {
+                "gpio_high_at_ns": 2011375
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012125,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218016,
+                "function": "step_target",
+                "time_ns": 2012125,
+                "source_line": 58
+              },
+              "grant": {
+                "start": 2011375,
+                "requested": 5000000,
+                "end": 2012125,
+                "reason": "cancelled",
+                "unused": 4999250,
+                "sinks": [
+                  2012125
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012125,
+                "actual_s": 0.002012125,
+                "output_v": 0.0024740721093106355,
+                "samples": 16130
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012250,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218018,
+                "function": "step_target",
+                "time_ns": 2012250,
+                "source_line": 59
+              },
+              "grant": {
+                "start": 2012125,
+                "requested": 5000000,
+                "end": 2012250,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2012250
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012250,
+                "actual_s": 0.00201225,
+                "output_v": 0.002886236831916344,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012500,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218022,
+                "function": "step_target",
+                "time_ns": 2012500,
+                "source_line": 60
+              },
+              "grant": {
+                "start": 2012250,
+                "requested": 5000000,
+                "end": 2012500,
+                "reason": "cancelled",
+                "unused": 4999750,
+                "sinks": [
+                  2012500
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012500,
+                "actual_s": 0.0020125,
+                "output_v": 0.0037104121208697454,
+                "samples": 16139
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012875,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218026,
+                "function": "step_target",
+                "time_ns": 2012875,
+                "source_line": 61
+              },
+              "grant": {
+                "start": 2012500,
+                "requested": 5000000,
+                "end": 2012875,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2012875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012875,
+                "actual_s": 0.0020128750000000003,
+                "output_v": 0.004946288718275893,
+                "samples": 16145
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4010750,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218036,
+                "function": "adc_read_marker",
+                "time_ns": 4010750
+              },
+              "grant": {
+                "start": 2014000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3003250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.853114350057229,
+                "samples": 32134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              "exchange": {
+                "adc_microvolts": 2853114,
+                "expected_adc_code": 3541,
+                "control": {
+                  "command": "adc",
+                  "before_us": 4010,
+                  "after_us": 4010
+                }
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4027000,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218168,
+                "function": "SysTick_Handler",
+                "time_ns": 4027000
+              },
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.8603175572774178,
+                "samples": 32267
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                1,
+                3541,
+                1,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            }
+          ],
+          "reconnect": {
+            "same_gdb_process": true,
+            "initial_cpu": {
+              "before_ns": 0,
+              "after_ns": 0,
+              "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+              "mailbox": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "detached_time": {
+              "command": "time",
+              "before_us": 0,
+              "after_us": 0
+            },
+            "initial_analog": {
+              "time_ns": 0,
+              "actual_s": 0,
+              "output_v": 0,
+              "samples": 0
+            },
+            "inspection_stable": true
+          },
+          "async_pause": {
+            "joint_time_ns": 2014000,
+            "cpu": {
+              "reason": "signal-received",
+              "pc": 134217936,
+              "function": "Reset_Handler",
+              "time_ns": 2014000
+            },
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2014000,
+              "reason": "cancelled",
+              "unused": 99998875,
+              "sinks": [
+                2014000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2014000,
+              "actual_s": 0.002014,
+              "output_v": 0.008651139520845317,
+              "samples": 16157
+            },
+            "progress_observations_ns": [
+              2013000
+            ],
+            "acknowledgement_wall_ns": 57761900,
+            "inspection_stable": true,
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+              "(gdb) "
+            ],
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "notification": "after-analog-agreement",
+            "request": "guarded-mi-interrupt"
+          },
+          "analog_exit": 0,
+          "renode_exit": 0,
+          "guard": {
+            "interrupts": [
+              {
+                "interrupt_intercepted": true,
+                "forwarded": false,
+                "generation": 8
+              }
+            ],
+            "cpu_acknowledgements": 10,
+            "armed": false,
+            "diagnostic": null
+          },
+          "guard_listener_removed": true,
+          "gdb_exit": 0,
+          "listeners_removed": true
+        }
+      },
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "reconnect": {
+          "same_gdb_process": true,
+          "initial_cpu": {
+            "before_ns": 0,
+            "after_ns": 0,
+            "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+            "mailbox": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "detached_time": {
+            "command": "time",
+            "before_us": 0,
+            "after_us": 0
+          },
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "inspection_stable": true
+        },
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 57761900,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true
+      },
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 66303800,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true,
+        "recreated_session": {
+          "checkpoints": [
+            {
+              "joint_time_ns": 2010875,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217976,
+                "function": "gpio_change_marker",
+                "time_ns": 2010875
+              },
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011000,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134217978,
+                "function": "gpio_change_marker",
+                "time_ns": 2011000
+              },
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011000,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2011000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011000,
+                "actual_s": 0.0020109999999999998,
+                "output_v": 0,
+                "samples": 16102
+              },
+              "gpio_odr": 0,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2011375,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134217986,
+                "function": "gpio_change_marker",
+                "time_ns": 2011375
+              },
+              "grant": {
+                "start": 2011000,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16108
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {
+                "gpio_high_at_ns": 2011375
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012125,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218016,
+                "function": "step_target",
+                "time_ns": 2012125,
+                "source_line": 58
+              },
+              "grant": {
+                "start": 2011375,
+                "requested": 5000000,
+                "end": 2012125,
+                "reason": "cancelled",
+                "unused": 4999250,
+                "sinks": [
+                  2012125
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012125,
+                "actual_s": 0.002012125,
+                "output_v": 0.0024740721093106355,
+                "samples": 16130
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012250,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218018,
+                "function": "step_target",
+                "time_ns": 2012250,
+                "source_line": 59
+              },
+              "grant": {
+                "start": 2012125,
+                "requested": 5000000,
+                "end": 2012250,
+                "reason": "cancelled",
+                "unused": 4999875,
+                "sinks": [
+                  2012250
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012250,
+                "actual_s": 0.00201225,
+                "output_v": 0.002886236831916344,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012500,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218022,
+                "function": "step_target",
+                "time_ns": 2012500,
+                "source_line": 60
+              },
+              "grant": {
+                "start": 2012250,
+                "requested": 5000000,
+                "end": 2012500,
+                "reason": "cancelled",
+                "unused": 4999750,
+                "sinks": [
+                  2012500
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012500,
+                "actual_s": 0.0020125,
+                "output_v": 0.0037104121208697454,
+                "samples": 16139
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 2012875,
+              "cpu": {
+                "reason": "end-stepping-range",
+                "pc": 134218026,
+                "function": "step_target",
+                "time_ns": 2012875,
+                "source_line": 61
+              },
+              "grant": {
+                "start": 2012500,
+                "requested": 5000000,
+                "end": 2012875,
+                "reason": "cancelled",
+                "unused": 4999625,
+                "sinks": [
+                  2012875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2012875,
+                "actual_s": 0.0020128750000000003,
+                "output_v": 0.004946288718275893,
+                "samples": 16145
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4010750,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218036,
+                "function": "adc_read_marker",
+                "time_ns": 4010750
+              },
+              "grant": {
+                "start": 2014000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3003250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.853114350057229,
+                "samples": 32134
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                0,
+                0,
+                1,
+                0,
+                0
+              ],
+              "exchange": {
+                "adc_microvolts": 2853114,
+                "expected_adc_code": 3541,
+                "control": {
+                  "command": "adc",
+                  "before_us": 4010,
+                  "after_us": 4010
+                }
+              },
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            },
+            {
+              "joint_time_ns": 4027000,
+              "cpu": {
+                "reason": "breakpoint-hit",
+                "pc": 134218168,
+                "function": "SysTick_Handler",
+                "time_ns": 4027000
+              },
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.8603175572774178,
+                "samples": 32267
+              },
+              "gpio_odr": 1,
+              "mailbox": [
+                1397633077,
+                4,
+                1,
+                1,
+                3541,
+                1,
+                0,
+                0
+              ],
+              "exchange": {},
+              "registers": [
+                "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+                "(gdb) "
+              ],
+              "inspection_stable": true
+            }
+          ],
+          "reconnect": {
+            "same_gdb_process": true,
+            "initial_cpu": {
+              "before_ns": 0,
+              "after_ns": 0,
+              "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+              "mailbox": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "detached_time": {
+              "command": "time",
+              "before_us": 0,
+              "after_us": 0
+            },
+            "initial_analog": {
+              "time_ns": 0,
+              "actual_s": 0,
+              "output_v": 0,
+              "samples": 0
+            },
+            "inspection_stable": true
+          },
+          "async_pause": {
+            "joint_time_ns": 2014000,
+            "cpu": {
+              "reason": "signal-received",
+              "pc": 134217936,
+              "function": "Reset_Handler",
+              "time_ns": 2014000
+            },
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2014000,
+              "reason": "cancelled",
+              "unused": 99998875,
+              "sinks": [
+                2014000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2014000,
+              "actual_s": 0.002014,
+              "output_v": 0.008651139520845317,
+              "samples": 16157
+            },
+            "progress_observations_ns": [
+              2013000
+            ],
+            "acknowledgement_wall_ns": 91568200,
+            "inspection_stable": true,
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+              "(gdb) "
+            ],
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "notification": "after-analog-agreement",
+            "request": "guarded-mi-interrupt"
+          },
+          "analog_exit": 0,
+          "renode_exit": 0,
+          "guard": {
+            "interrupts": [
+              {
+                "interrupt_intercepted": true,
+                "forwarded": false,
+                "generation": 8
+              }
+            ],
+            "cpu_acknowledgements": 10,
+            "armed": false,
+            "diagnostic": null
+          },
+          "guard_listener_removed": true,
+          "gdb_exit": 0,
+          "listeners_removed": true
+        }
+      },
+      {
+        "checkpoints": [
+          {
+            "joint_time_ns": 2010875,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217976,
+              "function": "gpio_change_marker",
+              "time_ns": 2010875
+            },
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011000,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134217978,
+              "function": "gpio_change_marker",
+              "time_ns": 2011000
+            },
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2011375,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134217986,
+              "function": "gpio_change_marker",
+              "time_ns": 2011375
+            },
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {
+              "gpio_high_at_ns": 2011375
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012125,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218016,
+              "function": "step_target",
+              "time_ns": 2012125,
+              "source_line": 58
+            },
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012250,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218018,
+              "function": "step_target",
+              "time_ns": 2012250,
+              "source_line": 59
+            },
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012500,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218022,
+              "function": "step_target",
+              "time_ns": 2012500,
+              "source_line": 60
+            },
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x80001af\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 2012875,
+            "cpu": {
+              "reason": "end-stepping-range",
+              "pc": 134218026,
+              "function": "step_target",
+              "time_ns": 2012875,
+              "source_line": 61
+            },
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              2,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x1\"},{number=\"13\",value=\"0x20004fd0\"},{number=\"14\",value=\"0x800012b\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4010750,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218036,
+              "function": "adc_read_marker",
+              "time_ns": 4010750
+            },
+            "grant": {
+              "start": 2014000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3003250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350057229,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "exchange": {
+              "adc_microvolts": 2853114,
+              "expected_adc_code": 3541,
+              "control": {
+                "command": "adc",
+                "before_us": 4010,
+                "after_us": 4010
+              }
+            },
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          },
+          {
+            "joint_time_ns": 4027000,
+            "cpu": {
+              "reason": "breakpoint-hit",
+              "pc": 134218168,
+              "function": "SysTick_Handler",
+              "time_ns": 4027000
+            },
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175572774178,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "mailbox": [
+              1397633077,
+              4,
+              1,
+              1,
+              3541,
+              1,
+              0,
+              0
+            ],
+            "exchange": {},
+            "registers": [
+              "93^done,register-values=[{number=\"0\",value=\"0xdd5\"},{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001b5\"}]",
+              "(gdb) "
+            ],
+            "inspection_stable": true
+          }
+        ],
+        "reconnect": {
+          "same_gdb_process": true,
+          "initial_cpu": {
+            "before_ns": 0,
+            "after_ns": 0,
+            "register_response": "92^done,register-values=[{number=\"13\",value=\"0x0\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x0\"}]\n(gdb) ",
+            "mailbox": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "detached_time": {
+            "command": "time",
+            "before_us": 0,
+            "after_us": 0
+          },
+          "initial_analog": {
+            "time_ns": 0,
+            "actual_s": 0,
+            "output_v": 0,
+            "samples": 0
+          },
+          "inspection_stable": true
+        },
+        "async_pause": {
+          "joint_time_ns": 2014000,
+          "cpu": {
+            "reason": "signal-received",
+            "pc": 134217936,
+            "function": "Reset_Handler",
+            "time_ns": 2014000
+          },
+          "grant": {
+            "start": 2012875,
+            "requested": 100000000,
+            "end": 2014000,
+            "reason": "cancelled",
+            "unused": 99998875,
+            "sinks": [
+              2014000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2014000,
+            "actual_s": 0.002014,
+            "output_v": 0.008651139520845317,
+            "samples": 16157
+          },
+          "progress_observations_ns": [
+            2013000
+          ],
+          "acknowledgement_wall_ns": 91568200,
+          "inspection_stable": true,
+          "registers": [
+            "93^done,register-values=[{number=\"0\",value=\"0x0\"},{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"}]",
+            "(gdb) "
+          ],
+          "mailbox": [
+            1397633077,
+            2,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "notification": "after-analog-agreement",
+          "request": "guarded-mi-interrupt"
+        },
+        "analog_exit": 0,
+        "renode_exit": 0,
+        "guard": {
+          "interrupts": [
+            {
+              "interrupt_intercepted": true,
+              "forwarded": false,
+              "generation": 8
+            }
+          ],
+          "cpu_acknowledgements": 10,
+          "armed": false,
+          "diagnostic": null
+        },
+        "guard_listener_removed": true,
+        "gdb_exit": 0,
+        "listeners_removed": true
+      }
+    ]
+  },
+  "ide_controls": [
+    {
+      "raw_evidence": "build/sn016/no-release-notes-joint-01",
+      "summary_sha256": "eb85cbe10d71f925b07345225a044ce00bd452afd0c31e6b36d3e702f75a3a31",
+      "status": "partial_probe_passed",
+      "release_notes_preferences_sha256": "08af8ba4cbe7c60a927dd4e0253d05aee6d4c15f72a5a0e125349903b577293e",
+      "release_notes_seen_version": "2.3.500",
+      "inputs_sha256": {
+        "cubeide.py": "862c669f2bb7f18a3245cf038886357ceb5bc64695a6dff84aa8579d54f84c36",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "d0f8fc93e691e3ace2eb0350192782db7f92b3a7693b3d6e72080953205c07a0",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "5870e8179caca75b19d47ba8db6a023ecca39691003431a7910c126969018dbb"
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true,
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011000,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012125,
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012250,
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012500,
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012875,
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2015000,
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2015000,
+              "reason": "cancelled",
+              "unused": 99997875,
+              "sinks": [
+                2015000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2015000,
+              "actual_s": 0.0020150000000000003,
+              "output_v": 0.011940843259593721,
+              "samples": 16165
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2015000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3004250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143500572127,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557277396,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "race_initial_pace": false,
+        "steps": true,
+        "wall_pace_ms": 1,
+        "breakpoint_first": false,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2012875,
+            "host_elapsed_ns": 31773100
+          },
+          {
+            "cpu_time_ns": 2013625,
+            "host_elapsed_ns": 54153100
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 73774900,
+        "async_candidate_outcome": {
+          "start": 2012875,
+          "requested": 100000000,
+          "end": 2015000,
+          "reason": "cancelled",
+          "unused": 99997875,
+          "sinks": [
+            2015000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 100201000,
+        "pause_wall_ns": 78098300,
+        "analog_exit": 0
+      },
+      "first_session": {
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011000,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012125,
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012250,
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012500,
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012875,
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2015000,
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2015000,
+              "reason": "cancelled",
+              "unused": 99997875,
+              "sinks": [
+                2015000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2015000,
+              "actual_s": 0.0020150000000000003,
+              "output_v": 0.011940843259593721,
+              "samples": 16165
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2015000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3004250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143500572127,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557277396,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "race_initial_pace": false,
+        "steps": true,
+        "wall_pace_ms": 1,
+        "breakpoint_first": false,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2012875,
+            "host_elapsed_ns": 24329700
+          },
+          {
+            "cpu_time_ns": 2012875,
+            "host_elapsed_ns": 47126600
+          },
+          {
+            "cpu_time_ns": 2013625,
+            "host_elapsed_ns": 69231100
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 82483400,
+        "async_candidate_outcome": {
+          "start": 2012875,
+          "requested": 100000000,
+          "end": 2015000,
+          "reason": "cancelled",
+          "unused": 99997875,
+          "sinks": [
+            2015000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 103972400,
+        "pause_wall_ns": 77488700,
+        "analog_exit": 0
+      }
+    },
+    {
+      "raw_evidence": "build/sn016/no-release-notes-joint-02",
+      "summary_sha256": "c20fafd14c5eb46c941a803b4feb960b527f45ec97821aab26d905e451210258",
+      "status": "partial_probe_passed",
+      "release_notes_preferences_sha256": "08af8ba4cbe7c60a927dd4e0253d05aee6d4c15f72a5a0e125349903b577293e",
+      "release_notes_seen_version": "2.3.500",
+      "inputs_sha256": {
+        "cubeide.py": "862c669f2bb7f18a3245cf038886357ceb5bc64695a6dff84aa8579d54f84c36",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "d0f8fc93e691e3ace2eb0350192782db7f92b3a7693b3d6e72080953205c07a0",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "5870e8179caca75b19d47ba8db6a023ecca39691003431a7910c126969018dbb"
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true,
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011000,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012125,
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012250,
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012500,
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012875,
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2015000,
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2015000,
+              "reason": "cancelled",
+              "unused": 99997875,
+              "sinks": [
+                2015000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2015000,
+              "actual_s": 0.0020150000000000003,
+              "output_v": 0.011940843259593721,
+              "samples": 16165
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2015000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3004250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143500572127,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557277396,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "race_initial_pace": false,
+        "steps": true,
+        "wall_pace_ms": 1,
+        "breakpoint_first": false,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2012875,
+            "host_elapsed_ns": 25263900
+          },
+          {
+            "cpu_time_ns": 2013625,
+            "host_elapsed_ns": 47417700
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 64329700,
+        "async_candidate_outcome": {
+          "start": 2012875,
+          "requested": 100000000,
+          "end": 2015000,
+          "reason": "cancelled",
+          "unused": 99997875,
+          "sinks": [
+            2015000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 81410800,
+        "pause_wall_ns": 50844500,
+        "analog_exit": 0
+      },
+      "first_session": {
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011000,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011000,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2011000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011000,
+              "actual_s": 0.0020109999999999998,
+              "output_v": 0,
+              "samples": 16102
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2011000,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16108
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012125,
+            "grant": {
+              "start": 2011375,
+              "requested": 5000000,
+              "end": 2012125,
+              "reason": "cancelled",
+              "unused": 4999250,
+              "sinks": [
+                2012125
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012125,
+              "actual_s": 0.002012125,
+              "output_v": 0.0024740721093106355,
+              "samples": 16130
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012250,
+            "grant": {
+              "start": 2012125,
+              "requested": 5000000,
+              "end": 2012250,
+              "reason": "cancelled",
+              "unused": 4999875,
+              "sinks": [
+                2012250
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012250,
+              "actual_s": 0.00201225,
+              "output_v": 0.002886236831916344,
+              "samples": 16134
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012500,
+            "grant": {
+              "start": 2012250,
+              "requested": 5000000,
+              "end": 2012500,
+              "reason": "cancelled",
+              "unused": 4999750,
+              "sinks": [
+                2012500
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012500,
+              "actual_s": 0.0020125,
+              "output_v": 0.0037104121208697454,
+              "samples": 16139
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012875,
+            "grant": {
+              "start": 2012500,
+              "requested": 5000000,
+              "end": 2012875,
+              "reason": "cancelled",
+              "unused": 4999625,
+              "sinks": [
+                2012875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012875,
+              "actual_s": 0.0020128750000000003,
+              "output_v": 0.004946288718275893,
+              "samples": 16145
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2015000,
+            "grant": {
+              "start": 2012875,
+              "requested": 100000000,
+              "end": 2015000,
+              "reason": "cancelled",
+              "unused": 99997875,
+              "sinks": [
+                2015000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2015000,
+              "actual_s": 0.0020150000000000003,
+              "output_v": 0.011940843259593721,
+              "samples": 16165
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2015000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3004250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143500572127,
+              "samples": 32134
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557277396,
+              "samples": 32267
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "race_initial_pace": false,
+        "steps": true,
+        "wall_pace_ms": 1,
+        "breakpoint_first": false,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2012875,
+            "host_elapsed_ns": 30047100
+          },
+          {
+            "cpu_time_ns": 2013625,
+            "host_elapsed_ns": 52693900
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 61265200,
+        "async_candidate_outcome": {
+          "start": 2012875,
+          "requested": 100000000,
+          "end": 2015000,
+          "reason": "cancelled",
+          "unused": 99997875,
+          "sinks": [
+            2015000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 86796600,
+        "pause_wall_ns": 79244500,
+        "analog_exit": 0
+      }
+    },
+    {
+      "raw_evidence": "build/sn016/no-release-notes-default-01",
+      "summary_sha256": "bff34bc8c8642d817c5956e5e931b1260ade34ee73dbd2f4e971a31e3ed1d078",
+      "status": "partial_probe_passed",
+      "release_notes_preferences_sha256": "08af8ba4cbe7c60a927dd4e0253d05aee6d4c15f72a5a0e125349903b577293e",
+      "release_notes_seen_version": "2.3.500",
+      "inputs_sha256": {
+        "cubeide.py": "862c669f2bb7f18a3245cf038886357ceb5bc64695a6dff84aa8579d54f84c36",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "d0f8fc93e691e3ace2eb0350192782db7f92b3a7693b3d6e72080953205c07a0",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "5870e8179caca75b19d47ba8db6a023ecca39691003431a7910c126969018dbb"
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true,
+      "exact_reference": "build/sn016/resume-normal-04"
+    }
+  ],
+  "matrix_evidence": "E-05-steps-fault-matrix-summary.json",
+  "unit_tests": {
+    "passed": 14,
+    "command": "python -m unittest discover -s tests/experiments/debugging -p 'test_*.py'"
+  },
+  "release_notes_policy": {
+    "inspected_class": "C:\\ST\\STM32CubeIDE_2.1.1\\STM32CubeIDE\\plugins\\com.st.stm32cube.ide.documentation_2.3.500.202606241810\\com\\st\\stm32cube\\ide\\documentation\\ReleaseNotesOpener.class",
+    "class_sha256": "4651b6d22d63b2d35af1b4e4a0a47b8ef0e27b1a4029ff5bd014ffd177ef777c",
+    "scope": "ConfigurationScope",
+    "key": "2.3.500",
+    "value": true,
+    "validation": "Installed startup branch and preseeded runtime preference; no PDF-viewer UI inspection."
+  }
+}

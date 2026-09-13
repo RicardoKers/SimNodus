@@ -1,0 +1,241 @@
+{
+  "date": "2026-09-08",
+  "status": "passed for actual guarded CubeIDE cooperative CPU-only pause/resume",
+  "joint_pause_supported": false,
+  "complete_e05_profile": false,
+  "tests": {
+    "default_guard": 7,
+    "cooperative_guard": 5
+  },
+  "runs": [
+    {
+      "raw": {
+        "path": "build/sn016/coop-ide-02/summary.json",
+        "sha256": "5e5f0a62ebe8d5885db52626c0b27fcba1d0faddf790b7b597703c5178c3842a"
+      },
+      "runner_sha256": "2d77111b1a774e4011ae8489a1de8f88a26a6e1fe69980ce2642294a088cc378",
+      "inputs_sha256": {
+        "cubeide.py": "95dd8feee29dc31c6a40097aaf79e01f90c0386337e7bb2eb1991be654f487b1",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "8fae06a8a1b09187ebb22e476d2d50a65cd9fc5d4e3769359c1518f68e11db9b",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "cooperative_inputs_sha256": {
+        "cooperative_debug.py": "f226a1c12d13041d7058d308878bdf3dbe5a5dc25e2c9b55e95038a49abd2d3f",
+        "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+        "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+        "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+      },
+      "cooperative": {
+        "phase": "complete",
+        "pause": {
+          "start": 0,
+          "requested": 100000000,
+          "end": 9000,
+          "reason": "cancelled",
+          "unused": 99991000,
+          "sinks": [
+            9000
+          ],
+          "cancelled": "True"
+        },
+        "cancellation_wall_ns": 13228500,
+        "resume": {
+          "start": 9000,
+          "requested": 5000000,
+          "end": 5009000,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            5009000
+          ],
+          "cancelled": "False"
+        }
+      },
+      "observations": [
+        "COOPERATIVE_PAUSED timeNs=9000 pc=134217894 reason=SIGNAL wallNs=37206300 mailbox=0000000000000000000000000000000000000000000000000000000000000000",
+        "IDE_DIAGNOSTIC CPU backend paused at 9000 ns. Joint analog pause is not validated.",
+        "COOPERATIVE_RESUMED timeNs=5009000"
+      ],
+      "intercepted": [
+        {
+          "interrupt_intercepted": true,
+          "forwarded": false,
+          "generation": 1
+        }
+      ],
+      "listeners_removed": true,
+      "guard_listener_removed": true
+    },
+    {
+      "raw": {
+        "path": "build/sn016/coop-ide-03/summary.json",
+        "sha256": "c6c7c5f595eeb175620ef677f5c3c1e05e7b2312bd3cf2b1e3d1a34b70a573c2"
+      },
+      "runner_sha256": "45db2da517e3a5dd4fa0a1286e017fdd4fb9600469a269bbd6337b83851c6c7a",
+      "inputs_sha256": {
+        "cubeide.py": "95dd8feee29dc31c6a40097aaf79e01f90c0386337e7bb2eb1991be654f487b1",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "8fae06a8a1b09187ebb22e476d2d50a65cd9fc5d4e3769359c1518f68e11db9b",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "cooperative_inputs_sha256": {
+        "cooperative_debug.py": "f226a1c12d13041d7058d308878bdf3dbe5a5dc25e2c9b55e95038a49abd2d3f",
+        "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+        "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+        "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+      },
+      "cooperative": {
+        "phase": "complete",
+        "pause": {
+          "start": 0,
+          "requested": 100000000,
+          "end": 825000,
+          "reason": "cancelled",
+          "unused": 99175000,
+          "sinks": [
+            825000
+          ],
+          "cancelled": "True"
+        },
+        "cancellation_wall_ns": 21416900,
+        "resume": {
+          "start": 825000,
+          "requested": 5000000,
+          "end": 5825000,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            5825000
+          ],
+          "cancelled": "False"
+        }
+      },
+      "observations": [
+        "COOPERATIVE_PAUSED timeNs=825000 pc=134217936 reason=SIGNAL wallNs=50920700 mailbox=35304e5300000000000000000000000000000000000000000000000000000000",
+        "IDE_DIAGNOSTIC CPU backend paused at 825000 ns. Joint analog pause is not validated.",
+        "COOPERATIVE_RESUMED timeNs=5825000"
+      ],
+      "intercepted": [
+        {
+          "interrupt_intercepted": true,
+          "forwarded": false,
+          "generation": 1
+        }
+      ],
+      "listeners_removed": true,
+      "guard_listener_removed": true
+    },
+    {
+      "raw": {
+        "path": "build/sn016/coop-ide-04/summary.json",
+        "sha256": "fe5da0c4eaa386a9a38570df0dcbf6735392166a79ac3477eec83e461fb8ac60"
+      },
+      "runner_sha256": "0c7e010609f7541cc48d030435d76e4f70135d288d875c39b8e454fef69cdcdf",
+      "inputs_sha256": {
+        "cubeide.py": "95dd8feee29dc31c6a40097aaf79e01f90c0386337e7bb2eb1991be654f487b1",
+        "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+        "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+        "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+        "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+        "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+        "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+        "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+        "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+        "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+        "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+        "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+      },
+      "sources_sha256": {
+        "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+        "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+        "src/org/simnodus/e05/CubeIdeRunner.java": "8fae06a8a1b09187ebb22e476d2d50a65cd9fc5d4e3769359c1518f68e11db9b",
+        "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+      },
+      "cooperative_inputs_sha256": {
+        "cooperative_debug.py": "f226a1c12d13041d7058d308878bdf3dbe5a5dc25e2c9b55e95038a49abd2d3f",
+        "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+        "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+        "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+      },
+      "cooperative": {
+        "phase": "complete",
+        "pause": {
+          "start": 0,
+          "requested": 100000000,
+          "end": 9000,
+          "reason": "cancelled",
+          "unused": 99991000,
+          "sinks": [
+            9000
+          ],
+          "cancelled": "True"
+        },
+        "cancellation_wall_ns": 22813500,
+        "resume": {
+          "start": 9000,
+          "requested": 5000000,
+          "end": 5009000,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            5009000
+          ],
+          "cancelled": "False"
+        }
+      },
+      "observations": [
+        "COOPERATIVE_PAUSED timeNs=9000 pc=134217894 reason=SIGNAL wallNs=46533600 mailbox=0000000000000000000000000000000000000000000000000000000000000000",
+        "IDE_DIAGNOSTIC CPU backend paused at 9000 ns. Joint analog pause is not validated.",
+        "COOPERATIVE_RESUMED timeNs=5009000"
+      ],
+      "intercepted": [
+        {
+          "interrupt_intercepted": true,
+          "forwarded": false,
+          "generation": 1
+        }
+      ],
+      "listeners_removed": true,
+      "guard_listener_removed": true
+    }
+  ],
+  "default_regression": {
+    "raw": {
+      "path": "build/sn016/coop-default-regression-01/summary.json",
+      "sha256": "711a59a51ec9f6500ab1b16e1f53be4498c3f6ce099cfe10b71e69b86972ced9"
+    },
+    "stops_equal_baseline": true,
+    "circuits_equal_baseline": true,
+    "reset_reconnect_time_us": 0,
+    "listeners_removed": true
+  }
+}

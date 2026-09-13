@@ -2,6 +2,13 @@
 
 Updated: 2026-09-01, through SN-015. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), [firmware/I/O report](../experiments/E-02-results.md), and [ADC report](../experiments/E-04-results.md).
 
+For the later accepted headless composition, [ADR 0014](../decisions/0014-bounded-cooperative-debugging.md)
+and the [SN-017 acceptance audit](../experiments/SN-017-acceptance.md) record the
+patched Renode build, actual installed CubeIDE 2.2.0 despite its 2.1.1 path, GDB
+integration and exact runtime hashes. The table below remains the dated SN-010
+through SN-015 baseline; it is not the latest E-05 test status. No additional
+third-party file or distribution permission is introduced by SN-017 extraction.
+
 ## Selected and observed versions
 
 | Dependency | Exact baseline | Evidence and limits |

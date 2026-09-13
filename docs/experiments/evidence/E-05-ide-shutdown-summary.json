@@ -1,0 +1,83 @@
+{
+  "status": "disposable_startup_shutdown_verified",
+  "complete_e05_profile": false,
+  "date": "2026-09-08",
+  "runs": [
+    {
+      "raw_evidence": "build/sn016/shutdown-joint-02",
+      "profile": "joint",
+      "status": "partial_probe_passed",
+      "ide_exit": 0,
+      "workbench_close_accepted": true,
+      "listeners_removed": true,
+      "guard_listener_removed": true,
+      "PerspectiveManager_exception_logged": true
+    },
+    {
+      "raw_evidence": "build/sn016/shutdown-joint-03",
+      "profile": "joint",
+      "status": "partial_probe_passed",
+      "ide_exit": 0,
+      "workbench_close_accepted": true,
+      "listeners_removed": true,
+      "guard_listener_removed": true,
+      "PerspectiveManager_exception_logged": true
+    },
+    {
+      "raw_evidence": "build/sn016/shutdown-joint-04",
+      "profile": "joint",
+      "status": "partial_probe_passed",
+      "ide_exit": 0,
+      "workbench_close_accepted": true,
+      "listeners_removed": true,
+      "guard_listener_removed": true,
+      "PerspectiveManager_exception_logged": true
+    },
+    {
+      "raw_evidence": "build/sn016/shutdown-lifecycle-01",
+      "profile": "lifecycle",
+      "status": "partial_probe_passed",
+      "ide_exit": 0,
+      "workbench_close_accepted": true,
+      "listeners_removed": true,
+      "guard_listener_removed": true,
+      "PerspectiveManager_exception_logged": false
+    }
+  ],
+  "preference_node": "org.eclipse.ui",
+  "preference": "windows.defender.startup.check.skip=true",
+  "analytics_argument": "-disableAnalytics",
+  "sources_sha256": {
+    "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+    "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+    "src/org/simnodus/e05/CubeIdeRunner.java": "04b09a0d8d016c73349f372ab119d3f89091c65839f099a510e8794c19c6e9e9",
+    "src/org/simnodus/e05/CubeIdeStartup.java": "d621273b89d29d86d88a8fddf695ccd1b3a0e322568bb5798c743aa27e94b303"
+  },
+  "driver_sha256": "5c5996d22d99908c5b31822d21d290dd74bfbeb40528d6b31c41f2f55541bf58",
+  "startup_preferences_sha256": "0fba986053c85cd3c2f25f1b2ae6c3f6154d80310344cee14bd22b69f7cce384",
+  "audit": {
+    "method": "Read-only javap inspection of the installed active bundles",
+    "bundles_sha256": {
+      "plugins/org.eclipse.ui.workbench_3.137.0.v20251114-0005.jar": "0e8ee2b57b69383f9185008bff0ead7af38e49d426da2014648200af0f65b9e7",
+      "plugins/com.st.stm32cube.common.utils_2.2.400.202601091506.jar": "3022bab7ec0eddfb3557ac16b15bd8bc9f8b0aba17a1a76e121f5d0f41cea29a",
+      "plugins/com.st.stm32cube.ide.mcu.analytics_2.4.300.202606120638.jar": "b85182ced1302d73356138f172d212c37b995cbf1089e1355e445f90ad55c8d8"
+    },
+    "observations": {
+      "WorkbenchPlugin.PI_WORKBENCH": "org.eclipse.ui",
+      "WindowsDefenderConfigurator.preference": "windows.defender.startup.check.skip",
+      "MCUUtilsPlugin.isAnalyticsToDisable": "-disableAnalytics"
+    },
+    "scope": "Disposable configuration; no system antivirus exclusion or installation change"
+  },
+  "assisted_candidate": {
+    "raw_evidence": "build/sn016/shutdown-joint-01",
+    "classification": "user-assisted; not an unattended pass",
+    "reason": "Wrong preference node; user selected Keep STM32CubeIDE being scanned and Proceed"
+  },
+  "default_regression": "All nine stops and circuit records exactly equal build/sn016/resume-normal-04; reset/reconnect passed",
+  "limitations": [
+    "PerspectiveManager exception still appears in logs; this is not an Eclipse internal fix.",
+    "Results cover disposable experiment configurations only.",
+    "Unpaced joint interruption and complete cooperative fault/lifecycle coverage remain open."
+  ]
+}

@@ -1,0 +1,1074 @@
+{
+  "status": "persistent_analog_rounding_boundary_fixed",
+  "date": "2026-09-09",
+  "complete_e05_profile": false,
+  "before": {
+    "exit": 1,
+    "stdout": "{\"time_ns\":0,\"actual_s\":0,\"output_v\":0,\"samples\":0}\n{\"time_ns\":2010875,\"actual_s\":0.0020108750000000001,\"output_v\":0,\"samples\":16098}\n{\"time_ns\":2011375,\"actual_s\":0.0020113750000000001,\"output_v\":0,\"samples\":16105}\n{\"time_ns\":2011375,\"actual_s\":0.0020113750000000001,\"output_v\":0,\"samples\":16105}\n",
+    "stderr": "Boundary diagnostic: requested_s=0.00314 final_s=0.0031400124999999999 nearest_s=0.00314\nE-05 circuit failed: Persistent analog boundary missed\n"
+  },
+  "before_binary_sha256": "0a582ddef727ceec19ce3f1722591e44198fa8d7e1e9f25da2cf220920b264b4",
+  "regression": {
+    "raw_evidence": "build/sn016/analog-boundary-fixed-grid-01",
+    "cases": 72,
+    "unique_boundaries": 70,
+    "max_abs_time_error_s": 8.673617379884035e-19,
+    "sha256": {
+      "e05_joint_circuit.exe": "24bf2d082285b97c313876a4957cc4a258bc5b4c8d3c617606f3ce9086b1df45",
+      "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+      "joint_boundaries.py": "4f7446cc7cf75928da51c2088b89899474c91050955e4027d29fbb4c3d5dd693",
+      "joint_circuit.cpp": "b589bc09e0df3f7bcb1913daed5f3063bd4c30b83727ee9f7806baee0268d366"
+    }
+  },
+  "ide_runs": [
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-unpaced-01",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 3103000,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 3103000,
+              "reason": "cancelled",
+              "unused": 98908375,
+              "sinks": [
+                3103000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 3103000,
+              "actual_s": 0.0031030000000000003,
+              "output_v": 2.1922870691752463,
+              "samples": 24854
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 3103000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 4092250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143501794958,
+              "samples": 32119
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175573977087,
+              "samples": 32252
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 0,
+        "breakpoint_first": false,
+        "race": true,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 29246300
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 52017400
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 74758800
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 98035700
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 121813700
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 146578100
+          },
+          {
+            "cpu_time_ns": 2263000,
+            "host_elapsed_ns": 171966000
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 189910400,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 3103000,
+          "reason": "cancelled",
+          "unused": 98908375,
+          "sinks": [
+            3103000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 208958000,
+        "pause_wall_ns": 78546800,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    },
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-unpaced-02",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2805000,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2805000,
+              "reason": "cancelled",
+              "unused": 99206375,
+              "sinks": [
+                2805000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2805000,
+              "actual_s": 0.0028049999999999998,
+              "output_v": 1.8077314670741433,
+              "samples": 22470
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2805000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3794250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143501794465,
+              "samples": 32119
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557397656,
+              "samples": 32252
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 0,
+        "breakpoint_first": false,
+        "race": true,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 24665300
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 47517800
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 69046800
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 90830600
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 112962800
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 134685200
+          },
+          {
+            "cpu_time_ns": 2094000,
+            "host_elapsed_ns": 157984200
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 171162300,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 2805000,
+          "reason": "cancelled",
+          "unused": 99206375,
+          "sinks": [
+            2805000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 183717400,
+        "pause_wall_ns": 60065200,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    },
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-unpaced-03",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2825000,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2825000,
+              "reason": "cancelled",
+              "unused": 99186375,
+              "sinks": [
+                2825000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2825000,
+              "actual_s": 0.0028250000000000003,
+              "output_v": 1.837280363846684,
+              "samples": 22630
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2825000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3814250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143501794953,
+              "samples": 32119
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.8603175573977087,
+              "samples": 32252
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 0,
+        "breakpoint_first": false,
+        "race": true,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 25535700
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 51547800
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 75312400
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 99425000
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 122583600
+          },
+          {
+            "cpu_time_ns": 2130000,
+            "host_elapsed_ns": 145134400
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 157976600,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 2825000,
+          "reason": "cancelled",
+          "unused": 99186375,
+          "sinks": [
+            2825000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 169353800,
+        "pause_wall_ns": 62768000,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    },
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-paced-control-01",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2012000,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2012000,
+              "reason": "cancelled",
+              "unused": 99999375,
+              "sinks": [
+                2012000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2012000,
+              "actual_s": 0.0020120000000000003,
+              "output_v": 0.002061855604771572,
+              "samples": 16126
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2012000,
+              "requested": 5000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 3001250,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.853114350179507,
+              "samples": 32119
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557397713,
+              "samples": 32252
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 1,
+        "breakpoint_first": false,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 23196000
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 45409000
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 70438100
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 93944000
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 122218300
+          },
+          {
+            "cpu_time_ns": 2011500,
+            "host_elapsed_ns": 146013600
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 158112100,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 2012000,
+          "reason": "cancelled",
+          "unused": 99999375,
+          "sinks": [
+            2012000
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 177271500,
+        "pause_wall_ns": 60554300,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    },
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-breakpoint-control-01",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 98000625,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143502144816,
+              "samples": 32116
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "stop_kind": "breakpoint_first",
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557432128,
+              "samples": 32249
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 0,
+        "breakpoint_first": true,
+        "race": false,
+        "race_delay_ms": 0,
+        "async_observations": [],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 280320600,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 4010750,
+          "reason": "cancelled",
+          "unused": 98000625,
+          "sinks": [
+            4010750
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 291929900,
+        "pause_wall_ns": 135485300,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    },
+    {
+      "raw_evidence": "build/sn016/boundary-fixed-race-control-01",
+      "cooperative": {
+        "phase": "complete",
+        "checkpoints": [
+          {
+            "time_ns": 2010875,
+            "grant": {
+              "start": 0,
+              "requested": 5000000,
+              "end": 2010875,
+              "reason": "cancelled",
+              "unused": 2989125,
+              "sinks": [
+                2010875
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2010875,
+              "actual_s": 0.002010875,
+              "output_v": 0,
+              "samples": 16098
+            },
+            "gpio_odr": 0,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 2011375,
+            "grant": {
+              "start": 2010875,
+              "requested": 5000000,
+              "end": 2011375,
+              "reason": "cancelled",
+              "unused": 4999500,
+              "sinks": [
+                2011375
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 2011375,
+              "actual_s": 0.002011375,
+              "output_v": 0,
+              "samples": 16105
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4010750,
+            "grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 4010750,
+              "reason": "cancelled",
+              "unused": 98000625,
+              "sinks": [
+                4010750
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4010750,
+              "actual_s": 0.0040107499999999996,
+              "output_v": 2.8531143502144816,
+              "samples": 32116
+            },
+            "gpio_odr": 1,
+            "adc_microvolts": 2853114,
+            "adc_code": 3541,
+            "stop_kind": "breakpoint_collision",
+            "inspection_stable": true
+          },
+          {
+            "time_ns": 4027000,
+            "grant": {
+              "start": 4010750,
+              "requested": 5000000,
+              "end": 4027000,
+              "reason": "cancelled",
+              "unused": 4983750,
+              "sinks": [
+                4027000
+              ],
+              "cancelled": "True"
+            },
+            "analog": {
+              "time_ns": 4027000,
+              "actual_s": 0.004027,
+              "output_v": 2.860317557432128,
+              "samples": 32249
+            },
+            "gpio_odr": 1,
+            "inspection_stable": true
+          }
+        ],
+        "scope": "Bounded actual IDE joint pause after GPIO high",
+        "wall_pace_ms": 0,
+        "breakpoint_first": false,
+        "race": true,
+        "race_delay_ms": 50,
+        "async_observations": [
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 33046700
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 55047500
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 77599700
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 99891200
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 124553900
+          },
+          {
+            "cpu_time_ns": 2011375,
+            "host_elapsed_ns": 147545300
+          },
+          {
+            "cpu_time_ns": 2104000,
+            "host_elapsed_ns": 177206400
+          }
+        ],
+        "initial_analog": {
+          "time_ns": 0,
+          "actual_s": 0,
+          "output_v": 0,
+          "samples": 0
+        },
+        "interrupt_host_elapsed_ns": 195453600,
+        "cpu_after_retained_interrupt_ns": 3116000,
+        "injected_delay_wall_ns": 54833800,
+        "async_candidate_outcome": {
+          "start": 2011375,
+          "requested": 100000000,
+          "end": 4010750,
+          "reason": "cancelled",
+          "unused": 98000625,
+          "sinks": [
+            4010750
+          ],
+          "cancelled": "True"
+        },
+        "cancel_host_elapsed_ns": 339188100,
+        "breakpoint_collision": true,
+        "pause_wall_ns": 257776600,
+        "analog_exit": 0
+      },
+      "ide_exit": 0,
+      "close_accepted": true,
+      "listeners_removed": true
+    }
+  ],
+  "source_audit_sha256": {
+    "frontend/breakp.c": "0895627b7dc444c659b66b7fb9a7ad26fa71b59da0d369f5a59beaad2fd75d3d",
+    "frontend/parser/numparse.c": "7849a8b51057dfec31d003dd3d7e47d3dccedd9fceccb26914db09c582d4528f",
+    "spicelib/analysis/cktsetbk.c": "857b01936ea89f5dc87b309be028e0ad21d98a9cd343732181198199d54df8fc"
+  },
+  "numeric_explanation": {
+    "requested_s": 0.00314,
+    "decimal_parser_expression_s": 0.0031400000000000004,
+    "interpretation": "Source-based reconstruction of decimal parsing, not a runtime parser trace."
+  },
+  "limits": [
+    "Fixed bounded RC fixture; not arbitrary circuit or full E-05 approval.",
+    "Endpoint acceptance remains 1 ps and analytical voltage tolerance remains 10 microvolts.",
+    "Equality uses ngspice 47 three-ULP comparison; dependency changes require revalidation.",
+    "Arbitration fault teardown and the existing Eclipse log exception remain open."
+  ],
+  "inputs_sha256": {
+    "cubeide.py": "2bc99f8dd1d29df430dbf089e206ba61e61ce6da9adedbb83b174deae4eabd10",
+    "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+    "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+    "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+    "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+    "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+    "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+    "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+    "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+    "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+    "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+    "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+  },
+  "sources_sha256": {
+    "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+    "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+    "src/org/simnodus/e05/CubeIdeRunner.java": "f7c1cf81c7911427bdb8a78275686446c3c19c464b8d66b8847eead7d7aefa29",
+    "src/org/simnodus/e05/CubeIdeStartup.java": "d621273b89d29d86d88a8fddf695ccd1b3a0e322568bb5798c743aa27e94b303"
+  },
+  "joint_inputs_sha256": {
+    "joint_ide.py": "2e68a86c207df2ac098726f0a62b8a729c5c228f649935e404488f1421766ac1",
+    "joint_persistent.py": "b37a0c01a97faad1a97fff40c5838d4c80316dffa08fc1d5bdc313335e83732e",
+    "joint_circuit.cpp": "b589bc09e0df3f7bcb1913daed5f3063bd4c30b83727ee9f7806baee0268d366",
+    "cancel_joint_bridge.cs": "11e72870b8447934b53594f2cc34b1f7ba0be6521afdfa4b9f1bf4cf5387e468",
+    "e05_joint_circuit.exe": "24bf2d082285b97c313876a4957cc4a258bc5b4c8d3c617606f3ce9086b1df45",
+    "e05_control.exe": "e1fc40de419444ffb0e46193612629d30cee3a21755b63f6ebf056094ebea2f4"
+  },
+  "cooperative_inputs_sha256": {
+    "cooperative_debug.py": "cc958fd6c79756e949dce8d8adc57a64cc0e946316dcc9a2837f958a13ed5545",
+    "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+    "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+    "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+  },
+  "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4"
+}

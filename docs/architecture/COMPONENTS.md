@@ -2,6 +2,13 @@
 
 ## Component model
 
+SN-020 now has an [experimental topology 0.1 draft](TOPOLOGY_DRAFT.md) with a
+reference validator and hierarchical fixtures, followed by a separate
+[parameter/override 0.2 draft](PARAMETERS_DRAFT.md) and
+[symbol/model interface 0.3 draft](BINDINGS_DRAFT.md). Full packages, graphic/model
+resources and implementations below remain design requirements. Valid interface
+declarations do not establish simulation support.
+
 A package describes identity, version, author/origin, license, category, unit-bearing parameters, stable pins, symbol, and behavior models. Visual representations can change without changing electrical connectivity. Package pin number, signal name, and alternate function are separate data.
 
 Proposed layout, not a stable schema:

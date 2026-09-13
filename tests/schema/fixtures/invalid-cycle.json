@@ -1,0 +1,22 @@
+{
+  "format": "simnodus-topology",
+  "version": "0.1",
+  "root": "main",
+  "components": [],
+  "circuits": [
+    {
+      "id": "main",
+      "name": "Recursive topology",
+      "ports": [],
+      "nets": [],
+      "instances": [
+        {
+          "id": "child",
+          "name": "child",
+          "kind": "circuit",
+          "definition": "main"
+        }
+      ]
+    }
+  ]
+}

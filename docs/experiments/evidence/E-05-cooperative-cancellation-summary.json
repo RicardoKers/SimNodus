@@ -1,0 +1,546 @@
+{
+  "date": "2026-09-08",
+  "status": "passed for experimental single-CPU cancellation; full E-05 remains open",
+  "raw": {
+    "path": "build/sn016/cancel-probe-06/summary.json",
+    "sha256": "5e15b2c92d451f538ecb9c02549c2a03a517a49219419d1535abbb5263069352"
+  },
+  "matrix": {
+    "status": "passed",
+    "joint_pause_supported": false,
+    "runs": [
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10953000
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10746400
+          }
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      },
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10694200
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10786100
+          }
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      },
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10789500
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10882000
+          }
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      }
+    ],
+    "sha256": {
+      "cancel_probe.py": "97f1a77bc23d125f47ab91934d1116f1cf38d8a682b2afa365bd4d3726986f6d",
+      "cancel_bridge.cs": "8f7d963458654cdf301260aa4fc05e7b2e1bdf0b7af4fe1e8c8142f5f0703f1b",
+      "renode-cancellation.patch": "704d23cd5d6f4c5cd7b5bc23773e6ac1e36b07ce1a3cf8413d2157a3a9d2ffd9",
+      "Renode.dll": "0857bd4d6d76cb17d03a8d91bee117ca37337aefa923f968cb466b1e3cc2ec6a",
+      "Infrastructure.dll": "9a46c8babf55e45e0c9fe508b85cf537cbcbf5530e0b3fb761d69985461c6dd2",
+      "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+      "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c"
+    }
+  },
+  "source_build": {
+    "renode_revision": "d66b0c2aa3d420408eccecfd1d3bab0fd702a6db",
+    "infrastructure_revision": "add012af003a0f620d3da52828262676f374d121",
+    "resources_revision": "14b80cde0a136b684f316eb7f6a31aeaae0684bf",
+    "submodules": [
+      " faa6e88d9aac26876af7e1f78229d5d2728e792e lib/AntShell (faa6e88)",
+      " e7bfa5873f2300e6e87c185f466e227762dbf4b2 lib/BigGustave (e7bfa58)",
+      " b0c2a820f28a7bdedb85575bfca6447c9e7fa955 lib/CxxDemangler (b0c2a82)",
+      " de4e4f6ffab555771285cb810f17f61cfd38ef39 lib/ELFSharp (de4e4f6)",
+      " e379e8ae696676afffed2f33dd8083855af00f2f lib/FdtSharp (e379e8a)",
+      " 33e5ab24eaaab488e9a94f1a40d5d6ae2f7f02f1 lib/InpliTftpServer (33e5ab2)",
+      " 1f1e64f36bb5cbf6e8f344a1575defd05fa74e37 lib/Migrant (1f1e64f)",
+      " 39c663075524a7c8bc020661d491911863889a00 lib/Packet.Net (39c6630)",
+      " 33d24f1307d267c34b7f1439bc159a8825c5aa3d lib/bc-csharp (33d24f1)",
+      " a3bd520c22118219abb8194ff8e0c3d8027fdc8b lib/options-parser (a3bd520)",
+      " e4e04b47793b8829d7d9be36f9569cffec1465d1 lib/termsharp (e4e04b4)",
+      " e95c3e27892b9f3a6aa063c1f213fb65f394bc6b lib/termsharp/xwt (e95c3e2)",
+      " add012af003a0f620d3da52828262676f374d121 src/Infrastructure (add012a)",
+      " d50c868f33fb42954d85b8d06ce6f7d5bac23dd4 src/Infrastructure/src/Emulator/Cores/tlib (d50c868)",
+      " 542013b34d9ea3dba519ecc5862924f65f516e0f src/Infrastructure/src/Emulator/Cores/tlib/softfloat-3 (542013b)",
+      "-882064a1a9544112b6d3896af5dca2fc2838f4cf tools/dts2repl",
+      "-388b8590bf6c13a805672c22ef99d1948995fc28 tools/models_analyzer"
+    ],
+    "sdk": {
+      "version": "8.0.424",
+      "name": "dotnet-sdk-win-x64.zip",
+      "rid": "win-x64",
+      "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.424/dotnet-sdk-8.0.424-win-x64.zip",
+      "hash": "1787ab90635c2950672ed7c6507b000e1b212ea7d9a22fcef37061344d37c64d4c4eda12b8742601eff5b45c8736485b31c55613892f240c300190e4e88a58b0"
+    },
+    "runtime": "Installed Windows .NETCore and WindowsDesktop 8.0.22; portable binary uses 8.0.10",
+    "managed_sources_rebuilt": true,
+    "native_translators_reused": [
+      {
+        "sha256": "08DEEA677FE8917EFECE0CD5DCAF5BBA51B8F6BFBBBBCA060CE580C402AB1A16",
+        "file": "translate-arm64-le.so"
+      },
+      {
+        "sha256": "1E6B491FB71040B15794E3F4CA2B64D58EFAB032BFC6BB084AAA1E8AAA792C39",
+        "file": "translate-arm-le.so"
+      },
+      {
+        "sha256": "0CDB75C3964F0CE9D8507B99D1D7532717D9A6EF78039B88CF02CCEAC75A8B40",
+        "file": "translate-arm-be.so"
+      },
+      {
+        "sha256": "195D31FD5B150D97E29DE921C756497F517A368320396C7DEEBBEA37B014E8B7",
+        "file": "translate-arm-m-le.so"
+      },
+      {
+        "sha256": "1AC3C6281D2A42CF6020F7FDD548BB6A4135FC224559CEBB998292C625752F79",
+        "file": "translate-arm-m-be.so"
+      },
+      {
+        "sha256": "7FA61E2F34630B90C345CF4740BFAA606A34466DF1EEA223B4BF11E03E1365DF",
+        "file": "translate-i386-le.so"
+      },
+      {
+        "sha256": "44200969853852508024899B93E1151AAC2BF3FC1E46FB572F808C8C7EE9FA90",
+        "file": "translate-x86_64-le.so"
+      },
+      {
+        "sha256": "1625359D9D0DF4F13C497E4A93839005E5CFAE44C1A2185C1C48FD186ED6B473",
+        "file": "translate-riscv64-le.so"
+      },
+      {
+        "sha256": "ECA4CAB518C0A174FEB1B3D814C7F48917B2E11A9FD2783BC72F2670B8D5DF79",
+        "file": "translate-riscv-le.so"
+      },
+      {
+        "sha256": "D5A8FC4B291F0A3491CDB56D7689D6AE2801E9B5688FA7D5E1698202F0AA815D",
+        "file": "translate-ppc-be.so"
+      },
+      {
+        "sha256": "8E2D1E42AAAED19379FFA9EEEF267F8EEF79525366E3701DC330560836DF57EF",
+        "file": "translate-ppc64-be.so"
+      },
+      {
+        "sha256": "1B163FA525C250B9BC9D1FBD3D4BDE9766D48E48AD4812197D000011832D44D9",
+        "file": "translate-xtensa-le.so"
+      },
+      {
+        "sha256": "CB1D6BBA47710A1D89C4DEDC03E84CCF78CEC98BC7AE0F2E61744DB453579760",
+        "file": "translate-sparc-le.so"
+      },
+      {
+        "sha256": "F74B44685D74EFD54C282CE719E57882BC3D670719975DCDA542AB9F7D957EBA",
+        "file": "translate-sparc-be.so"
+      }
+    ],
+    "build_logs": [
+      {
+        "path": "build/sn016/source-build-02.log",
+        "sha256": "9a3d69a5d8b35d0a71f6f0dfcd13f7882391665da120794c0b88e7197ebc5d0a"
+      },
+      {
+        "path": "build/sn016/source-cancel-build-02.log",
+        "sha256": "ddf405550d406630a1fb14bd9c670b879140f2b6813df0398c07794999b6dde0"
+      }
+    ]
+  },
+  "normal_reference": {
+    "unmodified": {
+      "path": "build/sn016/source-reference-probe-02/summary.json",
+      "sha256": "c2c8ddd04aa8bb285f87454af052cfacff1663c6ece091a97e9ceb4542fec3b4"
+    },
+    "patched": {
+      "path": "build/sn016/source-cancellation-normal-01/summary.json",
+      "sha256": "c2c8ddd04aa8bb285f87454af052cfacff1663c6ece091a97e9ceb4542fec3b4"
+    },
+    "results_identical": true,
+    "result": {
+      "attach_time_ns": 0,
+      "gpio_stop": {
+        "reason": "breakpoint-hit",
+        "pc": 134217976,
+        "function": "gpio_change_marker",
+        "time_ns": 2010875,
+        "circuit": {
+          "target_ns": 2010875,
+          "actual_s": 0.0020108749999999988,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16098
+        },
+        "inspection": {
+          "before_ns": 2010875,
+          "after_ns": 2010875,
+          "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20004fd8\"},{number=\"14\",value=\"0x80001ab\"},{number=\"15\",value=\"0x80000f8\"}]\n(gdb) ",
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "instruction_step": {
+        "reason": "end-stepping-range",
+        "pc": 134217978,
+        "function": "gpio_change_marker",
+        "time_ns": 2011000,
+        "circuit": {
+          "target_ns": 2011000,
+          "actual_s": 0.0020109999999999985,
+          "input_v": 0,
+          "output_v": 0,
+          "samples": 16099
+        }
+      },
+      "gpio_edge_stop": {
+        "reason": "breakpoint-hit",
+        "pc": 134217986,
+        "function": "gpio_change_marker",
+        "time_ns": 2011375,
+        "gpio_odr": 1,
+        "circuit": {
+          "target_ns": 2011375,
+          "actual_s": 0.002011374999999999,
+          "input_v": 3.3,
+          "output_v": 4.99601168536786e-12,
+          "samples": 16160
+        }
+      },
+      "step_target_stop": {
+        "reason": "breakpoint-hit",
+        "pc": 134218016,
+        "function": "step_target",
+        "time_ns": 2012125,
+        "circuit": {
+          "target_ns": 2012125,
+          "actual_s": 0.0020121249999999987,
+          "input_v": 3.3,
+          "output_v": 0.002474072116621261,
+          "samples": 16168
+        }
+      },
+      "next_stops": [
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218018,
+          "function": "step_target",
+          "time_ns": 2012250
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218022,
+          "function": "step_target",
+          "time_ns": 2012500
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218026,
+          "function": "step_target",
+          "time_ns": 2012875,
+          "circuit": {
+            "target_ns": 2012875,
+            "actual_s": 0.002012874999999999,
+            "input_v": 3.3,
+            "output_v": 0.0049462893683967935,
+            "samples": 16174
+          }
+        }
+      ],
+      "adc_stop": {
+        "reason": "breakpoint-hit",
+        "pc": 134218036,
+        "function": "adc_read_marker",
+        "time_ns": 4010750,
+        "circuit": {
+          "target_ns": 4010750,
+          "actual_s": 0.004010749999999998,
+          "input_v": 3.3,
+          "output_v": 2.8531143502154785,
+          "samples": 32157
+        }
+      },
+      "adc_finish_stop": {
+        "reason": "function-finished",
+        "pc": 134218164,
+        "function": "SysTick_Handler",
+        "time_ns": 4026750,
+        "circuit": {
+          "target_ns": 4026750,
+          "actual_s": 0.004026749999999998,
+          "input_v": 3.3,
+          "output_v": 2.8602076231155675,
+          "samples": 32285
+        }
+      },
+      "adc_assignment_steps": [
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218166,
+          "function": "SysTick_Handler",
+          "time_ns": 4026875
+        },
+        {
+          "reason": "end-stepping-range",
+          "pc": 134218168,
+          "function": "SysTick_Handler",
+          "time_ns": 4027000
+        }
+      ],
+      "final_circuit": {
+        "target_ns": 4027000,
+        "actual_s": 0.0040269999999999985,
+        "input_v": 3.3,
+        "output_v": 2.860317557467566,
+        "samples": 32287
+      },
+      "final_mailbox": [
+        1397633077,
+        4,
+        1,
+        1,
+        2048,
+        1,
+        0,
+        0
+      ],
+      "coordinated_stop_time_ns": 4027000,
+      "pending_grant_after_session_stop": {
+        "exit": 1,
+        "stdout": "",
+        "diagnostic": "E-05 control failed: Backend error 0: Loopback connection failed or closed",
+        "committed": false
+      },
+      "listener_addresses": [
+        "127.0.0.1",
+        "127.0.0.1"
+      ]
+    }
+  },
+  "limitations": [
+    "Single CPU and master time sink only",
+    "No persistent analog pause/resume test",
+    "GDB reports target running after host-only pause",
+    "No guarded CubeIDE integration",
+    "No general cancellation deadline for a stuck in-flight sink",
+    "No guarantee for arbitrary concurrency or tiny residual grants"
+  ]
+}

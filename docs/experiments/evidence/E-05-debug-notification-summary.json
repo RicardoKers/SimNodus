@@ -1,0 +1,366 @@
+{
+  "date": "2026-09-08",
+  "status": "passed for explicit verified single-CPU GDB notification; joint pause remains unvalidated",
+  "source_build_provenance": "E-05-cooperative-cancellation-summary.json",
+  "raw": {
+    "path": "build/sn016/notify-probe-03/summary.json",
+    "sha256": "ea6bd3a5317fb217dbe09527542a6843fd59086b788389fc333e2fb023fe6f9d"
+  },
+  "matrix": {
+    "status": "passed",
+    "joint_pause_supported": false,
+    "runs": [
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10801200
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10578100
+          }
+        ],
+        "premature_notifications": [
+          "rejected: No unnotified cancelled grant at the requested time",
+          "rejected: No unnotified cancelled grant at the requested time"
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "wrong_time_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "notification": "notified",
+        "debugger_pause": {
+          "reason": "signal-received",
+          "pc": 134217936,
+          "function": "Reset_Handler",
+          "time_ns": 8011375
+        },
+        "paused_inspection": {
+          "before_ns": 8011375,
+          "after_ns": 8011375,
+          "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x80000d0\"}]\n(gdb) ",
+          "mailbox": [
+            1397633077,
+            8,
+            2,
+            1,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        "duplicate_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "paused_thread_info": "52^done,threads=[{id=\"1\",target-id=\"Thread 1\",frame={level=\"0\",addr=\"0x080000d0\",func=\"Reset_Handler\",args=[],file=\"firmware.c\",fullname=\"D:\\\\03_Projects\\\\01_Actives\\\\SimNodus\\\\tests\\\\experiments\\\\debugging\\\\firmware.c\",line=\"109\",arch=\"armv7\"},state=\"stopped\"}],current-thread-id=\"1\"\n(gdb) ",
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      },
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10607300
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10974600
+          }
+        ],
+        "premature_notifications": [
+          "rejected: No unnotified cancelled grant at the requested time",
+          "rejected: No unnotified cancelled grant at the requested time"
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "wrong_time_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "notification": "notified",
+        "debugger_pause": {
+          "reason": "signal-received",
+          "pc": 134217936,
+          "function": "Reset_Handler",
+          "time_ns": 8011375
+        },
+        "paused_inspection": {
+          "before_ns": 8011375,
+          "after_ns": 8011375,
+          "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x80000d0\"}]\n(gdb) ",
+          "mailbox": [
+            1397633077,
+            8,
+            2,
+            1,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        "duplicate_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "paused_thread_info": "52^done,threads=[{id=\"1\",target-id=\"Thread 1\",frame={level=\"0\",addr=\"0x080000d0\",func=\"Reset_Handler\",args=[],file=\"firmware.c\",fullname=\"D:\\\\03_Projects\\\\01_Actives\\\\SimNodus\\\\tests\\\\experiments\\\\debugging\\\\firmware.c\",line=\"109\",arch=\"armv7\"},state=\"stopped\"}],current-thread-id=\"1\"\n(gdb) ",
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      },
+      {
+        "stops": [
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          }
+        ],
+        "outcomes": [
+          {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True",
+            "wall_ns": 10898000
+          },
+          {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True",
+            "wall_ns": 10796300
+          }
+        ],
+        "premature_notifications": [
+          "rejected: No unnotified cancelled grant at the requested time",
+          "rejected: No unnotified cancelled grant at the requested time"
+        ],
+        "completed": {
+          "start": 2011375,
+          "requested": 5000000,
+          "end": 7011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            7011375
+          ],
+          "cancelled": "False"
+        },
+        "running": {
+          "start": 7011375,
+          "requested": 5000000,
+          "end": 8011375,
+          "reason": "cancelled",
+          "unused": 4000000,
+          "sinks": [
+            8011375
+          ],
+          "cancelled": "True"
+        },
+        "running_stable_ns": 8011375,
+        "gdb_thread_info": "51^error,msg=\"Cannot execute this command while the target is running.\\nUse the \\\"interrupt\\\" command to stop the target\\nand then try again.\"\n(gdb) ",
+        "gdb_running_after_host_pause": true,
+        "wrong_time_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "notification": "notified",
+        "debugger_pause": {
+          "reason": "signal-received",
+          "pc": 134217936,
+          "function": "Reset_Handler",
+          "time_ns": 8011375
+        },
+        "paused_inspection": {
+          "before_ns": 8011375,
+          "after_ns": 8011375,
+          "register_response": "92^done,register-values=[{number=\"13\",value=\"0x20005000\"},{number=\"14\",value=\"0x0\"},{number=\"15\",value=\"0x80000d0\"}]\n(gdb) ",
+          "mailbox": [
+            1397633077,
+            8,
+            2,
+            1,
+            0,
+            1,
+            0,
+            0
+          ]
+        },
+        "duplicate_notification": "rejected: No unnotified cancelled grant at the requested time",
+        "paused_thread_info": "52^done,threads=[{id=\"1\",target-id=\"Thread 1\",frame={level=\"0\",addr=\"0x080000d0\",func=\"Reset_Handler\",args=[],file=\"firmware.c\",fullname=\"D:\\\\03_Projects\\\\01_Actives\\\\SimNodus\\\\tests\\\\experiments\\\\debugging\\\\firmware.c\",line=\"109\",arch=\"armv7\"},state=\"stopped\"}],current-thread-id=\"1\"\n(gdb) ",
+        "endpoint": {
+          "start": 8011375,
+          "requested": 1000000,
+          "end": 9011375,
+          "reason": "completed",
+          "unused": 0,
+          "sinks": [
+            9011375
+          ],
+          "cancelled": "True"
+        },
+        "listeners_removed": true
+      }
+    ],
+    "sha256": {
+      "cancel_notify_probe.py": "1b56124ae1e94f59937865e4329c82b4ef47318394134e55e6b5f5e646fc320b",
+      "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+      "renode-cancellation.patch": "704d23cd5d6f4c5cd7b5bc23773e6ac1e36b07ce1a3cf8413d2157a3a9d2ffd9",
+      "renode-debug-notification.patch": "4b32838f04f9b00bfa19a3bbc50d5045a2043c80c88a35bc05c10aa607f61c56",
+      "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+      "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e",
+      "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+      "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c"
+    }
+  },
+  "build_log": {
+    "path": "build/sn016/source-notify-build-01.log",
+    "sha256": "5bd1088d982cccd5e88a742699f92bfd8da152dc864efb67e872a038ba304dbb"
+  },
+  "base_cpu_original_sha256": "e5b0304a4ee951ebc056b99d9832156c735978ec7718e8cccea41f130dad7561",
+  "base_cpu_modified_sha256": "c01ecff941f3fc7faf98ff55a38896998478581d5338475cb2f96b7f08cf44cf",
+  "normal_regression": {
+    "reference": {
+      "path": "build/sn016/source-reference-probe-02/summary.json",
+      "sha256": "c2c8ddd04aa8bb285f87454af052cfacff1663c6ece091a97e9ceb4542fec3b4"
+    },
+    "notification_build": {
+      "path": "build/sn016/source-notification-normal-01/summary.json",
+      "sha256": "c2c8ddd04aa8bb285f87454af052cfacff1663c6ece091a97e9ceb4542fec3b4"
+    },
+    "results_identical": true
+  }
+}

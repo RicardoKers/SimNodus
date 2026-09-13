@@ -1,0 +1,650 @@
+{
+  "status": "passed",
+  "complete_e05_profile": false,
+  "date": "2026-09-08",
+  "scope": "Plain GDB, held firmware boundaries, persistent RC and boundary-sampled ADC",
+  "normal_raw_evidence": "build/sn016/joint-persistent-recovery-01",
+  "fault_raw_evidence": "build/sn016/joint-persistent-fault-02",
+  "earlier_preserved_runs": [
+    "build/sn016/joint-persistent-01",
+    "build/sn016/joint-persistent-fault-01"
+  ],
+  "fixed_tolerances": {
+    "time_s": 1e-12,
+    "voltage_v": 1e-05,
+    "inspection_wall_ms": 100,
+    "cancellation_deadline_s": 2
+  },
+  "normal_runs": [
+    {
+      "checkpoints": [
+        {
+          "joint_time_ns": 2010875,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          "grant": {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2010875,
+            "actual_s": 0.002010875,
+            "output_v": 0,
+            "samples": 16098
+          },
+          "gpio_odr": 0,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 2011375,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          },
+          "grant": {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2011375,
+            "actual_s": 0.002011375,
+            "output_v": 0,
+            "samples": 16105
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {
+            "gpio_high_at_ns": 2011375
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4010750,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218036,
+            "function": "adc_read_marker",
+            "time_ns": 4010750
+          },
+          "grant": {
+            "start": 2011375,
+            "requested": 5000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 3000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4010750,
+            "actual_s": 0.0040107499999999996,
+            "output_v": 2.8531143502144816,
+            "samples": 32116
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "exchange": {
+            "adc_microvolts": 2853114,
+            "expected_adc_code": 3541,
+            "control": {
+              "command": "adc",
+              "before_us": 4010,
+              "after_us": 4010
+            }
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4027000,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218168,
+            "function": "SysTick_Handler",
+            "time_ns": 4027000
+          },
+          "grant": {
+            "start": 4010750,
+            "requested": 5000000,
+            "end": 4027000,
+            "reason": "cancelled",
+            "unused": 4983750,
+            "sinks": [
+              4027000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4027000,
+            "actual_s": 0.004027,
+            "output_v": 2.860317557432128,
+            "samples": 32249
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            1,
+            3541,
+            1,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        }
+      ],
+      "analog_exit": 0,
+      "renode_exit": 0,
+      "listeners_removed": true
+    },
+    {
+      "checkpoints": [
+        {
+          "joint_time_ns": 2010875,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          "grant": {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2010875,
+            "actual_s": 0.002010875,
+            "output_v": 0,
+            "samples": 16098
+          },
+          "gpio_odr": 0,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 2011375,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          },
+          "grant": {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2011375,
+            "actual_s": 0.002011375,
+            "output_v": 0,
+            "samples": 16105
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {
+            "gpio_high_at_ns": 2011375
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4010750,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218036,
+            "function": "adc_read_marker",
+            "time_ns": 4010750
+          },
+          "grant": {
+            "start": 2011375,
+            "requested": 5000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 3000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4010750,
+            "actual_s": 0.0040107499999999996,
+            "output_v": 2.8531143502144816,
+            "samples": 32116
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "exchange": {
+            "adc_microvolts": 2853114,
+            "expected_adc_code": 3541,
+            "control": {
+              "command": "adc",
+              "before_us": 4010,
+              "after_us": 4010
+            }
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4027000,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218168,
+            "function": "SysTick_Handler",
+            "time_ns": 4027000
+          },
+          "grant": {
+            "start": 4010750,
+            "requested": 5000000,
+            "end": 4027000,
+            "reason": "cancelled",
+            "unused": 4983750,
+            "sinks": [
+              4027000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4027000,
+            "actual_s": 0.004027,
+            "output_v": 2.860317557432128,
+            "samples": 32249
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            1,
+            3541,
+            1,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        }
+      ],
+      "analog_exit": 0,
+      "renode_exit": 0,
+      "listeners_removed": true
+    },
+    {
+      "checkpoints": [
+        {
+          "joint_time_ns": 2010875,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217976,
+            "function": "gpio_change_marker",
+            "time_ns": 2010875
+          },
+          "grant": {
+            "start": 0,
+            "requested": 5000000,
+            "end": 2010875,
+            "reason": "cancelled",
+            "unused": 2989125,
+            "sinks": [
+              2010875
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2010875,
+            "actual_s": 0.002010875,
+            "output_v": 0,
+            "samples": 16098
+          },
+          "gpio_odr": 0,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 2011375,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134217986,
+            "function": "gpio_change_marker",
+            "time_ns": 2011375
+          },
+          "grant": {
+            "start": 2010875,
+            "requested": 5000000,
+            "end": 2011375,
+            "reason": "cancelled",
+            "unused": 4999500,
+            "sinks": [
+              2011375
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 2011375,
+            "actual_s": 0.002011375,
+            "output_v": 0,
+            "samples": 16105
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "exchange": {
+            "gpio_high_at_ns": 2011375
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4010750,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218036,
+            "function": "adc_read_marker",
+            "time_ns": 4010750
+          },
+          "grant": {
+            "start": 2011375,
+            "requested": 5000000,
+            "end": 4010750,
+            "reason": "cancelled",
+            "unused": 3000625,
+            "sinks": [
+              4010750
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4010750,
+            "actual_s": 0.0040107499999999996,
+            "output_v": 2.8531143502144816,
+            "samples": 32116
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          "exchange": {
+            "adc_microvolts": 2853114,
+            "expected_adc_code": 3541,
+            "control": {
+              "command": "adc",
+              "before_us": 4010,
+              "after_us": 4010
+            }
+          },
+          "inspection_stable": true
+        },
+        {
+          "joint_time_ns": 4027000,
+          "cpu": {
+            "reason": "breakpoint-hit",
+            "pc": 134218168,
+            "function": "SysTick_Handler",
+            "time_ns": 4027000
+          },
+          "grant": {
+            "start": 4010750,
+            "requested": 5000000,
+            "end": 4027000,
+            "reason": "cancelled",
+            "unused": 4983750,
+            "sinks": [
+              4027000
+            ],
+            "cancelled": "True"
+          },
+          "analog": {
+            "time_ns": 4027000,
+            "actual_s": 0.004027,
+            "output_v": 2.860317557432128,
+            "samples": 32249
+          },
+          "gpio_odr": 1,
+          "mailbox": [
+            1397633077,
+            4,
+            1,
+            1,
+            3541,
+            1,
+            0,
+            0
+          ],
+          "exchange": {},
+          "inspection_stable": true
+        }
+      ],
+      "analog_exit": 0,
+      "renode_exit": 0,
+      "listeners_removed": true
+    }
+  ],
+  "analog_loss": {
+    "checkpoints": [
+      {
+        "joint_time_ns": 2010875,
+        "cpu": {
+          "reason": "breakpoint-hit",
+          "pc": 134217976,
+          "function": "gpio_change_marker",
+          "time_ns": 2010875
+        },
+        "grant": {
+          "start": 0,
+          "requested": 5000000,
+          "end": 2010875,
+          "reason": "cancelled",
+          "unused": 2989125,
+          "sinks": [
+            2010875
+          ],
+          "cancelled": "True"
+        },
+        "analog": {
+          "time_ns": 2010875,
+          "actual_s": 0.002010875,
+          "output_v": 0,
+          "samples": 16098
+        },
+        "gpio_odr": 0,
+        "mailbox": [
+          1397633077,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "exchange": {},
+        "inspection_stable": true
+      },
+      {
+        "joint_time_ns": 2011375,
+        "cpu": {
+          "reason": "breakpoint-hit",
+          "pc": 134217986,
+          "function": "gpio_change_marker",
+          "time_ns": 2011375
+        },
+        "grant": {
+          "start": 2010875,
+          "requested": 5000000,
+          "end": 2011375,
+          "reason": "cancelled",
+          "unused": 4999500,
+          "sinks": [
+            2011375
+          ],
+          "cancelled": "True"
+        },
+        "analog": {
+          "time_ns": 2011375,
+          "actual_s": 0.002011375,
+          "output_v": 0,
+          "samples": 16105
+        },
+        "gpio_odr": 1,
+        "mailbox": [
+          1397633077,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "exchange": {
+          "gpio_high_at_ns": 2011375
+        },
+        "inspection_stable": true
+      }
+    ],
+    "fault_injected": "analog-exit-before-third-boundary",
+    "injected_exit": 1,
+    "analog_exit": 1,
+    "listeners_removed": true,
+    "error": "[Errno 22] Invalid argument",
+    "expected_failure_observed": true
+  },
+  "sha256": {
+    "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\joint_persistent.py": "b37a0c01a97faad1a97fff40c5838d4c80316dffa08fc1d5bdc313335e83732e",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\joint_circuit.cpp": "b5a22ef1f9869f9c9112e6976dd2c90fa47b147d380c0302f915ad132e73be14",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\debugging\\cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\tests\\experiments\\adc\\stm32f103_adc.cs": "0151c455139cf5cd5af5d056fce308c65e5b66a12feb46f8428b6d8e51de82b6",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\source-notification\\Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\source-notification\\Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\deps\\ngspice\\Spice64_dll\\dll-vs\\ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\persistent-native\\Debug\\e05_joint_circuit.exe": "9d1d5cd5b9abac5de009c4765b00aa5444b7ca77000ecabff553d10cb82d0006",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\persistent-native\\Debug\\e05_control.exe": "e1fc40de419444ffb0e46193612629d30cee3a21755b63f6ebf056094ebea2f4",
+    "C:\\ST\\STM32CubeIDE_2.1.1\\STM32CubeIDE\\plugins\\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_1.0.100.202602081740\\tools\\bin\\arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn016\\firmware\\firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c"
+  },
+  "limitations": [
+    "Plain GDB held firmware breakpoints; no asynchronous joint IDE interrupt.",
+    "GPIO edge is applied at its observed after-write boundary.",
+    "ADC voltage is sampled at the marker boundary and held through conversion.",
+    "Single RC circuit and known bounded firmware sequence; no general event scheduler.",
+    "One analog-loss injection only; cooperative IDE fault/reset/reconnect gates remain open."
+  ]
+}

@@ -15,7 +15,9 @@ void sn_abort(sn_socket *socket);
 void sn_close(sn_socket *socket);
 
 // Experiment controls, shared by both builds; not a production configuration API.
+#ifndef SN_TIMEOUT_MS
 #define SN_TIMEOUT_MS 1000
+#endif
 #ifndef SN_TRANSFER_LIMIT
 #define SN_TRANSFER_LIMIT 2147483647
 #endif

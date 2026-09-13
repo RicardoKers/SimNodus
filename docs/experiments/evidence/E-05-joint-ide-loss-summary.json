@@ -1,0 +1,664 @@
+{
+  "status": "joint_analog_loss_and_fresh_recovery_verified",
+  "complete_e05_profile": false,
+  "pairs": [
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/joint-loss-01",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "failure": {
+            "kind": "analog",
+            "analog_exit": 1,
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2013000,
+              "reason": "cancelled",
+              "unused": 99998375,
+              "sinks": [
+                2013000
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "[Errno 22] Invalid argument",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 131352200
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/joint-loss-recovery-01",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2013000,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 2013000,
+                "reason": "cancelled",
+                "unused": 99998375,
+                "sinks": [
+                  2013000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2013000,
+                "actual_s": 0.002013,
+                "output_v": 0.005358145333898466,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2013000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3002250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143501795215,
+                "samples": 32119
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557397729,
+                "samples": 32252
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "pause_wall_ns": 57999100,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    },
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/joint-loss-02",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "failure": {
+            "kind": "analog",
+            "analog_exit": 1,
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2014000,
+              "reason": "cancelled",
+              "unused": 99997375,
+              "sinks": [
+                2014000
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "[Errno 22] Invalid argument",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 203176200
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/joint-loss-recovery-02",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2013000,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 2013000,
+                "reason": "cancelled",
+                "unused": 99998375,
+                "sinks": [
+                  2013000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2013000,
+                "actual_s": 0.002013,
+                "output_v": 0.005358145333898466,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2013000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3002250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143501795215,
+                "samples": 32119
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557397729,
+                "samples": 32252
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "pause_wall_ns": 77408500,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    },
+    {
+      "failure": {
+        "raw_evidence": "build/sn016/joint-loss-03",
+        "cooperative": {
+          "phase": "failed",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "failure": {
+            "kind": "analog",
+            "analog_exit": 1,
+            "cancelled_cpu_grant": {
+              "start": 2011375,
+              "requested": 100000000,
+              "end": 2013000,
+              "reason": "cancelled",
+              "unused": 99998375,
+              "sinks": [
+                2013000
+              ],
+              "cancelled": "True"
+            },
+            "diagnostic": "[Errno 22] Invalid argument",
+            "joint_pause_confirmed": false,
+            "renode_exit": 0,
+            "wall_ns": 139460500
+          },
+          "analog_exit": 1
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      },
+      "recovery": {
+        "raw_evidence": "build/sn016/joint-loss-recovery-03",
+        "cooperative": {
+          "phase": "complete",
+          "checkpoints": [
+            {
+              "time_ns": 2010875,
+              "grant": {
+                "start": 0,
+                "requested": 5000000,
+                "end": 2010875,
+                "reason": "cancelled",
+                "unused": 2989125,
+                "sinks": [
+                  2010875
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2010875,
+                "actual_s": 0.002010875,
+                "output_v": 0,
+                "samples": 16098
+              },
+              "gpio_odr": 0,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2011375,
+              "grant": {
+                "start": 2010875,
+                "requested": 5000000,
+                "end": 2011375,
+                "reason": "cancelled",
+                "unused": 4999500,
+                "sinks": [
+                  2011375
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2011375,
+                "actual_s": 0.002011375,
+                "output_v": 0,
+                "samples": 16105
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 2013000,
+              "grant": {
+                "start": 2011375,
+                "requested": 100000000,
+                "end": 2013000,
+                "reason": "cancelled",
+                "unused": 99998375,
+                "sinks": [
+                  2013000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 2013000,
+                "actual_s": 0.002013,
+                "output_v": 0.005358145333898466,
+                "samples": 16134
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4010750,
+              "grant": {
+                "start": 2013000,
+                "requested": 5000000,
+                "end": 4010750,
+                "reason": "cancelled",
+                "unused": 3002250,
+                "sinks": [
+                  4010750
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4010750,
+                "actual_s": 0.0040107499999999996,
+                "output_v": 2.8531143501795215,
+                "samples": 32119
+              },
+              "gpio_odr": 1,
+              "adc_microvolts": 2853114,
+              "adc_code": 3541,
+              "inspection_stable": true
+            },
+            {
+              "time_ns": 4027000,
+              "grant": {
+                "start": 4010750,
+                "requested": 5000000,
+                "end": 4027000,
+                "reason": "cancelled",
+                "unused": 4983750,
+                "sinks": [
+                  4027000
+                ],
+                "cancelled": "True"
+              },
+              "analog": {
+                "time_ns": 4027000,
+                "actual_s": 0.004027,
+                "output_v": 2.860317557397729,
+                "samples": 32252
+              },
+              "gpio_odr": 1,
+              "inspection_stable": true
+            }
+          ],
+          "scope": "Bounded actual IDE joint pause after GPIO high with 1 ms wall pacing per TimePassed callback",
+          "pause_wall_ns": 49341200,
+          "analog_exit": 0
+        },
+        "ide_exit": 0,
+        "close_accepted": true,
+        "listeners_removed": true
+      }
+    }
+  ],
+  "scope": "Paced actual CubeIDE interrupt; real analog-process loss after CPU cancellation and before analog acknowledgement",
+  "inputs_sha256": {
+    "cubeide.py": "92814d69e6c45b2191019f7f828283f07445d77dcd13a7d1605191eb1c8728aa",
+    "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+    "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+    "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+    "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+    "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+    "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+    "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+    "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+    "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+    "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+    "Renode.exe": "752e59d8f78b36e3931ed37c137d0c484605789049af05c6f6d11c2f411c8476"
+  },
+  "sources_sha256": {
+    "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+    "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+    "src/org/simnodus/e05/CubeIdeRunner.java": "0e47bde04bfdb3ecf8016fd6655e4d23c2efa5331a841563e941710357c02fd0",
+    "src/org/simnodus/e05/CubeIdeStartup.java": "d621273b89d29d86d88a8fddf695ccd1b3a0e322568bb5798c743aa27e94b303"
+  },
+  "cooperative_inputs_sha256": {
+    "cooperative_debug.py": "f226a1c12d13041d7058d308878bdf3dbe5a5dc25e2c9b55e95038a49abd2d3f",
+    "cancel_notify_bridge.cs": "d8b4e54f8e7a6388e74c3c94f9cfadf8c5d0f8e891b2a144c8a201ece77f82e8",
+    "Renode.dll": "f28d627153790404446ca7209b822bfa097d1b58e8861ab9655faa131327c00f",
+    "Infrastructure.dll": "d2e6007dd1c286a29104f35820aab5b754a2581807e522a58fefed2c9207893e"
+  },
+  "joint_inputs_sha256": {
+    "joint_ide.py": "c0ce33b2ed5332f9736fe88ef891c974667042d2a7c0e485041a6b85133e0ab0",
+    "joint_persistent.py": "b37a0c01a97faad1a97fff40c5838d4c80316dffa08fc1d5bdc313335e83732e",
+    "joint_circuit.cpp": "b5a22ef1f9869f9c9112e6976dd2c90fa47b147d380c0302f915ad132e73be14",
+    "cancel_joint_bridge.cs": "11e72870b8447934b53594f2cc34b1f7ba0be6521afdfa4b9f1bf4cf5387e468",
+    "e05_joint_circuit.exe": "9d1d5cd5b9abac5de009c4765b00aa5444b7ca77000ecabff553d10cb82d0006",
+    "e05_control.exe": "e1fc40de419444ffb0e46193612629d30cee3a21755b63f6ebf056094ebea2f4"
+  },
+  "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+  "default_regression": {
+    "raw_evidence": "build/sn016/joint-loss-default-regression-01",
+    "exact_reference": "build/sn016/resume-normal-04",
+    "reset_reconnect_passed": true
+  },
+  "limitations": [
+    "Only this analog-loss boundary is covered.",
+    "Joint timeout/reset/reconnect and unpaced behavior remain open.",
+    "Existing Eclipse PerspectiveManager log exception is not fixed by this work."
+  ]
+}

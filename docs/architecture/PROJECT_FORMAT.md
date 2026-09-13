@@ -2,6 +2,14 @@
 
 Status: persistence requirements. Extensions such as `.snod` and `.snodsub` and the exact schema are **not finalized**. No loader exists.
 
+The [topology-only 0.1 draft](TOPOLOGY_DRAFT.md) is the first SN-020 slice, with
+structural validation and JSON round-trip fixtures. It does not define the whole
+project format below or implement resource handling, saving or compilation.
+The separate [0.2 parameter draft](PARAMETERS_DRAFT.md) adds exact quantities and
+scoped instance overrides; remaining project/resource contracts are still pending.
+The [0.3 descriptor draft](BINDINGS_DRAFT.md) separates symbols and model interfaces
+with explicit mappings; it does not open graphical/model resources.
+
 ## Principle
 
 Store editable sources in a directory with readable JSON and relative resources. This supports review and version control. A ZIP exchange format may follow; a monolithic archive does not provide the same text diffs.

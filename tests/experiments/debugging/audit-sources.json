@@ -1,0 +1,36 @@
+{
+  "purpose": "Verify the exact Renode GDB and private transport shapes used by E-05",
+  "revision": "add012af003a0f620d3da52828262676f374d121",
+  "files": [
+    {
+      "file": "ContinueCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/ContinueCommand.cs",
+      "sha256": "6291cd33e3fe2c25dcfa0a80de2ed132be91c35f89e130d6e1c3f3d406b6a158"
+    },
+    {
+      "file": "DetachCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/DetachCommand.cs",
+      "sha256": "7387f9260845d9faeb302fb6de6a89c4e7966a0708d1da5ffd5ed0534467af9e"
+    },
+    {
+      "file": "GdbStub.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Utilities/GDB/GdbStub.cs",
+      "sha256": "20dd6b3e8f17bcd0616fe178a721d268266df597a8d88218ce937848fdeb3ec4"
+    },
+    {
+      "file": "Machine.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Core/Machine.cs",
+      "sha256": "1d0e31d922e2bf831a2b9d6813228edc605c2ba72ddb1fba50fce07defebe520"
+    },
+    {
+      "file": "SingleStepCommand.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Extensions/Utilities/GDB/Commands/SingleStepCommand.cs",
+      "sha256": "18f0819d2dec8418013755ce5a37922523cad52c4ea4bc01ff64bec155219164"
+    },
+    {
+      "file": "SocketServerProvider.cs",
+      "url": "https://raw.githubusercontent.com/renode/renode-infrastructure/add012af003a0f620d3da52828262676f374d121/src/Emulator/Main/Utilities/SocketServerProvider.cs",
+      "sha256": "1fc8d2c015d9cdb01abaf630fb77cd26514b3527d1379dc558909b63553e704e"
+    }
+  ]
+}

@@ -39,6 +39,30 @@ Milestones: [M1](https://github.com/RicardoKers/SimNodus/milestone/1) (September
 
 The wiki is disabled so documentation stays versioned with code. Private reports use the [security advisory form](https://github.com/RicardoKers/SimNodus/security/advisories/new). Dependency-update PRs should be reviewed, not automatically merged.
 
+## Authorized source checkpoint: 2026-09-13
+
+The owner authorized a local commit and GitHub push of accumulated source and
+versionable evidence on `codex/checkpoint-2026-09-13`. This is a recovery point,
+not a main-branch merge, issue synchronization or release. Verify the remote tip
+matches the local commit before considering the transfer complete. Ignored
+`build/` engines, binaries and raw runtime logs are not included in this source
+checkpoint; preserve them separately for a complete local-data backup.
+
+Historical evidence JSON is stored without Git line-ending conversion so recorded
+hashes retain their original byte meaning. C#, Java, XML, manifest, patch and
+PowerShell sources explicitly use LF on checkout. This prevents new checkout
+normalization from invalidating fixture/source hashes; it does not certify a
+clean-machine engine setup. Existing evidence contents are not rewritten.
+Git whitespace checks recognize CRLF in these historical JSON records; preserved
+unified-diff patch artifacts retain their required blank context lines.
+The already measured `tests/experiments/adc/stm32f103_adc.cs` also retains its
+original CRLF bytes explicitly, because real-engine evidence hashes that source.
+This exception preserves the input rather than rewriting historical hashes.
+
+The checkpoint review found no common credential-token/private-key patterns in
+the versionable files and no binaries selected by the ignore rules. This is a
+bounded source-publication check, not a security audit or binary licensing gate.
+
 ## Before a binary release
 
 Record backend/runtime revisions and licenses, supported Windows versions, installer provenance, checksums, and tested lesson projects. Add required notices and source/relinking materials for dependencies as applicable. Do not redistribute CubeIDE, vendor firmware, model packs, or documentation by assumption.

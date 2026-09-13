@@ -1,0 +1,329 @@
+{
+  "date": "2026-09-08",
+  "status": "passed for bounded guarded IDE backend-loss and missing-stop timeout",
+  "complete_e05_profile": false,
+  "joint_pause_supported": false,
+  "unit_tests_passed": 7,
+  "baseline": {
+    "path": "build/sn016/resume-normal-04/summary.json",
+    "sha256": "2454f76665d07f120dc5977b97ab83e47e36cb245d2128606531f813c0b0842b"
+  },
+  "pairs": [
+    {
+      "fault": "backend",
+      "failure": {
+        "path": "build/sn016/ide-fault-backend-01/summary.json",
+        "sha256": "80ce48287324f24eb0c53f17c9a8dd1fdfd16b0b8d4a6bfb371237afad7ce15e",
+        "runner_sha256": "289ab55263cce3c397fdb114a1dec9ac3adc7db3d917938467e51c00baa09e35",
+        "status": "fault_verified",
+        "inputs_sha256": {
+          "cubeide.py": "47e3b1ea4c92c4cc617e2ec985158c8516bffa8fefb0a53218272f9db8600e33",
+          "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+          "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+          "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+          "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+          "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+          "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+          "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+          "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+          "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+          "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+          "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+        },
+        "sources_sha256": {
+          "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+          "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+          "src/org/simnodus/e05/CubeIdeRunner.java": "8fe26be36480f5b02bd4d05838ac0c8480806bc62a018ca8825c86e65934284f",
+          "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+        },
+        "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+        "expected_fault": {
+          "kind": "backend",
+          "reason": "backend connection lost during pending grant",
+          "backend_exit": 1,
+          "committed": false,
+          "guard_diagnostic": {
+            "reason": "[WinError 10054] Foi for\u00e7ado o cancelamento de uma conex\u00e3o existente pelo host remoto",
+            "payload": null,
+            "forwarded": false,
+            "committed": false
+          }
+        },
+        "ide_exit": 0,
+        "listeners_removed": true,
+        "guard_listener_removed": true,
+        "observations": [
+          "IDE_DIAGNOSTIC Session ended: backend connection lost during pending grant. Start a new session to recover.",
+          "FAILED_GRANT_EXIT=1"
+        ]
+      },
+      "recovery": {
+        "path": "build/sn016/ide-fault-backend-recovery-01/summary.json",
+        "sha256": "9ea3547dd7c74352c74c845b18e16e2b5927c01513490c68717ce3e3ef01c41f",
+        "runner_sha256": "a6cda588a9349c41580dc10769d096de3fc6770e8e9fe353d836370d51f0179d",
+        "status": "partial_probe_passed",
+        "inputs_sha256": {
+          "cubeide.py": "47e3b1ea4c92c4cc617e2ec985158c8516bffa8fefb0a53218272f9db8600e33",
+          "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+          "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+          "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+          "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+          "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+          "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+          "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+          "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+          "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+          "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+          "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+        },
+        "sources_sha256": {
+          "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+          "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+          "src/org/simnodus/e05/CubeIdeRunner.java": "8fe26be36480f5b02bd4d05838ac0c8480806bc62a018ca8825c86e65934284f",
+          "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+        },
+        "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+        "ide_exit": 0,
+        "listeners_removed": true,
+        "guard_listener_removed": true,
+        "prior_session_listeners_removed": true,
+        "prior_guard_listener_removed": true,
+        "disconnect_time": {
+          "command": "time",
+          "before_us": 0,
+          "after_us": 0
+        },
+        "observations": [
+          "committedTimeNs=4027000",
+          "RESET timeNs=0 mailbox=0000000000000000000000000000000000000000000000000000000000000000",
+          "RESET_CIRCUIT {\"target_ns\":0,\"actual_s\":0,\"input_v\":0,\"output_v\":0,\"samples\":0}",
+          "RECONNECTED timeNs=0",
+          "SIMNODUS_LIFECYCLE_OK"
+        ],
+        "stops_equal_baseline": true,
+        "circuits_equal_baseline": true
+      }
+    },
+    {
+      "fault": "timeout",
+      "failure": {
+        "path": "build/sn016/ide-fault-timeout-01/summary.json",
+        "sha256": "1d1d8fd8be6d9eda4862f01a5e88c99302680635b53837e5c6fc9d842c76987e",
+        "runner_sha256": "06a5c6fb1719cf296267420138775a498e5430d54f233d3099b393d22805eef7",
+        "status": "fault_verified",
+        "inputs_sha256": {
+          "cubeide.py": "47e3b1ea4c92c4cc617e2ec985158c8516bffa8fefb0a53218272f9db8600e33",
+          "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+          "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+          "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+          "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+          "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+          "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+          "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+          "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+          "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+          "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+          "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+        },
+        "sources_sha256": {
+          "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+          "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+          "src/org/simnodus/e05/CubeIdeRunner.java": "8fe26be36480f5b02bd4d05838ac0c8480806bc62a018ca8825c86e65934284f",
+          "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+        },
+        "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+        "expected_fault": {
+          "kind": "timeout",
+          "reason": "expected stop deadline expired",
+          "backend_exit": 0,
+          "committed": false,
+          "guard_diagnostic": null
+        },
+        "ide_exit": 0,
+        "listeners_removed": true,
+        "guard_listener_removed": true,
+        "observations": [
+          "STOP_TIMEOUT wallNs=2007066100 expectedPc=0x800fffc observedPc=0x8000102 timeNs=2011375",
+          "IDE_DIAGNOSTIC Session ended: expected stop deadline expired. Start a new session to recover.",
+          "FAILED_GRANT_EXIT=1"
+        ]
+      },
+      "recovery": {
+        "path": "build/sn016/ide-fault-timeout-recovery-01/summary.json",
+        "sha256": "f2a708d8b76e6ab84ebccbb68efd026ec32fdc64a1614c9f647f213c78dad162",
+        "runner_sha256": "a6cda588a9349c41580dc10769d096de3fc6770e8e9fe353d836370d51f0179d",
+        "status": "partial_probe_passed",
+        "inputs_sha256": {
+          "cubeide.py": "47e3b1ea4c92c4cc617e2ec985158c8516bffa8fefb0a53218272f9db8600e33",
+          "run.py": "ffce9bb7683051dce8ed84f641e3667f6da33f9bee0aec022a492b7d5ff03623",
+          "loopback_gdb.cs": "1dd35a9f062f2dfc77d6404f25523f305cff07d86cd74e4e2eba4abf685d1dac",
+          "stm32f103c8-debug.repl": "d1777d9df6dcace61ed3eed69837feb8d8978f6f3ec7b1ac2e167fab730f6f43",
+          "firmware.elf": "2a02d443a5d627b0f82c3a835ef385ba3e6f7a8607a829d539781cee4bdc9c5c",
+          "e05_control.exe": "f17ef2050eac2cba91a1817c4877b0a1aeb693bcd7f06f6ff00e89430cdd7871",
+          "e05_circuit.exe": "69a73c06def30bc3623f3c90523aef757834041399c28e7e3df016e849c0b7a9",
+          "arm-none-eabi-gdb.exe": "ce0c9ebacd39c21edb4c3ded32d3f005eb7e93964394b2c04a6bc2fc24d83afc",
+          "stm32cubeidec.exe": "2be6c8d3915650ecc781fa1a8a93c3d1550133be30d403a495fccb28c7b5a1d5",
+          "stm32cubeide.ini": "4ff982240df631e6935afa2e2caaf3b72620c82d7730a77559cc93b638bb5e97",
+          "ngspice.dll": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e",
+          "Renode.exe": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
+        },
+        "sources_sha256": {
+          "META-INF/MANIFEST.MF": "fff3c76fcac3d61e9295b4e7300cb79102fa7316fad1c488266eb94fd606abf5",
+          "plugin.xml": "8f19e3d573c1b0b64c757135faf6d069c378f62936698776befba528e84366d3",
+          "src/org/simnodus/e05/CubeIdeRunner.java": "8fe26be36480f5b02bd4d05838ac0c8480806bc62a018ca8825c86e65934284f",
+          "src/org/simnodus/e05/CubeIdeStartup.java": "4667b8ecf6d1b8fa2b5a512279ed5c12400a76845d866b4aff107e98d4e391cb"
+        },
+        "guard_sha256": "2bd5ffe07531d09e988ee82d8403111ddd6d2694eb9a86217b71172899ca5ab4",
+        "ide_exit": 0,
+        "listeners_removed": true,
+        "guard_listener_removed": true,
+        "prior_session_listeners_removed": true,
+        "prior_guard_listener_removed": true,
+        "disconnect_time": {
+          "command": "time",
+          "before_us": 0,
+          "after_us": 0
+        },
+        "observations": [
+          "committedTimeNs=4027000",
+          "RESET timeNs=0 mailbox=0000000000000000000000000000000000000000000000000000000000000000",
+          "RESET_CIRCUIT {\"target_ns\":0,\"actual_s\":0,\"input_v\":0,\"output_v\":0,\"samples\":0}",
+          "RECONNECTED timeNs=0",
+          "SIMNODUS_LIFECYCLE_OK"
+        ],
+        "stops_equal_baseline": true,
+        "circuits_equal_baseline": true
+      }
+    }
+  ],
+  "recovery_stops": [
+    {
+      "label": "gpio",
+      "reason": "BREAKPOINT",
+      "time_ns": 2010875,
+      "pc": 134217976,
+      "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "instruction",
+      "reason": "STEP",
+      "time_ns": 2011000,
+      "pc": 134217978,
+      "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "gpioEdge",
+      "reason": "BREAKPOINT",
+      "time_ns": 2011375,
+      "pc": 134217986,
+      "mailbox": "35304e5302000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "stepTarget",
+      "reason": "BREAKPOINT",
+      "time_ns": 2012125,
+      "pc": 134218016,
+      "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "next1",
+      "reason": "STEP",
+      "time_ns": 2012250,
+      "pc": 134218018,
+      "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "next2",
+      "reason": "STEP",
+      "time_ns": 2012500,
+      "pc": 134218022,
+      "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "next3",
+      "reason": "STEP",
+      "time_ns": 2012875,
+      "pc": 134218026,
+      "mailbox": "35304e5302000000010000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "adc",
+      "reason": "BREAKPOINT",
+      "time_ns": 4010750,
+      "pc": 134218036,
+      "mailbox": "35304e5304000000010000000000000000000000010000000000000000000000"
+    },
+    {
+      "label": "adcCommitted",
+      "reason": "BREAKPOINT",
+      "time_ns": 4027000,
+      "pc": 134218168,
+      "mailbox": "35304e5304000000010000000100000000080000010000000000000000000000"
+    }
+  ],
+  "recovery_circuits": [
+    {
+      "target_ns": 2010875,
+      "actual_s": 0.0020108749999999988,
+      "input_v": 0,
+      "output_v": 0,
+      "samples": 16098
+    },
+    {
+      "target_ns": 2011000,
+      "actual_s": 0.0020109999999999985,
+      "input_v": 0,
+      "output_v": 0,
+      "samples": 16099
+    },
+    {
+      "target_ns": 2011375,
+      "actual_s": 0.002011374999999999,
+      "input_v": 3.3,
+      "output_v": 4.99601168536786e-12,
+      "samples": 16160
+    },
+    {
+      "target_ns": 2012125,
+      "actual_s": 0.0020121249999999987,
+      "input_v": 3.3,
+      "output_v": 0.002474072116621261,
+      "samples": 16168
+    },
+    {
+      "target_ns": 2012250,
+      "actual_s": 0.002012249999999999,
+      "input_v": 3.3,
+      "output_v": 0.0028862370972953908,
+      "samples": 16169
+    },
+    {
+      "target_ns": 2012500,
+      "actual_s": 0.0020124999999999987,
+      "input_v": 3.3,
+      "output_v": 0.003710412512873253,
+      "samples": 16171
+    },
+    {
+      "target_ns": 2012875,
+      "actual_s": 0.002012874999999999,
+      "input_v": 3.3,
+      "output_v": 0.0049462893683967935,
+      "samples": 16174
+    },
+    {
+      "target_ns": 4010750,
+      "actual_s": 0.004010749999999998,
+      "input_v": 3.3,
+      "output_v": 2.8531143502154785,
+      "samples": 32157
+    },
+    {
+      "target_ns": 4027000,
+      "actual_s": 0.0040269999999999985,
+      "input_v": 3.3,
+      "output_v": 2.860317557467566,
+      "samples": 32287
+    }
+  ]
+}
