@@ -13,6 +13,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [Components and subcircuits](architecture/COMPONENTS.md).
 - [Project format](architecture/PROJECT_FORMAT.md).
 - [Debugging and instruments](architecture/DEBUGGING.md).
+- [Desktop UX and visual instrumentation](architecture/DESKTOP_UX.md): editor/analyzer windows, contextual probes, adjustable workspace and initial/future scope.
 - [Architecture decisions](decisions/README.md).
 
 ## Living planning documents
@@ -43,6 +44,9 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [SN-020 topology draft and validation](experiments/SN-020-topology.md).
 - [SN-020 exact parameters and instance overrides](experiments/SN-020-parameters.md).
 - [SN-020 separate symbol/model descriptor bindings](experiments/SN-020-bindings.md).
+- [SN-020 inert resource lock and lexical path validation](experiments/SN-020-resource-lock.md).
+- [SN-020 typed resource links](experiments/SN-020-resource-links.md).
+- [SN-020 accepted project declaration baseline](experiments/SN-020-acceptance.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).

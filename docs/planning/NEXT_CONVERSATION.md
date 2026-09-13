@@ -1,4 +1,58 @@
-# Latest handoff: SN-020 descriptor bindings and authorized checkpoint
+# Latest handoff: SN-020 declaration baseline accepted
+
+SN-020 is **done for declaration schema/reference validation** under
+[ADR 0051](../decisions/0051-project-declaration-baseline.md). Read CURRENT,
+BACKLOG, the [project contract](../architecture/PROJECT_SCHEMA.md) and
+[acceptance audit/evidence](../experiments/SN-020-acceptance.md).
+All 94 schema tests and 15 CTest entries passed, native Debug build succeeded,
+and 25 prior schema hashes match. Resource links, explicit model entrypoints,
+board/MCU/firmware targets and requested temporal/fidelity policy are declarative.
+All physical/resource/interface/firmware/runtime readiness flags remain false.
+
+The next implementation task is SN-021, still planned and not started here.
+Begin only within its authorized scope with bounded physical resource verification
+before native loading/atomic saving/compilation. Do not equate valid declarations
+with safe resource contents, real firmware compatibility or runtime capability.
+Keep stable source identities and test missing files, mismatches, aliases,
+symlinks/junctions and replacement races before consuming resources.
+
+SN-044 is done and its [UI/UX decision](../decisions/0049-desktop-ux-and-measurements.md)
+is preserved. Do not redo it or start Qt/UI/instrumentation tasks implicitly.
+Preserve all prior engine evidence, bounded Python/GDB/fixture ownership,
+capabilities, tolerances, PDF suppression, PID retry and ADRs 0027/0028.
+
+The current user authorizes coherent validated commits and protected-main
+integration/push. `codex/sn-020-schema` is the integration branch; verify PR/check
+and remote state before claiming publication. This supersedes older checkpoint-only
+restrictions below. No issues or binary releases are requested; build data remains
+ignored/local. Older handoffs describe historical task states.
+
+# Historical handoff: SN-020 inert resource lock
+
+Read CURRENT, BACKLOG, [ADR 0048](../decisions/0048-declarative-resource-lock.md),
+the [resource lock contract](../architecture/RESOURCE_LOCK_DRAFT.md) and its
+[report/evidence](../experiments/SN-020-resource-lock.md). SN-020 remains
+**in_progress**. All 64 tests passed; the valid CLI accepts two owned resources,
+and the traversal fixture fails with `path`. Nineteen prior hashes still match.
+
+Next take the smallest **typed descriptor/resource reference** slice. Define
+explicit dependency/resource IDs and roles without reading or executing resources.
+The separate resource lock 0.1 validates metadata and lexical paths only; physical
+containment against symlinks/junctions/replacement races and actual file hash
+verification remain SN-021 work. No loader, permission approval or simulator
+readiness follows from a valid lock. Topology 0.1/0.2/0.3 remain unchanged.
+
+Board/MCU/firmware and temporal policies remain pending. Preserve earlier evidence,
+capability limits, tolerances, PDF suppression, PID retry, Python preparation/GDB/
+fixture ownership and ADRs 0027/0028. No new engine run is claimed.
+
+Checkpoint `b3ce6748fcf18ca996dac655d54a9858e39c64a1` was pushed and verified on
+`codex/checkpoint-2026-09-13`. The resource-lock slice is subsequent local work;
+no new commit/push or issue/release publication occurred. The prior authorization
+covered the completed checkpoint, not recurring publication. Build data is still
+ignored and local.
+
+# Historical handoff: SN-020 descriptor bindings and authorized checkpoint
 
 SN-020 is **in_progress** through [0.3](../architecture/BINDINGS_DRAFT.md) under
 [ADR 0047](../decisions/0047-declarative-bindings-draft.md). Read CURRENT, BACKLOG

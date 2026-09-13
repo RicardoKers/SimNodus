@@ -1,0 +1,526 @@
+{
+  "format": "simnodus-resource-links",
+  "version": "0.1",
+  "topology": {
+    "format": "simnodus-topology",
+    "version": "0.3",
+    "root": "main",
+    "components": [
+      {
+        "id": "resistor",
+        "name": "resistor topology",
+        "pins": [
+          {
+            "id": "p",
+            "name": "1",
+            "domain": "electrical"
+          },
+          {
+            "id": "n",
+            "name": "2",
+            "domain": "electrical"
+          }
+        ],
+        "parameters": [
+          {
+            "id": "resistance",
+            "name": "resistance",
+            "unit": "ohm",
+            "default": "1000",
+            "minimum": "1",
+            "maximum": "1000000"
+          }
+        ],
+        "symbol": {
+          "definition": "two-pin",
+          "pin_map": {
+            "p": "a",
+            "n": "b"
+          }
+        },
+        "model": {
+          "definition": "resistor-interface",
+          "pin_map": {
+            "p": "first",
+            "n": "second"
+          },
+          "parameter_map": {
+            "resistance": "value"
+          }
+        }
+      },
+      {
+        "id": "capacitor",
+        "name": "capacitor topology",
+        "pins": [
+          {
+            "id": "p",
+            "name": "1",
+            "domain": "electrical"
+          },
+          {
+            "id": "n",
+            "name": "2",
+            "domain": "electrical"
+          }
+        ],
+        "parameters": [
+          {
+            "id": "capacitance",
+            "name": "capacitance",
+            "unit": "F",
+            "default": "0.000001",
+            "minimum": "0.000000001",
+            "maximum": "0.001"
+          }
+        ],
+        "symbol": {
+          "definition": "two-pin",
+          "pin_map": {
+            "p": "a",
+            "n": "b"
+          }
+        },
+        "model": {
+          "definition": "capacitor-interface",
+          "pin_map": {
+            "p": "first",
+            "n": "second"
+          },
+          "parameter_map": {
+            "capacitance": "value"
+          }
+        }
+      }
+    ],
+    "circuits": [
+      {
+        "id": "main",
+        "name": "Two RC topology instances",
+        "ports": [
+          {
+            "id": "source",
+            "name": "source",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          },
+          {
+            "id": "reference",
+            "name": "reference",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          },
+          {
+            "id": "left_out",
+            "name": "left_out",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          },
+          {
+            "id": "right_out",
+            "name": "right_out",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          }
+        ],
+        "instances": [
+          {
+            "id": "left",
+            "name": "left",
+            "kind": "circuit",
+            "definition": "rc",
+            "overrides": {
+              "resistance": {
+                "value": "1",
+                "unit": "kohm"
+              }
+            }
+          },
+          {
+            "id": "right",
+            "name": "right",
+            "kind": "circuit",
+            "definition": "rc",
+            "overrides": {
+              "resistance": {
+                "value": "2.2",
+                "unit": "kohm"
+              },
+              "capacitance": {
+                "value": "220",
+                "unit": "nF"
+              }
+            }
+          }
+        ],
+        "nets": [
+          {
+            "id": "drive",
+            "name": "drive",
+            "terminals": [
+              {
+                "port": "source"
+              },
+              {
+                "instance": "left",
+                "terminal": "input"
+              },
+              {
+                "instance": "right",
+                "terminal": "input"
+              }
+            ]
+          },
+          {
+            "id": "return",
+            "name": "return",
+            "terminals": [
+              {
+                "port": "reference"
+              },
+              {
+                "instance": "left",
+                "terminal": "reference"
+              },
+              {
+                "instance": "right",
+                "terminal": "reference"
+              }
+            ]
+          },
+          {
+            "id": "out_left",
+            "name": "out_left",
+            "terminals": [
+              {
+                "port": "left_out"
+              },
+              {
+                "instance": "left",
+                "terminal": "output"
+              }
+            ]
+          },
+          {
+            "id": "out_right",
+            "name": "out_right",
+            "terminals": [
+              {
+                "port": "right_out"
+              },
+              {
+                "instance": "right",
+                "terminal": "output"
+              }
+            ]
+          }
+        ],
+        "parameters": [],
+        "symbol": null
+      },
+      {
+        "id": "rc",
+        "name": "Reusable RC topology",
+        "ports": [
+          {
+            "id": "input",
+            "name": "input",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          },
+          {
+            "id": "output",
+            "name": "output",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          },
+          {
+            "id": "reference",
+            "name": "reference",
+            "domain": "electrical",
+            "direction": "bidirectional"
+          }
+        ],
+        "instances": [
+          {
+            "id": "r",
+            "name": "r",
+            "kind": "component",
+            "definition": "resistor",
+            "overrides": {
+              "resistance": {
+                "parameter": "resistance"
+              }
+            }
+          },
+          {
+            "id": "c",
+            "name": "c",
+            "kind": "component",
+            "definition": "capacitor",
+            "overrides": {
+              "capacitance": {
+                "parameter": "capacitance"
+              }
+            }
+          }
+        ],
+        "nets": [
+          {
+            "id": "drive",
+            "name": "drive",
+            "terminals": [
+              {
+                "port": "input"
+              },
+              {
+                "instance": "r",
+                "terminal": "p"
+              }
+            ]
+          },
+          {
+            "id": "junction",
+            "name": "junction",
+            "terminals": [
+              {
+                "instance": "r",
+                "terminal": "n"
+              },
+              {
+                "instance": "c",
+                "terminal": "p"
+              },
+              {
+                "port": "output"
+              }
+            ]
+          },
+          {
+            "id": "return",
+            "name": "return",
+            "terminals": [
+              {
+                "instance": "c",
+                "terminal": "n"
+              },
+              {
+                "port": "reference"
+              }
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "id": "resistance",
+            "name": "resistance",
+            "unit": "ohm",
+            "default": "1000",
+            "minimum": "100",
+            "maximum": "10000"
+          },
+          {
+            "id": "capacitance",
+            "name": "capacitance",
+            "unit": "F",
+            "default": "0.000001",
+            "minimum": "0.000000001",
+            "maximum": "0.001"
+          }
+        ],
+        "symbol": {
+          "definition": "rc-symbol",
+          "pin_map": {
+            "input": "in",
+            "output": "out",
+            "reference": "ref"
+          }
+        }
+      }
+    ],
+    "symbols": [
+      {
+        "id": "two-pin",
+        "name": "Two pin symbol interface",
+        "pins": [
+          {
+            "id": "a",
+            "name": "a"
+          },
+          {
+            "id": "b",
+            "name": "b"
+          }
+        ]
+      },
+      {
+        "id": "two-pin-alt",
+        "name": "Alternative symbol interface",
+        "pins": [
+          {
+            "id": "left",
+            "name": "left"
+          },
+          {
+            "id": "right",
+            "name": "right"
+          }
+        ]
+      },
+      {
+        "id": "rc-symbol",
+        "name": "RC symbol interface",
+        "pins": [
+          {
+            "id": "in",
+            "name": "in"
+          },
+          {
+            "id": "out",
+            "name": "out"
+          },
+          {
+            "id": "ref",
+            "name": "ref"
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "id": "resistor-interface",
+        "name": "resistor model interface (unimplemented)",
+        "terminals": [
+          {
+            "id": "first",
+            "name": "first",
+            "domain": "electrical"
+          },
+          {
+            "id": "second",
+            "name": "second",
+            "domain": "electrical"
+          }
+        ],
+        "parameters": [
+          {
+            "id": "value",
+            "name": "Value",
+            "unit": "ohm",
+            "minimum": "1",
+            "maximum": "1000000"
+          }
+        ]
+      },
+      {
+        "id": "capacitor-interface",
+        "name": "capacitor model interface (unimplemented)",
+        "terminals": [
+          {
+            "id": "first",
+            "name": "first",
+            "domain": "electrical"
+          },
+          {
+            "id": "second",
+            "name": "second",
+            "domain": "electrical"
+          }
+        ],
+        "parameters": [
+          {
+            "id": "value",
+            "name": "Value",
+            "unit": "F",
+            "minimum": "0.000000001",
+            "maximum": "0.001"
+          }
+        ]
+      }
+    ]
+  },
+  "lock": {
+    "format": "simnodus-resource-lock",
+    "version": "0.1",
+    "dependencies": [
+      {
+        "id": "owned-link-fixture",
+        "version": "0.1.0",
+        "origin": {
+          "kind": "owned",
+          "author": "Ricardo Kerschbaumer",
+          "reference": "SimNodus repository: owned declarative fixture and project license",
+          "revision": "SN-020 owned resource-links fixture 0.1"
+        },
+        "license": {
+          "identifier": "MIT",
+          "notice": "license"
+        },
+        "files": [
+          {
+            "id": "license",
+            "path": "LICENSE",
+            "bytes": 1077,
+            "sha256": "dcf7e4380ad153d1b43c5bfffebce6a46af0b10572280c8032775bd4e7ee7147"
+          },
+          {
+            "id": "symbol",
+            "path": "tests/schema/fixtures/assets/passive.svg",
+            "bytes": 227,
+            "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+          },
+          {
+            "id": "model",
+            "path": "tests/schema/fixtures/assets/passive.cir",
+            "bytes": 275,
+            "sha256": "4697420081fcdba5602435f41b8136606e48d2f2fb13fbbbdc93e1fbcf8d475b"
+          }
+        ],
+        "content_sha256": "715b236525d6c0915880a342a088bc82f1eac12099df2f223189c5cc9313f1a8"
+      }
+    ]
+  },
+  "assets": [
+    {
+      "id": "passive-symbol",
+      "kind": "symbol-svg",
+      "dependency": "owned-link-fixture",
+      "resource": "symbol"
+    },
+    {
+      "id": "passive-model",
+      "kind": "model-spice",
+      "dependency": "owned-link-fixture",
+      "resource": "model"
+    }
+  ],
+  "symbols": {
+    "two-pin": "passive-symbol",
+    "two-pin-alt": "passive-symbol",
+    "rc-symbol": "passive-symbol"
+  },
+  "models": {
+    "resistor-interface": {
+      "asset": "passive-model",
+      "entrypoint": "declared_resistor",
+      "terminal_map": {
+        "first": "first",
+        "second": "second"
+      },
+      "parameter_map": {
+        "value": "value"
+      }
+    },
+    "capacitor-interface": {
+      "asset": "passive-model",
+      "entrypoint": "declared_capacitor",
+      "terminal_map": {
+        "first": "first",
+        "second": "second"
+      },
+      "parameter_map": {
+        "value": "value"
+      }
+    }
+  }
+}

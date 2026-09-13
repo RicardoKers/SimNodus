@@ -8,13 +8,18 @@ real-engine evidence and remaining Python orchestration. SN-018 is **done for th
 bounded local baseline** under [ADR 0044](../decisions/0044-bounded-baseline-acceptance.md).
 The [acceptance audit](../experiments/SN-018-acceptance.md) maps fixed scenarios
 of one fixture to latency/error/memory evidence, preserving the inconclusive
-predecessor and all limitations. SN-020 is **in_progress** with the
+predecessor and all limitations. SN-020 is now **done for the declaration baseline**
+under [ADR 0051](../decisions/0051-project-declaration-baseline.md):
+[acceptance](../experiments/SN-020-acceptance.md), 94 schema tests, 15 CTest entries,
+native Debug build and 25 preserved schema hashes. Earlier slices include the
 [topology draft](../experiments/SN-020-topology.md) and
 [exact parameters/overrides](../experiments/SN-020-parameters.md): 29 tests and
 valid/invalid CLI fixtures passed. The [0.3 symbol/model bindings](../experiments/SN-020-bindings.md)
-now pass all 46 tests. Locked resource/dependency metadata and path containment
-are next. The owner authorized a source checkpoint commit/push on 2026-09-13;
-issue synchronization and release publication remain outside that authorization.
+passed all 46 tests. The [resource lock metadata](../experiments/SN-020-resource-lock.md)
+passed 64 tests, with lexical paths and a specified future physical containment
+gate. Typed descriptor references and project/board/firmware/temporal declarations
+are now included in the accepted baseline. The owner authorizes coherent validated
+commits and protected-main integration/push; issues and releases are excluded.
 General unpaced debugging and production readiness remain unapproved. Remote
 issue synchronization awaits an authorized publication cycle.
 
@@ -40,9 +45,15 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 
 ## Teaching MVP
 
+SN-022 through SN-024 should use the [desktop UX criteria](../architecture/DESKTOP_UX.md)
+and [ADR 0049](../decisions/0049-desktop-ux-and-measurements.md) for toolkit evaluation,
+preview/panel behavior, independent analyzer presentation and shared contextual
+measurements. Their implementation states are unchanged; advanced analysis is
+future direction, not a new M3 delivery commitment.
+
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
-| SN-020 | P1 | in_progress | Specify circuit/component schema and validation | SN-013 | [Topology](../experiments/SN-020-topology.md), [parameters](../experiments/SN-020-parameters.md), [symbol/model interfaces](../experiments/SN-020-bindings.md): 46 tests passed. Resources/dependencies and remaining project contracts pending |
+| SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | planned | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph |
 | SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
@@ -71,6 +82,7 @@ States: `done`, `in_progress`, `ready`, `planned`, `blocked`. Priority: P0 criti
 
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
+| SN-044 | P1 | done | Record desktop UX and shared visual instrumentation direction (documentation only) | SN-043 | [Desktop UX](../architecture/DESKTOP_UX.md) and [ADR 0049](../decisions/0049-desktop-ux-and-measurements.md) reconcile responsibilities, contextual measurements, MVP/future scope and open choices with ADR 0027; repository checker passed (444 text files) and whitespace check passed; no implementation or SN-020 advancement |
 | SN-043 | P1 | done | Record shared instrumentation, decoders, and MCU independence (documentation only) | SN-001 | [ADR 0027](../decisions/0027-shared-instrumentation.md), [ADR 0028](../decisions/0028-mcu-platform-independence.md), and reconciled [instrument design](../architecture/DEBUGGING.md#instruments); existing repository checker passes; no implementation or SN-017 changes |
 
 ## GitHub issue mapping

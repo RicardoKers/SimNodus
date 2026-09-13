@@ -1,0 +1,7 @@
+* Original SimNodus schema fixture, MIT. Not engine acceptance evidence.
+.subckt declared_resistor first second value=1000
+Rbody first second {value}
+.ends declared_resistor
+.subckt declared_capacitor first second value=1u
+Cbody first second {value}
+.ends declared_capacitor

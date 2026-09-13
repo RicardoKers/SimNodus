@@ -81,4 +81,15 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 
 | [0047](0047-declarative-bindings-draft.md) | Separate symbol/model interfaces with explicit complete mappings | Accepted for SN-020 0.3; resource/runtime contracts pending |
 
+| [0048](0048-declarative-resource-lock.md) | Inert resource inventory and lexical paths with explicit physical verification boundary | Accepted for SN-020 metadata; loading remains pending |
+
+| [0049](0049-desktop-ux-and-measurements.md) | Independent editor/analyzer windows, contextual probes and shared measurements | Accepted owner direction; Qt selection and implementation pending |
+
+| [0050](0050-typed-descriptor-resources.md) | Typed descriptor/resource links and explicit source entrypoints | Accepted for SN-020 reference validation |
+
+| [0051](0051-project-declaration-baseline.md) | Project declaration baseline and SN-020 acceptance boundary | Accepted for schema/reference validation; runtime remains pending |
+
 Use the [template](TEMPLATE.md) for new decisions.
+
+The SN-020 draft records retain their historical statuses. [ADR 0051](0051-project-declaration-baseline.md)
+accepts their composition as a bounded declaration baseline, without runtime approval.

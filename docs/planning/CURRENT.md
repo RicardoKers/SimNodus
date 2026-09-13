@@ -4,7 +4,7 @@ Updated: 2026-09-13.
 
 ## Snapshot
 
-- Stage: M2 bounded backend proof complete through E-05 under ADR 0014; SN-016/SN-017 are done for their bounded profiles, including native/Python composition under ADR 0043. SN-018 is done for the local Windows Debug fixture baseline under ADR 0044. SN-020 is in progress through 0.3 symbol/model interface bindings. Production kernel/application remain unimplemented; general unpaced debugging is unapproved.
+- Stage: M2 bounded backend proof complete through E-05 under ADR 0014; SN-016/SN-017 are done for their bounded profiles, including native/Python composition under ADR 0043. SN-018 is done for the local Windows Debug fixture baseline under ADR 0044. SN-020 is done for the declaration schema and reference validation baseline under ADR 0051. Production kernel/application remain unimplemented; general unpaced debugging is unapproved.
 - Implementation: real experiment hosts run replay, approximate sampled coupling, and a direct-voltage ADC path; persistent RC adapter/CLI extracted; complete joint kernel and application pending.
 - Direction: C++20 baseline, Qt 6 presentation, ngspice/XSPICE and Renode behind adapters.
 - Platform: Windows first; Linux later.
@@ -16,6 +16,75 @@ Updated: 2026-09-13.
 - Publication: first commit `b3163a1` published on 2026-08-31; SN-041 complete.
 - Checks: Windows/Ubuntu foundation and repeated E-01/SN-019/E-02 suites passed on GitHub. The complete E-03 matrix passed locally and in a [clean hosted Windows run](https://github.com/RicardoKers/SimNodus/actions/runs/33462555508), each with 54 isolated real-backend cases. The complete E-04 profile passed locally and in a [clean hosted Windows run](https://github.com/RicardoKers/SimNodus/actions/runs/33484129645), each with three fresh processes and 363 conversions.
 - Collaboration: nine initial issues, four milestones, protected `main`, and private vulnerability reporting enabled.
+
+## Latest acceptance: SN-020 declaration baseline
+
+SN-020 is **done for declaration schema and reference validation**, under
+[ADR 0051](../decisions/0051-project-declaration-baseline.md), with
+[acceptance audit](../experiments/SN-020-acceptance.md) and
+[evidence](../experiments/evidence/SN-020-acceptance-summary.json).
+[Project declarations 0.1](../architecture/PROJECT_SCHEMA.md) compose topology,
+parameters, descriptor/resource maps, locking, board/MCU/firmware metadata and
+requested temporal/fidelity policy. All 94 schema tests and 15 CTest entries
+passed; the native Debug build succeeded. Twenty-five prior schema hashes match.
+A fresh default build also passed all 15 CTest entries. The repository checker
+passed (459 text files), and `git diff --check` passed.
+CI now runs the schema suite and default native foundation tests on both platforms.
+
+Every resource/interface/firmware/runtime readiness flag remains false. No new
+engine campaign, executable project, renderer, GUI or platform support is claimed.
+Physical containment, source/ELF compatibility, runtime negotiation, atomic saving
+and compilation remain SN-021 work. That task stays planned and was not started.
+ADRs 0027/0028/0049 and the completed SN-044 documentation are preserved, as are
+prior engine evidence, tolerances, PDF suppression and PID retry.
+
+The owner's current policy authorizes validated commits, protected-main integration
+and push for coherent accepted work, superseding the checkpoint-only publication
+limit. Integration branch: `codex/sn-020-schema`, based on the existing checkpoint.
+Main requires a pull request, current branch and both Foundation checks; use the
+existing squash flow. Integration is pending those checks. No issue synchronization,
+binary release or ignored build/raw-data backup is included. Earlier publication
+and task-state notes below are historical.
+
+## Prior bounded slices and SN-044 record
+
+Documentation update, 2026-09-13: SN-044 is **done** and records the owner-confirmed
+[desktop UX direction](../architecture/DESKTOP_UX.md) and
+[ADR 0049](../decisions/0049-desktop-ux-and-measurements.md): independent editor
+and analyzer windows, component preview, adjustable panels, contextual probes
+and shared measurement definitions. DEBUGGING remains the instrumentation
+authority. No conflicts with existing decisions were found. Qt presentation
+technology, Console/Diagnostics placement, layout persistence and concrete
+measurement/storage interfaces remain open. Advanced analysis stays future
+scope. No code, tests, CMake, simulator behavior or SN-020 progress changed.
+
+Validation: `python tools/check_repository.py` passed (444 text files), and
+`git diff --check` passed. These are documentation checks, not simulator tests
+or UI usability evidence. No commit, push or remote synchronization was performed.
+
+Next UI design gate is SN-022's Qt/worker evaluation, followed by SN-023/SN-024
+implementation when their dependencies are met; none was started in this cycle.
+The existing implementation checkpoint and next step below remain unchanged.
+
+SN-020 remains **in_progress** with [resource lock metadata](../experiments/SN-020-resource-lock.md)
+under [ADR 0048](../decisions/0048-declarative-resource-lock.md). All 64 schema
+tests passed (18 new), both CLI outcomes matched expectations, and 19 prior
+schema evidence hashes remain intact. The lock validates provenance/license
+declarations, file inventory hashes and portable lexical paths without resource
+I/O. Physical containment, byte verification and permission remain explicit
+unverified gates. No engines or supported capabilities changed.
+The repository checker passed (442 text files), and `git diff --check` passed.
+
+Next define typed descriptor/resource references. Board/MCU/firmware and temporal
+contracts remain pending; SN-021 physical loading/persistence stays planned.
+Preserve existing numerical tolerances, evidence, PDF suppression, PID retry,
+Python fixture/GDB ownership and ADRs 0027/0028.
+
+The prior checkpoint was pushed and its remote hash verified as
+`b3ce6748fcf18ca996dac655d54a9858e39c64a1` on `codex/checkpoint-2026-09-13`.
+This new slice is local and outside that completed checkpoint. No further commit,
+push, issue synchronization or release was performed; ignored build data stays
+local. Historical preparation notes below describe the earlier state.
 
 ## Completed work
 

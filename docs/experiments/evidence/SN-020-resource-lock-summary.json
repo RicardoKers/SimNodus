@@ -1,0 +1,132 @@
+{
+  "task": "SN-020",
+  "slice": "resource-lock-metadata-0.1",
+  "date": "2026-09-13",
+  "status": "passed",
+  "complete_SN020": false,
+  "environment": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "tests": {
+    "command": "python -m unittest discover -s tests/schema -p 'test_*.py' -v",
+    "total": 64,
+    "prior": 46,
+    "resource_lock": 18,
+    "result": "OK"
+  },
+  "cli_results": [
+    {
+      "command": [
+        "python",
+        "tests/schema/resource_lock.py",
+        "tests/schema/fixtures/owned-resource-lock.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"valid-lock-metadata-only\", \"dependencies\": 1, \"resources\": 2, \"declared_bytes\": 10145, \"resources_verified\": false, \"containment_verified\": false, \"redistribution_verified\": false, \"simulation_ready\": false}",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "tests/schema/resource_lock.py",
+        "tests/schema/fixtures/invalid-resource-path.json"
+      ],
+      "exit_code": 1,
+      "stdout": "{\"status\": \"invalid\", \"code\": \"path\", \"location\": \"$/dependencies/0/files/0\", \"message\": \"Path must use unambiguous portable segments\"}",
+      "stderr": ""
+    }
+  ],
+  "prior_hash_checks": [
+    {
+      "path": "tests/schema/topology.py",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_topology.py",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/TOPOLOGY_DRAFT.md",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0045-experimental-topology-draft.md",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-cycle.json",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-terminal.json",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc.json",
+      "match": true
+    },
+    {
+      "path": "tests/schema/parameters.py",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_parameters.py",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-parameters.json",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-parameter-dimension.json",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PARAMETERS_DRAFT.md",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0046-exact-parameter-draft.md",
+      "match": true
+    },
+    {
+      "path": "tests/schema/bindings.py",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_bindings.py",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-bindings.json",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-model-alias.json",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/BINDINGS_DRAFT.md",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0047-declarative-bindings-draft.md",
+      "match": true
+    }
+  ],
+  "sha256": {
+    "tests/schema/resource_lock.py": "81aaa3056ef480e24689a34cfc3e3638073a7b0e12622cf77a505ddd1a55a77f",
+    "tests/schema/test_resource_lock.py": "226fe4a1fafd87051191f9fa448f213085b28268b2e21a20e7393b840707ad45",
+    "tests/schema/fixtures/owned-resource-lock.json": "36e9ce5ceee9396045e36d601e8798184ea4109d76d8ba9d8c4335da6f44cd20",
+    "tests/schema/fixtures/invalid-resource-path.json": "8fd1d96efb30f2953aecd558d5d67e3481c94e8f0c69265f8ac4a4edfecfcf5f",
+    "docs/architecture/RESOURCE_LOCK_DRAFT.md": "18903f192efaaa414c25df0f6780aadea440ba89e5d02b986cc35be34a484f6a",
+    "docs/decisions/0048-declarative-resource-lock.md": "cd67566e97ef4f18fa4a85b41e09a7b4c52b019b041d40b17809a635cd3cd941"
+  },
+  "limitations": [
+    "Pure metadata and lexical path checks; physical containment is specified only.",
+    "No resource loader, downloader, signature verification, license approval or execution.",
+    "Owned fixture bytes are checked explicitly by a repository test, not by parsing a lock.",
+    "No engines were run; existing supported profile is unchanged."
+  ]
+}

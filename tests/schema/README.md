@@ -1,7 +1,25 @@
 # SN-020 topology draft fixtures
 
+SN-020's [accepted declaration baseline](../../docs/experiments/SN-020-acceptance.md)
+composes the preserved drafts with [project declarations](../../docs/architecture/PROJECT_SCHEMA.md).
+All 94 tests run through discovery or CTest `schema-declarations`.
+`python tests/schema/project.py tests/schema/fixtures/two-rc-project.json`
+returns declarations only; every resource/runtime readiness flag stays false.
+The [resource-links CLI](resource_links.py) also accepts
+`fixtures/two-rc-resource-links.json`; `fixtures/invalid-resource-kind.json`
+is expected to fail with `kind`. No backend or physical resource loader is tested.
+Earlier counts below document the individual slices, not the current suite total.
+
+The separate [resource lock draft](../../docs/architecture/RESOURCE_LOCK_DRAFT.md)
+adds inert inventory metadata and lexical paths. All 64 tests run with the
+discovery command below. Use
+`python tests/schema/resource_lock.py tests/schema/fixtures/owned-resource-lock.json`;
+`invalid-resource-path.json` must exit 1 with `path`. The
+[report](../../docs/experiments/SN-020-resource-lock.md) distinguishes lexical
+checks from pending physical containment and resource loading.
+
 The [0.3 descriptor draft](../../docs/architecture/BINDINGS_DRAFT.md) adds separate
-symbol/model interfaces and mappings. All 46 schema tests run with
+symbol/model interfaces and mappings. The complete schema tests run with
 `python -m unittest discover -s tests/schema -p 'test_*.py' -v`.
 Use `python tests/schema/bindings.py tests/schema/fixtures/two-rc-bindings.json`
 for the valid 0.3 fixture; `invalid-model-alias.json` must exit 1 with `mapping`.

@@ -1,0 +1,222 @@
+{
+  "task": "SN-020",
+  "date": "2026-09-13",
+  "status": "accepted-declaration-baseline",
+  "schema": "simnodus-project 0.1",
+  "fresh_foundation": {
+    "configure": "cmake -S . -B build/sn020-foundation-01",
+    "compiler": "MSVC 19.51.36246.0; Visual Studio 18 2026; Windows SDK 10.0.26100.0",
+    "build": "cmake --build build/sn020-foundation-01 --config Debug",
+    "build_exit_code": 0,
+    "premature_ctest": "Started before build completion; 11 executables not yet available. Not accepted as a pass.",
+    "final_ctest": "ctest --test-dir build/sn020-foundation-01 -C Debug --output-on-failure",
+    "final_ctest_total": 15,
+    "final_ctest_failed": 0,
+    "repository_check_text_files": 459,
+    "repository_check_exit_code": 0,
+    "git_diff_check_exit_code": 0
+  },
+  "environment": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "tests": {
+    "command": "python -m unittest discover -s tests/schema -p 'test_*.py'",
+    "total": 94,
+    "prior": 64,
+    "links": 15,
+    "project": 15,
+    "result": "OK"
+  },
+  "native_build": {
+    "command": "cmake --build build/sn017/native --config Debug",
+    "exit_code": 0
+  },
+  "ctest": {
+    "command": "ctest --test-dir build/sn017/native -C Debug --output-on-failure",
+    "total": 15,
+    "failed": 0
+  },
+  "cli_results": [
+    {
+      "command": [
+        "python",
+        "tests/schema/project.py",
+        "tests/schema/fixtures/two-rc-project.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"valid-project-declarations-only\", \"project_id\": \"two-rc-project\", \"targets\": 0, \"project_entries\": 0, \"runtime_profile_verified\": false, \"firmware_verified\": false, \"descriptors_linked\": 5, \"assets\": 2, \"dependencies\": 1, \"resources\": 3, \"declared_bytes\": 1579, \"resources_verified\": false, \"containment_verified\": false, \"redistribution_verified\": false, \"simulation_ready\": false, \"resource_interfaces_verified\": false, \"topology_stats\": {\"declared_entities\": 26, \"root_expanded_instances\": 6, \"root_depth\": 2, \"parameter_entries\": 9, \"resolved_entries\": 14, \"descriptor_entries\": 36, \"symbol_bindings\": 3, \"model_bindings\": 2, \"simulation_ready\": false}}",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "tests/schema/resource_links.py",
+        "tests/schema/fixtures/two-rc-resource-links.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"valid-resource-links-only\", \"descriptors_linked\": 5, \"assets\": 2, \"dependencies\": 1, \"resources\": 3, \"declared_bytes\": 1579, \"resources_verified\": false, \"containment_verified\": false, \"redistribution_verified\": false, \"simulation_ready\": false, \"resource_interfaces_verified\": false, \"topology_stats\": {\"declared_entities\": 26, \"root_expanded_instances\": 6, \"root_depth\": 2, \"parameter_entries\": 9, \"resolved_entries\": 14, \"descriptor_entries\": 36, \"symbol_bindings\": 3, \"model_bindings\": 2, \"simulation_ready\": false}}",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "tests/schema/resource_links.py",
+        "tests/schema/fixtures/invalid-resource-kind.json"
+      ],
+      "exit_code": 1,
+      "stdout": "{\"status\": \"invalid\", \"code\": \"kind\", \"location\": \"$/symbols\", \"message\": \"Descriptor and asset kinds differ\"}",
+      "stderr": ""
+    }
+  ],
+  "prior_schema_hashes": [
+    {
+      "path": "tests/schema/topology.py",
+      "sha256": "ca04ccd60a4d632becd4742eb9fd97dc70e151d1322fab21505fcca85a08d821",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_topology.py",
+      "sha256": "874a978c5a57597d66ed7b4e4626d07e5d0961ef1d497b2d55b6d1df78972cef",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/TOPOLOGY_DRAFT.md",
+      "sha256": "6e36416ac0a473f4f7c7e94a5331d70985b517bbbd9020a3e2b902b384098af6",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0045-experimental-topology-draft.md",
+      "sha256": "57f431738b22dcd65be0c8122d4389aa9c0519008446bab671848e1ffc65f05d",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-cycle.json",
+      "sha256": "97fec142887fd1006f852e57a02b04de9f22335855644d7833d06234ef2854d0",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-terminal.json",
+      "sha256": "968cf5c99e8da6e2a53ea2a03410d5a81a0ab9aaaf17d78154d3fc3e024a0d98",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc.json",
+      "sha256": "c74cacce8ece00f67b329303ce3fd07814538a17c65a48df1e824195e680759a",
+      "match": true
+    },
+    {
+      "path": "tests/schema/parameters.py",
+      "sha256": "a201cd4e16b2ccef6c67c4fee8c6ef63f058cb7b2cdc971a669784a7f812cb64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_parameters.py",
+      "sha256": "570549c146fdd532f77292be0b612c019278cd71af569d752755b3f04a0b3420",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-parameters.json",
+      "sha256": "e1d592cb4b2b39221c714cf0b26626216ef4a95340ba5bac95e516d240f5c606",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-parameter-dimension.json",
+      "sha256": "afb48499a5c3e101be9ce987621a7ef95a6ee023a4784944edd0c7b0e682cfad",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PARAMETERS_DRAFT.md",
+      "sha256": "7077e1ba612b3d7d6109a6d1810b543ec05a9ec7d28e4ad120820593bdd44cb7",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0046-exact-parameter-draft.md",
+      "sha256": "3d80c4c9c4a7f51b829386b28e45cfca400a8fc3f9239b0c4f4a865dd324a975",
+      "match": true
+    },
+    {
+      "path": "tests/schema/bindings.py",
+      "sha256": "86ef86e1ae07fe675aad70565df05aaf9084d8fe2819b8dcf68908df700bac9c",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_bindings.py",
+      "sha256": "e284faff4f04abf7c888e4cf3e998269d5974a358e7d8d4fc27094bb281610b1",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-bindings.json",
+      "sha256": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-model-alias.json",
+      "sha256": "155152b8fbe2b12f3988409fe3d9d2e7dac9fc43d7e62dfac9d567fa9880fe06",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/BINDINGS_DRAFT.md",
+      "sha256": "b0fde6cce1a43f2652dc8a055d6a077e3d474ae19db728155d215ec63f064b7d",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0047-declarative-bindings-draft.md",
+      "sha256": "6077c32a85f96d4567d32a16a99f20b63c95b1e45e0d490a43db9e45b9117d4f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/resource_lock.py",
+      "sha256": "81aaa3056ef480e24689a34cfc3e3638073a7b0e12622cf77a505ddd1a55a77f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_resource_lock.py",
+      "sha256": "226fe4a1fafd87051191f9fa448f213085b28268b2e21a20e7393b840707ad45",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/owned-resource-lock.json",
+      "sha256": "36e9ce5ceee9396045e36d601e8798184ea4109d76d8ba9d8c4335da6f44cd20",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-resource-path.json",
+      "sha256": "8fd1d96efb30f2953aecd558d5d67e3481c94e8f0c69265f8ac4a4edfecfcf5f",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/RESOURCE_LOCK_DRAFT.md",
+      "sha256": "18903f192efaaa414c25df0f6780aadea440ba89e5d02b986cc35be34a484f6a",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0048-declarative-resource-lock.md",
+      "sha256": "cd67566e97ef4f18fa4a85b41e09a7b4c52b019b041d40b17809a635cd3cd941",
+      "match": true
+    }
+  ],
+  "sha256": {
+    "tests/schema/resource_links.py": "b0efa313fc17b69bf0365eef871a97f4eb4add22e051253af9a5715e29b64b6b",
+    "tests/schema/test_resource_links.py": "2e7e758863a0ef92c401229069b77d11f3df74bb0013940653c91044b5bd87b1",
+    "tests/schema/project.py": "4a1d54ef35135b2f0a6fab65272352df55108559534f3a7ee8f4f743634f83b2",
+    "tests/schema/test_project.py": "8b8f20aa6164268418003f8d8cb9215318deb2a6abe73702189be4cc1147ecac",
+    "tests/schema/fixtures/two-rc-resource-links.json": "becebb20cc224e664f0c0f945837d7529dda969209b89d086bd4ce53870bfdda",
+    "tests/schema/fixtures/invalid-resource-kind.json": "79391ee057b6b67746f67c978198dccc586a18f447aa87937ebc3616e7f6b212",
+    "tests/schema/fixtures/two-rc-project.json": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+    "tests/schema/fixtures/assets/passive.svg": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2",
+    "tests/schema/fixtures/assets/passive.cir": "4697420081fcdba5602435f41b8136606e48d2f2fb13fbbbdc93e1fbcf8d475b",
+    "docs/architecture/RESOURCE_LINKS_DRAFT.md": "b85228ae49cf1a5bed39cc8ffbf10867153dc38ea760a8e0988495b5159c0d59",
+    "docs/architecture/PROJECT_SCHEMA.md": "b7e338a4ae8da76c1ad6cb7119f8fed9f8a8ea7e84bbcc9a2e13d2c688916762",
+    "docs/decisions/0050-typed-descriptor-resources.md": "68786128eced040477b2b4a6204c0edb0cbf1be0bc4aff14ea84739deae5380a",
+    "docs/decisions/0051-project-declaration-baseline.md": "82a5c96a5fe0d5b5c44b572ffb65dcb9d0b2d9c28f370a31a6ea70460114fa0b",
+    "docs/architecture/DESKTOP_UX.md": "dbe11729c6b7a38c4b9e905ee140431819ddfedb6b40daae18243112c962bb93",
+    "docs/decisions/0049-desktop-ux-and-measurements.md": "930e935e9890b28a50ab345107c4402e3d5399056e4b075ff2fe008ba14785f8"
+  },
+  "limitations": [
+    "Declared validity is not executable project readiness.",
+    "Physical resources, actual model/SVG interfaces, ELF/boot compatibility and runtime profiles remain unverified.",
+    "No new engine integration, rendering, firmware execution or supported MCU profile.",
+    "SN-044 documentation preserved; synthetic target tests are not backend evidence."
+  ]
+}

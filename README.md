@@ -71,8 +71,12 @@ Product performance targets and portable setup remain unvalidated.
 SN-020 has an [experimental topology schema](docs/experiments/SN-020-topology.md)
 with [exact parameters](docs/experiments/SN-020-parameters.md) and
 [separate symbol/model interface bindings](docs/experiments/SN-020-bindings.md).
-Its hierarchical JSON fixtures are not runnable circuit projects; complete
-component/project schema and native loading/saving remain pending.
+An [inert resource lock](docs/experiments/SN-020-resource-lock.md) validates file
+inventory metadata and lexical paths; physical resource verification is pending.
+The composed [project declaration baseline](docs/experiments/SN-020-acceptance.md)
+is accepted for SN-020, including board/firmware metadata and requested temporal
+policy. Its hierarchical JSON fixtures remain non-executable; physical resource
+verification, runtime negotiation and native loading/saving are pending.
 
 ## License and publication
 

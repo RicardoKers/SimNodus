@@ -23,9 +23,10 @@ no earlier delivery date is committed without measured progress and capacity.
 SN-016's bounded gate is complete under ADR 0014; SN-017's bounded headless
 composition is accepted under [ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md).
 SN-018's local baseline on that profile is accepted under
-[ADR 0044](../decisions/0044-bounded-baseline-acceptance.md); SN-020 has started
-through topology, parameters and separate symbol/model interface drafts. Continue
-locked resource/dependency metadata and path containment next. This does not complete the
+[ADR 0044](../decisions/0044-bounded-baseline-acceptance.md); SN-020 has an
+[accepted declaration baseline](../experiments/SN-020-acceptance.md) for topology,
+parameters, resource bindings, board/firmware and requested temporal policy.
+Physical loading and executable project verification remain SN-021 work. This does not complete the
 M2 product runner or approve general unpaced debugging. Reuse passing fixtures and narrow regression
 runs to changed behavior; do not reopen completed experiments without a concrete
 reason. Preserve acceptance criteria and a declared supported capability profile.
@@ -52,6 +53,13 @@ These dates are review checkpoints, not automatic scheduled jobs.
 The owner will select the first lesson. Each distributed example needs source, build instructions, expected observations, known limitations, and tested versions.
 
 ## Longer-term evolution
+
+The [desktop UX direction](../architecture/DESKTOP_UX.md) guides SN-022 through
+SN-024: evaluate Qt against independent windows and adjustable panels; keep M3
+focused on minimal editing, preview, basic probes and essential analyzer views.
+FFT/harmonics, AC/Bode/XY analysis, richer digital decoding and multiple analyzer
+windows are future direction. This documentation adds no implementation progress
+or milestone dates; the existing classroom scope gates remain in force.
 
 The [shared instrumentation direction](../architecture/DEBUGGING.md#instruments)
 guides SN-024's essential M3 views and SN-033's later circuit/firmware inspection.

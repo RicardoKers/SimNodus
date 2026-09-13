@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40">
+  <!-- Original SimNodus schema fixture, MIT. Not a validated renderer asset. -->
+  <path d="M0 20H25M75 20H100M25 10H75V30H25Z" fill="none" stroke="black"/>
+</svg>

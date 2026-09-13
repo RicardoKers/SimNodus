@@ -61,6 +61,17 @@ First export CSV voltage, oriented branch current, GPIO, and UART logs with unit
 
 ### Shared observation flow
 
+The [desktop UX design](DESKTOP_UX.md) under
+[ADR 0049](../decisions/0049-desktop-ux-and-measurements.md) maps this infrastructure
+to independent Circuit Editor and Signal Analyzer windows. Contextual probes,
+schematic meters, tooltips and analyzer channels share measurement definitions
+with stable entity/instance IDs and explicit quantity/reference/orientation.
+Renames do not break associations; unresolved targets must not rebind by label.
+The analyzer owns view state, not primary captures. Closing a view preserves
+retained session data within the storage limits below. "Digital Event Store"
+in the UX document means the existing Event Store; its conceptual Analysis API
+is the shared analysis/distribution boundary, not a second instrumentation stack.
+
 ```text
 ngspice adapter ----+
 Renode adapter -----+--> kernel-coordinated acquisition / Simulation Timeline

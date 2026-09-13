@@ -106,7 +106,16 @@ The SPICE netlist is generated from the circuit graph, not the master project fo
 
 Qt Widgets versus Qt Quick, plotting implementation, worker IPC, and a dependency manager remain open. None is required for the first backend experiments.
 
+[Desktop UX](DESKTOP_UX.md) defines independent Circuit Editor and Signal Analyzer
+windows over the same session/instrumentation under
+[ADR 0049](../decisions/0049-desktop-ux-and-measurements.md). Its desktop panel,
+multi-monitor and persistence requirements inform the open Qt evaluation; they
+do not select Widgets or Quick. Detailed analysis and primary capture storage
+remain separate responsibilities.
+
 ## Detailed contracts
+
+- [Desktop UX and visual instrumentation](DESKTOP_UX.md).
 
 - [Time and causality](SIMULATION_TIME.md).
 - [Temporal capability profile](TEMPORAL_CAPABILITY_PROFILE.md).
