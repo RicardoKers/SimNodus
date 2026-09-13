@@ -22,8 +22,11 @@ Preserve all prior engine evidence, bounded Python/GDB/fixture ownership,
 capabilities, tolerances, PDF suppression, PID retry and ADRs 0027/0028.
 
 The current user authorizes coherent validated commits and protected-main
-integration/push. `codex/sn-020-schema` is the integration branch; verify PR/check
-and remote state before claiming publication. This supersedes older checkpoint-only
+integration/push. `codex/sn-020-schema` is the integration branch, with source
+commit `1500898a7ad08b37d7e6fba15c53183fdb584875` published and
+[PR #19](https://github.com/RicardoKers/SimNodus/pull/19) recording main integration
+and hosted checks. Verify PR and remote state before claiming publication.
+This supersedes older checkpoint-only
 restrictions below. No issues or binary releases are requested; build data remains
 ignored/local. Older handoffs describe historical task states.
 

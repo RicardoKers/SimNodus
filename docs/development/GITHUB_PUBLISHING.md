@@ -78,6 +78,11 @@ evidence, completed declaration specification/reference tests, and the preserved
 SN-044 documentation. No new engine profile, issue synchronization or binary
 release is included. Older experimental reports stay labelled and preserved.
 
+Source commit `1500898a7ad08b37d7e6fba15c53183fdb584875` was published on
+`codex/sn-020-schema`. [PR #19](https://github.com/RicardoKers/SimNodus/pull/19)
+is the integration and hosted-check record. Follow that record for the resulting
+squash commit and final status; source-branch publication alone does not update main.
+
 ## Before a binary release
 
 Record backend/runtime revisions and licenses, supported Windows versions, installer provenance, checksums, and tested lesson projects. Add required notices and source/relinking materials for dependencies as applicable. Do not redistribute CubeIDE, vendor firmware, model packs, or documentation by assumption.

@@ -41,8 +41,10 @@ prior engine evidence, tolerances, PDF suppression and PID retry.
 The owner's current policy authorizes validated commits, protected-main integration
 and push for coherent accepted work, superseding the checkpoint-only publication
 limit. Integration branch: `codex/sn-020-schema`, based on the existing checkpoint.
-Main requires a pull request, current branch and both Foundation checks; use the
-existing squash flow. Integration is pending those checks. No issue synchronization,
+Source commit `1500898a7ad08b37d7e6fba15c53183fdb584875` was pushed and
+[PR #19](https://github.com/RicardoKers/SimNodus/pull/19) records protected-main
+integration/check status. Main requires an up-to-date pull request and both
+Foundation checks through the existing squash flow. No issue synchronization,
 binary release or ignored build/raw-data backup is included. Earlier publication
 and task-state notes below are historical.
 
