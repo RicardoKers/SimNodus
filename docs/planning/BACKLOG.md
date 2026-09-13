@@ -5,7 +5,9 @@ Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
 under ADR 0052. Windows/NTFS reference verification precedes native loading;
 atomic saving, source interfaces, compilation and runtime acceptance remain
 pending. Local passes/skips and required hosted evidence are recorded separately.
-All earlier accepted profiles and SN-044 remain unchanged. No issue sync/release.
+All earlier accepted profiles and SN-044 remain unchanged. Both Foundation jobs
+passed for source `cb6fc8d`; [PR #20](https://github.com/RicardoKers/SimNodus/pull/20)
+records final checks and protected-main integration. No issue sync/release.
 
 Latest local acceptance (2026-09-12): SN-016 is done for ADR 0014, and SN-017
 is **done for the bounded headless composition** under

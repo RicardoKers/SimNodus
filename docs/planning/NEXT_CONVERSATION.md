@@ -27,8 +27,12 @@ ownership, historical evidence/hashes, tolerances, PDF suppression and PID retry
 
 Work branch: `codex/sn-021-local-resources`, from main/origin
 `7307bd88e2d468d65363fa6a6f0776772cbb124a`. PR/checks/squash integration and push
-of stable validated work are authorized; verify actual publication state in CURRENT
-and GitHub. Do not synchronize issues or publish releases/binaries. Earlier
+of stable validated work are authorized. Source commit `cb6fc8d` was pushed and
+both Foundation checks passed in run `34785300902`.
+[PR #20](https://github.com/RicardoKers/SimNodus/pull/20) records final checks and
+squash integration; verify its state and main identity when resuming. Foundation
+prints verbose CTest summaries, including skips. Do not synchronize issues or
+publish releases/binaries. Earlier
 handoffs below are historical and do not override current authorization.
 
 # Historical handoff: SN-020 declaration baseline accepted

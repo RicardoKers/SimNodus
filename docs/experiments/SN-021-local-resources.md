@@ -68,6 +68,14 @@ Ubuntu tests only input/platform rejection and existing foundation invariants.
 It does not validate Linux resource traversal. Hosted outcomes and PR integration
 must be checked separately from local results.
 
+Both hosted Foundation jobs passed for source commit `cb6fc8d` in
+[run 34785300902](https://github.com/RicardoKers/SimNodus/actions/runs/34785300902).
+The Windows test policy requires both symlink cases to run successfully there;
+their local privilege skips remain preserved. The follow-up enables verbose
+CTest logs for explicit hosted case/skip counts without changing verifier code.
+[PR #20](https://github.com/RicardoKers/SimNodus/pull/20) records final checks and
+authorized protected-main squash integration.
+
 ```powershell
 python -m unittest discover -s tests/schema -p 'test_*.py' -v
 python -m unittest discover -s tests/resources -p 'test_*.py' -v

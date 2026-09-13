@@ -83,7 +83,19 @@ Source commit `1500898a7ad08b37d7e6fba15c53183fdb584875` was published on
 is the integration and hosted-check record. Follow that record for the resulting
 squash commit and final status; source-branch publication alone does not update main.
 
-## Before a binary release
+## SN-021 source integration: 2026-09-13
+
+The first bounded local-resource reference slice is published on
+`codex/sn-021-local-resources`, starting with source commit
+`cb6fc8d977b725d2d2c60d7aa59c2fb8efa23d2c`. Both Foundation jobs passed in
+[run 34785300902](https://github.com/RicardoKers/SimNodus/actions/runs/34785300902).
+[PR #20](https://github.com/RicardoKers/SimNodus/pull/20) is the final hosted-check
+and squash integration record. Confirm its final state and main identity before
+claiming integration. Foundation exposes verbose CTest summaries to distinguish
+filesystem passes from OS/privilege skips. This slice does not close SN-021 or
+publish a simulator, binary, new supported engine profile or release.
+
+## Binary release gate
 
 Record backend/runtime revisions and licenses, supported Windows versions, installer provenance, checksums, and tested lesson projects. Add required notices and source/relinking materials for dependencies as applicable. Do not redistribute CubeIDE, vendor firmware, model packs, or documentation by assumption.
 

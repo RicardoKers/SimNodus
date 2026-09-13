@@ -36,4 +36,4 @@ jobs:
       - name: Build the foundation tests
         run: cmake --build build/bootstrap --config Debug
       - name: Run declaration and foundation tests
-        run: ctest --test-dir build/bootstrap -C Debug --output-on-failure
+        run: ctest --test-dir build/bootstrap -C Debug --output-on-failure --verbose

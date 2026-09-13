@@ -31,9 +31,13 @@ ownership changes. Prior evidence/hashes, tolerances, PDF suppression and PID
 retry are preserved. SN-021 is not complete.
 
 Work branch: `codex/sn-021-local-resources`, from verified clean synchronized main
-`7307bd88e2d468d65363fa6a6f0776772cbb124a`. Coherent validated commit, PR checks,
-squash integration and push are authorized. Publication is pending until the
-PR/main identities and checks are confirmed. No issues, releases or binaries.
+`7307bd88e2d468d65363fa6a6f0776772cbb124a`. Source commit
+`cb6fc8d977b725d2d2c60d7aa59c2fb8efa23d2c` was pushed and both hosted Foundation
+checks passed in [run 34785300902](https://github.com/RicardoKers/SimNodus/actions/runs/34785300902).
+[PR #20](https://github.com/RicardoKers/SimNodus/pull/20) records the authorized
+squash integration and final checks. Confirm main identity from that record;
+branch publication alone does not update main. Foundation now prints verbose
+CTest summaries so hosted skips are visible. No issues, releases or binaries.
 The older SN-020 and other task-state entries below are historical snapshots.
 
 ## Snapshot
