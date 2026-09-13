@@ -12,6 +12,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [Backend contracts and electrical coupling](architecture/BACKEND_CONTRACTS.md).
 - [Components and subcircuits](architecture/COMPONENTS.md).
 - [Project format](architecture/PROJECT_FORMAT.md).
+- [Bounded Windows local resource snapshots](architecture/LOCAL_RESOURCE_VERIFICATION.md).
 - [Debugging and instruments](architecture/DEBUGGING.md).
 - [Desktop UX and visual instrumentation](architecture/DESKTOP_UX.md): editor/analyzer windows, contextual probes, adjustable workspace and initial/future scope.
 - [Architecture decisions](decisions/README.md).
@@ -47,6 +48,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [SN-020 inert resource lock and lexical path validation](experiments/SN-020-resource-lock.md).
 - [SN-020 typed resource links](experiments/SN-020-resource-links.md).
 - [SN-020 accepted project declaration baseline](experiments/SN-020-acceptance.md).
+- [SN-021 local resource verification](experiments/SN-021-local-resources.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).

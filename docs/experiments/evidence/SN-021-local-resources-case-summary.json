@@ -1,0 +1,382 @@
+{
+  "task": "SN-021",
+  "date": "2026-09-13",
+  "status": "local-reference-slice-validated-with-explicit-skips",
+  "base_main": "7307bd88e2d468d65363fa6a6f0776772cbb124a",
+  "environment": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "local NTFS",
+    "compiler": "MSVC 19.51.36246.0; Visual Studio 18 2026; Windows SDK 10.0.26100.0"
+  },
+  "configure": {
+    "command": "cmake -S . -B build/sn021-foundation-01",
+    "exit_code": 0
+  },
+  "build": {
+    "command": "cmake --build build/sn021-foundation-01 --config Debug",
+    "exit_code": 0
+  },
+  "initial_trials": [
+    {
+      "cases": 28,
+      "passes": 25,
+      "skipped": 3
+    },
+    {
+      "cases": 31,
+      "passes": 27,
+      "skipped": 4,
+      "unrestricted_token_same_outcome": true
+    }
+  ],
+  "tests": {
+    "schema": 94,
+    "resource_cases": 32,
+    "resource_passed": 28,
+    "resource_skipped": 4,
+    "ctest": 16
+  },
+  "commands": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/schema",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_alias_fixture_rejected_after_round_trip (test_bindings.BindingTests.test_alias_fixture_rejected_after_round_trip) ... ok\ntest_budget_counts_unused_descriptors (test_bindings.BindingTests.test_budget_counts_unused_descriptors) ... ok\ntest_descriptor_and_local_duplicates (test_bindings.BindingTests.test_descriptor_and_local_duplicates) ... ok\ntest_display_name_and_descriptor_order_do_not_bind (test_bindings.BindingTests.test_display_name_and_descriptor_order_do_not_bind) ... ok\ntest_mapping_type_and_duplicate_raw_keys (test_bindings.BindingTests.test_mapping_type_and_duplicate_raw_keys) ... ok\ntest_missing_logical_pin_and_unknown_target (test_bindings.BindingTests.test_missing_logical_pin_and_unknown_target) ... ok\ntest_missing_parameter_mapping (test_bindings.BindingTests.test_missing_parameter_mapping) ... ok\ntest_no_resource_io_during_parse_and_validate (test_bindings.BindingTests.test_no_resource_io_during_parse_and_validate) ... ok\ntest_null_model_is_unbound_not_a_fallback (test_bindings.BindingTests.test_null_model_is_unbound_not_a_fallback) ... ok\ntest_parameter_mapping_dimensions_and_complete_interval (test_bindings.BindingTests.test_parameter_mapping_dimensions_and_complete_interval) ... ok\ntest_previous_drafts_remain_separate (test_bindings.BindingTests.test_previous_drafts_remain_separate) ... ok\ntest_resource_or_execution_fields_rejected (test_bindings.BindingTests.test_resource_or_execution_fields_rejected) ... ok\ntest_round_trip_preserves_full_document (test_bindings.BindingTests.test_round_trip_preserves_full_document) ... ok\ntest_symbol_replacement_preserves_topology_model_and_values (test_bindings.BindingTests.test_symbol_replacement_preserves_topology_model_and_values) ... ok\ntest_unknown_descriptor_and_wrong_category (test_bindings.BindingTests.test_unknown_descriptor_and_wrong_category) ... ok\ntest_unmapped_descriptor_anchor_rejected (test_bindings.BindingTests.test_unmapped_descriptor_anchor_rejected) ... ok\ntest_unused_descriptor_is_validated (test_bindings.BindingTests.test_unused_descriptor_is_validated) ... ok\ntest_default_range_and_forwarded_full_interval (test_parameters.ParameterTests.test_default_range_and_forwarded_full_interval) ... ok\ntest_dimension_fixture_after_round_trip (test_parameters.ParameterTests.test_dimension_fixture_after_round_trip) ... ok\ntest_inclusive_bounds (test_parameters.ParameterTests.test_inclusive_bounds) ... ok\ntest_literal_units_normalize_exactly_independent_of_decimal_context (test_parameters.ParameterTests.test_literal_units_normalize_exactly_independent_of_decimal_context) ... ok\ntest_number_budgets (test_parameters.ParameterTests.test_number_budgets) ... ok\ntest_old_contract_remains_separate (test_parameters.ParameterTests.test_old_contract_remains_separate) ... ok\ntest_override_changes_one_instance_not_shared_definition (test_parameters.ParameterTests.test_override_changes_one_instance_not_shared_definition) ... ok\ntest_parent_reference_scope_and_no_expressions (test_parameters.ParameterTests.test_parent_reference_scope_and_no_expressions) ... ok\ntest_raw_duplicate_keys_and_nonfinite (test_parameters.ParameterTests.test_raw_duplicate_keys_and_nonfinite) ... ok\ntest_resolved_value_budget_not_only_topology_size (test_parameters.ParameterTests.test_resolved_value_budget_not_only_topology_size) ... ok\ntest_round_trip_and_distinct_forwarded_values (test_parameters.ParameterTests.test_round_trip_and_distinct_forwarded_values) ... ok\ntest_unknown_fields_not_dropped_by_topology_projection (test_parameters.ParameterTests.test_unknown_fields_not_dropped_by_topology_projection) ... ok\ntest_unknown_target_parameter_and_duplicate_declaration (test_parameters.ParameterTests.test_unknown_target_parameter_and_duplicate_declaration) ... ok\ntest_unknown_units_and_json_numeric_values (test_parameters.ParameterTests.test_unknown_units_and_json_numeric_values) ... ok\ntest_bad_input_and_version (test_project.ProjectTests.test_bad_input_and_version) ... ok\ntest_board_is_distinct_and_optional (test_project.ProjectTests.test_board_is_distinct_and_optional) ... ok\ntest_budget_duplicate_and_unused_declarations (test_project.ProjectTests.test_budget_duplicate_and_unused_declarations) ... ok\ntest_distinct_target_occurrences_and_declared_architecture (test_project.ProjectTests.test_distinct_target_occurrences_and_declared_architecture) ... ok\ntest_electrical_model_and_mcu_ownership_conflict (test_project.ProjectTests.test_electrical_model_and_mcu_ownership_conflict) ... ok\ntest_missing_firmware_and_wrong_image_format (test_project.ProjectTests.test_missing_firmware_and_wrong_image_format) ... ok\ntest_no_resource_io_during_parse (test_project.ProjectTests.test_no_resource_io_during_parse) ... ok\ntest_pin_map_complete_and_unaliased (test_project.ProjectTests.test_pin_map_complete_and_unaliased) ... ok\ntest_replay_schedule_required_and_no_capability_inference (test_project.ProjectTests.test_replay_schedule_required_and_no_capability_inference) ... ok\ntest_round_trip_preserves_sources_and_identity (test_project.ProjectTests.test_round_trip_preserves_sources_and_identity) ... ok\ntest_sampled_fidelity_is_explicit (test_project.ProjectTests.test_sampled_fidelity_is_explicit) ... ok\ntest_target_missing_circuit_and_duplicate_paths (test_project.ProjectTests.test_target_missing_circuit_and_duplicate_paths) ... ok\ntest_tolerances_and_unsupported_modes_fail_closed (test_project.ProjectTests.test_tolerances_and_unsupported_modes_fail_closed) ... ok\ntest_unconfigured_policy_and_unknown_fields (test_project.ProjectTests.test_unconfigured_policy_and_unknown_fields) ... ok\ntest_virtual_time_range_grid_and_wall_time_separation (test_project.ProjectTests.test_virtual_time_range_grid_and_wall_time_separation) ... ok\ntest_budget_and_unknown_execution_fields (test_resource_links.ResourceLinkTests.test_budget_and_unknown_execution_fields) ... ok\ntest_declared_entrypoint_does_not_prove_source_contents (test_resource_links.ResourceLinkTests.test_declared_entrypoint_does_not_prove_source_contents) ... ok\ntest_duplicate_asset_and_role_alias (test_resource_links.ResourceLinkTests.test_duplicate_asset_and_role_alias) ... ok\ntest_explicit_entrypoint_and_complete_source_maps (test_resource_links.ResourceLinkTests.test_explicit_entrypoint_and_complete_source_maps) ... ok\ntest_malformed_and_version (test_resource_links.ResourceLinkTests.test_malformed_and_version) ... ok\ntest_missing_asset_dependency_and_resource (test_resource_links.ResourceLinkTests.test_missing_asset_dependency_and_resource) ... ok\ntest_model_tokens_do_not_alias_case_insensitively (test_resource_links.ResourceLinkTests.test_model_tokens_do_not_alias_case_insensitively) ... ok\ntest_nested_validation_not_bypassed (test_resource_links.ResourceLinkTests.test_nested_validation_not_bypassed) ... ok\ntest_no_io_or_resolution (test_resource_links.ResourceLinkTests.test_no_io_or_resolution) ... ok\ntest_null_is_absence_without_fallback (test_resource_links.ResourceLinkTests.test_null_is_absence_without_fallback) ... ok\ntest_owned_bytes_and_preserved_embedded_topology (test_resource_links.ResourceLinkTests.test_owned_bytes_and_preserved_embedded_topology) ... ok\ntest_round_trip_and_readiness (test_resource_links.ResourceLinkTests.test_round_trip_and_readiness) ... ok\ntest_symbol_rebinding_and_rename_preserve_model_and_topology (test_resource_links.ResourceLinkTests.test_symbol_rebinding_and_rename_preserve_model_and_topology) ... ok\ntest_unused_asset_is_validated (test_resource_links.ResourceLinkTests.test_unused_asset_is_validated) ... ok\ntest_wrong_kind_and_unsupported_kind (test_resource_links.ResourceLinkTests.test_wrong_kind_and_unsupported_kind) ... ok\ntest_absolute_traversal_and_encoded_paths (test_resource_lock.ResourceLockTests.test_absolute_traversal_and_encoded_paths) ... ok\ntest_case_collision_and_file_parent_collision (test_resource_lock.ResourceLockTests.test_case_collision_and_file_parent_collision) ... ok\ntest_count_budgets (test_resource_lock.ResourceLockTests.test_count_budgets) ... ok\ntest_cross_dependency_path_collision (test_resource_lock.ResourceLockTests.test_cross_dependency_path_collision) ... ok\ntest_hash_format_and_inventory_tampering (test_resource_lock.ResourceLockTests.test_hash_format_and_inventory_tampering) ... ok\ntest_invalid_path_fixture (test_resource_lock.ResourceLockTests.test_invalid_path_fixture) ... ok\ntest_inventory_digest_is_order_independent_but_path_sensitive (test_resource_lock.ResourceLockTests.test_inventory_digest_is_order_independent_but_path_sensitive) ... ok\ntest_malformed_json_and_unknown_version (test_resource_lock.ResourceLockTests.test_malformed_json_and_unknown_version) ... ok\ntest_missing_notice_and_duplicate_ids (test_resource_lock.ResourceLockTests.test_missing_notice_and_duplicate_ids) ... ok\ntest_origin_and_license_are_required_declarations (test_resource_lock.ResourceLockTests.test_origin_and_license_are_required_declarations) ... ok\ntest_owned_fixture_bytes_match_declared_hashes (test_resource_lock.ResourceLockTests.test_owned_fixture_bytes_match_declared_hashes) ... ok\ntest_parse_has_no_resource_io (test_resource_lock.ResourceLockTests.test_parse_has_no_resource_io) ... ok\ntest_portable_boundary_paths (test_resource_lock.ResourceLockTests.test_portable_boundary_paths) ... ok\ntest_round_trip_and_no_mutation (test_resource_lock.ResourceLockTests.test_round_trip_and_no_mutation) ... ok\ntest_sizes_and_total_budget (test_resource_lock.ResourceLockTests.test_sizes_and_total_budget) ... ok\ntest_version_ranges_and_executable_fields_rejected (test_resource_lock.ResourceLockTests.test_version_ranges_and_executable_fields_rejected) ... ok\ntest_well_formed_forged_hash_is_not_verified (test_resource_lock.ResourceLockTests.test_well_formed_forged_hash_is_not_verified) ... ok\ntest_windows_device_and_ambiguous_names (test_resource_lock.ResourceLockTests.test_windows_device_and_ambiguous_names) ... ok\ntest_bad_json_encoding_constants_size_and_nesting (test_topology.TopologyTests.test_bad_json_encoding_constants_size_and_nesting) ... ok\ntest_deep_hierarchy_and_shallow_exponential_expansion (test_topology.TopologyTests.test_deep_hierarchy_and_shallow_exponential_expansion) ... ok\ntest_definition_order_does_not_change_resolution (test_topology.TopologyTests.test_definition_order_does_not_change_resolution) ... ok\ntest_duplicate_global_and_local_ids (test_topology.TopologyTests.test_duplicate_global_and_local_ids) ... ok\ntest_duplicate_terminal_across_nets (test_topology.TopologyTests.test_duplicate_terminal_across_nets) ... ok\ntest_empty_round_trip (test_topology.TopologyTests.test_empty_round_trip) ... ok\ntest_entity_budget (test_topology.TopologyTests.test_entity_budget) ... ok\ntest_invalid_fixtures_after_json_round_trip (test_topology.TopologyTests.test_invalid_fixtures_after_json_round_trip) ... ok\ntest_missing_and_wrong_kind_reference (test_topology.TopologyTests.test_missing_and_wrong_kind_reference) ... ok\ntest_read_only_validation_and_no_name_based_net_join (test_topology.TopologyTests.test_read_only_validation_and_no_name_based_net_join) ... ok\ntest_round_trip_preserves_tree_and_distinct_instance_paths (test_topology.TopologyTests.test_round_trip_preserves_tree_and_distinct_instance_paths) ... ok\ntest_unknown_fields_and_execution_requests (test_topology.TopologyTests.test_unknown_fields_and_execution_requests) ... ok\ntest_unreachable_indirect_recursion (test_topology.TopologyTests.test_unreachable_indirect_recursion) ... ok\ntest_unsupported_version (test_topology.TopologyTests.test_unsupported_version) ... ok\ntest_wrong_types_keep_structured_errors (test_topology.TopologyTests.test_wrong_types_keep_structured_errors) ... ok\n\n----------------------------------------------------------------------\nRan 94 tests in 0.224s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/resources",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_invalid_metadata_precedes_os_access (test_local_resources.InputBoundaryTests.test_invalid_metadata_precedes_os_access) ... ok\ntest_mutable_input_rejected (test_local_resources.InputBoundaryTests.test_mutable_input_rejected) ... ok\ntest_root_syntax_before_os_access (test_local_resources.InputBoundaryTests.test_root_syntax_before_os_access) ... ok\ntest_unsupported_platform_fails_closed (test_local_resources.InputBoundaryTests.test_unsupported_platform_fails_closed) ... skipped 'Non-Windows rejection'\ntest_actual_oversize (test_local_resources.LocalResourceTests.test_actual_oversize) ... ok\ntest_binary_and_script_text_are_only_bytes (test_local_resources.LocalResourceTests.test_binary_and_script_text_are_only_bytes) ... ok\ntest_chunk_boundary_and_maximum_file (test_local_resources.LocalResourceTests.test_chunk_boundary_and_maximum_file) ... ok\ntest_declared_budgets_before_os (test_local_resources.LocalResourceTests.test_declared_budgets_before_os) ... ok\ntest_directory_as_file_and_file_as_directory (test_local_resources.LocalResourceTests.test_directory_as_file_and_file_as_directory) ... ok\ntest_directory_symlink (test_local_resources.LocalResourceTests.test_directory_symlink) ... skipped 'Windows symlink privilege unavailable'\ntest_distinct_files_with_different_parent_case_spellings (test_local_resources.LocalResourceTests.test_distinct_files_with_different_parent_case_spellings) ... ok\ntest_exact_bytes_and_immutable_result (test_local_resources.LocalResourceTests.test_exact_bytes_and_immutable_result) ... ok\ntest_exact_total_byte_and_file_count_limits (test_local_resources.LocalResourceTests.test_exact_total_byte_and_file_count_limits) ... ok\ntest_existing_writer_and_exclusive_reader (test_local_resources.LocalResourceTests.test_existing_writer_and_exclusive_reader) ... ok\ntest_failure_releases_all_handles_and_no_partial_result (test_local_resources.LocalResourceTests.test_failure_releases_all_handles_and_no_partial_result) ... ok\ntest_file_symlink (test_local_resources.LocalResourceTests.test_file_symlink) ... skipped 'Windows symlink privilege unavailable'\ntest_hard_link_outside_and_inside (test_local_resources.LocalResourceTests.test_hard_link_outside_and_inside) ... ok\ntest_junction_escape_with_matching_prefix (test_local_resources.LocalResourceTests.test_junction_escape_with_matching_prefix) ... ok\ntest_junction_even_when_target_inside (test_local_resources.LocalResourceTests.test_junction_even_when_target_inside) ... ok\ntest_junction_root_ancestor (test_local_resources.LocalResourceTests.test_junction_root_ancestor) ... ok\ntest_junction_selected_root (test_local_resources.LocalResourceTests.test_junction_selected_root) ... ok\ntest_junction_substitution_before_directory_open (test_local_resources.LocalResourceTests.test_junction_substitution_before_directory_open) ... ok\ntest_missing_file_and_missing_parent (test_local_resources.LocalResourceTests.test_missing_file_and_missing_parent) ... ok\ntest_missing_root (test_local_resources.LocalResourceTests.test_missing_root) ... ok\ntest_owned_existing_lock (test_local_resources.LocalResourceTests.test_owned_existing_lock) ... ok\ntest_project_inventory_and_independent_readiness (test_local_resources.LocalResourceTests.test_project_inventory_and_independent_readiness) ... ok\ntest_replacement_before_open_is_actually_verified (test_local_resources.LocalResourceTests.test_replacement_before_open_is_actually_verified) ... ok\ntest_short_filename_alias_rejected_on_opened_handle (test_local_resources.LocalResourceTests.test_short_filename_alias_rejected_on_opened_handle) ... skipped 'NTFS short filename generation unavailable on this volume'\ntest_size_and_hash_mismatch (test_local_resources.LocalResourceTests.test_size_and_hash_mismatch) ... ok\ntest_snapshot_survives_replacement_after_return (test_local_resources.LocalResourceTests.test_snapshot_survives_replacement_after_return) ... ok\ntest_write_delete_and_ancestor_rename_denied_during_read (test_local_resources.LocalResourceTests.test_write_delete_and_ancestor_rename_denied_during_read) ... ok\ntest_zero_byte_file (test_local_resources.LocalResourceTests.test_zero_byte_file) ... ok\n\n----------------------------------------------------------------------\nRan 32 tests in 0.749s\n\nOK (skipped=4)\n"
+    },
+    {
+      "command": [
+        "python",
+        "tests/resources/local_resources.py",
+        "tests/schema/fixtures/owned-resource-lock.json",
+        "--root",
+        "D:\\03_Projects\\01_Actives\\SimNodus"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"verified-local-byte-snapshots-only\", \"resources\": 2, \"verified_bytes\": 10145, \"containment_verified\": true, \"resources_verified\": true, \"resource_interfaces_verified\": false, \"firmware_verified\": false, \"origin_verified\": false, \"redistribution_verified\": false, \"execution_authorized\": false, \"runtime_profile_verified\": false, \"simulation_ready\": false}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "tests/resources/local_resources.py",
+        "tests/schema/fixtures/invalid-resource-path.json",
+        "--root",
+        "D:\\03_Projects\\01_Actives\\SimNodus"
+      ],
+      "exit_code": 1,
+      "stdout": "{\"status\": \"invalid\", \"code\": \"path\", \"location\": \"$/dependencies/0/files/0\", \"message\": \"Path must use unambiguous portable segments\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/sn021-foundation-01",
+        "-C",
+        "Debug",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "stdout": "Test project D:/03_Projects/01_Actives/SimNodus/build/sn021-foundation-01\n      Start  1: schema-declarations\n 1/16 Test  #1: schema-declarations ..............   Passed    0.44 sec\n      Start  2: local-resource-snapshots\n 2/16 Test  #2: local-resource-snapshots .........   Passed    0.94 sec\n      Start  3: backend-contracts\n 3/16 Test  #3: backend-contracts ................   Passed    0.01 sec\n      Start  4: joint-session\n 4/16 Test  #4: joint-session ....................   Passed    0.01 sec\n      Start  5: cancellation-result\n 5/16 Test  #5: cancellation-result ..............   Passed    0.01 sec\n      Start  6: adc-fixture\n 6/16 Test  #6: adc-fixture ......................   Passed    0.01 sec\n      Start  7: rc-trajectory\n 7/16 Test  #7: rc-trajectory ....................   Passed    0.01 sec\n      Start  8: fixture-readback\n 8/16 Test  #8: fixture-readback .................   Passed    0.01 sec\n      Start  9: fixture-memory\n 9/16 Test  #9: fixture-memory ...................   Passed    0.01 sec\n      Start 10: fixture-time\n10/16 Test #10: fixture-time .....................   Passed    0.01 sec\n      Start 11: fixture-registers\n11/16 Test #11: fixture-registers ................   Passed    0.01 sec\n      Start 12: fixture-inspection\n12/16 Test #12: fixture-inspection ...............   Passed    0.01 sec\n      Start 13: fixture-adc-coordinator\n13/16 Test #13: fixture-adc-coordinator ..........   Passed    0.02 sec\n      Start 14: fixture-analog-coordinator\n14/16 Test #14: fixture-analog-coordinator .......   Passed    0.02 sec\n      Start 15: fixture-execution-coordinator\n15/16 Test #15: fixture-execution-coordinator ....   Passed    0.02 sec\n      Start 16: fixture-application-session\n16/16 Test #16: fixture-application-session ......   Passed    0.02 sec\n\n100% tests passed, 0 tests failed out of 16\n\nTotal Test time (real) =   1.59 sec\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "historical_hashes": [
+    {
+      "path": "tests/schema/topology.py",
+      "expected_sha256": "ca04ccd60a4d632becd4742eb9fd97dc70e151d1322fab21505fcca85a08d821",
+      "actual_sha256": "ca04ccd60a4d632becd4742eb9fd97dc70e151d1322fab21505fcca85a08d821",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_topology.py",
+      "expected_sha256": "874a978c5a57597d66ed7b4e4626d07e5d0961ef1d497b2d55b6d1df78972cef",
+      "actual_sha256": "874a978c5a57597d66ed7b4e4626d07e5d0961ef1d497b2d55b6d1df78972cef",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/TOPOLOGY_DRAFT.md",
+      "expected_sha256": "6e36416ac0a473f4f7c7e94a5331d70985b517bbbd9020a3e2b902b384098af6",
+      "actual_sha256": "6e36416ac0a473f4f7c7e94a5331d70985b517bbbd9020a3e2b902b384098af6",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0045-experimental-topology-draft.md",
+      "expected_sha256": "57f431738b22dcd65be0c8122d4389aa9c0519008446bab671848e1ffc65f05d",
+      "actual_sha256": "57f431738b22dcd65be0c8122d4389aa9c0519008446bab671848e1ffc65f05d",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-cycle.json",
+      "expected_sha256": "97fec142887fd1006f852e57a02b04de9f22335855644d7833d06234ef2854d0",
+      "actual_sha256": "97fec142887fd1006f852e57a02b04de9f22335855644d7833d06234ef2854d0",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-terminal.json",
+      "expected_sha256": "968cf5c99e8da6e2a53ea2a03410d5a81a0ab9aaaf17d78154d3fc3e024a0d98",
+      "actual_sha256": "968cf5c99e8da6e2a53ea2a03410d5a81a0ab9aaaf17d78154d3fc3e024a0d98",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc.json",
+      "expected_sha256": "c74cacce8ece00f67b329303ce3fd07814538a17c65a48df1e824195e680759a",
+      "actual_sha256": "c74cacce8ece00f67b329303ce3fd07814538a17c65a48df1e824195e680759a",
+      "match": true
+    },
+    {
+      "path": "tests/schema/parameters.py",
+      "expected_sha256": "a201cd4e16b2ccef6c67c4fee8c6ef63f058cb7b2cdc971a669784a7f812cb64",
+      "actual_sha256": "a201cd4e16b2ccef6c67c4fee8c6ef63f058cb7b2cdc971a669784a7f812cb64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_parameters.py",
+      "expected_sha256": "570549c146fdd532f77292be0b612c019278cd71af569d752755b3f04a0b3420",
+      "actual_sha256": "570549c146fdd532f77292be0b612c019278cd71af569d752755b3f04a0b3420",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-parameters.json",
+      "expected_sha256": "e1d592cb4b2b39221c714cf0b26626216ef4a95340ba5bac95e516d240f5c606",
+      "actual_sha256": "e1d592cb4b2b39221c714cf0b26626216ef4a95340ba5bac95e516d240f5c606",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-parameter-dimension.json",
+      "expected_sha256": "afb48499a5c3e101be9ce987621a7ef95a6ee023a4784944edd0c7b0e682cfad",
+      "actual_sha256": "afb48499a5c3e101be9ce987621a7ef95a6ee023a4784944edd0c7b0e682cfad",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PARAMETERS_DRAFT.md",
+      "expected_sha256": "7077e1ba612b3d7d6109a6d1810b543ec05a9ec7d28e4ad120820593bdd44cb7",
+      "actual_sha256": "7077e1ba612b3d7d6109a6d1810b543ec05a9ec7d28e4ad120820593bdd44cb7",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0046-exact-parameter-draft.md",
+      "expected_sha256": "3d80c4c9c4a7f51b829386b28e45cfca400a8fc3f9239b0c4f4a865dd324a975",
+      "actual_sha256": "3d80c4c9c4a7f51b829386b28e45cfca400a8fc3f9239b0c4f4a865dd324a975",
+      "match": true
+    },
+    {
+      "path": "tests/schema/bindings.py",
+      "expected_sha256": "86ef86e1ae07fe675aad70565df05aaf9084d8fe2819b8dcf68908df700bac9c",
+      "actual_sha256": "86ef86e1ae07fe675aad70565df05aaf9084d8fe2819b8dcf68908df700bac9c",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_bindings.py",
+      "expected_sha256": "e284faff4f04abf7c888e4cf3e998269d5974a358e7d8d4fc27094bb281610b1",
+      "actual_sha256": "e284faff4f04abf7c888e4cf3e998269d5974a358e7d8d4fc27094bb281610b1",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-bindings.json",
+      "expected_sha256": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64",
+      "actual_sha256": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-model-alias.json",
+      "expected_sha256": "155152b8fbe2b12f3988409fe3d9d2e7dac9fc43d7e62dfac9d567fa9880fe06",
+      "actual_sha256": "155152b8fbe2b12f3988409fe3d9d2e7dac9fc43d7e62dfac9d567fa9880fe06",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/BINDINGS_DRAFT.md",
+      "expected_sha256": "b0fde6cce1a43f2652dc8a055d6a077e3d474ae19db728155d215ec63f064b7d",
+      "actual_sha256": "b0fde6cce1a43f2652dc8a055d6a077e3d474ae19db728155d215ec63f064b7d",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0047-declarative-bindings-draft.md",
+      "expected_sha256": "6077c32a85f96d4567d32a16a99f20b63c95b1e45e0d490a43db9e45b9117d4f",
+      "actual_sha256": "6077c32a85f96d4567d32a16a99f20b63c95b1e45e0d490a43db9e45b9117d4f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/resource_lock.py",
+      "expected_sha256": "81aaa3056ef480e24689a34cfc3e3638073a7b0e12622cf77a505ddd1a55a77f",
+      "actual_sha256": "81aaa3056ef480e24689a34cfc3e3638073a7b0e12622cf77a505ddd1a55a77f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_resource_lock.py",
+      "expected_sha256": "226fe4a1fafd87051191f9fa448f213085b28268b2e21a20e7393b840707ad45",
+      "actual_sha256": "226fe4a1fafd87051191f9fa448f213085b28268b2e21a20e7393b840707ad45",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/owned-resource-lock.json",
+      "expected_sha256": "36e9ce5ceee9396045e36d601e8798184ea4109d76d8ba9d8c4335da6f44cd20",
+      "actual_sha256": "36e9ce5ceee9396045e36d601e8798184ea4109d76d8ba9d8c4335da6f44cd20",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-resource-path.json",
+      "expected_sha256": "8fd1d96efb30f2953aecd558d5d67e3481c94e8f0c69265f8ac4a4edfecfcf5f",
+      "actual_sha256": "8fd1d96efb30f2953aecd558d5d67e3481c94e8f0c69265f8ac4a4edfecfcf5f",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/RESOURCE_LOCK_DRAFT.md",
+      "expected_sha256": "18903f192efaaa414c25df0f6780aadea440ba89e5d02b986cc35be34a484f6a",
+      "actual_sha256": "18903f192efaaa414c25df0f6780aadea440ba89e5d02b986cc35be34a484f6a",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0048-declarative-resource-lock.md",
+      "expected_sha256": "cd67566e97ef4f18fa4a85b41e09a7b4c52b019b041d40b17809a635cd3cd941",
+      "actual_sha256": "cd67566e97ef4f18fa4a85b41e09a7b4c52b019b041d40b17809a635cd3cd941",
+      "match": true
+    },
+    {
+      "path": "tests/schema/resource_links.py",
+      "expected_sha256": "b0efa313fc17b69bf0365eef871a97f4eb4add22e051253af9a5715e29b64b6b",
+      "actual_sha256": "b0efa313fc17b69bf0365eef871a97f4eb4add22e051253af9a5715e29b64b6b",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_resource_links.py",
+      "expected_sha256": "2e7e758863a0ef92c401229069b77d11f3df74bb0013940653c91044b5bd87b1",
+      "actual_sha256": "2e7e758863a0ef92c401229069b77d11f3df74bb0013940653c91044b5bd87b1",
+      "match": true
+    },
+    {
+      "path": "tests/schema/project.py",
+      "expected_sha256": "4a1d54ef35135b2f0a6fab65272352df55108559534f3a7ee8f4f743634f83b2",
+      "actual_sha256": "4a1d54ef35135b2f0a6fab65272352df55108559534f3a7ee8f4f743634f83b2",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_project.py",
+      "expected_sha256": "8b8f20aa6164268418003f8d8cb9215318deb2a6abe73702189be4cc1147ecac",
+      "actual_sha256": "8b8f20aa6164268418003f8d8cb9215318deb2a6abe73702189be4cc1147ecac",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-resource-links.json",
+      "expected_sha256": "becebb20cc224e664f0c0f945837d7529dda969209b89d086bd4ce53870bfdda",
+      "actual_sha256": "becebb20cc224e664f0c0f945837d7529dda969209b89d086bd4ce53870bfdda",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-resource-kind.json",
+      "expected_sha256": "79391ee057b6b67746f67c978198dccc586a18f447aa87937ebc3616e7f6b212",
+      "actual_sha256": "79391ee057b6b67746f67c978198dccc586a18f447aa87937ebc3616e7f6b212",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-project.json",
+      "expected_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+      "actual_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/assets/passive.svg",
+      "expected_sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2",
+      "actual_sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/assets/passive.cir",
+      "expected_sha256": "4697420081fcdba5602435f41b8136606e48d2f2fb13fbbbdc93e1fbcf8d475b",
+      "actual_sha256": "4697420081fcdba5602435f41b8136606e48d2f2fb13fbbbdc93e1fbcf8d475b",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/RESOURCE_LINKS_DRAFT.md",
+      "expected_sha256": "b85228ae49cf1a5bed39cc8ffbf10867153dc38ea760a8e0988495b5159c0d59",
+      "actual_sha256": "b85228ae49cf1a5bed39cc8ffbf10867153dc38ea760a8e0988495b5159c0d59",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PROJECT_SCHEMA.md",
+      "expected_sha256": "b7e338a4ae8da76c1ad6cb7119f8fed9f8a8ea7e84bbcc9a2e13d2c688916762",
+      "actual_sha256": "b7e338a4ae8da76c1ad6cb7119f8fed9f8a8ea7e84bbcc9a2e13d2c688916762",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0050-typed-descriptor-resources.md",
+      "expected_sha256": "68786128eced040477b2b4a6204c0edb0cbf1be0bc4aff14ea84739deae5380a",
+      "actual_sha256": "68786128eced040477b2b4a6204c0edb0cbf1be0bc4aff14ea84739deae5380a",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0051-project-declaration-baseline.md",
+      "expected_sha256": "82a5c96a5fe0d5b5c44b572ffb65dcb9d0b2d9c28f370a31a6ea70460114fa0b",
+      "actual_sha256": "82a5c96a5fe0d5b5c44b572ffb65dcb9d0b2d9c28f370a31a6ea70460114fa0b",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/DESKTOP_UX.md",
+      "expected_sha256": "dbe11729c6b7a38c4b9e905ee140431819ddfedb6b40daae18243112c962bb93",
+      "actual_sha256": "dbe11729c6b7a38c4b9e905ee140431819ddfedb6b40daae18243112c962bb93",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0049-desktop-ux-and-measurements.md",
+      "expected_sha256": "930e935e9890b28a50ab345107c4402e3d5399056e4b075ff2fe008ba14785f8",
+      "actual_sha256": "930e935e9890b28a50ab345107c4402e3d5399056e4b075ff2fe008ba14785f8",
+      "match": true
+    }
+  ],
+  "source_sha256": {
+    "tests/resources/local_resources.py": "47cedda73a7737f5285c656dd0b0b7b57e4fce64f0d1ac3734e1fd7d760376c6",
+    "tests/resources/test_local_resources.py": "b7cf02409e24b7f5df253b9387542c9d47a1a2a162dd9950979fea92cb42a622",
+    "CMakeLists.txt": "d4b2275af03c00bdd197fbab02e475dc2a3afcef84a66e71cbe07dd4016c2649",
+    "docs/architecture/LOCAL_RESOURCE_VERIFICATION.md": "4ab50b75d15d4ab6cad0898ccb80f17766fe59a0a1de77e3e0558c3c8028bd44",
+    "docs/decisions/0052-bounded-local-resource-snapshots.md": "2f64133fbee8c9b534689ae4d623539fe5d46733e39c141f9bcf558e482eb2e3"
+  },
+  "limitations": [
+    "Local symlink privilege unavailable; hosted Windows must execute both tests.",
+    "Local 8.3 name generation unavailable; its physical alias test is skipped.",
+    "Non-Windows rejection test skipped locally; Linux resource loading unsupported.",
+    "Native project loading, source interfaces, ELF/boot compatibility, saving and compilation pending.",
+    "No engine, execution, origin, redistribution or simulation-readiness approval."
+  ],
+  "prior_audit": {
+    "path": "docs/experiments/evidence/SN-021-local-resources-final-summary.json",
+    "sha256": "7c209fad62207f8de1621f16043d503b60bf74bcc46f9c2ef16a03fb373e05bc",
+    "note": "Preserved before directory cache keys retained each original path spelling."
+  }
+}

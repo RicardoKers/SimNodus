@@ -1,5 +1,17 @@
 # Backlog
 
+Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
+[bounded local resource snapshots](../experiments/SN-021-local-resources.md)
+under ADR 0052. Windows/NTFS reference verification precedes native loading;
+atomic saving, source interfaces, compilation and runtime acceptance remain
+pending. Local passes/skips and required hosted evidence are recorded separately.
+All earlier accepted profiles and SN-044 remain unchanged. Both Foundation jobs
+passed for source `cb6fc8d`; [PR #20](https://github.com/RicardoKers/SimNodus/pull/20)
+records final checks and protected-main integration. No issue sync/release.
+
+Final local hardening preserves original directory spellings in handle-cache
+keys: 32 resource cases, 28 passes/four skips, 94 schema passes and 16 CTest passes.
+
 Latest local acceptance (2026-09-12): SN-016 is done for ADR 0014, and SN-017
 is **done for the bounded headless composition** under
 [ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md).
@@ -54,7 +66,7 @@ future direction, not a new M3 delivery commitment.
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
-| SN-021 | P1 | planned | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph |
+| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. First slice: [bounded local byte snapshots](../experiments/SN-021-local-resources.md); native loading/saving/compilation remain pending |
 | SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
