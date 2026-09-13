@@ -133,6 +133,14 @@ class LocalResourceTests(unittest.TestCase):
         self.doc = inventory([("assets/data.bin", b"")])
         self.assertEqual(self.verify()[("owned", "f0")].data, b"")
 
+    def test_distinct_files_with_different_parent_case_spellings(self):
+        (self.path.parent / "second.bin").write_bytes(b"second")
+        self.doc = inventory([("assets/data.bin", self.path.read_bytes()),
+                              ("ASSETS/second.bin", b"second")])
+        result = self.verify()
+        self.assertEqual(result[("owned", "f0")].data, self.path.read_bytes())
+        self.assertEqual(result[("owned", "f1")].data, b"second")
+
     def test_chunk_boundary_and_maximum_file(self):
         for size in (65535, 65536, 65537, lock.MAX_FILE_BYTES):
             with self.subTest(size=size):

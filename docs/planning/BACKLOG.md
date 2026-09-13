@@ -9,6 +9,9 @@ All earlier accepted profiles and SN-044 remain unchanged. Both Foundation jobs
 passed for source `cb6fc8d`; [PR #20](https://github.com/RicardoKers/SimNodus/pull/20)
 records final checks and protected-main integration. No issue sync/release.
 
+Final local hardening preserves original directory spellings in handle-cache
+keys: 32 resource cases, 28 passes/four skips, 94 schema passes and 16 CTest passes.
+
 Latest local acceptance (2026-09-12): SN-016 is done for ADR 0014, and SN-017
 is **done for the bounded headless composition** under
 [ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md).

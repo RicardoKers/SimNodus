@@ -182,7 +182,9 @@ def verify(raw, root):
                 segments = loc.split("/")
                 parent = current
                 for depth, segment in enumerate(segments[:-1], 1):
-                    key = tuple(part.lower() for part in segments[:depth])
+                    # Ask the filesystem about each supplied spelling; NTFS can
+                    # distinguish case in individual directories.
+                    key = tuple(segments[:depth])
                     if key not in directories:
                         directories[key], _ = fs.child(parent, segment, True, stack, loc)
                     parent = directories[key]

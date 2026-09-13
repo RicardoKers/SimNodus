@@ -9,12 +9,12 @@ root, uses parent-relative handles and returns complete immutable byte snapshots
 Metadata validation remains inert; hashes do not establish interfaces, trust,
 redistribution permission, execution authorization or simulation readiness.
 
-The 31-case local resource suite has 27 passes and four skips: non-Windows test,
+The 32-case local resource suite has 28 passes and four skips: non-Windows test,
 two missing symlink privileges and disabled 8.3 generation. Hosted Windows must
 run the symlink cases before integration. The original 94 schema tests remain
 separate. CTest adds `local-resource-snapshots` to the prior 15 Windows entries.
 Fresh Debug build and all 16 CTest entries passed; 40 historical hashes matched.
-Repository checker passed for 467 text files and `git diff --check` passed.
+Repository checker passed for 468 text files and `git diff --check` passed.
 Do not claim skipped alias/symlink checks passed locally or Linux loading works.
 
 Next review/extract this bounded verifier into native application code before

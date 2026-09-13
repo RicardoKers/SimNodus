@@ -32,10 +32,15 @@ volume. An unrestricted-token rerun produced the same four skips. These are
 coverage limitations, not successful symlink or short-alias tests.
 
 Final commands and per-case outcomes are recorded in the
-[final machine-readable evidence](evidence/SN-021-local-resources-final-summary.json).
+[latest machine-readable evidence](evidence/SN-021-local-resources-case-summary.json).
 The [initial audit](evidence/SN-021-local-resources-summary.json) is preserved;
 review then tightened volume opening to use the captured direct device rather
-than repeating the drive-letter lookup. The final audit records that source.
+than repeating the drive-letter lookup. The [second audit](evidence/SN-021-local-resources-final-summary.json)
+records that source. Final review then retained each original directory spelling
+in the handle cache instead of normalizing cache keys. Its 32-case successor
+adds a real-filesystem check with distinct files and different parent spellings.
+A disposable-directory probe could not enable NTFS case sensitivity (access
+denied); per-directory case-sensitive behavior is not certified by that probe.
 The first attempt to write the initial audit was denied by sandbox filesystem
 permissions, leaving its report links temporarily missing; the authorized retry
 wrote the evidence. This was evidence-file creation, not a filesystem-test failure.
@@ -43,10 +48,10 @@ The separate 94 declaration tests remain the SN-020 regression authority.
 CTest now includes `local-resource-snapshots` in addition to its prior 15 Windows
 entries. The existing CI workflow discovers it without a new dependency.
 
-The final local run passed all 94 schema tests, 27 resource cases (four skips)
+The latest local run passed all 94 schema tests, 28 resource cases (four skips)
 and all 16 CTest entries after a fresh native Debug build. Forty historical
 SN-020/SN-044 source/fixture/document hashes matched. The repository checker
-passed for 467 text files, and `git diff --check` passed. No engine was rerun.
+passed for 468 text files, and `git diff --check` passed. No engine was rerun.
 
 Actual local filesystem checks include:
 
@@ -75,6 +80,13 @@ their local privilege skips remain preserved. The follow-up enables verbose
 CTest logs for explicit hosted case/skip counts without changing verifier code.
 [PR #20](https://github.com/RicardoKers/SimNodus/pull/20) records final checks and
 authorized protected-main squash integration.
+
+The verbose [run 34785582010](https://github.com/RicardoKers/SimNodus/actions/runs/34785582010)
+passed before the directory-spelling adjustment: Windows had 29/31 resource
+passes (non-Windows and unavailable 8.3 generation skipped), including both
+real symlink cases; Ubuntu had four input/platform passes and 27 Windows skips.
+All 16 Windows and 12 Ubuntu CTest entries passed. These hosted counts belong
+to that source revision; the final PR checks must cover the spelling adjustment.
 
 ```powershell
 python -m unittest discover -s tests/schema -p 'test_*.py' -v

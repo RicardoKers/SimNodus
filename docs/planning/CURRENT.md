@@ -12,14 +12,14 @@ rejects reparse points/aliases, checks bounded same-handle sizes/hashes and retu
 immutable bytes by dependency/resource ID. No resource is rendered or executed.
 
 The [report](../experiments/SN-021-local-resources.md) and
-[evidence](../experiments/evidence/SN-021-local-resources-final-summary.json) record
-31 resource cases: 27 local passes and four explicit skips (non-Windows rejection,
+[evidence](../experiments/evidence/SN-021-local-resources-case-summary.json) record
+32 resource cases: 28 local passes and four explicit skips (non-Windows rejection,
 two unavailable symlink privileges, unavailable 8.3 name generation). All 94
 declaration regressions remain unchanged. Hosted Windows must execute the symlink
 cases before integration; short-name generation coverage remains host-dependent.
 
 The fresh native Debug build and all 16 CTest entries passed; 40 historical
-schema/fixture/SN-044 hashes matched. Repository checker: 467 text files passed;
+schema/fixture/SN-044 hashes matched. Repository checker: 468 text files passed;
 `git diff --check` passed. These are filesystem/foundation checks, not engine
 integration or native project-loader acceptance.
 
