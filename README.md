@@ -72,11 +72,16 @@ SN-020 has an [experimental topology schema](docs/experiments/SN-020-topology.md
 with [exact parameters](docs/experiments/SN-020-parameters.md) and
 [separate symbol/model interface bindings](docs/experiments/SN-020-bindings.md).
 An [inert resource lock](docs/experiments/SN-020-resource-lock.md) validates file
-inventory metadata and lexical paths; physical resource verification is pending.
+inventory metadata and lexical paths without physical resource verification.
 The composed [project declaration baseline](docs/experiments/SN-020-acceptance.md)
 is accepted for SN-020, including board/firmware metadata and requested temporal
 policy. Its hierarchical JSON fixtures remain non-executable; physical resource
-verification, runtime negotiation and native loading/saving are pending.
+verification is separate; runtime negotiation and native loading/saving are pending.
+
+SN-021 now has an explicit [Windows/NTFS byte snapshot verifier](docs/architecture/LOCAL_RESOURCE_VERIFICATION.md)
+separate from those declaration parsers. It checks local containment and locked
+bytes without interpreting resources. See [coverage and limits](docs/experiments/SN-021-local-resources.md);
+native project loading, atomic saving, source interfaces and compilation remain pending.
 
 ## License and publication
 

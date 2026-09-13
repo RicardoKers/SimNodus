@@ -91,5 +91,8 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 
 Use the [template](TEMPLATE.md) for new decisions.
 
+- [0052: Bounded local resource snapshots](0052-bounded-local-resource-snapshots.md):
+  first SN-021 reference boundary; native persistence and execution remain pending.
+
 The SN-020 draft records retain their historical statuses. [ADR 0051](0051-project-declaration-baseline.md)
 accepts their composition as a bounded declaration baseline, without runtime approval.

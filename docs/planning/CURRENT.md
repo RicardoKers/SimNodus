@@ -2,6 +2,40 @@
 
 Updated: 2026-09-13.
 
+## Latest implementation: SN-021 bounded local snapshots
+
+SN-021 is **in_progress**. Its first coherent slice implements an explicit
+[Windows/NTFS resource verifier](../architecture/LOCAL_RESOURCE_VERIFICATION.md)
+under [ADR 0052](../decisions/0052-bounded-local-resource-snapshots.md), separate
+from the unchanged SN-020 declaration validators. It traverses by parent handles,
+rejects reparse points/aliases, checks bounded same-handle sizes/hashes and returns
+immutable bytes by dependency/resource ID. No resource is rendered or executed.
+
+The [report](../experiments/SN-021-local-resources.md) and
+[evidence](../experiments/evidence/SN-021-local-resources-final-summary.json) record
+31 resource cases: 27 local passes and four explicit skips (non-Windows rejection,
+two unavailable symlink privileges, unavailable 8.3 name generation). All 94
+declaration regressions remain unchanged. Hosted Windows must execute the symlink
+cases before integration; short-name generation coverage remains host-dependent.
+
+The fresh native Debug build and all 16 CTest entries passed; 40 historical
+schema/fixture/SN-044 hashes matched. Repository checker: 467 text files passed;
+`git diff --check` passed. These are filesystem/foundation checks, not engine
+integration or native project-loader acceptance.
+
+Next review/extract this snapshot boundary into native application code before
+connecting project loading. Atomic saving, source/SPICE/SVG interfaces, ELF/boot
+compatibility, compilation and runtime negotiation remain pending. No simulation
+profile, UI/SN-044, instrumentation, MCU/toolchain decision or SN-017 fixture
+ownership changes. Prior evidence/hashes, tolerances, PDF suppression and PID
+retry are preserved. SN-021 is not complete.
+
+Work branch: `codex/sn-021-local-resources`, from verified clean synchronized main
+`7307bd88e2d468d65363fa6a6f0776772cbb124a`. Coherent validated commit, PR checks,
+squash integration and push are authorized. Publication is pending until the
+PR/main identities and checks are confirmed. No issues, releases or binaries.
+The older SN-020 and other task-state entries below are historical snapshots.
+
 ## Snapshot
 
 - Stage: M2 bounded backend proof complete through E-05 under ADR 0014; SN-016/SN-017 are done for their bounded profiles, including native/Python composition under ADR 0043. SN-018 is done for the local Windows Debug fixture baseline under ADR 0044. SN-020 is done for the declaration schema and reference validation baseline under ADR 0051. Production kernel/application remain unimplemented; general unpaced debugging is unapproved.

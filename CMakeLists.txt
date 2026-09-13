@@ -24,6 +24,9 @@ if(BUILD_TESTING)
     add_test(NAME schema-declarations
         COMMAND "${Python3_EXECUTABLE}" -m unittest discover -s tests/schema -p "test_*.py")
     set_tests_properties(schema-declarations PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    add_test(NAME local-resource-snapshots
+        COMMAND "${Python3_EXECUTABLE}" -m unittest discover -s tests/resources -p "test_*.py")
+    set_tests_properties(local-resource-snapshots PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     add_executable(backend_contract_tests tests/headless/backend_contracts.cpp)
     target_include_directories(backend_contract_tests PRIVATE src)
     target_link_libraries(backend_contract_tests PRIVATE simnodus::build_options)

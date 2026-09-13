@@ -1,4 +1,37 @@
-# Latest handoff: SN-020 declaration baseline accepted
+# Latest handoff: SN-021 bounded local resource snapshots
+
+Read CURRENT, BACKLOG, [ADR 0052](../decisions/0052-bounded-local-resource-snapshots.md),
+the [physical contract](../architecture/LOCAL_RESOURCE_VERIFICATION.md),
+[implementation](../../tests/resources/README.md) and
+[report/evidence](../experiments/SN-021-local-resources.md). SN-021 is **in_progress**.
+The explicit reference operation accepts lock bytes and an absolute Windows/NTFS
+root, uses parent-relative handles and returns complete immutable byte snapshots.
+Metadata validation remains inert; hashes do not establish interfaces, trust,
+redistribution permission, execution authorization or simulation readiness.
+
+The 31-case local resource suite has 27 passes and four skips: non-Windows test,
+two missing symlink privileges and disabled 8.3 generation. Hosted Windows must
+run the symlink cases before integration. The original 94 schema tests remain
+separate. CTest adds `local-resource-snapshots` to the prior 15 Windows entries.
+Fresh Debug build and all 16 CTest entries passed; 40 historical hashes matched.
+Repository checker passed for 467 text files and `git diff --check` passed.
+Do not claim skipped alias/symlink checks passed locally or Linux loading works.
+
+Next review/extract this bounded verifier into native application code before
+connecting project loading. Keep same-handle checking and snapshot consumption;
+never substitute textual prefix or resolve-then-open checks. Source/SVG/SPICE,
+ELF/boot compatibility, atomic saving, compilation and runtime negotiation remain
+separate gates. Do not start UI/instrumentation or expand supported engine profiles.
+Preserve SN-044, ADRs 0027/0028/0043/0044/0049/0051, Python preparation/GDB/fixture
+ownership, historical evidence/hashes, tolerances, PDF suppression and PID retry.
+
+Work branch: `codex/sn-021-local-resources`, from main/origin
+`7307bd88e2d468d65363fa6a6f0776772cbb124a`. PR/checks/squash integration and push
+of stable validated work are authorized; verify actual publication state in CURRENT
+and GitHub. Do not synchronize issues or publish releases/binaries. Earlier
+handoffs below are historical and do not override current authorization.
+
+# Historical handoff: SN-020 declaration baseline accepted
 
 SN-020 is **done for declaration schema/reference validation** under
 [ADR 0051](../decisions/0051-project-declaration-baseline.md). Read CURRENT,
