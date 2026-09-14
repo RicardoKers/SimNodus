@@ -2,6 +2,37 @@
 
 Updated: 2026-09-13.
 
+## Latest implementation: SN-021 native resource snapshots
+
+The [native resource API](../architecture/NATIVE_RESOURCE_VERIFICATION.md) is
+implemented under [ADR 0053](../decisions/0053-native-resource-verification.md).
+C++20 validates typed request safety, captures immutable verified bytes and
+returns structured errors. Windows handle/hash operations stay in platform code;
+full project/lock metadata parsing is still a separate caller-side Python gate.
+No project graph, resource interpreter or executable session is loaded.
+
+The [native report](../experiments/SN-021-native-resources.md) records 41 typed
+cases and 32 native filesystem cases (30 local passes, two symlink privilege
+skips), including actual 8.3 long-name/alias checks and case-sensitive-directory
+rejection. All 94 schema tests, preserved Python resource checks and 18 Windows
+CTest entries passed. Final audit uses ordinary host access because the sandbox
+denied native traversal of the owned C: temporary fixture. Initial failed build,
+nonempty-directory fixture setup and restricted-token results remain recorded.
+All 44 selected historical inputs matched their hashes. Repository checker:
+479 text files passed; `git diff --check` passed. Binaries remain local/ignored.
+
+SN-021 remains **in_progress**. Next specify bounded native declaration ingress
+and graph construction. Full JSON semantics, interfaces/SVG/SPICE/ELF/boot,
+atomic saving, source mapping/compilation and runtime negotiation remain pending.
+No UI/SN-044, MCU/toolchain, instrumentation, engine profile, tolerance, PDF/PID
+or SN-017 Python/GDB/fixture ownership changes.
+
+Work branch: `codex/sn-021-native-resources`, from verified clean main/origin
+`0c5aa6df3a7d179ed71a41c3492b385de5155007` (PR #20 squash). Validated source
+commit, PR/checks, protected-main squash and push are authorized; publication of
+this new block must be confirmed from its PR before claiming main is updated.
+No issues, releases or binaries. Earlier task-state entries below are historical.
+
 ## Latest implementation: SN-021 bounded local snapshots
 
 SN-021 is **in_progress**. Its first coherent slice implements an explicit

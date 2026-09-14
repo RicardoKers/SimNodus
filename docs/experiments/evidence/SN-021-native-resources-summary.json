@@ -1,0 +1,345 @@
+{
+  "task": "SN-021",
+  "date": "2026-09-13",
+  "status": "bounded-native-snapshot-api-locally-validated",
+  "base_main": "0c5aa6df3a7d179ed71a41c3492b385de5155007",
+  "environment": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "local NTFS",
+    "access": "ordinary host access; restricted agent token denies native C: temporary-root traversal",
+    "compiler": "MSVC 19.51.36246.0; Visual Studio 18 2026; Windows SDK 10.0.26100.0"
+  },
+  "configure": {
+    "command": "cmake -S . -B build/sn021-native-01",
+    "exit_code": 0
+  },
+  "build": {
+    "command": "cmake --build build/sn021-native-01 --config Debug",
+    "exit_code": 0
+  },
+  "tests": {
+    "native_typed_cases": 41,
+    "native_filesystem_cases": 32,
+    "native_passed": 30,
+    "native_skipped": 2,
+    "native_skips": [
+      "file symlink privilege unavailable locally",
+      "directory symlink privilege unavailable locally"
+    ],
+    "schema": 94,
+    "python_resource_cases": 32,
+    "python_resource_passed": 28,
+    "python_resource_skipped": 4,
+    "ctest": 18
+  },
+  "commands": [
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/sn021-native-01",
+        "-C",
+        "Debug",
+        "--output-on-failure",
+        "--verbose"
+      ],
+      "exit_code": 0,
+      "stdout": "UpdateCTestConfiguration  from :D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01/DartConfiguration.tcl\nParse Config file:D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01/DartConfiguration.tcl\nTest project D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\nConstructing a list of tests\nDone constructing a list of tests\nUpdating test list for fixtures\nAdded 0 tests to meet fixture requirements\nChecking test dependency graph...\nChecking test dependency graph end\ntest 1\n      Start  1: native-resource-contracts\n\n1: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\native_resource_contract_tests.exe\n1: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n1: Test timeout computed to be: 1500\n1: 41 native typed-input cases passed\n 1/18 Test  #1: native-resource-contracts ........   Passed    0.02 sec\ntest 2\n      Start  2: native-resource-filesystem\n\n2: Test command: C:\\Users\\ricar\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"D:/03_Projects/01_Actives/SimNodus/tests/resources/native_regression.py\" \"--probe\" \"D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01/Debug/native_resource_probe.exe\" \"--hooks\" \"D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01/Debug/native_resource_hook_probe.exe\"\n2: Working Directory: D:/03_Projects/01_Actives/SimNodus\n2: Test timeout computed to be: 180\n2: test_actual_oversize (__main__.NativeResources.test_actual_oversize) ... ok\n2: test_binary_and_script_text_are_only_bytes (__main__.NativeResources.test_binary_and_script_text_are_only_bytes) ... ok\n2: test_case_sensitive_directory_rejected (__main__.NativeResources.test_case_sensitive_directory_rejected) ... ok\n2: test_chunk_boundary_and_maximum_file (__main__.NativeResources.test_chunk_boundary_and_maximum_file) ... ok\n2: test_declared_budgets_before_os (__main__.NativeResources.test_declared_budgets_before_os) ... ok\n2: test_directory_as_file_and_file_as_directory (__main__.NativeResources.test_directory_as_file_and_file_as_directory) ... ok\n2: test_directory_symlink (__main__.NativeResources.test_directory_symlink) ... skipped 'Windows symlink privilege unavailable'\n2: test_distinct_files_with_different_parent_case_spellings (__main__.NativeResources.test_distinct_files_with_different_parent_case_spellings) ... ok\n2: test_exact_bytes_and_immutable_result (__main__.NativeResources.test_exact_bytes_and_immutable_result) ... ok\n2: test_exact_total_byte_and_file_count_limits (__main__.NativeResources.test_exact_total_byte_and_file_count_limits) ... ok\n2: test_existing_writer_and_exclusive_reader (__main__.NativeResources.test_existing_writer_and_exclusive_reader) ... ok\n2: test_failure_releases_all_handles_and_no_partial_result (__main__.NativeResources.test_failure_releases_all_handles_and_no_partial_result) ... ok\n2: test_file_symlink (__main__.NativeResources.test_file_symlink) ... skipped 'Windows symlink privilege unavailable'\n2: test_hard_link_outside_and_inside (__main__.NativeResources.test_hard_link_outside_and_inside) ... ok\n2: test_junction_escape_with_matching_prefix (__main__.NativeResources.test_junction_escape_with_matching_prefix) ... ok\n2: test_junction_even_when_target_inside (__main__.NativeResources.test_junction_even_when_target_inside) ... ok\n2: test_junction_root_ancestor (__main__.NativeResources.test_junction_root_ancestor) ... ok\n2: test_junction_selected_root (__main__.NativeResources.test_junction_selected_root) ... ok\n2: test_junction_substitution_before_directory_open (__main__.NativeResources.test_junction_substitution_before_directory_open) ... ok\n2: test_missing_file_and_missing_parent (__main__.NativeResources.test_missing_file_and_missing_parent) ... ok\n2: test_missing_root (__main__.NativeResources.test_missing_root) ... ok\n2: test_native_transport_rejects_malformed_input (__main__.NativeResources.test_native_transport_rejects_malformed_input) ... ok\n2: test_native_typed_input_does_not_trust_caller (__main__.NativeResources.test_native_typed_input_does_not_trust_caller) ... ok\n2: test_owned_existing_lock (__main__.NativeResources.test_owned_existing_lock) ... ok\n2: test_project_inventory_and_independent_readiness (__main__.NativeResources.test_project_inventory_and_independent_readiness) ... ok\n2: test_replacement_after_capture_before_return (__main__.NativeResources.test_replacement_after_capture_before_return) ... ok\n2: test_replacement_before_open_is_actually_verified (__main__.NativeResources.test_replacement_before_open_is_actually_verified) ... ok\n2: test_short_filename_alias_rejected_on_opened_handle (__main__.NativeResources.test_short_filename_alias_rejected_on_opened_handle)\n2: Native long-name success and lexical rejection of an existing 8.3 alias. ... ok\n2: test_size_and_hash_mismatch (__main__.NativeResources.test_size_and_hash_mismatch) ... ok\n2: test_snapshot_survives_replacement_after_return (__main__.NativeResources.test_snapshot_survives_replacement_after_return) ... ok\n2: test_write_delete_and_ancestor_rename_denied_during_read (__main__.NativeResources.test_write_delete_and_ancestor_rename_denied_during_read) ... ok\n2: test_zero_byte_file (__main__.NativeResources.test_zero_byte_file) ... ok\n2: \n2: ----------------------------------------------------------------------\n2: Ran 32 tests in 1.613s\n2: \n2: OK (skipped=2)\n 2/18 Test  #2: native-resource-filesystem .......   Passed    1.78 sec\ntest 3\n      Start  3: schema-declarations\n\n3: Test command: C:\\Users\\ricar\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"-m\" \"unittest\" \"discover\" \"-s\" \"tests/schema\" \"-p\" \"test_*.py\"\n3: Working Directory: D:/03_Projects/01_Actives/SimNodus\n3: Test timeout computed to be: 1500\n3: ..............................................................................................\n3: ----------------------------------------------------------------------\n3: Ran 94 tests in 0.228s\n3: \n3: OK\n 3/18 Test  #3: schema-declarations ..............   Passed    0.40 sec\ntest 4\n      Start  4: local-resource-snapshots\n\n4: Test command: C:\\Users\\ricar\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe \"-m\" \"unittest\" \"discover\" \"-s\" \"tests/resources\" \"-p\" \"test_*.py\"\n4: Working Directory: D:/03_Projects/01_Actives/SimNodus\n4: Test timeout computed to be: 1500\n4: ...s.....s.....s...........s....\n4: ----------------------------------------------------------------------\n4: Ran 32 tests in 0.830s\n4: \n4: OK (skipped=4)\n 4/18 Test  #4: local-resource-snapshots .........   Passed    1.00 sec\ntest 5\n      Start  5: backend-contracts\n\n5: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\backend_contract_tests.exe\n5: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n5: Test timeout computed to be: 1500\n5: 0 contract failures\n 5/18 Test  #5: backend-contracts ................   Passed    0.01 sec\ntest 6\n      Start  6: joint-session\n\n6: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\joint_session_tests.exe\n6: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n6: Test timeout computed to be: 1500\n6: 0 joint session failures\n 6/18 Test  #6: joint-session ....................   Passed    0.01 sec\ntest 7\n      Start  7: cancellation-result\n\n7: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\cancellation_result_tests.exe\n7: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n7: Test timeout computed to be: 1500\n7: 0 cancellation result failures\n 7/18 Test  #7: cancellation-result ..............   Passed    0.01 sec\ntest 8\n      Start  8: adc-fixture\n\n8: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\adc_fixture_tests.exe\n8: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n8: Test timeout computed to be: 1500\n 8/18 Test  #8: adc-fixture ......................   Passed    0.01 sec\ntest 9\n      Start  9: rc-trajectory\n\n9: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\rc_trajectory_tests.exe\n9: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n9: Test timeout computed to be: 1500\n9: 15 trajectory cases, failures=0\n 9/18 Test  #9: rc-trajectory ....................   Passed    0.01 sec\ntest 10\n      Start 10: fixture-readback\n\n10: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_readback_tests.exe\n10: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n10: Test timeout computed to be: 1500\n10: 16 readback cases, failures=0\n10/18 Test #10: fixture-readback .................   Passed    0.01 sec\ntest 11\n      Start 11: fixture-memory\n\n11: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_memory_tests.exe\n11: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n11: Test timeout computed to be: 1500\n11: 224 memory frame cases, failures=0\n11/18 Test #11: fixture-memory ...................   Passed    0.01 sec\ntest 12\n      Start 12: fixture-time\n\n12: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_time_tests.exe\n12: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n12: Test timeout computed to be: 1500\n12: 72 time frame cases, failures=0\n12/18 Test #12: fixture-time .....................   Passed    0.01 sec\ntest 13\n      Start 13: fixture-registers\n\n13: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_registers_tests.exe\n13: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n13: Test timeout computed to be: 1500\n13: 132 register cases, failures=0\n13/18 Test #13: fixture-registers ................   Passed    0.01 sec\ntest 14\n      Start 14: fixture-inspection\n\n14: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_inspection_tests.exe\n14: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n14: Test timeout computed to be: 1500\n14: 23 coordinator checks, failures=0\n14/18 Test #14: fixture-inspection ...............   Passed    0.01 sec\ntest 15\n      Start 15: fixture-adc-coordinator\n\n15: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_adc_coordinator_tests.exe\n15: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n15: Test timeout computed to be: 1500\n15: 23 ADC coordinator checks, failures=0\n15/18 Test #15: fixture-adc-coordinator ..........   Passed    0.03 sec\ntest 16\n      Start 16: fixture-analog-coordinator\n\n16: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_analog_coordinator_tests.exe\n16: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n16: Test timeout computed to be: 1500\n16: 14 analog coordinator checks, failures=0\n16/18 Test #16: fixture-analog-coordinator .......   Passed    0.02 sec\ntest 17\n      Start 17: fixture-execution-coordinator\n\n17: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_execution_coordinator_tests.exe\n17: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n17: Test timeout computed to be: 1500\n17: 14 execution coordinator checks, failures=0\n17/18 Test #17: fixture-execution-coordinator ....   Passed    0.02 sec\ntest 18\n      Start 18: fixture-application-session\n\n18: Test command: D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn021-native-01\\Debug\\fixture_application_session_tests.exe\n18: Working Directory: D:/03_Projects/01_Actives/SimNodus/build/sn021-native-01\n18: Test timeout computed to be: 1500\n18: 24 application session checks, failures=0\n18/18 Test #18: fixture-application-session ......   Passed    0.02 sec\n\n100% tests passed, 0 tests failed out of 18\n\nTotal Test time (real) =   3.43 sec\n",
+      "stderr": ""
+    }
+  ],
+  "initial_results": [
+    {
+      "kind": "build",
+      "result": "failed",
+      "codes": [
+        "C3535",
+        "C2440"
+      ],
+      "cause": "Test initializer mixed string literals and std::string; fixed with explicit string vector."
+    },
+    {
+      "kind": "filesystem",
+      "total": 32,
+      "passed": 29,
+      "failed": 1,
+      "skipped": 2,
+      "system_error": 145,
+      "cause": "Case-sensitive fixture flag attempted on nonempty directory; corrected fixture then passed."
+    },
+    {
+      "kind": "long-name expanded test under restricted token",
+      "total": 32,
+      "passed": 29,
+      "errors": 1,
+      "skipped": 2,
+      "system_error": "0xc0000022",
+      "cause": "Native C: temporary-root access denied; same suite passed with ordinary host access."
+    },
+    {
+      "kind": "read-only fsutil volume queries",
+      "result": "access denied",
+      "system_error": 5,
+      "consequence": "No volume settings changed; real temporary-file alias observation used instead."
+    }
+  ],
+  "measured_special_cases": {
+    "long_name_accepted": true,
+    "existing_8dot3_alias_rejected_lexically": true,
+    "real_case_sensitive_directory_rejected": true,
+    "native_hook_substitution_checks": true
+  },
+  "preserved_inputs": [
+    {
+      "path": "tests/schema/topology.py",
+      "sha256": "ca04ccd60a4d632becd4742eb9fd97dc70e151d1322fab21505fcca85a08d821",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_topology.py",
+      "sha256": "874a978c5a57597d66ed7b4e4626d07e5d0961ef1d497b2d55b6d1df78972cef",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/TOPOLOGY_DRAFT.md",
+      "sha256": "6e36416ac0a473f4f7c7e94a5331d70985b517bbbd9020a3e2b902b384098af6",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0045-experimental-topology-draft.md",
+      "sha256": "57f431738b22dcd65be0c8122d4389aa9c0519008446bab671848e1ffc65f05d",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-cycle.json",
+      "sha256": "97fec142887fd1006f852e57a02b04de9f22335855644d7833d06234ef2854d0",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-terminal.json",
+      "sha256": "968cf5c99e8da6e2a53ea2a03410d5a81a0ab9aaaf17d78154d3fc3e024a0d98",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc.json",
+      "sha256": "c74cacce8ece00f67b329303ce3fd07814538a17c65a48df1e824195e680759a",
+      "match": true
+    },
+    {
+      "path": "tests/schema/parameters.py",
+      "sha256": "a201cd4e16b2ccef6c67c4fee8c6ef63f058cb7b2cdc971a669784a7f812cb64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_parameters.py",
+      "sha256": "570549c146fdd532f77292be0b612c019278cd71af569d752755b3f04a0b3420",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-parameters.json",
+      "sha256": "e1d592cb4b2b39221c714cf0b26626216ef4a95340ba5bac95e516d240f5c606",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-parameter-dimension.json",
+      "sha256": "afb48499a5c3e101be9ce987621a7ef95a6ee023a4784944edd0c7b0e682cfad",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PARAMETERS_DRAFT.md",
+      "sha256": "7077e1ba612b3d7d6109a6d1810b543ec05a9ec7d28e4ad120820593bdd44cb7",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0046-exact-parameter-draft.md",
+      "sha256": "3d80c4c9c4a7f51b829386b28e45cfca400a8fc3f9239b0c4f4a865dd324a975",
+      "match": true
+    },
+    {
+      "path": "tests/schema/bindings.py",
+      "sha256": "86ef86e1ae07fe675aad70565df05aaf9084d8fe2819b8dcf68908df700bac9c",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_bindings.py",
+      "sha256": "e284faff4f04abf7c888e4cf3e998269d5974a358e7d8d4fc27094bb281610b1",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-bindings.json",
+      "sha256": "4aac5702638e5ffc92826cce4d188ceac32db4010b8b9e25c0ae5e7d6a786d64",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-model-alias.json",
+      "sha256": "155152b8fbe2b12f3988409fe3d9d2e7dac9fc43d7e62dfac9d567fa9880fe06",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/BINDINGS_DRAFT.md",
+      "sha256": "b0fde6cce1a43f2652dc8a055d6a077e3d474ae19db728155d215ec63f064b7d",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0047-declarative-bindings-draft.md",
+      "sha256": "6077c32a85f96d4567d32a16a99f20b63c95b1e45e0d490a43db9e45b9117d4f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/resource_lock.py",
+      "sha256": "81aaa3056ef480e24689a34cfc3e3638073a7b0e12622cf77a505ddd1a55a77f",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_resource_lock.py",
+      "sha256": "226fe4a1fafd87051191f9fa448f213085b28268b2e21a20e7393b840707ad45",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/owned-resource-lock.json",
+      "sha256": "36e9ce5ceee9396045e36d601e8798184ea4109d76d8ba9d8c4335da6f44cd20",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-resource-path.json",
+      "sha256": "8fd1d96efb30f2953aecd558d5d67e3481c94e8f0c69265f8ac4a4edfecfcf5f",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/RESOURCE_LOCK_DRAFT.md",
+      "sha256": "18903f192efaaa414c25df0f6780aadea440ba89e5d02b986cc35be34a484f6a",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0048-declarative-resource-lock.md",
+      "sha256": "cd67566e97ef4f18fa4a85b41e09a7b4c52b019b041d40b17809a635cd3cd941",
+      "match": true
+    },
+    {
+      "path": "tests/schema/resource_links.py",
+      "sha256": "b0efa313fc17b69bf0365eef871a97f4eb4add22e051253af9a5715e29b64b6b",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_resource_links.py",
+      "sha256": "2e7e758863a0ef92c401229069b77d11f3df74bb0013940653c91044b5bd87b1",
+      "match": true
+    },
+    {
+      "path": "tests/schema/project.py",
+      "sha256": "4a1d54ef35135b2f0a6fab65272352df55108559534f3a7ee8f4f743634f83b2",
+      "match": true
+    },
+    {
+      "path": "tests/schema/test_project.py",
+      "sha256": "8b8f20aa6164268418003f8d8cb9215318deb2a6abe73702189be4cc1147ecac",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-resource-links.json",
+      "sha256": "becebb20cc224e664f0c0f945837d7529dda969209b89d086bd4ce53870bfdda",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/invalid-resource-kind.json",
+      "sha256": "79391ee057b6b67746f67c978198dccc586a18f447aa87937ebc3616e7f6b212",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/two-rc-project.json",
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/assets/passive.svg",
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2",
+      "match": true
+    },
+    {
+      "path": "tests/schema/fixtures/assets/passive.cir",
+      "sha256": "4697420081fcdba5602435f41b8136606e48d2f2fb13fbbbdc93e1fbcf8d475b",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/RESOURCE_LINKS_DRAFT.md",
+      "sha256": "b85228ae49cf1a5bed39cc8ffbf10867153dc38ea760a8e0988495b5159c0d59",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/PROJECT_SCHEMA.md",
+      "sha256": "b7e338a4ae8da76c1ad6cb7119f8fed9f8a8ea7e84bbcc9a2e13d2c688916762",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0050-typed-descriptor-resources.md",
+      "sha256": "68786128eced040477b2b4a6204c0edb0cbf1be0bc4aff14ea84739deae5380a",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0051-project-declaration-baseline.md",
+      "sha256": "82a5c96a5fe0d5b5c44b572ffb65dcb9d0b2d9c28f370a31a6ea70460114fa0b",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/DESKTOP_UX.md",
+      "sha256": "dbe11729c6b7a38c4b9e905ee140431819ddfedb6b40daae18243112c962bb93",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0049-desktop-ux-and-measurements.md",
+      "sha256": "930e935e9890b28a50ab345107c4402e3d5399056e4b075ff2fe008ba14785f8",
+      "match": true
+    },
+    {
+      "path": "tests/resources/local_resources.py",
+      "sha256": "47cedda73a7737f5285c656dd0b0b7b57e4fce64f0d1ac3734e1fd7d760376c6",
+      "match": true
+    },
+    {
+      "path": "tests/resources/test_local_resources.py",
+      "sha256": "b7cf02409e24b7f5df253b9387542c9d47a1a2a162dd9950979fea92cb42a622",
+      "match": true
+    },
+    {
+      "path": "docs/architecture/LOCAL_RESOURCE_VERIFICATION.md",
+      "sha256": "4ab50b75d15d4ab6cad0898ccb80f17766fe59a0a1de77e3e0558c3c8028bd44",
+      "match": true
+    },
+    {
+      "path": "docs/decisions/0052-bounded-local-resource-snapshots.md",
+      "sha256": "2f64133fbee8c9b534689ae4d623539fe5d46733e39c141f9bcf558e482eb2e3",
+      "match": true
+    }
+  ],
+  "prior_report_sha256": {
+    "docs/experiments/evidence/SN-021-local-resources-summary.json": "53112bad6a290ae38fb53d3be0d3686316d1d9976007593465f7a653a9c38c90",
+    "docs/experiments/evidence/SN-021-local-resources-final-summary.json": "7c209fad62207f8de1621f16043d503b60bf74bcc46f9c2ef16a03fb373e05bc",
+    "docs/experiments/evidence/SN-021-local-resources-case-summary.json": "0196be54e9db655ee7de5c90c4d94fae35f489287b8a578bce41a45da3eec4ba"
+  },
+  "source_sha256": {
+    "src/application/local_resources.hpp": "5b831a4008089eb89a60e97c1b5c7ddea0b6346fad650485778ba6f4df183216",
+    "src/application/local_resources.cpp": "173534c05f8f66c2803ca0d31dcc9c3a3d95f43537b48e40d0a515bf0e867d37",
+    "src/platform/local_resources_backend.hpp": "7de6425f095e1556a153dfcd28388fed7cac863c188f42570a4dca6180fd687b",
+    "src/platform/windows/local_resources.cpp": "1bcd94c31e8f6892a3af1ebbcfbc27a603749afe46178b7c1a901a0b6a10e779",
+    "tests/resources/native_contracts.cpp": "b5023bee642992e6f935f53fd955807c591704ef810f0f7a5d3454d113203e51",
+    "tests/resources/native_probe.cpp": "5fa58edb0e12ecd35f2739ad0cd6c16a90df4302347c9ac54db4a496ac847545",
+    "tests/resources/native_regression.py": "498d129d084dab9371da04935ee49bab13c6a0aab38260b606409a0d5485bca7",
+    "CMakeLists.txt": "c4d1181bbf2f5054ecfa63dad0be0b56ce4533c619501984100048d72e8801b9",
+    "docs/architecture/NATIVE_RESOURCE_VERIFICATION.md": "c65e72bcd46db04bc9ca3bbe51c6ffa6e29689d319b407bfce5a1f2cfb1eee63",
+    "docs/decisions/0053-native-resource-verification.md": "9e5c3e2b3e2ec7fa4fd147cbbe50bb5cb44e8009f096a16f7d7f0fb0803b8b4b"
+  },
+  "binary_sha256": {
+    "build/sn021-native-01/Debug/simnodus_resources.lib": "bb5764a31b16ccc7a1703d7113ce8ea8473b473a920434e31a54623a4de52b9d",
+    "build/sn021-native-01/Debug/native_resource_contract_tests.exe": "695664cf103384f2ec35a3fee3f89b958597e40fc41c45ee2ae3ef5c98441769",
+    "build/sn021-native-01/Debug/native_resource_probe.exe": "cfd1dfa0492ba4b01f266da356b5920406228a4fb921f0415ae2a787190a0f70",
+    "build/sn021-native-01/Debug/native_resource_hook_probe.exe": "9f3e38254009a801ad5f1258f592dc4f18fa1df0dd21bb59bd7a4b64bf42e1b4"
+  },
+  "limitations": [
+    "Complete declaration/lock JSON, provenance/license fields and inventory fingerprint remain caller-side gates.",
+    "No native project graph loading, source interpreter, atomic save, compiler or execution approval.",
+    "Native requires queryable case-insensitive directories; Linux physical verification unsupported.",
+    "Short-alias test proves lexical rejection of an existing alias, not a lexical-bypass handle test.",
+    "Synchronous filesystem calls have no hard wall deadline; no simultaneous multi-file transaction."
+  ]
+}

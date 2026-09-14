@@ -123,4 +123,5 @@ remain separate responsibilities.
 - [Components and hierarchy](COMPONENTS.md).
 - [Persistence](PROJECT_FORMAT.md).
 - [Bounded local resource snapshots](LOCAL_RESOURCE_VERIFICATION.md).
+- [Native resource verification](NATIVE_RESOURCE_VERIFICATION.md).
 - [Debugging and shared instrumentation](DEBUGGING.md), with the accepted [instrumentation decision](../decisions/0027-shared-instrumentation.md).

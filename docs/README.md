@@ -49,6 +49,7 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [SN-020 typed resource links](experiments/SN-020-resource-links.md).
 - [SN-020 accepted project declaration baseline](experiments/SN-020-acceptance.md).
 - [SN-021 local resource verification](experiments/SN-021-local-resources.md).
+- [SN-021 native resource verification](experiments/SN-021-native-resources.md).
 - [Quality and validation](development/QUALITY.md).
 - [GitHub publication](development/GITHUB_PUBLISHING.md).
 - [Licensing](development/LICENSING.md).
