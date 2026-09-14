@@ -91,6 +91,9 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 
 Use the [template](TEMPLATE.md) for new decisions.
 
+- [0054: Bounded native declaration syntax ingress](0054-declaration-ingress.md):
+  immutable original bytes/tokens; native schema semantics and graph remain pending.
+
 - [0053: Native resource verification](0053-native-resource-verification.md):
   typed C++ snapshot API and Windows implementation; full project loading pending.
 

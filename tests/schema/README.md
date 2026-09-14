@@ -1,5 +1,10 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds separate [native syntax ingress tests](../../docs/experiments/SN-021-ingress.md).
+Build with CMake and run CTest's `native-declaration-ingress` and
+`native-ingress-differential`. These preserve the schema validators below and
+accept syntax only, including syntactically valid but semantically invalid fixtures.
+
 SN-020's [accepted declaration baseline](../../docs/experiments/SN-020-acceptance.md)
 composes the preserved drafts with [project declarations](../../docs/architecture/PROJECT_SCHEMA.md).
 All 94 tests run through discovery or CTest `schema-declarations`.

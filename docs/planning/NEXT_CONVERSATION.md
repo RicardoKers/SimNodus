@@ -1,4 +1,34 @@
-# Latest handoff: SN-021 native resource snapshots
+# Latest handoff: SN-021 native declaration syntax ingress
+
+Read CURRENT, BACKLOG, [ADR 0054](../decisions/0054-declaration-ingress.md),
+the [contract](../architecture/DECLARATION_INGRESS.md) and
+[report/evidence](../experiments/SN-021-ingress.md). The API captures at most
+1 MiB into immutable original bytes and lossless syntax tokens. It performs no
+I/O and grants no schema validity, physical approval or execution authorization.
+
+Local acceptance: 95 native assertions, 209 differential/adversarial cases,
+94 existing schema tests, 20 Windows CTests and 55 preserved historical hashes.
+Physical-resource privilege/platform skips remain explicitly recorded. Native
+lone-surrogate rejection is stricter than the unchanged Python baseline.
+Repository checker passed for 488 text files; `git diff --check` passed.
+
+Next validate project/schema semantics over captured tokens before building an
+immutable source graph. Use existing Python fixtures as semantic oracles,
+including rejection cases. Preserve exact integers, source locations, stable IDs,
+reference/expansion limits and explicit unbound states. Do not interpret syntax
+success as permission to open resources or create a simulation session.
+
+SN-021 remains in progress. Saving, compilation, actual source/firmware interfaces,
+runtime policy and UI remain pending. Preserve SN-044, ADRs 0027/0028/0043/0044/0049,
+Python/GDB fixture ownership, tolerances, PDF/PID behavior and all historical evidence.
+Work branch `codex/sn-021-declaration-ingress` starts from synchronized main
+`5fa212e970e0f363e846d82f81cdb48ec1e9a10c`; PR/checks/squash/push remain authorized.
+Verify the final PR and local/remote main identity. No issue sync or binary release.
+[PR #22](https://github.com/RicardoKers/SimNodus/pull/22) is the final hosted-check
+and squash record, starting from source `0dfd974`. Use that record to confirm
+integration before continuing; do not repeat the syntax extraction.
+
+# Historical handoff: SN-021 native resource snapshots
 
 Read CURRENT, BACKLOG, [ADR 0053](../decisions/0053-native-resource-verification.md),
 the [native contract](../architecture/NATIVE_RESOURCE_VERIFICATION.md),
