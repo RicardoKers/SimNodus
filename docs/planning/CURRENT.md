@@ -1,6 +1,53 @@
 # Current state
 
-Updated: 2026-09-13.
+Updated: 2026-09-14.
+
+## Latest implementation: SN-021 native resource snapshots
+
+The [native resource API](../architecture/NATIVE_RESOURCE_VERIFICATION.md) is
+implemented under [ADR 0053](../decisions/0053-native-resource-verification.md).
+C++20 validates typed request safety, captures immutable verified bytes and
+returns structured errors. Windows handle/hash operations stay in platform code;
+full project/lock metadata parsing is still a separate caller-side Python gate.
+No project graph, resource interpreter or executable session is loaded.
+
+The [native report](../experiments/SN-021-native-resources.md) records 41 typed
+cases and 32 native filesystem cases (30 local passes, two symlink privilege
+skips), including actual 8.3 long-name/alias checks and case-sensitive-directory
+rejection. All 94 schema tests, preserved Python resource checks and 18 Windows
+CTest entries passed. Final audit uses ordinary host access because the sandbox
+denied native traversal of the owned C: temporary fixture. Initial failed build,
+nonempty-directory fixture setup and restricted-token results remain recorded.
+All 44 selected historical inputs matched their hashes. Repository checker:
+479 text files passed; `git diff --check` passed. Binaries remain local/ignored.
+
+SN-021 remains **in_progress**. Next specify bounded native declaration ingress
+and graph construction. Full JSON semantics, interfaces/SVG/SPICE/ELF/boot,
+atomic saving, source mapping/compilation and runtime negotiation remain pending.
+No UI/SN-044, MCU/toolchain, instrumentation, engine profile, tolerance, PDF/PID
+or SN-017 Python/GDB/fixture ownership changes.
+
+Work branch: `codex/sn-021-native-resources`, from verified clean main/origin
+`0c5aa6df3a7d179ed71a41c3492b385de5155007` (PR #20 squash). Validated source
+commit, PR/checks, protected-main squash and push are authorized; publication of
+this new block must be confirmed from its PR before claiming main is updated.
+No issues, releases or binaries. Earlier task-state entries below are historical.
+
+Source commit `bf3e05b` was pushed on 2026-09-14.
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) records the final hosted
+checks and authorized protected-main squash integration. Consult its final state
+and merge commit before claiming main is updated; local acceptance remains dated
+2026-09-13 and its evidence is unchanged.
+The first final-head hosted run passed Linux but failed the Windows temporary
+long-name fixture (17/18 CTest entries passed). The fixture now expands its owned
+root spelling and separately requires rejection of an aliased root. Local
+filesystem rerun: 30 passes/two privilege skips. Preserve the failed run linked
+in the native report and require final PR checks before integration.
+Follow-up source `5f23db4` passed both Foundation jobs in
+[run 34802067514](https://github.com/RicardoKers/SimNodus/actions/runs/34802067514):
+32/32 native filesystem cases without Windows skips, 18 Windows CTests and
+13 Linux CTests. The native snapshot slice is accepted at that scope; final
+documentation and squash status remain traceable through PR #21.
 
 ## Latest implementation: SN-021 bounded local snapshots
 

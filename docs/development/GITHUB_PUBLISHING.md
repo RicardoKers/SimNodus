@@ -95,6 +95,21 @@ claiming integration. Foundation exposes verbose CTest summaries to distinguish
 filesystem passes from OS/privilege skips. This slice does not close SN-021 or
 publish a simulator, binary, new supported engine profile or release.
 
+## SN-021 native source integration: 2026-09-14
+
+Native snapshot source commit `bf3e05b` was published on
+`codex/sn-021-native-resources` after local acceptance on 2026-09-13.
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) is the final required
+Foundation-check and protected-main squash record. Confirm the final PR head,
+successful checks and resulting main identity before reporting integration.
+The native API verifies bounded snapshots; it does not implement native project
+JSON/graph loading or close SN-021. No issues, releases or binaries are published.
+Source `5f23db4` passed both Foundation jobs in
+[run 34802067514](https://github.com/RicardoKers/SimNodus/actions/runs/34802067514),
+including all 32 Windows native filesystem cases without skips. The native report
+preserves the preceding fixture failure and correction; final documentation-only
+changes still require checks before integration.
+
 ## Binary release gate
 
 Record backend/runtime revisions and licenses, supported Windows versions, installer provenance, checksums, and tested lesson projects. Add required notices and source/relinking materials for dependencies as applicable. Do not redistribute CubeIDE, vendor firmware, model packs, or documentation by assumption.

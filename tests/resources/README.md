@@ -1,5 +1,13 @@
 # SN-021 local resource verification
 
+The [native extraction](../../docs/experiments/SN-021-native-resources.md) adds
+`native-resource-contracts` and Windows `native-resource-filesystem` CTest entries.
+The [native regression driver](native_regression.py) compares actual snapshots
+with the preserved reference and schedules real filesystem mutations through
+an explicitly selected test-only probe. See the
+[native contract](../../docs/architecture/NATIVE_RESOURCE_VERIFICATION.md).
+The Python implementation below remains unchanged historical reference code.
+
 The explicit [snapshot verifier](local_resources.py) consumes lock 0.1 metadata
 and a caller-selected absolute root. It returns immutable, verified bytes and
 never renders or executes them. The [contract](../../docs/architecture/LOCAL_RESOURCE_VERIFICATION.md)

@@ -20,7 +20,38 @@ add_custom_target(check-repository
 )
 
 include(CTest)
+add_library(simnodus_resources STATIC src/application/local_resources.cpp)
+target_include_directories(simnodus_resources PUBLIC src)
+target_link_libraries(simnodus_resources PRIVATE simnodus::build_options)
+if(WIN32)
+    target_sources(simnodus_resources PRIVATE src/platform/windows/local_resources.cpp)
+    target_compile_definitions(simnodus_resources PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX _WIN32_WINNT=0x0A00)
+    target_link_libraries(simnodus_resources PRIVATE bcrypt ntdll)
+endif()
+if(MSVC)
+    target_compile_options(simnodus_resources PRIVATE /W4 /WX /permissive- /EHsc)
+endif()
 if(BUILD_TESTING)
+    add_executable(native_resource_contract_tests tests/resources/native_contracts.cpp)
+    target_link_libraries(native_resource_contract_tests PRIVATE simnodus_resources)
+    add_test(NAME native-resource-contracts COMMAND native_resource_contract_tests)
+    add_executable(native_resource_probe tests/resources/native_probe.cpp)
+    target_link_libraries(native_resource_probe PRIVATE simnodus_resources)
+    if(WIN32)
+        add_executable(native_resource_hook_probe tests/resources/native_probe.cpp
+            src/application/local_resources.cpp src/platform/windows/local_resources.cpp)
+        target_include_directories(native_resource_hook_probe PRIVATE src)
+        target_compile_definitions(native_resource_hook_probe PRIVATE SIMNODUS_RESOURCE_TEST_HOOKS
+            WIN32_LEAN_AND_MEAN NOMINMAX _WIN32_WINNT=0x0A00)
+        target_link_libraries(native_resource_hook_probe PRIVATE simnodus::build_options bcrypt ntdll)
+        if(MSVC)
+            target_compile_options(native_resource_hook_probe PRIVATE /W4 /WX /permissive- /EHsc)
+        endif()
+        add_test(NAME native-resource-filesystem
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/native_regression.py"
+                --probe "$<TARGET_FILE:native_resource_probe>" --hooks "$<TARGET_FILE:native_resource_hook_probe>")
+        set_tests_properties(native-resource-filesystem PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
+    endif()
     add_test(NAME schema-declarations
         COMMAND "${Python3_EXECUTABLE}" -m unittest discover -s tests/schema -p "test_*.py")
     set_tests_properties(schema-declarations PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

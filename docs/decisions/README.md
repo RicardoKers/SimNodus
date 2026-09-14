@@ -91,6 +91,9 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 
 Use the [template](TEMPLATE.md) for new decisions.
 
+- [0053: Native resource verification](0053-native-resource-verification.md):
+  typed C++ snapshot API and Windows implementation; full project loading pending.
+
 - [0052: Bounded local resource snapshots](0052-bounded-local-resource-snapshots.md):
   first SN-021 reference boundary; native persistence and execution remain pending.
 

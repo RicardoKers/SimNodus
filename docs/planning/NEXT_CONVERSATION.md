@@ -1,4 +1,52 @@
-# Latest handoff: SN-021 bounded local resource snapshots
+# Latest handoff: SN-021 native resource snapshots
+
+Read CURRENT, BACKLOG, [ADR 0053](../decisions/0053-native-resource-verification.md),
+the [native contract](../architecture/NATIVE_RESOURCE_VERIFICATION.md),
+[report](../experiments/SN-021-native-resources.md) and
+[evidence](../experiments/evidence/SN-021-native-resources-summary.json).
+SN-021 remains **in_progress**. A typed C++20 API now returns immutable complete
+snapshots or structured errors; Windows details are confined to platform code.
+Complete declaration/lock JSON validation remains a caller-side Python gate.
+Do not present the typed test transport as a project format or native graph loader.
+
+Local results: 41 native typed cases; 32 native filesystem cases with 30 passes
+and two unavailable symlink privileges; actual long-name/8.3 and case-sensitive
+directory rejection measured. Existing schema/Python suites and 18 Windows
+CTest entries passed. Native case-sensitive-directory rejection is deliberately
+stricter than the preserved Python reference. The final C: temporary-file check
+requires ordinary host access, not the restricted agent token; no ACL/settings
+were changed. Preserve the initial build and fixture-setup failure records.
+All 44 selected historical input hashes matched; the repository checker passed
+for 479 text files and `git diff --check` passed.
+
+Next specify bounded native declaration ingress and graph construction before
+connecting project opening. Retain same-handle byte verification, immutable
+snapshot consumption and separate metadata/interfaces/trust/execution gates.
+Full JSON semantics, SVG/SPICE/ELF/boot compatibility, atomic saving, source
+mapping/compilation and runtime negotiation remain pending. Preserve SN-044,
+ADRs 0027/0028/0043/0044/0049, Python/GDB fixture ownership, engine restrictions,
+tolerances, PDF suppression, PID retry and all historical evidence/hashes.
+
+Work branch: `codex/sn-021-native-resources`, based on clean synchronized main
+`0c5aa6df3a7d179ed71a41c3492b385de5155007`. Validated commits, PR/checks, squash
+integration and push remain authorized. Verify the new PR and actual main state;
+do not synchronize issues or publish releases/binaries. Older handoffs below
+are historical and do not override current authorization.
+
+Source `bf3e05b` was pushed on 2026-09-14. Use
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) to resolve the final
+checks, merge status and squash identity, then compare local main with origin.
+Do not repeat the completed native snapshot extraction or rewrite its evidence.
+The native report preserves a hosted temporary-root fixture failure and its
+follow-up. The corrected test distinguishes an aliased TEMP ancestor from the
+long root spelling; production containment rules remain unchanged. Confirm the
+final hosted checks rather than treating that earlier failed run as acceptance.
+Follow-up `5f23db4` passed both jobs in hosted run 34802067514: all 32 native
+filesystem cases executed on Windows, with 18 Windows/13 Linux CTest entries
+passing. The native snapshot slice is accepted. Start the next bounded declaration
+ingress/graph specification after confirming PR #21's final squash/main state.
+
+# Historical handoff: SN-021 bounded local resource snapshots
 
 Read CURRENT, BACKLOG, [ADR 0052](../decisions/0052-bounded-local-resource-snapshots.md),
 the [physical contract](../architecture/LOCAL_RESOURCE_VERIFICATION.md),

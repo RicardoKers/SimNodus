@@ -1,5 +1,20 @@
 # Backlog
 
+Latest native slice (2026-09-13): SN-021 remains **in_progress** with the
+[C++20 snapshot API](../experiments/SN-021-native-resources.md) under ADR 0053.
+Typed safety validation and Windows physical verification are native; complete
+JSON/lock parsing remains caller-owned. Native project graph loading, saving,
+source compilation and runtime acceptance remain pending. Actual long-name/8.3
+and case-policy rejection evidence supplements the preserved Python baseline.
+Source `bf3e05b` was pushed on 2026-09-14; follow
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) for final required checks
+and protected-main squash integration. This native slice does not close SN-021.
+The hosted temporary-root alias fixture needed a follow-up; its failed run and
+local corrected result are recorded in the native report. Production is unchanged.
+Follow-up `5f23db4` passed both hosted Foundation jobs: 32/32 native filesystem
+cases on Windows, 18 Windows and 13 Linux CTest entries. The snapshot slice is
+accepted; native declaration ingress/graph construction is the next bounded work.
+
 Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
 [bounded local resource snapshots](../experiments/SN-021-local-resources.md)
 under ADR 0052. Windows/NTFS reference verification precedes native loading;
@@ -66,7 +81,7 @@ future direction, not a new M3 delivery commitment.
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
-| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. First slice: [bounded local byte snapshots](../experiments/SN-021-local-resources.md); native loading/saving/compilation remain pending |
+| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. [Local reference](../experiments/SN-021-local-resources.md) and [native byte snapshots](../experiments/SN-021-native-resources.md) implemented; full project loading/saving/compilation remain pending |
 | SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |

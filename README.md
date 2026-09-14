@@ -83,6 +83,11 @@ separate from those declaration parsers. It checks local containment and locked
 bytes without interpreting resources. See [coverage and limits](docs/experiments/SN-021-local-resources.md);
 native project loading, atomic saving, source interfaces and compilation remain pending.
 
+The [native C++20 snapshot API](docs/experiments/SN-021-native-resources.md) now
+implements the bounded physical step with Windows types confined to platform
+code. Complete declaration parsing remains a separate caller gate; this does
+not implement native project loading or authorize resource execution.
+
 ## License and publication
 
 Original SimNodus code and associated documentation are licensed under the [MIT License](LICENSE). Third-party software, firmware, models, fonts, and other assets keep their own terms; see the [licensing policy](docs/development/LICENSING.md).
