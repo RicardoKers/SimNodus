@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-09-13.
+Updated: 2026-09-14.
 
 ## Latest implementation: SN-021 native resource snapshots
 
@@ -32,6 +32,12 @@ Work branch: `codex/sn-021-native-resources`, from verified clean main/origin
 commit, PR/checks, protected-main squash and push are authorized; publication of
 this new block must be confirmed from its PR before claiming main is updated.
 No issues, releases or binaries. Earlier task-state entries below are historical.
+
+Source commit `bf3e05b` was pushed on 2026-09-14.
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) records the final hosted
+checks and authorized protected-main squash integration. Consult its final state
+and merge commit before claiming main is updated; local acceptance remains dated
+2026-09-13 and its evidence is unchanged.
 
 ## Latest implementation: SN-021 bounded local snapshots
 

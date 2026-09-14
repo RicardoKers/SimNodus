@@ -33,6 +33,11 @@ integration and push remain authorized. Verify the new PR and actual main state;
 do not synchronize issues or publish releases/binaries. Older handoffs below
 are historical and do not override current authorization.
 
+Source `bf3e05b` was pushed on 2026-09-14. Use
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) to resolve the final
+checks, merge status and squash identity, then compare local main with origin.
+Do not repeat the completed native snapshot extraction or rewrite its evidence.
+
 # Historical handoff: SN-021 bounded local resource snapshots
 
 Read CURRENT, BACKLOG, [ADR 0052](../decisions/0052-bounded-local-resource-snapshots.md),

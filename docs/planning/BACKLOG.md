@@ -6,6 +6,9 @@ Typed safety validation and Windows physical verification are native; complete
 JSON/lock parsing remains caller-owned. Native project graph loading, saving,
 source compilation and runtime acceptance remain pending. Actual long-name/8.3
 and case-policy rejection evidence supplements the preserved Python baseline.
+Source `bf3e05b` was pushed on 2026-09-14; follow
+[PR #21](https://github.com/RicardoKers/SimNodus/pull/21) for final required checks
+and protected-main squash integration. This native slice does not close SN-021.
 
 Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
 [bounded local resource snapshots](../experiments/SN-021-local-resources.md)
