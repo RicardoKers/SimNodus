@@ -108,6 +108,18 @@ The original evidence JSON and its source hashes describe the pre-follow-up
 audit and remain unchanged. Only the regression driver changed afterward;
 production implementation and its recorded hashes are unchanged.
 
+Hosted acceptance at source `5f23db4`:
+[run 34802067514](https://github.com/RicardoKers/SimNodus/actions/runs/34802067514)
+passed both Foundation jobs, all 18 Windows and 13 Linux CTest entries. Windows
+executed all 32 native filesystem cases without skips, including both symlinks,
+actual 8.3 alias handling and case-sensitive-directory rejection; typed cases
+passed 41 on Windows and 42 on Linux. The unchanged Python resource suite retained
+two Windows and 28 Linux skips. A local rerun with TEMP/TMP deliberately pointing
+to an owned real 8.3 parent also passed 30 native cases/two symlink privilege skips.
+Intermediate run 34801953611 was cancelled after the lexical-error expectation
+was corrected; it is not acceptance. Documentation-only finalization follows
+this source, with required checks still enforced on the final PR head.
+
 ```powershell
 cmake -S . -B build/sn021-native-01
 cmake --build build/sn021-native-01 --config Debug

@@ -43,6 +43,11 @@ long-name fixture (17/18 CTest entries passed). The fixture now expands its owne
 root spelling and separately requires rejection of an aliased root. Local
 filesystem rerun: 30 passes/two privilege skips. Preserve the failed run linked
 in the native report and require final PR checks before integration.
+Follow-up source `5f23db4` passed both Foundation jobs in
+[run 34802067514](https://github.com/RicardoKers/SimNodus/actions/runs/34802067514):
+32/32 native filesystem cases without Windows skips, 18 Windows CTests and
+13 Linux CTests. The native snapshot slice is accepted at that scope; final
+documentation and squash status remain traceable through PR #21.
 
 ## Latest implementation: SN-021 bounded local snapshots
 

@@ -11,6 +11,9 @@ Source `bf3e05b` was pushed on 2026-09-14; follow
 and protected-main squash integration. This native slice does not close SN-021.
 The hosted temporary-root alias fixture needed a follow-up; its failed run and
 local corrected result are recorded in the native report. Production is unchanged.
+Follow-up `5f23db4` passed both hosted Foundation jobs: 32/32 native filesystem
+cases on Windows, 18 Windows and 13 Linux CTest entries. The snapshot slice is
+accepted; native declaration ingress/graph construction is the next bounded work.
 
 Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
 [bounded local resource snapshots](../experiments/SN-021-local-resources.md)

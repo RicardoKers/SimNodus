@@ -41,6 +41,10 @@ The native report preserves a hosted temporary-root fixture failure and its
 follow-up. The corrected test distinguishes an aliased TEMP ancestor from the
 long root spelling; production containment rules remain unchanged. Confirm the
 final hosted checks rather than treating that earlier failed run as acceptance.
+Follow-up `5f23db4` passed both jobs in hosted run 34802067514: all 32 native
+filesystem cases executed on Windows, with 18 Windows/13 Linux CTest entries
+passing. The native snapshot slice is accepted. Start the next bounded declaration
+ingress/graph specification after confirming PR #21's final squash/main state.
 
 # Historical handoff: SN-021 bounded local resource snapshots
 

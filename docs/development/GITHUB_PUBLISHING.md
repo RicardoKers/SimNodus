@@ -104,6 +104,11 @@ Foundation-check and protected-main squash record. Confirm the final PR head,
 successful checks and resulting main identity before reporting integration.
 The native API verifies bounded snapshots; it does not implement native project
 JSON/graph loading or close SN-021. No issues, releases or binaries are published.
+Source `5f23db4` passed both Foundation jobs in
+[run 34802067514](https://github.com/RicardoKers/SimNodus/actions/runs/34802067514),
+including all 32 Windows native filesystem cases without skips. The native report
+preserves the preceding fixture failure and correction; final documentation-only
+changes still require checks before integration.
 
 ## Binary release gate
 
