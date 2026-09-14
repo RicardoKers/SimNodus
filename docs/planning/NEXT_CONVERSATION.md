@@ -21,6 +21,10 @@ excluded; preserve their shared planning overlay. Keep SN-044, shared instrument
 MCU/toolchain independence, numerical profiles, PDF/PID fixes and SN-017 Python/GDB
 ownership. No issue synchronization, dependency download or binary release.
 
+[PR #25](https://github.com/RicardoKers/SimNodus/pull/25), starting at source
+`1a6de52`, is the final hosted-check and protected-main squash record for this slice.
+Confirm its final state and main identity before continuing with resource metadata.
+
 # Historical handoff: SN-021 native exact parameters
 
 Read CURRENT, BACKLOG, [ADR 0057](../decisions/0057-native-exact-parameters.md),

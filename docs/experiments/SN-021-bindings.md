@@ -87,6 +87,12 @@ is claimed. Native lone-surrogate rejection remains stricter than Python.
 
 ## Reproduction
 
+Source `1a6de52` was pushed on `codex/sn-021-native-bindings`.
+[PR #25](https://github.com/RicardoKers/SimNodus/pull/25) records final required
+Foundation checks and authorized protected-main squash integration. Windows runs
+26 CTest entries and Linux 21. Consult final job results rather than interpreting
+these expected counts as hosted acceptance; local results are recorded above.
+
 ```powershell
 cmake -S . -B build/sn021-bindings-host
 cmake --build build/sn021-bindings-host --config Debug
