@@ -21,6 +21,23 @@ add_custom_target(check-repository
 
 include(CTest)
 add_library(simnodus_declaration_ingress STATIC src/application/declaration_ingress.cpp)
+add_library(simnodus_lock STATIC src/application/lock_validation.cpp src/application/lock_digest.cpp)
+target_include_directories(simnodus_lock PUBLIC src)
+target_link_libraries(simnodus_lock PUBLIC simnodus_declaration_ingress PRIVATE simnodus::build_options)
+if(MSVC)
+    target_compile_options(simnodus_lock PRIVATE /W4 /WX /permissive- /EHsc)
+endif()
+if(BUILD_TESTING)
+    add_executable(native_lock_tests tests/schema/native_lock.cpp)
+    target_link_libraries(native_lock_tests PRIVATE simnodus_lock)
+    add_test(NAME native-lock-contracts COMMAND native_lock_tests)
+    add_executable(native_lock_probe tests/schema/native_lock_probe.cpp)
+    target_link_libraries(native_lock_probe PRIVATE simnodus_lock)
+    add_test(NAME native-lock-differential
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_lock_regression.py"
+            --probe "$<TARGET_FILE:native_lock_probe>")
+    set_tests_properties(native-lock-differential PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
+endif()
 add_library(simnodus_topology STATIC src/application/topology_validation.cpp)
 add_library(simnodus_parameters STATIC src/application/parameter_validation.cpp)
 target_include_directories(simnodus_parameters PUBLIC src)

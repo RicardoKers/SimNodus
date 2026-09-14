@@ -2,6 +2,30 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native resource lock metadata
+
+The [native lock slice](../experiments/SN-021-lock.md) validates resource lock 0.1
+fields, IDs, provenance/license declarations, lexical paths, budgets and canonical
+inventory fingerprints. It returns immutable declared requests, source offsets
+and owned syntax; every physical/trust/readiness flag remains false. No resources
+are opened. See ADR 0059, the contract and audit in the report.
+
+Focused acceptance: 23 cases, 135 native/reference metadata comparisons, 137 digest
+cases and native ownership/source-offset checks. One Python host integer-cap
+diagnostic difference is explicit; both validators reject. Full regressions,
+historical hashes and final publication are recorded in the report. Twelve
+preexisting SN-045 changes remain local and excluded, including planning edits.
+
+SN-021 remains **in_progress**. Next port typed resource links, then project
+semantics before native source graph loading. Physical snapshots, actual interfaces,
+source trust, redistribution and execution remain independent gates. No saving,
+compilation or UI is implemented here. Preserve shared instrumentation, SN-044,
+MCU/toolchain independence, numerical profiles, PDF/PID and SN-017 Python/GDB.
+
+Work branch: `codex/sn-021-native-lock`, based on synchronized main
+`bd1da0df6ad8a18b9884ca441660207cdf255fbe`. Follow the report for required checks
+and squash identity. Earlier entries below are historical checkpoints.
+
 ## Latest implementation: SN-021 native descriptor bindings
 
 The [native 0.3 slice](../experiments/SN-021-bindings.md) validates separate symbol

@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-14): SN-021 [native resource lock metadata](../experiments/SN-021-lock.md)
+implements lock 0.1 declaration rules and canonical inventory fingerprints without
+resource I/O. Focused acceptance: 23 cases/135 metadata comparisons/137 digest cases.
+Full regressions and publication are in the report. SN-021 stays **in_progress**;
+next port typed resource links and project semantics before native graph loading.
+
 Latest slice (2026-09-14): SN-021 [native descriptor bindings](../experiments/SN-021-bindings.md)
 implements topology 0.3 catalog, map and exact interval semantics over owned syntax.
 Focused acceptance: 22 cases/157 native-reference comparisons; full regressions,

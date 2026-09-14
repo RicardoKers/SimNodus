@@ -1,5 +1,10 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native resource lock metadata](../../docs/experiments/SN-021-lock.md).
+CTest compares original reference validation with native requests/statistics and
+tests bounded inventory SHA-256 against hashlib. No physical resource is opened
+by the metadata API; containment and byte snapshots remain a separate operation.
+
 SN-021 adds [native descriptor bindings](../../docs/experiments/SN-021-bindings.md).
 CTest runs `native-binding-contracts` and `native-binding-differential`, comparing
 the unchanged Python 0.3 oracle with native statistics, parameter values and errors.
