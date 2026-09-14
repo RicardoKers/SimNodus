@@ -22,6 +22,10 @@ the shared planning overlay; they are excluded from this publication. Keep SN-04
 instrumentation, MCU/toolchain independence, numerical bounds, PDF/PID fixes and
 SN-017 Python/GDB ownership. No issue sync, dependency download or binary release.
 
+[PR #26](https://github.com/RicardoKers/SimNodus/pull/26), starting at source
+`ead5b71`, records final hosted checks and the authorized squash. Verify its final
+state and local/remote main identity before continuing with typed resource links.
+
 # Historical handoff: SN-021 native descriptor bindings
 
 Read CURRENT, BACKLOG, [ADR 0058](../decisions/0058-native-descriptor-bindings.md),

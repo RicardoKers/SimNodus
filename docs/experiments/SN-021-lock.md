@@ -71,6 +71,12 @@ are not claimed. Native lone-surrogate rejection remains stricter than Python.
 
 ## Reproduction
 
+Source `ead5b71` was pushed on `codex/sn-021-native-lock`.
+[PR #26](https://github.com/RicardoKers/SimNodus/pull/26) is the final required
+Foundation-check and protected-main squash record. Expected job contents are
+28 Windows and 23 Linux CTests; consult the final logs for actual hosted results.
+Local acceptance does not substitute for final-head hosted checks.
+
 ```powershell
 cmake -S . -B build/sn021-lock
 cmake --build build/sn021-lock --config Debug

@@ -138,6 +138,15 @@ SN-045 documentation remains local and excluded, including shared planning edits
 The immutable result validates declared maps and intervals, not physical resource
 interfaces, source trust, graph loading or execution readiness. No binary release.
 
+## SN-021 native resource lock integration: 2026-09-14
+
+Source `ead5b71` was pushed on `codex/sn-021-native-lock` after native metadata,
+digest and foundation acceptance. [PR #26](https://github.com/RicardoKers/SimNodus/pull/26)
+records final required Foundation checks and the authorized protected-main squash.
+Preexisting SN-045 documentation remains local and excluded, including planning
+edits. The new immutable requests are declarations only; physical verification,
+source interfaces, trust and execution approval remain separate. No binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`
