@@ -1,9 +1,11 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "application/parameter_validation.hpp"
+#include "application/binding_validation.hpp"
 #include "application/topology_validation_internal.hpp"
 #include <algorithm>
 #include <new>
+#include <set>
 #include <utility>
 
 namespace simnodus {
@@ -59,6 +61,101 @@ struct Definition {
 class Resolver {
 public:
     explicit Resolver(TopologyDeclaration topology) : topology_(std::move(topology)), source_(*topology_.syntax) {}
+    BindingDeclaration bindings()
+    {
+        auto parameters = run();
+        const auto root = object(0);
+        std::size_t entries = 0, bound_symbols = 0, bound_models = 0;
+        const auto records = [&](Index index, std::initializer_list<const char*> fields) {
+            Fields result;
+            for(const auto token : array(index)) {
+                const auto record = exact(token, fields);
+                const auto id = identifier(record.at("id"));
+                name(record.at("name"));
+                require(result.emplace(id, token).second, "id", record.at("id"));
+                ++entries;
+            }
+            return result;
+        };
+        const auto symbols = records(root.at("symbols"), {"id", "name", "pins"});
+        const auto models = records(root.at("models"), {"id", "name", "terminals", "parameters"});
+        std::map<std::string, Fields> anchors, terminals, slots;
+        for(const auto& [id, token] : symbols)
+            anchors.emplace(id, records(object(token).at("pins"), {"id", "name"}));
+        for(const auto& [id, token] : models) {
+            const auto record = object(token);
+            auto pins = records(record.at("terminals"), {"id", "name", "domain"});
+            for(const auto& [pid, pin] : pins) {
+                (void)pid;
+                const auto domain = object(pin).at("domain");
+                require(string(domain, "value") == "electrical", "value", domain);
+            }
+            terminals.emplace(id, std::move(pins));
+            auto parameters_slots = records(record.at("parameters"), {"id", "name", "unit", "minimum", "maximum"});
+            for(const auto& [pid, slot] : parameters_slots) {
+                (void)pid;
+                const auto value = object(slot);
+                const auto unit = string(value.at("unit"), "unit");
+                require(unit == "ohm" || unit == "F" || unit == "V" || unit == "s" || unit == "1", "unit", value.at("unit"));
+                const auto low = number(value.at("minimum")), high = number(value.at("maximum"));
+                require(compare(low, high) <= 0, "range", slot);
+            }
+            slots.emplace(id, std::move(parameters_slots));
+        }
+        const auto mapping = [&](Index index, const auto& from, const Fields& to) {
+            const auto fields = object(index);
+            require(fields.size() == from.size(), "mapping", index);
+            for(const auto& [id, token] : fields) {
+                (void)token;
+                require(from.contains(id), "mapping", index);
+            }
+            std::set<std::string> targets;
+            for(const auto& [id, token] : fields) { (void)id; targets.insert(identifier(token)); }
+            require(targets.size() == fields.size() && targets.size() == to.size(), "mapping", index);
+            for(const auto& id : targets) require(to.contains(id), "mapping", index);
+            entries += fields.size();
+            return fields;
+        };
+        for(const bool component : {true, false}) {
+            for(const auto token : array(root.at(component ? "components" : "circuits"))) {
+                const auto definition = object(token);
+                const auto did = string(definition.at("id"), "id");
+                Fields pins;
+                for(const auto pin : array(definition.at(component ? "pins" : "ports")))
+                    pins.emplace(string(object(pin).at("id"), "id"), pin);
+                const auto symbol_token = definition.at("symbol");
+                if(source_.tokens[symbol_token].kind != JsonKind::null) {
+                    const auto binding = exact(symbol_token, {"definition", "pin_map"});
+                    const auto id = identifier(binding.at("definition"));
+                    require(symbols.contains(id), "reference", binding.at("definition"));
+                    mapping(binding.at("pin_map"), pins, anchors.at(id));
+                    ++entries;
+                    ++bound_symbols;
+                }
+                if(!component) continue;
+                const auto model_token = definition.at("model");
+                if(source_.tokens[model_token].kind == JsonKind::null) continue;
+                const auto binding = exact(model_token, {"definition", "pin_map", "parameter_map"});
+                const auto id = identifier(binding.at("definition"));
+                require(models.contains(id), "reference", binding.at("definition"));
+                // Both logical and model terminals were checked as electrical.
+                mapping(binding.at("pin_map"), pins, terminals.at(id));
+                const auto& declarations = definitions_.at(did).parameters;
+                const auto parameter_map = mapping(binding.at("parameter_map"), declarations, slots.at(id));
+                for(const auto& [pid, value] : parameter_map) {
+                    const auto& declaration = declarations.at(pid);
+                    const auto slot = object(slots.at(id).at(string(value, "id")));
+                    require(declaration.unit == string(slot.at("unit"), "unit"), "unit", value);
+                    require(compare(number(slot.at("minimum")), declaration.low) <= 0
+                        && compare(declaration.high, number(slot.at("maximum"))) <= 0, "range", value);
+                }
+                ++entries;
+                ++bound_models;
+            }
+        }
+        require(topology_.declared_entities + extra_ + entries <= 4096, "budget", 0);
+        return {std::move(parameters), entries, bound_symbols, bound_models, false};
+    }
     ParameterSnapshot run()
     {
         const auto root = object(0);
@@ -292,6 +389,17 @@ ParameterResult resolve_parameter_declaration(std::string_view bytes)
         if(const auto* error = std::get_if<IngressError>(&input))
             return ParameterError{error->code == IngressErrorCode::memory ? "memory" : "input", error->offset};
         return std::make_shared<const ParameterSnapshot>(Resolver(detail::parameter_topology(std::get<0>(input))).run());
+    } catch(const TopologyError& error) { return ParameterError{topology_error_name(error.code), error.offset}; }
+    catch(const ParameterError& error) { return error; }
+    catch(const std::bad_alloc&) { return ParameterError{"memory", 0}; }
+}
+BindingResult validate_binding_declaration(std::string_view bytes)
+{
+    try {
+        const auto input = capture_declaration_syntax(bytes);
+        if(const auto* error = std::get_if<IngressError>(&input))
+            return ParameterError{error->code == IngressErrorCode::memory ? "memory" : "input", error->offset};
+        return std::make_shared<const BindingDeclaration>(Resolver(detail::binding_topology(std::get<0>(input))).bindings());
     } catch(const TopologyError& error) { return ParameterError{topology_error_name(error.code), error.offset}; }
     catch(const ParameterError& error) { return error; }
     catch(const std::bad_alloc&) { return ParameterError{"memory", 0}; }

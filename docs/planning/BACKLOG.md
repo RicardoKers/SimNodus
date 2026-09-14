@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-14): SN-021 [native descriptor bindings](../experiments/SN-021-bindings.md)
+implements topology 0.3 catalog, map and exact interval semantics over owned syntax.
+Focused acceptance: 22 cases/157 native-reference comparisons; full regressions,
+failures and publication are recorded in the report. SN-021 stays **in_progress**;
+next port resource lock/link and project semantics before native graph loading.
+
 Latest slice (2026-09-14): SN-021 [native exact parameters](../experiments/SN-021-parameters.md)
 implements topology 0.2 quantities, scoped overrides and immutable per-occurrence
 inspection. Focused acceptance: 22 cases/315 reference comparisons. The report
