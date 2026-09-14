@@ -27,6 +27,10 @@ Branch: `codex/sn-021-declaration-ingress`, based on clean synchronized main
 `5fa212e970e0f363e846d82f81cdb48ec1e9a10c`. Validated-source PR/checks/squash/push
 remain authorized. Confirm final PR and main identity before claiming integration.
 Earlier entries below are historical checkpoints.
+Source `0dfd974` was pushed on `codex/sn-021-declaration-ingress`.
+[PR #22](https://github.com/RicardoKers/SimNodus/pull/22) records the final required
+Foundation checks and authorized protected-main squash. Resolve the final commit
+identity from that record; source publication alone does not update main.
 
 ## Latest implementation: SN-021 native resource snapshots
 

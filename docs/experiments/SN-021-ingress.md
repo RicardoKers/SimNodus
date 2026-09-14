@@ -39,6 +39,15 @@ to 209. Both runs passed. No failed build/test run occurred in this slice.
 No binaries or downloaded dependencies are published.
 Repository checker: 488 text files passed; `git diff --check` passed.
 
+## Source integration
+
+Source `0dfd974` was pushed on `codex/sn-021-declaration-ingress`.
+[PR #22](https://github.com/RicardoKers/SimNodus/pull/22) records final required
+Foundation checks and authorized protected-main squash integration. Windows runs
+all 20 CTest entries; Linux runs 15, including the same ingress tests and its
+existing explicit unsupported-physical-platform behavior. Consult the final
+check logs for actual passes/skips; expected job contents are not test results.
+
 ## Reproduction and limits
 
 ```powershell

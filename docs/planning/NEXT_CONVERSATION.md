@@ -24,6 +24,9 @@ Python/GDB fixture ownership, tolerances, PDF/PID behavior and all historical ev
 Work branch `codex/sn-021-declaration-ingress` starts from synchronized main
 `5fa212e970e0f363e846d82f81cdb48ec1e9a10c`; PR/checks/squash/push remain authorized.
 Verify the final PR and local/remote main identity. No issue sync or binary release.
+[PR #22](https://github.com/RicardoKers/SimNodus/pull/22) is the final hosted-check
+and squash record, starting from source `0dfd974`. Use that record to confirm
+integration before continuing; do not repeat the syntax extraction.
 
 # Historical handoff: SN-021 native resource snapshots
 

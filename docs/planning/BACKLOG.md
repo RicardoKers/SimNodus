@@ -6,6 +6,8 @@ Latest slice (2026-09-14): SN-021 native
 This preserves bytes/tokens without opening resources or granting schema validity.
 SN-021 stays **in_progress**; next validate schema semantics before graph creation.
 Repository checker passed for 488 text files; historical evidence is preserved.
+[PR #22](https://github.com/RicardoKers/SimNodus/pull/22), starting at source
+`0dfd974`, records final hosted acceptance and protected-main integration.
 
 Latest native slice (2026-09-13): SN-021 remains **in_progress** with the
 [C++20 snapshot API](../experiments/SN-021-native-resources.md) under ADR 0053.

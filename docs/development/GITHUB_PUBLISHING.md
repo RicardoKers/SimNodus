@@ -112,6 +112,12 @@ changes still require checks before integration.
 
 ## Binary release gate
 
+The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`
+on `codex/sn-021-declaration-ingress`. [PR #22](https://github.com/RicardoKers/SimNodus/pull/22)
+records final hosted checks and the authorized squash. This is inert syntax
+ingress, not full native schema/graph loading or a binary release. The local audit
+and prior evidence are preserved; confirm the final PR head and main identity.
+
 Record backend/runtime revisions and licenses, supported Windows versions, installer provenance, checksums, and tested lesson projects. Add required notices and source/relinking materials for dependencies as applicable. Do not redistribute CubeIDE, vendor firmware, model packs, or documentation by assumption.
 
 Use `0.x` prereleases until compatibility expectations and project-format migrations are established. Publish limitations beside the download. Keep January's classroom candidate fixed except for reviewed fixes.
