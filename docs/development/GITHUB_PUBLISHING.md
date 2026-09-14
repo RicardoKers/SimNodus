@@ -147,6 +147,15 @@ Preexisting SN-045 documentation remains local and excluded, including planning
 edits. The new immutable requests are declarations only; physical verification,
 source interfaces, trust and execution approval remain separate. No binary release.
 
+## SN-021 native resource-link integration: 2026-09-14
+
+Source `5100aa3` was pushed on `codex/sn-021-native-links` after native composition
+and full foundation acceptance. [PR #27](https://github.com/RicardoKers/SimNodus/pull/27)
+records final required Foundation checks and the authorized squash. The exact
+publication tree excludes twelve preexisting SN-045 changes, including shared
+planning edits. Shared captured declarations do not verify source interfaces or
+authorize resources, graph loading, compilation or execution. No binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

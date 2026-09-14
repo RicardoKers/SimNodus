@@ -61,6 +61,11 @@ but not fault-injected, and hard OS memory/wall quotas are not claimed.
 
 ## Reproduction
 
+Source `5100aa3` was pushed on `codex/sn-021-native-links`.
+[PR #27](https://github.com/RicardoKers/SimNodus/pull/27) records final required
+Foundation checks and the authorized protected-main squash. Expected jobs contain
+30 Windows and 25 Linux CTests; consult final logs for actual hosted acceptance.
+
 ```powershell
 cmake -S . -B build/sn021-links
 cmake --build build/sn021-links --config Debug

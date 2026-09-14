@@ -24,6 +24,10 @@ the shared planning overlay; they are excluded from publication. Keep SN-044,
 instrumentation, MCU/toolchain independence, numerical profiles, PDF/PID fixes and
 SN-017 Python/GDB ownership. No issues, releases, downloads or automatic execution.
 
+[PR #27](https://github.com/RicardoKers/SimNodus/pull/27), starting at source
+`5100aa3`, records hosted checks and squash integration. Confirm its final state
+and main identity before continuing with project composition.
+
 # Historical handoff: SN-021 native resource lock metadata
 
 Read CURRENT, BACKLOG, [ADR 0059](../decisions/0059-native-resource-lock.md),
