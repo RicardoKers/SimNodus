@@ -22,6 +22,9 @@ them to make the working tree clean. Confirm actual main/remote and PR status.
 Keep SN-044, MCU/toolchain independence, engine restrictions/tolerances, PDF/PID
 behavior and SN-017 Python/GDB fixture ownership. No issue sync or binary release.
 
+[PR #23](https://github.com/RicardoKers/SimNodus/pull/23), starting at source
+`4cccfe7`, is the hosted-check and protected-main squash record for this slice.
+
 # Historical handoff: SN-021 native declaration syntax ingress
 
 Read CURRENT, BACKLOG, [ADR 0054](../decisions/0054-declaration-ingress.md),

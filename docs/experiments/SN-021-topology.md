@@ -54,6 +54,12 @@ No new automation/UI work is included or authorized by this slice.
 
 ## Reproduction and limits
 
+Source `4cccfe7` was pushed on `codex/sn-021-topology-semantics`.
+[PR #23](https://github.com/RicardoKers/SimNodus/pull/23) records final required
+Foundation checks and authorized protected-main squash integration. Windows
+runs 22 CTest entries and Linux 17, including the two new topology entries.
+Consult actual logs for results; job expectations are not acceptance evidence.
+
 ```powershell
 cmake -S . -B build/sn021-topology
 cmake --build build/sn021-topology --config Debug
