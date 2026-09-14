@@ -2,6 +2,32 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native exact parameters
+
+The [native parameter slice](../experiments/SN-021-parameters.md) implements
+topology 0.2 validation and immutable inspection snapshots: exact decimal strings,
+closed units, inclusive ranges, scoped overrides and per-occurrence values/origins.
+Source bytes and offsets remain owned. No resources or engines are opened.
+The topology 0.1 public entry point remains strict; full project semantics and
+an editable domain graph remain pending. See ADR 0057 and the audit in the report.
+
+Focused acceptance: 22 cases and 315 native/reference comparisons, plus native
+ownership/source-origin checks. Full local/hosted regression results and the final
+PR are recorded in the report. Original validators and historical evidence remain
+preserved; shared structural code is extended intentionally and regressed against
+0.1. Preexisting SN-045 documentation remains local and excluded from publication.
+
+SN-021 remains **in_progress**. Next port descriptor/model interface declarations
+for topology 0.3, followed by resource and project semantics before graph loading.
+Keep declaration validity, physical snapshots, source compatibility, trust and
+execution authorization separate. Saving, compilation, UI and runtime readiness
+remain pending. Preserve SN-044, engine profiles/tolerances, PDF/PID fixes and
+SN-017 Python/GDB fixture ownership.
+
+Work branch: `codex/sn-021-native-parameters`, based on main
+`f05b993a278e2372f97aa62bda3277b7703e26bc`. Follow the report's PR for required
+checks and squash identity. Earlier entries below are historical checkpoints.
+
 ## Latest implementation: SN-021 native topology semantics
 
 The [native topology slice](../experiments/SN-021-topology.md) validates the

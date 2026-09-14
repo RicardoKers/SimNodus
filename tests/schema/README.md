@@ -1,5 +1,10 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native exact parameters](../../docs/experiments/SN-021-parameters.md).
+CTest runs `native-parameter-contracts` and `native-parameter-differential`, comparing
+the unchanged Python parameter reference with native inspection values and errors.
+This does not open resources or select a public CLI contract.
+
 SN-021 adds [native topology semantics](../../docs/experiments/SN-021-topology.md).
 CTest runs `native-topology-contracts` and `native-topology-differential`; the
 latter reuses the unchanged topology reference tests and adds bounded adversarial
