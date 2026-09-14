@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-14): SN-021 [native topology semantics](../experiments/SN-021-topology.md)
+implements the complete preserved topology 0.1 rules over immutable captured
+syntax. The report records differential/adversarial acceptance and publication.
+Full project/topology 0.3 semantics remain Python-owned; next port exact parameters
+and scoped overrides. SN-021 stays **in_progress**; no resources are opened.
+
 Latest slice (2026-09-14): SN-021 native
 [declaration syntax ingress](../experiments/SN-021-ingress.md) is locally accepted:
 95 native assertions, 209 differential/adversarial cases and 20 Windows CTests.

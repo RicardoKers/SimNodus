@@ -110,6 +110,16 @@ including all 32 Windows native filesystem cases without skips. The native repor
 preserves the preceding fixture failure and correction; final documentation-only
 changes still require checks before integration.
 
+## SN-021 native topology integration: 2026-09-14
+
+Source `4cccfe7` was pushed on `codex/sn-021-topology-semantics` after local
+semantic/foundation validation and review of the exact staged tree.
+[PR #23](https://github.com/RicardoKers/SimNodus/pull/23) records final required
+checks and authorized squash integration. Preexisting local SN-045 documentation
+is excluded, including its edits to shared planning files. Preserve that overlay
+while synchronizing main; do not reset or discard it for a clean-status report.
+This is topology 0.1 semantic validation only, not full project/graph loading.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

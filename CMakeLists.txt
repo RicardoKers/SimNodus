@@ -21,6 +21,23 @@ add_custom_target(check-repository
 
 include(CTest)
 add_library(simnodus_declaration_ingress STATIC src/application/declaration_ingress.cpp)
+add_library(simnodus_topology STATIC src/application/topology_validation.cpp)
+target_include_directories(simnodus_topology PUBLIC src)
+target_link_libraries(simnodus_topology PUBLIC simnodus_declaration_ingress PRIVATE simnodus::build_options)
+if(MSVC)
+    target_compile_options(simnodus_topology PRIVATE /W4 /WX /permissive- /EHsc)
+endif()
+if(BUILD_TESTING)
+    add_executable(native_topology_tests tests/schema/native_topology.cpp)
+    target_link_libraries(native_topology_tests PRIVATE simnodus_topology)
+    add_test(NAME native-topology-contracts COMMAND native_topology_tests)
+    add_executable(native_topology_probe tests/schema/native_topology_probe.cpp)
+    target_link_libraries(native_topology_probe PRIVATE simnodus_topology)
+    add_test(NAME native-topology-differential
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_topology_regression.py"
+            --probe "$<TARGET_FILE:native_topology_probe>")
+    set_tests_properties(native-topology-differential PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
+endif()
 target_include_directories(simnodus_declaration_ingress PUBLIC src)
 target_link_libraries(simnodus_declaration_ingress PRIVATE simnodus::build_options)
 if(MSVC)

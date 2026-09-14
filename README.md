@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native topology validator](docs/experiments/SN-021-topology.md) checks the
+preserved topology 0.1 structure and hierarchy over owned syntax. It performs
+no resource I/O; full native project semantics and graph loading remain pending.
+
 The bounded [native declaration ingress](docs/experiments/SN-021-ingress.md)
 captures immutable JSON syntax and source positions without opening resources.
 Full native schema semantics and project graph loading remain pending.
