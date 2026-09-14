@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "application/topology_validation.hpp"
+#include "application/topology_validation_internal.hpp"
 #include <algorithm>
 #include <map>
 #include <new>
@@ -23,17 +24,20 @@ struct Definition {
 };
 class Validator {
 public:
-    explicit Validator(std::shared_ptr<const DeclarationSyntax> source) : source_(std::move(source)) {}
+    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, bool parameters = false)
+        : source_(std::move(source)), parameters_(parameters) {}
     TopologyDeclaration run()
     {
         const auto root = fields(0, {"format", "version", "root", "components", "circuits"});
-        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), "0.1"), Code::version, 0);
+        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), parameters_ ? "0.2" : "0.1"), Code::version, 0);
         const auto root_id = id(root.at("root"));
         Ids definitions;
         for(const bool component : {true, false}) {
             auto& catalog = component ? components_ : circuits_;
             for(const auto index : array(root.at(component ? "components" : "circuits"), component ? 0 : 1)) {
-                auto record = component ? fields(index, {"id", "name", "pins"}) : fields(index, {"id", "name", "ports", "instances", "nets"});
+                auto record = parameters_
+                    ? (component ? fields(index, {"id", "name", "pins", "parameters"}) : fields(index, {"id", "name", "ports", "instances", "nets", "parameters"}))
+                    : (component ? fields(index, {"id", "name", "pins"}) : fields(index, {"id", "name", "ports", "instances", "nets"}));
                 const auto name = register_id(record, definitions, index);
                 catalog.emplace(name, Definition{index, std::move(record), {}, {}, 0, 0, 0, false});
             }
@@ -56,7 +60,8 @@ public:
             auto scope = definition.terminals;
             std::map<std::string, const Definition*> instances;
             for(const auto index : array(definition.fields.at("instances"))) {
-                const auto record = fields(index, {"id", "name", "kind", "definition"});
+                const auto record = parameters_ ? fields(index, {"id", "name", "kind", "definition", "overrides"})
+                    : fields(index, {"id", "name", "kind", "definition"});
                 const auto instance_id = register_id(record, scope, index);
                 const bool component = equal(record.at("kind"), "component");
                 require(component || equal(record.at("kind"), "circuit"), Code::value, index);
@@ -96,6 +101,7 @@ public:
     }
 private:
     std::shared_ptr<const DeclarationSyntax> source_;
+    bool parameters_;
     std::map<std::string, Definition> components_, circuits_;
     std::size_t count_ = 0;
     void require(bool condition, Code code, Index index) const
@@ -183,6 +189,10 @@ private:
         definition.expanded = expanded;
     }
 };
+}
+TopologyDeclaration detail::parameter_topology(std::shared_ptr<const DeclarationSyntax> source)
+{
+    return Validator(std::move(source), true).run();
 }
 TopologyResult validate_topology_declaration(std::string_view bytes)
 {

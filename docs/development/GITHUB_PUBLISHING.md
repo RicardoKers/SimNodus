@@ -120,6 +120,15 @@ is excluded, including its edits to shared planning files. Preserve that overlay
 while synchronizing main; do not reset or discard it for a clean-status report.
 This is topology 0.1 semantic validation only, not full project/graph loading.
 
+## SN-021 native parameter integration: 2026-09-14
+
+Source `a561149` was pushed on `codex/sn-021-native-parameters` after exact
+parameter, topology and foundation acceptance. [PR #24](https://github.com/RicardoKers/SimNodus/pull/24)
+records final required checks and the authorized squash. Preexisting SN-045
+documentation remains local and excluded. Preserve it while synchronizing main.
+The new snapshots are inert parameter inspection, not full project/graph loading,
+resource interpretation or execution approval. No binary release is included.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

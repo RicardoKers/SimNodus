@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native parameter resolver](docs/experiments/SN-021-parameters.md) validates
+topology 0.2 quantities and scoped overrides with exact decimals, returning inert
+per-occurrence inspection snapshots. Full native project loading remains pending.
+
 The [native topology validator](docs/experiments/SN-021-topology.md) checks the
 preserved topology 0.1 structure and hierarchy over owned syntax. It performs
 no resource I/O; full native project semantics and graph loading remain pending.

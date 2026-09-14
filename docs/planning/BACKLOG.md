@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-14): SN-021 [native exact parameters](../experiments/SN-021-parameters.md)
+implements topology 0.2 quantities, scoped overrides and immutable per-occurrence
+inspection. Focused acceptance: 22 cases/315 reference comparisons. The report
+records full regressions and publication. SN-021 stays **in_progress**; next port
+descriptor/model declaration semantics, with full project loading still pending.
+
 Latest slice (2026-09-14): SN-021 [native topology semantics](../experiments/SN-021-topology.md)
 implements the complete preserved topology 0.1 rules over immutable captured
 syntax. The report records differential/adversarial acceptance and publication.

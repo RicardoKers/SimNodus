@@ -1,4 +1,33 @@
-# Latest handoff: SN-021 native topology semantics
+# Latest handoff: SN-021 native exact parameters
+
+Read CURRENT, BACKLOG, [ADR 0057](../decisions/0057-native-exact-parameters.md),
+the [contract](../architecture/NATIVE_PARAMETERS.md) and
+[report](../experiments/SN-021-parameters.md). Native topology 0.2 now validates
+exact quantities, units, ranges, scoped overrides and interval-safe forwarding,
+then returns immutable inspection rows with distinct occurrence paths and origins.
+The API retains source bytes/offsets and performs no resource or engine I/O.
+The topology 0.1 entry point remains separate and strict.
+
+Focused acceptance: 22 cases/315 native-reference comparisons and C++ ownership,
+signed-zero, namespace/source-offset checks. The report records full regressions,
+historical hash checks and final publication. Next port topology 0.3 descriptor/
+model declaration semantics; resource/project validation and graph loading remain
+pending. Keep metadata, physical bytes, source interfaces, trust and execution
+authorization independent. SN-021 remains in progress; saving/compilation/UI and
+runtime readiness are not implemented by this slice.
+
+Branch `codex/sn-021-native-parameters` starts at main
+`f05b993a278e2372f97aa62bda3277b7703e26bc`. Follow the report's final PR/checks
+and squash record. Twelve preexisting SN-045 documentation changes remain local
+and excluded; preserve them when synchronizing main. Keep SN-044, MCU/toolchain
+independence, engine tolerances, PDF/PID fixes and SN-017 Python/GDB ownership.
+No issue synchronization or binary release.
+
+[PR #24](https://github.com/RicardoKers/SimNodus/pull/24), starting at source
+`a561149`, is the hosted-check and squash record. Confirm its final state and
+local/remote main identity before continuing with descriptor declarations.
+
+# Historical handoff: SN-021 native topology semantics
 
 Read CURRENT, BACKLOG, [ADR 0056](../decisions/0056-native-topology-semantics.md),
 the [native contract](../architecture/NATIVE_TOPOLOGY_VALIDATION.md) and
