@@ -41,7 +41,7 @@ def packet(document, root):
 def decode(output):
     if output.startswith(b"ERR "):
         _, code, index, system = output.decode().strip().split()
-        raise t.Invalid(code, index, f"Native verification error ({system})")
+        raise t.Invalid(code, index, f"Native verification error {code} at {index} ({system})")
     if not output.startswith(b"OK\n"):
         raise AssertionError(f"Invalid native output: {output[:100]!r}")
     stream = io.BytesIO(output[3:])
@@ -188,6 +188,22 @@ class NativeResources(baseline.LocalResourceTests):
             source = root / "long-resource-filename.bin"
             source.write_bytes(b"owned")
             fs = reference.WindowsFiles()
+            # TEMP can contain an ancestor's 8.3 alias on hosted Windows.
+            # Expand only the owned fixture spelling; production still verifies
+            # every component by handle and must reject the aliased root.
+            long_name = fs.k.GetLongPathNameW
+            long_name.argtypes = [c.c_wchar_p, c.c_wchar_p, c.c_ulong]
+            long_name.restype = c.c_ulong
+            expanded = c.create_unicode_buffer(4096)
+            length = long_name(str(root), expanded, len(expanded))
+            self.assertGreater(length, 0)
+            self.assertLess(length, len(expanded))
+            if str(root).casefold() != expanded.value.casefold():
+                with self.assertRaises(t.Invalid) as error:
+                    native(baseline.inventory([(source.name, b"owned")]), str(root))
+                self.assertEqual(error.exception.code, "alias")
+            root = Path(expanded.value)
+            source = root / source.name
             function = fs.k.GetShortPathNameW
             function.argtypes = [c.c_wchar_p, c.c_wchar_p, c.c_ulong]
             function.restype = c.c_ulong

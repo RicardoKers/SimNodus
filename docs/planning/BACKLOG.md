@@ -9,6 +9,8 @@ and case-policy rejection evidence supplements the preserved Python baseline.
 Source `bf3e05b` was pushed on 2026-09-14; follow
 [PR #21](https://github.com/RicardoKers/SimNodus/pull/21) for final required checks
 and protected-main squash integration. This native slice does not close SN-021.
+The hosted temporary-root alias fixture needed a follow-up; its failed run and
+local corrected result are recorded in the native report. Production is unchanged.
 
 Latest implementation (2026-09-13): SN-021 is **in_progress** with explicit
 [bounded local resource snapshots](../experiments/SN-021-local-resources.md)

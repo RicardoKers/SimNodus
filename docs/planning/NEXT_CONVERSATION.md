@@ -37,6 +37,10 @@ Source `bf3e05b` was pushed on 2026-09-14. Use
 [PR #21](https://github.com/RicardoKers/SimNodus/pull/21) to resolve the final
 checks, merge status and squash identity, then compare local main with origin.
 Do not repeat the completed native snapshot extraction or rewrite its evidence.
+The native report preserves a hosted temporary-root fixture failure and its
+follow-up. The corrected test distinguishes an aliased TEMP ancestor from the
+long root spelling; production containment rules remain unchanged. Confirm the
+final hosted checks rather than treating that earlier failed run as acceptance.
 
 # Historical handoff: SN-021 bounded local resource snapshots
 

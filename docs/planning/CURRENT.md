@@ -38,6 +38,11 @@ Source commit `bf3e05b` was pushed on 2026-09-14.
 checks and authorized protected-main squash integration. Consult its final state
 and merge commit before claiming main is updated; local acceptance remains dated
 2026-09-13 and its evidence is unchanged.
+The first final-head hosted run passed Linux but failed the Windows temporary
+long-name fixture (17/18 CTest entries passed). The fixture now expands its owned
+root spelling and separately requires rejection of an aliased root. Local
+filesystem rerun: 30 passes/two privilege skips. Preserve the failed run linked
+in the native report and require final PR checks before integration.
 
 ## Latest implementation: SN-021 bounded local snapshots
 

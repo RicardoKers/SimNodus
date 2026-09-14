@@ -87,6 +87,27 @@ does not grant symlink-creation privilege, so the two local skips remain.
 
 ## Reproduction and remaining work
 
+### Hosted fixture follow-up: 2026-09-14
+
+[Run 34801684641](https://github.com/RicardoKers/SimNodus/actions/runs/34801684641)
+at source `80318dd` passed all 13 Linux CTest entries (42 native typed cases),
+but Windows passed only 17/18 entries: the native filesystem suite had 31 passes
+and one error in the system-temp long-name fixture. Both symlink cases executed
+successfully. This failed hosted run is preserved, not counted as acceptance.
+
+The fixture now obtains the owned temporary directory's long spelling with
+`GetLongPathNameW` before its positive check. If the original spelling differs,
+it separately requires native rejection with `alias`. Hosted TEMP can contain
+a short ancestor name. This is test setup only: production still opens and
+checks each component by handle; path expansion is not containment evidence.
+Native errors now print their structured code/index for diagnosis. The local
+follow-up passed 30/32 filesystem cases with the same two symlink privilege
+skips. Final hosted acceptance must be checked on PR #21's final head.
+
+The original evidence JSON and its source hashes describe the pre-follow-up
+audit and remain unchanged. Only the regression driver changed afterward;
+production implementation and its recorded hashes are unchanged.
+
 ```powershell
 cmake -S . -B build/sn021-native-01
 cmake --build build/sn021-native-01 --config Debug
