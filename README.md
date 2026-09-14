@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native resource lock validator](docs/experiments/SN-021-lock.md) checks
+inventory metadata and fingerprints, retaining immutable declared resource requests
+and source positions. It performs no resource I/O or execution authorization.
+
 The [native descriptor validator](docs/experiments/SN-021-bindings.md) checks
 topology 0.3 catalogs, explicit bindings and declared interface ranges over owned
 syntax. It performs no resource I/O and always reports simulation readiness false.

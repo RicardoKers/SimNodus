@@ -1,4 +1,28 @@
-# Latest handoff: SN-021 native descriptor bindings
+# Latest handoff: SN-021 native resource lock metadata
+
+Read CURRENT, BACKLOG, [ADR 0059](../decisions/0059-native-resource-lock.md),
+the [contract](../architecture/NATIVE_RESOURCE_LOCK.md) and
+[report](../experiments/SN-021-lock.md). Lock 0.1 now has native field/reference,
+lexical path, exact budget and inventory fingerprint validation. It retains owned
+source syntax and immutable declared resource requests with original offsets.
+No root or resource is opened; physical/trust/readiness flags remain false.
+
+Focused acceptance: 23 cases/135 metadata comparisons/137 digest cases and native
+ownership tests. The report records full regressions, historical hashes, one
+Python host integer-cap diagnostic difference and the publication/check record.
+SN-021 stays in progress. Next port typed resource links and project semantics
+before native graph loading; do not repeat physical snapshot or descriptor work.
+Actual source/ELF/boot interfaces, atomic saving, compilation and execution policy
+remain separate gates. No public CLI, UI or engine-profile expansion is selected.
+
+Branch `codex/sn-021-native-lock` starts at main
+`bd1da0df6ad8a18b9884ca441660207cdf255fbe`. Confirm final PR/checks/squash and local/
+remote state before continuing. Preserve all twelve local SN-045 changes, including
+the shared planning overlay; they are excluded from this publication. Keep SN-044,
+instrumentation, MCU/toolchain independence, numerical bounds, PDF/PID fixes and
+SN-017 Python/GDB ownership. No issue sync, dependency download or binary release.
+
+# Historical handoff: SN-021 native descriptor bindings
 
 Read CURRENT, BACKLOG, [ADR 0058](../decisions/0058-native-descriptor-bindings.md),
 the [contract](../architecture/NATIVE_BINDINGS.md) and
