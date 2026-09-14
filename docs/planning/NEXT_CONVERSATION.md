@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 native exact parameters
+# Latest handoff: SN-021 native descriptor bindings
+
+Read CURRENT, BACKLOG, [ADR 0058](../decisions/0058-native-descriptor-bindings.md),
+the [contract](../architecture/NATIVE_BINDINGS.md) and
+[report](../experiments/SN-021-bindings.md). Topology 0.3 now has native descriptor,
+explicit-null, bijective-map and exact interval validation with immutable source
+ownership and parameter occurrence inspection. It never opens resources or engines.
+The earlier public 0.1 and 0.2 operations remain separate and strict.
+
+Focused acceptance: 22 cases/157 native-reference comparisons and native ownership/
+source-position tests. See the report for complete regressions, retained initial
+fixture-construction failures, historical hashes and final hosted checks/squash.
+SN-021 remains in progress. Next port resource lock/link and project semantics
+before native graph loading. No source importer, renderer, runtime authorization,
+atomic saving or compilation is implemented by descriptor validation.
+
+Branch `codex/sn-021-native-bindings` starts at main
+`9e82f3af1cd16a9bce69fa7c4fa9f4a9e3aa09b2`. Verify actual local/remote state and
+the report's final PR record. Twelve preexisting SN-045 changes remain local and
+excluded; preserve their shared planning overlay. Keep SN-044, shared instrumentation,
+MCU/toolchain independence, numerical profiles, PDF/PID fixes and SN-017 Python/GDB
+ownership. No issue synchronization, dependency download or binary release.
+
+# Historical handoff: SN-021 native exact parameters
 
 Read CURRENT, BACKLOG, [ADR 0057](../decisions/0057-native-exact-parameters.md),
 the [contract](../architecture/NATIVE_PARAMETERS.md) and

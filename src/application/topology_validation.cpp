@@ -24,18 +24,21 @@ struct Definition {
 };
 class Validator {
 public:
-    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, bool parameters = false)
-        : source_(std::move(source)), parameters_(parameters) {}
+    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, bool parameters = false, bool bindings = false)
+        : source_(std::move(source)), parameters_(parameters), bindings_(bindings) {}
     TopologyDeclaration run()
     {
-        const auto root = fields(0, {"format", "version", "root", "components", "circuits"});
-        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), parameters_ ? "0.2" : "0.1"), Code::version, 0);
+        const auto root = bindings_ ? fields(0, {"format", "version", "root", "components", "circuits", "symbols", "models"})
+            : fields(0, {"format", "version", "root", "components", "circuits"});
+        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), bindings_ ? "0.3" : parameters_ ? "0.2" : "0.1"), Code::version, 0);
         const auto root_id = id(root.at("root"));
         Ids definitions;
         for(const bool component : {true, false}) {
             auto& catalog = component ? components_ : circuits_;
             for(const auto index : array(root.at(component ? "components" : "circuits"), component ? 0 : 1)) {
-                auto record = parameters_
+                auto record = bindings_
+                    ? (component ? fields(index, {"id", "name", "pins", "parameters", "symbol", "model"}) : fields(index, {"id", "name", "ports", "instances", "nets", "parameters", "symbol"}))
+                    : parameters_
                     ? (component ? fields(index, {"id", "name", "pins", "parameters"}) : fields(index, {"id", "name", "ports", "instances", "nets", "parameters"}))
                     : (component ? fields(index, {"id", "name", "pins"}) : fields(index, {"id", "name", "ports", "instances", "nets"}));
                 const auto name = register_id(record, definitions, index);
@@ -102,6 +105,7 @@ public:
 private:
     std::shared_ptr<const DeclarationSyntax> source_;
     bool parameters_;
+    bool bindings_;
     std::map<std::string, Definition> components_, circuits_;
     std::size_t count_ = 0;
     void require(bool condition, Code code, Index index) const
@@ -193,6 +197,10 @@ private:
 TopologyDeclaration detail::parameter_topology(std::shared_ptr<const DeclarationSyntax> source)
 {
     return Validator(std::move(source), true).run();
+}
+TopologyDeclaration detail::binding_topology(std::shared_ptr<const DeclarationSyntax> source)
+{
+    return Validator(std::move(source), true, true).run();
 }
 TopologyResult validate_topology_declaration(std::string_view bytes)
 {

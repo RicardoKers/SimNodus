@@ -1,5 +1,10 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native descriptor bindings](../../docs/experiments/SN-021-bindings.md).
+CTest runs `native-binding-contracts` and `native-binding-differential`, comparing
+the unchanged Python 0.3 oracle with native statistics, parameter values and errors.
+No resource interfaces or runtime capability are verified by these declarations.
+
 SN-021 adds [native exact parameters](../../docs/experiments/SN-021-parameters.md).
 CTest runs `native-parameter-contracts` and `native-parameter-differential`, comparing
 the unchanged Python parameter reference with native inspection values and errors.

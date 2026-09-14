@@ -2,6 +2,30 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native descriptor bindings
+
+The [native 0.3 slice](../experiments/SN-021-bindings.md) validates separate symbol
+and model catalogs, explicit nulls, bijective maps and exact full-range agreement.
+It retains owned source tokens and immutable parameter occurrences, with false
+simulation readiness. No resources or engines are opened. Public 0.1/0.2 APIs
+remain strict. See ADR 0058, the contract and acceptance evidence in the report.
+
+Focused acceptance: 22 cases/157 native-reference comparisons plus C++ ownership,
+map/null source positions, error offsets and version isolation. The report records
+full regressions, initial test-construction failures, historical hashes and the
+publication/check record. Twelve preexisting SN-045 documentation edits remain
+local and excluded, including their shared planning additions.
+
+SN-021 remains **in_progress**. Next port resource lock/link metadata and project
+semantics before native source graph loading. Physical snapshots, actual source
+interfaces, origin/redistribution and execution approval are independent gates.
+Saving, compilation, UI and runtime readiness remain pending. Preserve SN-044,
+MCU/toolchain independence, numerical profiles, PDF/PID fixes and SN-017 Python/GDB.
+
+Work branch: `codex/sn-021-native-bindings`, based on synchronized main
+`9e82f3af1cd16a9bce69fa7c4fa9f4a9e3aa09b2`. Follow the report's publication record
+for final required checks and squash identity. Older entries are historical.
+
 ## Latest implementation: SN-021 native exact parameters
 
 The [native parameter slice](../experiments/SN-021-parameters.md) implements

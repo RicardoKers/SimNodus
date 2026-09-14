@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native descriptor validator](docs/experiments/SN-021-bindings.md) checks
+topology 0.3 catalogs, explicit bindings and declared interface ranges over owned
+syntax. It performs no resource I/O and always reports simulation readiness false.
+
 The [native parameter resolver](docs/experiments/SN-021-parameters.md) validates
 topology 0.2 quantities and scoped overrides with exact decimals, returning inert
 per-occurrence inspection snapshots. Full native project loading remains pending.
