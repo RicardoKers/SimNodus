@@ -23,6 +23,10 @@ and excluded; preserve them when synchronizing main. Keep SN-044, MCU/toolchain
 independence, engine tolerances, PDF/PID fixes and SN-017 Python/GDB ownership.
 No issue synchronization or binary release.
 
+[PR #24](https://github.com/RicardoKers/SimNodus/pull/24), starting at source
+`a561149`, is the hosted-check and squash record. Confirm its final state and
+local/remote main identity before continuing with descriptor declarations.
+
 # Historical handoff: SN-021 native topology semantics
 
 Read CURRENT, BACKLOG, [ADR 0056](../decisions/0056-native-topology-semantics.md),

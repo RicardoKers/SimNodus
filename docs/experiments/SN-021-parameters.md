@@ -72,6 +72,12 @@ is not a general-purpose numeric library or expression evaluator.
 
 ## Reproduction
 
+Source `a561149` was pushed on `codex/sn-021-native-parameters`.
+[PR #24](https://github.com/RicardoKers/SimNodus/pull/24) records final required
+Foundation checks and authorized protected-main squash integration. Windows
+runs 24 CTest entries and Linux 19, including both new parameter tests. Consult
+the final logs for actual results; expected job contents are not acceptance.
+
 ```powershell
 cmake -S . -B build/sn021-parameters
 cmake --build build/sn021-parameters --config Debug
