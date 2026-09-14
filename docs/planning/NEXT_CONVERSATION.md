@@ -1,4 +1,28 @@
-# Latest handoff: SN-021 native declaration syntax ingress
+# Latest handoff: SN-021 native topology semantics
+
+Read CURRENT, BACKLOG, [ADR 0056](../decisions/0056-native-topology-semantics.md),
+the [native contract](../architecture/NATIVE_TOPOLOGY_VALIDATION.md) and
+[report](../experiments/SN-021-topology.md). Native validation now covers the
+complete preserved topology 0.1 semantic rules over immutable captured syntax.
+It checks all definitions, namespaces, typed references, terminal uniqueness,
+cycles, depth and expansion without opening any resource or invoking engines.
+Later versions are rejected; this is not the full project/topology 0.3 loader.
+
+Next port exact parameter/scoped-override semantics, then bindings, resource and
+project rules before source graph publication. Preserve source IDs/offsets,
+explicit unbound states, numeric budgets and independent physical/interface/
+trust/execution gates. Full declaration validation remains in Python. SN-021
+remains in progress; saving, compilation and runtime readiness remain pending.
+
+Base main `386fef7586b8fa4ec34dbd6bddc559a109f27800`; work branch
+`codex/sn-021-topology-semantics`. The report records tests and the final PR.
+Twelve preexisting SN-045 documentation changes remain local and are excluded
+from this slice. Preserve them; do not mistake them for SN-021 changes or delete
+them to make the working tree clean. Confirm actual main/remote and PR status.
+Keep SN-044, MCU/toolchain independence, engine restrictions/tolerances, PDF/PID
+behavior and SN-017 Python/GDB fixture ownership. No issue sync or binary release.
+
+# Historical handoff: SN-021 native declaration syntax ingress
 
 Read CURRENT, BACKLOG, [ADR 0054](../decisions/0054-declaration-ingress.md),
 the [contract](../architecture/DECLARATION_INGRESS.md) and

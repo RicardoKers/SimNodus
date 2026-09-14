@@ -2,6 +2,30 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native topology semantics
+
+The [native topology slice](../experiments/SN-021-topology.md) validates the
+complete preserved topology 0.1 contract over captured syntax: IDs/namespaces,
+typed references, connections and bounded hierarchy, including unused definitions.
+It preserves immutable original bytes and source offsets. No resources or engines
+are opened. Later versions are rejected; project 0.1/topology 0.3 semantics remain
+in Python until their native validation is implemented. See ADR 0056 in the report.
+
+The report records native ownership/diagnostic checks, the reused Python suite,
+exact limits, generated hierarchies and nested field mutations, plus full local
+and hosted acceptance. Historical evidence and local SN-045 documentation remain
+preserved; the latter is not included in this SN-021 publication.
+
+SN-021 remains **in_progress**. Next port exact parameter/scoped-override semantics,
+then descriptor/resource/project rules before publishing an editable source graph.
+Keep metadata, physical containment, verified bytes, interfaces and execution
+authorization separate. Saving, compilation, UI and runtime readiness are pending.
+SN-044, numerical profiles, PDF/PID fixes and SN-017 Python/GDB ownership are unchanged.
+
+Work branch: `codex/sn-021-topology-semantics`, based on main
+`386fef7586b8fa4ec34dbd6bddc559a109f27800`. Follow the report's PR for final
+required checks and squash identity. Earlier entries below are historical.
+
 ## Latest implementation: SN-021 native declaration syntax ingress
 
 The [syntax ingress slice](../experiments/SN-021-ingress.md) implements

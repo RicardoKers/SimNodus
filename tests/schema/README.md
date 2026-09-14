@@ -1,5 +1,10 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native topology semantics](../../docs/experiments/SN-021-topology.md).
+CTest runs `native-topology-contracts` and `native-topology-differential`; the
+latter reuses the unchanged topology reference tests and adds bounded adversarial
+cases. The developer probe is not a public CLI or full project validator.
+
 SN-021 adds separate [native syntax ingress tests](../../docs/experiments/SN-021-ingress.md).
 Build with CMake and run CTest's `native-declaration-ingress` and
 `native-ingress-differential`. These preserve the schema validators below and
