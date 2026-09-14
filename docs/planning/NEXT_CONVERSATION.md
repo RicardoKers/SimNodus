@@ -1,4 +1,30 @@
-# Latest handoff: SN-021 native resource lock metadata
+# Latest handoff: SN-021 native typed resource links
+
+Read CURRENT, BACKLOG, [ADR 0060](../decisions/0060-native-resource-links.md),
+the [contract](../architecture/NATIVE_RESOURCE_LINKS.md) and
+[report](../experiments/SN-021-links.md). Native resource-links 0.1 now composes
+topology/lock validation over one owned capture, with typed assets, complete maps
+and explicit nulls. No resource is opened or execution granted. Standalone version
+gates remain strict, and nested values/source offsets preserve their identity.
+
+Focused acceptance: 19 cases/57 comparisons and C++ shared ownership/value/offset
+checks. Full regression, hashes and publication are in the report. SN-021 remains
+in progress. Next compose project declarations, then native graph loading, safe
+persistence and source-preserving compilation with the required evidence. Keep
+actual source/ELF/boot interfaces and execution approval independent.
+
+The owner asks to prepare a new-chat prompt for the next cycle only when the full
+SN-021 scope is accepted and integrated. Include official state, remaining limits
+and the selected next task from planning. Do not issue a completion prompt now.
+
+Branch `codex/sn-021-native-links` starts at main
+`a6daf1d2ccc3bf409a45b479407b276d7b1e2690`. Verify final PR/checks/squash and actual
+local/remote state. Preserve all twelve preexisting local SN-045 changes, including
+the shared planning overlay; they are excluded from publication. Keep SN-044,
+instrumentation, MCU/toolchain independence, numerical profiles, PDF/PID fixes and
+SN-017 Python/GDB ownership. No issues, releases, downloads or automatic execution.
+
+# Historical handoff: SN-021 native resource lock metadata
 
 Read CURRENT, BACKLOG, [ADR 0059](../decisions/0059-native-resource-lock.md),
 the [contract](../architecture/NATIVE_RESOURCE_LOCK.md) and

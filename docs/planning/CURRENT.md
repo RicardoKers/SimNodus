@@ -2,6 +2,32 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native typed resource links
+
+The [native resource-link slice](../experiments/SN-021-links.md) composes topology
+0.3 and lock 0.1 over one immutable syntax capture, validates typed asset roles,
+explicit nulls, entrypoints and complete source maps. Nested diagnostics preserve
+absolute positions. No resource is opened and no interface/runtime approval is
+granted. See ADR 0060, the contract and acceptance audit in the report.
+
+Focused acceptance: 19 cases/57 native-reference comparisons plus shared ownership,
+source offsets and preserved occurrence values/origins. Full regressions, hashes
+and publication are recorded in the report. Twelve preexisting SN-045 changes
+remain local and excluded, including their shared planning overlay.
+
+SN-021 remains **in_progress**. Next compose project declarations, then native
+source graph loading, safe saving and compilation with source mapping. Keep actual
+interfaces, physical bytes, trust and execution as independent gates; preserve
+SN-044, instrumentation, MCU/toolchain independence, numerical profiles, PDF/PID
+and SN-017 Python/GDB ownership. No UI or engine-profile expansion is authorized.
+
+The owner requested a new-chat prompt for the next cycle when SN-021 is fully
+accepted and integrated. Prepare it at that point from official repository state;
+do not treat intermediate declaration slices as completion of SN-021.
+
+Work branch: `codex/sn-021-native-links`, based on main
+`a6daf1d2ccc3bf409a45b479407b276d7b1e2690`. Follow the report's final PR/check record.
+
 ## Latest implementation: SN-021 native resource lock metadata
 
 The [native lock slice](../experiments/SN-021-lock.md) validates resource lock 0.1
