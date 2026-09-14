@@ -201,7 +201,8 @@ class NativeResources(baseline.LocalResourceTests):
             if str(root).casefold() != expanded.value.casefold():
                 with self.assertRaises(t.Invalid) as error:
                     native(baseline.inventory([(source.name, b"owned")]), str(root))
-                self.assertEqual(error.exception.code, "alias")
+                # Tilde aliases are rejected by root syntax before handles.
+                self.assertEqual(error.exception.code, "root")
             root = Path(expanded.value)
             source = root / source.name
             function = fs.k.GetShortPathNameW

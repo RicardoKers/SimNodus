@@ -97,7 +97,7 @@ successfully. This failed hosted run is preserved, not counted as acceptance.
 
 The fixture now obtains the owned temporary directory's long spelling with
 `GetLongPathNameW` before its positive check. If the original spelling differs,
-it separately requires native rejection with `alias`. Hosted TEMP can contain
+it separately requires native rejection with `root` (tilde root syntax). Hosted TEMP can contain
 a short ancestor name. This is test setup only: production still opens and
 checks each component by handle; path expansion is not containment evidence.
 Native errors now print their structured code/index for diagnosis. The local
