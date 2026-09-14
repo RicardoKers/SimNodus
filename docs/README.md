@@ -1,5 +1,7 @@
 # SimNodus documentation
 
+Latest SN-021 slice: [native declaration syntax ingress](experiments/SN-021-ingress.md).
+
 Initial baseline: 2026-08-31. These documents describe intent and development criteria, not existing simulator capabilities.
 
 ## Product and architecture

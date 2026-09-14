@@ -20,6 +20,23 @@ add_custom_target(check-repository
 )
 
 include(CTest)
+add_library(simnodus_declaration_ingress STATIC src/application/declaration_ingress.cpp)
+target_include_directories(simnodus_declaration_ingress PUBLIC src)
+target_link_libraries(simnodus_declaration_ingress PRIVATE simnodus::build_options)
+if(MSVC)
+    target_compile_options(simnodus_declaration_ingress PRIVATE /W4 /WX /permissive- /EHsc)
+endif()
+if(BUILD_TESTING)
+    add_executable(native_ingress_tests tests/schema/native_ingress.cpp)
+    target_link_libraries(native_ingress_tests PRIVATE simnodus_declaration_ingress)
+    add_test(NAME native-declaration-ingress COMMAND native_ingress_tests)
+    add_executable(native_ingress_probe tests/schema/native_ingress_probe.cpp)
+    target_link_libraries(native_ingress_probe PRIVATE simnodus_declaration_ingress)
+    add_test(NAME native-ingress-differential
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_ingress_regression.py"
+            --probe "$<TARGET_FILE:native_ingress_probe>")
+    set_tests_properties(native-ingress-differential PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
+endif()
 add_library(simnodus_resources STATIC src/application/local_resources.cpp)
 target_include_directories(simnodus_resources PUBLIC src)
 target_link_libraries(simnodus_resources PRIVATE simnodus::build_options)

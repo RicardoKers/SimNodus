@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The bounded [native declaration ingress](docs/experiments/SN-021-ingress.md)
+captures immutable JSON syntax and source positions without opening resources.
+Full native schema semantics and project graph loading remain pending.
+
 With Python 3.10 or newer, from the repository root:
 
 ```sh

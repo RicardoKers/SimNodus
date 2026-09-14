@@ -2,6 +2,32 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native declaration syntax ingress
+
+The [syntax ingress slice](../experiments/SN-021-ingress.md) implements
+[ADR 0054](../decisions/0054-declaration-ingress.md): bounded pure C++20 parsing,
+owned immutable original bytes/tokens, exact number spelling, decoded duplicate
+key rejection and structured errors. No paths, resources or engines are opened.
+This is syntax acceptance only; complete schema validation remains in Python.
+
+Local acceptance: 95 native assertions, 209 differential/adversarial cases,
+94 existing schema tests and all 20 Windows CTest entries passed. Physical
+resource suites retain their documented local privilege/platform skips. All 55
+selected historical hashes matched; new audit evidence preserves old records.
+The native Unicode gate rejects lone surrogates more strictly than Python.
+Repository checker: 488 text files passed; `git diff --check` passed.
+
+SN-021 remains **in_progress**. Next implement schema semantics over captured
+syntax before publishing a source graph; preserve IDs, exact quantities, source
+positions and independent metadata/physical/interface/runtime gates. Atomic save,
+compilation, UI and simulation readiness remain pending. Earlier accepted profiles,
+SN-044 and SN-017 Python/GDB ownership are unchanged.
+
+Branch: `codex/sn-021-declaration-ingress`, based on clean synchronized main
+`5fa212e970e0f363e846d82f81cdb48ec1e9a10c`. Validated-source PR/checks/squash/push
+remain authorized. Confirm final PR and main identity before claiming integration.
+Earlier entries below are historical checkpoints.
+
 ## Latest implementation: SN-021 native resource snapshots
 
 The [native resource API](../architecture/NATIVE_RESOURCE_VERIFICATION.md) is
