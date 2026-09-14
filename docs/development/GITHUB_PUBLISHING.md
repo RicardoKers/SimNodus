@@ -129,8 +129,6 @@ documentation remains local and excluded. Preserve it while synchronizing main.
 The new snapshots are inert parameter inspection, not full project/graph loading,
 resource interpretation or execution approval. No binary release is included.
 
-## Binary release gate
-
 ## SN-021 native descriptor integration: 2026-09-14
 
 Source `1a6de52` was pushed on `codex/sn-021-native-bindings` after native topology
@@ -139,6 +137,8 @@ records final required Foundation checks and the authorized squash. Preexisting
 SN-045 documentation remains local and excluded, including shared planning edits.
 The immutable result validates declared maps and intervals, not physical resource
 interfaces, source trust, graph loading or execution readiness. No binary release.
+
+## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`
 on `codex/sn-021-declaration-ingress`. [PR #22](https://github.com/RicardoKers/SimNodus/pull/22)
