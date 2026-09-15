@@ -212,6 +212,18 @@ Acquisition owns validated document bytes/graph without granting pathname or
 overwrite authority. Editing, safe overwrite and compilation remain pending.
 No resource execution, UI, issue synchronization or binary release is included.
 
+## SN-021 project name revision integration: 2026-09-15
+
+Source `6d4f7cf` was pushed on `codex/sn-021-project-rename` after 11 cases/33
+revision requests and all 39 Windows CTests passed.
+[PR #33](https://github.com/RicardoKers/SimNodus/pull/33) records final required
+checks and authorized protected-main squash. Seven source hashes match the
+publication tree; 147 historical hashes and twelve preexisting local SN-045
+changes are preserved. The local overlay remains excluded.
+The pure name edit preserves unrelated bytes and rebuilds provenance; it grants
+no save, overwrite or execution authority. Compiler contract/integration and safe
+overwrite remain pending. No UI, issue synchronization or binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

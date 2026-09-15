@@ -60,3 +60,12 @@ Next define the minimal compiler ingress/readiness and lowering contract with
 stable source mappings under existing profiles, then obtain required real-engine
 evidence. Safe overwrite remains pending ADR 0064. Further editor features are
 not selected. Prepare the requested next-cycle prompt only after full SN-021.
+
+## Publication record
+
+The exact publication tree passed the checker for 592 text files; all seven
+audited source hashes match it. Shared planning review and staged whitespace
+checks passed. Source `6d4f7cf` was pushed on `codex/sn-021-project-rename`.
+[PR #33](https://github.com/RicardoKers/SimNodus/pull/33) records final required
+Foundation checks and the authorized protected-main squash. Confirm its final
+head, CI results and main identity before compiler contract work.

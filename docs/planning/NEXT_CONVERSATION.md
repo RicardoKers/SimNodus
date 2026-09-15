@@ -21,6 +21,10 @@ SN-017 Python preparation/GDB/fixture ownership. No UI, automatic resource
 execution, downloads, issue synchronization or release. Full SN-021 remains
 in progress; prepare the next-cycle prompt only after full acceptance/integration.
 
+[PR #33](https://github.com/RicardoKers/SimNodus/pull/33), starting at source
+`6d4f7cf`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before compiler contract work.
+
 # Historical handoff: SN-021 native project acquisition
 
 Read CURRENT, BACKLOG, [ADR 0065](../decisions/0065-project-acquisition.md),
