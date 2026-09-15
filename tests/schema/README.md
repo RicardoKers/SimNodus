@@ -1,5 +1,9 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native typed resource links](../../docs/experiments/SN-021-links.md).
+CTest compares the unchanged Python reference and checks shared capture ownership,
+nested source positions and exact budgets. All resources remain unopened by the API.
+
 SN-021 adds [native resource lock metadata](../../docs/experiments/SN-021-lock.md).
 CTest compares original reference validation with native requests/statistics and
 tests bounded inventory SHA-256 against hashlib. No physical resource is opened

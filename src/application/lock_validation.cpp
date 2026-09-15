@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "application/lock_validation.hpp"
+#include "application/captured_validation_internal.hpp"
 #include "application/lock_digest_internal.hpp"
 #include <algorithm>
 #include <charconv>
@@ -21,12 +22,13 @@ std::string lower(std::string value)
 }
 class Validator {
 public:
-    explicit Validator(std::shared_ptr<const DeclarationSyntax> syntax) : syntax_(std::move(syntax)) {}
+    explicit Validator(std::shared_ptr<const DeclarationSyntax> syntax, Index root_index = 0)
+        : syntax_(std::move(syntax)), root_index_(root_index) {}
     LockDeclaration run()
     {
-        const auto root = fields(0, {"format", "version", "dependencies"});
+        const auto root = fields(root_index_, {"format", "version", "dependencies"});
         require(string(root.at("format"), "version") == "simnodus-resource-lock"
-            && string(root.at("version"), "version") == "0.1", "version", 0);
+            && string(root.at("version"), "version") == "0.1", "version", root_index_);
         const auto dependencies = array(root.at("dependencies"));
         require(dependencies.size() <= 32, "budget", root.at("dependencies"));
         LockDeclaration result{syntax_, dependencies.size(), 0, {}, {}};
@@ -75,11 +77,12 @@ public:
         }
         for(const auto& path : paths)
             for(auto end = path.find('/'); end != path.npos; end = path.find('/', end + 1))
-                require(!paths.contains(path.substr(0, end)), "path", 0);
+                require(!paths.contains(path.substr(0, end)), "path", root_index_);
         return result;
     }
 private:
     std::shared_ptr<const DeclarationSyntax> syntax_;
+    Index root_index_;
     void require(bool condition, const char* code, Index index) const
     {
         if(!condition) throw LockError{code, syntax_->tokens[index].begin};
@@ -174,13 +177,17 @@ private:
     }
 };
 }
+LockDeclaration detail::captured_lock(std::shared_ptr<const DeclarationSyntax> source, std::size_t root)
+{
+    return Validator(std::move(source), root).run();
+}
 LockResult validate_lock_declaration(std::string_view bytes)
 {
     try {
         const auto input = capture_declaration_syntax(bytes);
         if(const auto* error = std::get_if<IngressError>(&input))
             return LockError{error->code == IngressErrorCode::memory ? "memory" : "input", error->offset};
-        return std::make_shared<const LockDeclaration>(Validator(std::get<0>(input)).run());
+        return std::make_shared<const LockDeclaration>(detail::captured_lock(std::get<0>(input), 0));
     } catch(const LockError& error) { return error; }
     catch(const std::bad_alloc&) { return LockError{"memory", 0}; }
 }

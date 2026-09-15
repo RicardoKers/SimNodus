@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-14): SN-021 [native resource links](../experiments/SN-021-links.md)
+implements typed asset/source associations over one captured topology/lock document.
+Focused acceptance: 19 cases/57 reference comparisons. Full regressions and publication
+are in the report. SN-021 remains **in_progress**; project composition, graph loading,
+atomic saving and source-preserving compilation remain pending.
+
 Latest slice (2026-09-14): SN-021 [native resource lock metadata](../experiments/SN-021-lock.md)
 implements lock 0.1 declaration rules and canonical inventory fingerprints without
 resource I/O. Focused acceptance: 23 cases/135 metadata comparisons/137 digest cases.

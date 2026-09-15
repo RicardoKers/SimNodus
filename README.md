@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native resource-link validator](docs/experiments/SN-021-links.md) composes
+descriptor and lock rules over one immutable source capture, checking typed asset
+roles and explicit source maps without opening resources or granting execution.
+
 The [native resource lock validator](docs/experiments/SN-021-lock.md) checks
 inventory metadata and fingerprints, retaining immutable declared resource requests
 and source positions. It performs no resource I/O or execution authorization.

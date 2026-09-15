@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "application/parameter_validation.hpp"
 #include "application/binding_validation.hpp"
+#include "application/captured_validation_internal.hpp"
 #include "application/topology_validation_internal.hpp"
 #include <algorithm>
 #include <new>
@@ -60,11 +61,12 @@ struct Definition {
 };
 class Resolver {
 public:
-    explicit Resolver(TopologyDeclaration topology) : topology_(std::move(topology)), source_(*topology_.syntax) {}
+    explicit Resolver(TopologyDeclaration topology, Index root_index = 0)
+        : topology_(std::move(topology)), source_(*topology_.syntax), root_index_(root_index) {}
     BindingDeclaration bindings()
     {
         auto parameters = run();
-        const auto root = object(0);
+        const auto root = object(root_index_);
         std::size_t entries = 0, bound_symbols = 0, bound_models = 0;
         const auto records = [&](Index index, std::initializer_list<const char*> fields) {
             Fields result;
@@ -153,12 +155,12 @@ public:
                 ++bound_models;
             }
         }
-        require(topology_.declared_entities + extra_ + entries <= 4096, "budget", 0);
+        require(topology_.declared_entities + extra_ + entries <= 4096, "budget", root_index_);
         return {std::move(parameters), entries, bound_symbols, bound_models, false};
     }
     ParameterSnapshot run()
     {
-        const auto root = object(0);
+        const auto root = object(root_index_);
         for(const char* collection : {"components", "circuits"}) {
             for(const auto index : array(root.at(collection))) {
                 const auto fields = object(index);
@@ -215,7 +217,7 @@ public:
                 definition.instances.push_back(std::move(instance));
             }
         }
-        require(topology_.declared_entities + extra_ <= 4096, "budget", 0);
+        require(topology_.declared_entities + extra_ <= 4096, "budget", root_index_);
         for(auto& [id, definition] : definitions_) { (void)id; cost(definition); }
         const auto& root_definition = definitions_.at(topology_.root);
         ParameterSnapshot result{topology_, extra_, root_definition.cost, {}};
@@ -228,6 +230,7 @@ public:
 private:
     TopologyDeclaration topology_;
     const DeclarationSyntax& source_;
+    Index root_index_;
     std::map<std::string, Definition> definitions_;
     std::size_t extra_ = 0;
     void require(bool condition, const char* code, Index index) const
@@ -393,13 +396,17 @@ ParameterResult resolve_parameter_declaration(std::string_view bytes)
     catch(const ParameterError& error) { return error; }
     catch(const std::bad_alloc&) { return ParameterError{"memory", 0}; }
 }
+BindingDeclaration detail::captured_bindings(std::shared_ptr<const DeclarationSyntax> source, std::size_t root)
+{
+    return Resolver(detail::binding_topology(std::move(source), root), root).bindings();
+}
 BindingResult validate_binding_declaration(std::string_view bytes)
 {
     try {
         const auto input = capture_declaration_syntax(bytes);
         if(const auto* error = std::get_if<IngressError>(&input))
             return ParameterError{error->code == IngressErrorCode::memory ? "memory" : "input", error->offset};
-        return std::make_shared<const BindingDeclaration>(Resolver(detail::binding_topology(std::get<0>(input))).bindings());
+        return std::make_shared<const BindingDeclaration>(detail::captured_bindings(std::get<0>(input), 0));
     } catch(const TopologyError& error) { return ParameterError{topology_error_name(error.code), error.offset}; }
     catch(const ParameterError& error) { return error; }
     catch(const std::bad_alloc&) { return ParameterError{"memory", 0}; }

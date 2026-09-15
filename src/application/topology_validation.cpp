@@ -24,13 +24,13 @@ struct Definition {
 };
 class Validator {
 public:
-    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, bool parameters = false, bool bindings = false)
-        : source_(std::move(source)), parameters_(parameters), bindings_(bindings) {}
+    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, bool parameters = false, bool bindings = false, Index root_index = 0)
+        : source_(std::move(source)), parameters_(parameters), bindings_(bindings), root_index_(root_index) {}
     TopologyDeclaration run()
     {
-        const auto root = bindings_ ? fields(0, {"format", "version", "root", "components", "circuits", "symbols", "models"})
-            : fields(0, {"format", "version", "root", "components", "circuits"});
-        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), bindings_ ? "0.3" : parameters_ ? "0.2" : "0.1"), Code::version, 0);
+        const auto root = bindings_ ? fields(root_index_, {"format", "version", "root", "components", "circuits", "symbols", "models"})
+            : fields(root_index_, {"format", "version", "root", "components", "circuits"});
+        require(equal(root.at("format"), "simnodus-topology") && equal(root.at("version"), bindings_ ? "0.3" : parameters_ ? "0.2" : "0.1"), Code::version, root_index_);
         const auto root_id = id(root.at("root"));
         Ids definitions;
         for(const bool component : {true, false}) {
@@ -106,6 +106,7 @@ private:
     std::shared_ptr<const DeclarationSyntax> source_;
     bool parameters_;
     bool bindings_;
+    Index root_index_;
     std::map<std::string, Definition> components_, circuits_;
     std::size_t count_ = 0;
     void require(bool condition, Code code, Index index) const
@@ -198,9 +199,9 @@ TopologyDeclaration detail::parameter_topology(std::shared_ptr<const Declaration
 {
     return Validator(std::move(source), true).run();
 }
-TopologyDeclaration detail::binding_topology(std::shared_ptr<const DeclarationSyntax> source)
+TopologyDeclaration detail::binding_topology(std::shared_ptr<const DeclarationSyntax> source, std::size_t root)
 {
-    return Validator(std::move(source), true, true).run();
+    return Validator(std::move(source), true, true, root).run();
 }
 TopologyResult validate_topology_declaration(std::string_view bytes)
 {
