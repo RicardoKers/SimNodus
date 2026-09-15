@@ -2,6 +2,28 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 source-preserving display-name revision
+
+The [minimal revision slice](../experiments/SN-021-revision.md), dated 2026-09-15,
+validates a complete base document, replaces only its top-level name token, then
+revalidates/rebuilds the graph and source map. Semantic no-ops preserve original
+escape spelling. See ADR 0066. Every other byte and stable ID remains unchanged.
+No filesystem/resource I/O, pathname lease or save authority is introduced.
+
+Acceptance: 11 cases/33 revision requests with independent exact-source and full
+provenance comparisons; all 39 Windows CTests passed. Historical evidence and all
+twelve local SN-045 changes remain preserved and excluded. Hosted checks determine
+final Windows/Linux acceptance separately. Existing validators/profiles are unchanged.
+
+SN-021 stays **in_progress**. Minimal editing is accepted; further editor features
+are not selected. Next define compiler ingress/readiness and the smallest lowering
+contract with stable source maps under existing profiles, then obtain required
+real-engine evidence. Safe overwrite remains pending ADR 0064's ownership gate.
+Keep instrumentation, MCU/toolchain independence, numeric tolerances, PDF/PID and
+SN-017 Python preparation/GDB/fixture ownership. The next-cycle prompt remains
+pending full SN-021 acceptance. Branch `codex/sn-021-project-rename` starts at main
+`8a60f6bc870b2a277749d24f309204cca2dbed7f` (PR #32). Consult the report's final PR record.
+
 ## Latest implementation: SN-021 native project acquisition
 
 The [acquisition slice](../experiments/SN-021-acquisition.md), dated 2026-09-15,

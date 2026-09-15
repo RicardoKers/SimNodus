@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [project name revision](docs/experiments/SN-021-revision.md) changes one display
+name token while preserving every other byte and rebuilding graph provenance.
+It performs no file/resource I/O and grants no save or execution authority.
+
 The [native project acquisition operation](docs/experiments/SN-021-acquisition.md)
 captures one selected document through Windows/NTFS handles and loads its owned
 validated graph. It grants no pathname lease, overwrite or execution authority.
