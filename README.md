@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native project acquisition operation](docs/experiments/SN-021-acquisition.md)
+captures one selected document through Windows/NTFS handles and loads its owned
+validated graph. It grants no pathname lease, overwrite or execution authority.
+
 The [create-only project save operation](docs/experiments/SN-021-save-create.md)
 publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
 It never overwrites an existing entry; safe overwrite and compilation remain pending.

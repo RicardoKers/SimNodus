@@ -1,5 +1,9 @@
 # SN-021 local resource verification
 
+The [native project acquisition tests](../../docs/experiments/SN-021-acquisition.md)
+check bounded capture, physical path rejection, concurrent changes and graph/source
+ownership. Declared resources remain unopened; the result grants no save authority.
+
 The [overwrite counterexamples](../../docs/experiments/SN-021-overwrite-boundary.md)
 add `windows-overwrite-boundary`: seven real NTFS cases rejecting unsafe candidate
 replacement protocols. This is an acceptance guard, not a production overwrite API.

@@ -1,4 +1,31 @@
-# Latest handoff: SN-021 overwrite ownership boundary
+# Latest handoff: SN-021 native project acquisition
+
+Read CURRENT, BACKLOG, [ADR 0065](../decisions/0065-project-acquisition.md),
+the [contract](../architecture/PROJECT_ACQUISITION.md) and
+[report](../experiments/SN-021-acquisition.md). Acquisition captures one selected
+document through retained Windows/NTFS handles, then validates/loads its owned
+graph. No declared resources open, and no pathname lease or overwrite authority
+is returned. The post-close replacement test preserves the original captured graph.
+
+Acceptance: 17 cases, 15 local passes/two explicit skips; all 38 Windows CTests.
+Next define minimal source-preserving revision/edit semantics with revalidation
+and stable IDs/provenance on owned documents. Safe overwrite remains pending
+ADR 0064's identity/version gate. Compilation needs separate real-engine evidence.
+Do not weaken the concurrency contract or infer runtime readiness from metadata.
+
+Base main: `f483fded668f589dbc19c4f684070bbbce775347` (PR #31); branch:
+`codex/sn-021-project-acquisition`. Check final PR/head/check/squash and actual
+remote state. Preserve twelve local SN-045 changes and all historical evidence,
+SN-044, instrumentation, numerical bounds, PDF/PID, MCU/toolchain independence
+and SN-017 Python preparation/GDB/fixture ownership. No UI, resource execution,
+downloads, issue synchronization or release. Full SN-021 is still in progress;
+prepare the requested next-cycle prompt only after full acceptance/integration.
+
+[PR #32](https://github.com/RicardoKers/SimNodus/pull/32), starting at source
+`87e23cd`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before source revision work.
+
+# Historical handoff: SN-021 overwrite ownership boundary
 
 Read CURRENT, BACKLOG, [ADR 0064](../decisions/0064-overwrite-ownership-boundary.md)
 and the [report](../experiments/SN-021-overwrite-boundary.md). Seven physical NTFS
