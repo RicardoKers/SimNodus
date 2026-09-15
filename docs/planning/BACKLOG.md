@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [overwrite ownership boundary](../experiments/SN-021-overwrite-boundary.md)
+accepts seven physical counterexamples and 37 Windows CTests. Unsafe replacement
+candidates are rejected; create-only saving remains supported. SN-021 stays
+**in_progress**. Next: bounded native project acquisition; safe overwrite ownership,
+editing and compilation remain pending under ADR 0064.
+
 Latest slice (2026-09-15): SN-021 [atomic project creation](../experiments/SN-021-save-create.md)
 persists exact validated bytes without overwriting an existing/concurrent entry.
 Acceptance: 25 boundary checks, 14 physical cases with one local privilege skip,

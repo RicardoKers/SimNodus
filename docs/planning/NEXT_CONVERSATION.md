@@ -1,4 +1,29 @@
-# Latest handoff: SN-021 atomic creation of project documents
+# Latest handoff: SN-021 overwrite ownership boundary
+
+Read CURRENT, BACKLOG, [ADR 0064](../decisions/0064-overwrite-ownership-boundary.md)
+and the [report](../experiments/SN-021-overwrite-boundary.md). Seven physical NTFS
+counterexamples reject unlocking/checking then replacing, POSIX handle-as-path
+ownership and a two-rename gap. All 37 local Windows CTests passed. No production
+overwrite API was added; create-only saving remains the supported operation.
+
+Next implement bounded native acquisition of one selected project document using
+retained physical handles and an owned byte capture, then the existing validator/
+graph loader. This must not produce pathname ownership, overwrite authority or
+resource/interface/runtime approval. Preserve limits and reject reparse/alias
+paths. Safe overwrite remains pending a proven identity/version-bound protocol;
+do not repeat check-then-replace variants or silently weaken the concurrency model.
+Editing and source-preserving compilation remain pending; engine claims require
+real-engine evidence. Full SN-021 is not complete.
+
+Base main: `53755a0ca232db45c17e4a16d37d96228d11942f` (PR #30); branch:
+`codex/sn-021-overwrite-boundary`. Check final PR/head/check/squash and actual
+remote state. Preserve all twelve local SN-045 changes, all historical evidence,
+SN-044, instrumentation, MCU/toolchain independence, numeric bounds, PDF/PID
+behavior and SN-017 Python preparation/GDB/fixture ownership. No UI, downloads,
+resource execution, issue synchronization or release is selected. Prepare the
+requested next-cycle prompt only after full SN-021 acceptance and integration.
+
+# Historical handoff: SN-021 atomic creation of project documents
 
 Read CURRENT, BACKLOG, [ADR 0063](../decisions/0063-atomic-project-create.md),
 the [contract](../architecture/ATOMIC_PROJECT_CREATE.md) and

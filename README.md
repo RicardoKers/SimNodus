@@ -46,10 +46,8 @@ All repository documentation, code, comments, templates, and committed project t
 The [create-only project save operation](docs/experiments/SN-021-save-create.md)
 publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
 It never overwrites an existing entry; safe overwrite and compilation remain pending.
-
-The [create-only project save operation](docs/experiments/SN-021-save-create.md)
-publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
-It never overwrites an existing entry; safe overwrite and compilation remain pending.
+The [overwrite boundary](docs/experiments/SN-021-overwrite-boundary.md) records
+physical counterexamples to replacement after unlocking or rechecking a pathname.
 
 The [native source graph loader](docs/experiments/SN-021-graph.md) builds owned
 hierarchical connectivity and a complete graph-record source map after validating

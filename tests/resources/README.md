@@ -1,5 +1,9 @@
 # SN-021 local resource verification
 
+The [overwrite counterexamples](../../docs/experiments/SN-021-overwrite-boundary.md)
+add `windows-overwrite-boundary`: seven real NTFS cases rejecting unsafe candidate
+replacement protocols. This is an acceptance guard, not a production overwrite API.
+
 The [project creation tests](../../docs/experiments/SN-021-save-create.md) add
 native save contracts and real Windows temporary/rename/collision/failure checks.
 They regress the shared containment helpers without changing resource verification
