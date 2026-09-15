@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [native project acquisition](../experiments/SN-021-acquisition.md)
+loads one physically captured document into an owned validated graph without
+resource I/O or save authority. Acceptance: 17 cases (15 local passes/two explicit
+skips), 38 Windows CTests. SN-021 stays **in_progress**; source-preserving revision/
+editing, safe overwrite ownership and compilation remain pending under ADR 0065.
+
 Latest slice (2026-09-15): SN-021 [overwrite ownership boundary](../experiments/SN-021-overwrite-boundary.md)
 accepts seven physical counterexamples and 37 Windows CTests. Unsafe replacement
 candidates are rejected; create-only saving remains supported. SN-021 stays

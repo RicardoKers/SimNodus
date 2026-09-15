@@ -2,6 +2,29 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native project acquisition
+
+The [acquisition slice](../experiments/SN-021-acquisition.md), dated 2026-09-15,
+reads one selected project document through retained Windows/NTFS handles with a
+1 MiB ceiling, then loads its owned validated source graph. See ADR 0065 and the
+contract. No declared resource is opened; no pathname lease or save authority
+is returned. Existing path helpers, schema limits and source semantics are unchanged.
+
+Acceptance: 17 acquisition cases (15 local passes, one Linux-only skip and one
+symlink privilege skip), all 38 Windows CTests. Post-close replacement leaves the
+returned bytes/graph unchanged. Physical errors remain separate from declaration
+errors. Hosted checks determine final CI acceptance. Historical evidence and all
+twelve local SN-045 changes remain preserved and excluded from publication.
+
+SN-021 stays **in_progress**. Next define minimal source-preserving revision/edit
+semantics on owned documents with revalidation and stable source identities.
+Safe overwrite remains pending ADR 0064's identity/version gate; compilation
+requires its own real-engine evidence. No new UI, engine profile, instrumentation,
+MCU/toolchain dependency, PDF/PID or SN-017 Python/GDB ownership change.
+The requested next-cycle prompt remains pending full SN-021 acceptance.
+Branch `codex/sn-021-project-acquisition` starts at main
+`f483fded668f589dbc19c4f684070bbbce775347` (PR #31). Consult the report's final PR record.
+
 ## Latest acceptance: SN-021 overwrite ownership boundary
 
 The [physical overwrite counterexamples](../experiments/SN-021-overwrite-boundary.md),
