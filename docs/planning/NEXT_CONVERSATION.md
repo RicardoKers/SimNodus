@@ -21,6 +21,10 @@ and SN-017 Python preparation/GDB/fixture ownership. No UI, resource execution,
 downloads, issue synchronization or release. Full SN-021 is still in progress;
 prepare the requested next-cycle prompt only after full acceptance/integration.
 
+[PR #32](https://github.com/RicardoKers/SimNodus/pull/32), starting at source
+`87e23cd`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before source revision work.
+
 # Historical handoff: SN-021 overwrite ownership boundary
 
 Read CURRENT, BACKLOG, [ADR 0064](../decisions/0064-overwrite-ownership-boundary.md)

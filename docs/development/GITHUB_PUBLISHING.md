@@ -201,6 +201,17 @@ create-only; tested overwrite candidates are rejected under ADR 0064.
 Native project acquisition is next, without save authority. Safe overwrite,
 editing and compilation remain pending. No resource execution or binary release.
 
+## SN-021 native project acquisition integration: 2026-09-15
+
+Source `87e23cd` was pushed on `codex/sn-021-project-acquisition` after all 38
+Windows CTests passed. [PR #32](https://github.com/RicardoKers/SimNodus/pull/32)
+records final required checks and authorized protected-main squash. Nine source
+hashes match the publication tree; 138 historical hashes and twelve preexisting
+local SN-045 changes are preserved. The local overlay is excluded.
+Acquisition owns validated document bytes/graph without granting pathname or
+overwrite authority. Editing, safe overwrite and compilation remain pending.
+No resource execution, UI, issue synchronization or binary release is included.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`
