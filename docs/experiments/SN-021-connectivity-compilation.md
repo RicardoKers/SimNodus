@@ -59,3 +59,12 @@ profiles. Safe overwrite remains pending ADR 0064. Preserve all previous evidenc
 local SN-045 work, SN-044, numerical tolerances, MCU/toolchain independence, PDF/PID
 and the SN-017 Python/GDB/fixture boundary. No UI or other SN implementation is
 selected. Prepare the next-cycle prompt only when full SN-021 is accepted.
+
+## Publication record
+
+The exact publication tree passed the checker for 601 text files; all eight
+audited source hashes match it. Shared planning review and staged whitespace
+checks passed. Source `aa8cd9f` was pushed on `codex/sn-021-connectivity-compilation`.
+[PR #34](https://github.com/RicardoKers/SimNodus/pull/34) records final required
+Foundation checks and the authorized protected-main squash. Confirm its final
+head, CI results and main identity before model/interface lowering work.

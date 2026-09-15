@@ -22,6 +22,10 @@ and SN-017 Python preparation/GDB/fixture ownership. No UI, automatic resource
 execution, downloads, issue synchronization or release. Full SN-021 remains in
 progress; prepare the next-cycle prompt only after full acceptance/integration.
 
+[PR #34](https://github.com/RicardoKers/SimNodus/pull/34), starting at source
+`aa8cd9f`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before model/interface lowering work.
+
 # Historical handoff: SN-021 source-preserving display-name revision
 
 Read CURRENT, BACKLOG, [ADR 0066](../decisions/0066-project-name-revision.md),
