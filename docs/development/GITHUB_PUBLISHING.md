@@ -189,6 +189,18 @@ This slice creates new project documents only. Safe overwrite, path acquisition,
 editing and compilation remain pending. Killed writers may leave temporary files;
 no power-loss durability is claimed. No resource execution or binary release.
 
+## SN-021 overwrite ownership boundary integration: 2026-09-15
+
+Source `f19e901` was pushed on `codex/sn-021-overwrite-boundary` after seven physical
+counterexamples and all 37 Windows CTests passed.
+[PR #31](https://github.com/RicardoKers/SimNodus/pull/31) records final required
+checks and the authorized protected-main squash. Three source hashes match the
+publication tree; 135 historical hashes and twelve local SN-045 changes are
+preserved. The local overlay is excluded. Production persistence remains
+create-only; tested overwrite candidates are rejected under ADR 0064.
+Native project acquisition is next, without save authority. Safe overwrite,
+editing and compilation remain pending. No resource execution or binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

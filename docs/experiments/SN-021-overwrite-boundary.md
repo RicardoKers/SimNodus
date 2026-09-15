@@ -94,3 +94,12 @@ Microsoft documents the name-based target and POSIX open-handle behavior in
 documents its pathname arguments and target access/sharing. The ownership gaps
 above are measured counterexamples, not a claim that those APIs promise a
 destination-identity comparison. No such comparison parameter is used by them.
+
+## Publication record
+
+The exact publication tree passed the checker for 574 text files; all three
+audited source hashes match it. Shared planning review and staged whitespace
+checks passed. Source `f19e901` was pushed on `codex/sn-021-overwrite-boundary`.
+[PR #31](https://github.com/RicardoKers/SimNodus/pull/31) records final required
+Foundation checks and the authorized protected-main squash. Confirm its final
+head, CI results and main identity before native project acquisition.
