@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 native project acquisition
+# Latest handoff: SN-021 source-preserving display-name revision
+
+Read CURRENT, BACKLOG, [ADR 0066](../decisions/0066-project-name-revision.md),
+the [contract](../architecture/PROJECT_REVISION.md) and
+[report](../experiments/SN-021-revision.md). Renaming changes only the top-level
+display-name token after validating the base, then revalidates/rebuilds the graph
+and provenance. Semantic no-ops preserve every original byte. No I/O or save
+authority is granted. Acceptance: 11 cases/33 requests and 39 Windows CTests.
+
+Next define compiler ingress/readiness and the smallest lowering contract with
+stable source maps under existing graph/resource/profile constraints. Obtain
+real-engine evidence for integration claims. Further editor features are not
+selected. Safe overwrite remains pending ADR 0064's destination ownership gate.
+Do not infer runtime readiness from metadata or a revised source graph.
+
+Base main: `8a60f6bc870b2a277749d24f309204cca2dbed7f` (PR #32); branch:
+`codex/sn-021-project-rename`. Check final PR/head/check/squash and actual remote
+state. Preserve twelve local SN-045 changes, historical evidence, SN-044,
+instrumentation, numeric tolerances, PDF/PID, MCU/toolchain independence and
+SN-017 Python preparation/GDB/fixture ownership. No UI, automatic resource
+execution, downloads, issue synchronization or release. Full SN-021 remains
+in progress; prepare the next-cycle prompt only after full acceptance/integration.
+
+# Historical handoff: SN-021 native project acquisition
 
 Read CURRENT, BACKLOG, [ADR 0065](../decisions/0065-project-acquisition.md),
 the [contract](../architecture/PROJECT_ACQUISITION.md) and

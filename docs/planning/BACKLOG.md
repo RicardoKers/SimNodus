@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [source-preserving name revision](../experiments/SN-021-revision.md)
+changes one display-name token with full revalidation and rebuilt provenance.
+Acceptance: 11 cases/33 requests and 39 Windows CTests. SN-021 stays **in_progress**;
+compiler ingress/readiness, lowering with real-engine evidence and safe overwrite
+ownership remain pending. Further editor features are not selected by ADR 0066.
+
 Latest slice (2026-09-15): SN-021 [native project acquisition](../experiments/SN-021-acquisition.md)
 loads one physically captured document into an owned validated graph without
 resource I/O or save authority. Acceptance: 17 cases (15 local passes/two explicit
