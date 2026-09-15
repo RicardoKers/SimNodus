@@ -27,6 +27,10 @@ Prepare the owner-requested new-chat prompt for the next cycle only when full
 SN-021 acceptance is integrated. No issue synchronization, releases, binaries,
 downloads, automatic resource execution, UI or other SN implementation is selected.
 
+[PR #28](https://github.com/RicardoKers/SimNodus/pull/28), starting at source
+`6d9f380`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before source graph work.
+
 # Historical handoff: SN-021 native typed resource links
 
 Read CURRENT, BACKLOG, [ADR 0060](../decisions/0060-native-resource-links.md),

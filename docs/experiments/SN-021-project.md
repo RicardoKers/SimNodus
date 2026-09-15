@@ -30,6 +30,9 @@ All 103 selected historical hashes matched; three changed source hashes were
 verified in the base. DESKTOP_UX was checked in the base because of preexisting
 local work. All ten audited source hashes match the workspace. Twelve preexisting
 SN-045 changes remain local and excluded, including shared planning edits.
+The repository checker passed for 548 workspace and 546 publication-tree text
+files. All ten audited hashes match both trees; staged whitespace and shared
+planning review passed. The publication excludes the two local-only documents.
 
 ## Preserved failed attempts
 
@@ -61,8 +64,10 @@ structured but not fault-injected, and hard OS memory/wall quotas are not claime
 
 ## Reproduction
 
-Work branch: `codex/sn-021-native-project`. Final required Foundation checks and
-the protected-main squash record must be confirmed before reporting integration.
+Source `6d9f380` was pushed on `codex/sn-021-native-project`.
+[PR #28](https://github.com/RicardoKers/SimNodus/pull/28) records final required
+Foundation checks and the authorized protected-main squash. Expected jobs contain
+32 Windows and 27 Linux CTests; consult final logs for actual hosted acceptance.
 
 ```powershell
 cmake -S . -B build/sn021-project-validated
