@@ -2,6 +2,33 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 atomic creation of project documents
+
+The [create-only persistence slice](../experiments/SN-021-save-create.md), dated
+2026-09-15, validates project 0.1 then publishes its exact owned bytes through an
+exclusive temporary and handle-relative native rename with replacement disabled.
+Existing and concurrently created destinations remain untouched. Internal helpers
+reuse the accepted Windows/NTFS path and handle policy. See ADR 0063 and the audit.
+
+Acceptance: 25 native boundary checks, 14 physical cases (13 local passes/one
+symlink privilege skip), and all 36 Windows CTests passed. Hosted checks determine
+CI acceptance separately. The first Win32 rename failure and missing-SDK-symbol
+compile failure are preserved. A killed writer can leave an orphan temporary;
+no power-loss durability or automatic recovery is claimed. No resource is imported.
+
+SN-021 remains **in_progress**. Native graph loading and create-only persistence
+are implemented. Next define/prove safe save-over-existing with destination
+ownership and concurrent-change protection. Path acquisition/editing and compilation
+with stable source mappings and required real-engine evidence remain pending.
+Do not substitute path checking followed by overwrite or infer execution approval.
+
+All twelve preexisting SN-045 changes remain local and excluded. Keep historical
+hashes/failures, SN-044, instrumentation, MCU/toolchain independence, numerical
+bounds, PDF/PID behavior and SN-017 Python preparation/GDB/fixture ownership.
+Prepare the next-cycle prompt only after full SN-021 acceptance is integrated.
+Branch `codex/sn-021-atomic-create` starts at main
+`6d88455be400520d918c26406b210ad062567976` (PR #29). Follow the report's final PR/check record.
+
 ## Latest implementation: SN-021 native source connectivity graph
 
 The [source graph slice](../experiments/SN-021-graph.md), dated 2026-09-15,
