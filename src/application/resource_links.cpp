@@ -14,12 +14,12 @@ using Fields = std::map<std::string, Index>;
 struct Asset { std::string kind; };
 class Validator {
 public:
-    explicit Validator(std::shared_ptr<const DeclarationSyntax> source) : source_(std::move(source)) {}
+    explicit Validator(std::shared_ptr<const DeclarationSyntax> source, Index root = 0) : source_(std::move(source)), root_(root) {}
     ResourceLinkDeclaration run()
     {
-        const auto root = exact(0, {"format", "version", "topology", "lock", "assets", "symbols", "models"});
+        const auto root = exact(root_, {"format", "version", "topology", "lock", "assets", "symbols", "models"});
         require(text(root.at("format"), "version") == "simnodus-resource-links"
-            && text(root.at("version"), "version") == "0.1", "version", 0);
+            && text(root.at("version"), "version") == "0.1", "version", root_);
         auto topology = detail::captured_bindings(source_, root.at("topology"));
         auto lock = detail::captured_lock(source_, root.at("lock"));
         std::set<std::pair<std::string, std::string>> files, targets;
@@ -80,11 +80,12 @@ public:
             }
         }
         const auto& p = topology.parameters;
-        require(p.topology.declared_entities + p.parameter_entries + topology.descriptor_entries + extra <= 4096, "budget", 0);
+        require(p.topology.declared_entities + p.parameter_entries + topology.descriptor_entries + extra <= 4096, "budget", root_);
         return {std::move(topology), std::move(lock), linked, assets.size(), false};
     }
 private:
     std::shared_ptr<const DeclarationSyntax> source_;
+    Index root_;
     void require(bool value, const char* code, Index index) const
     {
         if(!value) throw LockError{code, source_->tokens[index].begin};
@@ -141,6 +142,10 @@ private:
         return value;
     }
 };
+}
+ResourceLinkDeclaration detail::captured_links(std::shared_ptr<const DeclarationSyntax> source, std::size_t root)
+{
+    return Validator(std::move(source), root).run();
 }
 ResourceLinkResult validate_resource_links(std::string_view bytes)
 {

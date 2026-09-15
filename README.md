@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native project validator](docs/experiments/SN-021-project.md) composes the
+project 0.1 declaration baseline, including target and temporal metadata. It keeps
+one immutable source capture; firmware and runtime approval remain unverified.
+
 The [native resource-link validator](docs/experiments/SN-021-links.md) composes
 descriptor and lock rules over one immutable source capture, checking typed asset
 roles and explicit source maps without opening resources or granting execution.

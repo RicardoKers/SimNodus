@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [native project declarations](../experiments/SN-021-project.md)
+composes the declarative baseline with target, firmware and temporal metadata.
+Acceptance: 20 cases/106 native-reference comparisons and 32 Windows CTests.
+SN-021 remains **in_progress**; native source graph loading, atomic saving and
+source-preserving compilation still require implementation and evidence.
+
 Latest slice (2026-09-14): SN-021 [native resource links](../experiments/SN-021-links.md)
 implements typed asset/source associations over one captured topology/lock document.
 Focused acceptance: 19 cases/57 reference comparisons. Full regressions and publication
