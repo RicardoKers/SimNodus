@@ -1,5 +1,9 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native project declarations](../../docs/experiments/SN-021-project.md).
+CTest compares the unchanged project reference, exact temporal/budget boundaries
+and immutable source ownership. No resource or firmware is opened by the API.
+
 SN-021 adds [native typed resource links](../../docs/experiments/SN-021-links.md).
 CTest compares the unchanged Python reference and checks shared capture ownership,
 nested source positions and exact budgets. All resources remain unopened by the API.

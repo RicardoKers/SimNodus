@@ -2,6 +2,31 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native project declarations
+
+The [native project slice](../experiments/SN-021-project.md), dated 2026-09-15,
+composes the project 0.1 baseline over one immutable captured document. Platforms,
+firmware, concrete target occurrences, pin maps and exact temporal policies are
+validated without opening resources or approving execution. ADR 0061 and the
+contract retain all independent physical/interface/trust/readiness gates.
+
+Focused acceptance: 20 cases/106 native-reference comparisons plus shared ownership
+and original source-position/value checks. All 32 Windows CTests passed. The report
+records historical hashes, explicit local physical-test skips, initial configuration
+failures and publication checks. Twelve preexisting SN-045 changes remain local.
+
+SN-021 remains **in_progress**. Native declaration composition is implemented;
+next load a bounded source graph with stable identities/source mappings, then safe
+persistence and compilation with required real-engine evidence. No new engine,
+MCU, toolchain, UI, instrumentation or execution profile is selected. Preserve
+SN-044, numeric tolerances, PDF/PID behavior and SN-017 Python/GDB ownership.
+
+The requested new-chat prompt for the next cycle is due only when full SN-021
+acceptance is integrated. This declaration slice does not close the task.
+Branch `codex/sn-021-native-project` starts at main
+`c7ac6f4937b6277d9c12542b231eb0c48ccf7011` (validated PR #27 squash).
+Follow the report for final required checks and the resulting main identity.
+
 ## Latest implementation: SN-021 native typed resource links
 
 The [native resource-link slice](../experiments/SN-021-links.md) composes topology

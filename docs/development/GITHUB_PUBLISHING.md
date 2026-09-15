@@ -156,6 +156,17 @@ publication tree excludes twelve preexisting SN-045 changes, including shared
 planning edits. Shared captured declarations do not verify source interfaces or
 authorize resources, graph loading, compilation or execution. No binary release.
 
+## SN-021 native project declaration integration: 2026-09-15
+
+Source `6d9f380` was pushed on `codex/sn-021-native-project` after native project
+and full foundation acceptance. [PR #28](https://github.com/RicardoKers/SimNodus/pull/28)
+records final required checks and the authorized protected-main squash. Ten audited
+source hashes match the workspace and exact publication tree. Twelve preexisting
+SN-045 changes remain local and excluded, including shared planning edits.
+Declaration acceptance does not verify firmware, boot/source interfaces or runtime
+capabilities. Source graph loading, saving and compilation remain pending. No
+issue synchronization, engine-profile expansion, UI or binary release is included.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

@@ -1,4 +1,37 @@
-# Latest handoff: SN-021 native typed resource links
+# Latest handoff: SN-021 native project declarations
+
+Read CURRENT, BACKLOG, [ADR 0061](../decisions/0061-native-project-declarations.md),
+the [contract](../architecture/NATIVE_PROJECT_VALIDATION.md) and
+[report](../experiments/SN-021-project.md). Native project 0.1 now composes the
+declarative baseline over one immutable source capture, including platform,
+firmware, target/pin-map and exact temporal rules. No resources are opened and
+all firmware/runtime/source-interface/readiness flags remain unverified.
+
+Acceptance: 20 cases/106 reference comparisons and native ownership/source-offset
+checks; all 32 Windows CTests passed. The report records hashes, configuration
+failures, local filesystem privilege skips and final publication checks.
+
+SN-021 stays in progress. Next implement bounded native source graph loading with
+stable IDs and source mappings, then safe persistence and compilation with required
+integration evidence. Preserve declared/physical/byte/interface/trust/execution
+boundaries. No additional engine profile or generalized MCU support follows.
+
+Base main is `c7ac6f4937b6277d9c12542b231eb0c48ccf7011`, the validated PR #27
+squash; work branch is `codex/sn-021-native-project`. Verify the report's final
+PR/check/merge record and actual local/remote state. Keep twelve preexisting local
+SN-045 changes excluded from publication, including shared planning edits. Preserve
+SN-044, shared instrumentation, MCU/toolchain independence, numeric profiles,
+PDF/PID behavior and SN-017 Python preparation/GDB/fixture ownership.
+
+Prepare the owner-requested new-chat prompt for the next cycle only when full
+SN-021 acceptance is integrated. No issue synchronization, releases, binaries,
+downloads, automatic resource execution, UI or other SN implementation is selected.
+
+[PR #28](https://github.com/RicardoKers/SimNodus/pull/28), starting at source
+`6d9f380`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before source graph work.
+
+# Historical handoff: SN-021 native typed resource links
 
 Read CURRENT, BACKLOG, [ADR 0060](../decisions/0060-native-resource-links.md),
 the [contract](../architecture/NATIVE_RESOURCE_LINKS.md) and
