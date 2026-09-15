@@ -28,6 +28,10 @@ Prepare the requested new-chat prompt only when full SN-021 is accepted and
 integrated. No automatic resource execution, downloads, rendering, UI, other SN
 implementation, issue synchronization, releases or binaries are selected.
 
+[PR #29](https://github.com/RicardoKers/SimNodus/pull/29), starting at source
+`c66ff52`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before persistence work.
+
 # Historical handoff: SN-021 native project declarations
 
 Read CURRENT, BACKLOG, [ADR 0061](../decisions/0061-native-project-declarations.md),

@@ -72,8 +72,10 @@ claimed. Domain values are not security capabilities for later consumers.
 
 ## Reproduction
 
-Work branch: `codex/sn-021-source-graph`. Confirm final required Foundation checks,
-protected-main squash and local/remote identity before reporting integration.
+Source `c66ff52` was pushed on `codex/sn-021-source-graph`.
+[PR #29](https://github.com/RicardoKers/SimNodus/pull/29) records final required
+Foundation checks and authorized protected-main squash. Expected jobs contain
+34 Windows and 29 Linux CTests; consult final logs for actual hosted acceptance.
 
 ```powershell
 cmake -S . -B build/sn021-graph
