@@ -178,6 +178,17 @@ Source connectivity retains complete metadata and original provenance; it does
 not authorize resources or execution. Atomic persistence, project path acquisition
 and compilation remain pending. No issue synchronization or binary release.
 
+## SN-021 atomic project creation integration: 2026-09-15
+
+Source `ed50b39` was pushed on `codex/sn-021-atomic-create` after all 36 Windows
+CTests and filesystem acceptance. [PR #30](https://github.com/RicardoKers/SimNodus/pull/30)
+records final required checks and authorized protected-main squash. Fourteen
+source hashes match the workspace and publication tree; twelve preexisting
+SN-045 changes remain local and excluded, including shared planning edits.
+This slice creates new project documents only. Safe overwrite, path acquisition,
+editing and compilation remain pending. Killed writers may leave temporary files;
+no power-loss durability is claimed. No resource execution or binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

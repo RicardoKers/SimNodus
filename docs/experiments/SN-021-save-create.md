@@ -67,3 +67,12 @@ with source mappings remain pending. Full SN-021 is not complete. Valid metadata
 contained bytes and matching hashes do not prove interface compatibility, trust,
 redistribution permission or execution authorization. Preserve supported profiles
 and use real engines when subsequent compilation requires integration evidence.
+
+## Publication record
+
+The repository checker passed for 572 workspace and 570 publication-tree text
+files. All fourteen audited source hashes match both trees; staged whitespace
+and shared planning review passed. Source `ed50b39` was pushed on
+`codex/sn-021-atomic-create`. [PR #30](https://github.com/RicardoKers/SimNodus/pull/30)
+records final required checks and the authorized protected-main squash. Confirm
+its final head, CI results and main identity before the next persistence slice.
