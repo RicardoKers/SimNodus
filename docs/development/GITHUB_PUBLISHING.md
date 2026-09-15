@@ -167,6 +167,17 @@ Declaration acceptance does not verify firmware, boot/source interfaces or runti
 capabilities. Source graph loading, saving and compilation remain pending. No
 issue synchronization, engine-profile expansion, UI or binary release is included.
 
+## SN-021 native source graph integration: 2026-09-15
+
+Source `c66ff52` was pushed on `codex/sn-021-source-graph` after native graph and
+full foundation acceptance. [PR #29](https://github.com/RicardoKers/SimNodus/pull/29)
+records final required checks and authorized protected-main squash. Ten source
+hashes match the workspace and exact publication tree; twelve preexisting SN-045
+changes remain local and excluded, including shared planning edits.
+Source connectivity retains complete metadata and original provenance; it does
+not authorize resources or execution. Atomic persistence, project path acquisition
+and compilation remain pending. No issue synchronization or binary release.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

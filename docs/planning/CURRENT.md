@@ -2,6 +2,33 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 native source connectivity graph
+
+The [source graph slice](../experiments/SN-021-graph.md), dated 2026-09-15,
+loads a complete validated project into immutable hierarchical connectivity,
+standard C++ domain values and a graph-record/terminal source map. It preserves
+the full original declaration, parameters and metadata without resource I/O.
+See ADR 0062, the contract and audit for identity and ownership boundaries.
+
+Acceptance: 20 cases/56 native-reference graph comparisons with exhaustive source
+span checks; all 34 Windows CTests passed. Prior declaration and physical-resource
+tests remain passing with explicit local privilege skips. The report records
+hashes and final publication checks. Twelve preexisting SN-045 files stay local.
+
+SN-021 remains **in_progress**. Definition graph loading is implemented; editing,
+portable path-based project acquisition, safe atomic persistence and compilation
+remain pending. Next implement bounded persistence of owned validated source
+bytes with destination ownership, failure preservation and replacement tests,
+then compilation with stable source mappings and required real-engine evidence.
+Do not infer ground, flatten on load, drop metadata or grant runtime capabilities.
+
+Keep physical containment, verified bytes, source/firmware interfaces, origin,
+redistribution and execution independent. Preserve SN-044, shared instrumentation,
+MCU/toolchain independence, numeric bounds, PDF/PID behavior and SN-017 Python/GDB
+ownership. Prepare the next-cycle chat prompt only when full SN-021 is integrated.
+Branch `codex/sn-021-source-graph` starts at main
+`d78c7bef598b6fe65d300584c1da3709d84af1b7` (PR #28). Follow the report's PR/check record.
+
 ## Latest implementation: SN-021 native project declarations
 
 The [native project slice](../experiments/SN-021-project.md), dated 2026-09-15,

@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native source graph loader](docs/experiments/SN-021-graph.md) builds owned
+hierarchical connectivity and a complete graph-record source map after validating
+project 0.1. It retains all metadata without opening resources or running engines.
+
 The [native project validator](docs/experiments/SN-021-project.md) composes the
 project 0.1 declaration baseline, including target and temporal metadata. It keeps
 one immutable source capture; firmware and runtime approval remain unverified.

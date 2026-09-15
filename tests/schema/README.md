@@ -1,5 +1,9 @@
 # SN-020 topology draft fixtures
 
+SN-021 adds [native source graph tests](../../docs/experiments/SN-021-graph.md).
+CTest compares every connectivity record and source span with the validated
+original project, including hierarchy, collection order and complete metadata.
+
 SN-021 adds [native project declarations](../../docs/experiments/SN-021-project.md).
 CTest compares the unchanged project reference, exact temporal/budget boundaries
 and immutable source ownership. No resource or firmware is opened by the API.
