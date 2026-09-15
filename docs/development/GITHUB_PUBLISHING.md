@@ -224,6 +224,18 @@ The pure name edit preserves unrelated bytes and rebuilds provenance; it grants
 no save, overwrite or execution authority. Compiler contract/integration and safe
 overwrite remain pending. No UI, issue synchronization or binary release.
 
+## SN-021 structural connectivity compilation integration: 2026-09-15
+
+Source `aa8cd9f` was pushed on `codex/sn-021-connectivity-compilation` after ten
+cases/eighteen requests and all 40 Windows CTests passed.
+[PR #34](https://github.com/RicardoKers/SimNodus/pull/34) records final required
+checks and authorized protected-main squash. Eight source hashes match the
+publication tree; 154 historical hashes and twelve preexisting local SN-045
+changes are preserved. The local overlay remains excluded.
+Structural connectivity grants no model/interface, reference-ground, parameter
+or runtime approval. Backend lowering with real-engine evidence and safe overwrite
+remain pending. No UI, issue synchronization or binary release is included.
+
 ## Binary release gate
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`

@@ -43,6 +43,10 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [structural connectivity compiler](docs/experiments/SN-021-connectivity-compilation.md)
+expands occurrence identities and groups explicit connections with source provenance.
+It emits no backend netlist and infers neither ground nor simulation readiness.
+
 The [project name revision](docs/experiments/SN-021-revision.md) changes one display
 name token while preserving every other byte and rebuilding graph provenance.
 It performs no file/resource I/O and grants no save or execution authority.

@@ -2,6 +2,30 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 structural connectivity compilation
+
+The [structural compiler slice](../experiments/SN-021-connectivity-compilation.md),
+dated 2026-09-15, expands reachable occurrence/terminal identities and partitions
+only explicit connections, preserving singleton terminals and full source provenance.
+See ADR 0067. The original document and graph remain owned and unchanged. No
+backend netlist, implicit ground, resource I/O or runtime readiness is produced.
+
+Acceptance: 10 cases/18 requests with independent adjacency and complete source
+comparisons; all 40 Windows CTests passed. Exactly 65536 expansion records pass;
+one extra record fails the operation without changing declarative validity.
+All historical evidence and twelve local SN-045 changes remain preserved/excluded.
+Hosted checks determine final Windows/Linux acceptance separately.
+
+SN-021 stays **in_progress**. Next establish the smallest supported model/interface
+and parameter lowering from verified captured resources, with explicit reference,
+stimulus and analysis authority; obtain real-engine evidence before executable
+compilation claims. Preserve accepted profiles and SN-017 Python/GDB/fixture
+ownership. Safe overwrite remains pending ADR 0064. No UI, instrumentation,
+MCU/toolchain, numerical tolerance or PDF/PID changes. The next-cycle prompt remains
+pending full SN-021 acceptance. Branch `codex/sn-021-connectivity-compilation`
+starts at main `3b377e39ecb76f9941cc64872c23e6b0509ad513` (PR #33).
+Consult the report's final PR record.
+
 ## Latest implementation: SN-021 source-preserving display-name revision
 
 The [minimal revision slice](../experiments/SN-021-revision.md), dated 2026-09-15,
