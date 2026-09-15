@@ -1,4 +1,34 @@
-# Latest handoff: SN-021 native project declarations
+# Latest handoff: SN-021 native source connectivity graph
+
+Read CURRENT, BACKLOG, [ADR 0062](../decisions/0062-native-source-graph.md),
+the [contract](../architecture/NATIVE_SOURCE_GRAPH.md) and
+[report](../experiments/SN-021-graph.md). Project 0.1 now loads an immutable
+hierarchical connectivity graph with standard C++ domain types and a complete
+record/terminal source map. The entire validated declaration remains owned,
+including parameters and every non-connectivity field. Nothing is executed.
+
+Acceptance: 20 cases/56 native-reference graph comparisons with exhaustive byte
+span checks; all 34 Windows CTests passed. The report records full regressions,
+historical hashes, local physical-test privilege skips and publication checks.
+
+SN-021 remains in progress. Next implement bounded persistence of owned validated
+source bytes, with explicit destination ownership, atomic replacement and failure
+preservation. Path-based project acquisition and editing remain separate. Then
+compile with stable source mappings and the required real-engine evidence. Do not
+infer ground, flatten source on load, discard metadata or expand supported profiles.
+
+Base main: `d78c7bef598b6fe65d300584c1da3709d84af1b7` (PR #28); work branch:
+`codex/sn-021-source-graph`. Check the final PR/head/check/squash record and actual
+remote state before continuing. Preserve twelve preexisting local SN-045 changes,
+including the shared planning overlay; they remain excluded from publication.
+Keep SN-044, shared instrumentation, MCU/toolchain independence, numeric bounds,
+PDF/PID behavior and SN-017 Python preparation/GDB/fixture ownership unchanged.
+
+Prepare the requested new-chat prompt only when full SN-021 is accepted and
+integrated. No automatic resource execution, downloads, rendering, UI, other SN
+implementation, issue synchronization, releases or binaries are selected.
+
+# Historical handoff: SN-021 native project declarations
 
 Read CURRENT, BACKLOG, [ADR 0061](../decisions/0061-native-project-declarations.md),
 the [contract](../architecture/NATIVE_PROJECT_VALIDATION.md) and

@@ -1,5 +1,9 @@
 # Simulation source layout
 
+SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
+C++ domain graph values and an application loader retaining complete validated
+project metadata and original source positions. Saving/compilation remain pending.
+
 SN-017's bounded headless composition is accepted under
 [ADR 0043](../docs/decisions/0043-bounded-headless-extraction-acceptance.md).
 Native core contracts, RC/transport adapters, Windows supervisor and composed

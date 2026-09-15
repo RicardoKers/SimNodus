@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [native source connectivity](../experiments/SN-021-graph.md)
+loads the validated definition graph with owned domain values and exhaustive
+source mapping, retaining all metadata. Acceptance: 20 cases/56 comparisons and
+34 Windows CTests. SN-021 remains **in_progress**; safe atomic persistence and
+source-preserving compilation remain pending, with path acquisition/editing separate.
+
 Latest slice (2026-09-15): SN-021 [native project declarations](../experiments/SN-021-project.md)
 composes the declarative baseline with target, firmware and temporal metadata.
 Acceptance: 20 cases/106 native-reference comparisons and 32 Windows CTests.
