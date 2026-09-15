@@ -1,4 +1,28 @@
-# Latest handoff: SN-021 source-preserving display-name revision
+# Latest handoff: SN-021 structural connectivity compilation
+
+Read CURRENT, BACKLOG, [ADR 0067](../decisions/0067-connectivity-compilation.md),
+the [contract](../architecture/CONNECTIVITY_COMPILATION.md) and
+[report](../experiments/SN-021-connectivity-compilation.md). The structural compiler
+expands reachable occurrences and partitions only explicit connections. It retains
+singleton terminals, source-net aliases and full original provenance/metadata.
+No backend netlist, implicit ground or runtime approval is produced.
+
+Acceptance: 10 cases/18 requests and 40 Windows CTests. The 65536-record operation
+budget does not change declaration validity. Next select the smallest supported
+model/interface and parameter lowering from verified captured resources, with
+explicit reference/stimulus/analysis authority and required real-engine evidence.
+Do not infer source interfaces from declared maps or adopt fixture model text as
+an accepted electrical profile. Safe overwrite remains pending ADR 0064.
+
+Base main: `3b377e39ecb76f9941cc64872c23e6b0509ad513` (PR #33); branch:
+`codex/sn-021-connectivity-compilation`. Check final PR/head/check/squash and actual
+remote state. Preserve twelve local SN-045 changes, all historical evidence,
+SN-044, instrumentation, numerical tolerances, PDF/PID, MCU/toolchain independence
+and SN-017 Python preparation/GDB/fixture ownership. No UI, automatic resource
+execution, downloads, issue synchronization or release. Full SN-021 remains in
+progress; prepare the next-cycle prompt only after full acceptance/integration.
+
+# Historical handoff: SN-021 source-preserving display-name revision
 
 Read CURRENT, BACKLOG, [ADR 0066](../decisions/0066-project-name-revision.md),
 the [contract](../architecture/PROJECT_REVISION.md) and

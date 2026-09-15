@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [structural connectivity compilation](../experiments/SN-021-connectivity-compilation.md)
+expands bounded occurrences and explicit connection classes with complete source
+provenance. Acceptance: 10 cases/18 requests and 40 Windows CTests. SN-021 stays
+**in_progress**; model/interface and parameter lowering with real-engine evidence,
+explicit reference/analysis authority and safe overwrite remain pending under ADR 0067.
+
 Latest slice (2026-09-15): SN-021 [source-preserving name revision](../experiments/SN-021-revision.md)
 changes one display-name token with full revalidation and rebuilt provenance.
 Acceptance: 11 cases/33 requests and 39 Windows CTests. SN-021 stays **in_progress**;
