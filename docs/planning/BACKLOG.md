@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [atomic project creation](../experiments/SN-021-save-create.md)
+persists exact validated bytes without overwriting an existing/concurrent entry.
+Acceptance: 25 boundary checks, 14 physical cases with one local privilege skip,
+36 Windows CTests. SN-021 stays **in_progress**; safe overwrite ownership, path
+acquisition/editing and source-preserving compilation remain pending.
+
 Latest slice (2026-09-15): SN-021 [native source connectivity](../experiments/SN-021-graph.md)
 loads the validated definition graph with owned domain values and exhaustive
 source mapping, retaining all metadata. Acceptance: 20 cases/56 comparisons and

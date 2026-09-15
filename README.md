@@ -43,6 +43,14 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [create-only project save operation](docs/experiments/SN-021-save-create.md)
+publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
+It never overwrites an existing entry; safe overwrite and compilation remain pending.
+
+The [create-only project save operation](docs/experiments/SN-021-save-create.md)
+publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
+It never overwrites an existing entry; safe overwrite and compilation remain pending.
+
 The [native source graph loader](docs/experiments/SN-021-graph.md) builds owned
 hierarchical connectivity and a complete graph-record source map after validating
 project 0.1. It retains all metadata without opening resources or running engines.

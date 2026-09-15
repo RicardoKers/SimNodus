@@ -1,4 +1,34 @@
-# Latest handoff: SN-021 native source connectivity graph
+# Latest handoff: SN-021 atomic creation of project documents
+
+Read CURRENT, BACKLOG, [ADR 0063](../decisions/0063-atomic-project-create.md),
+the [contract](../architecture/ATOMIC_PROJECT_CREATE.md) and
+[report](../experiments/SN-021-save-create.md). Explicit create-only persistence
+validates project 0.1 and publishes its exact owned bytes using an exclusive
+temporary, flush and handle-relative native rename with replacement disabled.
+Existing/concurrent entries are never overwritten. No resource is imported/executed.
+
+Acceptance: 25 boundary checks, 14 physical cases (13 local passes/one symlink
+privilege skip), all 36 Windows CTests. Read the audit for initial Win32 rename
+and SDK declaration failures, subsequent native correction and preserved hashes.
+Killed writers may leave orphan temporaries; no power-loss recovery is promised.
+
+SN-021 remains in progress. Next define/prove safe overwrite with destination
+ownership and concurrent-change protection, then path acquisition/editing and
+source-preserving compilation with required real-engine evidence. Never treat
+resolve-then-open or textual prefixes as containment/overwrite ownership proof.
+Keep physical bytes, source/firmware interfaces, trust and execution independent.
+
+Base main: `6d88455be400520d918c26406b210ad062567976` (PR #29); work branch:
+`codex/sn-021-atomic-create`. Verify final PR/head/check/squash and actual remote
+state before proceeding. Preserve all twelve local SN-045 changes, including
+shared planning edits. Keep SN-044, instrumentation, MCU/toolchain independence,
+numeric bounds, PDF/PID behavior and SN-017 Python/GDB/fixture ownership unchanged.
+
+Prepare the requested new-chat prompt only when full SN-021 is accepted and
+integrated. No downloads, automatic resource execution/rendering, UI, other SN,
+issue synchronization, releases or binaries are selected.
+
+# Historical handoff: SN-021 native source connectivity graph
 
 Read CURRENT, BACKLOG, [ADR 0062](../decisions/0062-native-source-graph.md),
 the [contract](../architecture/NATIVE_SOURCE_GRAPH.md) and

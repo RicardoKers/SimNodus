@@ -1,5 +1,10 @@
 # SN-021 local resource verification
 
+The [project creation tests](../../docs/experiments/SN-021-save-create.md) add
+native save contracts and real Windows temporary/rename/collision/failure checks.
+They regress the shared containment helpers without changing resource verification
+policy. A killed writer's orphan temporary is explicitly recorded, not hidden.
+
 The [native extraction](../../docs/experiments/SN-021-native-resources.md) adds
 `native-resource-contracts` and Windows `native-resource-filesystem` CTest entries.
 The [native regression driver](native_regression.py) compares actual snapshots
