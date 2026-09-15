@@ -2,6 +2,27 @@
 
 Updated: 2026-09-14.
 
+## Latest acceptance: SN-021 overwrite ownership boundary
+
+The [physical overwrite counterexamples](../experiments/SN-021-overwrite-boundary.md),
+dated 2026-09-15, passed seven real NTFS cases and all 37 Windows CTests. See ADR
+0064. Retaining no-delete-share handles prevents replacement; unlocking or
+identity-checking before replacement admits another owner. POSIX handles retain
+old bytes without owning the pathname. Two renames expose a destination gap.
+No overwrite API is accepted; production create-only saving remains unchanged.
+
+SN-021 stays **in_progress**. Next implement bounded native project acquisition
+through retained physical handles into an owned validated graph/source capture,
+without pathname lease, save authority or resource/runtime approval. Safe overwrite
+remains pending a proven destination identity/version protocol; editing and
+compilation remain pending. These counterexamples reject tested candidates, not
+all possible Windows protocols. No engine/profile or SN-017 boundary is changed.
+
+All twelve local SN-045 changes and historical evidence remain preserved and
+excluded from publication. The next-cycle prompt remains pending full SN-021.
+Branch `codex/sn-021-overwrite-boundary` starts at main
+`53755a0ca232db45c17e4a16d37d96228d11942f` (PR #30). Consult the report's final PR record.
+
 ## Latest implementation: SN-021 atomic creation of project documents
 
 The [create-only persistence slice](../experiments/SN-021-save-create.md), dated
