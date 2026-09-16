@@ -53,7 +53,9 @@ def compile_project(doc, root, profile='e01', reference='reference', drive='sour
 
 class CompileRc(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix='simnodus-rc-')
+        parent = ROOT / 'build' / 'sn021-rc-tests'
+        parent.mkdir(parents=True, exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(prefix='simnodus-rc-', dir=parent)
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name);self.doc = project();populate(self.root, self.doc)
 
@@ -84,6 +86,7 @@ class CompileRc(unittest.TestCase):
     @unittest.skipUnless(os.name == 'nt', 'Physical compiler requires Windows/NTFS')
     def test_compilation_and_provenance(self):
         result = compile_project(self.doc, self.root)
+        self.assertIsInstance(result, dict, (str(self.root), result))
         self.assertEqual(result['netlist'].splitlines()[1:4], [b'Vdrive in 0 3.3', b'R1 in out 1000', b'C1 out 0 0.000001 IC=0'])
         self.assertEqual([e[:2] for e in result['elements']], [['main/left/r', '3'], ['main/left/c', '4']])
         self.assertIn(['0', 'main', 'reference'], result['nodes'])

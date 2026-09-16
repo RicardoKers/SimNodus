@@ -75,3 +75,16 @@ initial log hash/diagnostic, initial evidence hash and final test/source hashes.
 The targeted Windows rerun passed seven cases with one platform skip. The final
 repository checker covers 638 workspace / 636 publication files. Final hosted
 acceptance is recorded on PR #38; the original failed run is not relabelled.
+
+## Preserved Windows fixture-root failure
+
+Head `6110b16` passed Linux and E-01 but failed Windows compiler tests at the root
+validation gate (three failures/one error). The runner's default temporary root
+spelling was not logged, so its precise rejected spelling is not asserted here.
+Tests now use an explicit repository `build/` parent, matching existing NTFS
+fixtures, and report the root/error if the baseline compilation fails. No path
+policy or production code changed. The targeted local rerun passed seven cases
+with one platform skip. The [root correction audit](evidence/SN-021-ideal-rc-root-correction.json)
+retains this failed log/hash, the prior audit hash and final test/source hashes.
+Final repository count: 639 workspace / 637 publication files; consult PR #38 for
+final hosted acceptance rather than interpreting earlier failed runs as passes.

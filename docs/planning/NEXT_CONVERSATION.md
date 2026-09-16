@@ -32,6 +32,10 @@ Preserve the initial Linux root-versus-platform test failure and its correction
 [evidence](../experiments/evidence/SN-021-ideal-rc-ci-correction.json). Only the test
 expectation changed; final source hashes are recorded in that supplemental audit.
 
+Also preserve the subsequent Windows fixture-root failure and the
+[root correction audit](../experiments/evidence/SN-021-ideal-rc-root-correction.json).
+It contains the final source hashes; no production/path-policy relaxation occurred.
+
 # Historical handoff: SN-021 exact passive numerical binding
 
 Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),

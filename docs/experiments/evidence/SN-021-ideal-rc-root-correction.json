@@ -1,0 +1,35 @@
+{
+  "task": "SN-021",
+  "date": "2026-09-16",
+  "reason": "Default runner temporary root rejected by existing root gate. Use repository build fixture parent like existing NTFS tests; no production/path-policy relaxation. Exact rejected root spelling was not logged.",
+  "initial_head": "6110b16b15faef21cd150de407fda8a924cb1669",
+  "initial_ci": {
+    "run": 35092858809,
+    "windows_job": 104783058100,
+    "result": "failed",
+    "failures": 3,
+    "errors": 1,
+    "skips": 1,
+    "log_sha256": "9fd6b33288e6572d4a22381af20cf84af4e5b6f1d0d0104167b951db46cde9b8",
+    "excerpt": "2026-09-16T11:57:50.7686191Z 18: ERROR: test_compilation_and_provenance (__main__.CompileRc.test_compilation_and_provenance)\n2026-09-16T11:57:50.7687067Z 18: ----------------------------------------------------------------------\n2026-09-16T11:57:50.7688732Z 18: Traceback (most recent call last):\n2026-09-16T11:57:50.7690292Z 18:   File \"D:\\a\\SimNodus\\SimNodus\\tests\\schema\\native_rc_compile_regression.py\", line 87, in test_compilation_and_provenance\n2026-09-16T11:57:50.7693016Z 18:     self.assertEqual(result['netlist'].splitlines()[1:4], [b'Vdrive in 0 3.3', b'R1 in out 1000', b'C1 out 0 0.000001 IC=0'])\n2026-09-16T11:57:50.7694093Z 18:                      ~~~~~~^^^^^^^^^^^\n2026-09-16T11:57:50.7694626Z 18: TypeError: list indices must be integers or slices, not str\n2026-09-16T11:57:50.7695122Z 18: \n2026-09-16T11:57:50.7695435Z 18: ======================================================================\n2026-09-16T11:57:50.7696276Z 18: FAIL: test_matching_hash_does_not_approve_directives (__main__.CompileRc.test_matching_hash_does_not_approve_directives)\n2026-09-16T11:57:50.7697230Z 18: ----------------------------------------------------------------------\n2026-09-16T11:57:50.7697755Z 18: Traceback (most recent call last):\n2026-09-16T11:57:50.7698664Z 18:   File \"D:\\a\\SimNodus\\SimNodus\\tests\\schema\\native_rc_compile_regression.py\", line 127, in test_matching_hash_does_not_approve_directives\n2026-09-16T11:57:50.7699625Z 18:     self.assertEqual(result[:2], ['3', 'header'])\n2026-09-16T11:57:50.7700080Z 18:     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-09-16T11:57:50.7700598Z 18: AssertionError: Lists differ: ['2', 'root'] != ['3', 'header']\n2026-09-16T11:57:50.7701102Z 18: \n2026-09-16T11:57:50.7701379Z 18: First differing element 0:\n2026-09-16T11:57:50.7701746Z 18: '2'\n2026-09-16T11:57:50.7702018Z 18: '3'\n2026-09-16T11:57:50.7702285Z 18: \n2026-09-16T11:57:50.7702540Z 18: - ['2', 'root']\n2026-09-16T11:57:50.7702827Z 18: + ['3', 'header']\n2026-09-16T11:57:50.7703130Z 18: \n2026-09-16T11:57:50.7703443Z 18: ======================================================================\n2026-09-16T11:57:50.7704053Z 18: FAIL: test_physical_gate (__main__.CompileRc.test_physical_gate)\n2026-09-16T11:57:50.7704700Z 18: ----------------------------------------------------------------------\n2026-09-16T11:57:50.7705233Z 18: Traceback (most recent call last):\n2026-09-16T11:57:50.7706006Z 18:   File \"D:\\a\\SimNodus\\SimNodus\\tests\\schema\\native_rc_compile_regression.py\", line 104, in test_physical_gate\n2026-09-16T11:57:50.7706991Z 18:     self.assertEqual(compile_project(self.doc, self.root)[:2], ['2', 'hash'])\n2026-09-16T11:57:50.7707668Z 18:     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-09-16T11:57:50.7708791Z 18: AssertionError: Lists differ: ['2', 'root'] != ['2', 'hash']\n2026-09-16T11:57:50.7709386Z 18: \n2026-09-16T11:57:50.7709701Z 18: First differing element 1:\n2026-09-16T11:57:50.7710075Z 18: 'root'\n2026-09-16T11:57:50.7710351Z 18: 'hash'\n2026-09-16T11:57:50.7710623Z 18: \n2026-09-16T11:57:50.7710896Z 18: - ['2', 'root']\n2026-09-16T11:57:50.7711182Z 18: + ['2', 'hash']\n2026-09-16T11:57:50.7711468Z 18: \n2026-09-16T11:57:50.7711779Z 18: ======================================================================\n2026-09-16T11:57:50.7712539Z 18: FAIL: test_profile_values_and_wiring (__main__.CompileRc.test_profile_values_and_wiring)\n2026-09-16T11:57:50.7713785Z 18: ----------------------------------------------------------------------\n2026-09-16T11:57:50.7714365Z 18: Traceback (most recent call last):\n2026-09-16T11:57:50.7715238Z 18:   File \"D:\\a\\SimNodus\\SimNodus\\tests\\schema\\native_rc_compile_regression.py\", line 112, in test_profile_values_and_wiring\n2026-09-16T11:57:50.7716653Z 18:     self.assertEqual(compile_project(doc, self.root)[:2], ['4', 'value'])\n2026-09-16T11:57:50.7717631Z 18:     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-09-16T11:57:50.7718513Z 18: AssertionError: Lists differ: ['2', 'root'] != ['4', 'value']\n2026-09-16T11:57:50.7719333Z 18: \n2026-09-16T11:57:50.7719854Z 18: First differing element 0:\n2026-09-16T11:57:50.7720534Z 18: '2'\n2026-09-16T11:57:50.7721008Z 18: '4'\n2026-09-16T11:57:50.7721462Z 18: \n2026-09-16T11:57:50.7721775Z 18: - ['2', 'root']\n2026-09-16T11:57:50.7722067Z 18: + ['4', 'value']\n2026-09-16T11:57:50.7722384Z 18: \n2026-09-16T11:57:50.7722796Z 18: ----------------------------------------------------------------------\n2026-09-16T11:57:50.7723340Z 18: Ran 8 tests in 0.218s\n2026-09-16T11:57:50.7723674Z 18: \n2026-09-16T11:57:50.7723983Z 18: FAILED (failures=3, errors=1, skipped=1)\n2026-09-16T11:57:50.7831599Z 18/44 Test #18: native-ideal-rc-compilation .........***Failed    0.33 sec"
+  },
+  "preserved_correction_audit_sha256": "d6ea7f5008b59aff211c6368bfadc98fd147cbe677ffaa49b790ff648c376c5e",
+  "previous_test_sha256": "1191c56e17ff11ce192c5da891328233fa858f1ad634c06f6fe6043ab1023070",
+  "source_sha256": {
+    "CMakeLists.txt": "5ba2127177553a67cb00f8de6c5fbd10af9de4a5e2fc6f8c5c2a669c88923d38",
+    "src/application/ideal_rc_compilation.hpp": "62c74cd90fe7b9ee329b0b0e5d0fd49013ee7e93fd81f6bb6243b7c2815d4edc",
+    "src/application/ideal_rc_compilation.cpp": "0fd15265c7d56040a09c679343d28b54e72043afafc73772ab539382fe83ebc0",
+    "tests/schema/native_rc_compile_probe.cpp": "c982f26457300bd1234a5085100164e9ffb919a851da030982a5f93700e8da71",
+    "tests/schema/native_rc_compile_regression.py": "0b8f97cb52c4add93e2b9d61730a77b35f8250802bf96e032c695b8036a58b68",
+    "tests/experiments/ngspice/rc_compilation_acceptance.py": "8205d448642f8a45f095addc271b2d271cde5469707131aabe9fff86005f5c7e",
+    "docs/architecture/IDEAL_RC_COMPILATION.md": "7c6c276d9815440c721c284a4065aa4d361f1a5719c34eef3ed6368acfa8214d",
+    "docs/decisions/0071-explicit-ideal-rc-compilation.md": "399a149971c8d1b41346dde53b1624b364e80290d6797fb9fe124c4402a2cc3a"
+  },
+  "local_recheck": {
+    "cases": 8,
+    "passed": 7,
+    "skipped": 1,
+    "output": ".......s\n----------------------------------------------------------------------\nRan 8 tests in 0.370s\n\nOK (skipped=1)\n"
+  },
+  "final_hosted_checks": "See PR #38 final head/check record. Earlier failed runs remain preserved."
+}
