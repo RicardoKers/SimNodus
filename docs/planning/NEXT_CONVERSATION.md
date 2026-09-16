@@ -1,4 +1,31 @@
-# Latest handoff: SN-021 passive interface correspondence
+# Latest handoff: SN-021 exact passive numerical binding
+
+Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),
+the [contract](../architecture/PASSIVE_NUMERIC_BINDING.md) and
+[report](../experiments/SN-021-passive-numeric.md). Source defaults now convert
+exactly and must be positive/in-range even if overridden or unused. Reachable
+component effective values and ordered logical pins retain paths and provenance.
+Eight cases, 40 Decimal comparisons and 43 Windows CTests passed. All readiness
+flags remain false; no netlist, engine or physical acquisition occurs here.
+
+Next define explicit reference/stimulus/analysis authority and the smallest bounded
+backend lowering with complete project validation, structural connectivity and
+physically captured resources. Obtain real-engine acceptance without broadening
+profiles. Mathematical values do not certify binary solver rounding or stability.
+Safe overwrite remains pending ADR 0064; no automatic execution or path reopening.
+
+Base main: `8e4c3e2850bc73753fd3a600676c0a235a351b09` (PR #36); branch:
+`codex/sn-021-passive-numeric`. Confirm final PR/head/check/squash and remote.
+Preserve twelve local SN-045 files, all historical/negative evidence, SN-044,
+instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence,
+numerical tolerances and PDF/PID behavior. No UI, downloads, issues or release.
+Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
+
+[PR #37](https://github.com/RicardoKers/SimNodus/pull/37), starting at source
+`3f67324`, records final required checks and authorized protected-main squash.
+Confirm final state and main identity before analysis authority/backend lowering.
+
+# Historical handoff: SN-021 passive interface correspondence
 
 Read CURRENT, BACKLOG, [ADR 0069](../decisions/0069-passive-interface-correspondence.md),
 the [contract](../architecture/PASSIVE_INTERFACE.md) and

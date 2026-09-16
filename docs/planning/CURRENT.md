@@ -2,6 +2,26 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 exact passive numerical binding
+
+The [numerical binding slice](../experiments/SN-021-passive-numeric.md), dated
+2026-09-15, revalidates selected R/C correspondence, converts source defaults
+exactly and enforces positive inclusive ranges. Reachable component values/pins
+retain full paths, original effective strings, origins and offsets in source order.
+Eight cases, including 40 Decimal-oracle comparisons, and all 43 Windows CTests
+passed. See ADR 0070. All readiness flags stay false; no engine/netlist is emitted.
+
+SN-021 remains **in_progress**. Next define explicit reference/stimulus/analysis
+authority and bounded backend lowering using complete project validation,
+structural connectivity and physically captured resources; obtain real-engine
+acceptance before integration claims. Exact decimals do not certify binary solver
+rounding or expand electrical profiles. Safe overwrite remains pending ADR 0064.
+Preserve twelve local SN-045 files, all historical evidence, SN-044, instrumentation,
+SN-017 Python/GDB/fixture ownership, MCU/toolchain independence, tolerances and
+PDF/PID behavior. No UI or automatic execution. The next-cycle prompt is pending
+full acceptance. Branch `codex/sn-021-passive-numeric` starts at
+`8e4c3e2850bc73753fd3a600676c0a235a351b09` (PR #36). Consult the report's PR record.
+
 ## Latest implementation: SN-021 passive interface correspondence
 
 The [selected correspondence slice](../experiments/SN-021-passive-interface.md),

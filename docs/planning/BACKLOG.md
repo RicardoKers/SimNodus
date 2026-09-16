@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [exact passive numerical binding](../experiments/SN-021-passive-numeric.md)
+checks positive source defaults/effective values against exact descriptor ranges
+and composes occurrence parameter/pin maps with preserved provenance. Eight cases,
+40 Decimal comparisons and 43 Windows CTests passed; readiness remains false.
+SN-021 stays **in_progress**: explicit analysis authority, complete bounded backend
+lowering with real-engine evidence and safe overwrite remain pending under ADR 0070.
+
 Latest slice (2026-09-15): SN-021 [passive interface correspondence](../experiments/SN-021-passive-interface.md)
 matches selected owned R/C bytes to declared explicit maps and primitive unit.
 Eight cases and 42 Windows CTests passed; all readiness flags remain false.
