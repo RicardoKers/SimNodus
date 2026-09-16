@@ -236,7 +236,20 @@ Structural connectivity grants no model/interface, reference-ground, parameter
 or runtime approval. Backend lowering with real-engine evidence and safe overwrite
 remain pending. No UI, issue synchronization or binary release is included.
 
+## SN-021 passive source inspection integration: 2026-09-15
+
+Source `68360ac` was pushed on `codex/sn-021-passive-source` after seven reader
+cases, all 41 Windows CTests and explicit real ngspice owned ideal RC acceptance
+passed. [PR #35](https://github.com/RicardoKers/SimNodus/pull/35) records final
+required checks and authorized protected-main squash. Eight source hashes match
+the publication tree; 162 historical hashes and twelve local SN-045 changes are
+preserved. The unrelated overlay remains excluded. Initial failed harness
+evidence is retained. The reader grants no interface/readiness or execution
+authority; descriptor/parameter binding, full lowering and safe overwrite remain
+pending. No UI, issue synchronization or binary release is included.
+
 ## Binary release gate
+
 
 The SN-021 native syntax slice was published on 2026-09-14 at source `0dfd974`
 on `codex/sn-021-declaration-ingress`. [PR #22](https://github.com/RicardoKers/SimNodus/pull/22)

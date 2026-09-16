@@ -59,3 +59,12 @@ Next bind verified recognized models to declared ordered maps, units/ranges and
 effective parameters, with explicit reference/stimulus/analysis authority.
 Preserve SN-017 and all accepted profiles. Full SN-021 remains **in_progress**;
 the next-cycle chat prompt is pending full acceptance.
+
+## Publication record
+
+Source `68360ac` is published in [PR #35](https://github.com/RicardoKers/SimNodus/pull/35),
+which records final required hosted checks and protected-main squash integration.
+Eight source hashes match the publication tree; 162 historical hashes and twelve
+local SN-045 changes are preserved. The repository checker passed for 612 local
+and 610 publication files. Consult the final PR head/checks and main identity;
+branch publication alone does not establish main integration.

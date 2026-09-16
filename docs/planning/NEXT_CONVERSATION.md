@@ -21,6 +21,10 @@ Base main: `de8e1438cf9b51101465d64f83d5e0451e8777f3` (PR #34); branch:
 `codex/sn-021-passive-source`. Confirm final PR/head/check/squash and actual remote.
 Full SN-021 stays in progress; prepare the next-cycle prompt only upon completion.
 
+[PR #35](https://github.com/RicardoKers/SimNodus/pull/35), starting at source
+`68360ac`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before descriptor/parameter binding.
+
 # Historical handoff: SN-021 structural connectivity compilation
 
 Read CURRENT, BACKLOG, [ADR 0067](../decisions/0067-connectivity-compilation.md),
