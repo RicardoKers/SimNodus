@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [bounded passive source inspection](../experiments/SN-021-passive-source.md)
+owns recognized R/C interfaces without I/O or readiness approval. Seven reader
+cases, 41 Windows CTests and explicit real ngspice owned RC acceptance passed
+with unchanged tolerances. Initial failed harness evidence is preserved.
+SN-021 stays **in_progress**; descriptor/parameter binding, explicit analysis
+authority, backend lowering and safe overwrite remain pending under ADR 0068.
+
 Latest slice (2026-09-15): SN-021 [structural connectivity compilation](../experiments/SN-021-connectivity-compilation.md)
 expands bounded occurrences and explicit connection classes with complete source
 provenance. Acceptance: 10 cases/18 requests and 40 Windows CTests. SN-021 stays

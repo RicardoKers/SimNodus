@@ -1,4 +1,31 @@
-# Latest handoff: SN-021 structural connectivity compilation
+# Latest handoff: SN-021 bounded passive source inspection
+
+Read CURRENT, BACKLOG, [ADR 0068](../decisions/0068-passive-source-inspection.md),
+the [contract](../architecture/PASSIVE_SPICE_SOURCE.md) and
+[report](../experiments/SN-021-passive-source.md). The pure reader owns recognized
+R/C source/interface spans and rejects unsupported constructs under fixed budgets.
+Seven cases and 41 Windows CTests passed. The explicit pinned ngspice E-01 run
+used physically captured owned fixture bytes: 5012 samples, maximum error
+9.889724283951296e-08 V, unchanged tolerances. Preserve the failed first harness
+attempt and all historical evidence. No automatic engine/resource execution.
+
+Next select descriptor/parameter binding for recognized models with ordered maps,
+units/ranges and exact effective values; explicitly define reference/stimulus/
+analysis authority before backend lowering. No complete interface flag or runtime
+readiness is granted yet. Safe overwrite remains pending ADR 0064. Do not expand
+profiles, change SN-017 Python/GDB/fixture ownership, implement UI or other SNs.
+Preserve twelve local SN-045 changes, SN-044, instrumentation, numeric tolerances,
+PDF/PID and MCU/toolchain independence. No downloads, issues or binary release.
+
+Base main: `de8e1438cf9b51101465d64f83d5e0451e8777f3` (PR #34); branch:
+`codex/sn-021-passive-source`. Confirm final PR/head/check/squash and actual remote.
+Full SN-021 stays in progress; prepare the next-cycle prompt only upon completion.
+
+[PR #35](https://github.com/RicardoKers/SimNodus/pull/35), starting at source
+`68360ac`, records final required checks and protected-main squash integration.
+Confirm its final state and main identity before descriptor/parameter binding.
+
+# Historical handoff: SN-021 structural connectivity compilation
 
 Read CURRENT, BACKLOG, [ADR 0067](../decisions/0067-connectivity-compilation.md),
 the [contract](../architecture/CONNECTIVITY_COMPILATION.md) and

@@ -2,6 +2,26 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 bounded passive source inspection
+
+The [passive reader slice](../experiments/SN-021-passive-source.md), dated
+2026-09-15, inspects owned R/C source bytes without I/O or execution authority.
+ADR 0068 defines its narrow grammar and budgets. Seven reader cases and all
+41 Windows CTests passed. Explicit real ngspice acceptance of the physically
+captured owned fixture produced 5012 samples with maximum error
+9.889724283951296e-08 V under unchanged E-01 tolerances. The initial harness
+failure and its hashes remain preserved alongside the successful second run.
+
+SN-021 remains **in_progress**. Next bind recognized interfaces to descriptor
+maps, units/ranges and effective parameters, then define explicit reference,
+stimulus/analysis authority and backend lowering. No complete interface/readiness
+flag is granted. Safe overwrite remains pending ADR 0064. No profile expansion,
+UI, automatic project execution, SN-017 boundary or instrumentation changes.
+Twelve preexisting local SN-045 files remain preserved and excluded from publication.
+The next-cycle prompt is pending full SN-021 acceptance. Branch
+`codex/sn-021-passive-source` starts at `de8e1438cf9b51101465d64f83d5e0451e8777f3`.
+Consult the report's final PR record and verify the actual remote state.
+
 ## Latest implementation: SN-021 structural connectivity compilation
 
 The [structural compiler slice](../experiments/SN-021-connectivity-compilation.md),
