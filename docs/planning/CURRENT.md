@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 passive interface correspondence
+
+The [selected correspondence slice](../experiments/SN-021-passive-interface.md),
+dated 2026-09-15, matches complete resource-links metadata to owned recognized
+R/C source bytes by lock size/hash, entrypoint, explicit ordered maps and unit.
+Eight regression cases and all 42 Windows CTests passed. Metadata/source ownership,
+exact limits and provenance survive caller release. All readiness flags stay false.
+See ADR 0069; this adds no engine behavior or new electrical profile.
+
+SN-021 remains **in_progress**. Next bind exact effective values and numerical
+ranges, then explicit reference/stimulus/analysis authority and backend lowering.
+Source defaults are not yet range-certified. Physical containment stays a separate
+retained-handle acquisition gate. Safe overwrite remains pending ADR 0064.
+Preserve twelve local SN-045 changes, historical evidence, SN-044, instrumentation,
+SN-017 Python/GDB/fixture ownership, numerical tolerances and PDF/PID behavior.
+No UI or automatic execution. The next-cycle prompt remains pending completion.
+Branch `codex/sn-021-passive-interface` starts at
+`0f9cf8d665ad2abfdf146c600592277b2bd9fcb0` (PR #35). Consult the report's PR record.
+
 ## Latest implementation: SN-021 bounded passive source inspection
 
 The [passive reader slice](../experiments/SN-021-passive-source.md), dated

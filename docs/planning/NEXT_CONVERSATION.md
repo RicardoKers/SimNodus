@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 bounded passive source inspection
+# Latest handoff: SN-021 passive interface correspondence
+
+Read CURRENT, BACKLOG, [ADR 0069](../decisions/0069-passive-interface-correspondence.md),
+the [contract](../architecture/PASSIVE_INTERFACE.md) and
+[report](../experiments/SN-021-passive-interface.md). Selected descriptors now
+match owned recognized R/C bytes by exact resource size/hash, entrypoint, explicit
+ordered terminal/parameter maps and primitive unit. All readiness flags stay false.
+Eight cases and 42 Windows CTests passed; this operation is pure and inert.
+
+Next select exact effective-value/range binding; source defaults are not yet
+range-certified. Define reference/stimulus/analysis authority before full backend
+lowering. Physical containment remains separate; consume retained captured bytes,
+never reopen a verified pathname. Preserve the existing real RC evidence without
+claiming a wider profile. Safe overwrite remains pending ADR 0064.
+
+Base main: `0f9cf8d665ad2abfdf146c600592277b2bd9fcb0` (PR #35); branch:
+`codex/sn-021-passive-interface`. Confirm final PR/head/check/squash and remote.
+Preserve twelve local SN-045 files, all historical hashes and negative evidence,
+SN-044, instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain
+independence, numerical tolerances and PDF/PID behavior. No UI, automatic execution,
+downloads, issue synchronization or release. Full SN-021 remains in progress;
+prepare the next-cycle prompt only after full acceptance and integration.
+
+# Historical handoff: SN-021 bounded passive source inspection
 
 Read CURRENT, BACKLOG, [ADR 0068](../decisions/0068-passive-source-inspection.md),
 the [contract](../architecture/PASSIVE_SPICE_SOURCE.md) and
