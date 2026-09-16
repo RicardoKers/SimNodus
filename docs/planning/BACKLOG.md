@@ -1,5 +1,11 @@
 # Backlog
 
+Latest slice (2026-09-15): SN-021 [passive interface correspondence](../experiments/SN-021-passive-interface.md)
+matches selected owned R/C bytes to declared explicit maps and primitive unit.
+Eight cases and 42 Windows CTests passed; all readiness flags remain false.
+SN-021 stays **in_progress**: exact effective-value/range binding, explicit analysis
+authority, full lowering and safe overwrite remain pending under ADR 0069.
+
 Latest slice (2026-09-15): SN-021 [bounded passive source inspection](../experiments/SN-021-passive-source.md)
 owns recognized R/C interfaces without I/O or readiness approval. Seven reader
 cases, 41 Windows CTests and explicit real ngspice owned RC acceptance passed

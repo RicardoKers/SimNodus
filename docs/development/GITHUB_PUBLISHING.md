@@ -248,6 +248,18 @@ evidence is retained. The reader grants no interface/readiness or execution
 authority; descriptor/parameter binding, full lowering and safe overwrite remain
 pending. No UI, issue synchronization or binary release is included.
 
+## SN-021 passive interface correspondence integration: 2026-09-15
+
+Source `57c32ce` was pushed on `codex/sn-021-passive-interface` after eight
+correspondence cases and all 42 Windows CTests passed.
+[PR #36](https://github.com/RicardoKers/SimNodus/pull/36) records final required
+checks and authorized protected-main squash. Seven source hashes match the
+publication tree; 170 historical hashes and twelve local SN-045 changes are
+preserved. The unrelated overlay remains excluded. The inert result grants no
+numerical/default, physical containment, complete interface or execution approval.
+Full numerical binding/lowering and safe overwrite remain pending. No UI, issue
+synchronization or binary release is included.
+
 ## Binary release gate
 
 
