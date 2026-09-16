@@ -2,6 +2,30 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 explicit ideal RC compilation
+
+The [explicit RC compiler](../experiments/SN-021-ideal-rc-compilation.md), dated
+2026-09-16, validates a complete project, captures resources through retained
+NTFS handles and consumes owned bytes to emit a fixed standalone E-01 artifact.
+An explicit request selects distinct reference/drive/output root ports. Three
+nodes and correctly oriented 1 kohm/1 uF primitives are required; full source maps
+and inputs are retained. All declaration readiness flags remain false. See ADR 0071.
+
+Eight cases: seven Windows passes/one non-Windows-only skip; all 44 Windows CTests
+passed. Real pinned ngspice: 5012 samples, error 9.889724283951296e-08 V, unchanged
+E-01 and stricter fixture tolerances passed. Replacing the copied model after
+compilation caused recompilation to reject while the owned artifact still ran.
+No automatic engine call, source directive forwarding, download or path reopening.
+
+SN-021 remains **in_progress**. Review remaining project/runtime acceptance and
+safe overwrite ownership (ADR 0064) before the next bounded slice. This is one
+standalone RC preset, not configured co-simulation or general electrical support.
+Preserve twelve local SN-045 files, all historical/negative evidence, SN-044,
+instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence,
+numeric tolerances and PDF/PID behavior. No UI or release. Next-cycle prompt remains
+pending full acceptance. Branch `codex/sn-021-ideal-rc-compile` starts at
+`edbb87fa4182f7b5c27174936b1fef832f177c7c` (PR #37). Consult the report's PR record.
+
 ## Latest implementation: SN-021 exact passive numerical binding
 
 The [numerical binding slice](../experiments/SN-021-passive-numeric.md), dated

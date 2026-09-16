@@ -271,6 +271,18 @@ is excluded. Exact positive/range checks grant no solver-rounding, physical,
 complete-interface or execution approval. Analysis authority, full backend lowering
 and safe overwrite remain pending. No UI, issue synchronization or binary release.
 
+## SN-021 explicit ideal RC compilation integration: 2026-09-16
+
+Source `d605827` was pushed on `codex/sn-021-ideal-rc-compile` after eight compiler
+cases (seven Windows passes/one platform skip), all 44 Windows CTests and explicit
+real ngspice artifact acceptance passed with unchanged E-01/fixture tolerances.
+[PR #38](https://github.com/RicardoKers/SimNodus/pull/38) records final required
+checks and authorized protected-main squash. Eight source hashes match publication;
+184 historical hashes and twelve local SN-045 files are preserved; the overlay
+is excluded. Compilation uses captured resources and preserves full provenance;
+execution remains a separate explicit action. Remaining project/runtime acceptance
+and safe overwrite stay pending. No UI, issue synchronization or binary release.
+
 ## Binary release gate
 
 

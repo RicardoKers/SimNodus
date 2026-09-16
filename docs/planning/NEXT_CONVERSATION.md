@@ -1,4 +1,42 @@
-# Latest handoff: SN-021 exact passive numerical binding
+# Latest handoff: SN-021 explicit ideal RC compilation
+
+Read CURRENT, BACKLOG, [ADR 0071](../decisions/0071-explicit-ideal-rc-compilation.md),
+the [contract](../architecture/IDEAL_RC_COMPILATION.md) and
+[report](../experiments/SN-021-ideal-rc-compilation.md). Complete project validation,
+structural connectivity and physical snapshots now feed an explicit fixed E-01
+compiler with root reference/drive/output selection and full source maps. Only
+1 kohm/1 uF, three-node standalone RC is accepted; no configured co-simulation.
+The returned artifact is inert and all declaration readiness flags stay false.
+
+Eight cases: seven Windows passes/one platform skip; all 44 Windows CTests passed.
+Real pinned ngspice produced 5012 samples and 9.889724283951296e-08 V maximum error
+under unchanged E-01 and fixture tolerances. Postcompile copied-model replacement
+rejected on recompilation; the owned artifact ran without path reopening.
+
+Next review remaining SN-021 project/runtime acceptance and safe overwrite
+ownership under ADR 0064 before selecting the next bounded slice. Do not expand
+electrical profiles or implicitly connect opening a project to compilation/run.
+Preserve twelve local SN-045 files, historical/negative evidence, SN-044,
+instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence,
+tolerances and PDF/PID. No UI, downloads, issues or binary release.
+
+Base main: `edbb87fa4182f7b5c27174936b1fef832f177c7c` (PR #37); branch:
+`codex/sn-021-ideal-rc-compile`. Confirm final PR/head/check/squash and remote.
+Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
+
+[PR #38](https://github.com/RicardoKers/SimNodus/pull/38), starting at source
+`d605827`, records final required checks and authorized protected-main squash.
+Confirm final state and main identity before reviewing remaining acceptance gates.
+
+Preserve the initial Linux root-versus-platform test failure and its correction
+[evidence](../experiments/evidence/SN-021-ideal-rc-ci-correction.json). Only the test
+expectation changed; final source hashes are recorded in that supplemental audit.
+
+Also preserve the subsequent Windows fixture-root failure and the
+[root correction audit](../experiments/evidence/SN-021-ideal-rc-root-correction.json).
+It contains the final source hashes; no production/path-policy relaxation occurred.
+
+# Historical handoff: SN-021 exact passive numerical binding
 
 Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),
 the [contract](../architecture/PASSIVE_NUMERIC_BINDING.md) and

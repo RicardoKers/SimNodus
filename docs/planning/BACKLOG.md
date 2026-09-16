@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-16): SN-021 [explicit ideal RC compilation](../experiments/SN-021-ideal-rc-compilation.md)
+validates the project, physically captures resources and emits a fixed standalone
+E-01 artifact with explicit node selection and retained provenance. Eight cases
+(seven Windows passes/one platform skip), 44 CTests and real ngspice acceptance
+passed with unchanged tolerances. SN-021 stays **in_progress**: remaining project/
+runtime acceptance and safe overwrite remain pending under ADR 0071.
+
 Latest slice (2026-09-15): SN-021 [exact passive numerical binding](../experiments/SN-021-passive-numeric.md)
 checks positive source defaults/effective values against exact descriptor ranges
 and composes occurrence parameter/pin maps with preserved provenance. Eight cases,
