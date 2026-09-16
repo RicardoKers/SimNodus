@@ -283,6 +283,20 @@ is excluded. Compilation uses captured resources and preserves full provenance;
 execution remains a separate explicit action. Remaining project/runtime acceptance
 and safe overwrite stay pending. No UI, issue synchronization or binary release.
 
+## SN-021 project lifecycle integration: 2026-09-16
+
+Branch `codex/sn-021-project-lifecycle` contains test-only composition of native
+create/open/name-edit/save-copy/reopen/explicit ideal RC compilation. Eight Windows
+cases, all 45 Windows CTests and two real pinned-ngspice attempts passed with
+unchanged tolerances. The repository checker passed for 644 workspace and 642
+publication files. Four source hashes, 98 historical evidence files and 14 schema
+fixtures are recorded in the [audit](../experiments/evidence/SN-021-project-lifecycle-summary.json).
+Twelve preexisting local files remain excluded. The branch pull request records
+final hosted checks and the authorized protected-main squash; verify its final
+head and local/remote main identity. Full SN-021, safe overwrite and firmware/
+platform/runtime acceptance remain pending. No production API, UI, downloads,
+issue synchronization or binary release is added.
+
 ## Binary release gate
 
 

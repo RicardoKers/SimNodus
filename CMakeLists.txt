@@ -466,3 +466,11 @@ if(BUILD_TESTING AND WIN32)
     target_compile_definitions(fixture_application_session_tests PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
     add_test(NAME fixture-application-session COMMAND fixture_application_session_tests)
 endif()
+
+# Test-only composition of the existing bounded project operations.
+if(BUILD_TESTING AND WIN32)
+    add_executable(native_lifecycle_probe tests/schema/native_lifecycle_probe.cpp)
+    target_link_libraries(native_lifecycle_probe PRIVATE simnodus_project_acquisition simnodus_project_revision simnodus_project_save simnodus_ideal_rc_compilation)
+    add_test(NAME native-project-lifecycle COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_lifecycle_regression.py" --probe "$<TARGET_FILE:native_lifecycle_probe>")
+    set_tests_properties(native-project-lifecycle PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
+endif()

@@ -2,6 +2,27 @@
 
 Updated: 2026-09-14.
 
+## Latest acceptance: SN-021 project lifecycle composition
+
+The [lifecycle acceptance](../experiments/SN-021-project-lifecycle.md), dated
+2026-09-16, composes native create/open/name-edit/save-copy/reopen/explicit RC
+compilation. Eight real Windows filesystem cases and all 45 CTests passed.
+Two explicit pinned-ngspice runs passed: 5012 samples, maximum error
+9.889724283951296e-08 V, unchanged E-01/project tolerances. The reopened artifact
+matches pre-save compilation; collisions and postcapture substitutions preserve
+the documented ownership boundary. No production API or automatic execution added.
+
+SN-021 remains **in_progress**. The report maps remaining gates: safe overwrite
+under ADR 0064, owned firmware-byte inspection, boot/device/interface validation
+and configured runtime integration. Next define bounded inert ELF inspection of
+captured bytes; do not load firmware or infer compatibility from headers/hashes.
+Keep the accepted electrical profiles and all readiness flags unchanged. Preserve
+historical/negative evidence, twelve unrelated local SN-045 files, SN-044,
+instrumentation, MCU/toolchain independence, SN-017 Python/GDB ownership and PDF/PID.
+The next-cycle prompt remains pending full SN-021 acceptance. Base main is
+`a5f0c53a82092b12ecc086ddcc8639d3feb66e90`; branch `codex/sn-021-project-lifecycle`.
+Consult the report and PR for final publication and hosted-check status.
+
 ## Latest implementation: SN-021 explicit ideal RC compilation
 
 The [explicit RC compiler](../experiments/SN-021-ideal-rc-compilation.md), dated

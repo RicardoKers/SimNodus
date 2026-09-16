@@ -1,5 +1,11 @@
 # Backlog
 
+Latest acceptance (2026-09-16): SN-021 [project lifecycle composition](../experiments/SN-021-project-lifecycle.md)
+passed eight Windows filesystem cases, 45 CTests and two explicit real-ngspice
+runs under unchanged tolerances. Create/open/name-edit/save-copy/reopen/compile is
+covered; safe overwrite and firmware/platform/runtime acceptance remain pending.
+SN-021 stays **in_progress**. Next define bounded inert captured-byte ELF inspection.
+
 Latest slice (2026-09-16): SN-021 [explicit ideal RC compilation](../experiments/SN-021-ideal-rc-compilation.md)
 validates the project, physically captures resources and emits a fixed standalone
 E-01 artifact with explicit node selection and retained provenance. Eight cases
