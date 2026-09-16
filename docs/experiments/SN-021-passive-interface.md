@@ -37,3 +37,11 @@ Next bind exact effective values and ranges, then explicit reference/stimulus/
 analysis authority and backend lowering. Safe overwrite remains pending ADR 0064.
 Preserve all historical evidence and twelve unrelated local SN-045 files.
 Full SN-021 stays **in_progress**; the next-cycle prompt is pending full acceptance.
+
+## Publication record
+
+Source `57c32ce` was pushed in [PR #36](https://github.com/RicardoKers/SimNodus/pull/36),
+which records final required hosted checks and protected-main squash integration.
+Seven source hashes match the publication tree; 170 historical hashes and twelve
+local SN-045 files are preserved. The checker passed for 620 workspace / 618
+publication files. Verify final PR/head/checks and main identity before continuation.

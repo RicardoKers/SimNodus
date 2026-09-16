@@ -21,6 +21,10 @@ independence, numerical tolerances and PDF/PID behavior. No UI, automatic execut
 downloads, issue synchronization or release. Full SN-021 remains in progress;
 prepare the next-cycle prompt only after full acceptance and integration.
 
+[PR #36](https://github.com/RicardoKers/SimNodus/pull/36), starting at source
+`57c32ce`, records final required checks and authorized protected-main squash.
+Confirm the final state and main identity before numerical binding work.
+
 # Historical handoff: SN-021 bounded passive source inspection
 
 Read CURRENT, BACKLOG, [ADR 0068](../decisions/0068-passive-source-inspection.md),
