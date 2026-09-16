@@ -35,3 +35,12 @@ preserved. Next define explicit reference/stimulus/analysis authority and bounde
 backend lowering with complete project/physical gates and real-engine acceptance.
 Safe overwrite remains pending ADR 0064. Full SN-021 stays **in_progress**; prepare
 the next-cycle prompt only after full acceptance and integration.
+
+## Publication record
+
+Source `3f67324` was published on 2026-09-16 in
+[PR #37](https://github.com/RicardoKers/SimNodus/pull/37), which records final
+required hosted checks and protected-main squash integration. Seven source hashes
+match publication; 177 historical hashes and twelve local SN-045 files are
+preserved. The checker passed for 628 workspace / 626 publication files. Verify
+final PR/head/checks and main identity before continuation.

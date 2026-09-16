@@ -260,6 +260,17 @@ numerical/default, physical containment, complete interface or execution approva
 Full numerical binding/lowering and safe overwrite remain pending. No UI, issue
 synchronization or binary release is included.
 
+## SN-021 exact passive numerical binding integration: 2026-09-16
+
+Source `3f67324` was pushed on `codex/sn-021-passive-numeric` after eight cases,
+40 Decimal-oracle comparisons and all 43 Windows CTests passed.
+[PR #37](https://github.com/RicardoKers/SimNodus/pull/37) records final required
+checks and authorized protected-main squash. Seven source hashes match publication;
+177 historical hashes and twelve local SN-045 files are preserved and the overlay
+is excluded. Exact positive/range checks grant no solver-rounding, physical,
+complete-interface or execution approval. Analysis authority, full backend lowering
+and safe overwrite remain pending. No UI, issue synchronization or binary release.
+
 ## Binary release gate
 
 

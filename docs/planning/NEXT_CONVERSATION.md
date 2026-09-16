@@ -21,6 +21,10 @@ instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence
 numerical tolerances and PDF/PID behavior. No UI, downloads, issues or release.
 Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
 
+[PR #37](https://github.com/RicardoKers/SimNodus/pull/37), starting at source
+`3f67324`, records final required checks and authorized protected-main squash.
+Confirm final state and main identity before analysis authority/backend lowering.
+
 # Historical handoff: SN-021 passive interface correspondence
 
 Read CURRENT, BACKLOG, [ADR 0069](../decisions/0069-passive-interface-correspondence.md),
