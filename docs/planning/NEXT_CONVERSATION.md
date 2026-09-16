@@ -24,6 +24,10 @@ Base main: `edbb87fa4182f7b5c27174936b1fef832f177c7c` (PR #37); branch:
 `codex/sn-021-ideal-rc-compile`. Confirm final PR/head/check/squash and remote.
 Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
 
+[PR #38](https://github.com/RicardoKers/SimNodus/pull/38), starting at source
+`d605827`, records final required checks and authorized protected-main squash.
+Confirm final state and main identity before reviewing remaining acceptance gates.
+
 # Historical handoff: SN-021 exact passive numerical binding
 
 Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),

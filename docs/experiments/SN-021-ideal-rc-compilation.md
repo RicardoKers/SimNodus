@@ -55,3 +55,11 @@ ownership, MCU/toolchain independence, UI, instrumentation, PDF/PID and historic
 tolerances stay unchanged. Remaining project/runtime integration and safe overwrite
 under ADR 0064 still prevent closing full SN-021. Review remaining acceptance gates
 before the next slice; prepare the next-cycle prompt only after full completion.
+
+## Publication record
+
+Source `d605827` was published in [PR #38](https://github.com/RicardoKers/SimNodus/pull/38),
+which records final required hosted checks and protected-main squash integration.
+Eight source hashes match publication; 184 historical hashes and twelve local
+SN-045 files are preserved. The checker passed for 637 workspace / 635 publication
+files. Verify final PR/head/checks and main identity before continuation.
