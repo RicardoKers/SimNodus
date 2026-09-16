@@ -43,9 +43,16 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [native project lifecycle](docs/experiments/SN-021-project-lifecycle.md) now
+composes create/open/name-edit/save-copy/reopen and explicit standalone ideal RC
+compilation, with real ngspice acceptance of the reopened artifact. Safe overwrite,
+firmware/platform verification and configured project execution remain pending.
+Opening or saving a project never grants execution permission.
+
 The [structural connectivity compiler](docs/experiments/SN-021-connectivity-compilation.md)
 expands occurrence identities and groups explicit connections with source provenance.
-It emits no backend netlist and infers neither ground nor simulation readiness.
+This structural stage emits no backend netlist and infers neither ground nor
+simulation readiness. The separate explicit ideal RC compiler is linked above.
 
 The [project name revision](docs/experiments/SN-021-revision.md) changes one display
 name token while preserving every other byte and rebuilding graph provenance.
@@ -57,7 +64,7 @@ validated graph. It grants no pathname lease, overwrite or execution authority.
 
 The [create-only project save operation](docs/experiments/SN-021-save-create.md)
 publishes exact validated JSON bytes atomically on the bounded Windows/NTFS path.
-It never overwrites an existing entry; safe overwrite and compilation remain pending.
+It never overwrites an existing entry; safe overwrite remains pending.
 The [overwrite boundary](docs/experiments/SN-021-overwrite-boundary.md) records
 physical counterexamples to replacement after unlocking or rechecking a pathname.
 
@@ -131,7 +138,8 @@ verification is separate; runtime negotiation and native loading/saving are pend
 SN-021 now has an explicit [Windows/NTFS byte snapshot verifier](docs/architecture/LOCAL_RESOURCE_VERIFICATION.md)
 separate from those declaration parsers. It checks local containment and locked
 bytes without interpreting resources. See [coverage and limits](docs/experiments/SN-021-local-resources.md);
-native project loading, atomic saving, source interfaces and compilation remain pending.
+subsequent bounded loading/saving/interface/compiler evidence is linked above;
+full SN-021 acceptance remains pending.
 
 The [native C++20 snapshot API](docs/experiments/SN-021-native-resources.md) now
 implements the bounded physical step with Windows types confined to platform

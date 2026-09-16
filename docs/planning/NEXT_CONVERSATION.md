@@ -1,4 +1,23 @@
-# Latest handoff: SN-021 explicit ideal RC compilation
+# Latest handoff: SN-021 project lifecycle acceptance
+
+Read CURRENT, BACKLOG and the [lifecycle report](../experiments/SN-021-project-lifecycle.md).
+Eight Windows cases and 45 CTests passed; two explicit real ngspice runs validated
+the reopened artifact with unchanged tolerances. Existing APIs now have combined
+create/open/name-edit/save-copy/reopen/compile evidence; no production API changed.
+SN-021 is still in progress. Safe overwrite remains pending ADR 0064. Next define
+bounded inert ELF inspection of physically captured resource bytes, including
+limits, address/segment overflow and unsupported input. Do not infer boot/device
+compatibility, trusted origin, licensing or execution permission from valid bytes.
+No firmware load, broader engine profile or automatic execution is authorized by
+opening a project. Keep SN-017 preparation/GDB/fixture scheduling in Python.
+Preserve all historical/negative evidence, twelve local SN-045 files, SN-044,
+instrumentation, MCU/toolchain independence, numerical tolerances and PDF/PID.
+Prepare the next-cycle prompt only after full SN-021 acceptance.
+
+Base main: `a5f0c53a82092b12ecc086ddcc8639d3feb66e90` (PR #38). Branch:
+`codex/sn-021-project-lifecycle`. Confirm final PR/check/squash and main identity.
+
+# Historical handoff: SN-021 explicit ideal RC compilation
 
 Read CURRENT, BACKLOG, [ADR 0071](../decisions/0071-explicit-ideal-rc-compilation.md),
 the [contract](../architecture/IDEAL_RC_COMPILATION.md) and

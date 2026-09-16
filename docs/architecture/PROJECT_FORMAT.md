@@ -1,8 +1,10 @@
 # Project format
 
 Status: [project declaration baseline 0.1](PROJECT_SCHEMA.md) is accepted for
-SN-020 specification/reference validation. Runtime persistence and extensions
-such as `.snod` and `.snodsub` remain unimplemented/unselected. No loader exists.
+SN-020 specification/reference validation. The native [bounded project lifecycle](../experiments/SN-021-project-lifecycle.md)
+now acquires owned documents and supports atomic create-only save/copy. Safe
+overwrite and full executable-project acceptance remain pending. Extensions such
+as `.snod` and `.snodsub` remain unselected.
 
 The [topology-only 0.1 draft](TOPOLOGY_DRAFT.md) is the first SN-020 slice, with
 structural validation and JSON round-trip fixtures. It does not define the whole
@@ -12,8 +14,8 @@ scoped instance overrides; it did not cover the later project/resource contracts
 The [0.3 descriptor draft](BINDINGS_DRAFT.md) separates symbols and model interfaces
 with explicit mappings; it does not open graphical/model resources.
 The separate [resource lock 0.1](RESOURCE_LOCK_DRAFT.md) validates an inert file
-inventory and lexical paths. Physical containment and resource loading remain
-pending; declared hashes and license metadata are not verification or approval.
+inventory and lexical paths. Physical byte capture is implemented separately in SN-021; these metadata
+declarations alone are not verification, interpretation or execution approval.
 
 ## Principle
 
