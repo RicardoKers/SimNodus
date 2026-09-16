@@ -78,7 +78,8 @@ class CompileRc(unittest.TestCase):
 
     @unittest.skipUnless(os.name != 'nt', 'Unsupported-platform rejection is a non-Windows check')
     def test_unsupported_platform(self):
-        self.assertEqual(compile_project(self.doc, self.root)[:2], ['2', 'platform'])
+        self.assertEqual(compile_project(self.doc, self.root)[:2], ['2', 'root'])
+        self.assertEqual(compile_project(self.doc, r'C:\unused-package')[:2], ['2', 'platform'])
 
     @unittest.skipUnless(os.name == 'nt', 'Physical compiler requires Windows/NTFS')
     def test_compilation_and_provenance(self):

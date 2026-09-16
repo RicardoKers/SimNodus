@@ -63,3 +63,15 @@ which records final required hosted checks and protected-main squash integration
 Eight source hashes match publication; 184 historical hashes and twelve local
 SN-045 files are preserved. The checker passed for 637 workspace / 635 publication
 files. Verify final PR/head/checks and main identity before continuation.
+
+## Preserved initial Linux failure and test correction
+
+Initial head `59508bb` failed the Linux unsupported-platform assertion: a POSIX
+root correctly returns `root` before the backend's `platform` rejection. The
+corrected test verifies both POSIX-root rejection and platform rejection using a
+syntactically valid Windows root. Production and engine code are unchanged.
+The [correction audit](evidence/SN-021-ideal-rc-ci-correction.json) preserves the
+initial log hash/diagnostic, initial evidence hash and final test/source hashes.
+The targeted Windows rerun passed seven cases with one platform skip. The final
+repository checker covers 638 workspace / 636 publication files. Final hosted
+acceptance is recorded on PR #38; the original failed run is not relabelled.

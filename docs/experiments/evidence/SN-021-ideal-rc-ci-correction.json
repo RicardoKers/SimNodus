@@ -1,0 +1,36 @@
+{
+  "task": "SN-021",
+  "date": "2026-09-16",
+  "reason": "Correct Linux test expectation: Windows root syntax is validated before unsupported-platform rejection. No production or engine code change.",
+  "initial_head": "59508bb595a0040fd6ccb0acd95a9136b90e23e9",
+  "initial_ci": {
+    "run": 35092415359,
+    "linux_job": 104781691732,
+    "result": "failed",
+    "cases": 8,
+    "failures": 1,
+    "skips": 4,
+    "log_sha256": "910b14c03ea9ab403f2a2b91da318013c2ca36e7b6437dfe3596402810b10e3e",
+    "excerpt": "2026-09-16T11:51:19.6280312Z 18: FAIL: test_unsupported_platform (__main__.CompileRc.test_unsupported_platform)\n2026-09-16T11:51:19.6280847Z 18: ----------------------------------------------------------------------\n2026-09-16T11:51:19.6281235Z 18: Traceback (most recent call last):\n2026-09-16T11:51:19.6281842Z 18:   File \"/home/runner/work/SimNodus/SimNodus/tests/schema/native_rc_compile_regression.py\", line 81, in test_unsupported_platform\n2026-09-16T11:51:19.6282587Z 18:     self.assertEqual(compile_project(self.doc, self.root)[:2], ['2', 'platform'])\n2026-09-16T11:51:19.6283112Z 18: AssertionError: Lists differ: ['2', 'root'] != ['2', 'platform']\n2026-09-16T11:51:19.6283466Z 18: \n2026-09-16T11:51:19.6283657Z 18: First differing element 1:\n2026-09-16T11:51:19.6283886Z 18: 'root'\n2026-09-16T11:51:19.6284066Z 18: 'platform'\n2026-09-16T11:51:19.6284250Z 18: \n2026-09-16T11:51:19.6284424Z 18: - ['2', 'root']\n2026-09-16T11:51:19.6284625Z 18: + ['2', 'platform']\n2026-09-16T11:51:19.6284823Z 18: \n2026-09-16T11:51:19.6285065Z 18: ----------------------------------------------------------------------\n2026-09-16T11:51:19.6285406Z 18: Ran 8 tests in 0.034s\n2026-09-16T11:51:19.6285628Z 18: \n2026-09-16T11:51:19.6285822Z 18: FAILED (failures=1, skipped=4)\n2026-09-16T11:51:19.6354380Z 18/37 Test #18: native-ideal-rc-compilation .........***Failed    0.09 sec\n2026-09-16T11:51:19.6355318Z .s..sssF"
+  },
+  "preserved_initial_audit_sha256": "343097bfaa051064dd07f4eaca188d6b68cff91bae5c8766ce92381bf9f62aa4",
+  "previous_test_sha256": "21ad3af18f5a5938ae46f42bc1e7c21d3ab0fce8cfa19db6b997508274eccaac",
+  "source_sha256": {
+    "CMakeLists.txt": "5ba2127177553a67cb00f8de6c5fbd10af9de4a5e2fc6f8c5c2a669c88923d38",
+    "src/application/ideal_rc_compilation.hpp": "62c74cd90fe7b9ee329b0b0e5d0fd49013ee7e93fd81f6bb6243b7c2815d4edc",
+    "src/application/ideal_rc_compilation.cpp": "0fd15265c7d56040a09c679343d28b54e72043afafc73772ab539382fe83ebc0",
+    "tests/schema/native_rc_compile_probe.cpp": "c982f26457300bd1234a5085100164e9ffb919a851da030982a5f93700e8da71",
+    "tests/schema/native_rc_compile_regression.py": "1191c56e17ff11ce192c5da891328233fa858f1ad634c06f6fe6043ab1023070",
+    "tests/experiments/ngspice/rc_compilation_acceptance.py": "8205d448642f8a45f095addc271b2d271cde5469707131aabe9fff86005f5c7e",
+    "docs/architecture/IDEAL_RC_COMPILATION.md": "7c6c276d9815440c721c284a4065aa4d361f1a5719c34eef3ed6368acfa8214d",
+    "docs/decisions/0071-explicit-ideal-rc-compilation.md": "399a149971c8d1b41346dde53b1624b364e80290d6797fb9fe124c4402a2cc3a"
+  },
+  "local_recheck": {
+    "command": "python tests/schema/native_rc_compile_regression.py --probe build/sn021-save/Debug/native_rc_compile_probe.exe",
+    "cases": 8,
+    "passed": 7,
+    "skipped": 1,
+    "output": ".......s\n----------------------------------------------------------------------\nRan 8 tests in 0.364s\n\nOK (skipped=1)\n"
+  },
+  "final_hosted_checks": "See PR #38 final head/check record; initial failed evidence remains unchanged."
+}

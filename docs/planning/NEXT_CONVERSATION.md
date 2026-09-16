@@ -28,6 +28,10 @@ Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
 `d605827`, records final required checks and authorized protected-main squash.
 Confirm final state and main identity before reviewing remaining acceptance gates.
 
+Preserve the initial Linux root-versus-platform test failure and its correction
+[evidence](../experiments/evidence/SN-021-ideal-rc-ci-correction.json). Only the test
+expectation changed; final source hashes are recorded in that supplemental audit.
+
 # Historical handoff: SN-021 exact passive numerical binding
 
 Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),
