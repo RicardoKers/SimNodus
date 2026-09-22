@@ -297,6 +297,22 @@ head and local/remote main identity. Full SN-021, safe overwrite and firmware/
 platform/runtime acceptance remain pending. No production API, UI, downloads,
 issue synchronization or binary release is added.
 
+## SN-021 inert ELF inspection publication: 2026-09-22
+
+Branch `codex/sn-021-elf-inspection` contains the bounded pure ELF32 reader and
+its 2026-09-16 acceptance. Six source hashes still match that acceptance: twelve
+adversarial cases and all 46 Windows CTests passed. The historical compiler image
+matched its original digest and independent field decoding. Preserve the initial
+load-order failure; the final diagnostic does not approve loading or ABI conformance.
+The [audit](../experiments/evidence/SN-021-elf-inspection-summary.json) preserves
+99 historical evidence files, 14 schema fixtures and twelve unrelated local files,
+which are excluded from publication. The repository checker covers 653 workspace /
+651 publication files. The branch PR records final hosted checks and authorized
+protected-main squash; verify its exact head and local/remote main identity.
+SN-021 stays in progress: physical firmware association, architecture/device/boot/
+runtime gates and safe overwrite remain pending. No firmware loading, UI, local
+dependency downloads, issue synchronization or binary release is included.
+
 ## Binary release gate
 
 

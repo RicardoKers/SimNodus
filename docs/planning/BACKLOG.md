@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-16): SN-021 [inert ELF32 inspection](../experiments/SN-021-elf-inspection.md)
+passed twelve adversarial cases, 46 Windows CTests and read-only historical ELF
+comparison. The initial order rejection remains recorded; unordered load records
+are now reported without loader approval. SN-021 stays **in_progress**: selected
+firmware/resource association, architecture/boot/device/runtime gates and safe
+overwrite remain pending. No execution or supported profile expansion.
+
 Latest acceptance (2026-09-16): SN-021 [project lifecycle composition](../experiments/SN-021-project-lifecycle.md)
 passed eight Windows filesystem cases, 45 CTests and two explicit real-ngspice
 runs under unchanged tolerances. Create/open/name-edit/save-copy/reopen/compile is

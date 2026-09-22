@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 project lifecycle acceptance
+# Latest handoff: SN-021 inert ELF inspection
+
+Read CURRENT, BACKLOG, [ADR 0072](../decisions/0072-inert-elf-inspection.md), the
+[contract](../architecture/ELF_INSPECTION.md) and [report](../experiments/SN-021-elf-inspection.md).
+The pure reader owns ELF32 little-endian bytes and bounded program records with
+raw architecture/ABI/entry/flags and source offsets. Twelve adversarial cases and
+46 Windows CTests passed. Historical SN-012 compiler-output comparison passed;
+retain the first load-order failure and the explicit final `load_ordered: false`
+diagnostic. Success is not full ELF, memory-map, ABI, boot or runtime validation.
+No firmware is loaded and no project-opening path invokes the reader implicitly.
+
+Next define selected firmware/resource association using retained physical byte
+snapshots and explicit architecture evidence. Do not reopen verified paths or
+infer MCU support from machine numbers. Device/boot validation and real target
+integration remain pending, as does overwrite ownership under ADR 0064.
+SN-021 stays in progress; prepare the next-cycle prompt only upon full acceptance.
+Preserve historical/negative evidence, twelve local SN-045 files, SN-044,
+instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence,
+accepted numerical/runtime profiles and PDF/PID. No UI, downloads, issues or release.
+
+Base main: `922f364c4464aa191cb0be214f2e0f67c65ba15a` (PR #39); branch
+`codex/sn-021-elf-inspection`. Confirm final PR/check/squash and main identity.
+
+# Historical handoff: SN-021 project lifecycle acceptance
 
 Read CURRENT, BACKLOG and the [lifecycle report](../experiments/SN-021-project-lifecycle.md).
 Eight Windows cases and 45 CTests passed; two explicit real ngspice runs validated

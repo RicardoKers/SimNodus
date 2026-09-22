@@ -2,6 +2,27 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 inert ELF32 inspection
+
+The [ELF envelope reader](../experiments/SN-021-elf-inspection.md), dated 2026-09-16,
+copies at most 16 MiB and inspects bounded little-endian ELF32 executable headers
+and program records. It retains raw fields/source offsets without file access,
+section-content interpretation, memory mapping, boot approval or execution.
+Twelve adversarial cases and all 46 Windows CTests passed. The historical SN-012
+compiler-produced ELF matches its original hash and independent binary decoding.
+An initial load-order rejection is preserved; the final reader reports unordered
+loads without rewriting or approving them. See ADR 0072 and the audit.
+
+SN-021 remains **in_progress**. Next compose selected firmware declarations with
+physically captured bytes and explicit architecture evidence before device/boot
+validation and real target integration. No image loader or new supported MCU/
+electrical/runtime profile is introduced. Safe overwrite remains pending ADR 0064.
+Preserve twelve local SN-045 files, historical/negative evidence, SN-044, shared
+instrumentation, SN-017 Python/GDB/fixture ownership, MCU/toolchain independence,
+numerical tolerances and PDF/PID. Next-cycle prompt awaits full SN-021 acceptance.
+Base main: `922f364c4464aa191cb0be214f2e0f67c65ba15a`; branch
+`codex/sn-021-elf-inspection`. Confirm final PR/check/squash and remote identity.
+
 ## Latest acceptance: SN-021 project lifecycle composition
 
 The [lifecycle acceptance](../experiments/SN-021-project-lifecycle.md), dated

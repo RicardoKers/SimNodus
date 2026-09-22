@@ -43,6 +43,11 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
+The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded
+owned header/program bytes and reports load ordering without mapping or executing
+firmware. Physical association, full ELF/device/boot validation and runtime
+approval remain separate pending gates.
+
 The [native project lifecycle](docs/experiments/SN-021-project-lifecycle.md) now
 composes create/open/name-edit/save-copy/reopen and explicit standalone ideal RC
 compilation, with real ngspice acceptance of the reopened artifact. Safe overwrite,
