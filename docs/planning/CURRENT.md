@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest audit: SN-021 acceptance gates
+
+The [acceptance matrix](../experiments/SN-021-acceptance.md), dated 2026-09-22,
+separates completed loading/graph/create-only persistence and isolated real-engine
+compilation/boot from remaining configured runtime and safe-overwrite gates.
+Two targeted CTests passed 48 new policy-rejection requests: valid configured
+replay/sampled documents cannot authorize standalone RC or reference-target work,
+even with measured quanta and debug labels. Native code and engine inputs are unchanged.
+The audit revalidated 24 prior source hashes, 103 historical evidence files and
+14 schema fixtures; twelve local SN-045 files are preserved and unpublished.
+
+SN-021 stays **in_progress**. Next predeclare one existing measured fixture's exact
+configured project-to-runtime mapping and real consumption acceptance; preserve
+SN-017 Python/GDB/fixture ownership and numerical bounds. Do not substitute E-03
+tolerances for project bounds. Safe overwrite still requires ADR 0064 proof.
+No new profile, UI or other SN. Next-cycle prompt awaits full bounded acceptance.
+Base main: `04f0174e922ca87db85213d9d184692b276862d8`; branch
+`codex/sn-021-acceptance-gates`. Confirm final PR/check/squash and main identity.
+
 ## Latest implementation: SN-021 reference target and real boot
 
 The [reference target](../experiments/SN-021-reference-target.md), dated 2026-09-22,

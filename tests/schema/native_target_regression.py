@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import threading
 import unittest
+import project as declaration
 import native_firmware_regression as fw
 import native_boot_regression as boot
 import resource_lock
@@ -78,6 +79,24 @@ class Target(unittest.TestCase):
         self.assertEqual(inspect(self.doc, self.root, path='main/other')['error'][:2], ['selection', 'target'])
         self.doc['unexpected'] = 1
         self.assertEqual(inspect(self.doc, self.root)['error'][0], 'declaration')
+
+    def test_configured_policy_cannot_authorize_standalone_operation(self):
+        dep = self.doc['sources']['lock']['dependencies'][0]
+        resource = {'dependency': dep['id'], 'resource': dep['files'][0]['id']}
+        # Replay references are metadata here, not an accepted schedule format.
+        for mode, fidelity, schedule in [('known-schedule-replay', 'causal-replay', resource),
+                                         ('approximate-sampled', 'approximate', None)]:
+            for debug in ('disabled', 'bounded-cooperative'):
+                for quantum in (20000, 100000, 1000000):
+                    self.doc['temporal'].update(mode=mode, fidelity=fidelity, schedule=schedule,
+                        duration_ns=10000000, exchange_quantum_ns=quantum, debug=debug)
+                    stats = declaration.validate(self.doc)
+                    self.assertFalse(stats['runtime_profile_verified'])
+                    # Both a missing root and an invalid root must lose to the
+                    # policy rejection, rather than trigger capture or fallback.
+                    for root in (self.root / 'absent', 'relative-root'):
+                        with self.subTest(mode=mode, debug=debug, quantum=quantum, root=str(root)):
+                            self.assertEqual(inspect(self.doc, root)['error'][:2], ['selection', 'standalone'])
 
     def test_device_architecture_and_interface(self):
         mcu = self.doc['platforms'][0]['mcu'];mcu['device'] = 'another-device'

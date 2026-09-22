@@ -1,4 +1,29 @@
-# Latest handoff: SN-021 reference target and real boot
+# Latest handoff: SN-021 acceptance gates
+
+Read the [acceptance matrix](../experiments/SN-021-acceptance.md), CURRENT and BACKLOG.
+The matrix maps remaining work; earlier slice next-steps are historical. Loading,
+independent graph/source mapping, create-only persistence, explicit ideal RC
+compilation and isolated reference boot have bounded implementation and real evidence.
+Configured project/runtime correspondence and safe overwrite remain pending.
+
+Two targeted CTests passed 48 new configured-policy rejection requests. Native code
+and engine inputs are unchanged; prior real results are reused. Preserve 103 historical
+evidence files, 14 schema fixtures and twelve local SN-045 files. An audit correction
+for a superseded CMake hash is recorded. Hosted checks belong to the branch PR.
+
+Next predeclare exact project-policy/input mapping for one already measured fixture,
+positive real consumption and mismatch acceptance. Do not substitute E-03 tolerances,
+infer execution from labels/hashes or invent a general schedule format. Keep SN-017
+Python preparation/GDB/fixture ownership. Safe overwrite must satisfy ADR 0064,
+not repeat rejected pathname protocols. The matrix requires no UI, new MCUs/models
+or all-native orchestration. Preserve SN-044, instrumentation, MCU independence,
+profiles, PDF/PID and historical negatives. No downloads, issues or release.
+SN-021 stays in progress; prepare the next-cycle prompt after full bounded acceptance.
+
+Base main: `04f0174e922ca87db85213d9d184692b276862d8` (PR #43); branch
+`codex/sn-021-acceptance-gates`. Confirm final PR/check/squash and main identity.
+
+# Historical handoff: SN-021 reference target and real boot
 
 Read CURRENT, BACKLOG, [ADR 0074](../decisions/0074-explicit-reference-target-boot.md),
 the [contract](../architecture/REFERENCE_TARGET.md) and [report](../experiments/SN-021-reference-target.md).
