@@ -1,4 +1,26 @@
-# Latest handoff: SN-021 selected firmware capture
+# Latest handoff: SN-021 static reference boot candidate
+
+Read CURRENT, BACKLOG, [ADR 0073](../decisions/0073-static-boot-candidate.md), the
+[contract](../architecture/BOOT_CANDIDATE.md) and [report](../experiments/SN-021-boot-candidate.md).
+An explicit adapter-local SN-012 profile now checks ELF/header, memory-region,
+overlap, stack reserve and reset/vector correspondence. Eight cases and 48 Windows
+CTests passed. The historical image passed read-only hash/symbol comparison;
+program order and `load_ordered: false` are preserved. No image was loaded and
+no static result grants device/runtime/section/instruction or execution approval.
+
+Next bind the explicitly requested profile to project target/platform identity
+and trusted fixture resources, then use the existing real Renode fixture to prove
+loader/boot integration. Keep Python preparation/GDB/fixture scheduling in SN-017.
+Do not infer a profile, normalize load order, reopen verified paths or broaden
+accepted runtime/electrical profiles. Safe overwrite remains pending ADR 0064.
+Preserve twelve local SN-045 files, historical negatives, SN-044, instrumentation,
+MCU/toolchain independence, tolerances and PDF/PID. No UI, downloads, issues or
+release. SN-021 is in progress; next-cycle prompt awaits full acceptance.
+
+Base main: `e5306affc1c8a892c22096383d7f466238e9246c` (PR #41); branch
+`codex/sn-021-boot-candidate`. Confirm final PR/check/squash and main identity.
+
+# Historical handoff: SN-021 selected firmware capture
 
 Read CURRENT, BACKLOG, the [contract](../architecture/FIRMWARE_INSPECTION.md) and
 [report](../experiments/SN-021-firmware-inspection.md). Explicit native composition

@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-22): SN-021 [static boot candidate](../experiments/SN-021-boot-candidate.md)
+passed eight cases, 48 Windows CTests and read-only historical ELF/symbol checks.
+An explicit SN-012 adapter profile checks fields, memory regions, overlaps, stack
+and reset vectors without loading firmware. SN-021 stays **in_progress**: project
+target/platform association, real loader/boot/runtime acceptance and safe overwrite
+remain pending. No new executable or electrical profile is approved.
+
 Latest slice (2026-09-22): SN-021 [selected firmware capture](../experiments/SN-021-firmware-inspection.md)
 composes complete project validation, physical snapshots and inert ELF inspection.
 Nine cases (eight Windows passes/one skip), 47 CTests and the historical ELF

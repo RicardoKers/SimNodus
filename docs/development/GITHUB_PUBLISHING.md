@@ -326,6 +326,18 @@ Architecture correspondence, device/boot/runtime acceptance and safe overwrite
 remain pending. No firmware loading, engine profile expansion, UI, dependency
 download, issue synchronization or binary release is included.
 
+## SN-021 static boot candidate publication: 2026-09-22
+
+Branch `codex/sn-021-boot-candidate` adds the explicit adapter-local static SN-012
+candidate under ADR 0073. Eight adversarial cases, 48 Windows CTests and historical
+ELF/hash/symbol comparison passed; no firmware loading or engine run is claimed.
+The [audit](../experiments/evidence/SN-021-boot-candidate-summary.json) records five
+source hashes, unchanged fixture/evidence hashes and preservation of twelve local
+files excluded from publication. The branch PR records final hosted checks and
+authorized protected-main squash; confirm final head and local/remote main identity.
+Project target/platform association, real loader/boot/runtime acceptance and safe
+overwrite remain pending. No UI, downloads, issues or binary release is included.
+
 ## Binary release gate
 
 
