@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 static boot candidate
+
+The [boot candidate](../experiments/SN-021-boot-candidate.md), dated 2026-09-22,
+requires an explicit adapter-local SN-012 reference profile and inspects owned ELF
+header fields, regions, overlap, stack reserve and reset/vector correspondence.
+Eight cases and all 48 Windows CTests passed. The original 9712-byte SN-012 image
+matches its hash and stack/reset symbols; its unordered-load diagnostic is retained.
+This is static inspection, not firmware loading, device/runtime approval or a new
+executable profile. No instruction or section contents are interpreted. See ADR 0073.
+
+SN-021 remains **in_progress**. Next bind the explicit profile to project target/
+platform identity and trusted fixture resources before real-loader/boot acceptance.
+Safe overwrite remains pending ADR 0064. Preserve twelve local SN-045 files,
+historical/negative evidence, SN-044, instrumentation, MCU/toolchain independence,
+SN-017 Python/GDB/fixture control, profiles/tolerances and PDF/PID. No UI, downloads,
+issues or release. Next-cycle prompt awaits full SN-021 completion. Base main:
+`e5306affc1c8a892c22096383d7f466238e9246c`; branch `codex/sn-021-boot-candidate`.
+Confirm final PR/check/squash and remote identity before continuing.
+
 ## Latest implementation: SN-021 selected firmware capture
 
 The [firmware composition](../experiments/SN-021-firmware-inspection.md), dated
