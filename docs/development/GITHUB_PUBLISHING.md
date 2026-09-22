@@ -338,6 +338,20 @@ authorized protected-main squash; confirm final head and local/remote main ident
 Project target/platform association, real loader/boot/runtime acceptance and safe
 overwrite remain pending. No UI, downloads, issues or binary release is included.
 
+## SN-021 reference target and real boot publication: 2026-09-22
+
+Branch `codex/sn-021-target-boot` binds explicit reference target identity and
+captures owned platform/firmware without automatic execution. The separate Python
+experiment passed real Renode E-02 assertions at both existing quantum profiles
+through retained staging leases. Seven gate cases (six Windows passes/one skip)
+and 49 Windows CTests passed; the initial malformed test fixture is preserved.
+The [audit](../experiments/evidence/SN-021-reference-target-summary.json) records
+source/binary hashes, full engine observations and 102 unchanged historical files.
+Twelve unrelated local files remain excluded. The branch PR records hosted checks
+and authorized protected-main squash; verify final head and main identity.
+Full SN-021, configured runtime correspondence and safe overwrite remain pending.
+No automatic project execution, UI, download, issue synchronization or release.
+
 ## Binary release gate
 
 

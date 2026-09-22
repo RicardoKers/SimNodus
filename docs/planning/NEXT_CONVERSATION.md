@@ -1,4 +1,25 @@
-# Latest handoff: SN-021 static reference boot candidate
+# Latest handoff: SN-021 reference target and real boot
+
+Read CURRENT, BACKLOG, [ADR 0074](../decisions/0074-explicit-reference-target-boot.md),
+the [contract](../architecture/REFERENCE_TARGET.md) and [report](../experiments/SN-021-reference-target.md).
+Native explicit target/platform/firmware association remains inert. A separate
+Python experiment consumed owned snapshots through pinned staging and passed real
+Renode E-02 assertions for both existing 100/1000 us profiles. Seven gate cases
+(six Windows passes/one skip), 49 Windows CTests. Preserve the initial fixture
+failure, all 102 earlier evidence files and twelve unrelated local SN-045 files.
+
+Next audit the remaining SN-021 acceptance matrix before implementing another
+slice: configured temporal/runtime correspondence and safe overwrite (ADR 0064)
+remain pending. Isolated reference boot does not implement arbitrary project
+execution or electrical wiring. Preserve SN-017 Python preparation/GDB/fixture
+control, SN-044, instrumentation, MCU/toolchain independence, numerical profiles,
+PDF/PID and all historical negatives. No UI, downloads, issues or release.
+SN-021 is in progress; prepare the next-cycle prompt only after full acceptance.
+
+Base main: `fe32b2591ec4e5d611082684a116a2f5e6e82908` (PR #42); branch
+`codex/sn-021-target-boot`. Confirm final hosted checks, squash and main identity.
+
+# Historical handoff: SN-021 static reference boot candidate
 
 Read CURRENT, BACKLOG, [ADR 0073](../decisions/0073-static-boot-candidate.md), the
 [contract](../architecture/BOOT_CANDIDATE.md) and [report](../experiments/SN-021-boot-candidate.md).

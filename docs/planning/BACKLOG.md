@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-22): SN-021 [reference target and real boot](../experiments/SN-021-reference-target.md)
+passed native identity/resource/boot association and explicit real Renode acceptance
+at both existing quantum profiles. Seven cases (six Windows passes/one skip), 49
+Windows CTests; source substitution and retained staging leases tested. The native
+operation remains inert. Full SN-021 stays **in_progress**; review remaining
+acceptance, configured temporal/runtime correspondence and safe overwrite (ADR 0064).
+
 Latest slice (2026-09-22): SN-021 [static boot candidate](../experiments/SN-021-boot-candidate.md)
 passed eight cases, 48 Windows CTests and read-only historical ELF/symbol checks.
 An explicit SN-012 adapter profile checks fields, memory regions, overlaps, stack
