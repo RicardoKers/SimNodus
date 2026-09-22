@@ -352,6 +352,19 @@ and authorized protected-main squash; verify final head and main identity.
 Full SN-021, configured runtime correspondence and safe overwrite remain pending.
 No automatic project execution, UI, download, issue synchronization or release.
 
+## SN-021 acceptance gates publication: 2026-09-22
+
+Branch `codex/sn-021-acceptance-gates` records the remaining acceptance matrix and
+48 configured-policy rejection requests in two existing native-operation suites.
+Both targeted CTests passed; native code and engine inputs are unchanged, so prior
+real integration is reused without claiming another run. The
+[audit](../experiments/evidence/SN-021-acceptance-gates-summary.json) records source,
+fixture and historical hashes, including the superseded-CMake audit correction.
+Twelve unrelated local files remain excluded. The PR records final hosted checks
+and authorized protected-main squash; verify final head and local/remote main.
+SN-021 is incomplete pending configured runtime correspondence and safe overwrite.
+No new runtime profile, UI, dependency download, issue synchronization or release.
+
 ## Binary release gate
 
 

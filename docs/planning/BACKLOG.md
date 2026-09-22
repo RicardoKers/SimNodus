@@ -1,5 +1,11 @@
 # Backlog
 
+Latest audit (2026-09-22): the SN-021 [acceptance matrix](../experiments/SN-021-acceptance.md)
+records implemented boundaries and two remaining gates: configured project/runtime
+correspondence and safe overwrite. Two targeted CTests passed 48 new configured-policy
+rejections in isolated RC/target operations. Native/engine inputs are unchanged;
+existing real evidence is reused. SN-021 stays **in_progress** without new profiles.
+
 Latest slice (2026-09-22): SN-021 [reference target and real boot](../experiments/SN-021-reference-target.md)
 passed native identity/resource/boot association and explicit real Renode acceptance
 at both existing quantum profiles. Seven cases (six Windows passes/one skip), 49
