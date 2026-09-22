@@ -1,4 +1,26 @@
-# Latest handoff: SN-021 inert ELF inspection
+# Latest handoff: SN-021 selected firmware capture
+
+Read CURRENT, BACKLOG, the [contract](../architecture/FIRMWARE_INSPECTION.md) and
+[report](../experiments/SN-021-firmware-inspection.md). Explicit native composition
+now validates project metadata, selects firmware by ID, physically captures all
+locked resources and inspects retained ELF bytes. Nine cases (eight Windows passes,
+one platform skip), 47 CTests and historical real compiler-output capture passed.
+The returned bytes survive replacement of the copied file. All readiness stays
+false; declared architecture and observed machine/ABI/flags remain separate.
+
+Next define architecture/device/boot correspondence for the owned fixture before
+real target/runtime integration. Do not infer compatibility from labels, hashes
+or ELF numbers; do not reopen verified paths, map firmware or normalize unordered
+segments. Preserve ADR 0072's diagnostic and prior failed attempt. Safe overwrite
+remains pending ADR 0064; full SN-021 is in progress. Prepare the next-cycle prompt
+only upon full acceptance. Preserve twelve local SN-045 files, historical evidence,
+SN-044, instrumentation, MCU/toolchain independence, SN-017 Python/GDB ownership,
+accepted profiles/tolerances and PDF/PID. No UI, downloads, issues or release.
+
+Base main: `8122767d58d57570740c9bc948432b161b0e7e65` (PR #40); branch
+`codex/sn-021-firmware-capture`. Confirm final PR/check/squash and main identity.
+
+# Historical handoff: SN-021 inert ELF inspection
 
 Read CURRENT, BACKLOG, [ADR 0072](../decisions/0072-inert-elf-inspection.md), the
 [contract](../architecture/ELF_INSPECTION.md) and [report](../experiments/SN-021-elf-inspection.md).

@@ -2,6 +2,26 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 selected firmware capture
+
+The [firmware composition](../experiments/SN-021-firmware-inspection.md), dated
+2026-09-22, validates the full project, selects a firmware ID, physically captures
+the complete inventory and inspects retained ELF bytes without reopening paths.
+Declared architecture and observed ELF metadata stay separate; no equivalence,
+boot/device/runtime or execution approval follows. All readiness flags stay false.
+Nine cases (eight Windows passes/one platform skip), 47 CTests and physical
+inspection of the unchanged historical SN-012 ELF passed. Its 9712 bytes remain
+owned after replacing the copied file; the unordered-load diagnostic is preserved.
+
+SN-021 remains **in_progress**. Next define explicit architecture/device/boot
+correspondence for the owned fixture before real target/runtime integration.
+Safe overwrite still requires ADR 0064 ownership evidence. Preserve historical/
+negative evidence, twelve local SN-045 files, SN-044, shared instrumentation,
+MCU/toolchain independence, SN-017 Python/GDB/fixture ownership, tolerances and
+PDF/PID. No UI, downloads, issues or binary release. Next-cycle prompt awaits
+full SN-021 acceptance. Base main: `8122767d58d57570740c9bc948432b161b0e7e65`;
+branch `codex/sn-021-firmware-capture`. Confirm final PR/check/squash and remote.
+
 ## Latest implementation: SN-021 inert ELF32 inspection
 
 The [ELF envelope reader](../experiments/SN-021-elf-inspection.md), dated 2026-09-16,

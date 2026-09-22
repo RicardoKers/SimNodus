@@ -313,6 +313,19 @@ SN-021 stays in progress: physical firmware association, architecture/device/boo
 runtime gates and safe overwrite remain pending. No firmware loading, UI, local
 dependency downloads, issue synchronization or binary release is included.
 
+## SN-021 firmware capture publication: 2026-09-22
+
+Branch `codex/sn-021-firmware-capture` composes complete declaration validation,
+physical byte capture and selected inert ELF inspection. Nine cases (eight Windows
+passes/one platform skip), 47 Windows CTests and historical compiler-output capture
+passed. Five source hashes and preserved historical/fixture hashes are recorded
+in the [audit](../experiments/evidence/SN-021-firmware-inspection-summary.json).
+Twelve unrelated local files remain excluded. The branch PR records final hosted
+checks and authorized protected-main squash; verify final head and main identity.
+Architecture correspondence, device/boot/runtime acceptance and safe overwrite
+remain pending. No firmware loading, engine profile expansion, UI, dependency
+download, issue synchronization or binary release is included.
+
 ## Binary release gate
 
 
