@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-22): SN-021 [selected firmware capture](../experiments/SN-021-firmware-inspection.md)
+composes complete project validation, physical snapshots and inert ELF inspection.
+Nine cases (eight Windows passes/one skip), 47 CTests and the historical ELF
+capture passed. Architecture evidence is retained without equivalence or loader
+approval. SN-021 stays **in_progress**: architecture/device/boot/runtime gates and
+safe overwrite remain pending; no executable profile expansion.
+
 Latest slice (2026-09-16): SN-021 [inert ELF32 inspection](../experiments/SN-021-elf-inspection.md)
 passed twelve adversarial cases, 46 Windows CTests and read-only historical ELF
 comparison. The initial order rejection remains recorded; unordered load records
