@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 reference target and real boot
+
+The [reference target](../experiments/SN-021-reference-target.md), dated 2026-09-22,
+binds an explicit occurrence to the owned SN-012 platform/firmware and static boot
+contract. Native inspection remains inert. A separate explicit Python experiment
+consumed captured bytes through retained filesystem leases and passed unchanged
+real Renode assertions at 100 and 1000 us. Source replacement preserved snapshots;
+staged writes/rename were denied. All 49 Windows CTests passed. The first synthetic
+fixture failure and 102 historical evidence files are preserved. See ADR 0074.
+
+SN-021 remains **in_progress**. Next review the accumulated acceptance matrix,
+configured temporal/runtime correspondence and safe overwrite (ADR 0064). Do not
+infer general project execution or broaden supported profiles from this isolated
+fixture. Preserve twelve local SN-045 files, SN-044, instrumentation, MCU/toolchain
+independence, SN-017 Python/GDB/fixture control, tolerances and PDF/PID. No UI,
+downloads, issues or release. Next-cycle prompt awaits full SN-021 completion.
+Base main: `fe32b2591ec4e5d611082684a116a2f5e6e82908`; branch
+`codex/sn-021-target-boot`. Verify final PR/check/squash and main identity.
+
 ## Latest implementation: SN-021 static boot candidate
 
 The [boot candidate](../experiments/SN-021-boot-candidate.md), dated 2026-09-22,
