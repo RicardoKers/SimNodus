@@ -1,0 +1,387 @@
+{
+    "status":  "failed",
+    "mode":  "Probe",
+    "tag":  "bf15616619f3",
+    "pid":  8756,
+    "stage":  "first-independent-client",
+    "observations":  [
+                         {
+                             "status":  "observed",
+                             "mode":  "WriterInit",
+                             "tag":  "bf15616619f3",
+                             "pid":  672,
+                             "stage":  "physical-operation",
+                             "observations":  [
+
+                                              ],
+                             "token":  {
+                                           "sid":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                                           "administrator":  false,
+                                           "groups":  [
+                                                          "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                          "S-1-1-0",
+                                                          "S-1-5-32-545",
+                                                          "S-1-5-4",
+                                                          "S-1-2-1",
+                                                          "S-1-5-11",
+                                                          "S-1-5-15",
+                                                          "S-1-5-113",
+                                                          "S-1-2-0",
+                                                          "S-1-5-64-10"
+                                                      ]
+                                       },
+                             "os":  {
+                                        "caption":  "Microsoft Windows 11 Enterprise Evaluation",
+                                        "version":  "10.0.26200",
+                                        "build":  "26200"
+                                    },
+                             "filesystem":  "NTFS",
+                             "reboot_pending":  false,
+                             "privileges":  [
+                                                {
+                                                    "Name":  "SeShutdownPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeChangeNotifyPrivilege",
+                                                    "State":  "Ativada"
+                                                },
+                                                {
+                                                    "Name":  "SeUndockPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeTimeZonePrivilege",
+                                                    "State":  "Desativado"
+                                                }
+                                            ],
+                             "file":  {
+                                          "leaf":  "project.json",
+                                          "identity":  "46a13f0e:000d0000:0002b4b0",
+                                          "links":  "1",
+                                          "owner":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                                          "sddl":  "O:S-1-5-21-295071742-3982017719-4243568550-1004G:S-1-5-21-295071742-3982017719-4243568550-513D:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;FA;;;S-1-5-21-295071742-3982017719-4243568550-1004)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1005)",
+                                          "rules":  [
+                                                        {
+                                                            "sid":  "S-1-5-18",
+                                                            "rights":  2032127,
+                                                            "type":  "Allow",
+                                                            "inherited":  true
+                                                        },
+                                                        {
+                                                            "sid":  "S-1-5-32-544",
+                                                            "rights":  2032127,
+                                                            "type":  "Allow",
+                                                            "inherited":  true
+                                                        },
+                                                        {
+                                                            "sid":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                                                            "rights":  2032127,
+                                                            "type":  "Allow",
+                                                            "inherited":  true
+                                                        },
+                                                        {
+                                                            "sid":  "S-1-5-21-295071742-3982017719-4243568550-1005",
+                                                            "rights":  1179817,
+                                                            "type":  "Allow",
+                                                            "inherited":  true
+                                                        }
+                                                    ],
+                                          "directory":  false
+                                      },
+                             "bytes":  "original fixture",
+                             "sha256":  "4b9496fb7df017386494502e41510975df4dbf67cec685fe8dc970b6a9e710a5"
+                         },
+                         {
+                             "status":  "failed",
+                             "mode":  "Client",
+                             "tag":  "bf15616619f3",
+                             "pid":  10512,
+                             "stage":  "physical-operation",
+                             "observations":  [
+                                                  {
+                                                      "operation":  "write",
+                                                      "denied":  true,
+                                                      "error_type":  "System.UnauthorizedAccessException",
+                                                      "error_code":  5,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  },
+                                                  {
+                                                      "operation":  "create",
+                                                      "denied":  true,
+                                                      "error_type":  "System.UnauthorizedAccessException",
+                                                      "error_code":  5,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  },
+                                                  {
+                                                      "operation":  "rename",
+                                                      "denied":  true,
+                                                      "error_type":  "System.UnauthorizedAccessException",
+                                                      "error_code":  5,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  },
+                                                  {
+                                                      "operation":  "delete",
+                                                      "denied":  true,
+                                                      "error_type":  "System.UnauthorizedAccessException",
+                                                      "error_code":  5,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  },
+                                                  {
+                                                      "operation":  "replace",
+                                                      "denied":  true,
+                                                      "error_type":  "System.UnauthorizedAccessException",
+                                                      "error_code":  5,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  },
+                                                  {
+                                                      "operation":  "hardlink",
+                                                      "denied":  false,
+                                                      "error_type":  "System.ComponentModel.Win32Exception",
+                                                      "error_code":  16389,
+                                                      "category":  "NotSpecified",
+                                                      "preservation_verified":  true
+                                                  }
+                                              ],
+                             "token":  {
+                                           "sid":  "S-1-5-21-295071742-3982017719-4243568550-1005",
+                                           "administrator":  false,
+                                           "groups":  [
+                                                          "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                          "S-1-1-0",
+                                                          "S-1-5-32-545",
+                                                          "S-1-5-4",
+                                                          "S-1-2-1",
+                                                          "S-1-5-11",
+                                                          "S-1-5-15",
+                                                          "S-1-5-113",
+                                                          "S-1-2-0",
+                                                          "S-1-5-64-10"
+                                                      ]
+                                       },
+                             "os":  {
+                                        "caption":  "Microsoft Windows 11 Enterprise Evaluation",
+                                        "version":  "10.0.26200",
+                                        "build":  "26200"
+                                    },
+                             "filesystem":  "NTFS",
+                             "reboot_pending":  false,
+                             "privileges":  [
+                                                {
+                                                    "Name":  "SeShutdownPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeChangeNotifyPrivilege",
+                                                    "State":  "Ativada"
+                                                },
+                                                {
+                                                    "Name":  "SeUndockPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                    "State":  "Desativado"
+                                                },
+                                                {
+                                                    "Name":  "SeTimeZonePrivilege",
+                                                    "State":  "Desativado"
+                                                }
+                                            ],
+                             "error_type":  "System.Management.Automation.RuntimeException",
+                             "error_code":  5377,
+                             "failure":  "PROBE:client-operation-not-denied-hardlink",
+                             "error_position":  19
+                         }
+                     ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                  "administrator":  true,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-114",
+                                 "S-1-5-32-544",
+                                 "S-1-5-32-545",
+                                 "S-1-5-3",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation",
+               "version":  "10.0.26200",
+               "build":  "26200"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "principals":  {
+                       "writer":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                       "client":  "S-1-5-21-295071742-3982017719-4243568550-1005"
+                   },
+    "fixture":  [
+                    {
+                        "leaf":  "SN021Authority-bf15616619f3",
+                        "identity":  "46a13f0e:00040000:0002b424",
+                        "links":  "1",
+                        "owner":  "S-1-5-32-544",
+                        "sddl":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                        "rules":  [
+                                      {
+                                          "sid":  "S-1-5-18",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-544",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-545",
+                                          "rights":  1179817,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      }
+                                  ],
+                        "directory":  true
+                    },
+                    {
+                        "leaf":  "store",
+                        "identity":  "46a13f0e:00020000:0002b425",
+                        "links":  "1",
+                        "owner":  "S-1-5-32-544",
+                        "sddl":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;S-1-5-21-295071742-3982017719-4243568550-1004)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1005)",
+                        "rules":  [
+                                      {
+                                          "sid":  "S-1-5-18",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-544",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1005",
+                                          "rights":  1179817,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      }
+                                  ],
+                        "directory":  true
+                    },
+                    {
+                        "leaf":  "writer-output",
+                        "identity":  "46a13f0e:00020000:0002b426",
+                        "links":  "1",
+                        "owner":  "S-1-5-32-544",
+                        "sddl":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;S-1-5-21-295071742-3982017719-4243568550-1004)",
+                        "rules":  [
+                                      {
+                                          "sid":  "S-1-5-18",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-544",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1004",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      }
+                                  ],
+                        "directory":  true
+                    },
+                    {
+                        "leaf":  "client-output",
+                        "identity":  "46a13f0e:00020000:0002b427",
+                        "links":  "1",
+                        "owner":  "S-1-5-32-544",
+                        "sddl":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;S-1-5-21-295071742-3982017719-4243568550-1005)",
+                        "rules":  [
+                                      {
+                                          "sid":  "S-1-5-18",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-544",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      },
+                                      {
+                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1005",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  false
+                                      }
+                                  ],
+                        "directory":  true
+                    },
+                    {
+                        "leaf":  "probe.ps1",
+                        "identity":  "46a13f0e:00020000:0002b428",
+                        "links":  "1",
+                        "owner":  "S-1-5-32-544",
+                        "sddl":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;BU)",
+                        "rules":  [
+                                      {
+                                          "sid":  "S-1-5-18",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  true
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-544",
+                                          "rights":  2032127,
+                                          "type":  "Allow",
+                                          "inherited":  true
+                                      },
+                                      {
+                                          "sid":  "S-1-5-32-545",
+                                          "rights":  1179817,
+                                          "type":  "Allow",
+                                          "inherited":  true
+                                      }
+                                  ],
+                        "directory":  false
+                    }
+                ],
+    "error_type":  "System.Management.Automation.RuntimeException",
+    "error_code":  5377,
+    "failure":  "PROBE:child-observation-failed",
+    "error_position":  19
+}

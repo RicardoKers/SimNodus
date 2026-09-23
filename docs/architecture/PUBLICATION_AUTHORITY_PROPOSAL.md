@@ -1,5 +1,14 @@
 # SN-021 publication authority proposal
 
+## Subsequent physical evidence (2026-09-23)
+
+The owner subsequently supplied a disposable VMware VM and authorized the bounded
+account/ACL fixture experiment, without installing a service. The [report](../experiments/SN-021-authority-filesystem.md)
+records 18 denied client operations around authorized writer replacement. This
+updates the historical unmeasured state below, but does not pass all six gates or
+adopt managed storage. IPC, broker startup/restart, token/path authorization,
+expected-version/ABA and recovery remain unmeasured. The host was not reconfigured.
+
 Date: 2026-09-23. Status: **proposal for review; not selected or implemented**.
 The owner selected feasibility evaluation on 2026-09-23, explicitly without service
 installation. This selects research direction only, not deployment or architecture.

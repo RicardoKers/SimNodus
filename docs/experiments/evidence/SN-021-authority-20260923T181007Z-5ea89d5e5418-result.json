@@ -1,0 +1,15 @@
+{
+  "status": "failed-or-indeterminate",
+  "stage": "snapshot-before-provisioning",
+  "tag": "5ea89d5e5418",
+  "utc": "2026-09-23T18:10:07.579092+00:00",
+  "scope": "Filesystem feasibility only; no service, IPC, or production save contract",
+  "sources": {
+    "sn021-vm-authority-run.py": "be5ddd7541eaf76802c30fea19ce532933f3082de36c7e6d19c3dbf9b8aaff3c",
+    "sn021-vm-authority.ps1": "1af2f404c38cb5346c9c7e8e164b7cad3508b452f422dae35d4ef3fcb7936e10",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "a9d1fb5cb760095e02bbf2b659234ecfd4626ddb2d4986a7f1779f1d92b45f2f",
+  "error_type": "RuntimeError",
+  "error": "VIX error 35"
+}

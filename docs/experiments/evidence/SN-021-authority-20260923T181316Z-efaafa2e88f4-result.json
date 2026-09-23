@@ -1,0 +1,21 @@
+{
+  "status": "failed",
+  "stage": "complete",
+  "tag": "efaafa2e88f4",
+  "utc": "2026-09-23T18:13:16.125726+00:00",
+  "scope": "Filesystem feasibility only; no service, IPC, or production save contract",
+  "sources": {
+    "sn021-vm-authority-run.py": "104b5b3594f99cd2911509a58b8e6c913527bb11dfbb38504b20209cd47d58ac",
+    "sn021-vm-authority.ps1": "1af2f404c38cb5346c9c7e8e164b7cad3508b452f422dae35d4ef3fcb7936e10",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "9ffcb3d637249c4ed113b0b0980449230ac027b4a451b29ef403614ecf2812a9",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "4a824704225a2b31ce47ca4d24270fd7cf654d666f801dc0b8ce83406aea40c2",
+  "guest_stage": "first-independent-client"
+}

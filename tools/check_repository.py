@@ -6,12 +6,31 @@ Markdown anchors, YAML semantics, English grammar, or security properties.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+
+# Exact historical PowerShell JSON bytes; do not rewrite these evidence files.
+HISTORICAL_NO_FINAL_NEWLINE = {
+    'docs/experiments/evidence/SN-021-authority-20260923T181007Z-5ea89d5e5418-inventory.json':
+        'a9d1fb5cb760095e02bbf2b659234ecfd4626ddb2d4986a7f1779f1d92b45f2f',
+    'docs/experiments/evidence/SN-021-authority-20260923T181316Z-efaafa2e88f4-inventory.json':
+        '9ffcb3d637249c4ed113b0b0980449230ac027b4a451b29ef403614ecf2812a9',
+    'docs/experiments/evidence/SN-021-authority-20260923T181316Z-efaafa2e88f4-probe.json':
+        '4a824704225a2b31ce47ca4d24270fd7cf654d666f801dc0b8ce83406aea40c2',
+    'docs/experiments/evidence/SN-021-authority-20260923T181603Z-bf15616619f3-inventory.json':
+        'df6cbf9ec5219212df639570a31775119f8c44ad3e2a5d4633f6d090e0cabae6',
+    'docs/experiments/evidence/SN-021-authority-20260923T181603Z-bf15616619f3-probe.json':
+        'cb55bfa3187e71469cf8d070202e34b36bafc7b6ee4b345d39fb7fd80036b8e8',
+    'docs/experiments/evidence/SN-021-authority-20260923T182111Z-9cd8f661f940-inventory.json':
+        'cb62587ba70ee69c89cc9f18360b8fd21f82038a100b3d0d3a35ceebc92af9b1',
+    'docs/experiments/evidence/SN-021-authority-20260923T182111Z-9cd8f661f940-probe.json':
+        '06a3955016c403f116a15ea796b9fe5a394794a5636167fd611cd06405e35afe',
+}
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {
@@ -102,7 +121,8 @@ def main() -> int:
         if "\x00" in content:
             errors.append(f"{relative}: unexpected NUL byte")
         if content and not content.endswith("\n"):
-            errors.append(f"{relative}: missing final newline")
+            if HISTORICAL_NO_FINAL_NEWLINE.get(relative) != hashlib.sha256(raw).hexdigest():
+                errors.append(f"{relative}: missing final newline")
         for number, line in enumerate(content.splitlines(), 1):
             if line != line.rstrip() and not (
                 path.suffix == ".md" and line.endswith("  ") and not line.endswith("   ")

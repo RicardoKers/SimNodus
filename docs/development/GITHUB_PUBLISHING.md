@@ -1,5 +1,14 @@
 # GitHub setup and publication record
 
+## SN-021 filesystem authority evidence: 2026-09-23
+
+Branch `codex/sn-021-authority-filesystem` publishes the manually executed guest
+probe and [bounded report](../experiments/SN-021-authority-filesystem.md), including
+all six attempts and original JSON bytes/hashes. Preserve 108 earlier evidence
+files and exclude twelve preexisting local SN-045 files. No production save or
+service is introduced. Required hosted checks gate the authorized squash; consult
+the PR for final source/squash identities. SN-021 remains open. No release or issue sync.
+
 The owner authorized the first public source publication at `RicardoKers/SimNodus`, with Ricardo Kerschbaumer as author. The first commit, `b3163a1`, was published on 2026-08-31. No raw private conversations or binary simulator release are included. See [current state](../planning/CURRENT.md) for ongoing work.
 
 ## Source publication gate
