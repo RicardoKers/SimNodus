@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 authority request experiment contract: 2026-09-23
+
+Branch `codex/sn-021-authority-request-contract` records the bounded, unimplemented
+[IPC/startup experiment contract](../architecture/AUTHORITY_REQUEST_EXPERIMENT.md).
+No physical run, production API, service, engine change or new acceptance is claimed.
+The repository checker and required hosted checks gate publication; the PR records
+final results and squash identity. Preserve earlier evidence and local SN-045 work.
+
 ## SN-021 filesystem authority evidence: 2026-09-23
 
 Branch `codex/sn-021-authority-filesystem` publishes the manually executed guest
