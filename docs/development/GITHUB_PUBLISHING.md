@@ -390,6 +390,18 @@ Twelve local files remain unpublished. The PR records hosted checks and authoriz
 protected-main squash; verify final head and main identity. Safe overwrite remains
 pending ADR 0064. No production API/profile expansion, UI, download, issue sync or release.
 
+## SN-021 transaction isolation investigation: 2026-09-22
+
+Branch `codex/sn-021-txf-boundary` records a manual six-case fixture probe and
+[observations](../experiments/SN-021-txf-boundary.md), not an adopted TxF product
+API. Both preliminary reports and 106 historical evidence files are preserved;
+twelve unrelated local files remain excluded. The PR records repository checks
+and authorized source-evidence squash; verify final head and local/remote main.
+Microsoft's recommendation to investigate alternatives remains explicit. No new
+save support, engine profile, UI, download, issue synchronization or release.
+The owner selected continued research without TxF and retained overwrite acceptance.
+SN-021 remains in progress pending a validated overwrite protocol.
+
 ## Binary release gate
 
 
