@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 observed transaction isolation
+# Latest handoff: SN-021 ordinary oplock limits
+
+Read CURRENT, BACKLOG, ADR 0064 and the [oplock report](../experiments/SN-021-oplock-boundary.md).
+Three physical observations show directory RH/file RW permit replacement and file
+RWH also holds our separate-handle replacement until release. The directory ACK flag
+is not proof of child-entry exclusion. Preserve the initial invalid-bit failure;
+corrected constants came from the installed SDK. No product save API was changed.
+
+The owner selected research without TxF and retained overwrite acceptance. Next
+prepare a concrete ownership/concurrency proposal with enforceable publication
+authority. Assess host-owned storage or a broker against the current arbitrary
+selected-directory contract, including lifecycle/recovery, competing writers,
+expected identity/version and ordinary failure. Do not implement an unselected
+broker, driver, ACL policy or storage format. Do not repeat check-then-replace or
+assume all possible oplock protocols have been disproved. Create-only remains supported.
+
+Preserve 107 historical evidence files, twelve local SN-045 files, SN-044, shared
+instrumentation, MCU/toolchain independence, SN-017 Python/GDB/fixture ownership,
+all profiles/tolerances and PDF/PID. No UI, downloads, issue sync or releases.
+SN-021 stays in progress; final audit and next-cycle prompt remain pending.
+Base main: `2a02a8396b990f8739c88f6e30358e1dcf518292` (PR #47);
+branch `codex/sn-021-oplock-boundary`. Confirm final checks, squash and main identity.
+
+# Historical handoff: SN-021 observed transaction isolation
 
 Read CURRENT, BACKLOG, ADR 0064 and the [TxF report](../experiments/SN-021-txf-boundary.md).
 Six disposable fixture cases observed transaction-level exclusion across writer
