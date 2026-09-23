@@ -1,5 +1,11 @@
 # Backlog
 
+Latest investigation (2026-09-22): SN-021 [oplock boundary](../experiments/SN-021-oplock-boundary.md)
+records three corrected physical observations plus the initial invalid-request failure.
+Simple directory/file oplocks do not demonstrate safe publication; SN-021 stays
+**in_progress** without TxF. Next define enforceable ownership/concurrency before
+selecting a host-owned store or broker; no architecture change is approved here.
+
 Latest investigation (2026-09-22): SN-021 [TxF boundary](../experiments/SN-021-txf-boundary.md)
 observed six fixture cases, including isolation after writer-handle close. No TxF
 product dependency or overwrite API is selected. Microsoft recommends alternatives.

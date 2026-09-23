@@ -402,6 +402,16 @@ save support, engine profile, UI, download, issue synchronization or release.
 The owner selected continued research without TxF and retained overwrite acceptance.
 SN-021 remains in progress pending a validated overwrite protocol.
 
+## SN-021 oplock boundary investigation: 2026-09-22
+
+Branch `codex/sn-021-oplock-boundary` records three manual physical observations,
+the first invalid-bit request failure and the [audit](../experiments/evidence/SN-021-oplock-boundary-summary.json).
+No production overwrite support or TxF adoption. Preserve 107 historical evidence
+files; twelve unrelated local files remain excluded. The PR records final hosted
+checks and authorized squash; confirm final source/tree and local/remote main.
+SN-021 remains in progress pending an enforceable ownership/publication protocol.
+No engine/profile, UI, dependency, issue or release changes.
+
 ## Binary release gate
 
 

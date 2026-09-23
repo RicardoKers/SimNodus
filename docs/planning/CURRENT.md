@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest investigation: SN-021 oplock replacement boundary
+
+The [oplock probe](../experiments/SN-021-oplock-boundary.md), dated 2026-09-22,
+measured directory RH, file RW and file RWH behavior. Directory RH and file RW
+allowed replacement before release; file RWH held even our same-process replacement
+until release. Directory ACK_REQUIRED did not imply child-entry exclusion.
+The initial invalid-bit request failure and corrected three-case run are retained.
+This rejects these simple candidates; it does not prove all oplock protocols impossible.
+
+SN-021 remains **in_progress**; no overwrite API or TxF adoption. Next formulate
+an enforceable ownership/concurrency proposal, assessing a host-owned store or
+broker against the selected-directory contract before implementation. No such
+architecture or scope change is selected. Do not repeat release/recheck/replace.
+All 107 historical evidence files and twelve preexisting local files are preserved.
+No engines, profiles, UI, downloads, issues or releases changed. Preserve SN-017,
+SN-044, instrumentation, MCU independence, tolerances and PDF/PID. Final acceptance
+and the next-cycle prompt remain pending. Base main: `2a02a8396b990f8739c88f6e30358e1dcf518292`;
+branch `codex/sn-021-oplock-boundary`. Verify final PR checks and squash identity.
+
 ## Latest investigation: SN-021 transaction isolation boundary
 
 The [TxF probe](../experiments/SN-021-txf-boundary.md), dated 2026-09-22, observed
