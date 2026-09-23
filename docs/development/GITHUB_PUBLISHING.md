@@ -418,7 +418,8 @@ Branch `codex/sn-021-publication-authority` publishes a [research proposal](../a
 not an adopted service or storage architecture. It preserves 108 historical evidence
 files and excludes twelve preexisting local files. Documentation checks and the
 required hosted checks gate source publication; the PR records final results/squash.
-SN-021 remains open pending product direction and physical protocol acceptance.
+The owner selected feasibility evaluation without service installation. SN-021
+remains open pending physical evidence and eventual architecture/scope selection.
 No runtime, permission, deployment, issue or release changes.
 
 ## Binary release gate

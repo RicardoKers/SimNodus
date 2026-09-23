@@ -2,8 +2,8 @@
 
 Latest proposal (2026-09-23): SN-021 [publication authority](../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md)
 defines a distinct-writer managed-store candidate and physical feasibility gates.
-No architecture is selected. Decide whether that workflow merits evaluation or
-arbitrary-directory overwrite remains mandatory. SN-021 stays **in_progress** without TxF.
+The owner selected feasibility evaluation without service installation. Architecture
+adoption and any change to overwrite acceptance remain undecided. SN-021 stays **in_progress** without TxF.
 
 Latest investigation (2026-09-22): SN-021 [oplock boundary](../experiments/SN-021-oplock-boundary.md)
 records three corrected physical observations plus the initial invalid-request failure.

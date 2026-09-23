@@ -10,10 +10,11 @@ identity. It specifies a candidate managed-store trust model, version/commit bou
 recovery questions, product consequences and a six-gate physical feasibility experiment.
 It is a reviewed research proposal, not an adopted architecture or implemented service.
 
-SN-021 remains **in_progress**, without TxF. The next decision is whether to evaluate
-managed storage with a distinct publication identity, or retain arbitrary-directory
-overwrite as the only acceptable workflow. Managed save must not silently substitute
-for that workflow. No service installation, ACL mutation or format change is authorized
+SN-021 remains **in_progress**, without TxF. The owner selected managed-storage
+feasibility evaluation, explicitly without installing a service. Architecture adoption
+and a completion-scope change remain undecided. Next define a real distinct-principal
+test environment without provisioning it; document unmet physical gates. Managed
+save must not silently substitute for arbitrary-directory overwrite. No service installation, ACL mutation or format change is authorized
 by this document. A selected architecture needs a new ADR and physical evidence.
 Preserve 108 historical evidence files, twelve local files, SN-017, SN-044, instrumentation,
 MCU independence, profiles/tolerances and PDF/PID. No runtime changes or engine rerun.

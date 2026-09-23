@@ -1,6 +1,8 @@
 # SN-021 publication authority proposal
 
 Date: 2026-09-23. Status: **proposal for review; not selected or implemented**.
+The owner selected feasibility evaluation on 2026-09-23, explicitly without service
+installation. This selects research direction only, not deployment or architecture.
 This document does not supersede [ADR 0064](../decisions/0064-overwrite-ownership-boundary.md).
 SN-021 remains in progress. TxF is excluded by the owner's explicit decision.
 
@@ -130,3 +132,44 @@ Do not implement or install it based on this draft. If arbitrary-directory overw
 must remain the only acceptable workflow, keep researching that unchanged contract
 with a time-bounded candidate and falsifiable claim; do not repeat rejected probes.
 No automatic closure, TxF fallback or reduction of SN-021 scope is proposed.
+
+## Authorized feasibility phase
+
+The owner selected evaluation of managed storage without installing a service.
+First specify an isolated Windows environment with a dedicated writer principal,
+an ordinary interactive client and a second client process with equivalent ordinary
+rights. Do not create accounts, change ACLs or install/provision a service as a side
+effect of this document. Identify an existing suitable disposable environment or
+prepare a separately reviewable provisioning plan. No such environment was used here.
+
+The distinct-writer trust model is a plausible design inference from Windows access
+control, not demonstrated feasibility. None of the six physical gates has passed.
+A same-user helper, restricted-client-only exercise or AccessCheck model would not
+prove exclusion of another unrestricted ordinary client. The current host has not
+been reconfigured. Final workflow adoption, any replacement of the original overwrite
+acceptance criterion and installation authorization remain separate decisions.
+
+## Reviewable environment plan, not provisioning instructions
+
+Use an existing disposable Windows VM with local NTFS and a recoverable snapshot;
+exclude repository worktrees, personal folders and live projects. The proposed first
+experiment needs no installed broker service: an explicit test writer can run under
+a dedicated ordinary local account, with test clients under another ordinary account.
+That would test distinct-principal filesystem exclusion, not service-specific token
+configuration, deployment or production IPC. Those would remain later gates.
+
+Record OS/build, filesystem, effective token groups/privileges, owner and DACL on every
+fixture object. An administrator would provision only a fresh test root and test
+identities, then leave the measured writer/client operations unelevated. Confirm
+neither client inherits writer/admin groups or writable handles. Exercise both direct
+file writes and namespace/security changes from independent client processes, including
+between writer sessions. Preserve reports and the snapshot; no automatic cleanup of
+unidentified objects. Produce only fixture bytes, never actual projects or credentials.
+
+A read-only discovery on 2026-09-23 found no Get-VM, VBoxManage or vmrun command in the
+current shell. This is not proof that no VM exists or that virtualization is unavailable.
+No VM, account, ACL or service was created. The raw discovery is retained under ignored
+build/sn021-authority-environment-discovery.json (SHA-256: `0a38cee8b8d4c79a269349f32d8a8a5224bcb6261e5eb79404df2c8a4e4d6d37`).
+Before physical execution, identify an existing disposable Windows environment and
+its authorized setup boundary. Do not expand to host account changes, installation,
+downloads or synthetic substitutes just because such an environment is not identified.

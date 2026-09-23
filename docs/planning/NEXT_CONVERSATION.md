@@ -5,10 +5,10 @@ The proposal is not an architecture selection: managed save under a distinct wri
 identity changes the arbitrary-directory workflow. Same-user folders/helpers do not
 establish independent exclusion. No service, ACL policy or storage format was installed.
 
-Obtain the owner's product direction on bounded managed-store feasibility versus
-continued arbitrary-directory research. If managed feasibility is selected, define
-an isolated environment and distinct principals before any provisioning; apply all
-six physical gates. Only later select a commit layout and test recovery/ABA/concurrency.
+The owner selected managed-store feasibility evaluation, explicitly without service
+installation. Define an isolated environment and genuinely distinct principals without
+provisioning them yet. Record which physical gates remain unmeasured. Apply all six
+gates before accepting feasibility; mock tokens or AccessCheck-only tests cannot close them. Only later select a commit layout and test recovery/ABA/concurrency.
 Do not adopt the draft or declare arbitrary-directory overwrite solved by implication.
 Preserve create-only support and the owner's exclusion of TxF. SN-021 remains open.
 
@@ -17,6 +17,9 @@ instrumentation, MCU independence, SN-017 Python/GDB/fixture ownership, toleranc
 and PDF/PID. No UI, downloads, issue sync or releases. No new engine evidence claimed.
 Base main: `5011f2147e447d58475a59adb2f14dd1a8b21184` (PR #48); branch
 `codex/sn-021-publication-authority`. Verify final checks and squash identity.
+The proposal includes a reviewable disposable-VM plan requiring no installed test
+service. Limited shell discovery found no VM-management commands; this does not
+prove VM absence. Identify a suitable existing environment before physical testing.
 The next-cycle prompt awaits final SN-021 acceptance.
 
 # Historical handoff: SN-021 ordinary oplock limits
