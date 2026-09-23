@@ -1,5 +1,12 @@
 # SN-021 publication authority proposal
 
+## Next experiment contract
+
+The [authority request contract](AUTHORITY_REQUEST_EXPERIMENT.md) specifies the
+next read-only IPC/startup probe and its rejection matrix. It is unimplemented and
+does not adopt this proposal or change ADR 0064. The filesystem observations below
+remain the only new physical evidence; a pipe name or claimed SID is not authority.
+
 ## Subsequent physical evidence (2026-09-23)
 
 The owner subsequently supplied a disposable VMware VM and authorized the bounded

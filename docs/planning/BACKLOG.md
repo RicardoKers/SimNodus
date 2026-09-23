@@ -1,5 +1,23 @@
 # Backlog
 
+## Next bounded experiment: authority requests
+
+The [request contract](../architecture/AUTHORITY_REQUEST_EXPERIMENT.md) specifies
+a read-only, 64-byte fixture query under real distinct Windows identities. It defines
+minimal named-pipe rights, server verification, identification-token authorization,
+bounded I/O, refusal cases and startup checks. Status: specified, not implemented
+or physically validated. It adds no save operation, service or production API.
+
+Next implement the manual VM probe against these acceptance cases, with fixed
+setup manifests, exact ACL/identity checks and retained handles. Then measure real
+clients, negative requests, endpoint impersonation, deadlines and fresh startup.
+Do not claim the previous 18 filesystem denials validate this new IPC boundary.
+Preserve all six earlier VM attempts and the twelve unrelated local SN-045 files.
+SN-021 remains in_progress under ADR 0064; no managed-store adoption, TxF, change
+to arbitrary-directory overwrite acceptance or final next-cycle prompt yet.
+Base main: `7a8ee8d6bc13d67569bd499e9d8cd7eff288b2db`; branch
+`codex/sn-021-authority-request-contract`. The PR records final checks and squash.
+
 ## Latest observation: SN-021 distinct-principal filesystem experiment
 
 On 2026-09-23 the owner-provided disposable VMware Windows 11 VM completed the
