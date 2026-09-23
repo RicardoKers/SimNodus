@@ -2,6 +2,26 @@
 
 Updated: 2026-09-14.
 
+## Latest investigation: SN-021 transaction isolation boundary
+
+The [TxF probe](../experiments/SN-021-txf-boundary.md), dated 2026-09-22, observed
+six owned-fixture cases: commit/rollback, stale identity/bytes, existing writer and
+writable mapping. Separate competing writes/renames reject even after the writer
+handle closes and before transaction finalization. This differs from the rejected
+ADR 0064 rename protocols, but is not product acceptance or a new save API.
+Microsoft recommends alternatives to a new TxF dependency; no adoption is selected.
+
+SN-021 stays **in_progress**. Retain create-only persistence and investigate a
+maintained alternative without TxF, as explicitly selected by the owner.
+The overwrite acceptance criterion remains in scope. Successful small-file probes do not close
+identity/version, failure, supported-host and uncertain-commit acceptance work.
+The owner declined TxF adoption and a reduced create-only completion baseline.
+All 106 prior evidence files and twelve local SN-045 files are preserved. No engine
+profile/API changes, UI, downloads, issues or release. Preserve SN-017 Python/GDB,
+SN-044, instrumentation, MCU independence, tolerances and PDF/PID. Next-cycle prompt
+awaits full acceptance. Base main: `5b2cf26aa6fa1564410bec8368e7e619936dffa3`;
+branch `codex/sn-021-txf-boundary`. Verify final PR/check/squash and main identity.
+
 ## Latest acceptance: SN-021 configured replay lifecycle
 
 The [configured lifecycle](../experiments/SN-021-replay-lifecycle.md), dated

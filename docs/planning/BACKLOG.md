@@ -1,5 +1,11 @@
 # Backlog
 
+Latest investigation (2026-09-22): SN-021 [TxF boundary](../experiments/SN-021-txf-boundary.md)
+observed six fixture cases, including isolation after writer-handle close. No TxF
+product dependency or overwrite API is selected. Microsoft recommends alternatives.
+SN-021 stays **in_progress**; create-only support remains. Continue maintained-protocol
+research without TxF, explicitly selected by the owner; final acceptance stays open.
+
 Latest acceptance (2026-09-22): SN-021 [configured replay lifecycle](../experiments/SN-021-replay-lifecycle.md)
 passed 19 Windows cases, three targeted CTests and real ngspice after native save/
 reopen. Original policy/schedule/source mapping and byte-identical artifact survive.

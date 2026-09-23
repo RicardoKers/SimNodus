@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 configured replay lifecycle
+# Latest handoff: SN-021 observed transaction isolation
+
+Read CURRENT, BACKLOG, ADR 0064 and the [TxF report](../experiments/SN-021-txf-boundary.md).
+Six disposable fixture cases observed transaction-level exclusion across writer
+handle close, commit/rollback, stale identity/bytes and existing writer/mapping
+conflicts. Eight separate competitor write/rename attempts rejected. The final
+probe pins all ancestors; two earlier ordinary-path probes claim no containment.
+No production API, TxF dependency or supported-platform expansion was selected.
+
+Microsoft recommends alternatives to a new TxF dependency. The owner explicitly
+selected continued research without TxF, keeping SN-021 open and overwrite in its
+acceptance scope. Do not adopt TxF or reduce completion to create-only persistence.
+Keep create-only persistence supported while investigating a maintained protocol. A product protocol still needs identity/version authority,
+physical failure coverage, host support and uncertain-commit handling. No crash or
+power-loss acceptance is claimed. Do not repeat ADR 0064's rejected pathname races.
+
+Preserve 106 historical evidence files, both preliminary probes, twelve local SN-045
+files, SN-044, instrumentation, MCU/toolchain independence, SN-017 Python/GDB/fixture
+ownership, all profiles/tolerances and PDF/PID. No UI, downloads, issues or release.
+Next-cycle prompt awaits final acceptance; none is prepared for an incomplete SN.
+Base main: `5b2cf26aa6fa1564410bec8368e7e619936dffa3` (PR #46); branch
+`codex/sn-021-txf-boundary`. Confirm final hosted checks, squash and main identity.
+
+# Historical handoff: SN-021 configured replay lifecycle
 
 Read CURRENT, BACKLOG, the [lifecycle report](../experiments/SN-021-replay-lifecycle.md)
 and [acceptance matrix](../experiments/SN-021-acceptance.md). Existing native create/
