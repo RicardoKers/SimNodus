@@ -1,5 +1,12 @@
 # Backlog
 
+Latest slice (2026-09-22): SN-021 [fixed configured RC replay](../experiments/SN-021-fixed-replay.md)
+binds one 5 ms known-source project policy to the existing E-01 artifact. Eight
+cases, 50 Windows CTests and real ngspice passed unchanged 10 microvolt/1 ps project
+bounds. Preserve the first harness argument failure. No automatic execution or
+profile expansion. SN-021 stays **in_progress**: configured lifecycle composition
+and safe overwrite remain pending; other runtime modes remain unsupported.
+
 Latest audit (2026-09-22): the SN-021 [acceptance matrix](../experiments/SN-021-acceptance.md)
 records implemented boundaries and two remaining gates: configured project/runtime
 correspondence and safe overwrite. Two targeted CTests passed 48 new configured-policy

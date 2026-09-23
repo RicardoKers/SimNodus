@@ -6,6 +6,18 @@ rewriting their evidence. The backlog criterion is portable paths, atomic save,
 source mapping and an independent graph. ADR 0051 also requires actual resource,
 interface, boot and runtime correspondence before executable acceptance.
 
+## Subsequent measured binding
+
+The [fixed E-01 replay](SN-021-fixed-replay.md), accepted under ADR 0075 after this
+initial audit, now supplies positive configured-project correspondence for one
+analog-only 5 ms interval. Original policy/schedule provenance is retained, existing
+standalone rejection is unchanged, and real ngspice passed the project bounds.
+The table and remaining-work list below describe the initial PR #44 audit. Its
+configured-runtime gap is narrowed by that measured binding; next compose it with
+configured acquisition/edit/save-copy/reopen. Safe overwrite remains pending.
+Other temporal/mixed-signal/debug modes are unsupported, not implicitly required
+profile expansions. Keep the original audit evidence and all negative results.
+
 ## Implemented and measured
 
 | Concern | Implementation and evidence | Limit |

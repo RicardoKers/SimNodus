@@ -1,4 +1,31 @@
-# Latest handoff: SN-021 acceptance gates
+# Latest handoff: SN-021 fixed configured RC replay
+
+Read CURRENT, BACKLOG, [ADR 0075](../decisions/0075-fixed-e01-project-replay.md), the
+[contract](../architecture/FIXED_RC_REPLAY.md) and [report](../experiments/SN-021-fixed-replay.md).
+A separate explicit native operation binds original configured replay metadata
+and exact captured schedule to the existing ideal RC compiler. One 5 ms interval,
+known 3.3 V drive and disabled debugging only; existing standalone gates remain.
+All flags stay false. No compilation/open path launches an engine.
+
+Eight cases (seven Windows passes/one skip), 50 Windows CTests and real ngspice
+passed. The first engine attempt swapped fixture/output arguments; preserve its
+failure and the corrected fresh run. The successful run produced 5012 samples,
+9.889724283951296e-08 V maximum error and endpoint within 1 ps. Original model/
+schedule were replaced after capture; staged artifact writes/rename were denied.
+
+Next compose configured acquisition/edit/save-copy/reopen with this same replay,
+then address ADR 0064 safe-overwrite ownership without repeating rejected pathname
+races. Other runtime modes remain unsupported; do not infer mixed-signal or GDB
+compatibility from this analog-only binding. Preserve SN-017 Python/GDB/fixture
+ownership, SN-044, instrumentation, MCU independence, profiles/tolerances, PDF/PID,
+104 historical evidence files and twelve local SN-045 files. No UI, downloads,
+issues or release. SN-021 remains in progress; prompt for the next cycle awaits
+full acceptance. Consult the updated acceptance matrix rather than older next-steps.
+
+Base main: `c6faf05dd7da55169f232f9888c4ece8ee761570` (PR #44); branch
+`codex/sn-021-fixed-replay`. Verify final PR/check/squash and local/remote main.
+
+# Historical handoff: SN-021 acceptance gates
 
 Read the [acceptance matrix](../experiments/SN-021-acceptance.md), CURRENT and BACKLOG.
 The matrix maps remaining work; earlier slice next-steps are historical. Loading,

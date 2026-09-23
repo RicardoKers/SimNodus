@@ -3,6 +3,7 @@
 #pragma once
 #include "application/connectivity_compilation.hpp"
 #include "application/passive_numeric.hpp"
+#include <optional>
 
 namespace simnodus {
 enum class IdealRcProfile { unspecified, e01_ideal_rc };
@@ -17,11 +18,16 @@ struct IdealRcElementSource {
     std::string dependency, resource;
     GraphSourceSpan model_source;
 };
+struct FixedRcReplayBinding {
+    std::uint64_t duration_ns, exchange_quantum_ns;
+    std::size_t schedule_resource_index, temporal_offset, schedule_offset;
+};
 struct IdealRcCompilation {
     std::shared_ptr<const ConnectivityCompilation> connectivity;
     ResourceSnapshots resources;
     std::vector<std::shared_ptr<const PassiveNumericBinding>> bindings;
     IdealRcRequest request;
+    std::optional<FixedRcReplayBinding> replay;
     std::string netlist;
     std::vector<IdealRcElementSource> elements;
     std::map<std::string, ConnectivityGroup> nodes;
@@ -32,5 +38,9 @@ using IdealRcResult = std::variant<std::shared_ptr<const IdealRcCompilation>, Id
 // Explicit Windows/NTFS compile operation. Verify/capture inventory once; consume
 // owned bytes only. Never load an engine, execute, render, download or reopen paths.
 IdealRcResult compile_ideal_rc(std::string_view project, const std::string& root,
+    const IdealRcRequest& request);
+// Separate explicit fixed E-01 replay operation. Retain original configured policy
+// and captured schedule; no engine start or general runtime readiness follows.
+IdealRcResult compile_fixed_rc_replay(std::string_view project, const std::string& root,
     const IdealRcRequest& request);
 }
