@@ -6,6 +6,15 @@ rewriting their evidence. The backlog criterion is portable paths, atomic save,
 source mapping and an independent graph. ADR 0051 also requires actual resource,
 interface, boot and runtime correspondence before executable acceptance.
 
+## Subsequent configured lifecycle acceptance
+
+The [configured lifecycle](SN-021-replay-lifecycle.md) now composes native save/
+reopen and fixed replay with real ngspice consumption, policy/source preservation
+and negative collision/resource controls. The initial audit below is historical.
+Safe overwrite under ADR 0064 remains the implementation gate before final bounded
+acceptance. Unsupported runtime modes remain explicit limits, not automatic scope
+expansion. Preserve the original audit and all prior engine failures.
+
 ## Subsequent measured binding
 
 The [fixed E-01 replay](SN-021-fixed-replay.md), accepted under ADR 0075 after this

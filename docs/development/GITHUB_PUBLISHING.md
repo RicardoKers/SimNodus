@@ -378,6 +378,18 @@ final head and local/remote main identity. Configured lifecycle composition and
 safe overwrite remain pending. No new numerical/MCU profile, UI, download, issue
 synchronization or binary release; project opening and compilation remain inert.
 
+## SN-021 configured replay lifecycle publication: 2026-09-22
+
+Branch `codex/sn-021-replay-lifecycle` composes existing native persistence and
+fixed replay through test-only orchestration. Nineteen Windows cases, three targeted
+CTests and the first real ngspice run passed, preserving configured policy/schedule
+and source mapping through name-edit/save-copy/reopen. The
+[audit](../experiments/evidence/SN-021-replay-lifecycle-summary.json) records three
+changed source hashes, unchanged prior sources and 105 historical evidence files.
+Twelve local files remain unpublished. The PR records hosted checks and authorized
+protected-main squash; verify final head and main identity. Safe overwrite remains
+pending ADR 0064. No production API/profile expansion, UI, download, issue sync or release.
+
 ## Binary release gate
 
 

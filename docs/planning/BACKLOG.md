@@ -1,5 +1,11 @@
 # Backlog
 
+Latest acceptance (2026-09-22): SN-021 [configured replay lifecycle](../experiments/SN-021-replay-lifecycle.md)
+passed 19 Windows cases, three targeted CTests and real ngspice after native save/
+reopen. Original policy/schedule/source mapping and byte-identical artifact survive.
+Production APIs and engine inputs are unchanged. SN-021 stays **in_progress** with
+safe overwrite (ADR 0064) remaining before final bounded acceptance; no new profile.
+
 Latest slice (2026-09-22): SN-021 [fixed configured RC replay](../experiments/SN-021-fixed-replay.md)
 binds one 5 ms known-source project policy to the existing E-01 artifact. Eight
 cases, 50 Windows CTests and real ngspice passed unchanged 10 microvolt/1 ps project
