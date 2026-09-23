@@ -42,11 +42,12 @@ const std::string& bytes(const simnodus::ProjectGraph& graph)
     return graph.declaration->sources.lock.syntax->bytes;
 }
 }
-int main()
+int main(int argc, char** argv)
 {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
+    if(argc > 2 || (argc == 2 && std::string_view(argv[1]) != "replay")) return 2;
     try {
         const auto root = field();
         auto original = field();
@@ -71,8 +72,9 @@ int main()
         if(const auto* e = std::get_if<simnodus::ProjectAcquisitionError>(&reopened)) return failure("reopen", e->code);
         const auto loaded = std::get<0>(reopened);
         if(bytes(*loaded) != bytes(*revised)) return failure("reopen", "bytes");
-        const auto result = simnodus::compile_ideal_rc(bytes(*loaded), root,
-            {simnodus::IdealRcProfile::e01_ideal_rc, "reference", "source", "left_out"});
+        const simnodus::IdealRcRequest request{simnodus::IdealRcProfile::e01_ideal_rc, "reference", "source", "left_out"};
+        const auto result = argc == 2 ? simnodus::compile_fixed_rc_replay(bytes(*loaded), root, request)
+            : simnodus::compile_ideal_rc(bytes(*loaded), root, request);
         if(const auto* e = std::get_if<simnodus::IdealRcError>(&result)) return failure("compile", e->code);
         const auto compiled = std::get<0>(result);
         if(compiled->connectivity->source->declaration->runtime_profile_verified ||
@@ -82,6 +84,11 @@ int main()
         hex(bytes(*captured));hex(bytes(*loaded));hex(compiled->netlist);
         for(const auto& e : compiled->elements) {
             std::cout << e.project_parameter_offset << ' ' << e.project_instance.begin << ' ' << e.project_instance.end << '\n';
+        }
+        if(compiled->replay) {
+            const auto& r = *compiled->replay;
+            std::cout << "REPLAY " << r.duration_ns << ' ' << r.exchange_quantum_ns << ' '
+                << r.schedule_resource_index << ' ' << r.temporal_offset << ' ' << r.schedule_offset << '\n';
         }
     } catch(const std::exception&) { return failure("transport", "exception"); }
 }

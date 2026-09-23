@@ -1,4 +1,29 @@
-# Latest handoff: SN-021 fixed configured RC replay
+# Latest handoff: SN-021 configured replay lifecycle
+
+Read CURRENT, BACKLOG, the [lifecycle report](../experiments/SN-021-replay-lifecycle.md)
+and [acceptance matrix](../experiments/SN-021-acceptance.md). Existing native create/
+acquire/name-edit/save-copy/reacquire now compose with explicit fixed replay in the
+test-only probe. Nineteen Windows cases and three targeted CTests passed. Real
+ngspice consumed the post-reopen artifact, matching pre-save compilation, with
+5012 samples within unchanged 10 microvolt/1 ps bounds. Name-only bytes, temporal
+policy/schedule and revised source maps were checked. Production APIs are unchanged.
+
+Next address safe overwrite: read ADR 0064 and its physical counterexamples. Define
+a candidate expected-identity/version ownership and concurrency protocol before
+implementation. Do not repeat check-then-replace, advisory-lock-only or path-prefix
+proofs. Create-only save/copy remains supported. After that gate, perform final
+bounded SN-021 acceptance and prepare the next-cycle prompt. Other runtime modes
+remain unsupported; do not add UI, arbitrary models, new MCUs or native-only GDB
+orchestration as implicit completion requirements.
+
+Preserve 105 historical evidence files, prior negative runs and twelve local SN-045
+files, SN-044, shared instrumentation, MCU/toolchain independence, SN-017 Python/
+GDB/fixture ownership, tolerances and PDF/PID. No downloads, issues or release.
+SN-021 remains in progress. Base main: `aaf0760f5fa508b174e8c6ccc9835500d04c6936`
+(PR #45); branch `codex/sn-021-replay-lifecycle`. Confirm final hosted checks,
+squash and local/remote main identity before continuing.
+
+# Historical handoff: SN-021 fixed configured RC replay
 
 Read CURRENT, BACKLOG, [ADR 0075](../decisions/0075-fixed-e01-project-replay.md), the
 [contract](../architecture/FIXED_RC_REPLAY.md) and [report](../experiments/SN-021-fixed-replay.md).

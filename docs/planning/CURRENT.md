@@ -2,6 +2,28 @@
 
 Updated: 2026-09-14.
 
+## Latest acceptance: SN-021 configured replay lifecycle
+
+The [configured lifecycle](../experiments/SN-021-replay-lifecycle.md), dated
+2026-09-22, composes existing native create/acquire/name-edit/save-copy/reacquire
+with explicit fixed replay. Nineteen Windows cases (eleven configured) and three
+targeted CTests passed. Real ngspice consumed the native post-reopen artifact and
+produced 5012 samples within unchanged 10 microvolt/1 ps project bounds. Only the
+name token changed; policy, schedule/inventory and revised source mapping survived.
+Collisions preserve other owners; missing/changed resources stop explicit compile,
+not inert save/open. Production APIs and engine inputs are unchanged.
+
+The first engine attempt in this slice passed. All 105 earlier evidence files,
+including the prior replay failure, and twelve local SN-045 files are preserved.
+SN-021 stays **in_progress**: safe overwrite under ADR 0064 is the remaining
+implementation gate before final bounded acceptance. Define an ownership/concurrency
+candidate before physical competing-writer/failure tests; do not repeat rejected
+pathname protocols. Other runtime modes remain unsupported. Preserve SN-017 Python/
+GDB/fixture control, SN-044, instrumentation, MCU independence, profiles and PDF/PID.
+No UI, downloads, issues or release. Next-cycle prompt awaits full acceptance.
+Base main: `aaf0760f5fa508b174e8c6ccc9835500d04c6936`; branch
+`codex/sn-021-replay-lifecycle`. Confirm final PR/check/squash and main identity.
+
 ## Latest implementation: SN-021 fixed configured RC replay
 
 The [fixed replay](../experiments/SN-021-fixed-replay.md), dated 2026-09-22, binds

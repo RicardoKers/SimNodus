@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'tests/schema'))
 import native_replay_regression as replay
+import native_lifecycle_regression as lifecycle
 compiler = replay.rc
 sys.path.insert(0, str(ROOT / "tests/resources"))
 import local_resources as physical
@@ -45,6 +46,7 @@ def pinned_netlist(root, expected):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--lifecycle', action='store_true', help='Consume the native saved/reopened replay artifact')
     args = parser.parse_args();output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     report = {'status': 'started', 'voltage_tolerance_v': e01.VOLTAGE_TOLERANCE,
@@ -58,7 +60,25 @@ def main():
         compiler.PROBE = str(ROOT / 'build/sn021-save/Debug/native_rc_compile_probe.exe')
         compiled = replay.compile(doc, package)
         assert isinstance(compiled, dict), compiled
-        report['elements'] = compiled['elements'];report['nodes'] = compiled['nodes']
+        if args.lifecycle:
+            lifecycle.PROBE = str(ROOT / 'build/sn021-save/Debug/native_lifecycle_probe.exe')
+            raw = (json.dumps(doc, indent=2) + '\n').encode()
+            saved = lifecycle.lifecycle(package, raw, operation='replay')
+            assert 'error' not in saved, saved
+            assert (package / 'original.json').read_bytes() == raw
+            assert (package / 'revised.json').read_bytes() == saved['revised']
+            assert saved['netlist'] == compiled['netlist']
+            assert saved['revised'] == raw.replace(json.dumps(doc['name'], ensure_ascii=False).encode(),
+                json.dumps(lifecycle.NAME, ensure_ascii=False).encode(), 1)
+            report['lifecycle'] = {'original_sha256': hashlib.sha256(raw).hexdigest(),
+                'revised_sha256': hashlib.sha256(saved['revised']).hexdigest(),
+                'name_only_edit': True, 'policy_preserved': True, 'netlist_matches_pre_save': True,
+                'element_offsets': saved['element_offsets'], 'replay': saved['replay']}
+            (output / 'revised-project.json').write_bytes(saved['revised'])
+            # Consume the artifact returned by native post-reopen compilation.
+            compiled['netlist'] = saved['netlist']
+            compiled['replay'] = saved['replay']
+        report['pre_save_elements'] = compiled['elements'];report['nodes'] = compiled['nodes']
         report['replay'] = compiled['replay'];assert compiled['replay'][:2] == [5000000, 5000000]
         stage = output / 'stage';stage.mkdir()
         (stage / 'rc.cir').write_bytes(compiled['netlist'])
