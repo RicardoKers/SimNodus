@@ -12,11 +12,12 @@ void hex(const std::string& value)
     for(unsigned char c : value) std::cout << digits[c >> 4] << digits[c & 15];
     std::cout << '\n';
 }
-int main()
+int main(int argc, char** argv)
 {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
+    if(argc > 2 || (argc == 2 && std::string_view(argv[1]) != "replay")) return 2;
     std::string inputs[6];
     for(auto& input : inputs) {
         unsigned size = 0;
@@ -30,7 +31,8 @@ int main()
     }
     simnodus::IdealRcRequest request{inputs[2] == "e01" ? simnodus::IdealRcProfile::e01_ideal_rc
         : simnodus::IdealRcProfile::unspecified, inputs[3], inputs[4], inputs[5]};
-    auto result = simnodus::compile_ideal_rc(inputs[0], inputs[1], request);
+    auto result = argc == 2 ? simnodus::compile_fixed_rc_replay(inputs[0], inputs[1], request)
+        : simnodus::compile_ideal_rc(inputs[0], inputs[1], request);
     for(auto& input : inputs) input.assign(input.size(), '!');
     if(const auto* error = std::get_if<simnodus::IdealRcError>(&result)) {
         std::cout << "ERR " << static_cast<int>(error->stage) << ' ' << error->code << ' ' << error->offset << ' ' << error->system << ' ' << error->coordinate << '\n';return 1;
@@ -53,5 +55,10 @@ int main()
             for(std::size_t i = 0; i < terminal.path.size(); ++i) std::cout << (i == 0 ? "" : "/") << terminal.path[i];
             std::cout << ' ' << terminal.terminal << '\n';
         }
+    }
+    if(c.replay) {
+        const auto& r = *c.replay;
+        std::cout << "REPLAY " << r.duration_ns << ' ' << r.exchange_quantum_ns << ' '
+            << r.schedule_resource_index << ' ' << r.temporal_offset << ' ' << r.schedule_offset << '\n';
     }
 }

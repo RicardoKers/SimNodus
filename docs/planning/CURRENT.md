@@ -2,6 +2,29 @@
 
 Updated: 2026-09-14.
 
+## Latest implementation: SN-021 fixed configured RC replay
+
+The [fixed replay](../experiments/SN-021-fixed-replay.md), dated 2026-09-22, binds
+original configured policy and captured schedule bytes to the unchanged ideal RC
+analysis through a separate explicit inert operation. It accepts one known 3.3 V
+source and one 5 ms interval, with debugging disabled. Other modes/parameters reject;
+existing standalone APIs still reject configured requests. See ADR 0075.
+
+Eight cases (seven Windows passes/one skip) and all 50 Windows CTests passed. Real
+ngspice produced 5012 samples with maximum error 9.889724283951296e-08 V and a 5 ms
+endpoint within 1 ps. Model/schedule replacement preserved the artifact; retained
+staging handles denied writes/rename during consumption. The first engine attempt
+failed from swapped harness directory arguments; it is preserved beside the corrected
+run. All 104 earlier evidence files and twelve local SN-045 files are preserved.
+
+SN-021 stays **in_progress**. Next compose configured acquisition/edit/save-copy/
+reopen with this replay, then satisfy safe overwrite under ADR 0064. Broader runtime
+modes remain unsupported; no new numerical/MCU profile or UI is implied. Preserve
+SN-017 Python/GDB/fixture control, SN-044, instrumentation, tolerances and PDF/PID.
+Next-cycle prompt awaits full acceptance. Base main:
+`c6faf05dd7da55169f232f9888c4ece8ee761570`; branch `codex/sn-021-fixed-replay`.
+Confirm final PR/check/squash and main identity before continuing.
+
 ## Latest audit: SN-021 acceptance gates
 
 The [acceptance matrix](../experiments/SN-021-acceptance.md), dated 2026-09-22,

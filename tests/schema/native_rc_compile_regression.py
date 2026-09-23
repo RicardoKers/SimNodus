@@ -33,10 +33,10 @@ def populate(root, doc):
             target.write_bytes((ROOT / row['path']).read_bytes())
 
 
-def compile_project(doc, root, profile='e01', reference='reference', drive='source', output='left_out'):
+def compile_project(doc, root, profile='e01', reference='reference', drive='source', output='left_out', operation=None):
     raw = json.dumps(doc, ensure_ascii=False).encode()
     packet = b''.join(struct.pack('<I', len(v)) + v for v in [raw, str(root).encode(), profile.encode(), reference.encode(), drive.encode(), output.encode()])
-    run = subprocess.run([PROBE], input=packet, capture_output=True, timeout=30)
+    run = subprocess.run([PROBE] + ([operation] if operation else []), input=packet, capture_output=True, timeout=30)
     assert run.returncode in (0, 1), run.stderr
     lines = run.stdout.decode().splitlines()
     if run.returncode:
@@ -49,7 +49,12 @@ def compile_project(doc, root, profile='e01', reference='reference', drive='sour
     for e in elements:
         assert json.loads(raw[int(e[3]):int(e[4])])['id'] == e[0].split('/')[-1]
         decoder.raw_decode(raw[int(e[2]):].decode())
-    return {'netlist': bytes.fromhex(lines[1]), 'elements': elements, 'nodes': [l.split() for l in lines[7:]]}
+    replay = next((list(map(int, l.split()[1:])) for l in lines[7:] if l.startswith('REPLAY ')), None)
+    if replay:
+        assert decoder.raw_decode(raw[replay[3]:].decode())[0] == doc['temporal']
+        assert decoder.raw_decode(raw[replay[4]:].decode())[0] == doc['temporal']['schedule']
+    return {'netlist': bytes.fromhex(lines[1]), 'elements': elements,
+            'nodes': [l.split() for l in lines[7:] if not l.startswith('REPLAY ')], 'replay': replay}
 
 
 class CompileRc(unittest.TestCase):

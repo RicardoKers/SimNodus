@@ -25,7 +25,7 @@ class Compiler {
 public:
     explicit Compiler(std::shared_ptr<const ConnectivityCompilation> graph)
         : syntax_(*graph->source->declaration->sources.lock.syntax) { result_.connectivity = std::move(graph); }
-    IdealRcCompilation run(const std::string& root, const IdealRcRequest& request)
+    IdealRcCompilation run(const std::string& root, const IdealRcRequest& request, bool replay)
     {
         require(request.profile == IdealRcProfile::e01_ideal_rc, IdealRcStage::request, "profile");
         require(!request.reference_port.empty() && request.reference_port.size() <= 64
@@ -34,7 +34,18 @@ public:
         result_.request = request;
         const auto project = object(0), sources = object(project.at("sources"));
         const auto temporal = object(project.at("temporal"));
-        require(text(temporal.at("mode")) == "unconfigured"
+        if(replay) {
+            const auto policy = [&](bool ok, const char* code, const char* key) {
+                require(ok, IdealRcStage::profile, code, syntax_.tokens[temporal.at(key)].begin);
+            };
+            policy(text(temporal.at("mode")) == "known-schedule-replay", "replay-mode", "mode");
+            policy(text(temporal.at("debug")) == "disabled", "replay-debug", "debug");
+            for(const auto key : {"duration_ns", "exchange_quantum_ns"}) {
+                const auto& token = syntax_.tokens[temporal.at(key)];
+                policy(std::string_view(syntax_.bytes).substr(token.begin, token.end - token.begin) == "5000000", "replay-time", key);
+            }
+        }
+        require((replay || text(temporal.at("mode")) == "unconfigured")
             && result_.connectivity->source->declaration->targets == 0
             && array(project.at("platforms")).empty() && array(project.at("firmware")).empty(), IdealRcStage::profile, "standalone");
         const auto& graph = *result_.connectivity;
@@ -67,6 +78,22 @@ public:
         if(const auto* error = std::get_if<ResourceError>(&physical))
             throw IdealRcError{IdealRcStage::resources, resource_error_name(error->code), error->index, error->system_code, "resource-index"};
         result_.resources = std::get<0>(physical);
+        if(replay) {
+            const auto schedule = object(temporal.at("schedule"));
+            const auto offset = syntax_.tokens[temporal.at("schedule")].begin;
+            const auto& inventory = *result_.resources;
+            std::size_t index = 0;
+            for(; index < inventory.size(); ++index)
+                if(inventory[index].dependency == text(schedule.at("dependency"))
+                    && inventory[index].resource == text(schedule.at("resource"))) break;
+            require(index < inventory.size(), IdealRcStage::profile, "replay-resource", offset);
+            const auto& data = inventory[index].data;
+            constexpr std::string_view fixed_schedule = "time_ns,drive_uv\n0,3300000\n";
+            require(std::string_view(reinterpret_cast<const char*>(data.data()), data.size()) == fixed_schedule,
+                IdealRcStage::profile, "replay-schedule", offset);
+            result_.replay = FixedRcReplayBinding{5'000'000, 5'000'000, index,
+                syntax_.tokens[project.at("temporal")].begin, offset};
+        }
         const auto& source_token = syntax_.tokens[project.at("sources")];
         const auto links_bytes = std::string_view(syntax_.bytes).substr(source_token.begin, source_token.end - source_token.begin);
         const auto mappings = object(sources.at("models"));
@@ -140,15 +167,23 @@ private:
     }
     std::string text(Index index) const { return syntax_.tokens[index].decoded; }
 };
-}
-IdealRcResult compile_ideal_rc(std::string_view bytes, const std::string& root, const IdealRcRequest& request)
+IdealRcResult compile(std::string_view bytes, const std::string& root, const IdealRcRequest& request, bool replay)
 {
     try {
         const auto graph = compile_connectivity(bytes);
         if(const auto* error = std::get_if<ConnectivityCompilationError>(&graph))
             return IdealRcError{IdealRcStage::declaration, error->code, error->offset};
-        return std::make_shared<const IdealRcCompilation>(Compiler(std::get<0>(graph)).run(root, request));
+        return std::make_shared<const IdealRcCompilation>(Compiler(std::get<0>(graph)).run(root, request, replay));
     } catch(const IdealRcError& error) { return error; }
     catch(const std::bad_alloc&) { return IdealRcError{IdealRcStage::profile, "memory", 0}; }
+}
+}
+IdealRcResult compile_ideal_rc(std::string_view bytes, const std::string& root, const IdealRcRequest& request)
+{
+    return compile(bytes, root, request, false);
+}
+IdealRcResult compile_fixed_rc_replay(std::string_view bytes, const std::string& root, const IdealRcRequest& request)
+{
+    return compile(bytes, root, request, true);
 }
 }

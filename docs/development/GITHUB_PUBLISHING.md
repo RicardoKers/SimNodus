@@ -365,6 +365,19 @@ and authorized protected-main squash; verify final head and local/remote main.
 SN-021 is incomplete pending configured runtime correspondence and safe overwrite.
 No new runtime profile, UI, dependency download, issue synchronization or release.
 
+## SN-021 fixed configured replay publication: 2026-09-22
+
+Branch `codex/sn-021-fixed-replay` binds one explicit configured replay to the
+existing E-01 RC profile. Eight cases (seven Windows passes/one skip), 50 Windows
+CTests and real ngspice passed unchanged project bounds. The
+[audit](../experiments/evidence/SN-021-fixed-replay-summary.json) retains both the
+initial harness-argument failure and corrected run, seven source hashes and 104
+unchanged historical files. Twelve unrelated local files remain unpublished.
+The branch PR records hosted checks and authorized protected-main squash; confirm
+final head and local/remote main identity. Configured lifecycle composition and
+safe overwrite remain pending. No new numerical/MCU profile, UI, download, issue
+synchronization or binary release; project opening and compilation remain inert.
+
 ## Binary release gate
 
 

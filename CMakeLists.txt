@@ -526,3 +526,8 @@ if(BUILD_TESTING)
     add_test(NAME native-reference-target COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_target_regression.py" --probe "$<TARGET_FILE:native_target_probe>")
     set_tests_properties(native-reference-target PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
 endif()
+
+if(BUILD_TESTING)
+    add_test(NAME native-fixed-rc-replay COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_replay_regression.py" --probe "$<TARGET_FILE:native_rc_compile_probe>")
+    set_tests_properties(native-fixed-rc-replay PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
+endif()
