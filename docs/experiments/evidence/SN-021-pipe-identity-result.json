@@ -1,0 +1,21 @@
+{
+  "status": "observed-pipe-identity-preflight-only",
+  "stage": "complete",
+  "tag": "9a8d27b98290",
+  "utc": "2026-09-23T23:49:15.827157+00:00",
+  "scope": "Pipe identity preflight only; no document protocol, startup validation, service or save contract",
+  "sources": {
+    "sn021-vm-pipe-identity-run.py": "4aada4340c1e662f4934c20d5856c0636a6fd1ab1149f098948dd0a49feffec5",
+    "sn021-vm-pipe-identity.ps1": "80898d7db51976d3905d63ba77fb9d849fc6299608376e1710709a59a87e0bfe",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "92141445c5b829109450227044bb6511275098b7bb8e161b3472b27148fa0f41",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "c26544aaa6f5a8c0581bf6d31bf7557e34b88185931efed9c57ed7fad44a7f6e",
+  "guest_stage": "complete"
+}
