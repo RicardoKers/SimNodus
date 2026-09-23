@@ -1,0 +1,14 @@
+{
+  "status": "failed-or-indeterminate",
+  "stage": "open-encrypted-vm",
+  "tag": "589647eb054e",
+  "utc": "2026-09-23T18:20:53.764053+00:00",
+  "scope": "Filesystem feasibility only; no service, IPC, or production save contract",
+  "sources": {
+    "sn021-vm-authority-run.py": "104b5b3594f99cd2911509a58b8e6c913527bb11dfbb38504b20209cd47d58ac",
+    "sn021-vm-authority.ps1": "5fa2528377f9e46a17c9504ae5da4a6f0363ef45b3b8b626e18923e3c919630d",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "error_type": "RuntimeError",
+  "error": "VIX error 17005"
+}

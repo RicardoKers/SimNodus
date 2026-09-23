@@ -1,5 +1,26 @@
 # Backlog
 
+## Latest observation: SN-021 distinct-principal filesystem experiment
+
+On 2026-09-23 the owner-provided disposable VMware Windows 11 VM completed the
+[filesystem experiment](../experiments/SN-021-authority-filesystem.md): two ordinary
+accounts, two writer processes and two client processes; all 18 client operations
+returned access denied while preserving target bytes, DACL/owner, identity and
+single-link count. Authorized replacement changed physical identity and bytes.
+Six invocation records retain the snapshot/authentication failures and two harness
+diagnostic defects as well as the completed observation. No historical result is rewritten.
+
+SN-021 stays **in_progress**. This is partial feasibility evidence, not acceptance
+of all six proposal gates, IPC, service deployment, recovery, version/ABA handling,
+or arbitrary-directory overwrite. No production API, engine or project format changed.
+Next specify the bounded client request/identity boundary and startup validation
+before another VM experiment; keep service installation and host permission changes
+excluded. Managed-storage adoption and any completion-scope change remain undecided.
+Retain ADR 0064, create-only support and the exclusion of TxF. Do not close SN-021
+or prepare its final next-cycle prompt yet. Preserve the local SN-045 work.
+Base main: `279a430f371d328f299fe15b4ae38318196995c1`; branch
+`codex/sn-021-authority-filesystem`. The PR records final checks and squash identity.
+
 Latest proposal (2026-09-23): SN-021 [publication authority](../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md)
 defines a distinct-writer managed-store candidate and physical feasibility gates.
 The owner selected feasibility evaluation without service installation. Architecture
