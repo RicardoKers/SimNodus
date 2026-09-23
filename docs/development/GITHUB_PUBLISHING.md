@@ -412,6 +412,15 @@ checks and authorized squash; confirm final source/tree and local/remote main.
 SN-021 remains in progress pending an enforceable ownership/publication protocol.
 No engine/profile, UI, dependency, issue or release changes.
 
+## SN-021 publication authority proposal: 2026-09-23
+
+Branch `codex/sn-021-publication-authority` publishes a [research proposal](../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md),
+not an adopted service or storage architecture. It preserves 108 historical evidence
+files and excludes twelve preexisting local files. Documentation checks and the
+required hosted checks gate source publication; the PR records final results/squash.
+SN-021 remains open pending product direction and physical protocol acceptance.
+No runtime, permission, deployment, issue or release changes.
+
 ## Binary release gate
 
 

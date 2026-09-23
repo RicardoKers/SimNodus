@@ -2,6 +2,25 @@
 
 Updated: 2026-09-14.
 
+## Latest proposal: SN-021 publication authority
+
+The [authority proposal](../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md), dated
+2026-09-23, compares arbitrary directories, same-user helpers and a distinct writer
+identity. It specifies a candidate managed-store trust model, version/commit boundary,
+recovery questions, product consequences and a six-gate physical feasibility experiment.
+It is a reviewed research proposal, not an adopted architecture or implemented service.
+
+SN-021 remains **in_progress**, without TxF. The next decision is whether to evaluate
+managed storage with a distinct publication identity, or retain arbitrary-directory
+overwrite as the only acceptable workflow. Managed save must not silently substitute
+for that workflow. No service installation, ACL mutation or format change is authorized
+by this document. A selected architecture needs a new ADR and physical evidence.
+Preserve 108 historical evidence files, twelve local files, SN-017, SN-044, instrumentation,
+MCU independence, profiles/tolerances and PDF/PID. No runtime changes or engine rerun.
+Base main: `5011f2147e447d58475a59adb2f14dd1a8b21184`; branch
+`codex/sn-021-publication-authority`. Verify final checks/squash and main identity.
+Final acceptance and the next-cycle prompt remain pending.
+
 ## Latest investigation: SN-021 oplock replacement boundary
 
 The [oplock probe](../experiments/SN-021-oplock-boundary.md), dated 2026-09-22,
