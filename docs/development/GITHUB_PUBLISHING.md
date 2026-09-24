@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 pipe identity prerequisite: 2026-09-23
+
+Branch `codex/sn-021-pipe-identity-evidence` publishes the measured guest script,
+raw reports and [limited identity evidence](../experiments/SN-021-pipe-identity.md).
+Five cases passed their observation criteria; no complete request protocol, service
+or save API is claimed. Preserve 122 earlier evidence hashes and twelve local files.
+Required hosted checks gate squash; the PR records final source and main identities.
+
 ## SN-021 authority request experiment contract: 2026-09-23
 
 Branch `codex/sn-021-authority-request-contract` records the bounded, unimplemented

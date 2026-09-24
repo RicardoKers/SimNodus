@@ -1,5 +1,12 @@
 # SN-021 authority request experiment contract
 
+## Measured prerequisite, not full implementation
+
+The [pipe identity preflight](../experiments/SN-021-pipe-identity.md) on 2026-09-23
+observed five real-token cases without granting SeImpersonatePrivilege. It uses a
+one-byte marker and no store access. The 64-byte query, protected startup checks
+and the remaining rejection matrix below are still unimplemented/unmeasured.
+
 Date: 2026-09-23. Status: **specified, not implemented or physically validated**.
 This is the next bounded experiment under the [publication authority proposal](PUBLICATION_AUTHORITY_PROPOSAL.md),
 following the [filesystem observations](../experiments/SN-021-authority-filesystem.md).

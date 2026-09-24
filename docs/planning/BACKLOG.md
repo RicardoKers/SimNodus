@@ -1,5 +1,23 @@
 # Backlog
 
+## Latest evidence: pipe identity prerequisite
+
+The [manual VM preflight](../experiments/SN-021-pipe-identity.md) completed five cases:
+two allowed clients, handler denial for a distinct connected SID, anonymous-token
+refusal, and pipe ACL denial. The ordinary writer identified real tokens at level 1
+without SeImpersonatePrivilege and verified reversion before dispatch. This uses a
+fixed one-byte marker, not the 64-byte document protocol. No store was accessed.
+
+SN-021 remains in_progress. Next implement the bounded query and protected startup
+checks from the request experiment, then measure its remaining rejection matrix.
+Server impersonation, malformed/slow/extra messages, startup aliases/identity/ACLs,
+document authorization and recovery remain unmeasured. No service, host permission
+change, TxF, managed-store adoption or arbitrary-directory overwrite acceptance.
+Preserve 122 earlier evidence files and twelve unrelated local SN-045 files.
+Base main: `13967ffe3d1ad644193449c6d21709961cd3cc6f`; branch
+`codex/sn-021-pipe-identity-evidence`. The PR records final checks and squash.
+The final next-cycle prompt awaits actual SN-021 completion.
+
 ## Next bounded experiment: authority requests
 
 The [request contract](../architecture/AUTHORITY_REQUEST_EXPERIMENT.md) specifies
