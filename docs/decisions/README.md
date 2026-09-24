@@ -1,5 +1,11 @@
 # Architecture decision records
 
+## Latest saving decision
+
+- [0076: Managed document saving](0076-managed-document-saving.md): accepted owner
+  workflow; implementation and physical acceptance pending. External overwrite remains
+  unsupported; no service installation is selected.
+
 An ADR records context, decision, consequences, and revisit criteria. Do not rewrite history to hide a changed decision: add a new ADR and mark the old one superseded.
 
 | ADR | Decision | Status |

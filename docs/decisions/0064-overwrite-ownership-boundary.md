@@ -1,5 +1,13 @@
 # ADR 0064: Preserve the overwrite ownership boundary
 
+## Subsequent workflow decision (2026-09-24)
+
+[ADR 0076](0076-managed-document-saving.md) selects managed-document updates instead
+of arbitrary external-directory overwrite for SN-021 acceptance. The ownership,
+identity/version, atomicity and preservation requirements below still apply under
+the new explicitly controlled concurrency model. External overwrite remains
+unsupported; no historical counterexample or failed result is superseded.
+
 Date: 2026-09-15. Status: accepted boundary decision; overwrite remains unsupported.
 
 ## Decision

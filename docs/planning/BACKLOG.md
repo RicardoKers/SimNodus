@@ -1,5 +1,26 @@
 # Backlog
 
+## Accepted workflow: managed document saving
+
+On 2026-09-24 the owner accepted Save updating a copy managed by SimNodus.
+[ADR 0076](../decisions/0076-managed-document-saving.md) selects this SN-021 saving
+criterion; the [contract](../architecture/MANAGED_DOCUMENT_SAVE.md) defines required
+behavior. Explicit import preserves the external original; export remains create-only.
+External arbitrary-directory overwrite remains unsupported under ADR 0064. No
+service installation, production save implementation or physical acceptance is claimed.
+
+SN-021 remains in_progress. Next close only the private-v2 identity/authorization/
+replay and ordinary-client exclusion-through-restart prerequisites, using the existing
+disposable VM and unchanged protocol. Then specify the concrete atomic commit layout
+before implementing save/recovery. Preserve resource-root meaning, expected versions,
+ABA/conflict rejection, uncertain outcomes and bounded recovery. The accepted RC
+lifecycle remains the runtime scope; do not introduce new profiles or UI requirements.
+
+This documentation block reuses existing evidence; all 146 historical evidence files
+and twelve preexisting local SN-045 overlays are preserved. Base main: `1d63b4c`;
+branch `codex/sn-021-save-decision`. Required checks and squash are recorded by the PR.
+The final next-cycle prompt still awaits actual SN-021 completion.
+
 ## Latest evidence: consolidated request matrix
 
 The [request matrix](../experiments/SN-021-request-matrix.md) observed 26 physical
@@ -387,7 +408,7 @@ future direction, not a new M3 delivery commitment.
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
-| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. [Local reference](../experiments/SN-021-local-resources.md) and [native byte snapshots](../experiments/SN-021-native-resources.md) implemented; full project loading/saving/compilation remain pending |
+| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. [Local reference](../experiments/SN-021-local-resources.md) and [native byte snapshots](../experiments/SN-021-native-resources.md) implemented; bounded configured lifecycle accepted; managed Save and final acceptance remain pending under ADR 0076 |
 | SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |

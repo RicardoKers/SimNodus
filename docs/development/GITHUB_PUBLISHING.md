@@ -1,5 +1,12 @@
 # GitHub setup and publication record
 
+## SN-021 managed saving decision: 2026-09-24
+
+Branch `codex/sn-021-save-decision` records owner-approved managed saving in ADR 0076
+and its required contract. This is documentation, not a service/save implementation
+or SN-021 completion. Preserve 146 historical evidence files and twelve local overlays.
+Required hosted checks gate squash; the PR records final source/main identities.
+
 ## SN-021 consolidated request matrix: 2026-09-24
 
 Branch `codex/sn-021-request-matrix` publishes the exact measured guest source,

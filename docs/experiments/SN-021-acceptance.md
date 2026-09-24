@@ -1,5 +1,14 @@
 # SN-021 acceptance matrix and remaining gates
 
+## Subsequent saving workflow decision (2026-09-24)
+
+The owner selected [managed document saving](../decisions/0076-managed-document-saving.md)
+as the remaining SN-021 persistence criterion. The [required contract](../architecture/MANAGED_DOCUMENT_SAVE.md)
+replaces the arbitrary external destination in the historical remaining-gates list,
+while preserving identity/version, atomicity and ordinary-failure guarantees.
+External overwrite stays unsupported. Managed Save, recovery and final lifecycle
+acceptance are pending; this decision supplies no new implementation evidence.
+
 Date: 2026-09-22. Status: **in_progress**, not full acceptance. This audit follows
 PR #43 (`04f0174`) and supersedes earlier slices' next-step descriptions without
 rewriting their evidence. The backlog criterion is portable paths, atomic save,
