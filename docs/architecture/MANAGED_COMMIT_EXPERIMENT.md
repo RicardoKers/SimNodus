@@ -1,6 +1,8 @@
 # Managed commit experiment: bounded immutable revision chain
 
-Date: 2026-09-24. Status: **specified candidate, not implemented or physically accepted**.
+Date: 2026-09-24. Status: **inert record codec implemented; storage candidate not
+implemented or physically accepted**. The [canonical format](MANAGED_RECORD_FORMAT.md)
+and [parser evidence](../experiments/SN-021-managed-record-codec.md) cover bytes only.
 This implements no service and grants no new runtime authority. It refines
 [managed saving](MANAGED_DOCUMENT_SAVE.md) under ADRs 0076/0077.
 
@@ -76,8 +78,8 @@ Each self-contained record binds:
 - The exact validated project bytes and explicit resource context, plus an integrity
   digest over all preceding canonical record bytes.
 
-Specify the byte encoding and independent parser tests before the physical write
-probe. Fixed-width integers must use explicit endianness; check every arithmetic
+The [byte encoding and independent parser tests](MANAGED_RECORD_FORMAT.md) precede
+the physical write probe. Fixed-width integers use explicit endianness; check every arithmetic
 operation before allocation/read. No optional extensibility or generic archive.
 The total record and individual payload bounds both apply. A record digest is an
 integrity check, not origin or execution approval.

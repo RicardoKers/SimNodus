@@ -1,5 +1,23 @@
 # Current state
 
+## Latest implementation: inert managed record codec
+
+The [format 1 codec](../architecture/MANAGED_RECORD_FORMAT.md) implements the bounded
+record portion of ADR 0077. [Local evidence](../experiments/SN-021-managed-record-codec.md):
+17 native checks and 370 independent struct/hashlib cases passed, including malformed
+records with recomputed hashes. Exact project/context bytes remain inert; native
+declarative validation and the original 1 MiB lock digest limit are preserved.
+
+This is not managed saving, chain validation, physical identity verification or
+authorization. No VM run or storage acceptance is claimed. SN-021 stays in_progress.
+Next implement the bounded chain/write candidate, exact write-enabled provisioning
+and interruption barriers, then run the consolidated physical acceptance batch from
+ADR 0077. Do not add IPC features, service installation, UI or simulation profiles.
+
+Preserve 158 historical evidence files and twelve local SN-045 overlays. Base main:
+`eb3ca48`; branch `codex/sn-021-managed-record-codec`. The PR records full checks,
+source and squash identities. Final next-cycle handoff still awaits actual completion.
+
 ## Selected experiment: bounded managed commit chain
 
 [ADR 0077](../decisions/0077-bounded-managed-commit-candidate.md) selects the
