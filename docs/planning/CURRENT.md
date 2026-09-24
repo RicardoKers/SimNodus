@@ -1,5 +1,22 @@
 # Current state
 
+## Latest evidence: consolidated request matrix
+
+The [request matrix](../experiments/SN-021-request-matrix.md) observed 26 physical
+case criteria on 2026-09-24 in 103,224 ms: private wire-v2 terminal exchange,
+response/duplicate/closure/deadline refusals, small-message rejection and nine
+startup refusals before readiness. Post-injection hashes/ACLs stayed unchanged.
+The earlier credential-stage attempt remains failed-or-indeterminate and retained.
+
+SN-021 remains in_progress. Next review the report's six-gate coverage assessment
+and identify only acceptance-critical gaps before another physical batch or product
+decision. Do not expand the protocol or begin save/recovery by default. v1 identity
+and replay evidence is not automatic v2 regression coverage. Managed-storage
+adoption, service installation and changes to ADR 0064 remain separate decisions.
+Preserve 141 earlier evidence hashes and twelve local SN-045 overlays. Base main:
+`17ed29e`; branch `codex/sn-021-request-matrix`. The PR records checks and squash.
+The final next-cycle prompt awaits actual SN-021 completion.
+
 ## Latest evidence: endpoint and orderly restart
 
 The [endpoint/restart VM probe](../experiments/SN-021-endpoint-restart.md) observed

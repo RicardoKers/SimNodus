@@ -1,5 +1,15 @@
 # SN-021 authority request experiment contract
 
+## Subsequent private wire-v2 evidence (2026-09-24)
+
+The [26-case matrix](../experiments/SN-021-request-matrix.md) adds explicit terminal
+success and bounded closure verification so first-reply receipt alone is not
+acceptance. It measures invalid/duplicate responses, small messages and integrated
+startup refusal. The report defines the private v2 acknowledgement sequence and
+supersedes the historical one-request/one-response proposal below for this helper.
+v1 evidence remains historical; no full v2 regression or production acceptance is
+claimed. Review the consolidated coverage before expanding this experiment.
+
 ## Subsequent endpoint/restart evidence (2026-09-24)
 
 The [endpoint/restart probe](../experiments/SN-021-endpoint-restart.md) measured

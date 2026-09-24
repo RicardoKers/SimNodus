@@ -1,0 +1,21 @@
+{
+  "status": "observed-remaining-request-matrix-only",
+  "stage": "complete",
+  "tag": "7dd9f5466240",
+  "utc": "2026-09-24T12:30:21.628657+00:00",
+  "scope": "Remaining request matrix, private wire version 2; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-matrix-run.py": "e0faa32019eaad8028a9354f2a7286378a4b03e082f6e45fc64cd84936727a56",
+    "sn021-vm-matrix.ps1": "ef02a4d28899ab24153a5cd1b7f1de76f1d7889589ad51e715356b220ba26389",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "e73dbd4d1043350d391ea1376d612ced6c46c32c7bb5e7c525a71527e3ed6111",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "9ff5c63c5ea66e5b3e98e7abf9704898459a79deaf212249a79941851ffc40ab",
+  "guest_stage": "complete"
+}
