@@ -1,5 +1,12 @@
 # GitHub setup and publication record
 
+## SN-021 managed record codec: 2026-09-24
+
+Branch `codex/sn-021-managed-record-codec` implements the inert format-1 codec,
+independent adversarial tests and exact encoding contract. No store or write/recovery
+acceptance follows. Preserve 158 historical evidence JSON files and twelve local
+overlays. Required hosted checks gate squash; the PR records final identities.
+
 ## SN-021 managed commit design: 2026-09-24
 
 Branch `codex/sn-021-managed-commit-design` records ADR 0077 and the bounded

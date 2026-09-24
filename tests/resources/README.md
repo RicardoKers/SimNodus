@@ -1,5 +1,14 @@
 # SN-021 local resource verification
 
+## Managed record codec
+
+The [format contract](../../docs/architecture/MANAGED_RECORD_FORMAT.md) and
+[evidence](../../docs/experiments/SN-021-managed-record-codec.md) cover an inert native
+codec only. `native_managed_record.cpp` checks typed boundaries and ownership;
+`native_managed_record_regression.py` supplies independent `struct`/`hashlib` vectors
+to `native_managed_record_probe`. Neither test accesses a resource root or establishes
+storage/identity/authorization/atomicity. Both CTests run on Windows and Linux.
+
 The [native project acquisition tests](../../docs/experiments/SN-021-acquisition.md)
 check bounded capture, physical path rejection, concurrent changes and graph/source
 ownership. Declared resources remain unopened; the result grants no save authority.

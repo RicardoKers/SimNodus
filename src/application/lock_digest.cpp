@@ -6,9 +6,8 @@
 #include <bit>
 
 namespace simnodus::detail {
-std::string lock_sha256(std::string_view input)
+static std::string sha256(std::string_view input)
 {
-    if(input.size() > declaration_max_bytes) throw LockError{"budget", 0};
     // SHA-256 words/rounds from FIPS 180-4 sections 4.2.2, 5.3.3 and 6.2.
     constexpr std::array<std::uint32_t, 64> k{
         0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -57,5 +56,15 @@ std::string lock_sha256(std::string_view input)
     for(const auto word : state)
         for(int shift = 28; shift >= 0; shift -= 4) result += "0123456789abcdef"[(word >> shift) & 15];
     return result;
+}
+std::string lock_sha256(std::string_view input)
+{
+    if(input.size() > declaration_max_bytes) throw LockError{"budget", 0};
+    return sha256(input);
+}
+std::string managed_record_sha256(std::string_view input)
+{
+    if(input.size() > 2 * declaration_max_bytes) throw LockError{"budget", 0};
+    return sha256(input);
 }
 }
