@@ -1,5 +1,23 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Latest evidence: integrated read-only query
+
+The [integrated query VM probe](../experiments/SN-021-integrated-query.md) on
+2026-09-24 met eighteen limited physical case criteria: retained startup handles,
+protected document/run mapping, real pipe identity, fixed framing, refusals and
+bounded cancellation. All cases preserved their post-setup fixture bytes. The
+extra-message case received its first valid reply before the extra request was
+refused; this is not an all-or-nothing transaction.
+
+SN-021 stays in_progress. Next measure hostile endpoint authenticity/squatting and
+stale-run replay across a real restart. Complete client-boundary acceptance, save,
+version/ABA and recovery remain pending. No service, TxF, managed-store adoption or
+change to arbitrary-directory overwrite acceptance is added. Preserve 130 earlier
+evidence hashes and twelve unrelated local SN-045 overlays. Base main:
+`e42e7585637bf259a17663020f66c2021df5673e`; branch
+`codex/sn-021-integrated-query-evidence`. The PR records checks and squash identity.
+The final next-cycle prompt awaits actual SN-021 completion.
+
 ## Latest evidence: protected startup prerequisite
 
 The [startup VM probe](../experiments/SN-021-store-startup.md) on 2026-09-24 observed
