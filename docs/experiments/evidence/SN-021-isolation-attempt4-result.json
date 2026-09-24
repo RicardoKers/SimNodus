@@ -1,0 +1,21 @@
+{
+  "status": "observed-isolation-prerequisites-only",
+  "stage": "complete",
+  "tag": "0261f4884c44",
+  "utc": "2026-09-24T23:18:23.321968+00:00",
+  "scope": "Isolation prerequisites, unchanged private wire version 2; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-isolation-run.py": "ca23c11d3c9f73fc9e39ae03c20c7f50538b7cb4b1982c0efba5d35ff81f6be6",
+    "sn021-vm-isolation.ps1": "fabad91a097a8a89cadbdc859fd70212d6c9746ca909aa270b81d89e6363d901",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "29bfee527e0fc1da722c8e5d8066f0f2ad9524703d42a4bf73dbeb8415a542f9",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "14534c18cf0854f7867c2ebf144ad5997009db0684df1c887cd496dfa75786ab",
+  "guest_stage": "complete"
+}

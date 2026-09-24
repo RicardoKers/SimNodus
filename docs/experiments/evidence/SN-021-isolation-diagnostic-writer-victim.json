@@ -1,0 +1,85 @@
+{
+    "status":  "observed",
+    "stage":  "environment",
+    "mode":  "Server",
+    "tag":  "3d38d8b1c366",
+    "observations":  [
+
+                     ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1024",
+                  "administrator":  false,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-32-545",
+                                 "S-1-5-4",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "privileges":  [
+                       {
+                           "Name":  "SeShutdownPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeChangeNotifyPrivilege",
+                           "State":  "Ativada"
+                       },
+                       {
+                           "Name":  "SeUndockPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeIncreaseWorkingSetPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeTimeZonePrivilege",
+                           "State":  "Desativado"
+                       }
+                   ],
+    "result":  {
+                   "Failure":  "io-deadline;cancel=0;completion=995",
+                   "Cancellation":  "cancel=0;completion=995",
+                   "RootIdentity":  "Dj+hRgAACADnUQIA",
+                   "FileIdentity":  "Dj+hRgAABgDpUQIA",
+                   "RequestHex":  null,
+                   "StoreSecurity":  [
+                                         "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                         "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                         "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1024)",
+                                         "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1024)",
+                                         "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1024)"
+                                     ],
+                   "HandlesRetained":  true,
+                   "RequestBytes":  0,
+                   "ResponseBytes":  0,
+                   "TotalMs":  15017,
+                   "Status":  "failed",
+                   "Stage":  "connect",
+                   "ProcessSid":  "S-1-5-21-295071742-3982017719-4243568550-1024",
+                   "AuthenticatedSid":  null,
+                   "Descriptor":  "O:S-1-5-21-295071742-3982017719-4243568550-1024D:P(A;;FA;;;S-1-5-21-295071742-3982017719-4243568550-1024)(A;;0x120183;;;S-1-5-21-295071742-3982017719-4243568550-1025)",
+                   "ErrorType":  "System.TimeoutException",
+                   "Pid":  3152,
+                   "NativeError":  0,
+                   "IdentificationLevel":  -1,
+                   "Authorized":  false,
+                   "Reverted":  false,
+                   "ReplyReceived":  false,
+                   "ElapsedMs":  15017
+               }
+}

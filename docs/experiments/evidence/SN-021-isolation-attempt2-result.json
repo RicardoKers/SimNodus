@@ -1,0 +1,14 @@
+{
+  "status": "failed-or-indeterminate",
+  "stage": "open-encrypted-vm",
+  "tag": "8840deb81a1a",
+  "utc": "2026-09-24T19:27:42.442797+00:00",
+  "scope": "Isolation prerequisites, unchanged private wire version 2; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-isolation-run.py": "ca23c11d3c9f73fc9e39ae03c20c7f50538b7cb4b1982c0efba5d35ff81f6be6",
+    "sn021-vm-isolation.ps1": "06cf49b05a4d18ac202429448a09fcb65a2702c5fa9fb6485c287524ae40afc3",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "error_type": "RuntimeError",
+  "error": "VIX error 17005"
+}
