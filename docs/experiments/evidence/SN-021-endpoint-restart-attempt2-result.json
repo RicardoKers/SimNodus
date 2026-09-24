@@ -1,0 +1,21 @@
+{
+  "status": "observed-endpoint-restart-slice-only",
+  "stage": "complete",
+  "tag": "316352ee0cee",
+  "utc": "2026-09-24T12:11:11.591178+00:00",
+  "scope": "Endpoint and restart slice; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-endpoint-run.py": "4a4d0e041863b179f7cfc6a2867fd891c355a10ab577233afacaab1994cdcbae",
+    "sn021-vm-endpoint.ps1": "e5b87747e557a19d4f832311d374a545a9dcfbaf1780472f2bdbd15289c0a73c",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "6e29106ae7bdee86968d831ccd09601bd31b80a8a4591d4facfef0cf683fcb4a",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "a5b277cffe2e3c8f697fc03222e1c57f18ff404a68242e3b2f129b3ac227e537",
+  "guest_stage": "complete"
+}

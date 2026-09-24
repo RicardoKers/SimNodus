@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 endpoint/restart evidence: 2026-09-24
+
+Branch `codex/sn-021-endpoint-restart` publishes both exact guest sources and raw
+attempt reports with the [bounded result](../experiments/SN-021-endpoint-restart.md).
+The first attempt remains failed; seven scenarios completed in the second attempt.
+Preserve 134 earlier evidence hashes and twelve local overlays. Required hosted
+checks gate squash; the PR records source/main identities. SN-021 remains open.
+
 ## SN-021 integrated query evidence: 2026-09-24
 
 Branch `codex/sn-021-integrated-query-evidence` publishes the exact measured guest
