@@ -1,5 +1,23 @@
 # Current state
 
+## Latest evidence: protected startup prerequisite
+
+The [startup VM probe](../experiments/SN-021-store-startup.md) on 2026-09-24 observed
+two valid starts in independent ordinary processes and nine expected refusals for
+bytes, identity, absence, hardlink, owner, rights, manifest size, junction and root
+rights. Volume/ancestor/file handles remain retained through validation, with exact
+fresh-fixture ACL and byte checks. This read-only prerequisite exposes no endpoint.
+
+SN-021 stays in_progress. Next integrate the 64-byte query and protected document/run
+mapping with startup-retained handles and measured pipe identity; then test the
+remaining rejection matrix. Separate prerequisites do not establish integrated IPC,
+hostile concurrency, version/ABA, save or recovery. No service, host ACL change,
+TxF, managed-store adoption or arbitrary-directory overwrite acceptance is added.
+Preserve 126 earlier evidence hashes and twelve unrelated local SN-045 files.
+Base main: `f552374d2d401d6639cd68b5411743201f34e60b`; branch
+`codex/sn-021-store-startup-evidence`. The PR records final checks and squash.
+The final next-cycle prompt awaits actual SN-021 completion.
+
 ## Latest evidence: pipe identity prerequisite
 
 The [manual VM preflight](../experiments/SN-021-pipe-identity.md) completed five cases:
