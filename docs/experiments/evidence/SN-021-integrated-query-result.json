@@ -1,0 +1,21 @@
+{
+  "status": "observed-integrated-query-slice-only",
+  "stage": "complete",
+  "tag": "0f8c3321554e",
+  "utc": "2026-09-24T11:39:19.460219+00:00",
+  "scope": "Integrated read-only query slice; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-query-run.py": "ff53298e1b46dfe3875b6187f2c0634eeac03124fedb09aadf2e572495aaa7a5",
+    "sn021-vm-query.ps1": "0e8cb2cb07be55ec92d897b4d69288bd0f389c895018f6e23d83c949b5165e15",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "a876c0e3da5ab25816cf304202118a695493f66a221c1086db2c78634e114b6a",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "b4365e58651e6a5b4c816905c2ee748e1b59a21e57b6cc41c5e6e9575f38d582",
+  "guest_stage": "complete"
+}

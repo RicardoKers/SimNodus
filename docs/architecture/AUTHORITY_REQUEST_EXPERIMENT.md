@@ -1,5 +1,15 @@
 # SN-021 authority request experiment contract
 
+## Subsequent integrated query evidence (2026-09-24)
+
+The [integrated read-only slice](../experiments/SN-021-integrated-query.md) observed
+eighteen case criteria with startup-retained handles, protected document/run/SID
+mapping and pipe identity. This supersedes historical statements below that the
+query is unimplemented. It does not establish the full contract: hostile endpoint
+authenticity, replay across restart and the remaining adversarial matrix are pending.
+An extra message is refused after the first valid response can already be received.
+No save or recovery is implemented; this experiment is not managed-store adoption.
+
 ## Subsequent startup evidence (2026-09-24)
 
 The [startup prerequisite](../experiments/SN-021-store-startup.md) observed two valid
