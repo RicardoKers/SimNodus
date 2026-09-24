@@ -1,5 +1,13 @@
 # SN-021 publication authority proposal
 
+## Subsequent owner workflow selection (2026-09-24)
+
+The owner accepted Save updating a managed copy. [ADR 0076](../decisions/0076-managed-document-saving.md)
+and the [managed saving contract](MANAGED_DOCUMENT_SAVE.md) supersede historical
+statements below that workflow adoption is undecided. A service, installer, commit
+layout and production save implementation remain unselected/unvalidated. Complete
+the bounded isolation prerequisites before selecting a save/recovery algorithm.
+
 ## Consolidated measured coverage (2026-09-24)
 
 The [request matrix assessment](../experiments/SN-021-request-matrix.md) maps the
