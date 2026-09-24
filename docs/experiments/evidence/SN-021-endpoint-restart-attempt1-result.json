@@ -1,0 +1,21 @@
+{
+  "status": "failed",
+  "stage": "complete",
+  "tag": "89a9e7e04d5c",
+  "utc": "2026-09-24T12:03:11.902834+00:00",
+  "scope": "Endpoint and restart slice; no service, save, version/ABA or recovery",
+  "sources": {
+    "sn021-vm-endpoint-run.py": "4a4d0e041863b179f7cfc6a2867fd891c355a10ab577233afacaab1994cdcbae",
+    "sn021-vm-endpoint.ps1": "abb394336969cf18d21c6a1d6eb5161fc91c9746dad807d47d27221a8d0cc4ba",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "168448d2a8a3dcb38d4a70181a35eaf80a7f5bbb49ace63e3035c740ad3fea8b",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "9793be69452c32d37e56bba7794ea5e94b94b5c96ecbe73a0bd4464ab852160e",
+  "guest_stage": "competitor"
+}

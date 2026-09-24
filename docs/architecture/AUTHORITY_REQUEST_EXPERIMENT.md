@@ -1,5 +1,14 @@
 # SN-021 authority request experiment contract
 
+## Subsequent endpoint/restart evidence (2026-09-24)
+
+The [endpoint/restart probe](../experiments/SN-021-endpoint-restart.md) measured
+wrong-owner/rights rejection, occupied-name refusal, exact stale-request rejection
+after orderly restart and administrator run-ID rotation, a fresh query and changed
+startup-byte refusal. This supersedes historical unmeasured statements below for
+those cases only. Hostile responses/duplicates, dribbling and the full integrated
+startup matrix remain pending. No save/recovery or complete boundary acceptance.
+
 ## Subsequent integrated query evidence (2026-09-24)
 
 The [integrated read-only slice](../experiments/SN-021-integrated-query.md) observed

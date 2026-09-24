@@ -1,5 +1,23 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Latest evidence: endpoint and orderly restart
+
+The [endpoint/restart VM probe](../experiments/SN-021-endpoint-restart.md) observed
+seven limited scenarios on 2026-09-24: owner/rights rejection before sending bytes,
+occupied-name refusal, original-server query, and exact old-request rejection after
+orderly restart, followed by a fresh query and refusal of altered startup bytes.
+The first attempt remains failed: its harness expected error 5 but observed 231.
+Both sources/raw reports and all 134 earlier evidence hashes are preserved.
+
+SN-021 remains in_progress. Next consolidate the remaining request-contract matrix
+(hostile responses/duplicates, dribbling deadlines and startup refusals composed
+with IPC) before another bounded physical batch. Do not expand into save/recovery.
+Administrator run rotation is not production lifecycle or crash recovery. No service,
+TxF, managed-store adoption or change to ADR 0064/arbitrary-folder overwrite.
+Twelve local SN-045 overlays remain excluded. Base main: `4e5a3d4`; branch
+`codex/sn-021-endpoint-restart`. The PR records checks and squash identity.
+The final next-cycle prompt awaits actual SN-021 completion.
+
 ## Latest evidence: integrated read-only query
 
 The [integrated query VM probe](../experiments/SN-021-integrated-query.md) on
