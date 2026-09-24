@@ -1,5 +1,13 @@
 # Managed document saving contract
 
+## Concrete experimental candidate (2026-09-24)
+
+[ADR 0077](../decisions/0077-bounded-managed-commit-candidate.md) selects the
+[bounded revision-chain design](MANAGED_COMMIT_EXPERIMENT.md) for step 2 below.
+It binds document/context/version/receipt in one create-only record publication,
+retains committed history within an explicit capacity and defines run fencing and
+recovery refusal. No implementation or storage acceptance follows from specification.
+
 ## Subsequent prerequisite evidence (2026-09-24)
 
 The [isolation batch](../experiments/SN-021-isolation-prerequisites.md) measured the

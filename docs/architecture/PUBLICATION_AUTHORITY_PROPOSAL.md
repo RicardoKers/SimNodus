@@ -1,5 +1,12 @@
 # SN-021 publication authority proposal
 
+## Concrete commit candidate (2026-09-24)
+
+The [managed commit experiment](MANAGED_COMMIT_EXPERIMENT.md), selected by ADR 0077,
+refines the earlier operation sketch into a bounded immutable revision chain.
+Physical write-enabled isolation, publication and recovery remain pending. No
+service, external overwrite or power-loss durability is selected by this design.
+
 ## Subsequent isolation prerequisites (2026-09-24)
 
 The [isolation result](../experiments/SN-021-isolation-prerequisites.md) adds unchanged

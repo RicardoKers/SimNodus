@@ -1,5 +1,12 @@
 # GitHub setup and publication record
 
+## SN-021 managed commit design: 2026-09-24
+
+Branch `codex/sn-021-managed-commit-design` records ADR 0077 and the bounded
+commit/state/recovery experiment contract. Documentation only; no physical result
+or saving implementation is claimed. Preserve 158 historical evidence files and
+twelve local overlays. Required hosted checks gate squash; the PR records identities.
+
 ## SN-021 isolation prerequisite evidence: 2026-09-24
 
 Branch `codex/sn-021-isolation-prerequisites` publishes four retained attempts,
