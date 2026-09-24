@@ -1,5 +1,28 @@
 # Backlog
 
+## Selected experiment: bounded managed commit chain
+
+[ADR 0077](../decisions/0077-bounded-managed-commit-candidate.md) selects the
+[commit candidate](../architecture/MANAGED_COMMIT_EXPERIMENT.md), dated 2026-09-24:
+one complete record binds document/resource context, predecessor version and
+operation receipt; create-only publication adds the next revision under protected
+exclusive-writer authority. No mutable head/catalog pair or external overwrite.
+
+Status: specified, not implemented or physically accepted. The first experiment
+supports one document and at most 64 revisions, retaining every committed receipt;
+capacity refusal replaces pruning. Recovery never promotes/deletes an orphan by
+name, and a missing receipt is definite only after fencing the previous writer run.
+Power-loss durability, administrative rollback and service deployment are not claimed.
+
+Next implement the canonical bounded record codec and adversarial tests, then the
+predeclared write-enabled isolation/publication/interruption batch. Codec tests do
+not prove filesystem atomicity. Preserve the accepted 1 MiB project bound, resource
+root meaning and existing runtime profiles. SN-021 remains in_progress.
+
+This documentation block preserves 158 historical evidence files and twelve local
+SN-045 overlays. Base main: `d241b6a`; branch `codex/sn-021-managed-commit-design`.
+The PR records required checks and squash. No final next-cycle prompt yet.
+
 ## Latest evidence: isolation prerequisites
 
 The [isolation batch](../experiments/SN-021-isolation-prerequisites.md) observed twelve

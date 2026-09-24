@@ -1,5 +1,10 @@
 # Architecture decision records
 
+## Latest experimental commit decision
+
+- [0077: Bounded managed commit candidate](0077-bounded-managed-commit-candidate.md):
+  selected experiment; record codec, write implementation and physical acceptance pending.
+
 ## Latest saving decision
 
 - [0076: Managed document saving](0076-managed-document-saving.md): accepted owner
