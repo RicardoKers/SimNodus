@@ -1,5 +1,15 @@
 # SN-021 publication authority proposal
 
+## Consolidated measured coverage (2026-09-24)
+
+The [request matrix assessment](../experiments/SN-021-request-matrix.md) maps the
+filesystem, startup, identity, endpoint/restart and private-v2 response evidence to
+the six gates below. It supersedes historical statements that no physical work has
+occurred, without declaring all gates passed. Lifetime under interruption, complete
+v2 regression and production ownership/recovery remain unproven. Review only
+acceptance-critical gaps next; no service, managed-store adoption or change to the
+arbitrary-directory overwrite criterion is selected by these observations.
+
 ## Next experiment contract
 
 The [authority request contract](AUTHORITY_REQUEST_EXPERIMENT.md) specifies the

@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 consolidated request matrix: 2026-09-24
+
+Branch `codex/sn-021-request-matrix` publishes the exact measured guest source,
+both attempt records and the [26-case result](../experiments/SN-021-request-matrix.md).
+The credential-stage failure remains retained. Preserve 141 earlier evidence hashes
+and twelve local overlays. Required hosted checks gate squash; the PR records
+source/main identities. No full six-gate acceptance or SN-021 closure is claimed.
+
 ## SN-021 endpoint/restart evidence: 2026-09-24
 
 Branch `codex/sn-021-endpoint-restart` publishes both exact guest sources and raw
