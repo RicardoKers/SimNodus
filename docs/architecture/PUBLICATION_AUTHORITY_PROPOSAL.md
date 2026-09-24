@@ -1,5 +1,12 @@
 # SN-021 publication authority proposal
 
+## Subsequent isolation prerequisites (2026-09-24)
+
+The [isolation result](../experiments/SN-021-isolation-prerequisites.md) adds unchanged
+v2 identity/replay and listed mutation denial across forced read-only writer exit
+and fresh startup. It supports concrete commit design, not blanket six-gate or
+production save acceptance. The write-enabled candidate needs its own evidence.
+
 ## Subsequent owner workflow selection (2026-09-24)
 
 The owner accepted Save updating a managed copy. [ADR 0076](../decisions/0076-managed-document-saving.md)

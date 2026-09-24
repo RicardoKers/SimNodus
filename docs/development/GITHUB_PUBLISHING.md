@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 isolation prerequisite evidence: 2026-09-24
+
+Branch `codex/sn-021-isolation-prerequisites` publishes four retained attempts,
+collected diagnostics, historical/current guest sources and the
+[bounded result](../experiments/SN-021-isolation-prerequisites.md). Preserve 146 prior
+evidence records and twelve local overlays. Required checks gate squash; the PR
+records source/main identities. No production save or SN-021 closure is claimed.
+
 ## SN-021 managed saving decision: 2026-09-24
 
 Branch `codex/sn-021-save-decision` records owner-approved managed saving in ADR 0076

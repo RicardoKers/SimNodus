@@ -1,5 +1,25 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Latest evidence: isolation prerequisites
+
+The [isolation batch](../experiments/SN-021-isolation-prerequisites.md) observed twelve
+queries and thirty denied mutation sequences on 2026-09-24 in 52,701 ms. Unchanged
+private-v2 identity/authorization/replay checks and direct exclusion while the writer
+was active, forcibly stopped and restarted met their bounded criteria. Snapshots
+preserved bytes, identities/link counts and ACLs. Earlier credential failures and
+the managed-rename measurement failure remain retained with collected diagnostics.
+
+SN-021 stays in_progress. Next specify the concrete atomic commit layout, state
+machine, bounds and injection points under ADR 0076 before implementing writes.
+Do not add IPC features or interpret this read-only fixture as proof of a future
+write-enabled store. Measure that candidate's own exclusion and publication behavior.
+Conflicts/ABA, ordinary failures, lost replies and bounded recovery remain pending;
+external overwrite remains unsupported. No service installation or engine change.
+
+Preserve 146 earlier evidence files and twelve local SN-045 overlays. Base main:
+`cc48738`; branch `codex/sn-021-isolation-prerequisites`. The PR records required
+checks and squash. No SN-021 closure or final next-cycle prompt yet.
+
 ## Accepted workflow: managed document saving
 
 On 2026-09-24 the owner accepted Save updating a copy managed by SimNodus.

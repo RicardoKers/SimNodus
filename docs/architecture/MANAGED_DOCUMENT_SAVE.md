@@ -1,5 +1,13 @@
 # Managed document saving contract
 
+## Subsequent prerequisite evidence (2026-09-24)
+
+The [isolation batch](../experiments/SN-021-isolation-prerequisites.md) measured the
+selected v2 authorization/replay and ordinary-client exclusion-through-termination
+cases. Proceed to step 2's concrete commit design below; do not expand IPC by default.
+The read-only fixture does not prove the write-enabled candidate's isolation or
+publication. No saving/recovery acceptance or service installation follows.
+
 Date: 2026-09-24. Status: **required behavior under ADR 0076; unimplemented**.
 This specifies acceptance, not an already validated algorithm or service API.
 

@@ -1,0 +1,12 @@
+{
+  "status": "collected",
+  "source_run": "20260924T192756Z-3d38d8b1c366",
+  "files": {
+    "client-liveattack.json": {
+      "sha256": "2fdac009452db96e978e2b249187e55fdd9049a43f10eea5e9873ede6d9092dc"
+    },
+    "writer-victim.json": {
+      "sha256": "3bf2787d9b0fc115578c2d63c3fa5b7d0852e7018e7dabf9b816e4fd21d97959"
+    }
+  }
+}

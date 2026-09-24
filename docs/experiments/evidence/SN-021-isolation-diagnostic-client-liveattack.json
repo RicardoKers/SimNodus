@@ -1,0 +1,80 @@
+{
+    "status":  "failed",
+    "stage":  "environment",
+    "mode":  "Attack",
+    "tag":  "3d38d8b1c366",
+    "observations":  [
+                         {
+                             "operation":  "write",
+                             "denied":  true,
+                             "error_type":  "System.UnauthorizedAccessException",
+                             "error_code":  5
+                         },
+                         {
+                             "operation":  "manifest_write",
+                             "denied":  true,
+                             "error_type":  "System.UnauthorizedAccessException",
+                             "error_code":  5
+                         },
+                         {
+                             "operation":  "create",
+                             "denied":  true,
+                             "error_type":  "System.UnauthorizedAccessException",
+                             "error_code":  5
+                         },
+                         {
+                             "operation":  "rename",
+                             "denied":  false,
+                             "error_type":  "System.IO.FileNotFoundException",
+                             "error_code":  2
+                         }
+                     ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1025",
+                  "administrator":  false,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-32-545",
+                                 "S-1-5-4",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "privileges":  [
+                       {
+                           "Name":  "SeShutdownPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeChangeNotifyPrivilege",
+                           "State":  "Ativada"
+                       },
+                       {
+                           "Name":  "SeUndockPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeIncreaseWorkingSetPrivilege",
+                           "State":  "Desativado"
+                       },
+                       {
+                           "Name":  "SeTimeZonePrivilege",
+                           "State":  "Desativado"
+                       }
+                   ],
+    "error_type":  "System.Management.Automation.RuntimeException",
+    "error_line":  15,
+    "failure":  "PROBE:unexpected-attack-outcome-rename"
+}
