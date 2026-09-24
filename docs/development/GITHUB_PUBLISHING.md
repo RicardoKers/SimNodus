@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 startup prerequisite: 2026-09-24
+
+Branch `codex/sn-021-store-startup-evidence` publishes the exact measured guest
+script, raw reports and [limited startup evidence](../experiments/SN-021-store-startup.md).
+Two accepted starts and nine expected refusals do not establish integrated IPC,
+save or recovery. Preserve 126 historical evidence hashes and twelve local overlays.
+Required hosted checks gate squash; the PR records final source/main identities.
+
 ## SN-021 pipe identity prerequisite: 2026-09-23
 
 Branch `codex/sn-021-pipe-identity-evidence` publishes the measured guest script,

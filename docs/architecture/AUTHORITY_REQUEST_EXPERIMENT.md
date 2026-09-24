@@ -1,5 +1,13 @@
 # SN-021 authority request experiment contract
 
+## Subsequent startup evidence (2026-09-24)
+
+The [startup prerequisite](../experiments/SN-021-store-startup.md) observed two valid
+fresh-process starts and nine expected refusals in protected read-only fixtures.
+This updates the historical unmeasured startup state below. It is separate from
+pipe identity and uses a reduced setup manifest. The integrated query, document/run
+mapping and remaining rejection matrix are not yet implemented or validated.
+
 ## Measured prerequisite, not full implementation
 
 The [pipe identity preflight](../experiments/SN-021-pipe-identity.md) on 2026-09-23

@@ -1,0 +1,828 @@
+{
+    "status":  "observed-startup-prerequisite-only",
+    "stage":  "complete",
+    "mode":  "Probe",
+    "tag":  "75d1a7b7a17f",
+    "observations":  [
+                         {
+                             "case":  "good",
+                             "iteration":  0,
+                             "pid":  8684,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "F2D77D54EFF90DE6ADE66948327EB177C7FDCE4D71AAF9DC3BC204C449706627"
+                                        },
+                             "writer":  {
+                                            "status":  "validated-startup-only",
+                                            "stage":  "validated-handles-retained",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "root_identity":  "Dj+hRgAABABhbQEA",
+                                            "file_identity":  "Dj+hRgAABQBxbQEA",
+                                            "sha256":  "935bfe78ee5543c48bb16d7cdb82f05cac5ee86c0de7fd30ea44507f1cbff7e2",
+                                            "handles_retained_at_success":  true,
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "good",
+                             "iteration":  1,
+                             "pid":  1960,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "F2D77D54EFF90DE6ADE66948327EB177C7FDCE4D71AAF9DC3BC204C449706627"
+                                        },
+                             "writer":  {
+                                            "status":  "validated-startup-only",
+                                            "stage":  "validated-handles-retained",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "root_identity":  "Dj+hRgAABABhbQEA",
+                                            "file_identity":  "Dj+hRgAABQBxbQEA",
+                                            "sha256":  "935bfe78ee5543c48bb16d7cdb82f05cac5ee86c0de7fd30ea44507f1cbff7e2",
+                                            "handles_retained_at_success":  true,
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "bytes",
+                             "iteration":  0,
+                             "pid":  3532,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "A7B8948F62ADBFC3A015AC8894E582DCAF822A1283F4EF9C8FA85A0EB5A667CE"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "file-bytes",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "identity",
+                             "iteration":  0,
+                             "pid":  4456,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "1DFE461E9DDFBBA78C85E628BA62FFD39A596F76200968B3B891E1E9909175C1"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "file-identity",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:AI(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "missing",
+                             "iteration":  0,
+                             "pid":  4808,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "3AA48C263670C4F39E1296CF606AC1AED2D8030BA23EE112749A9E941AEF5998"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "nt-open:c0000034",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "hardlink",
+                             "iteration":  0,
+                             "pid":  3804,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "C9BB4688CBAEF62D9E79375CECAB73ED830CF99AEC4B4E2049F2BA6717279EB3"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "hardlink-alias",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "owner",
+                             "iteration":  0,
+                             "pid":  7024,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "EA78366ED99464E4F5757EDCD338F130627EEF557E8A7A156427D7ED74543716"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "wrong-owner",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:S-1-5-21-295071742-3982017719-4243568550-1011D:AI(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "rights",
+                             "iteration":  0,
+                             "pid":  11068,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "86C2624F3B50949AEE695C8B3835CFEA2433F1ADA3E3B0E0DAB3554D475D5572"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "data",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "wrong-ace-count",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:AI(A;;0x100116;;;BU)(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "manifest",
+                             "iteration":  0,
+                             "pid":  9000,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "B9972D5A38C2B36077E73F8A79C315000CF35C11229DFBB966C2E8AF148410EF"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "manifest",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "byte-limit",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)",
+                                                             "O:BAD:(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "junction",
+                             "iteration":  0,
+                             "pid":  3188,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "27ED877F0999ECCA61843CE6FC84FE12AB84BDF64721821DAFCA279309EA6861"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "store",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "reparse-or-offline",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)"
+                                                         ]
+                                        }
+                         },
+                         {
+                             "case":  "rootrights",
+                             "iteration":  0,
+                             "pid":  3300,
+                             "before":  {
+                                            "sha256":  "935BFE78EE5543C48BB16D7CDB82F05CAC5EE86C0DE7FD30EA44507F1CBFF7E2",
+                                            "manifest_sha256":  "98B180B4FDD4F10F1D4FF09C77144FAEBF32F1CDF7D1D41746EED1E5DFF8A876"
+                                        },
+                             "writer":  {
+                                            "status":  "refused",
+                                            "stage":  "root",
+                                            "mode":  "Writer",
+                                            "tag":  "75d1a7b7a17f",
+                                            "observations":  [
+
+                                                             ],
+                                            "token":  {
+                                                          "sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+                                                          "administrator":  false,
+                                                          "groups":  [
+                                                                         "S-1-5-21-295071742-3982017719-4243568550-513",
+                                                                         "S-1-1-0",
+                                                                         "S-1-5-32-545",
+                                                                         "S-1-5-4",
+                                                                         "S-1-2-1",
+                                                                         "S-1-5-11",
+                                                                         "S-1-5-15",
+                                                                         "S-1-5-113",
+                                                                         "S-1-2-0",
+                                                                         "S-1-5-64-10"
+                                                                     ]
+                                                      },
+                                            "os":  {
+                                                       "version":  "10.0.26200",
+                                                       "build":  "26200",
+                                                       "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+                                                   },
+                                            "filesystem":  "NTFS",
+                                            "reboot_pending":  false,
+                                            "privileges":  [
+                                                               {
+                                                                   "Name":  "SeShutdownPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeChangeNotifyPrivilege",
+                                                                   "State":  "Ativada"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeUndockPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeIncreaseWorkingSetPrivilege",
+                                                                   "State":  "Desativado"
+                                                               },
+                                                               {
+                                                                   "Name":  "SeTimeZonePrivilege",
+                                                                   "State":  "Desativado"
+                                                               }
+                                                           ],
+                                            "failure":  "wrong-ace-count",
+                                            "error_type":  "System.InvalidOperationException",
+                                            "security":  [
+                                                             "O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1200a9;;;BU)(A;OICIIO;SDGXGWGR;;;AU)(A;;LC;;;AU)(A;;0x1000a1;;;S-1-15-3-65536-1888954469-739942743-1668119174-2468466756-4239452838-1296943325-355587736-700089176)",
+                                                             "O:BAD:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)(A;;0x100116;;;S-1-5-21-295071742-3982017719-4243568550-1011)"
+                                                         ]
+                                        }
+                         }
+                     ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                  "administrator":  true,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-114",
+                                 "S-1-5-32-544",
+                                 "S-1-5-32-545",
+                                 "S-1-5-3",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "writer_sid":  "S-1-5-21-295071742-3982017719-4243568550-1011",
+    "limits":  [
+                   "No pipe endpoint or document protocol",
+                   "No production manifest format",
+                   "No concurrent hostile namespace changes",
+                   "No save/version/ABA or recovery",
+                   "No service"
+               ]
+}

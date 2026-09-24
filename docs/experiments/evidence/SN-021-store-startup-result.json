@@ -1,0 +1,21 @@
+{
+  "status": "observed-startup-prerequisite-only",
+  "stage": "complete",
+  "tag": "75d1a7b7a17f",
+  "utc": "2026-09-24T11:20:00.756308+00:00",
+  "scope": "Store startup prerequisite only; no IPC, document protocol, service or save contract",
+  "sources": {
+    "sn021-vm-store-startup-run.py": "d4cc2b06bdbea8f62e2a9e92961a83d5d3076ed68d15183cb2f743c75d25679c",
+    "sn021-vm-store-startup.ps1": "1ec455b2b76c1581fc3ec77f4575080db1fabe01e69e280d896e62695f7966d2",
+    "sn021-vm-access-check.py": "bc0ae0887e01abc9fe4f5010ae417aaba28beb62767f7380885fc471c6e2ad59"
+  },
+  "inventory_sha256": "fa0a49b6b01c1036c1f1bc0b540336f136a92333a2178a3a067a7567ac26b665",
+  "snapshot": {
+    "name": "SN021-authority-baseline",
+    "source": "operator-created; existence verified by VIX",
+    "memory": "not measured",
+    "application_consistent_claim": false
+  },
+  "probe_sha256": "a197cb730173378b8c29d5e36e9417a5022e245fe606c90d13ab6855b5c4e9c6",
+  "guest_stage": "complete"
+}
