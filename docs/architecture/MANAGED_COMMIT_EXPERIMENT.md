@@ -1,8 +1,9 @@
 # Managed commit experiment: bounded immutable revision chain
 
-Date: 2026-09-24. Status: **inert record codec implemented; storage candidate not
-implemented or physically accepted**. The [canonical format](MANAGED_RECORD_FORMAT.md)
-and [parser evidence](../experiments/SN-021-managed-record-codec.md) cover bytes only.
+Date: 2026-09-24; updated 2026-09-25. Status: **inert record codec and chain/preparation
+logic implemented; physical storage candidate not implemented or accepted**.
+The [canonical format](MANAGED_RECORD_FORMAT.md), [parser evidence](../experiments/SN-021-managed-record-codec.md)
+and [chain tests](../experiments/SN-021-managed-chain.md) cover supplied bytes/observations only.
 This implements no service and grants no new runtime authority. It refines
 [managed saving](MANAGED_DOCUMENT_SAVE.md) under ADRs 0076/0077.
 
