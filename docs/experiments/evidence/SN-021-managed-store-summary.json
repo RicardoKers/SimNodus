@@ -1,0 +1,117 @@
+{
+  "status": "observed-managed-store-candidate-only",
+  "elapsed_ms": 20996,
+  "attempts": [
+    {
+      "run": "20260925T160420Z-3c45c8f98f3f",
+      "status": "failed",
+      "files": {
+        "result": "SN-021-managed-store-attempt1-result.json",
+        "inventory": "SN-021-managed-store-attempt1-inventory.json",
+        "probe": "SN-021-managed-store-attempt1-probe.json"
+      }
+    },
+    {
+      "run": "20260925T160755Z-aa52bdc43d16",
+      "status": "failed-or-indeterminate",
+      "files": {
+        "result": "SN-021-managed-store-attempt2-result.json"
+      }
+    },
+    {
+      "run": "20260925T160818Z-45de3a9e186b",
+      "status": "failed-or-indeterminate",
+      "files": {
+        "result": "SN-021-managed-store-attempt3-result.json"
+      }
+    },
+    {
+      "run": "20260925T161020Z-1c635c60f965",
+      "status": "failed-or-indeterminate",
+      "files": {
+        "result": "SN-021-managed-store-attempt4-result.json",
+        "inventory": "SN-021-managed-store-attempt4-inventory.json"
+      }
+    },
+    {
+      "run": "20260925T161048Z-6cc8e81c8ae5",
+      "status": "failed-or-indeterminate",
+      "files": {
+        "result": "SN-021-managed-store-attempt5-result.json",
+        "inventory": "SN-021-managed-store-attempt5-inventory.json"
+      }
+    },
+    {
+      "run": "20260925T161154Z-7e69dfdd2a43",
+      "status": "failed-or-indeterminate",
+      "files": {
+        "result": "SN-021-managed-store-attempt6-result.json",
+        "inventory": "SN-021-managed-store-attempt6-inventory.json"
+      }
+    },
+    {
+      "run": "20260925T162357Z-bcd1268ffdad",
+      "status": "failed",
+      "files": {
+        "result": "SN-021-managed-store-attempt7-result.json",
+        "inventory": "SN-021-managed-store-attempt7-inventory.json",
+        "probe": "SN-021-managed-store-attempt7-probe.json"
+      }
+    },
+    {
+      "run": "20260925T163359Z-f2297b44067b",
+      "status": "failed",
+      "files": {
+        "result": "SN-021-managed-store-attempt8-result.json",
+        "inventory": "SN-021-managed-store-attempt8-inventory.json",
+        "probe": "SN-021-managed-store-attempt8-probe.json"
+      }
+    },
+    {
+      "run": "20260925T163734Z-0bddcba4bab4",
+      "status": "observed-managed-store-candidate-only",
+      "files": {
+        "result": "SN-021-managed-store-attempt9-result.json",
+        "inventory": "SN-021-managed-store-attempt9-inventory.json",
+        "probe": "SN-021-managed-store-attempt9-probe.json"
+      }
+    }
+  ],
+  "files": {
+    "SN-021-managed-store-attempt1-result.json": "04796bb62203a2f6adca2159c5d7b1cd27760bfa8f7a241bd83527b2be17272a",
+    "SN-021-managed-store-attempt1-inventory.json": "904c9dc158ffc726dc1e4efebc0679a141f23ee1803a4e2ff8f8791f71e8a493",
+    "SN-021-managed-store-attempt1-probe.json": "b5ed75d493e42d256a57745714ad327e8ce2c1dfd92ee3bb3dd8e0261874d296",
+    "SN-021-managed-store-attempt2-result.json": "d4ee1e5e14258a28f98a61f5dddf3fdc856c36e4c6fe1cb8491d1bc8302f7ab4",
+    "SN-021-managed-store-attempt3-result.json": "f8bcfbb8d370e2c400a15f38d61858ed9fb3c0938f28f169713bb55ab89c7a8b",
+    "SN-021-managed-store-attempt4-result.json": "67e3ea60378ea0d9c8516c4d1c9fc3712180950f7e54dd49ae196fe915f124ec",
+    "SN-021-managed-store-attempt4-inventory.json": "cb6d55166068be2ca3584f25ee04458cec092cb613521d2b77716379754c5ef6",
+    "SN-021-managed-store-attempt5-result.json": "3e2169ca8ebec633e60a8f61c96d1d08a492a86a289e7daa736a5266862487f1",
+    "SN-021-managed-store-attempt5-inventory.json": "0872ace61b9ea6367d17b7a7f21ce05f848704130c27427cf8d436106e92a869",
+    "SN-021-managed-store-attempt6-result.json": "66f1e7cf62af56d15189e98e20017d90c87e9f76ae25a21b9c67173e3ff0c78a",
+    "SN-021-managed-store-attempt6-inventory.json": "b6b319d44756d1420323ac09c7708e34403f89a0c3705729c814be21f6ed4203",
+    "SN-021-managed-store-attempt7-result.json": "d1a6a67c026f29a84169bce5d26fa1a68673c5ddffe92bc53824d5ccec577beb",
+    "SN-021-managed-store-attempt7-inventory.json": "32ff7884d28948d9711b5bc2b285cde389931d45c9cc34abac9a5e2dad38c62e",
+    "SN-021-managed-store-attempt7-probe.json": "08649a79c9b355d3fd4a813215b30ab9690b5fe595811c57365440ec69fb7c24",
+    "SN-021-managed-store-attempt8-result.json": "fac1035e73d6129423f57f8b0c5d4cbe418937c36af0ccb332f0c3bafa9e2f10",
+    "SN-021-managed-store-attempt8-inventory.json": "0f7b9449c67963b50a776a16ce79382f288bc61c7c7643ddf4705ea544aeadac",
+    "SN-021-managed-store-attempt8-probe.json": "08339363399aab7c461e57cb18aeb316ec93cd2849eac734156e7d984b31a112",
+    "SN-021-managed-store-attempt9-result.json": "83d599ddac8cfd731fadab3fb1ab88f6ac70c9e7a34d46701fca40c70f37b0b6",
+    "SN-021-managed-store-attempt9-inventory.json": "d4210021582f8ab46be8004f3be59250f0ea41b3fff0f202cfb4f48cabd1f36f",
+    "SN-021-managed-store-attempt9-probe.json": "8a19047f5b6c8df12cf3b448472a42e5e01cb88b30421dfcf1b983d80f570040",
+    "SN-021-managed-store-diagnostic-probe.json": "0d190b5bceda69d99e80094568b7ca6dd2163a4f93ee07f548332aac7ef540af",
+    "SN-021-managed-store-diagnostic-collection.json": "056e76a004ec5f23b40a1c2a27513ae53d9e8c0b984f181983b813e09eadd1e4",
+    "SN-021-managed-store-sources.json": "b7b99b42f84b7a199f495bfce0f8672d648349fa3156bbc48953d9c08566ee00"
+  },
+  "binary_sha256": "2da356c87cbf14c2a86d3f3893e8b7e453ee0c79613473f1e1f20ffeda8c0f12",
+  "binary_published": false,
+  "observations": 127,
+  "stores": 24,
+  "revisions": 64,
+  "client_denials": 81,
+  "lock_denials": 6,
+  "injected_recoveries": 8,
+  "termination_recoveries": 6,
+  "startup_rejections": 8,
+  "limits": "Manual storage candidate; no authenticated save transport, installed service, power-loss durability, or engine integration. Injected I/O failures are labeled; no disk exhaustion claim.",
+  "historical_hashes_preserved": 158
+}

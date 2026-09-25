@@ -1,5 +1,23 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Latest evidence: managed-store candidate
+
+The [physical candidate report](../experiments/SN-021-managed-store-candidate.md)
+records the 20,996 ms disposable-VM batch: 64 revisions, 87 mutation denials,
+exclusive writer locking, eight injected-failure recoveries, six termination
+recoveries, older-receipt reconciliation and eight startup rejection cases.
+Nine attempts, collected diagnostics and exact source snapshots are retained.
+
+SN-021 remains in_progress. This is a manual fixture adapter, not authenticated
+Save or full ADR 0077 acceptance. Next close the documented storage evidence gaps
+and define the smallest composition with authenticated requests and the accepted
+real RC lifecycle. No service, UI, new runtime profile or external overwrite.
+The final next-cycle prompt awaits actual SN-021 completion.
+
+Base main: `a027b46`; branch `codex/sn-021-managed-store`. Preserve 158 earlier
+evidence files and twelve preexisting SN-045 overlays. The PR records required
+checks and final source/squash identities; no binaries or releases are published.
+
 ## Latest implementation: bounded chain and receipts
 
 The [chain/preparation module](../experiments/SN-021-managed-chain.md) validates
