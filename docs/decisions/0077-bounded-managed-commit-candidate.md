@@ -1,7 +1,7 @@
 # ADR 0077: Evaluate a bounded immutable revision chain
 
-Date: 2026-09-24. Status: **selected experimental candidate; implementation and
-physical acceptance pending**.
+Date: 2026-09-24; updated 2026-09-25. Status: **selected experimental candidate;
+bounded physical store batch passed, full acceptance pending**.
 
 Under [ADR 0076](0076-managed-document-saving.md), evaluate the
 [bounded commit design](../architecture/MANAGED_COMMIT_EXPERIMENT.md): one complete
@@ -20,11 +20,13 @@ clients from the namespace. That combination must be proven for the write-enable
 candidate and does not justify advisory locks in external user-writable directories.
 All existing physical containment, alias/reparse and byte-validation rules remain.
 
-Select no service or production filesystem API yet. The next implementation step
-is the canonical bounded record codec with independent adversarial tests, followed
-by the specified disposable-VM write/recovery batch. Parser tests cannot prove
-atomicity or isolation. Do not claim crash recovery or power-loss durability until
-the corresponding physical evidence exists; the initial claim excludes power loss.
+The [codec](../experiments/SN-021-managed-record-codec.md),
+[chain](../experiments/SN-021-managed-chain.md) and
+[fixture-only Windows store batch](../experiments/SN-021-managed-store-candidate.md)
+are implemented and measured within their stated bounds. No service or production
+Save API is selected. The batch supports process-interruption recovery on the
+measured local NTFS configuration. It does not establish power-loss durability,
+authenticated Save transport or complete physical acceptance below.
 
 The design explicitly fences prior execution runs before interpreting an absent
 receipt as not committed. Snapshot rollback within a store generation is unsupported.
