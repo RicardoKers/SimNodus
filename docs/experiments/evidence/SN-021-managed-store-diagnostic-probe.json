@@ -1,0 +1,65 @@
+{
+    "status":  "started",
+    "stage":  "sequence",
+    "tag":  "7e69dfdd2a43",
+    "observations":  [
+                         {
+                             "case":  "sequence-provision",
+                             "role":  "a",
+                             "pid":  3740,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                                               "pid":  3740
+                                           },
+                                           {
+                                               "status":  "provisioned",
+                                               "root":  "SN021Managed-2a78d7432281"
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-7e69dfdd2a43\\admin\\1-sequence-provision.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-7e69dfdd2a43\\admin\\1-sequence-provision.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         }
+                     ],
+    "roots":  [
+                  {
+                      "leaf":  "SN021Managed-2a78d7432281",
+                      "case":  "sequence"
+                  }
+              ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                  "administrator":  true,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-114",
+                                 "S-1-5-32-544",
+                                 "S-1-5-32-545",
+                                 "S-1-5-3",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "principals":  {
+                       "c":  "S-1-5-21-295071742-3982017719-4243568550-1033",
+                       "w":  "S-1-5-21-295071742-3982017719-4243568550-1032"
+                   },
+    "binary_sha256":  "e7b52b4242ebacf9a033437bbc99f839e04575a558f50fedf44283a0e5a16c22",
+    "project_sha256":  "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+}

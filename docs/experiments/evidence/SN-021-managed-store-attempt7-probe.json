@@ -1,0 +1,1024 @@
+{
+    "status":  "failed",
+    "stage":  "write-enabled-isolation",
+    "tag":  "bcd1268ffdad",
+    "observations":  [
+                         {
+                             "case":  "sequence-provision",
+                             "role":  "a",
+                             "pid":  1980,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                                               "pid":  1980
+                                           },
+                                           {
+                                               "status":  "provisioned",
+                                               "root":  "SN021Managed-8ce34cbe2299"
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\admin\\1-sequence-provision.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\admin\\1-sequence-provision.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         },
+                         {
+                             "case":  "sequence",
+                             "role":  "w",
+                             "pid":  7360,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1034",
+                                               "pid":  7360
+                                           },
+                                           {
+                                               "status":  "opened",
+                                               "revision":  0,
+                                               "run":  "725687ebf71102be2340613344673a50"
+                                           },
+                                           {
+                                               "status":  "sequence-observed",
+                                               "revisions":  64,
+                                               "aba":  true,
+                                               "capacity":  true,
+                                               "older_receipt":  true,
+                                               "run_fencing":  true
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\writer\\2-sequence.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\writer\\2-sequence.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         },
+                         {
+                             "snapshot":  {
+                                              "C:\\SN021Managed-8ce34cbe2299":  {
+                                                                                    "identity":  [
+                                                                                                     "46a13f0e:000a0000:000263ed",
+                                                                                                     "1",
+                                                                                                     "16"
+                                                                                                 ],
+                                                                                    "security":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x1200a9;;;S-1-5-21-295071742-3982017719-4243568550-1034)"
+                                                                                },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document":  {
+                                                                                              "identity":  [
+                                                                                                               "46a13f0e:000b0000:000263ee",
+                                                                                                               "1",
+                                                                                                               "16"
+                                                                                                           ],
+                                                                                              "security":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x1200ab;;;S-1-5-21-295071742-3982017719-4243568550-1034)"
+                                                                                          },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000001.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:0002649c",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "fb4dac05b631ff2a2c6ceabc7679a36dbbc3030820e715f9c063162e666a31e8",
+                                                                                                               "record_body_sha256":  "ff9356caabcf7c09a737e0591016c93525431c233c9b8c3b49c012d3ba085390",
+                                                                                                               "record_digest":  "ff9356caabcf7c09a737e0591016c93525431c233c9b8c3b49c012d3ba085390",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000002.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:0002649d",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "99a6b92f1296fc8d0f8e620c3dbb08c2b4f6a6c6a2626776ea39d3e348d79e5b",
+                                                                                                               "record_body_sha256":  "70c933ab76219d02a1cde830a8eb1f12e0b20e1b33bf6bb07ed65963df79a8a3",
+                                                                                                               "record_digest":  "70c933ab76219d02a1cde830a8eb1f12e0b20e1b33bf6bb07ed65963df79a8a3",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000003.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:0002649e",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "28c86e9b133cea1e1b26a4d34c8da45d586784c08b72186e5370946ff7599d37",
+                                                                                                               "record_body_sha256":  "44c6ef3e07c32f303dd667d96311b08e6d33d695ca8cbb9df2754eb0039f1b64",
+                                                                                                               "record_digest":  "44c6ef3e07c32f303dd667d96311b08e6d33d695ca8cbb9df2754eb0039f1b64",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000004.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:0002649f",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "6b1a2cce9aae298831550d07a0784a35929c1c302f1d46cef43d69d153ff3027",
+                                                                                                               "record_body_sha256":  "90994f7007a3cbb548d69bd50a1365e9ee8664047110a45ab039d5496ea4e805",
+                                                                                                               "record_digest":  "90994f7007a3cbb548d69bd50a1365e9ee8664047110a45ab039d5496ea4e805",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000005.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a0",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "9c589ff221d825bbb793dd93704adffc9695de0f12f87e4162c13316d0922b9e",
+                                                                                                               "record_body_sha256":  "050b90a260d2ef4f535badf12f93b7fcf0e404b94ebcb4c93e15c337baf65486",
+                                                                                                               "record_digest":  "050b90a260d2ef4f535badf12f93b7fcf0e404b94ebcb4c93e15c337baf65486",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000006.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a1",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "3439eaf7a5e9d304298e3b3c9afd92735101aa0b1b33b4e5c16ab027067afa0f",
+                                                                                                               "record_body_sha256":  "54064eea891f47dcbf6501d96319e13c9536808b3518d0d11980b8e128d96254",
+                                                                                                               "record_digest":  "54064eea891f47dcbf6501d96319e13c9536808b3518d0d11980b8e128d96254",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000007.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a2",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "834093800d433ac5652fa603adabd316d193018b36d418a912d01c5891124a19",
+                                                                                                               "record_body_sha256":  "dafa193b3ad7022587fe00920553dba9325d6ceeb9fa6391e78a3dec23f0c018",
+                                                                                                               "record_digest":  "dafa193b3ad7022587fe00920553dba9325d6ceeb9fa6391e78a3dec23f0c018",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000008.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a3",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "45f2cf46c010161ea80b55768124b531df889aac9578d6afa094af42af6b4e1f",
+                                                                                                               "record_body_sha256":  "945798cbbe16a039aefb6ddf11cd5e2c46731cf4883a7ac5f50f6ed278bbf813",
+                                                                                                               "record_digest":  "945798cbbe16a039aefb6ddf11cd5e2c46731cf4883a7ac5f50f6ed278bbf813",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000009.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a4",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "eeed101db22bd5dd98710eb001b5ddcf98846a2f3c60341c7a0f0452329264c3",
+                                                                                                               "record_body_sha256":  "0a64f1e684bede355bd93095667fa37402b31f4bb06afe279055ab8bc4262892",
+                                                                                                               "record_digest":  "0a64f1e684bede355bd93095667fa37402b31f4bb06afe279055ab8bc4262892",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000a.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a5",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "40869607f7f58a004813b3714853e93579a404ed2766b18a6efb5dc8c4651d85",
+                                                                                                               "record_body_sha256":  "a7a9e98edca5024374a22fdfd4a0db1b3e16fba56ab88cd54e438bd90a4c3463",
+                                                                                                               "record_digest":  "a7a9e98edca5024374a22fdfd4a0db1b3e16fba56ab88cd54e438bd90a4c3463",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000b.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a6",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "7a511fb29385f4ce268921c2760ee7391f60042835d4ab68b22cdd352392d9af",
+                                                                                                               "record_body_sha256":  "78f1083d5be83b30f6f80d19ef0809fbc5243f21741c13979caf8829a52103e4",
+                                                                                                               "record_digest":  "78f1083d5be83b30f6f80d19ef0809fbc5243f21741c13979caf8829a52103e4",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000c.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a7",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "b9e0c2b79b28007f19050a76710b4dfd0774fb281e68d74a04a439d3e75aab38",
+                                                                                                               "record_body_sha256":  "61722cbe5aa852e83125380f315a09d0cca01bc203c92dea2ad0026ddc4b2616",
+                                                                                                               "record_digest":  "61722cbe5aa852e83125380f315a09d0cca01bc203c92dea2ad0026ddc4b2616",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000d.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a8",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "068534b13f290064d9be7f9bb622d259657e50cfcd9b33a4a3beea635a0c7a53",
+                                                                                                               "record_body_sha256":  "366fc2ce2eb721f3a9cd7c6089a4617cbd6cffcaa56b1c914dfff6cb5e4aa738",
+                                                                                                               "record_digest":  "366fc2ce2eb721f3a9cd7c6089a4617cbd6cffcaa56b1c914dfff6cb5e4aa738",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000e.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264a9",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "cff41f075d54b24104bcbffb6169f32520be4f6bdb92b6a37a15290a1237a65b",
+                                                                                                               "record_body_sha256":  "1fbc1921027c86064b3a3a73f8d2b8fa26bce0b7d9248c5c8563f88271b7925d",
+                                                                                                               "record_digest":  "1fbc1921027c86064b3a3a73f8d2b8fa26bce0b7d9248c5c8563f88271b7925d",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000000f.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264aa",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "e59c31b4c0bfa926749bf6df1f252e85f885c50f46dda4b22372c42fab3cc0e5",
+                                                                                                               "record_body_sha256":  "9b8d2fe9a4eb134df56bd3167d6b18cc383f2520004ada7f8b191e6757f5c8c8",
+                                                                                                               "record_digest":  "9b8d2fe9a4eb134df56bd3167d6b18cc383f2520004ada7f8b191e6757f5c8c8",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000010.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ab",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "a07ca8dcddd6271d5c1e3aeb3be513b97678bf64dd422393ff229ddc5002e224",
+                                                                                                               "record_body_sha256":  "92eb7622402fc33c1267871e8950beabe6ee3d5a2d588f1b575f07dd6a8c90d7",
+                                                                                                               "record_digest":  "92eb7622402fc33c1267871e8950beabe6ee3d5a2d588f1b575f07dd6a8c90d7",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000011.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ac",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "8e9766670ce1716f4dece4beb052bed24d53893c703d574e8af7ee6331cb29b4",
+                                                                                                               "record_body_sha256":  "e2b9315a0de7f698eeb2912ce61064dc45e66274dd6838f284f938080ce3570c",
+                                                                                                               "record_digest":  "e2b9315a0de7f698eeb2912ce61064dc45e66274dd6838f284f938080ce3570c",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000012.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ad",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "a58145b4b3029276f2a96b3fcd7e9e9f75e656b568e5688094ad04a203a27561",
+                                                                                                               "record_body_sha256":  "cff99cb3eaca60d8ca2ca36240ff0d38a15529fb31d0aa17029d51e0e4550bc3",
+                                                                                                               "record_digest":  "cff99cb3eaca60d8ca2ca36240ff0d38a15529fb31d0aa17029d51e0e4550bc3",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000013.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ae",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "a88b29b4cd81385d40ec701c70e89a2b3b810629feeaf8fc0f8f9db5ead51a35",
+                                                                                                               "record_body_sha256":  "445f3bd45e05d441fb48de6dc59ec81a9871f4a000f3f42178bab557288a0768",
+                                                                                                               "record_digest":  "445f3bd45e05d441fb48de6dc59ec81a9871f4a000f3f42178bab557288a0768",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000014.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264af",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "be92ab419154839949eadf491a6800de1a78a4bc2ae283a2e645f8743db4216b",
+                                                                                                               "record_body_sha256":  "eeeeae43896a6593821b4ebbc0925657bb8d3d55e3fa833147da2c050ad44bd3",
+                                                                                                               "record_digest":  "eeeeae43896a6593821b4ebbc0925657bb8d3d55e3fa833147da2c050ad44bd3",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000015.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264b0",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "c648f4d9683638f0d13add7cf1459ecbdfcf9b4e9fc3fc150b76505430357bc4",
+                                                                                                               "record_body_sha256":  "7f5c3a0fc04ea2d2ed5cdda0e9592726cd753b797c49ac7c6c2c827de00208ab",
+                                                                                                               "record_digest":  "7f5c3a0fc04ea2d2ed5cdda0e9592726cd753b797c49ac7c6c2c827de00208ab",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000016.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264b1",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "1b55966b411cabe32e4f4b98922765cf03855b5ef17d3398c47923c56c855389",
+                                                                                                               "record_body_sha256":  "dac468d4ca8f4f0b79e01027f326f28d430e80c251f6cb59d4ce9ef2cc031a5c",
+                                                                                                               "record_digest":  "dac468d4ca8f4f0b79e01027f326f28d430e80c251f6cb59d4ce9ef2cc031a5c",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000017.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264b8",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "e73e584370b43502b0563654292e44633f90af8665abb199fe6fa1ddb9f08bf4",
+                                                                                                               "record_body_sha256":  "35e75d32b7574313ff8391d363a780e4c35d09c8b7fb547bd6c1876f062066fa",
+                                                                                                               "record_digest":  "35e75d32b7574313ff8391d363a780e4c35d09c8b7fb547bd6c1876f062066fa",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000018.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ba",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "19fabb0cccf11d6178f34ae5b86f87a8e7aa4a894ab1c5a2e7338b823a1949b9",
+                                                                                                               "record_body_sha256":  "5af9cbc884779fb7d0f74c05f22ad405dec3e1368b66bb3385ea29ac3bc771c4",
+                                                                                                               "record_digest":  "5af9cbc884779fb7d0f74c05f22ad405dec3e1368b66bb3385ea29ac3bc771c4",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000019.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264bb",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "f1ba12e28ef651497e0abbc09faecf763fdfa3a0aa075e142e306add91144b1b",
+                                                                                                               "record_body_sha256":  "b76d9b677dbdd02b7586c15182724057e40a4cde3d94636eed437cbe31ea5528",
+                                                                                                               "record_digest":  "b76d9b677dbdd02b7586c15182724057e40a4cde3d94636eed437cbe31ea5528",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001a.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264bc",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "442175cd9549b720eec62475c71cbd231e2864318f77538640b9c933241f9e4f",
+                                                                                                               "record_body_sha256":  "0968e41cfb3ef4babb1b8461e6810b33741fa4902fe5f19ce7fc2fbab241bb9e",
+                                                                                                               "record_digest":  "0968e41cfb3ef4babb1b8461e6810b33741fa4902fe5f19ce7fc2fbab241bb9e",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001b.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264bd",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "6618cdcc627d014697216a8537ce79e387be5425ed13f02e24aa1d63833b2c13",
+                                                                                                               "record_body_sha256":  "6b48c684002f88c12ae6c3809b35e25088f1647a445641f511fe923246d5c6a2",
+                                                                                                               "record_digest":  "6b48c684002f88c12ae6c3809b35e25088f1647a445641f511fe923246d5c6a2",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001c.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264be",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "c4f3d6e9fdc232e74ecea0ad514ff8bed253b6d07901acfddd5fec6e5e557691",
+                                                                                                               "record_body_sha256":  "e9fd98f3782719c4de1dd97351c030850fc37b6c95b0041dd013be63e10d6f94",
+                                                                                                               "record_digest":  "e9fd98f3782719c4de1dd97351c030850fc37b6c95b0041dd013be63e10d6f94",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001d.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264bf",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "695cc32d6898f18d33a3c38f9d1c2d39579e179941b9759ff9dd1dea1748c4ca",
+                                                                                                               "record_body_sha256":  "43f5b9713100db6ed64a953c25ace1722004d45818b1aec4338289204958bac7",
+                                                                                                               "record_digest":  "43f5b9713100db6ed64a953c25ace1722004d45818b1aec4338289204958bac7",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001e.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c0",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "5115e0dc72a7839407e86298596ddd0e3b29ec3fdcfb9baa09890fd845bfa882",
+                                                                                                               "record_body_sha256":  "3d1dfe6e8cdfbfeffa97b29c6c16a058f9abdee5f7dcc569ccaf658b5b7d5b86",
+                                                                                                               "record_digest":  "3d1dfe6e8cdfbfeffa97b29c6c16a058f9abdee5f7dcc569ccaf658b5b7d5b86",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000001f.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c1",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "c7264011e60c1d289b763d0745f1b68f3d64b7b7497f8a4c274e7972ed8321e3",
+                                                                                                               "record_body_sha256":  "ba6ec8ac0241002e523a132b82c8336392ea46f7588b4a560f93796906e81160",
+                                                                                                               "record_digest":  "ba6ec8ac0241002e523a132b82c8336392ea46f7588b4a560f93796906e81160",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000020.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c2",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "a133cb18f1976782ac7e49edfb9250d2be21d112bd026c73fbef7c1e12179659",
+                                                                                                               "record_body_sha256":  "c93c518c11ad6da53bd8188eaea37f73e68e9b548f13dac81a77784d7865e218",
+                                                                                                               "record_digest":  "c93c518c11ad6da53bd8188eaea37f73e68e9b548f13dac81a77784d7865e218",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000021.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c3",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "6b700ec35a0ab54723085e83b11b0e401ffadab6cdd34ccf8a3c835ef2cb89c8",
+                                                                                                               "record_body_sha256":  "76c6bf9a7fd13cc441fcec50881b8c9079108dc621e28a06c934b04907fdfdec",
+                                                                                                               "record_digest":  "76c6bf9a7fd13cc441fcec50881b8c9079108dc621e28a06c934b04907fdfdec",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000022.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c4",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "5968c8400250ecb598dd5d981a13b6c08b3e64cd06f7e044a6687e97e705b483",
+                                                                                                               "record_body_sha256":  "6669317c4e78d46438e1c954f7a5403f68e29b048d6ea357d034e729ccf1ae60",
+                                                                                                               "record_digest":  "6669317c4e78d46438e1c954f7a5403f68e29b048d6ea357d034e729ccf1ae60",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000023.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c5",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "2181542db8c27fa3863dc5903f179bad6b72ffdb4be08d2e2c8d5a1f8bed9177",
+                                                                                                               "record_body_sha256":  "e87dcebd55ec4e2873ef20bbb30456b48ed8828e02851e711cc567acbb21af00",
+                                                                                                               "record_digest":  "e87dcebd55ec4e2873ef20bbb30456b48ed8828e02851e711cc567acbb21af00",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000024.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c6",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "a1e534cb289faf7ca2b9b557bcb0aa80429f93b6f6b09ada2f155b1913a1c77f",
+                                                                                                               "record_body_sha256":  "3f305e16c7d3d1b7cee318e2e589f9c654dbf8ac4d62938d78566cf5aed28875",
+                                                                                                               "record_digest":  "3f305e16c7d3d1b7cee318e2e589f9c654dbf8ac4d62938d78566cf5aed28875",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000025.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c7",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "3c52bc68eb68a9d6839fe864f383c81147c3f00c9725b6757e7aca5b59a5c4ac",
+                                                                                                               "record_body_sha256":  "9a1090b96797074a75ca876039491005bfac2b6660245630adf4b5e1d8d05f52",
+                                                                                                               "record_digest":  "9a1090b96797074a75ca876039491005bfac2b6660245630adf4b5e1d8d05f52",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000026.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c8",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "740a900fad4f56e531d7a9364abd36f2e86966db1b642deea86ad3e73519d654",
+                                                                                                               "record_body_sha256":  "dbb5e1d6efa1d0699a4e8696ad9521cfdd79f8827c1c37caad6aa4491b5cdcc2",
+                                                                                                               "record_digest":  "dbb5e1d6efa1d0699a4e8696ad9521cfdd79f8827c1c37caad6aa4491b5cdcc2",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000027.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264c9",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "28cde4ef07302fcca415a5fbe060219227b4458df74ffe150bd41e715ea0c109",
+                                                                                                               "record_body_sha256":  "4c5de7b477d2baec114171fa24da4050b0151b6c069cd2843590ed4219f430a5",
+                                                                                                               "record_digest":  "4c5de7b477d2baec114171fa24da4050b0151b6c069cd2843590ed4219f430a5",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000028.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ca",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "dbf87a11cd4636441489d396a73909f7cac150276d0b6c3a21d226254aa63661",
+                                                                                                               "record_body_sha256":  "303344b6019b2982cc76064bfd69bc8b1a371eee32aecdf7f60f1e1979a1282e",
+                                                                                                               "record_digest":  "303344b6019b2982cc76064bfd69bc8b1a371eee32aecdf7f60f1e1979a1282e",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000029.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264cb",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "ce22da39a0e23d599d8fec87e12e0f60f952b655f7793dc90318579f021bf807",
+                                                                                                               "record_body_sha256":  "d0264b959f5931c846933b87af0996d67c371135231796616e4b84fd4d0880d6",
+                                                                                                               "record_digest":  "d0264b959f5931c846933b87af0996d67c371135231796616e4b84fd4d0880d6",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002a.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264cc",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "2c9f409038998e9f8cec92b1fb1d9671cce2dd1af96b0ef3c9f7e46fba4f3b2e",
+                                                                                                               "record_body_sha256":  "669582b1e24a6d1f0c76099bef50eb5137e6f8dc1e2674a68f566d802d7ea958",
+                                                                                                               "record_digest":  "669582b1e24a6d1f0c76099bef50eb5137e6f8dc1e2674a68f566d802d7ea958",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002b.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264cd",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "96798ac4b1a40c864531b9917ad96d37a8ff222b317ff2874f520e6eb6060c9f",
+                                                                                                               "record_body_sha256":  "61e040db378a8eda9fd4434b23883014972a4330ee75b781e849b0c1cc7ce79e",
+                                                                                                               "record_digest":  "61e040db378a8eda9fd4434b23883014972a4330ee75b781e849b0c1cc7ce79e",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002c.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264ce",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "5f8d39809d90ea0e59f78fca394db41c4217ad8b61760049540f6772e4481189",
+                                                                                                               "record_body_sha256":  "0c169b111869f47e363ca782471ad30fca32d924840104e17955ce348e880e33",
+                                                                                                               "record_digest":  "0c169b111869f47e363ca782471ad30fca32d924840104e17955ce348e880e33",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002d.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264cf",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "c06f96699a593ade09fac952ccfb3a2475ef689e6d020758608777d84c774402",
+                                                                                                               "record_body_sha256":  "8ecf6c8ab5c14b61e3b24480e2ba82a7380ad15e7612a2ca7ea5436ee82ab09d",
+                                                                                                               "record_digest":  "8ecf6c8ab5c14b61e3b24480e2ba82a7380ad15e7612a2ca7ea5436ee82ab09d",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002e.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d0",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "6cc137f60d3a423ad72f544213455aaabe71bc557533517911cd4e0ad110d1a3",
+                                                                                                               "record_body_sha256":  "07c96bc9fd5059487fe79d0b85d800a2150c1fe7e1d716f6b8f53f207dc6caf0",
+                                                                                                               "record_digest":  "07c96bc9fd5059487fe79d0b85d800a2150c1fe7e1d716f6b8f53f207dc6caf0",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000002f.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d1",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "ff4104a81a9a0b2c14c2e8ca356d59a9bcdab0a776a782cd87bd2d33e63df575",
+                                                                                                               "record_body_sha256":  "30e4bec27db0b28497ad64a147b32b03f47991c0083fe8e30a041729b19e62fe",
+                                                                                                               "record_digest":  "30e4bec27db0b28497ad64a147b32b03f47991c0083fe8e30a041729b19e62fe",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000030.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d2",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "ec430ddadcbf8ef4608f5df7c345f807edef25fad6f4dc0ba906b83c33b3d2a9",
+                                                                                                               "record_body_sha256":  "c7fd4da4449670407b3be953d46d1326583a9e196b58c81bb82740f165f02a0b",
+                                                                                                               "record_digest":  "c7fd4da4449670407b3be953d46d1326583a9e196b58c81bb82740f165f02a0b",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000031.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d3",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "dab7ea941d4e6cb0e848f22c5236216914a228fb0faa0eb629aa419f66af0437",
+                                                                                                               "record_body_sha256":  "d8200f808028c7f575473b37d211e914895d28eb834714fe64e2e4047b46981f",
+                                                                                                               "record_digest":  "d8200f808028c7f575473b37d211e914895d28eb834714fe64e2e4047b46981f",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000032.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d4",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "0d9f01b53b9164024b63c058d11cf122280c345ea911ffcd5f0817d906e8a862",
+                                                                                                               "record_body_sha256":  "55887bf1ae7f4152f2a6d264eef49b0c73d38ff86bfc5f71a033628e14ac6044",
+                                                                                                               "record_digest":  "55887bf1ae7f4152f2a6d264eef49b0c73d38ff86bfc5f71a033628e14ac6044",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000033.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d5",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "839b0412e54146d00b6047f145d4752b2ce6bd4ca1016539831d83159a4b8b8a",
+                                                                                                               "record_body_sha256":  "7f4f2d05473aa0df8f6d8a42ae6a91059ac6568304142803f0f2f894a92235f0",
+                                                                                                               "record_digest":  "7f4f2d05473aa0df8f6d8a42ae6a91059ac6568304142803f0f2f894a92235f0",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000034.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d6",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "afb3bb94f0ef65d08c4952865f54dd66509182aa8b54bf2990eec26b59717cb1",
+                                                                                                               "record_body_sha256":  "1039f663b36e4c9a9cddd07e6fba3ff094b7990cb54d553c43ac165c93fde797",
+                                                                                                               "record_digest":  "1039f663b36e4c9a9cddd07e6fba3ff094b7990cb54d553c43ac165c93fde797",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000035.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d7",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "10646763f18104c9b7b7fbb79e6f7289cce040a24a312cf26aa06d637b8357e1",
+                                                                                                               "record_body_sha256":  "6ee88a1cef689478017a8e3b7ccf776afb75d9d503aeadf60e38e7664d5dff37",
+                                                                                                               "record_digest":  "6ee88a1cef689478017a8e3b7ccf776afb75d9d503aeadf60e38e7664d5dff37",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000036.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d8",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "21cbe0e2655ba9e38461eb43e555eda03cf459d7e21404d3c21c21142867a0ac",
+                                                                                                               "record_body_sha256":  "65a941555f24706de12fe478bec2e6a114ef33abdd5669bb4ec1221d09767801",
+                                                                                                               "record_digest":  "65a941555f24706de12fe478bec2e6a114ef33abdd5669bb4ec1221d09767801",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000037.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264d9",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "7e12535d750df9720b1822b7ace3e7830efeee56158dedc0fe7bc3bfe344f049",
+                                                                                                               "record_body_sha256":  "b572ec93f4d4c77ac1cf04ee1ca39d6b4cb164c6241f23322e71b0135023b84f",
+                                                                                                               "record_digest":  "b572ec93f4d4c77ac1cf04ee1ca39d6b4cb164c6241f23322e71b0135023b84f",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000038.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264da",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "6850d56347a98a38e7ab690aba775934e852aec5d7b20136fb09caf5d5559158",
+                                                                                                               "record_body_sha256":  "1f3e555930a52ce7bd43d63235a952d5d9bc4f8c02683bca7f75d59122210a31",
+                                                                                                               "record_digest":  "1f3e555930a52ce7bd43d63235a952d5d9bc4f8c02683bca7f75d59122210a31",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000039.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264db",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "4e3dbf7813b17253448c44631436e8991df1de5fab936d173491bcda19fa4cdd",
+                                                                                                               "record_body_sha256":  "18bcc1a2d43bc6cd34e6a6b906f370e1433fba60f05058e83a26c4f6afc0461c",
+                                                                                                               "record_digest":  "18bcc1a2d43bc6cd34e6a6b906f370e1433fba60f05058e83a26c4f6afc0461c",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003a.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264dc",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "9433cb8829c8edcd7d54b0456df38b060f65bdf60050f33ef7b42aca3f20f881",
+                                                                                                               "record_body_sha256":  "f65fc94ed51d828b5171709891c840a7929574827106ac8753d3ea2a9aafb060",
+                                                                                                               "record_digest":  "f65fc94ed51d828b5171709891c840a7929574827106ac8753d3ea2a9aafb060",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003b.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264dd",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "cdc58692c82acb230109de34e5b33d47c23051d3a24f81b877d2b1cc471b4fd4",
+                                                                                                               "record_body_sha256":  "2af92a8852ef286e412c6c9fed3401e86c43c460cc4cf66e600963fb3e9b666a",
+                                                                                                               "record_digest":  "2af92a8852ef286e412c6c9fed3401e86c43c460cc4cf66e600963fb3e9b666a",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003c.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264de",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "2c85de4291204702c524df5c16695ed033bc3bda5612337694107beb3667e0c9",
+                                                                                                               "record_body_sha256":  "752b5440db8534108d346a1971fd03ff82188aab08999be2f22fcedf55b5c850",
+                                                                                                               "record_digest":  "752b5440db8534108d346a1971fd03ff82188aab08999be2f22fcedf55b5c850",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003d.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264df",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "61eaa36cdf133fc7aeb1140994bbc08b2e68293fa6ddaf03c1ae9c7f053a95ea",
+                                                                                                               "record_body_sha256":  "6382e74a335fc9cc5d1ae3c2910d83aea52c368086bcce411d8928374252c4e4",
+                                                                                                               "record_digest":  "6382e74a335fc9cc5d1ae3c2910d83aea52c368086bcce411d8928374252c4e4",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003e.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264e0",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "2de45a222aaacc5366b4d8b863d8aee370fb261cefc28838a0c924cd892c6c4e",
+                                                                                                               "record_body_sha256":  "145d1345ce5773611443f55a58f589e01e999ede7475c565e37b24d239dec4fd",
+                                                                                                               "record_digest":  "145d1345ce5773611443f55a58f589e01e999ede7475c565e37b24d239dec4fd",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\0000003f.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264e1",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72063,
+                                                                                                               "sha256":  "6fc5e9cdd6e2cb2bed62affacc1fea405b35add58f107fa5fed8a8a85aa2400c",
+                                                                                                               "record_body_sha256":  "4802ea6e5d7d2120185a4131c6859698d45766a142ecd3db9a2519ab89900794",
+                                                                                                               "record_digest":  "4802ea6e5d7d2120185a4131c6859698d45766a142ecd3db9a2519ab89900794",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\00000040.commit":  {
+                                                                                                               "identity":  [
+                                                                                                                                "46a13f0e:00040000:000264e2",
+                                                                                                                                "1",
+                                                                                                                                "32"
+                                                                                                                            ],
+                                                                                                               "security":  "O:S-1-5-21-295071742-3982017719-4243568550-1034G:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x13019f;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                               "length":  72064,
+                                                                                                               "sha256":  "88ca5aee7868ac7804cb52ec28fa43e1c52aaf3c76e3d9e2ff2aede91a98cef1",
+                                                                                                               "record_body_sha256":  "e926196737bf6a7ec71ada54594cc7d2a3efd264aafd998ba6cc34f7945a0630",
+                                                                                                               "record_digest":  "e926196737bf6a7ec71ada54594cc7d2a3efd264aafd998ba6cc34f7945a0630",
+                                                                                                               "integrity_matches":  true
+                                                                                                           },
+                                              "C:\\SN021Managed-8ce34cbe2299\\document\\writer.lock":  {
+                                                                                                           "identity":  [
+                                                                                                                            "46a13f0e:000a0000:000263ef",
+                                                                                                                            "1",
+                                                                                                                            "32"
+                                                                                                                        ],
+                                                                                                           "security":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FR;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                           "length":  0,
+                                                                                                           "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                                                                                                       },
+                                              "C:\\SN021Managed-8ce34cbe2299\\generation.manifest":  {
+                                                                                                         "identity":  [
+                                                                                                                          "46a13f0e:000a0000:000263f0",
+                                                                                                                          "1",
+                                                                                                                          "32"
+                                                                                                                      ],
+                                                                                                         "security":  "O:BAG:S-1-5-21-295071742-3982017719-4243568550-513D:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FR;;;S-1-5-21-295071742-3982017719-4243568550-1034)",
+                                                                                                         "length":  176,
+                                                                                                         "sha256":  "ab9b2c503802f7c2b5b94fcf000f8d8771b663132819304105423b407369dc68"
+                                                                                                     }
+                                          },
+                             "case":  "sequence-independent-bytes"
+                         },
+                         {
+                             "case":  "isolation-provision",
+                             "role":  "a",
+                             "pid":  8276,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                                               "pid":  8276
+                                           },
+                                           {
+                                               "status":  "provisioned",
+                                               "root":  "SN021Managed-78af35667bbc"
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\admin\\3-isolation-provision.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\admin\\3-isolation-provision.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         },
+                         {
+                             "case":  "isolation-baseline",
+                             "role":  "w",
+                             "pid":  8528,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1034",
+                                               "pid":  8528
+                                           },
+                                           {
+                                               "status":  "opened",
+                                               "revision":  0,
+                                               "run":  "f14eedf4ef76b9cefaab2867f9eab30e"
+                                           },
+                                           {
+                                               "status":  "committed",
+                                               "revision":  1,
+                                               "digest":  "48cdfc65f45d736b6db051aa05054f4ca5c52b6ca04d3de576216d5fdb24cead",
+                                               "file":  "eb640200000004000000000000000000"
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\writer\\4-isolation-baseline.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-bcd1268ffdad\\writer\\4-isolation-baseline.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         }
+                     ],
+    "roots":  [
+                  {
+                      "leaf":  "SN021Managed-8ce34cbe2299",
+                      "case":  "sequence"
+                  },
+                  {
+                      "leaf":  "SN021Managed-78af35667bbc",
+                      "case":  "isolation"
+                  }
+              ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                  "administrator":  true,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-114",
+                                 "S-1-5-32-544",
+                                 "S-1-5-32-545",
+                                 "S-1-5-3",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "principals":  {
+                       "c":  "S-1-5-21-295071742-3982017719-4243568550-1035",
+                       "w":  "S-1-5-21-295071742-3982017719-4243568550-1034"
+                   },
+    "binary_sha256":  "9af4eac790f8d1c13f83c51ebaf1d6bca6e6e05f367ce3a7b563e0406bb567bf",
+    "project_sha256":  "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+    "error_type":  "System.IO.IOException",
+    "error":  "O processo não pode acessar o arquivo \u0027C:\\SN021ManagedHarness-bcd1268ffdad\\writer\\5-isolation-holder.jsonl\u0027 porque ele está sendo usado por outro processo.",
+    "error_line":  74
+}

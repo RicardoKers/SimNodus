@@ -1,0 +1,15 @@
+{
+  "status": "collected",
+  "source_run": "20260925T161154Z-7e69dfdd2a43",
+  "files": {
+    "probe.json": {
+      "sha256": "0d190b5bceda69d99e80094568b7ca6dd2163a4f93ee07f548332aac7ef540af"
+    },
+    "sequence.jsonl": {
+      "sha256": "7b6416c8471c4cff368c49075ad53888b50f7317bc21347176880419222ea669"
+    },
+    "sequence.stderr": {
+      "sha256": "23609362c96e4fd08ee9f83e0f543060eb259a2c1246a7ac88c44158d06666d3"
+    }
+  }
+}

@@ -1,5 +1,12 @@
 # GitHub setup and publication record
 
+## SN-021 physical managed-store candidate: 2026-09-25
+
+Branch `codex/sn-021-managed-store` adds the fixture-only Windows adapter and
+manual probe with nine retained attempts and source snapshots. The final VM batch
+passed its bounded criteria; authenticated Save and full SN-021 acceptance remain
+pending. Required hosted checks gate squash. No service, binary or release.
+
 ## SN-021 bounded chain logic: 2026-09-25
 
 Branch `codex/sn-021-managed-chain` adds inert chain validation, exact receipt lookup,

@@ -1,0 +1,91 @@
+{
+    "status":  "failed",
+    "stage":  "sequence",
+    "tag":  "3c45c8f98f3f",
+    "observations":  [
+                         {
+                             "case":  "sequence-provision",
+                             "role":  "a",
+                             "pid":  4052,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                                               "pid":  4052
+                                           },
+                                           {
+                                               "status":  "provisioned",
+                                               "root":  "SN021Managed-ff68bf87caa2"
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-3c45c8f98f3f\\admin\\1-sequence-provision.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-3c45c8f98f3f\\admin\\1-sequence-provision.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         },
+                         {
+                             "case":  "sequence",
+                             "role":  "w",
+                             "pid":  6020,
+                             "exited":  true,
+                             "lines":  [
+                                           {
+                                               "event":  "token",
+                                               "sid":  "S-1-5-21-295071742-3982017719-4243568550-1030",
+                                               "pid":  6020
+                                           },
+                                           {
+                                               "status":  "rejected",
+                                               "code":  "child-open",
+                                               "system":  3221225485,
+                                               "indeterminate":  false
+                                           }
+                                       ],
+                             "stdout_path":  "C:\\SN021ManagedHarness-3c45c8f98f3f\\writer\\2-sequence.jsonl",
+                             "stderr_path":  "C:\\SN021ManagedHarness-3c45c8f98f3f\\writer\\2-sequence.jsonl.stderr",
+                             "exit_code":  0,
+                             "stderr":  null
+                         }
+                     ],
+    "roots":  [
+                  {
+                      "leaf":  "SN021Managed-ff68bf87caa2",
+                      "case":  "sequence"
+                  }
+              ],
+    "token":  {
+                  "sid":  "S-1-5-21-295071742-3982017719-4243568550-1001",
+                  "administrator":  true,
+                  "groups":  [
+                                 "S-1-5-21-295071742-3982017719-4243568550-513",
+                                 "S-1-1-0",
+                                 "S-1-5-114",
+                                 "S-1-5-32-544",
+                                 "S-1-5-32-545",
+                                 "S-1-5-3",
+                                 "S-1-2-1",
+                                 "S-1-5-11",
+                                 "S-1-5-15",
+                                 "S-1-5-113",
+                                 "S-1-2-0",
+                                 "S-1-5-64-10"
+                             ]
+              },
+    "os":  {
+               "version":  "10.0.26200",
+               "build":  "26200",
+               "caption":  "Microsoft Windows 11 Enterprise Evaluation"
+           },
+    "filesystem":  "NTFS",
+    "reboot_pending":  false,
+    "principals":  {
+                       "c":  "S-1-5-21-295071742-3982017719-4243568550-1031",
+                       "w":  "S-1-5-21-295071742-3982017719-4243568550-1030"
+                   },
+    "binary_sha256":  "e48418424bd8142c28d39786233909b469ec82be9b3c414b9951c8f180dbced3",
+    "project_sha256":  "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+    "error_type":  "System.Management.Automation.RuntimeException",
+    "error":  "PROBE:sequence",
+    "error_line":  7
+}
