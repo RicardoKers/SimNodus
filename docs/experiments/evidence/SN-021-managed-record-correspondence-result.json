@@ -1,0 +1,47 @@
+{
+  "status": "observed-selected-record-correspondence-only",
+  "source_run": "20260925T163734Z-0bddcba4bab4",
+  "root_leaf": "SN021Managed-549cccf109a8",
+  "selected_revisions": [
+    1,
+    2,
+    3,
+    63,
+    64
+  ],
+  "manifest_sha256": "a2c8cd2aa90fae9501969d8e1cff7e6307ebc8be1f04c37cef1c34976ec7a3dc",
+  "project_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+  "records": [
+    {
+      "revision": 1,
+      "byte_sha256": "bea247eca250339399bb377c7788cc012247b638ccd4a5b6dca20cae4b47471f",
+      "project_sha256": "983d07919bf691e8ab4e8612675d4aa938e5fb165bbfd12839db8b2a3c59033e",
+      "context_sha256": "bc467f20c3db1942ce45abf3acadc05468628dcce01e5dcad09798266fd2a142"
+    },
+    {
+      "revision": 2,
+      "byte_sha256": "be597bc85832f620ab233c900e622115cb5196eef68975fed10b372fd9f8bc1b",
+      "project_sha256": "3562968753e06c7d60044ffea45caaf55f7c5a2c4347b6406193399532828a0e",
+      "context_sha256": "bc467f20c3db1942ce45abf3acadc05468628dcce01e5dcad09798266fd2a142"
+    },
+    {
+      "revision": 3,
+      "byte_sha256": "e82cd8d7cd5cccbc40c673932b9a78577036d7a5cb65a36719e82854c2e097fe",
+      "project_sha256": "983d07919bf691e8ab4e8612675d4aa938e5fb165bbfd12839db8b2a3c59033e",
+      "context_sha256": "bc467f20c3db1942ce45abf3acadc05468628dcce01e5dcad09798266fd2a142"
+    },
+    {
+      "revision": 63,
+      "byte_sha256": "e33a8c04903ae3bb731843addd3b2de3d73cda51b807cbc6adc371c8fc87b265",
+      "project_sha256": "983d07919bf691e8ab4e8612675d4aa938e5fb165bbfd12839db8b2a3c59033e",
+      "context_sha256": "bc467f20c3db1942ce45abf3acadc05468628dcce01e5dcad09798266fd2a142"
+    },
+    {
+      "revision": 64,
+      "byte_sha256": "b84bec213b078cdbdb208f16d444504eced3584d441ac2ab70522bb9baee08e8",
+      "project_sha256": "3562968753e06c7d60044ffea45caaf55f7c5a2c4347b6406193399532828a0e",
+      "context_sha256": "bc467f20c3db1942ce45abf3acadc05468628dcce01e5dcad09798266fd2a142"
+    }
+  ],
+  "limits": "Selected stored bytes only; no authenticated Save, physical resource-root recapture, complete chain reinspection, runtime compatibility or execution authorization."
+}

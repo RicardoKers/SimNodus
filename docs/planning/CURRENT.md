@@ -1,5 +1,23 @@
 # Current state
 
+## Latest evidence: selected physical record correspondence
+
+The [read-only record collection](../experiments/SN-021-record-correspondence.md)
+copied the manifest, original project and five selected committed records from the
+unreverted successful VM store. Independent Python checks matched prior physical
+hashes, exact project/context bytes, request/record digests and adjacent revision
+links. Inert bytes and the repeatable audit are retained; no guest program ran.
+
+This does not authenticate Save, recheck all 64 records, recapture a resource root
+or establish runtime readiness. SN-021 remains in_progress. Next complete the
+remaining physical matrix and authenticated managed Save boundary, then compose
+with the accepted real RC lifecycle. Do not add UI, service, profile expansion or
+external overwrite. The final next-cycle prompt awaits actual SN-021 completion.
+
+Base main: `962904f`; branch `codex/sn-021-record-correspondence`. Preserve all
+earlier evidence and twelve preexisting SN-045 overlays. The PR records checks and
+source/squash identities; no executables or releases are published.
+
 ## Latest evidence: managed-store candidate
 
 The [physical candidate report](../experiments/SN-021-managed-store-candidate.md)
