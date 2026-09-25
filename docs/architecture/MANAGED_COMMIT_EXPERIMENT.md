@@ -1,9 +1,11 @@
 # Managed commit experiment: bounded immutable revision chain
 
-Date: 2026-09-24; updated 2026-09-25. Status: **inert record codec and chain/preparation
-logic implemented; physical storage candidate not implemented or accepted**.
+Date: 2026-09-24; updated 2026-09-25. Status: **inert codec/chain and fixture-only
+physical store candidate implemented; bounded VM batch passed, full acceptance pending**.
 The [canonical format](MANAGED_RECORD_FORMAT.md), [parser evidence](../experiments/SN-021-managed-record-codec.md)
-and [chain tests](../experiments/SN-021-managed-chain.md) cover supplied bytes/observations only.
+and [chain tests](../experiments/SN-021-managed-chain.md) cover supplied bytes/observations;
+the [physical store report](../experiments/SN-021-managed-store-candidate.md) records
+separate Windows 11/NTFS process and filesystem observations.
 This implements no service and grants no new runtime authority. It refines
 [managed saving](MANAGED_DOCUMENT_SAVE.md) under ADRs 0076/0077.
 
@@ -176,7 +178,13 @@ One consolidated write-enabled VM batch must cover:
   authority. Independent namespace/byte observations must support the linearization
   claim; a mock filesystem or eventual final hash alone is insufficient.
 
-Record all failed/inconclusive attempts and injection barriers. These criteria are
-not passed by this document. After storage acceptance, compose the managed lifecycle
+Record all failed/inconclusive attempts and injection barriers. The published
+24-store batch passed its bounded criteria, including 64 revisions, writer/client
+exclusion, injected and termination recovery, and startup corruption refusal.
+The report identifies remaining criteria: authenticated Save requests, complete
+wrong-document/generation and competitor coverage at that boundary, live serialized
+reader visibility, full alias/reparse coverage and composition with the accepted
+real RC lifecycle. Do not infer those results from the current batch.
+After storage acceptance, compose the managed lifecycle
 with the existing bounded RC profile and real consumption where the path changes.
 Do not add service installation, UI, new engines/profiles or garbage collection.
