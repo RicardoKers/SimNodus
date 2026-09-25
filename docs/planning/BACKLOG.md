@@ -1,5 +1,24 @@
 # Backlog
 
+## Latest implementation: bounded chain and receipts
+
+The [chain/preparation module](../experiments/SN-021-managed-chain.md) validates
+supplied record sequences and exact predecessor observations, preserves old receipts,
+rejects operation conflicts/stale tokens and prepares bounded inert commit bytes.
+Fifty-three native assertions passed, including A-B-A and the 64-revision capacity,
+alongside the record codec regressions. These observations are synthetic, not physical
+isolation/recovery evidence. An absent receipt is only not observed in this snapshot.
+
+SN-021 remains in_progress. Next implement the handle-retaining write-enabled platform
+candidate, exact provisioning/security checks, complete bounded namespace acquisition
+and the consolidated physical interruption batch from ADR 0077. Preparation cannot
+authorize publication, certify completeness, authenticate a SID or fence an old run.
+No service, UI or runtime-profile expansion. The final next-cycle prompt remains pending.
+
+Preserve 158 historical evidence JSON files and twelve local SN-045 overlays.
+Base main: `61e653a`; branch `codex/sn-021-managed-chain`. The PR records full local/
+hosted checks and final source/squash identities.
+
 ## Latest implementation: inert managed record codec
 
 The [format 1 codec](../architecture/MANAGED_RECORD_FORMAT.md) implements the bounded

@@ -1,5 +1,12 @@
 # GitHub setup and publication record
 
+## SN-021 bounded chain logic: 2026-09-25
+
+Branch `codex/sn-021-managed-chain` adds inert chain validation, exact receipt lookup,
+commit preparation and 53 adversarial assertions. No physical write/recovery acceptance.
+Preserve 158 historical evidence JSON files and twelve local overlays. Required hosted
+checks gate squash; the PR records source/main identities. SN-021 stays in_progress.
+
 ## SN-021 managed record codec: 2026-09-24
 
 Branch `codex/sn-021-managed-record-codec` implements the inert format-1 codec,

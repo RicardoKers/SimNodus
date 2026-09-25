@@ -105,7 +105,9 @@ Python `struct`/`hashlib`, then require native decode/re-encode to reproduce the
 bytes. Tests include recomputed outer hashes and fully hashed invalid field records,
 not only accidental corruption. See [results](../experiments/SN-021-managed-record-codec.md).
 
-This does not implement writing, provisioning, locking, chain scanning/recovery,
-operation receipt lookup, transport integration or managed saving. Next implement
-the bounded chain/write candidate and the predeclared consolidated physical VM batch.
-No service installation or new simulation profile is required by this step.
+The subsequent [chain/preparation module](../experiments/SN-021-managed-chain.md)
+validates supplied observations and looks up receipts without physical I/O. It does
+not prove that those observations are authentic or complete. Writing, provisioning,
+locking, physical scanning/recovery, transport integration and managed saving remain
+pending. Next implement the platform candidate and predeclared consolidated VM batch.
+No service installation or new simulation profile is required by these steps.
