@@ -1,5 +1,13 @@
 # GitHub setup and publication record
 
+## SN-021 selected record correspondence: 2026-09-25
+
+Branch `codex/sn-021-record-correspondence` publishes a read-only collection of
+five inert records, the manifest and the original project from the previously
+measured store. Exact source and byte evidence plus an independent replay script
+support only selected-record correspondence. Required hosted checks gate squash;
+SN-021, authenticated Save and real RC composition remain pending.
+
 ## SN-021 physical managed-store candidate: 2026-09-25
 
 Branch `codex/sn-021-managed-store` adds the fixture-only Windows adapter and
