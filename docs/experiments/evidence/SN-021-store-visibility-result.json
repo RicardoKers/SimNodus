@@ -1,0 +1,62 @@
+{
+  "status": "observed-visibility-and-alias-candidate-only",
+  "guest_report_sha256": "58b78c51dd0fdca20eeb810766fb9b517a7da789324c845377e05670208084bc",
+  "coordinator_sha256": "e62282a963ee658c0284e7c24f8521b541cb4a47f9d7421c52d96b347caef19d",
+  "probe_source_sha256": "c00c3e14dc81bd262764a284e03190789f4737c9f8f83d016fbc3921349c6b53",
+  "probe_binary_sha256": "c1d23e9b99a4f898e9a5f9d463b1357213421759a4437ca2a4fe06ef8d8011df",
+  "project_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+  "os_build": "26200",
+  "filesystem": "NTFS",
+  "elapsed_ms": 5146,
+  "roots": 11,
+  "observations": 54,
+  "visibility": {
+    "old_record_sha256": "711c4d389d1574682024773c6c8e3b530d74f5c4d5fd9336675134fcac93c803",
+    "new_record_sha256": "f3db8abca4a23da0245f4e5bb0d45203d87e44b8e8fb15461aff16c66dc503cf",
+    "old_revision_after_prepublication_kill": 1,
+    "new_revision_after_publication_kill": 2,
+    "same_store_reader_at_both_barriers": "busy"
+  },
+  "case_alias_rejections": {
+    "root": "name-alias",
+    "document": "name-alias",
+    "manifest": "name-alias",
+    "lock": "name-alias",
+    "record": "unknown-entry"
+  },
+  "reparse_rejections": {
+    "root": {
+      "code": "physical",
+      "system": 0
+    },
+    "document": {
+      "code": "child-open",
+      "system": 3221225506
+    },
+    "manifest": {
+      "code": "physical",
+      "system": 0
+    },
+    "lock": {
+      "code": "physical",
+      "system": 0
+    },
+    "record": {
+      "code": "physical",
+      "system": 0
+    }
+  },
+  "limits": "Manual native store candidate; no authenticated Save transport, production reader endpoint, disk-full, power-loss or real RC integration claim.",
+  "retained_failed_attempts": [
+    {
+      "guest_report_sha256": "ad15507a6d9380c1f018cbcdbc8865ba5cc4d30bd35c4903521743e1f6b08aae",
+      "stage": "case-alias-refusal",
+      "failure": "case-only-rename-fixture-error"
+    },
+    {
+      "guest_report_sha256": "40413826f9f28f7ebed1d214f83f368c39b072c9cc0712f61084fca4de60fe61",
+      "stage": "reparse-refusal",
+      "failure": "overstrict-document-junction-result-check"
+    }
+  ]
+}

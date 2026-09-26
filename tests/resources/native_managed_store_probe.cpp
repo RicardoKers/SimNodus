@@ -12,6 +12,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <filesystem>
+#include <thread>
 #include <cstdio>
 #include <io.h>
 #include <fcntl.h>
@@ -19,6 +20,7 @@
 namespace {
 using namespace simnodus::experimental;
 std::string hook, action;
+ManagedStore* active_store = nullptr;
 void require(bool value, const char* code) { if(!value) throw std::runtime_error(code); }
 struct Owned {
     HANDLE value = INVALID_HANDLE_VALUE;
@@ -178,8 +180,20 @@ namespace simnodus::experimental {
 bool managed_store_test_boundary(const char* phase)
 {
     if(hook != phase) return true;
+    if(action == "hold-read") {
+        require(active_store != nullptr, "reader-store");
+        bool busy = false;
+        std::thread reader([&] {
+            const auto result = active_store->read();
+            const auto* error = std::get_if<ManagedStoreError>(&result);
+            busy = error && std::string_view(error->code) == "busy";
+        });
+        reader.join();
+        require(busy, "reader-not-busy");
+        std::cout << "{\"reader\":\"busy\",\"phase\":\"" << phase << "\"}\n";
+    }
     std::cout << "{\"barrier\":\"" << phase << "\"}\n";
-    if(action == "hold") Sleep(45000);
+    if(action == "hold" || action == "hold-read") Sleep(45000);
     return false;
 }
 }
@@ -216,7 +230,7 @@ int main(int argc, char** argv)
         if(mode == "attack" || mode == "lockattack") {
             require(argc == 4, "arguments"); attack(root, argv[3], mode == "lockattack"); return 0;
         }
-        if(argc == 6) { hook = argv[4]; action = argv[5]; require(action == "fail" || action == "hold", "action"); }
+        if(argc == 6) { hook = argv[4]; action = argv[5]; require(action == "fail" || action == "hold" || action == "hold-read", "action"); }
         auto opened = open_managed_store(root);
         if(const auto* rejected = std::get_if<ManagedStoreError>(&opened)) { error(*rejected); return 0; }
         auto store = std::move(std::get<std::unique_ptr<ManagedStore>>(opened));
@@ -230,7 +244,9 @@ int main(int argc, char** argv)
         std::string project(std::istreambuf_iterator<char>{file}, {}); project.resize(71680, ' ');
         const auto resource_root = project_path.parent_path();
         if(mode == "write") {
+            active_store = store.get();
             const auto result = store->save(store->run(), request(*store, *chain, project, resource_root, chain->current().revision));
+            active_store = nullptr;
             if(const auto* rejected = std::get_if<ManagedStoreError>(&result)) error(*rejected);
             else receipt(std::get<ManagedReceipt>(result));
         } else if(mode == "reconcile-second") {

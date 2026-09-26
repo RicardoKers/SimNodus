@@ -1,5 +1,24 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Latest evidence: managed-store visibility and path-object refusal
+
+The [physical VM probe](../experiments/SN-021-store-visibility.md) completed
+11 fresh stores and 54 observations: serialized reader exclusion and complete
+old/new committed records, five case-only alias refusals, and five reparse-point
+refusals. The document junction was denied at initial open, so its same-handle
+reparse inspection is unproven. Two failed attempts and source/report hashes are
+retained. The store remains a manual candidate, not authenticated Save.
+
+Continue SN-021 with the smallest authenticated managed Save request boundary and
+adversarial identity/generation/operation tests, then compose with the accepted
+real RC lifecycle. Preserve the accepted profile, resource-root meaning, SN-017
+Python control, SN-044/SN-045 documents and all historical evidence. Do not add
+UI, service installation, external overwrite or a new profile. The final prompt
+for a new chat is due only after SN-021 actually closes.
+
+Base main: `593e3f6`; branch `codex/sn-021-store-visibility`. The PR records
+checks and final integration identities. No binaries or releases are published.
+
 ## Latest evidence: selected physical record correspondence
 
 The [read-only record collection](../experiments/SN-021-record-correspondence.md)

@@ -185,6 +185,12 @@ The report identifies remaining criteria: authenticated Save requests, complete
 wrong-document/generation and competitor coverage at that boundary, live serialized
 reader visibility, full alias/reparse coverage and composition with the accepted
 real RC lifecycle. Do not infer those results from the current batch.
+The later [visibility and path-object probe](../experiments/SN-021-store-visibility.md)
+observed serialized old/new visibility, five case-only alias refusals, physical
+reparse rejection for the root and three file links, and an access-control
+refusal for the document junction. These observations narrow the storage gaps;
+the document junction did not reach physical inspection. Authenticated request
+handling and real RC composition remain pending.
 After storage acceptance, compose the managed lifecycle
 with the existing bounded RC profile and real consumption where the path changes.
 Do not add service installation, UI, new engines/profiles or garbage collection.

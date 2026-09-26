@@ -1,5 +1,5 @@
 # Manual disposable VMware write-enabled managed-store experiment. No services.
-param([ValidateSet('Inventory','Probe')][string]$Mode,
+param([ValidateSet('Inventory','Probe','Visibility')][string]$Mode,
     [ValidatePattern('^[a-f0-9]{12}$')][string]$Tag,[string]$OutputPath)
 $ErrorActionPreference='Stop';$utf8=New-Object Text.UTF8Encoding($false)
 $report=[ordered]@{status='started';stage='environment';tag=$Tag;observations=@();roots=@()}
@@ -47,6 +47,7 @@ public static class SNManagedObserve {
     [DllImport("kernel32.dll",SetLastError=true)] static extern bool GetFileInformationByHandle(SafeFileHandle h,out Info info);
     [DllImport("kernel32.dll",SetLastError=true)] public static extern bool TerminateProcess(IntPtr handle,uint code);
     [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)] public static extern bool CreateHardLinkW(string alias,string existing,IntPtr security);
+    [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)] public static extern bool MoveFileExW(string source,string destination,uint flags);
     public static string[] Read(string path) {
         using(var h=CreateFileW(path,0x80,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
             if(h.IsInvalid)throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -135,6 +136,120 @@ public static class SNManagedObserve {
         Require (-not $Child.process.HasExited) 'writer-exited-before-kill'
         Require ([SNManagedObserve]::TerminateProcess($Child.handle,99)) 'terminate-held-handle'
         Require ($Child.process.WaitForExit(10000)) 'termination-not-confirmed';Collect $Child|Out-Null
+    }
+    function Fingerprint([string]$Root,[string]$Document='', [string]$Replacement='', [string]$Target=''){
+        if(-not $Document){$Document="$Root\document"}
+        $paths=[ordered]@{root=$Root;document=$Document;manifest="$Root\generation.manifest";
+            lock="$Document\writer.lock";record="$Document\00000001.commit"}
+        if($Replacement){Require ($paths.Contains($Replacement) -and $Target) 'fingerprint-override';$paths[$Replacement]=$Target}
+        $result=[ordered]@{}
+        foreach($entry in $paths.GetEnumerator()){
+            $path=$entry.Value;$item=[ordered]@{identity=[SNManagedObserve]::Read($path);security=(Get-Acl -LiteralPath $path).Sddl}
+            if($entry.Key -in @('manifest','lock','record')){
+                $item.length=(Get-Item -LiteralPath $path).Length
+                $item.sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+            $result[$entry.Key]=$item
+        }
+        return $result
+    }
+    if($Mode -eq 'Visibility'){
+        $report.stage='serialized-reader-visibility';Save-Report
+        $leaf=Fresh 'visibility';$baseline=Write-Next $leaf 'visibility-baseline'
+        Require ($baseline.revision -eq 1) 'visibility-baseline-revision'
+        $first="C:\$leaf\document\00000001.commit";$second="C:\$leaf\document\00000002.commit"
+        $before=Record-Snapshot $leaf 'visibility-old-complete'
+        Require ($before[$first].integrity_matches -and -not $before.Contains($second)) 'visibility-old-state'
+        $holder=Start-Child 'w' 'visibility-before-rename' @('write',$leaf,$project,'before-publish','hold-read')
+        Ready $holder 'before-publish'
+        $lines=@(Lines $holder);Require (@($lines|Where-Object {$_.reader -eq 'busy' -and $_.phase -eq 'before-publish'}).Count -eq 1) 'reader-not-busy-before-rename'
+        $pre=Record-Snapshot $leaf 'visibility-before-rename-namespace' $true
+        Require (-not $pre.Contains($second)) 'new-record-before-rename'
+        $oldLive=(Get-FileHash -LiteralPath $first -Algorithm SHA256).Hash.ToLowerInvariant()
+        Require ($oldLive -eq $before[$first].sha256) 'old-record-before-rename'
+        $blocked=Invoke-Child 'w' 'visibility-second-writer-before' @('open',$leaf)
+        Require ($blocked.status -eq 'rejected' -and $blocked.code -eq 'child-open') 'second-writer-before-rename'
+        Kill-Exact $holder
+        $opened=Invoke-Child 'w' 'visibility-reopen-old' @('open',$leaf)
+        Require ($opened.status -eq 'opened' -and $opened.revision -eq 1) 'old-not-recovered'
+        $recovered=Record-Snapshot $leaf 'visibility-after-prepublish-kill'
+        Require ($recovered[$first].sha256 -eq $before[$first].sha256 -and -not $recovered.Contains($second)) 'prepublish-kill-changed-commit'
+        $holder=Start-Child 'w' 'visibility-after-rename' @('write',$leaf,$project,'published','hold-read')
+        Ready $holder 'published'
+        $lines=@(Lines $holder);Require (@($lines|Where-Object {$_.reader -eq 'busy' -and $_.phase -eq 'published'}).Count -eq 1) 'reader-not-busy-after-rename'
+        $post=Record-Snapshot $leaf 'visibility-after-rename-namespace' $true
+        Require ($post.Contains($second)) 'new-record-absent-after-rename'
+        $oldLive=(Get-FileHash -LiteralPath $first -Algorithm SHA256).Hash.ToLowerInvariant()
+        Require ($oldLive -eq $before[$first].sha256) 'old-record-after-rename'
+        $blocked=Invoke-Child 'w' 'visibility-second-writer-after' @('open',$leaf)
+        Require ($blocked.status -eq 'rejected' -and $blocked.code -eq 'child-open') 'second-writer-after-rename'
+        Kill-Exact $holder
+        $opened=Invoke-Child 'w' 'visibility-reopen-new' @('open',$leaf)
+        Require ($opened.status -eq 'opened' -and $opened.revision -eq 2) 'new-not-recovered'
+        $final=Record-Snapshot $leaf 'visibility-new-complete'
+        Require ($final[$first].sha256 -eq $before[$first].sha256 -and $final[$second].integrity_matches -and
+            $final[$second].identity[0] -ne $final[$first].identity[0]) 'visibility-final-bytes'
+        $report.observations+=@{case='serialized-reader-old-new';before=$before[$first];after=$final[$second];
+            read_during_save='busy';prepublish_new_absent=$true;postpublish_new_present=$true;reopened_revision=2};Save-Report
+        $report.stage='case-alias-refusal';Save-Report
+        foreach($case in @('root','document','manifest','lock','record')){
+            $alias=Fresh ('alias-'+$case);Write-Next $alias ('alias-baseline-'+$case)|Out-Null
+            $root="C:\$alias";$directory="$root\document";$before=Fingerprint $root
+            switch($case){
+                root{$parent='C:\';$old=$alias;$new=$alias.ToUpperInvariant()}
+                document{$parent=$root;$old='document';$new='DOCUMENT'}
+                manifest{$parent=$root;$old='generation.manifest';$new='GENERATION.MANIFEST'}
+                lock{$parent=$directory;$old='writer.lock';$new='WRITER.LOCK'}
+                record{$parent=$directory;$old='00000001.commit';$new='00000001.COMMIT'}
+            }
+            $source=Join-Path $parent $old;$destination=Join-Path $parent $new
+            Require ([IO.Path]::GetFullPath($source).StartsWith('C:\SN021Managed-',[StringComparison]::Ordinal) -and
+                [IO.Path]::GetFullPath($destination).StartsWith('C:\SN021',[StringComparison]::Ordinal)) 'case-alias-path-boundary'
+            if(-not [SNManagedObserve]::MoveFileExW($source,$destination,0)){
+                throw "PROBE:case-rename-$case-win32-$([Runtime.InteropServices.Marshal]::GetLastWin32Error())"
+            }
+            $names=@(Get-ChildItem -LiteralPath $parent -Force|ForEach-Object {$_.Name})
+            Require (($names -ccontains $new) -and -not ($names -ccontains $old)) 'case-alias-injection'
+            $rejected=Invoke-Child 'w' ('alias-open-'+$case) @('open',$alias)
+            Require ($rejected.status -eq 'rejected') 'case-alias-accepted'
+            $after=Fingerprint $root
+            Require (($before|ConvertTo-Json -Depth 8 -Compress) -ceq ($after|ConvertTo-Json -Depth 8 -Compress)) 'case-alias-changed-object'
+            $report.observations+=@{case=('case-alias-'+$case);actual_name=$new;rejection=$rejected;
+                before=$before;after=$after;preserved=$true};Save-Report
+        }
+        $report.stage='reparse-refusal';Save-Report
+        foreach($case in @('root','document','manifest','lock','record')){
+            $alias=Fresh ('reparse-'+$case);Write-Next $alias ('reparse-baseline-'+$case)|Out-Null
+            $root="C:\$alias";$directory="$root\document";$before=Fingerprint $root
+            $source=switch($case){root{$root} document{$directory} manifest{"$root\generation.manifest"}
+                lock{"$directory\writer.lock"} record{"$directory\00000001.commit"}}
+            $target="$harness\admin\$alias-$case-target"
+            Require ([IO.Path]::GetFullPath($source).StartsWith('C:\SN021Managed-',[StringComparison]::Ordinal) -and
+                [IO.Path]::GetFullPath($target).StartsWith("$harness\admin\",[StringComparison]::Ordinal) -and
+                -not (Test-Path -LiteralPath $target)) 'reparse-path-boundary'
+            Move-Item -LiteralPath $source -Destination $target
+            if($case -in @('root','document')){New-Item -ItemType Junction -Path $source -Target $target|Out-Null}
+            else{New-Item -ItemType SymbolicLink -Path $source -Target $target|Out-Null}
+            $point=[SNManagedObserve]::Read($source)
+            Require (([int]$point[2] -band 0x400) -ne 0) 'reparse-injection'
+            $rejected=Invoke-Child 'w' ('reparse-open-'+$case) @('open',$alias)
+            $after=switch($case){root{Fingerprint $target} document{Fingerprint $root $target}
+                default{Fingerprint $root '' $case $target}}
+            $preserved=($before|ConvertTo-Json -Depth 8 -Compress) -ceq ($after|ConvertTo-Json -Depth 8 -Compress)
+            $report.observations+=@{case=('reparse-'+$case);source=$source;target=$target;point=$point;
+                rejection=$rejected;before=$before;after=$after;preserved=$preserved};Save-Report
+            Require $preserved 'reparse-changed-target'
+            if($case -eq 'document'){
+                Require ($rejected.status -eq 'rejected' -and (($rejected.code -eq 'physical') -or
+                    ($rejected.code -eq 'child-open' -and $rejected.system -eq 3221225506))) 'document-junction-not-refused'
+            }else{
+                Require ($rejected.status -eq 'rejected' -and $rejected.code -eq 'physical') 'reparse-not-physically-refused'
+            }
+        }
+        $report.stage='complete';$report.elapsed_ms=$clock.ElapsedMilliseconds
+        $report.status='observed-visibility-and-alias-candidate-only'
+        $report.limits='Manual storage candidate only; no authenticated Save transport, production reader endpoint, real RC composition, disk-full or power-loss claim.'
+        return
     }
     $report.stage='sequence';Save-Report
     $sequence=Fresh 'sequence'

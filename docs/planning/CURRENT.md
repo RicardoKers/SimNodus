@@ -1,5 +1,24 @@
 # Current state
 
+## Latest evidence: managed-store visibility and path-object refusal
+
+The [disposable-VM probe](../experiments/SN-021-store-visibility.md) completed
+11 fresh stores and 54 observations in 5,146 ms. It observed serialized old/new
+record visibility, five case-only alias refusals and five reparse-point refusals.
+The root and three file links reached physical rejection; the document junction
+was denied at its initial open and does not prove same-handle reparse inspection.
+Two failed setup/criterion attempts and exact source/report hashes are retained.
+
+SN-021 remains in_progress. The next coherent step is authenticated managed Save
+requests and request-boundary adversarial evidence, followed by composition with
+the accepted real RC lifecycle. No production reader endpoint, service, UI,
+external overwrite, new profile or power-loss claim follows from this result.
+The final next-cycle prompt awaits actual SN-021 completion.
+
+Base main: `593e3f6`; branch `codex/sn-021-store-visibility`. Preserve the twelve
+preexisting SN-045 overlays and all historical evidence. The PR records hosted
+checks and source/squash identities; no binaries or releases are published.
+
 ## Latest evidence: selected physical record correspondence
 
 The [read-only record collection](../experiments/SN-021-record-correspondence.md)

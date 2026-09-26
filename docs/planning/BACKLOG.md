@@ -1,5 +1,17 @@
 # Backlog
 
+## Latest SN-021 evidence: managed-store visibility and path objects
+
+The [physical probe](../experiments/SN-021-store-visibility.md) observed
+serialized old/new records, five case-only alias refusals and five reparse-point
+refusals across 11 fresh VM stores. Four reparse cases reached physical rejection;
+the document junction was denied at the initial open and is recorded separately.
+Two failed attempts remain retained. SN-021 stays in_progress: authenticated Save
+and request-boundary cases, then accepted real RC lifecycle composition, remain.
+No UI, new profile, service or external overwrite is implied. Base main:
+`593e3f6`; branch `codex/sn-021-store-visibility`. Preserve unrelated SN-045
+overlays and historical evidence; the PR records final integration identities.
+
 ## Latest evidence: selected physical record correspondence
 
 The [read-only record collection](../experiments/SN-021-record-correspondence.md)
