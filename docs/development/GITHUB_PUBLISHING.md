@@ -1,5 +1,17 @@
 # GitHub setup and publication record
 
+## SN-021 authenticated managed requests: 2026-09-28
+
+Branch `codex/sn-021-authenticated-save` records one failed setup attempt and a
+fresh disposable-VM candidate with 19 authenticated requests, 82 hashed artifacts,
+three distinct ordinary SIDs and four independently audited physical records.
+The [bounded report](../experiments/SN-021-managed-request.md) distinguishes
+server refusal from client delivery and retains exact source/report identities.
+Local Release build, 55 CTests and repository checker (810 text files) passed;
+required hosted checks gate squash. This is a test fixture, not a production
+service, external overwrite, real RC composition or SN-021 closure. Preserve
+historical evidence and twelve SN-045 overlays. No binary, release or issue sync.
+
 ## SN-021 selected record correspondence: 2026-09-25
 
 Branch `codex/sn-021-record-correspondence` publishes a read-only collection of

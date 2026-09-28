@@ -1,5 +1,23 @@
 # Backlog
 
+## Measured SN-021 slice: authenticated managed requests
+
+The [request candidate](../experiments/SN-021-managed-request.md) adds a test-only
+Open/Save/Reconcile boundary with real pipe identity and unchanged root context.
+A bounded VM matrix passed: 19 real requests, 82 hashed artifacts, three SIDs and
+four independently audited physical records. The
+[evidence](../experiments/SN-021-managed-request.md) supports this manual candidate,
+not a production endpoint. SN-021 remains in_progress. Integrate this stable block
+after required checks, then compose the accepted real RC lifecycle. Preserve all
+historical evidence and SN-044/SN-045 work.
+
+The first VM attempt stopped before provisioning on an overlong local-user
+description. Its failed reports and hashes remain retained separately from the
+successful fresh run.
+
+Base main: `d6bdcf4`; branch `codex/sn-021-authenticated-save`. Validation is local;
+GitHub main includes PR #65's validated visibility evidence. No new runtime profile.
+
 ## Latest SN-021 evidence: managed-store visibility and path objects
 
 The [physical probe](../experiments/SN-021-store-visibility.md) observed

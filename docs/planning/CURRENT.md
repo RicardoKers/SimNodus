@@ -1,5 +1,34 @@
 # Current state
 
+## Latest evidence: authenticated managed-document requests
+
+The [request candidate](../experiments/SN-021-managed-request.md) adds test-only
+native Open/Save/Reconcile with pipe-derived identity, checked reversion and
+unchanged seeded resource context. No caller SID/path/context grants authority.
+The [physical VM batch](../experiments/evidence/SN-021-managed-request-summary.json)
+observed 19 requests in three writer runs, 82 hashed artifacts, three distinct
+ordinary SIDs and four intact revisions in 7,261 ms. Authorized Open/Save/
+Reconcile returned exact bytes and receipts. Specific principal, frame, stale,
+operation and old-run refusals, A-B-A, older receipt after restart, absent receipt
+and reconciliation of a dropped committed reply were checked. The independent
+auditor matched request/response bytes, server decisions, record digests, tokens,
+physical file IDs and unchanged context/manifest. Pre-dispatch negative clients
+reported pipe error 233; server decisions prove the measured refusal.
+
+The first VM attempt failed before provisioning: `New-LocalUser` rejected a
+53-character description (limit 48). The retained reports and hashes are in the
+[attempt summary](../experiments/evidence/SN-021-managed-request-attempt1-summary.json).
+The description was corrected to 31 characters before the successful fresh run.
+
+SN-021 remains in_progress. Publish this bounded candidate after local/hosted
+checks, then compose the accepted real RC lifecycle. Preserve historical hashes
+and the twelve SN-045 overlays. No service, UI, external overwrite or new profile.
+The final next-chat prompt awaits actual SN-021 closure.
+
+Base main: `d6bdcf4` (PR #65); branch `codex/sn-021-authenticated-save`. This slice
+is locally validated, not yet integrated or published. Official GitHub main still
+identifies the validated visibility block; no binaries or releases.
+
 ## Latest evidence: managed-store visibility and path-object refusal
 
 The [disposable-VM probe](../experiments/SN-021-store-visibility.md) completed

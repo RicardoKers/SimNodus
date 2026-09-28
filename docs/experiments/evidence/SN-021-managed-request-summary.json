@@ -1,0 +1,42 @@
+{
+  "status": "observed-authenticated-managed-request-candidate-only",
+  "source_run": "20260928T175932Z-937f055df11f",
+  "host_result_sha256": "8924dc64fe2a5b3b738e53ca654208088d68327988f9f2e9a337161c4eb0fbed",
+  "guest_report_sha256": "fd2369282b4ba4eeda01b428c9ddde86b584613aadd922f3308b35f4eb2a9b98",
+  "inventory_sha256": "d42581dc55153d4471d2dd1701c0e0e52d583567c4a598e4f7d07468ccc3830c",
+  "host_runner_sha256": "eb0a731155127b478a59353a0e9b5873d0416a09cbaa44677fb1c7f0c62fe3f8",
+  "coordinator_sha256": "905dbed12f7b054d41f0dd4f24afdb4f8c576ca0b57037fb6919aa5cc36f9729",
+  "probe_source_sha256": "e24c025de0a2c1c674577eb9ba871971c028aff2de543107021bc1ddd35c3a00",
+  "probe_binary_sha256": "dc0241c241c23b6b2c4b0458ffdfd6cf0027d26c41a06b02d1910f3cfa9a06e4",
+  "fixture_project_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+  "auditor_sha256": "4fa7265049e47033abab403f0111873924f8b57503fbdb6e29aea2d5b6ca9f5f",
+  "source_snapshots": 32,
+  "artifacts": 82,
+  "requests": 19,
+  "observations": 55,
+  "processes": 24,
+  "elapsed_ms": 7261,
+  "records": {
+    "revisions": 4,
+    "record_sha256": [
+      "4800b29b727cb72601d276e441d92a819e04decf162017c0af51116809c5e054",
+      "b71b6ae0b5337365455b99bd06d96d3f9b1a5d12f5e2adcdc47bdd39262474c6",
+      "360e2ff2bd34bd36525bbf421ed2908b28360c02b71388f0369633756e76c34c",
+      "92b148a0ee58fa41fcc71341262218d7150149ac455396ddf5340a56732af321"
+    ],
+    "project_sha256": [
+      "983d07919bf691e8ab4e8612675d4aa938e5fb165bbfd12839db8b2a3c59033e",
+      "3562968753e06c7d60044ffea45caaf55f7c5a2c4347b6406193399532828a0e",
+      "983d07919bf691e8ab4e8612675d4aa938e5fb165bbfd12839db8b2a3c59033e",
+      "3562968753e06c7d60044ffea45caaf55f7c5a2c4347b6406193399532828a0e"
+    ],
+    "context_sha256": [
+      "10ad5f3c8f06184bbe8beacd83f72ebfeeba25e9cabf88180d7ed08dc1446293",
+      "10ad5f3c8f06184bbe8beacd83f72ebfeeba25e9cabf88180d7ed08dc1446293",
+      "10ad5f3c8f06184bbe8beacd83f72ebfeeba25e9cabf88180d7ed08dc1446293",
+      "10ad5f3c8f06184bbe8beacd83f72ebfeeba25e9cabf88180d7ed08dc1446293"
+    ],
+    "manifest_sha256": "48cc03085db00031281b57f433eeae757bc8b85d36668d9b226f7f87eed57731"
+  },
+  "limits": "Manual one-document authenticated request candidate only; no production endpoint, context rebind, external overwrite, power-loss durability or real RC lifecycle composition."
+}
