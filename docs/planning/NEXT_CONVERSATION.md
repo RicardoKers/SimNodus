@@ -1,5 +1,25 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Next SN-021 block: compose managed requests with the accepted RC lifecycle
+
+The [manual request candidate](../experiments/SN-021-managed-request.md) completed
+19 authenticated Open/Save/Reconcile requests on `codex/sn-021-authenticated-save`,
+based on main `d6bdcf4` (PR #65). The independent auditor matched 82 artifact hashes,
+server decisions, four physical records and exact receipts. Private v3 remains a
+test fixture; historical query-only v2 is unchanged. Complete local and hosted
+checks, integrate the bounded stable block, then compose managed import/open/edit/
+Save/reopen/export with the accepted real RC lifecycle. Assess remaining competing
+request, endpoint and deadline gates before broader acceptance.
+
+The first VM attempt failed before provisioning because the local-user description
+exceeded the 48-character Windows limit. The corrected description is 31 characters;
+the [failed attempt](../experiments/evidence/SN-021-managed-request-attempt1-summary.json)
+and exact hashes remain retained separately from the successful run.
+
+SN-021 stays in_progress. Preserve twelve SN-045 overlays, historical evidence,
+SN-017 Python control, resource-root meaning, numerical bounds and PDF/PID fixes.
+No new slice is integrated. The final next-chat prompt awaits actual closure.
+
 ## Latest evidence: managed-store visibility and path-object refusal
 
 The [physical VM probe](../experiments/SN-021-store-visibility.md) completed

@@ -1,0 +1,29 @@
+{
+  "experiment": "SN-021 authenticated managed-document requests",
+  "attempt": "20260928T175302Z-44c71007f438",
+  "retained_directory": "build/sn021-vm-managed-request-runs/20260928T175302Z-44c71007f438",
+  "host_status": "failed-or-indeterminate",
+  "host_stage": "physical-probe",
+  "guest_status": "failed",
+  "guest_stage": "staged-inputs",
+  "failure": {
+    "type": "System.Management.Automation.ParameterBindingValidationException",
+    "guest_script_line": 56,
+    "cause": "The first New-LocalUser Description argument was 53 characters; Windows accepts at most 48. The corrected text is 31 characters.",
+    "guest_observations": 0,
+    "guest_native_processes": 0,
+    "guest_managed_roots": 0,
+    "guest_artifacts": 0
+  },
+  "boundary": "Inventory and Probe checked the staged executable and project hashes. The parameter binder rejected the first account-creation call before it ran. No protected root, native request process, Save or managed commit was reached by this attempt. This is not authenticated-request acceptance.",
+  "sha256": {
+    "result.json": "a22e2cc4c0e6f0faca986c552aa3c753f2e562e6f1b0ee10cc56fdac55dc0866",
+    "inventory.json": "c1639727f38421f6e6492347a61680f6df7a7493fd0ea715e04c76be2980336e",
+    "probe.json": "0b16df8cbcb112388360a9b1932c3f37023c9fb0c49e77457ff4f3844a838e8c",
+    "sn021-vm-managed-request-run.py": "eb0a731155127b478a59353a0e9b5873d0416a09cbaa44677fb1c7f0c62fe3f8",
+    "windows_managed_request.ps1": "b1176010dd3cb6c76ecd28ef4c8b6ad4fa85376ef8b66f2ecedbb4713dcf4615",
+    "native_managed_request_probe.exe": "dc0241c241c23b6b2c4b0458ffdfd6cf0027d26c41a06b02d1910f3cfa9a06e4",
+    "native_managed_store_probe.exe": "c1d23e9b99a4f898e9a5f9d463b1357213421759a4437ca2a4fe06ef8d8011df",
+    "two-rc-project.json": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  }
+}
