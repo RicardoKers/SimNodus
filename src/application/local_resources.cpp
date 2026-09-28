@@ -11,7 +11,9 @@
 namespace simnodus {
 using namespace resource_policy;
 
-ResourceVerification verify_local_resources(const std::string& root, std::span<const ResourceRequest> requests)
+namespace {
+ResourceVerification verify(const std::string& root, std::span<const ResourceRequest> requests,
+    const PhysicalRootIdentity* expected_root)
 {
     try {
         if(requests.empty() || requests.size() > resource_max_files)
@@ -38,10 +40,21 @@ ResourceVerification verify_local_resources(const std::string& root, std::span<c
                 if(paths.contains(p.substr(0, end))) return ResourceError{ResourceErrorCode::path, resource_global_error};
         }
         if(!root_syntax(root)) return ResourceError{ResourceErrorCode::root, resource_global_error};
-        return resource_platform::capture(root, requests);
+        return resource_platform::capture(root, requests, expected_root);
     } catch(const std::bad_alloc&) {
         return ResourceError{ResourceErrorCode::memory, resource_global_error};
     }
+}
+}
+
+ResourceVerification verify_local_resources(const std::string& root, std::span<const ResourceRequest> requests)
+{
+    return verify(root, requests, nullptr);
+}
+ResourceVerification verify_local_resources(const std::string& root, std::span<const ResourceRequest> requests,
+    const PhysicalRootIdentity& expected_root)
+{
+    return verify(root, requests, &expected_root);
 }
 
 const char* resource_error_name(ResourceErrorCode code) noexcept
@@ -60,12 +73,14 @@ const char* resource_error_name(ResourceErrorCode code) noexcept
     case ResourceErrorCode::case_sensitive: return "case_sensitive";
     case ResourceErrorCode::platform: return "platform";
     case ResourceErrorCode::memory: return "memory";
+    case ResourceErrorCode::root_identity: return "root_identity";
     }
     return "unknown";
 }
 
 #ifndef _WIN32
-ResourceVerification resource_platform::capture(const std::string&, std::span<const ResourceRequest>)
+ResourceVerification resource_platform::capture(const std::string&, std::span<const ResourceRequest>,
+    const PhysicalRootIdentity*)
 {
     return ResourceError{ResourceErrorCode::platform, resource_global_error};
 }

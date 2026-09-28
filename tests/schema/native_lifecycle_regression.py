@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -139,6 +140,18 @@ class Lifecycle(unittest.TestCase):
 
 class ReplayLifecycle(Lifecycle):
     operation = 'replay'
+
+    def test_byte_identical_root_replacement_refused_at_compile(self):
+        with tempfile.TemporaryDirectory(dir=self.root.parent) as holding:
+            former = Path(holding) / 'former'
+            def replace_root():
+                self.root.rename(former)
+                shutil.copytree(former, self.root)
+            result = self.run_lifecycle(self.root, self.raw, after_capture=replace_root)
+            self.assertEqual(result['error'], ['compile', 'root_identity'])
+            self.assertEqual((former / 'original.json').read_bytes(), self.raw)
+            self.assertEqual((self.root / 'original.json').read_bytes(), self.raw)
+            self.assertTrue((self.root / 'revised.json').exists())
 
     def test_schedule_replacement_stops_at_compile(self):
         target = self.root / 'fixed-drive.csv'

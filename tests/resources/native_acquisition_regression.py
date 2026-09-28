@@ -68,6 +68,8 @@ class Physical(Boundary):
     def accepted(self, result, raw=RAW):
         self.assertNotIn("error", result)
         self.assertEqual(bytes.fromhex(result["source_hex"]), raw)
+        self.assertGreater(result["root_volume"], 0)
+        self.assertEqual(len(bytes.fromhex(result["root_file"])), 16)
         value = json.loads(raw)["sources"]["topology"]
         self.assertEqual(result["components"], len(value["components"]))
         self.assertEqual(result["circuits"], len(value["circuits"]))
@@ -186,6 +188,20 @@ class Physical(Boundary):
             self.target.unlink(); self.target.write_bytes(b"different owner")
             self.accepted(self.resume(process))
         self.assertEqual(self.target.read_bytes(), b"different owner")
+
+    def test_root_identity_is_from_the_capture_handle(self):
+        initial = self.load()
+        with self.paused("released") as process:
+            moved = self.base / "original-root"
+            self.root.rename(moved)
+            self.root.mkdir()
+            self.target.write_bytes(RAW)
+            captured = self.resume(process)
+        replacement = self.load()
+        self.accepted(captured)
+        self.assertEqual((captured["root_volume"], captured["root_file"]),
+                         (initial["root_volume"], initial["root_file"]))
+        self.assertNotEqual(captured["root_file"], replacement["root_file"])
 
 
 if __name__ == "__main__":

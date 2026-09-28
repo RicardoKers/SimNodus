@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-28",
+  "status": "passed-bounded-local-root-binding",
+  "complete_SN021": false,
+  "base_main": "19e87bbf7a65eb6485c0ec18b7d084018abdd33b",
+  "branch": "codex/sn-021-root-binding",
+  "tests": {
+    "msvc_debug_build": "passed",
+    "ctest_passed": 55,
+    "ctest_failed": 0,
+    "acquisition": {"run": 18, "passed": 16, "skipped": 2},
+    "resources": {"run": 34, "passed": 31, "skipped": 3},
+    "lifecycle": {"run": 20, "passed": 20},
+    "repository_text_files": 812,
+    "diff_check": "passed"
+  },
+  "real_ngspice": {
+    "raw_result": "build/sn021-root-binding-engine-01/result.json",
+    "raw_result_sha256": "05a793d34d56a49a39755e364b7acbec632c3936cadfb0e59de10e88ff1417ae",
+    "status": "passed",
+    "samples": 5012,
+    "max_error_v": 9.889724283951296e-08,
+    "final_time_s": 0.004999999999999989,
+    "project_voltage_tolerance_v": 9.999999999999999e-06,
+    "project_time_tolerance_s": 1e-12,
+    "netlist_sha256": "95471148afe803f2e190fbc2f282fd321708b1b41d986587900dbb45f97f4362",
+    "process_exit": 0
+  },
+  "intermediate_setup_failure": {
+    "case": "GetLongPathNameW on system TEMP ancestor",
+    "win32_error": 5,
+    "resolution": "Owned repository test directory; 8.3 alias absent and reported as a skip"
+  },
+  "historical_evidence_unchanged": 185,
+  "preexisting_overlay_files_unchanged_except_status_sections": 10,
+  "limits": [
+    "No managed import/Open/Save/export composition",
+    "No engine consumption of a managed revision",
+    "No execution authorization or interface, trust, or provenance claim"
+  ]
+}

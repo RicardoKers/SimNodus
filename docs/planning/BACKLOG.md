@@ -1,5 +1,15 @@
 # Backlog
 
+## Local SN-021 prerequisite: physical resource-root binding
+
+The [same-handle binding slice](../experiments/SN-021-root-binding.md) returns
+the acquired NTFS root identity and rejects a changed root during explicit
+bound resource verification and fixed E-01 replay, even with identical resource
+bytes. Focused Windows regressions and real ngspice consumption passed within
+documented skips and unchanged numerical bounds. This does not yet compose a
+managed revision with authenticated requests or close SN-021. Next test exact
+managed import/open/edit/Save/reopen/export and explicit bound RC consumption.
+
 ## Measured SN-021 slice: authenticated managed requests
 
 The [request candidate](../experiments/SN-021-managed-request.md) adds a test-only
@@ -7,16 +17,16 @@ Open/Save/Reconcile boundary with real pipe identity and unchanged root context.
 A bounded VM matrix passed: 19 real requests, 82 hashed artifacts, three SIDs and
 four independently audited physical records. The
 [evidence](../experiments/SN-021-managed-request.md) supports this manual candidate,
-not a production endpoint. SN-021 remains in_progress. Integrate this stable block
-after required checks, then compose the accepted real RC lifecycle. Preserve all
-historical evidence and SN-044/SN-045 work.
+not a production endpoint. PR #66 integrated this stable block after both hosted
+checks passed. SN-021 remains in_progress; compose the accepted real RC lifecycle.
+Preserve all historical evidence and SN-044/SN-045 work.
 
 The first VM attempt stopped before provisioning on an overlong local-user
 description. Its failed reports and hashes remain retained separately from the
 successful fresh run.
 
-Base main: `d6bdcf4`; branch `codex/sn-021-authenticated-save`. Validation is local;
-GitHub main includes PR #65's validated visibility evidence. No new runtime profile.
+The block was based on `d6bdcf4` on `codex/sn-021-authenticated-save`; PR #66
+advanced local and GitHub main to `19e87bb`. No new runtime profile.
 
 ## Latest SN-021 evidence: managed-store visibility and path objects
 

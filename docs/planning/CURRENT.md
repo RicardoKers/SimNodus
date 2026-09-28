@@ -1,5 +1,28 @@
 # Current state
 
+## Latest local prerequisite: physical resource-root binding
+
+The [SN-021 root-binding slice](../experiments/SN-021-root-binding.md) adds a
+same-handle NTFS root identity to explicit project acquisition and requires an
+independently retained expected identity for bound resource verification and
+fixed E-01 replay. Byte-identical replacement of the selected root is refused
+before resource traversal. This is physical containment and byte verification;
+it does not establish interface compatibility, trusted origin or execution
+authorization. Existing standalone calls remain explicit and unbound.
+
+On Windows, the focused acquisition, resource and lifecycle regressions passed
+within their stated skips. The modified bound replay path also passed real
+ngspice consumption: 5,012 samples, maximum analytical error
+9.889724283951296e-08 V under the unchanged 10 microvolt and 1 ps project
+limits. The intermediate system-TEMP alias-fixture failure and the owned-volume
+8.3 availability skip are retained in the report. The full MSVC Debug build,
+55 CTests and repository checker (812 text files) passed.
+
+SN-021 remains in_progress. Next compose exact import, authenticated managed
+Open/Save/reopen, explicit create-only export and bound fixed replay, then assess
+the remaining request/endpoint/deadline gates. No service, UI, external overwrite
+or expanded runtime profile follows from this prerequisite.
+
 ## Latest evidence: authenticated managed-document requests
 
 The [request candidate](../experiments/SN-021-managed-request.md) adds test-only
@@ -20,14 +43,14 @@ The first VM attempt failed before provisioning: `New-LocalUser` rejected a
 [attempt summary](../experiments/evidence/SN-021-managed-request-attempt1-summary.json).
 The description was corrected to 31 characters before the successful fresh run.
 
-SN-021 remains in_progress. Publish this bounded candidate after local/hosted
-checks, then compose the accepted real RC lifecycle. Preserve historical hashes
-and the twelve SN-045 overlays. No service, UI, external overwrite or new profile.
+SN-021 remains in_progress. PR #66 integrated this bounded candidate after local
+and hosted checks. Next compose the accepted real RC lifecycle. Preserve historical
+hashes and the twelve SN-045 overlays. No service, UI, external overwrite or new profile.
 The final next-chat prompt awaits actual SN-021 closure.
 
-Base main: `d6bdcf4` (PR #65); branch `codex/sn-021-authenticated-save`. This slice
-is locally validated, not yet integrated or published. Official GitHub main still
-identifies the validated visibility block; no binaries or releases.
+The candidate was developed on `codex/sn-021-authenticated-save` from `d6bdcf4`
+and integrated by squash in PR #66 as `19e87bb` on local and GitHub main. Both
+hosted foundation checks passed. No binaries or releases were published.
 
 ## Latest evidence: managed-store visibility and path-object refusal
 

@@ -35,6 +35,14 @@ inline Identity identity(const BY_HANDLE_FILE_INFORMATION& value)
 {
     return {value.dwVolumeSerialNumber, value.nFileIndexHigh, value.nFileIndexLow};
 }
+inline PhysicalRootIdentity physical_root_identity(HANDLE handle, std::size_t index)
+{
+    FILE_ID_INFO info{};
+    check(GetFileInformationByHandleEx(handle, FileIdInfo, &info, sizeof(info)), index);
+    PhysicalRootIdentity result{info.VolumeSerialNumber, {}};
+    std::copy(std::begin(info.FileId.Identifier), std::end(info.FileId.Identifier), result.file.begin());
+    return result;
+}
 inline std::uint64_t size(const BY_HANDLE_FILE_INFORMATION& value)
 {
     return (static_cast<std::uint64_t>(value.nFileSizeHigh) << 32) | value.nFileSizeLow;

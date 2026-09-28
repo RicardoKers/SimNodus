@@ -51,17 +51,21 @@ int main(int argc, char** argv)
 #endif
         const auto root = field(4097), name = field(1024);
         if(phase.empty() && std::cin.peek() != std::char_traits<char>::eof()) throw std::runtime_error("trailing");
-        auto result = simnodus::acquire_project(root, name);
+        auto result = simnodus::acquire_project_with_root_identity(root, name);
         if(const auto* error = std::get_if<simnodus::ProjectAcquisitionError>(&result)) {
             std::cout << "{\"stage\":\"" << (error->stage == simnodus::ProjectAcquisitionStage::physical ? "physical" : "declaration")
                 << "\",\"error\":\"" << error->code << "\",\"offset\":" << error->offset << ",\"system\":" << error->system_code << "}\n";
             return 1;
         }
-        const auto owned = std::get<0>(result);
+        const auto acquired = std::get<simnodus::AcquiredProject>(result);
+        const auto owned = acquired.graph;
         result = simnodus::ProjectAcquisitionError{simnodus::ProjectAcquisitionStage::physical, "released-test-result"};
         const auto& bytes = owned->declaration->sources.lock.syntax->bytes;
         std::cout << "{\"source_hex\":\"";
         for(unsigned char c : bytes) std::cout << "0123456789abcdef"[c >> 4] << "0123456789abcdef"[c & 15];
+        std::cout << "\",\"root_volume\":" << acquired.root_identity.volume << ",\"root_file\":\"";
+        for(unsigned char c : acquired.root_identity.file)
+            std::cout << "0123456789abcdef"[c >> 4] << "0123456789abcdef"[c & 15];
         std::cout << "\",\"components\":" << owned->connectivity.components.size()
             << ",\"circuits\":" << owned->connectivity.circuits.size()
             << ",\"spans\":" << owned->source_map.size() << "}\n";

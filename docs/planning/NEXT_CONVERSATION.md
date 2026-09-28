@@ -1,13 +1,34 @@
 # Latest handoff: SN-021 publication authority proposal
 
+## Next SN-021 block: compose the managed document lifecycle
+
+The [local root-binding prerequisite](../experiments/SN-021-root-binding.md)
+returns the original resource-root identity from the acquisition handle and
+checks it on the later resource-capture handle. Byte-identical root replacement
+is refused. Focused Windows regressions and explicit real E-01 replay passed;
+this does not yet consume a managed revision. PR #66 already integrated the
+authenticated request candidate on main `19e87bb`.
+
+Continue with exact external import into a managed copy, authenticated Open,
+name-only edit, authenticated Save and reopen, explicit create-only export, and
+bound fixed replay of the managed bytes with real ngspice. Preserve external
+source bytes, root context, temporal policy, source mapping, 10 microvolt/1 ps
+bounds, and readiness distinctions. Then assess competing requests and applicable
+endpoint, identity and deadline regressions before the final bounded SN-021
+audit. No automatic executable content, service, UI or external overwrite.
+
+SN-021 remains in_progress; prepare the next-chat prompt only after actual
+closure. The twelve SN-045 overlays and historical negative evidence remain.
+
 ## Next SN-021 block: compose managed requests with the accepted RC lifecycle
 
 The [manual request candidate](../experiments/SN-021-managed-request.md) completed
 19 authenticated Open/Save/Reconcile requests on `codex/sn-021-authenticated-save`,
-based on main `d6bdcf4` (PR #65). The independent auditor matched 82 artifact hashes,
+based on main `d6bdcf4` (PR #65), then integrated as PR #66 at `19e87bb`.
+The independent auditor matched 82 artifact hashes,
 server decisions, four physical records and exact receipts. Private v3 remains a
-test fixture; historical query-only v2 is unchanged. Complete local and hosted
-checks, integrate the bounded stable block, then compose managed import/open/edit/
+test fixture; historical query-only v2 is unchanged. Local and hosted checks passed.
+Next compose managed import/open/edit/
 Save/reopen/export with the accepted real RC lifecycle. Assess remaining competing
 request, endpoint and deadline gates before broader acceptance.
 
@@ -18,7 +39,7 @@ and exact hashes remain retained separately from the successful run.
 
 SN-021 stays in_progress. Preserve twelve SN-045 overlays, historical evidence,
 SN-017 Python control, resource-root meaning, numerical bounds and PDF/PID fixes.
-No new slice is integrated. The final next-chat prompt awaits actual closure.
+The next-chat prompt awaits actual closure.
 
 ## Latest evidence: managed-store visibility and path-object refusal
 

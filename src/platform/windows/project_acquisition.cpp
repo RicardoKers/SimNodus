@@ -22,6 +22,7 @@ CaptureResult capture(const std::string& root, const std::string& filename)
             start = end + 1;
         }
         const auto directory = inspect(parent, true, index);
+        const auto root_identity = physical_root_identity(parent, index);
 #ifdef SIMNODUS_ACQUISITION_TEST_HOOKS
         test_boundary("root");
 #endif
@@ -50,7 +51,7 @@ CaptureResult capture(const std::string& root, const std::string& filename)
 #ifdef SIMNODUS_ACQUISITION_TEST_HOOKS
         test_boundary("captured");
 #endif
-        return bytes;
+        return CapturedDocument{std::move(bytes), root_identity};
     } catch(const ResourceError& error) { return error; }
 }
 }
