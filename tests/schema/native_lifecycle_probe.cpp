@@ -54,9 +54,10 @@ int main(int argc, char** argv)
         const auto name = field();
         const auto saved = simnodus::save_new_project(root, "original.json", original);
         if(const auto* e = std::get_if<simnodus::ProjectSaveError>(&saved)) return failure("create", e->code);
-        const auto opened = simnodus::acquire_project(root, "original.json");
+        const auto opened = simnodus::acquire_project_with_root_identity(root, "original.json");
         if(const auto* e = std::get_if<simnodus::ProjectAcquisitionError>(&opened)) return failure("open", e->code);
-        const auto captured = std::get<0>(opened);
+        const auto& imported = std::get<simnodus::AcquiredProject>(opened);
+        const auto captured = imported.graph;
         if(bytes(*captured) != original) return failure("open", "bytes");
         original.clear();
         // The Python test may replace fixture-owned files after capture.
@@ -73,7 +74,8 @@ int main(int argc, char** argv)
         const auto loaded = std::get<0>(reopened);
         if(bytes(*loaded) != bytes(*revised)) return failure("reopen", "bytes");
         const simnodus::IdealRcRequest request{simnodus::IdealRcProfile::e01_ideal_rc, "reference", "source", "left_out"};
-        const auto result = argc == 2 ? simnodus::compile_fixed_rc_replay(bytes(*loaded), root, request)
+        const auto result = argc == 2 ? simnodus::compile_fixed_rc_replay_bound(
+                bytes(*loaded), root, request, imported.root_identity)
             : simnodus::compile_ideal_rc(bytes(*loaded), root, request);
         if(const auto* e = std::get_if<simnodus::IdealRcError>(&result)) return failure("compile", e->code);
         const auto compiled = std::get<0>(result);

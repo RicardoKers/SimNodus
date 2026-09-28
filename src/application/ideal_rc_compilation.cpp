@@ -25,7 +25,8 @@ class Compiler {
 public:
     explicit Compiler(std::shared_ptr<const ConnectivityCompilation> graph)
         : syntax_(*graph->source->declaration->sources.lock.syntax) { result_.connectivity = std::move(graph); }
-    IdealRcCompilation run(const std::string& root, const IdealRcRequest& request, bool replay)
+    IdealRcCompilation run(const std::string& root, const IdealRcRequest& request, bool replay,
+        const PhysicalRootIdentity* expected_root)
     {
         require(request.profile == IdealRcProfile::e01_ideal_rc, IdealRcStage::request, "profile");
         require(!request.reference_port.empty() && request.reference_port.size() <= 64
@@ -74,7 +75,9 @@ public:
             descriptors.insert(text(object(index).at("definition")));
         }
         require(count == 2, IdealRcStage::profile, "components");
-        auto physical = verify_local_resources(root, result_.connectivity->source->declaration->sources.lock.requests);
+        auto physical = expected_root
+            ? verify_local_resources(root, result_.connectivity->source->declaration->sources.lock.requests, *expected_root)
+            : verify_local_resources(root, result_.connectivity->source->declaration->sources.lock.requests);
         if(const auto* error = std::get_if<ResourceError>(&physical))
             throw IdealRcError{IdealRcStage::resources, resource_error_name(error->code), error->index, error->system_code, "resource-index"};
         result_.resources = std::get<0>(physical);
@@ -167,23 +170,30 @@ private:
     }
     std::string text(Index index) const { return syntax_.tokens[index].decoded; }
 };
-IdealRcResult compile(std::string_view bytes, const std::string& root, const IdealRcRequest& request, bool replay)
+IdealRcResult compile(std::string_view bytes, const std::string& root, const IdealRcRequest& request, bool replay,
+    const PhysicalRootIdentity* expected_root)
 {
     try {
         const auto graph = compile_connectivity(bytes);
         if(const auto* error = std::get_if<ConnectivityCompilationError>(&graph))
             return IdealRcError{IdealRcStage::declaration, error->code, error->offset};
-        return std::make_shared<const IdealRcCompilation>(Compiler(std::get<0>(graph)).run(root, request, replay));
+        return std::make_shared<const IdealRcCompilation>(
+            Compiler(std::get<0>(graph)).run(root, request, replay, expected_root));
     } catch(const IdealRcError& error) { return error; }
     catch(const std::bad_alloc&) { return IdealRcError{IdealRcStage::profile, "memory", 0}; }
 }
 }
 IdealRcResult compile_ideal_rc(std::string_view bytes, const std::string& root, const IdealRcRequest& request)
 {
-    return compile(bytes, root, request, false);
+    return compile(bytes, root, request, false, nullptr);
 }
 IdealRcResult compile_fixed_rc_replay(std::string_view bytes, const std::string& root, const IdealRcRequest& request)
 {
-    return compile(bytes, root, request, true);
+    return compile(bytes, root, request, true, nullptr);
+}
+IdealRcResult compile_fixed_rc_replay_bound(std::string_view bytes, const std::string& root,
+    const IdealRcRequest& request, const PhysicalRootIdentity& expected_root)
+{
+    return compile(bytes, root, request, true, &expected_root);
 }
 }

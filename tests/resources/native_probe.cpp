@@ -4,6 +4,7 @@
 #include "application/local_resources.hpp"
 #include "platform/local_resources_backend.hpp"
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #ifdef _WIN32
@@ -85,8 +86,16 @@ int main(int argc, char** argv)
             r.sha256 = text(input, 64);
             requests.push_back(std::move(r));
         }
+        std::optional<simnodus::PhysicalRootIdentity> expected_root;
+        if(input.peek() != std::char_traits<char>::eof()) {
+            expected_root.emplace();
+            expected_root->volume = number(input, 8);
+            for(auto& byte : expected_root->file) byte = static_cast<unsigned char>(number(input, 1));
+        }
         if(input.peek() != std::char_traits<char>::eof()) throw std::runtime_error("trailing");
-        const auto result = simnodus::verify_local_resources(root, requests);
+        const auto result = expected_root
+            ? simnodus::verify_local_resources(root, requests, *expected_root)
+            : simnodus::verify_local_resources(root, requests);
         if(const auto* error = std::get_if<simnodus::ResourceError>(&result)) {
             std::cout << "ERR " << simnodus::resource_error_name(error->code) << ' '
                 << error->index << ' ' << error->system_code << '\n';

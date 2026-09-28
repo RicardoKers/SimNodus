@@ -31,7 +31,8 @@ std::string sha256(const std::vector<unsigned char>& data, std::size_t index)
 }
 }
 
-ResourceVerification capture(const std::string& root, std::span<const ResourceRequest> requests)
+ResourceVerification capture(const std::string& root, std::span<const ResourceRequest> requests,
+    const PhysicalRootIdentity* expected_root)
 {
     try {
         const auto wide = wide_root(root);
@@ -46,6 +47,8 @@ ResourceVerification capture(const std::string& root, std::span<const ResourceRe
             start = end + 1;
         }
         const auto root_info = inspect(selected, true, resource_global_error);
+        if(expected_root && physical_root_identity(selected, resource_global_error) != *expected_root)
+            fail(ResourceErrorCode::root_identity, resource_global_error);
 #ifdef SIMNODUS_RESOURCE_TEST_HOOKS
         test_boundary("root", resource_global_error);
 #endif

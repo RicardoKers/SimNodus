@@ -43,4 +43,8 @@ IdealRcResult compile_ideal_rc(std::string_view project, const std::string& root
 // and captured schedule; no engine start or general runtime readiness follows.
 IdealRcResult compile_fixed_rc_replay(std::string_view project, const std::string& root,
     const IdealRcRequest& request);
+// Explicit replay against a separately authorized physical root identity.
+// A changed root is refused before any resource child is opened.
+IdealRcResult compile_fixed_rc_replay_bound(std::string_view project, const std::string& root,
+    const IdealRcRequest& request, const PhysicalRootIdentity& expected_root);
 }

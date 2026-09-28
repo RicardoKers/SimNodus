@@ -29,12 +29,16 @@ def field(value):
     return struct.pack("<I", len(data)) + data
 
 
-def packet(document, root):
+def packet(document, root, expected_root=None):
     entries = [(dep["id"], row) for dep in document["dependencies"] for row in dep["files"]]
     data = field("SNODRES1") + field(root) + struct.pack("<I", len(entries))
     for dep, row in entries:
         data += field(dep) + field(row["id"]) + field(row["path"])
         data += struct.pack("<Q", row["bytes"]) + field(row["sha256"])
+    if expected_root is not None:
+        volume, file_id = expected_root
+        assert len(file_id) == 16
+        data += struct.pack("<Q", volume) + file_id
     return field(data)
 
 
@@ -74,10 +78,37 @@ def decode(output):
     return MappingProxyType(result)
 
 
-def native(document, root):
-    run = subprocess.run([PROBE], input=packet(document, root), capture_output=True, timeout=30)
+def native(document, root, expected_root=None):
+    run = subprocess.run([PROBE], input=packet(document, root, expected_root), capture_output=True, timeout=30)
     assert run.returncode in (0, 1), run.stderr
     return decode(run.stdout)
+
+
+def root_identity(root):
+    """Independent Win32 test oracle; the native verifier never uses this handle."""
+    class FileId128(c.Structure):
+        _fields_ = [("identifier", c.c_ubyte * 16)]
+
+    class FileIdInfo(c.Structure):
+        _fields_ = [("volume", c.c_ulonglong), ("file", FileId128)]
+
+    kernel = c.WinDLL("kernel32", use_last_error=True)
+    kernel.CreateFileW.argtypes = [c.c_wchar_p, c.c_ulong, c.c_ulong, c.c_void_p,
+                                  c.c_ulong, c.c_ulong, c.c_void_p]
+    kernel.CreateFileW.restype = c.c_void_p
+    kernel.GetFileInformationByHandleEx.argtypes = [c.c_void_p, c.c_int, c.c_void_p, c.c_ulong]
+    kernel.GetFileInformationByHandleEx.restype = c.c_int
+    kernel.CloseHandle.argtypes = [c.c_void_p]
+    handle = kernel.CreateFileW(str(root), 0x80, 0x7, None, 3, 0x02200000, None)
+    if handle == c.c_void_p(-1).value:
+        raise OSError(c.get_last_error(), "Root identity oracle open failed")
+    try:
+        info = FileIdInfo()
+        if not kernel.GetFileInformationByHandleEx(handle, 18, c.byref(info), c.sizeof(info)):
+            raise OSError(c.get_last_error(), "Root identity oracle query failed")
+        return info.volume, bytes(info.file.identifier)
+    finally:
+        kernel.CloseHandle(handle)
 
 
 @unittest.skipUnless(os.name == "nt", "Native Windows filesystem profile")
@@ -128,6 +159,30 @@ class NativeResources(baseline.LocalResourceTests):
         expected = reference.verify(raw, str(baseline.REPO))
         actual = native(lock.parse(raw), str(baseline.REPO))
         self.assertEqual({k: v.data for k, v in actual.items()}, {k: v.data for k, v in expected.items()})
+
+    def test_bound_root_rejects_byte_identical_replacement(self):
+        original = root_identity(self.root)
+        before = native(self.doc, str(self.root), original)
+        self.assertEqual(before[("owned", "f0")].data, self.path.read_bytes())
+        previous = self.base / "previous-root"
+        self.root.rename(previous)
+        self.root.mkdir()
+        (self.root / "assets").mkdir()
+        self.path.write_bytes((previous / "assets" / "data.bin").read_bytes())
+        self.assertNotEqual(root_identity(self.root), original)
+        self.assertEqual(native(self.doc, str(self.root))[("owned", "f0")].data,
+                         before[("owned", "f0")].data)
+        with self.assertRaises(t.Invalid) as result:
+            native(self.doc, str(self.root), original)
+        self.assertEqual(result.exception.code, "root_identity")
+
+    def test_bound_root_rejects_wrong_identity_before_resource_access(self):
+        volume, file_id = root_identity(self.root)
+        wrong = (volume, bytes([file_id[0] ^ 1]) + file_id[1:])
+        self.path.unlink()
+        with self.assertRaises(t.Invalid) as result:
+            native(self.doc, str(self.root), wrong)
+        self.assertEqual(result.exception.code, "root_identity")
 
     def test_project_inventory_and_independent_readiness(self):
         project = json.loads((baseline.REPO / "tests/schema/fixtures/two-rc-project.json").read_bytes())
@@ -182,13 +237,15 @@ class NativeResources(baseline.LocalResourceTests):
 
     def test_short_filename_alias_rejected_on_opened_handle(self):
         """Native long-name success and lexical rejection of an existing 8.3 alias."""
-        # The system temporary volume can generate 8.3 names even when D: does not.
-        with tempfile.TemporaryDirectory(prefix="sn021-native-") as directory:
+        # Use the owned test volume; a system TEMP ancestor may be inaccessible
+        # to GetLongPathNameW in a restricted test process.
+        with tempfile.TemporaryDirectory(prefix="sn021-native-",
+                                         dir=baseline.REPO / "build" / "sn021-tests") as directory:
             root = Path(directory)
             source = root / "long-resource-filename.bin"
             source.write_bytes(b"owned")
             fs = reference.WindowsFiles()
-            # TEMP can contain an ancestor's 8.3 alias on hosted Windows.
+            # An owned ancestor may still have an 8.3 alias on hosted Windows.
             # Expand only the owned fixture spelling; production still verifies
             # every component by handle and must reject the aliased root.
             long_name = fs.k.GetLongPathNameW
@@ -212,7 +269,7 @@ class NativeResources(baseline.LocalResourceTests):
             self.assertGreater(function(str(source), buffer, len(buffer)), 0)
             alias = Path(buffer.value).name
             if alias.casefold() == source.name.casefold():
-                self.skipTest("No 8.3 alias on system temporary volume")
+                self.skipTest("No 8.3 alias on owned test volume")
             self.assertEqual((root / alias).read_bytes(), source.read_bytes())
             accepted = native(baseline.inventory([(source.name, b"owned")]), str(root))
             self.assertEqual(accepted[("owned", "f0")].data, b"owned")

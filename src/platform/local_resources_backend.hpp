@@ -4,7 +4,8 @@
 #include "application/local_resources.hpp"
 
 namespace simnodus::resource_platform {
-ResourceVerification capture(const std::string& root, std::span<const ResourceRequest> requests);
+ResourceVerification capture(const std::string& root, std::span<const ResourceRequest> requests,
+    const PhysicalRootIdentity* expected_root);
 // Test builds alone define and call this boundary; not part of the application API.
 #ifdef SIMNODUS_RESOURCE_TEST_HOOKS
 void test_boundary(const char* phase, std::size_t index);
