@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-29",
+  "status": "local-preparation-corrected; VM-not-run",
+  "failed_attempt": {
+    "raw_run": "build/sn021-vm-managed-lifecycle-runs/20260929T001450Z-432f0d975238",
+    "result_sha256": "c5c01f36b9963943f0e843686d5e823c318574215f03bbb4aa327af26d033253",
+    "reported_status": "failed-or-indeterminate",
+    "reported_stage": "host-connect",
+    "error_type": "FileNotFoundError",
+    "observed_failure": "Legacy test-module import attempted repository-relative fixture reads from C:\\Windows\\System32 before any VM open or guest login",
+    "guest_access": false,
+    "guest_mutation": false
+  },
+  "corrected_preparation": {
+    "raw_run": "build/sn021-vm-managed-lifecycle-runs/20260929T001707Z-28d90372cc02",
+    "result_sha256": "2b00e7b35f7bee649144746614ed95c755459c7c899db9260bc72b48d00c915b",
+    "runner_sha256": "7c189c628f63d9ee760b8fd05c55c2ca5c12dc74331b0e8e0db9ab13ce32bb83",
+    "working_directory": "C:\\Windows\\System32",
+    "source_snapshots": 55,
+    "status": "prepared-local-inputs-only",
+    "guest_access": false,
+    "guest_mutation": false
+  },
+  "limits": "Only local input preparation was validated; no authenticated VM lifecycle or ngspice result is claimed."
+}

@@ -1,0 +1,47 @@
+{
+  "date_utc": "2026-09-29",
+  "status": "audited-managed-rc-lifecycle-e01-only",
+  "vm_run": "build/sn021-vm-managed-lifecycle-runs/20260929T002809Z-322f180b92ab",
+  "engine_run": "build/sn021-managed-lifecycle-engine-01",
+  "snapshot": "SN021-authority-baseline",
+  "host_result_sha256": "2b1017d69ab9ab42024a4fe78f6cb0179056adf7a810d9712c1b293c16713b16",
+  "guest_report_sha256": "59fcda7925253a780ab7c5ec7da5893bc7752a91f34aa330573f5dbd59ac93f4",
+  "tested_coordinator_sha256": "6154061f9c8062b2a1f6a593be4a292299b1ff0283828b9de2388c1146923d80",
+  "coordinator_sha256_after_trailing_blank_line_removal": "84671385d3437536c3b7dc00a846e9e5a9f8c0b689de4aad1f0d8091ebf55e6c",
+  "coordinator_post_run_change": "One empty final line was removed solely to satisfy git diff --check; the exact executed source remains retained and hashed in the raw VM run.",
+  "inventory_sha256": "1ae91789a94899e25ddb5445e75627316a458b320432c6d55086de9c284dae13",
+  "independent_audit_sha256": "64281597ed42889d16a96bdeab749c764a86eb034869f6b8f3b0980e273efa64",
+  "engine_result_sha256": "25deb669c23913cebe1746a081e22dcded7d1b20b9e9f62c7399446bdbc3a22a",
+  "source_snapshots": 55,
+  "copied_artifacts": 42,
+  "authenticated_requests": 3,
+  "tested_refusals": 4,
+  "observed": {
+    "import": "Exact external project bytes and same-handle NTFS root identity seeded managed revision 1",
+    "open_edit_save_reopen": "Three accepted authenticated Open/Save/Open decisions correlated with exact wire frames and two committed records",
+    "export": "Explicit create-only export matched revision 2; collision preserved the existing destination",
+    "negative_compile": "Changed schedule, missing passive resource and byte-identical replacement root were refused",
+    "engine": "Audited revision 2 compiled the fixed E-01 netlist; ngspice ran only after explicit audit and compile"
+  },
+  "original_project_sha256": "cf5b0ccca0c8e4a6add6fcbebd1223726dde872c96e920cbf48d571f6b06a973",
+  "edited_project_sha256": "ac9548a9b06913401e85b492b3c5b3893565547384968af917d3ffa85ecab130",
+  "committed_record_sha256": [
+    "63e1894d98e38fda0d6d1c441ac14412afd2214796f1fb1555aa315aa9508d43",
+    "1bc2a7e1c052b60c8867cc912db160fb9df7aefe1ae55d0aff70eac451872027"
+  ],
+  "netlist_sha256": "95471148afe803f2e190fbc2f282fd321708b1b41d986587900dbb45f97f4362",
+  "ngspice": {
+    "samples": 5012,
+    "max_analytical_error_v": 9.889724283951296e-08,
+    "project_voltage_tolerance_v": 1e-05,
+    "final_time_s": 0.004999999999999989,
+    "project_time_tolerance_s": 1e-12,
+    "callbacks_match_vectors": true,
+    "process_exit": 0
+  },
+  "historical_failures_retained": [
+    "SN-021-managed-lifecycle-local-preparation-summary.json",
+    "SN-021-managed-lifecycle-vm-attempt1-summary.json"
+  ],
+  "limits": "Disposable-VM test-only composition, not a production endpoint or service. No external overwrite, power-loss durability, automatic project execution, general simulation readiness, origin assurance or redistribution permission is established. SN-021 remains in_progress pending final applicable request and endpoint gates."
+}

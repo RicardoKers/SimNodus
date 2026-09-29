@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-29",
+  "status": "failed-physical-attempt; lifecycle-unverified",
+  "raw_run": "build/sn021-vm-managed-lifecycle-runs/20260929T002018Z-9156778c6a26",
+  "host_result_sha256": "e753c93cafed63ed5aa72acdf79e665d4103a4306fe5a1afa43e5ea4086077e8",
+  "inventory_sha256": "c11c332fb63b363bae7093d7683f0c5d4b08907cbd4b193952f0e7d7522b3125",
+  "guest_report_sha256": "0a8fb80abc524dbcd4c61a204fe8b96428020cf9ae440de09a10c353ec3ce5ee",
+  "source_snapshots": 55,
+  "copied_artifacts": 17,
+  "artifact_hashes_verified": true,
+  "observed": {
+    "snapshot": "SN021-authority-baseline",
+    "guest_stage": "authenticated-lifecycle",
+    "import": "exact revision 1 reported",
+    "open_initial": "authenticated client and server reported accepted",
+    "save_edited": "authenticated client and server reported accepted",
+    "failure": "Coordinator attempted ReadAllBytes on revision 2 while the writer still held an incompatible sharing mode",
+    "reopen": "not attempted",
+    "export": "not attempted",
+    "bound_compile": "not attempted",
+    "real_ngspice": "not attempted"
+  },
+  "correction": {
+    "action": "Defer direct record correspondence until the three-request writer process exits",
+    "corrected_coordinator_sha256": "6154061f9c8062b2a1f6a593be4a292299b1ff0283828b9de2388c1146923d80",
+    "corrected_runner_sha256": "ea28a144a3a00e21798bfe260570d63945d3496cd746d79ff65b34c0a00b8269",
+    "automatic_retry_or_cleanup": false
+  },
+  "limits": "The Save response alone does not prove independently audited revision-2 persistence or the managed RC lifecycle. A fresh disposable-VM run is required."
+}

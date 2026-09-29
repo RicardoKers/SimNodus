@@ -1,4 +1,27 @@
-# Latest handoff: SN-021 publication authority proposal
+# Latest handoff: SN-021 managed RC lifecycle measured
+
+## Measured physical managed RC lifecycle batch
+
+Current branch: `codex/sn-021-managed-lifecycle`, based on main `7352359` after
+PR #67. The [bounded composition](../experiments/SN-021-managed-lifecycle.md)
+passed a fresh disposable-VM run `20260929T002809Z-322f180b92ab`: exact
+external import into a managed copy, authenticated Open/edit/Save/reopen,
+create-only export, physical resource/root refusals and bound fixed E-01
+compilation. An independent byte auditor verified 55 source snapshots, 42
+artifacts, three requests and two committed records. Only then did real ngspice
+consume the fixed netlist; 5,012 samples had 0.099 microvolts maximum analytical
+error within the 10 microvolt and 1 ps project limits. The
+[successful evidence](../experiments/evidence/SN-021-managed-lifecycle-vm-success-summary.json)
+records exact raw-result hashes. Four local preflight cases and 56 CTests passed.
+
+Retain the [local preparation failure](../experiments/evidence/SN-021-managed-lifecycle-local-preparation-summary.json)
+and [first VM failure](../experiments/evidence/SN-021-managed-lifecycle-vm-attempt1-summary.json)
+as separate negative evidence. The successful run does not turn either failed
+attempt into a pass. SN-021 remains in_progress; audit the v3 competing-Save,
+endpoint, identity and deadline gates, then run final bounded acceptance checks.
+Preserve twelve SN-045 overlays, historical evidence, SN-017 Python control,
+the 10 microvolt/1 ps bounds and the distinction between declarative validity
+and runtime readiness. The next-cycle prompt awaits actual SN-021 closure.
 
 ## Next SN-021 block: compose the managed document lifecycle
 

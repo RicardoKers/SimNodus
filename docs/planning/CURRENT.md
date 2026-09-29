@@ -1,5 +1,40 @@
 # Current state
 
+## Current SN-021 block: bounded managed RC lifecycle passed
+
+The [bounded managed-document lifecycle](../experiments/SN-021-managed-lifecycle.md)
+passed on `codex/sn-021-managed-lifecycle` from main `7352359` (PR #67).
+The test-only fixture composed exact physical import, authenticated Open/name
+edit/Save/reopen, explicit create-only export and root-bound fixed E-01
+compilation. Four local native preflight cases passed. The full MSVC Debug build
+and all 56 CTests passed before the physical run. The successful disposable-VM
+batch retained 55 source snapshots and 42 hashed artifacts. An independent
+byte audit matched three authenticated requests, two committed records, exact
+project/context/root identity, export collision and physical compile refusals.
+Only afterward did the separate real ngspice E-01 run consume the fixed netlist:
+5,012 samples, 0.099 microvolts maximum analytical error against 10 microvolts,
+final time within 1 ps of 5 ms, and matching callbacks/vectors. The
+[successful summary](../experiments/evidence/SN-021-managed-lifecycle-vm-success-summary.json)
+retains raw-result hashes. SN-021 remains in_progress: audit the remaining
+applicable competing-request, endpoint, identity and deadline gates. There is
+no service, UI, external overwrite or expanded runtime profile.
+The repository checker passed on 820 text files after this evidence update.
+
+The first operator invocation from `C:\Windows\System32` stopped in local
+input preparation before opening the VM because a legacy schema module used
+the caller's working directory. The [failed result and corrected local-only
+preparation](../experiments/evidence/SN-021-managed-lifecycle-local-preparation-summary.json)
+are retained with hashes. A repeat `--prepare-only` from that same directory
+verified all 55 source snapshots without guest access.
+
+The first physical [VM attempt](../experiments/evidence/SN-021-managed-lifecycle-vm-attempt1-summary.json)
+reached exact import and authenticated Open/Save, then failed on a premature
+direct read of revision 2 while the writer held it open. The 55 source and 17
+copied artifact hashes were verified. Direct record checks now follow exact
+writer-process exit; persistence, reopening, export and bound compilation
+remained unverified for that failed attempt. The fresh successful run above
+supplies separate evidence without changing the failed result.
+
 ## Latest local prerequisite: physical resource-root binding
 
 The [SN-021 root-binding slice](../experiments/SN-021-root-binding.md) adds a

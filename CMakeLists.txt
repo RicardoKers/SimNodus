@@ -69,6 +69,21 @@ if(WIN32)
         add_test(NAME native-managed-request-framing COMMAND native_managed_request_probe parser-check)
         add_test(NAME native-managed-request-transport COMMAND native_managed_request_probe transport-check)
         set_tests_properties(native-managed-request-transport PROPERTIES TIMEOUT 30)
+        add_executable(native_managed_lifecycle_probe tests/resources/native_managed_lifecycle_probe.cpp)
+        target_include_directories(native_managed_lifecycle_probe PRIVATE src)
+        target_link_libraries(native_managed_lifecycle_probe PRIVATE
+            simnodus_project_revision simnodus_project_save simnodus_ideal_rc_compilation)
+        target_compile_definitions(native_managed_lifecycle_probe PRIVATE
+            NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00)
+        if(MSVC)
+            target_compile_options(native_managed_lifecycle_probe PRIVATE /W4 /WX /permissive- /EHsc)
+        endif()
+        add_test(NAME native-managed-lifecycle-preflight
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/native_managed_lifecycle_regression.py"
+                --probe "$<TARGET_FILE:native_managed_lifecycle_probe>"
+                --acquisition "$<TARGET_FILE:native_acquisition_probe>")
+        set_tests_properties(native-managed-lifecycle-preflight PROPERTIES
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
     endif()
 endif()
 target_include_directories(simnodus_managed_record PUBLIC src)
@@ -276,6 +291,9 @@ endif()
 add_library(simnodus_project_acquisition STATIC src/application/project_acquisition.cpp)
 target_include_directories(simnodus_project_acquisition PUBLIC src)
 target_link_libraries(simnodus_project_acquisition PUBLIC simnodus_project_graph PRIVATE simnodus_resources simnodus::build_options)
+if(WIN32 AND BUILD_TESTING)
+    target_link_libraries(native_managed_store_probe PRIVATE simnodus_project_acquisition)
+endif()
 if(WIN32)
     target_sources(simnodus_project_acquisition PRIVATE src/platform/windows/project_acquisition.cpp)
     target_compile_definitions(simnodus_project_acquisition PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX _WIN32_WINNT=0x0A00)
