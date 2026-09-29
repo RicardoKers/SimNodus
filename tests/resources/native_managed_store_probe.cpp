@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: MIT
 // Manual disposable-VM probe. Not registered as an automatic CTest.
 #include "platform/windows/managed_store.hpp"
+#include "application/project_acquisition.hpp"
 #include <windows.h>
 #include <sddl.h>
 #include <bcrypt.h>
 #include <array>
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
@@ -239,6 +241,30 @@ int main(int argc, char** argv)
         if(mode == "open") return 0;
         require(argc >= 4, "arguments");
         const auto project_path = std::filesystem::path(argv[3]);
+        if(mode == "import-exact") {
+            require(argc == 4 && chain->entries().empty(), "fresh-import-required");
+            const auto resource_root = project_path.parent_path();
+            const auto acquired = simnodus::acquire_project_with_root_identity(
+                resource_root.string(), project_path.filename().string());
+            if(const auto* rejected = std::get_if<simnodus::ProjectAcquisitionError>(&acquired))
+                throw std::runtime_error(std::string("import-") + rejected->code);
+            const auto& imported = std::get<simnodus::AcquiredProject>(acquired);
+            const auto& exact = imported.graph->declaration->sources.lock.syntax->bytes;
+            ManagedIdentity physical{imported.root_identity.volume, imported.root_identity.file};
+            const ManagedContext context{random_id(), physical, 1, resource_root.string()};
+            const ManagedCommitRequest initial{chain->scope().generation, chain->scope().document,
+                random_id(), store->allowed_principal(), {}, context, exact};
+            const auto committed = saved(*store, initial);
+            const auto checked = read(*store);
+            require(checked->entries().size() == 1 && checked->current() == committed.token
+                && checked->entries().front().decoded.record.project == exact
+                && checked->entries().front().decoded.record.context == context, "import-correspondence");
+            std::cout << "{\"status\":\"imported-exact\",\"revision\":1,\"bytes\":" << exact.size()
+                << ",\"root_volume\":\"" << std::hex << std::setw(16) << std::setfill('0') << physical.volume
+                << std::dec << "\",\"root_file\":\"" << hex(physical.file)
+                << "\",\"project_equal\":true,\"context_equal\":true}\n";
+            return 0;
+        }
         std::ifstream file(project_path, std::ios::binary | std::ios::ate);
         require(file.good() && file.tellg() > 0 && file.tellg() <= 71680, "project-input"); file.seekg(0);
         std::string project(std::istreambuf_iterator<char>{file}, {}); project.resize(71680, ' ');

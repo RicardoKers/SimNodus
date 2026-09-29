@@ -1,5 +1,30 @@
 # Backlog
 
+## Measured SN-021 block: bounded managed RC lifecycle
+
+The [manual composition](../experiments/SN-021-managed-lifecycle.md) passed
+with exact import, three authenticated Open/Save/Open requests, name-only edit,
+two audited records, create-only export, root-bound fixed E-01 compilation and
+real ngspice consumption. The independent auditor matched 55 source snapshots,
+42 copied artifacts, exact bytes/contexts and four tested refusals. The
+[successful summary](../experiments/evidence/SN-021-managed-lifecycle-vm-success-summary.json)
+retains hashes. Four local native preflight cases and 56 CTests passed.
+SN-021 remains in_progress: assess the remaining applicable v3 competing-Save,
+endpoint, identity and deadline gates, then perform the final bounded acceptance
+audit. Do not infer production service readiness, external overwrite or general
+simulation readiness. Preserve negative evidence and separate SN-045 overlays.
+
+The first operator command failed in local fixture preparation from
+`C:\Windows\System32`, before VM access. The runner was corrected and the
+same-directory local-only preparation passed; retain both raw result hashes in
+the [preparation evidence](../experiments/evidence/SN-021-managed-lifecycle-local-preparation-summary.json).
+
+The first [physical attempt](../experiments/evidence/SN-021-managed-lifecycle-vm-attempt1-summary.json)
+reported exact import and authenticated Open/Save but failed on a direct record
+read before writer exit. Retain its 17 hashed artifacts and do not claim
+reopened or compiled managed bytes in that attempt. The corrected coordinator
+defers record correspondence until writer exit; a separate fresh run passed.
+
 ## Local SN-021 prerequisite: physical resource-root binding
 
 The [same-handle binding slice](../experiments/SN-021-root-binding.md) returns
