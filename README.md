@@ -138,18 +138,22 @@ inventory metadata and lexical paths without physical resource verification.
 The composed [project declaration baseline](docs/experiments/SN-020-acceptance.md)
 is accepted for SN-020, including board/firmware metadata and requested temporal
 policy. Its hierarchical JSON fixtures remain non-executable; physical resource
-verification is separate; runtime negotiation and native loading/saving are pending.
+verification is separate. Bounded native loading/saving and one explicit fixed
+runtime path are accepted separately under SN-021.
 
 SN-021 now has an explicit [Windows/NTFS byte snapshot verifier](docs/architecture/LOCAL_RESOURCE_VERIFICATION.md)
 separate from those declaration parsers. It checks local containment and locked
-bytes without interpreting resources. See [coverage and limits](docs/experiments/SN-021-local-resources.md);
-subsequent bounded loading/saving/interface/compiler evidence is linked above;
-full SN-021 acceptance remains pending.
+bytes without interpreting resources. See [coverage and limits](docs/experiments/SN-021-local-resources.md).
+The [final bounded SN-021 audit](docs/experiments/SN-021-final-acceptance.md)
+accepts one managed-document and fixed E-01 Windows/NTFS workflow. This is a
+headless experimental boundary, not a production desktop application, installed
+service or general runtime profile.
 
 The [native C++20 snapshot API](docs/experiments/SN-021-native-resources.md) now
 implements the bounded physical step with Windows types confined to platform
-code. Complete declaration parsing remains a separate caller gate; this does
-not implement native project loading or authorize resource execution.
+code. Complete declaration parsing remains a separate caller gate; this
+snapshot API alone does not implement native project loading or authorize
+resource execution.
 
 ## License and publication
 

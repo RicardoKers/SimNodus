@@ -1,7 +1,12 @@
 # Managed commit experiment: bounded immutable revision chain
 
-Date: 2026-09-24; updated 2026-09-25. Status: **inert codec/chain and fixture-only
-physical store candidate implemented; bounded VM batch passed, full acceptance pending**.
+Date: 2026-09-24; updated 2026-09-25; evidence update 2026-09-29. Status:
+**fixture-only bounded physical acceptance audited; no production service selected**.
+The [final bounded SN-021 audit](../experiments/SN-021-final-acceptance.md)
+composes the measured store, authenticated request boundary, concurrent/endpoint
+cases and explicit managed RC lifecycle for one document on Windows/local NTFS.
+The experiment remains a test fixture without a production service or general
+durability claim.
 The [canonical format](MANAGED_RECORD_FORMAT.md), [parser evidence](../experiments/SN-021-managed-record-codec.md)
 and [chain tests](../experiments/SN-021-managed-chain.md) cover supplied bytes/observations;
 the [physical store report](../experiments/SN-021-managed-store-candidate.md) records

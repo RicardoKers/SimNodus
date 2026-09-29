@@ -78,11 +78,12 @@ std::wstring pipe_name(std::string_view leaf)
         && std::all_of(leaf.begin() + 10, leaf.end(), [](char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); }), "pipe-name");
     return L"\\\\.\\pipe\\" + wide(leaf);
 }
-std::string descriptor_text(const std::string& writer, const std::string& client, const std::string& extra)
+std::string descriptor_text(const std::string& writer, const std::string& client, const std::string& extra,
+    bool extra_client_rights = false)
 {
     need(writer != client && (extra.empty() || (extra != writer && extra != client)), "pipe-principals");
     auto result = "O:" + text_of(writer) + "G:" + text_of(writer) + "D:P(A;;0x1f01ff;;;" + text_of(writer)
-        + ")(A;;0x120183;;;" + text_of(client) + ")";
+        + ")(A;;" + (extra_client_rights ? "0x12018b" : "0x120183") + ";;;" + text_of(client) + ")";
     if(!extra.empty()) result += "(A;;0x120183;;;" + text_of(extra) + ")";
     return result;
 }
@@ -110,16 +111,42 @@ void verify_pipe(HANDLE pipe, const std::string& writer, const std::string& clie
     }
     need(expected.empty(), "pipe-rights");
 }
+std::string observed_pipe_descriptor(HANDLE pipe)
+{
+    PSID owner = nullptr; PACL dacl = nullptr; PSECURITY_DESCRIPTOR raw = nullptr;
+    const DWORD error = GetSecurityInfo(pipe, SE_KERNEL_OBJECT, OWNER_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+        &owner, nullptr, &dacl, nullptr, &raw);
+    if(error != ERROR_SUCCESS) throw Failure{"listener-descriptor", error}; Local allocation{raw};
+    need(owner != nullptr && dacl != nullptr, "listener-descriptor");
+    SECURITY_DESCRIPTOR_CONTROL control{}; DWORD revision = 0;
+    native(GetSecurityDescriptorControl(raw, &control, &revision), "listener-control");
+    std::string result = "{\"owner\":\"" + sid_text(owner) + "\",\"dacl_protected\":"
+        + ((control & SE_DACL_PROTECTED) ? "true" : "false") + ",\"aces\":[";
+    for(DWORD i = 0; i < dacl->AceCount; ++i) {
+        void* raw_ace = nullptr; native(GetAce(dacl, i, &raw_ace), "listener-ace");
+        const auto* ace = static_cast<ACCESS_ALLOWED_ACE*>(raw_ace);
+        need(ace->Header.AceType == ACCESS_ALLOWED_ACE_TYPE, "listener-ace-kind");
+        if(i) result += ',';
+        result += "{\"sid\":\"" + sid_text(const_cast<DWORD*>(&ace->SidStart))
+            + "\",\"mask\":" + std::to_string(ace->Mask)
+            + ",\"flags\":" + std::to_string(ace->Header.AceFlags) + '}';
+    }
+    result += "]}";
+    return result;
+}
 std::unique_ptr<Handle> create_pipe(const std::wstring& name, const std::string& writer,
-    const std::string& client, const std::string& extra)
+    const std::string& client, const std::string& extra, bool extra_client_rights = false)
 {
     PSECURITY_DESCRIPTOR raw = nullptr;
-    native(ConvertStringSecurityDescriptorToSecurityDescriptorW(wide(descriptor_text(writer, client, extra)).c_str(),
+    native(ConvertStringSecurityDescriptorToSecurityDescriptorW(wide(descriptor_text(writer, client, extra, extra_client_rights)).c_str(),
         SDDL_REVISION_1, &raw, nullptr), "pipe-security"); Local allocation{raw};
     SECURITY_ATTRIBUTES attributes{sizeof(attributes), raw, FALSE};
-    auto handle = std::make_unique<Handle>(CreateNamedPipeW(name.c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_REJECT_REMOTE_CLIENTS, 1, 4096, 4096, 5000, &attributes));
-    need(handle->value != INVALID_HANDLE_VALUE, "pipe-create"); verify_pipe(handle->value, writer, client, extra); return handle;
+    auto handle = std::make_unique<Handle>();
+    handle->value = CreateNamedPipeW(name.c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_REJECT_REMOTE_CLIENTS, 1, 4096, 4096, 5000, &attributes);
+    native(handle->value != INVALID_HANDLE_VALUE, "pipe-create");
+    if(!extra_client_rights) verify_pipe(handle->value, writer, client, extra);
+    return handle;
 }
 struct IoResult { DWORD count{}; bool more{}; };
 IoResult io(HANDLE pipe, unsigned operation, void* buffer, DWORD size, Clock::time_point deadline)
@@ -251,11 +278,52 @@ std::string file_read(const std::string& path, std::size_t maximum)
     need(size >= 0 && static_cast<std::uint64_t>(size) <= maximum, "input-bound"); file.seekg(0);
     std::string bytes(static_cast<std::size_t>(size), '\0'); file.read(bytes.data(), static_cast<std::streamsize>(bytes.size())); need(file.good(), "input-read"); return bytes;
 }
-void server(int argc, char** argv)
+void fault_listener(int argc, char** argv)
 {
-    need(argc == 7 || argc == 8, "server-arguments"); const std::string root(argv[2]), leaf(argv[3]), ready(argv[4]);
+    need(argc == 7 || argc == 8, "listener-arguments");
+    const auto kind = std::string_view(argv[6]);
+    need(kind == "owner" || kind == "rights" || kind == "occupied", "listener-kind");
+    need((kind == "occupied") == (argc == 8), "listener-release-arguments");
+    const auto writer = current_sid(), client = sid_bytes(argv[4]);
+    const auto extra = std::string_view(argv[5]) == "none" ? std::string{} : sid_bytes(argv[5]);
+    const auto pipe = create_pipe(pipe_name(argv[2]), writer, client, extra, kind == "rights");
+    std::cout << "{\"event\":\"listener-ready\",\"kind\":\"" << kind
+        << "\",\"descriptor\":" << observed_pipe_descriptor(pipe->value) << "}\n";
+    file_new(argv[3], "ready\n");
+    if(kind == "occupied") {
+        const auto release = wide(argv[7]); const auto limit = Clock::now() + std::chrono::seconds(40);
+        DWORD attributes = INVALID_FILE_ATTRIBUTES;
+        while((attributes = GetFileAttributesW(release.c_str())) == INVALID_FILE_ATTRIBUTES) {
+            const DWORD error = GetLastError();
+            if(error != ERROR_FILE_NOT_FOUND && error != ERROR_PATH_NOT_FOUND) throw Failure{"listener-release", error};
+            need(Clock::now() < limit, "listener-release-deadline");
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        need((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0, "listener-release-file");
+        std::cout << "{\"event\":\"listener-result\",\"kind\":\"occupied\",\"status\":\"held-name\",\"release_observed\":true}\n";
+        return;
+    }
+    const auto deadline = Clock::now() + std::chrono::seconds(15);
+    io(pipe->value, 0, nullptr, 0, deadline);
+    try {
+        const auto bytes = read_message(pipe->value, request_limit, std::min(deadline, Clock::now() + std::chrono::seconds(2)));
+        need(bytes.empty(), "listener-request-received");
+    } catch(Failure error) {
+        need(std::string_view(error.code) == "pipe-io" &&
+            (error.system == ERROR_BROKEN_PIPE || error.system == ERROR_NO_DATA || error.system == ERROR_PIPE_NOT_CONNECTED),
+            "listener-closure");
+    }
+    std::cout << "{\"event\":\"listener-result\",\"kind\":\"" << kind
+        << "\",\"status\":\"closed-without-request\",\"request_bytes\":0}\n";
+}
+void server(int argc, char** argv, std::string_view terminal_fault = {})
+{
+    need(terminal_fault.empty() ? (argc == 7 || argc == 8) : argc == 8, "server-arguments");
+    need(terminal_fault.empty() || terminal_fault == "terminal-close" || terminal_fault == "terminal-stall", "terminal-fault");
+    const std::string root(argv[2]), leaf(argv[3]), ready(argv[4]);
     const unsigned count = static_cast<unsigned>(std::stoul(argv[5])); need(count >= 1 && count <= 32, "connection-bound");
-    const unsigned drop = argc == 8 ? static_cast<unsigned>(std::stoul(argv[7])) : 0; need(drop <= count, "drop-bound");
+    const unsigned drop = terminal_fault.empty() && argc == 8 ? static_cast<unsigned>(std::stoul(argv[7])) : 0;
+    need(drop <= count, "drop-bound");
     const auto extra = std::string_view(argv[6]) == "none" ? std::string{} : sid_bytes(argv[6]);
     const auto writer = current_sid(); const auto name = pipe_name(leaf); auto opened = open_managed_store(root);
     if(const auto* error = std::get_if<ManagedStoreError>(&opened)) throw Failure{error->code, error->system_code};
@@ -305,8 +373,16 @@ void server(int argc, char** argv)
             if(drop == connection && committed) { decision_code = "reply-dropped"; decision_indeterminate = true; }
             else {
                 stage = "reply"; write_message(pipe->value, response(request, status, payload), deadline); stage = "ack"; marker(pipe->value, 0x7e, deadline);
-                stage = "terminal"; write_message(pipe->value, std::string(1, '\x7f'), deadline); stage = "terminal-ack"; marker(pipe->value, 0x7f, deadline);
-                std::cout << "{\"event\":\"connection-complete\",\"connection\":" << connection << "}\n";
+                stage = "terminal";
+                if(connection == 1 && !terminal_fault.empty()) {
+                    need(committed, "fault-requires-committed-save");
+                    decision_code = terminal_fault == "terminal-close" ? "terminal-closed" : "terminal-stalled";
+                    decision_indeterminate = true;
+                    if(terminal_fault == "terminal-stall") std::this_thread::sleep_until(deadline + std::chrono::milliseconds(250));
+                } else {
+                    write_message(pipe->value, std::string(1, '\x7f'), deadline); stage = "terminal-ack"; marker(pipe->value, 0x7f, deadline);
+                    std::cout << "{\"event\":\"connection-complete\",\"connection\":" << connection << "}\n";
+                }
             }
         } catch(Failure error) {
             decision_code = error.code; decision_system = error.system; decision_indeterminate = committed || decision_indeterminate;
@@ -321,16 +397,44 @@ void server(int argc, char** argv)
     }
     std::cout << "{\"event\":\"server-complete\",\"status\":\"served\",\"connections\":" << count << "}\n";
 }
-void client(int argc, char** argv, bool disconnect)
+void client(int argc, char** argv, bool disconnect, bool wait_busy = false, bool idle = false)
 {
-    need(argc == 7 || argc == 8, "client-arguments"); const auto name = pipe_name(argv[2]); const auto writer = sid_bytes(argv[3]), allowed = sid_bytes(argv[4]);
+    need(wait_busy ? argc == 9 : idle ? argc == 7 : (argc == 7 || argc == 8), "client-arguments");
+    const auto name = pipe_name(argv[2]); const auto writer = sid_bytes(argv[3]), allowed = sid_bytes(argv[4]);
     const auto extra = std::string_view(argv[5]) == "none" ? std::string{} : sid_bytes(argv[5]); const auto bytes = file_read(argv[6], request_limit + 1);
-    const char* stage = "open"; bool verified = false, sent = false;
+    const char* stage = "open"; bool verified = false, sent = false; unsigned busy_retries = 0;
     try {
-        Handle pipe(CreateFileW(name.c_str(), client_rights, 0, nullptr, OPEN_EXISTING,
-            FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr)); native(pipe.value != INVALID_HANDLE_VALUE, "pipe-open");
+        if(wait_busy) {
+            stage = "gate";
+            std::cout << "{\"event\":\"client-ready\",\"status\":\"waiting-for-gate\",\"pid\":" << GetCurrentProcessId() << "}\n";
+            const auto gate = wide(argv[8]); const auto limit = Clock::now() + std::chrono::seconds(10);
+            DWORD attributes = INVALID_FILE_ATTRIBUTES;
+            while((attributes = GetFileAttributesW(gate.c_str())) == INVALID_FILE_ATTRIBUTES) {
+                const DWORD error = GetLastError();
+                if(error != ERROR_FILE_NOT_FOUND && error != ERROR_PATH_NOT_FOUND) throw Failure{"gate-read", error};
+                need(Clock::now() < limit, "gate-deadline");
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
+            need((attributes & FILE_ATTRIBUTE_DIRECTORY) == 0, "gate-file");
+        }
+        stage = "open"; const auto open_limit = Clock::now() + std::chrono::seconds(5); Handle pipe;
+        for(;;) {
+            if(wait_busy) need(Clock::now() < open_limit, "pipe-open-deadline");
+            pipe.value = CreateFileW(name.c_str(), client_rights, 0, nullptr, OPEN_EXISTING,
+                FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr);
+            if(pipe.value != INVALID_HANDLE_VALUE) break;
+            const DWORD error = GetLastError();
+            if(!wait_busy || error != ERROR_PIPE_BUSY) throw Failure{"pipe-open", error};
+            ++busy_retries;
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
         stage = "verify-server"; verify_pipe(pipe.value, writer, allowed, extra); verified = true;
         DWORD mode = PIPE_READMODE_MESSAGE; native(SetNamedPipeHandleState(pipe.value, &mode, nullptr, nullptr), "pipe-mode");
+        if(idle) {
+            stage = "read-stall"; std::this_thread::sleep_for(std::chrono::seconds(6));
+            std::cout << "{\"event\":\"client-result\",\"status\":\"held-idle\",\"server_verified\":true,\"request_sent\":false,\"indeterminate\":false}\n";
+            return;
+        }
         const auto deadline = Clock::now() + std::chrono::seconds(5); stage = "send"; write_message(pipe.value, bytes, deadline); sent = true;
         if(disconnect) { std::cout << "{\"event\":\"client-result\",\"status\":\"disconnected\",\"server_verified\":true,\"indeterminate\":true}\n"; return; }
         stage = "response"; const auto reply = read_message(pipe.value, response_limit, deadline);
@@ -360,17 +464,24 @@ void client(int argc, char** argv, bool disconnect)
                 && nonzero(token.commit) && nonzero(token.digest) && token.identity.volume != 0 && nonzero(token.identity.file), "response-token-fields");
         }
         need(in.position == reply.size(), "response-size");
+        // Retain a validated reply even when the terminal exchange later fails.
+        // A reply file alone does not establish that the client accepted a Save.
+        if(argc >= 8) file_new(argv[7], reply);
         stage = "ack"; write_message(pipe.value, std::string(1, '\x7e'), deadline); stage = "terminal"; marker(pipe.value, 0x7f, deadline);
         stage = "terminal-ack"; write_message(pipe.value, std::string(1, '\x7f'), deadline); stage = "closure";
         try { read_message(pipe.value, 65, deadline); throw Failure{"extra-response"}; }
         catch(Failure error) { if(error.system != ERROR_BROKEN_PIPE && error.system != ERROR_NO_DATA && error.system != ERROR_PIPE_NOT_CONNECTED) throw; }
-        if(argc == 8) file_new(argv[7], reply); Writer encoded; if(has_token) encoded.token(token);
+        Writer encoded; if(has_token) encoded.token(token);
         const char* result = status == 0 ? "accepted" : status == 1 ? "rejected" : status == 2 ? "busy" : status == 3 ? "indeterminate" : "not-observed";
         std::cout << "{\"event\":\"client-result\",\"status\":\"" << result << "\",\"operation\":" << operation << ",\"reply_status\":" << status << ",\"server_verified\":true,\"token\":\"" << hex(encoded.bytes)
-            << "\",\"revision\":" << token.revision << ",\"operation_id\":\"" << hex(operation_id) << "\",\"request_digest\":\"" << hex(digest) << "\",\"response_bytes\":" << reply.size() << "}\n";
+            << "\",\"revision\":" << token.revision << ",\"operation_id\":\"" << hex(operation_id) << "\",\"request_digest\":\"" << hex(digest) << "\",\"response_bytes\":" << reply.size();
+        if(wait_busy) std::cout << ",\"pipe_busy_retries\":" << busy_retries;
+        std::cout << "}\n";
     } catch(Failure error) {
         std::cout << "{\"event\":\"client-result\",\"status\":\"failed\",\"stage\":\"" << stage << "\",\"code\":\"" << error.code << "\",\"system\":" << error.system
-            << ",\"server_verified\":" << (verified ? "true" : "false") << ",\"request_sent\":" << (sent ? "true" : "false") << ",\"indeterminate\":" << (sent ? "true" : "false") << "}\n";
+            << ",\"server_verified\":" << (verified ? "true" : "false") << ",\"request_sent\":" << (sent ? "true" : "false") << ",\"indeterminate\":" << (sent ? "true" : "false");
+        if(wait_busy) std::cout << ",\"pipe_busy_retries\":" << busy_retries;
+        std::cout << "}\n";
     }
 }
 void parser_checks()
@@ -407,6 +518,12 @@ void transport_checks()
     const auto writer = current_sid(), dummy = sid_bytes("S-1-5-21-1-2-3-2147483647");
     const auto tag = static_cast<std::uint64_t>(GetCurrentProcessId()) ^ GetTickCount64(); Writer tag_bytes; tag_bytes.integer(tag, 6);
     const auto name = pipe_name("SN021Save-" + hex(tag_bytes.bytes)); auto pipe = create_pipe(name, writer, dummy, {});
+    DWORD occupied_system = 0;
+    try { auto occupied = create_pipe(name, writer, dummy, {}); }
+    catch(Failure error) {
+        if(std::string_view(error.code) == "pipe-create") occupied_system = error.system;
+    }
+    need(occupied_system != 0, "transport-occupied-name");
     std::string maximum(request_limit, '\0');
     for(std::size_t i = 0; i < maximum.size(); ++i) maximum[i] = static_cast<char>(i % 251);
     unsigned server_more = 0, client_more = 0; bool oversize_refused = false; std::exception_ptr server_error, client_error;
@@ -448,7 +565,8 @@ void transport_checks()
     worker.join(); if(client_error) std::rethrow_exception(client_error); if(server_error) std::rethrow_exception(server_error);
     need(oversize_refused && server_more >= 2 && client_more >= 1, "transport-more-data");
     std::cout << "{\"status\":\"transport-checked\",\"scope\":\"same-identity-io-only\",\"maximum_bytes\":" << request_limit
-        << ",\"oversize_bytes\":" << request_limit + 1 << ",\"server_more_data\":" << server_more << ",\"client_more_data\":" << client_more << ",\"oversize_refused\":true}\n";
+        << ",\"oversize_bytes\":" << request_limit + 1 << ",\"server_more_data\":" << server_more << ",\"client_more_data\":" << client_more
+        << ",\"oversize_refused\":true,\"occupied_name_system\":" << occupied_system << "}\n";
 }
 }
 int main(int argc, char** argv)
@@ -470,7 +588,11 @@ int main(int argc, char** argv)
         if(mode == "parser-check") { need(argc == 2, "arguments"); parser_checks(); }
         else if(mode == "transport-check") { need(argc == 2, "arguments"); transport_checks(); }
         else if(mode == "server") server(argc, argv);
+        else if(mode == "server-fault") { need(argc == 8, "server-arguments"); server(argc, argv, argv[7]); }
+        else if(mode == "fault-listener") fault_listener(argc, argv);
         else if(mode == "client" || mode == "client-disconnect") client(argc, argv, mode == "client-disconnect");
+        else if(mode == "client-wait") client(argc, argv, false, true);
+        else if(mode == "client-idle") client(argc, argv, false, false, true);
         else throw Failure{"mode"};
         return 0;
     } catch(Failure error) { std::cout << "{\"status\":\"fixture-failed\",\"code\":\"" << error.code << "\",\"system\":" << error.system << "}\n"; return 2; }

@@ -1,0 +1,29 @@
+{
+  "status": "audited-v3-boundary-candidate-only",
+  "run": "20260929T222514Z-a45b647a5b8d",
+  "host_result_sha256": "5b4722734b9568a42c7af78d0b9a99eef718364ddec3172f35882899ba17ab64",
+  "inventory_sha256": "e764901a9e21e6f07d94a334ff3bc28d540fbb8160b037c9f5505fd64f9067f1",
+  "guest_boundary_sha256": "5f23178c6170455b179f742a14fb7a8d0cb26f03de82c7d7fba6e06b980a7160",
+  "audit_summary_sha256": "d368dd2898b6d6ea41641e76f697ff3e8fd26ccbbb7afe74440e1d6ba8270ec9",
+  "guest_elapsed_ms": 16457,
+  "source_snapshots_sha256_verified": 34,
+  "copied_artifacts_sha256_verified": 60,
+  "child_processes_audited": 19,
+  "competing_save": {
+    "winner": "compete-a",
+    "accepted": 1,
+    "stale_refusals": 1,
+    "net_new_committed_records": 1
+  },
+  "occupied_name_windows_error": 231,
+  "terminal_close": "Client remained uncertain; authenticated Reconcile returned the exact committed revision-3 receipt without repeating Save.",
+  "terminal_stall": "Client deadline cancelled pending I/O with completion 995; authenticated Reconcile returned the exact committed revision-4 receipt without repeating Save.",
+  "silent_client": "Connected client sent no request; writer read deadline cancelled pending I/O with completion 995, refused before dispatch, and published no record.",
+  "record_sha256_by_revision": [
+    "c32ae248ac1a452c07b7705791417066d3b9286eda590a684b129ebf2d068da2",
+    "d05de1672fb5ac5d0d9cad12a004f92f62e1d37fc475c6d1177377bdcd0bc674",
+    "c453c906b9da3c8bf9bf4d2c601a7c401b8cae97a2bb03ff1a918e95a0c1c913",
+    "6af2541272a6ccd7d161fb2bc42b92807be4c70783784694c6476339c9c5e422"
+  ],
+  "limits": "Disposable-VM test-only native v3 request boundary. No installed service, external overwrite, power-loss durability, general runtime readiness, trusted origin, or redistribution permission is established. Earlier failed attempts remain separate evidence."
+}

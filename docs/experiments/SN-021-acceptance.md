@@ -1,5 +1,15 @@
 # SN-021 acceptance matrix and remaining gates
 
+## Final bounded audit (2026-09-29)
+
+The [final SN-021 audit](SN-021-final-acceptance.md) composes the measured
+managed-copy workflow, private v3 request boundary and real fixed E-01 ngspice
+consumption. It supports bounded Windows/local-NTFS acceptance for one managed
+document and that explicit analog profile. The dated matrix and remaining-gate
+list below are retained as historical findings; ADR 0076 changed the selected
+saving destination, and no external overwrite, production service, broader
+runtime or automatic project execution is accepted.
+
 ## Subsequent saving workflow decision (2026-09-24)
 
 The owner selected [managed document saving](../decisions/0076-managed-document-saving.md)

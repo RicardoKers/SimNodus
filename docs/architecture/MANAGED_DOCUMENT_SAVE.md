@@ -1,5 +1,11 @@
 # Managed document saving contract
 
+Status update (2026-09-29): the [final bounded SN-021 audit](../experiments/SN-021-final-acceptance.md)
+supports this contract in a test-only, one-document Windows/local-NTFS workflow.
+Explicit import, authenticated managed Open/Save/reopen and create-only export
+were physically composed. The original acceptance text below remains the
+contract; no production service, UI or external overwrite is accepted.
+
 ## Concrete experimental candidate (2026-09-24)
 
 [ADR 0077](../decisions/0077-bounded-managed-commit-candidate.md) selects the
@@ -16,7 +22,8 @@ cases. Proceed to step 2's concrete commit design below; do not expand IPC by de
 The read-only fixture does not prove the write-enabled candidate's isolation or
 publication. No saving/recovery acceptance or service installation follows.
 
-Date: 2026-09-24. Status: **required behavior under ADR 0076; unimplemented**.
+Date: 2026-09-24; evidence update 2026-09-29. Status: **required behavior under
+ADR 0076; bounded test-only implementation audited; product delivery pending**.
 This specifies acceptance, not an already validated algorithm or service API.
 
 ## Operations and authority

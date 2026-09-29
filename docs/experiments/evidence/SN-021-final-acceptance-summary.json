@@ -1,0 +1,25 @@
+{
+  "date_utc": "2026-09-29",
+  "status": "bounded-sn-021-acceptance-audited",
+  "scope": "One managed document on Windows/local NTFS with explicit import/Open/name edit/Save/reopen/create-only export and explicit fixed analog E-01 RC replay",
+  "evidence_summary_sha256": {
+    "SN-021-v3-boundary-success-summary.json": "4bdf2793a655aff5ad8029a20ea9e901af99598885e9e2c56d97e5297dd87a61",
+    "SN-021-managed-lifecycle-vm-success-summary.json": "fd2543613f28fc2ee21dd792b96236fab494892e4bb4371a66d12b1d25b9343d",
+    "SN-021-managed-request-summary.json": "6b187fc925b83013de25b67fbe8557c677d4997f515609193ae414fe28777350",
+    "SN-021-managed-store-summary.json": "599d31572726190592d57e14f0405c3be8cf7471248a48057185dde1ab194c3b",
+    "SN-021-store-visibility-result.json": "0c54400667c790438140e4781ad94628e8f55ae2af90a3b62c7dc4edb0c4255f",
+    "SN-021-root-binding-summary.json": "de88b0ec97926fd3bd83284e43071d70c8fd76ad59305253be9e34da884c9d9d",
+    "SN-021-fixed-replay-summary.json": "361ec90bf117002c8e4ecba52666364e73312f75e021957372b7a7c0182f3848",
+    "SN-021-acceptance-gates-summary.json": "7f444d14e367d3d62ed48ce310e835fda4ca74a461643ee720d38bb16e8336bc",
+    "SN-021-v3-boundary-attempt1-summary.json": "448af88c3ff365794aef4cf92b6375148ef6847f26990be021822dcd6ff09a0d",
+    "SN-021-v3-boundary-attempt2-summary.json": "55a1cbf89aeeaadca512266f9cd976e457070bc5676dffd089fff1abd8501d3e"
+  },
+  "latest_checks": {
+    "windows_release_ctest": "56/56 passed",
+    "repository_checker": "827 text files passed",
+    "git_diff_check": "passed",
+    "v3_independent_byte_audit": "34 sources, 60 artifacts, 19 processes, four complete records passed",
+    "real_engine_reused": "Audited managed lifecycle ngspice: 5012 samples, maximum analytical error 9.889724283951296e-08 V under 1e-05 V; final time within 1e-12 s of 0.005 s"
+  },
+  "limits": "No production app or service, external overwrite, power-loss durability, real disk-full evidence, physical short-complete v3-frame measurement, general runtime/MCU profile, automatic execution, trusted origin or redistribution permission. Historical failures and SN-045 overlays remain preserved."
+}
