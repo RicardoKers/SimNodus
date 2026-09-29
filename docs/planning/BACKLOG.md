@@ -1,5 +1,22 @@
 # Backlog
 
+## SN-021 bounded acceptance: done
+
+The [complete v3 request-boundary matrix](../experiments/SN-021-v3-boundary.md)
+passed on the disposable VM, and its independent auditor matched 34 source
+snapshots, 60 artifacts, 19 processes and four complete records. Competing Saves,
+endpoint owner/rights/occupied-name refusals, two uncertain terminal results
+resolved by Reconcile and a silent-client deadline were observed. The two failed
+earlier attempts and their hashes remain separate negative evidence. The
+[final bounded audit](../experiments/SN-021-final-acceptance.md) composes this
+with the already measured managed RC lifecycle and real ngspice run. Selected
+Windows/local-NTFS, one-managed-document SN-021 gates are complete. A private
+fixture is not a production service, external overwrite, broader runtime or
+implicit execution.
+
+The chronological SN-021 notes below record earlier statuses; their pending
+statements are superseded by the audited result above.
+
 ## Measured SN-021 block: bounded managed RC lifecycle
 
 The [manual composition](../experiments/SN-021-managed-lifecycle.md) passed
@@ -589,7 +606,7 @@ future direction, not a new M3 delivery commitment.
 | ID | Priority | State | Task | Depends on | Acceptance evidence |
 |---|---|---|---|---|---|
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
-| SN-021 | P1 | in_progress | Implement project loading/saving and circuit compilation | SN-020 | Portable paths, atomic save, source mapping, independent graph. [Local reference](../experiments/SN-021-local-resources.md) and [native byte snapshots](../experiments/SN-021-native-resources.md) implemented; bounded configured lifecycle accepted; managed Save and final acceptance remain pending under ADR 0076 |
+| SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |

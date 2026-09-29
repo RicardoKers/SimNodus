@@ -1,5 +1,37 @@
 # Current state
 
+## Current SN-021 state: bounded acceptance complete
+
+PR #68 integrated the bounded managed RC lifecycle on main
+`8e30fdb859b012f932b4f5f42c7dddbb5976efa1`; local main, origin/main and
+the GitHub branch matched at that time. On `codex/sn-021-v3-boundary`, the
+[complete physical v3 batch](../experiments/SN-021-v3-boundary.md) and its
+[independent byte audit](../experiments/evidence/SN-021-v3-boundary-success-summary.json)
+passed: 34 source snapshots, 60 artifacts, 19 processes and four committed
+records. Exactly one of two competing Saves committed; wrong-owner/rights and
+occupied endpoints refused; two uncertain post-commit terminal outcomes were
+reconciled by exact receipts; a silent client crossed the read deadline without
+publication. The two preceding failed attempts remain separate, hashed negative
+evidence. The VM batch did not submit a short complete v3 frame; that narrower
+case has local v3 parser and earlier physical v2 evidence only.
+
+The [final bounded acceptance audit](../experiments/SN-021-final-acceptance.md)
+composes this result with the previously measured managed import/Open/name
+edit/Save/reopen/create-only export and real fixed E-01 ngspice consumption.
+SN-021's selected Windows/local-NTFS, one-document acceptance gates are complete
+on measured evidence. This remains headless, explicit and experimental: no
+production service/UI, external overwrite, automatic executable-resource access,
+power-loss durability or broader runtime profile is claimed. Release CTest passed
+56/56 after the VM audit; the repository checker passed on 827 text files and
+`git diff --check` passed. Publication status must be verified from the PR and
+Git state, rather than inferred from the experimental audit. Preserve twelve
+separate SN-045 overlays and every positive, negative and inconclusive result.
+
+## Historical SN-021 progress notes (superseded as current status)
+
+The chronological SN-021 sections below retain earlier in-progress statements
+as history; the bounded acceptance and publication state above is current.
+
 ## Current SN-021 block: bounded managed RC lifecycle passed
 
 The [bounded managed-document lifecycle](../experiments/SN-021-managed-lifecycle.md)

@@ -1,0 +1,27 @@
+{
+  "status": "failed-not-accepted",
+  "run": "20260929T121744Z-138f3ba362db",
+  "host_result_sha256": "a39836305070b7f2da6b2bc40b8357ecdc47c4985cd299b2564f01606fe06be3",
+  "inventory_sha256": "c60959cc51a8fce7988f7035c8bb480efd29022ace6fdc6ef8bbbff841d3b64b",
+  "guest_boundary_sha256": "ffc3d1354bf73a08090e7916526597c48cf9b2edf1b65fd951c4012a928b86f5",
+  "source_snapshots_sha256_verified": 34,
+  "copied_artifacts_sha256_verified": 44,
+  "guest_processes_recorded": 16,
+  "guest_stage": "uncertain-terminal-and-reconcile",
+  "guest_error": "PROBE:terminal-cancellation",
+  "occupied_name": {
+    "second_writer_exit_code": 2,
+    "fixture_code": "pipe-create",
+    "windows_system_error": 231,
+    "listener_alive_at_refusal": true,
+    "release_observed": true
+  },
+  "terminal_stall_client_raw_event": {
+    "event": "cancellation",
+    "cancel_error": 0,
+    "completion": 995
+  },
+  "copied_guest_script_sha256": "dafa10534b972cd49103e52c1c596f0fde90423ea29543e58b683497a9c5f3ce",
+  "interpretation": "The client recorded the expected completed pending-I/O cancellation. The coordinator then read a JSONL path without Start-Child's numeric prefix, found no cancellation event, and stopped before the stalled Save's Reconcile and the silent-client case. Earlier guest observations, including a closed-terminal reconciliation, do not replace the missing final raw record copies or a complete independent audit. No full v3 boundary acceptance follows.",
+  "retention": "The entire ignored run directory remains unchanged. No automatic retry, cleanup, snapshot revert, or service installation occurred."
+}

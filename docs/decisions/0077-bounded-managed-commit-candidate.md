@@ -1,7 +1,14 @@
 # ADR 0077: Evaluate a bounded immutable revision chain
 
-Date: 2026-09-24; updated 2026-09-25. Status: **selected experimental candidate;
-bounded physical store batch passed, full acceptance pending**.
+Date: 2026-09-24; updated 2026-09-25; evidence update 2026-09-29. Status:
+**selected experimental candidate; bounded physical acceptance audited; no
+production implementation selected**.
+
+The [final bounded SN-021 audit](../experiments/SN-021-final-acceptance.md)
+combines the measured store, authenticated requests, managed RC lifecycle and
+concurrent/endpoint/deadline batch for one document on Windows/local NTFS.
+The earlier pending statements below describe criteria before those batches;
+they do not imply an installed service, power-loss durability or external overwrite.
 
 Under [ADR 0076](0076-managed-document-saving.md), evaluate the
 [bounded commit design](../architecture/MANAGED_COMMIT_EXPERIMENT.md): one complete

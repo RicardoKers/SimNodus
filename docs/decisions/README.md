@@ -3,13 +3,14 @@
 ## Latest experimental commit decision
 
 - [0077: Bounded managed commit candidate](0077-bounded-managed-commit-candidate.md):
-  selected experiment; record codec, write implementation and physical acceptance pending.
+  selected experiment; [bounded physical acceptance](../experiments/SN-021-final-acceptance.md)
+  audited for one Windows/local-NTFS managed document; no production service selected.
 
 ## Latest saving decision
 
 - [0076: Managed document saving](0076-managed-document-saving.md): accepted owner
-  workflow; implementation and physical acceptance pending. External overwrite remains
-  unsupported; no service installation is selected.
+  workflow; bounded experimental lifecycle audited. External overwrite remains
+  unsupported; no production service installation is selected.
 
 An ADR records context, decision, consequences, and revisit criteria. Do not rewrite history to hide a changed decision: add a new ADR and mark the old one superseded.
 

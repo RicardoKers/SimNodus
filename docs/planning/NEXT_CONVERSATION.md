@@ -1,4 +1,38 @@
-# Latest handoff: SN-021 managed RC lifecycle measured
+# Next conversation: SN-022 after SN-021 publication
+
+This prompt is prepared for a new chat **after** the audited SN-021 block passes
+publication checks and its squash merge is confirmed on local and remote main.
+Until then, use [CURRENT](CURRENT.md) as the live status and do not infer that
+GitHub has the final SN-021 evidence.
+
+> Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
+> docs/planning/CURRENT.md, BACKLOG.md and NEXT_CONVERSATION.md, the relevant
+> architecture/decision indexes, ADRs 0076 and 0077, and the
+> [SN-021 final bounded acceptance audit](../experiments/SN-021-final-acceptance.md).
+> Verify branch, local changes, unpublished commits, main and remote status before
+> editing; preserve valid local work and all positive, negative and inconclusive
+> evidence. SN-021 accepted only the Windows/local-NTFS, one-managed-document
+> workflow and explicit fixed E-01 RC replay: inert acquisition and import,
+> authenticated managed Open/Save/Reconcile, create-only export, verified physical
+> resource capture, bound compilation and explicit real ngspice consumption. It
+> did not deliver a production app/service, arbitrary external overwrite,
+> automatic executable-resource access, general configured MCU/mixed-signal
+> execution, power-loss durability, trusted origin or redistribution permission.
+> Do not expand that claim. Preserve SN-017 Python preparation/GDB/fixture control,
+> accepted profiles and numerical tolerances, MCU/toolchain independence,
+> PDF auto-open suppression and PID retry behavior. Preserve the SN-044 UX and
+> instrumentation decisions and any independent SN-045 headless changes; do not
+> redo them. Start SN-022 with its smallest coherent acceptance slice: evaluate
+> Qt 6 module choice and the GUI/worker boundary using the existing desktop UX
+> criteria, one small experiment, a licensing inventory and a crash-handling
+> decision. Keep domain, presentation, instrumentation and adapters separate;
+> do not infer that selecting Qt authorizes a full editor. Document what is
+> proposed, tested and pending, run the repository checker, and follow the
+> existing branch/PR/check/squash workflow only for stable validated work.
+> Keep repository content in English and speak to me in Portuguese.
+
+The historical handoffs below record earlier SN-021 steps and must not replace
+the live status above.
 
 ## Measured physical managed RC lifecycle batch
 

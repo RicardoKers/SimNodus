@@ -1,0 +1,22 @@
+{
+  "status": "failed-not-accepted",
+  "run": "20260929T113518Z-0699d0688ebd",
+  "host_result_sha256": "f50fc4c504b9ba527e721337f4c0daf1fc79c55800186ea310ac8d90b82ee417",
+  "inventory_sha256": "a2234b8e6fb58a7658ecea88604b4ba69623b12361e56f56775f70eb531b2b87",
+  "guest_boundary_sha256": "8d1e3b037097529417344c8dbe330ceff89014aee098f0ac546a6d7271aa9e87",
+  "source_snapshots_sha256_verified": 34,
+  "copied_artifacts_sha256_verified": 27,
+  "guest_processes_recorded": 11,
+  "guest_stage": "endpoint-authenticity",
+  "guest_error": "PROBE:occupied-endpoint-exposed",
+  "second_writer": {
+    "exit_code": 2,
+    "fixture_code": "pipe-create",
+    "reported_system_error": 0,
+    "ready_file_reported": false
+  },
+  "copied_probe_source_sha256": "75b1483c008aec64a54c6fb03df376f6965f3cd5034fd4da11a167764f66db5e",
+  "copied_probe_binary_sha256": "927f63934332d69484eeac308b9d7a936d67f2fa22588489beeb084f5c11a3d6",
+  "interpretation": "The probe discarded GetLastError after CreateNamedPipeW failed. The exact Windows failure code cannot be reconstructed. The guest reported one accepted competing Save and one stale refusal, but the batch stopped before final raw record copies and the independent complete audit. Terminal and silent-client cases did not run. No v3 boundary acceptance follows.",
+  "retention": "The entire ignored run directory, including source and binary snapshots, inventory, guest report, and partial artifacts, remains unchanged. No automatic retry, cleanup, snapshot revert, or service installation occurred."
+}

@@ -1,7 +1,13 @@
 # ADR 0076: Select managed document saving for SN-021
 
-Date: 2026-09-24. Status: **accepted product workflow and acceptance direction;
-implementation and physical acceptance pending**.
+Date: 2026-09-24; evidence update 2026-09-29. Status: **accepted managed-copy
+workflow; bounded experimental physical acceptance audited; product delivery pending**.
+
+The [final bounded SN-021 audit](../experiments/SN-021-final-acceptance.md)
+records measured explicit import, authenticated managed Open/Save/reopen,
+create-only export and fixed E-01 consumption for one document on Windows/local
+NTFS. The pending clauses below state the original acceptance criteria; this
+evidence does not select a production service, UI or external overwrite.
 
 ## Decision
 

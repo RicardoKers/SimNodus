@@ -1,5 +1,5 @@
 # Manual disposable-VM authenticated managed-document request experiment. No service.
-param([Parameter(Mandatory=$true)][ValidateSet('Inventory','Probe')][string]$Mode,
+param([Parameter(Mandatory=$true)][ValidateSet('Inventory','Probe','Boundary')][string]$Mode,
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{12}$')][string]$Tag,
     [Parameter(Mandatory=$true)][string]$OutputPath,
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{64}$')][string]$ExpectedStoreSha256,
@@ -186,6 +186,20 @@ public static class SNManagedRequestIdentity {
         $report.observations+=@{case=($Label+'-ready');state=$state;pid=$child.process.Id};Save-Report
         return @{child=$child;state=$state;pipe=$pipe;next=0}
     }
+    function Server-Fault([string]$Leaf,[string]$Label,[string]$Fault){
+        Require ($Fault -in @('terminal-close','terminal-stall')) 'server-fault-kind'
+        $pipe='SN021Save-'+[guid]::NewGuid().ToString('N').Substring(0,12);$ready="$harness\w\$Label.ready"
+        $child=Start-Child 'w' $Label $requestExe @('server-fault',$Leaf,$pipe,$ready,'2',$sids.u,$Fault)
+        $deadline=[Math]::Min(300000,$clock.ElapsedMilliseconds+10000)
+        while(-not (Test-Path -LiteralPath $ready)){
+            Require (-not $child.process.HasExited -and $clock.ElapsedMilliseconds -lt $deadline) 'fault-server-not-ready'
+            Start-Sleep -Milliseconds 50
+        }
+        $state=@(Lines $child|Where-Object {$_.event -eq 'ready'})[-1]
+        Require ($state.run.Length -eq 32 -and $state.token.Length -eq 216) 'fault-server-ready-fields'
+        $report.observations+=@{case=($Label+'-ready');state=$state;pid=$child.process.Id};Save-Report
+        return @{child=$child;state=$state;pipe=$pipe;next=0}
+    }
     function Client($Server,[string]$Label,[byte[]]$Request,[string]$Role='c',[string]$ResponseOption=''){
         $Server.next++
         $input="$harness\$Role\$Label.request.bin";$output="$harness\$Role\$Label.response.bin"
@@ -204,6 +218,180 @@ public static class SNManagedRequestIdentity {
         $report.observations+=@{case=($Label+'-decision');role=$Role;connection=$Server.next;request_sha256=(Digest $Request);decision=$decision};Save-Report
         if(Test-Path -LiteralPath $output){Artifact $output ($Label+'.response.bin')}
         return $result
+    }
+    function Fault-Listener([string]$Role,[string]$Label,[string]$Kind){
+        $pipe='SN021Save-'+[guid]::NewGuid().ToString('N').Substring(0,12)
+        $ready="$harness\$Role\$Label.ready"
+        $release="$harness\admin\$Label.release"
+        $extra=if($Role -eq 'u'){'none'}else{$sids.u}
+        $arguments=@('fault-listener',$pipe,$ready,$sids.c,$extra,$Kind)
+        if($Kind -eq 'occupied'){$arguments+=$release}
+        $child=Start-Child $Role $Label $requestExe $arguments
+        $deadline=[Math]::Min(300000,$clock.ElapsedMilliseconds+10000)
+        while(-not (Test-Path -LiteralPath $ready)){
+            Require (-not $child.process.HasExited -and $clock.ElapsedMilliseconds -lt $deadline) 'listener-not-ready'
+            Start-Sleep -Milliseconds 20
+        }
+        $event=@(Lines $child|Where-Object {$_.event -eq 'listener-ready'})[-1]
+        Require ($event.kind -eq $Kind -and $event.descriptor.owner -eq $sids[$Role] -and
+            $event.descriptor.dacl_protected) 'listener-identity'
+        $report.observations+=@{case=($Label+'-ready');event=$event;pid=$child.process.Id};Save-Report
+        return @{child=$child;pipe=$pipe;ready=$ready;release=$release}
+    }
+    function Expected-Failure($Child,[string]$Code){
+        $remaining=[Math]::Min(30000,300000-$clock.ElapsedMilliseconds)
+        Require ($remaining -gt 0 -and $Child.process.WaitForExit([int]$remaining)) 'expected-failure-timeout'
+        $lines=@(Lines $Child)
+        $report.observations+=@{case=$Child.label;role=$Child.role;pid=$Child.process.Id;exited=$true;exit_code=$Child.process.ExitCode;lines=$lines;stdout_path=$Child.output};Save-Report
+        Require ($Child.process.ExitCode -eq 2 -and $lines.Count -gt 0 -and $lines[-1].code -eq $Code) 'expected-failure-result'
+        Artifact $Child.output ($Child.label+'.'+$Child.role+'.jsonl')
+        if(Test-Path -LiteralPath ($Child.output+'.stderr')){Artifact ($Child.output+'.stderr') ($Child.label+'.'+$Child.role+'.stderr')}
+        return $lines[-1]
+    }
+    if($Mode -eq 'Boundary'){
+        $report.stage='competing-save';Save-Report
+        $leaf='SN021Managed-'+[guid]::NewGuid().ToString('N').Substring(0,12)
+        $report.roots+=@{case='v3-boundary';leaf=$leaf}
+        $v=Finish (Start-Child 'a' 'boundary-provision' $storeExe @('provision',$leaf,$sids.w,$sids.c))
+        Require ($v.status -eq 'provisioned') 'boundary-provision'
+        $v=Finish (Start-Child 'w' 'boundary-seed' $storeExe @('write',$leaf,$project))
+        Require ($v.status -eq 'committed' -and $v.revision -eq 1) 'boundary-seed'
+        $baseline=Snapshot $leaf $false
+        $manifestPath="C:\$leaf\generation.manifest"
+        $manifestBefore=@{sha256=(Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant();sddl=(Get-Acl -LiteralPath $manifestPath).Sddl;identity=[SNManagedRequestIdentity]::Read($manifestPath)}
+        $sourceBefore=(Get-FileHash -LiteralPath $project -Algorithm SHA256).Hash.ToLowerInvariant()
+        $seed=[IO.File]::ReadAllBytes($project);$a=New-Object byte[] 71680;[Array]::Copy($seed,$a,$seed.Length)
+        for($i=$seed.Length;$i -lt $a.Length;$i++){$a[$i]=32}
+        $b=New-Object byte[] ($a.Length+1);[Array]::Copy($a,$b,$a.Length);$b[-1]=32
+        $server=Server $leaf 2 'boundary-competing';$initial=$server.state
+        $gate="$harness\admin\boundary-competing.start"
+        Require (-not (Test-Path -LiteralPath $gate)) 'competing-gate-not-fresh'
+        $clients=@()
+        foreach($case in @(@{name='compete-a';operation=('61'*16);project=$a},
+                           @{name='compete-b';operation=('62'*16);project=$b})){
+            $input="$harness\c\$($case.name).request.bin";$output="$harness\c\$($case.name).response.bin"
+            [IO.File]::WriteAllBytes($input,(Frame 2 $initial $case.operation $initial.token $case.project))
+            Artifact $input ($case.name+'.request.bin')
+            $clients+=Start-Child 'c' $case.name $requestExe @('client-wait',$server.pipe,$sids.w,$sids.c,$sids.u,$input,$output,$gate)
+        }
+        $readyDeadline=[Math]::Min(300000,$clock.ElapsedMilliseconds+10000)
+        foreach($child in $clients){
+            while(-not (@(Lines $child|Where-Object {$_.event -eq 'client-ready'}).Count -eq 1)){
+                Require (-not $child.process.HasExited -and $clock.ElapsedMilliseconds -lt $readyDeadline) 'competing-client-not-ready'
+                Start-Sleep -Milliseconds 20
+            }
+        }
+        $gateFile=[IO.File]::Open($gate,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read)
+        try{$gateFile.WriteByte(1)}finally{$gateFile.Dispose()}
+        Artifact $gate 'competing.start'
+        $report.observations+=@{case='competing-gate';client_pids=@($clients|ForEach-Object {$_.process.Id});elapsed_ms=$clock.ElapsedMilliseconds};Save-Report
+        $left=Finish $clients[0];$right=Finish $clients[1]
+        foreach($case in @('compete-a','compete-b')){
+            $output="$harness\c\$case.response.bin";if(Test-Path -LiteralPath $output){Artifact $output ($case+'.response.bin')}
+        }
+        Finish $server.child|Out-Null
+        $results=@($left,$right);$accepted=@($results|Where-Object {$_.status -eq 'accepted'})
+        $refused=@($results|Where-Object {$_.status -eq 'rejected'})
+        $decisions=@(Lines $server.child|Where-Object {$_.event -eq 'decision'})
+        Require ($accepted.Count -eq 1 -and $refused.Count -eq 1 -and $decisions.Count -eq 2) 'competing-result-count'
+        Require ($accepted[0].server_verified -and $refused[0].server_verified -and
+            $accepted[0].revision -eq 2 -and $refused[0].reply_status -eq 1) 'competing-client-result'
+        Require (@($decisions|Where-Object {$_.code -eq 'ok' -and $_.token -eq $accepted[0].token -and $_.authenticated_sid -eq $sids.c -and $_.reverted -and $_.dispatched}).Count -eq 1 -and
+            @($decisions|Where-Object {$_.code -eq 'request' -and $_.store_system -eq 10 -and $_.authenticated_sid -eq $sids.c -and $_.reverted -and $_.dispatched}).Count -eq 1) 'competing-server-decisions'
+        Correspondence $accepted[0] $leaf 2
+        $after=Snapshot $leaf $false
+        Require ($after.Count -eq 2 -and (Same $baseline['00000001.commit'] $after['00000001.commit'])) 'competing-record-set'
+        $record=[IO.File]::ReadAllBytes("C:\$leaf\document\00000002.commit")
+        $sidLength=[BitConverter]::ToUInt32($record,20);$contextLength=[BitConverter]::ToUInt32($record,24)
+        $winnerBytes=if($accepted[0].operation_id -eq ('61'*16)){$a}else{$b}
+        Require ($accepted[0].operation_id -in @(('61'*16),('62'*16)) -and
+            (Digest $record[(236+$sidLength+$contextLength)..($record.Length-33)]) -eq (Digest $winnerBytes)) 'competing-winner-bytes'
+        $manifestAfter=@{sha256=(Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant();sddl=(Get-Acl -LiteralPath $manifestPath).Sddl;identity=[SNManagedRequestIdentity]::Read($manifestPath)}
+        Require ((Same $manifestBefore $manifestAfter) -and
+            (Get-FileHash -LiteralPath $project -Algorithm SHA256).Hash.ToLowerInvariant() -eq $sourceBefore) 'competing-source-or-manifest-changed'
+        $report.competing=@{accepted_operation=$accepted[0].operation_id;rejected_operation=$refused[0].operation_id;final=$after;manifest=$manifestAfter}
+        $report.stage='endpoint-authenticity';Save-Report
+        foreach($case in @(@{name='wrong-owner';role='u';kind='owner';code='pipe-owner'},
+                           @{name='wrong-rights';role='w';kind='rights';code='pipe-rights'})){
+            $listener=Fault-Listener $case.role $case.name $case.kind
+            $input="$harness\c\$($case.name).request.bin"
+            [IO.File]::WriteAllBytes($input,(Frame 1 $initial));Artifact $input ($case.name+'.request.bin')
+            $result=Finish (Start-Child 'c' ($case.name+'-client') $requestExe @('client',$listener.pipe,$sids.w,$sids.c,$sids.u,$input))
+            Require ($result.status -eq 'failed' -and $result.stage -eq 'verify-server' -and
+                $result.code -eq $case.code -and -not $result.request_sent -and -not $result.server_verified) 'hostile-endpoint-client'
+            $observed=Finish $listener.child
+            Require ($observed.event -eq 'listener-result' -and $observed.status -eq 'closed-without-request' -and
+                $observed.request_bytes -eq 0) 'hostile-endpoint-no-request'
+        }
+        $occupied=Fault-Listener 'w' 'occupied-name' 'occupied'
+        $occupiedReady="$harness\w\occupied-second-writer.ready"
+        $failed=Start-Child 'w' 'occupied-second-writer' $requestExe @('server',$leaf,$occupied.pipe,$occupiedReady,'1',$sids.u,'0')
+        $refusal=Expected-Failure $failed 'pipe-create'
+        $listenerAlive=-not $occupied.child.process.HasExited
+        Require (-not (Test-Path -LiteralPath $occupiedReady) -and $refusal.system -ne 0 -and
+            $listenerAlive) 'occupied-endpoint-exposed'
+        $releaseFile=[IO.File]::Open($occupied.release,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read)
+        try{$releaseFile.WriteByte(1)}finally{$releaseFile.Dispose()}
+        Artifact $occupied.release 'occupied.release'
+        $held=Finish $occupied.child
+        Require ($held.event -eq 'listener-result' -and $held.status -eq 'held-name' -and $held.release_observed) 'occupied-name-not-held'
+        $report.observations+=@{case='occupied-name-refusal';ready_exists=(Test-Path -LiteralPath $occupiedReady);listener_alive_at_refusal=$listenerAlive;refusal=$refusal;listener=$held};Save-Report
+        Require (Same $after (Snapshot $leaf $false)) 'endpoint-mutated-records'
+
+        $report.stage='uncertain-terminal-and-reconcile';Save-Report
+        $previous=$accepted[0].token
+        $nextBytes=if($accepted[0].operation_id -eq ('61'*16)){$b}else{$a}
+        foreach($case in @(@{name='terminal-close';operation=('63'*16);fault='terminal-close';revision=3},
+                           @{name='terminal-stall';operation=('64'*16);fault='terminal-stall';revision=4})){
+            $fault=Server-Fault $leaf ($case.name+'-writer') $case.fault
+            Require ($fault.state.token -eq $previous) 'terminal-initial-token'
+            $save=Client $fault ($case.name+'-save') (Frame 2 $fault.state $case.operation $previous $nextBytes)
+            Require ($save.status -eq 'failed' -and $save.server_verified -and $save.request_sent -and
+                $save.indeterminate -and $save.stage -eq 'terminal' -and $save.decision.indeterminate) 'terminal-failure-falsely-accepted'
+            Decision $save $(if($case.fault -eq 'terminal-close'){'terminal-closed'}else{'terminal-stalled'}) $sids.c $true $true
+            if($case.fault -eq 'terminal-stall'){
+                $saveObservation=@($report.observations|Where-Object {$_.case -eq ($case.name+'-save')})[-1]
+                $events=@($saveObservation.lines|Where-Object {$_.event -eq 'cancellation'})
+                Require ($events.Count -eq 1 -and $events[0].cancel_error -eq 0 -and $events[0].completion -eq 995) 'terminal-cancellation'
+            }
+            $reconciled=Client $fault ($case.name+'-reconcile') (Frame 3 $fault.state $case.operation $previous $nextBytes)
+            Require ($reconciled.status -eq 'accepted' -and $reconciled.revision -eq $case.revision -and
+                $reconciled.operation_id -eq $case.operation) 'terminal-reconcile'
+            Decision $reconciled 'ok' $sids.c $true $true
+            Finish $fault.child|Out-Null
+            Correspondence $reconciled $leaf $case.revision
+            $previous=$reconciled.token
+            $nextBytes=if($case.revision -eq 3){$winnerBytes}else{$nextBytes}
+        }
+
+        $report.stage='silent-client-deadline';Save-Report
+        $beforeIdle=Snapshot $leaf $false
+        $idleServer=Server $leaf 1 'silent-client-writer'
+        $input="$harness\c\silent-client.request.bin"
+        [IO.File]::WriteAllBytes($input,(Frame 1 $idleServer.state));Artifact $input 'silent-client.request.bin'
+        $idle=Finish (Start-Child 'c' 'silent-client' $requestExe @('client-idle',$idleServer.pipe,$sids.w,$sids.c,$sids.u,$input))
+        Require ($idle.status -eq 'held-idle' -and $idle.server_verified -and -not $idle.request_sent) 'silent-client-result'
+        Finish $idleServer.child|Out-Null
+        $idleLines=@(Lines $idleServer.child)
+        $cancel=@($idleLines|Where-Object {$_.event -eq 'cancellation'})
+        $denial=@($idleLines|Where-Object {$_.event -eq 'decision'})
+        Require ($cancel.Count -eq 1 -and $cancel[0].cancel_error -eq 0 -and $cancel[0].completion -eq 995 -and
+            $denial.Count -eq 1 -and $denial[0].code -eq 'deadline' -and $denial[0].stage -eq 'read' -and
+            -not $denial[0].dispatched -and (Same $beforeIdle (Snapshot $leaf $false))) 'silent-client-published-or-missed-deadline'
+
+        $final=Snapshot $leaf $false
+        Require ($final.Count -eq 4 -and (Same $after['00000001.commit'] $final['00000001.commit']) -and
+            (Same $after['00000002.commit'] $final['00000002.commit'])) 'boundary-prior-records'
+        $manifestFinal=@{sha256=(Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant();sddl=(Get-Acl -LiteralPath $manifestPath).Sddl;identity=[SNManagedRequestIdentity]::Read($manifestPath)}
+        Require ((Same $manifestBefore $manifestFinal) -and
+            (Get-FileHash -LiteralPath $project -Algorithm SHA256).Hash.ToLowerInvariant() -eq $sourceBefore) 'boundary-source-or-manifest-changed'
+        foreach($file in @(Get-ChildItem -LiteralPath "C:\$leaf\document" -File -Filter '*.commit')){Artifact $file.FullName $file.Name}
+        Artifact $manifestPath 'generation.manifest'
+        $report.final=$final;$report.manifest=@{before=$manifestBefore;after=$manifestFinal;preserved=$true}
+        $report.elapsed_ms=$clock.ElapsedMilliseconds;$report.stage='complete'
+        $report.status='observed-v3-boundary-candidate-only'
+        $report.limits='Disposable-VM native v3 fixture only; no service, external overwrite, power-loss durability or general runtime readiness.'
+        return
     }
     $report.stage='provision-seed';Save-Report
     $leaf='SN021Managed-'+[guid]::NewGuid().ToString('N').Substring(0,12);$report.roots+=@{case='authenticated-requests';leaf=$leaf}
