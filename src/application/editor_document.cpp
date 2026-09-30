@@ -45,6 +45,14 @@ ProjectSaveResult EditorDocument::save_copy(const std::string& leaf) const
         return save_new_project(root_, leaf, bytes());
     } catch(const std::bad_alloc&) { return ProjectSaveError{"memory"}; }
 }
+ProjectRevisionResult EditorDocument::rename_instance(std::string_view circuit_id,
+    std::string_view instance_id, std::string_view name)
+{
+    if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
+    auto result = simnodus::rename_instance(bytes(), circuit_id, instance_id, name);
+    if(const auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) graph_ = *next;
+    return result;
+}
 std::string_view EditorDocument::bytes() const
 {
     return graph_ ? std::string_view(syntax(*graph_).bytes) : std::string_view{};

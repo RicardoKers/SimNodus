@@ -5,6 +5,11 @@ a Qt-free application document composing inert native acquisition, name revision
 and create-only Save Copy. Immutable domain graphs/source mapping remain owned
 in application state; Qt lives in the optional desktop presentation only.
 
+The [declared instance-name increment](../docs/experiments/SN-023-instance-label.md)
+selects by circuit-definition ID and instance ID, revises exactly one name token,
+and rebuilds the validated graph/provenance. It changes shared definition metadata,
+not an occurrence identity or override. This pure operation performs no I/O.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

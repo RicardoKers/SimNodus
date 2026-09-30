@@ -23,16 +23,22 @@ std::string field(std::size_t limit)
     return bytes;
 }
 }
-int main()
+int main(int argc, char** argv)
 {
 #ifdef _WIN32
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
     try {
-        auto original = field(simnodus::declaration_max_bytes + 1), name = field(1024);
+        const bool instance = argc == 2 && std::string_view(argv[1]) == "--instance";
+        if(argc != 1 && !instance) throw std::runtime_error("arguments");
+        auto original = field(simnodus::declaration_max_bytes + 1);
+        std::string circuit_id, instance_id;
+        if(instance) { circuit_id = field(1024); instance_id = field(1024); }
+        auto name = field(1024);
         if(std::cin.peek() != std::char_traits<char>::eof()) throw std::runtime_error("trailing");
-        auto result = simnodus::rename_project(original, name);
-        original.assign("released original input"); name.clear();
+        auto result = instance ? simnodus::rename_instance(original, circuit_id, instance_id, name)
+            : simnodus::rename_project(original, name);
+        original.assign("released original input"); name.clear(); circuit_id.clear(); instance_id.clear();
         if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
             std::cout << "{\"error\":\"" << error->code << "\",\"stage\":\""
                 << (error->stage == simnodus::ProjectRevisionStage::base ? "base" : "revision")

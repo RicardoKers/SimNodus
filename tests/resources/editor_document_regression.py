@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 
 
@@ -44,7 +45,10 @@ def main() -> None:
         assert (root / 'occupied.json').read_bytes() == b'occupied sentinel'
         if os.name == 'nt':
             verify(original, (root / 'copy.json').read_bytes())
-            assert sorted(p.name for p in root.iterdir()) == ['copy.json', 'invalid.json', 'occupied.json', 'original.json']
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'schema'))
+            from native_instance_label_regression import verify_revision
+            verify_revision(original, (root / 'instance-copy.json').read_bytes(), 'rc', 'r', 'Edited "R" \\ \u03a9')
+            assert sorted(p.name for p in root.iterdir()) == ['copy.json', 'instance-copy.json', 'invalid.json', 'occupied.json', 'original.json']
             print('PASS independent exact byte/name oracle and source preservation')
 
 

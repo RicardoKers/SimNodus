@@ -43,9 +43,9 @@ All repository documentation, code, comments, templates, and committed project t
 
 ## What runs today
 
-The optional [first Windows document editor](apps/desktop/README.md) opens inert
-project declarations, inspects their structure, edits only the project display
-name and creates an explicit new copy through native operations. Full schematic
+The optional [bounded Windows document editor](apps/desktop/README.md) opens inert
+project declarations, inspects their structure, edits project or declared instance
+display names and creates an explicit new copy through native operations. Full schematic
 editing, instruments, managed Save and desktop simulation remain pending.
 
 The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded

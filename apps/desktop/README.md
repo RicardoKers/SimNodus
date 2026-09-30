@@ -1,6 +1,6 @@
 # Bounded Windows document editor
 
-The first [SN-023 slice](../../docs/experiments/SN-023-document-editor.md) is a
+The bounded [SN-023 editor](../../docs/experiments/SN-023-document-editor.md) is a
 native Qt Core/Gui/Widgets presentation over existing project acquisition,
 name revision and create-only persistence. It is optional; the default build
 and headless application tests require no Qt. No dependencies are downloaded.
@@ -12,6 +12,14 @@ leaf filename in the opened directory. Save Copy retains the original associatio
 and dirty state; explicitly Open the copy to switch documents. Apply any pending
 name text before saving. Open/exit asks before discarding pending or applied edits.
 Failures retain the current document and expose native diagnostics.
+
+The [next tested increment](../../docs/experiments/SN-023-instance-label.md) adds
+**Declared instance display name -> Apply Instance Name** in Instance Properties.
+Selection resolves circuit-definition ID plus instance ID; the name is shared by
+all occurrences of that definition and changes no ID, connection or parameter.
+The field is disabled for circuit/net rows and no selection. Pending instance
+text blocks Save Copy, and changing selection offers explicit Discard or Cancel.
+Cancel retains the selected IDs and draft. Failed edits retain the graph and text.
 
 Components/Preview concerns a declared definition, with metadata only; Instance
 Properties concerns a selected graph instance. Preview renders no symbol or model
@@ -48,15 +56,23 @@ Choose a new output directory for every GUI run:
 ```powershell
 python tests/resources/editor_document_regression.py --probe build/sn023/native-build/Release/editor_document_tests.exe
 python tests/resources/editor_desktop_acceptance.py --editor build/sn023/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023/new-gui-run
+python tests/resources/editor_instance_acceptance.py --editor build/sn023/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023/new-instance-run
 ```
 
-The GUI script uses a byte-identical `two-rc-project.json` and a separate derived
+The original GUI script uses a byte-identical `two-rc-project.json` and a separate derived
 fixture with an HTML-like instance name. Both lack referenced resources. It runs
 23 assertions per fixture and independent exact-byte/name audits, saving reports,
 stdout/stderr and editor screenshots. It invokes shared application commands,
 selection/button signals, discard-dialog Cancel and panel controls. Native file
 dialogs, discard approval, keyboard/accessibility and human recovery are unverified.
 This is distinct from SN-022's synthetic worker/retry matrix, which is unchanged.
+
+The dedicated instance script uses only the original fixture and adds 21 checks
+for the selected field, definition edit, literal untrusted text, failed edits,
+pending drafts, scripted Discard/Cancel and exact copy/reopen. Its independent
+audit checks that only `rc/r`'s name token changed. The prior 23-check window/layout
+evidence is reused; no old backend or layout matrix was rerun for this increment.
+The first dedicated 20-check run is retained before adding the net-row check.
 
 Full placement/wiring/properties/undo, rendered symbols, production managed Save,
 real worker/engine integration, shared instruments, physical monitor/DPI behavior,
