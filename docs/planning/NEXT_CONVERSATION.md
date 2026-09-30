@@ -1,4 +1,32 @@
-# Next conversation: SN-022 after SN-021 publication
+# Next conversation: SN-023 after bounded SN-022 selection
+
+> Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
+> CURRENT.md, BACKLOG.md, the architecture/decision indexes, ADR 0078, the
+> SN-022 Qt boundary report and Qt licensing inventory, and the final bounded
+> SN-021 audit. Verify branch, local changes, unpublished commits and local/
+> remote main; preserve the twelve independent SN-045 overlays and all evidence.
+> SN-022 selected Qt Core/Gui/Widgets and a separate simulation worker through
+> one small native Windows experiment: nine process cases and nine layout
+> checks passed, plus Qt-free headless execution. Preserve its first failed
+> runtime and setup failures. This did not implement a real editor, instrumentation
+> store, production IPC, engine worker integration, managed-save service or
+> packaging. Manual keyboard/accessibility, monitor/DPI and cross-session layout
+> remain pending. Scope the smallest coherent SN-023 editor slice using the
+> existing SN-044 criteria and accepted native project operations; selecting Qt
+> does not authorize implementing the entire editor in one block. Keep domain,
+> application, presentation, instrumentation and adapters separate. Preserve
+> SN-017 Python/GDB/fixture ownership, MCU/toolchain independence, numerical
+> tolerances, PDF suppression/PID retry and SN-021's exact Windows/local-NTFS,
+> one-managed-document/fixed-E-01 scope. Keep opening inert and resource access
+> explicit. Reuse unchanged evidence, run targeted checks and the repository
+> checker, and use branch/PR/required-check/squash only for stable validated work.
+> Keep repository content in English and speak Portuguese. Prefer small useful
+> increments that preserve time and credits for final testing.
+
+See [CURRENT](CURRENT.md) and the source PR for final publication state;
+do not infer integration from experimental success alone.
+
+## Historical handoff: SN-022 after SN-021 publication
 
 This prompt is prepared for a new chat **after** the audited SN-021 block passes
 publication checks and its squash merge is confirmed on local and remote main.

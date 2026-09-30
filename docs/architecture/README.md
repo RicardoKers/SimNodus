@@ -88,7 +88,10 @@ For M1/M2, a C++ console host loads one ngspice shared-library instance and cont
 
 The kernel owns session state. Backend callbacks neither mutate the editable document nor call the GUI. UI commands are queued and receive an effective timestamp upon acceptance. The GUI reads immutable snapshots and committed traces. Bound memory usage; reduce display samples without losing kernel events.
 
-A native library can crash its host. A separate simulation worker is the proposed M3 direction if experiments justify it, preserving the contracts. Process isolation alone is not a security sandbox.
+A native library can crash its host. [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md)
+selects a separate simulation worker for the bounded SN-022 desktop experiment,
+preserving the contracts. Production integration remains pending. Process
+isolation alone is not a security sandbox.
 
 ## Session flow
 
@@ -104,7 +107,11 @@ A native library can crash its host. A separate simulation worker is the propose
 
 The SPICE netlist is generated from the circuit graph, not the master project format. Start digital modeling with XSPICE; build another digital engine only for a demonstrated need. A future HDL instance must have one integration path and one time owner, avoiding duplicate coordination through Renode and ngspice. WASM is outside the minimal kernel.
 
-Qt Widgets versus Qt Quick, plotting implementation, worker IPC, and a dependency manager remain open. None is required for the first backend experiments.
+[ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md) selects Qt Core/Gui/Widgets
+for the initial desktop shell and asynchronous child-process supervision for the
+small [SN-022 experiment](../experiments/SN-022-qt-boundary.md). Plotting,
+production worker IPC and a dependency manager remain open. The standalone
+experiment adds no Qt requirement to headless domain, instrumentation or adapters.
 
 [Desktop UX](DESKTOP_UX.md) defines independent Circuit Editor and Signal Analyzer
 windows over the same session/instrumentation under

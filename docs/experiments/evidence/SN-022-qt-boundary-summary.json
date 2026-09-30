@@ -1,0 +1,688 @@
+{
+  "experiment": "SN-022 bounded Qt Widgets and worker selection",
+  "recorded_date": "2026-09-30",
+  "status": "passed-for-synthetic-local-shell-and-process-boundary-only",
+  "base_main": "4e0bf2233f1756db71fac3cbeac444b7f7dec13e",
+  "branch": "codex/sn-022-qt-boundary",
+  "host": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "cmake": "4.2.3-msvc3",
+    "generator": "Visual Studio 18 2026",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qpa_platform": "windows",
+    "style": "Fusion",
+    "environment": "Python dict(os.environ) normalizes inherited duplicate PATH/Path. Qt bin prepended to PATH; QT_QPA_PLATFORM=windows; QT_QPA_PLATFORM_PLUGIN_PATH=kit/plugins/platforms."
+  },
+  "commands_after_python_environment_normalization": [
+    [
+      "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+      "-S",
+      "tests/experiments/qt-boundary",
+      "-B",
+      "build/sn022/qt-build-04",
+      "-G",
+      "Visual Studio 18 2026",
+      "-A",
+      "x64",
+      "-DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64"
+    ],
+    [
+      "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+      "--build",
+      "build/sn022/qt-build-04",
+      "--config",
+      "Release"
+    ],
+    [
+      "build/sn022/qt-build-04/Release/sn022_presentation.exe",
+      "--worker",
+      "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn022\\qt-build-04\\Release\\sn022_worker.exe",
+      "--report",
+      "build/sn022/runtime-attempt-02.json"
+    ],
+    [
+      "build/sn022/qt-build-04/Release/sn022_worker.exe",
+      "success"
+    ]
+  ],
+  "inputs_and_gates": {
+    "document": "preset owned synthetic bytes; no actual project opening/editing",
+    "snapshot": "fixed record sequence 41, voltage_uv 1234567; no backend data",
+    "accepted_record": "SN022/1\nsnapshot=41\nvoltage_uv=1234567\nEND\n",
+    "frame_bytes": 43,
+    "retained_stream_limit_bytes": 128,
+    "process_timer_ms": 1200,
+    "heartbeat_requested_ms": 10,
+    "started_case_minimum_ticks": 2,
+    "watchdog_ms": 15000,
+    "watchdog_final_escape_ms": 1000,
+    "runner_timeout_seconds": 20,
+    "numerical_tolerances": "No simulation; all preexisting engine bounds unchanged."
+  },
+  "source_files": [
+    {
+      "path": "tests/experiments/qt-boundary/boundary_fixture.hpp",
+      "bytes": 718,
+      "sha256": "ca5ad07e642492b63237cf884a988ab96bdfb9120b9dd68bbcc872ae52e9afea"
+    },
+    {
+      "path": "tests/experiments/qt-boundary/CMakeLists.txt",
+      "bytes": 721,
+      "sha256": "c50223b55790055e69719b9f0767b6cf60966aa161a8d36b66be795d6b21c443"
+    },
+    {
+      "path": "tests/experiments/qt-boundary/presentation.cpp",
+      "bytes": 13579,
+      "sha256": "004b20ed1860d6b6ced79e90e28ab6a749dd0daf3741b5f797644b7706ad4b8b"
+    },
+    {
+      "path": "tests/experiments/qt-boundary/README.md",
+      "bytes": 6323,
+      "sha256": "13287b6c6c47ddd492888fb414ebf3238a3eddccecc46fd4f5b4d2d2155574be"
+    },
+    {
+      "path": "tests/experiments/qt-boundary/worker.cpp",
+      "bytes": 1655,
+      "sha256": "a994c207d979b9b46d28e1ce1b7ae9e29f8b9139b0b8aa32253fcdb1bca064c0"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn022/qt-build-04/Release/sn022_presentation.exe",
+      "bytes": 61440,
+      "sha256": "9589181cf0d4f7a4ab6bb58983023ff28660a7d2dcd272cc7217a5047e138c6e"
+    },
+    {
+      "path": "build/sn022/qt-build-04/Release/sn022_worker.exe",
+      "bytes": 18432,
+      "sha256": "9340a437b2ef2720e4f107e5dbd63eb3755fc897447e7f8f2a028722022956db"
+    }
+  ],
+  "qt_inventory": {
+    "path": "docs/experiments/evidence/SN-022-qt-inventory.json",
+    "bytes": 14870,
+    "sha256": "d518447b6b7cdb32e80ab8d0e827b81af5dfe45f22055c9b17d17203e45ad854"
+  },
+  "successful_runtime": {
+    "cases": [
+      {
+        "case": "initial-explicit-run",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 361,
+        "exit_code": 0,
+        "exit_status": "normal",
+        "expected": "success",
+        "heartbeat_ticks": 33,
+        "mode": "success",
+        "outcome": "success",
+        "passed": true,
+        "process_id": 13960,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 43,
+        "stdout_sha256": "4758aa62c5d9bf1c315ee999fa4d45cab50c9f4246514c3698a36cf7bb4851d7"
+      },
+      {
+        "case": "native-crash-after-partial-record",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 326,
+        "exit_code": -1073741819,
+        "exit_status": "crash",
+        "expected": "crash",
+        "heartbeat_ticks": 33,
+        "mode": "crash",
+        "outcome": "crash",
+        "passed": true,
+        "process_id": 30236,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 31,
+        "stdout_sha256": "c71e3b9f23121fced849bf8f4eaee78b0da464d54fe161127e15e0f6bfdee6a6"
+      },
+      {
+        "case": "explicit-fresh-retry-after-crash",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 331,
+        "exit_code": 0,
+        "exit_status": "normal",
+        "expected": "success",
+        "heartbeat_ticks": 33,
+        "mode": "success",
+        "outcome": "success",
+        "passed": true,
+        "process_id": 23412,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 43,
+        "stdout_sha256": "4758aa62c5d9bf1c315ee999fa4d45cab50c9f4246514c3698a36cf7bb4851d7"
+      },
+      {
+        "case": "deadline-after-partial-record",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 1202,
+        "exit_code": 62097,
+        "exit_status": "crash",
+        "expected": "timeout",
+        "heartbeat_ticks": 120,
+        "mode": "timeout",
+        "outcome": "timeout",
+        "passed": true,
+        "process_id": 21972,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 31,
+        "stdout_sha256": "c71e3b9f23121fced849bf8f4eaee78b0da464d54fe161127e15e0f6bfdee6a6"
+      },
+      {
+        "case": "missing-worker",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 1,
+        "exit_code": -1,
+        "exit_status": "not-started",
+        "expected": "failed-start",
+        "heartbeat_ticks": 0,
+        "mode": "missing",
+        "outcome": "failed-start",
+        "passed": true,
+        "process_id": 0,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "case": "incomplete-clean-exit",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 324,
+        "exit_code": 0,
+        "exit_status": "normal",
+        "expected": "rejected-output",
+        "heartbeat_ticks": 32,
+        "mode": "incomplete",
+        "outcome": "rejected-output",
+        "passed": true,
+        "process_id": 1796,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 31,
+        "stdout_sha256": "c71e3b9f23121fced849bf8f4eaee78b0da464d54fe161127e15e0f6bfdee6a6"
+      },
+      {
+        "case": "trailing-output",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 330,
+        "exit_code": 0,
+        "exit_status": "normal",
+        "expected": "rejected-output",
+        "heartbeat_ticks": 33,
+        "mode": "malformed",
+        "outcome": "rejected-output",
+        "passed": true,
+        "process_id": 28244,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 52,
+        "stdout_sha256": "aa9aa2d8bde01bd996a36afe4e026f5ce06336d59e9a78acfb9d28ed17a75b82"
+      },
+      {
+        "case": "output-over-limit",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 327,
+        "exit_code": 62097,
+        "exit_status": "crash",
+        "expected": "rejected-output",
+        "heartbeat_ticks": 33,
+        "mode": "oversized",
+        "outcome": "rejected-output",
+        "passed": true,
+        "process_id": 27180,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 128,
+        "stdout_sha256": "24da1b81d0b16df6428eee73c69fcb2a93c76bc6df706f0c6670fe6bfe800464"
+      },
+      {
+        "case": "explicit-fresh-retry-after-failures",
+        "committed_snapshot_preserved_or_valid": true,
+        "document_unchanged": true,
+        "elapsed_ms": 329,
+        "exit_code": 0,
+        "exit_status": "normal",
+        "expected": "success",
+        "heartbeat_ticks": 33,
+        "mode": "success",
+        "outcome": "success",
+        "passed": true,
+        "process_id": 9792,
+        "responsive": true,
+        "stderr_retained_bytes": 0,
+        "stdout_retained_bytes": 43,
+        "stdout_sha256": "4758aa62c5d9bf1c315ee999fa4d45cab50c9f4246514c3698a36cf7bb4851d7"
+      }
+    ],
+    "document_sha256": "d8d82309a24b8483a2f3e4c8dc30884288e8bb49935ab92f786b24a153893629",
+    "experiment": "SN-022 Qt Widgets / worker fixture",
+    "heartbeat_interval_ms": 10,
+    "heartbeat_max_gap_ms": 44,
+    "layout": {
+      "analyzer_close_retains_snapshot": true,
+      "analyzer_reopened": true,
+      "editor_size_restored": true,
+      "independent_windows": true,
+      "panel_widths_restored": true,
+      "panels_hidden": true,
+      "panels_reopened": true,
+      "splitter_sizes_restored": true,
+      "state_restore_returned_true": true
+    },
+    "passed": true,
+    "platform": "windows",
+    "process_deadline_ms": 1200,
+    "qt_version": "6.11.1",
+    "record_limit_bytes": 128,
+    "style": "Fusion",
+    "watchdog_fired": false,
+    "worker": "D:/03_Projects/01_Actives/SimNodus/build/sn022/qt-build-04/Release/sn022_worker.exe"
+  },
+  "negative_runtime": {
+    "classification": "failed: Windows text stdout changed LF to CRLF; initial success never committed, so null-snapshot preservation was not acceptance evidence",
+    "report": {
+      "cases": [
+        {
+          "case": "initial-explicit-run",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 370,
+          "exit_code": 0,
+          "exit_status": "normal",
+          "expected": "success",
+          "heartbeat_ticks": 34,
+          "mode": "success",
+          "outcome": "rejected-output",
+          "passed": false,
+          "process_id": 12060,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 47,
+          "stdout_sha256": "7cf206f0112c3c45d78328eaeb227a58e7fbf85d56bf606b0f2116bf3927e152"
+        },
+        {
+          "case": "native-crash-after-partial-record",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 326,
+          "exit_code": -1073741819,
+          "exit_status": "crash",
+          "expected": "crash",
+          "heartbeat_ticks": 32,
+          "mode": "crash",
+          "outcome": "crash",
+          "passed": true,
+          "process_id": 11780,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 33,
+          "stdout_sha256": "529bcbaf852ef79af035745cdd06df98848a83eac0016d994469e67b0a9303d5"
+        },
+        {
+          "case": "explicit-fresh-retry-after-crash",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 329,
+          "exit_code": 0,
+          "exit_status": "normal",
+          "expected": "success",
+          "heartbeat_ticks": 33,
+          "mode": "success",
+          "outcome": "rejected-output",
+          "passed": false,
+          "process_id": 5764,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 47,
+          "stdout_sha256": "7cf206f0112c3c45d78328eaeb227a58e7fbf85d56bf606b0f2116bf3927e152"
+        },
+        {
+          "case": "deadline-after-partial-record",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 1193,
+          "exit_code": 62097,
+          "exit_status": "crash",
+          "expected": "timeout",
+          "heartbeat_ticks": 120,
+          "mode": "timeout",
+          "outcome": "timeout",
+          "passed": true,
+          "process_id": 25996,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 33,
+          "stdout_sha256": "529bcbaf852ef79af035745cdd06df98848a83eac0016d994469e67b0a9303d5"
+        },
+        {
+          "case": "missing-worker",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 0,
+          "exit_code": -1,
+          "exit_status": "not-started",
+          "expected": "failed-start",
+          "heartbeat_ticks": 0,
+          "mode": "missing",
+          "outcome": "failed-start",
+          "passed": true,
+          "process_id": 0,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 0,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "case": "incomplete-clean-exit",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 338,
+          "exit_code": 0,
+          "exit_status": "normal",
+          "expected": "rejected-output",
+          "heartbeat_ticks": 34,
+          "mode": "incomplete",
+          "outcome": "rejected-output",
+          "passed": true,
+          "process_id": 30648,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 33,
+          "stdout_sha256": "529bcbaf852ef79af035745cdd06df98848a83eac0016d994469e67b0a9303d5"
+        },
+        {
+          "case": "trailing-output",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 332,
+          "exit_code": 0,
+          "exit_status": "normal",
+          "expected": "rejected-output",
+          "heartbeat_ticks": 33,
+          "mode": "malformed",
+          "outcome": "rejected-output",
+          "passed": true,
+          "process_id": 1788,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 57,
+          "stdout_sha256": "e6f6d4af85303a6f893472d2899057b90670f46a74eac800382586e5996a379e"
+        },
+        {
+          "case": "output-over-limit",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 326,
+          "exit_code": 62097,
+          "exit_status": "crash",
+          "expected": "rejected-output",
+          "heartbeat_ticks": 32,
+          "mode": "oversized",
+          "outcome": "rejected-output",
+          "passed": true,
+          "process_id": 5200,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 128,
+          "stdout_sha256": "24da1b81d0b16df6428eee73c69fcb2a93c76bc6df706f0c6670fe6bfe800464"
+        },
+        {
+          "case": "explicit-fresh-retry-after-failures",
+          "committed_snapshot_preserved_or_valid": true,
+          "document_unchanged": true,
+          "elapsed_ms": 334,
+          "exit_code": 0,
+          "exit_status": "normal",
+          "expected": "success",
+          "heartbeat_ticks": 34,
+          "mode": "success",
+          "outcome": "rejected-output",
+          "passed": false,
+          "process_id": 28412,
+          "responsive": true,
+          "stderr_retained_bytes": 0,
+          "stdout_retained_bytes": 47,
+          "stdout_sha256": "7cf206f0112c3c45d78328eaeb227a58e7fbf85d56bf606b0f2116bf3927e152"
+        }
+      ],
+      "document_sha256": "d8d82309a24b8483a2f3e4c8dc30884288e8bb49935ab92f786b24a153893629",
+      "experiment": "SN-022 Qt Widgets / worker fixture",
+      "heartbeat_interval_ms": 10,
+      "heartbeat_max_gap_ms": 48,
+      "layout": {
+        "analyzer_close_retains_snapshot": true,
+        "analyzer_reopened": true,
+        "editor_size_restored": true,
+        "independent_windows": true,
+        "panel_widths_restored": true,
+        "panels_hidden": true,
+        "panels_reopened": true,
+        "splitter_sizes_restored": true,
+        "state_restore_returned_true": true
+      },
+      "passed": false,
+      "platform": "windows",
+      "process_deadline_ms": 1200,
+      "qt_version": "6.11.1",
+      "record_limit_bytes": 128,
+      "style": "Fusion",
+      "watchdog_fired": false,
+      "worker": "D:/03_Projects/01_Actives/SimNodus/build/sn022/qt-build-04/Release/sn022_worker.exe"
+    }
+  },
+  "setup_failures": {
+    "configure_01_and_03": "CMake failed compiler discovery; retained MSBuild log identifies duplicate PATH/Path environment keys.",
+    "configure_02": "Sandbox denied the attempted alternate Python launcher before CMake. No raw log file was captured; retained note records this limitation."
+  },
+  "headless_worker": {
+    "exit_code": 0,
+    "stdout_hex": "534e3032322f310a736e617073686f743d34310a766f6c746167655f75763d313233343536370a454e440a",
+    "stdout_sha256": "4758aa62c5d9bf1c315ee999fa4d45cab50c9f4246514c3698a36cf7bb4851d7",
+    "stderr_hex": "",
+    "path": "C:/Windows/System32",
+    "passed": true
+  },
+  "independent_audit": {
+    "compiled_source_hashes_matched": 4,
+    "successful_runtime_cases": 9,
+    "layout_assertions": 9,
+    "distinct_started_child_pids": 8,
+    "headless_raw_output_hash_matched": true,
+    "worker_pe_imports_contain_qt": false
+  },
+  "preservation": {
+    "historical_evidence_unchanged_count": 198,
+    "historical_manifest_sha256": "8aee0253c7c1e4b46fed43ad8d68dbf7e041571404ca3872e55c6ee368a025bb",
+    "independent_local_overlay_count": 12,
+    "overlay_staging_audit": "Original SN-045 deltas must remain wholly unstaged; selective staging script checks exact changed lines against baseline."
+  },
+  "retained_local_artifacts": [
+    {
+      "path": "build/sn022/build-attempt-01.txt",
+      "bytes": 666,
+      "sha256": "4ff9a2a6bb753431e51879def07a3c15c479b65fbbfb6e1a4502de7324850073"
+    },
+    {
+      "path": "build/sn022/build-attempt-02.txt",
+      "bytes": 327,
+      "sha256": "a8142d6c50dc69cd837a02a9f21c071db72fac79317e4f80ade773459dace385"
+    },
+    {
+      "path": "build/sn022/configure-attempt-01.txt",
+      "bytes": 260,
+      "sha256": "6236e8a39390fb2cffeeced393f0224bc0ccf959b2ee473ac87a73be55454d08"
+    },
+    {
+      "path": "build/sn022/configure-attempt-02-note.txt",
+      "bytes": 447,
+      "sha256": "3897252dd9d1a6f1da4411d797c20abd0a0eb07fb232fd8a483ccc39ea2cef25"
+    },
+    {
+      "path": "build/sn022/configure-attempt-03.txt",
+      "bytes": 260,
+      "sha256": "6236e8a39390fb2cffeeced393f0224bc0ccf959b2ee473ac87a73be55454d08"
+    },
+    {
+      "path": "build/sn022/configure-attempt-04.txt",
+      "bytes": 1089,
+      "sha256": "acc4eff6a8a9deed68ca25294796dece56941929b18461c4fbeeb54f4ccd86bc"
+    },
+    {
+      "path": "build/sn022/final-source-hashes.json",
+      "bytes": 1114,
+      "sha256": "ee9e73484d561215b36d2444ab212cba6ca3f213343fe6f880bcfb147bb86d52"
+    },
+    {
+      "path": "build/sn022/headless-worker-stdout.bin",
+      "bytes": 43,
+      "sha256": "4758aa62c5d9bf1c315ee999fa4d45cab50c9f4246514c3698a36cf7bb4851d7"
+    },
+    {
+      "path": "build/sn022/headless-worker.json",
+      "bytes": 293,
+      "sha256": "334e3a1e932c4588bae776553d8c7a78a1dada014f153d6f7d87ff7860208968"
+    },
+    {
+      "path": "build/sn022/presentation-imports.txt",
+      "bytes": 758,
+      "sha256": "0b3e2214f285a2c45d592d46ec1f7af36360280c447470d601bf1a334b6eb289"
+    },
+    {
+      "path": "build/sn022/qt-build/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 107177,
+      "sha256": "974554f184245c554da3ba93824cd65a14642449e3ca8d6f0e7d45ffc83b516e"
+    },
+    {
+      "path": "build/sn022/qt-build-03/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 107303,
+      "sha256": "5747592b43ffc2293575c9998b1722c25194d0f542279747edb4bb07510cebe7"
+    },
+    {
+      "path": "build/sn022/qt-build-04/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 288094,
+      "sha256": "4b179d344a3a8a9ce7cbd8cbaf1a0f73647246b9907da19fdb8f5b31f781e0cd"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-source-hashes.json",
+      "bytes": 897,
+      "sha256": "0e3178da9c3599a255aae7c8b094de4bbba19e5cb18a3b6e5b2966862b9f669c"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/boundary_fixture.hpp",
+      "bytes": 718,
+      "sha256": "ca5ad07e642492b63237cf884a988ab96bdfb9120b9dd68bbcc872ae52e9afea"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/CMakeLists.txt",
+      "bytes": 721,
+      "sha256": "c50223b55790055e69719b9f0767b6cf60966aa161a8d36b66be795d6b21c443"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/presentation.cpp",
+      "bytes": 13473,
+      "sha256": "bd4f999b19f0191c855cd3e2b98c0353295b02a8f77185a4e66651096e4d0c5c"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/sn022_presentation.exe",
+      "bytes": 61440,
+      "sha256": "a35e8512485abedb4c9e1e03ae7e2a94c8b6f2abbc50a2b50a886a24b41d1a65"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/sn022_worker.exe",
+      "bytes": 18432,
+      "sha256": "104c08556b09db56010c2fe6e85d78afdfd80b776abf376881535a7d01548075"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-sources/worker.cpp",
+      "bytes": 1487,
+      "sha256": "9619ed65f188c9d3c6d7ec2faacd9c4f3f499d66e75638ddd5fc07c54f170c01"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01-stdout.txt",
+      "bytes": 7208,
+      "sha256": "168deb0e224a5910c9e66b6e34cb68e9585b846c7dc739bc297477a2be6d0d86"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-01.json",
+      "bytes": 7019,
+      "sha256": "1c79f551c6e63001b4998e355a01b12c2a70cf137b84c8c27524823276b466d5"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-source-hashes.json",
+      "bytes": 897,
+      "sha256": "37f734b1b4ddb34c7629db0193565b2a1ce193415d3b866360f132d0a81b0938"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-sources/boundary_fixture.hpp",
+      "bytes": 718,
+      "sha256": "ca5ad07e642492b63237cf884a988ab96bdfb9120b9dd68bbcc872ae52e9afea"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-sources/CMakeLists.txt",
+      "bytes": 721,
+      "sha256": "c50223b55790055e69719b9f0767b6cf60966aa161a8d36b66be795d6b21c443"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-sources/presentation.cpp",
+      "bytes": 13579,
+      "sha256": "004b20ed1860d6b6ced79e90e28ab6a749dd0daf3741b5f797644b7706ad4b8b"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-sources/worker.cpp",
+      "bytes": 1655,
+      "sha256": "a994c207d979b9b46d28e1ce1b7ae9e29f8b9139b0b8aa32253fcdb1bca064c0"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02-stdout.txt",
+      "bytes": 7181,
+      "sha256": "be6bb0f6a7dfd8a6597f69b84c898cd2b30b7de5516eccb4450b20b010d7d73f"
+    },
+    {
+      "path": "build/sn022/runtime-attempt-02.json",
+      "bytes": 6992,
+      "sha256": "e0856490fbd5ecb0bc4e08379c9a81dcbf3f530f686245508d0269231cc5bf85"
+    },
+    {
+      "path": "build/sn022/worker-imports.txt",
+      "bytes": 699,
+      "sha256": "e434dda570f551c37b0cf288208f00e5fb4f72485c5a64b28cccb86663b65821"
+    }
+  ],
+  "limits": [
+    "Synthetic fixed worker; no backend or simulation evidence.",
+    "Scripted retry operations, not implemented user confirmation.",
+    "Programmatic native windows/layout checks, not human usability.",
+    "No production IPC, hostile stream memory bound, descendant cleanup or GUI-crash guarantee.",
+    "No persisted layout, monitor/DPI acceptance, editor, instrument store, save service or binary release.",
+    "Installed metadata and hashes do not establish trusted origin or redistribution permission."
+  ]
+}

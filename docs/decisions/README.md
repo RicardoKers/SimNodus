@@ -1,5 +1,11 @@
 # Architecture decision records
 
+## Latest presentation decision
+
+- [0078: Qt Widgets and worker boundary](0078-qt-widgets-worker-boundary.md):
+  bounded SN-022 shell and crash-containment selection; production integration
+  and full desktop usability remain pending.
+
 ## Latest experimental commit decision
 
 - [0077: Bounded managed commit candidate](0077-bounded-managed-commit-candidate.md):

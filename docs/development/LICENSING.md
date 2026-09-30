@@ -22,6 +22,10 @@ The license contains warranty/liability disclaimers. It does not establish trade
 
 Qt offers different licensing options and some modules are GPL-only under its open-source offering. Do not select plotting or other modules merely because they are part of Qt. [Official Qt licensing](https://doc.qt.io/qt-6/licensing.html). Dynamic linking alone is not a complete compliance checklist.
 
+The [SN-022 inventory](QT_INVENTORY.md) records the locally measured Qt 6.11.1
+Core/Gui/Widgets kit, plugins and bundled component notices. This selects a local
+experiment dependency; it does not approve a binary distribution.
+
 ## Before adding an external asset
 
 Record name, exact revision/hash, source URL, author/copyright notice, license, modifications, and whether it will be linked, executed separately, or redistributed. Preserve required notices. If terms are unclear, leave the asset out and document an installation/reference procedure instead.
