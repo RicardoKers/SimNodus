@@ -294,6 +294,13 @@ if(BUILD_TESTING)
             --probe "$<TARGET_FILE:editor_document_tests>")
     set_tests_properties(editor-document-contracts PROPERTIES
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 60)
+    add_executable(editor_name_history_tests tests/resources/editor_name_history.cpp)
+    target_link_libraries(editor_name_history_tests PRIVATE simnodus_editor_document)
+    add_test(NAME editor-name-history-contracts
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/editor_name_history_regression.py"
+            --probe "$<TARGET_FILE:editor_name_history_tests>")
+    set_tests_properties(editor-name-history-contracts PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 60)
 endif()
 if(SIMNODUS_BUILD_DESKTOP)
     if(NOT WIN32)

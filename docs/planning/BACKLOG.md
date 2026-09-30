@@ -1,5 +1,18 @@
 # Backlog
 
+## SN-023 one-step name history: in_progress
+
+The [bounded history increment](../experiments/SN-023-name-history.md) adds one
+Undo/Redo transition for applied names. Exact graph/bytes, baseline dirty state,
+no-op/error retention, branching and Open/Save Copy semantics passed two focused
+CTests and seven persisted snapshot audits. The native Qt path passed 26 controls
+and two byte audits, including both draft guards and retained selection/Preview.
+The Qt-free headless lifecycle passed. All twelve SN-045 overlays and 208 earlier
+evidence files remain preserved. General properties, multi-step undo, placement,
+wiring, managed Save, instruments and desktop usability remain pending. Next
+scope one existing literal resistance override and its interaction with history.
+Historical entries below retain their narrower original results.
+
 ## SN-023 instance-name increment: in_progress
 
 The [next bounded slice](../experiments/SN-023-instance-label.md) edits one
@@ -641,7 +654,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Declared instance-name slice tested](../experiments/SN-023-instance-label.md); full R/C/LED/switch/source/GND/MCU, wiring, general properties and undo remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [One-step name history tested](../experiments/SN-023-name-history.md); full R/C/LED/switch/source/GND/MCU, wiring, general properties and multi-step undo remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
