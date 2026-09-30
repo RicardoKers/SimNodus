@@ -1,5 +1,21 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [existing literal resistance value](../experiments/SN-023-resistance-value.md).
+PR #73 was reconfirmed at `4126f74898fc12b256bba1ff6053dbd70baf37ff` with both
+required Foundation checks passing (Windows 59/59; Ubuntu 48/48), matching local
+and remote main and no unpublished commits before starting this branch. Reconfirm
+the newest source PR and squash before continuing; this base is historical.
+Six affected CTests passed across retained attempts, including seven pure tests
+and 53 resistance requests. The native lifecycle passed 23 assertions/six byte
+audits; the first Qt path passed 29 controls/two audits. Headless/PE proof is Qt-free.
+Both failed Python-oracle attempts and all 210 earlier evidence files are retained.
+Names/resistance share one-step history and three independently guarded drafts.
+Units are fixed, edits require existing literals and complete native validation.
+Preserve all twelve independent overlays. Next establish acceptance for one
+existing literal capacitance value; reuse unchanged evidence. General properties,
+unit/binding edits, multi-step history and the other pending gates stay pending.
+The following handoff retains the earlier narrower results and project constraints.
+
 > Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
 > CURRENT.md, BACKLOG.md, the architecture/decision indexes, DESKTOP_UX.md,
 > ADRs 0076-0078, the SN-021 final audit, SN-022 boundary/license inventory,

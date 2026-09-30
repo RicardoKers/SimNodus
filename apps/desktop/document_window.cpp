@@ -87,6 +87,16 @@ DocumentWindow::DocumentWindow()
     auto* definition_note = new QLabel("Edits the selected circuit definition. Reused occurrences share this label; IDs and connections stay unchanged.");
     definition_note->setWordWrap(true);
     instance_layout->addWidget(definition_note);
+    resistance_limits_ = new QLabel("Select an existing literal resistance override.");
+    resistance_limits_->setWordWrap(true);
+    resistance_limits_->setTextFormat(Qt::PlainText);
+    instance_layout->addWidget(resistance_limits_);
+    resistance_ = new QLineEdit;
+    resistance_->setAccessibleName("Declared literal resistance value");
+    resistance_->setMaxLength(64);
+    instance_layout->addWidget(resistance_);
+    apply_resistance_ = new QPushButton("Apply Resistance Value");
+    instance_layout->addWidget(apply_resistance_);
     instance_layout->addStretch();
     properties_->setWidget(instance_panel);
     addDockWidget(Qt::RightDockWidgetArea, properties_);
@@ -111,10 +121,10 @@ DocumentWindow::DocumentWindow()
     auto* quit = file->addAction("Exit");
     connect(quit, &QAction::triggered, this, &QWidget::close);
     auto* edit = menuBar()->addMenu("Edit");
-    undo_ = edit->addAction("Undo Last Name Edit (one step)");
-    redo_ = edit->addAction("Redo Last Name Edit (one step)");
-    connect(undo_, &QAction::triggered, this, [this] { undoNameEdit(); });
-    connect(redo_, &QAction::triggered, this, [this] { redoNameEdit(); });
+    undo_ = edit->addAction("Undo Last Edit (one step)");
+    redo_ = edit->addAction("Redo Last Edit (one step)");
+    connect(undo_, &QAction::triggered, this, [this] { undoEdit(); });
+    connect(redo_, &QAction::triggered, this, [this] { redoEdit(); });
     auto* view = menuBar()->addMenu("View");
     view->addAction(components_->toggleViewAction());
     view->addAction(properties_->toggleViewAction());
@@ -122,10 +132,12 @@ DocumentWindow::DocumentWindow()
     connect(analyzer, &QAction::triggered, this, &DocumentWindow::showAnalyzer);
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
     connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
+    connect(apply_resistance_, &QPushButton::clicked, this, [this] { applyResistance(resistance_->text()); });
     connect(catalog_, &QListWidget::currentRowChanged, this, &DocumentWindow::selectCatalog);
     connect(structure_, &QTreeWidget::itemSelectionChanged, this, &DocumentWindow::selectInstance);
     connect(name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(instance_name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
+    connect(resistance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
@@ -135,8 +147,8 @@ DocumentWindow::DocumentWindow()
 
 bool DocumentWindow::confirmDiscard()
 {
-    if(!document_.dirty() && !namesPending()) return true;
-    return QMessageBox::question(this, "Discard changes?", "Discard unsaved document/name changes? Save Copy creates a separate file and leaves this document edited.",
+    if(!document_.dirty() && !editsPending()) return true;
+    return QMessageBox::question(this, "Discard changes?", "Discard unsaved document changes or pending field text? Save Copy creates a separate file and leaves this document edited.",
         QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Discard;
 }
 void DocumentWindow::closeEvent(QCloseEvent* event)
@@ -179,8 +191,8 @@ bool DocumentWindow::applyName(const QString& name)
 }
 bool DocumentWindow::saveCopy(const QString& leaf)
 {
-    if(namesPending()) {
-        status_->setText("Apply or restore pending project/instance name text before Save Copy.");
+    if(editsPending()) {
+        status_->setText("Apply or restore pending name/resistance text before Save Copy.");
         return false;
     }
     const auto result = document_.save_copy(utf8(leaf));
@@ -196,6 +208,8 @@ void DocumentWindow::refresh()
     catalog_->clear(); structure_->clear();
     selected_circuit_.clear(); selected_instance_.clear();
     instance_name_->clear(); instance_name_->setEnabled(false); apply_instance_->setEnabled(false);
+    resistance_->clear(); resistance_->setEnabled(false); apply_resistance_->setEnabled(false);
+    resistance_limits_->setText("Select an existing literal resistance override.");
     inspector_->setText("Select an instance in the declared structure.");
     preview_->setText("Select a declared component definition. Symbol rendering is pending.");
     name_->setEnabled(bool(document_.graph())); apply_->setEnabled(bool(document_.graph()));
@@ -241,8 +255,8 @@ void DocumentWindow::selectInstance()
     const auto circuit_id = item ? item->data(0, Qt::UserRole).toString() : QString{};
     const auto instance_id = item ? item->data(0, Qt::UserRole + 1).toString() : QString{};
     if(circuit_id == selected_circuit_ && instance_id == selected_instance_) return;
-    if(instanceDraftPending() && QMessageBox::question(this, "Discard pending instance name?",
-        "Discard the unapplied instance name before changing selection?",
+    if((instanceDraftPending() || resistanceDraftPending()) && QMessageBox::question(this, "Discard pending instance fields?",
+        "Discard unapplied instance name/resistance text before changing selection?",
         QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel) != QMessageBox::Discard) {
         const QSignalBlocker blocked(structure_);
         structure_->setCurrentItem(instanceItem(selected_circuit_, selected_instance_));
@@ -268,33 +282,43 @@ bool DocumentWindow::instanceDraftPending() const
     const auto* instance = selectedInstance();
     return instance && instance_name_->text() != text(instance->identity.name);
 }
-bool DocumentWindow::namesPending() const
+bool DocumentWindow::editsPending() const
 {
-    return (document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending();
+    return (document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending() || resistanceDraftPending();
+}
+std::optional<simnodus::LiteralResistanceView> DocumentWindow::selectedResistance() const
+{
+    if(!document_.graph()) return {};
+    return simnodus::literal_resistance(*document_.graph(), utf8(selected_circuit_), utf8(selected_instance_));
+}
+bool DocumentWindow::resistanceDraftPending() const
+{
+    const auto value = selectedResistance();
+    return value && resistance_->text() != text(value->value);
 }
 void DocumentWindow::updateHistoryActions()
 {
-    undo_->setEnabled(document_.can_undo() && !namesPending());
-    redo_->setEnabled(document_.can_redo() && !namesPending());
+    undo_->setEnabled(document_.can_undo() && !editsPending());
+    redo_->setEnabled(document_.can_redo() && !editsPending());
 }
-bool DocumentWindow::undoNameEdit() { return restoreNameEdit(false); }
-bool DocumentWindow::redoNameEdit() { return restoreNameEdit(true); }
-bool DocumentWindow::restoreNameEdit(bool redo)
+bool DocumentWindow::undoEdit() { return restoreEdit(false); }
+bool DocumentWindow::redoEdit() { return restoreEdit(true); }
+bool DocumentWindow::restoreEdit(bool redo)
 {
-    if(namesPending()) {
-        status_->setText("Apply or restore pending project/instance name text before Undo/Redo.");
+    if(editsPending()) {
+        status_->setText("Apply or restore pending name/resistance text before Undo/Redo.");
         return false;
     }
-    const auto result = redo ? document_.redo_name_edit() : document_.undo_name_edit();
+    const auto result = redo ? document_.redo_edit() : document_.undo_edit();
     if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
-        reportError(redo ? "Redo name" : "Undo name", error->code, error->offset, 0); return false;
+        reportError(redo ? "Redo edit" : "Undo edit", error->code, error->offset, 0); return false;
     }
     // Retain view selections. A full refresh would replace them and the Preview.
     name_->setText(text(document_.name()));
     updateInstanceProperties();
     setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
     updateHistoryActions();
-    status_->setText(redo ? "One name edit redone. Save Copy remains explicit." : "One name edit undone. Save Copy remains explicit.");
+    status_->setText(redo ? "One edit redone. Save Copy remains explicit." : "One edit undone. Save Copy remains explicit.");
     return true;
 }
 QTreeWidgetItem* DocumentWindow::instanceItem(const QString& circuit, const QString& instance) const
@@ -309,16 +333,25 @@ QTreeWidgetItem* DocumentWindow::instanceItem(const QString& circuit, const QStr
     }
     return nullptr;
 }
-void DocumentWindow::updateInstanceProperties()
+void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_resistance_draft)
 {
     const auto* instance = selectedInstance();
     instance_name_->setEnabled(instance != nullptr); apply_instance_->setEnabled(instance != nullptr);
-    if(!instance) {
+    if(instance) {
+        if(!keep_name_draft) instance_name_->setText(text(instance->identity.name));
+        inspector_->setText("Circuit: " + selected_circuit_ + "\nInstance: " + selected_instance_ + "\nName: " + text(instance->identity.name) + "\nDefinition: " + text(instance->definition) + "\nDeclared properties only; runtime unavailable.");
+    } else {
         instance_name_->clear(); inspector_->setText("Select an instance in the declared structure.");
-        updateHistoryActions(); return;
     }
-    instance_name_->setText(text(instance->identity.name));
-    inspector_->setText("Circuit: " + selected_circuit_ + "\nInstance: " + selected_instance_ + "\nName: " + text(instance->identity.name) + "\nDefinition: " + text(instance->definition) + "\nDeclared properties only; runtime unavailable.");
+    const auto literal = selectedResistance();
+    resistance_->setEnabled(bool(literal)); apply_resistance_->setEnabled(bool(literal));
+    if(literal) {
+        if(!keep_resistance_draft) resistance_->setText(text(literal->value));
+        resistance_limits_->setText("Resistance value in " + text(literal->unit) + " (unit fixed).\nDeclared target limits: " +
+            text(literal->minimum) + " to " + text(literal->maximum) + " " + text(literal->base_unit) + ".\nSource declaration edit; runtime remains unavailable.");
+    } else {
+        resistance_->clear(); resistance_limits_->setText("No supported literal resistance override. Forwarded/default bindings are not editable here.");
+    }
     updateHistoryActions();
 }
 bool DocumentWindow::applyInstanceName(const QString& name)
@@ -328,10 +361,23 @@ bool DocumentWindow::applyInstanceName(const QString& name)
     if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
         reportError("Instance name", error->code, error->offset, 0); return false;
     }
-    updateInstanceProperties();
+    updateInstanceProperties(false, true);
     setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
     status_->setText("Instance name applied to the source definition. Save Copy explicitly creates a new file.");
     updateHistoryActions();
+    return true;
+}
+bool DocumentWindow::applyResistance(const QString& value)
+{
+    if(!selectedResistance()) { status_->setText("Select an existing literal resistance override before editing."); return false; }
+    const auto result = document_.set_resistance(utf8(selected_circuit_), utf8(selected_instance_), utf8(value));
+    if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
+        reportError("Resistance edit", error->code, error->offset, 0); return false;
+    }
+    updateInstanceProperties(true, false);
+    setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
+    updateHistoryActions();
+    status_->setText("Resistance value applied to the declaration. Save Copy remains explicit; simulation is unavailable.");
     return true;
 }
 
@@ -497,7 +543,7 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
     // Focused name-history controls only; historical window/backend matrices
     // remain unchanged. Action triggers do not establish human usability.
     QJsonObject checks;
-    checks["empty_history_refused"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoNameEdit() && !redoNameEdit();
+    checks["empty_history_refused"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoEdit() && !redoEdit();
     checks["native_inert_open_clears_history"] = QApplication::platformName() == "windows" && openDocument(root, "original.json") &&
         !document_.can_undo() && !document_.can_redo();
     if(document_.graph()) {
@@ -513,20 +559,20 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
         const auto project = document_.graph();
         checks["project_button_enables_undo"] = document_.dirty() && undo_->isEnabled() && !redo_->isEnabled() && name_->text() == project_name;
         name_->setText("pending project");
-        checks["project_draft_refuses_history_and_copy"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoNameEdit() && !redoNameEdit() &&
+        checks["project_draft_refuses_history_and_copy"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoEdit() && !redoEdit() &&
             !saveCopy("blocked.json") && document_.graph() == project && name_->text() == "pending project";
         name_->setText(project_name);
-        checks["restored_project_draft_enables_undo"] = undo_->isEnabled() && !namesPending();
+        checks["restored_project_draft_enables_undo"] = undo_->isEnabled() && !editsPending();
         undo_->trigger();
         checks["first_undo_restores_clean_and_view"] = document_.graph() == original && !document_.dirty() && !windowTitle().endsWith(" *") &&
             name_->text() == original_name && selected_circuit_ == "rc" && selected_instance_ == "r" && preview_->text() == preview && redo_->isEnabled();
         instance_name_->clear();
-        checks["instance_draft_refuses_history"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoNameEdit() && !redoNameEdit() &&
+        checks["instance_draft_refuses_history"] = !undo_->isEnabled() && !redo_->isEnabled() && !undoEdit() && !redoEdit() &&
             document_.graph() == original && instance_name_->text().isEmpty();
         apply_instance_->click();
         checks["invalid_instance_preserves_redo_and_draft"] = document_.graph() == original && document_.can_redo() && instanceDraftPending();
         instance_name_->setText(original_label);
-        checks["restored_instance_draft_enables_redo"] = redo_->isEnabled() && !namesPending();
+        checks["restored_instance_draft_enables_redo"] = redo_->isEnabled() && !editsPending();
         checks["failed_open_preserves_redo"] = !openDocument(root, "invalid.json") && document_.graph() == original && redo_->isEnabled();
         redo_->trigger();
         checks["project_redo_restores_dirty_title_and_fields"] = document_.graph() == project && document_.dirty() && windowTitle().endsWith(" *") &&
@@ -541,7 +587,7 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
         undo_->trigger();
         checks["undo_other_instance_keeps_current_selection"] = document_.graph() == project && document_.dirty() &&
             selected_circuit_ == "rc" && selected_instance_ == "c" && instance_name_->text() == other_label && preview_->text() == preview;
-        checks["second_undo_refused"] = !undo_->isEnabled() && !undoNameEdit() && document_.graph() == project && redo_->isEnabled();
+        checks["second_undo_refused"] = !undo_->isEnabled() && !undoEdit() && document_.graph() == project && redo_->isEnabled();
         checks["semantic_noop_preserves_redo"] = applyName(project_name) && document_.graph() == project && redo_->isEnabled();
         redo_->trigger();
         checks["redo_other_instance_keeps_current_selection"] = document_.graph() == both && selected_instance_ == "c" &&
@@ -549,8 +595,8 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
         structure_->setCurrentItem(instanceItem("rc", "r"));
         bool toggles = true;
         for(int i = 0; i < 3; ++i) {
-            toggles = toggles && undoNameEdit() && document_.graph() == project && instance_name_->text() == original_label;
-            toggles = toggles && redoNameEdit() && document_.graph() == both && instance_name_->text() == instance_name;
+            toggles = toggles && undoEdit() && document_.graph() == project && instance_name_->text() == original_label;
+            toggles = toggles && redoEdit() && document_.graph() == both && instance_name_->text() == instance_name;
         }
         checks["repeated_restore_resolves_selected_ids"] = toggles && selected_circuit_ == "rc" && selected_instance_ == "r" && preview_->text() == preview;
         undo_->trigger(); name_->setText("History branch"); apply_->click();
@@ -574,6 +620,109 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
     for(const auto value : checks) passed = passed && value.toBool();
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"scope", "scripted one-step applied name history; no keyboard, human recovery, resource or engine acceptance"}};
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runResistanceAcceptance(const QString& root, const QString& report)
+{
+    // A single focused native control path. Scripted answers are not evidence
+    // of human recovery, keyboard/accessibility or unchanged layout matrices.
+    const auto answer = [this](QMessageBox::StandardButton button) {
+        QTimer::singleShot(10, this, [button] {
+            for(auto* widget : QApplication::topLevelWidgets())
+                if(auto* dialog = qobject_cast<QMessageBox*>(widget))
+                    if(dialog->isVisible()) dialog->button(button)->click();
+        });
+    };
+    QJsonObject checks;
+    checks["native_inert_open"] = QApplication::platformName() == "windows" && openDocument(root, "original.json");
+    if(document_.graph()) {
+        checks["no_selection_refused"] = !resistance_->isEnabled() && !applyResistance("2");
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        catalog_->setCurrentRow(0);
+        const auto preview = preview_->text();
+        const auto original = document_.graph();
+        const auto original_label = instance_name_->text();
+        checks["fixed_unit_and_target_bounds"] = resistance_->isEnabled() && resistance_->text() == "1" &&
+            resistance_limits_->text().contains("kohm (unit fixed)") && resistance_limits_->text().contains("100 to 10000 ohm");
+        resistance_->setText("10.0000001"); apply_resistance_->click();
+        checks["outside_bounds_retains_graph_and_draft"] = document_.graph() == original && !document_.dirty() && resistance_->text() == "10.0000001";
+        checks["resistance_draft_blocks_copy_and_history"] = !saveCopy("blocked.json") && !undoEdit() && !redoEdit() &&
+            !undo_->isEnabled() && !redo_->isEnabled() && document_.graph() == original;
+        answer(QMessageBox::Cancel);
+        checks["open_cancel_retains_resistance_draft"] = !confirmDiscard() && resistanceDraftPending() && document_.graph() == original;
+        answer(QMessageBox::Cancel); close();
+        checks["exit_cancel_retains_resistance_draft"] = isVisible() && resistanceDraftPending() && document_.graph() == original;
+        resistance_->setText("NaN"); apply_resistance_->click();
+        checks["invalid_quantity_retains_graph_and_draft"] = document_.graph() == original && resistance_->text() == "NaN";
+        resistance_->setText("3.5"); name_->setText("Resistance project"); instance_name_->setText("Edited left");
+        apply_->click();
+        checks["project_apply_preserves_both_instance_drafts"] = text(document_.name()) == "Resistance project" &&
+            instance_name_->text() == "Edited left" && resistance_->text() == "3.5" && instanceDraftPending() && resistanceDraftPending();
+        apply_instance_->click();
+        const auto names = document_.graph();
+        checks["instance_apply_preserves_resistance_draft"] = text(selectedInstance()->identity.name) == "Edited left" &&
+            resistance_->text() == "3.5" && resistanceDraftPending() && name_->text() == "Resistance project";
+        name_->setText("pending project"); instance_name_->setText("pending instance");
+        apply_resistance_->click();
+        const auto both = document_.graph();
+        checks["resistance_apply_preserves_both_name_drafts"] = both != names && selectedResistance()->value == "3.5" &&
+            name_->text() == "pending project" && instance_name_->text() == "pending instance" && !resistanceDraftPending();
+        checks["names_still_block_copy_and_history"] = !saveCopy("blocked.json") && !undoEdit() && !redoEdit() &&
+            !undo_->isEnabled() && !redo_->isEnabled() && document_.graph() == both;
+        resistance_->setText("4.7");
+        answer(QMessageBox::Cancel); structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["selection_cancel_retains_all_three_drafts"] = selected_instance_ == "left" && structure_->currentItem() == instanceItem("main", "left") &&
+            name_->text() == "pending project" && instance_name_->text() == "pending instance" && resistance_->text() == "4.7" && document_.graph() == both;
+        answer(QMessageBox::Discard); structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["selection_discard_clears_both_local_drafts"] = selected_instance_ == "right" && !instanceDraftPending() && !resistanceDraftPending() &&
+            resistance_->text() == "2.2" && name_->text() == "pending project" && document_.graph() == both;
+        name_->setText(text(document_.name()));
+        structure_->setCurrentItem(instanceItem("rc", "r"));
+        checks["forwarded_binding_refused"] = !resistance_->isEnabled() && !apply_resistance_->isEnabled() && !applyResistance("2") && document_.graph() == both;
+        structure_->setCurrentItem(structure_->topLevelItem(0));
+        checks["circuit_row_refused"] = !resistance_->isEnabled() && !applyResistance("2") && document_.graph() == both;
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["selection_and_preview_retained"] = resistance_->text() == "3.5" && instance_name_->text() == "Edited left" &&
+            preview_->text() == preview && undo_->isEnabled();
+        undo_->trigger();
+        checks["mixed_history_undo_keeps_names"] = document_.graph() == names && resistance_->text() == "1" && instance_name_->text() == "Edited left" &&
+            name_->text() == "Resistance project" && document_.dirty() && redo_->isEnabled() && !undo_->isEnabled();
+        checks["undone_copy_retains_redo"] = saveCopy("resistance-undone.json") && document_.graph() == names && document_.can_redo();
+        resistance_->setText("0.01"); apply_resistance_->click();
+        checks["invalid_revision_preserves_redo"] = document_.graph() == names && document_.can_redo() && resistanceDraftPending();
+        resistance_->setText("1"); apply_resistance_->click();
+        checks["no_op_preserves_redo"] = document_.graph() == names && redo_->isEnabled() && !editsPending();
+        redo_->trigger();
+        checks["redo_restores_resistance_and_names"] = document_.graph() == both && resistance_->text() == "3.5" &&
+            instance_name_->text() == "Edited left" && name_->text() == "Resistance project" && windowTitle().endsWith(" *");
+        checks["explicit_copy_retains_association_and_history"] = saveCopy("resistance-copy.json") && document_.graph() == both &&
+            document_.dirty() && document_.leaf() == "original.json" && document_.can_undo();
+        checks["original_and_existing_copy_refused"] = !saveCopy("original.json") && !saveCopy("resistance-copy.json") && document_.graph() == both;
+        checks["failed_open_retains_selected_fields"] = !openDocument(root, "invalid.json") && document_.graph() == both &&
+            selected_instance_ == "left" && resistance_->text() == "3.5" && instance_name_->text() == "Edited left";
+        checks["explicit_reopen_resets_history"] = openDocument(root, "resistance-copy.json") && !document_.dirty() &&
+            !document_.can_undo() && !document_.can_redo() && selected_instance_.isEmpty();
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["reopened_fields_match_persisted_copy"] = resistance_->text() == "3.5" && instance_name_->text() == "Edited left" &&
+            name_->text() == "Resistance project" && !editsPending();
+        checks["initial_graph_remains_immutable"] = simnodus::literal_resistance(*original, "main", "left")->value == "1" &&
+            original_label != "Edited left";
+        const auto final = document_.graph();
+        showAnalyzer(); analyzer_.close(); showAnalyzer();
+        checks["analyzer_reopen_preserves_document"] = analyzer_.isVisible() && document_.graph() == final;
+    }
+    bool passed = checks.size() == 29;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"instance_properties_text", inspector_->text()}, {"resistance_limits_text", resistance_limits_->text()},
+        {"scope", "scripted existing literal resistance value and mixed one-step history; no engine, resource or human recovery acceptance"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     const auto output = QJsonDocument(result).toJson();

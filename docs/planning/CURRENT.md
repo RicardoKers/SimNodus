@@ -1,5 +1,45 @@
 # Current state
 
+## Current SN-023 state: literal resistance value tested
+
+On 2026-09-30, the [closed resistance increment](../experiments/SN-023-resistance-value.md)
+edits only the value string of an existing literal `resistance` override. The
+first path is `main/left`: fixed `kohm`, inclusive target bounds `100` to `10000
+ohm`. Native original/candidate validation rebuilds complete graph, provenance
+and effective parameters while preserving every other source byte. No insertion,
+unit change, forwarded/default conversion or generic parameter command is added.
+Names and resistance share one-step immutable history; all three drafts survive
+unrelated Apply and guard persistence/history/selection/Open/exit as appropriate.
+
+Six affected CTests passed across retained attempts: five on the initial run and
+the final resistance rerun (seven tests/53 requests). The new native lifecycle
+passed 23 assertions and six persisted byte audits. The first Qt path passed
+29 controls and two persisted byte audits. Headless execution with no Qt kit PATH
+or environment passed; PE dependencies contain no Qt. Final capture inspected.
+Two failed Python-oracle attempts are explicitly retained with sources/logs:
+projection/path mistakes, then wrong oversized-base error expectation. Production
+sources/binaries were unchanged by those corrections. Old backend/layout evidence
+is reused; no real engine, user recovery or keyboard acceptance is inferred.
+
+PR #73 was reconfirmed MERGED at `4126f74898fc12b256bba1ff6053dbd70baf37ff`,
+equal to local main, origin/main and remote main, with both required Foundation
+checks successful (Windows 59/59; Ubuntu 48/48) and no unpublished commits.
+Branch `codex/sn-023-resistance-value` started there. All 210 prior evidence files
+match hashes, and twelve independent SN-045 overlays remain preserved and excluded
+from publication. Repository/staged-tree checks and final Foundation/squash
+results are recorded by the source PR.
+
+SN-023 remains in_progress. Next specify one existing literal capacitance value
+and its fixed-unit/target-bound acceptance before implementation, reusing the
+unchanged byte/history/persistence evidence where applicable. General properties,
+unit/binding edits, multi-step undo, placement/wiring, managed Save/service,
+shared instruments, real-engine workers/IPC, human usability, keyboard/accessibility,
+monitor/DPI, session layout and packaging remain pending. Opening remains inert.
+Preserve SN-021 Windows/local-NTFS/one-managed-document/fixed-E-01 limits and
+negatives, SN-022 synthetic selection/failures, SN-017 Python/GDB/fixture control,
+profiles/tolerances, MCU/toolchain independence and PDF/PID behavior. January
+stabilization and February 2027 classroom use remain planning targets.
+
 ## Current SN-023 state: one-step name history tested
 
 On 2026-09-30, the [bounded history increment](../experiments/SN-023-name-history.md)

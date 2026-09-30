@@ -45,7 +45,8 @@ All repository documentation, code, comments, templates, and committed project t
 
 The optional [bounded Windows document editor](apps/desktop/README.md) opens inert
 project declarations, inspects their structure, edits project or declared instance
-display names with one-step Undo/Redo and creates an explicit new copy through
+display names or one existing literal resistance value with one-step Undo/Redo,
+and creates an explicit new copy through
 native operations. Full schematic editing, instruments, managed Save and desktop
 simulation remain pending.
 

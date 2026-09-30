@@ -1,0 +1,521 @@
+{
+  "experiment": "SN-023 existing literal resistance value",
+  "recorded_date": "2026-09-30",
+  "status": "passed-for-closed-value-command-and-mixed-history; full-SN-023-in-progress",
+  "base_main": "4126f74898fc12b256bba1ff6053dbd70baf37ff",
+  "branch": "codex/sn-023-resistance-value",
+  "reconfirmed_pr_73": {
+    "state": "MERGED",
+    "head": "849cb98844f17c3e2164a60607bc619e7481530b",
+    "squash": "4126f74898fc12b256bba1ff6053dbd70baf37ff",
+    "merged_at": "2026-09-30T19:42:04Z",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 59/59",
+      "Foundation (ubuntu-latest): SUCCESS; 48/48"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-resistance-value/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-resistance-value/native-build --config Release --target simnodus_document_editor editor_document_tests editor_name_history_tests editor_resistance_tests native_revision_probe",
+    "ctest --test-dir build/sn023-resistance-value/native-build -C Release --output-on-failure --verbose -R \"^(editor-document-contracts|editor-name-history-contracts|editor-resistance-contracts|native-project-revision|native-instance-label-revision|native-resistance-revision)$\" (ctest-01)",
+    "ctest --test-dir build/sn023-resistance-value/native-build -C Release --output-on-failure --verbose -R \"^native-resistance-revision$\" (ctest-02 and ctest-03)",
+    "python tests/resources/editor_resistance_acceptance.py --editor build/sn023-resistance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-resistance-value/gui-01",
+    "python build/sn023-resistance-value/headless_proof.py (QT_* removed; PATH=C:/Windows/System32; dumpbin /DEPENDENTS; six persisted byte audits)",
+    "python tools/check_repository.py; git diff --check; staged-tree checker (results recorded by source PR)"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "targeted_ctest": "All six affected tests passed across retained attempts: five initial passes; new resistance suite final pass",
+    "resistance_revision": "7 tests/53 requests; exact token bytes, complete graph/source positions, all effective parameters",
+    "affected_name_revision_regressions": "33 project-name and 46 instance-name requests passed",
+    "native_lifecycle_assertions": 23,
+    "native_persisted_snapshots": "6 independent byte audits; original/escaped source/sentinel unchanged",
+    "gui_controls": "29/29 passed first run",
+    "gui_persisted_snapshots": "2 independent exact byte audits; original unchanged",
+    "headless": "23 assertions and 6 audits passed without Qt environment/kit PATH; direct PE dependencies contain no Qt",
+    "visual_review": "Final capture inspected: main/left, value 3.5, fixed kohm unit, rc bounds 100 to 10000 ohm, separate panels",
+    "initial_runs": "configure/build/GUI/headless passed; optional pthread/Vulkan discovery diagnostics retained",
+    "failed_attempts": [
+      {
+        "attempt": "ctest-01",
+        "passed_ctests": 5,
+        "failed_ctests": 1,
+        "resistance_tests": "7 run, 5 errors, 34 requests",
+        "cause": "New Python oracle passed topology 0.3 to 0.2 resolver without bindings.projection; root-prefixed occurrence and misplaced model-interface paths also corrected before next run",
+        "retained": "ctest-01.log and initial-ctest-01 exact sources/binaries/LastTest.log"
+      },
+      {
+        "attempt": "ctest-02",
+        "resistance_tests": "7 run, 1 failure, 53 requests",
+        "cause": "Oracle expected bytes for oversized original; unchanged loader reports input at base stage",
+        "retained": "ctest-02.log and initial-ctest-02 exact Python source/LastTest.log"
+      }
+    ],
+    "final_rerun": "ctest-03: 7 tests/53 requests passed; only failed directly affected suite repeated",
+    "production_unchanged_during_oracle_fixes": true,
+    "read_only_review": "No actionable production defect or material acceptance gap",
+    "engine_runs": 0,
+    "previous_gui_layout_or_backend_matrices_rerun": 0,
+    "publication_validation": "Repository/staged-tree checker, diff checks, required Foundation results and squash identities recorded by source PR"
+  },
+  "policy": {
+    "field": "Existing literal resistance.value only; stable circuit-definition and instance IDs",
+    "units": "Fixed ohm/kohm spelling; displayed target bounds in base ohm",
+    "validation": "Unchanged exact-decimal project validator; full original/candidate graph and effective parameters",
+    "history_scope": "One applied project-name/instance-name/resistance transition; errors/no-ops preserve",
+    "snapshot_bound": "Opened/current/one-counterpart application-owned graphs; caller references excluded, heap bytes unmeasured",
+    "no_op": "Decoded value string equality preserves bytes/escape spelling; equal magnitude with different text is an effective byte edit",
+    "drafts": "Project name, instance name, resistance independently retained across unrelated Apply; all guard Save Copy/history/Open/exit",
+    "selection": "Cancel retains both local drafts and IDs; Discard clears both, retains project draft",
+    "persistence": "Explicit create-only copy; retains association, dirty state and history. Successful Open clears history"
+  },
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 42740,
+      "sha256": "394d66accd67f7454aba5be70d4feb91d371f1a94061f752d0820fb3ca1a2717"
+    },
+    {
+      "path": "src/application/project_revision.hpp",
+      "bytes": 1965,
+      "sha256": "095d3fdfbf66cd6918e21451ab7ce7f93739fa8a117346505d61b97b70e30f3b"
+    },
+    {
+      "path": "src/application/project_revision.cpp",
+      "bytes": 7718,
+      "sha256": "5fe27ac0e5c36ed1f2e1a1b3f2d29d18f2a94d2b7bcaec26f6b490bf558517d5"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1861,
+      "sha256": "0288fb43a2be0f2cbe866d497a3e6b8c82dc21e4adac32e655b0a4e9f02a53ab"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 3863,
+      "sha256": "3caefe75e5c4f4d5f46a6da25f5b7d700271b612fa6b96d8d3648939eac5d415"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 351,
+      "sha256": "d4f5509de25569d2e3733612842d996a16696905d9817a96a884a2ab909f288c"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 2375,
+      "sha256": "8392e6b3d6cf4a8fb9932dcd918fab622a3fb3f92b0348f997af02d105833839"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 47393,
+      "sha256": "2826d65d2ca46f7a573490f0f810c897d329841b3376d28769735aab7340c67a"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 1420,
+      "sha256": "84162182aae84ffcee2eeab9670d76401fe58989d6b94bc5f7c52004a0785616"
+    },
+    {
+      "path": "tests/schema/native_revision_probe.cpp",
+      "bytes": 4362,
+      "sha256": "75c08c473a08f31e66cb89126fef8fcd100f11bb9b7d8951635a4638c864626f"
+    },
+    {
+      "path": "tests/schema/native_instance_label_regression.py",
+      "bytes": 8655,
+      "sha256": "d1bb2a15ea4b049397dfe0f6dc355b3beb6e369292b2bcef533fc5eca4ca895a"
+    },
+    {
+      "path": "tests/schema/native_resistance_regression.py",
+      "bytes": 8554,
+      "sha256": "98e729f9a7f8211a38a821db6ef914a7893b9928f91676be0ee960e29ab86b92"
+    },
+    {
+      "path": "tests/resources/editor_name_history.cpp",
+      "bytes": 7599,
+      "sha256": "7f4e9870276aaa8123ea51ec188b083f124d3d017e8487ed24a657cde3c6873e"
+    },
+    {
+      "path": "tests/resources/editor_resistance.cpp",
+      "bytes": 6570,
+      "sha256": "9a9a8173c9b53a55885104862a3c402e1395bb704ed372cf499c7dcb3a085ee7"
+    },
+    {
+      "path": "tests/resources/editor_resistance_regression.py",
+      "bytes": 2835,
+      "sha256": "66ad615f3b59dcd31b712b3cccda2b96297ebe1b40c4f0b022cbd76b3f8e3e9c"
+    },
+    {
+      "path": "tests/resources/editor_resistance_acceptance.py",
+      "bytes": 3278,
+      "sha256": "e1618b06810ff4ec7b3bbdb234187ecc8d1c319498552bfa4f7a0aa9e50da2cc"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-resistance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 396288,
+      "sha256": "0d4da3150c22a59511a8c3042eae4ec9324014867e310811471f8b93ae7aa7b1"
+    },
+    {
+      "path": "build/sn023-resistance-value/native-build/Release/native_revision_probe.exe",
+      "bytes": 233984,
+      "sha256": "fa5bc3a2ca10b249b8d097aedb01876f61cdc48cf23d268a563c5087a58ed9bd"
+    },
+    {
+      "path": "build/sn023-resistance-value/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "4f636ca7e96d75008301bb47956283a48c72d8adfdeb004793bde0e8703de993"
+    },
+    {
+      "path": "build/sn023-resistance-value/native-build/Release/editor_name_history_tests.exe",
+      "bytes": 264192,
+      "sha256": "3b261c2e724b57f348913193129f52d5b7fae43a008e65ab218c36f679d9be1a"
+    },
+    {
+      "path": "build/sn023-resistance-value/native-build/Release/editor_resistance_tests.exe",
+      "bytes": 265728,
+      "sha256": "107c177e78e7b722bb7f22fa4ec6a5500dfa628a970331504bd4391448096adc"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-resistance-value-gui-01.json",
+      "bytes": 2034,
+      "sha256": "d0fcfed9cb027683d0303c1a7dd3e6611d8b3f62e5b59f97837bbbdee2cca026"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-resistance-value/build-01.log",
+      "bytes": 11160,
+      "sha256": "83e04efc968c4491779a888f9bcc7dd7d0722155f43a3a680236b7fa1e043068"
+    },
+    {
+      "path": "build/sn023-resistance-value/configure-01.log",
+      "bytes": 1251,
+      "sha256": "1e4e2ae4b55f23e984850ad3ecd4233b30e31c4e298fcc9d33d4ed5c6a1e6931"
+    },
+    {
+      "path": "build/sn023-resistance-value/ctest-01.log",
+      "bytes": 30288,
+      "sha256": "b92f6f8dc2a001676fa81e4476d42d154ff8b53062c81ba967627dd5893bf3b9"
+    },
+    {
+      "path": "build/sn023-resistance-value/ctest-02.log",
+      "bytes": 4671,
+      "sha256": "a33673d6f8c811e17f39b09c72d0be7efe37060859f5e6b0a0a9eb83b78cb761"
+    },
+    {
+      "path": "build/sn023-resistance-value/ctest-03.log",
+      "bytes": 2105,
+      "sha256": "9dcc209cf73207c4ff2b66943b51d94a1b739e8f157e8b43448045d7efaaecbf"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01.log",
+      "bytes": 92,
+      "sha256": "d630f156008d9bdfb71e131ebcdf5775bff619f289680d6b2eca28bbce95cf56"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-imports.log",
+      "bytes": 794,
+      "sha256": "4c1100930e46d25320a44d3bdc07166077c0003a8cd88242b298668386f83c83"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless.log",
+      "bytes": 1076,
+      "sha256": "bc9e0ccd0adbab826364c926de36dddb443617a8782b5c456b3b4b55a9ea2bc4"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/document/resistance-copy.json",
+      "bytes": 13838,
+      "sha256": "65acc782340fe5b54f95ac0be54ac1aab60a8119c44e1ad5e6d11160d261819d"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/document/resistance-undone.json",
+      "bytes": 13836,
+      "sha256": "7c1499ed18712a8d79d2336e7945b441945630a60d4a4607c90f0f81fa64f99f"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/report.json",
+      "bytes": 2034,
+      "sha256": "d0fcfed9cb027683d0303c1a7dd3e6611d8b3f62e5b59f97837bbbdee2cca026"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/report.json.png",
+      "bytes": 61055,
+      "sha256": "65d7bbb1e454dd18aa5eb039e5b555f6a4579ad1c3e3d3040d58f25b8d8e668b"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/runner.json",
+      "bytes": 476,
+      "sha256": "7aef9d0e9cb27b65fe48b2742a1635147d3409da20ba99d1bf4bca8c1e4a9d18"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-resistance-value/gui-01/stdout.log",
+      "bytes": 2073,
+      "sha256": "734779f5f44ffe8c4ab22f60e54f0d43300414478c71bcabb8e7f6befe1a6e7e"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/branch.json",
+      "bytes": 13839,
+      "sha256": "26f25b0e72bf9490f47e7c7b770da84e313d3f06e9723efc6407e87064b93f73"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/escaped-spelling.json",
+      "bytes": 13839,
+      "sha256": "b243c8dad50741def6aa0893eb44bddc54c088c10453d55099c2f14a8dd033d8"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/escaped.json",
+      "bytes": 13842,
+      "sha256": "79cb0f67d6ee282410944bc7ff1a129770491b75625536fbb0ad3c4c103808c7"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/mixed.json",
+      "bytes": 13846,
+      "sha256": "b69b0692c63b4f78ff314454ade2c747412077bceeeaff2abf11ed3afdd12f4d"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/occupied.json",
+      "bytes": 17,
+      "sha256": "477f86fc4090b067ad1cdfb48118ee6be6e1844367db34f90d75e0674134c5a5"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/project-mixed.json",
+      "bytes": 13837,
+      "sha256": "ce76324816c288187ac817698bb3f148089ba265a83683ad3dacb40ad050b9fb"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/resistance-undone.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless-root/resistance.json",
+      "bytes": 13839,
+      "sha256": "4d83a4c98f641127af7dcc945bdcbf1685caec760be8a19376a924d6dce7e294"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/apps/desktop/document_window.cpp",
+      "bytes": 47393,
+      "sha256": "2826d65d2ca46f7a573490f0f810c897d329841b3376d28769735aab7340c67a"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/apps/desktop/document_window.hpp",
+      "bytes": 2375,
+      "sha256": "8392e6b3d6cf4a8fb9932dcd918fab622a3fb3f92b0348f997af02d105833839"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/apps/desktop/main.cpp",
+      "bytes": 1420,
+      "sha256": "84162182aae84ffcee2eeab9670d76401fe58989d6b94bc5f7c52004a0785616"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/build/sn023-resistance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 396288,
+      "sha256": "0d4da3150c22a59511a8c3042eae4ec9324014867e310811471f8b93ae7aa7b1"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/build/sn023-resistance-value/native-build/Release/editor_resistance_tests.exe",
+      "bytes": 265728,
+      "sha256": "107c177e78e7b722bb7f22fa4ec6a5500dfa628a970331504bd4391448096adc"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/build/sn023-resistance-value/native-build/Release/native_revision_probe.exe",
+      "bytes": 233984,
+      "sha256": "fa5bc3a2ca10b249b8d097aedb01876f61cdc48cf23d268a563c5087a58ed9bd"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/build/sn023-resistance-value/native-build/Testing/Temporary/LastTest.log",
+      "bytes": 21214,
+      "sha256": "e6c47b6f3ce6e437aadc41005556da8115b4ed0ce5b73812efeb3d5324cd2994"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/src/application/editor_document.cpp",
+      "bytes": 3863,
+      "sha256": "3caefe75e5c4f4d5f46a6da25f5b7d700271b612fa6b96d8d3648939eac5d415"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/src/application/editor_document.hpp",
+      "bytes": 1861,
+      "sha256": "0288fb43a2be0f2cbe866d497a3e6b8c82dc21e4adac32e655b0a4e9f02a53ab"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/src/application/project_revision.cpp",
+      "bytes": 7718,
+      "sha256": "5fe27ac0e5c36ed1f2e1a1b3f2d29d18f2a94d2b7bcaec26f6b490bf558517d5"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/src/application/project_revision.hpp",
+      "bytes": 1965,
+      "sha256": "095d3fdfbf66cd6918e21451ab7ce7f93739fa8a117346505d61b97b70e30f3b"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/tests/resources/editor_resistance.cpp",
+      "bytes": 6570,
+      "sha256": "9a9a8173c9b53a55885104862a3c402e1395bb704ed372cf499c7dcb3a085ee7"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/tests/resources/editor_resistance_acceptance.py",
+      "bytes": 3278,
+      "sha256": "e1618b06810ff4ec7b3bbdb234187ecc8d1c319498552bfa4f7a0aa9e50da2cc"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/tests/resources/editor_resistance_regression.py",
+      "bytes": 2835,
+      "sha256": "66ad615f3b59dcd31b712b3cccda2b96297ebe1b40c4f0b022cbd76b3f8e3e9c"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/tests/schema/native_resistance_regression.py",
+      "bytes": 8455,
+      "sha256": "54ef03d361e4737c313df008913ec8f0b380073082209ff4d1624cfde59a785d"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-01/tests/schema/native_revision_probe.cpp",
+      "bytes": 4362,
+      "sha256": "75c08c473a08f31e66cb89126fef8fcd100f11bb9b7d8951635a4638c864626f"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-02/LastTest.log",
+      "bytes": 2716,
+      "sha256": "5f52a81a76c4e446a9674024c379b7f88f64113be829cb3faf1fa0b08eaaffe3"
+    },
+    {
+      "path": "build/sn023-resistance-value/initial-ctest-02/native_resistance_regression.py",
+      "bytes": 8554,
+      "sha256": "a09614193f89178f78e163b4befc4e2ca0825817dd85f821a1e3f2c497dad1f3"
+    },
+    {
+      "path": "build/sn023-resistance-value/validate.py",
+      "bytes": 1789,
+      "sha256": "28b30d71842d94d801d03fc5c73dc959e6379b2abf25edbcb1e6d572a0314094"
+    },
+    {
+      "path": "build/sn023-resistance-value/headless_proof.py",
+      "bytes": 1597,
+      "sha256": "6e1ef64a11933ebd696b340597cd6e0e6b103627476d36fa055d92aa517f2b9a"
+    },
+    {
+      "path": "build/sn023-resistance-value/acceptance-before-implementation.md",
+      "bytes": 4995,
+      "sha256": "fdcbe2a8a316b34a14a934c0e7da20aa3c54a74119e463cec490804f7a1cade8"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 210,
+    "historical_evidence_manifest_sha256": "d485fb082f3857fb1fa7c45d5bd06fd3b15be5ddaaba88da3305a913008ce99b",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "1ef265a09921f2ad50337a5d8bde768a654c5dce30c94c6adda450298d5b4a42"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "cb3bbfc3c9586abf946dc2a2043fe1f8387fcbf5d1d28a09db3fd0697a48a227"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "All earlier evidence and ten untouched overlays match hashes; own CURRENT/BACKLOG edits reverse exactly to saved bytes."
+  },
+  "limits": [
+    "No generic parameter editing, override insertion, unit change, forwarded/default binding conversion, multi-step undo, placement or wiring.",
+    "Qt remains Core/Gui/Widgets presentation only; analyzer data unavailable; no worker/IPC/real-engine integration.",
+    "Inert Open and explicit create-only Save Copy; no managed Save/service, external overwrite or resource/executable authority.",
+    "Source directory spelling is neither verified resource context nor physical lease; synchronous document I/O has no latency guarantee.",
+    "No human recovery, file-dialog, keyboard/accessibility, monitor/DPI, cross-session layout or packaging acceptance.",
+    "SN-021 Windows/local-NTFS/one-managed-document/fixed-E-01 limits and negatives unchanged; no power-loss durability, trusted origin or redistribution proof.",
+    "SN-022 synthetic selection and failed runtime/setup attempts preserved; retries do not validate user recovery.",
+    "SN-017 Python/GDB/fixture ownership, profiles/tolerances, MCU/toolchain independence and PDF/PID behavior unchanged.",
+    "January stabilization and February 2027 classroom use are planning targets."
+  ]
+}

@@ -10,7 +10,7 @@ component definitions/pins and circuit instances/nets, change the top-level
 display name with **Apply Name**, then **File -> Save Copy** using a new ASCII
 leaf filename in the opened directory. Save Copy retains the original association
 and dirty state; explicitly Open the copy to switch documents. Apply any pending
-name text before saving. Open/exit asks before discarding pending or applied edits.
+name/resistance text before saving. Open/exit asks before discarding pending or applied edits.
 Failures retain the current document and expose native diagnostics.
 
 The [next tested increment](../../docs/experiments/SN-023-instance-label.md) adds
@@ -22,13 +22,25 @@ text blocks Save Copy, and changing selection offers explicit Discard or Cancel.
 Cancel retains the selected IDs and draft. Failed edits retain the graph and text.
 
 The [one-step history increment](../../docs/experiments/SN-023-name-history.md)
-adds **Edit -> Undo Last Name Edit (one step)** / **Redo Last Name Edit (one step)**
-for applied project or instance names. Only the most recent effective transition
+originally added history for applied names. The current menu is
+**Edit -> Undo Last Edit (one step)** / **Redo Last Edit (one step)** for applied
+project/instance names and the literal resistance command. Only the most recent effective transition
 is retained; a new applied edit replaces it and clears Redo. Invalid edits and
-no-ops preserve it. Apply or restore both pending text fields before using these
-actions. Restoring a name retains selected IDs and Preview. Save Copy preserves
+no-ops preserve it. Apply or restore all three pending text fields before using these
+actions. Restoring an edit retains selected IDs and Preview. Save Copy preserves
 history; successful Open clears it and starts clean. Document keyboard shortcuts
 and multi-step/general undo are pending; typing is not application history.
+
+The [literal resistance increment](../../docs/experiments/SN-023-resistance-value.md)
+adds **Apply Resistance Value** to Instance Properties for an existing literal
+`resistance` override. `main/left` in the owned fixture starts at `1 kohm`; the
+panel displays its fixed input unit and target bounds `100` through `10000 ohm`.
+The native validator enforces exact decimal syntax and inclusive limits. No
+unit/default/forwarded binding edit or arbitrary parameter field is offered.
+This changes a selected source declaration and its occurrences. Applying one
+field retains other drafts. Selection Cancel retains both instance drafts;
+Discard clears both while preserving the project draft. Equal decoded text is a
+no-op; another valid spelling of the same magnitude is a real byte edit.
 
 Components/Preview concerns a declared definition, with metadata only; Instance
 Properties concerns a selected graph instance. Preview renders no symbol or model
@@ -68,6 +80,8 @@ python tests/resources/editor_desktop_acceptance.py --editor build/sn023/native-
 python tests/resources/editor_instance_acceptance.py --editor build/sn023/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023/new-instance-run
 python tests/resources/editor_name_history_regression.py --probe build/sn023-name-history/native-build/Release/editor_name_history_tests.exe
 python tests/resources/editor_history_acceptance.py --editor build/sn023-name-history/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-name-history/new-gui-run
+python tests/resources/editor_resistance_regression.py --probe build/sn023-resistance-value/native-build/Release/editor_resistance_tests.exe
+python tests/resources/editor_resistance_acceptance.py --editor build/sn023-resistance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-resistance-value/new-gui-run
 ```
 
 The original GUI script uses a byte-identical `two-rc-project.json` and a separate derived
@@ -92,6 +106,15 @@ branching, no-op/error retention, exact dirty states, draft guards and Open rese
 Earlier GUI/revision/backend matrices are reused. To build the new native probe,
 use the current sources and the additional `editor_name_history_tests` target;
 the measured build directory and commands are in the linked history report.
+
+The dedicated resistance script passed 29 controls and two independent saved-byte
+audits, including mixed name/value history and all three draft guards. Its native
+lifecycle passed 23 assertions and six saved-byte audits. Seven pure revision
+tests issue 53 requests against independent graph/source/effective-parameter and
+byte expectations. Two failing Python-oracle attempts are retained in the report;
+the first GUI/headless runs passed. Existing backend/layout evidence is reused.
+Build the additional `editor_resistance_tests` and `native_revision_probe` targets
+with the current sources; exact measured commands are in the linked report.
 
 Full placement/wiring/properties/multi-step undo, rendered symbols, production managed Save,
 real worker/engine integration, shared instruments, physical monitor/DPI behavior,
