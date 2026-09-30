@@ -21,6 +21,15 @@ The field is disabled for circuit/net rows and no selection. Pending instance
 text blocks Save Copy, and changing selection offers explicit Discard or Cancel.
 Cancel retains the selected IDs and draft. Failed edits retain the graph and text.
 
+The [one-step history increment](../../docs/experiments/SN-023-name-history.md)
+adds **Edit -> Undo Last Name Edit (one step)** / **Redo Last Name Edit (one step)**
+for applied project or instance names. Only the most recent effective transition
+is retained; a new applied edit replaces it and clears Redo. Invalid edits and
+no-ops preserve it. Apply or restore both pending text fields before using these
+actions. Restoring a name retains selected IDs and Preview. Save Copy preserves
+history; successful Open clears it and starts clean. Document keyboard shortcuts
+and multi-step/general undo are pending; typing is not application history.
+
 Components/Preview concerns a declared definition, with metadata only; Instance
 Properties concerns a selected graph instance. Preview renders no symbol or model
 and no resource is accessed. The central view is a read-only structural inspector,
@@ -57,6 +66,8 @@ Choose a new output directory for every GUI run:
 python tests/resources/editor_document_regression.py --probe build/sn023/native-build/Release/editor_document_tests.exe
 python tests/resources/editor_desktop_acceptance.py --editor build/sn023/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023/new-gui-run
 python tests/resources/editor_instance_acceptance.py --editor build/sn023/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023/new-instance-run
+python tests/resources/editor_name_history_regression.py --probe build/sn023-name-history/native-build/Release/editor_name_history_tests.exe
+python tests/resources/editor_history_acceptance.py --editor build/sn023-name-history/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-name-history/new-gui-run
 ```
 
 The original GUI script uses a byte-identical `two-rc-project.json` and a separate derived
@@ -74,7 +85,15 @@ audit checks that only `rc/r`'s name token changed. The prior 23-check window/la
 evidence is reused; no old backend or layout matrix was rerun for this increment.
 The first dedicated 20-check run is retained before adding the net-row check.
 
-Full placement/wiring/properties/undo, rendered symbols, production managed Save,
+The dedicated history script checks 26 controls on the original fixture with two
+persisted byte audits. The native history lifecycle also checks an owned escaped
+name variant, with seven saved snapshot byte audits. It includes one-step limits,
+branching, no-op/error retention, exact dirty states, draft guards and Open resets.
+Earlier GUI/revision/backend matrices are reused. To build the new native probe,
+use the current sources and the additional `editor_name_history_tests` target;
+the measured build directory and commands are in the linked history report.
+
+Full placement/wiring/properties/multi-step undo, rendered symbols, production managed Save,
 real worker/engine integration, shared instruments, physical monitor/DPI behavior,
 cross-session layout and packaging remain pending. Document parsing and bounded
 filesystem calls are synchronous; this slice measures no I/O responsiveness or

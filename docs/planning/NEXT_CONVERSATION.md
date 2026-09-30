@@ -3,7 +3,8 @@
 > Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
 > CURRENT.md, BACKLOG.md, the architecture/decision indexes, DESKTOP_UX.md,
 > ADRs 0076-0078, the SN-021 final audit, SN-022 boundary/license inventory,
-> and both SN-023 editor/instance-label reports, evidence and apps/desktop/README.md.
+> and the SN-023 editor/instance-label/name-history reports, evidence and
+> apps/desktop/README.md.
 > Verify branch, local changes, unpublished commits and local/remote main; the
 > source PR records final checks/squash and is the authority for publication.
 > Preserve twelve independent SN-045 overlays and all earlier evidence.
@@ -23,12 +24,22 @@
 > Open and exit cancellation; explicit draft discard was scripted. All 205 earlier
 > evidence files and twelve local overlays are preserved. PR #71's baseline squash
 > is 04a82beed21d95b011a0e6ebc5bb82478c93fdd1; reconfirm the latest source PR/main.
-> Define the next smallest coherent gate before implementation, possibly bounded
-> undo/redo for accepted name commands with clear dirty/selection/draft semantics.
+> One-step name Undo/Redo is now implemented and tested: two focused CTests,
+> 28 native lifecycle assertions, seven persisted snapshot audits, 26 Qt controls
+> and two GUI byte audits passed, plus Qt-free headless execution. Effective edits
+> replace the one transition; no-ops/errors retain it. Dirty compares exact opened
+> bytes. Save Copy/failures keep history; successful Open clears it. Both pending
+> fields block actions and direct commands; view selections/Preview survive restore.
+> This is not multi-step or keyboard/human recovery acceptance. All 208 earlier
+> evidence files remain unchanged. PR #72's baseline squash is
+> 7e4336c4be40ca90e5be7a5389fddc576923944f; reconfirm the latest source PR/main.
+> Define the next smallest coherent gate before implementation: one existing
+> literal resistance override at main/left, with unit/range/provenance and
+> coexistence with name history. General parameter editing remains pending.
 > Do not build placement, wiring and instruments
 > in one block. Preserve separate editor/analyzer windows, Components/Preview
 > versus instance Properties, adjustable panels and shared instrumentation.
-> Managed Save/service provisioning, general edits/undo, a real canvas, engine
+> Managed Save/service provisioning, general edits/multi-step undo, a real canvas, engine
 > workers, file-dialog/human usability, keyboard/accessibility, monitor/DPI,
 > durable layout and packaging remain pending. Discard cancellation was
 > scripted; neither it nor SN-022 scripted retries validates human recovery.

@@ -15,6 +15,11 @@ public:
     ProjectRevisionResult rename_instance(std::string_view circuit_id,
         std::string_view instance_id, std::string_view name);
     ProjectSaveResult save_copy(const std::string& leaf) const;
+    // One applied name transition, independent of presentation text drafts.
+    ProjectRevisionResult undo_name_edit();
+    ProjectRevisionResult redo_name_edit();
+    bool can_undo() const { return bool(undo_); }
+    bool can_redo() const { return bool(redo_); }
     const std::shared_ptr<const ProjectGraph>& graph() const { return graph_; }
     const std::string& root() const { return root_; }
     const std::string& leaf() const { return leaf_; }
@@ -22,8 +27,12 @@ public:
     std::string_view name() const;
     bool dirty() const;
 private:
+    ProjectRevisionResult accept_name_revision(ProjectRevisionResult result);
     std::shared_ptr<const ProjectGraph> graph_;
     std::shared_ptr<const ProjectGraph> opened_;
+    // At most one counterpart is retained. Immutable snapshots are already
+    // validated; restoration changes neither I/O authority nor association.
+    std::shared_ptr<const ProjectGraph> undo_, redo_;
     std::string root_, leaf_;
 };
 }

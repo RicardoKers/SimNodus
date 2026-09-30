@@ -1,5 +1,46 @@
 # Current state
 
+## Current SN-023 state: one-step name history tested
+
+On 2026-09-30, the [bounded history increment](../experiments/SN-023-name-history.md)
+adds one-step Undo/Redo for applied project or declared-instance display names.
+The Qt-free application document retains one validated immutable counterpart;
+restoration preserves exact bytes/graph/provenance and the original association.
+An effective edit replaces that step; invalid/no-op edits preserve it. Dirty
+compares exact bytes to the opened baseline. Successful Open clears history;
+Save Copy and failed Open/Save retain it. This is not general multi-step undo.
+
+Two focused Release CTests passed, including 28 new native lifecycle assertions
+and seven independent persisted snapshot byte audits. The native Qt path passed
+26 controls and two exact persisted byte audits: actual Edit action triggers,
+both pending text guards, dirty/title transitions, repeated restore, selection
+of another instance, Preview retention, branching, copy/reopen and same-path reset.
+The final capture was inspected. The history lifecycle and seven byte audits
+also passed without Qt environment/PATH; direct PE dependencies contain no Qt.
+Pending fields disable actions, and command guards retain drafts on refusal.
+No keyboard/human recovery or real-engine acceptance is inferred.
+The repository checker passed on 865 text files including local overlays, and
+`git diff --check` passed. The staged publication is checked separately.
+
+PR #72 was reconfirmed MERGED at `7e4336c4be40ca90e5be7a5389fddc576923944f`,
+matching local main, origin/main and remote main with both required Foundation
+checks successful (Windows 58/58; Ubuntu 47/47) and no unpublished commits.
+Branch `codex/sn-023-name-history` started there. All 208 earlier evidence files
+retain their hashes, and twelve independent SN-045 overlays are backed up and
+excluded from publication. The source PR records final checks and squash.
+Earlier backend/revision/window-layout matrices are reused unchanged.
+
+SN-023 remains in_progress. Next define a single existing literal resistance
+override edit (`main/left`) in this fixture, including unit/range/provenance and
+coexistence with name history, before implementation. General parameter editing,
+multi-step undo, placement/wiring, managed Save/service, shared instruments,
+real-engine workers/IPC, file-dialog/human usability, keyboard/accessibility,
+monitor/DPI, session layout and packaging remain pending. Keep opening inert.
+SN-021's bounded Windows/local-NTFS/one-managed-document/fixed-E-01 acceptance,
+SN-022 synthetic selection limits/failures and SN-017 Python/GDB/fixture control,
+accepted profiles/tolerances, MCU/toolchain independence and PDF/PID behavior
+remain unchanged. Preserve January stabilization and February 2027 as targets.
+
 ## Current SN-023 state: declared instance label tested
 
 On 2026-09-30, the [next bounded editor increment](../experiments/SN-023-instance-label.md)

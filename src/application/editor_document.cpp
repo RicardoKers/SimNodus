@@ -3,6 +3,7 @@
 #include "application/editor_document.hpp"
 #include "application/resource_path_policy_internal.hpp"
 #include <new>
+#include <utility>
 
 namespace simnodus {
 namespace {
@@ -21,6 +22,7 @@ ProjectAcquisitionResult EditorDocument::open(const std::string& root, const std
         if(const auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) {
             graph_ = *next;
             opened_ = *next;
+            undo_.reset(); redo_.reset();
             root_.swap(next_root);
             leaf_.swap(next_leaf);
         }
@@ -32,9 +34,7 @@ ProjectAcquisitionResult EditorDocument::open(const std::string& root, const std
 ProjectRevisionResult EditorDocument::rename(std::string_view name)
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
-    auto result = rename_project(bytes(), name);
-    if(const auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) graph_ = *next;
-    return result;
+    return accept_name_revision(rename_project(bytes(), name));
 }
 ProjectSaveResult EditorDocument::save_copy(const std::string& leaf) const
 {
@@ -49,9 +49,33 @@ ProjectRevisionResult EditorDocument::rename_instance(std::string_view circuit_i
     std::string_view instance_id, std::string_view name)
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
-    auto result = simnodus::rename_instance(bytes(), circuit_id, instance_id, name);
-    if(const auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) graph_ = *next;
+    return accept_name_revision(simnodus::rename_instance(bytes(), circuit_id, instance_id, name));
+}
+ProjectRevisionResult EditorDocument::accept_name_revision(ProjectRevisionResult result)
+{
+    if(auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) {
+        if(syntax(**next).bytes == bytes()) { *next = graph_; return result; }
+        undo_ = graph_;
+        redo_.reset();
+        graph_ = *next;
+    }
     return result;
+}
+ProjectRevisionResult EditorDocument::undo_name_edit()
+{
+    if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
+    if(!undo_) return ProjectRevisionError{ProjectRevisionStage::revision, "no-undo", 0};
+    redo_ = graph_;
+    graph_ = std::move(undo_);
+    return graph_;
+}
+ProjectRevisionResult EditorDocument::redo_name_edit()
+{
+    if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
+    if(!redo_) return ProjectRevisionError{ProjectRevisionStage::revision, "no-redo", 0};
+    undo_ = graph_;
+    graph_ = std::move(redo_);
+    return graph_;
 }
 std::string_view EditorDocument::bytes() const
 {

@@ -12,6 +12,7 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QSplitter;
 class QPushButton;
+class QAction;
 
 class DocumentWindow final : public QMainWindow {
 public:
@@ -19,15 +20,21 @@ public:
     bool openDocument(const QString& root, const QString& leaf);
     bool applyName(const QString& name);
     bool applyInstanceName(const QString& name);
+    bool undoNameEdit();
+    bool redoNameEdit();
     bool saveCopy(const QString& leaf);
     void showAnalyzer();
     void runAcceptance(const QString& root, const QString& report);
     void runInstanceAcceptance(const QString& root, const QString& report);
+    void runHistoryAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
     bool confirmDiscard();
     bool instanceDraftPending() const;
+    bool namesPending() const;
+    bool restoreNameEdit(bool redo);
+    void updateHistoryActions();
     void updateInstanceProperties();
     const simnodus::GraphInstance* selectedInstance() const;
     QTreeWidgetItem* instanceItem(const QString& circuit, const QString& instance) const;
@@ -47,5 +54,6 @@ private:
     QLineEdit* instance_name_;
     QPushButton* apply_;
     QPushButton* apply_instance_;
+    QAction *undo_, *redo_;
     QString selected_circuit_, selected_instance_;
 };

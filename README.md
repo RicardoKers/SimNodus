@@ -45,8 +45,9 @@ All repository documentation, code, comments, templates, and committed project t
 
 The optional [bounded Windows document editor](apps/desktop/README.md) opens inert
 project declarations, inspects their structure, edits project or declared instance
-display names and creates an explicit new copy through native operations. Full schematic
-editing, instruments, managed Save and desktop simulation remain pending.
+display names with one-step Undo/Redo and creates an explicit new copy through
+native operations. Full schematic editing, instruments, managed Save and desktop
+simulation remain pending.
 
 The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded
 owned header/program bytes and reports load ordering without mapping or executing

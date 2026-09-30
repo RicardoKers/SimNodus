@@ -10,6 +10,11 @@ selects by circuit-definition ID and instance ID, revises exactly one name token
 and rebuilds the validated graph/provenance. It changes shared definition metadata,
 not an occurrence identity or override. This pure operation performs no I/O.
 
+The [one-step name history](../docs/experiments/SN-023-name-history.md) retains one
+undo OR redo immutable graph in the application document. Effective edits replace
+it; no-ops/errors preserve it. Exact byte comparison to the opened graph governs
+dirty state. Successful Open clears history; Save Copy and failures retain it.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.
