@@ -14,10 +14,12 @@ public:
     ProjectRevisionResult rename(std::string_view name);
     ProjectRevisionResult rename_instance(std::string_view circuit_id,
         std::string_view instance_id, std::string_view name);
+    ProjectRevisionResult set_resistance(std::string_view circuit_id,
+        std::string_view instance_id, std::string_view value);
     ProjectSaveResult save_copy(const std::string& leaf) const;
-    // One applied name transition, independent of presentation text drafts.
-    ProjectRevisionResult undo_name_edit();
-    ProjectRevisionResult redo_name_edit();
+    // One applied name/resistance transition, independent of text drafts.
+    ProjectRevisionResult undo_edit();
+    ProjectRevisionResult redo_edit();
     bool can_undo() const { return bool(undo_); }
     bool can_redo() const { return bool(redo_); }
     const std::shared_ptr<const ProjectGraph>& graph() const { return graph_; }
@@ -27,7 +29,7 @@ public:
     std::string_view name() const;
     bool dirty() const;
 private:
-    ProjectRevisionResult accept_name_revision(ProjectRevisionResult result);
+    ProjectRevisionResult accept_revision(ProjectRevisionResult result);
     std::shared_ptr<const ProjectGraph> graph_;
     std::shared_ptr<const ProjectGraph> opened_;
     // At most one counterpart is retained. Immutable snapshots are already

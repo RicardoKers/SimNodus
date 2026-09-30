@@ -34,7 +34,7 @@ ProjectAcquisitionResult EditorDocument::open(const std::string& root, const std
 ProjectRevisionResult EditorDocument::rename(std::string_view name)
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
-    return accept_name_revision(rename_project(bytes(), name));
+    return accept_revision(rename_project(bytes(), name));
 }
 ProjectSaveResult EditorDocument::save_copy(const std::string& leaf) const
 {
@@ -49,9 +49,9 @@ ProjectRevisionResult EditorDocument::rename_instance(std::string_view circuit_i
     std::string_view instance_id, std::string_view name)
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
-    return accept_name_revision(simnodus::rename_instance(bytes(), circuit_id, instance_id, name));
+    return accept_revision(simnodus::rename_instance(bytes(), circuit_id, instance_id, name));
 }
-ProjectRevisionResult EditorDocument::accept_name_revision(ProjectRevisionResult result)
+ProjectRevisionResult EditorDocument::accept_revision(ProjectRevisionResult result)
 {
     if(auto* next = std::get_if<std::shared_ptr<const ProjectGraph>>(&result)) {
         if(syntax(**next).bytes == bytes()) { *next = graph_; return result; }
@@ -61,7 +61,13 @@ ProjectRevisionResult EditorDocument::accept_name_revision(ProjectRevisionResult
     }
     return result;
 }
-ProjectRevisionResult EditorDocument::undo_name_edit()
+ProjectRevisionResult EditorDocument::set_resistance(std::string_view circuit_id,
+    std::string_view instance_id, std::string_view value)
+{
+    if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
+    return accept_revision(revise_resistance(bytes(), circuit_id, instance_id, value));
+}
+ProjectRevisionResult EditorDocument::undo_edit()
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
     if(!undo_) return ProjectRevisionError{ProjectRevisionStage::revision, "no-undo", 0};
@@ -69,7 +75,7 @@ ProjectRevisionResult EditorDocument::undo_name_edit()
     graph_ = std::move(undo_);
     return graph_;
 }
-ProjectRevisionResult EditorDocument::redo_name_edit()
+ProjectRevisionResult EditorDocument::redo_edit()
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
     if(!redo_) return ProjectRevisionError{ProjectRevisionStage::revision, "no-redo", 0};

@@ -22,13 +22,13 @@ def instance(value, circuit_id, instance_id):
     return next(row for row in circuit['instances'] if row['id'] == instance_id)
 
 
-def name_span(raw, circuit_id, instance_id):
+def name_span(raw, circuit_id, instance_id, field_path=('name',)):
     """Use Python's JSON decoder and declaration IDs, independent of C++ spans."""
     value = json.loads(raw)
     circuits = value['sources']['topology']['circuits']
     i = next(i for i, row in enumerate(circuits) if row['id'] == circuit_id)
     j = next(j for j, row in enumerate(circuits[i]['instances']) if row['id'] == instance_id)
-    wanted = ('sources', 'topology', 'circuits', i, 'instances', j, 'name')
+    wanted = ('sources', 'topology', 'circuits', i, 'instances', j) + field_path
     text = raw.decode()
     decoder = json.JSONDecoder()
     spans = {}

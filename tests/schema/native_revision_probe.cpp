@@ -30,15 +30,17 @@ int main(int argc, char** argv)
 #endif
     try {
         const bool instance = argc == 2 && std::string_view(argv[1]) == "--instance";
-        if(argc != 1 && !instance) throw std::runtime_error("arguments");
+        const bool resistance = argc == 2 && std::string_view(argv[1]) == "--resistance";
+        if(argc != 1 && !instance && !resistance) throw std::runtime_error("arguments");
         auto original = field(simnodus::declaration_max_bytes + 1);
         std::string circuit_id, instance_id;
-        if(instance) { circuit_id = field(1024); instance_id = field(1024); }
+        if(instance || resistance) { circuit_id = field(1024); instance_id = field(1024); }
         auto name = field(1024);
         if(std::cin.peek() != std::char_traits<char>::eof()) throw std::runtime_error("trailing");
-        auto result = instance ? simnodus::rename_instance(original, circuit_id, instance_id, name)
+        auto result = resistance ? simnodus::revise_resistance(original, circuit_id, instance_id, name)
+            : instance ? simnodus::rename_instance(original, circuit_id, instance_id, name)
             : simnodus::rename_project(original, name);
-        original.assign("released original input"); name.clear(); circuit_id.clear(); instance_id.clear();
+        original.assign("released original input"); name.clear();
         if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
             std::cout << "{\"error\":\"" << error->code << "\",\"stage\":\""
                 << (error->stage == simnodus::ProjectRevisionStage::base ? "base" : "revision")
@@ -49,6 +51,31 @@ int main(int argc, char** argv)
         result = simnodus::ProjectRevisionError{simnodus::ProjectRevisionStage::base, "released result", 0};
         std::cout << '{';
         graph_probe::write(*graph);
+        if(resistance) {
+            const auto view = simnodus::literal_resistance(*graph, circuit_id, instance_id);
+            if(!view) throw std::runtime_error("missing view");
+            std::cout << "\"literal\":{\"value\":"; graph_probe::quote(std::string(view->value));
+            std::cout << ",\"unit\":"; graph_probe::quote(std::string(view->unit));
+            std::cout << ",\"minimum\":"; graph_probe::quote(std::string(view->minimum));
+            std::cout << ",\"maximum\":"; graph_probe::quote(std::string(view->maximum));
+            std::cout << ",\"base_unit\":"; graph_probe::quote(std::string(view->base_unit));
+            std::cout << "},\"parameters\":";
+            graph_probe::array(graph->declaration->sources.topology.parameters.instances, [](const auto& row) {
+                std::cout << "{\"path\":"; graph_probe::array(row.path, graph_probe::quote);
+                std::cout << ",\"definition\":"; graph_probe::quote(row.definition);
+                std::cout << ",\"parameters\":{";
+                bool first = true;
+                for(const auto& [id, value] : row.parameters) {
+                    if(!first) std::cout << ','; first = false;
+                    graph_probe::quote(id); std::cout << ":{\"value\":"; graph_probe::quote(value.value);
+                    std::cout << ",\"unit\":"; graph_probe::quote(value.unit);
+                    std::cout << ",\"origin\":"; graph_probe::quote(value.origin); std::cout << '}';
+                }
+                std::cout << "}}";
+            });
+            std::cout << ',';
+        }
+        circuit_id.clear(); instance_id.clear();
         std::cout << "\"source_hex\":\"";
         for(unsigned char c : graph->declaration->sources.lock.syntax->bytes)
             std::cout << "0123456789abcdef"[c >> 4] << "0123456789abcdef"[c & 15];

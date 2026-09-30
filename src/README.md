@@ -15,6 +15,13 @@ undo OR redo immutable graph in the application document. Effective edits replac
 it; no-ops/errors preserve it. Exact byte comparison to the opened graph governs
 dirty state. Successful Open clears history; Save Copy and failures retain it.
 
+The [literal resistance increment](../docs/experiments/SN-023-resistance-value.md)
+adds a closed command for an existing `resistance` override's value string, with
+fixed ohm/kohm units and target bounds. It replaces one source token and rebuilds
+the complete validated graph/effective parameters. Names and resistance share
+the same one-step history; no generic parameter command or binding conversion
+is introduced. Qt remains outside these application operations.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

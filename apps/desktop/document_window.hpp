@@ -20,22 +20,26 @@ public:
     bool openDocument(const QString& root, const QString& leaf);
     bool applyName(const QString& name);
     bool applyInstanceName(const QString& name);
-    bool undoNameEdit();
-    bool redoNameEdit();
+    bool applyResistance(const QString& value);
+    bool undoEdit();
+    bool redoEdit();
     bool saveCopy(const QString& leaf);
     void showAnalyzer();
     void runAcceptance(const QString& root, const QString& report);
     void runInstanceAcceptance(const QString& root, const QString& report);
     void runHistoryAcceptance(const QString& root, const QString& report);
+    void runResistanceAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
     bool confirmDiscard();
     bool instanceDraftPending() const;
-    bool namesPending() const;
-    bool restoreNameEdit(bool redo);
+    bool resistanceDraftPending() const;
+    std::optional<simnodus::LiteralResistanceView> selectedResistance() const;
+    bool editsPending() const;
+    bool restoreEdit(bool redo);
     void updateHistoryActions();
-    void updateInstanceProperties();
+    void updateInstanceProperties(bool keep_name_draft = false, bool keep_resistance_draft = false);
     const simnodus::GraphInstance* selectedInstance() const;
     QTreeWidgetItem* instanceItem(const QString& circuit, const QString& instance) const;
     void refresh();
@@ -52,8 +56,11 @@ private:
     QLabel *preview_, *inspector_, *status_, *project_id_;
     QLineEdit* name_;
     QLineEdit* instance_name_;
+    QLineEdit* resistance_;
+    QLabel* resistance_limits_;
     QPushButton* apply_;
     QPushButton* apply_instance_;
+    QPushButton* apply_resistance_;
     QAction *undo_, *redo_;
     QString selected_circuit_, selected_instance_;
 };
