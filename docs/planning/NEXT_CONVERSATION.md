@@ -1,5 +1,23 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [read-only effective R/C inspection](../experiments/SN-023-effective-parameters.md).
+PR #75 was reconfirmed at `661de58b380905e7ad40576965b5e6f5cb97a3e5`, with
+Foundation Windows 63/63 and Ubuntu 52/52 successful, equal local/origin/remote main
+and no unpublished commits before starting this branch. Reconfirm the newest
+source PR/squash before continuing. Three focused CTests passed first run: six
+tests/29 requests, 17 lifecycle assertions/three byte audits and unchanged document
+contracts. Final GUI passed 33 controls/two audits; the first failed Preview oracle,
+sources/binary/capture and helper quoting/dispatch failure are retained. Actual
+reused-path switching retained two active drafts; single-path refresh retained
+four. Applied base values/immediate origins are distinct from drafts/measurements;
+paths are owned in Qt and rows reconsulted from the current retained graph. No new
+resolver or engine/resource authority. Preserve 214 prior evidence files and all
+twelve independent overlays. Next define one owned component-symbol Preview gate
+with acceptance first; this fixture has pin interfaces but no rendering geometry.
+General edits, wiring, engines, instruments and usability remain pending. Preserve
+all earlier SN-017/021/022 constraints and January stabilization/February 2027 target.
+The following handoffs retain their earlier narrower results and constraints.
+
 Latest tested increment: [existing literal capacitance value](../experiments/SN-023-capacitance-value.md).
 PR #74 was reconfirmed at `0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978`, with
 Foundation Windows 61/61 and Ubuntu 50/50 successful, equal local/origin/remote main

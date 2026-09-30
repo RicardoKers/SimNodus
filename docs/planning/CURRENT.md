@@ -1,5 +1,46 @@
 # Current state
 
+## Current SN-023 state: effective parameter inspection tested
+
+On 2026-09-30, the [read-only R/C increment](../experiments/SN-023-effective-parameters.md)
+exposes existing validated occurrence rows through a small Qt-free lookup. Source
+definition IDs remain distinct from full root-prefixed paths. Properties offers
+explicit reused-occurrence selection and applied base ohm/F values with immediate
+literal/default/containing-circuit origins. No resolver, domain abstraction, edit
+command, resource access or measurement authority was added. Qt owns path IDs and
+reconsults current immutable data after Apply/Undo/Redo; a scrollable panel keeps
+existing controls reachable.
+
+Three focused Release CTests passed first run, including six independent tests/
+29 requests, 17 application assertions and three persisted-byte audits. Qt-free
+execution/PE imports passed. The final Qt path passed 33 controls/two byte audits;
+actual reused-path switching retained two active name drafts with forwarded R/C
+disabled, while single-path refresh retained four active drafts. Both first-failed
+and final GUI reports, source/executable snapshots and captures are preserved.
+The failure was an incorrect Preview expectation after Open; only the oracle was
+corrected. A helper quoting/dispatch failure is recorded too. Final capture and
+focused code review completed. Backend/edit/layout matrices remain reused.
+
+PR #75 was reconfirmed MERGED at `661de58b380905e7ad40576965b5e6f5cb97a3e5`,
+with Foundation Windows 63/63 and Ubuntu 52/52 successful, matching local/origin/
+remote main and no unpublished commits. Branch `codex/sn-023-effective-parameters`
+starts there. All 214 earlier evidence files and twelve independent overlays are
+preserved. Source PR records final repository/staged-tree/required-check/squash
+results; unrelated overlays remain excluded from publication.
+
+SN-023 remains in_progress. Next specify one owned component-symbol Preview gate
+before implementation. The RC fixture has interfaces/pin mappings but no rendering
+geometry; appearance/resource authority must not be inferred. General properties,
+bindings/units, multi-step history, canvas/placement/wiring, managed Save/service,
+shared instruments, real-engine workers/IPC, human usability, keyboard/accessibility,
+monitor/DPI, persistent layout and packaging remain pending. Preserve SN-021
+Windows/local-NTFS/one-managed-document/fixed-E-01 limits and negatives, SN-022
+synthetic selection and setup/runtime failures, SN-017 Python/GDB/fixture control,
+profiles/tolerances, MCU/toolchain independence and PDF/PID behavior. January
+stabilization and February 2027 classroom use remain planning targets.
+
+Historical entries below retain their narrower original results.
+
 ## Current SN-023 state: literal capacitance value tested
 
 On 2026-09-30, the [closed capacitance increment](../experiments/SN-023-capacitance-value.md)

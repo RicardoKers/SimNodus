@@ -49,6 +49,23 @@ bounds `0.000000001` through `0.001 F`. Applying any field retains the other thr
 drafts. Selection Cancel retains all; Discard clears the three local instance
 drafts while retaining project text. No override is created or converted.
 
+The [read-only R/C Inspector](../../docs/experiments/SN-023-effective-parameters.md)
+offers full root-prefixed occurrence paths for reused source definitions, showing
+applied values in base ohm/F and immediate literal/default/containing-circuit
+origins. It does not show measurements or pending drafts. Selection is inert;
+Apply/Undo/Redo refresh from the current graph and retain the occurrence path.
+Properties content scrolls so existing controls remain reachable in a short panel.
+The final scripted path passed 33 controls and two byte audits; the failed first
+Preview assertion is retained. Actual reused-path selection has two active name
+drafts in the fixture; four active fields were checked separately on one path.
+
+Build `native_inspection_probe`, `editor_inspection_tests` and
+`editor_document_tests` for the three focused CTests. Use a fresh output directory:
+
+```text
+python tests/resources/editor_inspection_acceptance.py --editor build/sn023-effective-parameters/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-effective-parameters/new-gui-run
+```
+
 Components/Preview concerns a declared definition, with metadata only; Instance
 Properties concerns a selected graph instance. Preview renders no symbol or model
 and no resource is accessed. The central view is a read-only structural inspector,
