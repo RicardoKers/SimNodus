@@ -1,0 +1,32 @@
+{
+    "checks": {
+        "adjustable_panels": true,
+        "analyzer_reopen_retains_document": true,
+        "catalog_and_structure": true,
+        "discard_cancel_retains_edit": true,
+        "edit_retains_selections": true,
+        "exact_reopen": true,
+        "explicit_save_copy": true,
+        "failed_open_retains_edit": true,
+        "in_memory_panel_restore": true,
+        "independent_windows": true,
+        "inert_open": true,
+        "instance_selection": true,
+        "invalid_leaf_refused": true,
+        "invalid_name_retains_edit": true,
+        "name_button_edit": true,
+        "native_windows": true,
+        "occupied_copy_refused": true,
+        "original_refused": true,
+        "panels_hide": true,
+        "panels_reopen": true,
+        "pending_name_copy_refused": true,
+        "separate_preview_properties": true,
+        "untrusted_labels_plain_text": true
+    },
+    "passed": true,
+    "platform": "windows",
+    "qt_version": "6.11.1",
+    "scope": "scripted document/inspection controls; no resource or engine execution",
+    "selected_instance_text": "Circuit: main\nInstance: left\nName: <img src=\"file:///C:/SN023-never-open.png\">\nDefinition: rc\nDeclared properties only; runtime unavailable."
+}

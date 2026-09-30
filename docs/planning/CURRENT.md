@@ -1,5 +1,44 @@
 # Current state
 
+## Current SN-023 state: first document editor slice tested
+
+On 2026-09-30, the [bounded Windows editor slice](../experiments/SN-023-document-editor.md)
+implements inert Open, structural inspection, top-level display-name editing and
+explicit create-only Save Copy in the selected acquisition directory. The
+[optional desktop target](../../apps/desktop/README.md) uses Qt Core/Gui/Widgets;
+a Qt-free application document owns immutable native project graphs. Opening
+references neither resources nor engines. Save Copy leaves the original association
+and dirty state intact; external overwrite and production managed Save are absent.
+
+Two native Windows fixture variants passed 23 GUI checks each, including separate
+Preview/instance selection, Unicode editing, refusal/state retention, explicit
+copy/reopen, pending-name refusal, discard cancellation, actual panel resizing and
+in-memory layout restoration. Independent byte audits confirm only the top-level
+name token changed and the original was preserved. Human file-dialog acceptance,
+discard approval, keyboard/accessibility, monitor/DPI and cross-session layout
+remain pending. This does not validate a user recovery or engine-worker flow.
+
+Five targeted Release CTests passed (editor document, native name revision,
+acquisition and both save suites); acquisition/save symlink privilege skips and
+the Windows-only platform skip are retained. The headless lifecycle passed with
+Qt environment removed and System32-only PATH; direct PE imports contain no Qt.
+
+PR #70 was reconfirmed MERGED at `f219882d9cbea4cb4e7055acd28f77d3870f8594`,
+matching local main, origin/main and remote main, with both required Foundation
+checks successful and no unpublished commits before starting
+`codex/sn-023-document-editor`. Twelve independent SN-045 overlays were backed
+up and excluded from publication; all 200 preexisting evidence files remain
+unchanged, including SN-022 failed runtime/setup attempts and SN-021 negatives.
+The evidence summary and source PR record final validation/publication identities.
+
+SN-023 remains in_progress. Next define one small instance-inspection/edit gate
+and its native operation contract; do not start all wiring, component placement
+or instruments together. General edits/undo and a real canvas, managed-store
+provisioning, shared instrumentation, real engine worker integration and packaging
+remain pending. SN-017 Python/GDB/fixture control, MCU/toolchain independence,
+numerical bounds, PDF/PID fixes and SN-021's audited scope are unchanged. Preserve
+January stabilization and February 2027 as a planning target.
+
 ## Current SN-022 state: bounded selection complete
 
 On 2026-09-30, the [small Qt boundary experiment](../experiments/SN-022-qt-boundary.md)

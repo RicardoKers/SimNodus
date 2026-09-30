@@ -20,6 +20,7 @@ add_custom_target(check-repository
 )
 
 include(CTest)
+option(SIMNODUS_BUILD_DESKTOP "Build the bounded Windows document editor (local Qt kit required)" OFF)
 add_library(simnodus_declaration_ingress STATIC src/application/declaration_ingress.cpp)
 add_library(simnodus_lock STATIC src/application/lock_validation.cpp src/application/lock_digest.cpp)
 target_include_directories(simnodus_lock PUBLIC src)
@@ -277,6 +278,29 @@ if(BUILD_TESTING)
     set_tests_properties(native-connectivity-compilation PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
 endif()
 add_library(simnodus_project_revision STATIC src/application/project_revision.cpp)
+add_library(simnodus_editor_document STATIC src/application/editor_document.cpp)
+target_include_directories(simnodus_editor_document PUBLIC src)
+target_link_libraries(simnodus_editor_document PUBLIC
+    simnodus_project_acquisition simnodus_project_revision simnodus_project_save
+    PRIVATE simnodus::build_options)
+if(MSVC)
+    target_compile_options(simnodus_editor_document PRIVATE /W4 /WX /permissive- /EHsc)
+endif()
+if(BUILD_TESTING)
+    add_executable(editor_document_tests tests/resources/editor_document.cpp)
+    target_link_libraries(editor_document_tests PRIVATE simnodus_editor_document)
+    add_test(NAME editor-document-contracts
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/editor_document_regression.py"
+            --probe "$<TARGET_FILE:editor_document_tests>")
+    set_tests_properties(editor-document-contracts PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 60)
+endif()
+if(SIMNODUS_BUILD_DESKTOP)
+    if(NOT WIN32)
+        message(FATAL_ERROR "The bounded document editor currently supports Windows only")
+    endif()
+    add_subdirectory(apps/desktop)
+endif()
 target_include_directories(simnodus_project_revision PUBLIC src)
 target_link_libraries(simnodus_project_revision PUBLIC simnodus_project_graph PRIVATE simnodus::build_options)
 if(MSVC)

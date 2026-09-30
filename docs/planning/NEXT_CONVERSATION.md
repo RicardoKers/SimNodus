@@ -1,27 +1,34 @@
-# Next conversation: SN-023 after bounded SN-022 selection
+# Next conversation: continue SN-023 in small editor increments
 
 > Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
-> CURRENT.md, BACKLOG.md, the architecture/decision indexes, ADR 0078, the
-> SN-022 Qt boundary report and Qt licensing inventory, and the final bounded
-> SN-021 audit. Verify branch, local changes, unpublished commits and local/
-> remote main; preserve the twelve independent SN-045 overlays and all evidence.
-> SN-022 selected Qt Core/Gui/Widgets and a separate simulation worker through
-> one small native Windows experiment: nine process cases and nine layout
-> checks passed, plus Qt-free headless execution. Preserve its first failed
-> runtime and setup failures. This did not implement a real editor, instrumentation
-> store, production IPC, engine worker integration, managed-save service or
-> packaging. Manual keyboard/accessibility, monitor/DPI and cross-session layout
-> remain pending. Scope the smallest coherent SN-023 editor slice using the
-> existing SN-044 criteria and accepted native project operations; selecting Qt
-> does not authorize implementing the entire editor in one block. Keep domain,
-> application, presentation, instrumentation and adapters separate. Preserve
-> SN-017 Python/GDB/fixture ownership, MCU/toolchain independence, numerical
-> tolerances, PDF suppression/PID retry and SN-021's exact Windows/local-NTFS,
-> one-managed-document/fixed-E-01 scope. Keep opening inert and resource access
-> explicit. Reuse unchanged evidence, run targeted checks and the repository
-> checker, and use branch/PR/required-check/squash only for stable validated work.
-> Keep repository content in English and speak Portuguese. Prefer small useful
-> increments that preserve time and credits for final testing.
+> CURRENT.md, BACKLOG.md, the architecture/decision indexes, DESKTOP_UX.md,
+> ADRs 0076-0078, the SN-021 final audit, SN-022 boundary/license inventory,
+> and the SN-023 editor report, evidence and apps/desktop/README.md.
+> Verify branch, local changes, unpublished commits and local/remote main; the
+> source PR records final checks/squash and is the authority for publication.
+> Preserve twelve independent SN-045 overlays and all earlier evidence.
+> SN-023's first slice implements inert Open, structural/catalog/instance
+> inspection, top-level name edit and explicit create-only Save Copy using
+> native operations. Save Copy retains the original association/dirty state.
+> The acquisition-directory spelling is neither a verified resource root nor
+> a physical lease. Two native Windows fixtures passed 23 GUI checks each plus
+> independent byte audits. Qt remains presentation-only and the application
+> document remains headless. Shared analyzer data is unavailable.
+> Define the next smallest coherent inspection/edit gate and native operation
+> contract before implementation; do not build placement, wiring and instruments
+> in one block. Preserve separate editor/analyzer windows, Components/Preview
+> versus instance Properties, adjustable panels and shared instrumentation.
+> Managed Save/service provisioning, general edits/undo, a real canvas, engine
+> workers, file-dialog/human usability, keyboard/accessibility, monitor/DPI,
+> durable layout and packaging remain pending. Discard cancellation was
+> scripted; neither it nor SN-022 scripted retries validates human recovery.
+> Reuse unchanged SN-017/SN-021 engine evidence and its exact limits/negatives.
+> Keep opening inert, resource access explicit and simulation off the GUI
+> thread. Preserve Python/GDB/fixture control, MCU/toolchain independence,
+> numerical bounds and PDF/PID fixes. Run targeted checks and the repository
+> checker; use branch/PR/required-check/squash for stable validated work only.
+> Keep repository content English, speak Portuguese, and preserve January
+> stabilization and February 2027 as a planning target.
 
 See [CURRENT](CURRENT.md) and the source PR for final publication state;
 do not infer integration from experimental success alone.
