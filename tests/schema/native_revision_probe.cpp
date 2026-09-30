@@ -31,13 +31,15 @@ int main(int argc, char** argv)
     try {
         const bool instance = argc == 2 && std::string_view(argv[1]) == "--instance";
         const bool resistance = argc == 2 && std::string_view(argv[1]) == "--resistance";
-        if(argc != 1 && !instance && !resistance) throw std::runtime_error("arguments");
+        const bool capacitance = argc == 2 && std::string_view(argv[1]) == "--capacitance";
+        if(argc != 1 && !instance && !resistance && !capacitance) throw std::runtime_error("arguments");
         auto original = field(simnodus::declaration_max_bytes + 1);
         std::string circuit_id, instance_id;
-        if(instance || resistance) { circuit_id = field(1024); instance_id = field(1024); }
+        if(instance || resistance || capacitance) { circuit_id = field(1024); instance_id = field(1024); }
         auto name = field(1024);
         if(std::cin.peek() != std::char_traits<char>::eof()) throw std::runtime_error("trailing");
-        auto result = resistance ? simnodus::revise_resistance(original, circuit_id, instance_id, name)
+        auto result = capacitance ? simnodus::revise_capacitance(original, circuit_id, instance_id, name)
+            : resistance ? simnodus::revise_resistance(original, circuit_id, instance_id, name)
             : instance ? simnodus::rename_instance(original, circuit_id, instance_id, name)
             : simnodus::rename_project(original, name);
         original.assign("released original input"); name.clear();
@@ -51,8 +53,9 @@ int main(int argc, char** argv)
         result = simnodus::ProjectRevisionError{simnodus::ProjectRevisionStage::base, "released result", 0};
         std::cout << '{';
         graph_probe::write(*graph);
-        if(resistance) {
-            const auto view = simnodus::literal_resistance(*graph, circuit_id, instance_id);
+        if(resistance || capacitance) {
+            const auto view = capacitance ? simnodus::literal_capacitance(*graph, circuit_id, instance_id)
+                : simnodus::literal_resistance(*graph, circuit_id, instance_id);
             if(!view) throw std::runtime_error("missing view");
             std::cout << "\"literal\":{\"value\":"; graph_probe::quote(std::string(view->value));
             std::cout << ",\"unit\":"; graph_probe::quote(std::string(view->unit));

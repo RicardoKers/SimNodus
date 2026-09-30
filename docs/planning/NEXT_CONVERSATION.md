@@ -1,5 +1,21 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [existing literal capacitance value](../experiments/SN-023-capacitance-value.md).
+PR #74 was reconfirmed at `0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978`, with
+Foundation Windows 61/61 and Ubuntu 50/50 successful, equal local/origin/remote main
+and no unpublished commits before starting this branch. Reconfirm the newest
+source PR/squash before continuing. All first runs passed: eight affected CTests,
+six pure tests/64 requests, 21 native assertions/seven saved-byte audits, 31 Qt
+controls/two audits and Qt-free execution/imports. Four drafts are independently
+guarded; names and closed R/C edits share one-step immutable history. Keep units
+fixed and opening inert; do not convert default/forwarded bindings. Preserve all
+212 earlier evidence files, failed attempts and twelve independent overlays.
+Next define one read-only effective R/C inspection with default/forwarded origin
+for one fixture occurrence, preserving declaration/occurrence/runtime distinctions.
+General edits, wiring, engines, instruments and usability remain pending. January
+stabilization and February 2027 classroom use remain planning targets.
+The following handoffs retain their earlier narrower results and constraints.
+
 Latest tested increment: [existing literal resistance value](../experiments/SN-023-resistance-value.md).
 PR #73 was reconfirmed at `4126f74898fc12b256bba1ff6053dbd70baf37ff` with both
 required Foundation checks passing (Windows 59/59; Ubuntu 48/48), matching local

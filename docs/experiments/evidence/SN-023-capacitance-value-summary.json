@@ -1,0 +1,412 @@
+{
+  "experiment": "SN-023 existing literal capacitance value",
+  "recorded_date": "2026-09-30",
+  "status": "passed-for-closed-value-command-and-four-draft-mixed-history; full-SN-023-in-progress",
+  "base_main": "0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978",
+  "branch": "codex/sn-023-capacitance-value",
+  "reconfirmed_pr_74": {
+    "state": "MERGED",
+    "head": "2260523f4814366ff362f3efaeccd5280e685a2e",
+    "squash": "0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978",
+    "merged_at": "2026-09-30T20:37:40Z",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 61/61",
+      "Foundation (ubuntu-latest): SUCCESS; 50/50"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-capacitance-value/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-capacitance-value/native-build --config Release --target simnodus_document_editor editor_document_tests editor_name_history_tests editor_resistance_tests editor_capacitance_tests native_revision_probe",
+    "ctest --test-dir build/sn023-capacitance-value/native-build -C Release --output-on-failure --verbose -R \"^(editor-document-contracts|editor-name-history-contracts|editor-resistance-contracts|editor-capacitance-contracts|native-project-revision|native-instance-label-revision|native-resistance-revision|native-capacitance-revision)$\"",
+    "python tests/resources/editor_capacitance_acceptance.py --editor build/sn023-capacitance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-capacitance-value/gui-01",
+    "python build/sn023-capacitance-value/headless_proof.py (QT_* removed; PATH=C:/Windows/System32; dumpbin /DEPENDENTS; seven persisted byte audits)",
+    "python tools/check_repository.py; git diff --check; staged-publication checker (results recorded by source PR)"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "targeted_ctest": "8/8 passed first run",
+    "capacitance_revision": "6 tests/64 requests; independent bytes, complete graph/source positions/effective parameters",
+    "affected_existing_revision_regressions": "33 project-name, 46 instance-name, 53 resistance requests passed",
+    "native_lifecycle_assertions": 21,
+    "native_persisted_snapshots": "7 independent audits; original/escaped source/sentinel unchanged",
+    "gui_controls": "31/31 passed first run",
+    "gui_persisted_snapshots": "2 independent exact byte audits; original unchanged",
+    "headless": "21 assertions and 7 audits passed with Qt environment/kit PATH removed; direct PE imports contain no Qt",
+    "visual_review": "Final capture inspected: main/right, capacitance470nF/resistance3.5kohm, separate fixed-unit/target-bound controls and panels",
+    "initial_runs": "configure/build/CTest/GUI/headless passed; optional pthread/Vulkan discovery diagnostics retained",
+    "failed_local_test_attempts": [],
+    "read_only_review": "No actionable production defect or material acceptance gap",
+    "engine_runs": 0,
+    "old_gui_layout_or_backend_matrices_rerun": 0,
+    "publication_validation": "Repository/staged-tree checker, required Foundation results and squash identities recorded by source PR"
+  },
+  "policy": {
+    "field": "Existing literal capacitance.value only, stable circuit-definition/instance IDs; public R/C commands remain closed",
+    "units": "Fixed F/uF/nF spelling, declared target bounds in base F; narrowed rc target tested with component bounds broad",
+    "validation": "Unchanged exact-decimal original/candidate project loader; full graph/provenance/effective parameters",
+    "history": "Names and R/C share one validated immutable counterpart; exact byte dirty baseline; errors/no-ops preserve step",
+    "no_op": "Decoded string equality preserves escape spelling; equal magnitude with different text is an edit",
+    "drafts": "Project name, instance name, R and C survive unrelated Apply; all guard Save Copy/history/Open/exit",
+    "selection": "Cancel retains four drafts; Discard clears three local instance fields, retains project draft",
+    "persistence": "Explicit create-only copy retains association/dirty/history; successful Open clears history"
+  },
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 43626,
+      "sha256": "64982dd2a76c0a459a6e8ff066671baaa23f67b224ae6c02d4aa4f4ccf3104b8"
+    },
+    {
+      "path": "src/application/project_revision.hpp",
+      "bytes": 2330,
+      "sha256": "00b277b1ab5e094d7125b667c6f57f16f32ebd00b19a4f9fbb613e089ead33c1"
+    },
+    {
+      "path": "src/application/project_revision.cpp",
+      "bytes": 9194,
+      "sha256": "5925b49a08e2d503035c6180589482b2443f84c6a5e67e7763235dddbee738ed"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 351,
+      "sha256": "d4f5509de25569d2e3733612842d996a16696905d9817a96a884a2ab909f288c"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 2759,
+      "sha256": "e81b83999e2ccaaf4b26cf857bd1f73e7656ea8c8cf4c212142c7a1f1986cad1"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 60009,
+      "sha256": "58a68d75e9d95019e6e36f350d46dd431cd80cbc27c39feadfe6a729af4c1ff9"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 1631,
+      "sha256": "55df109bd4a8c14b42f339ea3102e97b7a8586ceb48d1f8ed4db8766ad08ad0f"
+    },
+    {
+      "path": "tests/schema/native_revision_probe.cpp",
+      "bytes": 4693,
+      "sha256": "cce6e367f6ccc52b970dadaeee07c87259a75dcbce853e74995d27670dfc4751"
+    },
+    {
+      "path": "tests/schema/native_resistance_regression.py",
+      "bytes": 8583,
+      "sha256": "df23b921cf4cc4d522427519c613389de9b2d867601cfc2d6dd3e98c27a24942"
+    },
+    {
+      "path": "tests/schema/native_capacitance_regression.py",
+      "bytes": 7904,
+      "sha256": "8e9a5f434e5fdbe3a4f6e36509ae25dfe2948f02f15665a9ffe11ed685884b47"
+    },
+    {
+      "path": "tests/resources/editor_resistance.cpp",
+      "bytes": 6565,
+      "sha256": "629cf933205342162adb78976f8286880f2eb46489f306efa7c66825052ab0b2"
+    },
+    {
+      "path": "tests/resources/editor_capacitance.cpp",
+      "bytes": 5653,
+      "sha256": "6dcc8bf81ec73a45b90b838533d8112e44b18fb55543507ba027ae2a1c03ef98"
+    },
+    {
+      "path": "tests/resources/editor_capacitance_regression.py",
+      "bytes": 2945,
+      "sha256": "e9a2c099320d92a0d87067578a8581c8d173fda0be99bed53c6c64000013cde4"
+    },
+    {
+      "path": "tests/resources/editor_capacitance_acceptance.py",
+      "bytes": 3430,
+      "sha256": "ea21b33401129df40f47d4df036b8c40d677eda6ca83b9c8cbc62c30c97e27a9"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-capacitance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 422400,
+      "sha256": "51a6a88e71c86999cfe19bcaf77a9fe3ab20f683a968dc06ef7478afc82d26bf"
+    },
+    {
+      "path": "build/sn023-capacitance-value/native-build/Release/native_revision_probe.exe",
+      "bytes": 236032,
+      "sha256": "1ed68e33467c40f59cd2280ed2c365c9a6364ca71adb141494c05beeb397c040"
+    },
+    {
+      "path": "build/sn023-capacitance-value/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "b6ac3ee5a423fc5c421a898900e3c9cc75b332f52789120091e6d75c13089260"
+    },
+    {
+      "path": "build/sn023-capacitance-value/native-build/Release/editor_name_history_tests.exe",
+      "bytes": 264192,
+      "sha256": "3829fad6f22bf1637b156345af738fcc38680885dc39b5e823acc12104d17ff8"
+    },
+    {
+      "path": "build/sn023-capacitance-value/native-build/Release/editor_resistance_tests.exe",
+      "bytes": 266240,
+      "sha256": "7cd75b2295f3292f777cb26e94643058ff75be75d2748ace24034e06a5bd4acb"
+    },
+    {
+      "path": "build/sn023-capacitance-value/native-build/Release/editor_capacitance_tests.exe",
+      "bytes": 268288,
+      "sha256": "1f0fc4729fb7e67c7e54e81ba68719e4dd9cb731547031b35dbbd81fe9dc8203"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-gui-01.json",
+      "bytes": 2052,
+      "sha256": "79789195561e6c367af1067c95e0229bc6f8d469e4ace81e48a08e05849d72ec"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-capacitance-value/build-01.log",
+      "bytes": 13314,
+      "sha256": "9401a723d6ead6d621aad003a275daee75a09e1c4e62a9cd3f5ecc1dd0d3f9de"
+    },
+    {
+      "path": "build/sn023-capacitance-value/configure-01.log",
+      "bytes": 1252,
+      "sha256": "0b989b3376ef83210cc20afbbc5d916502fe8c8335ab4044a748c844785e89c1"
+    },
+    {
+      "path": "build/sn023-capacitance-value/ctest-01.log",
+      "bytes": 14052,
+      "sha256": "83c38ddc47a023343f003629a4366a5f459478d0abf6f46fd4f7deb98a77bdab"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01.log",
+      "bytes": 98,
+      "sha256": "f5b4c5e865de7bf07a605fd6473b2b6d53e8930e5174f94c2664f446ffe64ade"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-imports.log",
+      "bytes": 796,
+      "sha256": "6d1d87a624e80b323e25b1733275810e5af70b5e3167e5da5dc0f9c4f4e5cf84"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless.log",
+      "bytes": 959,
+      "sha256": "2ebef389956b96d67dc2e9c4f8ec537800a553f707ec39f269214153254087c1"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/document/capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "277608813f811b86b6984ff483e5ec7fd2c39519bb6c29b614ccfb0dc61a3aab"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/document/capacitance-undone.json",
+      "bytes": 13837,
+      "sha256": "e0aa745ae5940bd3153b7ecb013bd6f3af1ad10c405e20fc0abd91ae437dbc45"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/report.json",
+      "bytes": 2052,
+      "sha256": "79789195561e6c367af1067c95e0229bc6f8d469e4ace81e48a08e05849d72ec"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/report.json.png",
+      "bytes": 68337,
+      "sha256": "7bc3e735f96f9ad458e97483ee379d241bab9d4e242fc2978054977b06e70f09"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/runner.json",
+      "bytes": 480,
+      "sha256": "b35011e27503cfab9779ba21b500df2ed901221f1f20e3278e249aabaa90a2f0"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-capacitance-value/gui-01/stdout.log",
+      "bytes": 2092,
+      "sha256": "cdee56cac34173f6a45f0d799d08ece5266dc38bae495519b2d3b33dc9f7c8fc"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/all.json",
+      "bytes": 13844,
+      "sha256": "bea731c615321eddc2a2f44022dd5a1fa0247dcd832e84ab14f91a962bd963db"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/branch.json",
+      "bytes": 13837,
+      "sha256": "9123bd38da8890cbf516c0fe0f7546953cbb0758e18c7d8cff72011a9dfd0862"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/capacitance-undone.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/capacitance.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/escaped-spelling.json",
+      "bytes": 13839,
+      "sha256": "c6b9998a8a68c25e73d4616691a9402563dff7f2d291d72d75d2f8cbd91a4a28"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/escaped.json",
+      "bytes": 13852,
+      "sha256": "34390e6e640c71caee29161ef841a3f18fa1e24526808e34f5f9d96151aab0de"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/occupied.json",
+      "bytes": 17,
+      "sha256": "477f86fc4090b067ad1cdfb48118ee6be6e1844367db34f90d75e0674134c5a5"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/project.json",
+      "bytes": 13830,
+      "sha256": "5fe684964cfd1fc93b09dc42ff23fa5405308f79e854e620de5f54e91c1537cd"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless-root/rc.json",
+      "bytes": 13837,
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "build/sn023-capacitance-value/validate.py",
+      "bytes": 1745,
+      "sha256": "c60d6d6e136dba8a34a7342b854c839998213ffd5b291bcbf77beb50a9bc70f7"
+    },
+    {
+      "path": "build/sn023-capacitance-value/headless_proof.py",
+      "bytes": 1618,
+      "sha256": "84f57d13be485cc9c87aa81358e2ea1804c945ce67063fcaa8130d167eef2456"
+    },
+    {
+      "path": "build/sn023-capacitance-value/acceptance-before-implementation.md",
+      "bytes": 3604,
+      "sha256": "936db35bf01482e640ff9ee2321a772ad0f492807a562b897b147d3ea39ee115"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 212,
+    "historical_evidence_manifest_sha256": "88c11b5f8aad0f3cf99ba3875103e19a497dfb9015ecad96533b84721fd3e1af",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "705444db1033e0f6d6bcfe856b043812cf38cdb42328cf697879af7db439e8b5"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "c87d905dab710d6a8c3370bbb6f15ba62a1303c2ba826282af91921b3f069c48"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "All historical evidence and ten untouched overlays match hashes; own CURRENT/BACKLOG edits reverse exactly to saved bytes"
+  },
+  "limits": [
+    "No generic parameter/unit/binding edits, creation/default conversion, multi-step history, placement or wiring.",
+    "Qt stays presentation only; no production worker/IPC/engine integration or shared measurement delivery.",
+    "Inert Open, explicit create-only Save Copy; no managed Save/service, external overwrite or resource/executable authority.",
+    "Source directory spelling is neither verified resource context nor physical lease; synchronous I/O latency unmeasured.",
+    "Human recovery, keyboard/accessibility, monitor/DPI, cross-session layout and packaging remain pending.",
+    "SN-021 Windows/local-NTFS/one-managed-document/fixed-E-01 limits/negatives unchanged; no power-loss, trusted-origin or redistribution proof.",
+    "SN-022 synthetic selection only and failed setup/runtime attempts preserved; scripted retries do not validate human recovery.",
+    "SN-017 Python/GDB/fixture control, profiles/tolerances, MCU/toolchain independence and PDF/PID fixes preserved.",
+    "January stabilization and February 2027 classroom use remain planning targets."
+  ]
+}
