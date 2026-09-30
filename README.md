@@ -4,7 +4,7 @@
 
 SimNodus is a desktop simulator for teaching and exploring the interaction between real firmware, microcontrollers, analog circuits, and digital logic. Its first target is the STM32F103C8/Blue Pill, using Renode, ngspice/XSPICE, a C++ co-simulation kernel, and a Qt 6 interface.
 
-**Status: standalone backend experiments, a bounded GPIO/RC coupling experiment, and a focused STM32F103 ADC path work; the SimNodus application is not implemented yet.** Known-schedule replay is the selected causality-preserving profile. Live sampled feedback works only as an explicitly approximate experiment; general causal feedback remains unsupported. Bounded cooperative STM32CubeIDE/GDB debugging passed E-05; physical GPIO/ADC acquisition and general debugging workloads remain unvalidated. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
+**Status: standalone backend experiments, a bounded GPIO/RC coupling experiment, and a focused STM32F103 ADC path work; the full SimNodus simulator application remains pending.** Known-schedule replay is the selected causality-preserving profile. Live sampled feedback works only as an explicitly approximate experiment; general causal feedback remains unsupported. Bounded cooperative STM32CubeIDE/GDB debugging passed E-05; physical GPIO/ADC acquisition and general debugging workloads remain unvalidated. Cycle accuracy, mandatory real-time execution, and complete hardware equivalence are not promised.
 
 ## Start here
 
@@ -42,6 +42,11 @@ Progress through standalone engines, GPIO output, digital/EXTI feedback, ADC, an
 All repository documentation, code, comments, templates, and committed project text must be in English.
 
 ## What runs today
+
+The optional [first Windows document editor](apps/desktop/README.md) opens inert
+project declarations, inspects their structure, edits only the project display
+name and creates an explicit new copy through native operations. Full schematic
+editing, instruments, managed Save and desktop simulation remain pending.
 
 The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded
 owned header/program bytes and reports load ordering without mapping or executing

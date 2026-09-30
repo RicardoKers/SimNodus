@@ -1,5 +1,10 @@
 # Simulation source layout
 
+SN-023's [first editor slice](../docs/experiments/SN-023-document-editor.md) adds
+a Qt-free application document composing inert native acquisition, name revision
+and create-only Save Copy. Immutable domain graphs/source mapping remain owned
+in application state; Qt lives in the optional desktop presentation only.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.
