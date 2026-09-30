@@ -1,5 +1,16 @@
 # Backlog
 
+## SN-022 bounded selection: done
+
+[Qt Core/Gui/Widgets and a separate worker](../decisions/0078-qt-widgets-worker-boundary.md)
+are selected from the existing SN-044 criteria. The small native Windows
+[experiment](../experiments/SN-022-qt-boundary.md) passed nine runtime cases and
+nine layout checks, with a separate Qt-free worker invocation. The first failed
+runtime and setup failures remain preserved. An exact installed-kit
+[license inventory](../development/QT_INVENTORY.md) and crash-handling decision
+complete this selection task. Production editor/instruments, real-engine worker
+integration, monitor/DPI usability and binary distribution remain pending.
+
 ## SN-021 bounded acceptance: done
 
 The [complete v3 request-boundary matrix](../experiments/SN-021-v3-boundary.md)
@@ -607,7 +618,7 @@ future direction, not a new M3 delivery commitment.
 |---|---|---|---|---|---|
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
-| SN-022 | P1 | planned | Select Qt modules and worker boundary | SN-014 | Small UI experiment, licensing inventory, crash-handling decision |
+| SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
 | SN-023 | P1 | planned | Build minimal Windows editor | SN-017, SN-021, SN-022 | R/C/LED/switch/source/GND/MCU, wiring, properties, undo, save/open |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |

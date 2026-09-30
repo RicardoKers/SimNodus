@@ -1,0 +1,470 @@
+{
+  "status": "local-installed-module-inventory-only",
+  "recorded_date": "2026-09-30",
+  "scope": "SN-022 Release presentation shell, Windows platform plugin and explicit Fusion style; worker/domain/instrumentation/adapters require no Qt.",
+  "kit": "6.11.1/msvc2022_64",
+  "qt_version": "6.11.1",
+  "architecture": "x86_64",
+  "qt_build_features": [
+    "shared",
+    "debug_and_release"
+  ],
+  "producer_msvc_version_from_qconfig": "19.39.33520",
+  "qtbase_commit_from_installed_sbom": "59c81a3c2247b821b9b84b4eb8d939b77e07e276",
+  "source_url_from_installed_sbom": "git://code.qt.io/qt/qtbase.git@59c81a3c2247b821b9b84b4eb8d939b77e07e276",
+  "selected_presentation_modules": [
+    "Core",
+    "Gui",
+    "Widgets"
+  ],
+  "selected_platform_plugin": "QWindowsIntegrationPlugin",
+  "link_helper_inventory": "EntryPointPrivate; BSD-3-Clause option; actual linkage is build-specific.",
+  "module_license_expression": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+  "proposed_distribution_route": "LGPL-3.0-only dynamic linking, pending full release review.",
+  "files": [
+    {
+      "path_relative_to_kit": "mkspecs/qconfig.pri",
+      "bytes": 864,
+      "sha256": "21a36a8ca591cd509c36d1512e00def093a018aa2ef2afc46c4fe8d4ea6c4ddf"
+    },
+    {
+      "path_relative_to_kit": "config_qtbase.summary",
+      "bytes": 10083,
+      "sha256": "0cbab89ab625586ea889740026b18de43fa25f2ef4c58acc9a53de5baa7f2841"
+    },
+    {
+      "path_relative_to_kit": "config_qtbase.opt",
+      "bytes": 1092,
+      "sha256": "9e4af7506a3e75f2e60ca5f860b3c56191b3678a2780c5f729152a9c2f7244b8"
+    },
+    {
+      "path_relative_to_kit": "sbom/qtbase-6.11.1.spdx",
+      "bytes": 2347961,
+      "sha256": "c8ceace4efa14d933d09d8a58a279992be257d1c8e889152ae972346f07be5e3"
+    },
+    {
+      "path_relative_to_kit": "sbom/qtbase-6.11.1.source.spdx",
+      "bytes": 10620327,
+      "sha256": "99cd9b10997986b78ae0d704e33db0110f8a99837bbe1b8eeedfbbe48fff6667"
+    },
+    {
+      "path_relative_to_kit": "bin/Qt6Core.dll",
+      "bytes": 10480440,
+      "sha256": "fae4778a42e93adc82b831c879c886a05147e9cc26760808d21116be5547259b",
+      "direct_pe_imports": [
+        "ADVAPI32.dll",
+        "api-ms-win-core-synch-l1-2-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-time-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "AUTHZ.dll",
+        "icuuc.dll",
+        "KERNEL32.dll",
+        "MPR.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "NETAPI32.dll",
+        "ntdll.dll",
+        "ole32.dll",
+        "OLEAUT32.dll",
+        "SHELL32.dll",
+        "USER32.dll",
+        "USERENV.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "VERSION.dll",
+        "WINMM.dll",
+        "WS2_32.dll"
+      ]
+    },
+    {
+      "path_relative_to_kit": "bin/Qt6Gui.dll",
+      "bytes": 9589560,
+      "sha256": "8fceee959a670372aaa5763287c2ef7924cd9ecdbe2c29cf4b6c12a63079c503",
+      "direct_pe_imports": [
+        "api-ms-win-crt-convert-l1-1-0.dll",
+        "api-ms-win-crt-environment-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-crt-utility-l1-1-0.dll",
+        "d3d11.dll",
+        "d3d12.dll",
+        "DWrite.dll",
+        "dxgi.dll",
+        "GDI32.dll",
+        "KERNEL32.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "MSVCP140_2.dll",
+        "ole32.dll",
+        "Qt6Core.dll",
+        "SHELL32.dll",
+        "USER32.dll",
+        "UxTheme.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll"
+      ]
+    },
+    {
+      "path_relative_to_kit": "bin/Qt6Widgets.dll",
+      "bytes": 6594360,
+      "sha256": "4d603bff620ae0830d15c25a787f9f10ed3f972d998f1f17c9c4f83937280399",
+      "direct_pe_imports": [
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "dwmapi.dll",
+        "GDI32.dll",
+        "KERNEL32.dll",
+        "MSVCP140.dll",
+        "MSVCP140_1.dll",
+        "Qt6Core.dll",
+        "Qt6Gui.dll",
+        "USER32.dll",
+        "UxTheme.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll"
+      ]
+    },
+    {
+      "path_relative_to_kit": "plugins/platforms/qwindows.dll",
+      "bytes": 1006904,
+      "sha256": "dd126e2a47f7f3d4a855981e9d4012076058b1440f6900b9a07aa950e4e4f20a",
+      "direct_pe_imports": [
+        "ADVAPI32.dll",
+        "api-ms-win-core-winrt-l1-1-0.dll",
+        "api-ms-win-core-winrt-string-l1-1-0.dll",
+        "api-ms-win-crt-heap-l1-1-0.dll",
+        "api-ms-win-crt-math-l1-1-0.dll",
+        "api-ms-win-crt-runtime-l1-1-0.dll",
+        "api-ms-win-crt-stdio-l1-1-0.dll",
+        "api-ms-win-crt-string-l1-1-0.dll",
+        "api-ms-win-shcore-scaling-l1-1-1.dll",
+        "COMDLG32.dll",
+        "d3d9.dll",
+        "dwmapi.dll",
+        "GDI32.dll",
+        "IMM32.dll",
+        "KERNEL32.dll",
+        "MSVCP140.dll",
+        "ole32.dll",
+        "OLEAUT32.dll",
+        "Qt6Core.dll",
+        "Qt6Gui.dll",
+        "SETUPAPI.dll",
+        "SHELL32.dll",
+        "SHLWAPI.dll",
+        "UIAutomationCore.DLL",
+        "USER32.dll",
+        "VCRUNTIME140.dll",
+        "VCRUNTIME140_1.dll",
+        "WINMM.dll",
+        "WTSAPI32.dll"
+      ]
+    },
+    {
+      "path_relative_to_kit": "lib/Qt6EntryPoint.lib",
+      "bytes": 57384,
+      "sha256": "829975f27cd30be5b5ac98d71c461596e556971cabe17ab87cb6919fab532fa7"
+    }
+  ],
+  "installed_license_files": [
+    {
+      "path_relative_to_install_root": "Licenses/LICENSE",
+      "bytes": 44738,
+      "sha256": "2004ee3ef8282a85f7dbd035dfacf63cf03d569537bc08655ffeb140ea3671c5"
+    },
+    {
+      "path_relative_to_install_root": "Licenses/LICENSE.FDL",
+      "bytes": 23016,
+      "sha256": "c256483c2d1e8a51b62fc7a44a58f21cb4ef23fa840c7d33e3658035fd8cf62f"
+    }
+  ],
+  "declared_dependency_inventory_method": "Transitive DEPENDS_ON closure of selected modules, platform plugin and entrypoint helper in installed qtbase SPDX. Package entries only. Declared metadata, not a loaded-module trace.",
+  "declared_dependency_inventory": [
+    {
+      "name": "BundledFreetype",
+      "version": "2.14.3",
+      "license_concluded": "FTL OR GPL-2.0-only"
+    },
+    {
+      "name": "BundledFreetype_Attribution_freetype-bdf",
+      "version": "2.14.3",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "BundledFreetype_Attribution_freetype-pcf",
+      "version": "2.14.3",
+      "license_concluded": "MIT AND MIT-open-group"
+    },
+    {
+      "name": "BundledFreetype_Attribution_freetype-zlib",
+      "version": "2.14.3",
+      "license_concluded": "Zlib"
+    },
+    {
+      "name": "BundledHarfbuzz",
+      "version": "14.2.0",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "BundledLibpng",
+      "version": "1.6.58",
+      "license_concluded": "Libpng AND libpng-2.0"
+    },
+    {
+      "name": "BundledPcre2",
+      "version": "10.47",
+      "license_concluded": "LicenseRef-BSD-3-Clause-with-PCRE2-Binary-Like-Packages-Exception"
+    },
+    {
+      "name": "BundledPcre2_Attribution_pcre2-sljit",
+      "version": "10.47",
+      "license_concluded": "BSD-2-Clause"
+    },
+    {
+      "name": "BundledZLIB",
+      "version": "1.3.2",
+      "license_concluded": "Zlib"
+    },
+    {
+      "name": "Core",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "Core_Attribution_blake2",
+      "version": "ed1974ea83433eba7b2d95c5dcd9ac33cb847913",
+      "license_concluded": "CC0-1.0 OR Apache-2.0"
+    },
+    {
+      "name": "Core_Attribution_doubleconversion",
+      "version": "3.4.0",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "Core_Attribution_easing",
+      "version": "unknown",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "Core_Attribution_md4",
+      "version": "unknown",
+      "license_concluded": "CC0-1.0"
+    },
+    {
+      "name": "Core_Attribution_md5",
+      "version": "unknown",
+      "license_concluded": "CC0-1.0"
+    },
+    {
+      "name": "Core_Attribution_rfc6234",
+      "version": "unknown",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "Core_Attribution_sha1",
+      "version": "unknown",
+      "license_concluded": "LicenseRef-SHA1-Public-Domain"
+    },
+    {
+      "name": "Core_Attribution_sha3_endian",
+      "version": "1.0.0",
+      "license_concluded": "BSD-2-Clause"
+    },
+    {
+      "name": "Core_Attribution_sha3_keccak",
+      "version": "3.2",
+      "license_concluded": "CC0-1.0"
+    },
+    {
+      "name": "Core_Attribution_siphash",
+      "version": "unknown",
+      "license_concluded": "CC0-1.0"
+    },
+    {
+      "name": "Core_Attribution_tika-mimetypes",
+      "version": "408c26e1e03e018a623e732dff6fb047a2fb8e19",
+      "license_concluded": "Apache-2.0"
+    },
+    {
+      "name": "Core_Attribution_tinycbor",
+      "version": "7.0",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Core_Attribution_tlexpected",
+      "version": "41d3e1f48d682992a2230b2a715bca38b848b269",
+      "license_concluded": "CC0-1.0"
+    },
+    {
+      "name": "Core_Attribution_unicode-character-database",
+      "version": "36",
+      "license_concluded": "Unicode-3.0"
+    },
+    {
+      "name": "Core_Attribution_unicode-cldr",
+      "version": "v48.1",
+      "license_concluded": "Unicode-3.0"
+    },
+    {
+      "name": "EntryPointPrivate",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR BSD-3-Clause"
+    },
+    {
+      "name": "GlobalConfigPrivate",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "Gui",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "Gui_Attribution_aglfn",
+      "version": "1.7",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "Gui_Attribution_d3d12memoryallocator",
+      "version": "f128d39b7a95b4235bd228d231646278dc6c24b2",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_emoji-segmenter",
+      "version": "0.4.0",
+      "license_concluded": "Apache-2.0"
+    },
+    {
+      "name": "Gui_Attribution_grayraster",
+      "version": "unknown",
+      "license_concluded": "FTL OR GPL-2.0-only"
+    },
+    {
+      "name": "Gui_Attribution_icc-srgb-color-profile",
+      "version": "unknown",
+      "license_concluded": "LicenseRef-ICC-License"
+    },
+    {
+      "name": "Gui_Attribution_md4c",
+      "version": "0.5.2",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_opengl-es2-headers",
+      "version": "Revision 27673",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_opengl-headers",
+      "version": "Revision 27684",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_rhi-miniengine-d3d12-mipmap",
+      "version": "0aa79bad78992da0b6a8279ddb9002c1753cb849",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_smooth-scaling-algorithm",
+      "version": "unknown",
+      "license_concluded": "BSD-2-Clause AND Imlib2"
+    },
+    {
+      "name": "Gui_Attribution_vulkan-xml-spec",
+      "version": "1.4.308",
+      "license_concluded": "Apache-2.0 OR MIT"
+    },
+    {
+      "name": "Gui_Attribution_vulkanmemoryallocator",
+      "version": "3.2.1",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_webgradients",
+      "version": "unknown",
+      "license_concluded": "MIT"
+    },
+    {
+      "name": "Gui_Attribution_xserverhelper",
+      "version": "unknown",
+      "license_concluded": "X11 AND HPND"
+    },
+    {
+      "name": "Gui_Attribution_zlib",
+      "version": "1.3.2",
+      "license_concluded": "Zlib"
+    },
+    {
+      "name": "OpenGL",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "Platform",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "PlatformModuleInternal",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "PlatformPluginInternal",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "Platform_Attribution_extra-cmake-modules",
+      "version": "5.84.0",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "Platform_Attribution_kwin",
+      "version": "5.13.4",
+      "license_concluded": "BSD-3-Clause"
+    },
+    {
+      "name": "QWindowsIntegrationPlugin",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "QWindowsIntegrationPlugin_Attribution_wintab",
+      "version": "unknown",
+      "license_concluded": "LicenseRef-Lcs-Telegraphics"
+    },
+    {
+      "name": "Widgets",
+      "version": "6.11.1",
+      "license_concluded": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only"
+    },
+    {
+      "name": "WrapAtomic",
+      "version": "unknown",
+      "license_concluded": "NOASSERTION"
+    }
+  ],
+  "limitations": [
+    "Hashes identify local installed bytes; original acquisition and trusted origin were not independently established.",
+    "Current official online pages describe 6.11.2; these exact dependency versions come from the local 6.11.1 SPDX.",
+    "The platform-plugin SBOM declares OpenGL; direct qwindows.dll imports do not contain Qt6OpenGL.dll. Declared build dependency does not establish loading.",
+    "Qt6Core.dll imports icuuc.dll, absent from kit bin. Actual Windows ICU resolution and MSVC/UCRT/system runtime obligations remain release gates.",
+    "Direct PE imports exclude delay imports, dynamic loads and transitive runtime resolution; this is not a complete release SBOM.",
+    "No DLL, upstream source, plugin, license text or complete SBOM is vendored.",
+    "No redistribution authorization, complete notice audit or package approval follows from this inventory."
+  ]
+}

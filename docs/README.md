@@ -29,6 +29,8 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 
 ## Development and evidence
 
+- [SN-022 Qt shell and worker boundary](experiments/SN-022-qt-boundary.md) and
+  [exact local Qt inventory](development/QT_INVENTORY.md).
 - [Getting started](development/GETTING_STARTED.md).
 - [Local build storage and safe cache cleanup](development/BUILD_STORAGE.md).
 - [Windows backend setup](development/WINDOWS_BACKENDS.md) and [SN-010 results](experiments/SN-010-results.md).

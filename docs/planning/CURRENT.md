@@ -1,5 +1,39 @@
 # Current state
 
+## Current SN-022 state: bounded selection complete
+
+On 2026-09-30, the [small Qt boundary experiment](../experiments/SN-022-qt-boundary.md)
+passed nine native Windows process cases and nine layout assertions with Qt
+6.11.1 Core/Gui/Widgets. A Qt-free worker produced one fixed synthetic record,
+crashed with a native access violation, exceeded a deadline and exercised invalid
+output/failed-start cases; the GUI retained fixture document/committed data.
+Fresh retry cases and a direct headless invocation passed. The 44 ms maximum
+observed timer gap is a local measurement, not a product performance guarantee.
+The failed first runtime, setup failures and exact hashes remain retained.
+
+The repository checker passed on 837 text files including the independent local
+overlays, and `git diff --check` passed. No unchanged backend matrix was rerun.
+
+[ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md) selects Widgets and a
+separate simulation worker while preserving application, domain, instrumentation
+and adapter responsibilities. The [Qt inventory](../development/QT_INVENTORY.md)
+records exact local module/plugin/runtime declarations and pending release
+obligations. This completes SN-022's bounded selection evidence; it implements
+no editor, instruments, production IPC, save service or real-engine worker path.
+
+PR #69's squash was verified at `4e0bf2233f1756db71fac3cbeac444b7f7dec13e`,
+matching local main, origin/main and GitHub main, with both Foundation checks
+successful and no unpublished commits. SN-022 uses `codex/sn-022-qt-boundary`;
+its PR records final checks and integration. Preserve the twelve separate local
+SN-045 overlays and all 198 earlier evidence files. The SN-021 scope below,
+SN-017 Python/GDB/fixture ownership, SN-044, MCU independence, numerical bounds
+and PDF/PID fixes are unchanged.
+
+Next scope the smallest SN-023 editor slice under its own acceptance criteria,
+reusing this presentation choice. Actual editing, managed-save integration,
+instrumentation, keyboard/accessibility, monitor/DPI restoration and packaging
+remain pending. Do not repeat the unchanged backend matrices for this shell.
+
 ## Current SN-021 state: bounded acceptance complete
 
 PR #68 integrated the bounded managed RC lifecycle on main

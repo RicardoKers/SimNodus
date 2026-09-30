@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.24)
+project(SimNodusQtBoundaryExperiment LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_executable(sn022_worker worker.cpp)
+if(MSVC)
+    target_compile_options(sn022_worker PRIVATE /W4 /EHsc)
+endif()
+
+option(SN022_BUILD_PRESENTATION "Build the optional Qt presentation experiment" ON)
+if(SN022_BUILD_PRESENTATION)
+    find_package(Qt6 6.8 REQUIRED COMPONENTS Core Gui Widgets)
+    add_executable(sn022_presentation presentation.cpp)
+    target_link_libraries(sn022_presentation PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+    if(MSVC)
+        target_compile_options(sn022_presentation PRIVATE /W4 /EHsc)
+    endif()
+endif()

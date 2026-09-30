@@ -30,7 +30,7 @@ third-party file or distribution permission is introduced by SN-017 extraction.
 | STM32CubeIDE | Installed package 2.1.1 | Installation discovered; GUI/debugger session not tested |
 | ARM GCC | GNU Tools for STM32 14.3.rel1.20251027-0700; GCC 14.3.1 20250623 | E-02 built the owned ELF twice identically and booted it; compiler hash/flags recorded |
 | ARM GDB | Same toolchain; 15.2.90.20241229-git | `--version` ran; no target/debugger connection |
-| Qt | Installed directory 6.11.1 observed | Not selected, built, or used; modules/compiler/license review deferred to SN-022 |
+| Qt | Local shared 6.11.1 MSVC x64 kit | Core/Gui/Widgets selected for the bounded [SN-022 experiment](../experiments/SN-022-qt-boundary.md); [module/license inventory](../development/QT_INVENTORY.md); production integration and distribution pending |
 | WASM / Verilator | Deferred | No runtime selected or downloaded |
 
 ## Origins and integrity
