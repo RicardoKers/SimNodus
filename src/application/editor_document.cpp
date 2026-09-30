@@ -67,6 +67,12 @@ ProjectRevisionResult EditorDocument::set_resistance(std::string_view circuit_id
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
     return accept_revision(revise_resistance(bytes(), circuit_id, instance_id, value));
 }
+ProjectRevisionResult EditorDocument::set_capacitance(std::string_view circuit_id,
+    std::string_view instance_id, std::string_view value)
+{
+    if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};
+    return accept_revision(revise_capacitance(bytes(), circuit_id, instance_id, value));
+}
 ProjectRevisionResult EditorDocument::undo_edit()
 {
     if(!graph_) return ProjectRevisionError{ProjectRevisionStage::base, "no-document", 0};

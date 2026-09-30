@@ -22,7 +22,7 @@ bool saved(const simnodus::ProjectSaveResult& result)
 {
     return std::holds_alternative<simnodus::ProjectSaveReceipt>(result);
 }
-std::optional<simnodus::LiteralResistanceView> view(const simnodus::EditorDocument& document)
+std::optional<simnodus::LiteralValueView> view(const simnodus::EditorDocument& document)
 {
     return simnodus::literal_resistance(*document.graph(), "main", "left");
 }

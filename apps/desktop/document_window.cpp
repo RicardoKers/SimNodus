@@ -97,6 +97,16 @@ DocumentWindow::DocumentWindow()
     instance_layout->addWidget(resistance_);
     apply_resistance_ = new QPushButton("Apply Resistance Value");
     instance_layout->addWidget(apply_resistance_);
+    capacitance_limits_ = new QLabel("Select an existing literal capacitance override.");
+    capacitance_limits_->setWordWrap(true);
+    capacitance_limits_->setTextFormat(Qt::PlainText);
+    instance_layout->addWidget(capacitance_limits_);
+    capacitance_ = new QLineEdit;
+    capacitance_->setAccessibleName("Declared literal capacitance value");
+    capacitance_->setMaxLength(64);
+    instance_layout->addWidget(capacitance_);
+    apply_capacitance_ = new QPushButton("Apply Capacitance Value");
+    instance_layout->addWidget(apply_capacitance_);
     instance_layout->addStretch();
     properties_->setWidget(instance_panel);
     addDockWidget(Qt::RightDockWidgetArea, properties_);
@@ -133,11 +143,13 @@ DocumentWindow::DocumentWindow()
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
     connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
     connect(apply_resistance_, &QPushButton::clicked, this, [this] { applyResistance(resistance_->text()); });
+    connect(apply_capacitance_, &QPushButton::clicked, this, [this] { applyCapacitance(capacitance_->text()); });
     connect(catalog_, &QListWidget::currentRowChanged, this, &DocumentWindow::selectCatalog);
     connect(structure_, &QTreeWidget::itemSelectionChanged, this, &DocumentWindow::selectInstance);
     connect(name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(instance_name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(resistance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
+    connect(capacitance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
@@ -192,7 +204,7 @@ bool DocumentWindow::applyName(const QString& name)
 bool DocumentWindow::saveCopy(const QString& leaf)
 {
     if(editsPending()) {
-        status_->setText("Apply or restore pending name/resistance text before Save Copy.");
+        status_->setText("Apply or restore pending name/R/C text before Save Copy.");
         return false;
     }
     const auto result = document_.save_copy(utf8(leaf));
@@ -210,6 +222,8 @@ void DocumentWindow::refresh()
     instance_name_->clear(); instance_name_->setEnabled(false); apply_instance_->setEnabled(false);
     resistance_->clear(); resistance_->setEnabled(false); apply_resistance_->setEnabled(false);
     resistance_limits_->setText("Select an existing literal resistance override.");
+    capacitance_->clear(); capacitance_->setEnabled(false); apply_capacitance_->setEnabled(false);
+    capacitance_limits_->setText("Select an existing literal capacitance override.");
     inspector_->setText("Select an instance in the declared structure.");
     preview_->setText("Select a declared component definition. Symbol rendering is pending.");
     name_->setEnabled(bool(document_.graph())); apply_->setEnabled(bool(document_.graph()));
@@ -255,8 +269,8 @@ void DocumentWindow::selectInstance()
     const auto circuit_id = item ? item->data(0, Qt::UserRole).toString() : QString{};
     const auto instance_id = item ? item->data(0, Qt::UserRole + 1).toString() : QString{};
     if(circuit_id == selected_circuit_ && instance_id == selected_instance_) return;
-    if((instanceDraftPending() || resistanceDraftPending()) && QMessageBox::question(this, "Discard pending instance fields?",
-        "Discard unapplied instance name/resistance text before changing selection?",
+    if((instanceDraftPending() || resistanceDraftPending() || capacitanceDraftPending()) && QMessageBox::question(this, "Discard pending instance fields?",
+        "Discard unapplied instance name/R/C text before changing selection?",
         QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel) != QMessageBox::Discard) {
         const QSignalBlocker blocked(structure_);
         structure_->setCurrentItem(instanceItem(selected_circuit_, selected_instance_));
@@ -284,9 +298,9 @@ bool DocumentWindow::instanceDraftPending() const
 }
 bool DocumentWindow::editsPending() const
 {
-    return (document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending() || resistanceDraftPending();
+    return (document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending() || resistanceDraftPending() || capacitanceDraftPending();
 }
-std::optional<simnodus::LiteralResistanceView> DocumentWindow::selectedResistance() const
+std::optional<simnodus::LiteralValueView> DocumentWindow::selectedResistance() const
 {
     if(!document_.graph()) return {};
     return simnodus::literal_resistance(*document_.graph(), utf8(selected_circuit_), utf8(selected_instance_));
@@ -295,6 +309,16 @@ bool DocumentWindow::resistanceDraftPending() const
 {
     const auto value = selectedResistance();
     return value && resistance_->text() != text(value->value);
+}
+std::optional<simnodus::LiteralValueView> DocumentWindow::selectedCapacitance() const
+{
+    if(!document_.graph()) return {};
+    return simnodus::literal_capacitance(*document_.graph(), utf8(selected_circuit_), utf8(selected_instance_));
+}
+bool DocumentWindow::capacitanceDraftPending() const
+{
+    const auto value = selectedCapacitance();
+    return value && capacitance_->text() != text(value->value);
 }
 void DocumentWindow::updateHistoryActions()
 {
@@ -306,7 +330,7 @@ bool DocumentWindow::redoEdit() { return restoreEdit(true); }
 bool DocumentWindow::restoreEdit(bool redo)
 {
     if(editsPending()) {
-        status_->setText("Apply or restore pending name/resistance text before Undo/Redo.");
+        status_->setText("Apply or restore pending name/R/C text before Undo/Redo.");
         return false;
     }
     const auto result = redo ? document_.redo_edit() : document_.undo_edit();
@@ -333,7 +357,7 @@ QTreeWidgetItem* DocumentWindow::instanceItem(const QString& circuit, const QStr
     }
     return nullptr;
 }
-void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_resistance_draft)
+void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_resistance_draft, bool keep_capacitance_draft)
 {
     const auto* instance = selectedInstance();
     instance_name_->setEnabled(instance != nullptr); apply_instance_->setEnabled(instance != nullptr);
@@ -352,6 +376,15 @@ void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_re
     } else {
         resistance_->clear(); resistance_limits_->setText("No supported literal resistance override. Forwarded/default bindings are not editable here.");
     }
+    const auto capacitance = selectedCapacitance();
+    capacitance_->setEnabled(bool(capacitance)); apply_capacitance_->setEnabled(bool(capacitance));
+    if(capacitance) {
+        if(!keep_capacitance_draft) capacitance_->setText(text(capacitance->value));
+        capacitance_limits_->setText("Capacitance value in " + text(capacitance->unit) + " (unit fixed).\nDeclared target limits: " +
+            text(capacitance->minimum) + " to " + text(capacitance->maximum) + " " + text(capacitance->base_unit) + ".\nSource declaration edit; runtime remains unavailable.");
+    } else {
+        capacitance_->clear(); capacitance_limits_->setText("No supported literal capacitance override. Forwarded/default bindings are not editable here.");
+    }
     updateHistoryActions();
 }
 bool DocumentWindow::applyInstanceName(const QString& name)
@@ -361,7 +394,7 @@ bool DocumentWindow::applyInstanceName(const QString& name)
     if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
         reportError("Instance name", error->code, error->offset, 0); return false;
     }
-    updateInstanceProperties(false, true);
+    updateInstanceProperties(false, true, true);
     setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
     status_->setText("Instance name applied to the source definition. Save Copy explicitly creates a new file.");
     updateHistoryActions();
@@ -374,10 +407,23 @@ bool DocumentWindow::applyResistance(const QString& value)
     if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
         reportError("Resistance edit", error->code, error->offset, 0); return false;
     }
-    updateInstanceProperties(true, false);
+    updateInstanceProperties(true, false, true);
     setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
     updateHistoryActions();
     status_->setText("Resistance value applied to the declaration. Save Copy remains explicit; simulation is unavailable.");
+    return true;
+}
+
+bool DocumentWindow::applyCapacitance(const QString& value)
+{
+    if(!selectedCapacitance()) { status_->setText("Select an existing literal capacitance override before editing its value."); return false; }
+    const auto result = document_.set_capacitance(utf8(selected_circuit_), utf8(selected_instance_), utf8(value));
+    if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
+        reportError("Capacitance value", error->code, error->offset, 0); return false;
+    }
+    updateInstanceProperties(true, true, false);
+    setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
+    status_->setText("Capacitance value applied to the source declaration. Unit stays fixed; use Save Copy explicitly.");
     return true;
 }
 
@@ -723,6 +769,109 @@ void DocumentWindow::runResistanceAcceptance(const QString& root, const QString&
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"instance_properties_text", inspector_->text()}, {"resistance_limits_text", resistance_limits_->text()},
         {"scope", "scripted existing literal resistance value and mixed one-step history; no engine, resource or human recovery acceptance"}};
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runCapacitanceAcceptance(const QString& root, const QString& report)
+{
+    // Focused fourth-field controls; reuse historical layout/worker evidence.
+    // Scripted dialog responses do not establish human recovery or usability.
+    const auto answer = [this](QMessageBox::StandardButton button) {
+        QTimer::singleShot(10, this, [button] {
+            for(auto* widget : QApplication::topLevelWidgets())
+                if(auto* dialog = qobject_cast<QMessageBox*>(widget))
+                    if(dialog->isVisible()) dialog->button(button)->click();
+        });
+    };
+    QJsonObject checks;
+    checks["native_inert_open"] = QApplication::platformName() == "windows" && openDocument(root, "original.json");
+    if(document_.graph()) {
+        checks["no_selection_refused"] = !capacitance_->isEnabled() && !applyCapacitance("470");
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        const auto original = document_.graph();
+        checks["fixed_unit_and_declared_target_bounds"] = capacitance_->text() == "220" && capacitance_->isEnabled() &&
+            capacitance_limits_->text().contains("nF (unit fixed)") && capacitance_limits_->text().contains("0.000000001 to 0.001 F");
+        capacitance_->setText("0.1"); apply_capacitance_->click();
+        checks["outside_range_retains_graph_and_draft"] = document_.graph() == original && !document_.dirty() && capacitance_->text() == "0.1";
+        checks["capacitance_draft_blocks_copy_and_history"] = !saveCopy("blocked.json") && !undoEdit() && !redoEdit() &&
+            !undo_->isEnabled() && !redo_->isEnabled() && document_.graph() == original;
+        answer(QMessageBox::Cancel);
+        checks["open_cancel_retains_capacitance_draft"] = !confirmDiscard() && capacitanceDraftPending() && document_.graph() == original;
+        answer(QMessageBox::Cancel); close();
+        checks["exit_cancel_retains_capacitance_draft"] = isVisible() && capacitanceDraftPending() && document_.graph() == original;
+        capacitance_->setText("NaN"); apply_capacitance_->click();
+        checks["invalid_quantity_retains_graph_and_draft"] = document_.graph() == original && capacitance_->text() == "NaN";
+        capacitance_->setText("220"); structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["missing_literal_refused"] = !capacitance_->isEnabled() && !applyCapacitance("470") && document_.graph() == original;
+        structure_->setCurrentItem(instanceItem("rc", "c"));
+        checks["forwarded_binding_refused"] = !capacitance_->isEnabled() && !apply_capacitance_->isEnabled() && !applyCapacitance("470") && document_.graph() == original;
+        structure_->setCurrentItem(instanceItem("main", "right")); catalog_->setCurrentRow(0);
+        const auto preview = preview_->text();
+        name_->setText("Capacitance project"); instance_name_->setText("Edited right"); resistance_->setText("3.5"); capacitance_->setText("470");
+        apply_->click();
+        checks["project_apply_preserves_three_local_drafts"] = text(document_.name()) == "Capacitance project" &&
+            instance_name_->text() == "Edited right" && resistance_->text() == "3.5" && capacitance_->text() == "470" &&
+            instanceDraftPending() && resistanceDraftPending() && capacitanceDraftPending();
+        apply_instance_->click();
+        checks["instance_apply_preserves_both_numeric_drafts"] = text(selectedInstance()->identity.name) == "Edited right" &&
+            resistance_->text() == "3.5" && capacitance_->text() == "470" && resistanceDraftPending() && capacitanceDraftPending();
+        name_->setText("pending project"); instance_name_->setText("pending instance"); apply_resistance_->click();
+        const auto resistance = document_.graph();
+        checks["resistance_apply_preserves_capacitance_and_names"] = selectedResistance()->value == "3.5" && capacitance_->text() == "470" &&
+            capacitanceDraftPending() && name_->text() == "pending project" && instance_name_->text() == "pending instance";
+        resistance_->setText("4.7"); apply_capacitance_->click();
+        const auto both = document_.graph();
+        checks["capacitance_apply_preserves_resistance_and_names"] = both != resistance && selectedCapacitance()->value == "470" &&
+            resistance_->text() == "4.7" && resistanceDraftPending() && name_->text() == "pending project" && instance_name_->text() == "pending instance";
+        checks["remaining_drafts_block_copy_and_history"] = !saveCopy("blocked.json") && !undoEdit() && !redoEdit() &&
+            !undo_->isEnabled() && !redo_->isEnabled() && document_.graph() == both;
+        capacitance_->setText("330"); answer(QMessageBox::Cancel); structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["selection_cancel_retains_all_four_drafts"] = selected_instance_ == "right" && structure_->currentItem() == instanceItem("main", "right") &&
+            name_->text() == "pending project" && instance_name_->text() == "pending instance" && resistance_->text() == "4.7" && capacitance_->text() == "330" && document_.graph() == both;
+        answer(QMessageBox::Discard); structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["selection_discard_clears_three_local_drafts_only"] = selected_instance_ == "left" && !instanceDraftPending() && !resistanceDraftPending() &&
+            !capacitanceDraftPending() && !capacitance_->isEnabled() && resistance_->text() == "1" && name_->text() == "pending project" && document_.graph() == both;
+        name_->setText(text(document_.name())); structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["selected_fields_and_preview_retained"] = resistance_->text() == "3.5" && capacitance_->text() == "470" &&
+            instance_name_->text() == "Edited right" && preview_->text() == preview && undo_->isEnabled();
+        undo_->trigger();
+        checks["capacitance_undo_retains_resistance_and_names"] = document_.graph() == resistance && capacitance_->text() == "220" &&
+            resistance_->text() == "3.5" && instance_name_->text() == "Edited right" && name_->text() == "Capacitance project" && document_.dirty() && redo_->isEnabled();
+        checks["one_step_only"] = !undo_->isEnabled() && !undoEdit() && document_.graph() == resistance && redo_->isEnabled();
+        checks["undone_copy_retains_redo"] = saveCopy("capacitance-undone.json") && document_.graph() == resistance && document_.can_redo();
+        capacitance_->setText("1000001"); apply_capacitance_->click();
+        checks["invalid_edit_preserves_redo"] = document_.graph() == resistance && document_.can_redo() && capacitanceDraftPending();
+        capacitance_->setText("220"); apply_capacitance_->click();
+        checks["same_text_noop_preserves_redo"] = document_.graph() == resistance && redo_->isEnabled() && !editsPending();
+        redo_->trigger();
+        checks["redo_restores_all_applied_fields"] = document_.graph() == both && capacitance_->text() == "470" &&
+            resistance_->text() == "3.5" && instance_name_->text() == "Edited right" && windowTitle().endsWith(" *");
+        checks["explicit_copy_retains_association_and_history"] = saveCopy("capacitance-copy.json") && document_.graph() == both &&
+            document_.leaf() == "original.json" && document_.dirty() && document_.can_undo();
+        checks["source_and_occupied_copy_refused"] = !saveCopy("original.json") && !saveCopy("capacitance-copy.json") && document_.graph() == both;
+        checks["failed_open_retains_all_selected_fields"] = !openDocument(root, "invalid.json") && document_.graph() == both &&
+            selected_instance_ == "right" && capacitance_->text() == "470" && resistance_->text() == "3.5" && instance_name_->text() == "Edited right";
+        checks["explicit_reopen_resets_history_and_baseline"] = openDocument(root, "capacitance-copy.json") && !document_.dirty() &&
+            !document_.can_undo() && !document_.can_redo() && selected_instance_.isEmpty();
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["reopened_fields_match_persisted_copy"] = capacitance_->text() == "470" && resistance_->text() == "3.5" &&
+            instance_name_->text() == "Edited right" && name_->text() == "Capacitance project" && !editsPending();
+        checks["initial_graph_remains_immutable"] = simnodus::literal_capacitance(*original, "main", "right")->value == "220" &&
+            simnodus::literal_resistance(*original, "main", "right")->value == "2.2";
+        const auto final = document_.graph(); showAnalyzer(); analyzer_.close(); showAnalyzer();
+        checks["analyzer_reopen_preserves_document"] = analyzer_.isVisible() && document_.graph() == final;
+    }
+    bool passed = checks.size() == 31;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"capacitance_limits_text", capacitance_limits_->text()},
+        {"scope", "scripted closed capacitance value and four-draft mixed history; no engine, resource or human recovery acceptance"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     const auto output = QJsonDocument(result).toJson();

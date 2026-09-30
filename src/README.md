@@ -22,6 +22,12 @@ the complete validated graph/effective parameters. Names and resistance share
 the same one-step history; no generic parameter command or binding conversion
 is introduced. Qt remains outside these application operations.
 
+The [capacitance increment](../docs/experiments/SN-023-capacitance-value.md) adds
+the existing literal `capacitance.value` command in fixed F/uF/nF. The two closed
+R/C commands share a private lookup/revision helper and borrowed `LiteralValueView`;
+target dimensions/bounds and complete validation remain authoritative. Both share
+the same one-step history with names; no public arbitrary parameter ID is accepted.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

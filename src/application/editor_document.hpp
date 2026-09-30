@@ -16,8 +16,10 @@ public:
         std::string_view instance_id, std::string_view name);
     ProjectRevisionResult set_resistance(std::string_view circuit_id,
         std::string_view instance_id, std::string_view value);
+    ProjectRevisionResult set_capacitance(std::string_view circuit_id,
+        std::string_view instance_id, std::string_view value);
     ProjectSaveResult save_copy(const std::string& leaf) const;
-    // One applied name/resistance transition, independent of text drafts.
+    // One applied name/R/C transition, independent of text drafts.
     ProjectRevisionResult undo_edit();
     ProjectRevisionResult redo_edit();
     bool can_undo() const { return bool(undo_); }

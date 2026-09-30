@@ -308,6 +308,13 @@ if(BUILD_TESTING)
             --probe "$<TARGET_FILE:editor_resistance_tests>")
     set_tests_properties(editor-resistance-contracts PROPERTIES
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 60)
+    add_executable(editor_capacitance_tests tests/resources/editor_capacitance.cpp)
+    target_link_libraries(editor_capacitance_tests PRIVATE simnodus_editor_document)
+    add_test(NAME editor-capacitance-contracts
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/editor_capacitance_regression.py"
+            --probe "$<TARGET_FILE:editor_capacitance_tests>")
+    set_tests_properties(editor-capacitance-contracts PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 60)
 endif()
 if(SIMNODUS_BUILD_DESKTOP)
     if(NOT WIN32)
@@ -334,6 +341,11 @@ if(BUILD_TESTING)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_resistance_regression.py"
             --probe "$<TARGET_FILE:native_revision_probe>")
     set_tests_properties(native-resistance-revision PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
+    add_test(NAME native-capacitance-revision
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_capacitance_regression.py"
+            --probe "$<TARGET_FILE:native_revision_probe>")
+    set_tests_properties(native-capacitance-revision PROPERTIES
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
 endif()
 add_library(simnodus_project_acquisition STATIC src/application/project_acquisition.cpp)

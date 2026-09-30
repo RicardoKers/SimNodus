@@ -20,26 +20,26 @@ PROBE = ''
 REQUESTS = 0
 
 
-def verify_revision(original, revised, circuit_id, instance_id, value):
+def verify_revision(original, revised, circuit_id, instance_id, value, parameter='resistance'):
     before = reference.parse(original)
     expected = copy.deepcopy(before)
-    literal = instance(expected, circuit_id, instance_id)['overrides']['resistance']
+    literal = instance(expected, circuit_id, instance_id)['overrides'][parameter]
     old = literal['value']
     literal['value'] = value
     reference.validate(expected)
     assert reference.parse(revised) == expected
-    begin, end = name_span(original, circuit_id, instance_id, ('overrides', 'resistance', 'value'))
+    begin, end = name_span(original, circuit_id, instance_id, ('overrides', parameter, 'value'))
     encoded = json.dumps(value, ensure_ascii=False).encode()
     assert revised == (original if old == value else original[:begin] + encoded + original[end:])
     return expected
 
 
-def invoke(raw, circuit_id, instance_id, value):
+def invoke(raw, circuit_id, instance_id, value, mode='--resistance'):
     global REQUESTS
     REQUESTS += 1
     fields = [v.encode() if isinstance(v, str) else v for v in (raw, circuit_id, instance_id, value)]
     packet = b''.join(struct.pack('<I', len(v)) + v for v in fields)
-    run = subprocess.run([PROBE, '--resistance'], input=packet, capture_output=True, timeout=20)
+    run = subprocess.run([PROBE, mode], input=packet, capture_output=True, timeout=20)
     result = json.loads(run.stdout)
     assert run.returncode == (1 if 'error' in result else 0), run.stderr
     return result

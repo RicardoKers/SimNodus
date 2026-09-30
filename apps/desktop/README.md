@@ -10,7 +10,7 @@ component definitions/pins and circuit instances/nets, change the top-level
 display name with **Apply Name**, then **File -> Save Copy** using a new ASCII
 leaf filename in the opened directory. Save Copy retains the original association
 and dirty state; explicitly Open the copy to switch documents. Apply any pending
-name/resistance text before saving. Open/exit asks before discarding pending or applied edits.
+name/R/C text before saving. Open/exit asks before discarding pending or applied edits.
 Failures retain the current document and expose native diagnostics.
 
 The [next tested increment](../../docs/experiments/SN-023-instance-label.md) adds
@@ -24,9 +24,9 @@ Cancel retains the selected IDs and draft. Failed edits retain the graph and tex
 The [one-step history increment](../../docs/experiments/SN-023-name-history.md)
 originally added history for applied names. The current menu is
 **Edit -> Undo Last Edit (one step)** / **Redo Last Edit (one step)** for applied
-project/instance names and the literal resistance command. Only the most recent effective transition
+project/instance names and the literal R/C commands. Only the most recent effective transition
 is retained; a new applied edit replaces it and clears Redo. Invalid edits and
-no-ops preserve it. Apply or restore all three pending text fields before using these
+no-ops preserve it. Apply or restore all four pending text fields before using these
 actions. Restoring an edit retains selected IDs and Preview. Save Copy preserves
 history; successful Open clears it and starts clean. Document keyboard shortcuts
 and multi-step/general undo are pending; typing is not application history.
@@ -41,6 +41,13 @@ This changes a selected source declaration and its occurrences. Applying one
 field retains other drafts. Selection Cancel retains both instance drafts;
 Discard clears both while preserving the project draft. Equal decoded text is a
 no-op; another valid spelling of the same magnitude is a real byte edit.
+
+The [capacitance increment](../../docs/experiments/SN-023-capacitance-value.md)
+adds **Apply Capacitance Value** for an existing literal `capacitance` override
+in fixed F/uF/nF. The owned fixture's `main/right` starts at `220 nF` with target
+bounds `0.000000001` through `0.001 F`. Applying any field retains the other three
+drafts. Selection Cancel retains all; Discard clears the three local instance
+drafts while retaining project text. No override is created or converted.
 
 Components/Preview concerns a declared definition, with metadata only; Instance
 Properties concerns a selected graph instance. Preview renders no symbol or model
@@ -82,6 +89,8 @@ python tests/resources/editor_name_history_regression.py --probe build/sn023-nam
 python tests/resources/editor_history_acceptance.py --editor build/sn023-name-history/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-name-history/new-gui-run
 python tests/resources/editor_resistance_regression.py --probe build/sn023-resistance-value/native-build/Release/editor_resistance_tests.exe
 python tests/resources/editor_resistance_acceptance.py --editor build/sn023-resistance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-resistance-value/new-gui-run
+python tests/resources/editor_capacitance_regression.py --probe build/sn023-capacitance-value/native-build/Release/editor_capacitance_tests.exe
+python tests/resources/editor_capacitance_acceptance.py --editor build/sn023-capacitance-value/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-capacitance-value/new-gui-run
 ```
 
 The original GUI script uses a byte-identical `two-rc-project.json` and a separate derived
@@ -115,6 +124,13 @@ byte expectations. Two failing Python-oracle attempts are retained in the report
 the first GUI/headless runs passed. Existing backend/layout evidence is reused.
 Build the additional `editor_resistance_tests` and `native_revision_probe` targets
 with the current sources; exact measured commands are in the linked report.
+
+The dedicated capacitance script passed 31 controls and two saved-byte audits;
+the native lifecycle passed 21 assertions and seven persisted snapshots. Six pure
+tests issue 64 requests, including fixed F/uF/nF, narrowed selected-target bounds,
+wrong dimensions and unaffected resistance/left subtree. Eight affected CTests
+passed in the first run; GUI/headless first runs passed. Previous GUI/layout/backend
+matrices are reused. Build the new `editor_capacitance_tests` target as well.
 
 Full placement/wiring/properties/multi-step undo, rendered symbols, production managed Save,
 real worker/engine integration, shared instruments, physical monitor/DPI behavior,

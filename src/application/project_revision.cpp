@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "application/project_revision.hpp"
+#include <initializer_list>
 #include <new>
 
 namespace simnodus {
@@ -22,10 +23,11 @@ std::size_t instance_object(const ProjectGraph& graph, std::string_view circuit,
     }
     return syntax.tokens.size();
 }
-std::size_t resistance_value(const ProjectGraph& graph, std::string_view circuit, std::string_view instance)
+std::size_t literal_token(const ProjectGraph& graph, std::string_view circuit, std::string_view instance,
+    std::string_view parameter)
 {
     const auto& syntax = *graph.declaration->sources.lock.syntax;
-    return field(syntax, field(syntax, field(syntax, instance_object(graph, circuit, instance), "overrides"), "resistance"), "value");
+    return field(syntax, field(syntax, field(syntax, instance_object(graph, circuit, instance), "overrides"), parameter), "value");
 }
 ProjectRevisionResult replace_string(const std::shared_ptr<const ProjectGraph>& base,
     std::size_t selected, std::string_view name, std::size_t limit)
@@ -87,16 +89,21 @@ ProjectRevisionResult rename_instance(std::string_view original, std::string_vie
         return replace_string(graph, field(syntax, instance_object(*graph, circuit_id, instance_id), "name"), name, 320);
     } catch(const std::bad_alloc&) { return ProjectRevisionError{stage, "memory", 0}; }
 }
-std::optional<LiteralResistanceView> literal_resistance(const ProjectGraph& graph,
-    std::string_view circuit_id, std::string_view instance_id)
+namespace {
+// Shared only by the two closed commands below, not an arbitrary parameter API.
+std::optional<LiteralValueView> literal_value(const ProjectGraph& graph,
+    std::string_view circuit_id, std::string_view instance_id, std::string_view parameter,
+    std::string_view dimension, std::initializer_list<std::string_view> units)
 {
     const auto& syntax = *graph.declaration->sources.lock.syntax;
     const auto object = instance_object(graph, circuit_id, instance_id);
-    const auto binding = field(syntax, field(syntax, object, "overrides"), "resistance");
+    const auto binding = field(syntax, field(syntax, object, "overrides"), parameter);
     const auto value = field(syntax, binding, "value"), unit = field(syntax, binding, "unit");
     if(value >= syntax.tokens.size() || unit >= syntax.tokens.size()) return {};
     const auto& spelling = syntax.tokens[unit].decoded;
-    if(spelling != "ohm" && spelling != "kohm") return {};
+    bool supported = false;
+    for(const auto unit_name : units) supported = supported || spelling == unit_name;
+    if(!supported) return {};
     const auto kind = field(syntax, object, "kind"), target = field(syntax, object, "definition");
     if(kind >= syntax.tokens.size() || target >= syntax.tokens.size()) return {};
     const auto collection = syntax.tokens[kind].decoded == "circuit" ? "circuits" : "components";
@@ -108,18 +115,19 @@ std::optional<LiteralResistanceView> literal_resistance(const ProjectGraph& grap
             if(parameters >= syntax.tokens.size()) return {};
             for(auto p = parameters + 1; p < syntax.tokens[parameters].next; p = syntax.tokens[p].next) {
                 const auto id = field(syntax, p, "id");
-                if(id >= syntax.tokens.size() || syntax.tokens[id].decoded != "resistance") continue;
+                if(id >= syntax.tokens.size() || syntax.tokens[id].decoded != parameter) continue;
                 const auto low = field(syntax, p, "minimum"), high = field(syntax, p, "maximum"), base_unit = field(syntax, p, "unit");
-                if(low >= syntax.tokens.size() || high >= syntax.tokens.size() || base_unit >= syntax.tokens.size() || syntax.tokens[base_unit].decoded != "ohm") return {};
-                return LiteralResistanceView{syntax.tokens[value].decoded, spelling,
+                if(low >= syntax.tokens.size() || high >= syntax.tokens.size() || base_unit >= syntax.tokens.size() || syntax.tokens[base_unit].decoded != dimension) return {};
+                return LiteralValueView{syntax.tokens[value].decoded, spelling,
                     syntax.tokens[low].decoded, syntax.tokens[high].decoded, syntax.tokens[base_unit].decoded};
             }
         }
     }
     return {};
 }
-ProjectRevisionResult revise_resistance(std::string_view original, std::string_view circuit_id,
-    std::string_view instance_id, std::string_view value)
+ProjectRevisionResult revise_literal(std::string_view original, std::string_view circuit_id,
+    std::string_view instance_id, std::string_view value, std::string_view parameter,
+    std::string_view dimension, std::initializer_list<std::string_view> units)
 {
     auto stage = ProjectRevisionStage::base;
     try {
@@ -127,9 +135,30 @@ ProjectRevisionResult revise_resistance(std::string_view original, std::string_v
         if(const auto* error = std::get_if<LockError>(&base)) return ProjectRevisionError{stage, error->code, error->offset};
         stage = ProjectRevisionStage::revision;
         const auto& graph = std::get<0>(base);
-        if(circuit_id.size() > 64 || instance_id.size() > 64 || !literal_resistance(*graph, circuit_id, instance_id))
+        if(circuit_id.size() > 64 || instance_id.size() > 64 || !literal_value(*graph, circuit_id, instance_id, parameter, dimension, units))
             return ProjectRevisionError{stage, "selector", 0};
-        return replace_string(graph, resistance_value(*graph, circuit_id, instance_id), value, 64);
+        return replace_string(graph, literal_token(*graph, circuit_id, instance_id, parameter), value, 64);
     } catch(const std::bad_alloc&) { return ProjectRevisionError{stage, "memory", 0}; }
+}
+}
+std::optional<LiteralValueView> literal_resistance(const ProjectGraph& graph,
+    std::string_view circuit_id, std::string_view instance_id)
+{
+    return literal_value(graph, circuit_id, instance_id, "resistance", "ohm", {"ohm", "kohm"});
+}
+ProjectRevisionResult revise_resistance(std::string_view original, std::string_view circuit_id,
+    std::string_view instance_id, std::string_view value)
+{
+    return revise_literal(original, circuit_id, instance_id, value, "resistance", "ohm", {"ohm", "kohm"});
+}
+std::optional<LiteralValueView> literal_capacitance(const ProjectGraph& graph,
+    std::string_view circuit_id, std::string_view instance_id)
+{
+    return literal_value(graph, circuit_id, instance_id, "capacitance", "F", {"F", "uF", "nF"});
+}
+ProjectRevisionResult revise_capacitance(std::string_view original, std::string_view circuit_id,
+    std::string_view instance_id, std::string_view value)
+{
+    return revise_literal(original, circuit_id, instance_id, value, "capacitance", "F", {"F", "uF", "nF"});
 }
 }

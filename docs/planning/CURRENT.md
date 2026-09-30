@@ -1,5 +1,44 @@
 # Current state
 
+## Current SN-023 state: literal capacitance value tested
+
+On 2026-09-30, the [closed capacitance increment](../experiments/SN-023-capacitance-value.md)
+adds an existing `capacitance.value` edit at `main/right` (`220 nF` initially).
+Input unit stays fixed; complete native validation enforces the selected target's
+inclusive `0.000000001` through `0.001 F` range. The two closed R/C commands share
+a small private lookup/revision helper and borrowed view shape; no arbitrary
+parameter API, insertion or binding conversion is added. Exact token replacement
+preserves every other byte and rebuilds graph, provenance and effective values.
+
+Eight affected Release CTests passed in the first run. The new six-test suite
+checked 64 requests, including all three units, narrowed rc bounds and unaffected
+subtrees. The native lifecycle passed 21 assertions/seven persisted byte audits.
+The first Qt path passed 31 controls/two audits; four drafts survive unrelated
+Apply and guard persistence/history/selection/Open/exit as appropriate. Names,
+R and C share one-step history. Headless execution with no Qt environment/kit PATH
+and PE dependency inspection passed. Final capture inspected; focused review found
+no actionable defect. No failed test attempt occurred in this increment. Existing
+backend/layout evidence and all earlier failed/inconclusive attempts are retained.
+
+PR #74 was reconfirmed MERGED at `0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978`,
+matching local/origin/remote main with Foundation Windows 61/61 and Ubuntu 50/50
+successful, and no unpublished commits. Branch `codex/sn-023-capacitance-value`
+started there. All 212 prior evidence hashes and twelve independent SN-045 overlays
+are preserved and excluded from publication. The source PR records final
+repository/staged-tree/check/squash results.
+
+SN-023 remains in_progress. Next define one bounded read-only effective R/C
+inspection with default/forwarded origins for one fixture occurrence, before
+implementation; distinguish it from source overrides and runtime measurements.
+General properties/unit/binding changes, multi-step history, placement/wiring,
+managed Save/service, shared instruments, real-engine workers/IPC, human usability,
+keyboard/accessibility, monitor/DPI, persistent layout and packaging remain pending.
+Keep opening inert and retain SN-021 Windows/local-NTFS/one-managed-document/
+fixed-E-01 limits and negatives, SN-022 synthetic selection/failures, SN-017
+Python/GDB/fixture ownership, profiles/tolerances, MCU/toolchain independence and
+PDF/PID behavior. January stabilization and February 2027 classroom use remain
+planning targets.
+
 ## Current SN-023 state: literal resistance value tested
 
 On 2026-09-30, the [closed resistance increment](../experiments/SN-023-resistance-value.md)

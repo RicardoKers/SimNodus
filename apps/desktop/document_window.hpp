@@ -21,6 +21,7 @@ public:
     bool applyName(const QString& name);
     bool applyInstanceName(const QString& name);
     bool applyResistance(const QString& value);
+    bool applyCapacitance(const QString& value);
     bool undoEdit();
     bool redoEdit();
     bool saveCopy(const QString& leaf);
@@ -29,17 +30,21 @@ public:
     void runInstanceAcceptance(const QString& root, const QString& report);
     void runHistoryAcceptance(const QString& root, const QString& report);
     void runResistanceAcceptance(const QString& root, const QString& report);
+    void runCapacitanceAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
     bool confirmDiscard();
     bool instanceDraftPending() const;
     bool resistanceDraftPending() const;
-    std::optional<simnodus::LiteralResistanceView> selectedResistance() const;
+    bool capacitanceDraftPending() const;
+    std::optional<simnodus::LiteralValueView> selectedResistance() const;
+    std::optional<simnodus::LiteralValueView> selectedCapacitance() const;
     bool editsPending() const;
     bool restoreEdit(bool redo);
     void updateHistoryActions();
-    void updateInstanceProperties(bool keep_name_draft = false, bool keep_resistance_draft = false);
+    void updateInstanceProperties(bool keep_name_draft = false, bool keep_resistance_draft = false,
+        bool keep_capacitance_draft = false);
     const simnodus::GraphInstance* selectedInstance() const;
     QTreeWidgetItem* instanceItem(const QString& circuit, const QString& instance) const;
     void refresh();
@@ -57,10 +62,13 @@ private:
     QLineEdit* name_;
     QLineEdit* instance_name_;
     QLineEdit* resistance_;
+    QLineEdit* capacitance_;
     QLabel* resistance_limits_;
+    QLabel* capacitance_limits_;
     QPushButton* apply_;
     QPushButton* apply_instance_;
     QPushButton* apply_resistance_;
+    QPushButton* apply_capacitance_;
     QAction *undo_, *redo_;
     QString selected_circuit_, selected_instance_;
 };
