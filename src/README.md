@@ -28,6 +28,12 @@ R/C commands share a private lookup/revision helper and borrowed `LiteralValueVi
 target dimensions/bounds and complete validation remain authoritative. Both share
 the same one-step history with names; no public arbitrary parameter ID is accepted.
 
+The [read-only parameter lookup](../docs/experiments/SN-023-effective-parameters.md)
+matches source identity/provenance to existing resolved occurrence rows, with no
+new resolver or mutation. Views borrow from a retained validated graph; Qt stores
+owned full path IDs and reconsults current data after edit/history. Values/origins
+describe applied declarations and immediate bindings, not runtime measurements.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

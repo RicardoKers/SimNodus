@@ -1,15 +1,18 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "document_window.hpp"
+#include "application/project_inspection.hpp"
 #include <QAction>
 #include <QAbstractButton>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QComboBox>
 #include <QDockWidget>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QHeaderView>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -22,6 +25,9 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QSignalBlocker>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QTableWidget>
 #include <QTreeWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -77,6 +83,22 @@ DocumentWindow::DocumentWindow()
     auto* instance_panel = new QWidget;
     auto* instance_layout = new QVBoxLayout(instance_panel);
     instance_layout->addWidget(inspector_);
+    occurrence_ = new QComboBox;
+    occurrence_->setAccessibleName("Resolved declaration occurrence");
+    instance_layout->addWidget(occurrence_);
+    occurrence_note_ = new QLabel;
+    occurrence_note_->setWordWrap(true);
+    occurrence_note_->setTextFormat(Qt::PlainText);
+    instance_layout->addWidget(occurrence_note_);
+    effective_parameters_ = new QTableWidget(0, 3);
+    effective_parameters_->setHorizontalHeaderLabels({"Parameter", "Base value / unit", "Binding origin"});
+    effective_parameters_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    effective_parameters_->setSelectionMode(QAbstractItemView::NoSelection);
+    effective_parameters_->verticalHeader()->hide();
+    effective_parameters_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    effective_parameters_->setFixedHeight(105);
+    effective_parameters_->setAccessibleName("Applied resolved R/C declaration values");
+    instance_layout->addWidget(effective_parameters_);
     instance_layout->addWidget(new QLabel("Declared instance display name"));
     instance_name_ = new QLineEdit;
     instance_name_->setAccessibleName("Declared instance display name");
@@ -108,7 +130,10 @@ DocumentWindow::DocumentWindow()
     apply_capacitance_ = new QPushButton("Apply Capacitance Value");
     instance_layout->addWidget(apply_capacitance_);
     instance_layout->addStretch();
-    properties_->setWidget(instance_panel);
+    properties_scroll_ = new QScrollArea;
+    properties_scroll_->setWidgetResizable(true);
+    properties_scroll_->setWidget(instance_panel);
+    properties_->setWidget(properties_scroll_);
     addDockWidget(Qt::RightDockWidgetArea, properties_);
     auto* file = menuBar()->addMenu("File");
     auto* open = file->addAction("Open...");
@@ -150,6 +175,7 @@ DocumentWindow::DocumentWindow()
     connect(instance_name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(resistance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(capacitance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
+    connect(occurrence_, &QComboBox::currentIndexChanged, this, [this] { selectOccurrence(); });
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
@@ -199,6 +225,7 @@ bool DocumentWindow::applyName(const QString& name)
     setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
     updateHistoryActions();
     status_->setText("Name applied in memory. Use Save Copy explicitly to create a new file.");
+    updateParameterInspection();
     return true;
 }
 bool DocumentWindow::saveCopy(const QString& leaf)
@@ -230,6 +257,7 @@ void DocumentWindow::refresh()
     name_->setText(text(document_.name()));
     setWindowTitle("SimNodus Circuit Editor" + (document_.graph() ? " - " + text(document_.name()) : ""));
     updateHistoryActions();
+    updateParameterInspection();
     if(!document_.graph()) return;
     const auto& graph = *document_.graph();
     project_id_->setText("Project ID: " + text(graph.declaration->project_id));
@@ -386,6 +414,55 @@ void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_re
         capacitance_->clear(); capacitance_limits_->setText("No supported literal capacitance override. Forwarded/default bindings are not editable here.");
     }
     updateHistoryActions();
+    updateParameterInspection();
+}
+void DocumentWindow::updateParameterInspection()
+{
+    const auto previous = occurrence_->currentData().toStringList();
+    const QSignalBlocker blocked(occurrence_);
+    occurrence_->clear();
+    if(document_.graph()) {
+        const auto rows = simnodus::inspect_instance_parameters(*document_.graph(), utf8(selected_circuit_), utf8(selected_instance_));
+        for(const auto* row : rows) {
+            QStringList path;
+            for(const auto& id : row->path) path << text(id);
+            occurrence_->addItem(path.join("/"), path); // Presentation owns IDs, never borrowed rows.
+        }
+    }
+    occurrence_->setEnabled(occurrence_->count() > 0);
+    const auto retained = occurrence_->findData(previous);
+    if(retained >= 0) occurrence_->setCurrentIndex(retained);
+    selectOccurrence();
+}
+void DocumentWindow::selectOccurrence()
+{
+    effective_parameters_->setRowCount(0);
+    occurrence_note_->setText("No resolved occurrence for this selection. Applied declaration values only; runtime unavailable.");
+    if(!document_.graph() || occurrence_->currentIndex() < 0) return;
+    const auto selected = occurrence_->currentData().toStringList();
+    // Resolve against the current retained graph after every edit/history restore.
+    const auto rows = simnodus::inspect_instance_parameters(*document_.graph(), utf8(selected_circuit_), utf8(selected_instance_));
+    for(const auto* occurrence : rows) {
+        QStringList path;
+        for(const auto& id : occurrence->path) path << text(id);
+        if(path != selected) continue;
+        occurrence_note_->setText("Occurrence: " + path.join("/") + "\nDefinition: " + text(occurrence->definition) +
+            "\nApplied resolved declaration values; not measurements. Origin is the immediate binding.");
+        for(const auto& [id, parameter] : occurrence->parameters) {
+            if(!((id == "resistance" && parameter.unit == "ohm") || (id == "capacitance" && parameter.unit == "F"))) continue;
+            const auto row = effective_parameters_->rowCount();
+            effective_parameters_->insertRow(row);
+            const QStringList cells{text(id), text(parameter.value) + " " + text(parameter.unit), text(parameter.origin)};
+            for(int column = 0; column < cells.size(); ++column) {
+                auto* item = new QTableWidgetItem(cells[column]);
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+                item->setToolTip(cells[column]);
+                effective_parameters_->setItem(row, column, item);
+            }
+        }
+        if(effective_parameters_->rowCount() == 0) occurrence_note_->setText(occurrence_note_->text() + "\nNo closed R/C parameters declared.");
+        return;
+    }
 }
 bool DocumentWindow::applyInstanceName(const QString& name)
 {
@@ -872,6 +949,119 @@ void DocumentWindow::runCapacitanceAcceptance(const QString& root, const QString
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"capacitance_limits_text", capacitance_limits_->text()},
         {"scope", "scripted closed capacitance value and four-draft mixed history; no engine, resource or human recovery acceptance"}};
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runInspectionAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    const auto displays = [this](const QString& id, const QString& value, const QString& origin) {
+        for(int row = 0; row < effective_parameters_->rowCount(); ++row)
+            if(effective_parameters_->item(row, 0)->text() == id)
+                return effective_parameters_->item(row, 1)->text() == value && effective_parameters_->item(row, 2)->text() == origin;
+        return false;
+    };
+    showAnalyzer();
+    checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
+    checks["initial_empty_inspection"] = occurrence_->count() == 0 && !occurrence_->isEnabled() && effective_parameters_->rowCount() == 0;
+    checks["inert_open"] = openDocument(root, "original.json");
+    if(document_.graph()) {
+        const auto original = document_.graph();
+        const auto bytes = std::string(document_.bytes());
+        checks["no_runtime_resource_authority"] = !original->declaration->runtime_profile_verified &&
+            !original->declaration->firmware_verified && !original->declaration->sources.resource_interfaces_verified;
+        catalog_->setCurrentRow(0);
+        const auto preview = preview_->text();
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["literal_default_base_values"] = occurrence_->currentText() == "main/left" && effective_parameters_->rowCount() == 2 &&
+            displays("resistance", "1000 ohm", "literal") && displays("capacitance", "0.000001 F", "default");
+        checks["default_inspection_does_not_enable_edit"] = !capacitance_->isEnabled() && !apply_capacitance_->isEnabled();
+        const auto* group = instanceItem("main", "left")->parent();
+        structure_->setCurrentItem(const_cast<QTreeWidgetItem*>(group));
+        checks["circuit_selection_has_no_occurrence"] = occurrence_->count() == 0 && effective_parameters_->rowCount() == 0;
+        structure_->setCurrentItem(group->child(2));
+        checks["net_selection_has_no_occurrence"] = occurrence_->count() == 0 && !occurrence_->isEnabled() && effective_parameters_->rowCount() == 0;
+        structure_->setCurrentItem(instanceItem("rc", "r"));
+        checks["reused_full_paths_sorted"] = occurrence_->count() == 2 && occurrence_->itemText(0) == "main/left/r" && occurrence_->itemText(1) == "main/right/r";
+        checks["left_forwarded_binding"] = effective_parameters_->rowCount() == 1 && displays("resistance", "1000 ohm", "containing-circuit:resistance");
+        occurrence_->setCurrentIndex(1);
+        checks["right_forwarded_binding"] = displays("resistance", "2200 ohm", "containing-circuit:resistance") &&
+            occurrence_note_->text().contains("Definition: resistor") && occurrence_note_->text().contains("not measurements");
+        checks["read_only_plain_text"] = effective_parameters_->editTriggers() == QAbstractItemView::NoEditTriggers &&
+            !(effective_parameters_->item(0, 1)->flags() & Qt::ItemIsEditable) && occurrence_note_->textFormat() == Qt::PlainText;
+        name_->setText("Pending project"); instance_name_->setText("Pending resistor");
+        occurrence_->setCurrentIndex(0); occurrence_->setCurrentIndex(1);
+        checks["actual_occurrence_switch_retains_two_active_drafts"] = name_->text() == "Pending project" && instance_name_->text() == "Pending resistor" &&
+            !resistance_->isEnabled() && !capacitance_->isEnabled() && displays("resistance", "2200 ohm", "containing-circuit:resistance");
+        checks["occurrence_switch_nonmutation"] = document_.graph() == original && document_.bytes() == bytes && !document_.dirty() &&
+            !document_.can_undo() && !document_.can_redo() && document_.leaf() == "original.json" && preview_->text() == preview;
+        name_->setText(text(document_.name())); instance_name_->setText(text(selectedInstance()->identity.name));
+        checks["name_apply_retains_reused_path"] = applyInstanceName("Inspection resistor") && occurrence_->currentText() == "main/right/r" &&
+            displays("resistance", "2200 ohm", "containing-circuit:resistance");
+        checks["name_restore_retains_reused_path"] = undoEdit() && document_.graph() == original && occurrence_->currentText() == "main/right/r" &&
+            redoEdit() && occurrence_->currentText() == "main/right/r" && undoEdit();
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        name_->setText("Inspection project"); instance_name_->setText("Inspection right");
+        resistance_->setText("3.5"); capacitance_->setText("470");
+        updateParameterInspection();
+        checks["single_occurrence_refresh_retains_four_active_drafts"] = name_->text() == "Inspection project" && instance_name_->text() == "Inspection right" &&
+            resistance_->text() == "3.5" && capacitance_->text() == "470" && name_->isEnabled() && instance_name_->isEnabled() &&
+            resistance_->isEnabled() && capacitance_->isEnabled() && occurrence_->count() == 1;
+        checks["drafts_do_not_change_applied_values"] = displays("resistance", "2200 ohm", "literal") && displays("capacitance", "0.000000220 F", "literal") && document_.graph() == original;
+        checks["pending_drafts_block_copy_and_history"] = !saveCopy("unapplied.json") && !undoEdit() && !redoEdit();
+        apply_resistance_->click();
+        checks["resistance_apply_refresh_preserves_other_drafts"] = displays("resistance", "3500 ohm", "literal") && displays("capacitance", "0.000000220 F", "literal") &&
+            capacitance_->text() == "470" && name_->text() == "Inspection project" && instance_name_->text() == "Inspection right";
+        apply_capacitance_->click();
+        checks["capacitance_apply_refresh_preserves_name_drafts"] = displays("capacitance", "0.000000470 F", "literal") && displays("resistance", "3500 ohm", "literal") &&
+            name_->text() == "Inspection project" && instance_name_->text() == "Inspection right";
+        apply_->click();
+        checks["project_name_refresh_preserves_instance_draft"] = document_.name() == "Inspection project" && instance_name_->text() == "Inspection right" &&
+            occurrence_->currentText() == "main/right" && displays("capacitance", "0.000000470 F", "literal");
+        apply_instance_->click();
+        const auto final = document_.graph();
+        checks["instance_name_refresh_preserves_applied_values"] = !editsPending() && occurrence_->currentText() == "main/right" &&
+            displays("resistance", "3500 ohm", "literal") && displays("capacitance", "0.000000470 F", "literal");
+        checks["explicit_copy_retains_source_history"] = saveCopy("inspected.json") && document_.graph() == final && document_.dirty() &&
+            document_.can_undo() && document_.leaf() == "original.json" && occurrence_->currentText() == "main/right";
+        structure_->setCurrentItem(instanceItem("rc", "r")); occurrence_->setCurrentIndex(1);
+        checks["upstream_edit_refreshes_reused_occurrence"] = displays("resistance", "3500 ohm", "containing-circuit:resistance");
+        checks["undo_requeries_current_graph_retains_path"] = undoEdit() && occurrence_->currentText() == "main/right/r" &&
+            displays("resistance", "3500 ohm", "containing-circuit:resistance") && saveCopy("inspection-undone.json");
+        checks["redo_requeries_current_graph_retains_path"] = redoEdit() && document_.graph() == final && occurrence_->currentText() == "main/right/r" &&
+            displays("resistance", "3500 ohm", "containing-circuit:resistance");
+        checks["failed_edit_open_copy_keep_occurrence"] = !applyInstanceName("") && !openDocument(root, "invalid.json") && !saveCopy("inspected.json") &&
+            document_.graph() == final && occurrence_->currentText() == "main/right/r" && document_.can_undo();
+        checks["explicit_reopen_clears_selection_and_history"] = openDocument(root, "inspected.json") && occurrence_->count() == 0 &&
+            !document_.dirty() && !document_.can_undo() && !document_.can_redo();
+        const auto reopened_preview = preview_->text();
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["reopened_resolved_values"] = displays("resistance", "3500 ohm", "literal") && displays("capacitance", "0.000000470 F", "literal");
+        resize(1100, 560); resizeDocks({properties_}, {350}, Qt::Horizontal);
+        QApplication::processEvents();
+        properties_scroll_->ensureWidgetVisible(apply_capacitance_);
+        QApplication::processEvents();
+        const QRect button_rect(apply_capacitance_->mapTo(properties_scroll_->viewport(), QPoint{}), apply_capacitance_->size());
+        checks["short_panel_existing_control_reachable"] = properties_scroll_->verticalScrollBar()->maximum() > 0 &&
+            properties_scroll_->viewport()->rect().contains(button_rect);
+        properties_scroll_->verticalScrollBar()->setValue(0);
+        QApplication::processEvents();
+        checks["inspection_reachable_after_scroll"] = properties_scroll_->viewport()->rect().contains(
+            QRect(occurrence_->mapTo(properties_scroll_->viewport(), QPoint{}), occurrence_->size()));
+        checks["preview_and_original_snapshot_retained"] = preview_->text() == reopened_preview &&
+            original->declaration->sources.lock.syntax->bytes == bytes;
+    }
+    bool passed = checks.size() == 33;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"occurrence_text", occurrence_note_->text()},
+        {"scope", "scripted applied declaration inspection; two active drafts across reused paths and four across single-path refresh; no measurements or human usability acceptance"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     const auto output = QJsonDocument(result).toJson();

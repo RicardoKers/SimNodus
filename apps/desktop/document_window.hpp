@@ -13,6 +13,9 @@ class QTreeWidgetItem;
 class QSplitter;
 class QPushButton;
 class QAction;
+class QComboBox;
+class QTableWidget;
+class QScrollArea;
 
 class DocumentWindow final : public QMainWindow {
 public:
@@ -31,6 +34,7 @@ public:
     void runHistoryAcceptance(const QString& root, const QString& report);
     void runResistanceAcceptance(const QString& root, const QString& report);
     void runCapacitanceAcceptance(const QString& root, const QString& report);
+    void runInspectionAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -43,6 +47,8 @@ private:
     bool editsPending() const;
     bool restoreEdit(bool redo);
     void updateHistoryActions();
+    void updateParameterInspection();
+    void selectOccurrence();
     void updateInstanceProperties(bool keep_name_draft = false, bool keep_resistance_draft = false,
         bool keep_capacitance_draft = false);
     const simnodus::GraphInstance* selectedInstance() const;
@@ -70,5 +76,9 @@ private:
     QPushButton* apply_resistance_;
     QPushButton* apply_capacitance_;
     QAction *undo_, *redo_;
+    QComboBox* occurrence_;
+    QTableWidget* effective_parameters_;
+    QLabel* occurrence_note_;
+    QScrollArea* properties_scroll_;
     QString selected_circuit_, selected_instance_;
 };
