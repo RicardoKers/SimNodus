@@ -1,5 +1,45 @@
 # Current state
 
+## Current SN-023 state: declared instance label tested
+
+On 2026-09-30, the [next bounded editor increment](../experiments/SN-023-instance-label.md)
+adds one Instance Properties field: declared instance display name. The native
+Qt-free command selects by circuit-definition/instance IDs, changes exactly one
+name token and rebuilds the fully validated graph/provenance. This shared
+definition label changes no stable ID, terminal, parameter or occurrence override.
+Inert Open and explicit create-only Save Copy retain their original contract.
+
+Three focused Release CTests passed, including 46 new instance revision requests
+and 33 existing project revision requests checked by independent byte/graph/source
+oracles. The final native Windows Qt path passed 21 controls plus exact copy/reopen
+audit; the earlier 20-check success remains retained. Pending instance text blocks
+Save Copy and survives failed edit/Open, selection cancellation and exit cancellation.
+Explicit draft discard was scripted. Preview/Properties remain independent and the
+separate analyzer still offers no fabricated data. The capture was inspected.
+The headless lifecycle passed without Qt environment/PATH and its PE imports have
+no Qt. Human file dialogs/recovery, keyboard/accessibility and monitor/DPI remain
+pending; these scripted controls do not validate those flows.
+The repository checker passed on 859 text files including local overlays, and
+`git diff --check` passed. The staged publication tree is validated separately.
+
+Before this increment, PR #71 was reconfirmed MERGED at
+`04a82beed21d95b011a0e6ebc5bb82478c93fdd1`, with local main, origin/main and
+remote main equal, no unpublished commits and both required Foundation checks
+successful (Windows 57/57; Ubuntu 46/46). Branch `codex/sn-023-instance-label`
+started there. Twelve independent SN-045 overlays were backed up and excluded
+from publication; all 205 earlier evidence files remain unchanged. The source
+PR records final required checks and squash; experimental success alone is not
+publication proof. No unchanged engine or old GUI/layout matrix was rerun.
+
+SN-023 stays in_progress. Next acceptance may scope bounded undo/redo for these
+name commands; define document/dirty/selection/draft semantics before coding.
+General properties, real schematic placement/wiring, managed Save/service,
+real-engine workers, shared instruments, session layout and packaging remain
+pending. SN-021's bounded Windows/local-NTFS/fixed-E-01 acceptance, SN-022's
+synthetic selection limits/failures and SN-017's Python/GDB/fixture ownership,
+accepted profiles/tolerances, MCU independence and PDF/PID fixes are unchanged.
+Preserve January stabilization and February 2027 as a planning target.
+
 ## Current SN-023 state: first document editor slice tested
 
 On 2026-09-30, the [bounded Windows editor slice](../experiments/SN-023-document-editor.md)

@@ -311,6 +311,11 @@ if(BUILD_TESTING)
     target_link_libraries(native_revision_probe PRIVATE simnodus_project_revision)
     add_test(NAME native-project-revision COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_revision_regression.py" --probe "$<TARGET_FILE:native_revision_probe>")
     set_tests_properties(native-project-revision PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
+    add_test(NAME native-instance-label-revision
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema/native_instance_label_regression.py"
+            --probe "$<TARGET_FILE:native_revision_probe>")
+    set_tests_properties(native-instance-label-revision PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 180)
 endif()
 add_library(simnodus_project_acquisition STATIC src/application/project_acquisition.cpp)
 target_include_directories(simnodus_project_acquisition PUBLIC src)

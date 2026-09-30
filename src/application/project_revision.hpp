@@ -15,4 +15,9 @@ using ProjectRevisionResult = std::variant<std::shared_ptr<const ProjectGraph>, 
 // Borrowed inputs must stay stable during this call. No I/O or save authority.
 // Base errors use original offsets; revision errors use candidate offsets.
 ProjectRevisionResult rename_project(std::string_view original, std::string_view name_utf8);
+// Rename one declared instance in a circuit definition, selected by stable IDs.
+// This changes definition metadata in every occurrence, not an occurrence
+// override. Only its immediate name value token changes; no I/O or authority.
+ProjectRevisionResult rename_instance(std::string_view original,
+    std::string_view circuit_id, std::string_view instance_id, std::string_view name_utf8);
 }

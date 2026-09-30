@@ -21,6 +21,7 @@
 #include <QPixmap>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QSignalBlocker>
 #include <QTreeWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -73,7 +74,21 @@ DocumentWindow::DocumentWindow()
     inspector_ = new QLabel("Select an instance in the declared structure.");
     inspector_->setWordWrap(true);
     inspector_->setTextFormat(Qt::PlainText);
-    properties_->setWidget(inspector_);
+    auto* instance_panel = new QWidget;
+    auto* instance_layout = new QVBoxLayout(instance_panel);
+    instance_layout->addWidget(inspector_);
+    instance_layout->addWidget(new QLabel("Declared instance display name"));
+    instance_name_ = new QLineEdit;
+    instance_name_->setAccessibleName("Declared instance display name");
+    instance_name_->setMaxLength(320);
+    instance_layout->addWidget(instance_name_);
+    apply_instance_ = new QPushButton("Apply Instance Name");
+    instance_layout->addWidget(apply_instance_);
+    auto* definition_note = new QLabel("Edits the selected circuit definition. Reused occurrences share this label; IDs and connections stay unchanged.");
+    definition_note->setWordWrap(true);
+    instance_layout->addWidget(definition_note);
+    instance_layout->addStretch();
+    properties_->setWidget(instance_panel);
     addDockWidget(Qt::RightDockWidgetArea, properties_);
     auto* file = menuBar()->addMenu("File");
     auto* open = file->addAction("Open...");
@@ -101,6 +116,7 @@ DocumentWindow::DocumentWindow()
     auto* analyzer = view->addAction("Open Signal Analyzer");
     connect(analyzer, &QAction::triggered, this, &DocumentWindow::showAnalyzer);
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
+    connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
     connect(catalog_, &QListWidget::currentRowChanged, this, &DocumentWindow::selectCatalog);
     connect(structure_, &QTreeWidget::itemSelectionChanged, this, &DocumentWindow::selectInstance);
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
@@ -112,7 +128,7 @@ DocumentWindow::DocumentWindow()
 
 bool DocumentWindow::confirmDiscard()
 {
-    const bool unapplied = document_.graph() && name_->text() != text(document_.name());
+    const bool unapplied = (document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending();
     if(!document_.dirty() && !unapplied) return true;
     return QMessageBox::question(this, "Discard changes?", "Discard unsaved document/name changes? Save Copy creates a separate file and leaves this document edited.",
         QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Discard;
@@ -156,8 +172,8 @@ bool DocumentWindow::applyName(const QString& name)
 }
 bool DocumentWindow::saveCopy(const QString& leaf)
 {
-    if(document_.graph() && name_->text() != text(document_.name())) {
-        status_->setText("Apply or restore the pending display name before Save Copy.");
+    if((document_.graph() && name_->text() != text(document_.name())) || instanceDraftPending()) {
+        status_->setText("Apply or restore pending project/instance name text before Save Copy.");
         return false;
     }
     const auto result = document_.save_copy(utf8(leaf));
@@ -169,7 +185,10 @@ bool DocumentWindow::saveCopy(const QString& leaf)
 }
 void DocumentWindow::refresh()
 {
+    const QSignalBlocker blocked(structure_);
     catalog_->clear(); structure_->clear();
+    selected_circuit_.clear(); selected_instance_.clear();
+    instance_name_->clear(); instance_name_->setEnabled(false); apply_instance_->setEnabled(false);
     inspector_->setText("Select an instance in the declared structure.");
     preview_->setText("Select a declared component definition. Symbol rendering is pending.");
     name_->setEnabled(bool(document_.graph())); apply_->setEnabled(bool(document_.graph()));
@@ -210,18 +229,70 @@ void DocumentWindow::selectCatalog(int row)
 }
 void DocumentWindow::selectInstance()
 {
-    const auto* item = structure_->currentItem();
-    if(!item || !document_.graph()) return;
-    const auto circuit_id = item->data(0, Qt::UserRole).toString();
-    const auto instance_id = item->data(0, Qt::UserRole + 1).toString();
-    inspector_->setText("Select an instance in the declared structure.");
+    const auto* item = structure_->selectedItems().isEmpty() ? nullptr : structure_->currentItem();
+    const auto circuit_id = item ? item->data(0, Qt::UserRole).toString() : QString{};
+    const auto instance_id = item ? item->data(0, Qt::UserRole + 1).toString() : QString{};
+    if(circuit_id == selected_circuit_ && instance_id == selected_instance_) return;
+    if(instanceDraftPending() && QMessageBox::question(this, "Discard pending instance name?",
+        "Discard the unapplied instance name before changing selection?",
+        QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel) != QMessageBox::Discard) {
+        const QSignalBlocker blocked(structure_);
+        structure_->setCurrentItem(instanceItem(selected_circuit_, selected_instance_));
+        return;
+    }
+    selected_circuit_ = circuit_id;
+    selected_instance_ = instance_id;
+    updateInstanceProperties();
+}
+const simnodus::GraphInstance* DocumentWindow::selectedInstance() const
+{
+    if(!document_.graph()) return nullptr;
     for(const auto& circuit : document_.graph()->connectivity.circuits) {
-        if(text(circuit.identity.id) != circuit_id) continue;
+        if(text(circuit.identity.id) != selected_circuit_) continue;
         for(const auto& instance : circuit.instances) {
-            if(text(instance.identity.id) != instance_id) continue;
-            inspector_->setText("Circuit: " + circuit_id + "\nInstance: " + instance_id + "\nName: " + text(instance.identity.name) + "\nDefinition: " + text(instance.definition) + "\nDeclared properties only; runtime unavailable.");
+            if(text(instance.identity.id) == selected_instance_) return &instance;
         }
     }
+    return nullptr;
+}
+bool DocumentWindow::instanceDraftPending() const
+{
+    const auto* instance = selectedInstance();
+    return instance && instance_name_->text() != text(instance->identity.name);
+}
+QTreeWidgetItem* DocumentWindow::instanceItem(const QString& circuit, const QString& instance) const
+{
+    for(int i = 0; i < structure_->topLevelItemCount(); ++i) {
+        auto* group = structure_->topLevelItem(i);
+        for(int j = 0; j < group->childCount(); ++j) {
+            auto* row = group->child(j);
+            if(row->data(0, Qt::UserRole).toString() == circuit &&
+                row->data(0, Qt::UserRole + 1).toString() == instance) return row;
+        }
+    }
+    return nullptr;
+}
+void DocumentWindow::updateInstanceProperties()
+{
+    const auto* instance = selectedInstance();
+    instance_name_->setEnabled(instance != nullptr); apply_instance_->setEnabled(instance != nullptr);
+    if(!instance) {
+        instance_name_->clear(); inspector_->setText("Select an instance in the declared structure."); return;
+    }
+    instance_name_->setText(text(instance->identity.name));
+    inspector_->setText("Circuit: " + selected_circuit_ + "\nInstance: " + selected_instance_ + "\nName: " + text(instance->identity.name) + "\nDefinition: " + text(instance->definition) + "\nDeclared properties only; runtime unavailable.");
+}
+bool DocumentWindow::applyInstanceName(const QString& name)
+{
+    if(!selectedInstance()) { status_->setText("Select a declared instance before editing its name."); return false; }
+    const auto result = document_.rename_instance(utf8(selected_circuit_), utf8(selected_instance_), utf8(name));
+    if(const auto* error = std::get_if<simnodus::ProjectRevisionError>(&result)) {
+        reportError("Instance name", error->code, error->offset, 0); return false;
+    }
+    updateInstanceProperties();
+    setWindowTitle("SimNodus Circuit Editor - " + text(document_.name()) + (document_.dirty() ? " *" : ""));
+    status_->setText("Instance name applied to the source definition. Save Copy explicitly creates a new file.");
+    return true;
 }
 
 void DocumentWindow::runAcceptance(const QString& root, const QString& report)
@@ -293,6 +364,85 @@ void DocumentWindow::runAcceptance(const QString& root, const QString& report)
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()},
         {"selected_instance_text", inspector_->text()},
         {"platform", QApplication::platformName()}, {"scope", "scripted document/inspection controls; no resource or engine execution"}};
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runInstanceAcceptance(const QString& root, const QString& report)
+{
+    // Dedicated control evidence; unchanged SN-022/window-layout matrices are
+    // reused. Scripted dialog answers do not establish human recovery/usability.
+    const auto answer = [this](QMessageBox::StandardButton button) {
+        QTimer::singleShot(10, this, [button] {
+            for(auto* widget : QApplication::topLevelWidgets())
+                if(auto* dialog = qobject_cast<QMessageBox*>(widget))
+                    if(dialog->isVisible()) dialog->button(button)->click();
+        });
+    };
+    QJsonObject checks;
+    checks["native_inert_open"] = QApplication::platformName() == "windows" && openDocument(root, "original.json");
+    if(document_.graph()) {
+        checks["no_selection_refused"] = !instance_name_->isEnabled() && !applyInstanceName("unselected");
+        structure_->setCurrentItem(instanceItem("rc", "r"));
+        checks["stable_id_selection"] = selected_circuit_ == "rc" && selected_instance_ == "r" && instance_name_->isEnabled();
+        catalog_->setCurrentRow(0);
+        const auto preview = preview_->text();
+        const auto label = QString::fromUtf8("Edited \"R\" \\ \xCE\xA9");
+        instance_name_->setText(label); apply_instance_->click();
+        checks["instance_button_edit"] = document_.dirty() && selectedInstance() && text(selectedInstance()->identity.name) == label;
+        checks["selection_and_preview_retained"] = selected_circuit_ == "rc" && selected_instance_ == "r" && preview_->text() == preview;
+        const auto edited = document_.graph();
+        instance_name_->clear(); apply_instance_->click();
+        checks["invalid_edit_retains_graph_and_draft"] = document_.graph() == edited && instanceDraftPending() && instance_name_->text().isEmpty();
+        catalog_->setCurrentRow(1);
+        checks["catalog_preserves_draft"] = instanceDraftPending() && instance_name_->text().isEmpty();
+        checks["project_name_apply_preserves_draft"] = applyName(text(document_.name())) && instanceDraftPending() && instance_name_->text().isEmpty();
+        const auto before = document_.graph();
+        checks["failed_open_preserves_draft"] = !openDocument(root, "invalid.json") && document_.graph() == before && instanceDraftPending();
+        checks["pending_copy_refused"] = !saveCopy("unapplied.json") && document_.graph() == before;
+        answer(QMessageBox::Cancel);
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["selection_cancel_preserves_ids_and_draft"] = selected_circuit_ == "rc" && selected_instance_ == "r" &&
+            structure_->currentItem() == instanceItem("rc", "r") && instanceDraftPending() && instance_name_->text().isEmpty();
+        answer(QMessageBox::Cancel);
+        checks["open_guard_cancel_preserves_draft"] = !confirmDiscard() && document_.graph() == before && instanceDraftPending();
+        answer(QMessageBox::Cancel);
+        close();
+        checks["exit_cancel_preserves_document_and_draft"] = isVisible() && document_.graph() == before && instanceDraftPending();
+        answer(QMessageBox::Discard);
+        structure_->setCurrentItem(instanceItem("main", "left"));
+        checks["explicit_draft_discard_changes_selection_only"] = selected_circuit_ == "main" && selected_instance_ == "left" &&
+            !instanceDraftPending() && document_.graph() == before;
+        structure_->setCurrentItem(structure_->topLevelItem(0));
+        checks["circuit_row_refused"] = !instance_name_->isEnabled() && !applyInstanceName("circuit row") && document_.graph() == before;
+        auto* circuit = structure_->topLevelItem(0);
+        QTreeWidgetItem* net = nullptr;
+        for(int i = 0; i < circuit->childCount(); ++i)
+            if(circuit->child(i)->text(0).startsWith("Net:")) { net = circuit->child(i); break; }
+        structure_->setCurrentItem(net);
+        checks["net_row_refused"] = net && !instance_name_->isEnabled() && !applyInstanceName("net row") && document_.graph() == before;
+        structure_->setCurrentItem(instanceItem("rc", "r"));
+        const auto literal = QString("<img src=\"file:///C:/never-open.png\">");
+        checks["untrusted_label_literal"] = applyInstanceName(literal) && inspector_->textFormat() == Qt::PlainText && inspector_->text().contains(literal);
+        checks["final_label_edit"] = applyInstanceName(label) && !instanceDraftPending();
+        const auto final = document_.graph();
+        checks["explicit_copy_retains_association"] = saveCopy("instance-copy.json") && document_.graph() == final && document_.dirty() && document_.leaf() == "original.json";
+        simnodus::EditorDocument reopened;
+        checks["exact_reopen"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(reopened.open(utf8(root), "instance-copy.json")) && reopened.bytes() == document_.bytes();
+        showAnalyzer(); analyzer_.close(); showAnalyzer();
+        checks["analyzer_reopen_retains_document"] = document_.graph() == final && analyzer_.isVisible();
+    }
+    bool passed = checks.size() == 21;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()},
+        {"platform", QApplication::platformName()}, {"selected_circuit", selected_circuit_},
+        {"selected_instance", selected_instance_}, {"instance_properties_text", inspector_->text()},
+        {"scope", "scripted declared-instance name edit and draft retention; no engine or resource execution"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     const auto output = QJsonDocument(result).toJson();

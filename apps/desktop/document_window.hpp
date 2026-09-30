@@ -9,6 +9,7 @@ class QLabel;
 class QLineEdit;
 class QListWidget;
 class QTreeWidget;
+class QTreeWidgetItem;
 class QSplitter;
 class QPushButton;
 
@@ -17,13 +18,19 @@ public:
     DocumentWindow();
     bool openDocument(const QString& root, const QString& leaf);
     bool applyName(const QString& name);
+    bool applyInstanceName(const QString& name);
     bool saveCopy(const QString& leaf);
     void showAnalyzer();
     void runAcceptance(const QString& root, const QString& report);
+    void runInstanceAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
     bool confirmDiscard();
+    bool instanceDraftPending() const;
+    void updateInstanceProperties();
+    const simnodus::GraphInstance* selectedInstance() const;
+    QTreeWidgetItem* instanceItem(const QString& circuit, const QString& instance) const;
     void refresh();
     void selectCatalog(int row);
     void selectInstance();
@@ -37,5 +44,8 @@ private:
     QTreeWidget* structure_;
     QLabel *preview_, *inspector_, *status_, *project_id_;
     QLineEdit* name_;
+    QLineEdit* instance_name_;
     QPushButton* apply_;
+    QPushButton* apply_instance_;
+    QString selected_circuit_, selected_instance_;
 };

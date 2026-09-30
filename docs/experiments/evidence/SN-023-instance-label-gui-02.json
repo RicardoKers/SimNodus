@@ -1,0 +1,32 @@
+{
+    "checks": {
+        "analyzer_reopen_retains_document": true,
+        "catalog_preserves_draft": true,
+        "circuit_row_refused": true,
+        "exact_reopen": true,
+        "exit_cancel_preserves_document_and_draft": true,
+        "explicit_copy_retains_association": true,
+        "explicit_draft_discard_changes_selection_only": true,
+        "failed_open_preserves_draft": true,
+        "final_label_edit": true,
+        "instance_button_edit": true,
+        "invalid_edit_retains_graph_and_draft": true,
+        "native_inert_open": true,
+        "net_row_refused": true,
+        "no_selection_refused": true,
+        "open_guard_cancel_preserves_draft": true,
+        "pending_copy_refused": true,
+        "project_name_apply_preserves_draft": true,
+        "selection_and_preview_retained": true,
+        "selection_cancel_preserves_ids_and_draft": true,
+        "stable_id_selection": true,
+        "untrusted_label_literal": true
+    },
+    "instance_properties_text": "Circuit: rc\nInstance: r\nName: Edited \"R\" \\ Ω\nDefinition: resistor\nDeclared properties only; runtime unavailable.",
+    "passed": true,
+    "platform": "windows",
+    "qt_version": "6.11.1",
+    "scope": "scripted declared-instance name edit and draft retention; no engine or resource execution",
+    "selected_circuit": "rc",
+    "selected_instance": "r"
+}

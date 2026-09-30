@@ -30,6 +30,7 @@ int main(int argc, char** argv)
         simnodus::EditorDocument document;
         require(!document.graph() && !document.dirty() && document.bytes().empty(), "empty state");
         require(!revised(document.rename("name")) && !saved(document.save_copy("copy.json")), "no document refusal");
+        require(!revised(document.rename_instance("rc", "r", "label")), "no instance document refusal");
 #ifndef _WIN32
         require(!opened(document.open("C:/not-a-native-root", "original.json")), "unsupported platform refusal");
         std::cout << "SKIP Windows local NTFS lifecycle\n";
@@ -68,6 +69,15 @@ int main(int argc, char** argv)
             document.leaf() == "original.json", "explicit copy retains dirty association");
         simnodus::EditorDocument reopened;
         require(opened(reopened.open(root, "copy.json")) && reopened.bytes() == revision_bytes && !reopened.dirty(), "exact copy reopen");
+        simnodus::EditorDocument labels;
+        require(opened(labels.open(root, "original.json")) && revised(labels.rename_instance("rc", "r", "Edited \"R\" \\ \xCE\xA9")), "inert instance label edit");
+        const auto labeled = labels.graph();
+        require(!revised(labels.rename_instance("missing", "r", "label")) &&
+            !revised(labels.rename_instance("rc", "r", "")) && labels.graph() == labeled && labels.dirty(),
+            "instance failures preserve graph and dirty state");
+        require(saved(labels.save_copy("instance-copy.json")) && labels.dirty() && labels.leaf() == "original.json", "instance copy retains association");
+        simnodus::EditorDocument label_copy;
+        require(opened(label_copy.open(root, "instance-copy.json")) && label_copy.bytes() == labels.bytes(), "exact instance copy reopen");
         require(revised(document.rename(original_name)) && document.bytes() == original_bytes && !document.dirty(), "return to original is clean");
         require(revised(document.rename("unsaved")), "prepare missing directory refusal");
         const auto before = document.graph();

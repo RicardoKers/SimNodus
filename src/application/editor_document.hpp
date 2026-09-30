@@ -12,6 +12,8 @@ class EditorDocument {
 public:
     ProjectAcquisitionResult open(const std::string& root, const std::string& leaf);
     ProjectRevisionResult rename(std::string_view name);
+    ProjectRevisionResult rename_instance(std::string_view circuit_id,
+        std::string_view instance_id, std::string_view name);
     ProjectSaveResult save_copy(const std::string& leaf) const;
     const std::shared_ptr<const ProjectGraph>& graph() const { return graph_; }
     const std::string& root() const { return root_; }
