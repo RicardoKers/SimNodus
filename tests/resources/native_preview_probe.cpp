@@ -42,6 +42,14 @@ void require(bool value, const char* check)
     if(!value) throw std::runtime_error(check);
     std::cout << "PASS " << check << '\n';
 }
+void pins(const simnodus::FixturePreviewPins& rows)
+{
+    graph_probe::array(rows, [](const auto& row) {
+        std::cout << "{\"logical_pin\":"; graph_probe::quote(row.logical_pin);
+        std::cout << ",\"symbol_pin\":"; graph_probe::quote(row.symbol_pin);
+        std::cout << ",\"x\":" << row.x << ",\"y\":" << row.y << '}';
+    });
+}
 template<class Result> bool graph_result(const Result& result)
 {
     return std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(result);
@@ -62,6 +70,8 @@ int lifecycle(const std::string& root)
     require(std::holds_alternative<std::shared_ptr<const simnodus::SymbolPreviewCapture>>(preview), "explicit native symbol capture");
     const auto capture = std::get<0>(preview);
     const auto& selected = capture->selection;
+    require(capture->pins && (*capture->pins)[0].logical_pin == "p" && (*capture->pins)[0].symbol_pin == "a" &&
+        (*capture->pins)[1].logical_pin == "n" && (*capture->pins)[1].symbol_pin == "b", "owned declared pins follow closed fixture convention");
     require(capture->resources->size() == 1 && capture->resources->front().data.size() == 227 && selected.request.resource == "symbol",
         "exactly one owned selected symbol");
     require(!std::filesystem::exists(std::filesystem::path(root) / "LICENSE") &&
@@ -75,6 +85,9 @@ int lifecycle(const std::string& root)
     const auto edited = document.graph();
     require(graph_result(document.undo_edit()) && graph_result(document.redo_edit()) && document.graph() == edited,
         "existing one-step history remains exact");
+    require(std::get<0>(simnodus::select_fixture_symbol(*edited, "resistor")).pin_map == selected.pin_map &&
+        std::get<0>(simnodus::inspect_fixture_pins(*edited, "resistor")) == *capture->pins,
+        "equivalent complete mapping survives independent edits and history");
     require(std::holds_alternative<simnodus::ProjectSaveReceipt>(document.save_copy("preview-copy.json")) && document.dirty() &&
         document.leaf() == "original.json", "explicit copy retains association and dirty state");
     const auto path = std::filesystem::path(root) / selected.request.path;
@@ -85,6 +98,8 @@ int lifecycle(const std::string& root)
     require(std::holds_alternative<simnodus::SymbolPreviewError>(simnodus::capture_fixture_symbol(*edited, "resistor", root)) &&
         document.graph() == edited && document.can_undo(), "failed recapture retains independent document/history");
     document = simnodus::EditorDocument{};
+    require(capture->pins && (*capture->pins)[0].x == 0 && (*capture->pins)[1].x == 100 &&
+        selected.pin_map.size() == 2 && selected.pin_map[0].logical_pin == "n", "owned full map and positions survive owner release");
     require(capture->selection.component == "resistor" && capture->requested_root == root && capture->artwork.lines.size() == 6 &&
         capture->resources->front().sha256 == selected.request.sha256, "capture owns metadata bytes root spelling and geometry");
     return 0;
@@ -114,17 +129,33 @@ int main(int argc, char** argv)
             return error({simnodus::SymbolPreviewStage::selection, e->code});
         auto graph = std::get<0>(loaded);
         raw.assign(raw.size(), 'x');
+        if(mode == "--pins") {
+            const auto result = simnodus::inspect_fixture_pins(*graph, argv[2]);
+            if(const auto* e = std::get_if<simnodus::SymbolPreviewError>(&result)) return error(*e);
+            graph.reset(); loaded = simnodus::LockError{"test-owner-released", 0};
+            pins(std::get<0>(result)); std::cout << '\n'; return 0;
+        }
         if(mode == "--select") {
             const auto selected = simnodus::select_fixture_symbol(*graph, argv[2]);
             if(const auto* e = std::get_if<simnodus::SymbolPreviewError>(&selected)) return error(*e);
             graph.reset(); loaded = simnodus::LockError{"test-owner-released", 0};
             selection(std::get<0>(selected)); std::cout << '\n'; return 0;
         }
-        if(mode != "--capture" || argc != 4) return 2;
+        if((mode != "--capture" && mode != "--pin-capture") || argc != 4) return 2;
         const auto captured = simnodus::capture_fixture_symbol(*graph, argv[2], argv[3]);
         if(const auto* e = std::get_if<simnodus::SymbolPreviewError>(&captured)) return error(*e);
         graph.reset(); loaded = simnodus::LockError{"test-owner-released", 0};
         const auto& value = *std::get<0>(captured);
+        if(mode == "--pin-capture") {
+            std::cout << "{\"pins\":";
+            if(value.pins) pins(*value.pins); else std::cout << "null";
+            std::cout << ",\"pin_map\":";
+            graph_probe::array(value.selection.pin_map, [](const auto& row) {
+                std::cout << '['; graph_probe::quote(row.logical_pin); std::cout << ','; graph_probe::quote(row.symbol_pin); std::cout << ']';
+            });
+            std::cout << ",\"captured_files\":" << value.resources->size() << "}\n";
+            return 0;
+        }
         std::cout << "{\"selection\":"; selection(value.selection);
         std::cout << ",\"geometry\":"; geometry(value.artwork);
         std::cout << ",\"captured_files\":" << value.resources->size() << ",\"captured_bytes\":" << value.resources->front().data.size() << "}\n";

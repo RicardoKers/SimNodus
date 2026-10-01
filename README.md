@@ -51,7 +51,9 @@ native operations. [Effective R/C inspection](docs/experiments/SN-023-effective-
 selects full occurrence paths and shows applied base values with immediate
 binding origins. [Explicit fixture Preview](docs/experiments/SN-023-fixture-preview.md)
 captures only the unchanged owned resistor artwork from a separately chosen root;
-opening and catalog selection remain inert. Full schematic editing, instruments, managed Save and desktop
+opening and catalog selection remain inert. [Declared pin annotations](docs/experiments/SN-023-pin-preview.md)
+apply a closed fixture convention and preserve explicit pin-map identity.
+Full schematic editing, instruments, managed Save and desktop
 simulation remain pending.
 
 The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded

@@ -13,6 +13,7 @@ import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
+from collections import Counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'schema'))
 import resource_lock as lock
@@ -70,6 +71,44 @@ def selected_request(raw):
     return dict(component='resistor', symbol=symbol, asset=asset_id, request=request)
 
 
+def expected_pins(raw):
+    """Split touched edges, find degree-one lead ends, then apply named convention."""
+    lines = expected_geometry()['lines']
+    points = {(x, y) for x1, y1, x2, y2 in lines for x, y in ((x1, y1), (x2, y2))}
+    degrees = Counter()
+    for x1, y1, x2, y2 in lines:
+        touched = sorted((x, y) for x, y in points if min(x1, x2) <= x <= max(x1, x2) and
+                         min(y1, y2) <= y <= max(y1, y2))
+        for a, b in zip(touched, touched[1:]):
+            degrees[a] += 1
+            degrees[b] += 1
+    ends = sorted(point for point, degree in degrees.items() if degree == 1)
+    assert len(ends) == 2 and ends[0][0] < ends[1][0]
+    component = next(row for row in reference.parse(raw)['sources']['topology']['components'] if row['id'] == 'resistor')
+    mapping = component['symbol']['pin_map']
+    return [dict(logical_pin=next(key for key, value in mapping.items() if value == anchor),
+                 symbol_pin=anchor, x=x, y=y) for anchor, (x, y) in zip(('a', 'b'), ends)]
+
+
+def alternate_document():
+    document = json.loads(RAW)
+    document['sources']['topology']['components'][0]['symbol'] = dict(definition='two-pin-alt', pin_map={'p': 'left', 'n': 'right'})
+    return document
+
+
+def extra_pin_document():
+    document = json.loads(RAW)
+    topology = document['sources']['topology']
+    topology['symbols'].append(dict(id='three-pin', name='Extra pin negative', pins=[dict(id=pin, name=pin) for pin in ('a', 'b', 'c')]))
+    component = topology['components'][0]
+    component['pins'].append(dict(id='third', name='third', domain='electrical'))
+    component['symbol'] = dict(definition='three-pin', pin_map={'p': 'a', 'n': 'b', 'third': 'c'})
+    component['model'] = None
+    document['sources']['symbols']['three-pin'] = 'passive-symbol'
+    reference.validate(document)
+    return document
+
+
 def invoke(mode, raw, *args):
     global REQUESTS
     REQUESTS += 1
@@ -91,6 +130,60 @@ def rehashed_artwork(data):
 
 
 class Preview(unittest.TestCase):
+    def test_declared_pin_map_and_owned_positions(self):
+        self.assertEqual(invoke('--pins', RAW, 'resistor'), expected_pins(RAW))
+        document = json.loads(RAW)
+        component = document['sources']['topology']['components'][0]
+        component['symbol']['pin_map'] = {'n': 'a', 'p': 'b'}
+        component['pins'].reverse()
+        document['sources']['topology']['symbols'][0]['pins'].reverse()
+        document['sources']['topology']['components'].reverse()
+        component['pins'][0]['name'] = '<b>duplicate Ω</b>'
+        component['pins'][1]['name'] = '<b>duplicate Ω</b>'
+        raw = json.dumps(document, ensure_ascii=False, sort_keys=True).encode().replace(b'"pin_map"', b'"\\u0070in_map"')
+        self.assertEqual(invoke('--pins', raw, 'resistor'), expected_pins(raw))
+
+    def test_unknown_descriptor_and_anchor_policy(self):
+        document = alternate_document()
+        self.assertEqual(invoke('--pins', json.dumps(document).encode(), 'resistor'), dict(error='anchors', stage=0))
+        document = json.loads(RAW)
+        document['sources']['topology']['symbols'][0]['pins'][1]['id'] = 'unknown'
+        document['sources']['topology']['components'][0]['symbol']['pin_map']['n'] = 'unknown'
+        document['sources']['topology']['components'][1]['symbol']['pin_map']['n'] = 'unknown'
+        self.assertEqual(invoke('--pins', json.dumps(document).encode(), 'resistor'), dict(error='anchors', stage=0))
+        document = json.loads(RAW)
+        document['sources']['topology']['components'][0]['symbol'] = None
+        self.assertEqual(invoke('--pins', json.dumps(document).encode(), 'resistor'), dict(error='symbol', stage=0))
+        self.assertEqual(invoke('--pins', RAW, 'capacitor'), dict(error='component', stage=0))
+        self.assertIn('error', invoke('--pins', b'{', 'resistor'))
+        self.assertEqual(invoke('--pins', json.dumps(extra_pin_document()).encode(), 'resistor'), dict(error='anchors', stage=0))
+        document = json.loads(RAW)
+        document['sources']['topology']['components'][0]['symbol']['pin_map']['n'] = 'a'
+        self.assertIn('error', invoke('--pins', json.dumps(document).encode(), 'resistor'))
+
+    def test_capture_pins_and_complete_unavailable_maps(self):
+        if os.name != 'nt':
+            print('SKIP Windows local NTFS owned pin capture')
+            return
+        base = Path('build/sn023-pin-preview/native-tests').resolve()
+        base.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='pins-', dir=base) as temporary:
+            root = Path(temporary)
+            path = root / selected_request(RAW)['request']['path']
+            path.parent.mkdir(parents=True)
+            path.write_bytes(ART)
+            self.assertEqual(invoke('--pin-capture', RAW, 'resistor', root), dict(pins=expected_pins(RAW), pin_map=[['n', 'b'], ['p', 'a']], captured_files=1))
+            document = alternate_document()
+            for mapping in ({'n': 'right', 'p': 'left'}, {'p': 'right', 'n': 'left'}):
+                document['sources']['topology']['components'][0]['symbol']['pin_map'] = mapping
+                result = invoke('--pin-capture', json.dumps(document).encode(), 'resistor', root)
+                self.assertIsNone(result['pins'])
+                self.assertEqual(result['captured_files'], 1)
+                self.assertEqual(result['pin_map'], sorted([key, value] for key, value in mapping.items()))
+            result = invoke('--pin-capture', json.dumps(extra_pin_document()).encode(), 'resistor', root)
+            self.assertIsNone(result['pins'])
+            self.assertEqual(result['pin_map'], [['n', 'b'], ['p', 'a'], ['third', 'c']])
+
     def test_owned_original_geometry(self):
         self.assertEqual(invoke('--decode', ART), expected_geometry())
         self.assertEqual(len(expected_geometry()['lines']), 6)

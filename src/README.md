@@ -42,6 +42,13 @@ recognizes only the exact original 227-byte owned artwork and returns six lines;
 Qt presentation paints them without rereading files. No generic SVG parser,
 pin-anchor contract, model verification or execution authority is introduced.
 
+The [declared pin Preview](../docs/experiments/SN-023-pin-preview.md) adds a closed
+adapter convention for `two-pin/a` and `two-pin/b` on that exact artwork. Pure
+application inspection owns logical/anchor IDs and positions; capture also owns
+the complete declared map, including when annotations are unavailable. Equivalent
+maps retain the artifact across unrelated edits; changed maps clear it. This is
+not a general geometry ABI, schema migration or electrical/model correspondence.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

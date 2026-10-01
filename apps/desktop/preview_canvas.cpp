@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: MIT
 #include "preview_canvas.hpp"
 #include <QPainter>
+#include <QFontMetrics>
 #include <algorithm>
 
 PreviewCanvas::PreviewCanvas()
 {
     setMinimumSize(100, 64);
-    setAccessibleName("Captured owned fixture artwork; pin anchors unverified");
+    setAccessibleName("Captured owned fixture artwork and available declared pin annotations");
 }
 void PreviewCanvas::setCapture(std::shared_ptr<const simnodus::SymbolPreviewCapture> capture)
 {
@@ -37,4 +38,18 @@ void PreviewCanvas::paintEvent(QPaintEvent*)
             view.top() + y * view.height() / artwork.height);
     };
     for(const auto& line : artwork.lines) painter.drawLine(point(line.x1, line.y1), point(line.x2, line.y2));
+    if(capture_->pins) {
+        painter.setPen(QColor(0, 96, 192));
+        painter.setBrush(QColor(0, 96, 192));
+        const QFontMetrics metrics(painter.font());
+        const auto label_width = std::max(0, static_cast<int>(view.width() / 2) - 12);
+        for(const auto& pin : *capture_->pins) {
+            const auto anchor = point(pin.x, pin.y);
+            painter.drawEllipse(anchor, 4, 4);
+            const auto label = metrics.elidedText(QString::fromStdString(pin.logical_pin + "/" + pin.symbol_pin), Qt::ElideRight, label_width);
+            const auto left = pin.symbol_pin == "a" ? anchor.x() + 6 : anchor.x() - label_width - 6;
+            painter.drawText(QRectF(left, anchor.y() + 6, label_width, metrics.height()),
+                pin.symbol_pin == "a" ? Qt::AlignLeft : Qt::AlignRight, label);
+        }
+    }
 }

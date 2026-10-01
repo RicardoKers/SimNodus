@@ -73,12 +73,29 @@ choose the resource root containing `tests/schema/fixtures/assets/passive.svg`
 (the repository root for this original fixture). Open and selection access no
 resources. Preview verifies/captures only this one file, with model/LICENSE files
 allowed to remain absent. Other components/artwork remain unavailable. The caption
-reports captured identity/bytes/hash and unverified pin-anchor correspondence.
+reports captured identity/bytes/hash and the available closed fixture convention.
 Failed recapture retains the prior artifact; repaint/resize and name/R/C/history
 reuse immutable captured bytes. Catalog changes and successful Open clear it.
 The resource root is independent of the opened document's directory and grants
 no global verification or execution authority. Native directory-dialog/human
 usability remains pending; the scripted path calls the same operation directly.
+
+The [declared pin increment](../../docs/experiments/SN-023-pin-preview.md) maps
+logical pins through the project's explicit map to a private fixture convention:
+`two-pin/a` is the left lead, `two-pin/b` the right. The original shows `p/a` and
+`n/b`; a swapped declared map shows `n/a` and `p/b`. Markers use the same fitted
+view; captions retain full IDs while drawn labels may be elided. The SVG declares
+no anchors and this convention establishes no model/electrical truth or general
+anchor API. Unknown descriptors/anchor counts leave artwork visible with anchors
+unavailable. The complete owned map governs retention, even in that unavailable
+case; source ordering and labels do not establish identity. Minimum panel sizing
+keeps wrapped captions readable. The final 20-control path and one persisted-byte
+audit passed; the first clipped caption and second layout-settling failure remain
+retained. Neither scripted layout settling nor retries establish human recovery.
+
+```text
+python tests/resources/editor_pin_preview_acceptance.py --editor build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-pin-preview/new-gui-run
+```
 
 Build `native_preview_probe` and `editor_document_tests` for the two focused CTests.
 Use a fresh GUI output directory:

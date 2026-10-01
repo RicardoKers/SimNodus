@@ -1,5 +1,32 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [declared pins on owned fixture Preview](../experiments/SN-023-pin-preview.md).
+PR #77 was reconfirmed MERGED at `d84db84f86bba557eab832b56b46df4a3ad051b1`,
+with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
+main and no unpublished commits. Reconfirm this increment's newest source PR/squash
+before continuing. Two CTests passed first run: ten tests/36 requests, 16 lifecycle
+assertions/one byte audit. Qt-free execution/imports passed. Final GUI passed 20
+controls/one byte audit, original/swapped captions and wide/narrow fitted markers.
+The first visually clipped caption and GUI02 18/20 intermediate-layout failure
+retain sources/binaries/reports/captures. GUI03 settled four test-only layout-event
+passes; no user recovery or physical DPI guarantee. Preserve all 222 earlier
+evidence files and twelve independent overlays. Original SVG declares no anchors:
+two-pin/a-left and b-right is a private exact fixture convention, not an ABI,
+electrical/model truth or schema migration. Own complete sorted pin_map IDs even
+when annotations are unavailable; equivalent reordering retains, changed mapping
+clears. Unsupported descriptors/anchor counts can keep artwork without positions.
+Explicit one-file capture stays independent of document root; Open/selection stay
+inert and all resource/runtime flags remain unchanged. Four drafts, Properties,
+existing right resistance edit/history and exact create-only copy/reopen preserved.
+Next establish acceptance for one bounded existing-occurrence placement with stable
+identity/persistence, reducing to read-only if existing operations cannot support
+a coherent edit. Do not implement canvas/wiring/instruments in one block. General
+anchor policy, components, managed Save, workers/IPC, human dialog/keyboard/monitor/
+DPI/session layout and packaging remain pending. Keep SN-017/021/022 ownership,
+profiles/tolerances, limits and all failed/inconclusive evidence. January stabilization
+and February 2027 classroom use remain planning targets.
+The following handoffs retain their historical narrower results and constraints.
+
 Latest tested increment: [explicit owned fixture artwork Preview](../experiments/SN-023-fixture-preview.md).
 PR #76 was reconfirmed MERGED at `a364ba2088e7b07c796edeb464fe64a8d25c7f2d`,
 with Foundation Windows 65/65 and Ubuntu 54/54 successful, equal local/origin/remote

@@ -1,0 +1,29 @@
+{
+    "caption": "Captured fixture artwork for resistor.\nResource: owned-link-fixture/symbol\n227 bytes; SHA-256: 94bfd7453b560480...\nFixture anchor convention: a=left, b=right.\np -> a; n -> b\nDeclared mapping only; model/electrical truth unverified.",
+    "checks": {
+        "changed_unavailable_map_clears_capture": true,
+        "copy_reopen_inert_and_exact": true,
+        "equivalent_unavailable_map_retains_capture": true,
+        "existing_copy_retains_pins_and_dirty_association": true,
+        "existing_resistance_edit_retains_pin_capture": true,
+        "explicit_copy_recapture_keeps_same_mapping": true,
+        "explicit_selected_only_pin_capture": true,
+        "failed_open_retains_pins_and_document": true,
+        "failed_recapture_preserves_owned_pins": true,
+        "four_drafts_and_independent_properties_retained": true,
+        "independent_analyzer_and_initial_source_preserved": true,
+        "initial_inert_open": true,
+        "narrow_markers_follow_same_fit": true,
+        "one_step_history_retains_pins": true,
+        "original_declared_mapping_and_caption": true,
+        "pins_create_no_document_or_runtime_authority": true,
+        "swapped_document_open_clears_capture": true,
+        "swapped_mapping_annotations": true,
+        "unsupported_anchors_keep_only_artwork": true,
+        "wide_markers_follow_same_fit": true
+    },
+    "passed": true,
+    "platform": "windows",
+    "qt_version": "6.11.1",
+    "scope": "declared logical pins plus private exact fixture anchor convention; no SVG/electrical truth, placement or wiring"
+}

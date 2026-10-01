@@ -1,0 +1,711 @@
+{
+  "experiment": "SN-023 declared pins on owned fixture Preview",
+  "recorded_date": "2026-09-30",
+  "status": "passed-for-closed-two-pin-convention; full-SN-023-in-progress",
+  "base_main": "d84db84f86bba557eab832b56b46df4a3ad051b1",
+  "branch": "codex/sn-023-pin-preview",
+  "reconfirmed_pr_77": {
+    "state": "MERGED",
+    "head": "6c852f726431ed6d3f18c507e95bba9476deb770",
+    "squash": "d84db84f86bba557eab832b56b46df4a3ad051b1",
+    "merged_at_utc": "2026-10-01T00:26:42Z",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 66/66",
+      "Foundation (ubuntu-latest): SUCCESS; 55/55"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "ctest_python": "3.14.4",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-pin-preview/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-pin-preview/native-build --config Release --target simnodus_document_editor native_preview_probe editor_document_tests",
+    "ctest --test-dir build/sn023-pin-preview/native-build -C Release --output-on-failure --verbose -R \"^(native-fixture-preview|editor-document-contracts)$\"",
+    "python tests/resources/editor_pin_preview_acceptance.py --editor build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-pin-preview/gui-03",
+    "python build/sn023-pin-preview/headless_proof.py (QT_* removed; PATH=C:/Windows/System32; dumpbin /DEPENDENTS; one byte audit)",
+    "python tools/check_repository.py; git diff --check; staged-publication checker; source PR records final results"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "results": {
+    "targeted_ctest": "2/2 first run; expanded native Preview and unchanged document contracts",
+    "native_tests": 10,
+    "native_requests_windows": 36,
+    "native_lifecycle_assertions": 16,
+    "native_saved_byte_audits": 1,
+    "gui_01": "20/20 and 1 byte audit; visually failed clipped caption/stale swapped layout",
+    "gui_02": "18/20; original/swapped height assertions saw intermediate nested dock layout; failed attempt retained",
+    "gui_03": "20/20 and 1 byte audit; four test-only nested event passes before height checks/capture",
+    "headless": "16 assertions/1 byte audit; no QT_* or kit PATH; direct PE imports contain no Qt",
+    "geometry_oracle": "Independent SVG path walk and splitting touched edges -> two degree-one ends -> explicit left/a right/b convention",
+    "visual": "Final original/swapped window and wide/narrow markers inspected: full caption, p/a-n/b versus n/a-p/b; dots align",
+    "read_only_review": "No actionable final defect; full-map retention, optional annotations and geometry oracle confirmed",
+    "builds": "01-03 passed; unchanged native source/binaries after the first build; later changes limited to Qt layout/test settling",
+    "retained_failures": "Both earlier GUI sources/binaries/reports/captures retained; GUI02 swapped image absent because its check failed",
+    "engine_runs": 0,
+    "old_backend_edit_or_layout_matrices_rerun": 0,
+    "publication": "Repository/staged-tree/exact-head Foundation/squash results recorded by source PR"
+  },
+  "policy": {
+    "convention": "Exact original 227-byte artwork and two-pin descriptor only; a left0,20 and b right100,20; no SVG anchors/schema ABI/electrical polarity truth",
+    "mapping": "Pure owned logical/anchor IDs from validated explicit map; exact a/b coverage; positions unavailable for unknown IDs/counts/descriptors",
+    "retention": "Complete owned map sorted by logical IDs plus optional rows compared; equivalent ordering retains; changed unavailable map clears",
+    "capture": "Exactly one explicit native resource; annotations owned independently of source graph/file; no global flags or new authority",
+    "presentation": "Qt Core/Gui/Widgets; same fitted transform, blue dots/plain elided labels and full caption; minimum wrapped layout; no repaint I/O",
+    "gui": "Four drafts/nonmutation/Properties, rightR2.2->3.5kohm, history, create-only copy/reopen and failure retention; test-only reloads inspect map retention, not binding edit/human recovery"
+  },
+  "source_files": [
+    {
+      "path": "src/adapters/symbols/fixture_artwork.hpp",
+      "bytes": 837,
+      "sha256": "452d38a43420104124e0a17de0c76e7b0f4c7be37ee6c0643eca06cb2a2a0045"
+    },
+    {
+      "path": "src/adapters/symbols/fixture_artwork.cpp",
+      "bytes": 1098,
+      "sha256": "914069bcabe13a4174f0e856b68ad137158f033b3fdbff3c153cfc6164d41f01"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 2403,
+      "sha256": "13db67e75d18633ca7b22e7200092b0abb9ce9f5a990499d1d7c27d4b9191d15"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 6612,
+      "sha256": "80a92336f62ba8a958ae839a857b3040ad7cdbb6abea1f849d1fed8284338cfb"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 3598,
+      "sha256": "fe3fc989adf5f0201d9b5950ef398aec299e5d0f8f5586c4ab2f095855d29ea2"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 99991,
+      "sha256": "0be4beb5c426fc5a281df968f1b8350d309e767bed688d694f6c0e41230f3f9a"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2438,
+      "sha256": "23932af312528387a6891d22f40d50894c46f52a5141711317ff4683507ec7ab"
+    },
+    {
+      "path": "tests/resources/native_preview_probe.cpp",
+      "bytes": 9450,
+      "sha256": "bd4f283d7ee9f88dcb65e13591ad1cc0022283012a7fae7299915f4d239dc748"
+    },
+    {
+      "path": "tests/resources/native_preview_regression.py",
+      "bytes": 14288,
+      "sha256": "f5a6c82d0e85c45d2fedad02e6192bf7f7cf5c04f29e6fc37bbd02276b8b3d36"
+    },
+    {
+      "path": "tests/resources/editor_pin_preview_acceptance.py",
+      "bytes": 4064,
+      "sha256": "13dc33e43330d00802fbb26abb29a9a2826a708fdbcd15ee0618a20fe1ef1e38"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 564224,
+      "sha256": "8a2fb8521f4eee010414045944e84eceefafd55ba8bae991fdd1492264f38bc7"
+    },
+    {
+      "path": "build/sn023-pin-preview/native-build/Release/native_preview_probe.exe",
+      "bytes": 333312,
+      "sha256": "b5ea84fbb89183373271be37cb2021819488bb8cf39b18a520556fbcbc0cef75"
+    },
+    {
+      "path": "build/sn023-pin-preview/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "db1f5878cd6f1efd58bc24a6ec06a9fe1dc7179b307f02f3fba82c3addf6373f"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-pin-preview-gui-01.json",
+      "bytes": 1575,
+      "sha256": "0b122915fd1f7fa097c2cd866c2d30d7ace7ddc6dad02601ab8519c196775e5c"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-pin-preview-gui-02.json",
+      "bytes": 1578,
+      "sha256": "fd8d8305503b00677bff2591f5521615c08cf5a6393e1edfa2ce242149f69179"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-pin-preview-gui-03.json",
+      "bytes": 1575,
+      "sha256": "0b122915fd1f7fa097c2cd866c2d30d7ace7ddc6dad02601ab8519c196775e5c"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-pin-preview/build-01.log",
+      "bytes": 8255,
+      "sha256": "8462b26167fd10baf6337df6e931fe7a575bbd01fb97cad3fd2f5cdab66b0a20"
+    },
+    {
+      "path": "build/sn023-pin-preview/build-02.log",
+      "bytes": 6355,
+      "sha256": "dda67cfb829b5f0079d7331339d10590586986c89cf00293c9a1287dd6d5ade5"
+    },
+    {
+      "path": "build/sn023-pin-preview/build-03.log",
+      "bytes": 6355,
+      "sha256": "dda67cfb829b5f0079d7331339d10590586986c89cf00293c9a1287dd6d5ade5"
+    },
+    {
+      "path": "build/sn023-pin-preview/configure-01.log",
+      "bytes": 1246,
+      "sha256": "47c93dd5d186c5349531ab3a02c74bc06c35be0044188f295d08ca51da5124d8"
+    },
+    {
+      "path": "build/sn023-pin-preview/ctest-01.log",
+      "bytes": 4822,
+      "sha256": "7e349914a6d2bb694abdb2b9d49fdd44dea51d7685ac7f59fe6608b1d9adeb3a"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01.log",
+      "bytes": 119,
+      "sha256": "7d884c70c7d11f24dd64392420df4e3367bc83fd3b7f0f5bd1fde6deb2da450d"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02.log",
+      "bytes": 2081,
+      "sha256": "c95451200d2a9d5a9c7abbf0cbae682652392846f348fe5db585cab53b31d4d5"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03.log",
+      "bytes": 119,
+      "sha256": "7d884c70c7d11f24dd64392420df4e3367bc83fd3b7f0f5bd1fde6deb2da450d"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless-imports.log",
+      "bytes": 828,
+      "sha256": "7053bce2474453b18c7823b2260361e669b7dbb084b84a4bc53f7d324be15a52"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless.log",
+      "bytes": 839,
+      "sha256": "f0be986a3fbccd9d11ae1dc6e1bbdef02f85e376c82179bb47c891c6c35879ac"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/alternate-reordered.json",
+      "bytes": 7053,
+      "sha256": "3d9f1c78a03592dbc89bdba49a295ee68e9be1bbe83dd33d0b1e3ffc06f18b01"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/alternate-swapped.json",
+      "bytes": 7053,
+      "sha256": "573ca5630cf7a208ce2227520c8b94af64d7a0ef3c7e7a94cb741956dea4c503"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/alternate.json",
+      "bytes": 7053,
+      "sha256": "04e3173bc54c5c5157d38224e0ee80a9b06832f44ef6e8edd68389590d1346b0"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/pin-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/report.json",
+      "bytes": 1575,
+      "sha256": "0b122915fd1f7fa097c2cd866c2d30d7ace7ddc6dad02601ab8519c196775e5c"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/report.json.narrow.png",
+      "bytes": 2143,
+      "sha256": "83180318ac692923a0418f1d2be9f12072ecf068c447343bed3e13f56d91054f"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/report.json.png",
+      "bytes": 85079,
+      "sha256": "c846b6ca7ae343666644cc4c759d9d8018200e1c0c8fe0dc2f44651bc4fe1d7b"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/report.json.swapped.png",
+      "bytes": 71606,
+      "sha256": "9facd220ee18cd3ba9fcd38fdb382c430e353ec7507c0a983f3c783d44af2144"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/report.json.wide.png",
+      "bytes": 2582,
+      "sha256": "f955978a91f3737c96d9ca7af958cb752c051bdb01a5c029d6ced30e50b16df4"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/runner.json",
+      "bytes": 621,
+      "sha256": "d6297c082e1ebc63491f79dcda41cbe45d5d30d7542d2ef060f57c9979196b0f"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-01/stdout.log",
+      "bytes": 1604,
+      "sha256": "28c04685308f9e56b818700b4c84f00be4305802f1e2628ab6daa57411d61931"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/alternate-reordered.json",
+      "bytes": 7053,
+      "sha256": "3d9f1c78a03592dbc89bdba49a295ee68e9be1bbe83dd33d0b1e3ffc06f18b01"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/alternate-swapped.json",
+      "bytes": 7053,
+      "sha256": "573ca5630cf7a208ce2227520c8b94af64d7a0ef3c7e7a94cb741956dea4c503"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/alternate.json",
+      "bytes": 7053,
+      "sha256": "04e3173bc54c5c5157d38224e0ee80a9b06832f44ef6e8edd68389590d1346b0"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/pin-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/report.json",
+      "bytes": 1578,
+      "sha256": "fd8d8305503b00677bff2591f5521615c08cf5a6393e1edfa2ce242149f69179"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/report.json.narrow.png",
+      "bytes": 2143,
+      "sha256": "83180318ac692923a0418f1d2be9f12072ecf068c447343bed3e13f56d91054f"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/report.json.png",
+      "bytes": 84833,
+      "sha256": "99fb9584a30b610e25f36391848058df1810e1babb547f7c04e355d4a3ca4066"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/report.json.wide.png",
+      "bytes": 2582,
+      "sha256": "f955978a91f3737c96d9ca7af958cb752c051bdb01a5c029d6ced30e50b16df4"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/runner.json",
+      "bytes": 551,
+      "sha256": "0286d09804c96fe4701c92a6b9b1507329a416eae8594c53fb61a2525bc0d9a7"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-02/stdout.log",
+      "bytes": 1607,
+      "sha256": "b025ea8ae44c3b96ca42bf94cf328b01af9666a8883cdcb658770b107a97a47b"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/alternate-reordered.json",
+      "bytes": 7053,
+      "sha256": "3d9f1c78a03592dbc89bdba49a295ee68e9be1bbe83dd33d0b1e3ffc06f18b01"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/alternate-swapped.json",
+      "bytes": 7053,
+      "sha256": "573ca5630cf7a208ce2227520c8b94af64d7a0ef3c7e7a94cb741956dea4c503"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/alternate.json",
+      "bytes": 7053,
+      "sha256": "04e3173bc54c5c5157d38224e0ee80a9b06832f44ef6e8edd68389590d1346b0"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/pin-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/report.json",
+      "bytes": 1575,
+      "sha256": "0b122915fd1f7fa097c2cd866c2d30d7ace7ddc6dad02601ab8519c196775e5c"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/report.json.narrow.png",
+      "bytes": 2143,
+      "sha256": "83180318ac692923a0418f1d2be9f12072ecf068c447343bed3e13f56d91054f"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/report.json.png",
+      "bytes": 84833,
+      "sha256": "99fb9584a30b610e25f36391848058df1810e1babb547f7c04e355d4a3ca4066"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/report.json.swapped.png",
+      "bytes": 80688,
+      "sha256": "7e55e02d72c87565302ef51ac8726f71d51d25eef6795caa841a827d748e141f"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/report.json.wide.png",
+      "bytes": 2582,
+      "sha256": "f955978a91f3737c96d9ca7af958cb752c051bdb01a5c029d6ced30e50b16df4"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/runner.json",
+      "bytes": 621,
+      "sha256": "3edd7e404cec125a6e7559f8abffff30749abc63f4d8969f0c69f53baa1ac2d2"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-pin-preview/gui-03/stdout.log",
+      "bytes": 1604,
+      "sha256": "28c04685308f9e56b818700b4c84f00be4305802f1e2628ab6daa57411d61931"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless-root/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless-root/preview-copy.json",
+      "bytes": 13834,
+      "sha256": "eed43f6ab3607200f75e4beb1046589f6b6bebef777e46cdf65117e151cbe849"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 23,
+      "sha256": "860fdca5c52fe88d644cf3a34fa543734185c00fbd63918e4953da0189780258"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/apps/desktop/document_window.cpp",
+      "bytes": 99150,
+      "sha256": "58e500505893c21f7048d79d10a825fd3634c4d159d494cca779bdac265a7a15"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/apps/desktop/document_window.hpp",
+      "bytes": 3598,
+      "sha256": "fe3fc989adf5f0201d9b5950ef398aec299e5d0f8f5586c4ab2f095855d29ea2"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/apps/desktop/main.cpp",
+      "bytes": 2438,
+      "sha256": "23932af312528387a6891d22f40d50894c46f52a5141711317ff4683507ec7ab"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 564224,
+      "sha256": "d92cee89731a5bb3a66eaa66f1603cd0d6ad74c95942c36405870716b8042cbe"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/build/sn023-pin-preview/native-build/Release/native_preview_probe.exe",
+      "bytes": 333312,
+      "sha256": "b5ea84fbb89183373271be37cb2021819488bb8cf39b18a520556fbcbc0cef75"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/src/adapters/symbols/fixture_artwork.cpp",
+      "bytes": 1098,
+      "sha256": "914069bcabe13a4174f0e856b68ad137158f033b3fdbff3c153cfc6164d41f01"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/src/adapters/symbols/fixture_artwork.hpp",
+      "bytes": 837,
+      "sha256": "452d38a43420104124e0a17de0c76e7b0f4c7be37ee6c0643eca06cb2a2a0045"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/src/application/symbol_preview.cpp",
+      "bytes": 6612,
+      "sha256": "80a92336f62ba8a958ae839a857b3040ad7cdbb6abea1f849d1fed8284338cfb"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/src/application/symbol_preview.hpp",
+      "bytes": 2403,
+      "sha256": "13db67e75d18633ca7b22e7200092b0abb9ce9f5a990499d1d7c27d4b9191d15"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/tests/resources/editor_pin_preview_acceptance.py",
+      "bytes": 4064,
+      "sha256": "13dc33e43330d00802fbb26abb29a9a2826a708fdbcd15ee0618a20fe1ef1e38"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/tests/resources/native_preview_probe.cpp",
+      "bytes": 9450,
+      "sha256": "bd4f283d7ee9f88dcb65e13591ad1cc0022283012a7fae7299915f4d239dc748"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-01/tests/resources/native_preview_regression.py",
+      "bytes": 14288,
+      "sha256": "f5a6c82d0e85c45d2fedad02e6192bf7f7cf5c04f29e6fc37bbd02276b8b3d36"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-02/apps/desktop/document_window.cpp",
+      "bytes": 99764,
+      "sha256": "b435cb389f2a9cdd58dc1558ce18c2a5f18a99e25433e0c18e5d4400d55adcad"
+    },
+    {
+      "path": "build/sn023-pin-preview/initial-gui-02/build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 564224,
+      "sha256": "ba6dbf3fa86b5b131f40101dd81948bf3e714d42e6628b18dae965443627fb65"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/apps/desktop/document_window.cpp",
+      "bytes": 99991,
+      "sha256": "0be4beb5c426fc5a281df968f1b8350d309e767bed688d694f6c0e41230f3f9a"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/apps/desktop/document_window.hpp",
+      "bytes": 3598,
+      "sha256": "fe3fc989adf5f0201d9b5950ef398aec299e5d0f8f5586c4ab2f095855d29ea2"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/apps/desktop/main.cpp",
+      "bytes": 2438,
+      "sha256": "23932af312528387a6891d22f40d50894c46f52a5141711317ff4683507ec7ab"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 564224,
+      "sha256": "8a2fb8521f4eee010414045944e84eceefafd55ba8bae991fdd1492264f38bc7"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/build/sn023-pin-preview/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "db1f5878cd6f1efd58bc24a6ec06a9fe1dc7179b307f02f3fba82c3addf6373f"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/build/sn023-pin-preview/native-build/Release/native_preview_probe.exe",
+      "bytes": 333312,
+      "sha256": "b5ea84fbb89183373271be37cb2021819488bb8cf39b18a520556fbcbc0cef75"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/src/adapters/symbols/fixture_artwork.cpp",
+      "bytes": 1098,
+      "sha256": "914069bcabe13a4174f0e856b68ad137158f033b3fdbff3c153cfc6164d41f01"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/src/adapters/symbols/fixture_artwork.hpp",
+      "bytes": 837,
+      "sha256": "452d38a43420104124e0a17de0c76e7b0f4c7be37ee6c0643eca06cb2a2a0045"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/src/application/symbol_preview.cpp",
+      "bytes": 6612,
+      "sha256": "80a92336f62ba8a958ae839a857b3040ad7cdbb6abea1f849d1fed8284338cfb"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/src/application/symbol_preview.hpp",
+      "bytes": 2403,
+      "sha256": "13db67e75d18633ca7b22e7200092b0abb9ce9f5a990499d1d7c27d4b9191d15"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/tests/resources/editor_pin_preview_acceptance.py",
+      "bytes": 4064,
+      "sha256": "13dc33e43330d00802fbb26abb29a9a2826a708fdbcd15ee0618a20fe1ef1e38"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/tests/resources/native_preview_probe.cpp",
+      "bytes": 9450,
+      "sha256": "bd4f283d7ee9f88dcb65e13591ad1cc0022283012a7fae7299915f4d239dc748"
+    },
+    {
+      "path": "build/sn023-pin-preview/source-final/tests/resources/native_preview_regression.py",
+      "bytes": 14288,
+      "sha256": "f5a6c82d0e85c45d2fedad02e6192bf7f7cf5c04f29e6fc37bbd02276b8b3d36"
+    },
+    {
+      "path": "build/sn023-pin-preview/validate.py",
+      "bytes": 1725,
+      "sha256": "86ade8181578356c7f84d296e8c8b7cb6b1585c6ddd38336ced7294ce361bdbd"
+    },
+    {
+      "path": "build/sn023-pin-preview/headless_proof.py",
+      "bytes": 1767,
+      "sha256": "f52c50fdd2892cbeec070a2abd109ae65976b4e64775ffb4484d2da5cb6e9b48"
+    },
+    {
+      "path": "build/sn023-pin-preview/acceptance-before-implementation.md",
+      "bytes": 4815,
+      "sha256": "b6fc7d1dc861ac897ad8c11db8405ed28941bfbd11ba8eceff09dc6ec1afd6bd"
+    },
+    {
+      "path": "build/sn023-pin-preview/acceptance-review-refinement.md",
+      "bytes": 5000,
+      "sha256": "643a1f151aac09127ec93e576e20f1a1d02693cbff46a2bc9a93b619d5bb5823"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 222,
+    "historical_evidence_manifest_sha256": "ca99af31aa37d91f95f5943eefa50c5e86af60d31ea51f360b6fcd10b97fa849",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "3176c57047f6fd1e28799cb06013ed231d2c8e49ad2b1fb38e4cced9f02cefe9"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "194951c6bda5c1bdc8d1664179f7f56e85d8a3f5afd4173099be4432359967e9"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "222 old evidence/ten untouched overlays match hashes; own CURRENT/BACKLOG prefix/row reverse exactly to saved bytes"
+  },
+  "limits": [
+    "No general anchor/schema, placement/wiring, components, model/electrical truth, binding edit or new save/engine/instrumentation operation.",
+    "Four scripted nested layout passes do not validate user recovery, GUI responsiveness or physical DPI/monitor behavior.",
+    "No model/license verification or trusted origin/redistribution proof. Root spelling is not a resource context or physical lease. I/O latency unmeasured.",
+    "Scripted direct operation bypasses directory chooser; human recovery, keyboard/accessibility, monitor/DPI, persistent layout and packaging remain pending.",
+    "Qt remains Core/Gui/Widgets presentation only; no engine work or simulation on GUI thread; production workers/IPC and instruments pending.",
+    "Inert Open and explicit create-only Save Copy; no managed production Save/service, external overwrite, automatic resource/native execution or trusted origin.",
+    "Acquisition directory spelling is neither verified resource context nor physical lease; synchronous I/O latency unmeasured.",
+    "Scripted reachability is not human recovery, keyboard/accessibility, monitor/DPI, cross-session layout or packaging acceptance.",
+    "SN-021 Windows/local-NTFS/one-managed-document/fixed-E-01 and all negative/inconclusive evidence retained; no power-loss/general MCU/mixed-signal or redistribution proof.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker selection and failed runtime/setup attempts unchanged; scripted retries are not user recovery.",
+    "SN-017 Python preparation/GDB/fixture control, profiles/tolerances, MCU/toolchain independence and PDF/PID behavior unchanged.",
+    "January stabilization and February 2027 classroom use remain planning targets."
+  ]
+}
