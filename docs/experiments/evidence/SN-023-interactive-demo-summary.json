@@ -1,0 +1,477 @@
+{
+  "experiment": "SN-023 executable interactive fixture demo",
+  "recorded_date": "2026-09-30",
+  "status": "preparation-and-scripted-existing-path-passed; interactive-visible-human-flow-pending",
+  "base_main": "b85b2a29b88dc0b2db438687599d7482582264ba",
+  "branch": "codex/sn-023-interactive-demo",
+  "reconfirmed_pr_78": {
+    "state": "MERGED",
+    "head": "e9f5915c9125558fe034739c1d2bf822c52ce7e9",
+    "squash": "b85b2a29b88dc0b2db438687599d7482582264ba",
+    "merged_at_utc": "2026-10-01T01:25:27Z",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 66/66",
+      "Foundation (ubuntu-latest): SUCCESS; 55/55"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "source_files": [
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5262,
+      "sha256": "845de998c0249c6d6687b591f4e39d3d1ee8691c4c447cc10b779dc65f8b578c"
+    }
+  ],
+  "reused_native_binary": {
+    "path": "build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+    "bytes": 564224,
+    "sha256": "8a2fb8521f4eee010414045944e84eceefafd55ba8bae991fdd1492264f38bc7"
+  },
+  "results": {
+    "independent_helper_checks": 8,
+    "gui_controls": 20,
+    "saved_byte_audits": 1,
+    "visual": "Inspected original declared pins/full caption/main-right applied3500ohm in prepared-input GUI capture",
+    "normal_launch_probe": {
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\interactive-launch-01",
+        "--editor",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-pin-preview\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+        "--qt-kit",
+        "C:/Qt/6.11.1/msvc2022_64"
+      ],
+      "pid": 6652,
+      "process_started_and_parent_waiting": true,
+      "window_visibility": "unverified",
+      "normal_human_close": "pending",
+      "controlled_termination": "only this test-owned child was stopped after observation",
+      "launcher_exit_code": 1,
+      "child_exit_code": 1
+    },
+    "desktop_discovery": "ComputerUseJS list_apps/list_windows returned no matching SimNodus window in current desktop",
+    "earlier_direct_launch": "Process start only; no visible window found; logs retained under sn023-pin-preview",
+    "negative": "Invalid existing executable refused with retained WinError launch diagnostic; missing prerequisites refuse before output writes",
+    "cpp_or_engine_changes": 0,
+    "builds_or_backend_headless_worker_matrices_rerun": 0,
+    "old_evidence": "Original native pin Preview/headless/edit/worker/layout evidence reused without promotion",
+    "publication": "Repository/staged-tree/exact-head Foundation/squash results recorded by source PR"
+  },
+  "preservation": {
+    "historical_evidence_file_count": 226,
+    "historical_evidence_manifest_sha256": "f2974d19ebd539bcea3d00a103b4c68416e9206314b792fb88df76dbcb62d665",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "2e803722c2ac93cd4c99cef0762f3b77544bfc0b6d1541bed51d406f13363a42"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "76a364fe329782c1b1a45bb1e58965b3593af4f98c0c87d2ead3ce0c9eceb431"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "226 historical evidence and10 untouched overlays match hashes; shared CURRENT/BACKLOG own prefix/row reverse to exact backup"
+  },
+  "preparation_report": {
+    "path": "docs/experiments/evidence/SN-023-interactive-demo-preparation.json",
+    "bytes": 3481,
+    "sha256": "3a88118c22c5d41c0c61a554deca54a0cd685c6307b65b54000a4ffef574fc91"
+  },
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-interactive-demo/acceptance-before-implementation.md",
+      "bytes": 1795,
+      "sha256": "a89ccd7e8808e08eee01256e3ac4b75249097644803bd2900dd6ddbff30bf09a"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/alternate-reordered.json",
+      "bytes": 7053,
+      "sha256": "3d9f1c78a03592dbc89bdba49a295ee68e9be1bbe83dd33d0b1e3ffc06f18b01"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/alternate-swapped.json",
+      "bytes": 7053,
+      "sha256": "573ca5630cf7a208ce2227520c8b94af64d7a0ef3c7e7a94cb741956dea4c503"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/alternate.json",
+      "bytes": 7053,
+      "sha256": "04e3173bc54c5c5157d38224e0ee80a9b06832f44ef6e8edd68389590d1346b0"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/pin-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/report.json",
+      "bytes": 1575,
+      "sha256": "0b122915fd1f7fa097c2cd866c2d30d7ace7ddc6dad02601ab8519c196775e5c"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/report.json.narrow.png",
+      "bytes": 2143,
+      "sha256": "83180318ac692923a0418f1d2be9f12072ecf068c447343bed3e13f56d91054f"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/report.json.png",
+      "bytes": 85239,
+      "sha256": "ff24f3f7fb5bf12ed88e6a25ed5dd903c9f2a80d33e85be437f07169186385a2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/report.json.swapped.png",
+      "bytes": 81415,
+      "sha256": "dbf303e0a443bae6ef6d6f6d0f9a77c3975608564dd6af4351b773976e29ed6d"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/report.json.wide.png",
+      "bytes": 2582,
+      "sha256": "f955978a91f3737c96d9ca7af958cb752c051bdb01a5c029d6ced30e50b16df4"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/runner.json",
+      "bytes": 636,
+      "sha256": "4a87a2ba826dfcdbb38e2507e814cee9aa5d96e6a7138399eb1c9cf0e55e2d49"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01/stdout.log",
+      "bytes": 1604,
+      "sha256": "28c04685308f9e56b818700b4c84f00be4305802f1e2628ab6daa57411d61931"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/gui-01.stdout.log",
+      "bytes": 119,
+      "sha256": "7d884c70c7d11f24dd64392420df4e3367bc83fd3b7f0f5bd1fde6deb2da450d"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/editor.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/editor.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/INSTRUCTIONS.txt",
+      "bytes": 1087,
+      "sha256": "b313a8aeb0fff103305b00de6a264b020b23c88498c6af6fab67cb188006f6c8"
+    },
+    {
+      "path": "build/sn023-interactive-demo/interactive-launch-01/launch.json",
+      "bytes": 577,
+      "sha256": "626ddc478293217fefb3f955830d33bb475eebaccfa9b48c9288d340982e6bf2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/invalid-editor.exe",
+      "bytes": 17,
+      "sha256": "110a2dfc6452c9ca98122f9eb2ff9db94b51b127f537432baf82f2744fbb90d6"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch-failure-01.stderr.log",
+      "bytes": 124,
+      "sha256": "9d6ebe7eed2a13025c3be54ec0ca808928722e5b95f989d18aaf0cfc240a4acf"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch-failure-01.stdout.log",
+      "bytes": 1093,
+      "sha256": "a0f65178782dac40a4a10e2047ae8c866e465304cf4ba9a4916704e3b59ad830"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch-observed.json",
+      "bytes": 741,
+      "sha256": "541757d7255f0812eaa741bed859a1cee95856135078be8890e2e6d4c5ab078f"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch-probe.stderr.log",
+      "bytes": 127,
+      "sha256": "de62ce5781377f0a9f8c2db247b8fbe60245165e88edae33486bc5ca816ebace"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch-probe.stdout.log",
+      "bytes": 1241,
+      "sha256": "3c5a6e97a1813ee3e2a688f44c7f3fecfdd062d4ac6a3d675cae26603bdaa02a"
+    },
+    {
+      "path": "build/sn023-interactive-demo/launch_probe.py",
+      "bytes": 2200,
+      "sha256": "4c3d067aa08dc8bb682f75fe4a8dca4e041b557c85c35885a8ee14acfa331916"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-editor-01.stderr.log",
+      "bytes": 259,
+      "sha256": "20a97a4eb86b51453aa764930ce01ca8b48fb122baed6a83b0fafed823b4ad34"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-editor-01.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-kit-01.stderr.log",
+      "bytes": 281,
+      "sha256": "a6a712a86c186c0be8b5103816a44225c5ba81620be66dafa16f4abbfdb0e0e7"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-kit-01.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-options-01.stderr.log",
+      "bytes": 201,
+      "sha256": "6967129407478befd6ea5d164be2950ccb89fa93de6eeb5a241949d2de749864"
+    },
+    {
+      "path": "build/sn023-interactive-demo/missing-options-01.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/preparation-report.json",
+      "bytes": 3481,
+      "sha256": "3a88118c22c5d41c0c61a554deca54a0cd685c6307b65b54000a4ffef574fc91"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepare-01.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepare-01.stdout.log",
+      "bytes": 1103,
+      "sha256": "ef93ba305494702fd45283ec1c35287667991448b4c2c7443b768fdd76f3aaee"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepared fixture with spaces/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepared fixture with spaces/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepared fixture with spaces/INSTRUCTIONS.txt",
+      "bytes": 1101,
+      "sha256": "c341f808c94307d079d4e320e50ba1192fae21a8552d1bba18d76adf91e5971d"
+    },
+    {
+      "path": "build/sn023-interactive-demo/prepared_input_acceptance.py",
+      "bytes": 4408,
+      "sha256": "2ae255c7da5b27ec33952e9d4c19f2cfdff28f3a1d05449f4cb017bcb9ab432c"
+    },
+    {
+      "path": "build/sn023-interactive-demo/preserve.py",
+      "bytes": 1370,
+      "sha256": "485d849c79e1e643fc77bfc400a0623ae470a67c7327caf21a7d7a5d76dae6da"
+    },
+    {
+      "path": "build/sn023-interactive-demo/record_evidence.py",
+      "bytes": 6085,
+      "sha256": "6d6fa3c908a99071fe1a7c5289cd94090d4a637dec7efaf05a9889e5b50bdf42"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/editor.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/editor.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/INSTRUCTIONS.txt",
+      "bytes": 1091,
+      "sha256": "6d1d395dabda3c614dbf541813bb451e3f18d15ed615a99bd51ac4ed7340a64f"
+    },
+    {
+      "path": "build/sn023-interactive-demo/retained-launch-failure/launch.json",
+      "bytes": 728,
+      "sha256": "0a2b28c8ae660b929fefdcb7e95630bca8762bb5a67f614b5554949c13edc53f"
+    },
+    {
+      "path": "build/sn023-interactive-demo/reuse-refusal-01.stderr.log",
+      "bytes": 207,
+      "sha256": "e9708339204f54d3b5f298159ddf90b247a8c383f3348b9f15f668679d8c63fb"
+    },
+    {
+      "path": "build/sn023-interactive-demo/reuse-refusal-01.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-interactive-demo/source-final/tools/run_editor_demo.py",
+      "bytes": 5262,
+      "sha256": "845de998c0249c6d6687b591f4e39d3d1ee8691c4c447cc10b779dc65f8b578c"
+    },
+    {
+      "path": "build/sn023-interactive-demo/START_DEMO.cmd",
+      "bytes": 340,
+      "sha256": "47bc9595ffc157c626d5190fdcda37a843cc16c73a02271b155ebd8ad40ca810"
+    },
+    {
+      "path": "build/sn023-interactive-demo/validate.py",
+      "bytes": 4596,
+      "sha256": "95f2f24838187a6b6420a90eea0c8c7b963daa2d594d484d6af16b8b9aa3ca97"
+    },
+    {
+      "path": "build/sn023-pin-preview/interactive-show-01.json",
+      "bytes": 278,
+      "sha256": "d79826e1dd231e416ff1ac94db36017931238833096568a516b7d1e1da1177c2"
+    },
+    {
+      "path": "build/sn023-pin-preview/interactive-show-01.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-pin-preview/interactive-show-01.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": [
+    "Only an operator development helper; no application/schema/geometry/edit/engine/save operation or architecture decision.",
+    "Existing no-argument editor starts blank; File Open and separate-root Preview are explicit user actions.",
+    "Process start/controlled termination do not prove visible GUI, human use, recovery or ordinary close; all remain pending.",
+    "No executable/Qt/model/LICENSE copied or downloaded; no packaging, runtime-discovery or redistribution permission claim.",
+    "Occurrence placement gate deferred; current operations provide no persisted geometry; establish a separate read-only gate next.",
+    "Four scripted nested layout passes do not validate user recovery, GUI responsiveness or physical DPI/monitor behavior.",
+    "No model/license verification or trusted origin/redistribution proof. Root spelling is not a resource context or physical lease. I/O latency unmeasured.",
+    "Scripted direct operation bypasses directory chooser; human recovery, keyboard/accessibility, monitor/DPI, persistent layout and packaging remain pending.",
+    "Qt remains Core/Gui/Widgets presentation only; no engine work or simulation on GUI thread; production workers/IPC and instruments pending.",
+    "Inert Open and explicit create-only Save Copy; no managed production Save/service, external overwrite, automatic resource/native execution or trusted origin.",
+    "Acquisition directory spelling is neither verified resource context nor physical lease; synchronous I/O latency unmeasured.",
+    "Scripted reachability is not human recovery, keyboard/accessibility, monitor/DPI, cross-session layout or packaging acceptance.",
+    "SN-021 Windows/local-NTFS/one-managed-document/fixed-E-01 and all negative/inconclusive evidence retained; no power-loss/general MCU/mixed-signal or redistribution proof.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker selection and failed runtime/setup attempts unchanged; scripted retries are not user recovery.",
+    "SN-017 Python preparation/GDB/fixture control, profiles/tolerances, MCU/toolchain independence and PDF/PID behavior unchanged.",
+    "January stabilization and February 2027 classroom use remain planning targets."
+  ]
+}

@@ -1,5 +1,28 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest increment: [interactive fixture demo](../experiments/SN-023-interactive-demo.md).
+PR #78 was reconfirmed MERGED at `b85b2a29b88dc0b2db438687599d7482582264ba`,
+with required Foundation Windows 66/66 and Ubuntu 55/55 successful, equal
+local/origin/remote main and zero unpublished commits. Reconfirm the newest source
+PR/squash before continuing. The Python helper creates a new exact owned document
+copy and separate single-SVG root, prints explicit Open/Preview/right-R/history/
+Save-Copy instructions and starts the unchanged blank editor with an installed
+Qt kit. Eight preparation/refusal/diagnostic checks and an unchanged Qt path fed
+the audited inputs passed (20 controls/one byte audit); image inspected. Process
+start/parent waiting were observed, but desktop discovery found no matching visible
+window; only the test child was deliberately stopped, retaining its nonzero exit.
+Preserve that negative/inconclusive result, the earlier direct launch and all 226
+prior evidence files/twelve overlays. Human dialogs/normal close, usability,
+keyboard/accessibility, monitor/DPI, session layout and packaging stay pending.
+No runtime/executable/model copied or downloaded, no C++ change or backend/headless/
+worker matrix rerun. The owner has a runnable local walkthrough, not an installer.
+Next establish acceptance for one existing-occurrence view with stable IDs,
+reducing to read-only: current operations provide no persisted geometry/placement.
+No new schema/wiring/components/instruments block. Preserve separated layers,
+windows/panels/shared instrumentation and all SN-017/021/022 accepted limits.
+January stabilization and February 2027 classroom use remain planning targets.
+The following handoffs retain their historical narrower results and constraints.
+
 Latest tested increment: [declared pins on owned fixture Preview](../experiments/SN-023-pin-preview.md).
 PR #77 was reconfirmed MERGED at `d84db84f86bba557eab832b56b46df4a3ad051b1`,
 with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
