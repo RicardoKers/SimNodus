@@ -31,7 +31,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/terminal-demo-01
+python tools/run_editor_demo.py --editor build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/endpoints-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
@@ -41,6 +41,14 @@ IDs retain the containing occurrence. Unlisted pins show **Unconnected locally**
 This is only declared local membership, without hierarchy flattening, a connection
 edit or physical/model truth. Existing edit/history/copy requery the current graph;
 Properties/library selection remains independent.
+
+Select a pin row to [inspect all direct members](../../docs/experiments/SN-023-local-endpoints.md)
+of its local net. For `main/right/r` pin `n`, the second table lists local port
+`main/right/output` and component pins `main/right/c/p`, `main/right/r/n`.
+Explicit kinds distinguish local ports, component pins and subcircuit ports;
+ports are not traversed. Missing membership shows **Unconnected locally**.
+The full occurrence/pin ID persists through existing edit/history and clears on
+missing pin/path or successful Open. No implicit selection/capture or net edit.
 
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level

@@ -1,5 +1,44 @@
 # Current state
 
+## Current SN-023 state: declared local endpoint inspection tested
+
+On 2026-10-01, [local endpoint inspection](../experiments/SN-023-local-endpoints.md)
+follows explicit logical pin selection and owns every directly declared local net
+member, including that pin. Kinds distinguish local ports/component pins/subcircuit
+ports; full IDs and own declared interface names remain separate. No port traversal,
+flattening, model/electrical truth, net/geometry/schema/edit/resource/runtime/save
+operation. It works before capture and preserves independent Properties/library/
+four drafts. Full occurrence/pin IDs survive current graph refresh and R/name/history;
+unconnected pins retain explicit local absence, removed pins/paths and Open clear.
+
+Both Release builds passed. Two focused CTests passed first run: nine occurrence
+tests, 52 selections/97 local-net queries/one lifecycle (150 requests), 14 assertions/
+one byte audit plus document contracts. Headless local-net oracle/lifecycle/direct
+imports passed without Qt. GUI01 passed 50 controls/one audit; review added the
+missing selected-pin removal control after preserving initial sources/three binaries.
+GUI02 passed 51 controls/one audit; images inspected for all three junction member
+paths/types and complete captions/controls. Native sources/probe unchanged after
+their tests, so evidence reused. Two shell-quoting preparation/audit failures are
+retained and corrected via saved scripts; no configure/build/runtime failed.
+Test-only reloads/layout settling are not user wiring/Open/recovery/DPI acceptance.
+
+PR #81 was reconfirmed MERGED at 9e8f51b4c903e9d7b2731afc8093a3dcfceb4392,
+with Foundation Windows 67/67 and Ubuntu 56/56 successful, equal local/origin/remote
+main and zero unpublished commits. Branch codex/sn-023-local-endpoints preserves
+233 prior evidence files/twelve overlays; only this task's shared prefix/row is
+published. The source PR records final checker/required-check/squash results.
+SN-023 stays in_progress; unchanged Preview/backend/worker/layout evidence reused.
+The adjacent duplicated README terminal paragraph is corrected.
+
+Next separately gate navigation to one declared peer component through explicit
+kind/full path, retaining drafts and requiring fresh explicit artwork capture.
+Wiring/placement/general components/properties/history, instruments/shared captures,
+managed Save and real workers/IPC remain pending. Human dialogs/normal close/visible
+interaction/accessibility/large-project/monitor-DPI/session layout/packaging remain
+unvalidated; earlier demo visibility stays inconclusive. Preserve all negatives,
+SN-017/021/022 limits, separated layers/windows/panels/shared ownership, January
+stabilization and February 2027 classroom planning targets.
+
 ## Current SN-023 state: declared local terminal membership tested
 
 On 2026-10-01, the [terminal table](../experiments/SN-023-terminal-membership.md)

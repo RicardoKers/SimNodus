@@ -1,5 +1,32 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [declared local endpoints](../experiments/SN-023-local-endpoints.md).
+PR #81 was reconfirmed MERGED at 9e8f51b4c903e9d7b2731afc8093a3dcfceb4392,
+Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal and zero
+unpublished commits. Reconfirm the newest PR/squash before continuing. Explicit
+pin selection in the occurrence table inspects all direct local members, including
+the pin, with owned kinds/instance-terminal IDs/names/definitions/full paths. Original
+right/r n shows local output and component c/p,r/n in main/right/junction. No port
+traversal/flattening/symbol inference/net edit/resource authority/runtime operation.
+Current rows requery graphs independently of capture/Properties/library/four drafts;
+full pin/path IDs survive refresh/R/name/history. Unconnected pins retain local
+absence; missing pins/paths/Open clear without rebinding. Copy/reopen stays exact.
+Two CTests passed first run: nine tests/52 selections/97 net requests/one lifecycle,
+14 assertions/one audit plus document contracts. Headless net oracle/lifecycle/noQt
+passed. GUI01 50 and GUI02 51 controls/one audit each passed; images inspected.
+Review's missing removed-pin control was added after retaining initial sources/three
+binaries. Native sources/probe unchanged afterward; native evidence reused. Two
+inline shell-quoting preparation/audit failures retained and corrected with saved
+helpers; no configure/build/runtime failure. Keep all 233 historical evidence/twelve
+overlays. Direct reload/layout settling is not human net edit/Open/recovery/DPI.
+Next separately gate navigation to one existing peer component via explicit kind/
+full ID path, preserving drafts and requiring fresh explicit capture. Keep wiring/
+placement/general components/properties/history/instruments/managed Save/real workers/
+IPC and human dialogs/normal close/visible interaction/accessibility/large projects/
+monitor-DPI/session layout/packaging pending. Earlier demo visibility stays inconclusive.
+Preserve SN-017/021/022 limits and negatives, independent windows/panels/shared ownership,
+January stabilization and February 2027 classroom target. Historical handoffs follow.
+
 Latest tested increment: [declared local terminals](../experiments/SN-023-terminal-membership.md).
 PR #80 was reconfirmed MERGED at bab9f24e165a8a638576f7cc846fda04598eb7a8,
 with exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main

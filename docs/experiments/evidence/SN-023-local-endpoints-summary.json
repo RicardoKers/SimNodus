@@ -1,0 +1,718 @@
+{
+  "experiment": "SN-023 direct declared local-net endpoints after explicit pin selection",
+  "recorded_date": "2026-10-01",
+  "status": "passed-for-owned-fixture; SN-023-in-progress; no-connection-edit-or-electrical-acceptance",
+  "base_main": "9e8f51b4c903e9d7b2731afc8093a3dcfceb4392",
+  "branch": "codex/sn-023-local-endpoints",
+  "reconfirmed_pr_81": {
+    "state": "MERGED",
+    "head": "a145f20a539601058efc45abb2ff2ba3442c271d",
+    "squash": "9e8f51b4c903e9d7b2731afc8093a3dcfceb4392",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 67/67",
+      "Foundation (ubuntu-latest): SUCCESS; 56/56"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "ctest_python": "3.14.4",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-local-endpoints/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-local-endpoints/native-build --config Release --target simnodus_document_editor native_occurrence_probe editor_document_tests (build01; build02 after Qt-only removed-pin control)",
+    "ctest --test-dir build/sn023-local-endpoints/native-build -C Release --output-on-failure --verbose -R \"^(native-fixture-occurrence|editor-document-contracts)$\"",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-local-endpoints/gui-01 (then gui-02 with selected-pin removal control)",
+    "python build/sn023-local-endpoints/headless_proof.py (QT_* removed; System32 PATH; lifecycle/saved-byte plus local-net JSON oracle; dumpbin direct imports)",
+    "python tools/check_repository.py; git diff --check; task-only published-tree checker; source PR records exact-head Foundation/squash results"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "results": {
+    "targeted_ctest": "2/2 first run; extended occurrence plus existing document contracts; unchanged Preview/backend/worker/layout evidence reused",
+    "native_tests": 9,
+    "occurrence_selection_requests": 52,
+    "local_net_requests": 97,
+    "native_lifecycle_requests": 1,
+    "overall_probe_requests": 150,
+    "native_assertions": 14,
+    "native_saved_byte_audits": 1,
+    "gui_01_controls": 50,
+    "gui_02_controls": 51,
+    "saved_byte_audits_each_gui": 1,
+    "oracle": "Independent Python declared-ID JSON traversal and own interface names; all three direct endpoint kinds, local/deeper/reused/absent/malformed/changed/symbol-independent identities; native output after raw/graph release",
+    "headless": {
+      "command": [
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-local-endpoints\\native-build\\Release\\native_occurrence_probe.exe",
+        "--lifecycle",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-local-endpoints\\headless-root\\document",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-local-endpoints\\headless-root\\explicit-resource-root"
+      ],
+      "exit_code": 0,
+      "qt_environment_variables": [],
+      "child_path": "C:\\WINDOWS\\System32",
+      "lifecycle_assertions": 14,
+      "independent_saved_byte_audits": 1,
+      "direct_imports_contain_qt": false,
+      "document_and_asset_unchanged": true,
+      "local_net_command": [
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-local-endpoints\\native-build\\Release\\native_occurrence_probe.exe",
+        "--net",
+        "n",
+        "main",
+        "right",
+        "r"
+      ],
+      "local_net_exit_code": 0,
+      "independent_local_endpoint_oracle_match": true
+    },
+    "image": "GUI01/02 inspected; complete local member paths/types/scope caption/button and independent artwork/Properties; applied3500ohm",
+    "review": "No production defect found; initial50-control source/binary evidence retained before filling removed-pin GUI coverage gap",
+    "native_reuse": "Four native source/probe hashes byte-identical after Qt-only control addition; no native matrix rerun",
+    "intermediate_failures": [
+      "Inline preparation failed on shell quoting before helper creation; saved helper configured successfully",
+      "Inline native-hash audit failed on shell quoting before comparison; this saved helper verifies all hashes"
+    ],
+    "configure_build_runtime_failures": 0,
+    "engine_runs": 0,
+    "backend_worker_or_layout_matrices_rerun": 0,
+    "publication": "Repository/task-only tree/exact-source required Foundation/squash results recorded by source PR"
+  },
+  "policy": {
+    "scope": "All direct declared endpoints including selected pin; explicit local-port/component-pin/circuit-port kind; no port traversal, flattened/electrical/model/symbol inference",
+    "identity": "Full containing occurrence + pin/endpoint IDs and kind; own terminal name/definition from direct catalog; no label/order/offset identity",
+    "selection": "Explicit pin row, UserRole pinID/full occurrence; block signals while rebuilding, retain IDs through refresh/edit/history, unconnected selected pin has explicit local absence, missing pin/path/Open clears without rebind",
+    "presentation": "Qt Core/Gui/Widgets only; plain read-only cells/no tooltips/current owned graph requery; independent Properties/library/drafts/immutable artwork",
+    "harness": "Direct changed/removed declarations and four layout event passes are test-only; no user wiring/Open/recovery/physical monitor-DPI acceptance"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 4542,
+      "sha256": "56e48f56f2821dc254997505c2c3a4c24d0dc69d7a0d647e90576cb2ad056736"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 134959,
+      "sha256": "7e2fd03bfb0d6be216459426affbc9fef9194ce25340dfd819c0fc6a61ee852d"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5983,
+      "sha256": "378f9d8f35ac086f9c0cee9dffbdb8f4711438fcf9cec74882b6af3623070782"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-gui-01.json",
+      "bytes": 4532,
+      "sha256": "08378418b48375935b642b979097bff731a3ceb7d1bee9fdda1a37728dd8b6bb"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-gui-02.json",
+      "bytes": 4613,
+      "sha256": "0419d59ad149103e2a6fd0f880451138ddbb88bad1ac22d4d2f03758c535587d"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-local-endpoints/build-01.log",
+      "bytes": 8436,
+      "sha256": "d3b8a339f173d96b2addd113241b0552db47f736dbbc71a813c39af370343d65"
+    },
+    {
+      "path": "build/sn023-local-endpoints/build-02.log",
+      "bytes": 6533,
+      "sha256": "a5e8eb61590cb9ef66c1bf1a84a9e108d54699662687fb565e50bdfb48a305ea"
+    },
+    {
+      "path": "build/sn023-local-endpoints/configure-01.log",
+      "bytes": 1250,
+      "sha256": "19550ea92c360b9135699f589a5f7700197bbb2ad302427bfe8e0eaf1602cb76"
+    },
+    {
+      "path": "build/sn023-local-endpoints/ctest-01.log",
+      "bytes": 5340,
+      "sha256": "ade82b98e03672e2ea0e9fbb402db77354294c8711285bc27e168f0186af7cfe"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01.log",
+      "bytes": 132,
+      "sha256": "bf0d1577421c27d507266a09de26b9ff5d7725ecfc4643985be7d7647c6eb0ea"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02.log",
+      "bytes": 132,
+      "sha256": "0bf7a7604b1a6c2e5fed9665f78351e38e08eb3d3725220c5ae111a1b381d5e1"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless.imports.log",
+      "bytes": 793,
+      "sha256": "976a2e0560255427d8726743d1ef8a9b3efd224ae154bdb6a5c24dcdeb5a7ffd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless.net.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless.net.stdout.log",
+      "bytes": 462,
+      "sha256": "58e81030a82a78571e7d09c8c6b270e79b83ba78c2a3b9c9fec5310130fc2b58"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless.stdout.log",
+      "bytes": 886,
+      "sha256": "8655b7efa79ff59d325f8fd73fc78bb50b6f9623096f361a9be6145f5fde6526"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/report.json",
+      "bytes": 4532,
+      "sha256": "08378418b48375935b642b979097bff731a3ceb7d1bee9fdda1a37728dd8b6bb"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/report.json.png",
+      "bytes": 116985,
+      "sha256": "d20333c4a5341a8c1cffd0086c519623a7189331f3cf3a10902b248382b1ef6d"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/runner.json",
+      "bytes": 633,
+      "sha256": "b4a3ef3236e9a766c770fb047adf9e4124b047dfcae9959c718451e0110937f0"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-01/stdout.log",
+      "bytes": 4628,
+      "sha256": "57cd221a6eb96a92068d27bcc66a73e1106a7c28c2b60800579e4cc8c2bb7c75"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/report.json",
+      "bytes": 4613,
+      "sha256": "0419d59ad149103e2a6fd0f880451138ddbb88bad1ac22d4d2f03758c535587d"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/report.json.png",
+      "bytes": 116985,
+      "sha256": "d20333c4a5341a8c1cffd0086c519623a7189331f3cf3a10902b248382b1ef6d"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/runner.json",
+      "bytes": 633,
+      "sha256": "74b0a848119e7b0ba2329076cce20a9aa48d89114f5dc2bc18216fe18844022a"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-local-endpoints/gui-02/stdout.log",
+      "bytes": 4710,
+      "sha256": "2fc8ef2fab76e2026aa0ce18aeefb8018f2b247c430ca0643cf1e77a05474790"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless-root/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless-root/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless-root/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/apps/desktop/document_window.cpp",
+      "bytes": 134350,
+      "sha256": "fa7e934595de64add4d5a3724ee9655ae0890d3e2a17a169ca7af2143850bcf9"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/apps/desktop/document_window.hpp",
+      "bytes": 4542,
+      "sha256": "56e48f56f2821dc254997505c2c3a4c24d0dc69d7a0d647e90576cb2ad056736"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 675328,
+      "sha256": "931531b9e52e23546418bc501c8919cd61168ff145837baa248598971ee9ba8e"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/manifest.json",
+      "bytes": 2152,
+      "sha256": "f7e176da7eec58a03733f4246951f70bf1797b7df58316300ff28ef04f699b04"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5399,
+      "sha256": "167966d0c38cd63015ac00544a2b52a1f085ab83d6b2e403b6460a19d20ef7b2"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-local-endpoints/initial-gui-01/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/apps/desktop/document_window.cpp",
+      "bytes": 134959,
+      "sha256": "7e2fd03bfb0d6be216459426affbc9fef9194ce25340dfd819c0fc6a61ee852d"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/apps/desktop/document_window.hpp",
+      "bytes": 4542,
+      "sha256": "56e48f56f2821dc254997505c2c3a4c24d0dc69d7a0d647e90576cb2ad056736"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5983,
+      "sha256": "378f9d8f35ac086f9c0cee9dffbdb8f4711438fcf9cec74882b6af3623070782"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-local-endpoints/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-local-endpoints/acceptance-before-implementation.md",
+      "bytes": 3444,
+      "sha256": "4accd4215dc05f42f163cb92f2b46cac6f17610c55ca7f14cb1b6ad3b9689db9"
+    },
+    {
+      "path": "build/sn023-local-endpoints/prepare_validation.py",
+      "bytes": 911,
+      "sha256": "304d402d707e4adb424d3a665c91739a496380f9b644fa1a4ecdc997780a59b4"
+    },
+    {
+      "path": "build/sn023-local-endpoints/validate.py",
+      "bytes": 1705,
+      "sha256": "f6193590a57c7138c719a4187fcf089790d0f41d351ab866ff3f9b00fef84cd7"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless_proof.py",
+      "bytes": 2970,
+      "sha256": "ca99447945f6f45c3b03e2671a87010635941011f1a5f05264a4064eaef2b6c9"
+    },
+    {
+      "path": "build/sn023-local-endpoints/headless-proof.json",
+      "bytes": 937,
+      "sha256": "d1e5ced5900b6f083317f0b9aa7a76d89ee7e96cffea2c24ec7031861298903a"
+    },
+    {
+      "path": "build/sn023-local-endpoints/preserve_initial.py",
+      "bytes": 1485,
+      "sha256": "ff754cde42f5258c85b9298a1fd899eda48f940c7f2365dca647edd032aca606"
+    },
+    {
+      "path": "build/sn023-local-endpoints/record_evidence.py",
+      "bytes": 11537,
+      "sha256": "20d95bdd4f3617849a8ee0991cb0858cd1840fae4d256c0c3cae32210ff47bcd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/validation-preparation-attempt-01.json",
+      "bytes": 543,
+      "sha256": "8ab49814223df591f73b1e66393ec1ee3401701d3b7d72b79c8adf243fc78893"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-audit-preparation-attempt-01.json",
+      "bytes": 446,
+      "sha256": "d7a15fa88c16e1759555458771d2e5eb405dacb20edc28fac903f4e61a941da3"
+    },
+    {
+      "path": "build/sn023-local-endpoints/START_ENDPOINTS_DEMO.cmd",
+      "bytes": 347,
+      "sha256": "cbbf5ebe400186b3585ab965f9f27975f5fbc4104dd2a4694c2b1d431b4e7e98"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 233,
+    "historical_evidence_manifest_sha256": "3afb83dc84fc6dbb14a97a64589d51f138d286f69fe552ad8f8dd1cc8b5f4087",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "9dac05231b9ffc9e60359a3611e14fe3b967e28c457e5332bba29622ea144652"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "3dde97a17e83a14975ffa6a60772066da108d297a0986ab2f4c39a4b67abb248"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "233 old evidence/ten untouched overlays match hashes; own CURRENT/BACKLOG prefix/row reverse to exact saved bytes"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-terminal-membership-summary.json",
+      "bytes": 27755,
+      "sha256": "29121a612c52005accab00be22a546ffe7f54f90a2326402ce42d7b4647b93e2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-fixture-preview-summary.json",
+      "bytes": 36898,
+      "sha256": "c9bd3dfbe0ddab2135637e7e8986b61476d9ff82b1be130699d9baff7227d72e"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "No port traversal/flattened physical/electrical/model correspondence, net/geometry/schema edit or new save/runtime/worker operation.",
+    "Next gate one existing peer-component navigation with explicit kind/full IDs/drafts preservation/fresh requested capture; general editor/wiring/history/instruments/managed Save pending.",
+    "Human dialogs/normal close/visible interaction/keyboard/accessibility/large-project/monitor-DPI/session layout/packaging pending; prior demo remains inconclusive.",
+    "No executable/Qt runtime/dependency distributed; licensing/trusted-origin/redistribution inventory limits unchanged.",
+    "SN-017 Python/GDB/fixture ownership, accepted profiles/tolerances, MCU/toolchain independence and PDF/PID behavior preserved.",
+    "SN-021 Windows/local-NTFS one managed document and explicit fixed E-01 replay only; no external overwrite/automatic executable resources/production save service/general MCU or power-loss claim.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "January stabilization and February 2027 classroom use remain planning targets."
+  ]
+}

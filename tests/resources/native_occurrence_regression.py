@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Ricardo Kerschbaumer
 # SPDX-License-Identifier: MIT
-"""Owned occurrence identity, values and local terminals against JSON oracles."""
+"""Owned occurrence identity, values and local net members against JSON oracles."""
 import argparse
 import copy
 import json
@@ -23,6 +23,7 @@ ART = (FIXTURES / 'assets/passive.svg').read_bytes()
 PROBE = ''
 SELECT_REQUESTS = 0
 LIFECYCLE_REQUESTS = 0
+NET_REQUESTS = 0
 PATHS = [('main', 'left', 'r'), ('main', 'right', 'r'),
          ('main', 'left', 'c'), ('main', 'right', 'c')]
 
@@ -75,6 +76,58 @@ def invoke(raw, path):
     return result
 
 
+def expected_local_net(raw, path, pin):
+    """Resolve only declared members of one directly containing JSON net."""
+    selected = expected_occurrence(raw, path)
+    if selected is None:
+        return None
+    topology = reference.parse(raw)['sources']['topology']
+    circuits = {row['id']: row for row in topology['circuits']}
+    components = {row['id']: row for row in topology['components']}
+    component = components[selected['component']]
+    if not any(row['id'] == pin for row in component['pins']):
+        return None
+    circuit = circuits[selected['source_circuit']]
+    net = next((row for row in circuit['nets'] if any(
+        terminal.get('instance') == selected['source_instance'] and terminal.get('terminal') == pin
+        for terminal in row['terminals'])), None)
+    if net is None:
+        return None
+    instances = {row['id']: row for row in circuit['instances']}
+    ports = {row['id']: row for row in circuit['ports']}
+    endpoints = []
+    for terminal in net['terminals']:
+        if 'port' in terminal:
+            port = ports[terminal['port']]
+            endpoints.append(dict(kind='local-port', instance='', terminal=port['id'],
+                                  name=port['name'], definition=circuit['id'],
+                                  path=[*path[:-1], port['id']]))
+            continue
+        instance = instances[terminal['instance']]
+        definition = instance['definition']
+        if instance['kind'] == 'component':
+            kind, catalog = 'component-pin', components[definition]['pins']
+        else:
+            kind, catalog = 'circuit-port', circuits[definition]['ports']
+        interface = next(row for row in catalog if row['id'] == terminal['terminal'])
+        endpoints.append(dict(kind=kind, instance=instance['id'], terminal=interface['id'],
+                              name=interface['name'], definition=definition,
+                              path=[*path[:-1], instance['id'], interface['id']]))
+    rank = {'local-port': 0, 'component-pin': 1, 'circuit-port': 2}
+    endpoints.sort(key=lambda row: (rank[row['kind']], row['instance'], row['terminal']))
+    return dict(net=dict(id=net['id'], name=net['name'], path=[*path[:-1], net['id']]),
+                endpoints=endpoints)
+
+
+def invoke_net(raw, path, pin):
+    global NET_REQUESTS
+    NET_REQUESTS += 1
+    run = subprocess.run([PROBE, '--net', pin, *path], input=raw, capture_output=True, timeout=20)
+    result = json.loads(run.stdout)
+    assert run.returncode == (1 if 'error' in result else 0), run.stderr
+    return result
+
+
 class Occurrence(unittest.TestCase):
     def accepted(self, raw, path):
         expected = expected_occurrence(raw, path)
@@ -87,6 +140,12 @@ class Occurrence(unittest.TestCase):
         self.assertIsNone(expected_occurrence(raw, path))
         self.assertEqual(invoke(raw, path), dict(error='occurrence'))
 
+    def checked_net(self, raw, path, pin):
+        expected = expected_local_net(raw, path, pin)
+        actual = invoke_net(raw, path, pin)
+        self.assertEqual(actual, expected if expected is not None else dict(error='local-net'))
+        return actual
+
     def test_existing_component_occurrences(self):
         for path in PATHS:
             with self.subTest(path=path):
@@ -96,6 +155,12 @@ class Occurrence(unittest.TestCase):
                 for terminal in selected['terminals']:
                     self.assertEqual(terminal['net']['path'],
                                      [*path[:-1], expected_nets[path[-1]][terminal['pin']]])
+                    self.checked_net(RAW, path, terminal['pin'])
+        junction = expected_local_net(RAW, ('main', 'right', 'r'), 'n')
+        self.assertEqual([(row['kind'], row['path']) for row in junction['endpoints']],
+                         [('local-port', ['main', 'right', 'output']),
+                          ('component-pin', ['main', 'right', 'c', 'p']),
+                          ('component-pin', ['main', 'right', 'r', 'n'])])
 
     def test_missing_circuit_rootless_and_untrusted_selection(self):
         missing = [(), ('main',), ('main', 'left'), ('main', 'right'), ('left', 'r'), ('rc', 'r'),
@@ -105,11 +170,17 @@ class Occurrence(unittest.TestCase):
         for path in missing:
             with self.subTest(path=path):
                 self.refused(RAW, path)
+                self.checked_net(RAW, path, 'n')
+        for pin in ('', 'N', 'absent', 'first'):
+            self.checked_net(RAW, PATHS[0], pin)
         for raw in (b'{', b'\xff', RAW.replace(b'"version": "0.1"',
                                              b'"version": "0.1", "version": "0.1"', 1)):
             result = invoke(raw, PATHS[0])
             self.assertIn('error', result)
             self.assertNotEqual(result['error'], 'occurrence')
+            result = invoke_net(raw, PATHS[0], 'n')
+            self.assertIn('error', result)
+            self.assertNotEqual(result['error'], 'local-net')
 
     def test_reordered_escaped_keys_and_untrusted_labels(self):
         document = json.loads(RAW)
@@ -122,6 +193,10 @@ class Occurrence(unittest.TestCase):
                     definition['pins'].reverse()
                     for pin in definition['pins']:
                         pin['name'] = '<b>same Ω pin</b>'
+                if 'ports' in definition:
+                    definition['ports'].reverse()
+                    for port in definition['ports']:
+                        port['name'] = '<b>same Ω port</b>'
         for circuit in topology['circuits']:
             circuit['instances'].reverse()
             for selected in circuit['instances']:
@@ -136,6 +211,8 @@ class Occurrence(unittest.TestCase):
             b'"terminals"', b'"\\u0074erminals"').replace(b'"pins"', b'"pi\\u006es"')
         for path in PATHS:
             self.accepted(raw, path)
+            for pin in ('n', 'p'):
+                self.checked_net(raw, path, pin)
 
     def test_reused_context_and_unreachable_definition_ids(self):
         document = json.loads(RAW)
@@ -167,14 +244,19 @@ class Occurrence(unittest.TestCase):
         self.assertEqual(other['source_circuit'], 'shadow')
         self.assertNotEqual(original['name'], other['name'])
         self.accepted(raw, ('main', 'third', 'c'))
+        for path in (PATHS[0], ('main', 'third', 'r'), ('main', 'third', 'c')):
+            for pin in ('n', 'p'):
+                self.checked_net(raw, path, pin)
         for instance_id in ('r', 'c'):
             path = ('main', 'nested', 'inner', instance_id)
             nested = self.accepted(raw, path)
             self.assertEqual(nested['source_circuit'], 'shadow')
             for terminal in nested['terminals']:
                 self.assertEqual(terminal['net']['path'][:-1], list(path[:-1]))
+                self.checked_net(raw, path, terminal['pin'])
         for path in [('unused', 'r'), ('main', 'unused', 'r'), ('main', 'third')]:
             self.refused(raw, path)
+            self.checked_net(raw, path, 'n')
 
     def test_unconnected_and_changed_local_membership(self):
         for move_to_drive in (False, True):
@@ -189,6 +271,8 @@ class Occurrence(unittest.TestCase):
             raw = json.dumps(document).encode()
             for path in PATHS:
                 selected = self.accepted(raw, path)
+                for pin in ('n', 'p'):
+                    self.checked_net(raw, path, pin)
                 if path[-1] == 'r':
                     terminal = next(row for row in selected['terminals'] if row['pin'] == 'n')
                     if move_to_drive:
@@ -207,6 +291,44 @@ class Occurrence(unittest.TestCase):
             raw = json.dumps(document).encode()
             for path in PATHS:
                 self.assertEqual(self.accepted(raw, path), expected_occurrence(RAW, path))
+                for pin in ('n', 'p'):
+                    self.assertEqual(self.checked_net(raw, path, pin), expected_local_net(RAW, path, pin))
+
+    def test_local_net_all_endpoint_kinds_and_declared_interface_names(self):
+        for reordered in (False, True):
+            document = json.loads(RAW)
+            topology = document['sources']['topology']
+            main = next(row for row in topology['circuits'] if row['id'] == 'main')
+            for instance_id in ('z_probe', 'a_probe'):
+                main['instances'].append(dict(id=instance_id, name='Not a terminal label', kind='component',
+                                              definition='resistor', overrides={}))
+                for pin, net_id in (('p', 'drive'), ('n', 'return')):
+                    next(row for row in main['nets'] if row['id'] == net_id)['terminals'].append(
+                        dict(instance=instance_id, terminal=pin))
+            if reordered:
+                topology['components'].reverse()
+                topology['circuits'].reverse()
+                for component in topology['components']:
+                    component['pins'].reverse()
+                    for pin in component['pins']:
+                        pin['name'] = '<b>logical Ω pin</b>'
+                for circuit in topology['circuits']:
+                    circuit['ports'].reverse()
+                    for port in circuit['ports']:
+                        port['name'] = '<i>declared Ω port</i>'
+                    circuit['instances'].reverse()
+                    circuit['nets'].reverse()
+                    for net in circuit['nets']:
+                        net['name'] = '<b>duplicate Ω net</b>'
+                        net['terminals'].reverse()
+            raw = json.dumps(document, ensure_ascii=False, sort_keys=reordered).encode()
+            for instance_id in ('z_probe', 'a_probe'):
+                for pin in ('n', 'p'):
+                    actual = self.checked_net(raw, ('main', instance_id), pin)
+                    self.assertEqual([row['kind'] for row in actual['endpoints']],
+                                     ['local-port', 'component-pin', 'component-pin', 'circuit-port', 'circuit-port'])
+                    self.assertEqual([row['instance'] for row in actual['endpoints']],
+                                     ['', 'a_probe', 'z_probe', 'left', 'right'])
 
     def test_upstream_literal_change_preserves_other_occurrences(self):
         document = json.loads(RAW)
@@ -224,10 +346,12 @@ class Occurrence(unittest.TestCase):
                 self.assertEqual(after['parameters']['resistance']['origin'], 'containing-circuit:resistance')
             else:
                 self.assertEqual(after, before)
+            for pin in ('n', 'p'):
+                self.assertEqual(self.checked_net(raw, path, pin), expected_local_net(RAW, path, pin))
 
     def test_native_lifecycle_and_independent_persisted_copy(self):
         global LIFECYCLE_REQUESTS
-        base = Path('build/sn023-terminal-membership/native-tests').resolve()
+        base = Path('build/sn023-local-endpoints/native-tests').resolve()
         base.mkdir(parents=True, exist_ok=True)
         # Keep every physical case, including failures and partial outputs, for audit.
         root = Path(tempfile.mkdtemp(prefix='occurrence-', dir=base))
@@ -271,6 +395,9 @@ class Occurrence(unittest.TestCase):
             self.assertEqual(expected['source_circuit'], 'rc')
             self.assertEqual(expected['source_instance'], 'r')
             self.assertEqual(expected['terminals'], expected_occurrence(RAW, ('main', 'right', 'r'))['terminals'])
+            for pin in ('n', 'p'):
+                self.assertEqual(expected_local_net(revised, ('main', 'right', 'r'), pin),
+                                 expected_local_net(RAW, ('main', 'right', 'r'), pin))
             self.assertEqual(sorted(path.name for path in document_root.iterdir()),
                              ['occurrence-copy.json', 'original.json'])
             print('PASS independent persisted-byte audit and root-prefixed occurrence identity')
@@ -293,6 +420,8 @@ def main():
     print(f'{SELECT_REQUESTS} independent occurrence selection requests; '
           f'{LIFECYCLE_REQUESTS} native lifecycle request; '
           f'{SELECT_REQUESTS + LIFECYCLE_REQUESTS} total probe requests')
+    print(f'{NET_REQUESTS} independent declared local-net endpoint requests; '
+          f'{SELECT_REQUESTS + LIFECYCLE_REQUESTS + NET_REQUESTS} overall probe requests including local-net inspection')
     raise SystemExit(0 if result.wasSuccessful() else 1)
 
 
