@@ -5,6 +5,20 @@ native Qt Core/Gui/Widgets presentation over existing project acquisition,
 name revision and create-only persistence. It is optional; the default build
 and headless application tests require no Qt. No dependencies are downloaded.
 
+For a runnable owned-fixture walkthrough, use the
+[interactive development demo](../../docs/experiments/SN-023-interactive-demo.md):
+
+```text
+python tools/run_editor_demo.py --editor build/sn023-pin-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/editor-demo-01
+```
+
+Adjust the locally built executable/installed kit paths and choose a new output
+directory. The helper prepares separate document/artwork roots, prints explicit
+Open/Preview/edit/Save Copy instructions and starts the unchanged blank window.
+It waits for the editor to close and retains diagnostics; it does not validate
+window visibility. `--prepare-only --out NEW_DIR` copies inputs without Qt.
+No executable, Qt runtime or model is copied or downloaded; this is not packaging.
+
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level
 display name with **Apply Name**, then **File -> Save Copy** using a new ASCII

@@ -1,5 +1,37 @@
 # Current state
 
+## Current SN-023 state: runnable fixture demo prepared and script-tested
+
+On 2026-09-30, the [interactive demo helper](../experiments/SN-023-interactive-demo.md)
+prepares a new owned document copy and separate single-SVG root, prints a bounded
+Open/Preview/right-R-edit/history/Save-Copy walkthrough and launches the unchanged
+blank editor using an explicitly supplied installed Qt kit. No automatic resource
+access, application/schema operation, simulation, download or runtime copying.
+
+Eight preparation/refusal/diagnostic checks passed. One existing Qt path using the
+audited prepared inputs passed 20 controls/one saved-byte audit; its image was
+inspected. Source/prepared copies remain unchanged. Normal process start/parent
+waiting were observed; desktop discovery found no visible matching window, and
+only the test child was deliberately stopped with its nonzero exit/log retained.
+The earlier direct launch remains inconclusive too. Visible human interaction,
+ordinary close, recovery, keyboard/accessibility, monitor/DPI, sessions and packaging
+stay pending. No C++ rebuild or backend/headless/worker matrix rerun was needed.
+
+PR #78 was reconfirmed MERGED at `b85b2a29b88dc0b2db438687599d7482582264ba`,
+with required Foundation Windows 66/66 and Ubuntu 55/55 successful, equal
+local/origin/remote main and zero unpublished commits. Branch
+`codex/sn-023-interactive-demo` preserves all 226 prior evidence files and twelve
+independent overlays; only its shared prefix/row is published. The source PR
+records final checker/required-check/squash results. Full SN-023 stays in_progress.
+
+Next define acceptance for a bounded existing-occurrence view, reducing to read-only
+because current native operations do not provide persisted geometry/placement.
+Do not invent a geometry schema or build wiring/components/instruments in this
+step. Preserve separate windows, Components/Preview versus Properties, adjustable
+panels and shared instrumentation ownership. SN-017/021/022 accepted limits and all
+negative/inconclusive evidence remain unchanged. January stabilization and February
+2027 classroom use remain planning targets.
+
 ## Current SN-023 state: declared fixture pin Preview tested
 
 On 2026-09-30, the [declared pin increment](../experiments/SN-023-pin-preview.md)

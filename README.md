@@ -53,6 +53,9 @@ binding origins. [Explicit fixture Preview](docs/experiments/SN-023-fixture-prev
 captures only the unchanged owned resistor artwork from a separately chosen root;
 opening and catalog selection remain inert. [Declared pin annotations](docs/experiments/SN-023-pin-preview.md)
 apply a closed fixture convention and preserve explicit pin-map identity.
+An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
+fresh document/artwork copies and runs the existing locally built editor with an
+explicit installed Qt kit; Open and Preview remain user actions.
 Full schematic editing, instruments, managed Save and desktop
 simulation remain pending.
 

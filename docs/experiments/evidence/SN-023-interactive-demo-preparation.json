@@ -1,0 +1,89 @@
+{
+  "checks": {
+    "prepare_without_qt_or_editor": true,
+    "exact_input_bytes_separate_roots_and_inventory": true,
+    "existing_directory_refused_without_changes": true,
+    "missing-options_before_output_writes": true,
+    "missing-editor_before_output_writes": true,
+    "missing-kit_before_output_writes": true,
+    "launch_failure_retains_inputs_logs_and_diagnostic": true,
+    "owned_source_fixtures_unchanged": true
+  },
+  "passed": true,
+  "commands": [
+    {
+      "name": "prepare-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\prepared fixture with spaces",
+        "--prepare-only"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "reuse-refusal-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\prepared fixture with spaces",
+        "--prepare-only"
+      ],
+      "exit_code": 2
+    },
+    {
+      "name": "missing-options-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\missing-options"
+      ],
+      "exit_code": 2
+    },
+    {
+      "name": "missing-editor-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\missing-editor",
+        "--editor",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\absent.exe",
+        "--qt-kit",
+        "C:\\Qt\\6.11.1\\msvc2022_64"
+      ],
+      "exit_code": 2
+    },
+    {
+      "name": "missing-kit-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\missing-kit",
+        "--editor",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-pin-preview\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+        "--qt-kit",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\absent-kit"
+      ],
+      "exit_code": 2
+    },
+    {
+      "name": "launch-failure-01",
+      "command": [
+        "C:\\Users\\ricar\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\tools\\run_editor_demo.py",
+        "--out",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\retained-launch-failure",
+        "--editor",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-interactive-demo\\invalid-editor.exe",
+        "--qt-kit",
+        "C:\\Qt\\6.11.1\\msvc2022_64"
+      ],
+      "exit_code": 1
+    }
+  ]
+}
