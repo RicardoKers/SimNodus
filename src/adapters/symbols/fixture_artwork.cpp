@@ -3,6 +3,13 @@
 #include "adapters/symbols/fixture_artwork.hpp"
 
 namespace simnodus::symbols {
+std::optional<FixtureAnchor> fixture_anchor(std::string_view symbol, std::string_view pin) noexcept
+{
+    if(symbol != "two-pin") return {};
+    if(pin == "a") return FixtureAnchor{0, 20};
+    if(pin == "b") return FixtureAnchor{100, 20};
+    return {};
+}
 std::optional<FixtureArtwork> recognize_fixture_artwork(std::string_view bytes) noexcept
 {
     constexpr std::string_view original =

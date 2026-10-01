@@ -38,6 +38,7 @@ public:
     void runCapacitanceAcceptance(const QString& root, const QString& report);
     void runInspectionAcceptance(const QString& root, const QString& report);
     void runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
+    void runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:

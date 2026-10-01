@@ -76,12 +76,15 @@ DocumentWindow::DocumentWindow()
     catalog_splitter_->addWidget(catalog_);
     auto* preview_panel = new QWidget;
     auto* preview_layout = new QVBoxLayout(preview_panel);
+    preview_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    preview_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     preview_layout->addWidget(preview_);
     artwork_ = new PreviewCanvas;
     preview_layout->addWidget(artwork_, 1);
     artwork_note_ = new QLabel("No captured artwork. Preview requires an explicit resource root.");
     artwork_note_->setWordWrap(true);
     artwork_note_->setTextFormat(Qt::PlainText);
+    artwork_note_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     preview_layout->addWidget(artwork_note_);
     preview_artwork_ = new QPushButton("Preview Fixture Artwork...");
     preview_artwork_->setEnabled(false);
@@ -338,9 +341,13 @@ void DocumentWindow::retainPreview()
     const auto selected = simnodus::select_fixture_symbol(*document_.graph(), utf8(selectedComponent()));
     const auto* current = std::get_if<simnodus::SymbolPreviewSelection>(&selected);
     const auto& old = capture->selection;
+    const auto inspected = simnodus::inspect_fixture_pins(*document_.graph(), utf8(selectedComponent()));
+    std::optional<simnodus::FixturePreviewPins> pins;
+    if(const auto* known = std::get_if<simnodus::FixturePreviewPins>(&inspected)) pins = *known;
     if(current && current->component == old.component && current->symbol == old.symbol && current->asset == old.asset &&
         current->request.dependency == old.request.dependency && current->request.resource == old.request.resource &&
-        current->request.path == old.request.path && current->request.bytes == old.request.bytes && current->request.sha256 == old.request.sha256) return;
+        current->request.path == old.request.path && current->request.bytes == old.request.bytes && current->request.sha256 == old.request.sha256 &&
+        current->pin_map == old.pin_map && pins == capture->pins) return;
     artwork_->setCapture({});
     updateArtworkNote("Declared symbol selection changed. Explicit new Preview required.");
 }
@@ -351,7 +358,13 @@ void DocumentWindow::updateArtworkNote(const QString& message)
         const auto& capture = *owned;
         artwork_note_->setText("Captured fixture artwork for " + text(capture.selection.component) + ".\nResource: " +
             text(capture.selection.request.dependency) + "/" + text(capture.selection.request.resource) +
-            "\n227 bytes; SHA-256: " + text(capture.selection.request.sha256.substr(0, 16)) + "...\nPin-anchor correspondence unverified.");
+            "\n227 bytes; SHA-256: " + text(capture.selection.request.sha256.substr(0, 16)) + "...");
+        if(capture.pins) {
+            QStringList rows;
+            for(const auto& pin : *capture.pins) rows << text(pin.logical_pin) + " -> " + text(pin.symbol_pin);
+            artwork_note_->setText(artwork_note_->text() + "\nFixture anchor convention: a=left, b=right.\n" + rows.join("; ") +
+                "\nDeclared mapping only; model/electrical truth unverified.");
+        } else artwork_note_->setText(artwork_note_->text() + "\nPin-anchor correspondence unavailable for this descriptor.");
         artwork_note_->setToolTip("Explicit root: " + text(capture.requested_root) + "\nPath: " + text(capture.selection.request.path) +
             "\nSHA-256: " + text(capture.selection.request.sha256));
     } else artwork_note_->setText("No captured artwork. Preview requires an explicit resource root.");
@@ -1182,7 +1195,7 @@ void DocumentWindow::runPreviewAcceptance(const QString& root, const QString& re
             !document_.can_undo() && !document_.can_redo() && inspector_->text() == inspector && occurrence_->currentText() == path && document_.leaf() == "original.json";
         checks["capture_origin_and_unverified_anchors"] = captured && captured->requested_root == utf8(resource_root) &&
             captured->selection.component == "resistor" && artwork_note_->text().contains("fixture artwork") &&
-            artwork_note_->text().contains("Pin-anchor correspondence unverified") && artwork_note_->toolTip().contains(text(captured->selection.request.sha256));
+            artwork_note_->text().contains("Fixture anchor convention") && artwork_note_->toolTip().contains(text(captured->selection.request.sha256));
         checks["metadata_plain_text_and_no_global_authority"] = artwork_note_->textFormat() == Qt::PlainText && preview_->textFormat() == Qt::PlainText &&
             !original->declaration->sources.lock.resources_verified && !original->declaration->sources.resource_interfaces_verified && !original->declaration->runtime_profile_verified;
         checks["failed_recapture_retains_prior_origin"] = !previewArtwork(resource_root + "/missing") && artwork_->capture() == captured &&
@@ -1276,6 +1289,99 @@ void DocumentWindow::runPreviewAcceptance(const QString& root, const QString& re
         {"scope", "one explicit known fixture artwork; no SVG parser, pin-anchor/electrical truth, automatic resource access or human dialog/DPI acceptance"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report)
+{
+    QJsonObject checks;
+    checks["initial_inert_open"] = openDocument(root, "original.json") && !artwork_->capture() && !document_.dirty();
+    if(document_.graph()) {
+        int resistor = -1;
+        const auto& components = document_.graph()->connectivity.components;
+        for(std::size_t i = 0; i < components.size(); ++i)
+            if(components[i].identity.id == "resistor") resistor = static_cast<int>(i);
+        catalog_->setCurrentRow(resistor);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        const auto original = document_.graph();
+        const auto bytes = std::string(document_.bytes());
+        const auto inspector = inspector_->text(), path = occurrence_->currentText();
+        name_->setText("pending project"); instance_name_->setText("pending instance"); resistance_->setText("3.5"); capacitance_->setText("470");
+        checks["explicit_selected_only_pin_capture"] = previewArtwork(resource_root) && artwork_->capture() &&
+            artwork_->capture()->resources->size() == 1 && artwork_->capture()->pins;
+        // Caption changes can trigger a dock width change followed by wrapped-height
+        // relayout. Settle the bounded test's nested layout events before inspection.
+        for(int i = 0; i < 4; ++i) QApplication::processEvents();
+        const auto captured = artwork_->capture();
+        checks["original_declared_mapping_and_caption"] = captured && captured->pins &&
+            (*captured->pins)[0].logical_pin == "p" && (*captured->pins)[0].symbol_pin == "a" &&
+            (*captured->pins)[1].logical_pin == "n" && (*captured->pins)[1].symbol_pin == "b" &&
+            artwork_note_->textFormat() == Qt::PlainText && artwork_note_->text().contains("Fixture anchor convention") &&
+            artwork_note_->text().contains("Declared mapping only") && artwork_note_->height() >= artwork_note_->heightForWidth(artwork_note_->width()) &&
+            preview_->height() >= preview_->heightForWidth(preview_->width());
+        checks["four_drafts_and_independent_properties_retained"] = name_->text() == "pending project" && instance_name_->text() == "pending instance" &&
+            resistance_->text() == "3.5" && capacitance_->text() == "470" && inspector_->text() == inspector && occurrence_->currentText() == path;
+        checks["pins_create_no_document_or_runtime_authority"] = document_.graph() == original && document_.bytes() == bytes && !document_.dirty() &&
+            !document_.can_undo() && !original->declaration->sources.lock.resources_verified && !original->declaration->sources.resource_interfaces_verified &&
+            !original->declaration->runtime_profile_verified;
+        checks["failed_recapture_preserves_owned_pins"] = !previewArtwork(resource_root + "/missing") && artwork_->capture() == captured &&
+            document_.graph() == original && artwork_note_->text().contains("prior captured artwork retained");
+        const auto markers = [](PreviewCanvas& canvas, const QString& output) {
+            const auto image = canvas.grab().toImage();
+            if(!canvas.capture() || !canvas.capture()->pins) return false;
+            const auto view = canvas.fittedView();
+            if(qAbs(view.width() / view.height() - 2.5) > 1e-12) return false;
+            for(const auto& pin : *canvas.capture()->pins) {
+                const auto p = (QPointF(view.left() + pin.x / 100 * view.width(), view.top() + pin.y / 40 * view.height()) * image.devicePixelRatio()).toPoint();
+                const auto color = image.pixelColor(p);
+                if(color.red() > 30 || color.blue() < 150 || color.green() < 50 || color.green() > 130) return false;
+            }
+            return image.save(output);
+        };
+        PreviewCanvas wide; wide.setCapture(captured); wide.resize(420, 180);
+        PreviewCanvas narrow; narrow.setCapture(captured); narrow.resize(120, 220);
+        checks["wide_markers_follow_same_fit"] = markers(wide, report + ".wide.png");
+        checks["narrow_markers_follow_same_fit"] = markers(narrow, report + ".narrow.png");
+        name_->setText(text(document_.name())); instance_name_->setText("right"); capacitance_->setText("220");
+        checks["existing_resistance_edit_retains_pin_capture"] = applyResistance("3.5") && artwork_->capture() == captured && !editsPending();
+        const auto edited = document_.graph();
+        checks["existing_copy_retains_pins_and_dirty_association"] = saveCopy("pin-copy.json") && artwork_->capture() == captured && document_.dirty() && document_.leaf() == "original.json";
+        checks["one_step_history_retains_pins"] = undoEdit() && artwork_->capture() == captured && redoEdit() && document_.graph() == edited && artwork_->capture() == captured;
+        checks["failed_open_retains_pins_and_document"] = !openDocument(root, "invalid.json") && artwork_->capture() == captured && document_.graph() == edited;
+        checks["copy_reopen_inert_and_exact"] = openDocument(root, "pin-copy.json") && !artwork_->capture() && !document_.dirty() && !document_.can_undo();
+        catalog_->setCurrentRow(resistor);
+        checks["explicit_copy_recapture_keeps_same_mapping"] = previewArtwork(resource_root) && artwork_->capture()->pins == captured->pins;
+        checks["swapped_document_open_clears_capture"] = openDocument(root, "swapped.json") && !artwork_->capture();
+        catalog_->setCurrentRow(resistor);
+        const auto swapped_preview = previewArtwork(resource_root);
+        for(int i = 0; i < 4; ++i) QApplication::processEvents();
+        checks["swapped_mapping_annotations"] = swapped_preview && artwork_->capture()->pins &&
+            (*artwork_->capture()->pins)[0].logical_pin == "n" && (*artwork_->capture()->pins)[1].logical_pin == "p" &&
+            artwork_note_->text().contains("n -> a; p -> b") && artwork_note_->height() >= artwork_note_->heightForWidth(artwork_note_->width()) &&
+            grab().save(report + ".swapped.png");
+        openDocument(root, "alternate.json"); catalog_->setCurrentRow(resistor);
+        checks["unsupported_anchors_keep_only_artwork"] = previewArtwork(resource_root) && artwork_->capture() && !artwork_->capture()->pins &&
+            artwork_note_->text().contains("correspondence unavailable");
+        const auto alternate = artwork_->capture();
+        document_.open(utf8(root), "alternate-reordered.json"); retainPreview();
+        checks["equivalent_unavailable_map_retains_capture"] = artwork_->capture() == alternate;
+        document_.open(utf8(root), "alternate-swapped.json"); retainPreview();
+        checks["changed_unavailable_map_clears_capture"] = !artwork_->capture() && artwork_note_->text().contains("Explicit new Preview required");
+        openDocument(root, "pin-copy.json"); catalog_->setCurrentRow(resistor); structure_->setCurrentItem(instanceItem("main", "right")); previewArtwork(resource_root);
+        const auto final = document_.graph(); showAnalyzer(); analyzer_.close(); showAnalyzer();
+        checks["independent_analyzer_and_initial_source_preserved"] = analyzer_.isVisible() && document_.graph() == final && artwork_->capture()->pins &&
+            original->declaration->sources.lock.syntax->bytes == bytes;
+    }
+    bool passed = checks.size() == 20;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"caption", artwork_note_->text()}, {"scope", "declared logical pins plus private exact fixture anchor convention; no SVG/electrical truth, placement or wiring"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

@@ -1,5 +1,45 @@
 # Current state
 
+## Current SN-023 state: declared fixture pin Preview tested
+
+On 2026-09-30, the [declared pin increment](../experiments/SN-023-pin-preview.md)
+adds a private convention for the unchanged artwork and `two-pin/a` (left lead),
+`two-pin/b` (right lead). The validated declared map chooses logical IDs; the
+original shows p/a-n/b and a swapped map n/a-p/b. The SVG declares no anchors;
+this is no geometry ABI, schema truth, polarity or model/electrical acceptance.
+Qt-free selection owns the complete sorted map; capture owns optional positions.
+Retention compares full mapping even when annotations are unavailable. Unknown
+descriptor/anchor counts keep recognized artwork without invented positions.
+Qt paints markers/IDs using the existing fit and no repaint I/O. Full captions
+are readable with minimum layout policies; Properties remains independent.
+
+Two focused Release CTests passed first run: ten tests/36 requests, 16 lifecycle
+assertions/one saved-byte audit and unchanged document contracts. Qt-free execution
+and direct PE imports passed. Final Qt path passed 20 controls/one byte audit and
+wide/narrow marker checks; original/swapped/fitted images inspected. Four drafts,
+nonmutation, existing right R edit, history and exact copy/reopen retained. The
+first 20-check GUI clipped caption text; GUI02 failed 18/20 on intermediate layout
+sizes. Both sources/binaries/reports/captures remain preserved. GUI03 settled four
+test-only nested layout-event passes and passed; no human recovery/DPI inference.
+Focused review found no actionable defect; backend/edit/worker/layout matrices reused.
+
+PR #77 was reconfirmed MERGED at `d84db84f86bba557eab832b56b46df4a3ad051b1`,
+with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
+main and zero unpublished commits. Branch `codex/sn-023-pin-preview` starts there.
+All 222 prior evidence files and twelve independent overlays are preserved; only
+this task's shared CURRENT/BACKLOG prefix/row is published. Source PR records final
+repository/staged-tree/required-check/squash results. Full SN-023 remains in_progress.
+
+Next define one bounded existing-occurrence placement gate with stable identity
+and persistence acceptance; reduce to read-only placement if existing operations
+cannot support a coherent edit. General anchors/schema, canvas/wiring/components,
+managed Save, instruments, real workers/IPC, human file dialogs, keyboard/accessibility,
+monitor/DPI, persistent layout and packaging remain pending. Preserve SN-021
+Windows/local-NTFS/one-managed-document/fixed-E-01 limits and all negatives, SN-022
+synthetic selection/failed setup/runtime, and SN-017 Python/GDB/fixture ownership,
+profiles/tolerances, MCU/toolchain independence and PDF/PID fixes. January
+stabilization and February 2027 classroom use remain planning targets.
+
 ## Current SN-023 state: explicit fixture artwork Preview tested
 
 On 2026-09-30, the [closed Preview increment](../experiments/SN-023-fixture-preview.md)
