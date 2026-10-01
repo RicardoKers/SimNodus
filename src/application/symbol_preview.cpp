@@ -102,4 +102,31 @@ SymbolPreviewResult capture_fixture_symbol(const ProjectGraph& graph,
             std::move(selection), resource_root, std::move(resources), *artwork, std::move(pins)});
     } catch(const std::bad_alloc&) { return SymbolPreviewError{stage, "memory"}; }
 }
+bool fixture_capture_matches(const ProjectGraph& graph, std::string_view component,
+    const SymbolPreviewCapture& capture)
+{
+    const auto selected = select_fixture_symbol(graph, component);
+    const auto* current = std::get_if<SymbolPreviewSelection>(&selected);
+    if(!current) return false;
+    const auto& old = capture.selection;
+    const auto inspected = inspect_fixture_pins(graph, component);
+    std::optional<FixturePreviewPins> pins;
+    if(const auto* known = std::get_if<FixturePreviewPins>(&inspected)) pins = *known;
+    return current->component == old.component && current->symbol == old.symbol && current->asset == old.asset &&
+        current->request.dependency == old.request.dependency && current->request.resource == old.request.resource &&
+        current->request.path == old.request.path && current->request.bytes == old.request.bytes && current->request.sha256 == old.request.sha256 &&
+        current->pin_map == old.pin_map && pins == capture.pins;
+}
+OccurrenceArtworkResult capture_fixture_occurrence(const ProjectGraph& graph,
+    std::span<const std::string> path, const std::string& resource_root)
+{
+    try {
+        auto occurrence = inspect_component_occurrence(graph, path);
+        if(!occurrence) return SymbolPreviewError{SymbolPreviewStage::selection, "occurrence"};
+        const auto symbol = capture_fixture_symbol(graph, occurrence->component, resource_root);
+        if(const auto* error = std::get_if<SymbolPreviewError>(&symbol)) return *error;
+        return std::make_shared<const OccurrenceArtworkCapture>(OccurrenceArtworkCapture{
+            std::move(*occurrence), std::get<0>(symbol)});
+    } catch(const std::bad_alloc&) { return SymbolPreviewError{SymbolPreviewStage::selection, "memory"}; }
+}
 }

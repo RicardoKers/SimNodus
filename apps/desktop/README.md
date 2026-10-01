@@ -19,6 +19,21 @@ It waits for the editor to close and retains diagnostics; it does not validate
 window visibility. `--prepare-only --out NEW_DIR` copies inputs without Qt.
 No executable, Qt runtime or model is copied or downloaded; this is not packaging.
 
+The [read-only occurrence tab](../../docs/experiments/SN-023-occurrence-view.md)
+offers full existing component paths independently of Properties/library Preview.
+Select `main/right/r`, then **Capture Occurrence Artwork...** and explicitly choose
+an artwork root. It captures only the previous owned resistor SVG; other artwork
+remains unavailable. The caption shows current name/applied resistance, not a
+measurement or saved position. Switch to Structure and edit `main/right` to `3.5`
+kohm: the central path/capture survives and displays `3500 ohm`. Changed occurrence
+paths clear that capture, library choices leave it independent, successful Open
+clears it and failures retain it. Re-select/capture explicitly after reopening a copy.
+The demo helper's optional occurrence instructions work with the latest local build:
+
+```text
+python tools/run_editor_demo.py --editor build/sn023-occurrence-view/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/occurrence-demo-01
+```
+
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level
 display name with **Apply Name**, then **File -> Save Copy** using a new ASCII

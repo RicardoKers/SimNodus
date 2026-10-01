@@ -1,5 +1,32 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [read-only occurrence artwork](../experiments/SN-023-occurrence-view.md).
+PR #79 was reconfirmed MERGED at `1790b44dd7f6893978f5e100bf0dad7428131400`,
+with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
+main and zero unpublished commits. Reconfirm the newest source PR/squash before
+continuing. The central tab selects one full existing component occurrence path
+independently of Properties/library Preview. Qt-free lookup owns metadata; explicit
+occurrence capture owns a separately requested one-file artifact. Current labels/
+values requery after name/upstream-R/history; full binding/ID equality retains the
+capture, path/map changes clear it, successful Open clears it and failures retain
+marked prior. No saved geometry/drag/wiring/schema/engine operation is added.
+Three CTests passed first run: six new tests/34 selections/one lifecycle, 14 assertions/
+one byte audit; headless execution/imports passed. GUI01/02 each passed 25 controls/
+one audit and images inspected. Initial artifacts retained before review's bounded
+choice-enumeration refinement; native source/binary unchanged afterward. Temporary
+case review access denial was recorded; host context audited/copied all six files with
+original data/permissions preserved. Keep all 228 earlier evidence/twelve overlays.
+Four drafts, independent captures, left/right values, existing edit/history/copy/
+reopen and full stable ID preserved. Test-only direct reloads assess binding
+retention, not user editing/Open/recovery. Human dialogs/normal close, keyboard,
+large-project responsiveness, monitor/DPI/session layout and packaging stay pending;
+the earlier visible-window demo observation remains inconclusive. Next establish
+one read-only declared terminal/net correspondence gate, explicitly scoped to local
+declaration membership rather than flattened electrical/model truth. No wiring or
+general components/instruments block. Preserve SN-017/021/022 accepted limits,
+negative/inconclusive evidence, January stabilization and February 2027 planning.
+The following handoffs retain their historical narrower results and constraints.
+
 Latest increment: [interactive fixture demo](../experiments/SN-023-interactive-demo.md).
 PR #78 was reconfirmed MERGED at `b85b2a29b88dc0b2db438687599d7482582264ba`,
 with required Foundation Windows 66/66 and Ubuntu 55/55 successful, equal

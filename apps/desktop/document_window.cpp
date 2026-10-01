@@ -30,10 +30,13 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTableWidget>
+#include <QTabWidget>
 #include <QTreeWidget>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <cstdio>
+#include <algorithm>
+#include <set>
 
 namespace {
 QString text(std::string_view value)
@@ -61,10 +64,29 @@ DocumentWindow::DocumentWindow()
     layout->addWidget(name_);
     apply_ = new QPushButton("Apply Name");
     layout->addWidget(apply_);
-    layout->addWidget(new QLabel("Declared structure (read only; schematic placement and wiring are pending)"));
+    layout->addWidget(new QLabel("Declared views (read only; schematic placement and wiring are pending)"));
     structure_ = new QTreeWidget;
     structure_->setHeaderLabels({"Source entity / stable ID", "Definition / explicit terminals"});
-    layout->addWidget(structure_);
+    views_ = new QTabWidget;
+    views_->addTab(structure_, "Structure");
+    auto* occurrence_panel = new QWidget;
+    auto* occurrence_layout = new QVBoxLayout(occurrence_panel);
+    occurrence_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+    occurrence_view_choice_ = new QComboBox;
+    occurrence_view_choice_->setAccessibleName("Read-only component occurrence path, independent of Properties");
+    occurrence_layout->addWidget(occurrence_view_choice_);
+    occurrence_artwork_ = new PreviewCanvas;
+    occurrence_artwork_->setAccessibleName("Read-only captured artwork for one existing component occurrence");
+    occurrence_layout->addWidget(occurrence_artwork_, 1);
+    occurrence_view_note_ = new QLabel;
+    occurrence_view_note_->setWordWrap(true);
+    occurrence_view_note_->setTextFormat(Qt::PlainText);
+    occurrence_view_note_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    occurrence_layout->addWidget(occurrence_view_note_);
+    capture_occurrence_ = new QPushButton("Capture Occurrence Artwork...");
+    occurrence_layout->addWidget(capture_occurrence_);
+    views_->addTab(occurrence_panel, "Occurrence (read only)");
+    layout->addWidget(views_, 1);
     setCentralWidget(central);
     components_ = new QDockWidget("Components / Preview", this);
     components_->setObjectName("components-preview");
@@ -204,6 +226,12 @@ DocumentWindow::DocumentWindow()
     connect(resistance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(capacitance_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(occurrence_, &QComboBox::currentIndexChanged, this, [this] { selectOccurrence(); });
+    connect(occurrence_view_choice_, &QComboBox::currentIndexChanged, this, [this] { updateOccurrenceView(); });
+    connect(capture_occurrence_, &QPushButton::clicked, this, [this] {
+        const auto root = QFileDialog::getExistingDirectory(this, "Choose explicit occurrence artwork resource root");
+        if(root.isEmpty()) { updateOccurrenceNote("Capture cancelled; current occurrence retained."); return; }
+        captureOccurrence(root);
+    });
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
@@ -236,7 +264,9 @@ bool DocumentWindow::openDocument(const QString& root, const QString& leaf)
 {
     const auto result = document_.open(utf8(root), utf8(leaf));
     if(const auto* error = std::get_if<simnodus::ProjectAcquisitionError>(&result)) {
-        reportError("Open", error->code, error->offset, error->system_code); return false;
+        reportError("Open", error->code, error->offset, error->system_code);
+        updateOccurrenceNote(occurrence_capture_ ? "Open refused; prior occurrence capture retained." : "Open refused.");
+        return false;
     }
     refresh();
     status_->setText("Opened inert declaration. Referenced resources and runtime remain unverified.");
@@ -273,6 +303,9 @@ bool DocumentWindow::saveCopy(const QString& leaf)
 void DocumentWindow::refresh()
 {
     const QSignalBlocker blocked(structure_);
+    { const QSignalBlocker blocked_choice(occurrence_view_choice_); occurrence_view_choice_->clear(); }
+    occurrence_capture_.reset();
+    occurrence_artwork_->setCapture({});
     catalog_->clear(); structure_->clear();
     artwork_->setCapture({}); preview_artwork_->setEnabled(false);
     updateArtworkNote();
@@ -338,16 +371,7 @@ void DocumentWindow::retainPreview()
 {
     const auto& capture = artwork_->capture();
     if(!capture || !document_.graph()) return;
-    const auto selected = simnodus::select_fixture_symbol(*document_.graph(), utf8(selectedComponent()));
-    const auto* current = std::get_if<simnodus::SymbolPreviewSelection>(&selected);
-    const auto& old = capture->selection;
-    const auto inspected = simnodus::inspect_fixture_pins(*document_.graph(), utf8(selectedComponent()));
-    std::optional<simnodus::FixturePreviewPins> pins;
-    if(const auto* known = std::get_if<simnodus::FixturePreviewPins>(&inspected)) pins = *known;
-    if(current && current->component == old.component && current->symbol == old.symbol && current->asset == old.asset &&
-        current->request.dependency == old.request.dependency && current->request.resource == old.request.resource &&
-        current->request.path == old.request.path && current->request.bytes == old.request.bytes && current->request.sha256 == old.request.sha256 &&
-        current->pin_map == old.pin_map && pins == capture->pins) return;
+    if(simnodus::fixture_capture_matches(*document_.graph(), utf8(selectedComponent()), *capture)) return;
     artwork_->setCapture({});
     updateArtworkNote("Declared symbol selection changed. Explicit new Preview required.");
 }
@@ -382,6 +406,94 @@ bool DocumentWindow::previewArtwork(const QString& resource_root)
     artwork_->setCapture(std::get<0>(result));
     updateArtworkNote();
     status_->setText("Captured only the selected known symbol. Models, other resources and simulation remain unverified.");
+    return true;
+}
+void DocumentWindow::refreshOccurrenceChoices()
+{
+    const auto previous = occurrence_view_choice_->currentData().toStringList();
+    const QSignalBlocker blocked(occurrence_view_choice_);
+    occurrence_view_choice_->clear();
+    occurrence_view_choice_->addItem("Select an existing component occurrence", QStringList{});
+    if(document_.graph()) {
+        std::set<std::string> component_ids;
+        for(const auto& component : document_.graph()->connectivity.components) component_ids.insert(component.identity.id);
+        std::vector<std::vector<std::string>> paths;
+        // The loader already validates every resolved row. List component paths
+        // directly; fully cross-check only the currently selected path below.
+        for(const auto& row : document_.graph()->declaration->sources.topology.parameters.instances)
+            if(component_ids.contains(row.definition)) paths.push_back(row.path);
+        std::sort(paths.begin(), paths.end());
+        for(const auto& ids : paths) {
+            QStringList path;
+            for(const auto& id : ids) path << text(id);
+            occurrence_view_choice_->addItem(path.join("/"), path);
+        }
+    }
+    const auto retained = occurrence_view_choice_->findData(previous);
+    if(retained >= 0) occurrence_view_choice_->setCurrentIndex(retained);
+    occurrence_view_choice_->setEnabled(occurrence_view_choice_->count() > 1);
+    updateOccurrenceView();
+}
+void DocumentWindow::updateOccurrenceView()
+{
+    current_occurrence_.reset();
+    std::vector<std::string> path;
+    for(const auto& id : occurrence_view_choice_->currentData().toStringList()) path.push_back(utf8(id));
+    if(document_.graph()) current_occurrence_ = simnodus::inspect_component_occurrence(*document_.graph(), path);
+    capture_occurrence_->setEnabled(current_occurrence_ && std::holds_alternative<simnodus::SymbolPreviewSelection>(
+        simnodus::select_fixture_symbol(*document_.graph(), current_occurrence_->component)));
+    if(occurrence_capture_) {
+        const auto& old = occurrence_capture_->occurrence;
+        if(!current_occurrence_ || current_occurrence_->path != old.path || current_occurrence_->source_circuit != old.source_circuit ||
+            current_occurrence_->source_instance != old.source_instance || current_occurrence_->component != old.component ||
+            !simnodus::fixture_capture_matches(*document_.graph(), current_occurrence_->component, *occurrence_capture_->symbol))
+            occurrence_capture_.reset();
+    }
+    occurrence_artwork_->setCapture(occurrence_capture_ ? occurrence_capture_->symbol : nullptr);
+    updateOccurrenceNote();
+}
+void DocumentWindow::updateOccurrenceNote(const QString& message)
+{
+    occurrence_view_note_->setToolTip({});
+    QString note = "Select one existing component occurrence. Resource capture is explicit; placement and wiring are pending.";
+    if(current_occurrence_) {
+        const auto& current = *current_occurrence_;
+        QStringList path;
+        for(const auto& id : current.path) path << text(id);
+        note = "Occurrence: " + path.join("/") + "\nSource: " + text(current.source_circuit) + "/" + text(current.source_instance) +
+            "; component: " + text(current.component) + "\nCurrent instance name: " + text(current.name);
+        if(const auto parameter = current.parameters.find("resistance"); parameter != current.parameters.end() && parameter->second.unit == "ohm")
+            note += "\nApplied resistance: " + text(parameter->second.value) + " ohm (" + text(parameter->second.origin) + ")";
+        note += "\nRead only; fitted artwork, no saved position or runtime measurement.";
+        if(occurrence_capture_) {
+            const auto& capture = *occurrence_capture_->symbol;
+            note += "\nCaptured 227-byte owned fixture artwork.";
+            if(capture.pins) {
+                QStringList pins;
+                for(const auto& pin : *capture.pins) pins << text(pin.logical_pin) + "/" + text(pin.symbol_pin);
+                note += "\nPrivate fixture convention a=left, b=right: " + pins.join("; ");
+            } else note += "\nPin-anchor correspondence unavailable.";
+            occurrence_view_note_->setToolTip("Explicit occurrence root: " + text(capture.requested_root) +
+                "\nPath: " + text(capture.selection.request.path) + "\nSHA-256: " + text(capture.selection.request.sha256));
+        } else note += capture_occurrence_->isEnabled() ? "\nNo captured artwork. Choose an explicit resource root." :
+            "\nArtwork unavailable for this component/descriptor.";
+    }
+    if(!message.isEmpty()) note += "\n" + message;
+    occurrence_view_note_->setText(note);
+}
+bool DocumentWindow::captureOccurrence(const QString& resource_root)
+{
+    if(!document_.graph() || !current_occurrence_) return false;
+    const auto result = simnodus::capture_fixture_occurrence(*document_.graph(), current_occurrence_->path, utf8(resource_root));
+    if(const auto* error = std::get_if<simnodus::SymbolPreviewError>(&result)) {
+        status_->setText(QString("Occurrence capture refused: %1 (system %2). Current document retained.").arg(error->code).arg(error->system_code));
+        updateOccurrenceNote(occurrence_capture_ ? "Capture refused; prior occurrence capture retained." : "Capture unavailable.");
+        return false;
+    }
+    occurrence_capture_ = std::get<0>(result);
+    occurrence_artwork_->setCapture(occurrence_capture_->symbol);
+    updateOccurrenceNote();
+    status_->setText("Captured one existing occurrence's known artwork. No document edit or simulation.");
     return true;
 }
 void DocumentWindow::selectInstance()
@@ -527,6 +639,7 @@ void DocumentWindow::updateParameterInspection()
     const auto retained = occurrence_->findData(previous);
     if(retained >= 0) occurrence_->setCurrentIndex(retained);
     selectOccurrence();
+    refreshOccurrenceChoices();
 }
 void DocumentWindow::selectOccurrence()
 {
@@ -1382,6 +1495,130 @@ void DocumentWindow::runPinPreviewAcceptance(const QString& root, const QString&
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"caption", artwork_note_->text()}, {"scope", "declared logical pins plus private exact fixture anchor convention; no SVG/electrical truth, placement or wiring"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report)
+{
+    QJsonObject checks;
+    showAnalyzer();
+    checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
+    checks["inert_open_and_empty_occurrence"] = openDocument(root, "original.json") && !current_occurrence_ && !occurrence_capture_ &&
+        !artwork_->capture() && !document_.dirty() && occurrence_view_choice_->count() == 5;
+    const auto choose = [this](const QStringList& path) {
+        const auto index = occurrence_view_choice_->findData(path);
+        if(index < 0) return false;
+        occurrence_view_choice_->setCurrentIndex(index);
+        return occurrence_view_choice_->currentData().toStringList() == path;
+    };
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const QStringList right{"main", "right", "r"}, left{"main", "left", "r"}, capacitor{"main", "right", "c"};
+    const auto occurrence_root = resource_root + "/occurrence", library_root = resource_root + "/library";
+    if(document_.graph()) {
+        const auto original = document_.graph();
+        const auto bytes = std::string(document_.bytes());
+        checks["explicit_existing_occurrence_selection"] = choose(right) && current_occurrence_ &&
+            current_occurrence_->source_circuit == "rc" && current_occurrence_->source_instance == "r" &&
+            current_occurrence_->parameters.at("resistance").value == "2200" && capture_occurrence_->isEnabled() && !occurrence_capture_;
+        int resistor = -1, cap = -1;
+        for(std::size_t i = 0; i < original->connectivity.components.size(); ++i) {
+            const auto& id = original->connectivity.components[i].identity.id;
+            if(id == "resistor") resistor = static_cast<int>(i);
+            if(id == "capacitor") cap = static_cast<int>(i);
+        }
+        catalog_->setCurrentRow(resistor);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        name_->setText("Pending project"); instance_name_->setText("Pending right");
+        resistance_->setText("3.5"); capacitance_->setText("470");
+        const auto drafts = [this] {
+            return name_->text() == "Pending project" && instance_name_->text() == "Pending right" && resistance_->text() == "3.5" && capacitance_->text() == "470";
+        };
+        checks["independent_library_capture"] = previewArtwork(library_root) && artwork_->capture() && !occurrence_capture_;
+        const auto library = artwork_->capture();
+        checks["independent_occurrence_capture"] = captureOccurrence(occurrence_root) && occurrence_capture_ && library &&
+            occurrence_capture_->symbol != library && occurrence_capture_->symbol->requested_root == utf8(occurrence_root) &&
+            library->requested_root == utf8(library_root) && occurrence_capture_->symbol->resources->size() == 1;
+        checks["capture_nonmutation_and_four_drafts"] = drafts() && document_.graph() == original && document_.bytes() == bytes &&
+            !document_.dirty() && !document_.can_undo() && !original->declaration->sources.lock.resources_verified &&
+            !original->declaration->sources.lock.containment_verified && !original->declaration->sources.resource_interfaces_verified && !original->declaration->runtime_profile_verified;
+        const auto first = occurrence_capture_;
+        views_->setCurrentIndex(1); views_->setCurrentIndex(0); views_->setCurrentIndex(1);
+        catalog_->setCurrentRow(cap);
+        checks["tab_and_catalog_independence"] = drafts() && occurrence_capture_ == first && !artwork_->capture() &&
+            occurrence_view_choice_->currentData().toStringList() == right && selected_instance_ == "right";
+        catalog_->setCurrentRow(resistor); previewArtwork(library_root);
+        checks["path_switch_clears_only_occurrence_keeps_drafts"] = choose(left) && !occurrence_capture_ && artwork_->capture() &&
+            drafts() && selected_instance_ == "right" && occurrence_->currentText() == "main/right";
+        checks["left_occurrence_uses_correct_applied_value"] = captureOccurrence(occurrence_root) && current_occurrence_ &&
+            current_occurrence_->parameters.at("resistance").value == "1000" && occurrence_view_note_->text().contains("main/left/r");
+        checks["return_right_requires_new_capture"] = choose(right) && !occurrence_capture_ && drafts() && captureOccurrence(occurrence_root);
+        checks["unavailable_component_not_library_symbol"] = choose(capacitor) && !occurrence_capture_ && !capture_occurrence_->isEnabled() &&
+            !captureOccurrence(occurrence_root) && artwork_->capture() && selectedComponent() == "resistor" && drafts();
+        choose(right); captureOccurrence(occurrence_root);
+        const auto captured = occurrence_capture_;
+        checks["failed_capture_retains_prior"] = !captureOccurrence(occurrence_root + "/missing") && occurrence_capture_ == captured &&
+            occurrence_view_note_->text().contains("prior occurrence capture retained") && drafts();
+        const auto source = occurrence_root + "/tests/schema/fixtures/assets/passive.svg", moved = source + ".temporarily-absent";
+        const auto removed = QFile::rename(source, moved);
+        occurrence_artwork_->resize(occurrence_artwork_->width(), occurrence_artwork_->height() + 1);
+        settle();
+        const auto image = occurrence_artwork_->grab();
+        checks["repaint_with_source_absent_no_new_authority"] = removed && !QFile::exists(source) && !image.isNull() &&
+            occurrence_artwork_->capture() == captured->symbol && document_.graph() == original && document_.bytes() == bytes;
+        checks["restored_source_and_drafts_unchanged"] = QFile::rename(moved, source) && drafts() && occurrence_capture_ == captured;
+        name_->setText(text(document_.name())); instance_name_->setText("right"); capacitance_->setText("220");
+        apply_resistance_->click();
+        const auto edited = document_.graph();
+        checks["existing_right_edit_refreshes_selected_occurrence"] = edited != original && occurrence_capture_ == captured &&
+            current_occurrence_ && current_occurrence_->parameters.at("resistance").value == "3500" &&
+            occurrence_view_note_->text().contains("3500 ohm") && occurrence_view_choice_->currentData().toStringList() == right && !editsPending();
+        checks["history_refreshes_current_value_keeps_capture"] = undoEdit() && occurrence_capture_ == captured &&
+            current_occurrence_->parameters.at("resistance").value == "2200" && redoEdit() && document_.graph() == edited &&
+            occurrence_capture_ == captured && current_occurrence_->parameters.at("resistance").value == "3500";
+        structure_->setCurrentItem(instanceItem("rc", "r"));
+        checks["name_refresh_ignores_label_and_offsets"] = applyInstanceName("Shown resistor") && occurrence_capture_ == captured &&
+            current_occurrence_->name == "Shown resistor" && occurrence_view_note_->text().contains("Shown resistor") &&
+            captured->occurrence.name == "r" && artwork_->capture();
+        checks["restored_name_copy_retains_full_identity"] = undoEdit() && document_.graph() == edited && current_occurrence_->name == "r" &&
+            saveCopy("occurrence-copy.json") && occurrence_capture_ == captured && document_.dirty() && document_.leaf() == "original.json" && document_.can_redo();
+        checks["failures_retain_current_state"] = !saveCopy("occurrence-copy.json") && !openDocument(root, "invalid.json") &&
+            document_.graph() == edited && occurrence_capture_ == captured && occurrence_view_note_->text().contains("Open refused") && document_.can_redo();
+        analyzer_.close(); showAnalyzer();
+        checks["analyzer_reopen_preserves_occurrence"] = analyzer_.isVisible() && occurrence_capture_ == captured && document_.graph() == edited;
+        checks["explicit_reopen_clears_view_and_history"] = openDocument(root, "occurrence-copy.json") && !current_occurrence_ &&
+            !occurrence_capture_ && !artwork_->capture() && !document_.dirty() && !document_.can_undo() && !document_.can_redo();
+        checks["persisted_occurrence_reselected_and_captured"] = choose(right) && current_occurrence_ &&
+            current_occurrence_->parameters.at("resistance").value == "3500" && captureOccurrence(occurrence_root);
+        const auto reopened = occurrence_capture_;
+        // Harness-only requery tests binding retention; these direct native Opens
+        // are not a presentation Open workflow or a user binding-edit/recovery flow.
+        const auto reordered = document_.open(utf8(root), "reordered.json");
+        refreshOccurrenceChoices();
+        checks["reordered_definitions_and_maps_retain_capture"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(reordered) &&
+            occurrence_capture_ == reopened && current_occurrence_->path == reopened->occurrence.path;
+        const auto swapped = document_.open(utf8(root), "swapped.json");
+        refreshOccurrenceChoices();
+        checks["changed_binding_clears_occurrence_capture"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(swapped) &&
+            current_occurrence_ && !occurrence_capture_ && capture_occurrence_->isEnabled();
+        openDocument(root, "occurrence-copy.json"); choose(right); captureOccurrence(occurrence_root);
+        views_->setCurrentIndex(1);
+        catalog_->setCurrentRow(resistor); previewArtwork(library_root);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        settle();
+        checks["final_caption_and_control_complete"] = occurrence_view_note_->textFormat() == Qt::PlainText &&
+            occurrence_view_note_->text().contains("main/right/r") && occurrence_view_note_->text().contains("3500 ohm") &&
+            occurrence_view_note_->text().contains("no saved position") && occurrence_view_note_->height() >= occurrence_view_note_->heightForWidth(occurrence_view_note_->width()) &&
+            views_->currentWidget()->rect().contains(QRect(capture_occurrence_->mapTo(views_->currentWidget(), QPoint{}), capture_occurrence_->size())) &&
+            grab().save(report + ".png");
+    }
+    bool passed = checks.size() == 25;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"occurrence_note", occurrence_view_note_->text()}, {"scope", "one read-only occurrence; explicit independent artwork; existing R edit/history/copy; no saved geometry or human/DPI recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
