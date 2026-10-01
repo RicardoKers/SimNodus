@@ -31,8 +31,16 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-occurrence-view/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/occurrence-demo-01
+python tools/run_editor_demo.py --editor build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/terminal-demo-01
 ```
+
+The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
+works without artwork capture: `main/right/r` pin `p` shows `main/right/drive`,
+and `n` shows `main/right/junction`. Pin/net names are plain display text; full
+IDs retain the containing occurrence. Unlisted pins show **Unconnected locally**.
+This is only declared local membership, without hierarchy flattening, a connection
+edit or physical/model truth. Existing edit/history/copy requery the current graph;
+Properties/library selection remains independent.
 
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level

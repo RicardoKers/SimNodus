@@ -1,5 +1,31 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [declared local terminals](../experiments/SN-023-terminal-membership.md).
+PR #80 was reconfirmed MERGED at bab9f24e165a8a638576f7cc846fda04598eb7a8,
+with exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main
+copies and zero unpublished commits. Reconfirm the newest PR/squash before continuing.
+The existing occurrence view now owns every logical pin and optional directly
+containing net ID/name/full path. Original right/r p->main/right/drive and
+n->main/right/junction are local declarations, not flattened electrical truth.
+Absent membership is explicit. No port traversal/symbol inference/net edit/resource
+authority/runtime/save/schema operation. It works without artwork and reconsults
+current graphs independently of immutable capture metadata, Properties and library.
+Three CTests passed first run: eight tests/52 selections/one lifecycle, 14 assertions/
+one audit plus existing Preview/document contracts. Headless without Qt passed. GUI01
+passed 36 controls/one byte audit; image inspected. Nested/reused/absent/unconnected/
+changed paths, reordered labels and null/swapped symbols match declared-JSON oracle.
+Both builds passed; initial criteria anchor/net confusion corrected before edits
+and redundant rich-text tooltips removed after review, with initial artifacts saved.
+No failed runtime in this slice; all 231 historical evidence/twelve overlays retained.
+Direct reload/layout settling is not human wiring/Open/recovery/DPI evidence.
+Next separately gate read-only peer endpoints within one selected local net with
+explicit kinds/full IDs. Keep wiring/placement/general components/instruments,
+managed Save/real workers/IPC and human dialogs/normal close/accessibility/large
+projects/monitor/DPI/session layout/packaging pending. Earlier demo visibility remains
+inconclusive. Preserve SN-017/021/022 boundaries, all negative evidence, independent
+windows/panels/shared ownership, January stabilization and February 2027 classroom
+planning target. The following handoffs retain their narrower historical results.
+
 Latest tested increment: [read-only occurrence artwork](../experiments/SN-023-occurrence-view.md).
 PR #79 was reconfirmed MERGED at `1790b44dd7f6893978f5e100bf0dad7428131400`,
 with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote

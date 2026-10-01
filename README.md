@@ -56,6 +56,10 @@ apply a closed fixture convention and preserve explicit pin-map identity.
 The [read-only occurrence view](docs/experiments/SN-023-occurrence-view.md) selects
 one existing full ID path independently of Properties/library Preview and displays
 explicitly captured artwork with current applied values; no position is saved.
+Its [local terminal table](docs/experiments/SN-023-terminal-membership.md) shows
+declared pin/net IDs and full local paths without artwork capture or electrical inference.
+Its [local terminal table](docs/experiments/SN-023-terminal-membership.md) shows
+declared pin/net IDs and full local paths without artwork capture or electrical inference.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

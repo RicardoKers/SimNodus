@@ -1,0 +1,613 @@
+{
+  "experiment": "SN-023 read-only declared local terminal membership",
+  "recorded_date": "2026-10-01",
+  "status": "passed-for-owned-fixture; SN-023-in-progress; no-wiring-edit-or-electrical-acceptance",
+  "base_main": "bab9f24e165a8a638576f7cc846fda04598eb7a8",
+  "branch": "codex/sn-023-terminal-membership",
+  "reconfirmed_pr_80": {
+    "state": "MERGED",
+    "head": "802fdbaafeac8c9b96c04700a5bf16ad26504b5e",
+    "squash": "bab9f24e165a8a638576f7cc846fda04598eb7a8",
+    "required_checks": [
+      "Foundation (windows-latest): SUCCESS; 67/67",
+      "Foundation (ubuntu-latest): SUCCESS; 56/56"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "ctest_python": "3.14.4",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-terminal-membership/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-terminal-membership/native-build --config Release --target simnodus_document_editor native_occurrence_probe native_preview_probe editor_document_tests (build01 then build02 after tooltip review)",
+    "ctest --test-dir build/sn023-terminal-membership/native-build -C Release --output-on-failure --verbose -R \"^(native-fixture-occurrence|native-fixture-preview|editor-document-contracts)$\"",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-terminal-membership/gui-01",
+    "python build/sn023-terminal-membership/headless_proof.py (QT_* removed; System32 PATH; dumpbin direct imports; saved-byte audit)",
+    "python tools/check_repository.py; git diff --check; task-only published-tree checker; source PR records exact-head Foundation/squash results"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "results": {
+    "targeted_ctest": "3/3 first run; extended occurrence plus existing Preview/document contracts",
+    "native_tests": 8,
+    "native_selection_requests": 52,
+    "native_lifecycle_requests": 1,
+    "native_total_requests": 53,
+    "native_assertions": 14,
+    "native_saved_byte_audits": 1,
+    "gui_controls": 36,
+    "gui_saved_byte_audits": 1,
+    "oracle": "Independent Python declared-ID traversal, pin/net membership and accepted value resolver; serialized owned metadata after native graph/raw release",
+    "headless": {
+      "command": [
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-terminal-membership\\native-build\\Release\\native_occurrence_probe.exe",
+        "--lifecycle",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-terminal-membership\\headless-root\\document",
+        "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-terminal-membership\\headless-root\\explicit-resource-root"
+      ],
+      "exit_code": 0,
+      "qt_environment_variables": [],
+      "child_path": "C:\\WINDOWS\\System32",
+      "lifecycle_assertions": 14,
+      "independent_saved_byte_audits": 1,
+      "direct_imports_contain_qt": false,
+      "document_and_asset_unchanged": true
+    },
+    "image": "Inspected GUI01; complete local pin/net paths, independent artwork/Properties and caption/button; applied 3500 ohm",
+    "review": "Removed redundant untrusted label tooltips; initial sources/executables saved; no further actionable defect",
+    "criteria_correction": "Initial example confused symbol anchors in/out with actual net IDs drive/junction; corrected before any production edit; both versions retained",
+    "environmental_observations": [
+      "Restricted planning-helper write of CURRENT denied without modification, same bounded helper succeeded in authorized host context",
+      "Restricted create-only GUI evidence write denied before any new record/snapshot; same helper succeeded in authorized host context",
+      "Documentation checker before evidence creation reported only two pending new evidence links; final complete checker is recorded separately"
+    ],
+    "runtime_failures": 0,
+    "engine_runs": 0,
+    "backend_worker_or_layout_matrices_rerun": 0,
+    "publication": "Repository/task-only tree/exact-source required Foundation/squash results recorded by source PR"
+  },
+  "policy": {
+    "membership": "Every logical pin sorted by ID, optional directly containing source net ID/name/full containing occurrence path; no port traversal or flattening",
+    "missing": "Unconnected locally states absent declared membership only; no floating/physical/model claim",
+    "identity": "Full root-prefixed occurrence IDs; no label, symbol map, array order or offset identity",
+    "current_metadata": "Table reconsults current graph; immutable capture metadata remains historical provenance and does not authorize resource I/O",
+    "presentation": "Qt Core/Gui/Widgets only; plain read-only cells without tooltips, separate Properties/catalog/four drafts; no paint resource reads",
+    "harness": "Direct native changed-declaration reloads test refresh/retention only; four layout event passes and script retries are not human wiring/Open/recovery/DPI evidence"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 1480,
+      "sha256": "8309cd974c311013d57eca2ad1dd1ef43a30d4b3c1c09f749d818ed56f655d1e"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 4463,
+      "sha256": "962d81e0f0887a5a2c586981908e9ea98812fa263644a2896ccffb4579388dab"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 4329,
+      "sha256": "18b10a85266246a638c9fdf93f8de66d6ee2e24220ba1a36e1b72536e4e4a6ee"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 124644,
+      "sha256": "55bd40b3c9d5785de10968839a039cc80786ba13368152257062f707006b5b5e"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 8629,
+      "sha256": "2b518c1da3f1248dbb58ce731cf38a7707767e1b975af62a5d739743bfcceb1e"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 15523,
+      "sha256": "85cc5b1860a631920be1dc0d7d7b94eef1e74938c775e12a86ed94317adbc802"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5163,
+      "sha256": "35ce90597b91af7c9d9b66c189da57b02344a5bfd9a6057f8a098a89bae9c92a"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 640000,
+      "sha256": "90a9df10618db6593b9820768e943b7ff5996e50454bcb4309d338e1baf14ae8"
+    },
+    {
+      "path": "build/sn023-terminal-membership/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 324096,
+      "sha256": "b16f19acae299a7e968ad241c4644cbb348dc2f279a343b8279e296ef01d89c1"
+    },
+    {
+      "path": "build/sn023-terminal-membership/native-build/Release/native_preview_probe.exe",
+      "bytes": 332800,
+      "sha256": "d475783e55acb4207b04764aecd21f10f48b48d41cb81f4e6287ea69cba376f2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "187153a9bccc51cba5cbdef2819ad6cf7049c7c0ff772237998e2beba925499d"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-terminal-membership-gui-01.json",
+      "bytes": 3064,
+      "sha256": "3130790169af5e3f6d75d22218f36058c9fc8dbb3a5cbfbd1ebe4d10fb2d6b98"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-terminal-membership/build-01.log",
+      "bytes": 11031,
+      "sha256": "f8ff0baf4b307d25bb8a331d683237fe065f29d87481bdbc95ae5c70161f27ab"
+    },
+    {
+      "path": "build/sn023-terminal-membership/build-02.log",
+      "bytes": 9026,
+      "sha256": "9175f4d5ab4fcc3fb2fb390eb363581687333382eab1f747ae8761faf746a5e8"
+    },
+    {
+      "path": "build/sn023-terminal-membership/configure-01.log",
+      "bytes": 1254,
+      "sha256": "25be0f2c4d3825e59d6e7099313af6ca93a589d6bfcac76d26818fff74d49441"
+    },
+    {
+      "path": "build/sn023-terminal-membership/ctest-01.log",
+      "bytes": 7837,
+      "sha256": "acdf1eefc0bc469e1b24b3ecf115c2c9ac113d80f238d19a1a3725f51ab0c695"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01.log",
+      "bytes": 132,
+      "sha256": "57d1f75c411188c6b2d6612ce4bda93e16a4523484474a8fbe2868fb5cf0add3"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless.imports.log",
+      "bytes": 797,
+      "sha256": "7a8bac2268c4625e0d6971a2b6d68d6c176eaaf1c6972177a94260c1ab9dcb0a"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless.stdout.log",
+      "bytes": 886,
+      "sha256": "8655b7efa79ff59d325f8fd73fc78bb50b6f9623096f361a9be6145f5fde6526"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/report.json",
+      "bytes": 3064,
+      "sha256": "3130790169af5e3f6d75d22218f36058c9fc8dbb3a5cbfbd1ebe4d10fb2d6b98"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/report.json.png",
+      "bytes": 93970,
+      "sha256": "4d82e964b5a46a3663a6fd4dc645eae59bdf50b25cbb39095fa7371f73d2f451"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/runner.json",
+      "bytes": 649,
+      "sha256": "faa8c037d07583c3420c768bad4284feb1c2cab8cac3428a5966c73490577647"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-terminal-membership/gui-01/stdout.log",
+      "bytes": 3125,
+      "sha256": "1bc55257e0e53aa6a48413ba2297a5a1d88f7f335057359a755171db06153cb2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless-root/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless-root/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless-root/explicit-resource-root/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/apps/desktop/document_window.cpp",
+      "bytes": 124514,
+      "sha256": "2fe0d41f06bf00c3a22f32eb2df95581eeb3c1d47dc2e22ea759745f948aac43"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/apps/desktop/document_window.hpp",
+      "bytes": 4329,
+      "sha256": "18b10a85266246a638c9fdf93f8de66d6ee2e24220ba1a36e1b72536e4e4a6ee"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 638976,
+      "sha256": "91979a897fe0f117a9900f3cbe9c172ef2ee155d1ebfec6de44b9da943b5de7b"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/build/sn023-terminal-membership/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 324096,
+      "sha256": "b16f19acae299a7e968ad241c4644cbb348dc2f279a343b8279e296ef01d89c1"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/manifest.json",
+      "bytes": 1962,
+      "sha256": "ff1ee9ad49798443f073a84e83bec082c78eb62c3948e3f280c145a9b80e4305"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/src/application/project_inspection.cpp",
+      "bytes": 4463,
+      "sha256": "962d81e0f0887a5a2c586981908e9ea98812fa263644a2896ccffb4579388dab"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/src/application/project_inspection.hpp",
+      "bytes": 1480,
+      "sha256": "8309cd974c311013d57eca2ad1dd1ef43a30d4b3c1c09f749d818ed56f655d1e"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5163,
+      "sha256": "35ce90597b91af7c9d9b66c189da57b02344a5bfd9a6057f8a098a89bae9c92a"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 8629,
+      "sha256": "2b518c1da3f1248dbb58ce731cf38a7707767e1b975af62a5d739743bfcceb1e"
+    },
+    {
+      "path": "build/sn023-terminal-membership/initial-tooltip-review/tests/resources/native_occurrence_regression.py",
+      "bytes": 15523,
+      "sha256": "85cc5b1860a631920be1dc0d7d7b94eef1e74938c775e12a86ed94317adbc802"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/apps/desktop/document_window.cpp",
+      "bytes": 124644,
+      "sha256": "55bd40b3c9d5785de10968839a039cc80786ba13368152257062f707006b5b5e"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/apps/desktop/document_window.hpp",
+      "bytes": 4329,
+      "sha256": "18b10a85266246a638c9fdf93f8de66d6ee2e24220ba1a36e1b72536e4e4a6ee"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/build/sn023-terminal-membership/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 640000,
+      "sha256": "90a9df10618db6593b9820768e943b7ff5996e50454bcb4309d338e1baf14ae8"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/build/sn023-terminal-membership/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "187153a9bccc51cba5cbdef2819ad6cf7049c7c0ff772237998e2beba925499d"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/build/sn023-terminal-membership/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 324096,
+      "sha256": "b16f19acae299a7e968ad241c4644cbb348dc2f279a343b8279e296ef01d89c1"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/build/sn023-terminal-membership/native-build/Release/native_preview_probe.exe",
+      "bytes": 332800,
+      "sha256": "d475783e55acb4207b04764aecd21f10f48b48d41cb81f4e6287ea69cba376f2"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/src/application/project_inspection.cpp",
+      "bytes": 4463,
+      "sha256": "962d81e0f0887a5a2c586981908e9ea98812fa263644a2896ccffb4579388dab"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/src/application/project_inspection.hpp",
+      "bytes": 1480,
+      "sha256": "8309cd974c311013d57eca2ad1dd1ef43a30d4b3c1c09f749d818ed56f655d1e"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5163,
+      "sha256": "35ce90597b91af7c9d9b66c189da57b02344a5bfd9a6057f8a098a89bae9c92a"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 8629,
+      "sha256": "2b518c1da3f1248dbb58ce731cf38a7707767e1b975af62a5d739743bfcceb1e"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 15523,
+      "sha256": "85cc5b1860a631920be1dc0d7d7b94eef1e74938c775e12a86ed94317adbc802"
+    },
+    {
+      "path": "build/sn023-terminal-membership/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-terminal-membership/acceptance-before-implementation.md",
+      "bytes": 3177,
+      "sha256": "03a606281791dcfafd3ab0c4214c859ea2c0cd8e2b2dc1ad840ef5cf45eae403"
+    },
+    {
+      "path": "build/sn023-terminal-membership/acceptance-initial-example.md",
+      "bytes": 2923,
+      "sha256": "1cb748d4352a23cd471858019018bc9c8ead1f2c46bcf72182d4361d9fb287ea"
+    },
+    {
+      "path": "build/sn023-terminal-membership/validate.py",
+      "bytes": 1752,
+      "sha256": "dd3d350c638f7ab32f268916c14653c296c83096ec6b336dac7ba12017543a7c"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless_proof.py",
+      "bytes": 2304,
+      "sha256": "63318741c70818df2a964689876ff68d20584f6159822cc2f69a965f0250de06"
+    },
+    {
+      "path": "build/sn023-terminal-membership/headless-proof.json",
+      "bytes": 648,
+      "sha256": "cdb6490bb5395726381d00a29f74e990c2818c766b8bed53861a1a35d4f2c4d7"
+    },
+    {
+      "path": "build/sn023-terminal-membership/record_evidence.py",
+      "bytes": 10989,
+      "sha256": "30235da8a7bd3e1bb6bb1aac80df33a675d20c42ca217158b45fcbf7f5f8d1da"
+    },
+    {
+      "path": "build/sn023-terminal-membership/planning-write-attempt-01.json",
+      "bytes": 493,
+      "sha256": "97bfcb60c9e0a995bfb411305d267965b03aec43d4561e81236f7725e31b4c00"
+    },
+    {
+      "path": "build/sn023-terminal-membership/evidence-write-attempt-01.json",
+      "bytes": 530,
+      "sha256": "bb314b58ed726b8de7ca6c460f0e7196672bd4630bdf2243066ddaed05a7e663"
+    },
+    {
+      "path": "build/sn023-terminal-membership/checker-pre-evidence.json",
+      "bytes": 525,
+      "sha256": "bf52b6674688a408a45704f40f8b478dc629330dc786f6c5a8a32dfdff568081"
+    },
+    {
+      "path": "build/sn023-terminal-membership/START_TERMINALS_DEMO.cmd",
+      "bytes": 350,
+      "sha256": "59cbcbc5bd602a7f9cbf156ca746f56f6ae815310614990ea2686bdbc845b3a2"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 231,
+    "historical_evidence_manifest_sha256": "6f56031bbe2af1bce75c797d658b314071c271e3412713ef1d5503d4220afd8e",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "768323d3aad53d136736a6040dd0670a113702037a946d8ae7f1e10321eff51b"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "e1b60437033baf0bfe7a57135f786984937102f68005d074c481b258d9a2a7c5"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "231 old evidence/ten untouched overlays match hashes; own CURRENT/BACKLOG prefix/row reverse to exact saved bytes"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-view-summary.json",
+      "bytes": 33929,
+      "sha256": "b580ca378db8f79bd9e496436549aac44dbcd0f09cf7194cb293ef69268b5ecf"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "No flattened physical/electrical/model correspondence, net/geometry/schema edit or new save/runtime/worker operation.",
+    "Next separately gate read-only local peer endpoints; placement/wiring/general components/properties/multi-step history/instruments/managed Save remain pending.",
+    "Human dialogs/normal close/visible desktop/keyboard/accessibility/large-project/monitor-DPI/session layout/packaging pending; prior demo remains inconclusive.",
+    "No executable/Qt runtime/dependency copied or distributed; installed inventory reused with origin/license/redistribution limits.",
+    "SN-017 Python/GDB/fixture ownership, accepted profiles/tolerances, MCU/toolchain independence and PDF/PID behavior preserved.",
+    "SN-021 limited to Windows/local-NTFS one managed document and explicit fixed E-01 replay; no external overwrite, automatic executable resources, production save service/general MCU or power-loss/trusted-origin/redistribution claim.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries do not validate user recovery.",
+    "January stabilization and February 2027 classroom use remain planning targets."
+  ]
+}

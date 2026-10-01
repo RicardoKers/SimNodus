@@ -85,6 +85,7 @@ private:
     QComboBox* occurrence_view_choice_;
     PreviewCanvas* occurrence_artwork_;
     QLabel* occurrence_view_note_;
+    QTableWidget* occurrence_terminals_;
     QPushButton* capture_occurrence_;
     std::optional<simnodus::ComponentOccurrenceView> current_occurrence_;
     std::shared_ptr<const simnodus::OccurrenceArtworkCapture> occurrence_capture_;

@@ -1,5 +1,42 @@
 # Current state
 
+## Current SN-023 state: declared local terminal membership tested
+
+On 2026-10-01, the [terminal table](../experiments/SN-023-terminal-membership.md)
+extends the read-only occurrence view with every declared logical pin and optional
+directly containing net ID/name/full path. main/right/r p->main/right/drive and
+n->main/right/junction remain distinct from left/parent nets. Missing membership
+is explicit local absence; no port traversal, flattening, electrical/model truth,
+geometry/wiring/schema/resource/runtime/save operation. It works before capture,
+requeries current graphs and preserves independent Properties/library/four drafts.
+
+Both Release builds passed. Initial criteria's mistaken anchor/net example was
+corrected before production edits; both versions retained. Review removed rich-text
+label tooltips before runtime tests, preserving initial sources/binaries. Three
+focused CTests passed first run: eight occurrence tests/52 selections/one lifecycle
+(53 requests), 14 assertions/one byte audit plus existing Preview/document contracts.
+Qt-free execution/imports passed. GUI01 passed 36 controls/one byte audit; image
+inspected for full local paths/independent views/applied 3500 ohm. Nested/reused IDs,
+unconnected/changed local membership, null/swapped symbols and untrusted labels
+match an independent JSON oracle. Existing R/name/history/copy/reopen retained.
+Direct reload/layout settling is test-only, not a user wiring/recovery/DPI flow.
+
+PR #80 was reconfirmed MERGED at bab9f24e165a8a638576f7cc846fda04598eb7a8,
+with exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, equal
+local/origin/remote main and zero unpublished commits. Branch
+codex/sn-023-terminal-membership preserves 231 prior evidence files/twelve overlays;
+only its shared CURRENT/BACKLOG prefix/row is published. Source PR records final
+checker/required-check/squash results. Full SN-023 stays in_progress; unchanged
+backend/worker/layout evidence reused. All negatives/inconclusive evidence retained.
+
+Next separately gate read-only declared peer endpoints within a selected local net,
+with explicit kinds/full IDs and no flattening. Placement/wiring/general components,
+instruments/shared captures, managed Save and real workers/IPC remain pending.
+Human dialogs/normal close/keyboard/accessibility/large-project/monitor/DPI/session
+layout/packaging and previous demo visibility remain unvalidated. Preserve separated
+layers/windows/panels/shared ownership, SN-017/021/022 limits, January stabilization
+and February 2027 classroom use as planning targets.
+
 ## Current SN-023 state: read-only occurrence artwork tested
 
 On 2026-09-30, the [occurrence view](../experiments/SN-023-occurrence-view.md) adds a

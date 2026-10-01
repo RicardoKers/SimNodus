@@ -1,5 +1,11 @@
 # Simulation source layout
 
+The [local terminal increment](../docs/experiments/SN-023-terminal-membership.md)
+extends owned occurrence inspection with logical pin IDs/names and optional
+directly containing net IDs/names/full paths. It walks validated source declarations
+without traversing ports, interpreting symbol anchors or flattening connectivity.
+Qt renders current rows without I/O; all headless libraries remain Qt-free.
+
 SN-023's [first editor slice](../docs/experiments/SN-023-document-editor.md) adds
 a Qt-free application document composing inert native acquisition, name revision
 and create-only Save Copy. Immutable domain graphs/source mapping remain owned
