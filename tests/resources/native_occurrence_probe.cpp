@@ -34,7 +34,21 @@ void write(const simnodus::ComponentOccurrenceView& value)
         std::cout << ",\"origin\":"; graph_probe::quote(parameter.origin);
         std::cout << '}';
     }
-    std::cout << "}}\n";
+    std::cout << "},\"terminals\":";
+    graph_probe::array(value.terminals, [](const auto& terminal) {
+        std::cout << "{\"pin\":"; graph_probe::quote(terminal.pin);
+        std::cout << ",\"name\":"; graph_probe::quote(terminal.name);
+        std::cout << ",\"net\":";
+        if(terminal.net) {
+            std::cout << "{\"id\":"; graph_probe::quote(terminal.net->id);
+            std::cout << ",\"name\":"; graph_probe::quote(terminal.net->name);
+            std::cout << ",\"path\":";
+            graph_probe::array(terminal.net->path, [](const auto& id) { graph_probe::quote(id); });
+            std::cout << '}';
+        } else std::cout << "null";
+        std::cout << '}';
+    });
+    std::cout << "}\n";
 }
 bool graph_result(const simnodus::ProjectRevisionResult& result)
 {

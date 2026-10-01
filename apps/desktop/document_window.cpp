@@ -16,6 +16,7 @@
 #include <QImage>
 #include <QHeaderView>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
@@ -78,6 +79,21 @@ DocumentWindow::DocumentWindow()
     occurrence_artwork_ = new PreviewCanvas;
     occurrence_artwork_->setAccessibleName("Read-only captured artwork for one existing component occurrence");
     occurrence_layout->addWidget(occurrence_artwork_, 1);
+    auto* terminals_note = new QLabel("Declared local terminal membership (read only; not flattened electrical connectivity)");
+    terminals_note->setWordWrap(true);
+    terminals_note->setTextFormat(Qt::PlainText);
+    terminals_note->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    occurrence_layout->addWidget(terminals_note);
+    occurrence_terminals_ = new QTableWidget(0, 5);
+    occurrence_terminals_->setAccessibleName("Declared logical terminals and directly containing local nets");
+    occurrence_terminals_->setHorizontalHeaderLabels({"Pin ID", "Pin name", "Local net ID", "Net name", "Local net path"});
+    occurrence_terminals_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    occurrence_terminals_->verticalHeader()->hide();
+    occurrence_terminals_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    occurrence_terminals_->horizontalHeader()->setStretchLastSection(true);
+    occurrence_terminals_->setMinimumHeight(96);
+    occurrence_terminals_->setMaximumHeight(135);
+    occurrence_layout->addWidget(occurrence_terminals_);
     occurrence_view_note_ = new QLabel;
     occurrence_view_note_->setWordWrap(true);
     occurrence_view_note_->setTextFormat(Qt::PlainText);
@@ -440,6 +456,22 @@ void DocumentWindow::updateOccurrenceView()
     std::vector<std::string> path;
     for(const auto& id : occurrence_view_choice_->currentData().toStringList()) path.push_back(utf8(id));
     if(document_.graph()) current_occurrence_ = simnodus::inspect_component_occurrence(*document_.graph(), path);
+    occurrence_terminals_->setRowCount(0);
+    if(current_occurrence_) for(const auto& terminal : current_occurrence_->terminals) {
+        QStringList net_path;
+        if(terminal.net) for(const auto& id : terminal.net->path) net_path << text(id);
+        const QStringList cells{text(terminal.pin), text(terminal.name),
+            terminal.net ? text(terminal.net->id) : "Unconnected locally",
+            terminal.net ? text(terminal.net->name) : QString{}, net_path.join("/")};
+        const auto row = occurrence_terminals_->rowCount();
+        occurrence_terminals_->insertRow(row);
+        for(int column = 0; column < cells.size(); ++column) {
+            auto* item = new QTableWidgetItem(cells[column]);
+            item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+            // QTableWidget paints plain text; avoid rich-text tooltips for untrusted labels.
+            occurrence_terminals_->setItem(row, column, item);
+        }
+    }
     capture_occurrence_->setEnabled(current_occurrence_ && std::holds_alternative<simnodus::SymbolPreviewSelection>(
         simnodus::select_fixture_symbol(*document_.graph(), current_occurrence_->component)));
     if(occurrence_capture_) {
@@ -1508,7 +1540,7 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
     showAnalyzer();
     checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
     checks["inert_open_and_empty_occurrence"] = openDocument(root, "original.json") && !current_occurrence_ && !occurrence_capture_ &&
-        !artwork_->capture() && !document_.dirty() && occurrence_view_choice_->count() == 5;
+        !artwork_->capture() && !document_.dirty() && occurrence_view_choice_->count() == 5 && occurrence_terminals_->rowCount() == 0;
     const auto choose = [this](const QStringList& path) {
         const auto index = occurrence_view_choice_->findData(path);
         if(index < 0) return false;
@@ -1517,6 +1549,18 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
     };
     const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
     const QStringList right{"main", "right", "r"}, left{"main", "left", "r"}, capacitor{"main", "right", "c"};
+    const auto terminals = [this](const QString& path, const QString& n, const QString& p) {
+        if(occurrence_terminals_->rowCount() != 2) return false;
+        for(int row = 0; row < 2; ++row) {
+            const auto id = row == 0 ? "n" : "p";
+            const auto net = row == 0 ? n : p;
+            const auto net_path = net.isEmpty() ? QString{} : path + "/" + net;
+            if(!occurrence_terminals_->item(row, 0) || occurrence_terminals_->item(row, 0)->text() != id ||
+                occurrence_terminals_->item(row, 2)->text() != (net.isEmpty() ? "Unconnected locally" : net) ||
+                occurrence_terminals_->item(row, 4)->text() != net_path) return false;
+        }
+        return true;
+    };
     const auto occurrence_root = resource_root + "/occurrence", library_root = resource_root + "/library";
     if(document_.graph()) {
         const auto original = document_.graph();
@@ -1524,6 +1568,14 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         checks["explicit_existing_occurrence_selection"] = choose(right) && current_occurrence_ &&
             current_occurrence_->source_circuit == "rc" && current_occurrence_->source_instance == "r" &&
             current_occurrence_->parameters.at("resistance").value == "2200" && capture_occurrence_->isEnabled() && !occurrence_capture_;
+        checks["declared_local_terminals_without_artwork"] = terminals("main/right", "junction", "drive") &&
+            !occurrence_capture_ && !artwork_->capture() && document_.graph() == original && document_.bytes() == bytes;
+        bool read_only = occurrence_terminals_->editTriggers() == QAbstractItemView::NoEditTriggers;
+        for(int row = 0; row < occurrence_terminals_->rowCount(); ++row) for(int column = 0; column < 5; ++column)
+            read_only = read_only && !(occurrence_terminals_->item(row, column)->flags() & Qt::ItemIsEditable) &&
+                occurrence_terminals_->item(row, column)->toolTip().isEmpty();
+        checks["terminal_table_read_only_ids_and_labels"] = read_only && occurrence_terminals_->item(0, 1)->text() == "2" &&
+            occurrence_terminals_->item(1, 1)->text() == "1" && occurrence_terminals_->item(1, 3)->text() == "drive";
         int resistor = -1, cap = -1;
         for(std::size_t i = 0; i < original->connectivity.components.size(); ++i) {
             const auto& id = original->connectivity.components[i].identity.id;
@@ -1555,9 +1607,12 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
             drafts() && selected_instance_ == "right" && occurrence_->currentText() == "main/right";
         checks["left_occurrence_uses_correct_applied_value"] = captureOccurrence(occurrence_root) && current_occurrence_ &&
             current_occurrence_->parameters.at("resistance").value == "1000" && occurrence_view_note_->text().contains("main/left/r");
+        checks["reused_local_net_ids_keep_distinct_occurrence_paths"] = terminals("main/left", "junction", "drive") && drafts();
         checks["return_right_requires_new_capture"] = choose(right) && !occurrence_capture_ && drafts() && captureOccurrence(occurrence_root);
         checks["unavailable_component_not_library_symbol"] = choose(capacitor) && !occurrence_capture_ && !capture_occurrence_->isEnabled() &&
             !captureOccurrence(occurrence_root) && artwork_->capture() && selectedComponent() == "resistor" && drafts();
+        checks["capacitor_terminals_independent_of_unsupported_artwork"] = terminals("main/right", "return", "junction") &&
+            !occurrence_capture_ && drafts();
         choose(right); captureOccurrence(occurrence_root);
         const auto captured = occurrence_capture_;
         checks["failed_capture_retains_prior"] = !captureOccurrence(occurrence_root + "/missing") && occurrence_capture_ == captured &&
@@ -1583,16 +1638,22 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         checks["name_refresh_ignores_label_and_offsets"] = applyInstanceName("Shown resistor") && occurrence_capture_ == captured &&
             current_occurrence_->name == "Shown resistor" && occurrence_view_note_->text().contains("Shown resistor") &&
             captured->occurrence.name == "r" && artwork_->capture();
+        checks["edit_history_and_name_keep_local_membership"] = terminals("main/right", "junction", "drive") &&
+            current_occurrence_->terminals.size() == 2 && captured->occurrence.terminals.front().net->id == "junction";
         checks["restored_name_copy_retains_full_identity"] = undoEdit() && document_.graph() == edited && current_occurrence_->name == "r" &&
             saveCopy("occurrence-copy.json") && occurrence_capture_ == captured && document_.dirty() && document_.leaf() == "original.json" && document_.can_redo();
         checks["failures_retain_current_state"] = !saveCopy("occurrence-copy.json") && !openDocument(root, "invalid.json") &&
             document_.graph() == edited && occurrence_capture_ == captured && occurrence_view_note_->text().contains("Open refused") && document_.can_redo();
+        checks["failed_open_copy_retain_local_membership"] = terminals("main/right", "junction", "drive");
         analyzer_.close(); showAnalyzer();
         checks["analyzer_reopen_preserves_occurrence"] = analyzer_.isVisible() && occurrence_capture_ == captured && document_.graph() == edited;
         checks["explicit_reopen_clears_view_and_history"] = openDocument(root, "occurrence-copy.json") && !current_occurrence_ &&
-            !occurrence_capture_ && !artwork_->capture() && !document_.dirty() && !document_.can_undo() && !document_.can_redo();
+            !occurrence_capture_ && !artwork_->capture() && !document_.dirty() && !document_.can_undo() && !document_.can_redo() &&
+            occurrence_terminals_->rowCount() == 0;
+        const auto cleared_terminals = occurrence_terminals_->rowCount() == 0;
         checks["persisted_occurrence_reselected_and_captured"] = choose(right) && current_occurrence_ &&
             current_occurrence_->parameters.at("resistance").value == "3500" && captureOccurrence(occurrence_root);
+        checks["reopen_clears_and_reselection_requeries_local_membership"] = cleared_terminals && terminals("main/right", "junction", "drive");
         const auto reopened = occurrence_capture_;
         // Harness-only requery tests binding retention; these direct native Opens
         // are not a presentation Open workflow or a user binding-edit/recovery flow.
@@ -1604,6 +1665,22 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         refreshOccurrenceChoices();
         checks["changed_binding_clears_occurrence_capture"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(swapped) &&
             current_occurrence_ && !occurrence_capture_ && capture_occurrence_->isEnabled();
+        checks["reordered_and_swapped_symbol_map_keep_logical_membership"] = terminals("main/right", "junction", "drive");
+        openDocument(root, "occurrence-copy.json"); choose(right); captureOccurrence(occurrence_root);
+        const auto before_net_change = occurrence_capture_;
+        const auto changed = document_.open(utf8(root), "changed-nets.json");
+        refreshOccurrenceChoices();
+        checks["changed_local_nets_refresh_without_label_rebinding_or_recapture"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(changed) &&
+            terminals("main/right", "drive_alt", "junction") && occurrence_capture_ == before_net_change &&
+            occurrence_terminals_->item(0, 3)->text() == QString::fromUtf8("<b>same Ω label</b>") &&
+            occurrence_terminals_->item(1, 3)->text() == occurrence_terminals_->item(0, 3)->text() &&
+            before_net_change->occurrence.terminals.front().net->id == "junction";
+        const auto unconnected = document_.open(utf8(root), "unconnected.json");
+        refreshOccurrenceChoices();
+        checks["unconnected_pin_explicit_local_absence_keeps_artwork"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(unconnected) &&
+            terminals("main/right", {}, "drive") && occurrence_capture_ == before_net_change;
+        choose({});
+        checks["absent_path_clears_terminal_view_and_occurrence_capture"] = !current_occurrence_ && !occurrence_capture_ && occurrence_terminals_->rowCount() == 0;
         openDocument(root, "occurrence-copy.json"); choose(right); captureOccurrence(occurrence_root);
         views_->setCurrentIndex(1);
         catalog_->setCurrentRow(resistor); previewArtwork(library_root);
@@ -1613,12 +1690,21 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
             occurrence_view_note_->text().contains("main/right/r") && occurrence_view_note_->text().contains("3500 ohm") &&
             occurrence_view_note_->text().contains("no saved position") && occurrence_view_note_->height() >= occurrence_view_note_->heightForWidth(occurrence_view_note_->width()) &&
             views_->currentWidget()->rect().contains(QRect(capture_occurrence_->mapTo(views_->currentWidget(), QPoint{}), capture_occurrence_->size())) &&
+            views_->currentWidget()->rect().contains(QRect(occurrence_terminals_->mapTo(views_->currentWidget(), QPoint{}), occurrence_terminals_->size())) &&
+            terminals("main/right", "junction", "drive") &&
             grab().save(report + ".png");
     }
-    bool passed = checks.size() == 25;
+    QJsonArray terminal_rows;
+    for(int row = 0; row < occurrence_terminals_->rowCount(); ++row) {
+        QJsonArray cells;
+        for(int column = 0; column < 5; ++column) cells.append(occurrence_terminals_->item(row, column)->text());
+        terminal_rows.append(cells);
+    }
+    bool passed = checks.size() == 36;
     for(const auto value : checks) passed = passed && value.toBool();
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
-        {"occurrence_note", occurrence_view_note_->text()}, {"scope", "one read-only occurrence; explicit independent artwork; existing R edit/history/copy; no saved geometry or human/DPI recovery acceptance"}};
+        {"occurrence_note", occurrence_view_note_->text()}, {"terminal_rows", terminal_rows},
+        {"scope", "read-only local declared terminal/net membership, not flattened electrical truth; independent explicit artwork; existing R edit/history/copy; no saved geometry or human/DPI recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

@@ -35,13 +35,31 @@ std::optional<ComponentOccurrenceView> inspect_component_occurrence(
             continue;
         }
         if(instance->kind != InstanceKind::component) return std::nullopt;
+        const auto component = std::find_if(graph.connectivity.components.begin(), graph.connectivity.components.end(),
+            [&instance](const auto& row) { return row.identity.id == instance->definition; });
+        if(component == graph.connectivity.components.end()) return std::nullopt;
         const auto source = graph.source_map.find({"circuits", circuit_id, "instances", instance->identity.id});
         if(source == graph.source_map.end()) return std::nullopt;
         for(const auto& row : graph.declaration->sources.topology.parameters.instances) {
             if(row.path.size() != path.size() || !std::equal(row.path.begin(), row.path.end(), path.begin())) continue;
             if(row.source_offset != source->second.begin || row.definition != instance->definition) return std::nullopt;
-            return ComponentOccurrenceView{row.path, circuit_id, instance->identity.id,
-                instance->definition, instance->identity.name, row.parameters};
+            ComponentOccurrenceView view{row.path, circuit_id, instance->identity.id,
+                instance->definition, instance->identity.name, row.parameters, {}};
+            for(const auto& pin : component->pins) view.terminals.push_back({pin.identity.id, pin.identity.name, {}});
+            std::sort(view.terminals.begin(), view.terminals.end(), [](const auto& left, const auto& right) { return left.pin < right.pin; });
+            // Only the directly containing source circuit is inspected. Ports,
+            // parent nets, symbol maps and model terminals do not establish this membership.
+            for(const auto& net : circuit->nets) for(const auto& endpoint : net.terminals) {
+                const auto* terminal = std::get_if<InstanceTerminal>(&endpoint);
+                if(!terminal || terminal->instance != instance->identity.id) continue;
+                const auto selected = std::lower_bound(view.terminals.begin(), view.terminals.end(), terminal->terminal,
+                    [](const auto& value, const auto& id) { return value.pin < id; });
+                if(selected == view.terminals.end() || selected->pin != terminal->terminal || selected->net) return std::nullopt;
+                std::vector<std::string> net_path(path.begin(), path.end() - 1);
+                net_path.push_back(net.identity.id);
+                selected->net = DeclaredLocalNetView{net.identity.id, net.identity.name, std::move(net_path)};
+            }
+            return view;
         }
     }
     return std::nullopt;

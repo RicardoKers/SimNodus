@@ -38,6 +38,23 @@ def main():
     swapped['sources']['topology']['components'][0]['symbol']['pin_map'] = {'p': 'b', 'n': 'a'}
     reference.validate(swapped)
     inputs['swapped.json'] = json.dumps(swapped).encode()
+    changed = json.loads(original)
+    local = next(row for row in changed['sources']['topology']['circuits'] if row['id'] == 'rc')
+    for net in local['nets']:
+        net['name'] = '<b>same Ω label</b>'
+        if net['id'] == 'drive':
+            net['id'] = 'drive_alt'
+        for terminal in net['terminals']:
+            if terminal.get('instance') == 'r':
+                terminal['terminal'] = {'p': 'n', 'n': 'p'}[terminal['terminal']]
+    reference.validate(changed)
+    inputs['changed-nets.json'] = json.dumps(changed, ensure_ascii=False).encode()
+    unconnected = json.loads(original)
+    local = next(row for row in unconnected['sources']['topology']['circuits'] if row['id'] == 'rc')
+    for net in local['nets']:
+        net['terminals'] = [row for row in net['terminals'] if row != {'instance': 'r', 'terminal': 'n'}]
+    reference.validate(unconnected)
+    inputs['unconnected.json'] = json.dumps(unconnected).encode()
     for name, raw in inputs.items():
         (root / name).write_bytes(raw)
     resource_root = out / 'explicit-roots'
@@ -66,7 +83,10 @@ def main():
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
     assert run.returncode == 0, run.stdout.decode(errors='replace') + run.stderr.decode(errors='replace')
     observed = json.loads((out / 'report.json').read_bytes())
-    assert observed['passed'] and len(observed['checks']) == 25 and all(observed['checks'].values())
+    assert observed['passed'] and len(observed['checks']) == 36 and all(observed['checks'].values())
+    assert observed['terminal_rows'] == [
+        ['n', '2', 'junction', 'junction', 'main/right/junction'],
+        ['p', '1', 'drive', 'drive', 'main/right/drive']]
     verify_revision(original, (root / 'occurrence-copy.json').read_bytes(), 'main', 'right', '3.5')
     for name, raw in inputs.items():
         assert (root / name).read_bytes() == raw
@@ -75,7 +95,7 @@ def main():
     assert all(path.read_bytes() == art for path in assets)
     result['independent_persisted_byte_and_source_separate_root_audits'] = 'passed'
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
-    print('PASS 25 read-only occurrence controls, one persisted-byte audit and unchanged source/two single-file explicit roots')
+    print('PASS 36 read-only occurrence/local-terminal controls, one persisted-byte audit and unchanged source/two single-file explicit roots')
 
 
 if __name__ == '__main__':

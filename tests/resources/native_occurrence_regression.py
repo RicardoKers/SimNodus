@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Ricardo Kerschbaumer
 # SPDX-License-Identifier: MIT
-"""Owned occurrence identity and values against declared-ID Python oracles."""
+"""Owned occurrence identity, values and local terminals against JSON oracles."""
 import argparse
 import copy
 import json
@@ -50,9 +50,19 @@ def expected_occurrence(raw, path):
         resolved = parameters.resolve(bindings.projection(topology))['instances']
         row = next(row for row in resolved if row['path'] == list(path))
         assert row['definition'] == selected['definition']
+        memberships = {}
+        for net in circuit['nets']:
+            for terminal in net['terminals']:
+                if terminal.get('instance') != selected['id']:
+                    continue
+                assert terminal['terminal'] not in memberships
+                memberships[terminal['terminal']] = dict(id=net['id'], name=net['name'],
+                                                        path=[*path[:-1], net['id']])
+        terminals = [dict(pin=pin['id'], name=pin['name'], net=memberships.get(pin['id']))
+                     for pin in sorted(components[selected['definition']]['pins'], key=lambda pin: pin['id'])]
         return dict(path=list(path), source_circuit=circuit['id'], source_instance=selected['id'],
                     component=selected['definition'], name=selected['name'],
-                    parameters=copy.deepcopy(row['parameters']))
+                    parameters=copy.deepcopy(row['parameters']), terminals=terminals)
     return None
 
 
@@ -80,7 +90,12 @@ class Occurrence(unittest.TestCase):
     def test_existing_component_occurrences(self):
         for path in PATHS:
             with self.subTest(path=path):
-                self.accepted(RAW, path)
+                selected = self.accepted(RAW, path)
+                expected_nets = {'r': {'n': 'junction', 'p': 'drive'},
+                                 'c': {'n': 'return', 'p': 'junction'}}
+                for terminal in selected['terminals']:
+                    self.assertEqual(terminal['net']['path'],
+                                     [*path[:-1], expected_nets[path[-1]][terminal['pin']]])
 
     def test_missing_circuit_rootless_and_untrusted_selection(self):
         missing = [(), ('main',), ('main', 'left'), ('main', 'right'), ('left', 'r'), ('rc', 'r'),
@@ -103,13 +118,22 @@ class Occurrence(unittest.TestCase):
             topology[collection].reverse()
             for definition in topology[collection]:
                 definition['name'] = '<b>same Ω label</b>'
+                if 'pins' in definition:
+                    definition['pins'].reverse()
+                    for pin in definition['pins']:
+                        pin['name'] = '<b>same Ω pin</b>'
         for circuit in topology['circuits']:
             circuit['instances'].reverse()
             for selected in circuit['instances']:
                 selected['name'] = '<b>same Ω label</b>'
+            circuit['nets'].reverse()
+            for net in circuit['nets']:
+                net['name'] = '<i>same Ω net</i>'
+                net['terminals'].reverse()
         raw = json.dumps(document, ensure_ascii=False, sort_keys=True).encode()
         raw = raw.replace(b'"instances"', b'"\\u0069nstances"').replace(
-            b'"definition"', b'"def\\u0069nition"').replace(b'"r"', b'"\\u0072"')
+            b'"definition"', b'"def\\u0069nition"').replace(b'"r"', b'"\\u0072"').replace(
+            b'"terminals"', b'"\\u0074erminals"').replace(b'"pins"', b'"pi\\u006es"')
         for path in PATHS:
             self.accepted(raw, path)
 
@@ -123,10 +147,18 @@ class Occurrence(unittest.TestCase):
             selected['name'] = 'Other declared ' + selected['id']
         unused = copy.deepcopy(original_rc)
         unused['id'] = 'unused'
-        topology['circuits'] = [unused, shadow, *topology['circuits']]
+        wrapper = copy.deepcopy(original_rc)
+        wrapper['id'] = 'wrapper'
+        wrapper['instances'] = [dict(id='inner', name='Nested circuit occurrence', kind='circuit',
+                                     definition='shadow', overrides={})]
+        for net, port in zip(wrapper['nets'], ('input', 'output', 'reference')):
+            net['terminals'] = [dict(port=port), dict(instance='inner', terminal=port)]
+        topology['circuits'] = [unused, shadow, wrapper, *topology['circuits']]
         main = next(row for row in topology['circuits'] if row['id'] == 'main')
         main['instances'].append(dict(id='third', name='Additional declared occurrence',
                                       kind='circuit', definition='shadow', overrides={}))
+        main['instances'].append(dict(id='nested', name='Nested declared occurrence',
+                                      kind='circuit', definition='wrapper', overrides={}))
         raw = json.dumps(document).encode()
         reference.parse(raw)
         original = self.accepted(raw, PATHS[0])
@@ -135,8 +167,46 @@ class Occurrence(unittest.TestCase):
         self.assertEqual(other['source_circuit'], 'shadow')
         self.assertNotEqual(original['name'], other['name'])
         self.accepted(raw, ('main', 'third', 'c'))
+        for instance_id in ('r', 'c'):
+            path = ('main', 'nested', 'inner', instance_id)
+            nested = self.accepted(raw, path)
+            self.assertEqual(nested['source_circuit'], 'shadow')
+            for terminal in nested['terminals']:
+                self.assertEqual(terminal['net']['path'][:-1], list(path[:-1]))
         for path in [('unused', 'r'), ('main', 'unused', 'r'), ('main', 'third')]:
             self.refused(raw, path)
+
+    def test_unconnected_and_changed_local_membership(self):
+        for move_to_drive in (False, True):
+            document = json.loads(RAW)
+            rc = next(row for row in document['sources']['topology']['circuits'] if row['id'] == 'rc')
+            junction = next(row for row in rc['nets'] if row['id'] == 'junction')
+            removed = next(row for row in junction['terminals']
+                           if row.get('instance') == 'r' and row.get('terminal') == 'n')
+            junction['terminals'].remove(removed)  # c/p and output still satisfy the two-terminal minimum.
+            if move_to_drive:
+                next(row for row in rc['nets'] if row['id'] == 'drive')['terminals'].append(removed)
+            raw = json.dumps(document).encode()
+            for path in PATHS:
+                selected = self.accepted(raw, path)
+                if path[-1] == 'r':
+                    terminal = next(row for row in selected['terminals'] if row['pin'] == 'n')
+                    if move_to_drive:
+                        self.assertEqual(terminal['net']['path'], [*path[:-1], 'drive'])
+                    else:
+                        self.assertIsNone(terminal['net'])
+
+    def test_symbol_mapping_and_availability_do_not_select_local_nets(self):
+        for available in (False, True):
+            document = json.loads(RAW)
+            resistor = next(row for row in document['sources']['topology']['components'] if row['id'] == 'resistor')
+            if available:
+                resistor['symbol']['pin_map'] = {'p': 'b', 'n': 'a'}
+            else:
+                resistor['symbol'] = None
+            raw = json.dumps(document).encode()
+            for path in PATHS:
+                self.assertEqual(self.accepted(raw, path), expected_occurrence(RAW, path))
 
     def test_upstream_literal_change_preserves_other_occurrences(self):
         document = json.loads(RAW)
@@ -157,7 +227,7 @@ class Occurrence(unittest.TestCase):
 
     def test_native_lifecycle_and_independent_persisted_copy(self):
         global LIFECYCLE_REQUESTS
-        base = Path('build/sn023-occurrence-view/native-tests').resolve()
+        base = Path('build/sn023-terminal-membership/native-tests').resolve()
         base.mkdir(parents=True, exist_ok=True)
         # Keep every physical case, including failures and partial outputs, for audit.
         root = Path(tempfile.mkdtemp(prefix='occurrence-', dir=base))
@@ -200,6 +270,7 @@ class Occurrence(unittest.TestCase):
             self.assertEqual(expected['path'], ['main', 'right', 'r'])
             self.assertEqual(expected['source_circuit'], 'rc')
             self.assertEqual(expected['source_instance'], 'r')
+            self.assertEqual(expected['terminals'], expected_occurrence(RAW, ('main', 'right', 'r'))['terminals'])
             self.assertEqual(sorted(path.name for path in document_root.iterdir()),
                              ['occurrence-copy.json', 'original.json'])
             print('PASS independent persisted-byte audit and root-prefixed occurrence identity')
