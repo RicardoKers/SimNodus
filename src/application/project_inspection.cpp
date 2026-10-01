@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "application/project_inspection.hpp"
 #include <algorithm>
+#include <tuple>
 
 namespace simnodus {
 std::vector<const ParameterOccurrence*> inspect_instance_parameters(
@@ -63,5 +64,61 @@ std::optional<ComponentOccurrenceView> inspect_component_occurrence(
         }
     }
     return std::nullopt;
+}
+std::optional<DeclaredLocalNetDetailsView> inspect_occurrence_local_net(
+    const ProjectGraph& graph, std::span<const std::string> component_path, std::string_view pin)
+{
+    if(pin.empty() || pin.size() > 64) return std::nullopt;
+    const auto occurrence = inspect_component_occurrence(graph, component_path);
+    if(!occurrence) return std::nullopt;
+    const auto selected = std::find_if(occurrence->terminals.begin(), occurrence->terminals.end(),
+        [pin](const auto& row) { return row.pin == pin; });
+    if(selected == occurrence->terminals.end() || !selected->net) return std::nullopt;
+    const auto by_id = [](const auto& rows, std::string_view id) {
+        return std::find_if(rows.begin(), rows.end(), [id](const auto& row) { return row.identity.id == id; });
+    };
+    const auto circuit = by_id(graph.connectivity.circuits, occurrence->source_circuit);
+    if(circuit == graph.connectivity.circuits.end()) return std::nullopt;
+    const auto net = by_id(circuit->nets, selected->net->id);
+    if(net == circuit->nets.end()) return std::nullopt;
+    DeclaredLocalNetDetailsView result{*selected->net, {}};
+    for(const auto& terminal : net->terminals) {
+        DeclaredLocalEndpointView endpoint{};
+        endpoint.path.assign(component_path.begin(), component_path.end() - 1);
+        if(const auto* local = std::get_if<LocalPortTerminal>(&terminal)) {
+            const auto port = by_id(circuit->ports, local->port);
+            if(port == circuit->ports.end()) return std::nullopt;
+            endpoint.kind = DeclaredEndpointKind::local_port;
+            endpoint.terminal = port->identity.id; endpoint.name = port->identity.name;
+            endpoint.definition = circuit->identity.id;
+        } else {
+            const auto* member = std::get_if<InstanceTerminal>(&terminal);
+            if(!member) return std::nullopt;
+            const auto instance = by_id(circuit->instances, member->instance);
+            if(instance == circuit->instances.end()) return std::nullopt;
+            endpoint.instance = instance->identity.id; endpoint.terminal = member->terminal;
+            endpoint.definition = instance->definition;
+            endpoint.path.push_back(endpoint.instance);
+            if(instance->kind == InstanceKind::component) {
+                const auto component = by_id(graph.connectivity.components, instance->definition);
+                if(component == graph.connectivity.components.end()) return std::nullopt;
+                const auto logical = by_id(component->pins, member->terminal);
+                if(logical == component->pins.end()) return std::nullopt;
+                endpoint.kind = DeclaredEndpointKind::component_pin; endpoint.name = logical->identity.name;
+            } else {
+                const auto definition = by_id(graph.connectivity.circuits, instance->definition);
+                if(definition == graph.connectivity.circuits.end()) return std::nullopt;
+                const auto port = by_id(definition->ports, member->terminal);
+                if(port == definition->ports.end()) return std::nullopt;
+                endpoint.kind = DeclaredEndpointKind::circuit_port; endpoint.name = port->identity.name;
+            }
+        }
+        endpoint.path.push_back(endpoint.terminal);
+        result.endpoints.push_back(std::move(endpoint));
+    }
+    std::sort(result.endpoints.begin(), result.endpoints.end(), [](const auto& left, const auto& right) {
+        return std::tie(left.kind, left.instance, left.terminal) < std::tie(right.kind, right.instance, right.terminal);
+    });
+    return result;
 }
 }

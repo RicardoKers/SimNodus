@@ -32,4 +32,20 @@ struct ComponentOccurrenceView {
 // resolved snapshot/source definition; return owned metadata, never a position.
 std::optional<ComponentOccurrenceView> inspect_component_occurrence(
     const ProjectGraph& graph, std::span<const std::string> path);
+
+enum class DeclaredEndpointKind { local_port, component_pin, circuit_port };
+struct DeclaredLocalEndpointView {
+    DeclaredEndpointKind kind;
+    std::string instance, terminal, name, definition;
+    std::vector<std::string> path;
+};
+struct DeclaredLocalNetDetailsView {
+    DeclaredLocalNetView net;
+    std::vector<DeclaredLocalEndpointView> endpoints;
+};
+// Inspect all direct members, including the selected pin, of its declared local
+// net. Empty/unconnected selections return no details; ports are never traversed.
+// Owned paths require their explicit endpoint kind; names do not establish identity.
+std::optional<DeclaredLocalNetDetailsView> inspect_occurrence_local_net(
+    const ProjectGraph& graph, std::span<const std::string> component_path, std::string_view pin);
 }

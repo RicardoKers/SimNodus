@@ -66,6 +66,7 @@ private:
     void retainPreview();
     void refreshOccurrenceChoices();
     void updateOccurrenceView();
+    void updateLocalEndpoints();
     void updateOccurrenceNote(const QString& message = {});
     void updateArtworkNote(const QString& message = {});
     QString selectedComponent() const;
@@ -86,6 +87,10 @@ private:
     PreviewCanvas* occurrence_artwork_;
     QLabel* occurrence_view_note_;
     QTableWidget* occurrence_terminals_;
+    QLabel* local_endpoints_note_;
+    QTableWidget* local_endpoints_;
+    QString selected_terminal_;
+    std::optional<simnodus::DeclaredLocalNetDetailsView> current_local_net_;
     QPushButton* capture_occurrence_;
     std::optional<simnodus::ComponentOccurrenceView> current_occurrence_;
     std::shared_ptr<const simnodus::OccurrenceArtworkCapture> occurrence_capture_;

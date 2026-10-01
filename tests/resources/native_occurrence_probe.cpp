@@ -54,6 +54,27 @@ bool graph_result(const simnodus::ProjectRevisionResult& result)
 {
     return std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(result);
 }
+void write(const simnodus::DeclaredLocalNetDetailsView& value)
+{
+    std::cout << "{\"net\":{\"id\":"; graph_probe::quote(value.net.id);
+    std::cout << ",\"name\":"; graph_probe::quote(value.net.name);
+    std::cout << ",\"path\":";
+    graph_probe::array(value.net.path, [](const auto& id) { graph_probe::quote(id); });
+    std::cout << "},\"endpoints\":";
+    graph_probe::array(value.endpoints, [](const auto& endpoint) {
+        std::cout << "{\"kind\":";
+        graph_probe::quote(endpoint.kind == simnodus::DeclaredEndpointKind::local_port ? "local-port" :
+            endpoint.kind == simnodus::DeclaredEndpointKind::component_pin ? "component-pin" : "circuit-port");
+        std::cout << ",\"instance\":"; graph_probe::quote(endpoint.instance);
+        std::cout << ",\"terminal\":"; graph_probe::quote(endpoint.terminal);
+        std::cout << ",\"name\":"; graph_probe::quote(endpoint.name);
+        std::cout << ",\"definition\":"; graph_probe::quote(endpoint.definition);
+        std::cout << ",\"path\":";
+        graph_probe::array(endpoint.path, [](const auto& id) { graph_probe::quote(id); });
+        std::cout << '}';
+    });
+    std::cout << "}\n";
+}
 int lifecycle(const std::string& root, const std::string& artwork_root)
 {
 #ifndef _WIN32
@@ -115,7 +136,9 @@ int main(int argc, char** argv)
 {
     try {
         if(argc == 4 && std::string_view(argv[1]) == "--lifecycle") return lifecycle(argv[2], argv[3]);
-        if(argc < 2 || std::string_view(argv[1]) != "--select") return 2;
+        if(argc < 2 || (std::string_view(argv[1]) != "--select" && std::string_view(argv[1]) != "--net")) return 2;
+        const bool net_mode = std::string_view(argv[1]) == "--net";
+        if(net_mode && argc < 3) return 2;
 #ifdef _WIN32
         _setmode(_fileno(stdin), _O_BINARY);
 #endif
@@ -129,7 +152,15 @@ int main(int argc, char** argv)
         }
         auto graph = std::get<0>(loaded);
         std::vector<std::string> path;
-        for(int index = 2; index < argc; ++index) path.emplace_back(argv[index]);
+        for(int index = net_mode ? 3 : 2; index < argc; ++index) path.emplace_back(argv[index]);
+        if(net_mode) {
+            const auto details = simnodus::inspect_occurrence_local_net(*graph, path, argv[2]);
+            if(!details) { std::cout << "{\"error\":\"local-net\"}\n"; return 1; }
+            graph.reset(); loaded = simnodus::LockError{"test-owner-released", 0};
+            std::fill(raw.begin(), raw.end(), 'x');
+            write(*details);
+            return 0;
+        }
         const auto selected = simnodus::inspect_component_occurrence(*graph, path);
         if(!selected) { std::cout << "{\"error\":\"occurrence\"}\n"; return 1; }
         graph.reset(); loaded = simnodus::LockError{"test-owner-released", 0};

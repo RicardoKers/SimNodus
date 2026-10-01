@@ -1,5 +1,11 @@
 # Simulation source layout
 
+The [local-endpoint inspection](../docs/experiments/SN-023-local-endpoints.md)
+returns owned directly declared net members for one full component occurrence/pin
+ID. Explicit kinds select local port/component pin/subcircuit port names from their
+own catalogs. No port traversal, resource read or flattened simulation graph is
+introduced; Qt only renders current metadata and owns the selected pin ID.
+
 The [local terminal increment](../docs/experiments/SN-023-terminal-membership.md)
 extends owned occurrence inspection with logical pin IDs/names and optional
 directly containing net IDs/names/full paths. It walks validated source declarations
