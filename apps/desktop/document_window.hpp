@@ -16,6 +16,7 @@ class QAction;
 class QComboBox;
 class QTableWidget;
 class QScrollArea;
+class PreviewCanvas;
 
 class DocumentWindow final : public QMainWindow {
 public:
@@ -29,12 +30,14 @@ public:
     bool redoEdit();
     bool saveCopy(const QString& leaf);
     void showAnalyzer();
+    bool previewArtwork(const QString& resource_root);
     void runAcceptance(const QString& root, const QString& report);
     void runInstanceAcceptance(const QString& root, const QString& report);
     void runHistoryAcceptance(const QString& root, const QString& report);
     void runResistanceAcceptance(const QString& root, const QString& report);
     void runCapacitanceAcceptance(const QString& root, const QString& report);
     void runInspectionAcceptance(const QString& root, const QString& report);
+    void runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -55,6 +58,9 @@ private:
     QTreeWidgetItem* instanceItem(const QString& circuit, const QString& instance) const;
     void refresh();
     void selectCatalog(int row);
+    void retainPreview();
+    void updateArtworkNote(const QString& message = {});
+    QString selectedComponent() const;
     void selectInstance();
     void reportError(const char* operation, const char* code, std::size_t offset,
         std::uint32_t system, bool cleanup = false);
@@ -65,6 +71,9 @@ private:
     QListWidget* catalog_;
     QTreeWidget* structure_;
     QLabel *preview_, *inspector_, *status_, *project_id_;
+    QLabel* artwork_note_;
+    PreviewCanvas* artwork_;
+    QPushButton* preview_artwork_;
     QLineEdit* name_;
     QLineEdit* instance_name_;
     QLineEdit* resistance_;

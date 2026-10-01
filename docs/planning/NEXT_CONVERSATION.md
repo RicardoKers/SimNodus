@@ -1,5 +1,32 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [explicit owned fixture artwork Preview](../experiments/SN-023-fixture-preview.md).
+PR #76 was reconfirmed MERGED at `a364ba2088e7b07c796edeb464fe64a8d25c7f2d`,
+with Foundation Windows 65/65 and Ubuntu 54/54 successful, equal local/origin/remote
+main and no unpublished commits. Reconfirm this increment's newest source PR and
+squash before continuing. Two focused CTests passed, including seven tests/23
+requests and 13 lifecycle assertions/one byte audit. Qt-free execution/imports
+passed; final GUI passed 31 controls/two audits and wide/narrow fitting/pixels.
+Properties text/minimum layout and complete last-button reachability are verified.
+Retain the failed first compiler warning, preparation failures, visually flawed
+first GUI and all intermediate sources/binaries/captures. The center-only oracle
+allowed a clipped button and was strengthened; scripted success is not human
+directory-dialog recovery or monitor/DPI acceptance. Opening/selection stay inert.
+Explicit independently chosen root captures one selected symbol only, with model
+and LICENSE absent; no global resource/runtime flags change. Exact owned 227-byte
+artwork is recognized without an SVG parser; metadata/bytes/geometry are captured
+and paints do not reread. Four drafts and independent instance Properties/history
+survive Preview; catalog changes/successful Open clear it; failures keep marked
+prior capture. Preserve 217 earlier evidence files and all twelve overlays.
+The earlier lack-of-geometry statement applies to inline descriptors: existing
+external owned passive.svg has unvalidated artwork. Keep its bytes/comment and
+historical reports. Next establish acceptance for one owned pin-to-artwork
+correspondence before placement/wiring; arbitrary SVG/components/anchors, general
+edits/instruments/workers/IPC, managed Save, usability and packaging stay pending.
+Retain SN-017/021/022 limits, failures, tolerances and ownership; January stabilization
+and February 2027 classroom use remain planning targets.
+The following handoffs retain their historical narrower results and constraints.
+
 Latest tested increment: [read-only effective R/C inspection](../experiments/SN-023-effective-parameters.md).
 PR #75 was reconfirmed at `661de58b380905e7ad40576965b5e6f5cb97a3e5`, with
 Foundation Windows 63/63 and Ubuntu 52/52 successful, equal local/origin/remote main

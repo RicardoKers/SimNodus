@@ -49,7 +49,9 @@ display names or existing literal resistance/capacitance values with one-step
 Undo/Redo, and creates an explicit new copy through
 native operations. [Effective R/C inspection](docs/experiments/SN-023-effective-parameters.md)
 selects full occurrence paths and shows applied base values with immediate
-binding origins. Full schematic editing, instruments, managed Save and desktop
+binding origins. [Explicit fixture Preview](docs/experiments/SN-023-fixture-preview.md)
+captures only the unchanged owned resistor artwork from a separately chosen root;
+opening and catalog selection remain inert. Full schematic editing, instruments, managed Save and desktop
 simulation remain pending.
 
 The [inert ELF32 reader](docs/experiments/SN-021-elf-inspection.md) inspects bounded

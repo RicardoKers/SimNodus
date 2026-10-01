@@ -1,5 +1,45 @@
 # Current state
 
+## Current SN-023 state: explicit fixture artwork Preview tested
+
+On 2026-09-30, the [closed Preview increment](../experiments/SN-023-fixture-preview.md)
+captures only the original owned `resistor` artwork after explicit resource-root
+selection. Opening/catalog selection remain inert; models/LICENSE/other lock files
+are not required or accessed. A Qt-free application resolves stable source IDs;
+a Qt-free adapter recognizes exact 227-byte artwork and returns six fixed lines.
+Qt Core/Gui/Widgets paints immutable captured data without rereading on resize.
+Captured identity/hash and unverified pin-anchor correspondence are visible.
+Capture retains four drafts, document/history and independent Properties; catalog
+change/successful Open clear it, failures retain the prior marked artifact.
+
+Two targeted CTests passed: seven tests/23 requests, 13 lifecycle assertions/one
+saved-byte audit and unchanged document contracts. Qt-free execution/imports
+passed. Final GUI passed 31 controls/two byte audits and wide/narrow pixel/fitting
+checks. Final images show readable Properties and complete last-button reachability.
+The first build's shadowing warning, preparation failures, first visually flawed
+30-check GUI and all intermediate sources/binaries/reports remain retained.
+The center-only reachability oracle was strengthened after a clipped capture.
+No old backend/edit/worker/layout matrix was rerun; focused review found no defect.
+
+PR #76 was reconfirmed MERGED at `a364ba2088e7b07c796edeb464fe64a8d25c7f2d`,
+with Foundation Windows 65/65 and Ubuntu 54/54 successful, equal local/origin/remote
+main and zero unpublished commits. Branch `codex/sn-023-fixture-preview` starts
+there. All 217 prior evidence files and twelve independent SN-045 overlays are
+preserved; source PR records repository/staged-tree/required-check/squash results.
+Only this task's CURRENT/BACKLOG prefix/row is published from the shared overlays.
+
+SN-023 remains in_progress. Earlier handoffs' no-geometry statement concerned
+inline descriptors; the external owned SVG contains unvalidated artwork. Preserve
+its original bytes/comment and historical reports. Next specify one owned
+pin-to-artwork correspondence before placement/wiring. General SVG/components,
+anchors, edits/units/bindings, multi-step history, managed Save, real workers/IPC,
+instruments, human directory-dialog recovery, keyboard/accessibility, monitor/DPI,
+persistent layout and packaging remain pending. SN-021 Windows/local-NTFS/one
+managed document/fixed E-01 limits, SN-022 synthetic cases and failed setup/runtime,
+and SN-017 Python/GDB/fixture ownership, profiles/tolerances, MCU/toolchain and
+PDF/PID behavior remain unchanged. January stabilization and February 2027
+classroom use remain planning targets. Historical entries retain their scope.
+
 ## Current SN-023 state: effective parameter inspection tested
 
 On 2026-09-30, the [read-only R/C increment](../experiments/SN-023-effective-parameters.md)
