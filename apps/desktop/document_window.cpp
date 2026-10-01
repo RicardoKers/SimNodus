@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "document_window.hpp"
+#include "preview_canvas.hpp"
 #include "application/project_inspection.hpp"
 #include <QAction>
 #include <QAbstractButton>
@@ -12,6 +13,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QImage>
 #include <QHeaderView>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -72,7 +74,19 @@ DocumentWindow::DocumentWindow()
     preview_->setWordWrap(true);
     preview_->setTextFormat(Qt::PlainText);
     catalog_splitter_->addWidget(catalog_);
-    catalog_splitter_->addWidget(preview_);
+    auto* preview_panel = new QWidget;
+    auto* preview_layout = new QVBoxLayout(preview_panel);
+    preview_layout->addWidget(preview_);
+    artwork_ = new PreviewCanvas;
+    preview_layout->addWidget(artwork_, 1);
+    artwork_note_ = new QLabel("No captured artwork. Preview requires an explicit resource root.");
+    artwork_note_->setWordWrap(true);
+    artwork_note_->setTextFormat(Qt::PlainText);
+    preview_layout->addWidget(artwork_note_);
+    preview_artwork_ = new QPushButton("Preview Fixture Artwork...");
+    preview_artwork_->setEnabled(false);
+    preview_layout->addWidget(preview_artwork_);
+    catalog_splitter_->addWidget(preview_panel);
     components_->setWidget(catalog_splitter_);
     addDockWidget(Qt::LeftDockWidgetArea, components_);
     properties_ = new QDockWidget("Instance Properties", this);
@@ -82,6 +96,7 @@ DocumentWindow::DocumentWindow()
     inspector_->setTextFormat(Qt::PlainText);
     auto* instance_panel = new QWidget;
     auto* instance_layout = new QVBoxLayout(instance_panel);
+    instance_layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     instance_layout->addWidget(inspector_);
     occurrence_ = new QComboBox;
     occurrence_->setAccessibleName("Resolved declaration occurrence");
@@ -129,6 +144,8 @@ DocumentWindow::DocumentWindow()
     instance_layout->addWidget(capacitance_);
     apply_capacitance_ = new QPushButton("Apply Capacitance Value");
     instance_layout->addWidget(apply_capacitance_);
+    for(auto* label : {inspector_, occurrence_note_, definition_note, resistance_limits_, capacitance_limits_})
+        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     instance_layout->addStretch();
     properties_scroll_ = new QScrollArea;
     properties_scroll_->setWidgetResizable(true);
@@ -170,6 +187,14 @@ DocumentWindow::DocumentWindow()
     connect(apply_resistance_, &QPushButton::clicked, this, [this] { applyResistance(resistance_->text()); });
     connect(apply_capacitance_, &QPushButton::clicked, this, [this] { applyCapacitance(capacitance_->text()); });
     connect(catalog_, &QListWidget::currentRowChanged, this, &DocumentWindow::selectCatalog);
+    connect(preview_artwork_, &QPushButton::clicked, this, [this] {
+        const auto root = QFileDialog::getExistingDirectory(this, "Choose explicit symbol resource root");
+        if(root.isEmpty()) {
+            updateArtworkNote(artwork_->capture() ? "Cancelled; prior captured artwork retained." : "Preview cancelled.");
+            return;
+        }
+        previewArtwork(root);
+    });
     connect(structure_, &QTreeWidget::itemSelectionChanged, this, &DocumentWindow::selectInstance);
     connect(name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
     connect(instance_name_, &QLineEdit::textChanged, this, &DocumentWindow::updateHistoryActions);
@@ -226,6 +251,7 @@ bool DocumentWindow::applyName(const QString& name)
     updateHistoryActions();
     status_->setText("Name applied in memory. Use Save Copy explicitly to create a new file.");
     updateParameterInspection();
+    retainPreview();
     return true;
 }
 bool DocumentWindow::saveCopy(const QString& leaf)
@@ -245,6 +271,8 @@ void DocumentWindow::refresh()
 {
     const QSignalBlocker blocked(structure_);
     catalog_->clear(); structure_->clear();
+    artwork_->setCapture({}); preview_artwork_->setEnabled(false);
+    updateArtworkNote();
     selected_circuit_.clear(); selected_instance_.clear();
     instance_name_->clear(); instance_name_->setEnabled(false); apply_instance_->setEnabled(false);
     resistance_->clear(); resistance_->setEnabled(false); apply_resistance_->setEnabled(false);
@@ -283,13 +311,65 @@ void DocumentWindow::refresh()
 }
 void DocumentWindow::selectCatalog(int row)
 {
+    artwork_->setCapture({});
+    updateArtworkNote();
+    preview_artwork_->setEnabled(false);
     if(!document_.graph() || row < 0) return;
     const auto& components = document_.graph()->connectivity.components;
     if(static_cast<std::size_t>(row) >= components.size()) return;
     const auto& component = components[static_cast<std::size_t>(row)];
     QStringList pins;
     for(const auto& pin : component.pins) pins << text(pin.identity.id);
-    preview_->setText("Declared definition: " + text(component.identity.id) + "\nPins: " + pins.join(", ") + "\nSymbol rendering pending; no resource access.");
+    preview_->setText("Declared definition: " + text(component.identity.id) + "\nPins: " + pins.join(", ") + "\nGeneral symbol rendering pending. Resource access requires explicit Preview.");
+    preview_artwork_->setEnabled(std::holds_alternative<simnodus::SymbolPreviewSelection>(
+        simnodus::select_fixture_symbol(*document_.graph(), component.identity.id)));
+}
+QString DocumentWindow::selectedComponent() const
+{
+    if(!document_.graph() || catalog_->currentRow() < 0) return {};
+    const auto& components = document_.graph()->connectivity.components;
+    const auto row = static_cast<std::size_t>(catalog_->currentRow());
+    return row < components.size() ? text(components[row].identity.id) : QString{};
+}
+void DocumentWindow::retainPreview()
+{
+    const auto& capture = artwork_->capture();
+    if(!capture || !document_.graph()) return;
+    const auto selected = simnodus::select_fixture_symbol(*document_.graph(), utf8(selectedComponent()));
+    const auto* current = std::get_if<simnodus::SymbolPreviewSelection>(&selected);
+    const auto& old = capture->selection;
+    if(current && current->component == old.component && current->symbol == old.symbol && current->asset == old.asset &&
+        current->request.dependency == old.request.dependency && current->request.resource == old.request.resource &&
+        current->request.path == old.request.path && current->request.bytes == old.request.bytes && current->request.sha256 == old.request.sha256) return;
+    artwork_->setCapture({});
+    updateArtworkNote("Declared symbol selection changed. Explicit new Preview required.");
+}
+void DocumentWindow::updateArtworkNote(const QString& message)
+{
+    artwork_note_->setToolTip({});
+    if(const auto& owned = artwork_->capture()) {
+        const auto& capture = *owned;
+        artwork_note_->setText("Captured fixture artwork for " + text(capture.selection.component) + ".\nResource: " +
+            text(capture.selection.request.dependency) + "/" + text(capture.selection.request.resource) +
+            "\n227 bytes; SHA-256: " + text(capture.selection.request.sha256.substr(0, 16)) + "...\nPin-anchor correspondence unverified.");
+        artwork_note_->setToolTip("Explicit root: " + text(capture.requested_root) + "\nPath: " + text(capture.selection.request.path) +
+            "\nSHA-256: " + text(capture.selection.request.sha256));
+    } else artwork_note_->setText("No captured artwork. Preview requires an explicit resource root.");
+    if(!message.isEmpty()) artwork_note_->setText(artwork_note_->text() + "\n" + message);
+}
+bool DocumentWindow::previewArtwork(const QString& resource_root)
+{
+    if(!document_.graph()) return false;
+    const auto result = simnodus::capture_fixture_symbol(*document_.graph(), utf8(selectedComponent()), utf8(resource_root));
+    if(const auto* error = std::get_if<simnodus::SymbolPreviewError>(&result)) {
+        status_->setText(QString("Preview refused: %1 (system %2). Current document retained.").arg(error->code).arg(error->system_code));
+        updateArtworkNote(artwork_->capture() ? "Preview refused; prior captured artwork retained." : "Preview unavailable.");
+        return false;
+    }
+    artwork_->setCapture(std::get<0>(result));
+    updateArtworkNote();
+    status_->setText("Captured only the selected known symbol. Models, other resources and simulation remain unverified.");
+    return true;
 }
 void DocumentWindow::selectInstance()
 {
@@ -415,6 +495,7 @@ void DocumentWindow::updateInstanceProperties(bool keep_name_draft, bool keep_re
     }
     updateHistoryActions();
     updateParameterInspection();
+    retainPreview();
 }
 void DocumentWindow::updateParameterInspection()
 {
@@ -1062,6 +1143,137 @@ void DocumentWindow::runInspectionAcceptance(const QString& root, const QString&
     QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"occurrence_text", occurrence_note_->text()},
         {"scope", "scripted applied declaration inspection; two active drafts across reused paths and four across single-path refresh; no measurements or human usability acceptance"}};
+    QApplication::processEvents();
+    if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report)
+{
+    QJsonObject checks;
+    showAnalyzer();
+    checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
+    checks["initial_empty_artwork"] = !artwork_->capture() && !preview_artwork_->isEnabled();
+    checks["inert_open"] = openDocument(root, "original.json");
+    if(document_.graph()) {
+        const auto original = document_.graph();
+        const auto bytes = std::string(document_.bytes());
+        int resistor = -1, capacitor = -1;
+        const auto& components = original->connectivity.components;
+        for(std::size_t i = 0; i < components.size(); ++i) {
+            if(components[i].identity.id == "resistor") resistor = static_cast<int>(i);
+            if(components[i].identity.id == "capacitor") capacitor = static_cast<int>(i);
+        }
+        catalog_->setCurrentRow(resistor);
+        checks["catalog_selection_no_capture"] = !artwork_->capture() && preview_artwork_->isEnabled() && document_.graph() == original;
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        const auto inspector = inspector_->text(), path = occurrence_->currentText();
+        name_->setText("Preview project"); instance_name_->setText("Preview right");
+        resistance_->setText("3.5"); capacitance_->setText("470");
+        checks["explicit_selected_symbol_capture"] = previewArtwork(resource_root) && artwork_->capture() && artwork_->capture()->resources->size() == 1;
+        const auto captured = artwork_->capture();
+        checks["four_drafts_retained"] = name_->text() == "Preview project" && instance_name_->text() == "Preview right" &&
+            resistance_->text() == "3.5" && capacitance_->text() == "470";
+        checks["capture_nonmutation_and_independent_properties"] = document_.graph() == original && document_.bytes() == bytes && !document_.dirty() &&
+            !document_.can_undo() && !document_.can_redo() && inspector_->text() == inspector && occurrence_->currentText() == path && document_.leaf() == "original.json";
+        checks["capture_origin_and_unverified_anchors"] = captured && captured->requested_root == utf8(resource_root) &&
+            captured->selection.component == "resistor" && artwork_note_->text().contains("fixture artwork") &&
+            artwork_note_->text().contains("Pin-anchor correspondence unverified") && artwork_note_->toolTip().contains(text(captured->selection.request.sha256));
+        checks["metadata_plain_text_and_no_global_authority"] = artwork_note_->textFormat() == Qt::PlainText && preview_->textFormat() == Qt::PlainText &&
+            !original->declaration->sources.lock.resources_verified && !original->declaration->sources.resource_interfaces_verified && !original->declaration->runtime_profile_verified;
+        checks["failed_recapture_retains_prior_origin"] = !previewArtwork(resource_root + "/missing") && artwork_->capture() == captured &&
+            captured && captured->requested_root == utf8(resource_root) && artwork_note_->text().contains("prior captured artwork retained") && document_.graph() == original;
+        if(captured) {
+            const auto source_path = resource_root + "/" + text(captured->selection.request.path);
+            QFile source(source_path);
+            checks["replace_fixture_source"] = source.open(QIODevice::WriteOnly | QIODevice::Truncate) && source.write("replaced source") == 15;
+            source.close();
+            const auto& art_bytes = captured->resources->front().data;
+            checks["captured_bytes_survive_replacement"] = simnodus::symbols::recognize_fixture_artwork(
+                std::string_view(reinterpret_cast<const char*>(art_bytes.data()), art_bytes.size())).has_value();
+            checks["changed_file_recapture_refused"] = !previewArtwork(resource_root) && artwork_->capture() == captured && document_.graph() == original;
+        }
+        const auto fits = [](PreviewCanvas& canvas) {
+            const auto view = canvas.fittedView();
+            return !view.isEmpty() && qAbs(view.width() / view.height() - 2.5) < 1e-12 &&
+                view.left() >= 12 && view.top() >= 12 && view.right() <= canvas.width() - 12 && view.bottom() <= canvas.height() - 12;
+        };
+        PreviewCanvas wide; wide.setCapture(captured); wide.resize(420, 140);
+        PreviewCanvas narrow; narrow.setCapture(captured); narrow.resize(120, 220);
+        const auto painted = [](PreviewCanvas& canvas, const QImage& image) {
+            if(!canvas.capture() || image.pixelColor(2, 2).value() < 250) return false;
+            const auto view = canvas.fittedView();
+            const auto& geometry = canvas.capture()->artwork;
+            for(const auto& line : geometry.lines) {
+                const auto point = (QPointF(view.left() + (line.x1 + line.x2) / 2 * view.width() / geometry.width,
+                    view.top() + (line.y1 + line.y2) / 2 * view.height() / geometry.height) * image.devicePixelRatio()).toPoint();
+                bool dark = false;
+                for(int x = point.x() - 2; x <= point.x() + 2; ++x)
+                    for(int y = point.y() - 2; y <= point.y() + 2; ++y)
+                        dark = dark || image.pixelColor(x, y).value() < 80;
+                if(!dark) return false;
+            }
+            return true;
+        };
+        const auto wide_image = wide.grab().toImage(), narrow_image = narrow.grab().toImage();
+        checks["wide_aspect_fit_and_capture"] = fits(wide) && painted(wide, wide_image) && wide_image.save(report + ".wide.png");
+        checks["narrow_aspect_fit_and_capture"] = fits(narrow) && painted(narrow, narrow_image) && narrow_image.save(report + ".narrow.png");
+        checks["fit_does_not_recapture_or_edit"] = wide.capture() == captured && narrow.capture() == captured && document_.graph() == original && document_.bytes() == bytes;
+        if(captured) {
+            QFile source(resource_root + "/" + text(captured->selection.request.path));
+            const auto& art_bytes = captured->resources->front().data;
+            checks["restore_owned_test_source"] = source.open(QIODevice::WriteOnly | QIODevice::Truncate) &&
+                source.write(reinterpret_cast<const char*>(art_bytes.data()), static_cast<qint64>(art_bytes.size())) == static_cast<qint64>(art_bytes.size());
+        }
+        apply_resistance_->click(); apply_capacitance_->click(); apply_->click(); apply_instance_->click();
+        const auto edited = document_.graph();
+        checks["applies_retain_capture_and_selections"] = artwork_->capture() == captured && document_.dirty() && !editsPending() &&
+            selected_instance_ == "right" && occurrence_->currentText() == "main/right" && selectedComponent() == "resistor";
+        checks["copy_preserves_capture_and_history"] = saveCopy("preview-copy.json") && artwork_->capture() == captured && document_.graph() == edited &&
+            document_.dirty() && document_.can_undo() && document_.leaf() == "original.json";
+        checks["undo_preserves_capture_and_path"] = undoEdit() && artwork_->capture() == captured && occurrence_->currentText() == "main/right" &&
+            saveCopy("preview-undone.json");
+        checks["redo_preserves_capture"] = redoEdit() && document_.graph() == edited && artwork_->capture() == captured;
+        structure_->setCurrentItem(instanceItem("rc", "r")); occurrence_->setCurrentIndex(1);
+        checks["instance_occurrence_selection_preserves_preview"] = artwork_->capture() == captured && selectedComponent() == "resistor" && occurrence_->currentText() == "main/right/r";
+        checks["failed_open_preserves_capture"] = !openDocument(root, "invalid.json") && artwork_->capture() == captured && document_.graph() == edited;
+        catalog_->setCurrentRow(capacitor);
+        checks["unsupported_catalog_clears_artifact_and_origin"] = !artwork_->capture() && !preview_artwork_->isEnabled() && artwork_note_->toolTip().isEmpty() &&
+            selected_circuit_ == "rc" && selected_instance_ == "r" && occurrence_->currentText() == "main/right/r";
+        catalog_->setCurrentRow(resistor);
+        checks["catalog_return_requires_explicit_capture"] = !artwork_->capture() && preview_artwork_->isEnabled();
+        checks["explicit_recapture_after_selection"] = previewArtwork(resource_root) && artwork_->capture() != captured && document_.graph() == edited;
+        checks["successful_open_clears_capture_and_history"] = openDocument(root, "preview-copy.json") && !artwork_->capture() &&
+            !document_.dirty() && !document_.can_undo() && !document_.can_redo() && selected_instance_.isEmpty();
+        catalog_->setCurrentRow(resistor); structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["explicit_reopened_preview"] = previewArtwork(resource_root) && document_.graph() && !document_.dirty() &&
+            instance_name_->text() == "Preview right" && resistance_->text() == "3.5" && capacitance_->text() == "470";
+        checks["retained_initial_document_and_capture"] = original->declaration->sources.lock.syntax->bytes == bytes && captured &&
+            captured->resources->front().data.size() == 227;
+        const auto final = document_.graph(); analyzer_.close(); showAnalyzer();
+        checks["analyzer_reopen_preserves_document_and_artwork"] = analyzer_.isVisible() && document_.graph() == final && artwork_->capture();
+        QApplication::processEvents();
+        bool labels_fit = true;
+        for(auto* label : {inspector_, occurrence_note_, resistance_limits_, capacitance_limits_})
+            labels_fit = labels_fit && label->height() >= label->heightForWidth(label->width());
+        properties_scroll_->ensureWidgetVisible(apply_capacitance_);
+        QApplication::processEvents();
+        properties_scroll_->verticalScrollBar()->setValue(properties_scroll_->verticalScrollBar()->maximum());
+        QApplication::processEvents();
+        checks["properties_text_fit_and_last_control_reachable"] = labels_fit && properties_scroll_->verticalScrollBar()->maximum() > 0 &&
+            properties_scroll_->viewport()->rect().contains(QRect(apply_capacitance_->mapTo(properties_scroll_->viewport(), QPoint{}), apply_capacitance_->size())) &&
+            properties_->grab().save(report + ".properties-bottom.png");
+        properties_scroll_->verticalScrollBar()->setValue(0);
+    }
+    bool passed = checks.size() == 31;
+    for(const auto value : checks) passed = passed && value.toBool();
+    QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"artwork_note", artwork_note_->text()}, {"artwork_origin", artwork_note_->toolTip()},
+        {"scope", "one explicit known fixture artwork; no SVG parser, pin-anchor/electrical truth, automatic resource access or human dialog/DPI acceptance"}};
     QApplication::processEvents();
     if(!grab().save(report + ".png")) { QApplication::exit(3); return; }
     const auto output = QJsonDocument(result).toJson();

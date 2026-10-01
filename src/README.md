@@ -34,6 +34,14 @@ new resolver or mutation. Views borrow from a retained validated graph; Qt store
 owned full path IDs and reconsults current data after edit/history. Values/origins
 describe applied declarations and immediate bindings, not runtime measurements.
 
+The [explicit fixture Preview](../docs/experiments/SN-023-fixture-preview.md)
+resolves one stable component/symbol/asset/resource chain over a validated graph.
+It captures only the selected resource through existing native verification and
+owns copied metadata, root spelling and immutable bytes. A Qt-free symbol adapter
+recognizes only the exact original 227-byte owned artwork and returns six lines;
+Qt presentation paints them without rereading files. No generic SVG parser,
+pin-anchor contract, model verification or execution authority is introduced.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.

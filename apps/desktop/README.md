@@ -66,9 +66,29 @@ Build `native_inspection_probe`, `editor_inspection_tests` and
 python tests/resources/editor_inspection_acceptance.py --editor build/sn023-effective-parameters/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-effective-parameters/new-gui-run
 ```
 
-Components/Preview concerns a declared definition, with metadata only; Instance
-Properties concerns a selected graph instance. Preview renders no symbol or model
-and no resource is accessed. The central view is a read-only structural inspector,
+The [explicit fixture Preview](../../docs/experiments/SN-023-fixture-preview.md)
+supports only the owned fixture's `resistor` definition and unchanged `passive.svg`.
+Select it under Components, then **Preview Fixture Artwork...** and explicitly
+choose the resource root containing `tests/schema/fixtures/assets/passive.svg`
+(the repository root for this original fixture). Open and selection access no
+resources. Preview verifies/captures only this one file, with model/LICENSE files
+allowed to remain absent. Other components/artwork remain unavailable. The caption
+reports captured identity/bytes/hash and unverified pin-anchor correspondence.
+Failed recapture retains the prior artifact; repaint/resize and name/R/C/history
+reuse immutable captured bytes. Catalog changes and successful Open clear it.
+The resource root is independent of the opened document's directory and grants
+no global verification or execution authority. Native directory-dialog/human
+usability remains pending; the scripted path calls the same operation directly.
+
+Build `native_preview_probe` and `editor_document_tests` for the two focused CTests.
+Use a fresh GUI output directory:
+
+```text
+python tests/resources/editor_preview_acceptance.py --editor build/sn023-fixture-preview/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-fixture-preview/new-gui-run
+```
+
+Components/Preview concerns a declared definition; Instance Properties concerns
+a selected graph instance. The central view is a read-only structural inspector,
 not a schematic canvas. **View -> Open Signal Analyzer** opens the independent
 window; shared instrumentation is pending and no measurement data is fabricated.
 Docks/splitter are adjustable and panels can be hidden/reopened through View.
@@ -149,7 +169,7 @@ wrong dimensions and unaffected resistance/left subtree. Eight affected CTests
 passed in the first run; GUI/headless first runs passed. Previous GUI/layout/backend
 matrices are reused. Build the new `editor_capacitance_tests` target as well.
 
-Full placement/wiring/properties/multi-step undo, rendered symbols, production managed Save,
+Full placement/wiring/properties/multi-step undo, general rendered symbols/anchors, production managed Save,
 real worker/engine integration, shared instruments, physical monitor/DPI behavior,
 cross-session layout and packaging remain pending. Document parsing and bounded
 filesystem calls are synchronous; this slice measures no I/O responsiveness or

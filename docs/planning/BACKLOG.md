@@ -1,5 +1,18 @@
 # Backlog
 
+## SN-023 explicit fixture artwork Preview: in_progress
+
+The [closed Preview increment](../experiments/SN-023-fixture-preview.md) captures
+one unchanged owned resistor SVG only after explicit root selection; opening stays
+inert. Two focused CTests, seven tests/23 requests, 13 lifecycle assertions/one
+byte audit, Qt-free execution/imports and final 31 Qt controls/two audits passed.
+Wide/narrow pixel/fitting and full last-button reachability were inspected. First
+build/visual failures and intermediate attempts remain retained. All 217 prior
+evidence files and twelve overlays remain preserved. No generic SVG/anchor ABI or
+global resource authority. Next specify one owned pin-to-artwork correspondence;
+general components, placement/wiring, managed Save and usability remain pending.
+Historical entries retain their original narrower evidence.
+
 ## SN-023 effective parameter inspection: in_progress
 
 The [read-only increment](../experiments/SN-023-effective-parameters.md) selects
@@ -694,7 +707,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Read-only effective R/C occurrences/origins tested](../experiments/SN-023-effective-parameters.md); literal R/C and one-step history retained; full R/C/LED/switch/source/GND/MCU, wiring, general properties and multi-step undo remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Explicit owned resistor artwork Preview tested](../experiments/SN-023-fixture-preview.md); read-only R/C inspection, literal R/C and one-step history retained; general symbols/anchors, full R/C/LED/switch/source/GND/MCU, wiring, properties and multi-step undo remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
