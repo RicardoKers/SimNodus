@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "application/project_graph.hpp"
+#include "application/project_inspection.hpp"
 #include "adapters/symbols/fixture_artwork.hpp"
 
 namespace simnodus {
@@ -47,4 +48,17 @@ using SymbolPreviewResult = std::variant<std::shared_ptr<const SymbolPreviewCapt
 // captures other lock files, executes resources or changes the document graph.
 SymbolPreviewResult capture_fixture_symbol(const ProjectGraph& graph,
     std::string_view component, const std::string& resource_root);
+// Pure full-binding comparison; names, source offsets and applied values do not
+// identify artwork. Used by both independent views, with no resource I/O.
+bool fixture_capture_matches(const ProjectGraph& graph, std::string_view component,
+    const SymbolPreviewCapture& capture);
+struct OccurrenceArtworkCapture {
+    ComponentOccurrenceView occurrence;
+    std::shared_ptr<const SymbolPreviewCapture> symbol;
+};
+using OccurrenceArtworkResult = std::variant<std::shared_ptr<const OccurrenceArtworkCapture>, SymbolPreviewError>;
+// Independent explicit one-file capture for an existing component ID path.
+// No captured library Preview or inferred resource root is reused.
+OccurrenceArtworkResult capture_fixture_occurrence(const ProjectGraph& graph,
+    std::span<const std::string> path, const std::string& resource_root);
 }

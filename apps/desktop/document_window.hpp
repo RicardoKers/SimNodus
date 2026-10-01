@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "application/editor_document.hpp"
+#include "application/symbol_preview.hpp"
 #include <QMainWindow>
 
 class QDockWidget;
@@ -16,6 +17,7 @@ class QAction;
 class QComboBox;
 class QTableWidget;
 class QScrollArea;
+class QTabWidget;
 class PreviewCanvas;
 
 class DocumentWindow final : public QMainWindow {
@@ -31,6 +33,7 @@ public:
     bool saveCopy(const QString& leaf);
     void showAnalyzer();
     bool previewArtwork(const QString& resource_root);
+    bool captureOccurrence(const QString& resource_root);
     void runAcceptance(const QString& root, const QString& report);
     void runInstanceAcceptance(const QString& root, const QString& report);
     void runHistoryAcceptance(const QString& root, const QString& report);
@@ -39,6 +42,7 @@ public:
     void runInspectionAcceptance(const QString& root, const QString& report);
     void runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
+    void runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -60,6 +64,9 @@ private:
     void refresh();
     void selectCatalog(int row);
     void retainPreview();
+    void refreshOccurrenceChoices();
+    void updateOccurrenceView();
+    void updateOccurrenceNote(const QString& message = {});
     void updateArtworkNote(const QString& message = {});
     QString selectedComponent() const;
     void selectInstance();
@@ -74,6 +81,13 @@ private:
     QLabel *preview_, *inspector_, *status_, *project_id_;
     QLabel* artwork_note_;
     PreviewCanvas* artwork_;
+    QTabWidget* views_;
+    QComboBox* occurrence_view_choice_;
+    PreviewCanvas* occurrence_artwork_;
+    QLabel* occurrence_view_note_;
+    QPushButton* capture_occurrence_;
+    std::optional<simnodus::ComponentOccurrenceView> current_occurrence_;
+    std::shared_ptr<const simnodus::OccurrenceArtworkCapture> occurrence_capture_;
     QPushButton* preview_artwork_;
     QLineEdit* name_;
     QLineEdit* instance_name_;

@@ -299,6 +299,11 @@ if(BUILD_TESTING)
     add_test(NAME native-fixture-preview COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/native_preview_regression.py" --probe "$<TARGET_FILE:native_preview_probe>")
     set_tests_properties(native-fixture-preview PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
+    add_executable(native_occurrence_probe tests/resources/native_occurrence_probe.cpp)
+    target_link_libraries(native_occurrence_probe PRIVATE simnodus_symbol_preview simnodus_editor_document)
+    add_test(NAME native-fixture-occurrence COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/native_occurrence_regression.py" --probe "$<TARGET_FILE:native_occurrence_probe>")
+    set_tests_properties(native-fixture-occurrence PROPERTIES WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" TIMEOUT 120)
 endif()
 add_library(simnodus_editor_document STATIC src/application/editor_document.cpp)
 target_include_directories(simnodus_editor_document PUBLIC src)

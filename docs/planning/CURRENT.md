@@ -1,5 +1,43 @@
 # Current state
 
+## Current SN-023 state: read-only occurrence artwork tested
+
+On 2026-09-30, the [occurrence view](../experiments/SN-023-occurrence-view.md) adds a
+central read-only tab with a full-ID-path selector independent of Properties and
+library Preview. Pure Qt-free lookup walks/cross-checks existing connectivity and
+resolved source data, returning owned IDs/name/applied values. Explicit occurrence
+capture owns one separately requested known SVG; Open/selection stay inert.
+Name/upstream-R/history refresh current labels/values while preserving the path and
+equivalent captured binding. Changed paths/maps clear it; failed operations retain
+marked prior artwork; successful Open requires explicit selection/capture again.
+Fitted artwork has no saved position. No geometry/schema/edit/engine/worker operation.
+
+Three focused CTests passed first run: six new tests/34 selections/one lifecycle
+(35 requests), 14 native assertions/one byte audit plus existing Preview/document
+contracts. Qt-free execution/imports passed. GUI01/02 each passed 25 controls/one
+byte audit; images inspected. Four drafts, independent roots/captures, current
+left/right values, R/name/history, failures and exact copy/reopen preserved.
+Review removed repeated full lookups during choice enumeration before GUI02;
+initial sources/binaries remain retained. Native code/binary unchanged afterward.
+Temporary-case access denial in the review context was resolved by host read/byte
+audit and ordinary copies, leaving originals/permissions unchanged. Human recovery,
+dialog/normal close, keyboard/accessibility, large-project responsiveness,
+monitor/DPI/session layout and packaging remain pending.
+
+PR #79 was reconfirmed MERGED at `1790b44dd7f6893978f5e100bf0dad7428131400`,
+with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
+main and zero unpublished commits. Branch `codex/sn-023-occurrence-view` preserves
+all 228 prior evidence files/twelve independent overlays; only this task's shared
+prefix/row is published. Source PR records final checker/required-check/squash
+results. Full SN-023 stays in_progress; unchanged backend/worker/layout evidence reused.
+
+Next define one read-only declared terminal/net correspondence gate for this
+existing occurrence, distinguishing local membership from flattened electrical
+truth. Placement/wiring/general components, instruments, managed Save and real
+workers/IPC remain pending. Keep separated layers/windows/panels/shared ownership,
+SN-017/021/022 limits and all negatives/inconclusive observations. January
+stabilization and February 2027 classroom use remain planning targets.
+
 ## Current SN-023 state: runnable fixture demo prepared and script-tested
 
 On 2026-09-30, the [interactive demo helper](../experiments/SN-023-interactive-demo.md)

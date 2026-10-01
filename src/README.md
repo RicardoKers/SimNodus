@@ -49,6 +49,13 @@ the complete declared map, including when annotations are unavailable. Equivalen
 maps retain the artifact across unrelated edits; changed maps clear it. This is
 not a general geometry ABI, schema migration or electrical/model correspondence.
 
+The [read-only occurrence view](../docs/experiments/SN-023-occurrence-view.md) walks
+full root-prefixed IDs through connectivity and cross-checks current resolved/source
+data, returning owned path/source IDs/name/applied values. Explicit occurrence
+capture composes that metadata with its own one-file symbol artifact; full binding
+comparison is shared by the two independent views. No position/schema/engine or
+save command is added; current metadata is reconsulted after existing edits/history.
+
 SN-021 adds [source connectivity](../docs/experiments/SN-021-graph.md): standard
 C++ domain graph values and an application loader retaining complete validated
 project metadata and original source positions. Saving/compilation remain pending.
