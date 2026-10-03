@@ -1,0 +1,711 @@
+{
+  "experiment": "SN-023 current applied capacitance and binding origin in one existing occurrence",
+  "recorded_date": "2026-10-03",
+  "status": "passed-for-owned-fixture; SN-023-in-progress; no-new-edit-operation-or-electrical-acceptance",
+  "base_main": "cbd27e2191abab47042fe560479d18b84a826853",
+  "branch": "codex/sn-023-occurrence-capacitance",
+  "reconfirmed_pr_83": {
+    "state": "MERGED",
+    "head": "900aec95d1a404f1d4d904a78bfcebea9c74848f",
+    "squash": "cbd27e2191abab47042fe560479d18b84a826853",
+    "ci_run": 37119359519,
+    "required_checks": [
+      "Windows67/67 PASS",
+      "Ubuntu56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "cmake_python": "3.14.4",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-occurrence-capacitance/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-occurrence-capacitance/native-build --config Release --target simnodus_document_editor",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-occurrence-capacitance/gui-01",
+    "python tools/check_repository.py; git diff --check; task-only tree checker; source PR records exact-head Foundation/squash/main checks"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "results": {
+    "configure_editor_build": "PASS first run; only editor target/unchanged native dependencies",
+    "gui_01_controls": 80,
+    "retained_controls": 67,
+    "new_C_controls": 13,
+    "independent_capacitance_observations": 11,
+    "separate_saved_token_audits": 2,
+    "original_inputs_and_two_single_SVG_roots_unchanged": true,
+    "C_cases": "original right/left,draft/applied/invalid/undo/redo,left-after,copy/refusals/reopen,wrong seconds dimension,own default origin,final",
+    "image": "Final C caption/path/controls inspected; 0.000000470F containing-circuit origin, unavailable capacitor artwork, separate resistor library and literal Properties; retained R snapshot separate",
+    "review": "No actionable defect; review agent prepared only independent Python oracle and did not execute runtime",
+    "production_change": "Two Qt caption lines reuse owned native strings; no conversion/general formatter/API/new edit",
+    "reused_local_native": "Prior150 requests/lifecycle14+audit/no-Qt proof reused by hashes; no local native/backend/worker/layout matrices rerun",
+    "setup_build_runtime_failures": 0,
+    "engine_runs": 0,
+    "publication": "Source PR records final checker/required-check/squash/main results"
+  },
+  "policy": {
+    "identity": "Existing full component occurrence/pin/net IDs and current graph metadata; no label/row binding",
+    "quantity": "Parameter ID capacitance and base unit F only; immediate origin/default preserved; applied declaration is not measurement/model truth",
+    "ownership": "Four drafts/Properties/library/analyzer/history/copy/captures stay independent; no automatic resource/execution authority",
+    "harness": "Separate R-only/C-only copies from fresh original; test-only variant reloads and images/layout settling do not prove user recovery/human DPI"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 156745,
+      "sha256": "7eecdeb1b101a7b49713da089e3f5143fe17c6ad09ca4c597fdd92a001609c8a"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 728064,
+      "sha256": "1eca15ffaf0a1627a08c4b274ec69e71d2b8e5ecd67faf56ffcd08ad1507255f"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 709120,
+      "sha256": "724a5ee213ef7f8ee634dac9d94c8c906630607b0e73620c5a8205bed3fc8a0b"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-gui-01.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-occurrence-capacitance/build-01.log",
+      "bytes": 4111,
+      "sha256": "789454de92531868a66fa906a5c9f2c49c017aa1ee4f464e5087fb49a9f02a3e"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/configure-01.log",
+      "bytes": 1268,
+      "sha256": "40ae412a06cb3970445a73f35927506ace7737c7e7958ebbd519db43fbfba451"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01.log",
+      "bytes": 180,
+      "sha256": "5e569575098254c16c3c545768b567c9b12920f81757dfecc8a8e22929aca44a"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/default-capacitance.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/peer-labels.json",
+      "bytes": 7280,
+      "sha256": "7fc945116689001328370dd1ed785d930ed616170436c7da14556f4be2604a77"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/peer-ports.json",
+      "bytes": 7279,
+      "sha256": "bb1b6dc98506568156184f9dadae2fbdd7f7b3771ee3f963302fb768c1583923"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/document/wrong-capacitance-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/report.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/report.json.capacitance.png",
+      "bytes": 118387,
+      "sha256": "e9ba6c78e3da303001ef841c40463b817344362071d2dd8dd144af48c7fd0f73"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/report.json.png",
+      "bytes": 120999,
+      "sha256": "804ec0eaa441a4f85114c25c6e62a81473b4a5de1cd49e40e85c4037b548beae"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/runner.json",
+      "bytes": 736,
+      "sha256": "5ec56b44f9b0918aa88459277a1d072c8139c5262708e78c5275e6aabd4a6530"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/gui-01/stdout.log",
+      "bytes": 13841,
+      "sha256": "a4a8d77fb23cb2996f831ec538e400d6103c264b3b77b9009ee2743c9ce07af5"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/preimplementation/apps/desktop/document_window.cpp",
+      "bytes": 148519,
+      "sha256": "a22eae83117499051c30a83fd2e23be00ca48e8222e6ef80607e6c003f83888c"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/preimplementation/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 7910,
+      "sha256": "57bad6b02647933d9cb3861205f741430f466b178c2be5975a42f7d40a15805e"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/apps/desktop/document_window.cpp",
+      "bytes": 156745,
+      "sha256": "7eecdeb1b101a7b49713da089e3f5143fe17c6ad09ca4c597fdd92a001609c8a"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 728064,
+      "sha256": "1eca15ffaf0a1627a08c4b274ec69e71d2b8e5ecd67faf56ffcd08ad1507255f"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/acceptance-before-implementation.md",
+      "bytes": 3685,
+      "sha256": "d66fc2140f4b4e47839fff199f70620e843835ddc21f6086ced1befcaf5f90a8"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/preimplementation-manifest.json",
+      "bytes": 3558,
+      "sha256": "5f11be318a7cff3ce9850d397f453e74c7700f74bf341ac71441969c25e3d971"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/prepare.py",
+      "bytes": 6078,
+      "sha256": "10adb4cfa8bf72d72368d24c7f3e33be570c8e8ea5413590ccc363cc2793354d"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/preserve.py",
+      "bytes": 1390,
+      "sha256": "5a8b5f9450ab79b6c4c1889712bde97c36e5fdd44c08249349d4d84e56357bd2"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/validate.py",
+      "bytes": 1653,
+      "sha256": "ca79c3584d8ba45c0e72db24dde4383acc50248f895f149347c41baf4a6d0527"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/update_planning.py",
+      "bytes": 6516,
+      "sha256": "e58e8d3bf39cd5fca6c8323d5b60a63811f88c6684938f9b1eceb333acd965e5"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/record_evidence.py",
+      "bytes": 9834,
+      "sha256": "c637ec63a7c390b486fc2bc213d9e9d531be58c514b57b8e076c068981c2c80d"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/START_CAPACITANCE_DEMO.cmd",
+      "bytes": 356,
+      "sha256": "75ccc410e8647a6a832d946b9ff702e1d719dad235f38a16734006e1eace0e45"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/independent-original-values.json",
+      "bytes": 231,
+      "sha256": "4bb4a9c93b7a084e35b082a5f949594dfcb0fc9f3673ae79ba7cfb6b92c04cd1"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/prepare_records.py",
+      "bytes": 2150,
+      "sha256": "65b836c405d2c5fb08e75690d51a804aa46a6c58e25eb03a81a6bac2028c0b21"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/summary_tail.py",
+      "bytes": 6006,
+      "sha256": "6c38444e6c02de01d3f7b92d88ffc7212cc579fb07fbe1df84fd821f69b93c62"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 238,
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "368fd418470f4523b094e78d9f3c2050e36bde19496b049507c828fd1bc6bcf7"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "7f6fd64ee7c9ed6fa069d0dbc0d66c5febaf2a3b23f48df9c5972f5f96d81012"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "historical_evidence_manifest_sha256": "fd41d24c7cedf67030affcbae53cc7fa5ff71a4d3bc04c9f7373479ae887102a",
+    "verification": "238 old evidence/ten untouched overlays match hashes; shared task prefix/row reverse to exact backup bytes"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Next separately gate bounded keyboard navigation/action focus; accessibility/human usability remain pending.",
+    "No general editor/wiring/placement/physical or model truth/instrumentation/managed Save/real workers/IPC/general execution.",
+    "Human dialogs/close/visible interaction/keyboard/accessibility/large-project/physical monitor-DPI/session layout/packaging remain pending; prior demo inconclusive.",
+    "SN-017 Python/GDB/fixture control/profiles/tolerances/MCU-toolchain/PDF-PID, SN-021 one WindowslocalNTFS managed document/explicitfixedE01/inert Open and all unproven boundaries preserved.",
+    "SN-022 synthetic nine process/nine layout/Qtfreeworker only; failed first setup/runtime retained; retries not user recovery.",
+    "No binary/dependency redistribution or trusted-origin permission established; separate windows/panels/shared ownership retained.",
+    "January stabilization and February2027 classroom remain planning targets."
+  ]
+}

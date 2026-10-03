@@ -1,5 +1,30 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [applied occurrence capacitance](../experiments/SN-023-occurrence-capacitance.md).
+PR #83 was reconfirmed MERGED at cbd27e2191abab47042fe560479d18b84a826853,
+Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main copies and zero
+unpublished commits. Reconfirm the newest PR/squash before continuing. Two Qt
+lines append owned applied C/unitF/immediate origin in the existing occurrence
+caption. Right220nF/left1uF, draft/apply470nF/Undo/Redo/reopen, wrong dimension
+and own default origin are distinct; no conversion/general property API.
+Fresh configure/editor build and GUI01 passed first run: 80 controls (67 retained,
+13 C), eleven independently resolved observations and two separate R/C saved-token
+audits; inputs/two one-SVG roots unchanged. Four drafts, pin/local-net IDs,
+Properties/library/analyzer, native history/copy/reopen and left values preserved.
+Final C image/caption inspected; review found no defect. Previous native/source/
+binary hashes match; 150 requests/lifecycle 14/audit/no-Qt/Preview/backend/worker/
+layout evidence reused without local reruns. No setup/build/runtime failure.
+Retain all 238 earlier evidence/twelve overlays and all failed/inconclusive results;
+test-only variants/layout settling do not establish user recovery or human DPI.
+Source PR records final publication checks. Next separately gate bounded keyboard
+selection/navigation and explicit action focus on this fixture before broader
+editing; full accessibility/human use are pending, not accepted by names/shortcuts.
+Wiring/placement/general properties/history/instruments/managed Save/real workers/
+IPC/general execution and dialogs/close/visible interaction/large-project/physical
+monitor-DPI/session layout/packaging remain pending. Preserve SN-017/021/022 limits,
+separate windows/panels/shared ownership, January stabilization and February 2027
+classroom planning target. Historical handoffs follow.
+
 Latest tested increment: [explicit peer navigation](../experiments/SN-023-peer-navigation.md).
 PR #82 was reconfirmed MERGED at 4c082d1ffecf25f9fa4da515f231a7d26daa09b4,
 exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal

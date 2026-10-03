@@ -627,6 +627,8 @@ void DocumentWindow::updateOccurrenceNote(const QString& message)
             "; component: " + text(current.component) + "\nCurrent instance name: " + text(current.name);
         if(const auto parameter = current.parameters.find("resistance"); parameter != current.parameters.end() && parameter->second.unit == "ohm")
             note += "\nApplied resistance: " + text(parameter->second.value) + " ohm (" + text(parameter->second.origin) + ")";
+        if(const auto parameter = current.parameters.find("capacitance"); parameter != current.parameters.end() && parameter->second.unit == "F")
+            note += "\nApplied capacitance: " + text(parameter->second.value) + " F (" + text(parameter->second.origin) + ")";
         note += "\nRead only; fitted artwork, no saved position or runtime measurement.";
         if(occurrence_capture_) {
             const auto& capture = *occurrence_capture_->symbol;
@@ -1993,13 +1995,107 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         for(int column = 0; column < 4; ++column) cells.append(local_endpoints_->item(row, column)->text());
         endpoint_rows.append(cells);
     }
-    bool passed = checks.size() == 67;
+    const auto retained_occurrence_note = occurrence_view_note_->text();
+    const auto retained_endpoints_note = local_endpoints_note_->text();
+    const auto retained_peer_enabled = inspect_peer_->isEnabled();
+    const auto retained_peer_destination = peerOccurrencePath().join("/");
+    QJsonArray capacitance_observations;
+    const auto observe_capacitance = [this, &capacitance_observations](const QString& stage) {
+        if(!current_occurrence_ || !current_occurrence_->parameters.contains("capacitance")) return;
+        const auto& parameter = current_occurrence_->parameters.at("capacitance");
+        QJsonArray path;
+        for(const auto& id : current_occurrence_->path) path.append(text(id));
+        capacitance_observations.append(QJsonObject{{"stage", stage}, {"path", path}, {"value", text(parameter.value)},
+            {"unit", text(parameter.unit)}, {"origin", text(parameter.origin)}, {"caption", occurrence_view_note_->text()}});
+    };
+    const auto capacitance_note = [this](const QString& value, const QString& origin = "containing-circuit:capacitance") {
+        return current_occurrence_ && current_occurrence_->component == "capacitor" && occurrence_view_note_->textFormat() == Qt::PlainText &&
+            occurrence_view_note_->text().contains("Applied capacitance: " + value + " F (" + origin + ")") &&
+            occurrence_view_note_->text().contains("no saved position or runtime measurement");
+    };
+    if(openDocument(root, "original.json")) {
+        choose(capacitor);
+        const auto before_c = document_.graph();
+        checks["current_capacitance_available_without_capacitor_artwork"] = capacitance_note("0.000000220") &&
+            !capture_occurrence_->isEnabled() && !occurrence_capture_ && !artwork_->capture() && !document_.dirty();
+        observe_capacitance("original_right");
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        catalog_->setCurrentRow(0); previewArtwork(library_root);
+        const auto c_library = artwork_->capture();
+        name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+        const auto c_drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+            resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+        choose({"main", "left", "c"});
+        checks["capacitance_context_switch_preserves_four_drafts_and_independent_views"] = capacitance_note("0.000001") && c_drafts() &&
+            artwork_->capture() == c_library && c_library && selected_instance_ == "right" && occurrence_->currentText() == "main/right" &&
+            document_.graph() == before_c && !document_.dirty() && analyzer_.isVisible();
+        observe_capacitance("original_left");
+        choose(capacitor);
+        checks["pending_capacitance_text_does_not_change_applied_caption_or_save"] = capacitance_note("0.000000220") &&
+            c_drafts() && !saveCopy("pending-capacitance.json") && !undoEdit() && document_.graph() == before_c;
+        observe_capacitance("draft");
+        name_->setText(text(document_.name())); instance_name_->setText("right"); resistance_->setText("2.2");
+        pin("p");
+        apply_capacitance_->click();
+        const auto applied_c = document_.graph();
+        checks["capacitance_apply_requeries_current_graph_and_preserves_pin"] = capacitance_note("0.000000470") &&
+            applied_c != before_c && document_.dirty() && document_.can_undo() && !editsPending() && selected_terminal_ == "p" &&
+            current_local_net_ && current_local_net_->net.path == std::vector<std::string>{"main", "right", "junction"} &&
+            artwork_->capture() == c_library && !occurrence_capture_;
+        observe_capacitance("applied");
+        checks["invalid_capacitance_edit_retains_applied_view_and_identity"] = !applyCapacitance("0") &&
+            document_.graph() == applied_c && capacitance_note("0.000000470") && selected_terminal_ == "p" && document_.can_undo();
+        checks["capacitance_undo_refreshes_applied_value_keeps_pin_and_library"] = undoEdit() && document_.graph() == before_c &&
+            capacitance_note("0.000000220") && selected_terminal_ == "p" && artwork_->capture() == c_library && !occurrence_capture_;
+        observe_capacitance("undo");
+        checks["capacitance_redo_refreshes_applied_value_keeps_pin_and_library"] = redoEdit() && document_.graph() == applied_c &&
+            capacitance_note("0.000000470") && selected_terminal_ == "p" && artwork_->capture() == c_library;
+        observe_capacitance("redo");
+        choose({"main", "left", "c"});
+        checks["right_capacitance_edit_preserves_left_applied_value"] = capacitance_note("0.000001") &&
+            document_.graph() == applied_c && selected_instance_ == "right" && capacitance_->text() == "470";
+        observe_capacitance("left_after");
+        choose(capacitor); pin("p");
+        checks["capacitance_copy_and_failed_operations_keep_revision_and_association"] = saveCopy("capacitance-copy.json") &&
+            !saveCopy("capacitance-copy.json") && !openDocument(root, "invalid.json") && document_.graph() == applied_c &&
+            capacitance_note("0.000000470") && selected_terminal_ == "p" && document_.leaf() == "original.json" &&
+            document_.dirty() && document_.can_undo() && artwork_->capture() == c_library;
+        const auto reopened_c = openDocument(root, "capacitance-copy.json") && !current_occurrence_ && selected_terminal_.isEmpty() &&
+            !document_.dirty() && !document_.can_undo() && !document_.can_redo() && !artwork_->capture();
+        choose(capacitor); pin("p");
+        checks["capacitance_copy_reopen_requires_explicit_occurrence_and_pin"] = reopened_c && capacitance_note("0.000000470") &&
+            selected_terminal_ == "p" && !occurrence_capture_ && document_.leaf() == "capacitance-copy.json";
+        observe_capacitance("reopen");
+        openDocument(root, "wrong-capacitance-dimension.json"); choose(capacitor);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        checks["wrong_dimension_never_gets_capacitance_F_caption_or_edit"] = current_occurrence_ &&
+            current_occurrence_->parameters.at("capacitance").unit == "s" && !occurrence_view_note_->text().contains("Applied capacitance:") &&
+            !apply_capacitance_->isEnabled() && !document_.dirty() && !occurrence_capture_;
+        observe_capacitance("wrong_dimension");
+        openDocument(root, "default-capacitance.json"); choose(capacitor);
+        checks["default_capacitance_uses_own_applied_value_and_origin"] = capacitance_note("0.000001", "default") &&
+            current_occurrence_->parameters.at("capacitance").origin == "default" && !occurrence_capture_ && !document_.dirty();
+        observe_capacitance("default_origin");
+        openDocument(root, "capacitance-copy.json"); choose(capacitor); pin("p");
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        catalog_->setCurrentRow(0); previewArtwork(library_root);
+        views_->setCurrentIndex(1); settle();
+        checks["final_capacitance_caption_and_controls_complete"] = capacitance_note("0.000000470") &&
+            occurrence_view_note_->height() >= occurrence_view_note_->heightForWidth(occurrence_view_note_->width()) &&
+            views_->currentWidget()->rect().contains(QRect(capture_occurrence_->mapTo(views_->currentWidget(), QPoint{}), capture_occurrence_->size())) &&
+            !capture_occurrence_->isEnabled() && !occurrence_capture_ &&
+            grab().save(report + ".capacitance.png");
+        observe_capacitance("final");
+    }
+    bool passed = checks.size() == 80;
     for(const auto value : checks) passed = passed && value.toBool();
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
-        {"occurrence_note", occurrence_view_note_->text()}, {"terminal_rows", terminal_rows}, {"endpoint_rows", endpoint_rows},
-        {"local_endpoints_note", local_endpoints_note_->text()},
-        {"peer_action_enabled", inspect_peer_->isEnabled()}, {"peer_destination", peerOccurrencePath().join("/")},
-        {"scope", "explicit direct peer-component navigation by kind/full IDs; no port traversal/flattening/auto-pin/resource capture; four drafts and independent views/history/copy preserved; no geometry or human recovery acceptance"}};
+        {"occurrence_note", retained_occurrence_note}, {"terminal_rows", terminal_rows}, {"endpoint_rows", endpoint_rows},
+        {"local_endpoints_note", retained_endpoints_note},
+        {"peer_action_enabled", retained_peer_enabled}, {"peer_destination", retained_peer_destination},
+        {"capacitance_observations", capacitance_observations}, {"capacitance_note", occurrence_view_note_->text()},
+        {"retained_snapshot", "Existing R-only controls/rows/note/peer action and report.png precede separate C-only path/report.capacitance.png"},
+        {"scope", "current owned applied capacitance and immediate origin with existing C edit/history/create-only copy; retained peer/R-only path; no measurement/model truth/automatic resource access/general properties or human recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

@@ -10,7 +10,11 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'schema'))
 from native_resistance_regression import verify_revision
+from native_capacitance_regression import verify_revision as verify_capacitance_revision
+from native_occurrence_regression import expected_occurrence
 import project as reference
+
+EXPECTED_CONTROL_COUNT = 80
 
 
 def main():
@@ -98,6 +102,28 @@ def main():
     net['terminals'].remove({'instance': 'c', 'terminal': 'p'})
     reference.validate(missing_peer)
     inputs['missing-peer.json'] = json.dumps(missing_peer).encode()
+    wrong_dimension = json.loads(original)
+    topology = wrong_dimension['sources']['topology']
+    # Reuse the accepted valid wrong-dimension declaration; do not mislabel it as F.
+    for definition in topology['components'] + topology['circuits']:
+        for parameter in definition['parameters']:
+            if parameter['id'] == 'capacitance':
+                parameter['unit'] = 's'
+    for model in topology['models']:
+        for parameter in model['parameters']:
+            if parameter['unit'] == 'F':
+                parameter['unit'] = 's'
+    main_circuit = next(row for row in topology['circuits'] if row['id'] == 'main')
+    right = next(row for row in main_circuit['instances'] if row['id'] == 'right')
+    right['overrides']['capacitance'] = {'value': '0.00000022', 'unit': 's'}
+    reference.validate(wrong_dimension)
+    inputs['wrong-capacitance-dimension.json'] = json.dumps(wrong_dimension).encode()
+    default_capacitance = json.loads(original)
+    circuit = next(row for row in default_capacitance['sources']['topology']['circuits'] if row['id'] == 'rc')
+    capacitor = next(row for row in circuit['instances'] if row['id'] == 'c')
+    del capacitor['overrides']['capacitance']
+    reference.validate(default_capacitance)
+    inputs['default-capacitance.json'] = json.dumps(default_capacitance).encode()
     for name, raw in inputs.items():
         (root / name).write_bytes(raw)
     resource_root = out / 'explicit-roots'
@@ -126,7 +152,8 @@ def main():
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
     assert run.returncode == 0, run.stdout.decode(errors='replace') + run.stderr.decode(errors='replace')
     observed = json.loads((out / 'report.json').read_bytes())
-    assert observed['passed'] and len(observed['checks']) == 67 and all(observed['checks'].values())
+    assert EXPECTED_CONTROL_COUNT is not None, 'Final Qt control count must be recorded before acceptance'
+    assert observed['passed'] and len(observed['checks']) == EXPECTED_CONTROL_COUNT and all(observed['checks'].values())
     assert observed['peer_action_enabled'] and observed['peer_destination'] == 'main/right/c'
     assert observed['terminal_rows'] == [
         ['n', '2', 'junction', 'junction', 'main/right/junction'],
@@ -136,14 +163,45 @@ def main():
         ['Component pin', '1', 'capacitor', 'main/right/c/p'],
         ['Component pin', '2', 'resistor', 'main/right/r/n']]
     verify_revision(original, (root / 'occurrence-copy.json').read_bytes(), 'main', 'right', '3.5')
+    capacitance_copy = (root / 'capacitance-copy.json').read_bytes()
+    verify_capacitance_revision(original, capacitance_copy, 'main', 'right', '470')
+    right_path, left_path = ['main', 'right', 'c'], ['main', 'left', 'c']
+    stages = {
+        'original_right': (right_path, original),
+        'original_left': (left_path, original),
+        'draft': (right_path, original),
+        'applied': (right_path, capacitance_copy),
+        'undo': (right_path, original),
+        'redo': (right_path, capacitance_copy),
+        'left_after': (left_path, capacitance_copy),
+        'reopen': (right_path, capacitance_copy),
+        'wrong_dimension': (right_path, inputs['wrong-capacitance-dimension.json']),
+        'default_origin': (right_path, inputs['default-capacitance.json']),
+        'final': (right_path, capacitance_copy),
+    }
+    observations = observed['capacitance_observations']
+    assert [row['stage'] for row in observations] == list(stages), 'Missing, duplicate or reordered C observations'
+    for row in observations:
+        path, raw = stages[row['stage']]
+        assert row['path'] == path, row
+        expected = expected_occurrence(raw, path)['parameters']['capacitance']
+        assert {key: row[key] for key in ('value', 'unit', 'origin')} == expected, row
+        if expected['unit'] == 'F':
+            line = f"Applied capacitance: {expected['value']} F ({expected['origin']})"
+            assert line in row['caption'], row
+        else:
+            assert 'Applied capacitance' not in row['caption'], row
+    assert (out / 'report.json.capacitance.png').is_file(), 'Missing final capacitance image'
     for name, raw in inputs.items():
         assert (root / name).read_bytes() == raw
-    assert sorted(path.name for path in root.iterdir()) == sorted([*inputs, 'occurrence-copy.json'])
+    assert sorted(path.name for path in root.iterdir()) == sorted([*inputs, 'occurrence-copy.json', 'capacitance-copy.json'])
     assert sorted(path for path in resource_root.rglob('*') if path.is_file()) == sorted(assets)
     assert all(path.read_bytes() == art for path in assets)
     result['independent_persisted_byte_and_source_separate_root_audits'] = 'passed'
+    result['independent_capacitance_observation_and_saved_token_audits'] = 'passed'
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
-    print('PASS 67 occurrence/local-endpoint/explicit-peer controls, one persisted-byte audit and unchanged source/two single-file explicit roots')
+    print(f'PASS {EXPECTED_CONTROL_COUNT} occurrence/local-endpoint/explicit-peer/C controls, '
+          '11 independent capacitance observations, two persisted-byte audits and unchanged source/two single-file explicit roots')
 
 
 if __name__ == '__main__':
