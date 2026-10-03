@@ -1,5 +1,22 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [Circuit capacitance editing](../experiments/SN-023-circuit-capacitance.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR #85 merged at 64c30eb3d7a42fdbd2130485648fd2d298bd5141, Foundation Windows 67/67 and Ubuntu 56/56 passed; main copies equal and zero unpublished. Explicit Edit Capacitance
+shares existing Qt field/limits/Apply widgets and one draft with Details, retaining
+containing ownership. Recheck graph/C path/context/activation/native target; refuse
+stale/default/missing parent literal/different pending targets. No schema/native/
+save/history/worker changes; four drafts/inert Open/independent views preserved.
+Fresh configure/build and first GUI 41/14/one-C audit, canvas 33/18/one audit and
+occurrence 80/11/two audits passed; three images inspected. Twenty-two sources and the final binary are frozen; reuse unchanged evidence by hashes, no local native/backend matrices.
+Preserve 243 earlier evidence/twelve overlays/all negatives/inconclusive evidence;
+source PR records final checker/required checks/squash/main, only task prefix/row
+published. Next human feedback and separately gate bounded engineering-unit R/C
+captions. General editing/library/wiring/instruments/managed Save/real workers/IPC/
+execution/keyboard/accessibility/DPI/session/packaging stay pending. SN-017/021/022
+limits/SN-044 ownership and January stabilization/February 2027 target retained.
+Historical handoffs follow.
+
 Latest tested increment: [fixed RC canvas](../experiments/SN-023-rc-canvas.md).
 Owner QSpice screenshot is a conceptual layout reference only; visual circuit
 work supersedes keyboard-first sequencing. Read CURRENT's newest section and

@@ -46,6 +46,7 @@ public:
     void runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runCanvasAcceptance(const QString& root, const QString& report);
+    void runCircuitCapacitanceAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -80,6 +81,9 @@ private:
     void showDeclarationDetails(bool enabled);
     void refreshCircuit();
     bool editContainingRc();
+    bool beginCircuitCapacitanceEdit();
+    bool circuitCapacitanceEligible() const;
+    bool applyCircuitCapacitance();
     void reportError(const char* operation, const char* code, std::size_t offset,
         std::uint32_t system, bool cleanup = false);
     simnodus::EditorDocument document_;
@@ -128,4 +132,8 @@ private:
     QLabel* circuit_selection_ = nullptr;
     QPushButton* circuit_edit_ = nullptr;
     QAction* details_action_ = nullptr;
+    QWidget *capacitance_editor_ = nullptr, *capacitance_details_host_ = nullptr, *capacitance_circuit_host_ = nullptr;
+    QLabel* circuit_capacitance_target_note_ = nullptr;
+    QPushButton* circuit_capacitance_edit_ = nullptr;
+    QStringList circuit_capacitance_target_;
 };
