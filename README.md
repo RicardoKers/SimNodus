@@ -60,6 +60,8 @@ Its [local terminal table](docs/experiments/SN-023-terminal-membership.md) shows
 declared pin/net IDs and full local paths without artwork capture or electrical inference.
 Selecting a pin [inspects all direct local endpoints](docs/experiments/SN-023-local-endpoints.md)
 with explicit kinds and IDs; ports are not traversed.
+An [explicit peer action](docs/experiments/SN-023-peer-navigation.md) inspects another
+declared component by full IDs while preserving drafts; new pin/capture choices remain explicit.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

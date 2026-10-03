@@ -1,0 +1,615 @@
+{
+  "experiment": "SN-023 explicit navigation to one directly declared peer component",
+  "recorded_date": "2026-10-03",
+  "status": "passed-for-owned-fixture; SN-023-in-progress; no-connection-edit-or-electrical-acceptance",
+  "base_main": "4c082d1ffecf25f9fa4da515f231a7d26daa09b4",
+  "branch": "codex/sn-023-peer-navigation",
+  "reconfirmed_pr_82": {
+    "state": "MERGED",
+    "head": "c2fe79d0f0a4ec1daf959e18d9a1216e9ea6af49",
+    "squash": "4c082d1ffecf25f9fa4da515f231a7d26daa09b4",
+    "required_checks": [
+      "Windows67/67 PASS",
+      "Ubuntu56/56 PASS"
+    ],
+    "ci_run": 36855849994,
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits_before_start": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "cmake_python": "3.14.4",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "cmake -S . -B build/sn023-peer-navigation/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-peer-navigation/native-build --config Release --target simnodus_document_editor",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-peer-navigation/gui-01",
+    "python tools/check_repository.py; git diff --check; task-only published-tree checker; source PR records exact-head Foundation/squash results"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "artwork": {
+    "path": "tests/schema/fixtures/assets/passive.svg",
+    "bytes": 227,
+    "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+  },
+  "results": {
+    "fresh_configure_build": "PASS first run; only editor target and unchanged native dependencies",
+    "gui_01_controls": 67,
+    "retained_controls": 51,
+    "new_peer_controls": 16,
+    "independent_saved_byte_audits": 1,
+    "independent_root_audits": "all original/variant inputs unchanged; two separate roots each contain only the owned single SVG",
+    "peer_cases": [
+      "explicit row/button and four drafts",
+      "right/c and left/c full containing identity",
+      "reverse navigation/fresh explicit capture",
+      "local/subcircuit ports/self/empty/cleared/unconnected/missing refusal",
+      "reordered rows/declarations/equal HTML-looking Unicode labels",
+      "stale c/p removed from junction before refresh",
+      "applied R revision/history/dirty/association preserved and history requery retains destination"
+    ],
+    "image": "GUI01 inspected; complete peer action/endpoint paths/scope/capture controls, independent artwork and applied3500ohm; native Windows/Fusion host palette",
+    "review": "No actionable defect found; read-only review did not execute tests",
+    "reused_local_native": {
+      "targeted_ctest": "prior2/2, not rerun",
+      "native_requests": "prior150, not rerun",
+      "lifecycle": "prior14 assertions+one byte audit, not rerun",
+      "no_qt": "prior headless execution/import proof, not rerun",
+      "reason": "12 prior source files/three prior binaries hash-identical; editor-document sources also match base Git bytes"
+    },
+    "setup_build_runtime_failures": 0,
+    "local_native_matrices_rerun": 0,
+    "backend_worker_layout_matrices_rerun": 0,
+    "engine_runs": 0,
+    "publication": "Working/task-only repository checker and exact-source required Foundation/squash recorded by source PR"
+  },
+  "policy": {
+    "identity": "UserRole explicit kind/full endpoint IDs; owned old member and fresh source/net/member/target/selector identity cross-check; labels/row positions never bind",
+    "activation": "Row selection inert; explicit component-only action; ports/self/unconnected/absent/stale refused",
+    "destination": "Clear old occurrence pin/net/peer selection and capture; destination component only; no automatic pin or resource capture",
+    "ownership": "Preserve all four drafts, independent Properties/library/analyzer, applied bytes/dirty/history/save association; Qt only in presentation",
+    "harness": "Direct reload/removal and row reorder/layout settling are test-only; no user edit/recovery/monitor-DPI/human usability claim"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 148519,
+      "sha256": "a22eae83117499051c30a83fd2e23be00ca48e8222e6ef80607e6c003f83888c"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 7910,
+      "sha256": "57bad6b02647933d9cb3861205f741430f466b178c2be5975a42f7d40a15805e"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 709120,
+      "sha256": "724a5ee213ef7f8ee634dac9d94c8c906630607b0e73620c5a8205bed3fc8a0b"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-gui-01.json",
+      "bytes": 5825,
+      "sha256": "b81e3ff059033f7ddb097cc8db283778dffde39768bdbfcb51d6787d0c2f4966"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-peer-navigation/build-01.log",
+      "bytes": 4006,
+      "sha256": "f59143b4404137a805a2fd6596b558ede81c13c613b1b94cf748494af1866382"
+    },
+    {
+      "path": "build/sn023-peer-navigation/configure-01.log",
+      "bytes": 1261,
+      "sha256": "1d623144a977d010fb24604cbebfce434181f8237a94770f27baf17ed5cf7250"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01.log",
+      "bytes": 136,
+      "sha256": "0e9061f36bbe29fbe2b3c949489ae4623d1dc69e067c35d5b80c5b277b331874"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/peer-labels.json",
+      "bytes": 7280,
+      "sha256": "7fc945116689001328370dd1ed785d930ed616170436c7da14556f4be2604a77"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/peer-ports.json",
+      "bytes": 7279,
+      "sha256": "bb1b6dc98506568156184f9dadae2fbdd7f7b3771ee3f963302fb768c1583923"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/report.json",
+      "bytes": 5825,
+      "sha256": "b81e3ff059033f7ddb097cc8db283778dffde39768bdbfcb51d6787d0c2f4966"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/report.json.png",
+      "bytes": 120999,
+      "sha256": "804ec0eaa441a4f85114c25c6e62a81473b4a5de1cd49e40e85c4037b548beae"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/runner.json",
+      "bytes": 633,
+      "sha256": "4057e628d9e450fdf3805b8153f0e7dc50c25b35437f11eda9c3537c2743bcfc"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-peer-navigation/gui-01/stdout.log",
+      "bytes": 5940,
+      "sha256": "dea7353a602e48ade11d0dbeea47cc014e6ca9b5be3998eaa137e4e0468a92a1"
+    },
+    {
+      "path": "build/sn023-peer-navigation/preimplementation/apps/desktop/document_window.cpp",
+      "bytes": 134959,
+      "sha256": "7e2fd03bfb0d6be216459426affbc9fef9194ce25340dfd819c0fc6a61ee852d"
+    },
+    {
+      "path": "build/sn023-peer-navigation/preimplementation/apps/desktop/document_window.hpp",
+      "bytes": 4542,
+      "sha256": "56e48f56f2821dc254997505c2c3a4c24d0dc69d7a0d647e90576cb2ad056736"
+    },
+    {
+      "path": "build/sn023-peer-navigation/preimplementation/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 5983,
+      "sha256": "378f9d8f35ac086f9c0cee9dffbdb8f4711438fcf9cec74882b6af3623070782"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/apps/desktop/document_window.cpp",
+      "bytes": 148519,
+      "sha256": "a22eae83117499051c30a83fd2e23be00ca48e8222e6ef80607e6c003f83888c"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 709120,
+      "sha256": "724a5ee213ef7f8ee634dac9d94c8c906630607b0e73620c5a8205bed3fc8a0b"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 7910,
+      "sha256": "57bad6b02647933d9cb3861205f741430f466b178c2be5975a42f7d40a15805e"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-peer-navigation/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-peer-navigation/acceptance-before-implementation.md",
+      "bytes": 4293,
+      "sha256": "3f37c9233dbd94f3b54a085cbb8185eecff54efe99125d053d4c9161ddcb0ae9"
+    },
+    {
+      "path": "build/sn023-peer-navigation/preimplementation-manifest.json",
+      "bytes": 3653,
+      "sha256": "6b1aa6e3c532b1e326531c4fcd66c472a510786526dd66643ebb12ee2f2e1153"
+    },
+    {
+      "path": "build/sn023-peer-navigation/prepare.py",
+      "bytes": 6545,
+      "sha256": "4cdf0565b2434c4269544482f15d42608be64ca7c41a900a8a5c8c938be0ea3d"
+    },
+    {
+      "path": "build/sn023-peer-navigation/preserve.py",
+      "bytes": 1383,
+      "sha256": "5956e679e8bd88948a85ca08d4d08582b0445f994daa9b01f2e8674c5be526b8"
+    },
+    {
+      "path": "build/sn023-peer-navigation/validate.py",
+      "bytes": 1653,
+      "sha256": "ca79c3584d8ba45c0e72db24dde4383acc50248f895f149347c41baf4a6d0527"
+    },
+    {
+      "path": "build/sn023-peer-navigation/prepare_docs.py",
+      "bytes": 6499,
+      "sha256": "02e7c5c9904ac8be610bff18c4a0b3cff79f5adf740d8943d4f674db1947811e"
+    },
+    {
+      "path": "build/sn023-peer-navigation/record_evidence.py",
+      "bytes": 10130,
+      "sha256": "694e675a57433de98bc2f2c38fdbb47e868be9c7ec94ca15a6dd1227155831c0"
+    },
+    {
+      "path": "build/sn023-peer-navigation/START_PEER_DEMO.cmd",
+      "bytes": 342,
+      "sha256": "3aee6e93071f5c06404c6cc58899ee53c86238db3b44da64a00442c914e511df"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 236,
+    "historical_evidence_manifest_sha256": "ee709fbc836b71690908cb57428a67ecb89641fe0df11ecb226cc6211d67f295",
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "2e8aaeb4ca133b3e5157c093a093f3148c98e5d60aaf208c5d885e339b06c203"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "9c5211e9c2f762b5e2f2b451f6a7cfa8b4f988cc95583e3f1bdb8375deb2ee5b"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "236 old evidence/ten untouched overlays match hashes; own CURRENT/BACKLOG prefix/row reverse to exact saved bytes"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-terminal-membership-summary.json",
+      "bytes": 27755,
+      "sha256": "29121a612c52005accab00be22a546ffe7f54f90a2326402ce42d7b4647b93e2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-fixture-preview-summary.json",
+      "bytes": 36898,
+      "sha256": "c9bd3dfbe0ddab2135637e7e8986b61476d9ff82b1be130699d9baff7227d72e"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "No port traversal/flattening/electrical/model truth, geometry/schema/net/save/runtime/worker API or general editor.",
+    "Next bounded gate applied capacitance/origin plus existing C edit/history/copy; general editor/instruments/managed Save/real workers pending.",
+    "Human dialogs/close/visible interaction/keyboard/accessibility/large-project/monitor-DPI/session/packaging remain pending; prior demo inconclusive.",
+    "No executable/Qt runtime/dependency distribution; origin/redistribution licensing limits unchanged.",
+    "SN-017 Python/GDB/fixture control, profiles/tolerances, MCU/toolchain independence and PDF/PID behavior preserved.",
+    "SN-021 Windows/localNTFS one managed document and explicit fixedE01 only; external overwrite/automatic executable resources/production service/general MCU/power-loss claims unproven.",
+    "SN-022 nine synthetic process/nine layout/noQtworker only; failed first setup/runtime preserved; scripted retries are not user recovery.",
+    "January stabilization and February2027 classroom remain planning targets."
+  ]
+}

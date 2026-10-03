@@ -105,12 +105,18 @@ DocumentWindow::DocumentWindow()
     local_endpoints_->setAccessibleName("All declared endpoints of the selected pin's local net, including the selected pin");
     local_endpoints_->setHorizontalHeaderLabels({"Endpoint kind", "Terminal name", "Definition", "Endpoint ID path"});
     local_endpoints_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    local_endpoints_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    local_endpoints_->setSelectionMode(QAbstractItemView::SingleSelection);
     local_endpoints_->verticalHeader()->hide();
     local_endpoints_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     local_endpoints_->horizontalHeader()->setStretchLastSection(true);
     local_endpoints_->setMinimumHeight(110);
     local_endpoints_->setMaximumHeight(150);
     occurrence_layout->addWidget(local_endpoints_);
+    inspect_peer_ = new QPushButton("Inspect Selected Component");
+    inspect_peer_->setEnabled(false);
+    inspect_peer_->setAccessibleName("Inspect a different component from its declared local endpoint; ports are not traversed");
+    occurrence_layout->addWidget(inspect_peer_);
     occurrence_view_note_ = new QLabel;
     occurrence_view_note_->setWordWrap(true);
     occurrence_view_note_->setTextFormat(Qt::PlainText);
@@ -271,6 +277,8 @@ DocumentWindow::DocumentWindow()
         if(root.isEmpty()) { updateOccurrenceNote("Capture cancelled; current occurrence retained."); return; }
         captureOccurrence(root);
     });
+    connect(local_endpoints_, &QTableWidget::itemSelectionChanged, this, &DocumentWindow::updatePeerAction);
+    connect(inspect_peer_, &QPushButton::clicked, this, [this] { inspectSelectedPeer(); });
     status_ = new QLabel("Open one project declaration. Resource access and simulation are unavailable.");
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
@@ -518,6 +526,8 @@ void DocumentWindow::updateOccurrenceView()
 }
 void DocumentWindow::updateLocalEndpoints()
 {
+    const QSignalBlocker endpoint_selection(local_endpoints_);
+    inspect_peer_->setEnabled(false);
     current_local_net_.reset();
     local_endpoints_->setRowCount(0);
     local_endpoints_note_->setText("Select a logical pin above to inspect all members of its declared local net.");
@@ -548,9 +558,62 @@ void DocumentWindow::updateLocalEndpoints()
         for(int column = 0; column < cells.size(); ++column) {
             auto* item = new QTableWidgetItem(cells[column]);
             item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+            if(column == 0) {
+                item->setData(Qt::UserRole, path);
+                item->setData(Qt::UserRole + 1, static_cast<int>(endpoint.kind));
+            }
             local_endpoints_->setItem(row, column, item); // Plain cells, no untrusted rich-text tooltips.
         }
     }
+}
+QStringList DocumentWindow::peerOccurrencePath() const
+{
+    if(!document_.graph() || !current_occurrence_ || !current_local_net_ || selected_terminal_.isEmpty()) return {};
+    const auto rows = local_endpoints_->selectedItems();
+    const auto* item = rows.isEmpty() ? nullptr : local_endpoints_->item(rows.front()->row(), 0);
+    if(!item || item->data(Qt::UserRole + 1).toInt() != static_cast<int>(simnodus::DeclaredEndpointKind::component_pin)) return {};
+    auto path = item->data(Qt::UserRole).toStringList();
+    std::vector<std::string> ids;
+    for(const auto& id : path) ids.push_back(utf8(id));
+    const auto old = std::find_if(current_local_net_->endpoints.begin(), current_local_net_->endpoints.end(),
+        [&ids](const auto& row) { return row.kind == simnodus::DeclaredEndpointKind::component_pin && row.path == ids; });
+    if(old == current_local_net_->endpoints.end() || ids.size() < 3) return {};
+    const auto source = simnodus::inspect_component_occurrence(*document_.graph(), current_occurrence_->path);
+    if(!source || source->source_circuit != current_occurrence_->source_circuit ||
+        source->source_instance != current_occurrence_->source_instance || source->component != current_occurrence_->component) return {};
+    const auto current = simnodus::inspect_occurrence_local_net(*document_.graph(), current_occurrence_->path, utf8(selected_terminal_));
+    if(!current || current->net.path != current_local_net_->net.path) return {};
+    // Recheck owned identity against the current graph. A stale row grants no navigation.
+    const auto member = std::find_if(current->endpoints.begin(), current->endpoints.end(), [&old](const auto& row) {
+        return row.kind == old->kind && row.instance == old->instance && row.terminal == old->terminal &&
+            row.definition == old->definition && row.path == old->path;
+    });
+    if(member == current->endpoints.end()) return {};
+    const auto pin = ids.back();
+    ids.pop_back();
+    if(ids == current_occurrence_->path) return {};
+    const auto target = simnodus::inspect_component_occurrence(*document_.graph(), ids);
+    if(!target || target->component != member->definition ||
+        std::none_of(target->terminals.begin(), target->terminals.end(), [&pin](const auto& row) { return row.pin == pin; })) return {};
+    path.removeLast();
+    return occurrence_view_choice_->findData(path) > 0 ? path : QStringList{};
+}
+void DocumentWindow::updatePeerAction()
+{
+    inspect_peer_->setEnabled(!peerOccurrencePath().isEmpty());
+}
+bool DocumentWindow::inspectSelectedPeer()
+{
+    // Copy identity before changing the selector: its callback destroys the member rows.
+    const auto path = peerOccurrencePath();
+    if(path.isEmpty()) {
+        inspect_peer_->setEnabled(false);
+        status_->setText("Peer inspection unavailable. Select a current endpoint of a different component; ports are not traversed.");
+        return false;
+    }
+    occurrence_view_choice_->setCurrentIndex(occurrence_view_choice_->findData(path));
+    status_->setText("Inspecting component " + path.join("/") + ". Pin selection and artwork capture remain explicit.");
+    return true;
 }
 void DocumentWindow::updateOccurrenceNote(const QString& message)
 {
@@ -1637,6 +1700,14 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         }
         return false;
     };
+    const auto endpoint = [this](const QStringList& path) {
+        for(int row = 0; row < local_endpoints_->rowCount(); ++row) {
+            if(local_endpoints_->item(row, 0)->data(Qt::UserRole).toStringList() != path) continue;
+            local_endpoints_->setCurrentCell(row, 3);
+            return local_endpoints_->selectedItems().size() == 4;
+        }
+        return false;
+    };
     const auto junction = [this](const QString& parent) {
         return selected_terminal_ == "n" && current_local_net_ && current_local_net_->net.id == "junction" && local_endpoints_->rowCount() == 3 &&
             local_endpoints_->item(0, 0)->text() == "Local circuit port" && local_endpoints_->item(0, 3)->text() == parent + "/output" &&
@@ -1689,6 +1760,44 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         checks["pin_and_properties_library_keep_four_drafts_and_members"] = drafts() && junction("main/right") &&
             pin("p") && current_local_net_ && current_local_net_->net.id == "drive" && local_endpoints_->rowCount() == 2 &&
             pin("n") && junction("main/right") && drafts();
+        const auto before_peer = occurrence_capture_;
+        checks["empty_peer_selection_refuses_inertly"] = !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            occurrence_capture_ == before_peer && drafts() && document_.graph() == original;
+        checks["peer_row_selection_is_inert"] = endpoint({"main", "right", "c", "p"}) && inspect_peer_->isEnabled() &&
+            occurrence_view_choice_->currentData().toStringList() == right && occurrence_capture_ == before_peer &&
+            document_.graph() == original && document_.bytes() == bytes && !document_.dirty() && !document_.can_undo() && drafts();
+        inspect_peer_->click();
+        checks["explicit_peer_navigation_preserves_four_drafts_and_independent_views"] =
+            occurrence_view_choice_->currentData().toStringList() == capacitor && current_occurrence_ && current_occurrence_->component == "capacitor" &&
+            drafts() && selected_circuit_ == "main" && selected_instance_ == "right" && occurrence_->currentText() == "main/right" &&
+            selectedComponent() == "resistor" && artwork_->capture() == library && document_.graph() == original && document_.bytes() == bytes;
+        checks["peer_destination_requires_explicit_pin_and_artwork"] = !occurrence_capture_ && !occurrence_artwork_->capture() &&
+            selected_terminal_.isEmpty() && !current_local_net_ && local_endpoints_->rowCount() == 0 && !inspect_peer_->isEnabled() &&
+            !capture_occurrence_->isEnabled() && analyzer_.isVisible();
+        checks["local_port_and_self_cannot_be_peer_destinations"] = pin("p") &&
+            endpoint({"main", "right", "output"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            endpoint({"main", "right", "c", "p"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            occurrence_view_choice_->currentData().toStringList() == capacitor && drafts();
+        const auto return_selected = endpoint({"main", "right", "r", "n"}) && inspect_peer_->isEnabled();
+        inspect_peer_->click();
+        checks["reverse_peer_navigation_requires_fresh_explicit_capture"] = return_selected &&
+            occurrence_view_choice_->currentData().toStringList() == right && !occurrence_capture_ && selected_terminal_.isEmpty() &&
+            drafts() && artwork_->capture() == library && captureOccurrence(occurrence_root) && occurrence_capture_ != before_peer;
+        pin("n"); endpoint({"main", "right", "c", "p"});
+        local_endpoints_->clearSelection();
+        checks["cleared_peer_row_disables_and_refuses_without_rebinding"] = !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            occurrence_view_choice_->currentData().toStringList() == right && occurrence_capture_ && drafts();
+        endpoint({"main", "right", "c", "p"}); pin("p");
+        checks["pin_refresh_clears_peer_row_and_action"] = local_endpoints_->selectedItems().isEmpty() && !inspect_peer_->isEnabled() &&
+            pin("n") && local_endpoints_->selectedItems().isEmpty() && !inspect_peer_->isEnabled() && drafts();
+        choose(left); pin("n");
+        const auto left_selected = endpoint({"main", "left", "c", "p"}) && inspect_peer_->isEnabled();
+        inspect_peer_->click();
+        checks["reused_peer_navigation_preserves_containing_occurrence_identity"] = left_selected &&
+            occurrence_view_choice_->currentData().toStringList() == QStringList{"main", "left", "c"} && current_occurrence_ &&
+            current_occurrence_->path == std::vector<std::string>{"main", "left", "c"} && drafts() &&
+            selected_instance_ == "right" && artwork_->capture() == library && !occurrence_capture_;
+        choose(right); captureOccurrence(occurrence_root); pin("n");
         const auto first = occurrence_capture_;
         views_->setCurrentIndex(1); views_->setCurrentIndex(0); views_->setCurrentIndex(1);
         catalog_->setCurrentRow(cap);
@@ -1788,21 +1897,73 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         checks["unconnected_pin_explicit_local_absence_keeps_artwork"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(unconnected) &&
             terminals("main/right", {}, "drive") && occurrence_capture_ == before_net_change;
         checks["unconnected_pin_clears_members_without_silent_rebinding"] = selected_terminal_ == "n" && !current_local_net_ &&
-            local_endpoints_->rowCount() == 0 && local_endpoints_note_->text().contains("Unconnected locally") && occurrence_capture_ == before_net_change;
+            local_endpoints_->rowCount() == 0 && local_endpoints_note_->text().contains("Unconnected locally") && occurrence_capture_ == before_net_change &&
+            !inspect_peer_->isEnabled() && !inspectSelectedPeer();
         const auto removed_pin = document_.open(utf8(root), "removed-pin.json");
         refreshOccurrenceChoices();
         checks["removed_pin_clears_selection_without_rebinding_to_remaining_pin"] = std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(removed_pin) &&
             current_occurrence_ && current_occurrence_->path == std::vector<std::string>{"main", "right", "r"} &&
             occurrence_terminals_->rowCount() == 1 && occurrence_terminals_->item(0, 0)->text() == "p" &&
-            selected_terminal_.isEmpty() && !current_local_net_ && local_endpoints_->rowCount() == 0;
+            selected_terminal_.isEmpty() && !current_local_net_ && local_endpoints_->rowCount() == 0 && !inspect_peer_->isEnabled();
         choose({});
         checks["absent_path_clears_terminal_view_and_occurrence_capture"] = !current_occurrence_ && !occurrence_capture_ && occurrence_terminals_->rowCount() == 0;
-        checks["missing_occurrence_clears_selected_net_details"] = selected_terminal_.isEmpty() && !current_local_net_ && local_endpoints_->rowCount() == 0;
+        checks["missing_occurrence_clears_selected_net_details"] = selected_terminal_.isEmpty() && !current_local_net_ && local_endpoints_->rowCount() == 0 &&
+            !inspect_peer_->isEnabled() && !inspectSelectedPeer();
+        openDocument(root, "peer-labels.json"); choose(right); pin("n");
+        local_endpoints_->sortItems(3, Qt::DescendingOrder);
+        const auto labels_graph = document_.graph();
+        const auto labels_selected = endpoint({"main", "right", "c", "p"});
+        const auto labels_plain = labels_selected && local_endpoints_->item(local_endpoints_->selectedItems().front()->row(), 1)->text() == QString::fromUtf8("<b>same Ω label</b>");
+        inspect_peer_->click();
+        checks["peer_ids_survive_reordered_rows_and_equal_untrusted_labels"] = labels_selected && labels_plain &&
+            occurrence_view_choice_->currentData().toStringList() == capacitor && current_occurrence_->component == "capacitor" &&
+            current_occurrence_->name == utf8(QString::fromUtf8("<b>same Ω label</b>")) && document_.graph() == labels_graph && !occurrence_capture_;
+        openDocument(root, "peer-ports.json"); choose({"main", "probe"}); pin("p");
+        checks["root_local_port_self_and_subcircuit_ports_refuse_navigation"] = current_local_net_ && local_endpoints_->rowCount() == 4 &&
+            local_endpoints_->item(0, 0)->text() == "Local circuit port" && local_endpoints_->item(2, 0)->text() == "Subcircuit port" &&
+            endpoint({"main", "source"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            endpoint({"main", "probe", "p"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            endpoint({"main", "left", "input"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            endpoint({"main", "right", "input"}) && !inspect_peer_->isEnabled() && !inspectSelectedPeer() &&
+            occurrence_view_choice_->currentData().toStringList() == QStringList{"main", "probe"} && !document_.dirty() && !occurrence_capture_;
+        openDocument(root, "original.json"); choose(right); pin("n"); captureOccurrence(occurrence_root);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+        endpoint({"main", "right", "c", "p"});
+        const auto stale_capture = occurrence_capture_;
+        const auto missing_peer = document_.open(utf8(root), "missing-peer.json");
+        const auto changed_graph = document_.graph();
+        const auto changed_bytes = std::string(document_.bytes());
+        inspect_peer_->click();
+        checks["stale_removed_peer_membership_refuses_current_graph_inertly"] =
+            std::holds_alternative<std::shared_ptr<const simnodus::ProjectGraph>>(missing_peer) && !inspect_peer_->isEnabled() &&
+            occurrence_view_choice_->currentData().toStringList() == right && occurrence_capture_ == stale_capture && drafts() &&
+            document_.graph() == changed_graph && document_.bytes() == changed_bytes && !document_.dirty() && !document_.can_undo();
+        refreshOccurrenceChoices();
+        checks["requery_after_peer_removal_clears_row_without_rebinding"] = selected_terminal_ == "n" && current_local_net_ &&
+            local_endpoints_->rowCount() == 2 && local_endpoints_->selectedItems().isEmpty() && !inspect_peer_->isEnabled() &&
+            !endpoint({"main", "right", "c", "p"}) && occurrence_capture_ == stale_capture && drafts();
+        openDocument(root, "original.json"); choose(right);
+        structure_->setCurrentItem(instanceItem("main", "right"));
+        const auto history_original = document_.graph();
+        const auto history_ready = applyResistance("3.5") && undoEdit() && redoEdit() && pin("n") &&
+            captureOccurrence(occurrence_root) && endpoint({"main", "right", "c", "p"});
+        const auto history_graph = document_.graph();
+        const auto history_bytes = std::string(document_.bytes());
+        inspect_peer_->click();
+        checks["peer_navigation_preserves_applied_revision_history_and_save_association"] = history_ready &&
+            occurrence_view_choice_->currentData().toStringList() == capacitor && document_.graph() == history_graph &&
+            document_.bytes() == history_bytes && document_.dirty() && document_.can_undo() && !document_.can_redo() &&
+            document_.leaf() == "original.json" && document_.root() == utf8(root) && selected_instance_ == "right" && !occurrence_capture_;
+        checks["history_requery_keeps_peer_destination_without_recapture"] = undoEdit() && document_.graph() == history_original &&
+            occurrence_view_choice_->currentData().toStringList() == capacitor && redoEdit() && document_.graph() == history_graph &&
+            occurrence_view_choice_->currentData().toStringList() == capacitor && !occurrence_capture_ && selected_terminal_.isEmpty();
         openDocument(root, "occurrence-copy.json"); choose(right); captureOccurrence(occurrence_root);
         pin("n");
         views_->setCurrentIndex(1);
         catalog_->setCurrentRow(resistor); previewArtwork(library_root);
         structure_->setCurrentItem(instanceItem("main", "right"));
+        endpoint({"main", "right", "c", "p"});
         settle();
         checks["final_caption_and_control_complete"] = occurrence_view_note_->textFormat() == Qt::PlainText &&
             occurrence_view_note_->text().contains("main/right/r") && occurrence_view_note_->text().contains("3500 ohm") &&
@@ -1816,6 +1977,9 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
             local_endpoints_note_->height() >= local_endpoints_note_->heightForWidth(local_endpoints_note_->width()) &&
             views_->currentWidget()->rect().contains(QRect(local_endpoints_->mapTo(views_->currentWidget(), QPoint{}), local_endpoints_->size())) &&
             local_endpoints_->viewport()->rect().contains(local_endpoints_->visualItemRect(local_endpoints_->item(2, 3)));
+        checks["final_peer_action_complete_and_enabled_for_declared_peer"] = inspect_peer_->isEnabled() &&
+            views_->currentWidget()->rect().contains(QRect(inspect_peer_->mapTo(views_->currentWidget(), QPoint{}), inspect_peer_->size())) &&
+            peerOccurrencePath() == capacitor;
     }
     QJsonArray terminal_rows;
     for(int row = 0; row < occurrence_terminals_->rowCount(); ++row) {
@@ -1829,12 +1993,13 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         for(int column = 0; column < 4; ++column) cells.append(local_endpoints_->item(row, column)->text());
         endpoint_rows.append(cells);
     }
-    bool passed = checks.size() == 51;
+    bool passed = checks.size() == 67;
     for(const auto value : checks) passed = passed && value.toBool();
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"occurrence_note", occurrence_view_note_->text()}, {"terminal_rows", terminal_rows}, {"endpoint_rows", endpoint_rows},
         {"local_endpoints_note", local_endpoints_note_->text()},
-        {"scope", "read-only direct local net endpoints including selected pin, explicit endpoint kinds, no port traversal/flattening; independent explicit artwork; existing R edit/history/copy; no geometry or human recovery acceptance"}};
+        {"peer_action_enabled", inspect_peer_->isEnabled()}, {"peer_destination", peerOccurrencePath().join("/")},
+        {"scope", "explicit direct peer-component navigation by kind/full IDs; no port traversal/flattening/auto-pin/resource capture; four drafts and independent views/history/copy preserved; no geometry or human recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
