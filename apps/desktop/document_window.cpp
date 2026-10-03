@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "document_window.hpp"
 #include "preview_canvas.hpp"
+#include "rc_canvas.hpp"
 #include "application/project_inspection.hpp"
 #include <QAction>
 #include <QAbstractButton>
@@ -23,6 +24,7 @@
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QPixmap>
 #include <QSplitter>
@@ -34,6 +36,8 @@
 #include <QTabWidget>
 #include <QTreeWidget>
 #include <QTimer>
+#include <QToolBar>
+#include <QStyle>
 #include <QVBoxLayout>
 #include <cstdio>
 #include <algorithm>
@@ -49,7 +53,7 @@ std::string utf8(const QString& value) { return value.toUtf8().toStdString(); }
 
 DocumentWindow::DocumentWindow()
 {
-    resize(1100, 650);
+    resize(1280, 800);
     analyzer_.setWindowTitle("SimNodus Signal Analyzer");
     analyzer_.resize(640, 360);
     analyzer_.setCentralWidget(new QLabel("No committed signal data available.\nShared instrumentation is pending."));
@@ -127,6 +131,7 @@ DocumentWindow::DocumentWindow()
     views_->addTab(occurrence_panel, "Occurrence (read only)");
     layout->addWidget(views_, 1);
     setCentralWidget(central);
+    declaration_panel_ = central;
     components_ = new QDockWidget("Components / Preview", this);
     components_->setObjectName("components-preview");
     catalog_splitter_ = new QSplitter(Qt::Vertical);
@@ -215,6 +220,7 @@ DocumentWindow::DocumentWindow()
     properties_scroll_->setWidgetResizable(true);
     properties_scroll_->setWidget(instance_panel);
     properties_->setWidget(properties_scroll_);
+    declaration_properties_ = properties_scroll_;
     addDockWidget(Qt::RightDockWidgetArea, properties_);
     auto* file = menuBar()->addMenu("File");
     auto* open = file->addAction("Open...");
@@ -246,6 +252,20 @@ DocumentWindow::DocumentWindow()
     view->addAction(properties_->toggleViewAction());
     auto* analyzer = view->addAction("Open Signal Analyzer");
     connect(analyzer, &QAction::triggered, this, &DocumentWindow::showAnalyzer);
+    details_action_ = view->addAction("Declaration Details");
+    details_action_->setCheckable(true);
+    connect(details_action_, &QAction::toggled, this, &DocumentWindow::showDeclarationDetails);
+    auto* toolbar = addToolBar("Document");
+    toolbar->setObjectName("document-actions");
+    open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    copy->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    toolbar->addAction(open);
+    toolbar->addAction(copy);
+    toolbar->addSeparator();
+    toolbar->addAction(undo_);
+    toolbar->addAction(redo_);
+    toolbar->addSeparator();
+    toolbar->addAction(details_action_);
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
     connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
     connect(apply_resistance_, &QPushButton::clicked, this, [this] { applyResistance(resistance_->text()); });
@@ -283,7 +303,99 @@ DocumentWindow::DocumentWindow()
     status_->setWordWrap(true);
     status_->setTextFormat(Qt::PlainText);
     statusBar()->addWidget(status_, 1);
+    circuit_panel_ = new QWidget;
+    auto* circuit_layout = new QVBoxLayout(circuit_panel_);
+    circuit_context_ = new QComboBox;
+    circuit_context_->setAccessibleName("RC occurrence shown in the circuit canvas");
+    circuit_context_->addItem("RC instance: right", QStringList{"main", "right"});
+    circuit_context_->addItem("RC instance: left", QStringList{"main", "left"});
+    circuit_layout->addWidget(circuit_context_);
+    circuit_ = new RcCanvas;
+    circuit_layout->addWidget(circuit_, 1);
+    auto* circuit_note = new QLabel("Declared RC connections · fixed layout · simulation unavailable");
+    circuit_note->setWordWrap(true);
+    circuit_layout->addWidget(circuit_note);
+    circuit_properties_ = new QWidget;
+    auto* selection_layout = new QVBoxLayout(circuit_properties_);
+    circuit_selection_ = new QLabel;
+    circuit_selection_->setTextFormat(Qt::PlainText);
+    circuit_selection_->setWordWrap(true);
+    circuit_selection_->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    selection_layout->addWidget(circuit_selection_);
+    circuit_edit_ = new QPushButton("Edit containing RC instance...");
+    selection_layout->addWidget(circuit_edit_);
+    selection_layout->addStretch();
+    connect(circuit_context_, &QComboBox::currentIndexChanged, this, [this] { refreshCircuit(); });
+    connect(circuit_edit_, &QPushButton::clicked, this, [this] { editContainingRc(); });
+    circuit_->selected = [this](const QStringList& path) {
+        const auto index = occurrence_view_choice_->findData(path);
+        if(index < 0) return;
+        occurrence_view_choice_->setCurrentIndex(index);
+        refreshCircuit();
+    };
+    showDeclarationDetails(false);
     refresh();
+}
+
+void DocumentWindow::showDeclarationDetails(bool enabled)
+{
+    auto* target = enabled ? declaration_panel_ : circuit_panel_;
+    auto* properties = enabled ? declaration_properties_ : circuit_properties_;
+    if(!target || !properties) return;
+    if(centralWidget() != target) {
+        auto* old = takeCentralWidget();
+        if(old) { old->hide(); old->setParent(this); }
+        setCentralWidget(target);
+        target->show();
+    }
+    if(properties_->widget() != properties) {
+        auto* old = properties_->widget();
+        if(old) { old->hide(); old->setParent(this); }
+        properties_->setWidget(properties);
+        properties->show();
+    }
+    const QSignalBlocker blocked(details_action_);
+    details_action_->setChecked(enabled);
+    refreshCircuit();
+}
+void DocumentWindow::refreshCircuit()
+{
+    if(!circuit_) return;
+    const auto context = circuit_context_->currentData().toStringList();
+    circuit_->setGraph(document_.graph(), context);
+    QStringList path;
+    if(current_occurrence_) for(const auto& id : current_occurrence_->path) path << text(id);
+    circuit_->setSelection(path);
+    circuit_edit_->setEnabled(!circuit_->selection().isEmpty());
+    if(circuit_->selection().isEmpty()) {
+        circuit_selection_->setText("Click a resistor or capacitor in the circuit to inspect its applied value.");
+        return;
+    }
+    const auto& component = *current_occurrence_;
+    const auto parameter_id = component.component == "resistor" ? "resistance" : "capacitance";
+    const auto& parameter = component.parameters.at(parameter_id);
+    circuit_selection_->setText(text(component.name) + "\n" + text(component.component) + "\n\nOccurrence: " + path.join("/") +
+        "\n\nApplied " + parameter_id + ":\n" + text(parameter.value) + " " + text(parameter.unit) +
+        "\n\nBinding origin:\n" + text(parameter.origin) + "\n\nEdit target: containing RC instance " + context.join("/") +
+        "\nThe component receives this parameter from its declaration binding.");
+}
+bool DocumentWindow::editContainingRc()
+{
+    refreshCircuit();
+    if(circuit_->selection().isEmpty()) return false;
+    const auto context = circuit_context_->currentData().toStringList();
+    if((selected_circuit_ != context[0] || selected_instance_ != context[1]) &&
+        (instanceDraftPending() || resistanceDraftPending() || capacitanceDraftPending())) {
+        status_->setText("Apply or restore pending instance fields before editing another RC instance.");
+        return false;
+    }
+    auto* target = instanceItem(context[0], context[1]);
+    if(!target) return false;
+    structure_->setCurrentItem(target);
+    views_->setCurrentIndex(0);
+    showDeclarationDetails(true);
+    status_->setText("Editing the containing RC instance " + context.join("/") + "; component parameter bindings remain unchanged.");
+    return selected_circuit_ == context[0] && selected_instance_ == context[1];
 }
 
 bool DocumentWindow::confirmDiscard()
@@ -523,6 +635,7 @@ void DocumentWindow::updateOccurrenceView()
     }
     occurrence_artwork_->setCapture(occurrence_capture_ ? occurrence_capture_->symbol : nullptr);
     updateOccurrenceNote();
+    refreshCircuit();
 }
 void DocumentWindow::updateLocalEndpoints()
 {
@@ -878,6 +991,7 @@ bool DocumentWindow::applyCapacitance(const QString& value)
 
 void DocumentWindow::runAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     QJsonObject checks;
     showAnalyzer();
     checks["native_windows"] = QApplication::platformName() == "windows";
@@ -956,6 +1070,7 @@ void DocumentWindow::runAcceptance(const QString& root, const QString& report)
 
 void DocumentWindow::runInstanceAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     // Dedicated control evidence; unchanged SN-022/window-layout matrices are
     // reused. Scripted dialog answers do not establish human recovery/usability.
     const auto answer = [this](QMessageBox::StandardButton button) {
@@ -1035,6 +1150,7 @@ void DocumentWindow::runInstanceAcceptance(const QString& root, const QString& r
 
 void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     // Focused name-history controls only; historical window/backend matrices
     // remain unchanged. Action triggers do not establish human usability.
     QJsonObject checks;
@@ -1126,6 +1242,7 @@ void DocumentWindow::runHistoryAcceptance(const QString& root, const QString& re
 
 void DocumentWindow::runResistanceAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     // A single focused native control path. Scripted answers are not evidence
     // of human recovery, keyboard/accessibility or unchanged layout matrices.
     const auto answer = [this](QMessageBox::StandardButton button) {
@@ -1229,6 +1346,7 @@ void DocumentWindow::runResistanceAcceptance(const QString& root, const QString&
 
 void DocumentWindow::runCapacitanceAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     // Focused fourth-field controls; reuse historical layout/worker evidence.
     // Scripted dialog responses do not establish human recovery or usability.
     const auto answer = [this](QMessageBox::StandardButton button) {
@@ -1332,6 +1450,7 @@ void DocumentWindow::runCapacitanceAcceptance(const QString& root, const QString
 
 void DocumentWindow::runInspectionAcceptance(const QString& root, const QString& report)
 {
+    showDeclarationDetails(true);
     QJsonObject checks;
     const auto displays = [this](const QString& id, const QString& value, const QString& origin) {
         for(int row = 0; row < effective_parameters_->rowCount(); ++row)
@@ -1445,6 +1564,7 @@ void DocumentWindow::runInspectionAcceptance(const QString& root, const QString&
 
 void DocumentWindow::runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report)
 {
+    showDeclarationDetails(true);
     QJsonObject checks;
     showAnalyzer();
     checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
@@ -1576,6 +1696,7 @@ void DocumentWindow::runPreviewAcceptance(const QString& root, const QString& re
 
 void DocumentWindow::runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report)
 {
+    showDeclarationDetails(true);
     QJsonObject checks;
     checks["initial_inert_open"] = openDocument(root, "original.json") && !artwork_->capture() && !document_.dirty();
     if(document_.graph()) {
@@ -1669,6 +1790,7 @@ void DocumentWindow::runPinPreviewAcceptance(const QString& root, const QString&
 
 void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report)
 {
+    showDeclarationDetails(true);
     QJsonObject checks;
     showAnalyzer();
     checks["native_independent_windows"] = QApplication::platformName() == "windows" && isWindow() && analyzer_.isWindow() && analyzer_.isVisible();
@@ -2096,6 +2218,138 @@ void DocumentWindow::runOccurrenceAcceptance(const QString& root, const QString&
         {"capacitance_observations", capacitance_observations}, {"capacitance_note", occurrence_view_note_->text()},
         {"retained_snapshot", "Existing R-only controls/rows/note/peer action and report.png precede separate C-only path/report.capacitance.png"},
         {"scope", "current owned applied capacitance and immediate origin with existing C edit/history/create-only copy; retained peer/R-only path; no measurement/model truth/automatic resource access/general properties or human recovery acceptance"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runCanvasAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()}});
+    };
+    const auto click = [&](const QString& id) {
+        const auto point = circuit_->componentPoint(id);
+        QMouseEvent event(QEvent::MouseButtonPress, QPointF(point), QPointF(circuit_->mapToGlobal(point)),
+            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(circuit_, &event);
+        settle();
+        return circuit_->selection() == QStringList{"main", circuit_context_->currentData().toStringList()[1], id};
+    };
+    const auto choose_context = [&](const QString& side) {
+        circuit_context_->setCurrentIndex(circuit_context_->findData(QStringList{"main", side}));
+        settle();
+    };
+    checks["default_canvas_without_document_or_selection"] = centralWidget() == circuit_panel_ && !circuit_->supported() &&
+        circuit_->selection().isEmpty() && properties_->widget() == circuit_properties_ && !circuit_edit_->isEnabled();
+    checks["inert_open_supported_exact_shape"] = openDocument(root, "original.json") && circuit_->supported() &&
+        !document_.dirty() && !current_occurrence_ && !artwork_->capture() && !occurrence_capture_;
+    settle();
+    checks["canvas_mode_hides_declaration_fields"] = circuit_->isVisible() && !name_->isVisible() &&
+        !properties_scroll_->isVisible() && !details_action_->isChecked();
+    observe("original", "original.json");
+    const auto original = document_.graph();
+    checks["resistor_click_inspects_full_ids_without_edit_target"] = click("r") && current_occurrence_ &&
+        current_occurrence_->path == std::vector<std::string>{"main", "right", "r"} && selected_instance_.isEmpty() && document_.graph() == original;
+    observe("right_r", "original.json");
+    checks["capacitor_click_inspects_without_capture_or_library_selection"] = click("c") && current_occurrence_ &&
+        current_occurrence_->path == std::vector<std::string>{"main", "right", "c"} && !artwork_->capture() && !occurrence_capture_ &&
+        catalog_->currentRow() == -1 && document_.graph() == original && circuit_selection_->textFormat() == Qt::PlainText;
+    observe("right_c", "original.json");
+    const auto selected = circuit_->snapshot();
+    QMouseEvent blank(QEvent::MouseButtonPress, QPointF(4, 4), QPointF(circuit_->mapToGlobal(QPoint(4, 4))),
+        Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(circuit_, &blank);
+    checks["blank_click_does_not_create_or_rebind"] = circuit_->snapshot() == selected && document_.graph() == original;
+    resize(1430, 850); settle();
+    checks["fitted_resize_hit_test_uses_same_component_identity"] = click("r") && click("c") && document_.graph() == original;
+    checks["initial_canvas_image"] = grab().save(report + ".initial.png");
+    checks["explicit_containing_action_uses_existing_forwarded_target"] = editContainingRc() &&
+        centralWidget() == declaration_panel_ && selected_circuit_ == "main" && selected_instance_ == "right" &&
+        capacitance_->text() == "220" && current_occurrence_->source_circuit == "rc" && current_occurrence_->source_instance == "c" &&
+        current_occurrence_->parameters.at("capacitance").origin == "containing-circuit:capacitance" && document_.graph() == original;
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    showDeclarationDetails(false);
+    checks["canvas_clicks_preserve_four_drafts_and_edit_target"] = click("r") && click("c") && drafts() &&
+        document_.graph() == original && selected_instance_ == "right";
+    choose_context("left"); click("c");
+    checks["context_inspection_preserves_drafts_and_refuses_target_replacement"] = drafts() && !editContainingRc() &&
+        selected_instance_ == "right" && centralWidget() == circuit_panel_ && document_.graph() == original;
+    choose_context("right"); click("c");
+    checks["pending_text_does_not_apply_or_allow_copy_history"] = drafts() && !saveCopy("pending-canvas.json") && !undoEdit() &&
+        document_.graph() == original && current_occurrence_->parameters.at("capacitance").value == "0.000000220";
+    observe("draft", "original.json");
+    name_->setText(text(document_.name())); instance_name_->setText("right"); resistance_->setText("2.2");
+    showDeclarationDetails(true);
+    apply_capacitance_->click();
+    const auto applied = document_.graph();
+    showDeclarationDetails(false);
+    checks["existing_C_apply_refreshes_canvas_and_selection"] = applied != original && document_.dirty() && !editsPending() &&
+        circuit_->selection() == QStringList{"main", "right", "c"} && current_occurrence_->parameters.at("capacitance").value == "0.000000470";
+    observe("applied", "canvas-copy.json");
+    checks["invalid_C_edit_retains_current_graph_and_canvas"] = !applyCapacitance("0") && document_.graph() == applied &&
+        circuit_->selection() == QStringList{"main", "right", "c"} && document_.can_undo();
+    checks["native_undo_refreshes_canvas"] = undoEdit() && document_.graph() == original && circuit_->supported() &&
+        current_occurrence_->parameters.at("capacitance").value == "0.000000220";
+    observe("undo", "original.json");
+    checks["native_redo_refreshes_canvas"] = redoEdit() && document_.graph() == applied && circuit_->supported() &&
+        current_occurrence_->parameters.at("capacitance").value == "0.000000470";
+    observe("redo", "canvas-copy.json");
+    choose_context("left");
+    checks["left_context_applied_value_is_independent"] = click("c") && current_occurrence_->parameters.at("capacitance").value == "0.000001" &&
+        selected_instance_ == "right" && capacitance_->text() == "470" && document_.graph() == applied;
+    observe("left", "canvas-copy.json");
+    choose_context("right"); click("c");
+    checks["create_only_copy_retains_original_association_and_history"] = saveCopy("canvas-copy.json") && document_.leaf() == "original.json" &&
+        document_.dirty() && document_.can_undo() && document_.graph() == applied;
+    checks["occupied_copy_refused_without_canvas_change"] = !saveCopy("canvas-copy.json") && document_.graph() == applied && circuit_->supported();
+    const auto before_failed_open = circuit_->snapshot();
+    checks["failed_open_preserves_current_inspection_and_revision"] = !openDocument(root, "invalid.json") &&
+        document_.graph() == applied && circuit_->snapshot() == before_failed_open && document_.can_undo();
+    checks["successful_copy_open_clears_selection_and_history"] = openDocument(root, "canvas-copy.json") && circuit_->supported() &&
+        circuit_->selection().isEmpty() && !current_occurrence_ && !document_.dirty() && !document_.can_undo() && !document_.can_redo();
+    checks["copy_reselection_recovers_applied_C"] = click("c") && current_occurrence_->parameters.at("capacitance").value == "0.000000470";
+    observe("reopen", "canvas-copy.json");
+    checks["reordered_arrays_and_keys_keep_shape_and_ID_click"] = openDocument(root, "reordered.json") && circuit_->supported() && click("c");
+    observe("reordered", "reordered.json");
+    checks["equal_HTML_labels_are_plain_and_not_identity"] = openDocument(root, "labels.json") && circuit_->supported() && click("c") &&
+        current_occurrence_->name == "<b>same Ω label</b>" && circuit_selection_->text().contains("<b>same Ω label</b>") &&
+        circuit_selection_->textFormat() == Qt::PlainText;
+    observe("labels", "labels.json");
+    checks["own_notation_is_independent_of_project_symbol_maps"] = openDocument(root, "swapped.json") && circuit_->supported() && click("c") &&
+        !artwork_->capture() && !occurrence_capture_;
+    observe("swapped", "swapped.json");
+    for(const auto& [stage, input, key] : std::array<std::array<QString, 3>, 5>{{
+        {"missing_peer", "missing-peer.json", "missing_endpoint_refuses_false_fixed_wires"},
+        {"changed_net", "changed-net.json", "changed_net_ID_refuses_known_layout"},
+        {"extra_pin", "extra-pin.json", "extra_pin_refuses_incomplete_fixed_layout"},
+        {"wrong_dimension", "wrong-dimension.json", "wrong_dimension_refuses_R_C_notation"},
+        {"default_binding", "default-binding.json", "nonforwarded_component_refuses_containing_edit"}}}) {
+        checks[key] = openDocument(root, input) && !circuit_->supported() && circuit_->selection().isEmpty() && !click("c") &&
+            !circuit_edit_->isEnabled() && !document_.dirty();
+        observe(stage, input);
+    }
+    checks["final_copy_restores_supported_current_shape"] = openDocument(root, "canvas-copy.json") && click("c") &&
+        circuit_->supported() && !document_.dirty() && !artwork_->capture() && !occurrence_capture_;
+    observe("final", "canvas-copy.json");
+    showAnalyzer();
+    checks["independent_analyzer_and_adjustable_existing_docks"] = isWindow() && analyzer_.isWindow() && analyzer_.isVisible() &&
+        components_->features().testFlag(QDockWidget::DockWidgetClosable) && properties_->features().testFlag(QDockWidget::DockWidgetMovable);
+    settle();
+    checks["final_canvas_image_and_compact_properties"] = centralWidget() == circuit_panel_ && properties_->widget() == circuit_properties_ &&
+        circuit_->width() >= 360 && circuit_->height() >= 280 && circuit_edit_->isVisible() && grab().save(report + ".final.png");
+    bool passed = checks.size() == 33;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
+        {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"scope", "One closed declared RC shape, disposable own notation, full-ID scripted click inspection and explicit containing-RC edit; no external artwork, placement/wiring/flattening/ground/source/simulation or human recovery/accessibility/DPI acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

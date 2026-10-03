@@ -1,5 +1,15 @@
 # Bounded Windows document editor
 
+The default [fixed RC canvas](../../docs/experiments/SN-023-rc-canvas.md) shows one
+right/left occurrence with own built-in R/C notation, exact declared local nets
+and three ports. Click a component to inspect it; **Edit containing RC instance...**
+opens the existing native editor in **Declaration Details**. The forwarded values
+belong to that containing instance; no component override is created. Toggle
+**View -> Declaration Details** off to return Circuit. Unsupported shapes show a
+placeholder; this is not a general renderer, ground/source inference or simulation.
+Component library/explicit Preview remains independent; built-in canvas notation
+loads no SVG/resource. The following older declaration workflows use Details.
+
 The bounded [SN-023 editor](../../docs/experiments/SN-023-document-editor.md) is a
 native Qt Core/Gui/Widgets presentation over existing project acquisition,
 name revision and create-only persistence. It is optional; the default build
@@ -31,7 +41,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/capacitance-demo-01
+python tools/run_editor_demo.py --editor build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/rc-canvas-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
