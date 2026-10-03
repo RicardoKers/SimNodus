@@ -1,5 +1,40 @@
 # Current state
 
+## Current SN-023 state: applied occurrence capacitance tested
+
+On 2026-10-03, the [capacitor caption](../experiments/SN-023-occurrence-capacitance.md)
+shows the existing owned applied C string in F and immediate binding origin.
+Two production Qt lines reuse native metadata; no general formatter/API/schema/
+edit/history/save/resource/worker operation. Original right 220 nF/left 1 uF and
+right 470 nF after existing Apply stay separate from text drafts and measurements.
+Wrong dimension omits the F claim; own default origin remains distinct.
+
+Fresh Release configure/editor build and GUI01 passed first run: 80 controls
+(67 retained+13 C), eleven independent stage/path/value/unit/origin/caption
+comparisons and two separate R-only/C-only saved-token audits. Original/variant
+inputs/two single-SVG roots unchanged. Four drafts, pin/local-net identity,
+independent Properties/library/analyzer, native Undo/Redo/copy/reopen and left
+values are preserved. Final C image/caption inspected; review found no defect.
+Previous sources/binaries match hashes; native 150/lifecycle 14+audit/no-Qt and
+unchanged Preview/backend/worker/layout evidence reused without local matrices.
+No setup/build/runtime failed; all earlier failures/inconclusive evidence retained.
+Test-only variants/images/layout settling are not user recovery/usability/DPI.
+
+PR #83 was reconfirmed MERGED at cbd27e2191abab47042fe560479d18b84a826853,
+Foundation Windows 67/67 and Ubuntu 56/56 successful, equal local/origin/remote main
+and zero unpublished commits. Branch codex/sn-023-occurrence-capacitance preserves
+238 earlier evidence/twelve overlays; only this task's shared prefix/row is
+published. Source PR records final checker/required-check/squash/main results.
+SN-023 remains in_progress; this small presentation change needs no ADR.
+
+Next separately gate bounded keyboard selection/navigation and action focus on
+this existing fixture before expanding editing. Accessibility/full human use
+remain pending; no acceptance from names/shortcuts alone. General wiring/placement/
+components/properties/history/instruments, managed Save, real workers/IPC/general
+execution, dialogs/close/visible interaction/large projects/monitor-DPI/session/
+packaging stay pending. Preserve SN-017/021/022 limits, all negatives, separate
+windows/panels/shared ownership, January stabilization and February 2027 target.
+
 ## Current SN-023 state: explicit peer-component inspection tested
 
 On 2026-10-03, [peer navigation](../experiments/SN-023-peer-navigation.md) adds

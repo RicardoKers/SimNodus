@@ -31,7 +31,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/peer-demo-01
+python tools/run_editor_demo.py --editor build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/capacitance-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
@@ -57,6 +57,14 @@ stale rows refuse. It preserves four drafts and independent Properties/library
 selection, while clearing the old occurrence capture/pin/details. Select a pin
 and request any new capture explicitly. Returning via capacitor pin `p` and
 endpoint `main/right/r/n` requires a fresh explicit capture of the resistor.
+
+The [applied capacitance caption](../../docs/experiments/SN-023-occurrence-capacitance.md)
+shows `main/right/c` as `0.000000220 F (containing-circuit:capacitance)`.
+Use the existing `main/right` Properties C field to apply `470 nF`; the selected
+capacitor displays `0.000000470 F`. Pending text is separate, Undo/Redo requery
+current metadata, and Save Copy/reopen requires explicit reselection. Left C stays
+`0.000001 F`. This is an applied declaration, with no measurement or capacitor
+artwork claim; a wrong dimension does not receive an F label.
 
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level

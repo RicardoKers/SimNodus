@@ -62,6 +62,8 @@ Selecting a pin [inspects all direct local endpoints](docs/experiments/SN-023-lo
 with explicit kinds and IDs; ports are not traversed.
 An [explicit peer action](docs/experiments/SN-023-peer-navigation.md) inspects another
 declared component by full IDs while preserving drafts; new pin/capture choices remain explicit.
+The [capacitor occurrence caption](docs/experiments/SN-023-occurrence-capacitance.md)
+shows applied C and binding origin through the existing C edit/history/copy path.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.
