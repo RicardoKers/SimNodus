@@ -1,5 +1,32 @@
 # Current state
 
+## Current SN-023 state: Circuit capacitance editing tested
+
+On 2026-10-03, the [compact C field](../experiments/SN-023-circuit-capacitance.md)
+reuses the actual existing field/limits/Apply panel between Circuit and Details,
+with one draft and explicit containing-RC activation. Current graph/C path/context/
+activation/native target are rechecked before the existing native Apply. No leaf
+override, native API/schema/quantity/history/save/worker change. Four drafts,
+independent Components/Preview/windows/adjustable panels and inert Open retained.
+
+Fresh configure/build and all three GUI paths passed first run: compact 41 controls/
+14 independent snapshots/one exact C-token audit/no resources; retained canvas 33/
+18 snapshots/one audit/five refusals; retained occurrence 80/11 C observations/
+two R/C audits/two one-SVG roots. Active/draft/final images inspected. Repeated
+widget transfer, other-draft retention, separate name/R/C target refusals, stale
+Apply/default/missing literal/invalid edits/Redo/copy/reopen are tested. No failed
+attempt in this slice; prior failures/inconclusive evidence retained. Twenty-two sources and the final binary are frozen; unchanged native/backend/worker/layout evidence reused,
+no local native/backend matrices. Human usability/recovery/DPI remain pending.
+
+Pre-edit PR #85 reconfirmed MERGED at 64c30eb3d7a42fdbd2130485648fd2d298bd5141,
+Foundation Windows 67/67 Ubuntu 56/56 successful, main copies equal/zero unpublished.
+Branch codex/sn-023-circuit-capacitance preserves 243 prior evidence/twelve overlays.
+Source PR records final checker/required checks/squash/main. SN-023 stays in_progress;
+no ADR. Next feedback and separately gate bounded engineering-unit R/C captions.
+General editor/library/wiring/instruments/managed Save/real workers/IPC/execution/
+keyboard/accessibility/monitor/session/packaging remain pending. SN-017/021/022
+limits and SN-044 ownership retained; January/February 2027 are planning targets.
+
 ## Current SN-023 state: fixed RC canvas tested
 
 On 2026-10-03, the owner supplied a QSpice layout reference after finding the

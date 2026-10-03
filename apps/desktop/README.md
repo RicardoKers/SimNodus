@@ -1,5 +1,11 @@
 # Bounded Windows document editor
 
+[Compact C editing](../../docs/experiments/SN-023-circuit-capacitance.md) is available
+without leaving the canvas: click right C, then **Edit Capacitance**, type a value
+in the displayed fixed unit and use **Apply Capacitance Value**. The target is the
+containing RC literal. The same field/draft is retained in Details. Default/missing
+parent literals and unsupported shapes stay read-only; Save Copy remains explicit.
+
 The default [fixed RC canvas](../../docs/experiments/SN-023-rc-canvas.md) shows one
 right/left occurrence with own built-in R/C notation, exact declared local nets
 and three ports. Click a component to inspect it; **Edit containing RC instance...**
@@ -41,7 +47,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/rc-canvas-demo-01
+python tools/run_editor_demo.py --editor build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/circuit-capacitance-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)

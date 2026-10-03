@@ -1,0 +1,1023 @@
+{
+  "experiment": "SN-023 compact Circuit capacitance field with explicit containing-RC ownership",
+  "recorded_date": "2026-10-03",
+  "status": "passed-for-fixed-RC-existing-literal; SN-023-in-progress",
+  "base_main": "64c30eb3d7a42fdbd2130485648fd2d298bd5141",
+  "branch": "codex/sn-023-circuit-capacitance",
+  "reconfirmed_pr_85": {
+    "state": "MERGED",
+    "source": "bdcea7c2f9ec8e8e3c6a17060eaef67d88af9438",
+    "squash": "64c30eb3d7a42fdbd2130485648fd2d298bd5141",
+    "ci_run": 37131252915,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "python build/sn023-circuit-capacitance/validate.py configure-01",
+    "python build/sn023-circuit-capacitance/validate.py build-01",
+    "python tests/resources/editor_circuit_capacitance_acceptance.py --editor build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-circuit-capacitance/gui-01",
+    "python tests/resources/editor_canvas_acceptance.py --editor build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-circuit-capacitance/canvas-01",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-circuit-capacitance/occurrence-01",
+    "python tools/check_repository.py; git diff --check; exact task-only tree checker; source PR records required checks/squash/main"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "compact_controls": 41,
+    "independent_snapshots": 14,
+    "compact_C_token_byte_audit": "passed",
+    "canvas_controls": 33,
+    "canvas_snapshots": 18,
+    "canvas_C_byte_audit": "passed",
+    "occurrence_controls": 80,
+    "occurrence_C_snapshots": 11,
+    "occurrence_R_C_byte_audits": 2,
+    "original_variant_inputs": "unchanged; compact/canvas roots have no resources; occurrence two one-SVG roots unchanged",
+    "images": "active/draft/final inspected; containing target, unit, limits, field and Apply legible; pending470 retains applied220",
+    "all_configure_build_GUI_paths": "passed first run",
+    "failed_attempts": 0,
+    "review": "independent static scope/driver review; no actionable defect",
+    "native": "unchanged 150 requests/lifecycle14+audit/no-Qt/Preview/backend/worker/layout evidence reused by hashes; no local matrices",
+    "engine_runs": 0,
+    "publication": "source PR records final checker/required-check/squash/main"
+  },
+  "policy": {
+    "edit": "existing containing literal only; explicit activation; one actual Qt field/limits/Apply panel transferred between views; no component override or native operation",
+    "guards": "current graph/closed canvas/C full path/context/activation/native target; default/missing literal/unsupported/R/stale Apply refuse",
+    "drafts": "four retained; different instance target refuses pending name/R/C separately; C Apply retains other three; clean target change preserves project draft",
+    "authority": "inert Open; explicit native Apply/one-step UndoRedo/create-only SaveCopy; no resource/engine access",
+    "ownership": "Qt presentation only; independent editor/analyzer, Components/Preview vs instance Properties, adjustable panels/shared instrumentation retained"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 5728,
+      "sha256": "8c4f894076f4de0f8d696b89c756ddd82166fbf7eea5698cac6cef13ac10fa20"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 192518,
+      "sha256": "8981da8a9df19a97d2a80dfb00e817452b9c0e18e0b060d2054bb51929df98b8"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 3092,
+      "sha256": "9588efb77364c2e3220b3e14bf870741f94a7a46abbd064b043858f8e6e427e2"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 839680,
+      "sha256": "899aae877f5c8fd8094688bd8972029b7a61d07f65b18aa9e382a9a1ca3d4305"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 799744,
+      "sha256": "e390f2c42008333482b596108deefa93cb9ede2c0c30c1b03222363853c035cc"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-gui-01.json",
+      "bytes": 113696,
+      "sha256": "5d614381757b61fd143c97cfaa2c260cf5bea709b2005661413d50bcb4b6cf36"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-canvas-01.json",
+      "bytes": 112325,
+      "sha256": "4bc7f6c63b8061e854d728c53f121341cb01e87097ae45de4b6bd2ed4e106209"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-occurrence-01.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/acceptance-before-implementation.md",
+      "bytes": 4061,
+      "sha256": "a186b26bc498bfd19e1287da3e761fb2f507d444a6037d2dfd3bbe582279c9f2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/build-01.log",
+      "bytes": 4083,
+      "sha256": "f03a9311371f1577887d1669603d8fa8f8e88f8bf9cb8f7b5aa347c06ad26450"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/canvas-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/report.json",
+      "bytes": 112325,
+      "sha256": "4bc7f6c63b8061e854d728c53f121341cb01e87097ae45de4b6bd2ed4e106209"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/report.json.final.png",
+      "bytes": 60306,
+      "sha256": "9c75e0dc8e013a8cedef57ff3d7fca80fd144e54505e2e468be3041b55779af2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/report.json.initial.png",
+      "bytes": 60288,
+      "sha256": "d99143692f6dbbebadbd5c67a2302dbf8d2a305aba5251acc8f5c0c03ed37fe7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/runner.json",
+      "bytes": 609,
+      "sha256": "ee89d69bf8dfefc3850ce2974d561ae2857e693be41876b4ee1cc6496c044a91"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01/stdout.log",
+      "bytes": 115219,
+      "sha256": "a4f6576fee309f452a33343ff9fcae5c54556bb0c94fe300893bc9e926c96298"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/canvas-01.log",
+      "bytes": 161,
+      "sha256": "24d088c67ca4d12a8b10646e21ef4b04c1769301f862dec1df382685c72c18fa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/configure-01.log",
+      "bytes": 1265,
+      "sha256": "6f3a1ace6570c45d988a708b0ce9a1d1a9c8233584bb01c9bc66cf23f3f4e947"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/finish_local.py",
+      "bytes": 24842,
+      "sha256": "8586cb3bcc3eea7ed77e2207688ad16dd0d2ef6de654ed50278069a7d07257cb"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/circuit-capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/left-literal.json",
+      "bytes": 7090,
+      "sha256": "c6a95f87724b718103a5191fd85f7c8d1c7f525de6862abe659bb6c1d4aa4a0c"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/missing-parent.json",
+      "bytes": 6995,
+      "sha256": "7792723095e52a0f8253ff0afa716f0393538bae50035e47c3dcd11123a04d65"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/report.json",
+      "bytes": 113696,
+      "sha256": "5d614381757b61fd143c97cfaa2c260cf5bea709b2005661413d50bcb4b6cf36"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/report.json.active.png",
+      "bytes": 67950,
+      "sha256": "d3afa56103d81c5a69858fc532d1f3dd993bb9622ddeb865c3d8d78cc3d06182"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/report.json.draft.png",
+      "bytes": 71095,
+      "sha256": "6a34b77b559af057e0d15de37c5617c39605f2e740bbfc360cd0c300aaeed023"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/report.json.final.png",
+      "bytes": 68589,
+      "sha256": "87de63baae9f73ba995dcb3dee1215915fbae2286876e2888db63cdb36b0f088"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/runner.json",
+      "bytes": 628,
+      "sha256": "781a5a6628427be67d86d8a07933465f668f2b371e9517cb7d17a806cfcfeff1"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01/stdout.log",
+      "bytes": 116634,
+      "sha256": "f0cedaf83411faf382f616ea2072d1e71a7fcae581f900a2e27f90e1e4eee617"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/gui-01.log",
+      "bytes": 175,
+      "sha256": "2bee1c91fac21d284527ea8ca85179e51f90214f5d47f58cabce50a49ad5118d"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/default-capacitance.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/peer-labels.json",
+      "bytes": 7280,
+      "sha256": "7fc945116689001328370dd1ed785d930ed616170436c7da14556f4be2604a77"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/peer-ports.json",
+      "bytes": 7279,
+      "sha256": "bb1b6dc98506568156184f9dadae2fbdd7f7b3771ee3f963302fb768c1583923"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/document/wrong-capacitance-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/report.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/report.json.capacitance.png",
+      "bytes": 127479,
+      "sha256": "754cda2426a155a5db754877b7a9554afab245c19538f895740bd84e34231696"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/report.json.png",
+      "bytes": 129607,
+      "sha256": "d368601f42a0026695cdcf82f85af5c06aa14355559cd68a971c378b5a166fb2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/runner.json",
+      "bytes": 745,
+      "sha256": "a654ab08a00a235be542db18ba3c04427e911d17dab6eac96c8b8ecf3808ed8d"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01/stdout.log",
+      "bytes": 13841,
+      "sha256": "a4a8d77fb23cb2996f831ec538e400d6103c264b3b77b9009ee2743c9ce07af5"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/occurrence-01.log",
+      "bytes": 180,
+      "sha256": "5e569575098254c16c3c545768b567c9b12920f81757dfecc8a8e22929aca44a"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preimplementation-manifest.json",
+      "bytes": 4213,
+      "sha256": "5c1284da02e12772777f59559c0e8b083b1eb324c305216c3374e120af67a18a"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/prepare.py",
+      "bytes": 7603,
+      "sha256": "f4e966f38047b80dfda0b75039ea00555dbadc4d4b8558f62f678f348916a31d"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/apps/README.md",
+      "bytes": 1187,
+      "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/baseline.json",
+      "bytes": 45692,
+      "sha256": "bf7a8a07cb67ebc2ed86a08007197221be933faeb77c5f788c0313f0664c8d9e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/architecture/AUTOMATION.md",
+      "bytes": 10893,
+      "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/architecture/DEBUGGING.md",
+      "bytes": 13410,
+      "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/architecture/DESKTOP_UX.md",
+      "bytes": 12968,
+      "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/architecture/README.md",
+      "bytes": 8722,
+      "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/decisions/0055-automation-first-headless.md",
+      "bytes": 2765,
+      "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/decisions/README.md",
+      "bytes": 10911,
+      "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/planning/BACKLOG.md",
+      "bytes": 69605,
+      "sha256": "f2092b311b9ce8e338dfca61cb195080c65b5c4ec4bafb398edc3c6c70ca1ee0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/planning/CURRENT.md",
+      "bytes": 216837,
+      "sha256": "e3e8d7ebf354473579643ef7eec6c608c1499d3d2772e8923e6b62bfeef71d55"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/planning/ROADMAP.md",
+      "bytes": 7915,
+      "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/README.md",
+      "bytes": 5262,
+      "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/docs/REQUIREMENTS.md",
+      "bytes": 6596,
+      "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "a6ac678f8c7e0360e1490765b2c337400804abd29b92d31c57e824eb193b1fa9"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/document_window.cpp",
+      "bytes": 192518,
+      "sha256": "8981da8a9df19a97d2a80dfb00e817452b9c0e18e0b060d2054bb51929df98b8"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/document_window.hpp",
+      "bytes": 5728,
+      "sha256": "8c4f894076f4de0f8d696b89c756ddd82166fbf7eea5698cac6cef13ac10fa20"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/main.cpp",
+      "bytes": 3092,
+      "sha256": "9588efb77364c2e3220b3e14bf870741f94a7a46abbd064b043858f8e6e427e2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 839680,
+      "sha256": "899aae877f5c8fd8094688bd8972029b7a61d07f65b18aa9e382a9a1ca3d4305"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/source-final-manifest.json",
+      "bytes": 4000,
+      "sha256": "6de060bd6eaa27624cd93b415debd8bcdf62aa68a62de1351ff9afc78cdc3cc2"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-circuit-capacitance/validate.py",
+      "bytes": 2230,
+      "sha256": "b9aa5b9355e27a031e677d9389fbe17ee64fbf2b94d738b659464a9c6c84cc00"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 243,
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "f2092b311b9ce8e338dfca61cb195080c65b5c4ec4bafb398edc3c6c70ca1ee0"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "e3e8d7ebf354473579643ef7eec6c608c1499d3d2772e8923e6b62bfeef71d55"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "historical_evidence_manifest_sha256": "fddb8af35c7e874791eafdaca6d63502f9bf185486daa400b121671bc35fc188",
+    "verification": "243 old files and overlays unchanged before task planning prefix/row; task-only publication reverses own prefix/row to exact backups"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-summary.json",
+      "bytes": 43854,
+      "sha256": "8cc1ef6ce76e6f334632ccc23eb2a5dcdfed688a9bf4cb9b2156940104acc847"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Next feedback and separately gate bounded engineering-unit captions; full properties/library/Preview/placement/wiring/instruments pending.",
+    "Fixed RC only; no domain/application/schema/parser/edit/save/history/worker API or additional Qt module.",
+    "Scripted events/transfers/images do not establish physical mouse, human dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom readiness.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

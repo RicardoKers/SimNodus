@@ -1,0 +1,2894 @@
+{
+    "checks": {
+        "blank_click_does_not_create_or_rebind": true,
+        "canvas_clicks_preserve_four_drafts_and_edit_target": true,
+        "canvas_mode_hides_declaration_fields": true,
+        "capacitor_click_inspects_without_capture_or_library_selection": true,
+        "changed_net_ID_refuses_known_layout": true,
+        "context_inspection_preserves_drafts_and_refuses_target_replacement": true,
+        "copy_reselection_recovers_applied_C": true,
+        "create_only_copy_retains_original_association_and_history": true,
+        "default_canvas_without_document_or_selection": true,
+        "equal_HTML_labels_are_plain_and_not_identity": true,
+        "existing_C_apply_refreshes_canvas_and_selection": true,
+        "explicit_containing_action_uses_existing_forwarded_target": true,
+        "extra_pin_refuses_incomplete_fixed_layout": true,
+        "failed_open_preserves_current_inspection_and_revision": true,
+        "final_canvas_image_and_compact_properties": true,
+        "final_copy_restores_supported_current_shape": true,
+        "fitted_resize_hit_test_uses_same_component_identity": true,
+        "independent_analyzer_and_adjustable_existing_docks": true,
+        "inert_open_supported_exact_shape": true,
+        "initial_canvas_image": true,
+        "invalid_C_edit_retains_current_graph_and_canvas": true,
+        "left_context_applied_value_is_independent": true,
+        "missing_endpoint_refuses_false_fixed_wires": true,
+        "native_redo_refreshes_canvas": true,
+        "native_undo_refreshes_canvas": true,
+        "nonforwarded_component_refuses_containing_edit": true,
+        "occupied_copy_refused_without_canvas_change": true,
+        "own_notation_is_independent_of_project_symbol_maps": true,
+        "pending_text_does_not_apply_or_allow_copy_history": true,
+        "reordered_arrays_and_keys_keep_shape_and_ID_click": true,
+        "resistor_click_inspects_full_ids_without_edit_target": true,
+        "successful_copy_open_clears_selection_and_history": true,
+        "wrong_dimension_refuses_R_C_notation": true
+    },
+    "observations": [
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                ],
+                "supported": true
+            },
+            "input": "original.json",
+            "stage": "original"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true
+            },
+            "input": "original.json",
+            "stage": "right_r"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "original.json",
+            "stage": "right_c"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "original.json",
+            "stage": "draft"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000470"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "canvas-copy.json",
+            "stage": "applied"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "original.json",
+            "stage": "undo"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000470"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "canvas-copy.json",
+            "stage": "redo"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "1000"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "left",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000001"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "left",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "left"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "left",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "left",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "left",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "left",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "canvas-copy.json",
+            "stage": "left"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000470"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "canvas-copy.json",
+            "stage": "reopen"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "reordered.json",
+            "stage": "reordered"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "<b>same Ω label</b>",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "<b>same Ω label</b>",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "<b>same Ω label</b>",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "<b>same Ω label</b>",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "<b>same Ω label</b>",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "<b>same Ω label</b>",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "<b>same Ω label</b>",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "<b>same Ω label</b>",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "<b>same Ω label</b>",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "<b>same Ω label</b>",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "labels.json",
+            "stage": "labels"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "swapped.json",
+            "stage": "swapped"
+        },
+        {
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false
+            },
+            "input": "missing-peer.json",
+            "stage": "missing_peer"
+        },
+        {
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false
+            },
+            "input": "changed-net.json",
+            "stage": "changed_net"
+        },
+        {
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false
+            },
+            "input": "extra-pin.json",
+            "stage": "extra_pin"
+        },
+        {
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false
+            },
+            "input": "wrong-dimension.json",
+            "stage": "wrong_dimension"
+        },
+        {
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false
+            },
+            "input": "default-binding.json",
+            "stage": "default_binding"
+        },
+        {
+            "canvas": {
+                "components": [
+                    {
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000470"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true
+            },
+            "input": "canvas-copy.json",
+            "stage": "final"
+        }
+    ],
+    "passed": true,
+    "platform": "windows",
+    "qt_version": "6.11.1",
+    "scope": "One closed declared RC shape, disposable own notation, full-ID scripted click inspection and explicit containing-RC edit; no external artwork, placement/wiring/flattening/ground/source/simulation or human recovery/accessibility/DPI acceptance"
+}

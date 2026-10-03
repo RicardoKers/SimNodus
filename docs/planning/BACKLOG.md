@@ -1,5 +1,16 @@
 # Backlog
 
+## SN-023 Circuit capacitance editing: in_progress
+
+The [tested compact C field](../experiments/SN-023-circuit-capacitance.md) shares
+one existing widget/draft between Circuit/Details and explicitly edits its
+containing RC literal via native operations. GUI 41/14 independent snapshots/one
+C-byte audit plus retained canvas 33/18 and occurrence 80/11/two audits passed first
+run; three images inspected. Target/draft/stale Apply/default/invalid/history/copy
+guards are tested. No attempt failed; all 243 prior evidence/twelve overlays remain.
+Next feedback and bounded engineering-unit captions; general editor/wiring/library/
+instruments/managed Save/real workers/human usability/packaging remain pending.
+
 ## SN-023 fixed RC canvas: in_progress
 
 The [tested fixed RC canvas](../experiments/SN-023-rc-canvas.md) prioritizes visual
@@ -809,7 +820,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Fixed RC canvas tested](../experiments/SN-023-rc-canvas.md); own symbols/exact local nets/full-ID inspection and explicit containing edit via existing operations; compact editing, general placement/wiring/instruments/managed Save/real workers/human usability remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Circuit capacitance editing tested](../experiments/SN-023-circuit-capacitance.md); one shared field/draft, explicit containing-RC activation and existing Apply/history/copy; general editor/library/wiring/instruments/managed Save/real workers/human usability remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
