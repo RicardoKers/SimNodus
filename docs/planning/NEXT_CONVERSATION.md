@@ -1,5 +1,31 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [fixed RC canvas](../experiments/SN-023-rc-canvas.md).
+Owner QSpice screenshot is a conceptual layout reference only; visual circuit
+work supersedes keyboard-first sequencing. Read CURRENT's newest section and
+reconfirm the newest source PR/required checks/squash/main before edits. PR #84
+was the pre-edit base 84a046a8d5a4d06fe077848cde79dd5d47939a58, with Windows
+67/67 and Ubuntu 56/56 successful and no unpublished commits.
+Canvas is default, one right/left closed RC with own symbols/exact local nets/ports
+and disposable geometry. Clicks inspect full IDs; explicit containing-RC action
+opens existing Details editing. Forwarded-origin guard refuses misleading parent
+editing; five unsupported shapes clear diagram/selection. No resource/execution
+authority, inferred source/ground/flattening or schema/native edit change.
+Fresh configure/builds and first canvas GUI01 passed: 33 controls, 18 independent
+snapshots/one C-token byte audit/no resources. Final 80-control regression,
+11 C observations/two R/C audits/input roots passed; initial/final images inspected.
+First snapshot helper failed then resumed with byte-identical sources, retained.
+Freeze 21 sources/final binary; reuse unchanged native/backend/worker/Preview/layout
+evidence, no local matrices. Preserve 240 earlier evidence files/twelve independent
+overlays and all negatives/inconclusive evidence; publish only own prefix/row.
+Source PR records final checker/required-check/squash/main results. Next human
+visual feedback, then separately gate one compact C field with explicit parent
+ownership; general editor/library/engineering labels/placement/wiring/instruments/
+managed Save/real workers/IPC/execution/keyboard/accessibility/monitor-DPI/session/
+large-project/human recovery/packaging remain pending. Preserve SN-017/021/022
+limits, SN-044 independent windows/panels/shared instrumentation and January
+stabilization/February 2027 classroom planning target. Historical handoffs follow.
+
 Latest tested increment: [applied occurrence capacitance](../experiments/SN-023-occurrence-capacitance.md).
 PR #83 was reconfirmed MERGED at cbd27e2191abab47042fe560479d18b84a826853,
 Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main copies and zero

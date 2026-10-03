@@ -64,6 +64,8 @@ An [explicit peer action](docs/experiments/SN-023-peer-navigation.md) inspects a
 declared component by full IDs while preserving drafts; new pin/capture choices remain explicit.
 The [capacitor occurrence caption](docs/experiments/SN-023-occurrence-capacitance.md)
 shows applied C and binding origin through the existing C edit/history/copy path.
+The [fixed RC canvas](docs/experiments/SN-023-rc-canvas.md) is the default visual view,
+with own R/C notation, declared local connections and click inspection; existing editing remains in Details.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

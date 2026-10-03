@@ -1,5 +1,18 @@
 # Backlog
 
+## SN-023 fixed RC canvas: in_progress
+
+The [tested fixed RC canvas](../experiments/SN-023-rc-canvas.md) prioritizes visual
+inspection after owner QSpice-reference feedback. Own notation/exact local nets,
+full-ID clicks and explicit containing-RC edit reuse native operations in Details.
+Canvas GUI01 passed 33 controls/18 independent snapshots/one C-byte audit first run;
+final retained 80-control regression and images passed. Five unsupported shapes
+refuse false wires/edits. Static binding correction and first snapshot-helper
+failure/repair retained; no Qt setup/build/runtime failure. Native evidence reused,
+240 earlier files/twelve overlays preserved. Next visual feedback and separately
+gate compact C editing; general editor/wiring/instruments/managed Save/real workers/
+human usability/accessibility/DPI/session/packaging remain pending; targets retained.
+
 ## SN-023 applied occurrence capacitance: in_progress
 
 The [tested capacitor caption](../experiments/SN-023-occurrence-capacitance.md)
@@ -796,7 +809,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Applied occurrence capacitance tested](../experiments/SN-023-occurrence-capacitance.md); current F/origin through existing C edit/history/copy, independent drafts/views/IDs; keyboard/accessibility, geometry/wiring/general editor/instruments/managed Save/real workers remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Fixed RC canvas tested](../experiments/SN-023-rc-canvas.md); own symbols/exact local nets/full-ID inspection and explicit containing edit via existing operations; compact editing, general placement/wiring/instruments/managed Save/real workers/human usability remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |

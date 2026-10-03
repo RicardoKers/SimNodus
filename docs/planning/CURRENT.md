@@ -1,5 +1,39 @@
 # Current state
 
+## Current SN-023 state: fixed RC canvas tested
+
+On 2026-10-03, the owner supplied a QSpice layout reference after finding the
+declaration window far from the desired simulator interface. The
+[fixed RC canvas](../experiments/SN-023-rc-canvas.md) is now the default central
+view: one selected right/left RC, own R/C notation, exact local nets/ports and
+full-ID click inspection; no inferred source/ground/flattening/saved geometry.
+Compact read-only Properties identifies an explicit containing-RC edit action;
+the existing editor remains in Declaration Details. Four drafts/library/Preview/
+document/history/copy and independent analyzer/windows/panels are preserved.
+
+Fresh configure/three build iterations passed. Static review reduced the pattern
+to expected forwarded bindings before runtime. Canvas GUI01 passed first run:
+33 controls, eighteen independent declared snapshots, one C-token saved-byte audit,
+no resource files/input changes, five unsupported-shape refusals. Initial/final
+images inspected. Final 80-control regression passed with eleven C observations,
+two R/C byte audits and unchanged inputs/two one-SVG roots; earlier passing run
+retained separately. No Qt setup/build/runtime failure. The first snapshot helper
+assertion failed; normalization/byte-identical resumption succeeded, both retained.
+Twenty-one sources/final binary frozen; unchanged native/backend/worker/Preview/
+layout evidence reused by hashes without local matrices. Human usability/recovery/
+keyboard/accessibility/DPI/packaging are not established by scripted events/images.
+
+PR #84 reconfirmed MERGED at 84a046a8d5a4d06fe077848cde79dd5d47939a58;
+Foundation Windows 67/67 and Ubuntu 56/56 successful; main copies matched, zero
+unpublished commits. Branch codex/sn-023-rc-canvas preserves 240 earlier evidence
+files/twelve overlays. Source PR records final checker/checks/squash/main results.
+SN-023 remains in_progress; no new ADR. Next gather visual feedback, then separately
+gate one compact C edit with explicit parent ownership before general editing.
+General library/Preview/engineering labels/placement/wiring/instruments, managed
+Save/real workers/IPC/general execution and human keyboard/accessibility/monitor/
+session/large-project/packaging remain pending. Preserve all SN-017/021/022 limits,
+negative/inconclusive evidence, SN-044 ownership and January/February 2027 targets.
+
 ## Current SN-023 state: applied occurrence capacitance tested
 
 On 2026-10-03, the [capacitor caption](../experiments/SN-023-occurrence-capacitance.md)

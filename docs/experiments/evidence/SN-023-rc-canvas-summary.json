@@ -1,0 +1,1058 @@
+{
+  "experiment": "SN-023 fixed declared RC circuit canvas with existing native containing-instance operations",
+  "recorded_date": "2026-10-03",
+  "status": "passed-for-owned-closed-pattern; SN-023-in-progress; no-general-editor-or-simulation-acceptance",
+  "base_main": "84a046a8d5a4d06fe077848cde79dd5d47939a58",
+  "branch": "codex/sn-023-rc-canvas",
+  "reconfirmed_pr_84": {
+    "state": "MERGED",
+    "head": "61c13c471752862dccab119d3fd8b686e93ec7a1",
+    "squash": "84a046a8d5a4d06fe077848cde79dd5d47939a58",
+    "ci_run": 37120958754,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "owner_direction": "Owner finds declaration window far from simulator UX; QSpice screenshot is conceptual canvas/library/Properties reference only; no third-party image/assets/code/dependency copied. Keyboard-first sequencing superseded, architecture unchanged.",
+  "gate": "Original preimplementation gate and separate reviewed forwarded-binding restriction before first canvas runtime are hashed below.",
+  "commands": [
+    "cmake -S . -B build/sn023-rc-canvas/native-build -G \"Visual Studio 18 2026\" -A x64 -DSIMNODUS_BUILD_DESKTOP=ON -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64",
+    "cmake --build build/sn023-rc-canvas/native-build --config Release --target simnodus_document_editor (three successful iterations)",
+    "python tests/resources/editor_canvas_acceptance.py --editor build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-rc-canvas/gui-01",
+    "python tests/resources/editor_occurrence_acceptance.py --editor build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-rc-canvas/regression-02",
+    "python tools/check_repository.py; git diff --check; exact task-only tree checker; source PR records required checks/squash/main"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "canvas_controls": 33,
+    "canvas_independent_snapshots": 18,
+    "unsupported_snapshots": 5,
+    "one_C_saved_token_audit": "passed",
+    "original_variant_inputs": "unchanged; no resource files",
+    "initial_final_images": "inspected; complete normal-fixture labels, owned symbols/ports/C selection/220-to-470 applied value and containing edit action",
+    "final_retained_controls": 80,
+    "final_retained_independent_C_observations": 11,
+    "final_retained_saved_token_audits": 2,
+    "retained_runs": "regression-01 passed build01; regression-02 passed final build03 after reviewed production restriction; both raw retained",
+    "qt_configure_build_runtime_failures": 0,
+    "static_review": "One actionable binding defect corrected by reducing closed pattern before first canvas runtime; default-binding refusal added",
+    "snapshot_helper": "First assertion failed on absolute binary destination; sources retained and normalization/byte-identical resumption succeeded; not user recovery",
+    "evidence_helper": "First prior-bundle hash check refused changed Qt main.cpp; retained failure, excluded only that authorized presentation dispatch entry, fourteen other prior bundle artifacts unchanged",
+    "native": "Unchanged native150/lifecycle14+audit/no-Qt/Preview/backend/worker/layout evidence reused by hashes; no local native/backend matrices",
+    "engine_runs": 0,
+    "publication": "Source PR records final checker/required-check/squash/main"
+  },
+  "policy": {
+    "rendering": "One selected main/right or main/left RC; own primitive R/C, disposable positions, three exact local nets/ports; no source/ground/flattening/project geometry or generic renderer",
+    "eligibility": "2 p/n components, 3 ports/nets, exact endpoint kinds/full IDs, resistance ohm/capacitance F and containing-circuit bindings; unsupported layout clears selection and exposes Details",
+    "selection": "Current owned graph rechecked; fitted paint/hit-test transform; click read-only existing full-ID occurrence with no edit target/resource/draft/bytes/history change",
+    "edits": "Explicit existing containing-RC selection; forwarded component binding is not a component literal; different pending edit target refuses replacement",
+    "resources": "Built-in fixture notation is independent of project SVG/symbol maps; no automatic external resource access",
+    "ownership": "Default Circuit/compact read-only Properties; existing Qt editor widgets retained in explicit Details; Components/Preview independent, analyzer independent, shared instrumentation remains pending"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 5246,
+      "sha256": "1e3c737c09ab2112a419b62bf4b557a4d7c0f0824e9a7406b964220957747e45"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 173293,
+      "sha256": "c797530cb96df95fc34d865bb0b9ce7af83c1c5d588a1db93a329adccfd2267d"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 2850,
+      "sha256": "ace78bddd0aae701e9843a39272c8c9d5bcb309589f3e6c3bcb5d285a20bcd56"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 799744,
+      "sha256": "e390f2c42008333482b596108deefa93cb9ede2c0c30c1b03222363853c035cc"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-occurrence-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 728064,
+      "sha256": "1eca15ffaf0a1627a08c4b274ec69e71d2b8e5ecd67faf56ffcd08ad1507255f"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-gui-01.json",
+      "bytes": 112325,
+      "sha256": "4bc7f6c63b8061e854d728c53f121341cb01e87097ae45de4b6bd2ed4e106209"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-regression-02.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-rc-canvas/acceptance-before-implementation.md",
+      "bytes": 4608,
+      "sha256": "5ae17a3bf5c997c83df90b3b8724344820050bb6d15924e651f63a1dff9934a6"
+    },
+    {
+      "path": "build/sn023-rc-canvas/build-01.log",
+      "bytes": 3933,
+      "sha256": "64f7454f0bc9178e337c5ce3db8201c4ba81a937c77367a8d79c0c89bd8c0c3c"
+    },
+    {
+      "path": "build/sn023-rc-canvas/build-02.log",
+      "bytes": 2215,
+      "sha256": "8a647252647dc65f6baa74f0bdef45718c6a5cd6dabdb06cad6f86b6352cdff4"
+    },
+    {
+      "path": "build/sn023-rc-canvas/build-03.log",
+      "bytes": 2254,
+      "sha256": "3bb2ed8ae42cd21f2fd8d3263479f68cbe4b1543a491b8e0ad5f88a52bf926fa"
+    },
+    {
+      "path": "build/sn023-rc-canvas/configure-01.log",
+      "bytes": 1255,
+      "sha256": "a0ea0bf6a79fd6acc0d92ad6ef93b9696f98d6ae8510c88feb2862f8d5a28522"
+    },
+    {
+      "path": "build/sn023-rc-canvas/evidence-helper-attempts.log",
+      "bytes": 750,
+      "sha256": "cfd73c6d0e9d5d2d5897db03a97c84991d5dd5c525ee7d03e936fd38a5e4c474"
+    },
+    {
+      "path": "build/sn023-rc-canvas/freeze-attempts.log",
+      "bytes": 668,
+      "sha256": "c9c5734a3205750efaea17bc92423ece17a24c096fafa5e209a0cfce73f91784"
+    },
+    {
+      "path": "build/sn023-rc-canvas/freeze.py",
+      "bytes": 1234,
+      "sha256": "4e316879f6091e0e6a7273cbce8f49e660670e035a1abf4c20ec088143d3b263"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gate-refinement-before-runtime.md",
+      "bytes": 1234,
+      "sha256": "e7ecb02f5263f6013805b4f1b66f23a08285bd6c6c6b897dd32141a3b475c654"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/canvas-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/report.json",
+      "bytes": 112325,
+      "sha256": "4bc7f6c63b8061e854d728c53f121341cb01e87097ae45de4b6bd2ed4e106209"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/report.json.final.png",
+      "bytes": 58948,
+      "sha256": "153225875d8089734933c9f3944ede3198a6bc7885b4e3d8c656643f6f89d361"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/report.json.initial.png",
+      "bytes": 58928,
+      "sha256": "b43ff28cce052339a57abe3a1be08785d9e91c71e517116e2e992be08501eb35"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/runner.json",
+      "bytes": 573,
+      "sha256": "71c187d7816689212790831a99c9cc16a8aa645968fd99410a50028877087ebe"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01/stdout.log",
+      "bytes": 115219,
+      "sha256": "a4f6576fee309f452a33343ff9fcae5c54556bb0c94fe300893bc9e926c96298"
+    },
+    {
+      "path": "build/sn023-rc-canvas/gui-01.log",
+      "bytes": 161,
+      "sha256": "24d088c67ca4d12a8b10646e21ef4b04c1769301f862dec1df382685c72c18fa"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preimplementation/apps/desktop/CMakeLists.txt",
+      "bytes": 394,
+      "sha256": "c7da9a5bee56b84131895b797659bff4eed7bd78e92ba15c67d0c0596d5cc71d"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preimplementation/apps/desktop/document_window.cpp",
+      "bytes": 156745,
+      "sha256": "7eecdeb1b101a7b49713da089e3f5143fe17c6ad09ca4c597fdd92a001609c8a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preimplementation/apps/desktop/document_window.hpp",
+      "bytes": 4702,
+      "sha256": "dc3b3ea13dd8ce3c9bd19a97af75ef676743b33a22a7066c2899c8f1a72a5fca"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preimplementation/apps/desktop/main.cpp",
+      "bytes": 2659,
+      "sha256": "52ec013630fced51a09490ce1102798e110ea190e8b4b8d3a8822438fe5d18b7"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preimplementation-manifest.json",
+      "bytes": 3543,
+      "sha256": "79e94bab383ec5f6a2ff4f370f8f9e179bd684bf1151702b41ef90379f9159e0"
+    },
+    {
+      "path": "build/sn023-rc-canvas/prepare.py",
+      "bytes": 8056,
+      "sha256": "7cbf03cb03cece30159cf1132a45c217cf9a1d3a34f8cd00b1376d0b4e9a90b6"
+    },
+    {
+      "path": "build/sn023-rc-canvas/prepare_docs.py",
+      "bytes": 18235,
+      "sha256": "1587f01019f0002c06526257b1c317ce6b555e3bbabbbee14d891c97bdfbfa44"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/apps/README.md",
+      "bytes": 1187,
+      "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/baseline.json",
+      "bytes": 45168,
+      "sha256": "15b8038cd7234cf1d069a362a9ac8aa5b6b6d0c91b7fa921004adfd17f3189af"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/architecture/AUTOMATION.md",
+      "bytes": 10893,
+      "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/architecture/DEBUGGING.md",
+      "bytes": 13410,
+      "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/architecture/DESKTOP_UX.md",
+      "bytes": 12968,
+      "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/architecture/README.md",
+      "bytes": 8722,
+      "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/decisions/0055-automation-first-headless.md",
+      "bytes": 2765,
+      "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/decisions/README.md",
+      "bytes": 10911,
+      "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/planning/BACKLOG.md",
+      "bytes": 68745,
+      "sha256": "09e640a305043b535e0bb9252a1de0b82edcc57fdbe0d4148a6dbc5148baaf2a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/planning/CURRENT.md",
+      "bytes": 214457,
+      "sha256": "58e14a320a27948a241b73e7ef43e41fde065a088df10ea2aa2eac9a60d6f4e4"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/planning/ROADMAP.md",
+      "bytes": 7915,
+      "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/README.md",
+      "bytes": 5262,
+      "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/docs/REQUIREMENTS.md",
+      "bytes": 6596,
+      "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+    },
+    {
+      "path": "build/sn023-rc-canvas/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "9c283d545395866b41778ec869cc34ab76051a473de59a2e11cf2e6b0c5534ba"
+    },
+    {
+      "path": "build/sn023-rc-canvas/record_evidence.py",
+      "bytes": 10489,
+      "sha256": "c408a8a95880b8e0e18d8e128ac8833a98414218950e7314360becb873c1f8bf"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/default-capacitance.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/peer-labels.json",
+      "bytes": 7280,
+      "sha256": "7fc945116689001328370dd1ed785d930ed616170436c7da14556f4be2604a77"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/peer-ports.json",
+      "bytes": 7279,
+      "sha256": "bb1b6dc98506568156184f9dadae2fbdd7f7b3771ee3f963302fb768c1583923"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/document/wrong-capacitance-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/report.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/report.json.capacitance.png",
+      "bytes": 127479,
+      "sha256": "754cda2426a155a5db754877b7a9554afab245c19538f895740bd84e34231696"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/report.json.png",
+      "bytes": 129607,
+      "sha256": "d368601f42a0026695cdcf82f85af5c06aa14355559cd68a971c378b5a166fb2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/runner.json",
+      "bytes": 705,
+      "sha256": "9370c691cc9a4bb9ae3e715ed1f433930d0344ee8990cc92c98d69402cd909eb"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01/stdout.log",
+      "bytes": 13841,
+      "sha256": "a4a8d77fb23cb2996f831ec538e400d6103c264b3b77b9009ee2743c9ce07af5"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-01.log",
+      "bytes": 180,
+      "sha256": "5e569575098254c16c3c545768b567c9b12920f81757dfecc8a8e22929aca44a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/changed-nets.json",
+      "bytes": 7087,
+      "sha256": "3a148fe0e3cd1a67b17d66c776025a829656950629515875d4dfe2bc03b13e7a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/default-capacitance.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/occurrence-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/peer-labels.json",
+      "bytes": 7280,
+      "sha256": "7fc945116689001328370dd1ed785d930ed616170436c7da14556f4be2604a77"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/peer-ports.json",
+      "bytes": 7279,
+      "sha256": "bb1b6dc98506568156184f9dadae2fbdd7f7b3771ee3f963302fb768c1583923"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/removed-pin.json",
+      "bytes": 6786,
+      "sha256": "8279f085b96cfd274303c6d2a87a68edde2d13085b46ed61d5afe98c2b5fc5b2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "e8ff33639e874f98bae3bfafc30f84d92116917669e551b47fe19ff89d52548c"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "39ebd14fba486d5bc17e96b87d78ae3461047b1068b987965bfb969d93dfb77b"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/unconnected.json",
+      "bytes": 7006,
+      "sha256": "1b95155672b398149c7a875c89bc4c95334d7b9465b0819544a5a3f03084e1d3"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/document/wrong-capacitance-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/explicit-roots/library/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/explicit-roots/occurrence/tests/schema/fixtures/assets/passive.svg",
+      "bytes": 227,
+      "sha256": "94bfd7453b5604800ebd5870586d51ec369eca1b3a59b04b2ec0890eb98579d2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/report.json",
+      "bytes": 13577,
+      "sha256": "3ac980c05710ce5e88a8be37040b8bbdec3c95612e5ff6054e1380c223e6df75"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/report.json.capacitance.png",
+      "bytes": 127479,
+      "sha256": "754cda2426a155a5db754877b7a9554afab245c19538f895740bd84e34231696"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/report.json.png",
+      "bytes": 129607,
+      "sha256": "d368601f42a0026695cdcf82f85af5c06aa14355559cd68a971c378b5a166fb2"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/runner.json",
+      "bytes": 705,
+      "sha256": "47a6234cb5ab615b2ac48055e52454825f28e26df546495de8e9f69b2c356469"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02/stdout.log",
+      "bytes": 13841,
+      "sha256": "a4a8d77fb23cb2996f831ec538e400d6103c264b3b77b9009ee2743c9ce07af5"
+    },
+    {
+      "path": "build/sn023-rc-canvas/regression-02.log",
+      "bytes": 180,
+      "sha256": "5e569575098254c16c3c545768b567c9b12920f81757dfecc8a8e22929aca44a"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/document_window.cpp",
+      "bytes": 173293,
+      "sha256": "c797530cb96df95fc34d865bb0b9ce7af83c1c5d588a1db93a329adccfd2267d"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/document_window.hpp",
+      "bytes": 5246,
+      "sha256": "1e3c737c09ab2112a419b62bf4b557a4d7c0f0824e9a7406b964220957747e45"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/main.cpp",
+      "bytes": 2850,
+      "sha256": "ace78bddd0aae701e9843a39272c8c9d5bcb309589f3e6c3bcb5d285a20bcd56"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/build/sn023-rc-canvas/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 799744,
+      "sha256": "e390f2c42008333482b596108deefa93cb9ede2c0c30c1b03222363853c035cc"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-rc-canvas/source-final-manifest.json",
+      "bytes": 3915,
+      "sha256": "4ba51da067c41247060694fadcbe61a2157016fd938fee6e1679013c355b450d"
+    },
+    {
+      "path": "build/sn023-rc-canvas/START_RC_CANVAS_DEMO.cmd",
+      "bytes": 509,
+      "sha256": "a7ad646a60001d3030d240c5a1cec874f9331704a0d4f838bbcc4e32c15caba0"
+    },
+    {
+      "path": "build/sn023-rc-canvas/update_harness_views.py",
+      "bytes": 639,
+      "sha256": "4e90649d5b03e6543fff171e04f92e4ec3d220edfec9c4f6857bdfaa2464bc27"
+    },
+    {
+      "path": "build/sn023-rc-canvas/validate.py",
+      "bytes": 2052,
+      "sha256": "eef72a8c6f3ac8eb7304d86f9c2030c9ccf052c12a2bb1b63f57760f057f7a66"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 240,
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "09e640a305043b535e0bb9252a1de0b82edcc57fdbe0d4148a6dbc5148baaf2a"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "58e14a320a27948a241b73e7ef43e41fde065a088df10ea2aa2eac9a60d6f4e4"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "historical_evidence_manifest_sha256": "1e89a46d0f3618256b63a76f8390ecd6ca0f0a7b8cc7f71b4f83e88840c706e6",
+    "verification": "240 old files/ten untouched overlays match hashes; shared task prefix/row reverse to exact baseline backup bytes"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Next human visual feedback and separately gate one compact C field with explicit containing ownership; no whole editor/wiring/instruments block.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

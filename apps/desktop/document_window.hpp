@@ -20,6 +20,7 @@ class QTableWidget;
 class QScrollArea;
 class QTabWidget;
 class PreviewCanvas;
+class RcCanvas;
 
 class DocumentWindow final : public QMainWindow {
 public:
@@ -44,6 +45,7 @@ public:
     void runPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runPinPreviewAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report);
+    void runCanvasAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -75,6 +77,9 @@ private:
     void updateArtworkNote(const QString& message = {});
     QString selectedComponent() const;
     void selectInstance();
+    void showDeclarationDetails(bool enabled);
+    void refreshCircuit();
+    bool editContainingRc();
     void reportError(const char* operation, const char* code, std::size_t offset,
         std::uint32_t system, bool cleanup = false);
     simnodus::EditorDocument document_;
@@ -116,4 +121,11 @@ private:
     QLabel* occurrence_note_;
     QScrollArea* properties_scroll_;
     QString selected_circuit_, selected_instance_;
+    RcCanvas* circuit_ = nullptr;
+    QWidget *circuit_panel_ = nullptr, *declaration_panel_ = nullptr;
+    QWidget *circuit_properties_ = nullptr, *declaration_properties_ = nullptr;
+    QComboBox* circuit_context_ = nullptr;
+    QLabel* circuit_selection_ = nullptr;
+    QPushButton* circuit_edit_ = nullptr;
+    QAction* details_action_ = nullptr;
 };
