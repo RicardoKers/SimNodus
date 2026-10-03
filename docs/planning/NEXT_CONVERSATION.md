@@ -1,5 +1,30 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [explicit peer navigation](../experiments/SN-023-peer-navigation.md).
+PR #82 was reconfirmed MERGED at 4c082d1ffecf25f9fa4da515f231a7d26daa09b4,
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal
+and zero unpublished commits. Reconfirm the newest PR/squash before continuing.
+Explicit endpoint row/button navigates only a different current component by
+kind/full IDs, rechecking source/net/member/target identity. Right/left/reverse
+peers work; ports/self/empty/unconnected/stale rows refuse. Destination pin and
+new artwork remain explicit. Four drafts, Properties/library/windows, native
+bytes/dirty/history/save association stay independent. Fresh configure/editor
+build and GUI01 passed first run: 67 controls (51 retained+16 peer), one independent
+saved-token audit and unchanged inputs/two one-SVG roots; image/action inspected.
+Review found no defect. Test-only stale c/p removal/row reordering/equal labels,
+root subcircuit ports and history requery passed, without user recovery acceptance.
+Native source/prior binaries unchanged by hashes; previous 150 requests/lifecycle 14/
+audit/no-Qt/Preview/backend/worker/layout evidence reused without local reruns.
+No setup/build/runtime failed; keep all 236 old evidence/twelve overlays and all
+earlier failed/inconclusive observations. Source PR records final publication audits.
+Next separately gate current applied capacitance/origin in the existing capacitor
+view together with existing C edit/history/copy; no general property formatter/API.
+Wiring/placement/general editor/properties/history/instruments/managed Save/real
+workers/IPC and human dialogs/normal close/visible interaction/keyboard/accessibility/
+large projects/monitor-DPI/session layout/packaging remain pending. Preserve
+SN-017/021/022 limits, all negatives, separate windows/panels/shared ownership,
+January stabilization and February 2027 classroom planning target. Historical handoffs follow.
+
 Latest tested increment: [declared local endpoints](../experiments/SN-023-local-endpoints.md).
 PR #81 was reconfirmed MERGED at 9e8f51b4c903e9d7b2731afc8093a3dcfceb4392,
 Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal and zero

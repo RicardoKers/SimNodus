@@ -4,6 +4,7 @@
 #include "application/editor_document.hpp"
 #include "application/symbol_preview.hpp"
 #include <QMainWindow>
+#include <QStringList>
 
 class QDockWidget;
 class QLabel;
@@ -67,6 +68,9 @@ private:
     void refreshOccurrenceChoices();
     void updateOccurrenceView();
     void updateLocalEndpoints();
+    QStringList peerOccurrencePath() const;
+    void updatePeerAction();
+    bool inspectSelectedPeer();
     void updateOccurrenceNote(const QString& message = {});
     void updateArtworkNote(const QString& message = {});
     QString selectedComponent() const;
@@ -89,6 +93,7 @@ private:
     QTableWidget* occurrence_terminals_;
     QLabel* local_endpoints_note_;
     QTableWidget* local_endpoints_;
+    QPushButton* inspect_peer_;
     QString selected_terminal_;
     std::optional<simnodus::DeclaredLocalNetDetailsView> current_local_net_;
     QPushButton* capture_occurrence_;

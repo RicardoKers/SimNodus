@@ -1,5 +1,41 @@
 # Current state
 
+## Current SN-023 state: explicit peer-component inspection tested
+
+On 2026-10-03, [peer navigation](../experiments/SN-023-peer-navigation.md) adds
+one explicit button after local endpoint selection. Only a different component
+is a destination; ports/self/empty/unconnected/stale rows refuse. Kind/full IDs
+recheck current source/net/member/target identity. Row selection alone is inert.
+Navigation clears old occurrence capture/pin/details; fresh pin/artwork choices
+remain explicit. Four drafts, independent Properties/library/analyzer, applied
+bytes/history/dirty/save association and existing native operations are preserved.
+No Qt-free API/schema/geometry/resource/save/engine/worker operation is added.
+
+Fresh Release configure/build and GUI01 passed first run: 67 controls (51 retained,
+16 peer), one independent saved-token audit, unchanged inputs/two one-SVG roots.
+Right/left/reverse peers, root local/subcircuit ports, row/declaration reordering,
+equal HTML-looking labels, stale removed c/p before refresh and history requery
+passed. Review found no actionable defect; final image/action/path/caption inspected.
+Unchanged native sources/prior binaries match hashes; native 150/lifecycle 14+audit/
+no-Qt and unchanged Preview/backend/worker/layout evidence reused, without local
+matrix reruns. No setup/build/runtime failed; all earlier failures/inconclusive
+observations retained. Direct reload/layout settling is test-only, not user recovery.
+
+PR #82 was reconfirmed MERGED at 4c082d1ffecf25f9fa4da515f231a7d26daa09b4,
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main copies
+and zero unpublished commits. Branch codex/sn-023-peer-navigation preserves 236
+prior evidence/twelve overlays; only this task's shared prefix/row is published.
+The source PR records final checker/required-check/squash/main results. SN-023
+stays in_progress; no new ADR is needed for this presentation navigation.
+
+Next separately gate applied capacitance/binding origin in the existing capacitor
+view and the existing literal C edit/history/copy path. Wiring/placement/general
+components/properties/multi-step history, instruments, managed Save and real worker/
+IPC/general execution stay pending. Human dialogs/normal close/visible interaction/
+keyboard/accessibility/large-project/monitor-DPI/session/packaging stay unvalidated.
+Preserve previous negatives, SN-017/021/022 limits, separate windows/panels/shared
+ownership, January stabilization and February 2027 classroom planning targets.
+
 ## Current SN-023 state: declared local endpoint inspection tested
 
 On 2026-10-01, [local endpoint inspection](../experiments/SN-023-local-endpoints.md)

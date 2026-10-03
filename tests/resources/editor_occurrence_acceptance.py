@@ -66,6 +66,38 @@ def main():
             net['terminals'] = [row for row in net['terminals'] if row != {'instance': 'r', 'terminal': 'n'}]
     reference.validate(removed)
     inputs['removed-pin.json'] = json.dumps(removed).encode()
+    peer_labels = json.loads(original)
+    topology = peer_labels['sources']['topology']
+    topology['components'].reverse()
+    topology['circuits'].reverse()
+    for component in topology['components']:
+        component['pins'].reverse()
+        for pin in component['pins']:
+            pin['name'] = '<b>same Ω label</b>'
+    for circuit in topology['circuits']:
+        circuit['instances'].reverse()
+        for instance in circuit['instances']:
+            instance['name'] = '<b>same Ω label</b>'
+        for net in circuit['nets']:
+            net['terminals'].reverse()
+            net['name'] = '<b>same Ω label</b>'
+    reference.validate(peer_labels)
+    inputs['peer-labels.json'] = json.dumps(peer_labels, ensure_ascii=False, sort_keys=True).encode()
+    ports = json.loads(original)
+    main_circuit = next(row for row in ports['sources']['topology']['circuits'] if row['id'] == 'main')
+    main_circuit['instances'].append(dict(id='probe', name='<b>same Ω label</b>', kind='component',
+                                        definition='resistor', overrides={'resistance': {'value': '1', 'unit': 'kohm'}}))
+    for pin, net_id in (('p', 'drive'), ('n', 'return')):
+        next(row for row in main_circuit['nets'] if row['id'] == net_id)['terminals'].append(
+            dict(instance='probe', terminal=pin))
+    reference.validate(ports)
+    inputs['peer-ports.json'] = json.dumps(ports, ensure_ascii=False).encode()
+    missing_peer = json.loads(original)
+    circuit = next(row for row in missing_peer['sources']['topology']['circuits'] if row['id'] == 'rc')
+    net = next(row for row in circuit['nets'] if row['id'] == 'junction')
+    net['terminals'].remove({'instance': 'c', 'terminal': 'p'})
+    reference.validate(missing_peer)
+    inputs['missing-peer.json'] = json.dumps(missing_peer).encode()
     for name, raw in inputs.items():
         (root / name).write_bytes(raw)
     resource_root = out / 'explicit-roots'
@@ -94,7 +126,8 @@ def main():
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
     assert run.returncode == 0, run.stdout.decode(errors='replace') + run.stderr.decode(errors='replace')
     observed = json.loads((out / 'report.json').read_bytes())
-    assert observed['passed'] and len(observed['checks']) == 51 and all(observed['checks'].values())
+    assert observed['passed'] and len(observed['checks']) == 67 and all(observed['checks'].values())
+    assert observed['peer_action_enabled'] and observed['peer_destination'] == 'main/right/c'
     assert observed['terminal_rows'] == [
         ['n', '2', 'junction', 'junction', 'main/right/junction'],
         ['p', '1', 'drive', 'drive', 'main/right/drive']]
@@ -110,7 +143,7 @@ def main():
     assert all(path.read_bytes() == art for path in assets)
     result['independent_persisted_byte_and_source_separate_root_audits'] = 'passed'
     (out / 'runner.json').write_text(json.dumps(result, indent=2) + '\n')
-    print('PASS 51 read-only occurrence/local-endpoint controls, one persisted-byte audit and unchanged source/two single-file explicit roots')
+    print('PASS 67 occurrence/local-endpoint/explicit-peer controls, one persisted-byte audit and unchanged source/two single-file explicit roots')
 
 
 if __name__ == '__main__':

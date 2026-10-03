@@ -31,7 +31,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/endpoints-demo-01
+python tools/run_editor_demo.py --editor build/sn023-peer-navigation/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/peer-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
@@ -49,6 +49,14 @@ Explicit kinds distinguish local ports, component pins and subcircuit ports;
 ports are not traversed. Missing membership shows **Unconnected locally**.
 The full occurrence/pin ID persists through existing edit/history and clears on
 missing pin/path or successful Open. No implicit selection/capture or net edit.
+
+Select `main/right/c/p` in that table and press **Inspect Selected Component**
+to [navigate explicitly to the declared peer](../../docs/experiments/SN-023-peer-navigation.md).
+The action uses kind/full IDs and rechecks current membership; ports, self and
+stale rows refuse. It preserves four drafts and independent Properties/library
+selection, while clearing the old occurrence capture/pin/details. Select a pin
+and request any new capture explicitly. Returning via capacitor pin `p` and
+endpoint `main/right/r/n` requires a fresh explicit capture of the resistor.
 
 It supports one inert declaration at a time: **File -> Open**, inspect declared
 component definitions/pins and circuit instances/nets, change the top-level
