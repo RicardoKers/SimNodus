@@ -78,6 +78,8 @@ from 50 to 150 percent while retaining selection, drafts and native operations.
 with bounded view offsets; Fit recenters without editing the project.
 [Vertical wheel zoom](docs/experiments/SN-023-canvas-wheel.md) reuses those scale
 levels and preserves scene pan, selection, drafts and native operations.
+[Focus Circuit](docs/experiments/SN-023-circuit-focus.md) temporarily hides the
+side panels and restores their preceding in-memory layout.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

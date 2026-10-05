@@ -4,6 +4,7 @@
 #include "application/editor_document.hpp"
 #include "application/symbol_preview.hpp"
 #include <QMainWindow>
+#include <QByteArray>
 #include <QStringList>
 
 class QDockWidget;
@@ -51,6 +52,7 @@ public:
     void runZoomAcceptance(const QString& root, const QString& report);
     void runPanAcceptance(const QString& root, const QString& report);
     void runWheelAcceptance(const QString& root, const QString& report);
+    void runFocusAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -83,6 +85,7 @@ private:
     QString selectedComponent() const;
     void selectInstance();
     void showDeclarationDetails(bool enabled);
+    bool setCircuitFocus(bool enabled);
     void refreshCircuit();
     bool editContainingRc();
     bool beginCircuitCapacitanceEdit();
@@ -139,6 +142,9 @@ private:
     QLabel* circuit_selection_ = nullptr;
     QPushButton* circuit_edit_ = nullptr;
     QAction* details_action_ = nullptr;
+    QAction* focus_action_ = nullptr;
+    QByteArray focus_layout_, focus_splitter_;
+    bool circuit_focused_ = false;
     QWidget *capacitance_editor_ = nullptr, *capacitance_details_host_ = nullptr, *capacitance_circuit_host_ = nullptr;
     QLabel* circuit_capacitance_target_note_ = nullptr;
     QPushButton* circuit_capacitance_edit_ = nullptr;

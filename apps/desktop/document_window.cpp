@@ -275,6 +275,10 @@ DocumentWindow::DocumentWindow()
     details_action_ = view->addAction("Declaration Details");
     details_action_->setCheckable(true);
     connect(details_action_, &QAction::toggled, this, &DocumentWindow::showDeclarationDetails);
+    focus_action_ = view->addAction("Focus Circuit");
+    focus_action_->setCheckable(true);
+    focus_action_->setToolTip("Temporarily hide Components/Preview and Properties; toggle again to restore their layout.");
+    connect(focus_action_, &QAction::toggled, this, [this](bool enabled) { setCircuitFocus(enabled); });
     auto* toolbar = addToolBar("Document");
     toolbar->setObjectName("document-actions");
     open->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
@@ -286,6 +290,7 @@ DocumentWindow::DocumentWindow()
     toolbar->addAction(redo_);
     toolbar->addSeparator();
     toolbar->addAction(details_action_);
+    toolbar->addAction(focus_action_);
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
     connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
     connect(apply_resistance_, &QPushButton::clicked, this, [this] {
@@ -402,8 +407,35 @@ DocumentWindow::DocumentWindow()
     refresh();
 }
 
+bool DocumentWindow::setCircuitFocus(bool enabled)
+{
+    const QSignalBlocker blocked(focus_action_);
+    focus_action_->setChecked(circuit_focused_);
+    if(enabled == circuit_focused_) return true;
+    if(enabled) {
+        if(details_action_->isChecked()) return false;
+        focus_layout_ = saveState(1);
+        focus_splitter_ = catalog_splitter_->saveState();
+        if(focus_layout_.isEmpty() || focus_splitter_.isEmpty()) return false;
+        components_->hide();
+        properties_->hide();
+    } else if(!restoreState(focus_layout_, 1) || !catalog_splitter_->restoreState(focus_splitter_)) {
+        components_->hide();
+        properties_->hide();
+        return false;
+    }
+    circuit_focused_ = enabled;
+    focus_action_->setChecked(enabled);
+    focus_action_->setText(enabled ? "Restore Panels" : "Focus Circuit");
+    components_->toggleViewAction()->setEnabled(!enabled);
+    properties_->toggleViewAction()->setEnabled(!enabled);
+    details_action_->setEnabled(!enabled);
+    if(!enabled) { focus_layout_.clear(); focus_splitter_.clear(); }
+    return true;
+}
 void DocumentWindow::showDeclarationDetails(bool enabled)
 {
+    if(circuit_focused_ && enabled) return;
     auto* target = enabled ? declaration_panel_ : circuit_panel_;
     auto* properties = enabled ? declaration_properties_ : circuit_properties_;
     if(!target || !properties) return;
@@ -421,6 +453,7 @@ void DocumentWindow::showDeclarationDetails(bool enabled)
     }
     const QSignalBlocker blocked(details_action_);
     details_action_->setChecked(enabled);
+    focus_action_->setEnabled(!enabled);
     // Transfer the existing editor, not a copied value or a second draft.
     auto* host = enabled ? capacitance_details_host_ : capacitance_circuit_host_;
     if(capacitance_editor_->parentWidget() != host) host->layout()->addWidget(capacitance_editor_);
@@ -3411,4 +3444,181 @@ void DocumentWindow::runWheelAcceptance(const QString& root, const QString& repo
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
     std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
     QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runFocusAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations, roundtrips;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto activeR = [this] { return resistance_->isVisible() && resistance_->isEnabled() && !details_action_->isChecked(); };
+    const auto activeC = [this] { return capacitance_->isVisible() && capacitance_->isEnabled() && !details_action_->isChecked(); };
+    const auto toggle = [&] { focus_action_->trigger(); settle(); };
+    const auto layout = [&] {
+        QJsonArray sizes, geometry;
+        for(const auto value : catalog_splitter_->sizes()) sizes.append(value);
+        const auto rect = properties_->geometry();
+        for(const auto value : {rect.x(),rect.y(),rect.width(),rect.height()}) geometry.append(value);
+        return QJsonObject{{"components_hidden",components_->isHidden()}, {"properties_hidden",properties_->isHidden()},
+            {"components_floating",components_->isFloating()}, {"properties_floating",properties_->isFloating()},
+            {"components_width",components_->width()}, {"properties_width",properties_->width()},
+            {"components_area",static_cast<int>(dockWidgetArea(components_))}, {"properties_area",static_cast<int>(dockWidgetArea(properties_))},
+            {"splitter",sizes}, {"properties_geometry",geometry}};
+    };
+    const auto equalLayout = [&](const QJsonObject& before, const QJsonObject& after, bool floating) {
+        for(const auto* key : {"components_hidden","properties_hidden","components_floating","properties_floating","components_area","properties_area"})
+            if(before[key] != after[key]) return false;
+        for(const auto* side : {"components","properties"}) {
+            const auto hidden = QString(side) + "_hidden", width = QString(side) + "_width";
+            if(!before[hidden].toBool() && std::abs(before[width].toInt() - after[width].toInt()) > 2) return false;
+        }
+        const auto first = before["splitter"].toArray(), second = after["splitter"].toArray();
+        if(first.size() != second.size()) return false;
+        for(qsizetype i = 0; i < first.size(); ++i) if(std::abs(first[i].toInt() - second[i].toInt()) > 2) return false;
+        if(floating) {
+            const auto before_geometry = before["properties_geometry"].toArray(), after_geometry = after["properties_geometry"].toArray();
+            for(qsizetype i = 0; i < before_geometry.size(); ++i) if(std::abs(before_geometry[i].toInt() - after_geometry[i].toInt()) > 2) return false;
+        }
+        return true;
+    };
+    const auto recordLayout = [&](const QString& name, const QJsonObject& before, bool floating = false) {
+        const auto after = layout();
+        roundtrips.append(QJsonObject{{"name",name},{"before",before},{"after",after}});
+        return equalLayout(before,after,floating);
+    };
+    const auto isPan = [&](const QPointF& wanted, bool dragging = false) {
+        const auto view = circuit_->snapshot()["view"].toObject(); const auto pan = view["pan"].toArray();
+        return std::abs(pan[0].toDouble() - wanted.x()) < 0.000001 && std::abs(pan[1].toDouble() - wanted.y()) < 0.000001 &&
+            view["panning"].toBool() == dragging;
+    };
+    const QPointF expected_pan(35,20);
+    const auto scale = [this] {
+        return std::min((circuit_->width() - 24.0) / 700, (circuit_->height() - 24.0) / 420) * circuit_->zoomPercent() / 100.0;
+    };
+    const auto send = [&](QEvent::Type type, Qt::MouseButton button, Qt::MouseButtons buttons, const QPointF& point) {
+        QMouseEvent event(type, point, QPointF(circuit_->mapToGlobal(point.toPoint())), button, buttons, Qt::NoModifier);
+        QApplication::sendEvent(circuit_,&event); settle();
+    };
+    const auto click = [&](const QString& id, QPointF offset = QPointF(35,20)) {
+        settle();
+        const auto center = id == "r" ? QPointF(255,190) : QPointF(445,280);
+        const auto point = QPointF(circuit_->width()/2.0,circuit_->height()/2.0) + (center - QPointF(350,210) + offset) * scale();
+        send(QEvent::MouseButtonPress,Qt::LeftButton,Qt::LeftButton,point);
+        return circuit_->selection() == QStringList{"main","right",id};
+    };
+    const auto array = [](const QStringList& values) { return QJsonArray::fromStringList(values); };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage",stage},{"input",input},{"canvas",circuit_->snapshot()},
+            {"edit_target",target},{"r_draft",resistance_->text()},{"c_draft",capacitance_->text()},
+            {"r_active",activeR()},{"c_active",activeC()},{"focused",circuit_focused_},
+            {"r_activation",array(circuit_resistance_target_)},{"c_activation",array(circuit_capacitance_target_)},
+            {"project_draft",name_->text()},{"instance_draft",instance_name_->text()},
+            {"properties_text",circuit_selection_->text()}});
+    };
+    toggle(); const auto empty = circuit_focused_ && components_->isHidden() && properties_->isHidden(); toggle();
+    checks["empty_focus_roundtrip_inert"] = empty && !circuit_focused_ && !document_.graph() && circuit_->zoomPercent() == 100 && isPan({0,0});
+    checks["inert_open_default_view"] = openDocument(root,"original.json") && circuit_->supported() && !circuit_focused_ &&
+        circuit_->selection().isEmpty() && selected_instance_.isEmpty() && !document_.dirty() && isPan({0,0});
+    settle(); observe("original","original.json");
+    const auto original = document_.graph();
+    circuit_zoom_in_->click();
+    auto point = QPointF(circuit_->width()/2.0,circuit_->height()/2.0);
+    settle(); send(QEvent::MouseButtonPress,Qt::MiddleButton,Qt::MiddleButton,point);
+    point += expected_pan * scale(); send(QEvent::MouseMove,Qt::NoButton,Qt::MiddleButton,point);
+    send(QEvent::MouseButtonRelease,Qt::MiddleButton,Qt::NoButton,point);
+    click("r"); beginCircuitResistanceEdit();
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    resizeDocks({components_,properties_},{300,500},Qt::Horizontal); catalog_splitter_->setSizes({200,350}); settle();
+    checks["R_zoom_pan_four_drafts"] = circuit_->zoomPercent() == 125 && isPan(expected_pan) && activeR() && drafts() && document_.graph() == original;
+    observe("normal_R","original.json");
+    const auto initial = layout(); const auto width = circuit_->width();
+    const auto normal_image = grab().save(report + ".normal.png");
+    toggle();
+    checks["focus_hides_panels_expands_canvas"] = circuit_focused_ && focus_action_->isChecked() && focus_action_->text() == "Restore Panels" &&
+        components_->isHidden() && properties_->isHidden() && circuit_->width() > width + 300;
+    showDeclarationDetails(true);
+    checks["focus_blocks_details_panel_toggles"] = !details_action_->isEnabled() && !details_action_->isChecked() &&
+        !components_->toggleViewAction()->isEnabled() && !properties_->toggleViewAction()->isEnabled() &&
+        focus_action_->isEnabled() && centralWidget() == circuit_panel_;
+    checks["focus_preserves_drafts_graph_view"] = drafts() && document_.graph() == original && circuit_->zoomPercent() == 125 &&
+        isPan(expected_pan) && circuit_->selection() == QStringList{"main","right","r"} && circuit_resistance_target_ == QStringList{"main","right"};
+    observe("focus_R","original.json");
+    checks["focus_R_C_hit_inspection_only"] = click("r") && click("c") && !activeR() && !activeC() && drafts() && document_.graph() == original;
+    observe("focus_C","original.json");
+    showAnalyzer(); settle(); const auto geometry = analyzer_.geometry(); analyzer_.close(); showAnalyzer(); settle();
+    checks["analyzer_independent_close_reopen"] = analyzer_.isWindow() && analyzer_.isVisible() && isWindow() &&
+        analyzer_.geometry() == geometry && circuit_focused_ && drafts() && document_.graph() == original;
+    const auto focus_image = grab().save(report + ".focus.png");
+    click("r"); toggle();
+    checks["restores_panels_sizes_splitter_R_activation"] = recordLayout("initial",initial) && !circuit_focused_ && activeR() && drafts() &&
+        details_action_->isEnabled() && components_->toggleViewAction()->isEnabled() && properties_->toggleViewAction()->isEnabled() &&
+        focus_action_->text() == "Focus Circuit" && !focus_action_->isChecked() && isPan(expected_pan) && circuit_->zoomPercent() == 125;
+    observe("restored_R","original.json");
+    resizeDocks({components_,properties_},{380,560},Qt::Horizontal); catalog_splitter_->setSizes({350,200}); settle();
+    const auto resized = layout(); toggle(); toggle();
+    checks["repeat_cycle_uses_new_panel_sizes"] = recordLayout("resized",resized) && resized != initial && drafts();
+    components_->hide(); settle(); const auto hidden = layout(); toggle(); toggle();
+    checks["previously_hidden_components_remain_hidden"] = recordLayout("hidden_components",hidden) && components_->isHidden() && !properties_->isHidden() && drafts();
+    properties_->hide(); settle(); const auto both_hidden = layout(); toggle(); toggle();
+    checks["both_previously_hidden_remain_hidden"] = recordLayout("both_hidden",both_hidden) && components_->isHidden() && properties_->isHidden() && drafts();
+    components_->show(); properties_->show(); properties_->setFloating(true); properties_->resize(500,700); properties_->move(40,80); settle();
+    const auto floating = layout(); toggle(); toggle();
+    checks["floating_properties_visibility_geometry_restored"] = recordLayout("floating_properties",floating,true) && properties_->isFloating() &&
+        !properties_->isHidden() && !components_->isHidden() && drafts() && document_.graph() == original;
+    properties_->setFloating(false); addDockWidget(Qt::RightDockWidgetArea,properties_); settle();
+    showDeclarationDetails(true); settle();
+    checks["details_refuses_focus"] = !focus_action_->isEnabled() && !setCircuitFocus(true) && !circuit_focused_ &&
+        details_action_->isChecked() && centralWidget() == declaration_panel_ && drafts();
+    showDeclarationDetails(false); settle();
+    point = QPointF(circuit_->width()/2.0,circuit_->height()/2.0);
+    send(QEvent::MouseButtonPress,Qt::MiddleButton,Qt::MiddleButton,point); const auto dragging = isPan(expected_pan,true);
+    toggle(); const auto cancelled = isPan(expected_pan) && circuit_->cursor().shape() != Qt::ClosedHandCursor; toggle();
+    checks["focus_toggle_during_drag_cancels_view_only"] = dragging && cancelled && isPan(expected_pan) && drafts() &&
+        activeR() && circuit_->zoomPercent() == 125 && document_.graph() == original;
+    name_->setText(text(document_.name())); instance_name_->setText("right"); click("c"); beginCircuitCapacitanceEdit();
+    apply_capacitance_->click(); settle(); const auto applied = document_.graph();
+    checks["C_apply_retains_R_draft_view"] = applied != original && activeC() && resistance_->text() == "3.5" && capacitance_->text() == "470" &&
+        circuit_->zoomPercent() == 125 && isPan(expected_pan);
+    observe("C_applied","focus-C-copy.json");
+    checks["pending_R_refuses_copy_history"] = !saveCopy("pending-focus-copy.json") && !undoEdit() && !redoEdit() &&
+        document_.graph() == applied && resistance_->text() == "3.5" && isPan(expected_pan);
+    resistance_->setText("2.2"); toggle(); observe("focus_C_applied","focus-C-copy.json");
+    const auto undone = undoEdit() && document_.graph() == original && capacitance_->text() == "220" && circuit_focused_ && isPan(expected_pan);
+    observe("undo_focus_C","original.json");
+    const auto redone = redoEdit() && document_.graph() == applied && capacitance_->text() == "470" && circuit_focused_ && isPan(expected_pan);
+    checks["focus_undo_redo_retains_layout_view_C"] = undone && redone && resistance_->text() == "2.2" && circuit_->zoomPercent() == 125 &&
+        components_->isHidden() && properties_->isHidden();
+    observe("redo_focus_C","focus-C-copy.json");
+    checks["focus_create_only_copy_and_occupied_refusal"] = saveCopy("focus-C-copy.json") && !saveCopy("focus-C-copy.json") &&
+        circuit_focused_ && document_.leaf() == "original.json" && document_.graph() == applied && isPan(expected_pan);
+    checks["failed_open_retains_focus_selection_drafts"] = !openDocument(root,"invalid.json") && circuit_focused_ &&
+        document_.graph() == applied && circuit_->selection() == QStringList{"main","right","c"} &&
+        resistance_->text() == "2.2" && capacitance_->text() == "470" && isPan(expected_pan);
+    checks["successful_open_in_focus_resets_document_view_only"] = openDocument(root,"focus-C-copy.json") && circuit_focused_ &&
+        components_->isHidden() && properties_->isHidden() && circuit_->selection().isEmpty() && selected_instance_.isEmpty() &&
+        circuit_resistance_target_.isEmpty() && circuit_capacitance_target_.isEmpty() && resistance_->text().isEmpty() && capacitance_->text().isEmpty() &&
+        isPan({0,0}) && circuit_->zoomPercent() == 100 && !document_.dirty() && !document_.can_undo() && !document_.can_redo();
+    settle(); observe("reopened_focus","focus-C-copy.json");
+    checks["unsupported_focus_remains_inert"] = openDocument(root,"changed-net.json") && circuit_focused_ && !circuit_->supported() &&
+        !circuit_->zoomIn() && !circuit_->zoomOut() && isPan({0,0}) && !document_.dirty() && components_->isHidden() && properties_->isHidden();
+    observe("unsupported_focus","changed-net.json");
+    openDocument(root,"focus-C-copy.json"); toggle(); click("c",{}); beginCircuitCapacitanceEdit(); settle();
+    checks["leave_focus_restores_adjustable_panels_and_images"] = !circuit_focused_ && !components_->isHidden() && !properties_->isHidden() &&
+        activeC() && circuit_->zoomPercent() == 100 && isPan({0,0}) && !document_.dirty() && normal_image && focus_image &&
+        components_->features().testFlag(QDockWidget::DockWidgetMovable) && properties_->features().testFlag(QDockWidget::DockWidgetClosable) &&
+        grab().save(report + ".restored.png");
+    observe("final_restored_C","focus-C-copy.json");
+    checks["resources_unaccessed_source_unchanged"] = !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1 && document_.leaf() == "focus-C-copy.json";
+    bool passed = checks.size() == 24;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed",passed},{"checks",checks},{"observations",observations},{"layout_roundtrips",roundtrips},
+        {"qt_version",qVersion()},{"platform",QApplication::platformName()},
+        {"scope","Transient same-session Focus Circuit on fixed RC view; no physical user recovery, keyboard/accessibility, monitor/DPI, cross-session layout or packaging acceptance"}};
+    const auto output = QJsonDocument(result).toJson(); QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(),1,static_cast<std::size_t>(output.size()),stdout); QApplication::exit(passed ? 0 : 1);
 }

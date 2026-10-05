@@ -1,0 +1,1219 @@
+{
+  "experiment": "SN-023 transient Focus Circuit on fixed RC view",
+  "recorded_date": "2026-10-05",
+  "status": "passed-for-same-session-fixed-RC-view; SN-023-in-progress",
+  "base_main": "3c348080390f921c26827cce09f5ccd7aaf731fd",
+  "branch": "codex/sn-023-circuit-focus",
+  "reconfirmed_pr_91": {
+    "state": "MERGED",
+    "source": "ceb2fa318becd8f5fa448fe00f8d6115aff92fff",
+    "squash": "3c348080390f921c26827cce09f5ccd7aaf731fd",
+    "ci_run": 37316338478,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "record_authoring_python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "python build/sn023-circuit-focus/validate.py configure-01",
+    "python build/sn023-circuit-focus/validate.py build-01",
+    "python build/sn023-circuit-focus/validate.py build-02",
+    "python build/sn023-circuit-focus/validate.py gui-01",
+    "python build/sn023-circuit-focus/validate.py wheel-01"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "focus_controls": 24,
+    "focus_independent_snapshots": 12,
+    "focus_captions": 22,
+    "focus_properties_blocks": 9,
+    "layout_roundtrips": 5,
+    "tolerances": {
+      "offset_rectangle_absolute": 1e-06,
+      "component_point_pixels": 1,
+      "layout_logical_pixels": 2
+    },
+    "exact_copy": "Only right C220->470; R2.2 and all other bytes unchanged",
+    "observed_canvas_width_logical": [
+      452,
+      1262
+    ],
+    "zoom_percent": 125,
+    "pan": [
+      35,
+      20
+    ],
+    "layout": "Both initial/resized dock widths/splitter exactly restored; hidden one/both and one floating Properties configuration matched",
+    "wheel_controls": 25,
+    "wheel_snapshots": 16,
+    "wheel_captions": 30,
+    "wheel_properties_blocks": 12,
+    "wheel_copies": 2,
+    "failures": {
+      "setup": 0,
+      "build": 1,
+      "gui": 0
+    },
+    "failed_build": "C4456: shadowed first/second locals in actor treated as errors; seven snapshots/log retained, no binary",
+    "correction": "Rename actor geometry locals; no production behavior change; build02/gui01/wheel01 passed",
+    "images": "normal enlarged output can crop; focus reference caption can crop at 125/pan 35,20; restore100 full/legible and explicit Fit available",
+    "captures_retained": 6,
+    "engine_runs": 0,
+    "inputs": "unchanged originals/variants/fixture; no resources",
+    "static_review": "independent method/actor review found no further actionable defect",
+    "publication": "source PR records repository/exact task-only checker/required exact-source checks/guarded squash/main"
+  },
+  "policy": {
+    "layout": "Internal same-window/session QMainWindow saveState/restoreState and Components splitter; no project/disk persistence",
+    "action": "Circuit-only checkable Focus Circuit/Restore Panels; empty/unsupported allowed; disable Details/dock toggles while focused; independent analyzer",
+    "retention": "pan/zoom/selection/IDs/values/R/C activations/four drafts/native operations; resize cancels gesture; restore current document/view only",
+    "ownership": "Qt Core/Gui/Widgets presentation only; independent windows/Components+Preview versus Properties/adjustable panels/shared instrumentation; no engine/worker/domain/schema changes"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6813,
+      "sha256": "d1a1bb0cef8c54b2bfe4de186da8be8080fab65128f61abc2d1906e5c622ef76"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 272576,
+      "sha256": "517044cc3e91ef90c679f6767b7ddd95227f5a70fb5ddc76accadea75cda6894"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4066,
+      "sha256": "b66ba381e8ba3f6817b5c1cd516953ba3c15925a54165e190f4c11a0e83ff743"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1827,
+      "sha256": "2711ddcad72eac5498fedba9c0622e8d9d8697edd5c39db065fa881b88a637ba"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 16488,
+      "sha256": "ea5833727c23d80d189f71c727184f3cf99058b4fd5735588182e0d97e585f2a"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-circuit-focus/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 993280,
+      "sha256": "616c6c74315a6ba9e6ccdae90bba96696ed0565edfd94969df905cd4dc3a8da3"
+    }
+  ],
+  "failed_build_source_helpers": [
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 272530,
+      "sha256": "e2f686da2723fcd1fc431f170235e3ccbb67fe34c0f88ff27fc0926b9cc8af29"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6813,
+      "sha256": "d1a1bb0cef8c54b2bfe4de186da8be8080fab65128f61abc2d1906e5c622ef76"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4066,
+      "sha256": "b66ba381e8ba3f6817b5c1cd516953ba3c15925a54165e190f4c11a0e83ff743"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "build/sn023-circuit-focus/focus_actor.cpp",
+      "bytes": 15526,
+      "sha256": "69d627ee9bbabb5ed0fae450349bdc320451372b855b23f61e1af0e2c3ea661f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/validate.py",
+      "bytes": 3651,
+      "sha256": "dee4a00a75951b7d62058059b8706f8c70b212c182071f89a29cd4c3975c87f4"
+    },
+    {
+      "path": "build/sn023-circuit-focus/prepare.py",
+      "bytes": 10230,
+      "sha256": "74e59cb4c07f14eaf187b6a7346dea42156fc397aed23eb64218ec9d43af1997"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1827,
+      "sha256": "2711ddcad72eac5498fedba9c0622e8d9d8697edd5c39db065fa881b88a637ba"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 16488,
+      "sha256": "ea5833727c23d80d189f71c727184f3cf99058b4fd5735588182e0d97e585f2a"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "build/sn023-canvas-wheel/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 962560,
+      "sha256": "3ef321a42b97e1675ea8016d0622c9524812699e650efc41d3d733fe6027a70e"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "unchanged_source_sections": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "QString RcCanvas::parameterCaption(",
+      "bytes": 2007,
+      "sha256": "852be8797b36edd3e11f8c51c098a335cb65c418a1d1f72c1c0b22c27c28b155"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "bool RcCanvas::resolve()",
+      "bytes": 3419,
+      "sha256": "4fbc6e49fb07ce91e498d3b2c95233c7a557ddad1859ef9edc98e13bbac15122"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::circuitCapacitanceEligible()",
+      "bytes": 4105,
+      "sha256": "f84b7850fbf5919c99d4b840af58c8d144d8b5003fe7732f5989a911860f6396"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::applyResistance(",
+      "bytes": 1609,
+      "sha256": "bfb4797d2a9b861c83988c22fc50eda17e07c245bdeb2d6d9c358a53c8ede6a9"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "void DocumentWindow::runCircuitCapacitanceAcceptance(",
+      "bytes": 71631,
+      "sha256": "388f09bebe2d981ef8d436578ec8dbfcc4d10e4c4087fe2e354ae1f93a86658d"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-gui-01.json",
+      "bytes": 118778,
+      "sha256": "f5d371beaf138a2147ec2934d70a3564706bbe867673fd327359f6e9757aad5d"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-audit-01.json",
+      "bytes": 26828,
+      "sha256": "0300852e4fbbe828783b6737f93dd170d4404fa5f4a6dd8fc9ae7fdf1d81439c"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-wheel-01.json",
+      "bytes": 147503,
+      "sha256": "60765e54e6836be642d0d9282658644a90a44ff766a021785fae72a68652a124"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-wheel-audit-01.json",
+      "bytes": 24636,
+      "sha256": "132de27fd90fa7baa0b5eaae5a4056623d70c3bc545f82f196d31e27b4739424"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-circuit-focus/acceptance-before-implementation.md",
+      "bytes": 4348,
+      "sha256": "e27ed16f9b5194550313594f868e2b09d05b40cc71bb796c9eca3a09c1e74395"
+    },
+    {
+      "path": "build/sn023-circuit-focus/acceptance-contract.json",
+      "bytes": 7545,
+      "sha256": "b6ca808c0049017b0157ab3c652cb946ac2dc030b4d7894c069eaf96f40cde97"
+    },
+    {
+      "path": "build/sn023-circuit-focus/build-01.log",
+      "bytes": 4911,
+      "sha256": "dfce96081ad2a7a8eac08242b555fef31d0ec353b4467d2b475e884029632bef"
+    },
+    {
+      "path": "build/sn023-circuit-focus/build-02.log",
+      "bytes": 2275,
+      "sha256": "4000c407143801c6b0b80e505f82af9b3b1f6b15dc0c19d957f5293ca27f4fec"
+    },
+    {
+      "path": "build/sn023-circuit-focus/ci_validate.py",
+      "bytes": 3197,
+      "sha256": "8aab70c47ec8cf80a4007223bbd5fa616fd6b6b56dad04bb23e83d291bd1fc16"
+    },
+    {
+      "path": "build/sn023-circuit-focus/configure-01.log",
+      "bytes": 1249,
+      "sha256": "f777c623241cf18c1592409cf624fa7c5dc14e0ac70fe900753e78354128e561"
+    },
+    {
+      "path": "build/sn023-circuit-focus/finish_local.py",
+      "bytes": 17334,
+      "sha256": "861faa049b38a80f6b8cd912f6770bac9defca57911523901d26fe839378b50c"
+    },
+    {
+      "path": "build/sn023-circuit-focus/finish_main.py",
+      "bytes": 3423,
+      "sha256": "bb444ad20751b6e6b1e1e8b7bb282263f00acabebde237688b73106f96d6672d"
+    },
+    {
+      "path": "build/sn023-circuit-focus/focus_actor.cpp",
+      "bytes": 15526,
+      "sha256": "69d627ee9bbabb5ed0fae450349bdc320451372b855b23f61e1af0e2c3ea661f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/focus-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/report.json",
+      "bytes": 118778,
+      "sha256": "f5d371beaf138a2147ec2934d70a3564706bbe867673fd327359f6e9757aad5d"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/report.json.focus.png",
+      "bytes": 43019,
+      "sha256": "2432b065247fb3636a907cd1ec925d0018481525d9d9c23fce2705f7ee03e7ef"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/report.json.normal.png",
+      "bytes": 70597,
+      "sha256": "8a4495f82603fba2214eb304eb1eec518ff87dc7324f725d825905ce25b02e9d"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/report.json.restored.png",
+      "bytes": 70120,
+      "sha256": "3936d292cbd971f53d6ca608b153b73689b03264c9acebda7ff06e5b5acfca70"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/runner.json",
+      "bytes": 26828,
+      "sha256": "0300852e4fbbe828783b6737f93dd170d4404fa5f4a6dd8fc9ae7fdf1d81439c"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01/stdout.log",
+      "bytes": 121921,
+      "sha256": "df7f64dad1eb429a52f536d84f27ba142dfac31ec8e5a589f8ac5542fbff05a8"
+    },
+    {
+      "path": "build/sn023-circuit-focus/gui-01.log",
+      "bytes": 203,
+      "sha256": "1d724ef8b1ec835d51440d9774647253ba5a7ba7a57c6f78e54462067f4ea5ad"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preimplementation/apps/desktop/document_window.cpp",
+      "bytes": 255469,
+      "sha256": "875c29aec12f089e8b5f31ec185502d5f1b401a2ac1afc46f69edd82730ae46b"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preimplementation/apps/desktop/document_window.hpp",
+      "bytes": 6558,
+      "sha256": "e5eb6aaece66aa9bd75bdc2341462fb3d4c9109eaba98f36ef9824241079be6a"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preimplementation/apps/desktop/main.cpp",
+      "bytes": 3879,
+      "sha256": "40b4989d8d570cfc268fe2403ec5c86909fed320ab301d50652fc793ad37f327"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preimplementation-manifest.json",
+      "bytes": 5185,
+      "sha256": "040637409e60e974631e1a82d27f683ac7e905b906b3211c15b0403e428c6127"
+    },
+    {
+      "path": "build/sn023-circuit-focus/prepare.py",
+      "bytes": 10230,
+      "sha256": "74e59cb4c07f14eaf187b6a7346dea42156fc397aed23eb64218ec9d43af1997"
+    },
+    {
+      "path": "build/sn023-circuit-focus/prepare_publication.py",
+      "bytes": 3939,
+      "sha256": "aa2c1af066c0f17ab75283810e3163cb1e8f2b5238d8f77462516c0f66b8fe08"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/apps/README.md",
+      "bytes": 1187,
+      "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/baseline.json",
+      "bytes": 50610,
+      "sha256": "13d301ff77bf0ddc09d97430a2c7e646e54a486a3bc381142b37ccb6ca2ecb68"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/architecture/AUTOMATION.md",
+      "bytes": 10893,
+      "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/architecture/DEBUGGING.md",
+      "bytes": 13410,
+      "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/architecture/DESKTOP_UX.md",
+      "bytes": 12968,
+      "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/architecture/README.md",
+      "bytes": 8722,
+      "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/decisions/0055-automation-first-headless.md",
+      "bytes": 2765,
+      "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/decisions/README.md",
+      "bytes": 10911,
+      "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/planning/BACKLOG.md",
+      "bytes": 74058,
+      "sha256": "e6bf76f676abd5178508932ee975e61531ecbb7b52d972a43443e0d0aa7e7488"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/planning/CURRENT.md",
+      "bytes": 230324,
+      "sha256": "a035e137db08e72c5fda9b854c6766554f12cc64163cc0d755dfc86448cde827"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/planning/ROADMAP.md",
+      "bytes": 7915,
+      "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/README.md",
+      "bytes": 5262,
+      "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/docs/REQUIREMENTS.md",
+      "bytes": 6596,
+      "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "06329b7d0cd385337b3c6668e7857cd893687806fd069b0ad466a8c58299fe7a"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/apps/desktop/document_window.cpp",
+      "bytes": 272530,
+      "sha256": "e2f686da2723fcd1fc431f170235e3ccbb67fe34c0f88ff27fc0926b9cc8af29"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/apps/desktop/document_window.hpp",
+      "bytes": 6813,
+      "sha256": "d1a1bb0cef8c54b2bfe4de186da8be8080fab65128f61abc2d1906e5c622ef76"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/apps/desktop/main.cpp",
+      "bytes": 4066,
+      "sha256": "b66ba381e8ba3f6817b5c1cd516953ba3c15925a54165e190f4c11a0e83ff743"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/build/sn023-circuit-focus/focus_actor.cpp",
+      "bytes": 15526,
+      "sha256": "69d627ee9bbabb5ed0fae450349bdc320451372b855b23f61e1af0e2c3ea661f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/build/sn023-circuit-focus/prepare.py",
+      "bytes": 10230,
+      "sha256": "74e59cb4c07f14eaf187b6a7346dea42156fc397aed23eb64218ec9d43af1997"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/build/sn023-circuit-focus/validate.py",
+      "bytes": 3651,
+      "sha256": "dee4a00a75951b7d62058059b8706f8c70b212c182071f89a29cd4c3975c87f4"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01/tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-attempt-build-01-manifest.json",
+      "bytes": 1161,
+      "sha256": "03d8e35084c65e54b8f9fa575246a24ba0ec56614505943b2c6514052ef62266"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/document_window.cpp",
+      "bytes": 272576,
+      "sha256": "517044cc3e91ef90c679f6767b7ddd95227f5a70fb5ddc76accadea75cda6894"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/document_window.hpp",
+      "bytes": 6813,
+      "sha256": "d1a1bb0cef8c54b2bfe4de186da8be8080fab65128f61abc2d1906e5c622ef76"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/main.cpp",
+      "bytes": 4066,
+      "sha256": "b66ba381e8ba3f6817b5c1cd516953ba3c15925a54165e190f4c11a0e83ff743"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/rc_canvas.cpp",
+      "bytes": 16488,
+      "sha256": "ea5833727c23d80d189f71c727184f3cf99058b4fd5735588182e0d97e585f2a"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/apps/desktop/rc_canvas.hpp",
+      "bytes": 1827,
+      "sha256": "2711ddcad72eac5498fedba9c0622e8d9d8697edd5c39db065fa881b88a637ba"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/build/sn023-circuit-focus/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 993280,
+      "sha256": "616c6c74315a6ba9e6ccdae90bba96696ed0565edfd94969df905cd4dc3a8da3"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-circuit-focus/source-final-manifest.json",
+      "bytes": 5073,
+      "sha256": "b43a44bd35b7744d4c41e1f4f940d17d8b558c62728971b9de40130775822d02"
+    },
+    {
+      "path": "build/sn023-circuit-focus/START_CIRCUIT_FOCUS_DEMO.cmd",
+      "bytes": 518,
+      "sha256": "ecb9ffefc56770de803665f9039aa97d441b2fae13e2551d81fdb01a2b5a54d9"
+    },
+    {
+      "path": "build/sn023-circuit-focus/validate.py",
+      "bytes": 3651,
+      "sha256": "dee4a00a75951b7d62058059b8706f8c70b212c182071f89a29cd4c3975c87f4"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/wheel-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/wheel-RC-copy.json",
+      "bytes": 13837,
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/report.json",
+      "bytes": 147503,
+      "sha256": "60765e54e6836be642d0d9282658644a90a44ff766a021785fae72a68652a124"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/report.json.fit.png",
+      "bytes": 71303,
+      "sha256": "0bd96491a57c5f02a20eeab84ef96ad04f78ae62221fe56dc359ab83e236d10e"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/report.json.large.png",
+      "bytes": 76722,
+      "sha256": "2d9729fdf5c3633a41262b693150d697388a9a2234bd6159df7df978c3aa4fe2"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/report.json.small.png",
+      "bytes": 67519,
+      "sha256": "2f256a77672ff7c0f75761288c3aaac0a758ca77651674d4463738e581c340d4"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/runner.json",
+      "bytes": 24636,
+      "sha256": "132de27fd90fa7baa0b5eaae5a4056623d70c3bc545f82f196d31e27b4739424"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01/stdout.log",
+      "bytes": 151315,
+      "sha256": "0efac2e66acc3488c93b5587006df82598f09fe396a51c596c713dac3dfddd95"
+    },
+    {
+      "path": "build/sn023-circuit-focus/wheel-01.log",
+      "bytes": 179,
+      "sha256": "4a04d987262362de4a75af920e07e8245d213f93f37b1aa85cde93a939836d23"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 277,
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "e6bf76f676abd5178508932ee975e61531ecbb7b52d972a43443e0d0aa7e7488"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "a035e137db08e72c5fda9b854c6766554f12cc64163cc0d755dfc86448cde827"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "historical_evidence_manifest_sha256": "62b74c6b4c160d992b9f27d70562d5d31686e28b2cc570752511adeab44c0d41",
+    "verification": "277 historical files/twelve overlays unchanged before own prefix/row; task publication reverses own prefix/row to exact backups"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-wheel-summary-02.json",
+      "bytes": 66823,
+      "sha256": "f2e070f4bdd752139607e0d0e05f6e9c14ed5d5f005b3e8560bff7e7c93a71f6"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-pan-summary.json",
+      "bytes": 53520,
+      "sha256": "3cbbd6b274f05269ebc4bcf5f7e557acbc0e41e12bfb8bc1c65afb5e6ce105ca"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-zoom-summary.json",
+      "bytes": 50119,
+      "sha256": "931fbbb8c2d1db0ef708a2698aa4f0d3c9fe6aa1c1528b656ea58b918c819d03"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-resistance-summary.json",
+      "bytes": 41728,
+      "sha256": "6aad2b10ee235cfc8edef76775acf1afa442087d8c022fe469b4277079bfe94b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-captions-summary.json",
+      "bytes": 35119,
+      "sha256": "e65404331bd2fb3505d4ec818fed51797a6e3f585516afe5258b0969ec29ba0b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-summary.json",
+      "bytes": 45297,
+      "sha256": "7ecec33b41b926f0cdca8d5ffe7b9746b6467c1e307b5d5bba43b6e4897717f2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-summary.json",
+      "bytes": 43854,
+      "sha256": "8cc1ef6ce76e6f334632ccc23eb2a5dcdfed688a9bf4cb9b2156940104acc847"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Next feedback and separately gate bounded keyboard navigation if useful; proposed only.",
+    "One same-session fixed RC layout and floating case; no physical recovery, keyboard/accessibility, monitor/DPI/cross-session layout/packaging acceptance.",
+    "View resizing can change drawing scale/crop enlarged captions while retaining relative zoom/pan; explicit Fit restores the normal view.",
+    "Scripted controls/captures do not prove physical mouse, keyboard/accessibility, monitor/DPI, arbitrary long labels, session persistence or packaging.",
+    "R workflow tests fixed containing literals; wrong-dimension/default-binding variants invalidate C/closed shape, not R-specific quantity acceptance.",
+    "Scripted controls/captures/helper retry do not validate human recovery, physical mouse, keyboard/accessibility, monitor/DPI/session/packaging.",
+    "Display policy only; general quantity entry/locales/units/arbitrary shapes/long-label layouts are unproven.",
+    "Scripted controls and four images do not prove human recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom acceptance.",
+    "Fixed RC only; no domain/application/schema/parser/edit/save/history/worker API or additional Qt module.",
+    "Scripted events/transfers/images do not establish physical mouse, human dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom readiness.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

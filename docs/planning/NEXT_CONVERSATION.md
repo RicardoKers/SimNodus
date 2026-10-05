@@ -1,5 +1,33 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [transient Focus Circuit](../experiments/SN-023-circuit-focus.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR #91 source ceb2fa318becd8f5fa448fe00f8d6115aff92fff, squash
+3c348080390f921c26827cce09f5ccd7aaf731fd; Foundation Windows 67/67 and Ubuntu 56/56
+passed in 37316338478; all main copies equal, zero unpublished. Focus Circuit in
+View/toolbar hides Components/Preview and Properties; Restore Panels returns their
+preceding in-memory dock/splitter layout, prior visibility/sizes/one floating case.
+Individual dock toggles/Details disabled while focused; Details refuses focus.
+Repeated cycles capture current sizes; analyzer stays independent. No project/disk
+layout persistence. Existing resize cancellation/view/selection/IDs/values/R/C
+activation/four drafts/native operations remain. Open success resets document/view
+while keeping focus; failed Open retains it. Restoring panels never reverts document.
+Configure passed; build01 failed actor shadowed names/C4456, seven source/helper
+snapshots/raw log retained and no binary produced; corrected build02 passed.
+Focus 24/12/22 captions/nine Properties/five layout round trips/one exact C470 copy
+and unchanged final-binary wheel 25/16/two copy audits passed. Width/splitter/floating
+geometry tolerance 2 logical pixels; observed dock/splitter restoration exact.
+Canvas width 452->1262 at 125%/pan 35,20. Three focus captures inspected/six retained;
+enlarged edges/reference caption may crop, Fit available, final restored view legible.
+Freeze 28 sources/binary; reuse 25 prior entries/fourteen native artifacts/five sections;
+reuse other matrices. Preserve 277 historical evidence files/twelve SN-045 overlays;
+task-only prefix/row publication. Source PR records checks/guarded squash/main.
+SN-023 in_progress/no ADR; next feedback and separately gate bounded keyboard
+navigation if useful. Physical recovery/keyboard/accessibility/monitor-DPI/session
+layout/packaging/general editor/wiring/instruments/managed Save/real workers/IPC
+remain pending. SN-017/021/022 limits/SN-044 ownership/January stabilization/
+February 2027 classroom planning targets retained. Historical handoffs follow.
+
 Latest tested increment: [fixed RC vertical wheel zoom](../experiments/SN-023-canvas-wheel.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #90 source bb27ac61228f168f160a2fc8f7c0d7f2db5892bd, squash

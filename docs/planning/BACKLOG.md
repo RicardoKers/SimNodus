@@ -1,5 +1,17 @@
 # Backlog
 
+## SN-023 transient Focus Circuit: in_progress
+
+[Tested Focus Circuit](../experiments/SN-023-circuit-focus.md) temporarily hides
+panels and restores their preceding in-memory layout, retaining view/drafts/native
+operations and independent analyzer. First build failed shadowed actor names;
+diagnostic/seven-source helper set retained, corrected build passed. Focus 24/12/
+five panel round trips/one copy and unchanged wheel 25/16/two copies passed. Three
+images inspected/six retained; preserve 277 historical files/twelve overlays; reuse
+unchanged matrices. Next feedback/separate keyboard-navigation gate if useful.
+General editor/wiring/instruments/managed Save/real workers/human recovery/DPI/
+cross-session workspace/accessibility/packaging remain pending.
+
 ## SN-023 fixed RC vertical wheel zoom: in_progress
 
 [Tested wheel zoom](../experiments/SN-023-canvas-wheel.md) reuses existing scale
@@ -880,7 +892,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Fixed RC wheel zoom tested](../experiments/SN-023-canvas-wheel.md); bounded ordinary vertical wheel, pan/Fit, independent R/C drafts and native operations; cursor anchoring/trackpad/general editor/library/wiring/instruments/managed Save/real workers/human usability remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Transient Focus Circuit tested](../experiments/SN-023-circuit-focus.md); in-memory panel restore, fixed RC navigation, independent R/C drafts and native operations; general editor/library/wiring/instruments/managed Save/real workers/human usability/keyboard/DPI/session layout remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
