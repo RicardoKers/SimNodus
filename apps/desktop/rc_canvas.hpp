@@ -26,10 +26,14 @@ public:
     void fitView();
     std::function<void(const QStringList&)> selected;
 protected:
+    bool event(QEvent*) override;
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 private:
     QRectF viewRect() const;
+    void cancelPan();
     bool resolve();
     std::shared_ptr<const simnodus::ProjectGraph> graph_;
     QStringList context_, selected_;
@@ -37,4 +41,6 @@ private:
     std::array<simnodus::DeclaredLocalNetDetailsView, 3> nets_;
     bool supported_ = false;
     int zoom_step_ = 0;
+    QPointF pan_offset_, drag_position_;
+    bool panning_ = false;
 };

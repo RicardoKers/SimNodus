@@ -1,5 +1,30 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [fixed RC middle-button pan](../experiments/SN-023-canvas-pan.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR #89 squash 4add16905cd60ffc268b9a52fe13d7985b1411d9, source
+4ff75709e6fd4c3aba6ab81347b2d8dbbccd82e6; required Foundation Windows 67/67 and
+Ubuntu 56/56 passed. Local/origin/live main equal, zero unpublished. Middle-button
+drag moves the view within +/-140 X and +/-84 Y scene offsets, shared painter/hit
+rectangle, immediate reversal at bounds. Selection/IDs/values/R/C drafts/native
+operations retained. Release/lost button/ungrab/deactivation/hide/resize/refresh
+cancel drag; zoom retains pan, Fit resets. Open success/unsupported resets view;
+context/Details/resize/native operations/failed Open retain offsets. No saved pan.
+First GUI failed seven controls; pending layout resizing and absent mouse tracking
+diagnosed, actor settling/production tracking corrected. Initial eight-file source/
+helper/binary set and all raw negatives retained; wrapper Unicode and patch-marker
+failures retained. Final pan 28/23/44 captions/twenty Properties/two copy audits/
+original-port visibility and retained final-binary zoom 25/sixteen/two audits PASS.
+Three pan images inspected; twelve captures retained. Freeze 26 sources/binary;
+verify 21 prior entries/fourteen native artifacts/five unchanged sections. Reuse
+other matrices; preserve 261 historical evidence files and twelve SN-045 overlays.
+Task-only planning prefix/row published; source PR records checks/squash/main.
+Next feedback/separate wheel-zoom gate if useful; general editor/wiring/instruments/
+managed Save/real workers/IPC/human mouse/OS focus/recovery/keyboard/accessibility/
+DPI/session/packaging remain pending. SN-023 stays in_progress, no ADR; SN-017/021/
+022 bounds/SN-044 ownership/January stabilization/February 2027 targets remain.
+Historical handoffs follow.
+
 Latest tested increment: [fixed RC Fit and Zoom](../experiments/SN-023-canvas-zoom.md).
 Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
 Pre-edit PR #88 merged at d6106341f85a7e957a393821864d306593c032bd; Foundation

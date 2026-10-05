@@ -19,9 +19,10 @@ int main(int argc, char** argv)
             else window.runPreviewAcceptance(arguments[2], arguments[4], arguments[6]);
         });
     } else if(arguments.size() == 5 && arguments[3] == "--report" &&
-        (arguments[1] == "--acceptance-root" || arguments[1] == "--instance-acceptance-root" || arguments[1] == "--history-acceptance-root" || arguments[1] == "--resistance-acceptance-root" || arguments[1] == "--capacitance-acceptance-root" || arguments[1] == "--inspection-acceptance-root" || arguments[1] == "--canvas-acceptance-root" || arguments[1] == "--circuit-capacitance-acceptance-root" || arguments[1] == "--circuit-resistance-acceptance-root" || arguments[1] == "--zoom-acceptance-root")) {
+        (arguments[1] == "--acceptance-root" || arguments[1] == "--instance-acceptance-root" || arguments[1] == "--history-acceptance-root" || arguments[1] == "--resistance-acceptance-root" || arguments[1] == "--capacitance-acceptance-root" || arguments[1] == "--inspection-acceptance-root" || arguments[1] == "--canvas-acceptance-root" || arguments[1] == "--circuit-capacitance-acceptance-root" || arguments[1] == "--circuit-resistance-acceptance-root" || arguments[1] == "--zoom-acceptance-root" || arguments[1] == "--pan-acceptance-root")) {
         QTimer::singleShot(200, &window, [&] {
-            if(arguments[1] == "--zoom-acceptance-root") window.runZoomAcceptance(arguments[2], arguments[4]);
+            if(arguments[1] == "--pan-acceptance-root") window.runPanAcceptance(arguments[2], arguments[4]);
+            else if(arguments[1] == "--zoom-acceptance-root") window.runZoomAcceptance(arguments[2], arguments[4]);
             else if(arguments[1] == "--circuit-resistance-acceptance-root") window.runCircuitResistanceAcceptance(arguments[2], arguments[4]);
             else if(arguments[1] == "--circuit-capacitance-acceptance-root") window.runCircuitCapacitanceAcceptance(arguments[2], arguments[4]);
             else if(arguments[1] == "--canvas-acceptance-root") window.runCanvasAcceptance(arguments[2], arguments[4]);
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
             else window.runAcceptance(arguments[2], arguments[4]);
         });
     } else if(arguments.size() != 1) {
-        std::fprintf(stderr, "Usage: simnodus_document_editor [--acceptance-root|--instance-acceptance-root|--history-acceptance-root|--resistance-acceptance-root|--capacitance-acceptance-root|--inspection-acceptance-root|--canvas-acceptance-root|--circuit-capacitance-acceptance-root|--circuit-resistance-acceptance-root|--zoom-acceptance-root ROOT --report NEW_REPORT] or --preview-acceptance-root|--pin-preview-acceptance-root|--occurrence-acceptance-root ROOT --resource-root ART_ROOT --report NEW_REPORT\n");
+        std::fprintf(stderr, "Usage: simnodus_document_editor [--acceptance-root|--instance-acceptance-root|--history-acceptance-root|--resistance-acceptance-root|--capacitance-acceptance-root|--inspection-acceptance-root|--canvas-acceptance-root|--circuit-capacitance-acceptance-root|--circuit-resistance-acceptance-root|--zoom-acceptance-root|--pan-acceptance-root ROOT --report NEW_REPORT] or --preview-acceptance-root|--pin-preview-acceptance-root|--occurrence-acceptance-root ROOT --resource-root ART_ROOT --report NEW_REPORT\n");
         return 2;
     }
     return application.exec();
