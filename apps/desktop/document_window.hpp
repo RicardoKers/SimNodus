@@ -50,6 +50,7 @@ public:
     void runCircuitResistanceAcceptance(const QString& root, const QString& report);
     void runZoomAcceptance(const QString& root, const QString& report);
     void runPanAcceptance(const QString& root, const QString& report);
+    void runWheelAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:

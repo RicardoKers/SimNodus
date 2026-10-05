@@ -1,5 +1,12 @@
 # Bounded Windows document editor
 
+[Fixed RC wheel zoom](../../docs/experiments/SN-023-canvas-wheel.md): place the
+pointer over the canvas and roll an ordinary vertical mouse wheel. Full detents
+change one level from 50 to 150 percent; buttons still work. Centered scaling retains
+pan/selection/R/C drafts/native operations; **Fit** recenters at 100 percent. Wheel
+zoom stops an active middle drag; release and press again to continue panning.
+Trackpad, inverted/modified and partial events remain outside this bounded path.
+
 [Fixed RC pan](../../docs/experiments/SN-023-canvas-pan.md): hold the middle
 mouse button and drag to reach enlarged edges. Release to stop; **Fit** restores
 centered 100 percent. Pan preserves selection, independent R/C fields/drafts and
@@ -68,7 +75,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-canvas-pan/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-pan-demo-01
+python tools/run_editor_demo.py --editor build/sn023-canvas-wheel/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-wheel-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)

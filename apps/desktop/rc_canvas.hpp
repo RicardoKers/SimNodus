@@ -25,12 +25,14 @@ public:
     bool zoomOut();
     void fitView();
     std::function<void(const QStringList&)> selected;
+    std::function<void()> zoomed;
 protected:
     bool event(QEvent*) override;
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 private:
     QRectF viewRect() const;
     void cancelPan();

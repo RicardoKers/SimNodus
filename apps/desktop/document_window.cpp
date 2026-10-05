@@ -25,6 +25,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QPushButton>
 #include <QPixmap>
 #include <QSplitter>
@@ -43,6 +44,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 
 namespace {
@@ -346,11 +348,12 @@ DocumentWindow::DocumentWindow()
     navigation->addWidget(circuit_zoom_note_);
     circuit_layout->addLayout(navigation);
     circuit_ = new RcCanvas;
+    circuit_->zoomed = [this] { refreshCircuit(); };
     circuit_layout->addWidget(circuit_, 1);
     connect(circuit_zoom_in_, &QPushButton::clicked, this, [this] { circuit_->zoomIn(); refreshCircuit(); });
     connect(circuit_zoom_out_, &QPushButton::clicked, this, [this] { circuit_->zoomOut(); refreshCircuit(); });
     connect(circuit_fit_, &QPushButton::clicked, this, [this] { circuit_->fitView(); refreshCircuit(); });
-    auto* circuit_note = new QLabel("Middle-drag to pan · Fit to recenter · simulation unavailable");
+    auto* circuit_note = new QLabel("Wheel: zoom · Middle-drag: pan · Fit: recenter · simulation unavailable");
     circuit_note->setWordWrap(true);
     circuit_layout->addWidget(circuit_note);
     circuit_properties_ = new QWidget;
@@ -3220,6 +3223,189 @@ void DocumentWindow::runPanAcceptance(const QString& root, const QString& report
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
         {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"scope", "Bounded middle-button pan on the fixed RC view; synthetic cancellation only, no persisted geometry, human mouse/recovery/OS focus, keyboard, DPI/session or packaging acceptance"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runWheelAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto activeR = [this] { return resistance_->isVisible() && resistance_->isEnabled() && !details_action_->isChecked(); };
+    const auto activeC = [this] { return capacitance_->isVisible() && capacitance_->isEnabled() && !details_action_->isChecked(); };
+    QPointF expected_pan, mouse_position;
+    const auto scale = [this] {
+        return std::min((circuit_->width() - 24.0) / 700, (circuit_->height() - 24.0) / 420) * circuit_->zoomPercent() / 100.0;
+    };
+    const auto project = [&](const QPointF& point) {
+        return QPointF(circuit_->width() / 2.0, circuit_->height() / 2.0) +
+            (point - QPointF(350, 210) + expected_pan) * scale();
+    };
+    const auto send = [&](QEvent::Type type, Qt::MouseButton button, Qt::MouseButtons buttons, const QPointF& point) {
+        QMouseEvent event(type, point, QPointF(circuit_->mapToGlobal(point.toPoint())), button, buttons, Qt::NoModifier);
+        QApplication::sendEvent(circuit_, &event); settle();
+    };
+    const auto wheel = [&](QPoint angle, QPoint pixel = {}, Qt::ScrollPhase phase = Qt::NoScrollPhase,
+                           bool inverted = false, Qt::KeyboardModifiers modifiers = Qt::NoModifier,
+                           Qt::MouseButtons buttons = Qt::NoButton) {
+        settle();
+        const QPointF point(circuit_->width() / 2.0, circuit_->height() / 2.0);
+        QWheelEvent event(point, QPointF(circuit_->mapToGlobal(point.toPoint())), pixel, angle,
+            buttons, modifiers, phase, inverted, Qt::MouseEventSynthesizedByApplication);
+        event.ignore(); QApplication::sendEvent(circuit_, &event); settle();
+        return event.isAccepted();
+    };
+    const auto press = [&] {
+        settle(); mouse_position = QPointF(circuit_->width() / 2.0, circuit_->height() / 2.0);
+        send(QEvent::MouseButtonPress, Qt::MiddleButton, Qt::MiddleButton, mouse_position);
+    };
+    const auto move = [&](const QPointF& delta, bool changes_pan) {
+        mouse_position += delta * scale();
+        if(changes_pan) expected_pan += delta;
+        send(QEvent::MouseMove, Qt::NoButton, Qt::MiddleButton, mouse_position);
+    };
+    const auto drag = [&](const QPointF& delta) {
+        press(); move(delta, true);
+        send(QEvent::MouseButtonRelease, Qt::MiddleButton, Qt::NoButton, mouse_position);
+    };
+    const auto isPan = [&](const QPointF& wanted, bool dragging = false) {
+        const auto view = circuit_->snapshot()["view"].toObject();
+        const auto pan = view["pan"].toArray();
+        return std::abs(pan[0].toDouble() - wanted.x()) < 0.000001 && std::abs(pan[1].toDouble() - wanted.y()) < 0.000001 &&
+            view["panning"].toBool() == dragging;
+    };
+    const auto navigation = [&](int percent) {
+        return circuit_->zoomPercent() == percent && circuit_zoom_note_->text() == "Zoom: " + QString::number(percent) + "%" &&
+            circuit_zoom_in_->isEnabled() == (percent < 150) && circuit_zoom_out_->isEnabled() == (percent > 50) &&
+            circuit_fit_->isEnabled();
+    };
+    const auto click = [&](const QString& id) {
+        // Literal fixture geometry and expected pan; never componentPoint or the reported rectangle.
+        send(QEvent::MouseButtonPress, Qt::LeftButton, Qt::LeftButton, project(id == "r" ? QPointF(255,190) : QPointF(445,280)));
+        const auto context = circuit_context_->currentData().toStringList();
+        return circuit_->selection() == QStringList{context[0], context[1], id};
+    };
+    const auto choose = [&](const QString& side) {
+        circuit_context_->setCurrentIndex(circuit_context_->findData(QStringList{"main", side})); settle();
+    };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()},
+            {"edit_target", target}, {"r_draft", resistance_->text()}, {"c_draft", capacitance_->text()},
+            {"r_active", activeR()}, {"c_active", activeC()}, {"properties_text", circuit_selection_->text()}});
+    };
+    checks["empty_wheel_ignored_no_view_change"] = !wheel({0,120}) && circuit_->zoomPercent() == 100 && isPan({0,0}) && !circuit_->supported();
+    checks["inert_open_centered"] = openDocument(root,"original.json") && circuit_->supported() && navigation(100) &&
+        isPan({0,0}) && circuit_->selection().isEmpty() && selected_instance_.isEmpty() && !document_.dirty();
+    settle(); observe("original", "original.json");
+    const auto original = document_.graph();
+    checks["positive_detent_updates_buttons_percentage"] = wheel({0,120}) && navigation(125) && isPan({0,0}) && document_.graph() == original;
+    observe("wheel125", "original.json");
+    const auto upper = wheel({0,120}) && wheel({0,120}) && navigation(150);
+    click("r"); beginCircuitResistanceEdit();
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    checks["repeated_detent_upper_bound_and_R_hit"] = upper && activeR() && drafts() && isPan({0,0}) && document_.graph() == original;
+    observe("wheel150_R", "original.json");
+    checks["full_burst_limited_lower_bound"] = wheel({0,std::numeric_limits<int>::min()}) && navigation(50) &&
+        wheel({0,-120}) && navigation(50) && activeR() && drafts() && document_.graph() == original && grab().save(report + ".small.png");
+    observe("wheel50_R", "original.json");
+    press();
+    checks["partial_and_zero_deltas_ignored"] = !wheel({0,60}) && !wheel({0,60}) && !wheel({0,-60}) && !wheel({0,0}) &&
+        navigation(50) && activeR() && drafts() && isPan({0,0},true) && circuit_->cursor().shape() == Qt::ClosedHandCursor;
+    checks["horizontal_pixel_inverted_phase_modified_buttons_ignored"] =
+        !wheel({120,0}) && !wheel({120,120}) && !wheel({0,120},{0,12}) && !wheel({0,120},{},Qt::NoScrollPhase,true) &&
+        !wheel({0,120},{},Qt::ScrollUpdate) && !wheel({0,120},{},Qt::NoScrollPhase,false,Qt::ControlModifier) &&
+        !wheel({0,120},{},Qt::NoScrollPhase,false,Qt::ShiftModifier) &&
+        !wheel({0,120},{},Qt::NoScrollPhase,false,Qt::NoModifier,Qt::LeftButton) && navigation(50) && drafts() && activeR() && isPan({0,0},true);
+    send(QEvent::MouseButtonRelease, Qt::MiddleButton, Qt::NoButton, mouse_position);
+    checks["negative_detent_changes_one_step"] = wheel({0,120}) && navigation(75) && wheel({0,-120}) && navigation(50) && drafts();
+    wheel({0,360}); click("c"); beginCircuitCapacitanceEdit();
+    observe("wheel125_C", "original.json");
+    drag({40,-20});
+    checks["pan_then_wheel_keeps_offset_drafts_selection"] = navigation(125) && isPan({40,-20}) && activeC() && drafts() &&
+        circuit_->selection() == QStringList{"main","right","c"} && document_.graph() == original;
+    observe("pan125_C", "original.json");
+    press(); move({10,10},true);
+    const auto dragged = isPan({50,-10},true);
+    const auto changed = wheel({0,120},{},Qt::NoScrollPhase,false,Qt::NoModifier,Qt::MiddleButton);
+    move({20,15},false);
+    checks["wheel_stops_middle_drag_and_updates_navigation"] = dragged && changed && navigation(150) && isPan({50,-10}) &&
+        circuit_->cursor().shape() != Qt::ClosedHandCursor && activeC() && drafts() && grab().save(report + ".large.png");
+    observe("wheel150_C", "original.json");
+    press(); move({-5,5},true);
+    const auto boundary = wheel({0,std::numeric_limits<int>::max()},{},Qt::NoScrollPhase,false,Qt::NoModifier,Qt::MiddleButton);
+    move({20,15},false);
+    checks["boundary_wheel_cancels_drag_without_view_edit"] = boundary && navigation(150) && isPan({45,-5}) && activeC() && drafts() &&
+        document_.graph() == original && circuit_->cursor().shape() != Qt::ClosedHandCursor;
+    observe("boundary150_C", "original.json");
+    circuit_fit_->click(); expected_pan = {}; settle();
+    const auto fitted = navigation(100) && isPan({0,0}) && drafts();
+    circuit_zoom_in_->click();
+    checks["buttons_and_fit_interoperate_with_wheel"] = fitted && navigation(125) && wheel({0,-120}) && navigation(100) &&
+        wheel({0,120}) && navigation(125) && drafts() && activeC();
+    drag({35,20}); click("r"); resize(1200,850); settle();
+    showDeclarationDetails(true); settle(); showDeclarationDetails(false); settle();
+    const auto retained = navigation(125) && isPan({35,20}) && activeR() && drafts();
+    choose("left"); click("r");
+    const auto stale = !applyCircuitResistance() && !applyCircuitCapacitance() && !activeR() && !activeC() && drafts();
+    choose("right"); click("r");
+    checks["resize_details_context_preserve_view_refuse_stale_apply"] = retained && stale && activeR() && drafts() &&
+        navigation(125) && isPan({35,20}) && document_.graph() == original;
+    observe("retained125_R", "original.json");
+    name_->setText(text(document_.name())); instance_name_->setText("right"); click("c"); apply_capacitance_->click(); settle();
+    const auto C_applied = document_.graph();
+    checks["C_apply_via_wheel_preserves_R_draft"] = C_applied != original && navigation(125) && isPan({35,20}) && activeC() &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470" && current_occurrence_->parameters.at("capacitance").value == "0.000000470";
+    observe("C_applied", "wheel-C-copy.json");
+    checks["pending_R_refuses_copy_history"] = !saveCopy("pending-wheel-copy.json") && !undoEdit() && !redoEdit() &&
+        document_.graph() == C_applied && navigation(125) && isPan({35,20});
+    resistance_->setText("2.2"); const auto C_saved = saveCopy("wheel-C-copy.json");
+    click("r"); resistance_->setText("3.5"); apply_resistance_->click(); settle(); const auto both_applied = document_.graph();
+    checks["R_apply_via_wheel_preserves_C"] = C_saved && both_applied != C_applied && activeR() && navigation(125) && isPan({35,20}) &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470" && current_occurrence_->parameters.at("resistance").value == "3500";
+    observe("R_applied", "wheel-RC-copy.json");
+    checks["undo_retains_wheel_zoom_pan"] = undoEdit() && navigation(125) && isPan({35,20}) && activeR() && document_.graph() == C_applied &&
+        resistance_->text() == "2.2" && capacitance_->text() == "470";
+    observe("undo_R", "wheel-C-copy.json");
+    checks["redo_retains_wheel_zoom_pan"] = redoEdit() && navigation(125) && isPan({35,20}) && activeR() && document_.graph() == both_applied &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470";
+    observe("redo_R", "wheel-RC-copy.json");
+    checks["create_only_occupied_copy_retains_view"] = saveCopy("wheel-RC-copy.json") && !saveCopy("wheel-RC-copy.json") && navigation(125) &&
+        isPan({35,20}) && document_.leaf() == "original.json" && document_.graph() == both_applied && document_.can_undo();
+    checks["failed_open_retains_view_drafts"] = !openDocument(root,"invalid.json") && navigation(125) && isPan({35,20}) && activeR() &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470" && document_.graph() == both_applied;
+    checks["reopen_resets_zoom_pan_selection_activation_history"] = openDocument(root,"wheel-RC-copy.json") && navigation(100) &&
+        isPan({0,0}) && circuit_->selection().isEmpty() && circuit_resistance_target_.isEmpty() && circuit_capacitance_target_.isEmpty() &&
+        selected_instance_.isEmpty() && resistance_->text().isEmpty() && capacitance_->text().isEmpty() && !document_.can_undo() &&
+        !document_.can_redo() && !document_.dirty();
+    expected_pan = {}; settle(); observe("reopened", "wheel-RC-copy.json");
+    wheel({0,240}); drag({20,15});
+    const auto unsupported = openDocument(root,"changed-net.json"); expected_pan = {};
+    checks["unsupported_wheel_ignored_reset_view"] = unsupported && !wheel({0,120}) && !circuit_->supported() &&
+        circuit_->zoomPercent() == 100 && isPan({0,0}) && !circuit_zoom_in_->isEnabled() && !circuit_fit_->isEnabled() && circuit_->selection().isEmpty();
+    observe("unsupported", "changed-net.json");
+    openDocument(root,"wheel-RC-copy.json"); wheel({0,-240});
+    const auto R_hit = navigation(50) && click("r") && beginCircuitResistanceEdit() && activeR();
+    wheel({0,360});
+    checks["wheel_hits_R_C_with_same_geometry"] = R_hit && navigation(125) && click("c") && beginCircuitCapacitanceEdit() && activeC() && !document_.dirty();
+    checks["source_resources_remain_inert"] = !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1;
+    circuit_fit_->click(); expected_pan = {}; click("r"); beginCircuitResistanceEdit(); settle(); showAnalyzer(); settle();
+    checks["final_fit_independent_windows_panels_images"] = navigation(100) && isPan({0,0}) && activeR() && !document_.dirty() &&
+        analyzer_.isWindow() && analyzer_.isVisible() && isWindow() && components_->features().testFlag(QDockWidget::DockWidgetClosable) &&
+        properties_->features().testFlag(QDockWidget::DockWidgetMovable) && grab().save(report + ".fit.png");
+    observe("final_fit_R", "wheel-RC-copy.json");
+    bool passed = checks.size() == 25;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
+        {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"scope", "Bounded complete vertical wheel detents on fixed RC view; no accumulated partial/pixel/phase/inverted/modified gestures, cursor anchoring, physical mouse, keyboard, DPI/session or packaging acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
