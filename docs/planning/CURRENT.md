@@ -1,5 +1,38 @@
 # Current state
 
+## Current SN-023 state: fixed RC Fit and Zoom tested
+
+On 2026-10-05, [bounded Fit/Zoom](../experiments/SN-023-canvas-zoom.md) adds
+50/75/100/125/150 percent centered scales relative to automatic Fit. Painting,
+clicks and reported points share one view rectangle. Zoom is presentation only,
+retaining values/IDs/selection, independent R/C activation/four drafts and native
+edit/history/copy. Resize/context/Details/Apply/history/failed Open retain scale;
+successful Open resets Fit/selection/activation/history, unsupported disables.
+Enlargement may crop edges; Fit restores all normal-fixture ports. Pan is pending.
+
+Fresh Windows configure and two builds/four GUI runs passed automated checks.
+Initial zoom GUI01's 150 percent image exposed a clipped target/unit note despite
+numeric PASS; retain that negative capture/result. Both notes now reserve wrapped
+text height. Final GUI02 passed 25 controls/sixteen independent source/view
+snapshots/30 captions/twelve Properties blocks/two saved-token audits. Unchanged
+final-binary R regression passed 43/fourteen/one R-token/26 captions/twelve blocks.
+Three final images inspected; twelve captures retained. No setup/build/runtime
+failure. Freeze 25 sources/final binary; reuse 20 prior entries/fourteen native
+artifacts/five unchanged sections. One documentation-helper planning write was
+refused by filesystem permissions, before modifying planning files; diagnostic
+retained and resumed with authorized workspace write access. Remaining local
+matrices are reused by hashes.
+Scripted checks/retries do not prove human recovery or mouse/keyboard/DPI/session.
+
+Pre-edit PR #88 reconfirmed MERGED at d6106341f85a7e957a393821864d306593c032bd;
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 passed; main copies equal,
+zero unpublished. Preserve 255 historical evidence files/twelve SN-045 overlays;
+source PR records checker/required checks/squash/main. SN-023 stays in_progress;
+no ADR. Next feedback and separately gate bounded fixed-view pan if useful.
+General editor/wiring/instruments/managed Save/real workers/IPC/usability/packaging
+remain pending. SN-017/021/022 limits, SN-044 ownership and January stabilization/
+February 2027 planning targets remain unchanged.
+
 ## Current SN-023 state: Circuit resistance editing tested
 
 On 2026-10-05, [compact R editing](../experiments/SN-023-circuit-resistance.md)

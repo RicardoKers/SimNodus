@@ -48,6 +48,7 @@ public:
     void runCanvasAcceptance(const QString& root, const QString& report);
     void runCircuitCapacitanceAcceptance(const QString& root, const QString& report);
     void runCircuitResistanceAcceptance(const QString& root, const QString& report);
+    void runZoomAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -144,4 +145,6 @@ private:
     QLabel* circuit_resistance_target_note_ = nullptr;
     QPushButton* circuit_resistance_edit_ = nullptr;
     QStringList circuit_resistance_target_;
+    QPushButton *circuit_zoom_in_ = nullptr, *circuit_zoom_out_ = nullptr, *circuit_fit_ = nullptr;
+    QLabel* circuit_zoom_note_ = nullptr;
 };

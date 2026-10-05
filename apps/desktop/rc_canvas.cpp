@@ -86,7 +86,7 @@ void RcCanvas::setGraph(std::shared_ptr<const simnodus::ProjectGraph> graph, con
     if(context != context_) selected_.clear();
     context_ = context;
     supported_ = resolve();
-    if(!supported_) selected_.clear();
+    if(!supported_) { selected_.clear(); zoom_step_ = 0; }
     update();
 }
 bool RcCanvas::resolve()
@@ -143,14 +143,29 @@ void RcCanvas::setSelection(const QStringList& path)
     if(supported_) for(const auto& component : components_) if(ids(component.path) == path) selected_ = path;
     update();
 }
-QRectF RcCanvas::fittedView() const
+bool RcCanvas::zoomIn()
 {
-    const auto scale = std::max(0.0, std::min((width() - 24.0) / 700, (height() - 24.0) / 420));
+    if(!supported_ || zoom_step_ == 2) return false;
+    ++zoom_step_; update(); return true;
+}
+bool RcCanvas::zoomOut()
+{
+    if(!supported_ || zoom_step_ == -2) return false;
+    --zoom_step_; update(); return true;
+}
+void RcCanvas::fitView()
+{
+    zoom_step_ = 0;
+    update();
+}
+QRectF RcCanvas::viewRect() const
+{
+    const auto scale = std::max(0.0, std::min((width() - 24.0) / 700, (height() - 24.0) / 420)) * zoomPercent() / 100.0;
     return {(width() - 700 * scale) / 2, (height() - 420 * scale) / 2, 700 * scale, 420 * scale};
 }
 QPoint RcCanvas::componentPoint(const QString& id) const
 {
-    const auto view = fittedView();
+    const auto view = viewRect();
     const auto point = hitBox(id == "r" ? 0 : 1).center();
     return QPointF(view.left() + point.x() * view.width() / 700, view.top() + point.y() * view.height() / 420).toPoint();
 }
@@ -159,7 +174,7 @@ void RcCanvas::mousePressEvent(QMouseEvent* event)
     if(event->button() != Qt::LeftButton) return;
     // Reconfirm the current owned graph before accepting a painted target.
     supported_ = resolve();
-    const auto view = fittedView();
+    const auto view = viewRect();
     if(!supported_ || view.isEmpty()) { selected_.clear(); update(); return; }
     const QPointF point((event->position().x() - view.left()) * 700 / view.width(),
         (event->position().y() - view.top()) * 420 / view.height());
@@ -179,7 +194,7 @@ void RcCanvas::paintEvent(QPaintEvent*)
             graph_ ? "Circuit diagram unavailable for this declaration.\nUse Details to inspect its structure." : "Open a project to view its circuit.");
         return;
     }
-    const auto view = fittedView();
+    const auto view = viewRect();
     painter.setRenderHint(QPainter::Antialiasing);
     painter.translate(view.topLeft());
     painter.scale(view.width() / 700, view.height() / 420);
@@ -235,7 +250,13 @@ void RcCanvas::paintEvent(QPaintEvent*)
 QJsonObject RcCanvas::snapshot() const
 {
     QJsonArray components, nets;
+    const auto view = viewRect();
+    QJsonObject points;
     if(supported_) {
+        for(const auto& id : {QString("r"), QString("c")}) {
+            const auto point = componentPoint(id);
+            points[id] = QJsonArray{point.x(), point.y()};
+        }
         for(const auto& component : components_) {
             QJsonObject parameters;
             for(const auto& [id, parameter] : component.parameters) parameters[text(id)] = QJsonObject{
@@ -257,5 +278,7 @@ QJsonObject RcCanvas::snapshot() const
         }
     }
     return {{"supported", supported_}, {"context", QJsonArray::fromStringList(context_)},
+        {"view", QJsonObject{{"zoom_percent", zoomPercent()}, {"width", width()}, {"height", height()},
+            {"rectangle", QJsonArray{view.left(), view.top(), view.width(), view.height()}}, {"component_points", points}}},
         {"selected_path", QJsonArray::fromStringList(selected_)}, {"components", components}, {"nets", nets}};
 }
