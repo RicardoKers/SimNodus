@@ -1,5 +1,12 @@
 # Bounded Windows document editor
 
+[Focus Circuit](../../docs/experiments/SN-023-circuit-focus.md) in the toolbar or
+View menu hides Components/Preview and Properties to expand the canvas. Click
+**Restore Panels** to recover their preceding sizes and visibility. Zoom/pan,
+selection, R/C drafts and native operations remain; the analyzer stays independent.
+Details and individual panel toggles are disabled during focus. This layout is
+temporary for the same window/session; it is not saved in the project or to disk.
+
 [Fixed RC wheel zoom](../../docs/experiments/SN-023-canvas-wheel.md): place the
 pointer over the canvas and roll an ordinary vertical mouse wheel. Full detents
 change one level from 50 to 150 percent; buttons still work. Centered scaling retains
@@ -75,7 +82,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-canvas-wheel/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-wheel-demo-01
+python tools/run_editor_demo.py --editor build/sn023-circuit-focus/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/circuit-focus-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)

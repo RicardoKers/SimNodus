@@ -1,5 +1,43 @@
 # Current state
 
+## Current SN-023 state: transient Focus Circuit tested
+
+On 2026-10-05, [Focus Circuit](../experiments/SN-023-circuit-focus.md) adds a
+checkable View/toolbar action in Circuit mode: hide Components/Preview and
+Properties, then Restore Panels from the immediately preceding in-memory dock/
+splitter layout. Prior visibility, sizes and one floating Properties configuration
+round-trip; repeated cycles capture current sizes. Details/dock toggles are
+disabled while focused; Details refuses focus. The analyzer remains independent.
+View resize cancels middle drag; selection/IDs/values/R/C activation/four drafts/
+native operations/zoom/pan remain. Explicit Open resets current document/view as
+before, retaining focus; restore never restores an old document or selection.
+No project/disk layout state, Qt module, domain/application/schema/engine change.
+
+Fresh Windows configure passed. First build failed C4456 under warnings-as-errors:
+two test-actor names shadowed earlier locals. Seven source/helper snapshots and
+raw build log retained; no editor binary from that failed build. Actor locals
+renamed, second build passed. Focus 24 controls/12 independent snapshots/22 captions/
+nine Properties/five panel round trips/one exact C470-copy audit and unchanged
+final-binary wheel 25/16/30 captions/twelve Properties/two copy audits passed.
+Widths/splitter/floating geometry compare within two Qt logical pixels; observed
+initial/resized widths and splitter restored exactly. Canvas width 452->1262 logical
+units at 125 percent/pan 35,20. Three focus images inspected/six captures retained:
+normal enlarged output/reference caption in focused view may crop; Fit available,
+final 100-percent restored view legible. Static review found no further defect.
+Freeze 28 sources/final binary; reuse 25 prior entries/fourteen native artifacts/
+five byte-identical sections including prior C/R/Zoom/Pan/Wheel actors. Other
+backend/native matrices reused. Scripted checks/correction do not prove human
+recovery; monitor/DPI/keyboard/accessibility/cross-session layout/packaging pending.
+
+Pre-edit PR #91 reconfirmed MERGED at 3c348080390f921c26827cce09f5ccd7aaf731fd;
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 passed, main copies equal,
+zero unpublished. Preserve 277 historical files/twelve independent SN-045 overlays;
+source PR records task-only checkers/exact checks/squash/main. SN-023 in_progress,
+no ADR. Next feedback and a separate bounded keyboard-navigation gate if useful.
+General editor/wiring/instruments/managed Save/real workers/IPC remain pending.
+SN-017/021/022 bounds/SN-044 ownership and January stabilization/February 2027
+classroom planning targets remain. Historical results follow unchanged.
+
 ## Current SN-023 state: fixed RC vertical wheel zoom tested
 
 On 2026-10-05, [bounded wheel zoom](../experiments/SN-023-canvas-wheel.md) reuses
