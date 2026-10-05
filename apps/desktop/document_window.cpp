@@ -39,6 +39,7 @@
 #include <QToolBar>
 #include <QStyle>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <cstdio>
 #include <algorithm>
 #include <set>
@@ -331,9 +332,23 @@ DocumentWindow::DocumentWindow()
     circuit_context_->setAccessibleName("RC occurrence shown in the circuit canvas");
     circuit_context_->addItem("RC instance: right", QStringList{"main", "right"});
     circuit_context_->addItem("RC instance: left", QStringList{"main", "left"});
-    circuit_layout->addWidget(circuit_context_);
+    auto* navigation = new QHBoxLayout;
+    navigation->addWidget(circuit_context_, 1);
+    circuit_zoom_out_ = new QPushButton("Zoom Out");
+    circuit_fit_ = new QPushButton("Fit");
+    circuit_zoom_in_ = new QPushButton("Zoom In");
+    circuit_zoom_note_ = new QLabel;
+    circuit_zoom_note_->setToolTip("Scale relative to Fit; changes only this view.");
+    navigation->addWidget(circuit_zoom_out_);
+    navigation->addWidget(circuit_fit_);
+    navigation->addWidget(circuit_zoom_in_);
+    navigation->addWidget(circuit_zoom_note_);
+    circuit_layout->addLayout(navigation);
     circuit_ = new RcCanvas;
     circuit_layout->addWidget(circuit_, 1);
+    connect(circuit_zoom_in_, &QPushButton::clicked, this, [this] { circuit_->zoomIn(); refreshCircuit(); });
+    connect(circuit_zoom_out_, &QPushButton::clicked, this, [this] { circuit_->zoomOut(); refreshCircuit(); });
+    connect(circuit_fit_, &QPushButton::clicked, this, [this] { circuit_->fitView(); refreshCircuit(); });
     auto* circuit_note = new QLabel("Declared RC connections · fixed layout · simulation unavailable");
     circuit_note->setWordWrap(true);
     circuit_layout->addWidget(circuit_note);
@@ -351,6 +366,7 @@ DocumentWindow::DocumentWindow()
     circuit_resistance_target_note_ = new QLabel;
     circuit_resistance_target_note_->setTextFormat(Qt::PlainText);
     circuit_resistance_target_note_->setWordWrap(true);
+    circuit_resistance_target_note_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     selection_layout->addWidget(circuit_resistance_target_note_);
     resistance_circuit_host_ = new QWidget;
     auto* circuit_resistance_layout = new QVBoxLayout(resistance_circuit_host_);
@@ -361,6 +377,7 @@ DocumentWindow::DocumentWindow()
     circuit_capacitance_target_note_ = new QLabel;
     circuit_capacitance_target_note_->setTextFormat(Qt::PlainText);
     circuit_capacitance_target_note_->setWordWrap(true);
+    circuit_capacitance_target_note_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     selection_layout->addWidget(circuit_capacitance_target_note_);
     capacitance_circuit_host_ = new QWidget;
     auto* circuit_capacitance_layout = new QVBoxLayout(capacitance_circuit_host_);
@@ -414,6 +431,10 @@ void DocumentWindow::refreshCircuit()
     if(!circuit_) return;
     const auto context = circuit_context_->currentData().toStringList();
     circuit_->setGraph(document_.graph(), context);
+    circuit_zoom_in_->setEnabled(circuit_->supported() && circuit_->zoomPercent() < 150);
+    circuit_zoom_out_->setEnabled(circuit_->supported() && circuit_->zoomPercent() > 50);
+    circuit_fit_->setEnabled(circuit_->supported());
+    circuit_zoom_note_->setText("Zoom: " + QString::number(circuit_->zoomPercent()) + "%");
     QStringList path;
     if(current_occurrence_) for(const auto& id : current_occurrence_->path) path << text(id);
     circuit_->setSelection(path);
@@ -620,6 +641,7 @@ bool DocumentWindow::saveCopy(const QString& leaf)
 }
 void DocumentWindow::refresh()
 {
+    if(circuit_) circuit_->fitView();
     circuit_capacitance_target_.clear();
     circuit_resistance_target_.clear();
     const QSignalBlocker blocked(structure_);
@@ -2881,6 +2903,145 @@ void DocumentWindow::runCircuitResistanceAcceptance(const QString& root, const Q
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
         {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"scope", "One shared R field with explicit containing RC activation and independent C draft/activation; existing native operations, no generic quantity editor or human usability/recovery acceptance"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runZoomAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto noteFits = [&](QLabel* label) {
+        settle();
+        return label->isVisible() && label->height() >= label->heightForWidth(label->width());
+    };
+    const auto activeR = [this] { return resistance_->isVisible() && resistance_->isEnabled() && !details_action_->isChecked(); };
+    const auto activeC = [this] { return capacitance_->isVisible() && capacitance_->isEnabled() && !details_action_->isChecked(); };
+    const auto click = [&](const QString& id) {
+        // Separate literal centers from the production componentPoint helper.
+        const QPointF model = id == "r" ? QPointF(255, 190) : QPointF(445, 280);
+        const auto scale = std::min((circuit_->width() - 24.0) / 700, (circuit_->height() - 24.0) / 420) * circuit_->zoomPercent() / 100.0;
+        const auto point = QPointF(circuit_->width() / 2.0 + (model.x() - 350) * scale,
+            circuit_->height() / 2.0 + (model.y() - 210) * scale).toPoint();
+        QMouseEvent event(QEvent::MouseButtonPress, QPointF(point), QPointF(circuit_->mapToGlobal(point)),
+            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(circuit_, &event); settle();
+        const auto context = circuit_context_->currentData().toStringList();
+        return circuit_->selection() == QStringList{context[0], context[1], id};
+    };
+    const auto choose = [&](const QString& side) {
+        circuit_context_->setCurrentIndex(circuit_context_->findData(QStringList{"main", side})); settle();
+    };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()},
+            {"edit_target", target}, {"r_draft", resistance_->text()}, {"c_draft", capacitance_->text()},
+            {"r_active", activeR()}, {"c_active", activeC()}, {"properties_text", circuit_selection_->text()}});
+    };
+    checks["empty_controls_disabled_and_fit_default"] = !circuit_zoom_in_->isEnabled() && !circuit_zoom_out_->isEnabled() &&
+        !circuit_fit_->isEnabled() && !circuit_->zoomIn() && !circuit_->zoomOut() && circuit_->zoomPercent() == 100;
+    checks["inert_open_fit_without_selection_or_edits"] = openDocument(root, "original.json") && circuit_->supported() &&
+        circuit_->zoomPercent() == 100 && circuit_->selection().isEmpty() && selected_instance_.isEmpty() && !document_.dirty() &&
+        circuit_zoom_in_->isEnabled() && circuit_zoom_out_->isEnabled() && circuit_fit_->isEnabled();
+    settle(); observe("original", "original.json");
+    const auto original = document_.graph();
+    circuit_zoom_in_->click(); settle();
+    checks["zoom_125_preserves_graph_and_selection"] = circuit_->zoomPercent() == 125 && document_.graph() == original &&
+        circuit_->selection().isEmpty() && selected_instance_.isEmpty() && circuit_zoom_note_->text() == "Zoom: 125%";
+    observe("zoom125", "original.json");
+    circuit_zoom_in_->click(); settle();
+    checks["zoom_150_upper_limit_and_R_hit"] = circuit_->zoomPercent() == 150 && !circuit_zoom_in_->isEnabled() &&
+        !circuit_->zoomIn() && click("r") && beginCircuitResistanceEdit() && activeR() && document_.graph() == original &&
+        noteFits(circuit_resistance_target_note_);
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    observe("zoom150_R", "original.json");
+    checks["C_hit_at_150_preserves_R_draft"] = click("c") && beginCircuitCapacitanceEdit() && activeC() && !activeR() && drafts() &&
+        noteFits(circuit_capacitance_target_note_);
+    observe("zoom150_C", "original.json");
+    checks["zoom_retains_four_drafts_and_independent_editors"] = drafts() && document_.graph() == original &&
+        circuit_capacitance_target_ == circuit_resistance_target_ && capacitance_editor_ != resistance_editor_ &&
+        grab().save(report + ".zoom150.png");
+    circuit_fit_->click(); showDeclarationDetails(true); settle(); showDeclarationDetails(false); settle();
+    checks["fit_and_details_transfer_keep_active_C_and_drafts"] = circuit_->zoomPercent() == 100 && activeC() && drafts() &&
+        capacitance_editor_->parentWidget() == capacitance_circuit_host_ && resistance_editor_->parentWidget() == resistance_circuit_host_;
+    observe("fit_C", "original.json");
+    circuit_zoom_out_->click(); circuit_zoom_out_->click(); settle();
+    checks["zoom_50_lower_limit_and_independent_R_hit"] = circuit_->zoomPercent() == 50 && !circuit_zoom_out_->isEnabled() &&
+        !circuit_->zoomOut() && click("r") && activeR() && drafts() && document_.graph() == original;
+    observe("zoom50_R", "original.json");
+    resize(1200, 850); settle();
+    checks["resize_at_50_retains_scale_and_C_hit"] = circuit_->zoomPercent() == 50 && click("c") && activeC() && drafts();
+    observe("resize50_C", "original.json");
+    choose("left"); click("r");
+    checks["context_switch_retains_zoom_and_refuses_stale_apply"] = circuit_->zoomPercent() == 50 && !activeR() &&
+        !activeC() && !applyCircuitResistance() && !applyCircuitCapacitance() && !beginCircuitResistanceEdit() && drafts() &&
+        selected_instance_ == "right" && document_.graph() == original;
+    observe("left50_R", "original.json");
+    choose("right");
+    checks["return_right_recovers_R_draft"] = click("r") && activeR() && drafts() && circuit_->zoomPercent() == 50;
+    name_->setText(text(document_.name())); instance_name_->setText("right");
+    circuit_fit_->click(); circuit_zoom_in_->click(); click("c"); apply_capacitance_->click(); settle();
+    const auto C_applied = document_.graph();
+    checks["C_apply_at_125_preserves_R_draft_and_zoom"] = circuit_->zoomPercent() == 125 && activeC() && C_applied != original &&
+        capacitance_->text() == "470" && resistance_->text() == "3.5" && current_occurrence_->parameters.at("capacitance").value == "0.000000470";
+    observe("C_applied", "zoom-C-copy.json");
+    checks["pending_R_refuses_history_and_copy"] = !saveCopy("pending-zoom-copy.json") && !undoEdit() &&
+        circuit_->zoomPercent() == 125 && document_.graph() == C_applied && resistance_->text() == "3.5";
+    resistance_->setText("2.2");
+    const auto C_saved = saveCopy("zoom-C-copy.json");
+    click("r"); resistance_->setText("3.5"); apply_resistance_->click(); settle();
+    const auto both_applied = document_.graph();
+    checks["R_apply_at_125_preserves_C_and_zoom"] = C_saved && circuit_->zoomPercent() == 125 && activeR() &&
+        both_applied != C_applied && resistance_->text() == "3.5" && capacitance_->text() == "470" &&
+        current_occurrence_->parameters.at("resistance").value == "3500";
+    observe("R_applied", "zoom-RC-copy.json");
+    circuit_zoom_in_->click();
+    checks["native_undo_at_150_retains_view_and_C"] = undoEdit() && circuit_->zoomPercent() == 150 && activeR() &&
+        document_.graph() == C_applied && resistance_->text() == "2.2" && capacitance_->text() == "470";
+    observe("undo150_R", "zoom-C-copy.json");
+    checks["native_redo_at_150_retains_view_and_R"] = redoEdit() && circuit_->zoomPercent() == 150 && activeR() &&
+        document_.graph() == both_applied && resistance_->text() == "3.5" && capacitance_->text() == "470";
+    observe("redo150_R", "zoom-RC-copy.json");
+    checks["create_only_copy_keeps_zoom_and_association"] = saveCopy("zoom-RC-copy.json") && circuit_->zoomPercent() == 150 &&
+        document_.leaf() == "original.json" && document_.graph() == both_applied && document_.can_undo();
+    checks["occupied_copy_refusal_retains_zoom"] = !saveCopy("zoom-RC-copy.json") && circuit_->zoomPercent() == 150 && activeR();
+    checks["failed_open_retains_zoom_and_drafts"] = !openDocument(root, "invalid.json") && circuit_->zoomPercent() == 150 &&
+        activeR() && resistance_->text() == "3.5" && capacitance_->text() == "470" && document_.graph() == both_applied;
+    checks["copy_open_resets_fit_selection_activation_history"] = openDocument(root, "zoom-RC-copy.json") &&
+        circuit_->zoomPercent() == 100 && circuit_->selection().isEmpty() && circuit_resistance_target_.isEmpty() &&
+        circuit_capacitance_target_.isEmpty() && selected_instance_.isEmpty() && resistance_->text().isEmpty() &&
+        capacitance_->text().isEmpty() && !document_.can_undo() && !document_.can_redo() && !document_.dirty();
+    settle(); observe("reopened", "zoom-RC-copy.json");
+    circuit_zoom_in_->click(); circuit_zoom_in_->click();
+    checks["unsupported_shape_clears_zoom_and_disables_controls"] = openDocument(root, "changed-net.json") && !circuit_->supported() &&
+        circuit_->zoomPercent() == 100 && !circuit_zoom_in_->isEnabled() && !circuit_zoom_out_->isEnabled() && !circuit_fit_->isEnabled() &&
+        !circuit_->zoomIn() && !circuit_->zoomOut() && circuit_->selection().isEmpty();
+    settle(); observe("unsupported", "changed-net.json");
+    openDocument(root, "zoom-RC-copy.json"); choose("left"); circuit_zoom_in_->click();
+    checks["left_context_can_zoom_inspect_and_activate_independent_R"] = click("r") && beginCircuitResistanceEdit() && activeR() &&
+        circuit_->zoomPercent() == 125 && selected_instance_ == "left" && resistance_->text() == "1" && !document_.dirty();
+    observe("left125_R", "zoom-RC-copy.json");
+    checks["zoom_actions_do_not_access_resources"] = !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1;
+    choose("right"); click("r"); beginCircuitResistanceEdit(); circuit_fit_->click(); settle();
+    checks["fit_restores_full_default_view_without_edit"] = circuit_->zoomPercent() == 100 && activeR() && resistance_->text() == "3.5" &&
+        capacitance_->text() == "470" && !document_.dirty() && grab().save(report + ".fit.png");
+    observe("final_fit_R", "zoom-RC-copy.json");
+    showAnalyzer(); settle();
+    checks["independent_windows_panels_and_final_image"] = analyzer_.isWindow() && analyzer_.isVisible() && isWindow() &&
+        components_->features().testFlag(QDockWidget::DockWidgetClosable) && properties_->features().testFlag(QDockWidget::DockWidgetMovable) &&
+        grab().save(report + ".final.png");
+    bool passed = checks.size() == 25;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
+        {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"scope", "Bounded centered fit/zoom on the fixed RC view and existing native R/C operations; no stored geometry, pan, wheel, keyboard, DPI/session or human recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

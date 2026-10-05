@@ -72,6 +72,8 @@ the existing containing-RC literal field in Circuit Properties; broader editing 
 while Circuit Properties retains the original resolved base values.
 [Compact R editing](docs/experiments/SN-023-circuit-resistance.md) now activates
 the existing resistance field in Circuit Properties, with an independent draft from C.
+[Fit and Zoom](docs/experiments/SN-023-canvas-zoom.md) now scale the fixed RC view
+from 50 to 150 percent while retaining selection, drafts and native operations.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

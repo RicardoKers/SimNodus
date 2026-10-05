@@ -20,16 +20,21 @@ public:
     QJsonObject snapshot() const;
     static QString parameterCaption(const simnodus::EffectiveParameter& parameter);
     QPoint componentPoint(const QString& id) const;
+    int zoomPercent() const { return 100 + 25 * zoom_step_; }
+    bool zoomIn();
+    bool zoomOut();
+    void fitView();
     std::function<void(const QStringList&)> selected;
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
 private:
-    QRectF fittedView() const;
+    QRectF viewRect() const;
     bool resolve();
     std::shared_ptr<const simnodus::ProjectGraph> graph_;
     QStringList context_, selected_;
     std::array<simnodus::ComponentOccurrenceView, 2> components_;
     std::array<simnodus::DeclaredLocalNetDetailsView, 3> nets_;
     bool supported_ = false;
+    int zoom_step_ = 0;
 };

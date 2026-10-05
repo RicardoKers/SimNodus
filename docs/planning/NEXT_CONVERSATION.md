@@ -1,5 +1,29 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [fixed RC Fit and Zoom](../experiments/SN-023-canvas-zoom.md).
+Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
+Pre-edit PR #88 merged at d6106341f85a7e957a393821864d306593c032bd; Foundation
+Windows 67/67 and Ubuntu 56/56 passed, main copies equal/zero unpublished.
+View-only 50/75/100/125/150 percent scales retain IDs/values/selections, independent
+R/C activation/four drafts and existing native edits/history/copy. Painter/hits
+share a rectangle; Fit restores full normal view, enlarged edges can crop.
+Open success resets Fit and activation/history; failed Open/context/Details/
+resize/native edits retain zoom. Unsupported diagram disables/reset Fit. No pan.
+Initial numeric GUI PASS exposed clipped target/unit text in manual image review;
+preserve negative capture and initial logs. Both notes now reserve wrapped height.
+Final zoom passed 25/sixteen independent snapshots/30 captions/twelve Properties/
+two saved-token audits; retained R 43/fourteen/one R-token audit passed on final
+binary. Three final images inspected, twelve retained; no setup/build/runtime
+failure. Freeze 25 sources/final binary, verify 20 prior entries/fourteen native
+artifacts/five unchanged sections. Reuse remaining matrices without local reruns.
+Preserve 255 historical evidence files and twelve independent SN-045 overlays;
+publish only task planning prefix/row. Source PR records checks/squash/main.
+SN-023 remains in_progress, no ADR. Next feedback/separate bounded fixed-view pan
+gate if useful. General editor/wiring/instruments/managed Save/real workers/IPC/
+human recovery/mouse/keyboard/accessibility/DPI/session/packaging remain pending.
+SN-017/021/022 bounds, SN-044 ownership and January stabilization/February 2027
+planning targets remain. Historical handoffs follow.
+
 Latest tested increment: [Circuit resistance editing](../experiments/SN-023-circuit-resistance.md).
 Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
 Pre-edit PR #87 merged at 061e7816e575a8a6b4281a27529ae6a686157fc9; exact-source
