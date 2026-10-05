@@ -42,6 +42,7 @@
 #include <QHBoxLayout>
 #include <cstdio>
 #include <algorithm>
+#include <cmath>
 #include <set>
 
 namespace {
@@ -349,7 +350,7 @@ DocumentWindow::DocumentWindow()
     connect(circuit_zoom_in_, &QPushButton::clicked, this, [this] { circuit_->zoomIn(); refreshCircuit(); });
     connect(circuit_zoom_out_, &QPushButton::clicked, this, [this] { circuit_->zoomOut(); refreshCircuit(); });
     connect(circuit_fit_, &QPushButton::clicked, this, [this] { circuit_->fitView(); refreshCircuit(); });
-    auto* circuit_note = new QLabel("Declared RC connections · fixed layout · simulation unavailable");
+    auto* circuit_note = new QLabel("Middle-drag to pan · Fit to recenter · simulation unavailable");
     circuit_note->setWordWrap(true);
     circuit_layout->addWidget(circuit_note);
     circuit_properties_ = new QWidget;
@@ -3042,6 +3043,183 @@ void DocumentWindow::runZoomAcceptance(const QString& root, const QString& repor
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
         {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"scope", "Bounded centered fit/zoom on the fixed RC view and existing native R/C operations; no stored geometry, pan, wheel, keyboard, DPI/session or human recovery acceptance"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runPanAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto activeR = [this] { return resistance_->isVisible() && resistance_->isEnabled() && !details_action_->isChecked(); };
+    const auto activeC = [this] { return capacitance_->isVisible() && capacitance_->isEnabled() && !details_action_->isChecked(); };
+    QPointF expected_pan, mouse_position;
+    const auto scale = [this] {
+        return std::min((circuit_->width() - 24.0) / 700, (circuit_->height() - 24.0) / 420) * circuit_->zoomPercent() / 100.0;
+    };
+    const auto project = [&](const QPointF& point) {
+        return QPointF(circuit_->width() / 2.0, circuit_->height() / 2.0) +
+            (point - QPointF(350, 210) + expected_pan) * scale();
+    };
+    const auto send = [&](QEvent::Type type, Qt::MouseButton button, Qt::MouseButtons buttons, const QPointF& point) {
+        QMouseEvent event(type, point, QPointF(circuit_->mapToGlobal(point.toPoint())), button, buttons, Qt::NoModifier);
+        QApplication::sendEvent(circuit_, &event); settle();
+    };
+    const auto press = [&] {
+        settle();
+        mouse_position = QPointF(circuit_->width() / 2.0, circuit_->height() / 2.0);
+        send(QEvent::MouseButtonPress, Qt::MiddleButton, Qt::MiddleButton, mouse_position);
+    };
+    const auto move = [&](const QPointF& delta, Qt::MouseButtons buttons, bool changes_pan) {
+        // Actor coordinates come from literal expected offsets, never componentPoint or the reported view.
+        mouse_position += delta * scale();
+        if(changes_pan) expected_pan = QPointF(std::clamp(expected_pan.x() + delta.x(), -140.0, 140.0),
+            std::clamp(expected_pan.y() + delta.y(), -84.0, 84.0));
+        send(QEvent::MouseMove, Qt::NoButton, buttons, mouse_position);
+    };
+    const auto release = [&] { send(QEvent::MouseButtonRelease, Qt::MiddleButton, Qt::NoButton, mouse_position); };
+    const auto drag = [&](const QPointF& delta) { press(); move(delta, Qt::MiddleButton, true); release(); };
+    const auto isPan = [&](const QPointF& wanted, bool dragging = false) {
+        const auto view = circuit_->snapshot()["view"].toObject();
+        const auto pan = view["pan"].toArray();
+        return std::abs(pan[0].toDouble() - wanted.x()) < 0.000001 && std::abs(pan[1].toDouble() - wanted.y()) < 0.000001 &&
+            view["panning"].toBool() == dragging;
+    };
+    const auto click = [&](const QString& id) {
+        send(QEvent::MouseButtonPress, Qt::LeftButton, Qt::LeftButton, project(id == "r" ? QPointF(255,190) : QPointF(445,280)));
+        const auto context = circuit_context_->currentData().toStringList();
+        return circuit_->selection() == QStringList{context[0], context[1], id};
+    };
+    const auto choose = [&](const QString& side) {
+        circuit_context_->setCurrentIndex(circuit_context_->findData(QStringList{"main", side})); settle();
+    };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()},
+            {"edit_target", target}, {"r_draft", resistance_->text()}, {"c_draft", capacitance_->text()},
+            {"r_active", activeR()}, {"c_active", activeC()}, {"properties_text", circuit_selection_->text()}});
+    };
+    press(); move({20, 15}, Qt::MiddleButton, false); release();
+    checks["empty_middle_refuses_and_cursor_unchanged"] = isPan({0,0}) && circuit_->cursor().shape() != Qt::ClosedHandCursor;
+    checks["inert_open_centered"] = openDocument(root, "original.json") && circuit_->supported() && isPan({0,0}) &&
+        circuit_->zoomPercent() == 100 && circuit_->selection().isEmpty() && selected_instance_.isEmpty() && !document_.dirty();
+    settle(); observe("original", "original.json");
+    const auto original = document_.graph();
+    circuit_zoom_in_->click(); circuit_zoom_in_->click(); click("r"); beginCircuitResistanceEdit();
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    checks["zoom150_R_activation_and_drafts"] = circuit_->zoomPercent() == 150 && activeR() && drafts() && isPan({0,0}) && document_.graph() == original;
+    observe("start_R", "original.json");
+    press();
+    checks["middle_press_preserves_selection"] = isPan({0,0}, true) && circuit_->selection() == QStringList{"main","right","r"} &&
+        circuit_->cursor().shape() == Qt::ClosedHandCursor && drafts();
+    observe("press_R", "original.json");
+    move({40,-25}, Qt::MiddleButton, true);
+    checks["middle_move_updates_only_view"] = isPan({40,-25}, true) && activeR() && drafts() && document_.graph() == original;
+    observe("drag_R", "original.json");
+    send(QEvent::MouseButtonPress, Qt::LeftButton, Qt::MiddleButton | Qt::LeftButton, project({445,280}));
+    checks["left_press_during_middle_drag_does_not_select_C"] = circuit_->selection() == QStringList{"main","right","r"} &&
+        isPan({40,-25}, true) && activeR();
+    release();
+    checks["release_stops_and_cursor_restores"] = isPan({40,-25}) && circuit_->cursor().shape() != Qt::ClosedHandCursor && drafts();
+    observe("released_R", "original.json");
+    move({20,15}, Qt::MiddleButton, false);
+    send(QEvent::MouseButtonPress, Qt::RightButton, Qt::RightButton, project({445,280}));
+    checks["moves_without_drag_and_right_press_inert"] = isPan({40,-25}) && activeR() && drafts() && document_.graph() == original;
+    press(); move({1000,1000}, Qt::MiddleButton, true);
+    const auto clamped = isPan({140,84}, true);
+    move({-1,-1}, Qt::MiddleButton, true); const auto reverse = isPan({139,83}, true);
+    move({1,1}, Qt::MiddleButton, true); release();
+    checks["upper_pan_bounds_and_C_hit"] = clamped && reverse && isPan({140,84}) && click("c") &&
+        beginCircuitCapacitanceEdit() && activeC() && !activeR() && drafts();
+    observe("max_C", "original.json");
+    drag({-2000,-2000});
+    checks["lower_pan_bounds_and_R_hit"] = isPan({-140,-84}) && click("r") && activeR() && !activeC() && drafts();
+    observe("min_R", "original.json");
+    press(); move({10,10}, Qt::MiddleButton, true); move({20,20}, Qt::NoButton, false);
+    checks["lost_middle_button_cancels_view_only"] = isPan({-130,-74}) && circuit_->cursor().shape() != Qt::ClosedHandCursor && drafts();
+    observe("lost_button_R", "original.json");
+    press(); move({10,10}, Qt::MiddleButton, true);
+    QEvent ungrab(QEvent::UngrabMouse); QApplication::sendEvent(circuit_, &ungrab); settle();
+    const auto ungrabbed = isPan({-120,-64}) && circuit_->cursor().shape() != Qt::ClosedHandCursor;
+    press(); QEvent deactivate(QEvent::WindowDeactivate); QApplication::sendEvent(circuit_, &deactivate); settle();
+    checks["ungrab_and_deactivate_cancel_view_only"] = ungrabbed && isPan({-120,-64}) &&
+        circuit_->cursor().shape() != Qt::ClosedHandCursor && activeR() && drafts();
+    observe("ungrab_R", "original.json");
+    press(); move({20,14}, Qt::MiddleButton, true); circuit_fit_->click(); expected_pan = {}; settle();
+    move({20,15}, Qt::MiddleButton, false);
+    checks["fit_cancels_resets_and_preserves_drafts"] = isPan({0,0}) && circuit_->zoomPercent() == 100 && activeR() && drafts();
+    observe("fit_R", "original.json");
+    press(); move({35,20}, Qt::MiddleButton, true); circuit_zoom_in_->click(); settle(); move({20,15}, Qt::MiddleButton, false);
+    checks["zoom_cancels_and_retains_pan_and_drafts"] = isPan({35,20}) && circuit_->zoomPercent() == 125 && activeR() && drafts();
+    observe("zoom_R", "original.json");
+    press(); resize(1200,850); settle();
+    checks["resize_cancels_retains_pan_and_C_hit"] = isPan({35,20}) && circuit_->zoomPercent() == 125 && click("c") && activeC() && drafts();
+    observe("resize_C", "original.json");
+    press(); showDeclarationDetails(true); settle(); showDeclarationDetails(false); settle();
+    checks["details_hide_cancels_retains_pan_fields"] = isPan({35,20}) && activeC() && drafts() &&
+        capacitance_editor_->parentWidget() == capacitance_circuit_host_ && resistance_editor_->parentWidget() == resistance_circuit_host_;
+    observe("details_C", "original.json");
+    choose("left"); click("r");
+    checks["context_retains_pan_refuses_stale_apply"] = isPan({35,20}) && !activeR() && !activeC() &&
+        !applyCircuitResistance() && !applyCircuitCapacitance() && !beginCircuitResistanceEdit() && drafts() && selected_instance_ == "right";
+    observe("left_R", "original.json");
+    choose("right"); click("c"); name_->setText(text(document_.name())); instance_name_->setText("right");
+    apply_capacitance_->click(); settle(); const auto C_applied = document_.graph();
+    checks["C_apply_retains_pan_R_draft"] = C_applied != original && isPan({35,20}) && circuit_->zoomPercent() == 125 &&
+        activeC() && resistance_->text() == "3.5" && capacitance_->text() == "470";
+    observe("C_applied", "pan-C-copy.json");
+    checks["pending_R_refuses_history_copy"] = !saveCopy("pending-pan-copy.json") && !undoEdit() && isPan({35,20}) && document_.graph() == C_applied;
+    resistance_->setText("2.2"); const auto C_saved = saveCopy("pan-C-copy.json");
+    click("r"); resistance_->setText("3.5"); apply_resistance_->click(); settle(); const auto both_applied = document_.graph();
+    checks["R_apply_retains_pan_C"] = C_saved && both_applied != C_applied && isPan({35,20}) &&
+        circuit_->zoomPercent() == 125 && activeR() && capacitance_->text() == "470";
+    observe("R_applied", "pan-RC-copy.json");
+    checks["native_undo_retains_pan_C"] = undoEdit() && isPan({35,20}) && circuit_->zoomPercent() == 125 &&
+        activeR() && document_.graph() == C_applied && resistance_->text() == "2.2" && capacitance_->text() == "470";
+    observe("undo_R", "pan-C-copy.json");
+    checks["native_redo_retains_pan_R"] = redoEdit() && isPan({35,20}) && circuit_->zoomPercent() == 125 &&
+        activeR() && document_.graph() == both_applied && resistance_->text() == "3.5" && capacitance_->text() == "470";
+    observe("redo_R", "pan-RC-copy.json");
+    checks["create_only_and_occupied_copy_keep_pan"] = saveCopy("pan-RC-copy.json") && !saveCopy("pan-RC-copy.json") &&
+        isPan({35,20}) && document_.leaf() == "original.json" && document_.graph() == both_applied && document_.can_undo();
+    checks["failed_open_keeps_pan_drafts"] = !openDocument(root,"invalid.json") && isPan({35,20}) &&
+        activeR() && resistance_->text() == "3.5" && capacitance_->text() == "470" && document_.graph() == both_applied;
+    checks["copy_open_resets_pan_zoom_selection_activations_history"] = openDocument(root,"pan-RC-copy.json") &&
+        isPan({0,0}) && circuit_->zoomPercent() == 100 && circuit_->selection().isEmpty() && circuit_resistance_target_.isEmpty() &&
+        circuit_capacitance_target_.isEmpty() && selected_instance_.isEmpty() && !document_.can_undo() && !document_.can_redo() && !document_.dirty();
+    expected_pan = {}; settle(); observe("reopened", "pan-RC-copy.json");
+    drag({15,-8}); circuit_zoom_in_->click();
+    const auto unsupported = openDocument(root,"changed-net.json"); expected_pan = {}; press(); move({20,15}, Qt::MiddleButton, false); release();
+    checks["unsupported_disables_pan_resets"] = unsupported && !circuit_->supported() && isPan({0,0}) &&
+        circuit_->zoomPercent() == 100 && !circuit_zoom_in_->isEnabled() && !circuit_fit_->isEnabled() && circuit_->selection().isEmpty();
+    observe("unsupported", "changed-net.json");
+    openDocument(root,"pan-RC-copy.json"); choose("right"); click("r"); beginCircuitResistanceEdit();
+    circuit_zoom_in_->click(); circuit_zoom_in_->click(); drag({90,30}); click("r");
+    const auto visible_input = QRectF(circuit_->rect()).contains(project({70,190})) && QRectF(circuit_->rect()).contains(project({70,350}));
+    const auto input_image = grab().save(report + ".pan-input.png");
+    observe("pan_input_R", "pan-RC-copy.json");
+    drag({-180,0}); click("r");
+    checks["pan_reaches_original_input_reference_and_output"] = visible_input && input_image && isPan({-90,30}) &&
+        QRectF(circuit_->rect()).contains(project({625,190})) && grab().save(report + ".pan-output.png");
+    observe("pan_output_R", "pan-RC-copy.json");
+    circuit_fit_->click(); expected_pan = {}; settle(); showAnalyzer(); settle();
+    checks["final_fit_windows_panels_resources"] = isPan({0,0}) && circuit_->zoomPercent() == 100 && activeR() && !document_.dirty() &&
+        analyzer_.isWindow() && analyzer_.isVisible() && isWindow() && !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1 &&
+        components_->features().testFlag(QDockWidget::DockWidgetClosable) && properties_->features().testFlag(QDockWidget::DockWidgetMovable) &&
+        grab().save(report + ".fit.png");
+    observe("final_fit_R", "pan-RC-copy.json");
+    bool passed = checks.size() == 28;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
+        {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"scope", "Bounded middle-button pan on the fixed RC view; synthetic cancellation only, no persisted geometry, human mouse/recovery/OS focus, keyboard, DPI/session or packaging acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

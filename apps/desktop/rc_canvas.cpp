@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "rc_canvas.hpp"
+#include <QEvent>
 #include <QJsonArray>
 #include <QMouseEvent>
 #include <QPainter>
@@ -36,6 +37,7 @@ QString endpointKind(simnodus::DeclaredEndpointKind kind)
 
 RcCanvas::RcCanvas()
 {
+    setMouseTracking(true);
     setMinimumSize(360, 280);
     setAccessibleName("Fixed declared RC circuit; click an existing resistor or capacitor to inspect it");
 }
@@ -82,11 +84,12 @@ QString RcCanvas::parameterCaption(const simnodus::EffectiveParameter& parameter
 }
 void RcCanvas::setGraph(std::shared_ptr<const simnodus::ProjectGraph> graph, const QStringList& context)
 {
+    cancelPan();
     graph_ = std::move(graph);
     if(context != context_) selected_.clear();
     context_ = context;
     supported_ = resolve();
-    if(!supported_) { selected_.clear(); zoom_step_ = 0; }
+    if(!supported_) { selected_.clear(); zoom_step_ = 0; pan_offset_ = {}; }
     update();
 }
 bool RcCanvas::resolve()
@@ -146,22 +149,27 @@ void RcCanvas::setSelection(const QStringList& path)
 bool RcCanvas::zoomIn()
 {
     if(!supported_ || zoom_step_ == 2) return false;
+    cancelPan();
     ++zoom_step_; update(); return true;
 }
 bool RcCanvas::zoomOut()
 {
     if(!supported_ || zoom_step_ == -2) return false;
+    cancelPan();
     --zoom_step_; update(); return true;
 }
 void RcCanvas::fitView()
 {
+    cancelPan();
+    pan_offset_ = {};
     zoom_step_ = 0;
     update();
 }
 QRectF RcCanvas::viewRect() const
 {
     const auto scale = std::max(0.0, std::min((width() - 24.0) / 700, (height() - 24.0) / 420)) * zoomPercent() / 100.0;
-    return {(width() - 700 * scale) / 2, (height() - 420 * scale) / 2, 700 * scale, 420 * scale};
+    return {(width() - 700 * scale) / 2 + pan_offset_.x() * scale,
+        (height() - 420 * scale) / 2 + pan_offset_.y() * scale, 700 * scale, 420 * scale};
 }
 QPoint RcCanvas::componentPoint(const QString& id) const
 {
@@ -171,6 +179,14 @@ QPoint RcCanvas::componentPoint(const QString& id) const
 }
 void RcCanvas::mousePressEvent(QMouseEvent* event)
 {
+    if(event->button() == Qt::MiddleButton) {
+        if(!supported_ || !resolve() || viewRect().isEmpty()) return;
+        panning_ = true;
+        drag_position_ = event->position();
+        setCursor(Qt::ClosedHandCursor);
+        return;
+    }
+    if(panning_) return;
     if(event->button() != Qt::LeftButton) return;
     // Reconfirm the current owned graph before accepting a painted target.
     supported_ = resolve();
@@ -183,6 +199,33 @@ void RcCanvas::mousePressEvent(QMouseEvent* event)
         if(selected) selected(selected_);
         return;
     }
+}
+void RcCanvas::cancelPan()
+{
+    if(!panning_) return;
+    panning_ = false;
+    unsetCursor();
+}
+bool RcCanvas::event(QEvent* event)
+{
+    if(event->type() == QEvent::UngrabMouse || event->type() == QEvent::WindowDeactivate ||
+       event->type() == QEvent::Hide || event->type() == QEvent::Resize) cancelPan();
+    return QWidget::event(event);
+}
+void RcCanvas::mouseMoveEvent(QMouseEvent* event)
+{
+    if(!panning_) return;
+    const auto scale = viewRect().width() / 700;
+    if(!event->buttons().testFlag(Qt::MiddleButton) || !supported_ || scale <= 0) { cancelPan(); return; }
+    const auto delta = (event->position() - drag_position_) / scale;
+    pan_offset_.setX(std::clamp(pan_offset_.x() + delta.x(), -140.0, 140.0));
+    pan_offset_.setY(std::clamp(pan_offset_.y() + delta.y(), -84.0, 84.0));
+    drag_position_ = event->position();
+    update();
+}
+void RcCanvas::mouseReleaseEvent(QMouseEvent* event)
+{
+    if(event->button() == Qt::MiddleButton) cancelPan();
 }
 void RcCanvas::paintEvent(QPaintEvent*)
 {
@@ -279,6 +322,7 @@ QJsonObject RcCanvas::snapshot() const
     }
     return {{"supported", supported_}, {"context", QJsonArray::fromStringList(context_)},
         {"view", QJsonObject{{"zoom_percent", zoomPercent()}, {"width", width()}, {"height", height()},
+            {"pan", QJsonArray{pan_offset_.x(), pan_offset_.y()}}, {"panning", panning_},
             {"rectangle", QJsonArray{view.left(), view.top(), view.width(), view.height()}}, {"component_points", points}}},
         {"selected_path", QJsonArray::fromStringList(selected_)}, {"components", components}, {"nets", nets}};
 }

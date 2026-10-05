@@ -1,5 +1,37 @@
 # Current state
 
+## Current SN-023 state: fixed RC middle-button pan tested
+
+On 2026-10-05, [bounded pan](../experiments/SN-023-canvas-pan.md) adds middle-button
+drag to the fixed RC view, with scene limits +/-140 X and +/-84 Y. Painter/clicks/
+points share one rectangle; reversing at a limit moves immediately. Selection,
+IDs/values, R/C activation/four drafts and native operations remain. Release,
+lost button/ungrab/deactivation/hide/resize/graph refresh cancel the gesture.
+Zoom retains offset; Fit resets offset/scale. Context/Details/resize/native edits/
+history/failed Open retain offset; successful Open/unsupported resets the view.
+
+Fresh Windows configure and both builds passed. First pan GUI failed seven
+controls: pending layout resize cancelled gestures, and no-button moves were
+filtered without mouse tracking. Actor settles before press; production tracking
+now delivers cancellation. Failed eight-file source/helper/binary set, report/
+runner/raw logs/captures retained. Wrapper Unicode output failure and one patch
+marker failure before writes are retained; retries do not prove user recovery.
+Final pan passed 28 controls/23 independent snapshots/44 captions/twenty Properties/
+two exact saved-token audits and independent original-port visibility. Unchanged
+final-binary zoom passed 25/sixteen/30 captions/twelve blocks/two audits. Three
+final pan images inspected; twelve captures retained. Freeze 26 sources/final
+binary; reuse 21 prior entries/fourteen native artifacts/five unchanged sections.
+Remaining local backend/native matrices are reused by hashes. Human mouse/OS
+focus/capture/recovery/keyboard/accessibility/DPI/session/packaging remain pending.
+
+Pre-edit PR #89 reconfirmed MERGED at 4add16905cd60ffc268b9a52fe13d7985b1411d9;
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 passed; main copies equal,
+zero unpublished. Preserve 261 historical evidence files/twelve SN-045 overlays;
+source PR records checker/required checks/squash/main. SN-023 stays in_progress;
+no ADR. Next feedback and a separate fixed-view wheel-zoom gate if useful. General
+editor/wiring/instruments/managed Save/real workers/IPC remain pending. SN-017/021/
+022 limits, SN-044 ownership and January stabilization/February 2027 targets remain.
+
 ## Current SN-023 state: fixed RC Fit and Zoom tested
 
 On 2026-10-05, [bounded Fit/Zoom](../experiments/SN-023-canvas-zoom.md) adds

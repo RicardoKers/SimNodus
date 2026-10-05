@@ -1,0 +1,935 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-pan\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--zoom-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-pan\\zoom-02\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-pan\\zoom-02\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "independent_observations": [
+    {
+      "stage": "original",
+      "expected_rectangle": [
+        12.0,
+        98.69999999999999,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        98.69999999999999,
+        726,
+        435.6
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            276,
+            296
+          ],
+          "actual": [
+            276,
+            296
+          ]
+        },
+        "c": {
+          "expected": [
+            474,
+            389
+          ],
+          "actual": [
+            474,
+            389
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "zoom125",
+      "expected_rectangle": [
+        -78.75,
+        44.25,
+        907.5,
+        544.5
+      ],
+      "actual_rectangle": [
+        -78.75,
+        44.25,
+        907.5,
+        544.5
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            252,
+            291
+          ],
+          "actual": [
+            252,
+            291
+          ]
+        },
+        "c": {
+          "expected": [
+            498,
+            407
+          ],
+          "actual": [
+            498,
+            407
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "zoom150_R",
+      "expected_rectangle": [
+        -135.5,
+        43.0,
+        885.0,
+        531.0
+      ],
+      "actual_rectangle": [
+        -135.5,
+        43,
+        885,
+        531
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            187,
+            283
+          ],
+          "actual": [
+            187,
+            283
+          ]
+        },
+        "c": {
+          "expected": [
+            427,
+            397
+          ],
+          "actual": [
+            427,
+            397
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "zoom150_C",
+      "expected_rectangle": [
+        -135.5,
+        43.0,
+        885.0,
+        531.0
+      ],
+      "actual_rectangle": [
+        -135.5,
+        43,
+        885,
+        531
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            187,
+            283
+          ],
+          "actual": [
+            187,
+            283
+          ]
+        },
+        "c": {
+          "expected": [
+            427,
+            397
+          ],
+          "actual": [
+            427,
+            397
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "fit_C",
+      "expected_rectangle": [
+        11.999999999999943,
+        159.99999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        159.99999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            320
+          ],
+          "actual": [
+            227,
+            320
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            396
+          ],
+          "actual": [
+            387,
+            396
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "zoom50_R",
+      "expected_rectangle": [
+        159.49999999999997,
+        259.5,
+        295.00000000000006,
+        177.00000000000003
+      ],
+      "actual_rectangle": [
+        159.49999999999997,
+        259.5,
+        295.00000000000006,
+        177.00000000000003
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            267,
+            340
+          ],
+          "actual": [
+            267,
+            340
+          ]
+        },
+        "c": {
+          "expected": [
+            347,
+            378
+          ],
+          "actual": [
+            347,
+            378
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "resize50_C",
+      "expected_rectangle": [
+        139.50000000000003,
+        257.0,
+        254.99999999999994,
+        152.99999999999997
+      ],
+      "actual_rectangle": [
+        139.50000000000003,
+        257,
+        254.99999999999994,
+        152.99999999999997
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            232,
+            326
+          ],
+          "actual": [
+            232,
+            326
+          ]
+        },
+        "c": {
+          "expected": [
+            302,
+            359
+          ],
+          "actual": [
+            302,
+            359
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "left50_R",
+      "expected_rectangle": [
+        139.50000000000003,
+        257.0,
+        254.99999999999994,
+        152.99999999999997
+      ],
+      "actual_rectangle": [
+        139.50000000000003,
+        257,
+        254.99999999999994,
+        152.99999999999997
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            232,
+            326
+          ],
+          "actual": [
+            232,
+            326
+          ]
+        },
+        "c": {
+          "expected": [
+            302,
+            359
+          ],
+          "actual": [
+            302,
+            359
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "expected": "1 kΩ",
+          "actual": "1 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "expected": "1 µF",
+          "actual": "1 µF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n1 kΩ\nBase value: 1000 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/left/r\n\nApplied resistance:\n1 kΩ\nBase value: 1000 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "C_applied",
+      "expected_rectangle": [
+        -51.75,
+        142.25,
+        637.5,
+        382.5
+      ],
+      "actual_rectangle": [
+        -51.75,
+        142.25,
+        637.5,
+        382.5
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            315
+          ],
+          "actual": [
+            180,
+            315
+          ]
+        },
+        "c": {
+          "expected": [
+            354,
+            397
+          ],
+          "actual": [
+            354,
+            397
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "R_applied",
+      "expected_rectangle": [
+        -51.75,
+        156.75,
+        637.5,
+        382.5
+      ],
+      "actual_rectangle": [
+        -51.75,
+        156.75,
+        637.5,
+        382.5
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            330
+          ],
+          "actual": [
+            180,
+            330
+          ]
+        },
+        "c": {
+          "expected": [
+            354,
+            412
+          ],
+          "actual": [
+            354,
+            412
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "undo150_R",
+      "expected_rectangle": [
+        -115.49999999999994,
+        118.50000000000003,
+        764.9999999999999,
+        458.99999999999994
+      ],
+      "actual_rectangle": [
+        -115.49999999999994,
+        118.50000000000003,
+        764.9999999999999,
+        458.99999999999994
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            163,
+            326
+          ],
+          "actual": [
+            163,
+            326
+          ]
+        },
+        "c": {
+          "expected": [
+            371,
+            425
+          ],
+          "actual": [
+            371,
+            425
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "redo150_R",
+      "expected_rectangle": [
+        -115.49999999999994,
+        118.50000000000003,
+        764.9999999999999,
+        458.99999999999994
+      ],
+      "actual_rectangle": [
+        -115.49999999999994,
+        118.50000000000003,
+        764.9999999999999,
+        458.99999999999994
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            163,
+            326
+          ],
+          "actual": [
+            163,
+            326
+          ]
+        },
+        "c": {
+          "expected": [
+            371,
+            425
+          ],
+          "actual": [
+            371,
+            425
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "reopened",
+      "expected_rectangle": [
+        12.0,
+        162.20000000000002,
+        646.0,
+        387.59999999999997
+      ],
+      "actual_rectangle": [
+        12,
+        162.20000000000002,
+        646,
+        387.59999999999997
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            247,
+            338
+          ],
+          "actual": [
+            247,
+            338
+          ]
+        },
+        "c": {
+          "expected": [
+            423,
+            421
+          ],
+          "actual": [
+            423,
+            421
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ]
+    },
+    {
+      "stage": "unsupported",
+      "expected_rectangle": [
+        12.0,
+        162.20000000000002,
+        646.0,
+        387.59999999999997
+      ],
+      "actual_rectangle": [
+        12,
+        162.20000000000002,
+        646,
+        387.59999999999997
+      ],
+      "points": {}
+    },
+    {
+      "stage": "left125_R",
+      "expected_rectangle": [
+        -51.75,
+        164.75,
+        637.5,
+        382.5
+      ],
+      "actual_rectangle": [
+        -51.75,
+        164.75,
+        637.5,
+        382.5
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            338
+          ],
+          "actual": [
+            180,
+            338
+          ]
+        },
+        "c": {
+          "expected": [
+            354,
+            420
+          ],
+          "actual": [
+            354,
+            420
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "expected": "1 kΩ",
+          "actual": "1 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "expected": "1 µF",
+          "actual": "1 µF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n1 kΩ\nBase value: 1000 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/left/r\n\nApplied resistance:\n1 kΩ\nBase value: 1000 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "final_fit_R",
+      "expected_rectangle": [
+        12.000000000000057,
+        195.00000000000003,
+        509.9999999999999,
+        305.99999999999994
+      ],
+      "actual_rectangle": [
+        12.000000000000057,
+        195.00000000000003,
+        509.9999999999999,
+        305.99999999999994
+      ],
+      "points": {
+        "r": {
+          "expected": [
+            198,
+            333
+          ],
+          "actual": [
+            198,
+            333
+          ]
+        },
+        "c": {
+          "expected": [
+            336,
+            399
+          ],
+          "actual": [
+            336,
+            399
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    }
+  ],
+  "exit_code": 0,
+  "two_independent_saved_token_audits": "passed",
+  "source_diagrams_captions_properties_and_geometry": "passed",
+  "unchanged_inputs_and_no_resources": "passed"
+}

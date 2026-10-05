@@ -1,5 +1,10 @@
 # Bounded Windows document editor
 
+[Fixed RC pan](../../docs/experiments/SN-023-canvas-pan.md): hold the middle
+mouse button and drag to reach enlarged edges. Release to stop; **Fit** restores
+centered 100 percent. Pan preserves selection, independent R/C fields/drafts and
+native edits/copies; offsets are bounded and not saved. This does not move components.
+
 [Fixed RC Fit and Zoom](../../docs/experiments/SN-023-canvas-zoom.md) offers
 **Zoom Out**, **Fit** and **Zoom In** at 50 to 150 percent relative to automatic Fit.
 Click inspection and independent R/C fields retain their IDs and drafts. Enlarged
@@ -63,7 +68,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-canvas-zoom/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-zoom-demo-01
+python tools/run_editor_demo.py --editor build/sn023-canvas-pan/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-pan-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)

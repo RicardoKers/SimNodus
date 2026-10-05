@@ -1,5 +1,16 @@
 # Backlog
 
+## SN-023 fixed RC middle-button pan: in_progress
+
+[Tested pan](../experiments/SN-023-canvas-pan.md) moves only the view, preserves
+R/C drafts/native operations and recenters with Fit. First GUI failed seven
+controls; layout settling/mouse tracking corrected, negative artifacts retained.
+Final pan 28/23/two-copy audits/port visibility and unchanged zoom 25/sixteen/two
+copies passed. Three final images inspected; twelve retained. Preserve 261
+historical files/twelve overlays; reuse unchanged matrices. Next feedback and a
+separate wheel-zoom gate; general editor/wiring/instruments/managed Save/real
+workers/OS mouse/focus/human recovery/packaging remain pending.
+
 ## SN-023 fixed RC Fit and Zoom: in_progress
 
 [Tested Fit/Zoom](../experiments/SN-023-canvas-zoom.md) changes only the view at
@@ -856,7 +867,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Fixed RC Fit/Zoom tested](../experiments/SN-023-canvas-zoom.md); bounded presentation scales, independent R/C drafts and native edit/history/copy; pan/general editor/library/wiring/instruments/managed Save/real workers/human usability remain pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Fixed RC pan tested](../experiments/SN-023-canvas-pan.md); bounded middle-button view movement, Fit, independent R/C drafts and native operations; wheel/general editor/library/wiring/instruments/managed Save/real workers/human usability remain pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
