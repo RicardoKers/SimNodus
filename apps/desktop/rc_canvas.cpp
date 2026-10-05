@@ -39,6 +39,47 @@ RcCanvas::RcCanvas()
     setMinimumSize(360, 280);
     setAccessibleName("Fixed declared RC circuit; click an existing resistor or capacitor to inspect it");
 }
+QString RcCanvas::parameterCaption(const simnodus::EffectiveParameter& parameter)
+{
+    const auto raw = text(parameter.value);
+    const auto fallback = raw + " " + text(parameter.unit);
+    if((parameter.unit != "ohm" && parameter.unit != "F") || raw.isEmpty() || raw.size() > 128) return fallback;
+    auto point = raw.indexOf('.');
+    if(point < 0) point = raw.size();
+    if(point == 0 || (point < raw.size() && (point == raw.size() - 1 || raw.indexOf('.', point + 1) >= 0)) ||
+        (point > 1 && raw[0] == '0')) return fallback;
+    for(const auto ch : raw) if(ch != '.' && (ch < '0' || ch > '9')) return fallback;
+    auto digits = raw;
+    digits.remove('.');
+    qsizetype first = 0;
+    while(first < digits.size() && digits[first] == '0') ++first;
+    if(first == digits.size()) return fallback;
+    const auto order = point - first - 1;
+    int exponent;
+    QString suffix;
+    if(parameter.unit == "ohm") {
+        if(order < 0 || order >= 9) return fallback;
+        exponent = order >= 6 ? 6 : order >= 3 ? 3 : 0;
+        const std::array<QString, 3> units{QStringLiteral("\u03A9"), QStringLiteral("k\u03A9"), QStringLiteral("M\u03A9")};
+        suffix = units[static_cast<std::size_t>(exponent / 3)];
+    } else {
+        if(order < -9 || order >= 0) return fallback;
+        exponent = order >= -3 ? -3 : order >= -6 ? -6 : -9;
+        const std::array<QString, 3> units{"nF", QStringLiteral("\u00B5F"), "mF"};
+        suffix = units[static_cast<std::size_t>((exponent + 9) / 3)];
+    }
+    // Exact decimal-point movement only; no rounded or binary floating value.
+    point -= first + exponent;
+    digits.remove(0, first);
+    if(point <= 0) digits = "0." + QString(-point, '0') + digits;
+    else if(point >= digits.size()) digits += QString(point - digits.size(), '0');
+    else digits.insert(point, '.');
+    if(digits.contains('.')) {
+        while(digits.endsWith('0')) digits.chop(1);
+        if(digits.endsWith('.')) digits.chop(1);
+    }
+    return digits + " " + suffix;
+}
 void RcCanvas::setGraph(std::shared_ptr<const simnodus::ProjectGraph> graph, const QStringList& context)
 {
     graph_ = std::move(graph);
@@ -188,8 +229,8 @@ void RcCanvas::paintEvent(QPaintEvent*)
     painter.setFont(font);
     const auto& r = components_[0].parameters.at("resistance");
     const auto& c = components_[1].parameters.at("capacitance");
-    painter.drawText(QPointF(210, 159), text(r.value) + " ohm");
-    painter.drawText(QPointF(480, 288), text(c.value) + " F");
+    painter.drawText(QPointF(210, 159), parameterCaption(r));
+    painter.drawText(QPointF(480, 288), parameterCaption(c));
 }
 QJsonObject RcCanvas::snapshot() const
 {
@@ -203,7 +244,8 @@ QJsonObject RcCanvas::snapshot() const
             for(const auto& terminal : component.terminals) terminals.append(QJsonObject{{"pin", text(terminal.pin)}, {"name", text(terminal.name)},
                 {"net_path", QJsonArray::fromStringList(terminal.net ? ids(terminal.net->path) : QStringList{})}});
             components.append(QJsonObject{{"path", QJsonArray::fromStringList(ids(component.path))}, {"name", text(component.name)},
-                {"component", text(component.component)}, {"parameters", parameters}, {"terminals", terminals}});
+                {"component", text(component.component)}, {"parameters", parameters}, {"terminals", terminals},
+                {"caption", parameterCaption(component.parameters.at(component.component == "resistor" ? "resistance" : "capacitance"))}});
         }
         for(const auto& net : nets_) {
             QJsonArray endpoints;

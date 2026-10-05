@@ -1,5 +1,37 @@
 # Current state
 
+## Current SN-023 state: exact RC captions tested
+
+On 2026-10-05, [engineering-unit captions](../experiments/SN-023-rc-captions.md)
+display 2.2 kΩ, 220/470 nF and 1 µF on the fixed RC canvas and Circuit Properties.
+Exact string formatting uses bounded Ω/kΩ/MΩ and nF/µF/mF ranges; unsupported
+syntax, units and magnitudes retain their original text. Properties keeps an
+explicit exact Base value. Native values, fixed edit units, shared C draft,
+geometry, IDs, native edit/history/copy and inert Open remain unchanged. Qt stays
+in presentation, with independent windows, Components/Preview and panels retained.
+
+Fresh Release configure/build and one final-binary GUI path passed first run:
+29 independent caption cases, 26 component captions, twelve Properties/base-value
+blocks, the unchanged 41 C controls, fourteen declared snapshots and one exact
+C-token copy audit. Four images inspected, including left µF and pending/applied
+C. One pre-runtime patch context failure is retained; no configure/build/runtime
+failure occurred. One evidence-helper documentation write was denied by sandbox
+permissions; its diagnostic and frozen artifacts were retained for retry.
+Twenty-three sources/final binary are frozen; twenty previous
+entries, fourteen native artifacts and unchanged resolver/edit sections match
+reuse hashes. Prior canvas/occurrence/native/backend/worker/layout evidence is
+reused without local matrices; human usability/recovery/DPI remain pending.
+
+Pre-edit PR #86 reconfirmed MERGED at 2812d6cf0735d7bbb5ead912280111e7999a3526,
+with exact-source Foundation Windows 67/67 and Ubuntu 56/56 passed. Main copies
+matched and no unpublished commits existed. Branch codex/sn-023-rc-captions
+preserves 247 earlier evidence files and twelve independent SN-045 overlays;
+source PR records final checker/required checks/squash/main. SN-023 stays
+in_progress, with no ADR. Next feedback, then separately gate compact R editing
+through existing operations. General editor/wiring/instruments/managed Save/real
+workers/IPC/keyboard/accessibility/session/packaging stay pending. SN-017/021/022
+limits and SN-044 ownership remain; January/February 2027 are planning targets.
+
 ## Current SN-023 state: Circuit capacitance editing tested
 
 On 2026-10-03, the [compact C field](../experiments/SN-023-circuit-capacitance.md)
