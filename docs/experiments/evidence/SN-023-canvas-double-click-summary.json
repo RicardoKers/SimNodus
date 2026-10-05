@@ -1,0 +1,1226 @@
+{
+  "experiment": "SN-023 double-click R/C activation",
+  "recorded_date": "2026-10-05",
+  "status": "passed-for-existing-fixed-RC-edit; SN-023-in-progress",
+  "base_main": "c413f2f1e67b19111f28380f56841b9df7ea665e",
+  "branch": "codex/sn-023-canvas-double-click",
+  "reconfirmed_pr_93": {
+    "state": "MERGED",
+    "source": "2cd00033b9648a31ce01645a487624ca6fb94c32",
+    "squash": "c413f2f1e67b19111f28380f56841b9df7ea665e",
+    "ci_run": 37361670954,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "owner_feedback": "Keyboard demo worked; informal positive feedback, not full usability acceptance",
+  "host": "Windows-10-10.0.26300-SP0",
+  "record_authoring_python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "python build/sn023-canvas-double-click/validate.py configure-01",
+    "python build/sn023-canvas-double-click/validate.py build-01",
+    "python build/sn023-canvas-double-click/validate.py gui-01",
+    "python build/sn023-canvas-double-click/validate.py keyboard-01",
+    "python build/sn023-canvas-double-click/validate.py build-02",
+    "python build/sn023-canvas-double-click/validate.py gui-02",
+    "python build/sn023-canvas-double-click/validate.py keyboard-02"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "double_click_controls": 20,
+    "independent_snapshots": 11,
+    "captions": 20,
+    "properties_blocks": 9,
+    "exact_copies": [
+      "Only right C220->470 relative original",
+      "Only right R2.2->3.5 relative C copy"
+    ],
+    "tolerances": {
+      "offset_rectangle_absolute": 1e-06,
+      "component_point_pixels": 1
+    },
+    "keyboard_controls": 20,
+    "keyboard_snapshots": 10,
+    "keyboard_routed_events": 33,
+    "keyboard_captions": 18,
+    "keyboard_properties_blocks": 8,
+    "keyboard_copies": 1,
+    "failures": {
+      "setup": 0,
+      "build": 0,
+      "gui": 0,
+      "visual": 0
+    },
+    "review_improvement": "C Apply graph comparison now uses snapshot immediately before Apply, after fresh Open; independent source/token audits already prevented false overall PASS",
+    "first_validation": "All paths passed; nine exact sources/helpers/binary retained before actor-only comparison improvement; final rebuild/GUI/keyboard passed",
+    "images": "Three activation images inspected; final images byte-identical. R100 full/legible, C/restored125 pan35,20 crop output; explicit Fit remains. Ten total captures retained",
+    "engine_runs": 0,
+    "inputs": "unchanged originals/variants/fixture; no resources",
+    "publication": "Source PR records working/exact task-only checker/exact required Foundation/guarded squash/main"
+  },
+  "policy": {
+    "activation": "Visible supported unmodified left double-click through shared hit/inspection; existing guarded begin R/C operation, same field focus/selectAll; Apply/Save explicit",
+    "panels": "Successful activation restores Focus Circuit preceding layout and explicitly opens Properties if closed; retains previously hidden Components; refusal retains focus/targets/drafts",
+    "retention": "Source IDs/values/zoom/pan/R-C drafts/native operations/independent analyzer; blank/modifier/otherbutton/active drag/unsupported never activate",
+    "ownership": "Qt Core/Gui/Widgets presentation only; no domain/application/schema/resources/native operation/engine changes"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6968,
+      "sha256": "83ae5da964041c5a3b2b63d1c3f46d1a81686b0a14af3726b161c7abb29ddc07"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 301062,
+      "sha256": "f159ffad63fa90ef0c17784008733d0298f257b3cec810abd16646e3c8911583"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4479,
+      "sha256": "06abe5a01953df3ad76e65a60d9540d5a6ec7f55cd1dc89b97d74832c2aeec2c"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 2039,
+      "sha256": "1842bbb2194430cee4e22dfd10f5e92a40c90fd2530deabfbe688b8ab722e9b8"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 18008,
+      "sha256": "b9ca31b0376460176972165b4e5502eb8fbd9e1c2fe820d6b7baa2023c4ae5b4"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "tests/resources/editor_keyboard_acceptance.py",
+      "bytes": 18566,
+      "sha256": "2bae593fe817b9f5ac68cab09895070c8d2a9bb1b856c8e92f63294327dbeb77"
+    },
+    {
+      "path": "tests/resources/editor_double_click_acceptance.py",
+      "bytes": 12831,
+      "sha256": "2b4e5bafc3a5b642498a8cc0b4e4583cf48622d960833fc5e571adeba28da966"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-canvas-double-click/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 1049600,
+      "sha256": "b50db87675150c1b2f8f8607fe291ec93f1594fb7677915514586a0fb147b21f"
+    }
+  ],
+  "unchanged_prior_source_binary_entries": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "tests/resources/editor_keyboard_acceptance.py",
+      "bytes": 18566,
+      "sha256": "2bae593fe817b9f5ac68cab09895070c8d2a9bb1b856c8e92f63294327dbeb77"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 1018880,
+      "sha256": "8836fb843d61cdaa11d1e7709c58030e3a7fd6a6dfc2f1b0834847a7dbfac822"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "unchanged_source_sections": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "QString RcCanvas::parameterCaption(",
+      "bytes": 2007,
+      "sha256": "852be8797b36edd3e11f8c51c098a335cb65c418a1d1f72c1c0b22c27c28b155"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "bool RcCanvas::resolve()",
+      "bytes": 3419,
+      "sha256": "4fbc6e49fb07ce91e498d3b2c95233c7a557ddad1859ef9edc98e13bbac15122"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::circuitCapacitanceEligible()",
+      "bytes": 4105,
+      "sha256": "f84b7850fbf5919c99d4b840af58c8d144d8b5003fe7732f5989a911860f6396"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::applyResistance(",
+      "bytes": 1609,
+      "sha256": "bfb4797d2a9b861c83988c22fc50eda17e07c245bdeb2d6d9c358a53c8ede6a9"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "void DocumentWindow::runCircuitCapacitanceAcceptance(",
+      "bytes": 101264,
+      "sha256": "3b5f3e3fe2e179d0f1acd35c714e6494173efc0a8b08d6289f55b851480e0965"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "void RcCanvas::keyPressEvent(",
+      "bytes": 1182,
+      "sha256": "6970004d57ab899ae67e5445386bb1bc271d4a62dbbaaa067aca6930a209c6b0"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "bool RcCanvas::zoomIn(",
+      "bytes": 975,
+      "sha256": "f329905dd8ea64ce60875c9a248928a450443fca24157ba13eb4c471ba02f8fa"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "void RcCanvas::mouseMoveEvent(",
+      "bytes": 627,
+      "sha256": "2e8fa7c645097fca436c61d1463142c22bcecf1853e84f1f876c15ce4a0fa5dd"
+    }
+  ],
+  "retained_first_validation_sources_binary": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 18008,
+      "sha256": "b9ca31b0376460176972165b4e5502eb8fbd9e1c2fe820d6b7baa2023c4ae5b4"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 2039,
+      "sha256": "1842bbb2194430cee4e22dfd10f5e92a40c90fd2530deabfbe688b8ab722e9b8"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 301005,
+      "sha256": "cc16fa7861c5a14938ca4c88d9da61bc3bb28b013515a0784ebc6bbf334ad9a1"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6968,
+      "sha256": "83ae5da964041c5a3b2b63d1c3f46d1a81686b0a14af3726b161c7abb29ddc07"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4479,
+      "sha256": "06abe5a01953df3ad76e65a60d9540d5a6ec7f55cd1dc89b97d74832c2aeec2c"
+    },
+    {
+      "path": "tests/resources/editor_double_click_acceptance.py",
+      "bytes": 12831,
+      "sha256": "2b4e5bafc3a5b642498a8cc0b4e4583cf48622d960833fc5e571adeba28da966"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/double_actor.cpp",
+      "bytes": 13680,
+      "sha256": "4056eea719794333377bb5479652cb88ad6e6126a70c6bbd9e8b316620794ce4"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/install_actor.py",
+      "bytes": 1206,
+      "sha256": "caa8eb97173c9af0602808344144911ba46fef421df1e84864796fff07e04afc"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 1049600,
+      "sha256": "6d530b8f4ae1e1dceee9cccedc147bd0f112669521a85c4ca166f7230333e301"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-gui-01.json",
+      "bytes": 102804,
+      "sha256": "8c3504da908fb315bddb3c9098bdaa8628c6e062f88df1b33a3733b6ba635e53"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-audit-01.json",
+      "bytes": 20515,
+      "sha256": "b9e9358e326bd27882b3e470164c2259844b76fcd683b1e4752a1a203284bc0c"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-gui-02.json",
+      "bytes": 102804,
+      "sha256": "8c3504da908fb315bddb3c9098bdaa8628c6e062f88df1b33a3733b6ba635e53"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-audit-02.json",
+      "bytes": 20515,
+      "sha256": "fce888d116167471f155aa0d0df446f9c9379498c8faeb288ca75ad6461963e3"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-keyboard-01.json",
+      "bytes": 106053,
+      "sha256": "da10fa164e1373c44302220ae388ac93bcf84d57e073cbb89bf3bc5cc40d87f4"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-keyboard-audit-01.json",
+      "bytes": 34428,
+      "sha256": "49ec44fbf03adfa3246c30ee882c9bf5cfd2cb7a8c85dfe14f17693f15e1a59a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-keyboard-02.json",
+      "bytes": 106053,
+      "sha256": "da10fa164e1373c44302220ae388ac93bcf84d57e073cbb89bf3bc5cc40d87f4"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-double-click-keyboard-audit-02.json",
+      "bytes": 34428,
+      "sha256": "d524f6b1534b51f58a41308b40b4c024c4099dd150635b041ffd3adce042f293"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "build/sn023-canvas-double-click/acceptance-before-implementation.md",
+      "bytes": 4191,
+      "sha256": "db1ee01f6b7abe2e1c3806dfcf049c239663df5a36e372b2fa56544491219f2c"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/acceptance-contract.json",
+      "bytes": 7991,
+      "sha256": "3169fab7aa4dd6ce643c91d7844966e187e0aa05a6dcb742b3c8b64efce5c71d"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/build-01.log",
+      "bytes": 4083,
+      "sha256": "e37b01abae14017e4d3ac09e739c892695b19bcf98162dd437a788134f0fdd02"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/build-02.log",
+      "bytes": 2365,
+      "sha256": "c5397089a5d76294233058b5b3557fd5da93a895fe442add0b260184416959cf"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/ci_validate.py",
+      "bytes": 3203,
+      "sha256": "cbca6e1b562d03f0f27e2194f3c80af5008cf94053221791b2ee75883166a52b"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/configure-01.log",
+      "bytes": 1254,
+      "sha256": "67e2158e6f875892407c5c548632beb076a2e3f9464aed9f0aa6ace5a38761df"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/double_actor.cpp",
+      "bytes": 13737,
+      "sha256": "0ebede0ac79c027f90e623884423a813c3c216d89e441b0c649357f7e69ec1bf"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/finish_local.py",
+      "bytes": 17580,
+      "sha256": "39402f3559c318ecef6fb13422395b8db5f460c0ac229dc855508fcf184b6d2c"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/finish_main.py",
+      "bytes": 3441,
+      "sha256": "fe30630bab69f26e47a895512ab14818ebc239196584709c7cece0002a1cb7e3"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/double-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/double-RC-copy.json",
+      "bytes": 13837,
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/report.json",
+      "bytes": 102804,
+      "sha256": "8c3504da908fb315bddb3c9098bdaa8628c6e062f88df1b33a3733b6ba635e53"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/report.json.C.png",
+      "bytes": 76003,
+      "sha256": "aa076a5f6d9feded014701c57f4db2deac2720acb95875c2f94ae02c31b83291"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/report.json.R.png",
+      "bytes": 74169,
+      "sha256": "e6397fee9c84f5a98d7941de934f1b6fc1b7793dfcae8b7c948bb5f2d976a2b1"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/report.json.restored.png",
+      "bytes": 70712,
+      "sha256": "f965b8738b8af546119d59395d4056ca1dc8edd381a158405eb4bf99040f52a2"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/runner.json",
+      "bytes": 20515,
+      "sha256": "b9e9358e326bd27882b3e470164c2259844b76fcd683b1e4752a1a203284bc0c"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01/stdout.log",
+      "bytes": 105490,
+      "sha256": "bc4794f121aa1e6e8297502cbbeb47b857f3eacd13ceae39ce267d9d7b8e267d"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-01.log",
+      "bytes": 185,
+      "sha256": "d56b3dd74f1c824f2ab2e77d780750fccdd019f2607da816eed09fc676cf3e35"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/double-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/double-RC-copy.json",
+      "bytes": 13837,
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/report.json",
+      "bytes": 102804,
+      "sha256": "8c3504da908fb315bddb3c9098bdaa8628c6e062f88df1b33a3733b6ba635e53"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/report.json.C.png",
+      "bytes": 76003,
+      "sha256": "aa076a5f6d9feded014701c57f4db2deac2720acb95875c2f94ae02c31b83291"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/report.json.R.png",
+      "bytes": 74169,
+      "sha256": "e6397fee9c84f5a98d7941de934f1b6fc1b7793dfcae8b7c948bb5f2d976a2b1"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/report.json.restored.png",
+      "bytes": 70712,
+      "sha256": "f965b8738b8af546119d59395d4056ca1dc8edd381a158405eb4bf99040f52a2"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/runner.json",
+      "bytes": 20515,
+      "sha256": "fce888d116167471f155aa0d0df446f9c9379498c8faeb288ca75ad6461963e3"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02/stdout.log",
+      "bytes": 105490,
+      "sha256": "bc4794f121aa1e6e8297502cbbeb47b857f3eacd13ceae39ce267d9d7b8e267d"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/gui-02.log",
+      "bytes": 185,
+      "sha256": "d56b3dd74f1c824f2ab2e77d780750fccdd019f2607da816eed09fc676cf3e35"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/improve_actor.py",
+      "bytes": 2188,
+      "sha256": "737059aa05c50edeb304833b82bdc8887795f2c6823a08ced78fb4da41275eb7"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/install_actor.py",
+      "bytes": 1206,
+      "sha256": "caa8eb97173c9af0602808344144911ba46fef421df1e84864796fff07e04afc"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/keyboard-R-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/report.json",
+      "bytes": 106053,
+      "sha256": "da10fa164e1373c44302220ae388ac93bcf84d57e073cbb89bf3bc5cc40d87f4"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/report.json.canvas.png",
+      "bytes": 77118,
+      "sha256": "06884810afb30d9c95fd9f72759edc451d432e270fcf83599891335702e6a588"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/report.json.field.png",
+      "bytes": 74076,
+      "sha256": "d352437830358a9915cb6fa5279068335285cb45f7c593928288a634ed77b085"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/runner.json",
+      "bytes": 34428,
+      "sha256": "49ec44fbf03adfa3246c30ee882c9bf5cfd2cb7a8c85dfe14f17693f15e1a59a"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01/stdout.log",
+      "bytes": 108930,
+      "sha256": "5b42ca92083f1b562fc06e000aadc41cb2cf1131234ad45ffe3c9cd3106f1f17"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-01.log",
+      "bytes": 215,
+      "sha256": "fbd009385acb8f9a3f3e33aa1b19065dc90e2a7203e87e779b44e7a0f0d6eec9"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/keyboard-R-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/report.json",
+      "bytes": 106053,
+      "sha256": "da10fa164e1373c44302220ae388ac93bcf84d57e073cbb89bf3bc5cc40d87f4"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/report.json.canvas.png",
+      "bytes": 77118,
+      "sha256": "06884810afb30d9c95fd9f72759edc451d432e270fcf83599891335702e6a588"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/report.json.field.png",
+      "bytes": 74076,
+      "sha256": "d352437830358a9915cb6fa5279068335285cb45f7c593928288a634ed77b085"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/runner.json",
+      "bytes": 34428,
+      "sha256": "d524f6b1534b51f58a41308b40b4c024c4099dd150635b041ffd3adce042f293"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02/stdout.log",
+      "bytes": 108930,
+      "sha256": "5b42ca92083f1b562fc06e000aadc41cb2cf1131234ad45ffe3c9cd3106f1f17"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/keyboard-02.log",
+      "bytes": 215,
+      "sha256": "fbd009385acb8f9a3f3e33aa1b19065dc90e2a7203e87e779b44e7a0f0d6eec9"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/preimplementation-manifest.json",
+      "bytes": 5548,
+      "sha256": "73315ece99e301c4d3b65bb2ad837fdb5d39b1b062b9fe41abc5adb6baa09bc3"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/prepare.py",
+      "bytes": 10283,
+      "sha256": "b87f2459b7234b5a1ac61388b3e73a883a6cf99e4188f9a60a495311425a652e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/prepare_publication.py",
+      "bytes": 4042,
+      "sha256": "b8a118f9ece1bee7585a2116a2f0238acbad4c6681ecdfba4a5f162136f94112"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/review-improvement.txt",
+      "bytes": 441,
+      "sha256": "68afb23f813906a6b6513d435889465014fa49c3a5622b85e581fc0e7ca57c02"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/source-final-manifest.json",
+      "bytes": 5446,
+      "sha256": "aeb89e6503d7cd83b4e0318b536589e83be147a0494a5c6c93f0f48ee4936d84"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/source-first-validation-manifest.json",
+      "bytes": 1512,
+      "sha256": "ba14cd454942a73adc0d3b077d592efb5817cf1fec592aa3fd640df815ccc97d"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/START_DOUBLE_CLICK_DEMO.cmd",
+      "bytes": 522,
+      "sha256": "1128666cccbe4fefe6fd85cdbdc84b99b552bef4f589b1565860d95ac73e050e"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/validate.py",
+      "bytes": 3679,
+      "sha256": "7aeee46be8087e06d5bfa67e21dc16183f0836954b03ba191d9874d338c9f5a4"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/preservation/baseline.json",
+      "bytes": 53074,
+      "sha256": "14f1ae5b11032d7a34f879ce8d80cedfa2ff9ac177bef42b2195bd61dddb1503"
+    },
+    {
+      "path": "build/sn023-canvas-double-click/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "8949c94a3812d2d6f3036eb8d8631681aa460eefb6a24ed5b11ffe0e192e44f6"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_count": 291,
+    "independent_overlays_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "84247e0e6092f63e742aba27a1647aae4a3e78452c8f7448d9ab7b649a81c81e"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "cc2acf5c02edf7de50857c4943c7f488bb42572f8eaefc06d6191702dbe6b692"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "Historical hashes/overlays before own prefix/row; publication reverses own prefix/row to exact backups"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-summary.json",
+      "bytes": 48493,
+      "sha256": "d6fa261ed6b3d6e20151b5a884397add72fdb904a55251af2aa2d315cb1ce196"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-summary.json",
+      "bytes": 47830,
+      "sha256": "60179709832988da991934eaa068020f5f0191482efded2d44c2816a0f90dcee"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-wheel-summary-02.json",
+      "bytes": 66823,
+      "sha256": "f2e070f4bdd752139607e0d0e05f6e9c14ed5d5f005b3e8560bff7e7c93a71f6"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-pan-summary.json",
+      "bytes": 53520,
+      "sha256": "3cbbd6b274f05269ebc4bcf5f7e557acbc0e41e12bfb8bc1c65afb5e6ce105ca"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-zoom-summary.json",
+      "bytes": 50119,
+      "sha256": "931fbbb8c2d1db0ef708a2698aa4f0d3c9fe6aa1c1528b656ea58b918c819d03"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-resistance-summary.json",
+      "bytes": 41728,
+      "sha256": "6aad2b10ee235cfc8edef76775acf1afa442087d8c022fe469b4277079bfe94b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-captions-summary.json",
+      "bytes": 35119,
+      "sha256": "e65404331bd2fb3505d4ec818fed51797a6e3f585516afe5258b0969ec29ba0b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-summary.json",
+      "bytes": 45297,
+      "sha256": "7ecec33b41b926f0cdca8d5ffe7b9746b6467c1e307b5d5bba43b6e4897717f2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-summary.json",
+      "bytes": 43854,
+      "sha256": "8cc1ef6ce76e6f334632ccc23eb2a5dcdfed688a9bf4cb9b2156940104acc847"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Synthetic full Qt mouse sequence only, no physical usability/recovery/full keyboard-accessibility/monitor-DPI/session layout/packaging acceptance.",
+    "Next interaction feedback, then separately gate another useful fixture path; proposed only.",
+    "Synthetic focus routing only, no full keyboard/accessibility/physical recovery/monitor-DPI/cross-session workspace/packaging acceptance.",
+    "View resizing can change drawing scale/crop enlarged captions while retaining relative zoom/pan; explicit Fit restores the normal view.",
+    "Scripted controls/captures do not prove physical mouse, keyboard/accessibility, monitor/DPI, arbitrary long labels, session persistence or packaging.",
+    "R workflow tests fixed containing literals; wrong-dimension/default-binding variants invalidate C/closed shape, not R-specific quantity acceptance.",
+    "Scripted controls/captures/helper retry do not validate human recovery, physical mouse, keyboard/accessibility, monitor/DPI/session/packaging.",
+    "Display policy only; general quantity entry/locales/units/arbitrary shapes/long-label layouts are unproven.",
+    "Scripted controls and four images do not prove human recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom acceptance.",
+    "Fixed RC only; no domain/application/schema/parser/edit/save/history/worker API or additional Qt module.",
+    "Scripted events/transfers/images do not establish physical mouse, human dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom readiness.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

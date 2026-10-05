@@ -1,5 +1,17 @@
 # Backlog
 
+## SN-023 double-click R/C activation: in_progress
+
+[Tested double-click editing](../experiments/SN-023-canvas-double-click.md) activates
+the same guarded R/C field; restores/opens Properties, focuses/selects text, preserves
+drafts and keeps Apply/Save explicit. Double-click 20/11/two copies and unchanged
+keyboard 20/10/33 events/one copy passed. Review improved a test graph comparison;
+nine first-validation source/helper/binary entries retained, final paths passed.
+Three inspected PNGs equal final images; preserve 291 old evidence files/twelve
+overlays, reuse unchanged matrices. Next interaction feedback/separate fixture
+gate. General editor/wiring/instruments/managed Save/real workers/full keyboard/
+accessibility/recovery/DPI/session layout/packaging remain pending.
+
 ## SN-023 focused canvas keyboard navigation: in_progress
 
 [Tested focused canvas keys](../experiments/SN-023-canvas-keyboard.md): Page Up/
@@ -904,7 +916,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Focused canvas keys tested](../experiments/SN-023-canvas-keyboard.md); fixed RC view/zoom/pan/focus, native field routing, independent drafts/native operations; full keyboard/accessibility/general editor/library/wiring/instruments/managed Save/real workers/human usability/DPI/session layout pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Double-click R/C activation tested](../experiments/SN-023-canvas-double-click.md); existing fields, guarded targets/drafts, explicit Apply/copies, fixed RC navigation/focus; general editor/library/wiring/instruments/managed Save/real workers/full usability/DPI/session layout pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |

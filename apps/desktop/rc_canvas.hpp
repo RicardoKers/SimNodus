@@ -25,11 +25,13 @@ public:
     bool zoomOut();
     void fitView();
     std::function<void(const QStringList&)> selected;
+    std::function<void(const QStringList&)> activated;
     std::function<void()> zoomed;
 protected:
     bool event(QEvent*) override;
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
@@ -38,6 +40,7 @@ private:
     QRectF viewRect() const;
     void cancelPan();
     bool resolve();
+    bool inspectAt(const QPointF& position);
     std::shared_ptr<const simnodus::ProjectGraph> graph_;
     QStringList context_, selected_;
     std::array<simnodus::ComponentOccurrenceView, 2> components_;

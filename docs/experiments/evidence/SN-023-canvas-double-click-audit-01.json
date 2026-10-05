@@ -1,0 +1,894 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-double-click\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--double-click-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-double-click\\gui-01\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-double-click\\gui-01\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "independent_observations": [
+    {
+      "stage": "original",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        98.69999999999999,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        98.69999999999999,
+        726,
+        435.6
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            276,
+            296
+          ],
+          "actual": [
+            276,
+            296
+          ]
+        },
+        "c": {
+          "expected": [
+            474,
+            389
+          ],
+          "actual": [
+            474,
+            389
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "inspected_R",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "active_R",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focus_owner": "resistance",
+      "expected_selected_text": "2.2",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        123.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        123.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            284
+          ],
+          "actual": [
+            227,
+            284
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            360
+          ],
+          "actual": [
+            387,
+            360
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "draft_R",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focus_owner": "resistance",
+      "expected_selected_text": "3.5",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -24.875,
+        100.32142857142857,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875,
+        100.32142857142856,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            301
+          ],
+          "actual": [
+            244,
+            301
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            395
+          ],
+          "actual": [
+            444,
+            395
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "active_C",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focus_owner": "capacitance",
+      "expected_selected_text": "470",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -24.875,
+        100.32142857142857,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875,
+        100.32142857142856,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            301
+          ],
+          "actual": [
+            244,
+            301
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            395
+          ],
+          "actual": [
+            444,
+            395
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "left_refused",
+      "expected_context": [
+        "main",
+        "left"
+      ],
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -24.875,
+        108.32142857142857,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875,
+        108.32142857142856,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            309
+          ],
+          "actual": [
+            244,
+            309
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            403
+          ],
+          "actual": [
+            444,
+            403
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "expected": "1 kΩ",
+          "actual": "1 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "expected": "1 µF",
+          "actual": "1 µF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n1 kΩ\nBase value: 1000 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/left/r\n\nApplied resistance:\n1 kΩ\nBase value: 1000 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "left_uneditable_C",
+      "expected_context": [
+        "main",
+        "left"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "expected": "1 kΩ",
+          "actual": "1 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "expected": "1 µF",
+          "actual": "1 µF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n1 µF\nBase value: 0.000001 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/left/c\n\nApplied capacitance:\n1 µF\nBase value: 0.000001 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focused_R_restored",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focus_owner": "resistance",
+      "expected_selected_text": "3.5",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -41.25,
+        58.92857142857143,
+        1065.0,
+        639.0
+      ],
+      "actual_rectangle": [
+        -41.25,
+        58.9285714285714,
+        1065,
+        639
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            347,
+            348
+          ],
+          "actual": [
+            347,
+            348
+          ]
+        },
+        "c": {
+          "expected": [
+            636,
+            485
+          ],
+          "actual": [
+            636,
+            485
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "C_applied",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -41.25,
+        66.92857142857143,
+        1065.0,
+        639.0
+      ],
+      "actual_rectangle": [
+        -41.25,
+        66.9285714285714,
+        1065,
+        639
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            347,
+            356
+          ],
+          "actual": [
+            347,
+            356
+          ]
+        },
+        "c": {
+          "expected": [
+            636,
+            493
+          ],
+          "actual": [
+            636,
+            493
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "R_and_C_applied",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -41.25,
+        58.92857142857143,
+        1065.0,
+        639.0
+      ],
+      "actual_rectangle": [
+        -41.25,
+        58.9285714285714,
+        1065,
+        639
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            347,
+            348
+          ],
+          "actual": [
+            347,
+            348
+          ]
+        },
+        "c": {
+          "expected": [
+            636,
+            485
+          ],
+          "actual": [
+            636,
+            485
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "unsupported",
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        100.4,
+        852.0,
+        511.2
+      ],
+      "actual_rectangle": [
+        12,
+        100.4,
+        852,
+        511.2
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {}
+    }
+  ],
+  "exit_code": 0,
+  "two_independent_saved_token_audits": "passed",
+  "source_diagrams_captions_properties_pan_geometry_focus_and_selected_text": "passed",
+  "unchanged_inputs_and_no_resources": "passed"
+}

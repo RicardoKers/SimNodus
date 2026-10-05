@@ -1,5 +1,43 @@
 # Current state
 
+## Current SN-023 state: double-click R/C activation tested
+
+On 2026-10-05, [double-click editing](../experiments/SN-023-canvas-double-click.md)
+activates the existing R/C field through the shared fixed RC hit/selection path
+and current guarded begin-edit operation. Focus/select all the same field text;
+Apply and Save Copy stay explicit. Successful activation restores Focus Circuit's
+preceding panels and opens Properties if closed; refused activation retains drafts,
+targets and focus mode. Single clicks inspect; blank/modifier/other-button/active
+middle-drag/empty/unsupported double-clicks do not activate. No duplicate draft,
+dialog, Qt module, domain/application/native-operation/resource/engine change.
+
+Fresh Windows Release configure/build passed. First GUI and unchanged keyboard
+passed. Independent review strengthened one native C Apply comparison to use the
+graph immediately before Apply, instead of before a fresh Open; independent source/
+token audits already prevented a false overall PASS. Nine exact sources/helpers/
+binary snapshots retained. Production unchanged by this improvement; build02,
+final double-click 20 controls/11 states/20 captions/nine Properties/two exact
+copies and unchanged keyboard 20/10/33 routed events/one R copy passed. No setup,
+build, GUI or visual failure in this slice. Three activation images inspected;
+final images byte-identical, ten total captures retained. Full R view and selected
+field legible; enlarged C/restored view can crop output, with explicit Fit available.
+Freeze 30 sources/final binary; verify 25 prior entries/fourteen native artifacts/
+eight unchanged sections (caption/resolver/edit/native operations/all prior actors/
+key+wheel/zoom geometry/pan). Reuse other local matrices. All 291 old evidence
+files/twelve independent SN-045 overlays preserved before own prefixes/row.
+
+Owner confirmed keyboard worked; informal positive feedback, not full usability
+acceptance. Pre-edit PR #93 source 2cd00033b9648a31ce01645a487624ca6fb94c32
+reconfirmed MERGED as c413f2f1e67b19111f28380f56841b9df7ea665e; exact Foundation
+Windows 67/67 and Ubuntu 56/56 PASS in 37361670954. Main copies equal, zero
+unpublished; source PR records task-only checkers/exact checks/guarded squash/main.
+SN-023 remains in_progress; no ADR. Next interaction feedback and another separately
+bounded useful fixture gate. General editor/wiring/instruments/managed Save/real
+workers/IPC/full keyboard-accessibility/human recovery/monitor-DPI/cross-session
+layout/packaging remain pending. SN-017/021/022 limits and failures, SN-044 ownership,
+January stabilization and February 2027 classroom planning targets remain.
+Historical results follow unchanged.
+
 ## Current SN-023 state: focused canvas keyboard navigation tested
 
 On 2026-10-05, [focused canvas keys](../experiments/SN-023-canvas-keyboard.md)

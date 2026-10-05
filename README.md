@@ -82,6 +82,8 @@ levels and preserves scene pan, selection, drafts and native operations.
 side panels and restores their preceding in-memory layout.
 [Focused canvas keys](docs/experiments/SN-023-canvas-keyboard.md) use Page Up/Down
 for bounded zoom and Home for Fit, preserving native text-field behavior.
+[Double-click R/C](docs/experiments/SN-023-canvas-double-click.md) activates the
+existing guarded value field; Apply and Save Copy remain explicit.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

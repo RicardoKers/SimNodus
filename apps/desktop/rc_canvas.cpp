@@ -42,7 +42,7 @@ RcCanvas::RcCanvas()
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setMinimumSize(360, 280);
-    setAccessibleName("Fixed declared RC circuit; click R or C to inspect; with canvas focus, Page Up/Down zoom and Home fits");
+    setAccessibleName("Fixed declared RC circuit; click R or C to inspect, double-click to edit; with canvas focus, Page Up/Down zoom and Home fits");
 }
 void RcCanvas::keyPressEvent(QKeyEvent* event)
 {
@@ -221,17 +221,31 @@ void RcCanvas::mousePressEvent(QMouseEvent* event)
     }
     if(panning_) return;
     if(event->button() != Qt::LeftButton) return;
+    inspectAt(event->position());
+}
+void RcCanvas::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if(panning_ || !isVisible() || event->button() != Qt::LeftButton || event->buttons() != Qt::LeftButton ||
+        event->modifiers() != Qt::NoModifier) { event->ignore(); return; }
+    setFocus(Qt::MouseFocusReason);
+    if(!inspectAt(event->position())) { event->ignore(); return; }
+    if(activated) activated(selected_);
+    event->accept();
+}
+bool RcCanvas::inspectAt(const QPointF& position)
+{
     // Reconfirm the current owned graph before accepting a painted target.
     supported_ = resolve();
     const auto view = viewRect();
-    if(!supported_ || view.isEmpty()) { selected_.clear(); update(); return; }
-    const QPointF point((event->position().x() - view.left()) * 700 / view.width(),
-        (event->position().y() - view.top()) * 420 / view.height());
+    if(!supported_ || view.isEmpty()) { selected_.clear(); update(); return false; }
+    const QPointF point((position.x() - view.left()) * 700 / view.width(),
+        (position.y() - view.top()) * 420 / view.height());
     for(int i = 0; i < 2; ++i) if(hitBox(i).contains(point)) {
         setSelection(ids(components_[static_cast<std::size_t>(i)].path));
         if(selected) selected(selected_);
-        return;
+        return true;
     }
+    return false;
 }
 void RcCanvas::cancelPan()
 {
