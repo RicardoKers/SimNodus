@@ -1,0 +1,452 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-circuit-resistance\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--circuit-resistance-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-circuit-resistance\\gui-01\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-circuit-resistance\\gui-01\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "exit_code": 0,
+  "caption_observations": {
+    "components": [
+      {
+        "stage": "original",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "original",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "selected",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "selected",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "draft",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "draft",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "invalid",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "invalid",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "applied",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "3500",
+        "unit": "ohm",
+        "expected": "3.5 k\u03a9",
+        "actual": "3.5 k\u03a9"
+      },
+      {
+        "stage": "applied",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "undo",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "undo",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "redo",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "3500",
+        "unit": "ohm",
+        "expected": "3.5 k\u03a9",
+        "actual": "3.5 k\u03a9"
+      },
+      {
+        "stage": "redo",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "left",
+        "path": [
+          "main",
+          "left",
+          "r"
+        ],
+        "value": "1000",
+        "unit": "ohm",
+        "expected": "1 k\u03a9",
+        "actual": "1 k\u03a9"
+      },
+      {
+        "stage": "left",
+        "path": [
+          "main",
+          "left",
+          "c"
+        ],
+        "value": "0.000001",
+        "unit": "F",
+        "expected": "1 \u00b5F",
+        "actual": "1 \u00b5F"
+      },
+      {
+        "stage": "reopened",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "3500",
+        "unit": "ohm",
+        "expected": "3.5 k\u03a9",
+        "actual": "3.5 k\u03a9"
+      },
+      {
+        "stage": "reopened",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "reordered",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "reordered",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "labels",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "2200",
+        "unit": "ohm",
+        "expected": "2.2 k\u03a9",
+        "actual": "2.2 k\u03a9"
+      },
+      {
+        "stage": "labels",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "missing_parent",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "1000",
+        "unit": "ohm",
+        "expected": "1 k\u03a9",
+        "actual": "1 k\u03a9"
+      },
+      {
+        "stage": "missing_parent",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      },
+      {
+        "stage": "final",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "value": "3500",
+        "unit": "ohm",
+        "expected": "3.5 k\u03a9",
+        "actual": "3.5 k\u03a9"
+      },
+      {
+        "stage": "final",
+        "path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "value": "0.000000220",
+        "unit": "F",
+        "expected": "220 nF",
+        "actual": "220 nF"
+      }
+    ],
+    "properties": [
+      {
+        "stage": "selected",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "draft",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "invalid",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "applied",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "undo",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "redo",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "left",
+        "path": [
+          "main",
+          "left",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n1 k\u03a9\nBase value: 1000 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/left/r\n\nApplied resistance:\n1 k\u03a9\nBase value: 1000 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "reopened",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "reordered",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "labels",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm",
+        "actual_text": "<b>same \u03a9 label</b>\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 k\u03a9\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "missing_parent",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n1 k\u03a9\nBase value: 1000 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n1 k\u03a9\nBase value: 1000 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      },
+      {
+        "stage": "final",
+        "path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "expected_block": "Applied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm",
+        "actual_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 k\u03a9\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    ]
+  },
+  "independent_circuit_observations_and_saved_token_audit": "passed",
+  "independent_caption_and_base_value_audit": "passed",
+  "unchanged_inputs_and_no_resource_files_audit": "passed"
+}

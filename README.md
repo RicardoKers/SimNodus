@@ -70,6 +70,8 @@ with own R/C notation, declared local connections and click inspection.
 the existing containing-RC literal field in Circuit Properties; broader editing remains in Details.
 [Exact engineering-unit captions](docs/experiments/SN-023-rc-captions.md) show kΩ/nF/µF
 while Circuit Properties retains the original resolved base values.
+[Compact R editing](docs/experiments/SN-023-circuit-resistance.md) now activates
+the existing resistance field in Circuit Properties, with an independent draft from C.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

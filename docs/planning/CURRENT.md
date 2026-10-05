@@ -1,5 +1,35 @@
 # Current state
 
+## Current SN-023 state: Circuit resistance editing tested
+
+On 2026-10-05, [compact R editing](../experiments/SN-023-circuit-resistance.md)
+explicitly activates the existing containing-RC literal in Circuit Properties.
+The original limits/field/Apply share one actual panel with Details and retain one
+R draft. Graph/full R path/context/activation/native target are rechecked; opposite
+C/context hides the field and refuses stale Apply. R/C widgets/drafts remain
+independent. Changing target refuses pending instance name/R/C separately; project
+draft survives a clean switch. Existing native Apply/history/copy, exact captions,
+IDs, inert Open and independent windows/Components/Preview/panels are retained.
+
+Fresh Release configure/build and focused GUI paths passed first run: R 43
+controls/fourteen source-resolved snapshots/one R-token audit/26 captions/twelve
+Properties blocks; retained C 41/fourteen/one C-token audit and 29 caption cases.
+R active/draft/final and C final images inspected; seven captures retained.
+One acceptance-helper assertion failed before source writes and was retained;
+no configure/build/runtime failure. Freeze 24 sources/final binary, with 21 prior
+entries, fourteen native artifacts and unchanged C/native sections verified.
+Unchanged canvas/occurrence/native/backend/worker/layout evidence is reused
+without local matrices. Human usability/recovery/DPI remain pending.
+
+Pre-edit PR #87 reconfirmed MERGED at 061e7816e575a8a6b4281a27529ae6a686157fc9,
+Foundation Windows 67/67 and Ubuntu 56/56 passed, main copies equal/zero unpublished.
+Branch codex/sn-023-circuit-resistance preserves 250 historical evidence files
+and twelve overlays; source PR records checker/required checks/squash/main.
+SN-023 stays in_progress; no ADR. Next feedback and separately gate bounded
+fit/zoom navigation. General editor/wiring/instruments/managed Save/real workers/
+IPC/keyboard/accessibility/session/packaging remain pending. SN-017/021/022 limits,
+SN-044 ownership and January stabilization/February 2027 targets are retained.
+
 ## Current SN-023 state: exact RC captions tested
 
 On 2026-10-05, [engineering-unit captions](../experiments/SN-023-rc-captions.md)

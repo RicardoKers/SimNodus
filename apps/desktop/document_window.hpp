@@ -47,6 +47,7 @@ public:
     void runOccurrenceAcceptance(const QString& root, const QString& resource_root, const QString& report);
     void runCanvasAcceptance(const QString& root, const QString& report);
     void runCircuitCapacitanceAcceptance(const QString& root, const QString& report);
+    void runCircuitResistanceAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:
@@ -84,6 +85,9 @@ private:
     bool beginCircuitCapacitanceEdit();
     bool circuitCapacitanceEligible() const;
     bool applyCircuitCapacitance();
+    bool beginCircuitResistanceEdit();
+    bool circuitResistanceEligible() const;
+    bool applyCircuitResistance();
     void reportError(const char* operation, const char* code, std::size_t offset,
         std::uint32_t system, bool cleanup = false);
     simnodus::EditorDocument document_;
@@ -136,4 +140,8 @@ private:
     QLabel* circuit_capacitance_target_note_ = nullptr;
     QPushButton* circuit_capacitance_edit_ = nullptr;
     QStringList circuit_capacitance_target_;
+    QWidget *resistance_editor_ = nullptr, *resistance_details_host_ = nullptr, *resistance_circuit_host_ = nullptr;
+    QLabel* circuit_resistance_target_note_ = nullptr;
+    QPushButton* circuit_resistance_edit_ = nullptr;
+    QStringList circuit_resistance_target_;
 };
