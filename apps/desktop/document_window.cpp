@@ -414,7 +414,8 @@ void DocumentWindow::refreshCircuit()
     const auto parameter_id = component.component == "resistor" ? "resistance" : "capacitance";
     const auto& parameter = component.parameters.at(parameter_id);
     circuit_selection_->setText(text(component.name) + "\n" + text(component.component) + "\n\nOccurrence: " + path.join("/") +
-        "\n\nApplied " + parameter_id + ":\n" + text(parameter.value) + " " + text(parameter.unit) +
+        "\n\nApplied " + parameter_id + ":\n" + RcCanvas::parameterCaption(parameter) +
+        "\nBase value: " + text(parameter.value) + " " + text(parameter.unit) +
         "\n\nBinding origin:\n" + text(parameter.origin) + "\n\nEdit target: containing RC instance " + context.join("/") +
         "\nThe component receives this parameter from its declaration binding.");
 }
@@ -2450,7 +2451,8 @@ void DocumentWindow::runCircuitCapacitanceAcceptance(const QString& root, const 
         observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()},
             {"edit_target", target}, {"draft", capacitance_->text()}, {"unit", literal ? text(literal->unit) : QString{}},
             {"active", capacitance_circuit_host_->isVisible() && capacitance_circuit_host_->isEnabled()},
-            {"editor_visible", capacitance_->isVisible()}});
+            {"editor_visible", capacitance_->isVisible()}, {"properties_text", circuit_selection_->text()}});
+        if(stage == "left") { settle(); grab().save(report + ".left.png"); }
     };
     const auto click = [&](const QString& id) {
         const auto point = circuit_->componentPoint(id);
@@ -2598,11 +2600,27 @@ void DocumentWindow::runCircuitCapacitanceAcceptance(const QString& root, const 
     checks["independent_windows_and_adjustable_panels_preserved"] = analyzer_.isWindow() && analyzer_.isVisible() && isWindow() &&
         components_->features().testFlag(QDockWidget::DockWidgetClosable) && properties_->features().testFlag(QDockWidget::DockWidgetMovable);
     checks["final_active_C_image"] = active() && grab().save(report + ".final.png");
+    QJsonArray captions;
+    const std::vector<std::pair<QString, QString>> caption_inputs{
+        {"1", "ohm"}, {"999", "ohm"}, {"1000", "ohm"}, {"2200.000", "ohm"},
+        {"999999.999999999999999999999999", "ohm"}, {"1000000", "ohm"}, {"999999999", "ohm"},
+        {"1000000000", "ohm"}, {"0.1", "ohm"},
+        {"0.000000001", "F"}, {"0.000000999", "F"}, {"0.000001", "F"},
+        {"0.000999999", "F"}, {"0.001", "F"}, {"0.999", "F"}, {"1", "F"},
+        {"0.000000000999", "F"}, {"0.000000220", "F"}, {"0.0000002200000000000000001", "F"},
+        {"0", "F"}, {"-0.000001", "F"}, {"1e-6", "F"}, {"001", "ohm"},
+        {".", "F"}, {"12x", "ohm"}, {"1", "s"}, {"0,000001", "F"},
+        {"2200." + QString(80, '0'), "ohm"}, {QString(129, '1'), "ohm"}};
+    for(const auto& [value, unit] : caption_inputs) {
+        const simnodus::EffectiveParameter parameter{utf8(value), utf8(unit), "test-only", 0};
+        captions.append(QJsonObject{{"value", value}, {"unit", unit}, {"caption", RcCanvas::parameterCaption(parameter)}});
+    }
     bool passed = !checks.isEmpty();
     for(const auto value : checks) passed = passed && value.toBool();
     const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
         {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
-        {"scope", "One shared C field with explicit containing RC activation and existing native operations; no generic editor, simulation or human usability/recovery acceptance"}};
+        {"caption_cases", captions},
+        {"scope", "One shared C field with exact fixed RC captions and explicit containing RC activation; existing native operations, no generic quantity editor or human usability/recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }

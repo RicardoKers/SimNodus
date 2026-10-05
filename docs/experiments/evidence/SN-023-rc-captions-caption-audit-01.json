@@ -1,0 +1,621 @@
+{
+  "state": "passed",
+  "cases": [
+    {
+      "value": "1",
+      "unit": "ohm",
+      "expected": "1 Ω",
+      "actual": "1 Ω"
+    },
+    {
+      "value": "999",
+      "unit": "ohm",
+      "expected": "999 Ω",
+      "actual": "999 Ω"
+    },
+    {
+      "value": "1000",
+      "unit": "ohm",
+      "expected": "1 kΩ",
+      "actual": "1 kΩ"
+    },
+    {
+      "value": "2200.000",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "value": "999999.999999999999999999999999",
+      "unit": "ohm",
+      "expected": "999.999999999999999999999999999 kΩ",
+      "actual": "999.999999999999999999999999999 kΩ"
+    },
+    {
+      "value": "1000000",
+      "unit": "ohm",
+      "expected": "1 MΩ",
+      "actual": "1 MΩ"
+    },
+    {
+      "value": "999999999",
+      "unit": "ohm",
+      "expected": "999.999999 MΩ",
+      "actual": "999.999999 MΩ"
+    },
+    {
+      "value": "1000000000",
+      "unit": "ohm",
+      "expected": "1000000000 ohm",
+      "actual": "1000000000 ohm"
+    },
+    {
+      "value": "0.1",
+      "unit": "ohm",
+      "expected": "0.1 ohm",
+      "actual": "0.1 ohm"
+    },
+    {
+      "value": "0.000000001",
+      "unit": "F",
+      "expected": "1 nF",
+      "actual": "1 nF"
+    },
+    {
+      "value": "0.000000999",
+      "unit": "F",
+      "expected": "999 nF",
+      "actual": "999 nF"
+    },
+    {
+      "value": "0.000001",
+      "unit": "F",
+      "expected": "1 µF",
+      "actual": "1 µF"
+    },
+    {
+      "value": "0.000999999",
+      "unit": "F",
+      "expected": "999.999 µF",
+      "actual": "999.999 µF"
+    },
+    {
+      "value": "0.001",
+      "unit": "F",
+      "expected": "1 mF",
+      "actual": "1 mF"
+    },
+    {
+      "value": "0.999",
+      "unit": "F",
+      "expected": "999 mF",
+      "actual": "999 mF"
+    },
+    {
+      "value": "1",
+      "unit": "F",
+      "expected": "1 F",
+      "actual": "1 F"
+    },
+    {
+      "value": "0.000000000999",
+      "unit": "F",
+      "expected": "0.000000000999 F",
+      "actual": "0.000000000999 F"
+    },
+    {
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "value": "0.0000002200000000000000001",
+      "unit": "F",
+      "expected": "220.0000000000000001 nF",
+      "actual": "220.0000000000000001 nF"
+    },
+    {
+      "value": "0",
+      "unit": "F",
+      "expected": "0 F",
+      "actual": "0 F"
+    },
+    {
+      "value": "-0.000001",
+      "unit": "F",
+      "expected": "-0.000001 F",
+      "actual": "-0.000001 F"
+    },
+    {
+      "value": "1e-6",
+      "unit": "F",
+      "expected": "1e-6 F",
+      "actual": "1e-6 F"
+    },
+    {
+      "value": "001",
+      "unit": "ohm",
+      "expected": "001 ohm",
+      "actual": "001 ohm"
+    },
+    {
+      "value": ".",
+      "unit": "F",
+      "expected": ". F",
+      "actual": ". F"
+    },
+    {
+      "value": "12x",
+      "unit": "ohm",
+      "expected": "12x ohm",
+      "actual": "12x ohm"
+    },
+    {
+      "value": "1",
+      "unit": "s",
+      "expected": "1 s",
+      "actual": "1 s"
+    },
+    {
+      "value": "0,000001",
+      "unit": "F",
+      "expected": "0,000001 F",
+      "actual": "0,000001 F"
+    },
+    {
+      "value": "2200.00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "value": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+      "unit": "ohm",
+      "expected": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 ohm",
+      "actual": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 ohm"
+    }
+  ],
+  "components": [
+    {
+      "stage": "original",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "original",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "selected",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "selected",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "draft",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "draft",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "invalid",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "invalid",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "applied",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "applied",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000470",
+      "unit": "F",
+      "expected": "470 nF",
+      "actual": "470 nF"
+    },
+    {
+      "stage": "undo",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "undo",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "redo",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "redo",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000470",
+      "unit": "F",
+      "expected": "470 nF",
+      "actual": "470 nF"
+    },
+    {
+      "stage": "left",
+      "path": [
+        "main",
+        "left",
+        "r"
+      ],
+      "value": "1000",
+      "unit": "ohm",
+      "expected": "1 kΩ",
+      "actual": "1 kΩ"
+    },
+    {
+      "stage": "left",
+      "path": [
+        "main",
+        "left",
+        "c"
+      ],
+      "value": "0.000001",
+      "unit": "F",
+      "expected": "1 µF",
+      "actual": "1 µF"
+    },
+    {
+      "stage": "reopened",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "reopened",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000470",
+      "unit": "F",
+      "expected": "470 nF",
+      "actual": "470 nF"
+    },
+    {
+      "stage": "reordered",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "reordered",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "labels",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "labels",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000220",
+      "unit": "F",
+      "expected": "220 nF",
+      "actual": "220 nF"
+    },
+    {
+      "stage": "missing_parent",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "missing_parent",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000001",
+      "unit": "F",
+      "expected": "1 µF",
+      "actual": "1 µF"
+    },
+    {
+      "stage": "final",
+      "path": [
+        "main",
+        "right",
+        "r"
+      ],
+      "value": "2200",
+      "unit": "ohm",
+      "expected": "2.2 kΩ",
+      "actual": "2.2 kΩ"
+    },
+    {
+      "stage": "final",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "value": "0.000000470",
+      "unit": "F",
+      "expected": "470 nF",
+      "actual": "470 nF"
+    }
+  ],
+  "properties": [
+    {
+      "stage": "selected",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "draft",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "invalid",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "applied",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "undo",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "redo",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "left",
+      "path": [
+        "main",
+        "left",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n1 µF\nBase value: 0.000001 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/left/c\n\nApplied capacitance:\n1 µF\nBase value: 0.000001 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "reopened",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "reordered",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "labels",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+      "actual_text": "<b>same Ω label</b>\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "missing_parent",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n1 µF\nBase value: 0.000001 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n1 µF\nBase value: 0.000001 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    },
+    {
+      "stage": "final",
+      "path": [
+        "main",
+        "right",
+        "c"
+      ],
+      "expected_block": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+      "actual_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+    }
+  ],
+  "existing_41_controls_and_native_saved_token_audit": "passed",
+  "raw_report_sha256": "b1e2a187fe3798dd46bc748e70e1622d7513364558dc5385963e32a851b066d2",
+  "case_count": 29,
+  "component_count": 26,
+  "properties_count": 12,
+  "left_png": "passed"
+}

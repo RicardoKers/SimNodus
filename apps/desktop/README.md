@@ -1,5 +1,10 @@
 # Bounded Windows document editor
 
+[Exact RC captions](../../docs/experiments/SN-023-rc-captions.md) show 2.2 kΩ,
+220/470 nF and 1 µF without rounding or changing document values. Circuit Properties
+also shows the exact Base value. The compact C field keeps its displayed fixed
+unit; pending text leaves applied captions unchanged until explicit Apply.
+
 [Compact C editing](../../docs/experiments/SN-023-circuit-capacitance.md) is available
 without leaving the canvas: click right C, then **Edit Capacitance**, type a value
 in the displayed fixed unit and use **Apply Capacitance Value**. The target is the
@@ -47,7 +52,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/circuit-capacitance-demo-01
+python tools/run_editor_demo.py --editor build/sn023-rc-captions/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/rc-captions-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)

@@ -1,0 +1,890 @@
+{
+  "experiment": "SN-023 exact engineering-unit captions for the fixed RC view",
+  "recorded_date": "2026-10-05",
+  "status": "passed-for-bounded-RC-captions; SN-023-in-progress",
+  "base_main": "2812d6cf0735d7bbb5ead912280111e7999a3526",
+  "branch": "codex/sn-023-rc-captions",
+  "reconfirmed_pr_86": {
+    "state": "MERGED",
+    "source": "9264409380bced08555639436e7115a10474caed",
+    "squash": "2812d6cf0735d7bbb5ead912280111e7999a3526",
+    "ci_run": 37148496021,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "python build/sn023-rc-captions/validate.py configure-01",
+    "python build/sn023-rc-captions/validate.py build-01",
+    "python tests/resources/editor_caption_acceptance.py --editor build/sn023-rc-captions/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/sn023-rc-captions/gui-01",
+    "python tools/check_repository.py; git diff --check; exact task-only tree checker; source PR records required checks/squash/main"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "helper_cases": 29,
+    "component_captions": 26,
+    "properties_base_value_blocks": 12,
+    "compact_controls": 41,
+    "independent_snapshots": 14,
+    "C_token_byte_audit": "passed",
+    "original_variant_inputs": "unchanged; no resources; exactly one C token changed in explicit saved copy",
+    "images": "active/draft/left/final inspected; k\u03a9/\u00b5F/nF and base values legible; pending470 retains applied220",
+    "configure_build_gui": "passed first run",
+    "pre_runtime_patch_context_failures": 1,
+    "configure_build_runtime_failures": 0,
+    "evidence_helper_permission_failures": 1,
+    "independent_review": "no actionable defect",
+    "human_feedback": "Owner reported preceding demo worked; informal positive feedback only",
+    "native": "unchanged native/backend/worker/layout/Preview evidence reused by hashes; no local matrices",
+    "engine_runs": 0,
+    "publication": "source PR records checker, exact required checks, guarded squash and main"
+  },
+  "policy": {
+    "format": "canonical unsigned fixed decimal <=128 characters; exact string point movement/trimming; no floating point or rounding",
+    "ranges": "R [1,1e9) ohm: \u03a9/k\u03a9/M\u03a9; C [1e-9,1) F: nF/\u00b5F/mF; mantissa [1,1000)",
+    "fallback": "exact original value plus original unit for unsupported magnitude/unit/sign/zero/syntax/length",
+    "display": "English decimal dot, \u03a9 U+03A9, \u00b5 U+00B5; explicit exact Base value in Circuit Properties",
+    "authority": "inert Open; no stored/resolved value or fixed edit unit/limit/draft/native/history/persistence/resource/engine change",
+    "ownership": "Qt presentation only; independent editor/analyzer, Components/Preview vs instance Properties, adjustable panels/shared instrumentation retained"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 5728,
+      "sha256": "8c4f894076f4de0f8d696b89c756ddd82166fbf7eea5698cac6cef13ac10fa20"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 193808,
+      "sha256": "700bdf3bda5ddd15f59be6d03642ea31ca27901a085baa27752324e249df427d"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 3092,
+      "sha256": "9588efb77364c2e3220b3e14bf870741f94a7a46abbd064b043858f8e6e427e2"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1365,
+      "sha256": "06b12d9fb3007546ac758b09c2a5f1c3def46a8568c60728849b3c3aa73bb007"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 13418,
+      "sha256": "661d7d0f70a00d1e7aeb61b626d84c480b0dbdb9cf33fdb33dc0656d77d512dc"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-rc-captions/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 846336,
+      "sha256": "21ffd87334367802c4b44f4c604594ab8308802221d48d4c8faf201335b517a6"
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 5728,
+      "sha256": "8c4f894076f4de0f8d696b89c756ddd82166fbf7eea5698cac6cef13ac10fa20"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 3092,
+      "sha256": "9588efb77364c2e3220b3e14bf870741f94a7a46abbd064b043858f8e6e427e2"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "build/sn023-circuit-capacitance/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 839680,
+      "sha256": "899aae877f5c8fd8094688bd8972029b7a61d07f65b18aa9e382a9a1ca3d4305"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "unchanged_source_sections": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "void RcCanvas::setGraph(",
+      "before": "void RcCanvas::paintEvent(",
+      "bytes": 4902,
+      "sha256": "c465b9dd620a3f169e54044cacfce016afec3603adfcc034c9a5f8b9c9cbc4ca"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::circuitCapacitanceEligible()",
+      "before": "void DocumentWindow::runAcceptance(",
+      "bytes": 37625,
+      "sha256": "abe37f662d75d888a4d461bc83cac52f0d2a72e0427f1229ac8136a25de08078"
+    }
+  ],
+  "runtime_reports": [
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-captions-gui-01.json",
+      "bytes": 122435,
+      "sha256": "b1e2a187fe3798dd46bc748e70e1622d7513364558dc5385963e32a851b066d2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-captions-caption-audit-01.json",
+      "bytes": 16061,
+      "sha256": "6f053309b0b6170ba13dcbcb39eb4da66f8a823f1172fa09869ed8f0fc7add7c"
+    }
+  ],
+  "raw_local_artifacts": [
+    {
+      "path": "build/sn023-rc-captions/acceptance-before-implementation.md",
+      "bytes": 3578,
+      "sha256": "233e2183062ee8549eb94fc670a98ab2b3417f58bb57cbc967fa5044ebf976d6"
+    },
+    {
+      "path": "build/sn023-rc-captions/build-01.log",
+      "bytes": 3963,
+      "sha256": "d227721294c6b425f085a1498ab6293d97633f0cb9658c87a8d80d152d46e674"
+    },
+    {
+      "path": "build/sn023-rc-captions/configure-01.log",
+      "bytes": 1257,
+      "sha256": "d507e3619c307e1ab59f39ac912df1a473de9dba57e718e19bfce5b9ce4a8e1b"
+    },
+    {
+      "path": "build/sn023-rc-captions/finish-local-01.log",
+      "bytes": 678,
+      "sha256": "c97aacfee0968cdd5534431781ac9dd9d4dc717f0fc325ac562221bbcde048f8"
+    },
+    {
+      "path": "build/sn023-rc-captions/finish_local.py",
+      "bytes": 25952,
+      "sha256": "47e939e615e2aa34fb3a4fba1d032070cbb4445642e10c7a5b7840194138f7c2"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/captions-audit.json",
+      "bytes": 16061,
+      "sha256": "6f053309b0b6170ba13dcbcb39eb4da66f8a823f1172fa09869ed8f0fc7add7c"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/captions-report.json",
+      "bytes": 122435,
+      "sha256": "b1e2a187fe3798dd46bc748e70e1622d7513364558dc5385963e32a851b066d2"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/circuit-capacitance-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/left-literal.json",
+      "bytes": 7090,
+      "sha256": "c6a95f87724b718103a5191fd85f7c8d1c7f525de6862abe659bb6c1d4aa4a0c"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/missing-parent.json",
+      "bytes": 6995,
+      "sha256": "7792723095e52a0f8253ff0afa716f0393538bae50035e47c3dcd11123a04d65"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/report.json",
+      "bytes": 122435,
+      "sha256": "b1e2a187fe3798dd46bc748e70e1622d7513364558dc5385963e32a851b066d2"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/report.json.active.png",
+      "bytes": 68395,
+      "sha256": "54fc0c1b04b79f0a0995a51df2a87071d6038083d8ecc0c3500a0dbab9ef77e2"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/report.json.draft.png",
+      "bytes": 71688,
+      "sha256": "0ba5c3e545a20cb6dc665507a7dc35a0446566a0920ace8966146270ea957501"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/report.json.final.png",
+      "bytes": 69150,
+      "sha256": "50a9eaa3ce897015103763fcbe12d81fcb99ed29df24d39b12976904bc721d25"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/report.json.left.png",
+      "bytes": 59051,
+      "sha256": "538b6cd85997dfddff119c12a92799c8f29bf453f53f3942523c813d2a21b50b"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/runner.json",
+      "bytes": 604,
+      "sha256": "50db79d01af4c535a2f87ca5a752a16bd1e0eed2d155f4d05c3b7a3fb3290e91"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01/stdout.log",
+      "bytes": 125560,
+      "sha256": "08cb4bedd10cef654cde51c01dfd8305985ac283d98f9d4940429e3017e88d34"
+    },
+    {
+      "path": "build/sn023-rc-captions/gui-01.log",
+      "bytes": 334,
+      "sha256": "415b862611ccd5f47f96d50228c46c8274a2a839d57efc26561b16d2748f6d23"
+    },
+    {
+      "path": "build/sn023-rc-captions/pre-runtime-refinement.log",
+      "bytes": 514,
+      "sha256": "4d184c9e7667bbef205332ceb37d049a056451d693e6789a850fce9b6ed78eca"
+    },
+    {
+      "path": "build/sn023-rc-captions/preimplementation/apps/desktop/document_window.cpp",
+      "bytes": 192518,
+      "sha256": "8981da8a9df19a97d2a80dfb00e817452b9c0e18e0b060d2054bb51929df98b8"
+    },
+    {
+      "path": "build/sn023-rc-captions/preimplementation/apps/desktop/rc_canvas.cpp",
+      "bytes": 11277,
+      "sha256": "1453586430dc1684471743003da33e26e5ad5936667d175a91cc6d20a94003fa"
+    },
+    {
+      "path": "build/sn023-rc-captions/preimplementation/apps/desktop/rc_canvas.hpp",
+      "bytes": 1281,
+      "sha256": "d62c2c92a0b738aff3a7310a2f04285cb87b4b3be98a37d13fd8442c18f52f5c"
+    },
+    {
+      "path": "build/sn023-rc-captions/preimplementation-manifest.json",
+      "bytes": 4291,
+      "sha256": "ddbc55eade9c68ee9d3c37836375e6511426198c68d11586a9f1a70a22eed663"
+    },
+    {
+      "path": "build/sn023-rc-captions/prepare.py",
+      "bytes": 6584,
+      "sha256": "e05ddcc1eb9c9e3946f49540d5bb01c7dda92a171634e021f2c2d6c1e6934064"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/apps/README.md",
+      "bytes": 1187,
+      "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/baseline.json",
+      "bytes": 45388,
+      "sha256": "9cb167fe7aa4e1935d0d93e14ca14a8f4e3bad6e411f3ad0550b45ceb0752e06"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/architecture/AUTOMATION.md",
+      "bytes": 10893,
+      "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/architecture/DEBUGGING.md",
+      "bytes": 13410,
+      "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/architecture/DESKTOP_UX.md",
+      "bytes": 12968,
+      "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/architecture/README.md",
+      "bytes": 8722,
+      "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/decisions/0055-automation-first-headless.md",
+      "bytes": 2765,
+      "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/decisions/README.md",
+      "bytes": 10911,
+      "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/planning/BACKLOG.md",
+      "bytes": 70312,
+      "sha256": "fa77dac88ce50fea10cf22b5c4f08f39973ec6ba4ddfbab750d37923c9fda67a"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/planning/CURRENT.md",
+      "bytes": 218804,
+      "sha256": "b475c27b45acd28809894e9c9f9540918b09d2287e17e07848e9228db7bd7acc"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/planning/ROADMAP.md",
+      "bytes": 7915,
+      "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/README.md",
+      "bytes": 5262,
+      "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/docs/REQUIREMENTS.md",
+      "bytes": 6596,
+      "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+    },
+    {
+      "path": "build/sn023-rc-captions/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "70fdc3f62bad9a1a9bb4d33d280fdd48b74986881e95dd3289d3c49e5f7fa071"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/document_window.cpp",
+      "bytes": 193808,
+      "sha256": "700bdf3bda5ddd15f59be6d03642ea31ca27901a085baa27752324e249df427d"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/document_window.hpp",
+      "bytes": 5728,
+      "sha256": "8c4f894076f4de0f8d696b89c756ddd82166fbf7eea5698cac6cef13ac10fa20"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/main.cpp",
+      "bytes": 3092,
+      "sha256": "9588efb77364c2e3220b3e14bf870741f94a7a46abbd064b043858f8e6e427e2"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/rc_canvas.cpp",
+      "bytes": 13418,
+      "sha256": "661d7d0f70a00d1e7aeb61b626d84c480b0dbdb9cf33fdb33dc0656d77d512dc"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/apps/desktop/rc_canvas.hpp",
+      "bytes": 1365,
+      "sha256": "06b12d9fb3007546ac758b09c2a5f1c3def46a8568c60728849b3c3aa73bb007"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/build/sn023-rc-captions/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 846336,
+      "sha256": "21ffd87334367802c4b44f4c604594ab8308802221d48d4c8faf201335b517a6"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final/tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "build/sn023-rc-captions/source-final-manifest.json",
+      "bytes": 4171,
+      "sha256": "aa9b276b73370c87519d9ddb244c5d8ce29401b34673dde2ca63df7de4f11bf0"
+    },
+    {
+      "path": "build/sn023-rc-captions/validate.py",
+      "bytes": 2183,
+      "sha256": "ff94c710262e647bea32d22349e886076dc85cc2fc6ee0bb761d74070a4e1f9b"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_file_count": 247,
+    "independent_overlay_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "fa77dac88ce50fea10cf22b5c4f08f39973ec6ba4ddfbab750d37923c9fda67a"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "b475c27b45acd28809894e9c9f9540918b09d2287e17e07848e9228db7bd7acc"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "historical_evidence_manifest_sha256": "fa9e8af7164be1e4e86d59fac42ea9996f781ddb9cf2008a933b1edb1914585e",
+    "verification": "247 historical files/twelve overlays unchanged before own planning prefix/row; task-only publication reverses own prefix/row to exact backups"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-summary.json",
+      "bytes": 45297,
+      "sha256": "7ecec33b41b926f0cdca8d5ffe7b9746b6467c1e307b5d5bba43b6e4897717f2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-summary.json",
+      "bytes": 43854,
+      "sha256": "8cc1ef6ce76e6f334632ccc23eb2a5dcdfed688a9bf4cb9b2156940104acc847"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Next feedback and separately gate compact R editing through existing operations; full editor/library/wiring/instruments pending.",
+    "Display policy only; general quantity entry/locales/units/arbitrary shapes/long-label layouts are unproven.",
+    "Scripted controls and four images do not prove human recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom acceptance.",
+    "Fixed RC only; no domain/application/schema/parser/edit/save/history/worker API or additional Qt module.",
+    "Scripted events/transfers/images do not establish physical mouse, human dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom readiness.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

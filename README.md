@@ -68,6 +68,8 @@ The [fixed RC canvas](docs/experiments/SN-023-rc-canvas.md) is the default visua
 with own R/C notation, declared local connections and click inspection.
 [Compact C editing](docs/experiments/SN-023-circuit-capacitance.md) explicitly activates
 the existing containing-RC literal field in Circuit Properties; broader editing remains in Details.
+[Exact engineering-unit captions](docs/experiments/SN-023-rc-captions.md) show kΩ/nF/µF
+while Circuit Properties retains the original resolved base values.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

@@ -1,5 +1,29 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [exact RC captions](../experiments/SN-023-rc-captions.md).
+Read CURRENT's newest section and reconfirm the source PR, required checks,
+squash and main. Pre-edit PR #86 merged at
+2812d6cf0735d7bbb5ead912280111e7999a3526, with Foundation Windows 67/67 and
+Ubuntu 56/56 passed; local/origin/live remote main matched, zero unpublished.
+Presentation-only exact decimal formatting displays Ω/kΩ/MΩ and nF/µF/mF in
+bounded ranges; exact fallback and Base value retained. No native values, field
+units, shared C draft, geometry, IDs, history/copy or resource/engine change.
+Fresh configure/build and first focused GUI run passed 29 caption cases,
+26 component captions, twelve Properties blocks, unchanged 41 C controls,
+fourteen declared snapshots and one saved-token audit. Four images inspected.
+One patch context failure and one sandbox-denied documentation-helper write
+retained; no configure/build/runtime failure.
+Freeze 23 sources/final binary; unchanged sections and earlier artifacts match
+reuse hashes, with no local canvas/occurrence/native/backend matrix reruns.
+Preserve 247 historical evidence files and twelve independent overlays; source
+PR records checker/required checks/squash/main, only task prefix/row published.
+The owner reported the preceding demo worked; this is informal positive feedback.
+Next feedback and separately gate compact R editing through existing operations.
+General editor/library/wiring/instruments/managed Save/real workers/IPC/keyboard/
+accessibility/DPI/session/packaging remain pending. SN-017/021/022 limits and
+SN-044 ownership remain; January stabilization/February 2027 are planning targets.
+Historical handoffs follow.
+
 Latest tested increment: [Circuit capacitance editing](../experiments/SN-023-circuit-capacitance.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #85 merged at 64c30eb3d7a42fdbd2130485648fd2d298bd5141, Foundation Windows 67/67 and Ubuntu 56/56 passed; main copies equal and zero unpublished. Explicit Edit Capacitance

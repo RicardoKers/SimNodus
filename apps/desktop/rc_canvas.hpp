@@ -18,6 +18,7 @@ public:
     bool supported() const { return supported_; }
     const QStringList& selection() const { return selected_; }
     QJsonObject snapshot() const;
+    static QString parameterCaption(const simnodus::EffectiveParameter& parameter);
     QPoint componentPoint(const QString& id) const;
     std::function<void(const QStringList&)> selected;
 protected:
