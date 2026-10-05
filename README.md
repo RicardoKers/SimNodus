@@ -80,6 +80,8 @@ with bounded view offsets; Fit recenters without editing the project.
 levels and preserves scene pan, selection, drafts and native operations.
 [Focus Circuit](docs/experiments/SN-023-circuit-focus.md) temporarily hides the
 side panels and restores their preceding in-memory layout.
+[Focused canvas keys](docs/experiments/SN-023-canvas-keyboard.md) use Page Up/Down
+for bounded zoom and Home for Fit, preserving native text-field behavior.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

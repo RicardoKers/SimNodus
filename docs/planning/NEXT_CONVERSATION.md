@@ -1,5 +1,31 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [focused canvas keyboard navigation](../experiments/SN-023-canvas-keyboard.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR92 source aa39274d20a88d6031839faacb490f9a35cfbb9b, squash
+d6b383e3556b7a1c4165c69930c61fb4233be4d0; exact Foundation Windows67/67 and
+Ubuntu56/56 PASS in37345146908, main copies equal/zero unpublished. Canvas-only
+unmodified Page Up/Down bounded50..150 in25-percent steps/repeat, Home Fit/pan0.
+Strong/click focus/dashed border/native Tab; fields retain Home/cursor/text/Page
+behavior; valid keys/focus loss cancel middle drag. Keep selection/IDs/values/
+four drafts/R-C activation/native operations/Focus Circuit/independent analyzer.
+Configure passed; quote/write helpers failed, build01 wrongly started without
+actor installation and failed LNK2019/LNK1120/no binary. Nine snapshots/raw log
+retained; corrected install/build02 passed. GUI01/Focus01 functional PASS exposed
+footer encoding visually; nine source/helper/binary snapshots retained. Explicit
+UTF-8 correction/build03/final GUI02 keyboard20/10/33 routed events/18 captions/
+eight Properties/one R3.5 copy and unchanged Focus02 24/12/five layouts/one C470
+copy passed. Four keyboard PNGs inspected/final footer/border/field legible.
+Freeze29 sources/binary; verify24 prior entries/fourteen native artifacts/five
+sections including previous Focus actor. Reuse other matrices; preserve282 old
+evidence files/twelve overlays, publish only task prefixes/row. Source PR records
+checkers/exact checks/guarded squash/main. SN023 in_progress/no ADR; next keyboard
+feedback/separate useful fixture interaction gate. Full keyboard/accessibility/
+physical recovery/monitor-DPI/session layout/packaging/general editor/wiring/
+instruments/managed Save/real workers/IPC pending. SN017/021/022 bounds/SN044
+ownership/January stabilization/February2027 classroom planning targets retained.
+Historical handoffs follow.
+
 Latest tested increment: [transient Focus Circuit](../experiments/SN-023-circuit-focus.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #91 source ceb2fa318becd8f5fa448fe00f8d6115aff92fff, squash

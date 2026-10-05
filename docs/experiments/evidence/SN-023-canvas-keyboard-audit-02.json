@@ -1,0 +1,1389 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--keyboard-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\gui-02\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\gui-02\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "independent_observations": [
+    {
+      "stage": "original",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        98.69999999999999,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        98.69999999999999,
+        726,
+        435.6
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            276,
+            296
+          ],
+          "actual": [
+            276,
+            296
+          ]
+        },
+        "c": {
+          "expected": [
+            474,
+            389
+          ],
+          "actual": [
+            474,
+            389
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "R_drafts",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "lower_bound",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        159.49999999999997,
+        220.0,
+        295.00000000000006,
+        177.00000000000003
+      ],
+      "actual_rectangle": [
+        159.49999999999997,
+        220,
+        295.00000000000006,
+        177.00000000000003
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            267,
+            300
+          ],
+          "actual": [
+            267,
+            300
+          ]
+        },
+        "c": {
+          "expected": [
+            347,
+            338
+          ],
+          "actual": [
+            347,
+            338
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "reset_drafts",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "panned_key",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        34.99999999999999,
+        20.000000000000036
+      ],
+      "expected_rectangle": [
+        -24.875,
+        136.82142857142858,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875000000000007,
+        136.8214285714286,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            337
+          ],
+          "actual": [
+            244,
+            337
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            432
+          ],
+          "actual": [
+            444,
+            432
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "keyboard_C",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        34.99999999999999,
+        20.000000000000036
+      ],
+      "expected_rectangle": [
+        -24.875,
+        136.82142857142858,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875000000000007,
+        136.8214285714286,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            337
+          ],
+          "actual": [
+            244,
+            337
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            432
+          ],
+          "actual": [
+            444,
+            432
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focused_keys",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": true,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        -46.08333333333337,
+        -69.25,
+        1354.1666666666667,
+        812.5
+      ],
+      "actual_rectangle": [
+        -46.08333333333337,
+        -69.25,
+        1354.1666666666667,
+        812.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            447,
+            298
+          ],
+          "actual": [
+            447,
+            298
+          ]
+        },
+        "c": {
+          "expected": [
+            815,
+            472
+          ],
+          "actual": [
+            815,
+            472
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "restored_R",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        -61.75,
+        115.75,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -61.75,
+        115.75,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            207,
+            316
+          ],
+          "actual": [
+            207,
+            316
+          ]
+        },
+        "c": {
+          "expected": [
+            407,
+            411
+          ],
+          "actual": [
+            407,
+            411
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "R_applied",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        -61.75,
+        123.75,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -61.75,
+        123.75,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            207,
+            324
+          ],
+          "actual": [
+            207,
+            324
+          ]
+        },
+        "c": {
+          "expected": [
+            407,
+            419
+          ],
+          "actual": [
+            407,
+            419
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "unsupported",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        167.99999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        167.99999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {}
+    }
+  ],
+  "independent_routed_events": [
+    {
+      "case": "canvas_page_up",
+      "event": {
+        "accepted": true,
+        "case": "canvas_page_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "canvas_repeat_up",
+      "event": {
+        "accepted": true,
+        "case": "canvas_repeat_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": true,
+        "zoom_after": 150,
+        "zoom_before": 125
+      }
+    },
+    {
+      "case": "upper_bound",
+      "event": {
+        "accepted": true,
+        "case": "upper_bound",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 150,
+        "zoom_before": 150
+      }
+    },
+    {
+      "case": "canvas_page_down",
+      "event": {
+        "accepted": true,
+        "case": "canvas_page_down",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 150
+      }
+    },
+    {
+      "case": "lower_step_0",
+      "event": {
+        "accepted": true,
+        "case": "lower_step_0",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 125
+      }
+    },
+    {
+      "case": "lower_step_1",
+      "event": {
+        "accepted": true,
+        "case": "lower_step_1",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 75,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "lower_step_2",
+      "event": {
+        "accepted": true,
+        "case": "lower_step_2",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": true,
+        "zoom_after": 50,
+        "zoom_before": 75
+      }
+    },
+    {
+      "case": "lower_bound",
+      "event": {
+        "accepted": true,
+        "case": "lower_bound",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 50,
+        "zoom_before": 50
+      }
+    },
+    {
+      "case": "canvas_home",
+      "event": {
+        "accepted": true,
+        "case": "canvas_home",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 50
+      }
+    },
+    {
+      "case": "modified_canvas",
+      "event": {
+        "accepted": false,
+        "case": "modified_canvas",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 67108864,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "unknown_canvas",
+      "event": {
+        "accepted": false,
+        "case": "unknown_canvas",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777233,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "drag_ignored",
+      "event": {
+        "accepted": false,
+        "case": "drag_ignored",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 67108864,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "drag_key",
+      "event": {
+        "accepted": true,
+        "case": "drag_key",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "focus_mode_home",
+      "event": {
+        "accepted": true,
+        "case": "focus_mode_home",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 125
+      }
+    },
+    {
+      "case": "focus_mode_up",
+      "event": {
+        "accepted": true,
+        "case": "focus_mode_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "unsupported_home",
+      "event": {
+        "accepted": false,
+        "case": "unsupported_home",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "unsupported_up",
+      "event": {
+        "accepted": false,
+        "case": "unsupported_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "unsupported_down",
+      "event": {
+        "accepted": false,
+        "case": "unsupported_down",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "empty_home",
+      "event": {
+        "accepted": false,
+        "case": "empty_home",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "empty_up",
+      "event": {
+        "accepted": false,
+        "case": "empty_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "empty_down",
+      "event": {
+        "accepted": false,
+        "case": "empty_down",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "canvas",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "bounded_PageDown_transitions",
+      "events": [
+        {
+          "accepted": true,
+          "case": "canvas_page_down",
+          "cursor_after": -1,
+          "cursor_before": -1,
+          "focus_after": "canvas",
+          "focus_before": "canvas",
+          "key": 16777239,
+          "modifiers": 0,
+          "receiver": "canvas",
+          "repeat": false,
+          "zoom_after": 125,
+          "zoom_before": 150
+        },
+        {
+          "accepted": true,
+          "case": "lower_step_0",
+          "cursor_after": -1,
+          "cursor_before": -1,
+          "focus_after": "canvas",
+          "focus_before": "canvas",
+          "key": 16777239,
+          "modifiers": 0,
+          "receiver": "canvas",
+          "repeat": false,
+          "zoom_after": 100,
+          "zoom_before": 125
+        },
+        {
+          "accepted": true,
+          "case": "lower_step_1",
+          "cursor_after": -1,
+          "cursor_before": -1,
+          "focus_after": "canvas",
+          "focus_before": "canvas",
+          "key": 16777239,
+          "modifiers": 0,
+          "receiver": "canvas",
+          "repeat": false,
+          "zoom_after": 75,
+          "zoom_before": 100
+        },
+        {
+          "accepted": true,
+          "case": "lower_step_2",
+          "cursor_after": -1,
+          "cursor_before": -1,
+          "focus_after": "canvas",
+          "focus_before": "canvas",
+          "key": 16777239,
+          "modifiers": 0,
+          "receiver": "canvas",
+          "repeat": true,
+          "zoom_after": 50,
+          "zoom_before": 75
+        },
+        {
+          "accepted": true,
+          "case": "lower_bound",
+          "cursor_after": -1,
+          "cursor_before": -1,
+          "focus_after": "canvas",
+          "focus_before": "canvas",
+          "key": 16777239,
+          "modifiers": 0,
+          "receiver": "canvas",
+          "repeat": false,
+          "zoom_after": 50,
+          "zoom_before": 50
+        }
+      ]
+    },
+    {
+      "case": "field_R_home",
+      "event": {
+        "accepted": true,
+        "case": "field_R_home",
+        "cursor_after": 0,
+        "cursor_before": 3,
+        "focus_after": "resistance",
+        "focus_before": "resistance",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "resistance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_R_text",
+      "event": {
+        "accepted": true,
+        "case": "field_R_text",
+        "cursor_after": 1,
+        "cursor_before": 0,
+        "focus_after": "resistance",
+        "focus_before": "resistance",
+        "key": 57,
+        "modifiers": 0,
+        "receiver": "resistance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_R_page_up",
+      "event": {
+        "accepted": false,
+        "case": "field_R_page_up",
+        "cursor_after": 3,
+        "cursor_before": 3,
+        "focus_after": "resistance",
+        "focus_before": "resistance",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "resistance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_R_page_down",
+      "event": {
+        "accepted": false,
+        "case": "field_R_page_down",
+        "cursor_after": 3,
+        "cursor_before": 3,
+        "focus_after": "resistance",
+        "focus_before": "resistance",
+        "key": 16777239,
+        "modifiers": 0,
+        "receiver": "resistance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_C_home",
+      "event": {
+        "accepted": true,
+        "case": "field_C_home",
+        "cursor_after": 0,
+        "cursor_before": 3,
+        "focus_after": "capacitance",
+        "focus_before": "capacitance",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "capacitance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_project_home",
+      "event": {
+        "accepted": true,
+        "case": "field_project_home",
+        "cursor_after": 0,
+        "cursor_before": 15,
+        "focus_after": "project",
+        "focus_before": "project",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "project",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "field_instance_home",
+      "event": {
+        "accepted": true,
+        "case": "field_instance_home",
+        "cursor_after": 0,
+        "cursor_before": 13,
+        "focus_after": "instance",
+        "focus_before": "instance",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "instance",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "details_page",
+      "event": {
+        "accepted": false,
+        "case": "details_page",
+        "cursor_after": 0,
+        "cursor_before": 0,
+        "focus_after": "project",
+        "focus_before": "project",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "project",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "tab_leave",
+      "event": {
+        "accepted": true,
+        "case": "tab_leave",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "other",
+        "focus_before": "canvas",
+        "key": 16777217,
+        "modifiers": 0,
+        "receiver": "canvas",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "tab_return",
+      "event": {
+        "accepted": true,
+        "case": "tab_return",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_before": "other",
+        "key": 16777217,
+        "modifiers": 33554432,
+        "receiver": "other",
+        "repeat": false,
+        "zoom_after": 100,
+        "zoom_before": 100
+      }
+    },
+    {
+      "case": "analyzer_home",
+      "event": {
+        "accepted": false,
+        "case": "analyzer_home",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "analyzer",
+        "focus_before": "analyzer",
+        "key": 16777232,
+        "modifiers": 0,
+        "receiver": "analyzer",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 125
+      }
+    },
+    {
+      "case": "analyzer_up",
+      "event": {
+        "accepted": false,
+        "case": "analyzer_up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "analyzer",
+        "focus_before": "analyzer",
+        "key": 16777238,
+        "modifiers": 0,
+        "receiver": "analyzer",
+        "repeat": false,
+        "zoom_after": 125,
+        "zoom_before": 125
+      }
+    }
+  ],
+  "exit_code": 0,
+  "independent_saved_token_audit": "passed",
+  "source_diagrams_captions_properties_pan_geometry_focus_and_routing": "passed",
+  "unchanged_inputs_and_no_resources": "passed"
+}

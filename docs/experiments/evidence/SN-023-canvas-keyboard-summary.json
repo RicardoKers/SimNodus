@@ -1,0 +1,1253 @@
+{
+  "experiment": "SN-023 focused canvas keyboard navigation",
+  "recorded_date": "2026-10-05",
+  "status": "passed-for-focused-fixed-RC-view; SN-023-in-progress",
+  "base_main": "d6b383e3556b7a1c4165c69930c61fb4233be4d0",
+  "branch": "codex/sn-023-canvas-keyboard",
+  "reconfirmed_pr_92": {
+    "state": "MERGED",
+    "source": "aa39274d20a88d6031839faacb490f9a35cfbb9b",
+    "squash": "d6b383e3556b7a1c4165c69930c61fb4233be4d0",
+    "ci_run": 37345146908,
+    "required_checks": [
+      "Windows 67/67 PASS",
+      "Ubuntu 56/56 PASS"
+    ],
+    "local_main_origin_main_remote_main_equal": true,
+    "unpublished_commits": 0
+  },
+  "host": "Windows-10-10.0.26300-SP0",
+  "record_authoring_python": "3.11.9",
+  "configuration": {
+    "language": "C++20",
+    "build": "Release x64",
+    "compiler": "MSVC 19.51.36246.0",
+    "windows_sdk": "10.0.26100.0",
+    "qt_kit": "C:/Qt/6.11.1/msvc2022_64",
+    "qt_modules": [
+      "Core",
+      "Gui",
+      "Widgets"
+    ],
+    "platform": "windows",
+    "style": "Fusion",
+    "generator": "Visual Studio 18 2026",
+    "environment": "Python dict(os.environ) normalizes PATH/Path; GUI runner supplies installed kit bin/platform path. No download."
+  },
+  "commands": [
+    "python build/sn023-canvas-keyboard/validate.py configure-01",
+    "python build/sn023-canvas-keyboard/validate.py build-01",
+    "python build/sn023-canvas-keyboard/validate.py build-02",
+    "python build/sn023-canvas-keyboard/validate.py gui-01",
+    "python build/sn023-canvas-keyboard/validate.py focus-01",
+    "python build/sn023-canvas-keyboard/validate.py build-03",
+    "python build/sn023-canvas-keyboard/validate.py gui-02",
+    "python build/sn023-canvas-keyboard/validate.py focus-02"
+  ],
+  "fixture": {
+    "path": "tests/schema/fixtures/two-rc-project.json",
+    "bytes": 13837,
+    "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+  },
+  "results": {
+    "keyboard_controls": 20,
+    "keyboard_independent_snapshots": 10,
+    "routed_events": 33,
+    "captions": 18,
+    "properties_blocks": 8,
+    "tolerances": {
+      "offset_rectangle_absolute": 1e-06,
+      "component_point_pixels": 1
+    },
+    "exact_copy": "Only right R2.2->3.5; C220 and all other bytes unchanged",
+    "focus_controls": 24,
+    "focus_snapshots": 12,
+    "focus_layouts": 5,
+    "focus_copy": "Only right C220->470",
+    "failures": {
+      "helper": 2,
+      "build": 1,
+      "gui_process_or_audit": 0,
+      "visual": 1
+    },
+    "first_build": "Actor install helper denied writing main.cpp; build started prematurely: LNK2019/LNK1120/no binary; nine exact sources/helpers/raw log retained before correction",
+    "first_gui": "Keyboard01/Focus01 passed functionally; PNGs exposed UTF-8 footer default-decoding defect; nine exact sources/helpers/binary retained",
+    "corrections": "Saved install helper with authorized filesystem escalation; explicit UTF-8 reads, restore original bytes; build03/gui02/focus02 passed",
+    "images": "Four keyboard images inspected, ten GUI captures retained. Final canvas border visible, field focus removes border; UTF-8 footer and applied R3.5 full Fit view legible",
+    "engine_runs": 0,
+    "inputs": "unchanged originals/variants/fixture; no resources",
+    "static_review": "independent driver/handler/actor review found no further actionable defect",
+    "publication": "Source PR records checker/exact task-only checker/exact required checks/guarded squash/main"
+  },
+  "policy": {
+    "keys": "Visible supported focused canvas, unmodified PgUp/PgDn existing25-percent steps including repeat bounded50..150, Home existing100-percent Fit/resetpan; no global shortcuts",
+    "focus": "StrongFocus/click focus, dashed palette-highlight border; QWidget handles other keys/Tab. Valid keys/focus loss cancel drag; modified/unknown keep gesture",
+    "retention": "Source IDs/values/selection/R-C activation/four drafts/native operations/Focus Circuit/independent analyzer",
+    "ownership": "Qt Core/Gui/Widgets presentation only; no domain/application/schema/resource/native operation/engine/worker changes"
+  },
+  "source_files": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6889,
+      "sha256": "8b1fda241e11bdc14252c500560277d641c578a27f0146fc9c64e8a12f78fa98"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 286684,
+      "sha256": "ebcadbec917bbb0547862a1aa49d9271f98ce95876358658128ea191faa4be37"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4265,
+      "sha256": "04734c4fac2fa2f86bd9a1f22d0b3f9b9a27a20579839b0d36aaa8bc05db08d8"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1878,
+      "sha256": "82c805cbf146523b67d44bdbbaed93f4dadd2787e6bbae6cb8e1a37de5b4ab7a"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 17477,
+      "sha256": "dd1b992b4f6b1b0c6c9cf37643b21ce21523e82d4cf93cef0408c04ad96db285"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "tests/resources/editor_keyboard_acceptance.py",
+      "bytes": 18566,
+      "sha256": "2bae593fe817b9f5ac68cab09895070c8d2a9bb1b856c8e92f63294327dbeb77"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "build/sn023-canvas-keyboard/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 1018880,
+      "sha256": "8836fb843d61cdaa11d1e7709c58030e3a7fd6a6dfc2f1b0834847a7dbfac822"
+    }
+  ],
+  "unchanged_prior_source_binary_entries": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "tests/resources/editor_occurrence_acceptance.py",
+      "bytes": 11372,
+      "sha256": "08ef8ddd1042bf3ec4e31abd6895bacef92f79a2e31a821bffa4b3c7f71accca"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "src/application/editor_document.hpp",
+      "bytes": 1988,
+      "sha256": "c745d9f2e123e9eb716db1c7220178a4f28cd72d1408e2f7140596c94c692e21"
+    },
+    {
+      "path": "src/application/editor_document.cpp",
+      "bytes": 4188,
+      "sha256": "a2dd5bd2f77648ab7033a2a52358ea8a131363103e9ede4c815b821ee7982563"
+    },
+    {
+      "path": "apps/desktop/CMakeLists.txt",
+      "bytes": 408,
+      "sha256": "e3101b8d245e71ff2dd36b26242b2ea1d48b18a4ceadb51c9cd88b9a95fd3587"
+    },
+    {
+      "path": "tests/resources/editor_canvas_acceptance.py",
+      "bytes": 14620,
+      "sha256": "1bd4fb3ea14e67048c0dd9330d22855d19442346c3d4548cdd16b6115a56a275"
+    },
+    {
+      "path": "tests/resources/editor_circuit_capacitance_acceptance.py",
+      "bytes": 9883,
+      "sha256": "6f5a6f69c72f37a3825aace55240079da62f7517536ac67e8414a7d862e4cf33"
+    },
+    {
+      "path": "tests/resources/editor_caption_acceptance.py",
+      "bytes": 7487,
+      "sha256": "44569447406a456e26bbb920d1147d8965010843adb5580d84f1f1df7adf4e1f"
+    },
+    {
+      "path": "tests/resources/editor_circuit_resistance_acceptance.py",
+      "bytes": 10130,
+      "sha256": "402c15287ebbd0c2511dc140c13b8e16295753439bd9e7cea455d28e4a0d7d66"
+    },
+    {
+      "path": "tests/resources/editor_zoom_acceptance.py",
+      "bytes": 12494,
+      "sha256": "81eae5705e887253071d6826f820af4ac32e33acf365227e818cc366a9db75ba"
+    },
+    {
+      "path": "tests/resources/editor_pan_acceptance.py",
+      "bytes": 15125,
+      "sha256": "6c594f41e2bb4564d9bb58721035a89ed5d4bb7fad73251f504e605aaff24bd0"
+    },
+    {
+      "path": "tests/resources/editor_wheel_acceptance.py",
+      "bytes": 11773,
+      "sha256": "d3a04bff0c2a7f26b9cafecbba8a985af8fa7c4785a01245fcaa39eee9db9f5f"
+    },
+    {
+      "path": "tests/resources/editor_focus_acceptance.py",
+      "bytes": 15080,
+      "sha256": "8214715f005d6f0c65dc3ddf8e2ee4276fa9ee85a4994459ff812d1633d793cb"
+    },
+    {
+      "path": "build/sn023-circuit-focus/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 993280,
+      "sha256": "616c6c74315a6ba9e6ccdae90bba96696ed0565edfd94969df905cd4dc3a8da3"
+    }
+  ],
+  "unchanged_native_artifacts": [
+    {
+      "path": "src/application/project_inspection.hpp",
+      "bytes": 2262,
+      "sha256": "f2b100f4f21efe76b06e8a734ca134231f65cda438689a3ee24b251ec2b375d6"
+    },
+    {
+      "path": "src/application/project_inspection.cpp",
+      "bytes": 8062,
+      "sha256": "372a8ee248b31b0612e916bad623d2ebc0f2ecfdb02d16fae4c05700de48a0d6"
+    },
+    {
+      "path": "tests/resources/native_occurrence_probe.cpp",
+      "bytes": 10367,
+      "sha256": "5aaed0cc7dbd03d4918cc73d84214e6dc2492044b22188ab2a66cb38d6024eea"
+    },
+    {
+      "path": "tests/resources/native_occurrence_regression.py",
+      "bytes": 22689,
+      "sha256": "b5164f3fc4b6d7e13d8042a392ff56791723f3abe4775d8aced6258f1bd9d169"
+    },
+    {
+      "path": "src/application/symbol_preview.hpp",
+      "bytes": 3275,
+      "sha256": "0989c3e2712398404a02490b5488d8ad31ba6f5a2f8b6b00e74a0a870d6d1a94"
+    },
+    {
+      "path": "src/application/symbol_preview.cpp",
+      "bytes": 8369,
+      "sha256": "7637310477d8a6b9d3d46c58c4db25d736c263c66e4139d9033288859830c97d"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.hpp",
+      "bytes": 533,
+      "sha256": "b12e553a920e2c029079cb150f33d49c1f59518b02335d8eff6dec06631c16c0"
+    },
+    {
+      "path": "apps/desktop/preview_canvas.cpp",
+      "bytes": 2343,
+      "sha256": "6f0b3dab9b8d646992a1d84001f0afda9905582909fe89611ae6e9cb9d7b1f85"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 46456,
+      "sha256": "80c5b8ccfb302c2db895decf4264bdc3a42242c93932e27ec4dd60c7a9bb88ca"
+    },
+    {
+      "path": "tools/run_editor_demo.py",
+      "bytes": 5507,
+      "sha256": "1100639f1d301d6b75280a94a8a790f1ff42439e9fb139b10adafbe9264d4efa"
+    },
+    {
+      "path": "src/domain/circuit_graph.hpp",
+      "bytes": 1312,
+      "sha256": "ed24ac3255dfa32955f5589f4424d08b50754a11e92cfb5c8871d72b113fee6c"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 676864,
+      "sha256": "83c80e46ce3108761de32cfaac7e8a809131cd949721be77b607532c5961d116"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/native_occurrence_probe.exe",
+      "bytes": 342528,
+      "sha256": "d537d79d9f9ec4f6ff1e30c92802d00a02fecf6e96594e3e9b20b447ecd745cd"
+    },
+    {
+      "path": "build/sn023-local-endpoints/native-build/Release/editor_document_tests.exe",
+      "bytes": 276480,
+      "sha256": "647ee211cf224cdd117cb766f4c0195dc9ea6eb83c58611aa9013b9697eb9b08"
+    }
+  ],
+  "unchanged_source_sections": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "QString RcCanvas::parameterCaption(",
+      "bytes": 2007,
+      "sha256": "852be8797b36edd3e11f8c51c098a335cb65c418a1d1f72c1c0b22c27c28b155"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "start": "bool RcCanvas::resolve()",
+      "bytes": 3419,
+      "sha256": "4fbc6e49fb07ce91e498d3b2c95233c7a557ddad1859ef9edc98e13bbac15122"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::circuitCapacitanceEligible()",
+      "bytes": 4105,
+      "sha256": "f84b7850fbf5919c99d4b840af58c8d144d8b5003fe7732f5989a911860f6396"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "bool DocumentWindow::applyResistance(",
+      "bytes": 1609,
+      "sha256": "bfb4797d2a9b861c83988c22fc50eda17e07c245bdeb2d6d9c358a53c8ede6a9"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "start": "void DocumentWindow::runCircuitCapacitanceAcceptance(",
+      "bytes": 87203,
+      "sha256": "060e707d9c24544a8abf3ebcc9b58591f0abbc32806873f114e423ce12bb52a1"
+    }
+  ],
+  "retained_build01_sources": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 17477,
+      "sha256": "dd1b992b4f6b1b0c6c9cf37643b21ce21523e82d4cf93cef0408c04ad96db285"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1878,
+      "sha256": "82c805cbf146523b67d44bdbbaed93f4dadd2787e6bbae6cb8e1a37de5b4ab7a"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 272623,
+      "sha256": "b885a0790bea7bc42f52c0809a24c985288a0c2aca077193c25cd4a39973c1ba"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6889,
+      "sha256": "8b1fda241e11bdc14252c500560277d641c578a27f0146fc9c64e8a12f78fa98"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4190,
+      "sha256": "9233e27f54953cb1040d9ded0c34f08b2b3871acad86ad15d34892a08dc83174"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/prepare.py",
+      "bytes": 9373,
+      "sha256": "04f9532b95d45d12edcbefe25510b3a52dd12acd63d15f8e970ac90359c26a50"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/validate.py",
+      "bytes": 3654,
+      "sha256": "ab7ecda45aa79a76926b9be9ed0914a19896f07938e4592e042e7165e367a697"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/install_actor.py",
+      "bytes": 1028,
+      "sha256": "384f483fef02d608820c12573826e0b29d754cd93a497ea31c07f8bd8345bcaf"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/keyboard_actor.cpp",
+      "bytes": 14043,
+      "sha256": "3c3788f5f37d7eac180a05642da8e37bfd6f74e8ed95d6ea256abed31255e928"
+    }
+  ],
+  "retained_gui01_sources_binary": [
+    {
+      "path": "apps/desktop/rc_canvas.cpp",
+      "bytes": 17477,
+      "sha256": "dd1b992b4f6b1b0c6c9cf37643b21ce21523e82d4cf93cef0408c04ad96db285"
+    },
+    {
+      "path": "apps/desktop/rc_canvas.hpp",
+      "bytes": 1878,
+      "sha256": "82c805cbf146523b67d44bdbbaed93f4dadd2787e6bbae6cb8e1a37de5b4ab7a"
+    },
+    {
+      "path": "apps/desktop/document_window.cpp",
+      "bytes": 286700,
+      "sha256": "c2dea11c5cfce177e6135e121a488de75ff38f019552fe28a9633e6c3743e918"
+    },
+    {
+      "path": "apps/desktop/document_window.hpp",
+      "bytes": 6889,
+      "sha256": "8b1fda241e11bdc14252c500560277d641c578a27f0146fc9c64e8a12f78fa98"
+    },
+    {
+      "path": "apps/desktop/main.cpp",
+      "bytes": 4265,
+      "sha256": "04734c4fac2fa2f86bd9a1f22d0b3f9b9a27a20579839b0d36aaa8bc05db08d8"
+    },
+    {
+      "path": "tests/resources/editor_keyboard_acceptance.py",
+      "bytes": 18566,
+      "sha256": "2bae593fe817b9f5ac68cab09895070c8d2a9bb1b856c8e92f63294327dbeb77"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/install_actor.py",
+      "bytes": 1028,
+      "sha256": "384f483fef02d608820c12573826e0b29d754cd93a497ea31c07f8bd8345bcaf"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/keyboard_actor.cpp",
+      "bytes": 14061,
+      "sha256": "986790ecae1a5afd0e19e3ec95ee4be67dcb3a30a85d6f123624b4b3bc49be88"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "bytes": 1018880,
+      "sha256": "e2cd8d0c61e79c6fcb6655b2dbc93d0e42b7f4aba5c314ab9df6ca952384744b"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-gui-01.json",
+      "bytes": 106053,
+      "sha256": "38031bb08556e986927703cfd291b263f1ca96237b066b98b6f334b922af58fe"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-audit-01.json",
+      "bytes": 34406,
+      "sha256": "9989f0ec662819ecdd58c5215a99d74eed66244232ff993c418715bfffb19e50"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-gui-02.json",
+      "bytes": 106053,
+      "sha256": "38031bb08556e986927703cfd291b263f1ca96237b066b98b6f334b922af58fe"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-audit-02.json",
+      "bytes": 34406,
+      "sha256": "13b8503ff31fa19eec4f90b17fb268db46a39e6a72cccd17aad78325e897a2db"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-focus-01.json",
+      "bytes": 118778,
+      "sha256": "bcb829b0ed1ec6e0381408f04caa0a69a32dc110cdf6b08734ae10e320b1d72a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-focus-audit-01.json",
+      "bytes": 26838,
+      "sha256": "9faecf16421cc4008289f1fcf6c4ac448436f26e33d4f19b90b072afd1b3e310"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-focus-02.json",
+      "bytes": 118778,
+      "sha256": "bcb829b0ed1ec6e0381408f04caa0a69a32dc110cdf6b08734ae10e320b1d72a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-keyboard-focus-audit-02.json",
+      "bytes": 26838,
+      "sha256": "0dbee773a7ff2a188eac5da6a752ca2aa6ef66fc34d6ed5433168438191e2a8f"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "build/sn023-canvas-keyboard/acceptance-before-implementation.md",
+      "bytes": 4098,
+      "sha256": "f9451f8cd7d6a3703fed9a73fca9ccf5419a3f075737ef008157bb0fe1f58d8d"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/acceptance-contract.json",
+      "bytes": 6418,
+      "sha256": "d0d3a36c1bc6d56e5f92ae527890ac82314f834d12e0520f1253bfe4759e2cda"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/build-01.log",
+      "bytes": 4677,
+      "sha256": "c4be9dfecf228a4f4011531ed0479538fe923917af2cfa406541a84b1ace1e7a"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/build-02.log",
+      "bytes": 2356,
+      "sha256": "7492dc365045f0588d120bb92172b717710879612588bfc9938f7590be111efa"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/build-03.log",
+      "bytes": 2344,
+      "sha256": "4624f4c5c4c4adc718a19ad6c1e6e080539c0136e96b6fafdba6b3cfafe018c9"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/ci_validate.py",
+      "bytes": 3199,
+      "sha256": "f2546bb8b864f8cd92bf8b031853ad50daf084e1d32b9e7e737aba77066c2c73"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/configure-01.log",
+      "bytes": 1250,
+      "sha256": "df80d6e8c13daaf2da44d0885e44ef941a8a88fa608266323464379488aae7d8"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/correct_encoding.py",
+      "bytes": 1785,
+      "sha256": "f1f96b2c6d9910fad403cca8c6c0b9ccd34b36b322efc9abcfe12cf13f3685ed"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/finish_local.py",
+      "bytes": 17624,
+      "sha256": "d3099e856a739d113dd9c83a51500346bddc8f90851343153138092e1ad2a6df"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/finish_main.py",
+      "bytes": 3415,
+      "sha256": "aa3cd089c0d276231e113d242e5d9b9bd9d758a2cae5ab3f3f5a30bbc6077916"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/focus-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/report.json",
+      "bytes": 118778,
+      "sha256": "bcb829b0ed1ec6e0381408f04caa0a69a32dc110cdf6b08734ae10e320b1d72a"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/report.json.focus.png",
+      "bytes": 43934,
+      "sha256": "b636c584f3636b688f0918a2a63c2534d967d6b6b3eebbdfef9c47b483f828a2"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/report.json.normal.png",
+      "bytes": 72410,
+      "sha256": "fd38418481c67722340436db32bf581d9d1ce700fbebc8709a0b58a4b51cc29d"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/report.json.restored.png",
+      "bytes": 71805,
+      "sha256": "d68ba1d0f75fe89c7086c22d7b8f77255cd078b0203f4b3554759aa7c15dd711"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/runner.json",
+      "bytes": 26838,
+      "sha256": "9faecf16421cc4008289f1fcf6c4ac448436f26e33d4f19b90b072afd1b3e310"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01/stdout.log",
+      "bytes": 121921,
+      "sha256": "ff14cda41f03f5025ed40adc7c66f03e1bdf19a0c5557b18596ed88f23c0a755"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-01.log",
+      "bytes": 203,
+      "sha256": "1d724ef8b1ec835d51440d9774647253ba5a7ba7a57c6f78e54462067f4ea5ad"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/focus-C-copy.json",
+      "bytes": 13837,
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/report.json",
+      "bytes": 118778,
+      "sha256": "bcb829b0ed1ec6e0381408f04caa0a69a32dc110cdf6b08734ae10e320b1d72a"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/report.json.focus.png",
+      "bytes": 43739,
+      "sha256": "4df6a267b4bf38b5eb30c1ab5ba17e11a1da24af0b7b40f06ddfc654d7be9d77"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/report.json.normal.png",
+      "bytes": 72194,
+      "sha256": "301997ef25ba41b409d387c5f71317179d6ad66bffc8cc93becfdeb32c4a75e8"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/report.json.restored.png",
+      "bytes": 71584,
+      "sha256": "165a42b39e1639c6b804c81ac6cf9065dc87fbc0921a79b63fc0a9e940b20da3"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/runner.json",
+      "bytes": 26838,
+      "sha256": "0dbee773a7ff2a188eac5da6a752ca2aa6ef66fc34d6ed5433168438191e2a8f"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02/stdout.log",
+      "bytes": 121921,
+      "sha256": "ff14cda41f03f5025ed40adc7c66f03e1bdf19a0c5557b18596ed88f23c0a755"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/focus-02.log",
+      "bytes": 203,
+      "sha256": "1d724ef8b1ec835d51440d9774647253ba5a7ba7a57c6f78e54462067f4ea5ad"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/keyboard-R-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/report.json",
+      "bytes": 106053,
+      "sha256": "38031bb08556e986927703cfd291b263f1ca96237b066b98b6f334b922af58fe"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/report.json.canvas.png",
+      "bytes": 76282,
+      "sha256": "d5f974cdcffd70ace03c391e9d1e9b245c0c961f05b07ace16fda84e1f4b1667"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/report.json.field.png",
+      "bytes": 73611,
+      "sha256": "dd1f3acdfc282cb1eeba7b71d6163b0b088ae33799a948fa05194c23f4b9ffeb"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/runner.json",
+      "bytes": 34406,
+      "sha256": "9989f0ec662819ecdd58c5215a99d74eed66244232ff993c418715bfffb19e50"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01/stdout.log",
+      "bytes": 108930,
+      "sha256": "d64e7559e969668b778469766e5123f941392668b4ca0bca16c6ea3f028885b5"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-01.log",
+      "bytes": 215,
+      "sha256": "fbd009385acb8f9a3f3e33aa1b19065dc90e2a7203e87e779b44e7a0f0d6eec9"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/changed-net.json",
+      "bytes": 7046,
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/default-binding.json",
+      "bytes": 6999,
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/extra-pin.json",
+      "bytes": 6928,
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/invalid.json",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/keyboard-R-copy.json",
+      "bytes": 13837,
+      "sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/labels.json",
+      "bytes": 7368,
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/missing-peer.json",
+      "bytes": 7006,
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/original.json",
+      "bytes": 13837,
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/reordered.json",
+      "bytes": 7042,
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/swapped.json",
+      "bytes": 7042,
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/document/wrong-dimension.json",
+      "bytes": 7048,
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/report.json",
+      "bytes": 106053,
+      "sha256": "38031bb08556e986927703cfd291b263f1ca96237b066b98b6f334b922af58fe"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/report.json.canvas.png",
+      "bytes": 76137,
+      "sha256": "f8d9bbfdcdd7d3eb92e6b117e5cddbbd24d1224d641a234733583c4b981c8468"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/report.json.field.png",
+      "bytes": 73464,
+      "sha256": "6a27166d845907b11580666f066ece18f76abdd4e6a95dccf4cb32c5edf7cf85"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/runner.json",
+      "bytes": 34406,
+      "sha256": "13b8503ff31fa19eec4f90b17fb268db46a39e6a72cccd17aad78325e897a2db"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02/stdout.log",
+      "bytes": 108930,
+      "sha256": "d64e7559e969668b778469766e5123f941392668b4ca0bca16c6ea3f028885b5"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/gui-02.log",
+      "bytes": 215,
+      "sha256": "fbd009385acb8f9a3f3e33aa1b19065dc90e2a7203e87e779b44e7a0f0d6eec9"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/install_actor.py",
+      "bytes": 1092,
+      "sha256": "7142af3ae2194e9fcdf447f9abe0ea1861ad5f0f60abf494e6b512ce0bf75586"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/keyboard_actor.cpp",
+      "bytes": 14061,
+      "sha256": "986790ecae1a5afd0e19e3ec95ee4be67dcb3a30a85d6f123624b4b3bc49be88"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/prebuild-helper-failure.txt",
+      "bytes": 216,
+      "sha256": "e2426e6037e6980a666d330b6d4c0a3ea0a40a7ab7f9f2b94e73d9740ff37493"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/prebuild-helper-failures.txt",
+      "bytes": 614,
+      "sha256": "dec77664fd7a9f3d6ecab77d36d4f228659efe000dc0e4456bf7741be50cc21d"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/preimplementation-manifest.json",
+      "bytes": 5364,
+      "sha256": "b650c80408145140bb1493dbc29d669b4b3ce09d62f0737eb3fcfafd379bcb86"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/prepare.py",
+      "bytes": 9373,
+      "sha256": "04f9532b95d45d12edcbefe25510b3a52dd12acd63d15f8e970ac90359c26a50"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/prepare_publication.py",
+      "bytes": 4000,
+      "sha256": "7e2cb31d1d072fa4e069deca7b68375102c53162f01732aa6853b836867bede8"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/retain_build01.py",
+      "bytes": 1650,
+      "sha256": "4f96d4a921088a2b4b3adb13e6e08a1f3f5205cb6fc94fea0b1c9e868884f8c8"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/source-attempt-build-01-manifest.json",
+      "bytes": 1436,
+      "sha256": "2d5ee1820e3ea9589350030cbb1cddb3223b584886f5e805e7b7f90ff61cc98c"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/source-attempt-gui-01-manifest.json",
+      "bytes": 1498,
+      "sha256": "729695ff428865faa7590485a557086a6954701e8a2ac2602c68bee000d76cbd"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/source-final-manifest.json",
+      "bytes": 5257,
+      "sha256": "fbbbe23a3088d2dc1b08330fc5177d9cce02de66ac4bfcd987d249c1b2678b90"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/START_CANVAS_KEYBOARD_DEMO.cmd",
+      "bytes": 513,
+      "sha256": "73d4ae1d289a1828442d0d19cc06cb1d3c647b080964aa04aa30ea111da7c877"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/validate.py",
+      "bytes": 3654,
+      "sha256": "ab7ecda45aa79a76926b9be9ed0914a19896f07938e4592e042e7165e367a697"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/visual-correction.txt",
+      "bytes": 399,
+      "sha256": "41c8d173913614648279b0cda9f0447db3096bd4eddd7637fb2a958b597f5fa1"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/preservation/baseline.json",
+      "bytes": 51483,
+      "sha256": "bd5c131bbce2b099dabd26b16c80b896d066efe61ae7ce5f81a3ce4937170619"
+    },
+    {
+      "path": "build/sn023-canvas-keyboard/preservation/tracked.patch",
+      "bytes": 14987,
+      "sha256": "cc36e72f14dc3ce4898d3047bb6e2c4877a0011396c7aaa98d4954e96a93f768"
+    }
+  ],
+  "preservation": {
+    "historical_evidence_count": 282,
+    "independent_overlays_count": 12,
+    "overlays": [
+      {
+        "path": "apps/README.md",
+        "sha256": "c303d22a27aec264caa55a3ecf106a45abb14be535fa95e37c0f931c878c9df4"
+      },
+      {
+        "path": "docs/README.md",
+        "sha256": "cab90f706c2946c48b8278cd40171b8c22b0a3fd1d3673b1d99cf8287cee3c6d"
+      },
+      {
+        "path": "docs/REQUIREMENTS.md",
+        "sha256": "6ff3a5ea70f64faf5c2070f8936b85b1da9dad38cc3b16a5bd79377f83129d5f"
+      },
+      {
+        "path": "docs/architecture/DEBUGGING.md",
+        "sha256": "669e06d9f766280a92806f3d4ed39c9af0aaf6f9c8d209c933dd868c7b4bb625"
+      },
+      {
+        "path": "docs/architecture/DESKTOP_UX.md",
+        "sha256": "b69196df06fe90bebc7da96170bd6b9cd0a4bcd7f4a52840bebe54cf06aac1bd"
+      },
+      {
+        "path": "docs/architecture/README.md",
+        "sha256": "1c3020df8af7a02cdfe604d24400a98f95ac17621108a879b9bbf3ba1cf4689e"
+      },
+      {
+        "path": "docs/decisions/README.md",
+        "sha256": "7adaebff6f8208f260e6d639f4c7f8685ec77bff668912d52a01e7e95dd03bed"
+      },
+      {
+        "path": "docs/planning/BACKLOG.md",
+        "sha256": "80b4360c0cc5c594032d6f5a28d7c73293978e4b0dc8f451e9d2eda180aa6112"
+      },
+      {
+        "path": "docs/planning/CURRENT.md",
+        "sha256": "3c7e2d2a5d87a19eede3409020253695a13a120fa91349061b377d84ee5e4239"
+      },
+      {
+        "path": "docs/planning/ROADMAP.md",
+        "sha256": "ce979bfe01f369831b5d63c6e81e3593701528fa07bc452021d12523a74dcc52"
+      },
+      {
+        "path": "docs/architecture/AUTOMATION.md",
+        "sha256": "319f3aa6d4fb31d77378799ed367c1d5b13918b856bc5e7602a198bcd3e93845"
+      },
+      {
+        "path": "docs/decisions/0055-automation-first-headless.md",
+        "sha256": "6d8e5cff7561d2c0fd7ab5918bae84b6b517c9340dc9541652c8aa88790d997e"
+      }
+    ],
+    "verification": "Historical hashes and overlays before own prefix/row; publication reverses only own prefix/row to exact backups"
+  },
+  "reused_evidence": [
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-focus-summary.json",
+      "bytes": 47830,
+      "sha256": "60179709832988da991934eaa068020f5f0191482efded2d44c2816a0f90dcee"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-wheel-summary-02.json",
+      "bytes": 66823,
+      "sha256": "f2e070f4bdd752139607e0d0e05f6e9c14ed5d5f005b3e8560bff7e7c93a71f6"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-pan-summary.json",
+      "bytes": 53520,
+      "sha256": "3cbbd6b274f05269ebc4bcf5f7e557acbc0e41e12bfb8bc1c65afb5e6ce105ca"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-canvas-zoom-summary.json",
+      "bytes": 50119,
+      "sha256": "931fbbb8c2d1db0ef708a2698aa4f0d3c9fe6aa1c1528b656ea58b918c819d03"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-resistance-summary.json",
+      "bytes": 41728,
+      "sha256": "6aad2b10ee235cfc8edef76775acf1afa442087d8c022fe469b4277079bfe94b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-captions-summary.json",
+      "bytes": 35119,
+      "sha256": "e65404331bd2fb3505d4ec818fed51797a6e3f585516afe5258b0969ec29ba0b"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-circuit-capacitance-summary.json",
+      "bytes": 45297,
+      "sha256": "7ecec33b41b926f0cdca8d5ffe7b9746b6467c1e307b5d5bba43b6e4897717f2"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-rc-canvas-summary.json",
+      "bytes": 43854,
+      "sha256": "8cc1ef6ce76e6f334632ccc23eb2a5dcdfed688a9bf4cb9b2156940104acc847"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-occurrence-capacitance-summary.json",
+      "bytes": 29452,
+      "sha256": "296e4ebe64256da47dae9d6c57e7485d86e4c824ca82026b610786a0437a3017"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-peer-navigation-summary.json",
+      "bytes": 25779,
+      "sha256": "24b3e92185b94576b1ccfb61925f7b82610a367356cae2a18eca0d98d174eb56"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-local-endpoints-summary.json",
+      "bytes": 31503,
+      "sha256": "d00c02d54e1d3e70974ba91d9693577809a0d01aa0b9ab0fbd9b5ce5e260a1fc"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-023-capacitance-value-summary.json",
+      "bytes": 18505,
+      "sha256": "f8db0f916d1a5c7411aa880ae441d344d2fbc4b966690eafa1fb617d69edde32"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-021-final-acceptance-summary.json",
+      "bytes": 2159,
+      "sha256": "f178be70a892cc901b416b239beab1ba946f2b45d7c658136a23c40612e0db5a"
+    },
+    {
+      "path": "docs/experiments/evidence/SN-022-qt-boundary-summary.json",
+      "bytes": 24909,
+      "sha256": "403a2125cacb70a215281e4a1a3a16236319ce842ca64d374695a58fd4c787ea"
+    }
+  ],
+  "limits": [
+    "Synthetic focus routing only, no full keyboard/accessibility/physical recovery/monitor-DPI/cross-session workspace/packaging acceptance.",
+    "Next gather keyboard feedback, then separately gate one useful fixture interaction; proposed only.",
+    "No global keys, keyboard pan/component editing/placement, general editor/wiring/instruments/managed Save/real workers/IPC.",
+    "View resizing can change drawing scale/crop enlarged captions while retaining relative zoom/pan; explicit Fit restores the normal view.",
+    "Scripted controls/captures do not prove physical mouse, keyboard/accessibility, monitor/DPI, arbitrary long labels, session persistence or packaging.",
+    "R workflow tests fixed containing literals; wrong-dimension/default-binding variants invalidate C/closed shape, not R-specific quantity acceptance.",
+    "Scripted controls/captures/helper retry do not validate human recovery, physical mouse, keyboard/accessibility, monitor/DPI/session/packaging.",
+    "Display policy only; general quantity entry/locales/units/arbitrary shapes/long-label layouts are unproven.",
+    "Scripted controls and four images do not prove human recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom acceptance.",
+    "Fixed RC only; no domain/application/schema/parser/edit/save/history/worker API or additional Qt module.",
+    "Scripted events/transfers/images do not establish physical mouse, human dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session/packaging/classroom readiness.",
+    "General library/Preview/engineering labels, free placement/rotation/wiring/pan/zoom, arbitrary/long-label/large-project layout and multi-step history pending.",
+    "Managed Save, general execution/real-engine workers/production IPC/instrumentation remain pending.",
+    "Scripted events/resize/images do not establish physical mouse, dialogs/close/recovery, keyboard/accessibility, monitor/DPI/session layout, packaging or classroom readiness.",
+    "SN-017 Python/GDB/fixture ownership/profiles/tolerances/MCU-toolchain/PDF/PID and SN-021 one Windows/local-NTFS managed document/explicit fixed E-01/inert Open limits retained.",
+    "External overwrite/automatic executable resources/production Save/general MCU-mixed-signal/power-loss/trusted origin/redistribution unproven.",
+    "SN-022 synthetic nine process/nine layout/Qt-free worker only; failed first setup/runtime retained; retries are not user recovery.",
+    "SN-044 independent windows/adjustable panels/shared instrumentation preserved; January stabilization and February 2027 remain planning targets."
+  ]
+}

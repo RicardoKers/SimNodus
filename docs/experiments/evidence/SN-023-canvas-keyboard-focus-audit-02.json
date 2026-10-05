@@ -1,0 +1,1136 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\native-build\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--focus-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\focus-02\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-keyboard\\focus-02\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "independent_observations": [
+    {
+      "stage": "original",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        98.69999999999999,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        98.69999999999999,
+        726,
+        435.6
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            276,
+            296
+          ],
+          "actual": [
+            276,
+            296
+          ]
+        },
+        "c": {
+          "expected": [
+            474,
+            389
+          ],
+          "actual": [
+            474,
+            389
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "normal_R",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        -14.749999999999996,
+        155.28571428571428,
+        535.0,
+        321.0
+      ],
+      "actual_rectangle": [
+        -14.749999999999996,
+        155.2857142857143,
+        535,
+        321
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            301
+          ],
+          "actual": [
+            180,
+            301
+          ]
+        },
+        "c": {
+          "expected": [
+            325,
+            369
+          ],
+          "actual": [
+            325,
+            369
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focus_R",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": true,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        75.06249999999996,
+        -26.827380952380956,
+        1235.4166666666667,
+        741.25
+      ],
+      "actual_rectangle": [
+        75.06249999999996,
+        -26.827380952380935,
+        1235.4166666666667,
+        741.25
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            525,
+            309
+          ],
+          "actual": [
+            525,
+            309
+          ]
+        },
+        "c": {
+          "expected": [
+            860,
+            467
+          ],
+          "actual": [
+            860,
+            467
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focus_C",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": true,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        75.06249999999996,
+        -26.827380952380956,
+        1235.4166666666667,
+        741.25
+      ],
+      "actual_rectangle": [
+        75.06249999999996,
+        -26.827380952380935,
+        1235.4166666666667,
+        741.25
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            525,
+            309
+          ],
+          "actual": [
+            525,
+            309
+          ]
+        },
+        "c": {
+          "expected": [
+            860,
+            467
+          ],
+          "actual": [
+            860,
+            467
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "restored_R",
+      "expected_project_draft": "Pending project",
+      "expected_instance_draft": "Pending right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [],
+      "expected_focused": false,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        -14.749999999999996,
+        155.28571428571428,
+        535.0,
+        321.0
+      ],
+      "actual_rectangle": [
+        -14.749999999999996,
+        155.2857142857143,
+        535,
+        321
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            301
+          ],
+          "actual": [
+            180,
+            301
+          ]
+        },
+        "c": {
+          "expected": [
+            325,
+            369
+          ],
+          "actual": [
+            325,
+            369
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "C_applied",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focused": false,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        -14.749999999999996,
+        183.78571428571428,
+        535.0,
+        321.0
+      ],
+      "actual_rectangle": [
+        -14.749999999999996,
+        183.7857142857143,
+        535,
+        321
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            180,
+            329
+          ],
+          "actual": [
+            180,
+            329
+          ]
+        },
+        "c": {
+          "expected": [
+            325,
+            398
+          ],
+          "actual": [
+            325,
+            398
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focus_C_applied",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focused": true,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        6.625,
+        -31.607142857142804,
+        1387.5,
+        832.4999999999999
+      ],
+      "actual_rectangle": [
+        6.625,
+        -31.607142857142783,
+        1387.5,
+        832.4999999999999
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            512,
+            345
+          ],
+          "actual": [
+            512,
+            345
+          ]
+        },
+        "c": {
+          "expected": [
+            889,
+            523
+          ],
+          "actual": [
+            889,
+            523
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "undo_focus_C",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focused": true,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        6.625,
+        -31.607142857142804,
+        1387.5,
+        832.4999999999999
+      ],
+      "actual_rectangle": [
+        6.625,
+        -31.607142857142783,
+        1387.5,
+        832.4999999999999
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            512,
+            345
+          ],
+          "actual": [
+            512,
+            345
+          ]
+        },
+        "c": {
+          "expected": [
+            889,
+            523
+          ],
+          "actual": [
+            889,
+            523
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "redo_focus_C",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [
+        "main",
+        "right"
+      ],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focused": true,
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        20.00000000000001
+      ],
+      "expected_rectangle": [
+        6.625,
+        -31.607142857142804,
+        1387.5,
+        832.4999999999999
+      ],
+      "actual_rectangle": [
+        6.625,
+        -31.607142857142783,
+        1387.5,
+        832.4999999999999
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            512,
+            345
+          ],
+          "actual": [
+            512,
+            345
+          ]
+        },
+        "c": {
+          "expected": [
+            889,
+            523
+          ],
+          "actual": [
+            889,
+            523
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "reopened_focus",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focused": true,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        76.0,
+        12.0,
+        1110.0,
+        666.0
+      ],
+      "actual_rectangle": [
+        76,
+        12,
+        1110,
+        666
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            480,
+            313
+          ],
+          "actual": [
+            480,
+            313
+          ]
+        },
+        "c": {
+          "expected": [
+            782,
+            456
+          ],
+          "actual": [
+            782,
+            456
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ]
+    },
+    {
+      "stage": "unsupported_focus",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "",
+      "expected_r_activation": [],
+      "expected_c_activation": [],
+      "expected_focused": true,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        76.0,
+        12.0,
+        1110.0,
+        666.0
+      ],
+      "actual_rectangle": [
+        76,
+        12,
+        1110,
+        666
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {}
+    },
+    {
+      "stage": "final_restored_C",
+      "expected_project_draft": "Two RC declaration project",
+      "expected_instance_draft": "right",
+      "expected_r_activation": [],
+      "expected_c_activation": [
+        "main",
+        "right"
+      ],
+      "expected_focused": false,
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        200.6,
+        428.0,
+        256.8
+      ],
+      "actual_rectangle": [
+        12,
+        200.6,
+        428,
+        256.8
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            168,
+            317
+          ],
+          "actual": [
+            168,
+            317
+          ]
+        },
+        "c": {
+          "expected": [
+            284,
+            372
+          ],
+          "actual": [
+            284,
+            372
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "470 nF",
+          "actual": "470 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n470 nF\nBase value: 0.000000470 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n470 nF\nBase value: 0.000000470 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    }
+  ],
+  "independent_layout_roundtrips": [
+    {
+      "name": "initial",
+      "before": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 299,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          781,
+          60,
+          499,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 499,
+        "splitter": [
+          242,
+          423
+        ]
+      },
+      "after": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 299,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          781,
+          60,
+          499,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 499,
+        "splitter": [
+          242,
+          423
+        ]
+      },
+      "pixel_tolerance": 2
+    },
+    {
+      "name": "resized",
+      "before": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "after": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "pixel_tolerance": 2
+    },
+    {
+      "name": "hidden_components",
+      "before": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": true,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "after": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": true,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": false,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "pixel_tolerance": 2
+    },
+    {
+      "name": "both_hidden",
+      "before": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": true,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": true,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "after": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": true,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": false,
+        "properties_geometry": [
+          791,
+          60,
+          489,
+          687
+        ],
+        "properties_hidden": true,
+        "properties_width": 489,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "pixel_tolerance": 2
+    },
+    {
+      "name": "floating_properties",
+      "before": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": true,
+        "properties_geometry": [
+          40,
+          110,
+          500,
+          700
+        ],
+        "properties_hidden": false,
+        "properties_width": 500,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "after": {
+        "components_area": 1,
+        "components_floating": false,
+        "components_hidden": false,
+        "components_width": 309,
+        "properties_area": 2,
+        "properties_floating": true,
+        "properties_geometry": [
+          40,
+          110,
+          500,
+          700
+        ],
+        "properties_hidden": false,
+        "properties_width": 500,
+        "splitter": [
+          423,
+          242
+        ]
+      },
+      "pixel_tolerance": 2
+    }
+  ],
+  "exit_code": 0,
+  "independent_saved_token_audit": "passed",
+  "source_diagrams_captions_properties_pan_geometry_and_layout": "passed",
+  "unchanged_inputs_and_no_resources": "passed"
+}
