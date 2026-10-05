@@ -4,6 +4,7 @@
 #include <QEvent>
 #include <QJsonArray>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <algorithm>
@@ -40,6 +41,21 @@ RcCanvas::RcCanvas()
     setMouseTracking(true);
     setMinimumSize(360, 280);
     setAccessibleName("Fixed declared RC circuit; click an existing resistor or capacitor to inspect it");
+}
+void RcCanvas::wheelEvent(QWheelEvent* event)
+{
+    const auto steps = std::clamp(event->angleDelta().y() / 120, -4, 4);
+    if(!supported_ || steps == 0 || !event->pixelDelta().isNull() || event->angleDelta().x() != 0 ||
+        event->phase() != Qt::NoScrollPhase || event->inverted() || event->modifiers() != Qt::NoModifier ||
+        (event->buttons() != Qt::NoButton && event->buttons() != Qt::MiddleButton)) {
+        event->ignore();
+        return;
+    }
+    cancelPan();
+    bool changed = false;
+    for(int i = 0; i < (steps > 0 ? steps : -steps); ++i) changed = (steps > 0 ? zoomIn() : zoomOut()) || changed;
+    if(changed && zoomed) zoomed();
+    event->accept();
 }
 QString RcCanvas::parameterCaption(const simnodus::EffectiveParameter& parameter)
 {

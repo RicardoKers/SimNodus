@@ -1,5 +1,45 @@
 # Current state
 
+## Current SN-023 state: fixed RC vertical wheel zoom tested
+
+On 2026-10-05, [bounded wheel zoom](../experiments/SN-023-canvas-wheel.md) reuses
+the 50/75/100/125/150 percent view levels. Complete vertical 120-unit angle steps
+are limited to four per event; partial remainder is discarded without accumulation.
+Ordinary unmodified/non-inverted/no-pixel/no-phase events with no buttons or only
+MiddleButton are consumed and cancel drag, including a scale boundary. Horizontal,
+partial/zero, pixel/phase/inverted/modified/primary-button and unsupported events
+are ignored, retaining an active drag. Changed zoom updates percentage/buttons.
+Centered scaling retains scene pan, selection, IDs/values, R/C activation/four
+drafts/native operations. Existing Fit/Open success/unsupported resets remain.
+
+Fresh Windows configure and five incremental builds passed; actor refusal coverage,
+LF convention and expected label were refined before the wheel GUI run. No setup,
+build or GUI attempt failed. Final wheel GUI02 25 controls/16 independent snapshots/30
+captions/twelve Properties/two exact copies and unchanged final-binary pan03 28/23/
+44 captions/twenty Properties/two copies/original-port visibility PASS. An earlier
+pan run also passed; all logs/captures retained. Three wheel images inspected;
+fifteen captures retained. Enlarged output may crop; Fit restores the normal view.
+Freeze 27 sources/final binary; reuse 22 prior entries/fourteen native artifacts/
+five unchanged sections. Other local matrices are reused, not repeated. Physical
+wheel/OS focus/recovery/cursor anchoring/trackpad/keyboard/accessibility/DPI/session/
+packaging remain pending. The subagent write tool initially reported capacity;
+it wrote nothing, then the same approved write succeeded; not a user recovery test.
+
+Pre-edit PR #90 reconfirmed MERGED at 84ab9ba0e58f820673445b2bab7fca4c6676c0a3;
+exact-source Foundation Windows 67/67 and Ubuntu 56/56 passed, main copies equal,
+zero unpublished. Preserve 267 historical evidence files/twelve SN-045 overlays;
+source PR records checker/required checks/squash/main. SN-023 stays in_progress;
+no ADR. Next feedback and separately gate a reversible Focus Circuit panel action
+if useful. General editor/wiring/instruments/managed Save/real workers/IPC remain
+pending; SN-017/021/022 bounds/SN-044 ownership/January stabilization/February 2027
+classroom targets remain. Historical acceptance results below remain unchanged.
+
+The first publication guard refused a source hash mismatch: one new blank CRLF
+was normalized by the index. Its diagnostic and initial source/binary freeze are
+retained. Only that byte was corrected; a new build and wheel25/pan28 runs passed
+on the final source/binary freeze. Earlier passing runs remain intact. This scripted
+retry does not establish a user recovery flow.
+
 ## Current SN-023 state: fixed RC middle-button pan tested
 
 On 2026-10-05, [bounded pan](../experiments/SN-023-canvas-pan.md) adds middle-button

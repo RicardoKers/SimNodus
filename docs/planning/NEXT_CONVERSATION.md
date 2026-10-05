@@ -1,5 +1,38 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [fixed RC vertical wheel zoom](../experiments/SN-023-canvas-wheel.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR #90 source bb27ac61228f168f160a2fc8f7c0d7f2db5892bd, squash
+84ab9ba0e58f820673445b2bab7fca4c6676c0a3; Foundation Windows 67/67 and Ubuntu 56/56
+passed in 37311502805; all main copies equal, zero unpublished. Complete unmodified
+vertical angle detents use existing 50-150% centered zoom, discard partial events,
+clamp four steps/event. No pixel/phase/inverted/horizontal/primary-button gestures.
+Accepted events cancel middle drag even at boundary; rejected events retain it.
+Buttons/percentage update; scene pan/IDs/values/selection/R/C activation/four drafts/
+native operations retained. Fit/Open success/unsupported reset view as before.
+Fresh configure/five incremental builds passed, no failed setup/build/GUI attempts.
+Wheel 25/16/30 captions/twelve Properties/two exact copies and unchanged final-binary
+pan 28/23/44 captions/twenty Properties/two copies/original-port visibility PASS.
+Earlier pan passed; fifteen captures retained/three wheel images inspected. Enlarged
+output can crop; Fit restores full legible view. Freeze 27 sources/final binary;
+reuse 22 prior entries/fourteen native artifacts/five byte-identical sections.
+One initial subagent write returned tool capacity before any write, retry succeeded;
+scripted retries do not establish human recovery. Preserve 267 historical evidence
+files/twelve SN-045 overlays; task-only prefixes/row exclude overlays. Source PR
+records checkers/exact checks/squash/main. Next feedback and separately gate a
+reversible Focus Circuit panel action if useful; proposed only. Physical wheel/
+cursor anchoring/trackpad/OS focus/recovery/keyboard/accessibility/DPI/session/
+packaging/general editor/wiring/instruments/managed Save/real workers/IPC remain
+pending. SN-023 in_progress, no ADR; SN-017/021/022 limits/SN-044 ownership and
+January stabilization/February 2027 classroom planning targets remain.
+Historical handoffs follow.
+
+The first publication guard refused a source hash mismatch: one new blank CRLF
+was normalized by the index. Its diagnostic and initial source/binary freeze are
+retained. Only that byte was corrected; a new build and wheel25/pan28 runs passed
+on the final source/binary freeze. Earlier passing runs remain intact. This scripted
+retry does not establish a user recovery flow.
+
 Latest tested increment: [fixed RC middle-button pan](../experiments/SN-023-canvas-pan.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #89 squash 4add16905cd60ffc268b9a52fe13d7985b1411d9, source
