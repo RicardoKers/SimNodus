@@ -1,5 +1,28 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [Circuit resistance editing](../experiments/SN-023-circuit-resistance.md).
+Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
+Pre-edit PR #87 merged at 061e7816e575a8a6b4281a27529ae6a686157fc9; exact-source
+Foundation Windows 67/67 and Ubuntu 56/56 passed, main copies equal/zero unpublished.
+Original R limits/field/Apply move as one panel between Circuit/Details, one R
+draft. Explicit containing-RC activation/Apply rechecks shape/full R path/context/
+activation/native target. Independent C field/draft remains; opposite Apply
+refuses. Target switch refuses pending instance name/R/C separately; project draft
+survives clean switches. Native values/units/edit/history/copy/IDs/inert Open remain.
+Fresh configure/build and first R 43/fourteen/one R-token audit/26 captions/twelve
+Properties blocks and C 41/fourteen/one C-token audit/29 helper cases passed.
+R active/draft/final and C final images inspected; seven images retained. One
+source-helper assertion failed before writes, no configure/build/runtime failure.
+Freeze 24 sources/final binary; verify 21 prior entries/fourteen native artifacts
+and unchanged C/native sections. Reuse remaining matrices, no local backend/native
+reruns. Preserve 250 historical evidence files/twelve overlays/all failures and
+inconclusive evidence; only task planning prefix/row published. Source PR records
+checker/required checks/squash/main. Next feedback and separately gate bounded
+fit/zoom navigation. General editor/wiring/instruments/managed Save/real workers/
+IPC/human recovery/keyboard/accessibility/DPI/session/packaging remain pending.
+SN-017/021/022 limits, SN-044 ownership and January stabilization/February 2027
+planning targets remain. Historical handoffs follow.
+
 Latest tested increment: [exact RC captions](../experiments/SN-023-rc-captions.md).
 Read CURRENT's newest section and reconfirm the source PR, required checks,
 squash and main. Pre-edit PR #86 merged at

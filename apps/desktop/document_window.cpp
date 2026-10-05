@@ -193,16 +193,24 @@ DocumentWindow::DocumentWindow()
     auto* definition_note = new QLabel("Edits the selected circuit definition. Reused occurrences share this label; IDs and connections stay unchanged.");
     definition_note->setWordWrap(true);
     instance_layout->addWidget(definition_note);
+    resistance_details_host_ = new QWidget;
+    auto* resistance_host_layout = new QVBoxLayout(resistance_details_host_);
+    resistance_host_layout->setContentsMargins(0, 0, 0, 0);
+    instance_layout->addWidget(resistance_details_host_);
+    resistance_editor_ = new QWidget;
+    auto* resistance_layout = new QVBoxLayout(resistance_editor_);
+    resistance_layout->setContentsMargins(0, 0, 0, 0);
+    resistance_host_layout->addWidget(resistance_editor_);
     resistance_limits_ = new QLabel("Select an existing literal resistance override.");
     resistance_limits_->setWordWrap(true);
     resistance_limits_->setTextFormat(Qt::PlainText);
-    instance_layout->addWidget(resistance_limits_);
+    resistance_layout->addWidget(resistance_limits_);
     resistance_ = new QLineEdit;
     resistance_->setAccessibleName("Declared literal resistance value");
     resistance_->setMaxLength(64);
-    instance_layout->addWidget(resistance_);
+    resistance_layout->addWidget(resistance_);
     apply_resistance_ = new QPushButton("Apply Resistance Value");
-    instance_layout->addWidget(apply_resistance_);
+    resistance_layout->addWidget(apply_resistance_);
     capacitance_details_host_ = new QWidget;
     auto* capacitance_host_layout = new QVBoxLayout(capacitance_details_host_);
     capacitance_host_layout->setContentsMargins(0, 0, 0, 0);
@@ -276,7 +284,10 @@ DocumentWindow::DocumentWindow()
     toolbar->addAction(details_action_);
     connect(apply_, &QPushButton::clicked, this, [this] { applyName(name_->text()); });
     connect(apply_instance_, &QPushButton::clicked, this, [this] { applyInstanceName(instance_name_->text()); });
-    connect(apply_resistance_, &QPushButton::clicked, this, [this] { applyResistance(resistance_->text()); });
+    connect(apply_resistance_, &QPushButton::clicked, this, [this] {
+        if(details_action_->isChecked()) applyResistance(resistance_->text());
+        else applyCircuitResistance();
+    });
     connect(apply_capacitance_, &QPushButton::clicked, this, [this] {
         if(details_action_->isChecked()) applyCapacitance(capacitance_->text());
         else applyCircuitCapacitance();
@@ -335,6 +346,16 @@ DocumentWindow::DocumentWindow()
     selection_layout->addWidget(circuit_selection_);
     circuit_edit_ = new QPushButton("Edit containing RC instance...");
     selection_layout->addWidget(circuit_edit_);
+    circuit_resistance_edit_ = new QPushButton("Edit Resistance");
+    selection_layout->addWidget(circuit_resistance_edit_);
+    circuit_resistance_target_note_ = new QLabel;
+    circuit_resistance_target_note_->setTextFormat(Qt::PlainText);
+    circuit_resistance_target_note_->setWordWrap(true);
+    selection_layout->addWidget(circuit_resistance_target_note_);
+    resistance_circuit_host_ = new QWidget;
+    auto* circuit_resistance_layout = new QVBoxLayout(resistance_circuit_host_);
+    circuit_resistance_layout->setContentsMargins(0, 0, 0, 0);
+    selection_layout->addWidget(resistance_circuit_host_);
     circuit_capacitance_edit_ = new QPushButton("Edit Capacitance");
     selection_layout->addWidget(circuit_capacitance_edit_);
     circuit_capacitance_target_note_ = new QLabel;
@@ -348,6 +369,7 @@ DocumentWindow::DocumentWindow()
     selection_layout->addStretch();
     connect(circuit_context_, &QComboBox::currentIndexChanged, this, [this] { refreshCircuit(); });
     connect(circuit_edit_, &QPushButton::clicked, this, [this] { editContainingRc(); });
+    connect(circuit_resistance_edit_, &QPushButton::clicked, this, [this] { beginCircuitResistanceEdit(); });
     connect(circuit_capacitance_edit_, &QPushButton::clicked, this, [this] { beginCircuitCapacitanceEdit(); });
     circuit_->selected = [this](const QStringList& path) {
         const auto index = occurrence_view_choice_->findData(path);
@@ -382,6 +404,9 @@ void DocumentWindow::showDeclarationDetails(bool enabled)
     auto* host = enabled ? capacitance_details_host_ : capacitance_circuit_host_;
     if(capacitance_editor_->parentWidget() != host) host->layout()->addWidget(capacitance_editor_);
     capacitance_editor_->show();
+    auto* resistance_host = enabled ? resistance_details_host_ : resistance_circuit_host_;
+    if(resistance_editor_->parentWidget() != resistance_host) resistance_host->layout()->addWidget(resistance_editor_);
+    resistance_editor_->show();
     refreshCircuit();
 }
 void DocumentWindow::refreshCircuit()
@@ -398,6 +423,18 @@ void DocumentWindow::refreshCircuit()
     const auto active = eligible && circuit_capacitance_target_ == context &&
         selected_circuit_ == context[0] && selected_instance_ == context[1];
     const auto circuit_view = !details_action_->isChecked();
+    const auto resistance_eligible = circuitResistanceEligible();
+    circuit_resistance_edit_->setEnabled(resistance_eligible);
+    const auto resistance_active = resistance_eligible && circuit_resistance_target_ == context &&
+        selected_circuit_ == context[0] && selected_instance_ == context[1];
+    resistance_circuit_host_->setVisible(circuit_view && resistance_active);
+    resistance_circuit_host_->setEnabled(resistance_active);
+    circuit_resistance_target_note_->setVisible(circuit_view && resistance_active);
+    if(resistance_active) {
+        const auto literal = selectedResistance();
+        circuit_resistance_target_note_->setText("Editing resistance of containing RC " + context.join("/") +
+            "\nValue in " + text(literal->unit) + "; unit fixed. Apply changes the declaration.");
+    }
     capacitance_circuit_host_->setVisible(circuit_view && active);
     capacitance_circuit_host_->setEnabled(active);
     circuit_capacitance_target_note_->setVisible(circuit_view && active);
@@ -459,6 +496,47 @@ bool DocumentWindow::applyCircuitCapacitance()
         return false;
     }
     return applyCapacitance(capacitance_->text());
+}
+bool DocumentWindow::circuitResistanceEligible() const
+{
+    const auto context = circuit_context_->currentData().toStringList();
+    return document_.graph() && circuit_->supported() && context.size() == 2 &&
+        circuit_->selection() == QStringList{context[0], context[1], "r"} &&
+        simnodus::literal_resistance(*document_.graph(), utf8(context[0]), utf8(context[1])).has_value();
+}
+bool DocumentWindow::beginCircuitResistanceEdit()
+{
+    refreshCircuit();
+    if(!circuitResistanceEligible()) {
+        status_->setText("Select a supported RC resistor with an existing containing resistance value.");
+        return false;
+    }
+    const auto context = circuit_context_->currentData().toStringList();
+    if((selected_circuit_ != context[0] || selected_instance_ != context[1]) &&
+        (instanceDraftPending() || resistanceDraftPending() || capacitanceDraftPending())) {
+        status_->setText("Apply or restore pending instance fields before editing another RC instance.");
+        return false;
+    }
+    auto* target = instanceItem(context[0], context[1]);
+    if(!target) return false;
+    structure_->setCurrentItem(target);
+    if(selected_circuit_ != context[0] || selected_instance_ != context[1] || !selectedResistance()) return false;
+    circuit_resistance_target_ = context;
+    refreshCircuit();
+    resistance_->setFocus();
+    status_->setText("Resistance edit active for containing RC " + context.join("/") + "; Apply and Save Copy remain explicit.");
+    return true;
+}
+bool DocumentWindow::applyCircuitResistance()
+{
+    refreshCircuit();
+    const auto context = circuit_context_->currentData().toStringList();
+    if(details_action_->isChecked() || !circuitResistanceEligible() || circuit_resistance_target_ != context ||
+        selected_circuit_ != context[0] || selected_instance_ != context[1]) {
+        status_->setText("Return to the selected resistor and activate its containing RC resistance edit before applying.");
+        return false;
+    }
+    return applyResistance(resistance_->text());
 }
 bool DocumentWindow::editContainingRc()
 {
@@ -543,6 +621,7 @@ bool DocumentWindow::saveCopy(const QString& leaf)
 void DocumentWindow::refresh()
 {
     circuit_capacitance_target_.clear();
+    circuit_resistance_target_.clear();
     const QSignalBlocker blocked(structure_);
     { const QSignalBlocker blocked_choice(occurrence_view_choice_); occurrence_view_choice_->clear(); }
     occurrence_capture_.reset();
@@ -2621,6 +2700,187 @@ void DocumentWindow::runCircuitCapacitanceAcceptance(const QString& root, const 
         {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
         {"caption_cases", captions},
         {"scope", "One shared C field with exact fixed RC captions and explicit containing RC activation; existing native operations, no generic quantity editor or human usability/recovery acceptance"}};
+    const auto output = QJsonDocument(result).toJson();
+    QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(), 1, static_cast<std::size_t>(output.size()), stdout);
+    QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runCircuitResistanceAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        const auto literal = selectedResistance();
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage", stage}, {"input", input}, {"canvas", circuit_->snapshot()},
+            {"edit_target", target}, {"draft", resistance_->text()}, {"unit", literal ? text(literal->unit) : QString{}},
+            {"active", resistance_circuit_host_->isVisible() && resistance_circuit_host_->isEnabled()},
+            {"editor_visible", resistance_->isVisible()}, {"properties_text", circuit_selection_->text()}});
+    };
+    const auto click = [&](const QString& id) {
+        const auto point = circuit_->componentPoint(id);
+        QMouseEvent event(QEvent::MouseButtonPress, QPointF(point), QPointF(circuit_->mapToGlobal(point)),
+            Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(circuit_, &event); settle();
+        const auto context = circuit_context_->currentData().toStringList();
+        return circuit_->selection() == QStringList{context[0], context[1], id};
+    };
+    const auto choose_context = [&](const QString& side) {
+        circuit_context_->setCurrentIndex(circuit_context_->findData(QStringList{"main", side})); settle();
+    };
+    const auto active = [this] { return resistance_->isVisible() && resistance_->isEnabled() &&
+        apply_resistance_->isVisible() && apply_resistance_->isEnabled() && centralWidget() == circuit_panel_; };
+    checks["empty_document_refuses_compact_edit"] = !beginCircuitResistanceEdit() && !applyCircuitResistance() &&
+        !circuit_resistance_edit_->isEnabled() && !resistance_->isVisible();
+    checks["inert_open_does_not_activate_or_select_target"] = openDocument(root, "original.json") && circuit_->supported() &&
+        selected_instance_.isEmpty() && circuit_resistance_target_.isEmpty() && !resistance_->isVisible() && !document_.dirty();
+    settle(); observe("original", "original.json");
+    const auto original = document_.graph();
+    checks["unselected_apply_refused"] = !applyCircuitResistance() && document_.graph() == original;
+    checks["capacitor_is_read_only_for_R"] = click("c") && !circuit_resistance_edit_->isEnabled() &&
+        !beginCircuitResistanceEdit() && !applyCircuitResistance() && selected_instance_.isEmpty() && document_.graph() == original;
+    checks["R_inspection_does_not_activate_edit"] = click("r") && circuit_resistance_edit_->isEnabled() &&
+        circuit_resistance_target_.isEmpty() && selected_instance_.isEmpty() && !active() && document_.graph() == original;
+    observe("selected", "original.json");
+    circuit_resistance_edit_->click(); settle();
+    checks["explicit_button_activates_existing_containing_literal"] = active() && selected_circuit_ == "main" && selected_instance_ == "right" &&
+        circuit_resistance_target_ == QStringList{"main", "right"} && resistance_->text() == "2.2" &&
+        selectedResistance()->unit == "kohm" && !details_action_->isChecked() && document_.graph() == original;
+    checks["target_unit_and_limits_visible_plain_text"] = circuit_resistance_target_note_->isVisible() &&
+        circuit_resistance_target_note_->text().contains("main/right") && circuit_resistance_target_note_->text().contains("kohm") &&
+        circuit_resistance_target_note_->textFormat() == Qt::PlainText && resistance_limits_->isVisible();
+    checks["active_image"] = grab().save(report + ".active.png");
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); capacitance_->setText("470"); resistance_->setText("3.5");
+    const auto other_drafts = [this] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" && capacitance_->text() == "470"; };
+    checks["draft_does_not_mutate_applied_canvas"] = active() && document_.graph() == original &&
+        current_occurrence_->parameters.at("resistance").value == "2200" && other_drafts() && resistanceDraftPending();
+    observe("draft", "original.json");
+    auto* field = resistance_; auto* button = apply_resistance_; auto* panel = resistance_editor_;
+    bool same_widgets = true;
+    for(int i = 0; i < 5; ++i) {
+        showDeclarationDetails(true); settle();
+        same_widgets = same_widgets && resistance_editor_->parentWidget() == resistance_details_host_ && resistance_->isVisible() &&
+            resistance_->text() == "3.5" && other_drafts();
+        showDeclarationDetails(false); settle();
+        same_widgets = same_widgets && resistance_editor_->parentWidget() == resistance_circuit_host_ && active() &&
+            resistance_->text() == "3.5" && other_drafts();
+    }
+    checks["repeated_view_transfer_preserves_one_widget_and_four_drafts"] = same_widgets && resistance_ == field &&
+        apply_resistance_ == button && resistance_editor_ == panel && document_.graph() == original;
+    checks["draft_image"] = grab().save(report + ".draft.png");
+    checks["C_inspection_hides_R_and_refuses_stale_apply"] = click("c") && !active() && !applyCircuitResistance() &&
+        resistance_->text() == "3.5" && other_drafts() && document_.graph() == original;
+    checks["same_R_return_recovers_existing_draft_without_rebinding"] = click("r") && active() && resistance_->text() == "3.5" &&
+        selected_instance_ == "right" && other_drafts();
+    click("c");
+    checks["R_C_activation_shares_target_but_keeps_separate_widgets_drafts"] = beginCircuitCapacitanceEdit() &&
+        capacitance_->isVisible() && !active() && circuit_capacitance_target_ == circuit_resistance_target_ &&
+        capacitance_->text() == "470" && resistance_->text() == "3.5" && other_drafts() &&
+        capacitance_editor_ != resistance_editor_ && document_.graph() == original && !applyCircuitResistance();
+    click("r");
+    checks["opposite_C_Apply_refused_while_R_selected"] = active() && !capacitance_->isVisible() &&
+        !applyCircuitCapacitance() && resistance_->text() == "3.5" && other_drafts() && document_.graph() == original;
+    choose_context("left"); click("r");
+    checks["left_existing_requires_activation_and_retains_right_draft"] = circuit_resistance_edit_->isEnabled() && !beginCircuitResistanceEdit() &&
+        !applyCircuitResistance() && !active() && selected_instance_ == "right" && resistance_->text() == "3.5" &&
+        other_drafts() && document_.graph() == original;
+    choose_context("right"); click("r");
+    checks["pending_drafts_block_copy_and_history"] = active() && !saveCopy("pending-circuit-R.json") && !undoEdit() && !redoEdit() &&
+        document_.graph() == original && other_drafts() && resistance_->text() == "3.5";
+    resistance_->setText("0"); apply_resistance_->click();
+    checks["invalid_value_keeps_draft_graph_and_target"] = active() && resistance_->text() == "0" && document_.graph() == original &&
+        !document_.can_undo() && !document_.can_redo() && other_drafts() && selected_instance_ == "right";
+    observe("invalid", "original.json");
+    resistance_->setText("invalid"); apply_resistance_->click();
+    checks["malformed_value_is_not_normalized_or_applied"] = resistance_->text() == "invalid" && document_.graph() == original && other_drafts();
+    resistance_->setText("3.5"); apply_resistance_->click(); settle();
+    const auto applied = document_.graph();
+    checks["compact_apply_changes_R_and_preserves_other_three_drafts"] = active() && applied != original && document_.dirty() &&
+        current_occurrence_->parameters.at("resistance").value == "3500" && resistance_->text() == "3.5" &&
+        !resistanceDraftPending() && other_drafts() && selected_instance_ == "right";
+    observe("applied", "circuit-resistance-copy.json");
+    checks["other_drafts_still_block_copy_and_history_after_R_apply"] = !saveCopy("pending-other-R.json") && !undoEdit() &&
+        document_.graph() == applied && document_.can_undo() && other_drafts();
+    name_->setText(text(document_.name())); instance_name_->setText("right"); capacitance_->setText("220");
+    checks["native_undo_refreshes_active_R_and_canvas"] = undoEdit() && active() && resistance_->text() == "2.2" &&
+        document_.graph() == original && current_occurrence_->parameters.at("resistance").value == "2200";
+    observe("undo", "original.json");
+    resistance_->setText("0"); apply_resistance_->click();
+    checks["invalid_edit_preserves_redo"] = document_.graph() == original && document_.can_redo() && resistance_->text() == "0";
+    resistance_->setText("2.2");
+    checks["native_redo_refreshes_active_R_and_canvas"] = redoEdit() && active() && resistance_->text() == "3.5" &&
+        document_.graph() == applied && current_occurrence_->parameters.at("resistance").value == "3500";
+    observe("redo", "circuit-resistance-copy.json");
+    choose_context("left"); click("r");
+    checks["left_inspection_keeps_independent_applied_value"] = !active() && current_occurrence_->parameters.at("resistance").value == "1000" &&
+        resistance_->text() == "3.5" && selected_instance_ == "right" && document_.graph() == applied;
+    observe("left", "circuit-resistance-copy.json");
+    choose_context("right"); click("r");
+    checks["create_only_copy_keeps_current_association_and_history"] = saveCopy("circuit-resistance-copy.json") &&
+        document_.leaf() == "original.json" && document_.graph() == applied && document_.can_undo() && active();
+    checks["occupied_copy_retains_active_editor"] = !saveCopy("circuit-resistance-copy.json") && document_.graph() == applied && active();
+    checks["failed_open_retains_active_editor_and_history"] = !openDocument(root, "invalid.json") && document_.graph() == applied && active() && document_.can_undo();
+    checks["successful_open_clears_activation_drafts_and_history"] = openDocument(root, "circuit-resistance-copy.json") &&
+        circuit_resistance_target_.isEmpty() && circuit_capacitance_target_.isEmpty() && !active() &&
+        !capacitance_->isVisible() && capacitance_->text().isEmpty() && selected_instance_.isEmpty() && resistance_->text().isEmpty() &&
+        !document_.can_undo() && !document_.can_redo() && !document_.dirty();
+    checks["reopened_R_requires_explicit_reactivation"] = click("r") && !active() && beginCircuitResistanceEdit() && active() && resistance_->text() == "3.5";
+    observe("reopened", "circuit-resistance-copy.json");
+    for(const auto& [name, value, key] : std::array<std::array<QString, 3>, 3>{{
+        {"instance", "Pending right", "different_target_refused_for_instance_name_draft"},
+        {"C", "470", "different_target_refused_for_C_draft"},
+        {"R", "3.5", "different_target_refused_for_R_draft"}}}) {
+        choose_context("right");
+        bool ok = openDocument(root, "original.json") && click("r") && beginCircuitResistanceEdit();
+        auto* draft = name == "instance" ? instance_name_ : name == "C" ? capacitance_ : resistance_;
+        draft->setText(value);
+        const auto before = document_.graph();
+        choose_context("left"); click("r");
+        checks[key] = ok && circuit_resistance_edit_->isEnabled() && !beginCircuitResistanceEdit() && !applyCircuitResistance() &&
+            !active() && draft->text() == value && selected_instance_ == "right" && document_.graph() == before;
+    }
+    resistance_->setText("2.2"); name_->setText("Pending project");
+    checks["clean_instance_switch_preserves_project_draft"] = beginCircuitResistanceEdit() && active() && selected_instance_ == "left" &&
+        resistance_->text() == "1" && name_->text() == "Pending project" && !document_.dirty();
+    choose_context("right"); click("r");
+    checks["explicit_target_replacement_requires_activation"] = !active() && !applyCircuitResistance() && selected_instance_ == "left" &&
+        beginCircuitResistanceEdit() && active() && selected_instance_ == "right" && resistance_->text() == "2.2" && name_->text() == "Pending project";
+    for(const auto& [stage, input, key] : std::array<std::array<QString, 3>, 2>{{
+        {"reordered", "reordered.json", "reordered_IDs_keep_explicit_target"},
+        {"labels", "labels.json", "HTML_labels_are_plain_and_not_edit_identity"}}}) {
+        checks[key] = openDocument(root, input) && click("r") && beginCircuitResistanceEdit() && active() &&
+            selected_circuit_ == "main" && selected_instance_ == "right" && resistance_->text() == "2.2" &&
+            circuit_resistance_target_note_->textFormat() == Qt::PlainText;
+        observe(stage, input);
+    }
+    checks["missing_parent_literal_refuses_creation_or_activation"] = openDocument(root, "missing-parent.json") && circuit_->supported() && click("r") &&
+        !circuit_resistance_edit_->isEnabled() && !beginCircuitResistanceEdit() && !applyCircuitResistance() &&
+        selected_instance_.isEmpty() && !document_.dirty() && !active();
+    observe("missing_parent", "missing-parent.json");
+    checks["unsupported_binding_refuses_stale_editor"] = openDocument(root, "default-binding.json") && !circuit_->supported() &&
+        !circuit_resistance_edit_->isEnabled() && !beginCircuitResistanceEdit() && !applyCircuitResistance() &&
+        circuit_->selection().isEmpty() && selected_instance_.isEmpty() && !active() && !document_.dirty();
+    observe("default_binding", "default-binding.json");
+    checks["wrong_dimension_refuses_compact_edit"] = openDocument(root, "wrong-dimension.json") && !circuit_->supported() &&
+        !beginCircuitResistanceEdit() && !applyCircuitResistance() && !active() && !document_.dirty();
+    choose_context("right");
+    checks["final_copy_reactivates_shared_R_editor"] = openDocument(root, "circuit-resistance-copy.json") && click("r") &&
+        beginCircuitResistanceEdit() && active() && resistance_->text() == "3.5" && !document_.dirty() &&
+        !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1;
+    observe("final", "circuit-resistance-copy.json");
+    showAnalyzer(); settle();
+    checks["independent_windows_and_adjustable_panels_preserved"] = analyzer_.isWindow() && analyzer_.isVisible() && isWindow() &&
+        components_->features().testFlag(QDockWidget::DockWidgetClosable) && properties_->features().testFlag(QDockWidget::DockWidgetMovable);
+    checks["final_active_R_image"] = active() && grab().save(report + ".final.png");
+    bool passed = checks.size() == 43;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed", passed}, {"checks", checks}, {"observations", observations},
+        {"qt_version", qVersion()}, {"platform", QApplication::platformName()},
+        {"scope", "One shared R field with explicit containing RC activation and independent C draft/activation; existing native operations, no generic quantity editor or human usability/recovery acceptance"}};
     const auto output = QJsonDocument(result).toJson();
     QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
