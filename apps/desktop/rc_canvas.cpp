@@ -3,6 +3,7 @@
 #include "rc_canvas.hpp"
 #include <QEvent>
 #include <QJsonArray>
+#include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QPainter>
@@ -39,8 +40,23 @@ QString endpointKind(simnodus::DeclaredEndpointKind kind)
 RcCanvas::RcCanvas()
 {
     setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
     setMinimumSize(360, 280);
-    setAccessibleName("Fixed declared RC circuit; click an existing resistor or capacitor to inspect it");
+    setAccessibleName("Fixed declared RC circuit; click R or C to inspect; with canvas focus, Page Up/Down zoom and Home fits");
+}
+void RcCanvas::keyPressEvent(QKeyEvent* event)
+{
+    if(!supported_ || !isVisible() || !hasFocus() || event->modifiers() != Qt::NoModifier ||
+        (event->key() != Qt::Key_PageUp && event->key() != Qt::Key_PageDown && event->key() != Qt::Key_Home)) {
+        QWidget::keyPressEvent(event);
+        return;
+    }
+    cancelPan();
+    if(event->key() == Qt::Key_Home) fitView();
+    else if(event->key() == Qt::Key_PageUp) zoomIn();
+    else zoomOut();
+    if(zoomed) zoomed();
+    event->accept();
 }
 void RcCanvas::wheelEvent(QWheelEvent* event)
 {
@@ -195,6 +211,7 @@ QPoint RcCanvas::componentPoint(const QString& id) const
 }
 void RcCanvas::mousePressEvent(QMouseEvent* event)
 {
+    if(event->button() == Qt::LeftButton || event->button() == Qt::MiddleButton) setFocus(Qt::MouseFocusReason);
     if(event->button() == Qt::MiddleButton) {
         if(!supported_ || !resolve() || viewRect().isEmpty()) return;
         panning_ = true;
@@ -225,7 +242,8 @@ void RcCanvas::cancelPan()
 bool RcCanvas::event(QEvent* event)
 {
     if(event->type() == QEvent::UngrabMouse || event->type() == QEvent::WindowDeactivate ||
-       event->type() == QEvent::Hide || event->type() == QEvent::Resize) cancelPan();
+       event->type() == QEvent::Hide || event->type() == QEvent::Resize || event->type() == QEvent::FocusOut) cancelPan();
+    if(event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) update();
     return QWidget::event(event);
 }
 void RcCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -247,6 +265,10 @@ void RcCanvas::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.fillRect(rect(), Qt::white);
+    if(hasFocus()) {
+        painter.setPen(QPen(palette().color(QPalette::Highlight), 1, Qt::DashLine));
+        painter.drawRect(rect().adjusted(3, 3, -4, -4));
+    }
     if(!supported_) {
         painter.setPen(QColor(90, 100, 115));
         painter.drawText(rect().adjusted(24, 24, -24, -24), Qt::AlignCenter | Qt::TextWordWrap,

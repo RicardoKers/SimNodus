@@ -53,6 +53,7 @@ public:
     void runPanAcceptance(const QString& root, const QString& report);
     void runWheelAcceptance(const QString& root, const QString& report);
     void runFocusAcceptance(const QString& root, const QString& report);
+    void runKeyboardAcceptance(const QString& root, const QString& report);
 protected:
     void closeEvent(QCloseEvent* event) override;
 private:

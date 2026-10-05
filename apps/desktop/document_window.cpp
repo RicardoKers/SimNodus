@@ -19,6 +19,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -358,7 +359,7 @@ DocumentWindow::DocumentWindow()
     connect(circuit_zoom_in_, &QPushButton::clicked, this, [this] { circuit_->zoomIn(); refreshCircuit(); });
     connect(circuit_zoom_out_, &QPushButton::clicked, this, [this] { circuit_->zoomOut(); refreshCircuit(); });
     connect(circuit_fit_, &QPushButton::clicked, this, [this] { circuit_->fitView(); refreshCircuit(); });
-    auto* circuit_note = new QLabel("Wheel: zoom · Middle-drag: pan · Fit: recenter · simulation unavailable");
+    auto* circuit_note = new QLabel("Wheel: zoom · Middle-drag: pan · Canvas focus: PgUp/PgDn zoom, Home fits · simulation unavailable");
     circuit_note->setWordWrap(true);
     circuit_layout->addWidget(circuit_note);
     circuit_properties_ = new QWidget;
@@ -3618,6 +3619,180 @@ void DocumentWindow::runFocusAcceptance(const QString& root, const QString& repo
     const QJsonObject result{{"passed",passed},{"checks",checks},{"observations",observations},{"layout_roundtrips",roundtrips},
         {"qt_version",qVersion()},{"platform",QApplication::platformName()},
         {"scope","Transient same-session Focus Circuit on fixed RC view; no physical user recovery, keyboard/accessibility, monitor/DPI, cross-session layout or packaging acceptance"}};
+    const auto output = QJsonDocument(result).toJson(); QFile file(report);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
+    std::fwrite(output.constData(),1,static_cast<std::size_t>(output.size()),stdout); QApplication::exit(passed ? 0 : 1);
+}
+
+void DocumentWindow::runKeyboardAcceptance(const QString& root, const QString& report)
+{
+    QJsonObject checks;
+    QJsonArray observations, routed_events;
+    const auto settle = [] { for(int i = 0; i < 4; ++i) QApplication::processEvents(); };
+    const auto owner = [&](QWidget* widget) -> QString {
+        if(widget == circuit_) return "canvas";
+        if(widget == resistance_) return "resistance";
+        if(widget == capacitance_) return "capacitance";
+        if(widget == name_) return "project";
+        if(widget == instance_name_) return "instance";
+        if(widget && widget->window() == &analyzer_) return "analyzer";
+        return "other";
+    };
+    const auto focus = [&](QWidget* widget) { widget->window()->activateWindow(); widget->setFocus(Qt::OtherFocusReason); settle(); };
+    const auto key = [&](const QString& label, int code, Qt::KeyboardModifiers modifiers = Qt::NoModifier,
+                         bool repeat = false, const QString& text_value = QString{}) {
+        auto* receiver = QApplication::focusWidget();
+        const auto before = owner(receiver); const auto percent = circuit_->zoomPercent();
+        auto* field = qobject_cast<QLineEdit*>(receiver);
+        const auto cursor = field ? field->cursorPosition() : -1;
+        QKeyEvent press(QEvent::KeyPress,code,modifiers,text_value,repeat);
+        if(receiver) QApplication::sendEvent(receiver,&press);
+        const auto accepted = press.isAccepted();
+        QKeyEvent release(QEvent::KeyRelease,code,modifiers,text_value,repeat);
+        if(receiver) QApplication::sendEvent(receiver,&release);
+        settle();
+        routed_events.append(QJsonObject{{"case",label},{"receiver",before},{"focus_before",before},
+            {"focus_after",owner(QApplication::focusWidget())},{"key",code},{"modifiers",static_cast<int>(modifiers)},
+            {"repeat",repeat},{"zoom_before",percent},{"zoom_after",circuit_->zoomPercent()},
+            {"cursor_before",cursor},{"cursor_after",field ? field->cursorPosition() : -1},{"accepted",accepted}});
+    };
+    const auto isPan = [&](QPointF wanted, bool dragging = false) {
+        const auto view = circuit_->snapshot()["view"].toObject(); const auto pan = view["pan"].toArray();
+        return std::abs(pan[0].toDouble()-wanted.x()) < 0.000001 && std::abs(pan[1].toDouble()-wanted.y()) < 0.000001 &&
+            view["panning"].toBool() == dragging;
+    };
+    const auto scale = [&] { return std::min((circuit_->width()-24.0)/700,(circuit_->height()-24.0)/420)*circuit_->zoomPercent()/100.0; };
+    const auto send = [&](QEvent::Type type, Qt::MouseButton button, Qt::MouseButtons buttons, QPointF point) {
+        QMouseEvent event(type,point,QPointF(circuit_->mapToGlobal(point.toPoint())),button,buttons,Qt::NoModifier);
+        QApplication::sendEvent(circuit_,&event); settle();
+    };
+    const auto click = [&](const QString& id, QPointF pan = QPointF{}) {
+        const auto center = id == "r" ? QPointF(255,190) : QPointF(445,280);
+        const auto point = QPointF(circuit_->width()/2.0,circuit_->height()/2.0)+(center-QPointF(350,210)+pan)*scale();
+        send(QEvent::MouseButtonPress,Qt::LeftButton,Qt::LeftButton,point);
+        send(QEvent::MouseButtonRelease,Qt::LeftButton,Qt::NoButton,point);
+        return circuit_->selection() == QStringList{"main","right",id};
+    };
+    const auto activeR = [&] { return resistance_->isVisible() && resistance_->isEnabled() && !details_action_->isChecked(); };
+    const auto activeC = [&] { return capacitance_->isVisible() && capacitance_->isEnabled() && !details_action_->isChecked(); };
+    const auto observe = [&](const QString& stage, const QString& input) {
+        QJsonArray target;
+        if(!selected_circuit_.isEmpty()) { target.append(selected_circuit_); target.append(selected_instance_); }
+        observations.append(QJsonObject{{"stage",stage},{"input",input},{"canvas",circuit_->snapshot()},
+            {"edit_target",target},{"r_draft",resistance_->text()},{"c_draft",capacitance_->text()},
+            {"r_active",activeR()},{"c_active",activeC()},{"focused",circuit_focused_},
+            {"r_activation",QJsonArray::fromStringList(circuit_resistance_target_)},
+            {"c_activation",QJsonArray::fromStringList(circuit_capacitance_target_)},
+            {"project_draft",name_->text()},{"instance_draft",instance_name_->text()},
+            {"properties_text",circuit_selection_->text()},{"focus_owner",owner(QApplication::focusWidget())}});
+    };
+    focus(circuit_); key("empty_home",Qt::Key_Home); key("empty_up",Qt::Key_PageUp); key("empty_down",Qt::Key_PageDown);
+    checks["empty_keys_inert"] = !document_.graph() && circuit_->zoomPercent() == 100 && isPan({0,0});
+    checks["inert_open_default_view"] = openDocument(root,"original.json") && circuit_->supported() && !document_.dirty() &&
+        circuit_->selection().isEmpty() && isPan({0,0});
+    settle(); focus(circuit_); observe("original","original.json");
+    const auto original = document_.graph();
+    circuit_fit_->setFocus(); settle();
+    const auto hit_R = click("r");
+    checks["canvas_mouse_focus_indicator"] = hit_R && circuit_->hasFocus() && circuit_->focusPolicy() == Qt::StrongFocus;
+    beginCircuitResistanceEdit();
+    name_->setText("Pending project"); instance_name_->setText("Pending right"); resistance_->setText("3.5"); capacitance_->setText("470");
+    const auto drafts = [&] { return name_->text() == "Pending project" && instance_name_->text() == "Pending right" &&
+        resistance_->text() == "3.5" && capacitance_->text() == "470"; };
+    focus(circuit_); observe("R_drafts","original.json");
+    key("canvas_page_up",Qt::Key_PageUp); const auto step = circuit_->zoomPercent() == 125;
+    key("canvas_repeat_up",Qt::Key_PageUp,Qt::NoModifier,true); const auto upper = circuit_->zoomPercent() == 150;
+    key("upper_bound",Qt::Key_PageUp);
+    const auto upper_bound = circuit_->zoomPercent() == 150 && !circuit_zoom_in_->isEnabled();
+    key("canvas_page_down",Qt::Key_PageDown);
+    for(int i = 0; i < 3; ++i) key("lower_step_"+QString::number(i),Qt::Key_PageDown,Qt::NoModifier,i == 2);
+    key("lower_bound",Qt::Key_PageDown);
+    checks["page_up_down_bounds_repeat"] = step && upper && upper_bound && circuit_->zoomPercent() == 50 &&
+        !circuit_zoom_out_->isEnabled() && drafts() && document_.graph() == original;
+    observe("lower_bound","original.json");
+    key("canvas_home",Qt::Key_Home);
+    checks["home_recenter"] = circuit_->zoomPercent() == 100 && isPan({0,0}) && drafts() && activeR();
+    observe("reset_drafts","original.json");
+    key("modified_canvas",Qt::Key_PageUp,Qt::ControlModifier); key("unknown_canvas",Qt::Key_End);
+    checks["modified_unknown_keys_inert"] = circuit_->zoomPercent() == 100 && isPan({0,0}) && drafts() && document_.graph() == original;
+    key("tab_leave",Qt::Key_Tab); const auto left_canvas = !circuit_->hasFocus();
+    key("tab_return",Qt::Key_Tab,Qt::ShiftModifier);
+    checks["tab_roundtrip_native"] = left_canvas && circuit_->hasFocus() && drafts();
+    focus(resistance_); resistance_->setCursorPosition(3); key("field_R_home",Qt::Key_Home);
+    const auto cursor_home = QApplication::focusWidget() == resistance_ && resistance_->cursorPosition() == 0;
+    key("field_R_text",Qt::Key_9,Qt::NoModifier,false,"9");
+    const auto inserted = resistance_->text() == "93.5" && resistance_->cursorPosition() == 1;
+    resistance_->setText("3.5"); resistance_->setCursorPosition(3);
+    const auto field_image = grab().save(report+".field.png");
+    key("field_R_page_up",Qt::Key_PageUp); key("field_R_page_down",Qt::Key_PageDown);
+    const auto field_pages = circuit_->zoomPercent() == 100 && isPan({0,0}) && drafts();
+    showDeclarationDetails(true); settle();
+    bool local_homes = cursor_home && inserted && field_image;
+    for(auto* field : {capacitance_,name_,instance_name_}) {
+        focus(field); field->setCursorPosition(static_cast<int>(field->text().size()));
+        const auto label = field == capacitance_ ? "field_C_home" : field == name_ ? "field_project_home" : "field_instance_home";
+        key(label,Qt::Key_Home);
+        local_homes = local_homes && QApplication::focusWidget() == field && field->cursorPosition() == 0;
+    }
+    focus(name_); key("details_page",Qt::Key_PageUp);
+    checks["field_home_and_text_local"] = local_homes && circuit_->zoomPercent() == 100 && drafts() && document_.graph() == original;
+    checks["field_page_keys_no_zoom"] = field_pages && circuit_->zoomPercent() == 100 && isPan({0,0}) && drafts();
+    showDeclarationDetails(false); settle(); focus(circuit_);
+    auto point = QPointF(circuit_->width()/2.0,circuit_->height()/2.0);
+    send(QEvent::MouseButtonPress,Qt::MiddleButton,Qt::MiddleButton,point);
+    const auto dragging = isPan({0,0},true); focus(resistance_);
+    checks["focus_loss_cancels_drag"] = dragging && isPan({0,0}) && circuit_->cursor().shape() != Qt::ClosedHandCursor && drafts();
+    focus(circuit_);
+    send(QEvent::MouseButtonPress,Qt::MiddleButton,Qt::MiddleButton,point);
+    point += QPointF(35,20)*scale(); send(QEvent::MouseMove,Qt::NoButton,Qt::MiddleButton,point);
+    key("drag_ignored",Qt::Key_PageUp,Qt::ControlModifier); const auto retained_drag = isPan({35,20},true);
+    key("drag_key",Qt::Key_PageUp);
+    send(QEvent::MouseMove,Qt::NoButton,Qt::MiddleButton,point+QPointF(80,50));
+    send(QEvent::MouseButtonRelease,Qt::MiddleButton,Qt::NoButton,point);
+    checks["keyboard_during_drag_cancels_retains_pan"] = retained_drag && circuit_->zoomPercent() == 125 && isPan({35,20}) && drafts();
+    observe("panned_key","original.json");
+    checks["selection_hit_after_keyboard_zoom"] = click("c",{35,20}) && !activeR() && !activeC() && drafts() && document_.graph() == original;
+    observe("keyboard_C","original.json");
+    click("r",{35,20}); focus_action_->trigger(); settle(); focus(circuit_);
+    key("focus_mode_home",Qt::Key_Home); key("focus_mode_up",Qt::Key_PageUp);
+    observe("focused_keys","original.json");
+    const auto focused = circuit_focused_ && components_->isHidden() && properties_->isHidden() && isPan({0,0}) &&
+        circuit_->zoomPercent() == 125 && drafts();
+    showAnalyzer(); settle(); focus(&analyzer_);
+    key("analyzer_home",Qt::Key_Home); key("analyzer_up",Qt::Key_PageUp);
+    checks["independent_analyzer_keys_no_zoom"] = analyzer_.isWindow() && analyzer_.isVisible() && isWindow() &&
+        owner(QApplication::focusWidget()) == "analyzer" && circuit_->zoomPercent() == 125 && isPan({0,0}) && drafts();
+    analyzer_.close(); activateWindow(); focus_action_->trigger(); settle(); focus(circuit_);
+    checks["focus_mode_keyboard_restore_drafts"] = focused && !circuit_focused_ && activeR() && drafts() &&
+        circuit_->zoomPercent() == 125 && isPan({0,0}) && document_.graph() == original;
+    observe("restored_R","original.json");
+    name_->setText(text(document_.name())); instance_name_->setText("right"); capacitance_->setText("220");
+    apply_resistance_->click(); settle(); focus(circuit_); const auto applied = document_.graph();
+    checks["R_apply_retains_view"] = applied != original && activeR() && resistance_->text() == "3.5" &&
+        circuit_->zoomPercent() == 125 && isPan({0,0});
+    const auto undone = undoEdit() && document_.graph() == original && resistance_->text() == "2.2" && circuit_->zoomPercent() == 125;
+    const auto redone = redoEdit() && document_.graph() == applied && resistance_->text() == "3.5" && circuit_->zoomPercent() == 125;
+    checks["keyboard_undo_redo_native"] = undone && redone && isPan({0,0}) && activeR();
+    focus(circuit_); observe("R_applied","keyboard-R-copy.json");
+    checks["create_only_copy_and_occupied_refusal"] = saveCopy("keyboard-R-copy.json") && !saveCopy("keyboard-R-copy.json") &&
+        document_.leaf() == "original.json" && document_.graph() == applied;
+    checks["failed_open_retains_state"] = !openDocument(root,"invalid.json") && document_.graph() == applied &&
+        circuit_->zoomPercent() == 125 && isPan({0,0}) && circuit_->selection() == QStringList{"main","right","r"};
+    const auto reopened = openDocument(root,"keyboard-R-copy.json") && !document_.dirty() && circuit_->zoomPercent() == 100 &&
+        circuit_->selection().isEmpty() && isPan({0,0}) && circuit_resistance_target_.isEmpty() && circuit_capacitance_target_.isEmpty();
+    const auto unsupported = openDocument(root,"changed-net.json") && !circuit_->supported();
+    focus(circuit_); key("unsupported_home",Qt::Key_Home); key("unsupported_up",Qt::Key_PageUp); key("unsupported_down",Qt::Key_PageDown);
+    checks["reopen_unsupported_details_keys_inert"] = reopened && unsupported && circuit_->zoomPercent() == 100 &&
+        isPan({0,0}) && !document_.dirty() && resistance_->text().isEmpty() && capacitance_->text().isEmpty();
+    observe("unsupported","changed-net.json");
+    checks["resources_unaccessed_source_unchanged"] = !artwork_->capture() && !occurrence_capture_ && catalog_->currentRow() == -1;
+    openDocument(root,"keyboard-R-copy.json"); settle(); click("r"); beginCircuitResistanceEdit(); focus(circuit_);
+    const auto canvas_image = grab().save(report+".canvas.png");
+    bool passed = checks.size() == 20 && canvas_image;
+    for(const auto value : checks) passed = passed && value.toBool();
+    const QJsonObject result{{"passed",passed},{"checks",checks},{"observations",observations},{"routed_events",routed_events},
+        {"qt_version",qVersion()},{"platform",QApplication::platformName()},
+        {"scope","Synthetic focused canvas PgUp/PgDn/Home and native field routing; no full keyboard/accessibility, physical recovery, monitor/DPI, cross-session layout or packaging acceptance"}};
     const auto output = QJsonDocument(result).toJson(); QFile file(report);
     if(!file.open(QIODevice::WriteOnly | QIODevice::NewOnly) || file.write(output) != output.size() || !file.flush()) { QApplication::exit(3); return; }
     std::fwrite(output.constData(),1,static_cast<std::size_t>(output.size()),stdout); QApplication::exit(passed ? 0 : 1);

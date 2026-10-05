@@ -1,5 +1,44 @@
 # Current state
 
+## Current SN-023 state: focused canvas keyboard navigation tested
+
+On 2026-10-05, [focused canvas keys](../experiments/SN-023-canvas-keyboard.md)
+reuse the existing fixed RC zoom and Fit: unmodified Page Up/Down change one
+25-percent level per event (including repeat), bounded 50..150; Home resets Fit
+and pan. Only the visible, supported canvas with keyboard focus handles them.
+Click/Tab can focus it, with a dashed border; Tab/ShiftTab retain native routing.
+Modified/unknown keys delegate to QWidget. Valid keys and focus loss cancel
+middle drag without changing source values; zoom retains scene pan. Fields retain
+native Home/cursor/text/Page behavior. Selection/IDs/values/four drafts/activation,
+Focus Circuit panel restore and independent analyzer/native operations remain.
+Qt Core/Gui/Widgets presentation only; no domain/engine/native-operation changes.
+
+Fresh configure passed. A quote helper and then filesystem write helper failed;
+build01 incorrectly started before confirming actor installation, failed LNK2019/
+LNK1120 with no binary. Nine source/helper snapshots/raw build retained; corrected
+installation/build02 passed. GUI01/Focus01 passed functionally, but two inspected
+images exposed footer UTF-8 misdecoded by the helper's Windows default encoding.
+Nine source/helper/binary snapshots retained; explicit UTF-8 correction/build03
+and final GUI02/Focus02 passed. All attempts remain; scripted corrections do not
+prove user recovery. Keyboard20 controls/10 independent states/33 focus-routed
+events/18 captions/eight Properties/one exact right R2.2->3.5 copy; unchanged final-
+binary Focus24/12/22 captions/nine Properties/five layouts/one C470 copy passed.
+Four keyboard images inspected; final border/field and UTF-8 footer legible.
+Freeze29 sources/binary; verify24 prior entries/fourteen native artifacts/five
+unchanged sections including all prior C/R/Zoom/Pan/Wheel/Focus actors; reuse other
+matrices. Preserve282 historical evidence files/twelve independent SN-045 overlays.
+
+Pre-edit PR92 source aa39274d20a88d6031839faacb490f9a35cfbb9b reconfirmed MERGED
+as d6b383e3556b7a1c4165c69930c61fb4233be4d0, exact Foundation Windows67/67 and
+Ubuntu56/56 PASS in37345146908; main copies equal, zero unpublished. Source PR
+records task-only checkers/exact required checks/guarded squash/main. SN023 remains
+in_progress/no ADR. Next gather keyboard feedback, then gate one useful fixture
+interaction separately. Full keyboard/accessibility, physical recovery, monitor/
+DPI, cross-session workspace, packaging/general editor/wiring/instruments/managed
+Save/real workers/IPC remain pending. SN017/021/022 limits/SN044 ownership and
+January stabilization/February2027 classroom planning targets remain unchanged.
+Historical results follow unchanged.
+
 ## Current SN-023 state: transient Focus Circuit tested
 
 On 2026-10-05, [Focus Circuit](../experiments/SN-023-circuit-focus.md) adds a

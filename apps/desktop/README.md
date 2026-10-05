@@ -1,5 +1,13 @@
 # Bounded Windows document editor
 
+[Focused canvas keys](../../docs/experiments/SN-023-canvas-keyboard.md): click the
+circuit or use Tab until its dashed focus border appears. **Page Up/Down** change
+zoom in 25-percent steps from 50 to 150; **Home** fits at 100 and recenters pan.
+Tab/ShiftTab move focus normally. With a text field focused, Home/cursor/text/Page
+keys belong to that field. Navigation preserves source/selection/drafts and works
+during Focus Circuit; valid keys/focus loss end a middle drag. Full keyboard and
+accessibility usability remains pending.
+
 [Focus Circuit](../../docs/experiments/SN-023-circuit-focus.md) in the toolbar or
 View menu hides Components/Preview and Properties to expand the canvas. Click
 **Restore Panels** to recover their preceding sizes and visibility. Zoom/pan,
@@ -82,7 +90,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-circuit-focus/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/circuit-focus-demo-01
+python tools/run_editor_demo.py --editor build/sn023-canvas-keyboard/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-keyboard-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
