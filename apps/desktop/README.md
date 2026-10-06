@@ -1,10 +1,14 @@
 # Bounded Windows document editor
 
-[Selected R/C Enter](../../docs/experiments/SN-023-canvas-enter.md) is implemented/
-tested in local isolated preparation; publication/integration pending. Click R/C,
-press the main Enter with canvas focus, then use explicit Apply/Save Copy. Physical
-keypad/full keyboard-accessibility remain pending. Parent PR #94 runner incident
-blocks integration; root overlays/evidence are preserved.
+[Fixed RC arrow inspection](../../docs/experiments/SN-023-canvas-selection.md)
+uses focused Left for R and Right for C, preserving the existing inspection/edit
+path. Enter activates the same field; Apply and Save Copy remain explicit.
+Native acceptance passed; the source PR records required checks/integration.
+
+[Selected R/C Enter](../../docs/experiments/SN-023-canvas-enter.md) passed native
+Windows acceptance and is integrated through PR95 after both Foundation checks.
+Field Enter never applies; physical keypad/full keyboard-accessibility remain
+pending. Earlier isolated reports remain dated evidence; CURRENT has current status.
 
 [Double-click R/C](../../docs/experiments/SN-023-canvas-double-click.md) to activate
 the existing fixed-unit field, with its text selected. Apply remains an explicit

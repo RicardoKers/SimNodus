@@ -86,6 +86,8 @@ for bounded zoom and Home for Fit, preserving native text-field behavior.
 existing guarded value field; Apply and Save Copy remain explicit.
 [Focused Enter](docs/experiments/SN-023-canvas-enter.md) activates the selected
 existing R/C field in a locally tested isolated preparation; publication remains pending.
+[Fixed RC arrow inspection](docs/experiments/SN-023-canvas-selection.md) is locally
+implemented/tested: focused Left/Right select R/C; Enter and Apply/Save stay explicit.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

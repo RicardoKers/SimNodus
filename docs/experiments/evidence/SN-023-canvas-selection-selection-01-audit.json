@@ -1,0 +1,5283 @@
+{
+  "command": [
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-selection\\native-build-02\\apps\\desktop\\Release\\simnodus_document_editor.exe",
+    "--selection-acceptance-root",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-selection\\selection-01\\document",
+    "--report",
+    "D:\\03_Projects\\01_Actives\\SimNodus\\build\\sn023-canvas-selection\\selection-01\\report.json"
+  ],
+  "state": "independent-audits-passed",
+  "independent_observations": [
+    {
+      "stage": "original",
+      "expected_state": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        90.69999999999999,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        90.69999999999999,
+        726,
+        435.6
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            276,
+            288
+          ],
+          "actual": [
+            276,
+            288
+          ]
+        },
+        "c": {
+          "expected": [
+            474,
+            381
+          ],
+          "actual": [
+            474,
+            381
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ]
+    },
+    {
+      "stage": "right_R",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "right_C",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "actual_rectangle": [
+        11.999999999999943,
+        131.49999999999997,
+        590.0000000000001,
+        354.00000000000006
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            227,
+            292
+          ],
+          "actual": [
+            227,
+            292
+          ]
+        },
+        "c": {
+          "expected": [
+            387,
+            368
+          ],
+          "actual": [
+            387,
+            368
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n220 nF\nBase value: 0.000000220 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "drafts_R",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": true,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -24.875,
+        139.82142857142858,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875,
+        139.82142857142856,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            340
+          ],
+          "actual": [
+            244,
+            340
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            435
+          ],
+          "actual": [
+            444,
+            435
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "left_C",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "left",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "left"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -24.875,
+        139.82142857142858,
+        737.5,
+        442.5
+      ],
+      "actual_rectangle": [
+        -24.875,
+        139.82142857142856,
+        737.5,
+        442.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            244,
+            340
+          ],
+          "actual": [
+            244,
+            340
+          ]
+        },
+        "c": {
+          "expected": [
+            444,
+            435
+          ],
+          "actual": [
+            444,
+            435
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "expected": "1 kΩ",
+          "actual": "1 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "expected": "1 µF",
+          "actual": "1 µF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied capacitance:\n1 µF\nBase value: 0.000001 F",
+        "actual": "c\ncapacitor\n\nOccurrence: main/left/c\n\nApplied capacitance:\n1 µF\nBase value: 0.000001 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "focus_R",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": true,
+        "components_hidden": true,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        1.0,
+        -32.0,
+        1400.0,
+        840.0
+      ],
+      "actual_rectangle": [
+        1,
+        -32.000000000000036,
+        1400,
+        840
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            511,
+            348
+          ],
+          "actual": [
+            511,
+            348
+          ]
+        },
+        "c": {
+          "expected": [
+            891,
+            528
+          ],
+          "actual": [
+            891,
+            528
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "restored_R",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": true,
+      "expected_c_active": false,
+      "expected_focus_owner": "resistance",
+      "expected_selected_text": "3.5",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -33.375,
+        93.67857142857143,
+        907.5,
+        544.5
+      ],
+      "actual_rectangle": [
+        -33.375,
+        93.6785714285714,
+        907.5,
+        544.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            297,
+            340
+          ],
+          "actual": [
+            297,
+            340
+          ]
+        },
+        "c": {
+          "expected": [
+            544,
+            457
+          ],
+          "actual": [
+            544,
+            457
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "2.2 kΩ",
+          "actual": "2.2 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n2.2 kΩ\nBase value: 2200 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "applied_R",
+      "expected_state": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "220",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": true
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": true,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        35,
+        20
+      ],
+      "actual_pan": [
+        35,
+        19.999999999999982
+      ],
+      "expected_rectangle": [
+        -33.375,
+        93.67857142857143,
+        907.5,
+        544.5
+      ],
+      "actual_rectangle": [
+        -33.375,
+        93.6785714285714,
+        907.5,
+        544.5
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {
+        "r": {
+          "expected": [
+            297,
+            340
+          ],
+          "actual": [
+            297,
+            340
+          ]
+        },
+        "c": {
+          "expected": [
+            544,
+            457
+          ],
+          "actual": [
+            544,
+            457
+          ]
+        }
+      },
+      "captions": [
+        {
+          "path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "expected": "3.5 kΩ",
+          "actual": "3.5 kΩ"
+        },
+        {
+          "path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "expected": "220 nF",
+          "actual": "220 nF"
+        }
+      ],
+      "properties": {
+        "expected": "Applied resistance:\n3.5 kΩ\nBase value: 3500 ohm",
+        "actual": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding."
+      }
+    },
+    {
+      "stage": "unsupported",
+      "expected_state": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_context": [
+        "main",
+        "right"
+      ],
+      "expected_r_active": false,
+      "expected_c_active": false,
+      "expected_focus_owner": "canvas",
+      "expected_selected_text": "",
+      "expected_pan": [
+        0,
+        0
+      ],
+      "actual_pan": [
+        0,
+        0
+      ],
+      "expected_rectangle": [
+        12.0,
+        130.2,
+        726.0,
+        435.6
+      ],
+      "actual_rectangle": [
+        12,
+        130.2,
+        726,
+        435.6
+      ],
+      "expected_panning": false,
+      "actual_panning": false,
+      "points": {}
+    }
+  ],
+  "independent_routed_events": [
+    {
+      "case": "empty_Left",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "case": "empty_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "empty_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "case": "empty_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "right_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "case": "right_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "right_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "right_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "reverse_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 100
+        },
+        "case": "reverse_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "single_Left_again",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "single_Left_again",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "ctrl_Left",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "ctrl_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 67108864,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "shift_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "shift_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 33554432,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "repeat_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "repeat_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": true,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "other_Up",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "other_Up",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777235,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "other_Down",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "other_Down",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777237,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "activate_R_Return",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "220",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "right",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "2.2",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 100
+        },
+        "case": "activate_R_Return",
+        "cursor_after": 3,
+        "cursor_before": -1,
+        "focus_after": "resistance",
+        "focus_after_press": "resistance",
+        "focus_before": "canvas",
+        "key": 16777220,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "resistance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "2.2",
+        "c_draft": "220",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "right",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "resistance",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "field_R_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "field_R_Left",
+        "cursor_after": 2,
+        "cursor_before": 3,
+        "focus_after": "resistance",
+        "focus_after_press": "resistance",
+        "focus_before": "resistance",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "resistance",
+        "release_receiver": "resistance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "resistance",
+      "expected_focus_after": "resistance",
+      "expected_cursor_before": 3,
+      "expected_cursor_after": 2
+    },
+    {
+      "case": "field_R_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "field_R_Right",
+        "cursor_after": 3,
+        "cursor_before": 2,
+        "focus_after": "resistance",
+        "focus_after_press": "resistance",
+        "focus_before": "resistance",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "resistance",
+        "release_receiver": "resistance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "resistance",
+      "expected_focus_after": "resistance",
+      "expected_cursor_before": 2,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "draft_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "draft_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "activate_C_Enter",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "activate_C_Enter",
+        "cursor_after": 3,
+        "cursor_before": -1,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "canvas",
+        "key": 16777221,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "field_C_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "field_C_Left",
+        "cursor_after": 2,
+        "cursor_before": 3,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "capacitance",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "capacitance",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "capacitance",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": 3,
+      "expected_cursor_after": 2
+    },
+    {
+      "case": "field_C_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "field_C_Right",
+        "cursor_after": 3,
+        "cursor_before": 2,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "capacitance",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "capacitance",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "capacitance",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": 2,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "unfocused_canvas_Left",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "unfocused_canvas_Left",
+        "cursor_after": 3,
+        "cursor_before": 3,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "capacitance",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "direct-negative-probe",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "capacitance",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": 3,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "hidden_canvas_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "hidden_canvas_Right",
+        "cursor_after": 3,
+        "cursor_before": 3,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "capacitance",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "direct-negative-probe",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "capacitance",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": 3,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "draft_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "draft_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "panning_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": true,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": true,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "panning_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": true,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": true,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "left_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [],
+          "zoom": 125
+        },
+        "case": "left_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "left",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "left_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "left",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "left",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "left_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "left",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "left",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "focus_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": true,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": true,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": true,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": true,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [],
+          "zoom": 125
+        },
+        "case": "focus_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": true,
+        "components_hidden": true,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": true,
+        "components_hidden": true,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "focus_Return",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": true,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": true,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "focus_Return",
+        "cursor_after": 3,
+        "cursor_before": -1,
+        "focus_after": "resistance",
+        "focus_after_press": "resistance",
+        "focus_before": "canvas",
+        "key": 16777220,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "resistance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": true,
+        "components_hidden": true,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "resistance",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "closed_Right",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "closed_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "closed_Enter",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": true,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "closed_Enter",
+        "cursor_after": 3,
+        "cursor_before": -1,
+        "focus_after": "capacitance",
+        "focus_after_press": "capacitance",
+        "focus_before": "canvas",
+        "key": 16777221,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "capacitance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": true,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "capacitance",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "save_Left",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "c"
+          ],
+          "zoom": 125
+        },
+        "case": "save_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "c"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "save_Return",
+      "event": {
+        "accepted": true,
+        "after": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "before": {
+          "c_activation": [
+            "main",
+            "right"
+          ],
+          "c_draft": "470",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [
+            "main",
+            "right"
+          ],
+          "focused": false,
+          "instance_draft": "Pending right",
+          "pan": [
+            35,
+            19.999999999999982
+          ],
+          "panning": false,
+          "project_draft": "Pending project",
+          "properties_hidden": false,
+          "r_activation": [
+            "main",
+            "right"
+          ],
+          "r_draft": "3.5",
+          "selected_path": [
+            "main",
+            "right",
+            "r"
+          ],
+          "zoom": 125
+        },
+        "case": "save_Return",
+        "cursor_after": 3,
+        "cursor_before": -1,
+        "focus_after": "resistance",
+        "focus_after_press": "resistance",
+        "focus_before": "canvas",
+        "key": 16777220,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "resistance",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [
+          "main",
+          "right",
+          "r"
+        ],
+        "edit_target": [
+          "main",
+          "right"
+        ],
+        "r_activation": [
+          "main",
+          "right"
+        ],
+        "c_activation": [
+          "main",
+          "right"
+        ],
+        "r_draft": "3.5",
+        "c_draft": "470",
+        "project_draft": "Pending project",
+        "instance_draft": "Pending right",
+        "zoom": 125,
+        "pan": [
+          35,
+          20
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "resistance",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": 3
+    },
+    {
+      "case": "unsupported_Left",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "case": "unsupported_Left",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777234,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    },
+    {
+      "case": "unsupported_Right",
+      "event": {
+        "accepted": false,
+        "after": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "before": {
+          "c_activation": [],
+          "c_draft": "",
+          "components_hidden": false,
+          "dirty": false,
+          "edit_target": [],
+          "focused": false,
+          "instance_draft": "",
+          "pan": [
+            0,
+            0
+          ],
+          "panning": false,
+          "project_draft": "Two RC declaration project",
+          "properties_hidden": false,
+          "r_activation": [],
+          "r_draft": "",
+          "selected_path": [],
+          "zoom": 100
+        },
+        "case": "unsupported_Right",
+        "cursor_after": -1,
+        "cursor_before": -1,
+        "focus_after": "canvas",
+        "focus_after_press": "canvas",
+        "focus_before": "canvas",
+        "key": 16777236,
+        "modifiers": 0,
+        "press_receiver": "canvas",
+        "release_receiver": "canvas",
+        "repeat": false,
+        "route": "focus-routed",
+        "same_graph": true
+      },
+      "expected_before": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_after": {
+        "selected_path": [],
+        "edit_target": [],
+        "r_activation": [],
+        "c_activation": [],
+        "r_draft": "",
+        "c_draft": "",
+        "project_draft": "Two RC declaration project",
+        "instance_draft": "",
+        "zoom": 100,
+        "pan": [
+          0,
+          0
+        ],
+        "panning": false,
+        "focused": false,
+        "components_hidden": false,
+        "properties_hidden": false,
+        "dirty": false
+      },
+      "expected_focus_before": "canvas",
+      "expected_focus_after": "canvas",
+      "expected_cursor_before": -1,
+      "expected_cursor_after": -1
+    }
+  ],
+  "input_sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549",
+  "exit_code": 0,
+  "qt_version": "6.11.1",
+  "platform": "windows",
+  "independent_saved_token_audit": "passed",
+  "saved_sha256": "9abc2e1024e16b20340158a57e49886ee2c78b42e61cc169d09563454f96e714",
+  "source_diagrams_captions_properties_pan_geometry_focus_and_routing": "passed",
+  "unchanged_inputs_and_no_resources": "passed",
+  "controls": 11,
+  "observations": 9,
+  "captions": 16,
+  "properties_blocks": 7,
+  "routed_press_release_pairs": 32,
+  "saved_token_audits": 1,
+  "saved_copies": 1,
+  "screenshots": 1
+}

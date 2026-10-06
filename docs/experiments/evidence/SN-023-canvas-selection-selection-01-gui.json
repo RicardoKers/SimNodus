@@ -1,0 +1,4690 @@
+{
+    "checks": {
+        "closed_properties_inspection_then_Enter_reopens": true,
+        "empty_and_unsupported_refuse": true,
+        "explicit_R_apply_create_only_copy_and_inert_resources": true,
+        "focused_inspection_and_explicit_restore": true,
+        "four_drafts_targets_left_context_retained": true,
+        "hidden_unfocused_probes_keep_field_focus": true,
+        "modified_repeat_other_keys_inert": true,
+        "native_R_C_arrows_cursor_only": true,
+        "right_arrows_inspect_full_ids_no_activation": true,
+        "single_reversal_preserves_focus": true,
+        "zoom_pan_and_drag_refusal": true
+    },
+    "observations": [
+        {
+            "c_activation": [
+            ],
+            "c_active": false,
+            "c_draft": "",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            474,
+                            381
+                        ],
+                        "r": [
+                            276,
+                            288
+                        ]
+                    },
+                    "height": 617,
+                    "pan": [
+                        0,
+                        0
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        12,
+                        90.69999999999999,
+                        726,
+                        435.6
+                    ],
+                    "width": 750,
+                    "zoom_percent": 100
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "",
+            "pan": [
+                0,
+                0
+            ],
+            "panning": false,
+            "project_draft": "Two RC declaration project",
+            "properties_hidden": false,
+            "properties_text": "Click a resistor or capacitor in the circuit to inspect its applied value.",
+            "r_activation": [
+            ],
+            "r_active": false,
+            "r_draft": "",
+            "selected_path": [
+            ],
+            "selected_text": "",
+            "stage": "original",
+            "zoom": 100
+        },
+        {
+            "c_activation": [
+            ],
+            "c_active": false,
+            "c_draft": "",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            387,
+                            368
+                        ],
+                        "r": [
+                            227,
+                            292
+                        ]
+                    },
+                    "height": 617,
+                    "pan": [
+                        0,
+                        0
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        11.999999999999943,
+                        131.49999999999997,
+                        590.0000000000001,
+                        354.00000000000006
+                    ],
+                    "width": 614,
+                    "zoom_percent": 100
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "",
+            "pan": [
+                0,
+                0
+            ],
+            "panning": false,
+            "project_draft": "Two RC declaration project",
+            "properties_hidden": false,
+            "properties_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+            ],
+            "r_active": false,
+            "r_draft": "",
+            "selected_path": [
+                "main",
+                "right",
+                "r"
+            ],
+            "selected_text": "",
+            "stage": "right_R",
+            "zoom": 100
+        },
+        {
+            "c_activation": [
+            ],
+            "c_active": false,
+            "c_draft": "",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            387,
+                            368
+                        ],
+                        "r": [
+                            227,
+                            292
+                        ]
+                    },
+                    "height": 617,
+                    "pan": [
+                        0,
+                        0
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        11.999999999999943,
+                        131.49999999999997,
+                        590.0000000000001,
+                        354.00000000000006
+                    ],
+                    "width": 614,
+                    "zoom_percent": 100
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "",
+            "pan": [
+                0,
+                0
+            ],
+            "panning": false,
+            "project_draft": "Two RC declaration project",
+            "properties_hidden": false,
+            "properties_text": "c\ncapacitor\n\nOccurrence: main/right/c\n\nApplied capacitance:\n220 nF\nBase value: 0.000000220 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+            ],
+            "r_active": false,
+            "r_draft": "",
+            "selected_path": [
+                "main",
+                "right",
+                "c"
+            ],
+            "selected_text": "",
+            "stage": "right_C",
+            "zoom": 100
+        },
+        {
+            "c_activation": [
+                "main",
+                "right"
+            ],
+            "c_active": false,
+            "c_draft": "470",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            444,
+                            435
+                        ],
+                        "r": [
+                            244,
+                            340
+                        ]
+                    },
+                    "height": 680,
+                    "pan": [
+                        35,
+                        19.999999999999982
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        -24.875,
+                        139.82142857142856,
+                        737.5,
+                        442.5
+                    ],
+                    "width": 614,
+                    "zoom_percent": 125
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+                "main",
+                "right"
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "Pending right",
+            "pan": [
+                35,
+                19.999999999999982
+            ],
+            "panning": false,
+            "project_draft": "Pending project",
+            "properties_hidden": false,
+            "properties_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+                "main",
+                "right"
+            ],
+            "r_active": true,
+            "r_draft": "3.5",
+            "selected_path": [
+                "main",
+                "right",
+                "r"
+            ],
+            "selected_text": "",
+            "stage": "drafts_R",
+            "zoom": 125
+        },
+        {
+            "c_activation": [
+                "main",
+                "right"
+            ],
+            "c_active": false,
+            "c_draft": "470",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "1 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "1000"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "left",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "1 µF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000001"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "left",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "left",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "left"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "left",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "left",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "left",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "left",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "left",
+                    "c"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            444,
+                            435
+                        ],
+                        "r": [
+                            244,
+                            340
+                        ]
+                    },
+                    "height": 680,
+                    "pan": [
+                        35,
+                        19.999999999999982
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        -24.875,
+                        139.82142857142856,
+                        737.5,
+                        442.5
+                    ],
+                    "width": 614,
+                    "zoom_percent": 125
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+                "main",
+                "right"
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "Pending right",
+            "pan": [
+                35,
+                19.999999999999982
+            ],
+            "panning": false,
+            "project_draft": "Pending project",
+            "properties_hidden": false,
+            "properties_text": "c\ncapacitor\n\nOccurrence: main/left/c\n\nApplied capacitance:\n1 µF\nBase value: 0.000001 F\n\nBinding origin:\ncontaining-circuit:capacitance\n\nEdit target: containing RC instance main/left\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+                "main",
+                "right"
+            ],
+            "r_active": false,
+            "r_draft": "3.5",
+            "selected_path": [
+                "main",
+                "left",
+                "c"
+            ],
+            "selected_text": "",
+            "stage": "left_C",
+            "zoom": 125
+        },
+        {
+            "c_activation": [
+                "main",
+                "right"
+            ],
+            "c_active": false,
+            "c_draft": "470",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            891,
+                            528
+                        ],
+                        "r": [
+                            511,
+                            348
+                        ]
+                    },
+                    "height": 696,
+                    "pan": [
+                        35,
+                        19.999999999999982
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        1,
+                        -32.000000000000036,
+                        1400,
+                        840
+                    ],
+                    "width": 1262,
+                    "zoom_percent": 125
+                }
+            },
+            "components_hidden": true,
+            "dirty": false,
+            "edit_target": [
+                "main",
+                "right"
+            ],
+            "focus_owner": "canvas",
+            "focused": true,
+            "input": "original.json",
+            "instance_draft": "Pending right",
+            "pan": [
+                35,
+                19.999999999999982
+            ],
+            "panning": false,
+            "project_draft": "Pending project",
+            "properties_hidden": true,
+            "properties_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+                "main",
+                "right"
+            ],
+            "r_active": false,
+            "r_draft": "3.5",
+            "selected_path": [
+                "main",
+                "right",
+                "r"
+            ],
+            "selected_text": "",
+            "stage": "focus_R",
+            "zoom": 125
+        },
+        {
+            "c_activation": [
+                "main",
+                "right"
+            ],
+            "c_active": false,
+            "c_draft": "470",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "2.2 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "2200"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            544,
+                            457
+                        ],
+                        "r": [
+                            297,
+                            340
+                        ]
+                    },
+                    "height": 680,
+                    "pan": [
+                        35,
+                        19.999999999999982
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        -33.375,
+                        93.6785714285714,
+                        907.5,
+                        544.5
+                    ],
+                    "width": 750,
+                    "zoom_percent": 125
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+                "main",
+                "right"
+            ],
+            "focus_owner": "resistance",
+            "focused": false,
+            "input": "original.json",
+            "instance_draft": "Pending right",
+            "pan": [
+                35,
+                19.999999999999982
+            ],
+            "panning": false,
+            "project_draft": "Pending project",
+            "properties_hidden": false,
+            "properties_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n2.2 kΩ\nBase value: 2200 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+                "main",
+                "right"
+            ],
+            "r_active": true,
+            "r_draft": "3.5",
+            "selected_path": [
+                "main",
+                "right",
+                "r"
+            ],
+            "selected_text": "3.5",
+            "stage": "restored_R",
+            "zoom": 125
+        },
+        {
+            "c_activation": [
+                "main",
+                "right"
+            ],
+            "c_active": false,
+            "c_draft": "220",
+            "canvas": {
+                "components": [
+                    {
+                        "caption": "3.5 kΩ",
+                        "component": "resistor",
+                        "name": "r",
+                        "parameters": {
+                            "resistance": {
+                                "origin": "containing-circuit:resistance",
+                                "unit": "ohm",
+                                "value": "3500"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "r"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "drive"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "220 nF",
+                        "component": "capacitor",
+                        "name": "c",
+                        "parameters": {
+                            "capacitance": {
+                                "origin": "containing-circuit:capacitance",
+                                "unit": "F",
+                                "value": "0.000000220"
+                            }
+                        },
+                        "path": [
+                            "main",
+                            "right",
+                            "c"
+                        ],
+                        "terminals": [
+                            {
+                                "name": "2",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "return"
+                                ],
+                                "pin": "n"
+                            },
+                            {
+                                "name": "1",
+                                "net_path": [
+                                    "main",
+                                    "right",
+                                    "junction"
+                                ],
+                                "pin": "p"
+                            }
+                        ]
+                    }
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "input",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "input"
+                                ],
+                                "terminal": "input"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            }
+                        ],
+                        "id": "drive",
+                        "name": "drive",
+                        "path": [
+                            "main",
+                            "right",
+                            "drive"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "output",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "output"
+                                ],
+                                "terminal": "output"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "1",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "p"
+                                ],
+                                "terminal": "p"
+                            },
+                            {
+                                "definition": "resistor",
+                                "instance": "r",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "r",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "junction",
+                        "name": "junction",
+                        "path": [
+                            "main",
+                            "right",
+                            "junction"
+                        ]
+                    },
+                    {
+                        "endpoints": [
+                            {
+                                "definition": "rc",
+                                "instance": "",
+                                "kind": "Local circuit port",
+                                "name": "reference",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "reference"
+                                ],
+                                "terminal": "reference"
+                            },
+                            {
+                                "definition": "capacitor",
+                                "instance": "c",
+                                "kind": "Component pin",
+                                "name": "2",
+                                "path": [
+                                    "main",
+                                    "right",
+                                    "c",
+                                    "n"
+                                ],
+                                "terminal": "n"
+                            }
+                        ],
+                        "id": "return",
+                        "name": "return",
+                        "path": [
+                            "main",
+                            "right",
+                            "return"
+                        ]
+                    }
+                ],
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "supported": true,
+                "view": {
+                    "component_points": {
+                        "c": [
+                            544,
+                            457
+                        ],
+                        "r": [
+                            297,
+                            340
+                        ]
+                    },
+                    "height": 680,
+                    "pan": [
+                        35,
+                        19.999999999999982
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        -33.375,
+                        93.6785714285714,
+                        907.5,
+                        544.5
+                    ],
+                    "width": 750,
+                    "zoom_percent": 125
+                }
+            },
+            "components_hidden": false,
+            "dirty": true,
+            "edit_target": [
+                "main",
+                "right"
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "selection-R-copy.json",
+            "instance_draft": "right",
+            "pan": [
+                35,
+                19.999999999999982
+            ],
+            "panning": false,
+            "project_draft": "Two RC declaration project",
+            "properties_hidden": false,
+            "properties_text": "r\nresistor\n\nOccurrence: main/right/r\n\nApplied resistance:\n3.5 kΩ\nBase value: 3500 ohm\n\nBinding origin:\ncontaining-circuit:resistance\n\nEdit target: containing RC instance main/right\nThe component receives this parameter from its declaration binding.",
+            "r_activation": [
+                "main",
+                "right"
+            ],
+            "r_active": true,
+            "r_draft": "3.5",
+            "selected_path": [
+                "main",
+                "right",
+                "r"
+            ],
+            "selected_text": "",
+            "stage": "applied_R",
+            "zoom": 125
+        },
+        {
+            "c_activation": [
+            ],
+            "c_active": false,
+            "c_draft": "",
+            "canvas": {
+                "components": [
+                ],
+                "context": [
+                    "main",
+                    "right"
+                ],
+                "nets": [
+                ],
+                "selected_path": [
+                ],
+                "supported": false,
+                "view": {
+                    "component_points": {
+                    },
+                    "height": 696,
+                    "pan": [
+                        0,
+                        0
+                    ],
+                    "panning": false,
+                    "rectangle": [
+                        12,
+                        130.2,
+                        726,
+                        435.6
+                    ],
+                    "width": 750,
+                    "zoom_percent": 100
+                }
+            },
+            "components_hidden": false,
+            "dirty": false,
+            "edit_target": [
+            ],
+            "focus_owner": "canvas",
+            "focused": false,
+            "input": "changed-net.json",
+            "instance_draft": "",
+            "pan": [
+                0,
+                0
+            ],
+            "panning": false,
+            "project_draft": "Two RC declaration project",
+            "properties_hidden": false,
+            "properties_text": "Click a resistor or capacitor in the circuit to inspect its applied value.",
+            "r_activation": [
+            ],
+            "r_active": false,
+            "r_draft": "",
+            "selected_path": [
+            ],
+            "selected_text": "",
+            "stage": "unsupported",
+            "zoom": 100
+        }
+    ],
+    "passed": true,
+    "platform": "windows",
+    "qt_version": "6.11.1",
+    "routed_events": [
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "case": "empty_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "case": "empty_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "case": "right_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "right_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 100
+            },
+            "case": "reverse_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "single_Left_again",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "ctrl_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 67108864,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "shift_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 33554432,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "repeat_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": true,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "other_Up",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777235,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "other_Down",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777237,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "220",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "right",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "2.2",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 100
+            },
+            "case": "activate_R_Return",
+            "cursor_after": 3,
+            "cursor_before": -1,
+            "focus_after": "resistance",
+            "focus_after_press": "resistance",
+            "focus_before": "canvas",
+            "key": 16777220,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "resistance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "field_R_Left",
+            "cursor_after": 2,
+            "cursor_before": 3,
+            "focus_after": "resistance",
+            "focus_after_press": "resistance",
+            "focus_before": "resistance",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "resistance",
+            "release_receiver": "resistance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "field_R_Right",
+            "cursor_after": 3,
+            "cursor_before": 2,
+            "focus_after": "resistance",
+            "focus_after_press": "resistance",
+            "focus_before": "resistance",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "resistance",
+            "release_receiver": "resistance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "draft_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "activate_C_Enter",
+            "cursor_after": 3,
+            "cursor_before": -1,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "canvas",
+            "key": 16777221,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "field_C_Left",
+            "cursor_after": 2,
+            "cursor_before": 3,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "capacitance",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "capacitance",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "field_C_Right",
+            "cursor_after": 3,
+            "cursor_before": 2,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "capacitance",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "capacitance",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "unfocused_canvas_Left",
+            "cursor_after": 3,
+            "cursor_before": 3,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "capacitance",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "direct-negative-probe",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "hidden_canvas_Right",
+            "cursor_after": 3,
+            "cursor_before": 3,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "capacitance",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "direct-negative-probe",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "draft_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": true,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": true,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "panning_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "left",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                ],
+                "zoom": 125
+            },
+            "case": "left_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "left",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "left",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "left_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": true,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": true,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": true,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": true,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                ],
+                "zoom": 125
+            },
+            "case": "focus_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": true,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": true,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "focus_Return",
+            "cursor_after": 3,
+            "cursor_before": -1,
+            "focus_after": "resistance",
+            "focus_after_press": "resistance",
+            "focus_before": "canvas",
+            "key": 16777220,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "resistance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "closed_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": true,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "closed_Enter",
+            "cursor_after": 3,
+            "cursor_before": -1,
+            "focus_after": "capacitance",
+            "focus_after_press": "capacitance",
+            "focus_before": "canvas",
+            "key": 16777221,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "capacitance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "c"
+                ],
+                "zoom": 125
+            },
+            "case": "save_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": true,
+            "after": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "before": {
+                "c_activation": [
+                    "main",
+                    "right"
+                ],
+                "c_draft": "470",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                    "main",
+                    "right"
+                ],
+                "focused": false,
+                "instance_draft": "Pending right",
+                "pan": [
+                    35,
+                    19.999999999999982
+                ],
+                "panning": false,
+                "project_draft": "Pending project",
+                "properties_hidden": false,
+                "r_activation": [
+                    "main",
+                    "right"
+                ],
+                "r_draft": "3.5",
+                "selected_path": [
+                    "main",
+                    "right",
+                    "r"
+                ],
+                "zoom": 125
+            },
+            "case": "save_Return",
+            "cursor_after": 3,
+            "cursor_before": -1,
+            "focus_after": "resistance",
+            "focus_after_press": "resistance",
+            "focus_before": "canvas",
+            "key": 16777220,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "resistance",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "case": "unsupported_Left",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777234,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        },
+        {
+            "accepted": false,
+            "after": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "before": {
+                "c_activation": [
+                ],
+                "c_draft": "",
+                "components_hidden": false,
+                "dirty": false,
+                "edit_target": [
+                ],
+                "focused": false,
+                "instance_draft": "",
+                "pan": [
+                    0,
+                    0
+                ],
+                "panning": false,
+                "project_draft": "Two RC declaration project",
+                "properties_hidden": false,
+                "r_activation": [
+                ],
+                "r_draft": "",
+                "selected_path": [
+                ],
+                "zoom": 100
+            },
+            "case": "unsupported_Right",
+            "cursor_after": -1,
+            "cursor_before": -1,
+            "focus_after": "canvas",
+            "focus_after_press": "canvas",
+            "focus_before": "canvas",
+            "key": 16777236,
+            "modifiers": 0,
+            "press_receiver": "canvas",
+            "release_receiver": "canvas",
+            "repeat": false,
+            "route": "focus-routed",
+            "same_graph": true
+        }
+    ],
+    "scope": "Synthetic focus-routed unmodified non-repeat Left/Right inspection of fixed RC; hidden/unfocused direct refusal probes disclosed; no generic traversal or full accessibility acceptance"
+}
