@@ -1,5 +1,33 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [double-click R/C activation](../experiments/SN-023-canvas-double-click.md).
+Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
+Pre-edit PR #93 source 2cd00033b9648a31ce01645a487624ca6fb94c32, squash
+c413f2f1e67b19111f28380f56841b9df7ea665e; exact Foundation Windows 67/67 and
+Ubuntu 56/56 PASS in 37361670954, main copies equal/zero unpublished. Owner
+confirmed keyboard worked (informal feedback). Unmodified left double-click R/C
+uses shared hit/inspection and guarded existing field activation; successful
+activation restores Focus Circuit/opens Properties, focuses/selects the SAME
+fixed-unit field. Apply/Save remain explicit. Refused activation keeps drafts/
+targets/focus mode; single/blank/modifier/other-button/middle-drag/empty/unsupported
+events never apply or activate a stale selection. Zoom/pan/IDs/native operations/
+independent windows/Components-Preview versus Properties retained.
+Configure/build01/GUI01/Keyboard01 passed. Review improved C Apply's native graph
+comparison to snapshot immediately before Apply, after fresh Open; source/token
+audits already protected overall PASS. Nine first-validation entries retained.
+Production unchanged for review improvement; build02/GUI02 double 20/11/20 captions/
+nine Properties/two token copies and unchanged Keyboard02 20/10/33 events/one copy
+passed. No failed attempt in this slice. Three images inspected/final byte-identical;
+enlarged output can crop, Fit remains. Freeze 30 sources/binary; verify 25 prior
+entries/fourteen native artifacts/eight sections/all prior actors; reuse matrices.
+Preserve 291 historical files/twelve SN-045 overlays; task-only prefix/row publication.
+Source PR records checkers/exact required checks/guarded squash/main. SN-023
+in_progress/no ADR; next interaction feedback/separate useful fixture gate.
+SN-017/021/022 limits/failures/SN-044 ownership/January stabilization/February 2027
+classroom planning targets retained. General editor/wiring/instruments/managed
+Save/real workers/IPC/full keyboard/accessibility/recovery/DPI/session layout/
+packaging pending. Historical handoffs follow.
+
 Latest tested increment: [focused canvas keyboard navigation](../experiments/SN-023-canvas-keyboard.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR92 source aa39274d20a88d6031839faacb490f9a35cfbb9b, squash

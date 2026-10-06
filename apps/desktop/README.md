@@ -1,5 +1,12 @@
 # Bounded Windows document editor
 
+[Double-click R/C](../../docs/experiments/SN-023-canvas-double-click.md) to activate
+the existing fixed-unit field, with its text selected. Apply remains an explicit
+button action; Save Copy explicitly creates a new file. Pending R/C drafts remain
+independent. Successful activation restores Focus Circuit's panels and opens
+Properties if closed. Single clicks inspect; blank/modified/other-button/middle-
+drag double-clicks do not edit. Existing target/draft restrictions remain.
+
 [Focused canvas keys](../../docs/experiments/SN-023-canvas-keyboard.md): click the
 circuit or use Tab until its dashed focus border appears. **Page Up/Down** change
 zoom in 25-percent steps from 50 to 150; **Home** fits at 100 and recenters pan.
@@ -90,7 +97,7 @@ clears it and failures retain it. Re-select/capture explicitly after reopening a
 The demo helper's optional occurrence instructions work with the latest local build:
 
 ```text
-python tools/run_editor_demo.py --editor build/sn023-canvas-keyboard/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-keyboard-demo-01
+python tools/run_editor_demo.py --editor build/sn023-canvas-double-click/native-build/apps/desktop/Release/simnodus_document_editor.exe --qt-kit C:/Qt/6.11.1/msvc2022_64 --out build/canvas-double-click-demo-01
 ```
 
 The [local terminal table](../../docs/experiments/SN-023-terminal-membership.md)
