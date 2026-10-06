@@ -1,5 +1,26 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [selected Enter](../experiments/SN-023-canvas-enter.md).
+Original isolated reports/summary remain dated frozen evidence. Owner confirmed
+Enter worked. Read CURRENT's newest section and reconfirm actual source PR/checks/
+main state. Parent PR94 source a41a9482f350807b726f976079d6ab520f6cd382 merged
+as 7965d8fc658a011f78b1bc078c7b62d66e674fb5 after exact Windows67/67 and Ubuntu56/56.
+Recovery retry3 reused Windows timestamps; retain earlier two no-runner attempts,
+annotations and first retention-helper assertion. Parent main copies/tree verified.
+Sixteen frozen Enter paths transferred with shared task-only prefixes/SN023 row;
+checker1022 and reversible overlay rehearsal passed. Native source/dependencies
+match original tests: Enter13/9/27 cases/one two-token copy, double-click20/11/two.
+Two PNGs inspected/five retained; no failed local Enter attempt. Separate Enter
+source PR must pass exact checks/log audit/guarded squash/main preservation.
+Keep twelve independent SN045 overlays/300 historical evidence; no whole shared
+file publication. A separately gated local Left/Right fixed-RC inspection is under
+build/sn023-canvas-selection, not part of this Enter diff. Its configure01 failed
+MSBuild duplicate PATH/Path; raw cache/log/source set retained; fresh configure02
+passed without source/toolchain/host changes. Do not claim arrow acceptance until run.
+SN017/021/022 limits/failures/SN044 ownership/January stabilization/February2027
+classroom planning targets remain; general editor/wiring/instruments/managed Save/
+real workers/IPC/full keyboard/keypad/accessibility/recovery/DPI/session/packaging pending.
+
 Latest tested increment: [double-click R/C activation](../experiments/SN-023-canvas-double-click.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #93 source 2cd00033b9648a31ce01645a487624ca6fb94c32, squash

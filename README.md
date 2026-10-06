@@ -84,6 +84,8 @@ side panels and restores their preceding in-memory layout.
 for bounded zoom and Home for Fit, preserving native text-field behavior.
 [Double-click R/C](docs/experiments/SN-023-canvas-double-click.md) activates the
 existing guarded value field; Apply and Save Copy remain explicit.
+[Focused Enter](docs/experiments/SN-023-canvas-enter.md) activates the selected
+existing R/C field in a locally tested isolated preparation; publication remains pending.
 An [interactive fixture demo](docs/experiments/SN-023-interactive-demo.md) prepares
 fresh document/artwork copies and runs the existing locally built editor with an
 explicit installed Qt kit; Open and Preview remain user actions.

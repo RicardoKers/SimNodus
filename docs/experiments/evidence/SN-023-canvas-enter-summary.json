@@ -1,0 +1,375 @@
+{
+  "experiment": "SN-023 selected R/C Return/Enter activation",
+  "date": "2026-10-05",
+  "status": "implemented/tested local isolated preparation; publication/integration pending",
+  "base_source": "a41a9482f350807b726f976079d6ab520f6cd382",
+  "root_main_unchanged": "c413f2f1e67b19111f28380f56841b9df7ea665e",
+  "parent_pr": 94,
+  "parent_required_checks": {
+    "windows": "67/67 success",
+    "ubuntu_attempts_1_2": "cancelled without runner or test execution",
+    "third_retry": false
+  },
+  "gate_before_implementation": true,
+  "isolation_amendment_before_edits": true,
+  "results": {
+    "enter_controls": 13,
+    "source_view_states": 9,
+    "press_release_cases": 27,
+    "captions": 16,
+    "properties_blocks": 7,
+    "saved_copies": 1,
+    "independent_token_audits": 2,
+    "unchanged_double_controls": 20,
+    "unchanged_double_states": 11,
+    "double_saved_copies": 2,
+    "inspected_pngs": 2,
+    "retained_pngs": 5,
+    "failed_local_configure_build_gui_attempts": 0
+  },
+  "source_files": [
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/apps/desktop/document_window.cpp",
+      "relative_path": "apps/desktop/document_window.cpp",
+      "sha256": "77b75c1adfd4a6dccd98a613aa0f56586728541145f3a47bffb886fc1bb7dbf9"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/apps/desktop/document_window.hpp",
+      "relative_path": "apps/desktop/document_window.hpp",
+      "sha256": "eb307d4793440bce7798c8f196f87817b7fb954df6130b48bda23d2336ef3b8b"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/apps/desktop/main.cpp",
+      "relative_path": "apps/desktop/main.cpp",
+      "sha256": "f9973ff3943732a800d4df1a252754a94304832303807c63f134b04515687048"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/apps/desktop/rc_canvas.cpp",
+      "relative_path": "apps/desktop/rc_canvas.cpp",
+      "sha256": "3a72f28db96ab7e9cae633e5d46146e19832c2e063d67dde103451c6c848b56b"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/apps/desktop/README.md",
+      "relative_path": "apps/desktop/README.md",
+      "sha256": "ee2a07b9077e889609e37f26d8161facf23c00b28d95cb5a7070b79cd5ad3650"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/planning/BACKLOG.md",
+      "relative_path": "docs/planning/BACKLOG.md",
+      "sha256": "419758f65e5280b7f82a874874dd7a7aa4de8d953da5bfe61cda0d3df9160c36"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/planning/CURRENT.md",
+      "relative_path": "docs/planning/CURRENT.md",
+      "sha256": "f4444188fcd7921079a842185f2bf51d18d7ac290440d9b6b8ae126f0e0771e0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/planning/NEXT_CONVERSATION.md",
+      "relative_path": "docs/planning/NEXT_CONVERSATION.md",
+      "sha256": "dfb5be2571d4cef0493c6112c002bd4bfb7adfa00e9dcf3e35f0ea5c8c3c6909"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/README.md",
+      "relative_path": "README.md",
+      "sha256": "d1c5516bb9e2ae8235743428cdf79eacb47f1fe2d8a02b2bfaf397642c34c4f0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/tests/resources/editor_enter_acceptance.py",
+      "relative_path": "tests/resources/editor_enter_acceptance.py",
+      "sha256": "18ce42850d444c9f745e820415b4aa626a8403907247565e9f859dd9fc495207"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/experiments/SN-023-canvas-enter.md",
+      "relative_path": "docs/experiments/SN-023-canvas-enter.md",
+      "sha256": "343cdbb1bcbdd81e8e6c42e0b6bad26879902177800a0d847275442f77f58861"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/experiments/evidence/SN-023-canvas-enter-double-01-audit.json",
+      "relative_path": "docs/experiments/evidence/SN-023-canvas-enter-double-01-audit.json",
+      "sha256": "ef0f875f7aa6cb62213caa58d98d60a191c335a2b4c8a34af5e73fb181c7d0fa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/experiments/evidence/SN-023-canvas-enter-double-01-gui.json",
+      "relative_path": "docs/experiments/evidence/SN-023-canvas-enter-double-01-gui.json",
+      "sha256": "b0e79c073919a04cb32bceb6458a6384dc48df9c292d15722aefecb8d69826ab"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/experiments/evidence/SN-023-canvas-enter-enter-01-audit.json",
+      "relative_path": "docs/experiments/evidence/SN-023-canvas-enter-enter-01-audit.json",
+      "sha256": "e8e4357a981a5fe8d09aa679b3ae1c412f07473431043c7ae86b7e8f80172694"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/workspace/docs/experiments/evidence/SN-023-canvas-enter-enter-01-gui.json",
+      "relative_path": "docs/experiments/evidence/SN-023-canvas-enter-enter-01-gui.json",
+      "sha256": "5da87c58f808d9e663b999c1edf239795b1522d75983064ecbfd8a42a40cad95"
+    }
+  ],
+  "helper_files": [
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/prepare_isolated.py",
+      "sha256": "b3874aeb5c56cacdbd4e5aa87044d621aed9f4a713c0831b5c9cb182547df052"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/install_actor.py",
+      "sha256": "9ce9b4dc5bd47eafd0100fcc36d40c560b55757c7d880cf1d2efe8498e3577c0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/validate.py",
+      "sha256": "33c2b4afafc503fb1554a0122000c253111909dcc100f50506065d97c28df529"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/freeze_attempt.py",
+      "sha256": "b8e4890d7afa208bb1198d352439f0135b60f1a7394baff2e699a1118be65778"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter_actor.cpp",
+      "sha256": "fbee5e20657e31fb32f18b7d372fe7ead115d4b44a3ed102aa230d90f03e91da"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/document_local.py",
+      "sha256": "6d93775aebc523c54a6aacc364788370dc1cde185ee8c2221d10ed92d408b582"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/format_local_docs.py",
+      "sha256": "53f3ed1b16f8e45144197d50b331e51c7290535dd51a125025be6f253c117285"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/retain_inherited_docs.py",
+      "sha256": "7ebeda2a81dec209171fa045fb971b04ed646833fa724c36550b16050e4092b9"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/acceptance-before-implementation.md",
+      "sha256": "a76f64221d65d940eede570c4562620d9846151b2de5abd4df75a55dd14081f6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/acceptance-isolated.md",
+      "sha256": "7e563723a831a593f9eaab0982d603de0c02a3a03b25dc6f018992554350909b"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/START_ENTER_DEMO.cmd",
+      "sha256": "57841f448b7805c55077078b56a835326f30151ca603e4a4fc020b7a13ff6f2e"
+    }
+  ],
+  "binary_files": [
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/native-build/apps/desktop/Release/simnodus_document_editor.exe",
+      "sha256": "43f4eaa786955fa1571dd14f104cde90af6f398be043242476b92cb7c19cf239"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/changed-net.json",
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/default-binding.json",
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/enter-RC-copy.json",
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/extra-pin.json",
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/invalid.json",
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/labels.json",
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/missing-peer.json",
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/original.json",
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/reordered.json",
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/swapped.json",
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/document/wrong-dimension.json",
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/report.json",
+      "sha256": "5da87c58f808d9e663b999c1edf239795b1522d75983064ecbfd8a42a40cad95"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/report.json.R.png",
+      "sha256": "6df4a15900ae9e5ca83957260eae95225e9dfd9ca16c190fbfa376078954e079"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/report.json.restored.png",
+      "sha256": "f9f54824e495d3ac8809345827dbec4a6d80ca674fb1037fdb5f4bd6a447bec0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/runner.json",
+      "sha256": "e8e4357a981a5fe8d09aa679b3ae1c412f07473431043c7ae86b7e8f80172694"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01/stdout.log",
+      "sha256": "e57a6da9ad1da5e54b2af6bce538f677a60ef7a0f5ebe0b19098cc75dd0104bf"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/changed-net.json",
+      "sha256": "5ac4163e63e50777c2b5a29dc377278ac9ae431a4567070b6c9a241a522bda79"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/default-binding.json",
+      "sha256": "5dee7f3519707197dd38e5d2332b27560de65f18cb373c6cb09d71d5baa5b475"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/double-C-copy.json",
+      "sha256": "5f09ec936417b564045e64c945d7e33eee28ba36f8237769b0ca8b675bb06c91"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/double-RC-copy.json",
+      "sha256": "bc9d8857b5ad4bc23715da1d135b1275d88cc266ec9ddcd62c350ac75c4b51fd"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/extra-pin.json",
+      "sha256": "abf0a41c275afc28b4e31c5b4e84c4e384023a6498f6034d340c8ba63465021e"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/invalid.json",
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/labels.json",
+      "sha256": "104cc4b2e29dac5e022190dc45b09997f49404f7444a98ed919092d2c430d2f6"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/missing-peer.json",
+      "sha256": "76474a6f856f9d9bde71e6457b9400af83cc7a13580ed3e84d2c9bc0a5b3ac74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/original.json",
+      "sha256": "0ee335bf7981072983d22d07bf97c60b5918c634c19f48b59191bf6cb15e4549"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/reordered.json",
+      "sha256": "a10bc3c6c3cda0638a96061eee6b66f833f1c53529e5b436a7dcbc842f85e8aa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/swapped.json",
+      "sha256": "33cdca07e85bd4a7aaad356c267139145f776efd41e4836242270d3b51c5d6af"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/document/wrong-dimension.json",
+      "sha256": "7be961ca103dce1367059b7e0e56a451226f6d6a9ee5b262104834659764fcc7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/report.json",
+      "sha256": "b0e79c073919a04cb32bceb6458a6384dc48df9c292d15722aefecb8d69826ab"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/report.json.C.png",
+      "sha256": "ade586a8869ccf82820eef1acbf2150fce5be3d18b93e55eef104041f2ac6ef7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/report.json.R.png",
+      "sha256": "6df4a15900ae9e5ca83957260eae95225e9dfd9ca16c190fbfa376078954e079"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/report.json.restored.png",
+      "sha256": "a85e0530cd20171e10e23ab92cbbbdc130677a734c5777df96beddae36f3b454"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/runner.json",
+      "sha256": "ef0f875f7aa6cb62213caa58d98d60a191c335a2b4c8a34af5e73fb181c7d0fa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01/stdout.log",
+      "sha256": "beeb298ef43c91a48708d0dec0e6dae0e41f1727ddadeab9a87e870939500a70"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/configure-01.log",
+      "sha256": "da54df0b3b71a3f8d2a9d680e1b3993c7b394c3eda8e28ee6fef9647cd01a727"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/build-01.log",
+      "sha256": "99540aa6ecd047e3f549dbd1bb2dc8664a16446b8e3b3000c74c54dd8cab50e7"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/configure-01-command.json",
+      "sha256": "9133220e198eee270e1e3e1c20ffa44909f48d2f742c36e2d5fa247dacc24a74"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/build-01-command.json",
+      "sha256": "33f04d35825c226ce38236b0d070ae7af480c708ac862dc96ae38a379059b967"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01.log",
+      "sha256": "e8fc8aec14c56d13701c15ddbaf8d9432991d1d7ed45f0e67752dfa09493440a"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01.log",
+      "sha256": "d56b3dd74f1c824f2ab2e77d780750fccdd019f2607da816eed09fc676cf3e35"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/enter-01-command.json",
+      "sha256": "1de090fb2309166ec641bbeffebe64d7f21bf31500c64179c3271810b02c53bf"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/double-01-command.json",
+      "sha256": "94169205c105056dea0f358a44f1e339462e62c114a40095a706d4bc0c8601cb"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/actor-installed.json",
+      "sha256": "fbab765bfcec4d3c0e67f63962469b7aa244dfd443235fdfad1e414fc9d29247"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/preservation-before.json",
+      "sha256": "900829e94482d212dd11f5c442dc049b81ebb4d801386e0e38c0093e4eb858b0"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/source-before.zip",
+      "sha256": "4e1de9dbc319282852c42f86b6d5904e02498086c39b8ec9645ea2db990d58fa"
+    },
+    {
+      "path": "D:/03_Projects/01_Actives/SimNodus/build/sn023-canvas-enter/source-attempt-01/manifest.json",
+      "sha256": "16eafc5dda394ff2ea54a70e78c1e3fc6ee48a00382a39ade48ce4346ab47148"
+    }
+  ],
+  "unchanged_prior_entries_verified": 70,
+  "unchanged_workspace_original_files": 1034,
+  "unchanged_sections": [
+    "legacy zoom/Home key handler and all following canvas methods",
+    "all prior document functions/guards/actors/activation callback except footer"
+  ],
+  "root_preservation": {
+    "overlays": 12,
+    "historical_evidence_files": 300,
+    "source_head_unchanged": true,
+    "index_empty": true,
+    "unpublished_commits": 0
+  },
+  "publication": "No root task edits, branch or stacked PR. Integrate parent with exact required checks; transfer only validated task paths and own shared planning prefixes/row; separate PR/checks/squash.",
+  "limits": [
+    "physical keypad/full keyboard/accessibility",
+    "human recovery/monitor-DPI/cross-session layout/packaging",
+    "general editor/library/wiring/instruments/managed Save",
+    "real-engine workers/production IPC",
+    "SN-017/021/022/044 boundaries unchanged",
+    "January stabilization and February 2027 classroom dates remain planning targets"
+  ]
+}

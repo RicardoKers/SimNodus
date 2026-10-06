@@ -42,10 +42,23 @@ RcCanvas::RcCanvas()
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setMinimumSize(360, 280);
-    setAccessibleName("Fixed declared RC circuit; click R or C to inspect, double-click to edit; with canvas focus, Page Up/Down zoom and Home fits");
+    setAccessibleName("Fixed declared RC circuit; click R or C to inspect; double-click or focused Enter edits the selected R/C; Page Up/Down zoom and Home fits");
 }
 void RcCanvas::keyPressEvent(QKeyEvent* event)
 {
+    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if(!supported_ || !isVisible() || !hasFocus() || event->modifiers() != Qt::NoModifier ||
+            event->isAutoRepeat() || panning_ || !resolve()) {
+            QWidget::keyPressEvent(event);
+            return;
+        }
+        const auto current = std::find_if(components_.begin(), components_.end(),
+            [this](const auto& component) { return ids(component.path) == selected_; });
+        if(current == components_.end() || !activated) { QWidget::keyPressEvent(event); return; }
+        activated(selected_);
+        event->accept();
+        return;
+    }
     if(!supported_ || !isVisible() || !hasFocus() || event->modifiers() != Qt::NoModifier ||
         (event->key() != Qt::Key_PageUp && event->key() != Qt::Key_PageDown && event->key() != Qt::Key_Home)) {
         QWidget::keyPressEvent(event);

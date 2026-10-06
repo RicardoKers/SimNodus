@@ -1,5 +1,16 @@
 # Backlog
 
+## SN-023 selected Enter activation: in_progress
+
+[Selected Enter](../experiments/SN-023-canvas-enter.md) passed local native Windows
+13 controls/nine states/27 routed cases/one two-token copy; unchanged double-click
+20/11/two copies passed. Owner confirmed the demo worked. Parent PR94 is integrated
+as 7965d8f after Windows67/67 and recovery Ubuntu56/56; both no-runner failures
+remain. Sixteen task paths transferred only after parent-tree/hash/overlay rehearsal
+and checker1022. Separate Enter checks/squash remain pending in the source PR.
+Preserve 300 historical files/twelve overlays; SN-023 in_progress/no ADR. General
+editor/wiring/instruments/managed Save/real workers/full usability remain pending.
+
 ## SN-023 double-click R/C activation: in_progress
 
 [Tested double-click editing](../experiments/SN-023-canvas-double-click.md) activates
@@ -916,7 +927,7 @@ future direction, not a new M3 delivery commitment.
 | SN-020 | P1 | done | Specify circuit/component schema and validation | SN-013 | [Accepted declaration baseline](../experiments/SN-020-acceptance.md) under ADR 0051: 94 schema tests, 15 CTest entries, explicit board/firmware/temporal/resource declarations; physical loading and runtime verification remain SN-021 |
 | SN-021 | P1 | done | Implement project loading/saving and circuit compilation | SN-020 | [Final bounded acceptance audit](../experiments/SN-021-final-acceptance.md) supports the Windows/local-NTFS managed-copy workflow and fixed E-01 replay. No external overwrite, production service or general runtime acceptance |
 | SN-022 | P1 | done | Select Qt modules and worker boundary | SN-014 | [Bounded native Windows shell/worker experiment](../experiments/SN-022-qt-boundary.md), [installed-kit licensing inventory](../development/QT_INVENTORY.md) and [ADR 0078](../decisions/0078-qt-widgets-worker-boundary.md); production GUI/integration and distribution pending |
-| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Double-click R/C activation tested](../experiments/SN-023-canvas-double-click.md); existing fields, guarded targets/drafts, explicit Apply/copies, fixed RC navigation/focus; general editor/library/wiring/instruments/managed Save/real workers/full usability/DPI/session layout pending |
+| SN-023 | P1 | in_progress | Build minimal Windows editor | SN-017, SN-021, SN-022 | [Selected Enter tested](../experiments/SN-023-canvas-enter.md); existing guarded field, explicit Apply/copy; parent integrated, separate source PR tracks checks/squash; general editor/wiring/instruments/managed Save/real workers/full usability pending |
 | SN-024 | P1 | planned | Add scope, logic view, and UART terminal using shared instrumentation | SN-018, SN-023 | Responsive views over common committed signal/event records; units/provenance; exportable full traces; [architectural direction](../architecture/DEBUGGING.md#instruments) |
 | SN-025 | P1 | planned | Add core teaching diagnostics | SN-023 | Invalid wiring, unsupported mode, floating/undefined input explained |
 | SN-026 | P0 | planned | Prepare three reproducible lesson projects | SN-024, SN-025 | Firmware sources, expected traces, guides, fidelity notes |
