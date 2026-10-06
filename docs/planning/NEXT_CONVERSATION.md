@@ -1,5 +1,23 @@
 # Next conversation: continue SN-023 in small editor increments
 
+Latest tested increment: [fixed RC arrows](../experiments/SN-023-canvas-selection.md).
+Read CURRENT and dated frozen reports/summary; reconfirm actual source PR/checks/
+branch/index/unpublished/main/overlays. Parent Enter95 sourceea8e026 merged as
+b1a0969d7610f11181e438dc1efb1e63ae058d20 after exact Windows67/67 and Ubuntu56/56
+in37463120777. Prepared parent matches native/dependency bytes; only three
+historical planning files differ. Sixteen arrow task paths use actual HEAD and
+owned prefix/SN023 row, never whole shared overlays. Selection11/9/32 cases/one
+R3.5 copy and unchanged Enter13/9/27/one two-token copy passed; one PNG inspected/
+three retained. First configure MSBuild duplicate PATH/Path failed; cache/log/
+seven entries retained; fresh configure02/build01 passed. Freeze first GUI source/
+binary; reuse unchanged native/backend/Preview/worker/layout matrices. Source PR
+records task checkers/exact required checks/guarded squash/main. Preserve all305
+historical evidence/twelve SN045 overlays/old attempts. Next arrow feedback and
+one small separately gated fixture increment; SN023 in_progress/no ADR.
+SN017/021/022 bounds/failures/SN044 ownership/January stabilization/February2027
+classroom target remain; general editor/wiring/instruments/managed Save/real worker/
+IPC/full keyboard/keypad/accessibility/recovery/DPI/session/packaging pending.
+
 Latest tested increment: [selected Enter](../experiments/SN-023-canvas-enter.md).
 Original isolated reports/summary remain dated frozen evidence. Owner confirmed
 Enter worked. Read CURRENT's newest section and reconfirm actual source PR/checks/

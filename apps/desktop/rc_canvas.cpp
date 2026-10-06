@@ -42,10 +42,21 @@ RcCanvas::RcCanvas()
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     setMinimumSize(360, 280);
-    setAccessibleName("Fixed declared RC circuit; click R or C to inspect; double-click or focused Enter edits the selected R/C; Page Up/Down zoom and Home fits");
+    setAccessibleName("Fixed declared RC circuit; click or focused Left/Right inspect R/C; double-click or focused Enter edits the selected R/C; Page Up/Down zoom and Home fits");
 }
 void RcCanvas::keyPressEvent(QKeyEvent* event)
 {
+    if(event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
+        if(!supported_ || !isVisible() || !hasFocus() || event->modifiers() != Qt::NoModifier ||
+            event->isAutoRepeat() || panning_ || !resolve()) {
+            QWidget::keyPressEvent(event);
+            return;
+        }
+        setSelection(ids(components_[event->key() == Qt::Key_Left ? 0 : 1].path));
+        if(selected) selected(selected_);
+        event->accept();
+        return;
+    }
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         if(!supported_ || !isVisible() || !hasFocus() || event->modifiers() != Qt::NoModifier ||
             event->isAutoRepeat() || panning_ || !resolve()) {

@@ -1,5 +1,35 @@
 # Current state
 
+## Current SN-023 state: fixed RC arrow inspection tested
+
+On 2026-10-06, [Left/Right inspection](../experiments/SN-023-canvas-selection.md)
+passed native Windows 11 controls/nine states/32 actual-focus press-release cases,
+16 captions/seven Properties blocks/one exact right R3.5 copy. Left inspects the
+current fixed RC R, Right C through the existing full-ID selection callback;
+arrows never activate or apply. Canvas focus/view/four drafts/edit targets/Focus
+Circuit panels remain; native fields retain cursor arrows. Unchanged Enter on the
+SAME final binary passed13/9/27 cases/one two-token copy. One image inspected/three
+retained; known enlarged output crop/explicit Fit remains. First configure failed
+MSBuild duplicate PATH/Path; cache/log/seven entries retained, fresh configure02/
+build01 passed. Ten sources/helpers/gate/binary frozen before GUI; no local build/
+GUI failure. Scripted environment correction does not prove human recovery.
+
+Parent Enter PR95 source ea8e026f78645a45e0e729b91d3eca06175eab18 was guarded-
+squashed as b1a0969d7610f11181e438dc1efb1e63ae058d20 after exact Windows67/67 and
+Ubuntu56/56 in run37463120777. Main copies/source-squash trees matched, twelve
+overlays/305 historical evidence preserved. Prepared arrow parent matches all
+current native/dependency bytes; only three historical planning files differ.
+Transfer uses current HEAD plus only owned prefix/SN023 row, preserving frozen
+reports/summaries. Source PR records separate task checkers/exact required checks/
+guarded squash/main; SN023 in_progress/no ADR. Parent94 recovery and all earlier
+no-runner/helper/runtime/setup/negative/inconclusive records remain unchanged.
+
+Next gather bounded arrow feedback and select one useful separately gated fixture
+increment. General editor/wiring/instruments/managed Save/real workers/IPC/full
+keyboard/keypad/accessibility/recovery/DPI/session/packaging remain pending.
+SN017/021/022 limits/failures/SN044 ownership and January stabilization/February2027
+classroom planning targets remain. Historical results follow unchanged.
+
 ## Current SN-023 state: selected R/C Enter tested
 
 On 2026-10-05, [selected Enter editing](../experiments/SN-023-canvas-enter.md)
