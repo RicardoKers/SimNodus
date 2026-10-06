@@ -1,5 +1,38 @@
 # Current state
 
+## Current SN-023 state: selected R/C Enter tested
+
+On 2026-10-05, [selected Enter editing](../experiments/SN-023-canvas-enter.md)
+passed native Windows acceptance in an isolated source copy. Focused visible
+supported unmodified non-repeat Return/Enter revalidates full selected IDs and
+activates the same guarded R/C field. Apply and Save Copy remain explicit;
+field Enter never applies. Drafts, native operations, Focus Circuit restoration
+and independent windows remain. No domain/engine/module/resource change.
+Enter 13 controls/nine states/27 focus press-release cases/16 captions/seven
+Properties blocks/one exact two-token copy and unchanged final-binary double-click
+20/11/two copies passed. Two PNGs inspected/five retained; enlarged output can crop,
+explicit Fit remains. No failed local Enter attempt. First sources/binary/gates,
+complete archive, raw reports and all previous negative evidence stay frozen.
+Owner confirmed Enter worked; informal feedback, not full keyboard acceptance.
+
+On 2026-10-06, parent PR #94 source a41a9482f350807b726f976079d6ab520f6cd382
+passed both exact Foundation checks: Windows 67/67 reused its original timestamps;
+Ubuntu 56/56 passed on recovery attempt3. Both earlier no-runner cancellations and
+the retention-helper assertion remain. Guarded squash is
+7965d8fc658a011f78b1bc078c7b62d66e674fb5; local/origin/live main matched and the
+parent tree equals the tested archive. Task-only Enter transfer follows a verified
+sixteen-file bundle, reversible shared-prefix/row rehearsal and checker1022.
+All 300 historical evidence files/twelve SN-045 overlays preserved. Tested source
+and dependencies match; reuse unchanged GUI/native evidence. Enter publication,
+exact required checks and guarded squash are separate pending steps; source PR
+records their actual results. SN-023 in_progress/no ADR.
+
+Next finish the Enter workflow and the separately gated local fixed-RC arrow
+inspection. Physical keypad/full keyboard/accessibility/recovery/DPI/session/
+packaging/general editor/wiring/instruments/managed Save/real workers/IPC remain
+pending. SN-017/021/022 limits/failures/SN-044 ownership and January stabilization/
+February 2027 classroom planning targets remain. Historical results follow unchanged.
+
 ## Current SN-023 state: double-click R/C activation tested
 
 On 2026-10-05, [double-click editing](../experiments/SN-023-canvas-double-click.md)
