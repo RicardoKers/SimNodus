@@ -9,8 +9,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - **Phase 1 — analog interactive editor (release 0.1, due 2026-10-30):
   feature-complete for review.** SN-110..SN-122 are done; SN-123 (package
   0.1) is waiting for the owner's hands-on test.
-- Phase 0 is merged in `main` (PR #97). Phase 1 arrives through PRs #98
-  (model, library, files), #99 (netlist) and #100+ (session, GUI).
+- Everything is merged in `main`: phase 0 (PR #97), phase 1 (#98–#100),
+  fixes from the owner's first test (#101: open-switch leakage, crash when
+  leaving a value field) and 0.1 polish (#102: crash recovery, net names on
+  hover, differential probes, approximate-mode notes in exports).
 - What works: place/wire/edit circuits with component set A (20 types),
   undo/redo, `.snx` files with backup, examples; continuous interactive
   simulation (segments per ADR 0080) with switches, buttons,
@@ -38,10 +40,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Owner test of the 0.1 package with own lesson circuits; collect feedback.
-2. Polish from feedback (likely: symbol details, keyboard flows, scope
-   defaults); differential probe UI (AN-02), approximate-mode label in
-   exports (SIM-09).
+1. Owner retest of the 0.1 package (the two reported problems, own lesson
+   circuits); fix what comes up before 2026-10-30.
+2. Remaining 0.1 candidates: carry semiconductor junction charge across
+   segments if the owner sees steps; a shortcut list in Help.
 3. Phase 2 (from 2026-11-02): Renode integration, Blue Pill, GPIO/EXTI,
    UART terminal, logic lanes.
 
