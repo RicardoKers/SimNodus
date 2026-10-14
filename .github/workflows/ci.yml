@@ -50,7 +50,7 @@ jobs:
           if-no-files-found: warn
 
   windows:
-    name: Windows (MSVC, Qt 6.11.1, bundled ngspice 47)
+    name: Windows (MSVC, Qt 6.10, bundled ngspice 47)
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -58,10 +58,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # aqtinstall 3.3.0 cannot read the Qt 6.11 repository metadata yet
+      # ("Failed to locate XML data"); release zips are built with the
+      # owner's Qt 6.11.1 kit, CI uses the newest series aqt can install.
       - name: Install Qt
         uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
         with:
-          version: '6.11.1'
+          version: '6.10.2'
           arch: win64_msvc2022_64
           cache: true
       - name: Cache pinned backend archives

@@ -68,5 +68,7 @@ Results and their interpretation: [S1](../experiments/S1-continuous-run.md),
 [ci.yml](../../.github/workflows/ci.yml) builds and tests on Ubuntu 24.04 and
 Windows, runs the S1 quick matrix on both, compares S2 results across the two
 platforms, and uploads the Windows zip as the `simnodus-windows-x64` artifact.
+The Windows job uses Qt 6.10.2 because aqtinstall 3.3.0 cannot install the
+6.11 series yet; local and release builds use Qt 6.11.1.
 The E-01..E-05 experiment workflows are unchanged and run only when their
 files change.
