@@ -56,3 +56,33 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   20 Hz display).
 - QTest mouse-move events are not delivered offscreen; GUI tests send them
   explicitly.
+
+## Resuming in a new session
+
+- **Waiting for:** the owner's retest of the 0.1 zip (both reported problems,
+  own lesson circuits). Ask for the result first; fix what comes up, then
+  continue with the "Next steps" above.
+- **Local folder:** `D:_Projects_Actives\SimNodus_project` is a Git
+  clone on `main`, in sync with GitHub. `handoff/` and `START_HERE.md` are
+  local only.
+- **Toolchain (owner's laptop):** VS 18 Build Tools (MSVC 14.51), Qt 6.11.1
+  `C:\Qt.11.1\msvc2022_64`, CMake/Ninja from the Build Tools. Run
+  commands in a developer shell (`vcvars64.bat`; it needs
+  `C:\Program Files (x86)\Microsoft Visual Studio\Installer` on `PATH`).
+- **Build and test:** `python tools/fetch_backends.py` (once), then
+  `cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64`, `cmake --build build/dev`,
+  `ctest --test-dir build/dev` (8 suites), `python tools/check_repository.py`.
+- **Package:** `python tools/package_windows.py --build-dir build/dev` writes
+  `dist/SimNodus-0.1.0-dev-windows-x64.zip` and runs the packaged
+  `--check-engine` and `--smoke-test`. Screenshots for checks:
+  `simnodus.exe examples/01_LED_and_push_button.snx --run --screenshot out.png`.
+- **Publishing:** `main` requires a pull request with the checks `Build
+  (Linux)` and `Build (Windows)`; only squash merges are allowed. The owner
+  authorized direct merges once the checks pass.
+- **Pitfalls met so far:** Qt 6.4's moc (Linux CI) cannot parse C++20
+  standard headers, so Q_OBJECT headers include project headers only under
+  `#ifndef Q_MOC_RUN`; GCC treats missing aggregate initializers and implicit
+  `[=]` captures as errors; never delete a widget inside its own signal
+  (defer with `QTimer::singleShot(0, ...)`); offscreen GUI tests must send
+  mouse-move events explicitly.
