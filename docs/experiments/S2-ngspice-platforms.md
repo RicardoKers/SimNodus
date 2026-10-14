@@ -1,8 +1,9 @@
 # S2: ngspice on Windows and Linux
 
 Date: 2026-10-14. Task: SN-104.
-**Result: pending the first CI comparison** (the Windows part passed; see
-below).
+**Result: passed.** The bundled DLL loads at run time, and ngspice-42 on Linux
+reproduces the Windows ngspice-47 results within 1.5 × 10⁻⁵ of each vector's
+range.
 
 ## Question
 
@@ -53,10 +54,27 @@ Implemented in [s2_compare.py](../../tests/spikes/s2_compare.py):
 
 ## Linux (distribution ngspice)
 
-Every CI run compares the Linux result with the committed Windows reference
-(ctest `spike-s2-reference`) and, in the `S2 cross-platform comparison` job,
-with the Windows result of the same run. Results are recorded here after the
-first CI run of this branch.
+GitHub-hosted `ubuntu-24.04` runner, GCC 13.3, Ubuntu's `libngspice0`
+(**ngspice-42**) loaded with `dlopen`,
+[CI run 38559847476](https://github.com/RicardoKers/SimNodus/actions/runs/38559847476).
+
+| Vector | RMS difference | Max difference | Accepted points Linux / Windows |
+|---|---|---|---|
+| `rc_step/out` | 3.6 × 10⁻⁹ | 1.1 × 10⁻⁸ | 5011 / 5012 |
+| `rlc_ring/out` | 1.8 × 10⁻⁶ | 1.3 × 10⁻⁵ | 5081 / 5081 |
+| `rlc_ring/l1#branch` | 2.3 × 10⁻⁶ | 1.5 × 10⁻⁵ | 5081 / 5081 |
+| `diode_clamp/in` | 3.0 × 10⁻⁷ | 1.1 × 10⁻⁶ | 3094 / 3094 |
+| `diode_clamp/out` | 5.4 × 10⁻⁷ | 1.9 × 10⁻⁶ | 3094 / 3094 |
+| `diode_clamp/v1#branch` | 6.3 × 10⁻⁸ | 9.7 × 10⁻⁷ | 3094 / 3094 |
+| `bjt_led/base` | 1.8 × 10⁻⁷ | 4.1 × 10⁻⁶ | 4101 / 4101 |
+| `bjt_led/col` | 1.1 × 10⁻⁶ | 1.3 × 10⁻⁵ | 4101 / 4101 |
+| `bjt_led/vled#branch` | 7.2 × 10⁻⁹ | 1.1 × 10⁻⁷ | 4101 / 4101 |
+
+Differences are fractions of each vector's range in the Windows reference;
+gates are 10⁻³ (RMS) and 10⁻² (max). The analytical gates pass on Linux with
+the same errors as on Windows. Every CI run repeats this comparison (ctest
+`spike-s2-reference` against the committed reference, and the `S2
+cross-platform comparison` job against the Windows result of the same run).
 
 ## Consequences
 

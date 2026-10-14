@@ -100,6 +100,23 @@ reference run on a 0.5 ms grid:
   10 µs: 4.5–5.3 MB, no trend. Restart (`remcirc`, `destroy all`, load):
   median 0.24 ms, maximum 0.95 ms at 100 µs.
 
+## Results (Linux, ngspice-42, CI quick matrix)
+
+GitHub-hosted `ubuntu-24.04` runner (image 20261004.327), GCC 13.3, Ubuntu's
+`libngspice0` (ngspice-42), [CI run 38559847476](https://github.com/RicardoKers/SimNodus/actions/runs/38559847476).
+Memory is the data segment from `/proc/self/statm`, so absolute values are not
+comparable with Windows commit charge.
+
+| Scenario | Result |
+|---|---|
+| One long transient, 100 µs, `.save` | 39× unpaced, memory +0.16 MB per simulated s (grows) |
+| Paced, 100 µs, 1× | 1.0001 of requested speed, max lag 0.2 ms, button → accepted point median 0.73 ms (max 1.1 ms), one step in simulated time |
+| Segments 1 s vs continuous, 100 µs | 0.11 mV after restarts, 17.3 mV at button edges (same as Windows) |
+| Soak, 60 segments of 1 s, 10 µs | memory 17.4 → 20.5 MB during the first half, then flat; restart median 0.55 ms |
+
+Linux timers wake up within 0.2 ms, so the ~20 ms lag on Windows is a property
+of Windows sleep granularity, not of the pacing method.
+
 ## Recommendation (recorded in ADR 0080)
 
 1. Interactive mode runs **segments of 1 s simulated time** (configurable
@@ -126,7 +143,6 @@ reference run on a 0.5 ms grid:
   `CJO`/`TT` will show small steps at restarts. SN-118 must measure one
   semiconductor-heavy example.
 - Inductor current carry-over was not exercised (no inductor in the circuit).
-- Linux results come from the CI quick matrix (`run_s1.py --quick`) with the
-  distribution ngspice; see [S2](S2-ngspice-platforms.md) for engine version
-  differences.
+- Linux numbers come from the four-scenario quick matrix on a shared CI
+  runner; see [S2](S2-ngspice-platforms.md) for engine version differences.
 - Numbers are from one developer laptop; classroom PCs may be slower.
