@@ -27,6 +27,7 @@
 #include <QTest>
 #include <QTreeWidget>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <memory>
@@ -234,6 +235,26 @@ private slots:
         QVERIFY(window.panel_visible(Panel::Messages));
         QCOMPARE(window.messages()->warning_count(), 1);
         QCOMPARE(window.messages()->error_count(), 1);
+    }
+
+    void shortcut_list_follows_the_menus()
+    {
+        auto settings = fresh_settings();
+        MainWindow window(*settings);
+        const QList<ShortcutRow> rows = window.shortcut_rows();
+        auto has = [&rows](const QString& keys, const QString& action) {
+            return std::any_of(rows.begin(), rows.end(),
+                [&](const ShortcutRow& r) { return r.keys == keys && r.action == action; });
+        };
+        QVERIFY(has(QKeySequence(Qt::Key_F5).toString(QKeySequence::NativeText), QStringLiteral("Run")));
+        QVERIFY(has(QKeySequence(Qt::Key_W).toString(QKeySequence::NativeText), QStringLiteral("Wire")));
+        QVERIFY(has(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S).toString(QKeySequence::NativeText),
+            QStringLiteral("Save As")));
+        QVERIFY(std::any_of(rows.begin(), rows.end(), [](const ShortcutRow& r) { return r.keys == QStringLiteral("Esc"); }));
+        for (const ShortcutRow& r : rows) {
+            QVERIFY2(!r.keys.isEmpty() && !r.action.isEmpty(), qPrintable(r.group));
+            QVERIFY(!r.action.contains(QLatin1Char('&')));
+        }
     }
 
     void seconds_are_formatted_for_axes()

@@ -39,6 +39,13 @@ class SchematicView;
 
 enum class Panel { Components = 0, Properties = 1, Messages = 2 };
 
+// One line of Help > Keyboard Shortcuts.
+struct ShortcutRow {
+    QString group;
+    QString keys;
+    QString action;
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -68,6 +75,9 @@ public:
     // Reopens secondary windows that were open at the end of the last session.
     void show_restored_windows();
     bool engine_check_running() const;
+    // Menu shortcuts (read from the actions, so the list cannot go stale)
+    // followed by the canvas keys and mouse gestures.
+    QList<ShortcutRow> shortcut_rows() const;
 
     // File operations; return false if cancelled or failed.
     bool open_file(const QString& path);
@@ -89,6 +99,7 @@ public slots:
     void show_analyzer();
     void check_engine();
     void show_about();
+    void show_shortcuts();
     void new_file();
     void open_dialog();
     bool save();
