@@ -152,7 +152,7 @@ private:
                 ++pos_;
             }
             const std::string name(text_.substr(begin, pos_ - begin));
-            if (name == "min" || name == "max") {
+            if (name == "min" || name == "max" || name == "mod") {
                 if (!accept('(')) {
                     return fail("expected '(' after " + name);
                 }
@@ -163,6 +163,12 @@ private:
                 auto b = expression();
                 if (!b || !accept(')')) {
                     return b ? fail("missing ')'") : std::nullopt;
+                }
+                if (name == "mod") {
+                    if (*b == 0.0) {
+                        return fail("mod by zero");
+                    }
+                    return *a - *b * std::floor(*a / *b); // result has the sign of b
                 }
                 return name == "min" ? std::min(*a, *b) : std::max(*a, *b);
             }
@@ -271,7 +277,7 @@ std::vector<std::string> expression_names(std::string_view expression)
                 ++end;
             }
             std::string name(expression.substr(i, end - i));
-            if (name != "min" && name != "max") {
+            if (name != "min" && name != "max" && name != "mod") {
                 names.push_back(name);
             }
             i = end;

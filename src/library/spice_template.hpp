@@ -7,7 +7,10 @@
 //   {control}    node of the interactive control source
 //   {NAME}       value of parameter NAME (a number in SPICE form, or the
 //                chosen word for a parameter with choices)
-//   {= EXPR}     arithmetic on parameters: + - * / parentheses, min(), max()
+//   {= EXPR}     arithmetic on parameters: + - * / parentheses, min(), max(),
+//                mod(); the name t0 is the start time of the current
+//                simulation segment (0 in transient mode), so periodic
+//                sources keep their phase across interactive segments
 // Any other text is copied unchanged.
 #pragma once
 

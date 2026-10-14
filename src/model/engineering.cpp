@@ -177,6 +177,9 @@ std::string format_engineering(double value, int digits)
 
 std::string spice_number(double value)
 {
+    if (value == 0.0) {
+        return "0"; // never "-0"
+    }
     return to_text(value, 12);
 }
 

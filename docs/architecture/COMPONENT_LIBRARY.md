@@ -61,13 +61,15 @@ lines use the common symbol line width; color is chosen by the application
 | `{ref}` | designator (`R1`) |
 | `{node:NAME}` | net of pin `NAME` |
 | `{NAME}` | parameter value as a plain number, or the chosen word |
-| `{= EXPR}` | arithmetic on parameters: `+ - * /`, parentheses, `min()`, `max()` |
+| `{= EXPR}` | arithmetic on parameters: `+ - * /`, parentheses, `min()`, `max()`, `mod()`; `t0` is the start time of the current segment |
 | `{control}` | node of the interactive control source (0/1 for toggles and buttons, 0–1 for a potentiometer) |
 
 Element names start with the SPICE element letter and include `{ref}`
 (`R_{ref}`), so they are unique. Interactive components are driven by an
 external voltage source the netlist generator adds on `{control}` (ADR 0080).
-The loader checks that every placeholder refers to an existing pin or
+Periodic sources use `t0` to keep their phase when an interactive run
+restarts a segment (ngspice-47 accepts a negative PULSE delay; checked on
+2026-10-14). The loader checks that every placeholder refers to an existing pin or
 parameter.
 
 ## Component set A

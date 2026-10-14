@@ -108,6 +108,6 @@
     }
   ],
   "spice": [
-    "V_{ref} {node:+} {node:-} PULSE({Vlow} {Vhigh} 0 {rise} {rise} {= max(duty/100/f - rise, rise)} {= 1/f})"
+    "V_{ref} {node:+} {node:-} PULSE({Vlow} {Vhigh} {= -mod(t0, 1/f)} {rise} {rise} {= max(duty/100/f - rise, rise)} {= 1/f})"
   ]
 }
