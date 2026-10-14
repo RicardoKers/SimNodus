@@ -32,6 +32,8 @@ third-party file or distribution permission is introduced by SN-017 extraction.
 | ARM GDB | Same toolchain; 15.2.90.20241229-git | `--version` ran; no target/debugger connection |
 | Qt | Local shared 6.11.1 MSVC x64 kit | Core/Gui/Widgets selected for the bounded [SN-022 experiment](../experiments/SN-022-qt-boundary.md); [module/license inventory](../development/QT_INVENTORY.md); production integration and distribution pending |
 | nlohmann/json | 3.11.3 single header, vendored in `third_party/nlohmann` | Project and library files; MIT; header-only, compiled into SimNodus |
+| Renode external control client | Renode 1.16.1 client, adapted, vendored in `third_party/renode_external_control`; server `resources/renode/LoopbackControl.cs` | MIT (Antmicro); compiled into SimNodus / compiled by Renode at run time ([ADR 0082](../decisions/0082-renode-engine-integration.md)) |
+| Renode (Linux) | Official `renode-1.16.1.linux-portable-dotnet.tar.gz`, SHA-256 `00e113cd...38c0` (GitHub asset digest) | Fetched by `tools/fetch_backends.py --renode` for development and CI; not distributed |
 | WASM / Verilator | Deferred | No runtime selected or downloaded |
 
 ## Origins and integrity

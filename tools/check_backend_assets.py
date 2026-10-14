@@ -22,7 +22,8 @@ def main() -> int:
     args = parser.parse_args()
     root = args.root.resolve()
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    records = manifest["archives"]
+    # The Linux Renode package is used by tools/fetch_backends.py and the Linux CI job only.
+    records = [record for record in manifest["archives"] if record.get("platform", "windows") == "windows"]
     if not args.archives_only:
         records = records + manifest["files"]
     if args.ngspice_only:

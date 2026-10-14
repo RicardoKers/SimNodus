@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0082: Renode engine integration](0082-renode-engine-integration.md): one Renode
+  process per run, loopback-only control server, per-run folder, vendored client;
+  distribution of the Renode bundle still needs a license review.
 - [0081: Desktop UI technology and layout](0081-desktop-ui-technology.md): Qt Widgets,
   QGraphicsView canvas, own plotting, data-driven symbols, QSpice-like layout.
 - [0080: Continuous interactive simulation](0080-continuous-interactive-simulation.md):

@@ -45,7 +45,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force build/deps/downloads,build/deps/toolchain | Out-Null
           $backend = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
-          $renode = $backend.archives | Where-Object { $_.path.StartsWith('downloads/renode-') }
+          $renode = $backend.archives | Where-Object { $_.path -eq 'downloads/renode-1.16.1.windows-portable-dotnet.zip' }
           curl.exe --fail --location --silent --show-error --continue-at - --retry 2 --retry-delay 2 --retry-all-errors --max-time 300 $renode.url --output (Join-Path build/deps $renode.path)
           if ($LASTEXITCODE -ne 0) { throw 'Renode download failed' }
           $compiler = Get-Content tests/experiments/renode-stm32/ci-toolchain.json -Raw | ConvertFrom-Json

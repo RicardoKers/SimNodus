@@ -20,6 +20,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
+- **Phase 2 started (release 0.2, due 2026-11-13).** SN-130 done: `src/mcu`
+  `RenodeEngine` (ADR 0082) runs the pinned Renode 1.16.1 as a child process
+  with a loopback-only control server; exact virtual-time steps, GPIO
+  set/get/events, bus access, clean stop and failure reporting. Not yet used
+  by the application (SN-131/132).
 
 ## Verified on 2026-10-14
 
@@ -36,15 +41,25 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - Portable zip (`dist/`, 26.5 MB) runs `--check-engine` and `--smoke-test`
   from the package. Linux: verified by CI for each PR (GCC 13, Qt 6.4,
   ngspice-42); the Windows CI job uses Qt 6.10.2.
+- Renode engine (Windows, Renode 1.16.1): `engine-renode` 8/8 cases against
+  the real Renode, ctest 9/9 in about 50 s. Renode starts in 3.5–6 s; a
+  hand-assembled Thumb loop toggling PA0 gave 64 events in 20 µs (8 MIPS,
+  5-instruction loop). Linux: `engine-renode` passed in CI (ubuntu-24.04,
+  GCC 13, portable .NET Renode package, 26 s) on PR #107.
 - Earlier evidence: [S1](../experiments/S1-continuous-run.md),
   [S2](../experiments/S2-ngspice-platforms.md), ADR 0080.
 
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. Phase 2 (release 0.2, until 2026-11-13; may start early): SN-130 Renode
-   engine wrapper first, then Blue Pill, GPIO/EXTI, UART terminal, logic lanes.
-3. Carry semiconductor junction charge across segments only if the owner
+2. SN-131: Blue Pill component and board profile (full GPIOA–C, RCC seed,
+   vector table), ELF selection/reload, pin states on the canvas; start the
+   engine off the GUI thread with progress (start-up takes seconds).
+3. SN-132 coupler (quantum lockstep, GPIO outputs into ngspice), then SN-133
+   EXTI inputs, SN-134 UART, SN-135 logic lanes, SN-136 lesson examples.
+4. Before the 0.2 package: license/update review of the Renode bundle
+   (LGPL tlib, bundled .NET runtime) for shipping it in the zip (ADR 0082).
+5. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
 
 ## Known constraints
@@ -56,6 +71,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   20 Hz display).
 - QTest mouse-move events are not delivered offscreen; GUI tests send them
   explicitly.
+- Renode reports GPIO events only during `run_for`, with quantum-granular
+  timestamps; on Linux the child dies with the thread that started it.
+- No ARM toolchain on the owner's laptop; firmware for tests and lessons
+  needs one (Arm GNU Toolchain 14.3, as in E-02) or committed ELFs (SN-136).
 
 ## Resuming in a new session
 

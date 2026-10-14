@@ -103,11 +103,17 @@ results with analytical references (RC, RL, divider, diode clamp).
 - **Acquisition**: ring buffers per channel with min/max decimation for display;
   analog samples are irregular in time (SPICE steps) and are stored with their
   timestamps.
-- **RenodeEngine + Coupler** (phase 2): Renode leads by quantum Q; GPIO outputs
+- **RenodeEngine** (`src/mcu`, SN-130, [ADR 0082](../decisions/0082-renode-engine-integration.md)):
+  one Renode 1.16.1 child process per run (Job Object / parent-death signal),
+  a loopback-only external control server compiled by Renode from
+  `resources/renode/LoopbackControl.cs`, a per-run folder with relative paths,
+  exact `run_for` virtual time, GPIO set/get and change events with virtual
+  timestamps (quantum granularity, only during `run_for`), 32-bit bus access.
+- **Coupler** (phase 2, SN-132): Renode leads by quantum Q; GPIO outputs
   become external sources; analog crossings feed GPIO inputs at the end of the
-  quantum (E-03 sampled exchange, labeled approximate). Reused knowledge: pinned
-  Renode 1.16.1, STM32F103 platform description, owned ADC model, cancellable
-  run patch for debugging.
+  quantum (E-03 sampled exchange, labeled approximate). Reused knowledge:
+  STM32F103 platform description, owned ADC model, cancellable run patch for
+  debugging.
 
 ## Threads and processes
 
@@ -120,7 +126,8 @@ results with analytical references (RC, RL, divider, diode clamp).
 
 ```text
 apps/simnodus/        Qt application (editor, analyzer)
-src/model, src/io, src/library, src/netlist, src/sim, src/mcu (phase 2)
+src/model, src/io, src/library, src/netlist, src/sim, src/mcu (Renode engine)
+resources/renode/     Renode server extension, platform descriptions
 resources/library/    component JSON files
 examples/             example projects (.snx) and firmware
 tests/unit/           C++ unit and simulation tests (ctest)

@@ -40,7 +40,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force build/deps/downloads | Out-Null
           $manifest = Get-Content tools/backend-baseline.json -Raw | ConvertFrom-Json
-          $asset = $manifest.archives | Where-Object { $_.path.StartsWith('downloads/renode-') }
+          $asset = $manifest.archives | Where-Object { $_.path -eq 'downloads/renode-1.16.1.windows-portable-dotnet.zip' }
           curl.exe --fail --location --silent --show-error --max-time 180 $asset.url --output (Join-Path build/deps $asset.path)
           if ($LASTEXITCODE -ne 0) { throw 'Package download failed' }
           python tools/check_backend_assets.py --renode-only --archives-only
