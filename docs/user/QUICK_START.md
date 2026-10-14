@@ -16,6 +16,7 @@ For release 0.1 (analog circuits). Windows: unzip the package and run
 - **Messages** (bottom, Ctrl+3): circuit checks and engine messages.
   Double-click a message to show the part on the schematic.
 - Ctrl+1 / Ctrl+2 / Ctrl+3 hide and show the panels, F11 hides all of them.
+- **F1** (Help > Keyboard Shortcuts) lists every shortcut and mouse gesture.
 
 ## Drawing a circuit
 

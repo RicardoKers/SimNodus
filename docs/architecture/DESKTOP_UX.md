@@ -113,9 +113,12 @@ canvas readout, the analyzer and CSV export.
 
 ## Keyboard shortcuts
 
+Help > Keyboard Shortcuts (`F1`) lists them in the application, read from the
+menus so the list stays current, plus the canvas keys and mouse gestures.
+
 | Shortcut | Action |
 |---|---|
-| `Ctrl+N` / `Ctrl+O` / `Ctrl+S` / `Ctrl+Shift+S` | New / Open / Save / Save As |
+| `Ctrl+N` / `Ctrl+O` / `Ctrl+S` / `Ctrl+Shift+S` / `Ctrl+Q` | New / Open / Save / Save As / Exit |
 | `Ctrl+Z` / `Ctrl+Y` | Undo / Redo |
 | `Ctrl+X` / `Ctrl+C` / `Ctrl+V` / `Del` | Cut / Copy / Paste / Delete |
 | `Ctrl+R` / `Ctrl+E` | Rotate / Mirror |
@@ -126,6 +129,7 @@ canvas readout, the analyzer and CSV export.
 | `Ctrl+Shift+A` | Show Signal Analyzer |
 | `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `F11` | Toggle components / properties / messages / focus canvas |
 | `Esc` | Cancel current tool, return to selection |
+| `F1` | Keyboard shortcut list |
 
 ## Symbols
 

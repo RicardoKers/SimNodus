@@ -25,16 +25,21 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDateTime>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QHeaderView>
 #include <QInputDialog>
 #include <QLabel>
+#include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSplitter>
+#include <QTableWidget>
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QStyle>
@@ -42,6 +47,7 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QUndoStack>
+#include <QVBoxLayout>
 
 #include <algorithm>
 #include <numeric>
@@ -268,7 +274,8 @@ void MainWindow::build_actions_and_menus()
     save_as_action->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
     file->addSeparator();
     auto* quit = file->addAction(tr("E&xit"), this, &QWidget::close);
-    quit->setShortcut(QKeySequence::Quit);
+    // QKeySequence::Quit has no usable key on Windows.
+    quit->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 
     auto* edit = menuBar()->addMenu(tr("&Edit"));
     auto* undo = document_->undo_stack()->createUndoAction(this, tr("&Undo"));
@@ -363,6 +370,8 @@ void MainWindow::build_actions_and_menus()
     });
 
     auto* help = menuBar()->addMenu(tr("&Help"));
+    help->addAction(tr("&Keyboard Shortcuts"), this, &MainWindow::show_shortcuts)->setShortcut(QKeySequence::HelpContents);
+    help->addSeparator();
     help->addAction(tr("&About SimNodus"), this, &MainWindow::show_about);
     help->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
     (void)planned;
@@ -730,6 +739,87 @@ void MainWindow::show_about()
            "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
            "Qt %2 (LGPL-3.0).</p>")
             .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));
+}
+
+QList<ShortcutRow> MainWindow::shortcut_rows() const
+{
+    QList<ShortcutRow> rows;
+    for (const QAction* menu_action : menuBar()->actions()) {
+        const QMenu* menu = menu_action->menu();
+        if (!menu) {
+            continue;
+        }
+        const QString group = QString(menu_action->text()).remove(QLatin1Char('&'));
+        for (const QAction* action : menu->actions()) {
+            if (action->isSeparator() || action->menu() || action->shortcuts().isEmpty()) {
+                continue;
+            }
+            QStringList keys;
+            for (const QKeySequence& key : action->shortcuts()) {
+                keys << key.toString(QKeySequence::NativeText);
+            }
+            QString text = QString(action->text()).remove(QLatin1Char('&'));
+            if (text.endsWith(QStringLiteral("..."))) {
+                text.chop(3);
+            }
+            rows.push_back({group, keys.join(tr(" or ")), text});
+        }
+    }
+    const QString canvas = tr("Schematic");
+    const QString running = tr("While running");
+    rows.push_back({canvas, tr("Esc"), tr("Cancel the wire or tool, then clear the selection")});
+    rows.push_back({canvas, tr("Space"), tr("Wire tool: change the corner; otherwise hold and drag to pan")});
+    rows.push_back({canvas, tr("Arrow keys"), tr("Move the selection one grid step (Shift: ten steps)")});
+    rows.push_back({canvas, tr("Ctrl+click"), tr("Add to or remove from the selection")});
+    rows.push_back({canvas, tr("Double-click"), tr("Edit a part's value; ends a wire at an open point")});
+    rows.push_back({canvas, tr("Wheel / middle drag"), tr("Zoom / pan")});
+    rows.push_back({canvas, tr("Shift+click"), tr("Probe tool: voltage of a pin instead of its current")});
+    rows.push_back({canvas, tr("Alt+click"), tr("Probe tool: measure the last voltage probe relative to this net")});
+    rows.push_back({running, tr("Click"), tr("Toggle a switch; hold a push button")});
+    rows.push_back({running, tr("Drag or wheel"), tr("Turn a potentiometer")});
+    return rows;
+}
+
+void MainWindow::show_shortcuts()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Keyboard Shortcuts"));
+    auto* table = new QTableWidget(0, 2, &dialog);
+    table->setObjectName(QStringLiteral("shortcutTable"));
+    table->setHorizontalHeaderLabels({tr("Keys"), tr("Action")});
+    table->verticalHeader()->hide();
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setSelectionMode(QAbstractItemView::NoSelection);
+    table->setWordWrap(false);
+    table->setFocusPolicy(Qt::NoFocus);
+    table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    QString group;
+    for (const ShortcutRow& row : shortcut_rows()) {
+        if (row.group != group) {
+            group = row.group;
+            const int heading = table->rowCount();
+            table->insertRow(heading);
+            auto* item = new QTableWidgetItem(group);
+            QFont font = item->font();
+            font.setBold(true);
+            item->setFont(font);
+            table->setItem(heading, 0, item);
+            table->setSpan(heading, 0, 1, 2);
+        }
+        const int r = table->rowCount();
+        table->insertRow(r);
+        table->setItem(r, 0, new QTableWidgetItem(row.keys));
+        table->setItem(r, 1, new QTableWidgetItem(row.action));
+    }
+    table->resizeColumnsToContents();
+    table->horizontalHeader()->setStretchLastSection(true);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dialog);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->addWidget(table);
+    layout->addWidget(buttons);
+    dialog.resize(620, 560);
+    dialog.exec();
 }
 
 bool MainWindow::confirm_discard()
