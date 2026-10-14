@@ -14,7 +14,11 @@ the first development line; its commands for the legacy tree are in
 | ngspice | ngspice-47 DLL, fetched and verified by `tools/fetch_backends.py` | distribution library (`libngspice0-dev`) |
 | Python | 3.10+, standard library only | 3.10+ |
 
-Renode 1.16.1 is needed only from phase 2: `python tools/fetch_backends.py --renode`.
+Renode 1.16.1 (microcontroller engine) is fetched and verified with
+`python tools/fetch_backends.py --renode` on Windows and Linux (into
+`build/deps/renode` or `build/deps/renode-linux`). CMake finds it there for the
+`engine-renode` test; without it that test is skipped (`-DSIMNODUS_REQUIRE_RENODE=ON`
+turns the skip into an error, as in CI).
 
 ## Windows
 

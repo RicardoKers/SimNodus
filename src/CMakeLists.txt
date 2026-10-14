@@ -3,6 +3,7 @@ add_library(simnodus_json INTERFACE)
 target_include_directories(simnodus_json SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}/third_party")
 
 add_subdirectory(sim)
+add_subdirectory(mcu)
 
 add_library(simnodus_model STATIC
     model/edit.cpp

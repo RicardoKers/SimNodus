@@ -24,3 +24,15 @@ target_link_libraries(model_tests PRIVATE simnodus::model simnodus::library simn
 target_compile_definitions(model_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library"
     SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 add_test(NAME model-unit COMMAND model_tests)
+
+add_executable(renode_tests renode_tests.cpp)
+target_include_directories(renode_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(renode_tests PRIVATE simnodus::mcu simnodus::warnings)
+if(SIMNODUS_RENODE)
+    add_test(NAME engine-renode COMMAND renode_tests "${SIMNODUS_RENODE}" "${PROJECT_SOURCE_DIR}/resources/renode")
+    set_tests_properties(engine-renode PROPERTIES TIMEOUT 300)
+elseif(SIMNODUS_REQUIRE_RENODE)
+    message(FATAL_ERROR "SIMNODUS_REQUIRE_RENODE is set but Renode was not found (tools/fetch_backends.py --renode)")
+else()
+    message(STATUS "engine-renode test skipped: Renode not found (tools/fetch_backends.py --renode)")
+endif()

@@ -8,8 +8,9 @@ application package uses:
     ngspice.dll, libomp140.x86_64.dll, sndfile.dll, samplerate.dll,
     spinit (owned, resources/ngspice/spinit), COPYING (ngspice license)
 
-Renode is downloaded and extracted only with --renode (phase 2).
-On Linux nothing is downloaded: install the distribution ngspice library
+Renode (microcontroller engine) is downloaded and extracted only with
+--renode, into build/deps/renode (Windows) or build/deps/renode-linux.
+On Linux ngspice is not downloaded: install the distribution library
 (Debian/Ubuntu: libngspice0-dev) instead.
 """
 
@@ -21,6 +22,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tarfile
 import time
 import urllib.request
 import zipfile
@@ -85,12 +87,20 @@ def main() -> int:
     parser.add_argument("--deps", type=Path, default=ROOT / "build" / "deps")
     parser.add_argument("--renode", action="store_true", help="also fetch the pinned Renode portable build")
     args = parser.parse_args()
-    if sys.platform != "win32":
-        print("Linux: install the distribution ngspice library (libngspice0-dev); nothing to fetch.")
-        return 0
     baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
     archives = {Path(a["path"]).name: a for a in baseline["archives"]}
     deps = args.deps.resolve()
+    if sys.platform != "win32":
+        print("Linux: install the distribution ngspice library (libngspice0-dev).")
+        if args.renode:
+            record = archives["renode-1.16.1.linux-portable-dotnet.tar.gz"]
+            download(record["url"], deps / record["path"], record["sha256"])
+            target = deps / "renode-linux"
+            with tarfile.open(deps / record["path"]) as archive:
+                # The "data" filter rejects unsafe members and keeps executable bits.
+                archive.extractall(target, filter="data")
+            print(f"extracted Renode in {target}")
+        return 0
     wanted = ["ngspice-47_dll_64.7z", "ngspice-47_64.7z"]
     if args.renode:
         wanted.append("renode-1.16.1.windows-portable-dotnet.zip")
@@ -121,6 +131,9 @@ def main() -> int:
     if args.renode:
         with zipfile.ZipFile(deps / "downloads/renode-1.16.1.windows-portable-dotnet.zip") as archive:
             archive.extractall(deps / "renode")
+        executable = "renode/renode_1.16.1-dotnet_portable/Renode.exe"
+        if sha256(deps / executable) != files[executable]:
+            raise SystemExit(f"Extracted file does not match the baseline: {executable}")
         print(f"extracted Renode in {deps / 'renode'}")
     return 0
 
