@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   linux:
-    name: Linux (Ubuntu 24.04, distribution Qt and ngspice)
+    name: Build (Linux)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -50,7 +50,7 @@ jobs:
           if-no-files-found: warn
 
   windows:
-    name: Windows (MSVC, Qt 6.10, bundled ngspice 47)
+    name: Build (Windows)
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -104,7 +104,7 @@ jobs:
           if-no-files-found: warn
 
   ngspice-cross-check:
-    name: S2 cross-platform comparison
+    name: S2 cross-platform check
     needs: [linux, windows]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
