@@ -125,10 +125,11 @@
   ],
   "readout": {
     "kind": "current",
-    "element": "D_{ref}"
+    "element": "V_meas_{ref}"
   },
   "spice": [
-    "D_{ref} {node:A} {node:K} LED_{color}"
+    "V_meas_{ref} {node:A} a_{ref} DC 0",
+    "D_{ref} a_{ref} {node:K} LED_{color}"
   ],
   "models": [
     ".model LED_red D(IS=1.2e-18 N=2 RS=5 BV=5 IBV=10u)",

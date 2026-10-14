@@ -26,11 +26,11 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-114 | Properties panel with engineering notation and validation | UI-10 | todo |
 | SN-115 | `.snx` save/open, recent files, backup, examples menu | PRJ-01..03, UI-15 | doing |
 | SN-116 | Connectivity, pre-run checks and SPICE generation with golden tests | SIM-05 | done |
-| SN-117 | ngspice engine wrapper (runtime load, callbacks, errors) | SIM-04 | todo |
-| SN-118 | Interactive run: pacing, speed factor, controls, bounded memory, status | SIM-01, SIM-02, INT-01, UI-13 | todo |
+| SN-117 | ngspice engine wrapper (runtime load, callbacks, errors) | SIM-04 | done |
+| SN-118 | Interactive run: pacing, speed factor, controls, bounded memory, status | SIM-01, SIM-02, INT-01, UI-13 | doing |
 | SN-119 | Interactive components and live rendering (switches, button, pot, LED, meters, tooltips, live values) | INT-02..05 | todo |
 | SN-120 | Signal Analyzer scope: channels, roll/trigger, zoom, cursors, measurements, CSV/PNG | AN-01..06, AN-09 | todo |
-| SN-121 | Transient mode and settings dialog | SIM-03 | todo |
+| SN-121 | Transient mode and settings dialog | SIM-03 | doing |
 | SN-122 | Messages panel, diagnostics with locate | UI-12, SIM-05 | todo |
 | SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | todo |
 
