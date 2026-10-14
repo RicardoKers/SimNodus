@@ -74,7 +74,7 @@ Differences are fractions of each vector's range in the Windows reference;
 gates are 10⁻³ (RMS) and 10⁻² (max). The analytical gates pass on Linux with
 the same errors as on Windows. Every CI run repeats this comparison (ctest
 `spike-s2-reference` against the committed reference, and the `S2
-cross-platform comparison` job against the Windows result of the same run).
+cross-platform check` job against the Windows result of the same run).
 
 ## Consequences
 
