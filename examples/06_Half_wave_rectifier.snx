@@ -1,0 +1,195 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 13,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vsine",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "amplitude": "5",
+        "f": "50",
+        "offset": "0",
+        "phase": "0"
+      }
+    },
+    {
+      "id": 2,
+      "type": "diode",
+      "designator": "D1",
+      "at": [
+        8,
+        -8
+      ],
+      "rotation": 270,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 3,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        18,
+        -3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    },
+    {
+      "id": 4,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        24,
+        -3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "47u"
+      }
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 6,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -8
+        ],
+        [
+          5,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          11,
+          -8
+        ],
+        [
+          24,
+          -8
+        ],
+        [
+          24,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          18,
+          -8
+        ],
+        [
+          18,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          24,
+          6
+        ],
+        [
+          24,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          18,
+          0
+        ],
+        [
+          18,
+          6
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 6,
+        "at": [
+          2,
+          -8
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "voltage",
+      "target": {
+        "item": 4,
+        "pin": "1",
+        "at": [
+          24,
+          -6
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

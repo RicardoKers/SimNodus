@@ -6,6 +6,7 @@
 #include "test_support.hpp"
 
 #include "engine_fixture.hpp"
+#include "sim/engine_host.hpp"
 #include "sim/ngspice_runtime.hpp"
 
 #include <algorithm>
@@ -18,7 +19,7 @@ using namespace simnodus::sim;
 namespace {
 
 NgspiceLocation location;
-std::unique_ptr<NgspiceSession> session;
+NgspiceSession* session = nullptr;
 
 const std::vector<std::string> rc_netlist = {
     "* RC step, tau = 1 ms",
@@ -109,19 +110,20 @@ TEST_CASE("an invalid netlist is reported")
     session->command("remcirc");
 }
 
-// Opens the session on first use; test files register in any order.
+// The application's engine host loads ngspice on first use; test files
+// register in any order, and the simulation session shares the same engine.
 simnodus::sim::NgspiceSession* simnodus::test::engine()
 {
     static bool attempted = false;
     if (!session && !attempted) {
         attempted = true;
         std::string error;
-        session = NgspiceSession::open(location, error);
+        session = simnodus::sim::EngineHost::instance().acquire(error);
         if (!session) {
             std::printf("  cannot open ngspice: %s\n", error.c_str());
         }
     }
-    return session.get();
+    return session;
 }
 
 int main(int argc, char** argv)
@@ -131,5 +133,6 @@ int main(int argc, char** argv)
         return 2;
     }
     location = {argv[1], argv[2]};
+    simnodus::sim::EngineHost::instance().set_location(location);
     return simnodus::test::run_all(argc > 3 ? argv[3] : "");
 }

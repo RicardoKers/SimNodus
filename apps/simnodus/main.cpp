@@ -101,13 +101,13 @@ int smoke_test(simnodus::ui::MainWindow& window)
 }
 
 // Saves images of the main window and the analyzer (documentation, reviews).
-int screenshot(simnodus::ui::MainWindow& window, const QString& file)
+int screenshot(simnodus::ui::MainWindow& window, const QString& file, int delay_ms)
 {
     window.resize(1280, 800);
     window.show();
     window.show_analyzer();
     window.analyzer()->resize(960, 560);
-    QTimer::singleShot(300, &window, [&window, file] {
+    QTimer::singleShot(delay_ms, &window, [&window, file] {
         const QFileInfo info(file);
         const QString analyzer_file = info.path() + QStringLiteral("/") + info.completeBaseName()
             + QStringLiteral("-analyzer.") + info.suffix();
@@ -142,7 +142,11 @@ int main(int argc, char** argv)
     const QCommandLineOption screenshot_option(QStringLiteral("screenshot"),
         QCoreApplication::translate("main", "Save images of the windows to this PNG file and exit."),
         QStringLiteral("file"));
-    parser.addOptions({settings_option, smoke_option, engine_option, screenshot_option});
+    const QCommandLineOption run_option(QStringLiteral("run"),
+        QCoreApplication::translate("main", "Start the simulation after opening the project."));
+    parser.addOptions({settings_option, smoke_option, engine_option, screenshot_option, run_option});
+    parser.addPositionalArgument(QStringLiteral("project"),
+        QCoreApplication::translate("main", "Project file (.snx) to open."), QStringLiteral("[project]"));
     parser.process(application);
 
     if (parser.isSet(engine_option)) {
@@ -157,9 +161,15 @@ int main(int argc, char** argv)
         attach_console();
         return smoke_test(window);
     }
+    if (!parser.positionalArguments().isEmpty()) {
+        window.open_file(parser.positionalArguments().constFirst());
+    }
+    if (parser.isSet(run_option)) {
+        QTimer::singleShot(0, &window, [&window] { window.run(); });
+    }
     if (parser.isSet(screenshot_option)) {
         attach_console();
-        return screenshot(window, parser.value(screenshot_option));
+        return screenshot(window, parser.value(screenshot_option), parser.isSet(run_option) ? 2500 : 300);
     }
     window.show();
     window.show_restored_windows();

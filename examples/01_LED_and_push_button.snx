@@ -1,0 +1,188 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 13,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 2,
+      "type": "button_no",
+      "designator": "SW1",
+      "at": [
+        8,
+        -8
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 3,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        18,
+        -8
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 4,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        -3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        8
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 6,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -8
+        ],
+        [
+          5,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          11,
+          -8
+        ],
+        [
+          15,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          21,
+          -8
+        ],
+        [
+          26,
+          -8
+        ],
+        [
+          26,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          26,
+          0
+        ],
+        [
+          26,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          8
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 8,
+        "at": [
+          24,
+          -8
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "item": 4,
+        "pin": "A",
+        "at": [
+          26,
+          -6
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

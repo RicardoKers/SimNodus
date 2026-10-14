@@ -34,3 +34,7 @@ add_library(simnodus_netlist STATIC
     netlist/netlist.cpp)
 add_library(simnodus::netlist ALIAS simnodus_netlist)
 target_link_libraries(simnodus_netlist PUBLIC simnodus::model simnodus::library PRIVATE simnodus::warnings)
+
+add_library(simnodus_session STATIC sim/simulation_session.cpp)
+add_library(simnodus::session ALIAS simnodus_session)
+target_link_libraries(simnodus_session PUBLIC simnodus::sim simnodus::netlist PRIVATE simnodus::warnings)

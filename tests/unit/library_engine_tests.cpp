@@ -33,7 +33,7 @@ std::map<std::string, std::vector<double>> simulate(const test::CircuitBuilder& 
 {
     std::map<std::string, std::vector<double>> result;
     auto* session = test::engine();
-    const auto n = netlist::generate_netlist(circuit.schematic, components(), {false, 0.0});
+    const auto n = netlist::generate_netlist(circuit.schematic, components(), {false, 0.0, {}});
     for (const auto& d : n.diagnostics) {
         if (d.severity == netlist::Severity::Error) {
             std::printf("  netlist error: %s\n", d.message.c_str());
@@ -181,6 +181,28 @@ TEST_CASE("library: instruments read voltage and current")
     b.add("voltmeter", {{"+", "A"}, {"-", "0"}});
     CHECK(close_to(op(b, "v_am1#branch"), 5e-3, 1e-9));
     CHECK(close_to(op(b, "a"), 5.0, 1e-6));
+}
+
+TEST_CASE("library: a current probe measures the current into a pin")
+{
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "5"}});
+    const auto r = b.add("resistor", {{"1", "IN"}, {"2", "0"}}, {{"R", "1k"}});
+    netlist::NetlistOptions options;
+    options.interactive = false;
+    options.current_probes = {{r, "1"}, {r, "2"}};
+    const auto n = netlist::generate_netlist(b.schematic, components(), options);
+    REQUIRE(n.ok());
+    auto* session = test::engine();
+    REQUIRE(session->load_circuit(netlist::build_deck(n, "probe", {".op"})) && session->command("run"));
+    const auto into1 = session->vector(n.pin_current.at({r, "1"}));
+    const auto into2 = session->vector(n.pin_current.at({r, "2"}));
+    REQUIRE(!into1.empty() && !into2.empty());
+    CHECK(close_to(into1[0], 5e-3, 1e-9));  // flows into pin 1
+    CHECK(close_to(into2[0], -5e-3, 1e-9)); // and out of pin 2
+    session->command("destroy all");
+    session->command("remcirc");
 }
 
 TEST_CASE("library: reactive parts and generators in a transient")

@@ -1,5 +1,7 @@
 add_library(simnodus_sim STATIC
     engine_check.cpp
+    engine_host.cpp
+    measurements.cpp
     ngspice_runtime.cpp
     process_memory.cpp)
 add_library(simnodus::sim ALIAS simnodus_sim)

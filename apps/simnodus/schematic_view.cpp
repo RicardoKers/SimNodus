@@ -2,13 +2,23 @@
 // SPDX-License-Identifier: MIT
 #include "schematic_view.hpp"
 
+#include "document.hpp"
+#include "schematic_scene.hpp"
 #include "theme.hpp"
 
+#include "editing/operations.hpp"
+#include "model/engineering.hpp"
+
+#include <QApplication>
+#include <QClipboard>
+#include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QKeyEvent>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
+#include <QToolTip>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -23,6 +33,8 @@ const QRectF empty_sheet(0.0, 0.0, 120 * SchematicView::grid, 80 * SchematicView
 // Dots closer than this many pixels are not drawn.
 constexpr double min_dot_spacing_px = 7.0;
 constexpr int major_every = 10;
+const QString clipboard_mime = QStringLiteral("application/x-simnodus-elements");
+const QString component_mime = QStringLiteral("application/x-simnodus-component");
 
 } // namespace
 
@@ -37,14 +49,25 @@ SchematicView::SchematicView(QWidget* parent) : QGraphicsView(parent)
     setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
     setCacheMode(QGraphicsView::CacheNone);
     setDragMode(QGraphicsView::NoDrag);
+    setRubberBandSelectionMode(Qt::IntersectsItemShape);
     setFrameShape(QFrame::NoFrame);
     // Clean canvas: pan with the middle button or Space+drag instead.
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
+    setAcceptDrops(true);
     setObjectName(QStringLiteral("schematicView"));
-    setToolTip(QString());
+}
+
+void SchematicView::set_schematic_scene(SchematicScene* scene)
+{
+    QGraphicsScene* old = this->scene();
+    scene_ = scene;
+    setScene(scene);
+    if (old && old->parent() == this) {
+        old->deleteLater();
+    }
 }
 
 double SchematicView::zoom() const
@@ -87,16 +110,36 @@ void SchematicView::zoom_out()
 
 void SchematicView::fit_content()
 {
-    QRectF target = scene()->itemsBoundingRect();
+    QRectF target;
+    if (scene_) {
+        for (auto* item : scene_->items()) {
+            if (scene_->id_of(item) != model::no_id) {
+                target = target.isNull() ? item->sceneBoundingRect() : target.united(item->sceneBoundingRect());
+            }
+        }
+    }
     if (target.isEmpty()) {
         target = empty_sheet;
     }
-    fitInView(target.adjusted(-2 * grid, -2 * grid, 2 * grid, 2 * grid), Qt::KeepAspectRatio);
-    // fitInView may exceed the zoom range for tiny or huge content.
+    fitInView(target.adjusted(-4 * grid, -4 * grid, 4 * grid, 4 * grid), Qt::KeepAspectRatio);
+    if (zoom() > 3.0) {
+        set_zoom(3.0, viewport()->rect().center()); // a single part should not fill the screen
+    }
     if (zoom() > max_zoom || zoom() < min_zoom) {
         set_zoom(zoom(), viewport()->rect().center());
     }
     emit zoom_changed(zoom());
+}
+
+void SchematicView::center_on_item(model::Id id)
+{
+    if (!scene_) {
+        return;
+    }
+    if (auto* item = scene_->item_of(id)) {
+        scene_->select_ids({id});
+        centerOn(item);
+    }
 }
 
 void SchematicView::drawBackground(QPainter* painter, const QRectF& rect)
@@ -140,6 +183,308 @@ void SchematicView::drawBackground(QPainter* painter, const QRectF& rect)
     painter->restore();
 }
 
+model::Point SchematicView::grid_at(const QPoint& view_point) const
+{
+    return to_grid(mapToScene(view_point));
+}
+
+bool SchematicView::allowed()
+{
+    return !guard_ || guard_();
+}
+
+void SchematicView::set_running(bool running)
+{
+    running_ = running;
+    if (running && tool_ != Tool::Select) {
+        set_tool(Tool::Select);
+    }
+    held_button_ = model::no_id;
+    pot_drag_ = model::no_id;
+}
+
+void SchematicView::set_tool(Tool tool)
+{
+    if (tool != Tool::Select && running_ && !allowed()) {
+        return;
+    }
+    cancel_wire();
+    if (scene_) {
+        scene_->clear_ghost();
+    }
+    if (tool != Tool::Place) {
+        placing_ = nullptr;
+    }
+    tool_ = tool;
+    update_cursor_shape();
+    emit tool_changed(tool_);
+    switch (tool_) {
+    case Tool::Wire:
+        emit status_message(tr("Wire: click to start, click to add bends, click a pin or wire to finish. Space "
+                               "changes the corner, Esc cancels."));
+        break;
+    case Tool::Label:
+        emit status_message(tr("Net label: click a wire or pin. Labels with the same name are connected."));
+        break;
+    case Tool::Probe:
+        emit status_message(tr("Probe: click a wire for a voltage, a component pin for its current (Shift: "
+                               "voltage at the pin)."));
+        break;
+    case Tool::Place:
+    case Tool::Select:
+        break;
+    }
+}
+
+void SchematicView::begin_place(const library::ComponentDefinition* definition)
+{
+    if (!definition || !scene_ || (running_ && !allowed())) {
+        return;
+    }
+    set_tool(Tool::Place);
+    placing_ = definition;
+    place_orientation_ = {};
+    ghost_at_ = grid_at(mapFromGlobal(QCursor::pos()));
+    scene_->set_ghost(placing_, ghost_at_, place_orientation_);
+    emit status_message(tr("Placing %1: click to place, Ctrl+R rotates, Ctrl+E mirrors, Esc ends.")
+                            .arg(QString::fromStdString(definition->name)));
+}
+
+void SchematicView::place_at(const model::Point& at)
+{
+    if (!scene_ || !placing_ || !allowed()) {
+        return;
+    }
+    auto& document = scene_->document();
+    model::Id id = model::no_id;
+    document.apply(editing::add_component(document.id_source(), *placing_, at, place_orientation_, &id));
+    if (id) {
+        emit status_message(tr("Placed %1.").arg(QString::fromStdString(document.schematic().component(id)->designator)));
+    }
+}
+
+void SchematicView::delete_selection()
+{
+    if (!scene_ || scene_->selected_ids().empty() || !allowed()) {
+        return;
+    }
+    scene_->document().apply(editing::delete_items(scene_->document().schematic(), scene_->selected_ids()));
+}
+
+void SchematicView::rotate()
+{
+    if (tool_ == Tool::Place && placing_) {
+        place_orientation_.rotation = model::normalized_rotation(place_orientation_.rotation + 90);
+        scene_->set_ghost(placing_, ghost_at_, place_orientation_);
+        return;
+    }
+    if (!scene_ || scene_->selected_ids().empty() || !allowed()) {
+        return;
+    }
+    auto& d = scene_->document();
+    d.apply(editing::rotate_items(d.schematic(), d.library(), scene_->selected_ids()));
+}
+
+void SchematicView::mirror()
+{
+    if (tool_ == Tool::Place && placing_) {
+        place_orientation_ = {model::normalized_rotation(360 - place_orientation_.rotation), !place_orientation_.mirrored};
+        scene_->set_ghost(placing_, ghost_at_, place_orientation_);
+        return;
+    }
+    if (!scene_ || scene_->selected_ids().empty() || !allowed()) {
+        return;
+    }
+    auto& d = scene_->document();
+    d.apply(editing::mirror_items(d.schematic(), d.library(), scene_->selected_ids()));
+}
+
+void SchematicView::copy_selection()
+{
+    if (!scene_ || scene_->selected_ids().empty()) {
+        return;
+    }
+    const std::string text = editing::copy_items(scene_->document().schematic(), scene_->selected_ids());
+    auto* mime = new QMimeData;
+    mime->setData(clipboard_mime, QByteArray::fromStdString(text));
+    QApplication::clipboard()->setMimeData(mime);
+}
+
+void SchematicView::cut_selection()
+{
+    if (!scene_ || scene_->selected_ids().empty() || !allowed()) {
+        return;
+    }
+    copy_selection();
+    delete_selection();
+}
+
+void SchematicView::paste()
+{
+    if (!scene_ || !allowed()) {
+        return;
+    }
+    const QMimeData* mime = QApplication::clipboard()->mimeData();
+    if (!mime || !mime->hasFormat(clipboard_mime)) {
+        return;
+    }
+    auto& d = scene_->document();
+    std::set<model::Id> created;
+    const model::Point offset = grid_at(mapFromGlobal(QCursor::pos()));
+    // Paste near the cursor: shift so that the first pasted component lands there.
+    model::Point shift{4, 4};
+    std::string error;
+    const auto text = mime->data(clipboard_mime).toStdString();
+    if (viewport()->rect().contains(mapFromGlobal(QCursor::pos()))) {
+        // Find the clipboard's top-left point to align it with the cursor.
+        model::Schematic probe;
+        std::set<model::Id> ids;
+        auto edit = editing::paste_items(probe, d.library(), text, {}, &ids);
+        edit.apply(probe);
+        int min_x = INT32_MAX, min_y = INT32_MAX;
+        for (const auto& c : probe.components()) {
+            min_x = std::min(min_x, c.position.x);
+            min_y = std::min(min_y, c.position.y);
+        }
+        for (const auto& w : probe.wires()) {
+            for (const auto& p : w.points) {
+                min_x = std::min(min_x, p.x);
+                min_y = std::min(min_y, p.y);
+            }
+        }
+        if (min_x != INT32_MAX) {
+            shift = offset - model::Point{min_x, min_y};
+        }
+    }
+    if (d.apply(editing::paste_items(d.id_source(), d.library(), text, shift, &created))) {
+        scene_->select_ids(created);
+    }
+}
+
+void SchematicView::select_all()
+{
+    if (!scene_) {
+        return;
+    }
+    std::set<model::Id> ids;
+    const auto& s = scene_->document().schematic();
+    for (const auto& c : s.components()) {
+        ids.insert(c.id);
+    }
+    for (const auto& w : s.wires()) {
+        ids.insert(w.id);
+    }
+    for (const auto& l : s.labels()) {
+        ids.insert(l.id);
+    }
+    for (const auto& p : s.probes()) {
+        ids.insert(p.id);
+    }
+    scene_->select_ids(ids);
+}
+
+void SchematicView::move_selection(model::Point delta)
+{
+    if (!scene_ || scene_->selected_ids().empty() || !allowed()) {
+        return;
+    }
+    auto& d = scene_->document();
+    d.apply(editing::move_items(d.schematic(), d.library(), scene_->selected_ids(), delta));
+}
+
+std::vector<model::Point> SchematicView::route(const model::Point& from, const model::Point& to) const
+{
+    if (from.x == to.x || from.y == to.y) {
+        return {from, to};
+    }
+    const model::Point corner = horizontal_first_ ? model::Point{to.x, from.y} : model::Point{from.x, to.y};
+    return {from, corner, to};
+}
+
+void SchematicView::update_wire_preview(const model::Point& cursor)
+{
+    if (!scene_ || wire_points_.empty()) {
+        return;
+    }
+    auto points = wire_points_;
+    const auto tail = route(points.back(), cursor);
+    points.insert(points.end(), tail.begin() + 1, tail.end());
+    scene_->set_wire_preview(editing::normalize_polyline(points));
+}
+
+void SchematicView::finish_wire()
+{
+    if (scene_ && wire_points_.size() >= 2 && allowed()) {
+        auto& d = scene_->document();
+        d.apply(editing::add_wire(d.id_source(), wire_points_));
+    }
+    cancel_wire();
+}
+
+void SchematicView::cancel_wire()
+{
+    wire_points_.clear();
+    if (scene_) {
+        scene_->set_wire_preview({});
+    }
+}
+
+void SchematicView::add_probe_at(const model::Point& at, bool force_voltage)
+{
+    if (!scene_ || !allowed()) {
+        return;
+    }
+    model::Probe probe;
+    probe.color = probe_color(next_probe_color_).name().toStdString();
+    model::Id wire = model::no_id;
+    if (const auto pin = scene_->pin_at(at)) {
+        probe.kind = force_voltage ? model::ProbeKind::Voltage : model::ProbeKind::Current;
+        probe.target = {pin->first, pin->second, at};
+    } else if (scene_->wire_at(at, &wire)) {
+        probe.kind = model::ProbeKind::Voltage;
+        probe.target = {wire, {}, at};
+    } else {
+        emit status_message(tr("Click on a wire or a component pin."));
+        return;
+    }
+    auto& d = scene_->document();
+    if (d.apply(editing::add_probe(d.id_source(), probe))) {
+        ++next_probe_color_;
+        emit status_message(probe.kind == model::ProbeKind::Voltage ? tr("Voltage probe added.")
+                                                                    : tr("Current probe added."));
+    }
+}
+
+bool SchematicView::handle_control_press(model::Id id, const QPointF&)
+{
+    if (!scene_) {
+        return false;
+    }
+    const auto* c = scene_->document().schematic().component(id);
+    const auto* d = c ? scene_->library().find(c->type) : nullptr;
+    if (!d || !d->interactive) {
+        return false;
+    }
+    const auto& live = scene_->live();
+    const auto current = live.controls.find(id);
+    const double value = current == live.controls.end() ? 0.0 : current->second;
+    switch (d->interactive->kind) {
+    case library::Interactive::Kind::Toggle:
+        emit control_changed(id, value >= 0.5 ? 0.0 : 1.0);
+        break;
+    case library::Interactive::Kind::Button:
+        held_button_ = id;
+        emit control_changed(id, 1.0);
+        break;
+    case library::Interactive::Kind::Potentiometer:
+        pot_drag_ = id;
+        pot_start_value_ = value;
+        pot_start_point_ = mapFromGlobal(QCursor::pos());
+        break;
+    }
+    return true;
+}
+
 void SchematicView::wheelEvent(QWheelEvent* event)
 {
     const double steps = event->angleDelta().y() / 120.0;
@@ -147,19 +492,128 @@ void SchematicView::wheelEvent(QWheelEvent* event)
         QGraphicsView::wheelEvent(event);
         return;
     }
+    // While running, the wheel over a potentiometer turns it.
+    if (running_ && scene_) {
+        const model::Id id = scene_->element_at(mapToScene(event->position().toPoint()));
+        const auto* c = scene_->document().schematic().component(id);
+        const auto* d = c ? scene_->library().find(c->type) : nullptr;
+        if (d && d->interactive && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
+            const auto& live = scene_->live();
+            const auto it = live.controls.find(id);
+            const double value = it == live.controls.end() ? 0.5 : it->second;
+            emit control_changed(id, std::clamp(value + steps * 0.05, 0.0, 1.0));
+            event->accept();
+            return;
+        }
+    }
     set_zoom(zoom() * std::pow(1.2, steps), event->position().toPoint());
     event->accept();
 }
 
 void SchematicView::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && space_held_)) {
+    const QPoint position = event->position().toPoint();
+    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && space_held_ && tool_ != Tool::Wire)) {
         panning_ = true;
-        pan_origin_ = event->position().toPoint();
+        pan_origin_ = position;
         update_cursor_shape();
         event->accept();
         return;
     }
+    if (!scene_) {
+        QGraphicsView::mousePressEvent(event);
+        return;
+    }
+    const model::Point at = grid_at(position);
+    if (event->button() == Qt::RightButton) {
+        if (tool_ == Tool::Wire && !wire_points_.empty()) {
+            finish_wire();
+        } else if (tool_ != Tool::Select) {
+            set_tool(Tool::Select);
+        }
+        event->accept();
+        return;
+    }
+    if (event->button() != Qt::LeftButton) {
+        QGraphicsView::mousePressEvent(event);
+        return;
+    }
+    switch (tool_) {
+    case Tool::Place:
+        place_at(ghost_at_);
+        event->accept();
+        return;
+    case Tool::Wire: {
+        if (wire_points_.empty()) {
+            wire_points_.push_back(at);
+        } else {
+            const auto tail = route(wire_points_.back(), at);
+            wire_points_.insert(wire_points_.end(), tail.begin() + 1, tail.end());
+            wire_points_ = editing::normalize_polyline(wire_points_);
+            // Ending on a pin, a wire or a label connects and finishes the wire.
+            const bool connection = scene_->pin_at(at) || scene_->wire_at(at) || scene_->net_name_at(at);
+            if (connection && wire_points_.size() >= 2) {
+                finish_wire();
+            }
+        }
+        update_wire_preview(at);
+        event->accept();
+        return;
+    }
+    case Tool::Label:
+        emit label_name_needed(at);
+        event->accept();
+        return;
+    case Tool::Probe:
+        add_probe_at(at, event->modifiers().testFlag(Qt::ShiftModifier));
+        event->accept();
+        return;
+    case Tool::Select:
+        break;
+    }
+
+    const QPointF scene_point = mapToScene(position);
+    model::Id id = scene_->element_at(scene_point);
+    if (!id) {
+        // Designator and value texts select their component (and can be dragged).
+        if (const auto text = scene_->text_at(scene_point)) {
+            id = text->first;
+        }
+    }
+    if (running_ && id && handle_control_press(id, scene_point)) {
+        event->accept();
+        return;
+    }
+    if (id) {
+        const bool toggle = event->modifiers().testFlag(Qt::ControlModifier);
+        QGraphicsItem* item = scene_->item_of(id);
+        if (toggle) {
+            item->setSelected(!item->isSelected());
+            event->accept();
+            return;
+        }
+        if (!item->isSelected()) {
+            scene_->select_ids({id});
+        }
+        if (!running_) {
+            dragging_ = true;
+            drag_origin_ = at;
+            drag_delta_ = {};
+            drag_ids_ = scene_->selected_ids();
+            if (const auto text = scene_->text_at(scene_point); text && drag_ids_.size() == 1) {
+                text_drag_ = text;
+                text_start_ = scene_->text_offset(text->first, text->second);
+            }
+        }
+        event->accept();
+        return;
+    }
+    // Empty area: rubber-band selection.
+    if (!event->modifiers().testFlag(Qt::ControlModifier)) {
+        scene_->clearSelection();
+    }
+    rubber_band_ = true;
+    setDragMode(QGraphicsView::RubberBandDrag);
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -176,6 +630,50 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
     }
     const QPointF scene_position = mapToScene(position);
     emit cursor_moved(QPointF(scene_position.x() / grid, scene_position.y() / grid));
+    if (!scene_) {
+        QGraphicsView::mouseMoveEvent(event);
+        return;
+    }
+    const model::Point at = grid_at(position);
+    if (pot_drag_) {
+        // Dragging up turns the wiper towards pin 1 (0 %), down towards pin 2.
+        const double change = (position.y() - pot_start_point_.y()) / 200.0;
+        emit control_changed(pot_drag_, std::clamp(pot_start_value_ + change, 0.0, 1.0));
+        event->accept();
+        return;
+    }
+    if (tool_ == Tool::Place && placing_) {
+        if (!(at == ghost_at_)) {
+            ghost_at_ = at;
+            scene_->set_ghost(placing_, ghost_at_, place_orientation_);
+        }
+        event->accept();
+        return;
+    }
+    if (tool_ == Tool::Wire) {
+        update_wire_preview(at);
+        event->accept();
+        return;
+    }
+    if (dragging_) {
+        const model::Point delta = at - drag_origin_;
+        if (!(delta == drag_delta_)) {
+            drag_delta_ = delta;
+            auto& d = scene_->document();
+            model::Schematic preview = d.schematic();
+            if (text_drag_) {
+                editing::move_text(preview, text_drag_->first, text_drag_->second, text_start_ + delta).apply(preview);
+            } else {
+                editing::move_items(preview, d.library(), drag_ids_, delta).apply(preview);
+            }
+            scene_->sync_from(preview);
+        }
+        event->accept();
+        return;
+    }
+    if (running_) {
+        show_live_tooltip(position);
+    }
     QGraphicsView::mouseMoveEvent(event);
 }
 
@@ -187,16 +685,113 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
         event->accept();
         return;
     }
+    if (held_button_) {
+        emit control_changed(held_button_, 0.0);
+        held_button_ = model::no_id;
+        event->accept();
+        return;
+    }
+    if (pot_drag_) {
+        pot_drag_ = model::no_id;
+        event->accept();
+        return;
+    }
+    if (dragging_) {
+        dragging_ = false;
+        auto& d = scene_->document();
+        const auto ids = drag_ids_;
+        if (drag_delta_ == model::Point{}) {
+            scene_->sync();
+        } else if (!allowed()) {
+            scene_->sync();
+        } else if (text_drag_) {
+            if (!d.apply(editing::move_text(d.schematic(), text_drag_->first, text_drag_->second, text_start_ + drag_delta_))) {
+                scene_->sync();
+            }
+        } else if (!d.apply(editing::move_items(d.schematic(), d.library(), ids, drag_delta_))) {
+            scene_->sync();
+        }
+        text_drag_.reset();
+        scene_->select_ids(ids);
+        event->accept();
+        return;
+    }
     QGraphicsView::mouseReleaseEvent(event);
+    if (rubber_band_) {
+        rubber_band_ = false;
+        setDragMode(QGraphicsView::NoDrag);
+    }
+}
+
+void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (!scene_) {
+        QGraphicsView::mouseDoubleClickEvent(event);
+        return;
+    }
+    if (tool_ == Tool::Wire) {
+        // Double-click ends the wire at an open point.
+        finish_wire();
+        event->accept();
+        return;
+    }
+    if (tool_ == Tool::Select && !running_) {
+        const model::Id id = scene_->element_at(mapToScene(event->position().toPoint()));
+        if (scene_->document().schematic().component(id)) {
+            emit edit_value_requested(id);
+            event->accept();
+            return;
+        }
+    }
+    QGraphicsView::mouseDoubleClickEvent(event);
 }
 
 void SchematicView::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
-        space_held_ = true;
-        update_cursor_shape();
+        if (tool_ == Tool::Wire) {
+            horizontal_first_ = !horizontal_first_;
+            update_wire_preview(grid_at(mapFromGlobal(QCursor::pos())));
+        } else {
+            space_held_ = true;
+            update_cursor_shape();
+        }
         event->accept();
         return;
+    }
+    if (event->key() == Qt::Key_Escape) {
+        if (tool_ == Tool::Wire && !wire_points_.empty()) {
+            cancel_wire();
+        } else if (tool_ != Tool::Select) {
+            set_tool(Tool::Select);
+        } else if (scene_) {
+            scene_->clearSelection();
+        }
+        event->accept();
+        return;
+    }
+    if (tool_ == Tool::Select && scene_ && !scene_->selectedItems().isEmpty()) {
+        const int step = event->modifiers().testFlag(Qt::ShiftModifier) ? 10 : 1;
+        switch (event->key()) {
+        case Qt::Key_Left:
+            move_selection({-step, 0});
+            event->accept();
+            return;
+        case Qt::Key_Right:
+            move_selection({step, 0});
+            event->accept();
+            return;
+        case Qt::Key_Up:
+            move_selection({0, -step});
+            event->accept();
+            return;
+        case Qt::Key_Down:
+            move_selection({0, step});
+            event->accept();
+            return;
+        default:
+            break;
+        }
     }
     QGraphicsView::keyPressEvent(event);
 }
@@ -223,12 +818,96 @@ void SchematicView::resizeEvent(QResizeEvent* event)
     }
 }
 
+void SchematicView::leaveEvent(QEvent* event)
+{
+    if (scene_ && tool_ == Tool::Place) {
+        scene_->clear_ghost();
+    }
+    QGraphicsView::leaveEvent(event);
+}
+
+void SchematicView::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (scene_ && event->mimeData()->hasFormat(component_mime)) {
+        event->acceptProposedAction();
+        return;
+    }
+    QGraphicsView::dragEnterEvent(event);
+}
+
+void SchematicView::dragMoveEvent(QDragMoveEvent* event)
+{
+    if (scene_ && event->mimeData()->hasFormat(component_mime)) {
+        const auto type = event->mimeData()->data(component_mime).toStdString();
+        if (const auto* d = scene_->library().find(type)) {
+            scene_->set_ghost(d, grid_at(event->position().toPoint()), {});
+        }
+        event->acceptProposedAction();
+        return;
+    }
+    QGraphicsView::dragMoveEvent(event);
+}
+
+void SchematicView::dragLeaveEvent(QDragLeaveEvent* event)
+{
+    if (scene_) {
+        scene_->clear_ghost();
+    }
+    QGraphicsView::dragLeaveEvent(event);
+}
+
+void SchematicView::dropEvent(QDropEvent* event)
+{
+    if (scene_ && event->mimeData()->hasFormat(component_mime)) {
+        scene_->clear_ghost();
+        const auto type = event->mimeData()->data(component_mime).toStdString();
+        if (const auto* d = scene_->library().find(type); d && allowed()) {
+            auto& doc = scene_->document();
+            model::Id id = model::no_id;
+            doc.apply(editing::add_component(doc.id_source(), *d, grid_at(event->position().toPoint()), {}, &id));
+            if (id) {
+                scene_->select_ids({id});
+            }
+        }
+        event->acceptProposedAction();
+        setFocus();
+        return;
+    }
+    QGraphicsView::dropEvent(event);
+}
+
+void SchematicView::show_live_tooltip(const QPoint& view_point)
+{
+    const model::Point at = grid_at(view_point);
+    const auto net = scene_->net_name_at(at);
+    if (!net) {
+        QToolTip::hideText();
+        return;
+    }
+    std::string key = *net;
+    for (auto& c : key) {
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    }
+    double volts = 0.0;
+    if (key != "0") {
+        const auto it = scene_->live().nets.find(key);
+        if (it == scene_->live().nets.end()) {
+            return;
+        }
+        volts = it->second;
+    }
+    QToolTip::showText(mapToGlobal(view_point),
+        tr("%1: %2V").arg(QString::fromStdString(*net), QString::fromStdString(model::format_engineering(volts))), this);
+}
+
 void SchematicView::update_cursor_shape()
 {
     if (panning_) {
         viewport()->setCursor(Qt::ClosedHandCursor);
     } else if (space_held_) {
         viewport()->setCursor(Qt::OpenHandCursor);
+    } else if (tool_ == Tool::Wire || tool_ == Tool::Probe || tool_ == Tool::Label || tool_ == Tool::Place) {
+        viewport()->setCursor(Qt::CrossCursor);
     } else {
         viewport()->unsetCursor();
     }

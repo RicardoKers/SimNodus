@@ -2,41 +2,26 @@
 // SPDX-License-Identifier: MIT
 #include "engine_check.hpp"
 
-#include "ngspice_runtime.hpp"
+#include "engine_host.hpp"
 
 #include <cmath>
-#include <memory>
-#include <mutex>
 
 namespace simnodus::sim {
-namespace {
-
-std::mutex check_mutex;
-std::unique_ptr<NgspiceSession> engine;
-std::filesystem::path engine_library;
-
-} // namespace
 
 EngineCheckResult check_analog_engine(const std::filesystem::path& application_dir)
 {
-    std::lock_guard lock(check_mutex);
     EngineCheckResult result;
+    auto& host = EngineHost::instance();
+    host.set_application_dir(application_dir);
+    std::string error;
+    std::lock_guard lock(host.lock());
+    NgspiceSession* engine = host.acquire(error);
     if (!engine) {
-        for (const auto& candidate : ngspice_candidates(application_dir)) {
-            std::string error;
-            engine = NgspiceSession::open(candidate, error);
-            if (engine) {
-                engine_library = candidate.library;
-                break;
-            }
-            result.messages.push_back(error);
-        }
-        if (!engine) {
-            result.messages.push_back("No usable ngspice library was found.");
-            return result;
-        }
+        result.messages.push_back(error);
+        result.messages.push_back("No usable ngspice library was found.");
+        return result;
     }
-    result.library = engine_library;
+    result.library = host.library_path();
     result.version = engine->version();
     const bool loaded = engine->load_circuit({
         "* SimNodus engine check",
@@ -51,6 +36,7 @@ EngineCheckResult check_analog_engine(const std::filesystem::path& application_d
             result.messages.push_back(std::move(line));
         }
         result.messages.push_back("The engine rejected the reference circuit.");
+        engine->command("remcirc");
         return result;
     }
     const auto values = engine->vector("out");

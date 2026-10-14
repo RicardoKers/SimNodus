@@ -3,27 +3,37 @@
 //
 // Circuit Editor main window (REQUIREMENTS section 2, DESKTOP_UX): component
 // tree | schematic | properties in a splitter, a collapsible messages panel,
-// a status bar and the separate Signal Analyzer window.
+// a status bar and the separate Signal Analyzer window. It owns the
+// document, the component library and the run controller.
 #pragma once
+
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "library/component_library.hpp"
+#endif
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QStringList>
 
 #include <array>
 #include <memory>
 
+class QComboBox;
 class QLabel;
+class QMenu;
 class QSettings;
 class QSplitter;
 class QThread;
-class QUndoStack;
 
 namespace simnodus::ui {
 
 class AnalyzerWindow;
 class ComponentPanel;
+class Document;
 class MessagesPanel;
 class PropertiesPanel;
+class RunController;
+class SchematicScene;
 class SchematicView;
 
 enum class Panel { Components = 0, Properties = 1, Messages = 2 };
@@ -38,7 +48,11 @@ public:
     PropertiesPanel* properties() const { return properties_; }
     MessagesPanel* messages() const { return messages_; }
     SchematicView* schematic() const { return view_; }
+    SchematicScene* scene() const { return scene_; }
+    Document* document() const { return document_; }
+    RunController* run_controller() const { return run_; }
     AnalyzerWindow* analyzer() const { return analyzer_.get(); }
+    const library::ComponentLibrary& library() const { return library_; }
     QSplitter* columns() const { return columns_; }
     QSplitter* rows() const { return rows_; }
 
@@ -54,12 +68,27 @@ public:
     void show_restored_windows();
     bool engine_check_running() const;
 
+    // File operations; return false if cancelled or failed.
+    bool open_file(const QString& path);
+    bool save_to(const QString& path);
+    // For tests: the unsaved-changes prompt answers "discard" automatically.
+    void set_confirm_discard(bool automatic) { auto_discard_ = automatic; }
+
 public slots:
     void toggle_panel(Panel panel);
     void set_focus_canvas(bool enabled);
     void show_analyzer();
     void check_engine();
     void show_about();
+    void new_file();
+    void open_dialog();
+    bool save();
+    bool save_as();
+    void run();
+    void pause_resume();
+    void stop();
+    void reset();
+    void edit_settings();
 
 signals:
     void engine_check_finished(bool ok);
@@ -68,14 +97,28 @@ protected:
     void closeEvent(QCloseEvent* event) override;
 
 private:
+    void load_library();
     void build_actions_and_menus();
     void build_status_bar();
     QWidget* panel_widget(Panel panel) const;
     QSplitter* panel_splitter(Panel panel) const;
     void sync_panel_actions();
     void update_counts(int warnings, int errors);
+    void update_title();
+    void update_run_state();
+    void update_status();
+    bool confirm_discard();
+    bool allow_structure_edit();
+    void add_recent(const QString& path);
+    void rebuild_recent_menu();
+    void rebuild_examples_menu();
+    void ask_label_name(int x, int y);
+    void report_diagnostics();
 
     QSettings& settings_;
+    library::ComponentLibrary library_;
+    Document* document_ = nullptr;
+    SchematicScene* scene_ = nullptr;
     SchematicView* view_ = nullptr;
     ComponentPanel* components_ = nullptr;
     PropertiesPanel* properties_ = nullptr;
@@ -83,15 +126,24 @@ private:
     QSplitter* columns_ = nullptr;
     QSplitter* rows_ = nullptr;
     std::unique_ptr<AnalyzerWindow> analyzer_;
-    QUndoStack* undo_stack_ = nullptr;
+    RunController* run_ = nullptr;
 
     std::array<QAction*, 3> panel_actions_{};
     QAction* focus_action_ = nullptr;
     QAction* analyzer_action_ = nullptr;
     QAction* engine_action_ = nullptr;
+    QAction* run_action_ = nullptr;
+    QAction* pause_action_ = nullptr;
+    QAction* stop_action_ = nullptr;
+    QAction* reset_action_ = nullptr;
+    QComboBox* speed_ = nullptr;
+    QMenu* recent_menu_ = nullptr;
+    QMenu* examples_menu_ = nullptr;
     std::array<int, 3> remembered_{260, 280, 160};
     bool focus_mode_ = false;
     std::array<bool, 3> before_focus_{true, true, false};
+    bool auto_discard_ = false;
+    QString last_label_;
 
     QLabel* state_label_ = nullptr;
     QLabel* time_label_ = nullptr;

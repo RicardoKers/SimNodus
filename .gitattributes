@@ -19,6 +19,7 @@ spinit text eol=lf
 *.c text eol=lf
 *.h text eol=lf
 *.in text eol=lf
+*.snx text eol=lf
 *.cir text eol=lf
 *.svg text eol=lf
 # Preserve source/fixture hashes across Windows checkouts.

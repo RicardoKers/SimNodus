@@ -50,6 +50,9 @@ struct ControlSource {
 struct NetlistOptions {
     bool interactive = true; // control sources use the ngspice "external" option
     double t0 = 0.0;         // segment start time for periodic sources
+    // Pins whose current is measured: a 0 V source is inserted between the
+    // net and the pin; its branch current is the current into the pin.
+    std::vector<PinRef> current_probes;
 };
 
 struct Netlist {
@@ -59,6 +62,8 @@ struct Netlist {
     std::vector<ControlSource> controls;
     Connectivity connectivity;
     std::map<PinRef, std::string> pin_node;
+    // Current probes: pin -> ngspice vector of the current into the pin.
+    std::map<PinRef, std::string> pin_current;
     std::vector<Diagnostic> diagnostics;
 
     bool ok() const;
