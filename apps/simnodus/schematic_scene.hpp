@@ -7,9 +7,11 @@
 // active the scene also shows live state (INT-03).
 #pragma once
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
 #include "model/schematic.hpp"
 #include "netlist/connectivity.hpp"
+#endif
 
 #include <QGraphicsScene>
 #include <QPointer>

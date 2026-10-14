@@ -14,10 +14,12 @@
 #include "schematic_view.hpp"
 #include "theme.hpp"
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "editing/operations.hpp"
 #include "io/project_file.hpp"
 #include "netlist/connectivity.hpp"
 #include "sim/engine_host.hpp"
+#endif
 
 #include <QApplication>
 #include <QFileInfo>

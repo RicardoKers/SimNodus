@@ -5,7 +5,9 @@
 // their time steps. The settings are part of the project.
 #pragma once
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "model/schematic.hpp"
+#endif
 
 #include <QDialog>
 

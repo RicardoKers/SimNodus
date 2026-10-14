@@ -7,10 +7,12 @@
 // the Signal Analyzer. The GUI never calls the engine directly.
 #pragma once
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "model/schematic.hpp"
 #include "netlist/netlist.hpp"
 #include "sim/sample_ring.hpp"
 #include "sim/simulation_session.hpp"
+#endif
 
 #include <QColor>
 #include <QObject>

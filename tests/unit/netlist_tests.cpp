@@ -127,7 +127,7 @@ TEST_CASE("interactive parts get external control sources")
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW1 ctl_SW1 0 DC 0 external") != n.lines.end());
     CHECK(std::find(n.lines.begin(), n.lines.end(), "S_SW1 VCC A ctl_SW1 0 SW_SN") != n.lines.end());
     CHECK(n.models.size() == 2); // switch models emitted once
-    n = netlist::generate_netlist(b.schematic, lib, {false, 0.0});
+    n = netlist::generate_netlist(b.schematic, lib, {false, 0.0, {}});
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW1 ctl_SW1 0 DC 0") != n.lines.end());
 }
 
@@ -138,10 +138,10 @@ TEST_CASE("periodic sources keep their phase across segments")
     b.add("vpulse", {{"+", "P"}, {"-", "0"}}, {{"f", "1k"}, {"duty", "50"}, {"rise", "1u"}});
     b.add("vsine", {{"+", "S"}, {"-", "0"}}, {{"f", "1k"}, {"phase", "0"}});
     b.add("resistor", {{"1", "P"}, {"2", "S"}});
-    auto n = netlist::generate_netlist(b.schematic, lib, {true, 0.0});
+    auto n = netlist::generate_netlist(b.schematic, lib, {true, 0.0, {}});
     CHECK(n.lines[0] == "V_V1 P 0 PULSE(0 5 0 1e-06 1e-06 0.000499 0.001)");
     CHECK(n.lines[1] == "V_V2 S 0 SIN(0 1 1000 0 0 0)");
-    n = netlist::generate_netlist(b.schematic, lib, {true, 1.0003});
+    n = netlist::generate_netlist(b.schematic, lib, {true, 1.0003, {}});
     // 0.3 ms into the period: delay -0.3 ms, sine phase 108 degrees.
     CHECK(n.lines[0].rfind("V_V1 P 0 PULSE(0 5 -0.000", 0) == 0);
     CHECK(n.elements[0].value_text.find("-0.0003") != std::string::npos

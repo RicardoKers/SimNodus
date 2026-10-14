@@ -7,7 +7,9 @@
 // document, the component library and the run controller.
 #pragma once
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
+#endif
 
 #include <QMainWindow>
 #include <QPointer>

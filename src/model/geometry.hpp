@@ -6,7 +6,6 @@
 // axis points down (screen convention); rotations are clockwise on screen.
 #pragma once
 
-#include <compare>
 #include <cstdint>
 
 namespace simnodus::model {
@@ -16,7 +15,8 @@ struct Point {
     int y = 0;
 
     friend constexpr bool operator==(const Point&, const Point&) = default;
-    friend constexpr auto operator<=>(const Point&, const Point&) = default;
+    // Explicit ordering instead of <=>: Qt 6.4's moc cannot parse <compare>.
+    friend constexpr bool operator<(const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); }
     constexpr Point operator+(const Point& o) const { return {x + o.x, y + o.y}; }
     constexpr Point operator-(const Point& o) const { return {x - o.x, y - o.y}; }
     constexpr Point operator-() const { return {-x, -y}; }

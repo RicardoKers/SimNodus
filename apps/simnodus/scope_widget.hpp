@@ -7,7 +7,9 @@
 // (transient) records.
 #pragma once
 
+#ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "sim/sample_ring.hpp"
+#endif
 
 #include <QColor>
 #include <QString>

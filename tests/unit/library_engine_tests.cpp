@@ -33,7 +33,7 @@ std::map<std::string, std::vector<double>> simulate(const test::CircuitBuilder& 
 {
     std::map<std::string, std::vector<double>> result;
     auto* session = test::engine();
-    const auto n = netlist::generate_netlist(circuit.schematic, components(), {false, 0.0});
+    const auto n = netlist::generate_netlist(circuit.schematic, components(), {false, 0.0, {}});
     for (const auto& d : n.diagnostics) {
         if (d.severity == netlist::Severity::Error) {
             std::printf("  netlist error: %s\n", d.message.c_str());
