@@ -68,7 +68,7 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
     layout->addWidget(buttons);
     connect(buttons, &QDialogButtonBox::accepted, this, &SimulationSettingsDialog::validate_and_accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    auto sync = [=] {
+    auto sync = [this, interactive_box, transient_box] {
         interactive_box->setEnabled(interactive_->isChecked());
         transient_box->setEnabled(transient_->isChecked());
     };
