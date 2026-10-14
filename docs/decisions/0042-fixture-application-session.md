@@ -33,7 +33,7 @@ of Qt and third-party types. Startup helper execution remains explicitly configu
 ## Evidence and next step
 
 See [evidence](../experiments/evidence/SN-017-application-session-summary.json) and
-[reproduction](../../tests/headless/APPLICATION_SESSION.md). Direct session tests
+[reproduction](../../legacy/tests/headless/APPLICATION_SESSION.md). Direct session tests
 cover independent state, separate commit, terminal failure, exit disposition and
 pending-worker rejection of commit, quit, begin and normalized analog input.
 Existing engine/process suites retain the actual integration evidence.

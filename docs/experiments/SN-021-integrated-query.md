@@ -8,7 +8,7 @@ complete that contract, adopt managed storage, implement saving or close SN-021.
 
 ## Method and boundaries
 
-The owner ran the [exact embedded guest source](../../tests/resources/windows_integrated_query.ps1)
+The owner ran the [exact embedded guest source](../../legacy/tests/resources/windows_integrated_query.ps1)
 in the disposable VMware Windows 11 Enterprise Evaluation build 26200 VM, on NTFS.
 The existing operator snapshot was verified, not restored. Setup created three
 ordinary local accounts and fresh protected fixtures; previous fixtures remained

@@ -1,7 +1,7 @@
 # SN-021: consolidated request matrix
 
 Date: 2026-09-24. Status: **26 physical case criteria observed; bounded experiment**.
-The [measured guest script](../../tests/resources/windows_request_matrix.ps1) extends
+The [measured guest script](../../legacy/tests/resources/windows_request_matrix.ps1) extends
 the [endpoint/restart experiment](SN-021-endpoint-restart.md). It is not a production
 protocol, save implementation or completion of SN-021.
 

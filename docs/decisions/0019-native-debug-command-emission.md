@@ -38,7 +38,7 @@ without a new joint commit. No rollback or synchronous pause is inferred.
 
 ## Evidence and consequences
 
-See the [protocol](../../tests/headless/DEBUG_COMMANDS.md) and
+See the [protocol](../../legacy/tests/headless/DEBUG_COMMANDS.md) and
 [evidence](../experiments/evidence/SN-017-debug-commands-summary.json).
 Real Renode/ngspice/GDB runs exercise the native wire commands. OS-pipe tests
 cover malformed paths, stale replies, ordering, duplicate commands, broken pipes

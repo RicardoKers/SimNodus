@@ -1,0 +1,43 @@
+Third-party software distributed with SimNodus
+==============================================
+
+SimNodus itself is MIT licensed (see LICENSE). The Windows package also
+contains the following unmodified components, each under its own license.
+
+Qt 6 (Qt Core, Gui, Widgets, Svg, Network and their plugins)
+  License: GNU Lesser General Public License v3.0 (LGPL-3.0-only); texts in
+  licenses/LGPL-3.0-only.txt and licenses/GPL-3.0-only.txt.
+  Used as separate dynamic libraries (Qt6*.dll); you may replace them with a
+  compatible build of the same Qt version. Source: https://download.qt.io/
+  Copyright (C) The Qt Company Ltd. and other contributors.
+
+ngspice 47 (ngspice/ngspice.dll)
+  License: Modified BSD license, with the exceptions listed in
+  ngspice/COPYING. Source: https://ngspice.sourceforge.io/
+  Copyright (c) the ngspice team and the Regents of the University of
+  California.
+
+libsndfile 1.2.2 (ngspice/sndfile.dll), shipped with the ngspice package
+  License: GNU Lesser General Public License v2.1 or later (dynamic library;
+  replaceable).
+  Source: https://github.com/libsndfile/libsndfile
+
+libsamplerate 0.2.2 (ngspice/samplerate.dll), shipped with the ngspice package
+  License: BSD 2-Clause. Source: https://github.com/libsndfile/libsamplerate
+
+LLVM OpenMP runtime (ngspice/libomp140.x86_64.dll), shipped with the ngspice
+package and redistributed by Microsoft with Visual Studio
+  License: Apache License 2.0 with LLVM exceptions / Microsoft redistribution
+  terms.
+
+Microsoft Visual C++ runtime (msvcp140*.dll, vcruntime140*.dll, concrt140.dll)
+  Redistributed under the Microsoft Visual Studio redistribution terms.
+
+DirectX Shader Compiler (dxcompiler.dll, dxil.dll), deployed by Qt's
+windeployqt for the Qt rendering backend
+  License: University of Illinois/NCSA Open Source License; dxil.dll is
+  redistributed under Microsoft's DirectX redistribution terms.
+  Source: https://github.com/microsoft/DirectXShaderCompiler
+
+The pinned archives and their SHA-256 digests are listed in
+tools/backend-baseline.json of the SimNodus repository.

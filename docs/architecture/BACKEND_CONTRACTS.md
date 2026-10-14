@@ -76,7 +76,7 @@ Current is associated with a branch/terminal and orientation, not one scalar for
 ## Extracted bounded contracts (SN-017)
 
 The persistent RC worker, CPU/joint-state gate and
-[native cancellation-result ingress](../../tests/headless/RESULT_INGRESS.md)
+[native cancellation-result ingress](../../legacy/tests/headless/RESULT_INGRESS.md)
 are implemented and tested in the bounded fixture. The latter validates atomic
 file publication, exact cancellation fields and a non-renewable read deadline
 before acknowledging the CPU. This does not implement the complete conceptual
@@ -85,14 +85,14 @@ in the experiment harness. [ADR 0016](../decisions/0016-bounded-cancellation-ing
 defines the measured ingress scope and retained capability restrictions.
 
 
-The subsequent [native command/ready slice](../../tests/headless/COMMAND_CHANNEL.md)
+The subsequent [native command/ready slice](../../legacy/tests/headless/COMMAND_CHANNEL.md)
 adds only the two measured start/cancel commands through an inherited pipe and
 bounded readiness handling. Process lifecycle, remaining monitor commands and
 joint scheduling remain in the harness; this does not implement a general
 Renode command API. See [ADR 0017](../decisions/0017-native-cancellation-channel.md).
 
 
-The [native lifecycle slice](../../tests/headless/PROCESS_LIFECYCLE.md) creates
+The [native lifecycle slice](../../legacy/tests/headless/PROCESS_LIFECYCLE.md) creates
 and reaps the two fixture backends under Windows Job Objects. Process ownership
 is separate from virtual-time authority: the experimental host still prepares
 the fixture and coordinates debugging/exchange. See

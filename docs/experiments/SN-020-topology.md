@@ -21,7 +21,7 @@ decoded trees, two distinct RC instance paths, order independence, names that do
 not join nets, malformed input and exponential acyclic expansion. The CLI valid
 fixture passed with 26 declared entities, depth 2 and six expanded instances.
 The two invalid fixtures returned exit 1 with `hierarchy` and `reference` as
-expected. Commands live in the [fixture guide](../../tests/schema/README.md).
+expected. Commands live in the [fixture guide](../../legacy/tests/schema/README.md).
 Source/fixture hashes and observed results are in
 [compact evidence](evidence/SN-020-topology-summary.json).
 Final documentation verification on 2026-09-13: the repository checker passed

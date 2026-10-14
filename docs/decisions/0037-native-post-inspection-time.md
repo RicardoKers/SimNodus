@@ -30,7 +30,7 @@ recreation and provide no authentication.
 
 ## Evidence and next step
 
-See [protocol](../../tests/headless/INSPECTION_TIME.md) and
+See [protocol](../../legacy/tests/headless/INSPECTION_TIME.md) and
 [evidence](../experiments/evidence/SN-017-inspection-time-summary.json).
 Six initial and six recovery sessions passed with real Renode/ngspice/GDB; four
 backend/owner-loss controls preserved the last joint commit. All six recovery

@@ -51,7 +51,7 @@ the owned single-CPU cancellation fixture; generic completed grants are not
 accepted. The helper IPC explicitly uses UTF-8. There are no new dependencies,
 backend patches, capability expansions or redistributed third-party artifacts.
 
-The [protocol](../../tests/headless/RESULT_INGRESS.md) and
+The [protocol](../../legacy/tests/headless/RESULT_INGRESS.md) and
 [evidence](../experiments/evidence/SN-017-result-ingress-summary.json) cover real
 engines, native Windows sharing locks, malformed/late results, fault boundaries
 and fresh recovery. The IDE startup/PDF correction is unchanged.

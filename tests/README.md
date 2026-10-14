@@ -1,7 +1,16 @@
-# Test strategy
+# Tests
 
-The [E-01 standalone ngspice suite](experiments/ngspice/README.md) runs eight real Windows backend cases and checks analytical RC references, callbacks, pauses, resets, and invalid-netlist recovery. See its [measured scope](../docs/experiments/E-01-results.md). The [E-03 coupling suite](experiments/coupling/README.md) joins real Renode firmware/GPIO with the real ngspice RC and measures threshold feedback, boundary cases, pulses, late input, and worker recovery. The [E-04 ADC suite](experiments/adc/README.md) checks a focused F103-compatible ADC extension with owned firmware, explicit voltage units, conversion timing, boundaries, channel mapping, and a ramp. Production kernel and GUI tests do not exist yet. The repository checker validates documentation/scaffolding only.
+| Folder | Content | Runs in |
+|---|---|---|
+| `unit/` | Qt-free unit tests (`sim-unit`) and real-engine tests against ngspice (`engine-ngspice`) | ctest |
+| `gui/` | Offscreen Qt Test smoke tests of the windows (`gui-smoke`) and the executable's `--smoke-test` (`gui-app-smoke`) | ctest |
+| `spikes/` | Engine spikes S1 (continuous run, SN-103) and S2 (platform comparison, SN-104); short versions run in ctest | ctest, `run_s1.py` |
+| `experiments/` | Backend experiments E-01..E-05 of the first development line; reference only, separate workflows | own CMake projects |
 
-Create domain/kernel invariant tests as implementation appears, real-backend contract tests during experiments, and integrated firmware/circuit/debugging tests before the GUI is declared usable. Follow [QUALITY](../docs/development/QUALITY.md); do not count mocks as real integration evidence.
+Engine tests need an ngspice library: on Windows `python tools/fetch_backends.py`
+stages it in `build/deps/ngspice-runtime`; on Linux install the distribution
+package (`libngspice0-dev`). Without it the engine tests are not registered,
+and the configure step says so.
 
-[SN-019](experiments/renode-client/README.md) separately checks native Windows control against real Renode and uses scripted local peers for fault injection. [E-02](experiments/renode-stm32/README.md) builds owned firmware and checks bounded GPIO/input/EXTI behavior through that real client. E-03 validates a restricted coupled path, and E-04 validates a direct known-schedule ADC boundary. Electrical ADC coupling, general causal feedback, and debugger coordination remain untested.
+Real-engine results are evidence; mocks do not count as integration evidence
+([QUALITY](../docs/development/QUALITY.md)).

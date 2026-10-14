@@ -1,58 +1,72 @@
 # Getting started
 
-## What exists
+Revision 2 — 2026-10-14 (rebuilt application). The previous guide described
+the first development line; its commands for the legacy tree are in
+[legacy/README.md](../../legacy/README.md).
 
-The repository contains the documentation/build foundation, standalone ngspice and Renode experiments, a working bounded GPIO/RC/EXTI coupling experiment, and a focused STM32F103 ADC experiment. There is no production simulation kernel or Qt application yet. A successful foundation check or bounded backend experiment does not establish a complete simulator.
+## Requirements
 
-## Documentation check
+| Tool | Windows (classroom platform) | Linux (development, CI) |
+|---|---|---|
+| C++20 compiler | MSVC 19.4x or newer (Visual Studio 2022/2026 Build Tools) | GCC 13 or newer |
+| CMake / Ninja | CMake 3.24+, Ninja (both ship with Visual Studio) | `cmake`, `ninja-build` |
+| Qt | Qt 6.5+ MSVC 64-bit kit (owner's machine: Qt 6.11.1 `msvc2022_64`) | Qt 6.4+ (`qt6-base-dev`, `qt6-qpa-plugins`) |
+| ngspice | ngspice-47 DLL, fetched and verified by `tools/fetch_backends.py` | distribution library (`libngspice0-dev`) |
+| Python | 3.10+, standard library only | 3.10+ |
 
-Python 3.10 or newer is sufficient; no Python packages are required.
+Renode 1.16.1 is needed only from phase 2: `python tools/fetch_backends.py --renode`.
 
-```sh
+## Windows
+
+From a *Developer PowerShell for VS* (or after running `vcvars64.bat`):
+
+```powershell
+python tools/fetch_backends.py          # downloads, checks SHA-256, stages build/deps/ngspice-runtime
+cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64
+cmake --build build/dev
+ctest --test-dir build/dev --output-on-failure
 python tools/check_repository.py
+python tools/package_windows.py --build-dir build/dev   # writes dist/SimNodus-<version>-windows-x64.zip
 ```
 
-The checker validates required files, UTF-8/text hygiene, fenced Markdown balance, local Markdown file links, and JSON syntax. It does not validate external URLs, Markdown anchors, YAML semantics, English grammar, security, or simulation behavior.
+To start the application from the build tree, put the Qt `bin` folder on
+`PATH` (or use the package, which contains everything). The packaged
+`simnodus.exe --check-engine` loads the bundled engine and solves a reference
+circuit; `--smoke-test` opens the windows briefly and checks them.
 
-## CMake foundation
-
-Use CMake 3.24 or newer, Python 3.10+, and a C++20-capable compiler. No third-party simulation dependencies are downloaded by configuration.
-
-From a Windows terminal with a working compiler installation, or a configured Linux development environment:
+## Linux
 
 ```sh
-cmake -S . -B build/bootstrap
-cmake --build build/bootstrap --target check-repository --config Debug
+sudo apt-get install ninja-build qt6-base-dev qt6-qpa-plugins libgl1-mesa-dev libxkbcommon-dev libngspice0-dev
+cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build/dev
+ctest --test-dir build/dev --output-on-failure
 ```
 
-CMake discovers the local generator/compiler. On Windows, use a Visual Studio C++ installation or its developer shell; do not assume `cl` is on an ordinary terminal's PATH. Linux compiler detection is a portability check, not a supported Linux application release.
+## Options
 
-If the intended Python is not selected, pass `-DPython3_EXECUTABLE=/path/to/python` using the path appropriate to your machine. Keep personal overrides outside committed files.
+| CMake option | Default | Meaning |
+|---|---|---|
+| `SIMNODUS_BUILD_APP` | ON | Build the Qt application and GUI tests |
+| `SIMNODUS_BUILD_SPIKES` | ON | Build the engine spike programs |
+| `SIMNODUS_NGSPICE_LIBRARY` | auto | ngspice library for engine tests; empty skips them |
+| `SIMNODUS_NGSPICE_RUNTIME_DIR` | `build/deps/ngspice-runtime` | Windows: engine files bundled by `cmake --install` |
+| `SIMNODUS_VERSION_SUFFIX` | `dev` | Pre-release label of the version |
 
-The optional `bootstrap` configure/build presets run the same steps. Build output belongs under `build/`.
+## Engine spikes
 
-Repeated Windows experiments can accumulate extracted Renode runtimes. Follow
-the [safe cache cleanup procedure](BUILD_STORAGE.md) after stopping the runners.
-Do not delete all of `build/` while unfinished prototype sources or unrecorded
-evidence remain there.
+```sh
+python tests/spikes/run_s1.py --exe build/dev/tests/spikes/s1_continuous --library <ngspice library> \
+    --scripts resources/ngspice --output build/spikes/s1   # add --quick for the short matrix
+```
 
-## First development task
+Results and their interpretation: [S1](../experiments/S1-continuous-run.md),
+[S2](../experiments/S2-ngspice-platforms.md).
 
-SN-010 through SN-017 and SN-019 are complete for their declared bounded profiles.
-[ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md) and the
-[SN-017 audit](../experiments/SN-017-acceptance.md) define the native/Python headless
-composition and its remaining host responsibilities. Next is SN-018: establish
-reproducibility/performance measurements for the same fixed profile. Follow
-[CURRENT](../planning/CURRENT.md) and retain real-engine evidence. Qt is not needed.
-General unpaced debugging and production readiness remain unapproved.
+## Continuous integration
 
-Do not download arbitrary model packs or install all future dependencies in advance. Choose a dependency manager only after assessing the small backend builds; pin reproducible versions in the eventual lockfile.
-
-## Local baseline observed on 2026-08-31
-
-The [dependency inventory](../research/DEPENDENCIES.md) records the exact host, compiler, SDK, Renode/ngspice packages, and existing CubeIDE ARM tools. Startup, [E-01 RC/lifecycle](../experiments/E-01-results.md), [E-02 firmware/I/O](../experiments/E-02-results.md), restricted [E-03 coupling](../experiments/E-03-results.md), and focused [E-04 ADC](../experiments/E-04-results.md) passed with documented limitations. Commands missing from PATH do not establish that software is absent from the computer.
-
-Machine-specific paths are intentionally not committed. E-05 must predeclare
-debugger ownership, effective stop-state evidence, supported commands, overshoot,
-disconnect, reset, backend failure, and timeout gates before measuring GDB or
-CubeIDE behavior.
+[ci.yml](../../.github/workflows/ci.yml) builds and tests on Ubuntu 24.04 and
+Windows, runs the S1 quick matrix on both, compares S2 results across the two
+platforms, and uploads the Windows zip as the `simnodus-windows-x64` artifact.
+The E-01..E-05 experiment workflows are unchanged and run only when their
+files change.

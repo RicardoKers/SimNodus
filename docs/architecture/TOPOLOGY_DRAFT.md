@@ -54,7 +54,7 @@ Repeated references to a definition are valid. Instance identity after future
 expansion is `(root-definition-id, ordered instance-ID path)`; terminals add
 their pin/port ID. Never concatenate display names to establish identity.
 
-The [valid fixture](../../tests/schema/fixtures/two-rc.json) contains `left` and
+The [valid fixture](../../legacy/tests/schema/fixtures/two-rc.json) contains `left` and
 `right` instances of one RC topology definition. Their leaf paths differ even
 though they reference the same resistor/capacitor pin declarations. The fixture
 does not assign electrical values or instantiate backend state. It demonstrates
@@ -69,7 +69,7 @@ identity rules remain mandatory. No schema field may request execution.
 
 ## Bounded validation and round trip
 
-The standard-library [reference validator](../../tests/schema/topology.py) reads
+The standard-library [reference validator](../../legacy/tests/schema/topology.py) reads
 only the explicitly supplied JSON file. It does not discover packages, resolve
 paths, load a library, invoke an engine/compiler or access the network. The CLI
 is a developer validation tool, not the SN-021 project loader. Future resource

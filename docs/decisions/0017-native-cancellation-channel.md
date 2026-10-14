@@ -50,7 +50,7 @@ sampling, joint notification, engine creation and teardown remain in the harness
 The helper does not become an independent scheduler. Physical ADC acquisition,
 general unpaced execution, rollback and in-place reset remain unsupported.
 
-The [protocol](../../tests/headless/COMMAND_CHANNEL.md) and
+The [protocol](../../legacy/tests/headless/COMMAND_CHANNEL.md) and
 [evidence](../experiments/evidence/SN-017-command-channel-summary.json) cover real
 engines, fault/fresh recovery, exact pipe bytes, order rejection, partial/late
 ready and inherited-pipe closure. No engine patch or dependency was changed.

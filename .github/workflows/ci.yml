@@ -1,8 +1,8 @@
-name: Repository foundation
+name: Build and test
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'rebuild/**']
   pull_request:
   workflow_dispatch:
 
@@ -10,30 +10,109 @@ permissions:
   contents: read
 
 concurrency:
-  group: foundation-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  foundation:
-    name: Foundation (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  linux:
+    name: Linux (Ubuntu 24.04, distribution Qt and ngspice)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
+            libgl1-mesa-dev libxkbcommon-dev libngspice0-dev
+      - name: Check repository files
+        run: python3 tools/check_repository.py
+      - name: Configure
+        run: cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build/ci
+      - name: Run tests (unit, engine, spikes, offscreen GUI)
+        run: ctest --test-dir build/ci --output-on-failure
+      - name: Spike S1 quick matrix
+        run: |
+          library=$(sed -n 's/^SIMNODUS_NGSPICE_LIBRARY:FILEPATH=//p' build/ci/CMakeCache.txt)
+          python3 tests/spikes/run_s1.py --quick --exe build/ci/tests/spikes/s1_continuous \
+            --library "$library" --scripts resources/ngspice --output build/ci/spikes/s1-linux
+      - name: Upload spike results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: spikes-linux
+          path: build/ci/spikes/
+          if-no-files-found: warn
+
+  windows:
+    name: Windows (MSVC, Qt 6.11.1, bundled ngspice 47)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Qt
+        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
+        with:
+          version: '6.11.1'
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Cache pinned backend archives
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/deps/downloads
+          key: backends-${{ hashFiles('tools/backend-baseline.json') }}
+      - name: Check repository files
+        run: python tools/check_repository.py
+      - name: Download, verify and stage ngspice
+        run: python tools/fetch_backends.py
+      - name: Configure
+        run: cmake -S . -B build/ci -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR"
+      - name: Build
+        run: cmake --build build/ci --config Release
+      - name: Run tests (unit, engine, spikes, offscreen GUI)
+        run: ctest --test-dir build/ci -C Release --output-on-failure
+      - name: Spike S1 quick matrix
+        run: >-
+          python tests/spikes/run_s1.py --quick --exe build/ci/tests/spikes/Release/s1_continuous.exe
+          --library build/deps/ngspice-runtime/ngspice.dll --scripts resources/ngspice
+          --output build/ci/spikes/s1-windows
+      - name: Package and check the portable zip
+        run: python tools/package_windows.py --build-dir build/ci --config Release --output dist
+      - name: Upload Windows package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: simnodus-windows-x64
+          path: dist/*.zip
+          if-no-files-found: error
+      - name: Upload spike results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: spikes-windows
+          path: build/ci/spikes/
+          if-no-files-found: warn
+
+  ngspice-cross-check:
+    name: S2 cross-platform comparison
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Check repository files
-        run: python tools/check_repository.py
-      - name: Configure the C++ foundation
-        run: cmake -S . -B build/bootstrap
-      - name: Run the CMake check target
-        run: cmake --build build/bootstrap --target check-repository --config Debug
-      - name: Build the foundation tests
-        run: cmake --build build/bootstrap --config Debug
-      - name: Run declaration and foundation tests
-        run: ctest --test-dir build/bootstrap -C Debug --output-on-failure --verbose
+      - name: Download spike results
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: spikes-*
+      - name: Compare Linux distribution ngspice with Windows ngspice 47
+        run: python3 tests/spikes/s2_compare.py check spikes-linux/s2-result.json --reference spikes-windows/s2-result.json

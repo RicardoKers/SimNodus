@@ -5,7 +5,8 @@
 - [0081: Desktop UI technology and layout](0081-desktop-ui-technology.md): Qt Widgets,
   QGraphicsView canvas, own plotting, data-driven symbols, QSpice-like layout.
 - [0080: Continuous interactive simulation](0080-continuous-interactive-simulation.md):
-  paced continuous ngspice run with external-source controls; memory strategy pending spike.
+  paced continuous ngspice run with external-source controls; 1 s segments restarted with
+  initial conditions keep memory bounded (spike S1).
 - [0079: Product rebuild and lightweight process](0079-product-rebuild-and-lightweight-process.md):
   previous product code moved to `legacy/`; backend evidence kept.
 

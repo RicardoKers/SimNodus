@@ -22,7 +22,7 @@ Earlier modes retain their existing requirements.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/INSPECTION.md) and
+See [protocol](../../legacy/tests/headless/INSPECTION.md) and
 [evidence](../experiments/evidence/SN-017-inspection-summary.json). Tests cover all
 truncation points, invalid/oversized values, modification of each register,
 malformed before/after frames, missing verification, duplicate/early/late

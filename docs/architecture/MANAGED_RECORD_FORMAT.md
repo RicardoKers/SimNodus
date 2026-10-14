@@ -90,17 +90,17 @@ Opening/encoding a record neither loads DLLs/firmware nor downloads or renders r
 
 ## API and acceptance boundary
 
-[The C++ codec](../../src/application/managed_record.hpp) exposes typed encoding and
+[The C++ codec](../../legacy/src/application/managed_record.hpp) exposes typed encoding and
 owned decoding in `simnodus::experimental`. Errors distinguish size, format, internal
 fields, context, project, digest and allocation failures. An error never returns a
 partly valid record. Field validation can reject before digest validation; error
 ordering is not a corruption-location or authenticity guarantee.
 
-[Native checks](../../tests/resources/native_managed_record.cpp) cover owned results,
+[Native checks](../../legacy/tests/resources/native_managed_record.cpp) cover owned results,
 typed-input refusal and unchanged 1 MiB lock-digest limits. The existing SHA core is
 shared behind a separately bounded 2 MiB experimental entry point; the original lock
 entry point is unchanged. An independent Python `hashlib` vector checks the 2 MiB bound.
-[Independent vectors](../../tests/resources/native_managed_record_regression.py) use
+[Independent vectors](../../legacy/tests/resources/native_managed_record_regression.py) use
 Python `struct`/`hashlib`, then require native decode/re-encode to reproduce the exact
 bytes. Tests include recomputed outer hashes and fully hashed invalid field records,
 not only accidental corruption. See [results](../experiments/SN-021-managed-record-codec.md).

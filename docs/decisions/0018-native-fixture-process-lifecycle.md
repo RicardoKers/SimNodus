@@ -51,7 +51,7 @@ An unexpected supervisor exit is distinguished from orderly or forced child exit
 Job containment is resource ownership, not a security sandbox. Host-harness death
 without supervisor death and hostile local interference are not newly approved.
 
-The [protocol](../../tests/headless/PROCESS_LIFECYCLE.md) and
+The [protocol](../../legacy/tests/headless/PROCESS_LIFECYCLE.md) and
 [evidence](../experiments/evidence/SN-017-process-lifecycle-summary.json) cover
 real engine recreation, engine/owner failures, descendant cleanup, argv/stdio,
 startup errors and fresh recovery. No engine, firmware, dependency or IDE startup

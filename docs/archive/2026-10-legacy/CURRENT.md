@@ -909,7 +909,7 @@ Preserve January stabilization and February 2027 as a planning target.
 On 2026-09-30, the [bounded Windows editor slice](../../experiments/SN-023-document-editor.md)
 implements inert Open, structural inspection, top-level display-name editing and
 explicit create-only Save Copy in the selected acquisition directory. The
-[optional desktop target](../../../apps/desktop/README.md) uses Qt Core/Gui/Widgets;
+[optional desktop target](../../../legacy/apps/desktop/README.md) uses Qt Core/Gui/Widgets;
 a Qt-free application document owns immutable native project graphs. Opening
 references neither resources nor engines. Save Copy leaves the original association
 and dirty state intact; external overwrite and production managed Save are absent.
@@ -2269,7 +2269,7 @@ component pins, circuits, instances, ports and explicit nets. Layout/models,
 parameters and project resources are not part of 0.1. No source netlist,
 implicit global/GND connection, code execution or backend invocation is allowed.
 
-The [Python reference validator and fixtures](../../../tests/schema/README.md) passed
+The [Python reference validator and fixtures](../../../legacy/tests/schema/README.md) passed
 15 tests: decoded-tree round trip, distinct left/right RC instance paths,
 name/order independence, structured reference failures, malformed input,
 recursion/depth and expansion budgets. CLI validation accepted the owned fixture
@@ -2378,7 +2378,7 @@ The repository checker passed (397 text files); `git diff --check` passed.
 
 ### 2026-09-12: SN-018 first local measurement cycle
 
-SN-018 is **in_progress**. The [predeclared methodology](../../../tests/headless/BASELINE.md)
+SN-018 is **in_progress**. The [predeclared methodology](../../../legacy/tests/headless/BASELINE.md)
 and [report](../../experiments/SN-018-baseline.md) establish one Windows Debug fixture
 baseline with unchanged real engines and cycle 27 inputs. Three sequential
 batches passed 18 fresh sessions, 162 fixed checkpoints and 18 asynchronous
@@ -2603,7 +2603,7 @@ Real ngspice passed 72 differential cases with identical output, 1 ps endpoints,
 passed six recreated sessions, 54 checkpoints, six guarded MI pauses and ADC
 3541. Analog loss retained two checkpoints; three fresh sessions recovered.
 CTest and all 14 relay/accounting tests passed. See the
-[protocol](../../../tests/headless/README.md) and
+[protocol](../../../legacy/tests/headless/README.md) and
 [evidence](../../experiments/evidence/SN-017-rc-extraction-summary.json).
 
 SN-017 remains **in_progress**. Next extract CPU grant/result accounting and
@@ -2626,7 +2626,7 @@ acknowledgement retained three acknowledgements/two commits. Fixed state matches
 the previous extraction, with maximum analog difference 2.17604e-14 V.
 Two CTest targets, 15 CLI replay/adversarial cases, all 14 relay/accounting tests
 and three default-path controls passed. See the
-[protocol](../../../tests/headless/SESSION_CONTRACT.md) and
+[protocol](../../../legacy/tests/headless/SESSION_CONTRACT.md) and
 [evidence](../../experiments/evidence/SN-017-session-contract-summary.json).
 
 SN-017 remains **in_progress**. Next extract Renode cancellation-result parsing
@@ -2649,7 +2649,7 @@ acknowledgement retained three acknowledgements/two commits. Fixed state matches
 the previous extraction, with maximum analog difference 2.17604e-14 V.
 Two CTest targets, 15 CLI replay/adversarial cases, all 14 relay/accounting tests
 and three default-path controls passed. See the
-[protocol](../../../tests/headless/SESSION_CONTRACT.md) and
+[protocol](../../../legacy/tests/headless/SESSION_CONTRACT.md) and
 [evidence](../../experiments/evidence/SN-017-session-contract-summary.json).
 
 SN-017 remains **in_progress**. Next extract Renode cancellation-result parsing
@@ -2676,7 +2676,7 @@ commits. The actual withheld backend result remains preserved.
 Fifteen native file cases passed, including real Windows sharing locks and late
 publication. Three CTest targets, 15 prior CLI cases, 14 relay/accounting tests
 and three legacy-parser controls passed. See the
-[protocol](../../../tests/headless/RESULT_INGRESS.md) and
+[protocol](../../../legacy/tests/headless/RESULT_INGRESS.md) and
 [evidence](../../experiments/evidence/SN-017-result-ingress-summary.json).
 
 SN-017 remains **in_progress**. Next extract cancellation commands and the
@@ -2703,7 +2703,7 @@ analog loss retained three acknowledgements/two commits. Fresh recovery passed.
 
 Seventeen real OS pipe cases, 15 native-file regressions, 15 prior CLI cases,
 three CTest targets, 14 relay/accounting tests and three legacy-command controls
-passed. See the [protocol](../../../tests/headless/COMMAND_CHANNEL.md) and
+passed. See the [protocol](../../../legacy/tests/headless/COMMAND_CHANNEL.md) and
 [evidence](../../experiments/evidence/SN-017-command-channel-summary.json).
 Ready-timeout/error cases are controlled pipe/file tests, not a claim of real
 Renode timeout coverage at every boundary.
@@ -2732,7 +2732,7 @@ actual child process handle; no successful native exit record was fabricated.
 
 Nine lifecycle cases, 17 pipe cases, 15 ingress cases, 15 prior CLI cases, three
 CTest targets, 14 relay/accounting tests and three legacy-lifecycle controls
-passed. See the [protocol](../../../tests/headless/PROCESS_LIFECYCLE.md) and
+passed. See the [protocol](../../../legacy/tests/headless/PROCESS_LIFECYCLE.md) and
 [evidence](../../experiments/evidence/SN-017-process-lifecycle-summary.json).
 
 SN-017 remains **in_progress**. Next extract the remaining bounded progress and
@@ -2765,7 +2765,7 @@ SN-017 remains **in_progress**. Progress and notification response files remain
 host-read; their non-atomic publication handling is the next coherent ingress
 slice before orchestration. The host still validates actual GDB notification and
 stable inspection. This cycle does not claim native end-to-end debug event
-ownership. [Reproduction and scope](../../../tests/headless/DEBUG_COMMANDS.md).
+ownership. [Reproduction and scope](../../../legacy/tests/headless/DEBUG_COMMANDS.md).
 PDF suppression hash matches the prior evidence; no IDE launch changes, commit,
 publication or capability/milestone expansion occurred.
 
@@ -2794,7 +2794,7 @@ orchestration step. GDB signal/time verification, stable inspection, preparation
 and scheduling remain in Python. The closure guarantee requires the owned
 single-open writer on Windows; arbitrary writers and Linux remain unsupported.
 The real loss controls do not claim fault injection during notification ingress.
-[Reproduction](../../../tests/headless/DEBUG_INGRESS.md). PDF suppression is unchanged;
+[Reproduction](../../../legacy/tests/headless/DEBUG_INGRESS.md). PDF suppression is unchanged;
 no commit, publication, milestone change or capability expansion occurred.
 
 ### 2026-09-10: SN-017 composite grant transition cycle closed
@@ -2820,7 +2820,7 @@ passed. Exact measurements and raw reports are in the
 SN-017 remains **in_progress**. Next extract bounded analog catch-up after CPU
 acknowledgement, retaining separate exchange, inspection and commit. Polling,
 GDB verification and complete scheduling remain in the harness. See the
-[protocol](../../../tests/headless/GRANT_TRANSITIONS.md). Capabilities, historical
+[protocol](../../../legacy/tests/headless/GRANT_TRANSITIONS.md). Capabilities, historical
 evidence and PDF suppression are preserved; no IDE startup change, commit,
 publication or milestone change occurred.
 
@@ -2847,7 +2847,7 @@ removed. Four real engine/supervisor loss cases retained two prior commits and
 only two successful advance writes. Thirteen new analog pipe cases, four startup
 cases, nine lifecycle cases and all prior grant/debug/result/core regressions
 passed. See [evidence](../../experiments/evidence/SN-017-analog-command-summary.json)
-and [reproduction](../../../tests/headless/ANALOG_COMMANDS.md).
+and [reproduction](../../../legacy/tests/headless/ANALOG_COMMANDS.md).
 
 SN-017 remains **in_progress**. Next extract bounded analog reply ingress; the
 host still reads worker JSON and owns exchange, inspection and scheduling. The
@@ -2876,7 +2876,7 @@ core and Python regressions passed. Two failed closed-pipe diagnostic checks and
 one interrupted oversized test producer are retained; the producer now streams
 bounded chunks. Pending-read abort cleanup was tightened before the final run.
 See [evidence](../../experiments/evidence/SN-017-analog-ingress-summary.json) and
-[reproduction](../../../tests/headless/ANALOG_INGRESS.md).
+[reproduction](../../../legacy/tests/headless/ANALOG_INGRESS.md).
 
 SN-017 remains **in_progress**. Next select the smallest bounded exchange/inspection
 coordination step. Analytical checks, actual GDB verification and complete
@@ -2907,7 +2907,7 @@ usage-limit interruption; test creation and remaining checks were completed afte
 resumption. No unexecuted check was counted as passing.
 
 See [evidence](../../experiments/evidence/SN-017-exchange-inspection-summary.json) and
-[reproduction](../../../tests/headless/EXCHANGE_INSPECTION.md). SN-017 remains
+[reproduction](../../../legacy/tests/headless/EXCHANGE_INSPECTION.md). SN-017 remains
 **in_progress**. Next extract bounded ADC boundary-input coordination. Host GPIO,
 analytical and actual GDB checks plus final scheduling remain separate. Prior
 reader/transaction-ID restrictions, evidence, PID retry and PDF suppression are
@@ -2936,7 +2936,7 @@ tests. The initial numerical test include error was corrected before validation.
 Documentation completion resumed after a tool approval usage-limit interruption.
 
 See [evidence](../../experiments/evidence/SN-017-adc-coordination-summary.json) and
-[reproduction](../../../tests/headless/ADC_COORDINATION.md). SN-017 remains
+[reproduction](../../../legacy/tests/headless/ADC_COORDINATION.md). SN-017 remains
 **in_progress**. Next extract bounded ADC helper invocation/result ingress;
 analytical/GDB checks and final scheduling remain host-owned. Expected ADC code
 is validation metadata, not an extra input quantization stage. Capabilities,
@@ -2947,7 +2947,7 @@ publication or milestone change occurred.
 
 Native ADC helper invocation and result ingress are validated under
 [ADR 0026](../../decisions/0026-native-adc-helper-process.md), with the
-[protocol and reproduction commands](../../../tests/headless/ADC_PROCESS.md) and
+[protocol and reproduction commands](../../../legacy/tests/headless/ADC_PROCESS.md) and
 [recorded evidence](../../experiments/evidence/SN-017-adc-process-summary.json).
 `--native-adc-process` launches the explicitly configured helper using prepared
 channel/voltage arguments, captures bounded streams, and requires the expected
@@ -3003,7 +3003,7 @@ cases passed, along with 25 analog ingress, 19 exchange, 18 ADC coordination and
 21 ADC process regressions. The first pipe-test attempt failed because its
 producer emitted spaces outside the existing exact frame syntax; that report
 is preserved and the corrected producer passed. See the
-[protocol and reproduction](../../../tests/headless/RC_TRAJECTORY.md).
+[protocol and reproduction](../../../legacy/tests/headless/RC_TRAJECTORY.md).
 
 SN-017 remains **in_progress**. This fixture oracle adds no solver, prediction,
 rollback, general MCU support or debugging capability. The next smallest step is
@@ -3037,7 +3037,7 @@ tests. Historical session replay initially rejected the added diagnostic fields;
 the corrected comparison requires all four optional fields to remain zero and
 preserves exact comparison of every historical field. Its failed report is kept.
 An earlier missing-reference invocation exited during argument parsing without
-running cases. See [reproduction and limits](../../../tests/headless/READBACK.md).
+running cases. See [reproduction and limits](../../../legacy/tests/headless/READBACK.md).
 
 SN-017 remains **in_progress**. This slice verifies host-normalized observations;
 it does not independently authenticate GDB origin or freshness. Next extract
@@ -3070,7 +3070,7 @@ passed 16 normalized readback, 15 session, nine RC and 18 ADC coordination cases
 All 17 Python unit tests passed, including raw capture identity and ambiguity.
 Initial passing reports before strict timestamp conversion are preserved with
 their original source/binary hashes. Final recovery uses the hardened parser.
-See [protocol and reproduction](../../../tests/headless/READBACK_MI.md).
+See [protocol and reproduction](../../../legacy/tests/headless/READBACK_MI.md).
 
 SN-017 remains **in_progress**. This exact-format parser is not generic MI support
 or bounded streaming transport; the reused token and host time do not prove
@@ -3105,7 +3105,7 @@ pending commit and normalized bypass. Regression suites passed 23 raw MI,
 16 normalized readback, 15 session, nine RC and 18 ADC coordination cases.
 All 18 Python tests passed, including remaining-budget propagation. The initial
 request report is preserved; the final test removes unrelated inherited branches.
-See [protocol and reproduction](../../../tests/headless/READBACK_REQUEST.md).
+See [protocol and reproduction](../../../legacy/tests/headless/READBACK_REQUEST.md).
 
 SN-017 remains **in_progress**. Tokens are unique only within the owned session
 and may repeat after recreation; they do not authenticate the host. Deadline
@@ -3137,7 +3137,7 @@ Eight CTest targets passed, including 72 time-parser and 224 memory-parser check
 The process suites passed 22 timed-readback, 14 request, 23 raw-memory,
 16 normalized-readback, 15 session, nine RC and 18 ADC coordination cases.
 All 18 Python unit tests passed. See
-[protocol and reproduction](../../../tests/headless/READBACK_TIME.md).
+[protocol and reproduction](../../../legacy/tests/headless/READBACK_TIME.md).
 
 SN-017 remains **in_progress**. Output stream records have no MI token, so their
 request association remains host-owned; validating the completion does not
@@ -3170,7 +3170,7 @@ Nine CTest targets passed, including 127 register-parser checks. Process suites
 passed 11 inspection, 22 timed-readback, 14 request, 23 raw-memory,
 16 normalized-readback, 15 session, nine RC and 18 ADC coordination cases.
 All 18 Python unit tests passed. See
-[protocol and reproduction](../../../tests/headless/INSPECTION.md).
+[protocol and reproduction](../../../legacy/tests/headless/INSPECTION.md).
 
 SN-017 remains **in_progress**. Native equality does not prove that the two
 supplied frames came from distinct reads or were separated by 100 ms. Collection,
@@ -3207,7 +3207,7 @@ request suite passed 15 cases, and regressions passed 11 legacy inspection,
 15 session, nine RC and 18 ADC coordination cases. All 18 Python tests passed.
 Two initial request-test attempts failed because inherited case names altered
 mailbox setup; both reports are preserved. The final suite isolates valid setup
-from inspection failures. See [reproduction](../../../tests/headless/INSPECTION_REQUEST.md).
+from inspection failures. See [reproduction](../../../legacy/tests/headless/INSPECTION_REQUEST.md).
 
 SN-017 remains **in_progress**. The interval between reads remains host-enforced;
 native correlation does not impose a minimum gap or authenticate the host.
@@ -3240,7 +3240,7 @@ Nine CTest targets passed. Process suites passed 15 interval, 15 request,
 11 legacy inspection, 22 timed-readback, 14 mailbox-request, 23 raw-memory,
 16 normalized-readback, 15 session, nine RC and 18 ADC coordination cases.
 All 18 Python unit tests passed. See
-[protocol and reproduction](../../../tests/headless/INSPECTION_INTERVAL.md).
+[protocol and reproduction](../../../legacy/tests/headless/INSPECTION_INTERVAL.md).
 
 SN-017 remains **in_progress**. The minimum is a monotonic wall-time interval
 between native acceptance and command release, not virtual simulation time or
@@ -3272,7 +3272,7 @@ time-confirmation, 15 interval, 15 request, 11 legacy inspection, 22 timed
 readback, 14 mailbox request, 23 raw memory, 16 normalized readback, 15 session,
 nine RC and 18 ADC coordination cases. An initial batch referenced a nonexistent
 RC script; the corrected RC and ADC commands passed. See
-[protocol and reproduction](../../../tests/headless/INSPECTION_TIME.md).
+[protocol and reproduction](../../../legacy/tests/headless/INSPECTION_TIME.md).
 
 SN-017 remains **in_progress**. Host GDB transport and association of the untagged
 time stream remain; tokens provide no authentication and may repeat after
@@ -3304,7 +3304,7 @@ header is now included in each real execution's source hashes.
 Ten CTest targets passed, including direct coordinator checks for independent
 instances, delegation without argument consumption, legacy-mode isolation and
 terminal failure. All 173 existing pipe cases and 18 Python unit tests passed.
-See [reproduction](../../../tests/headless/INSPECTION_COORDINATOR.md).
+See [reproduction](../../../legacy/tests/headless/INSPECTION_COORDINATOR.md).
 
 SN-017 remains **in_progress**. JSON field order changed; field names, values,
 commands, deadlines and commit behavior are preserved. Host GDB transport and
@@ -3337,7 +3337,7 @@ Eleven CTest targets, 194 protocol/process cases and 18 Python unit tests passed
 The process suite includes 21 actual helper cases covering cleanup, descendants,
 runner loss and the original deadline. Direct C++ checks cover independent
 coordinators, delegation, denied preparation and duplicate confirmation. See
-[reproduction](../../../tests/headless/ADC_COORDINATOR.md).
+[reproduction](../../../legacy/tests/headless/ADC_COORDINATOR.md).
 
 Count correction: cycle 23's aggregate of 183 was an arithmetic error; its
 individual raw suites total 173. This cycle adds 21 process cases for 194.
@@ -3374,7 +3374,7 @@ Twelve CTest targets, 251 protocol/process cases and 18 Python unit tests passed
 The new direct pipe test proves borrowed endpoint lifetime and rejection without
 writing or committing. Additional suites passed 13 analog command, 25 ingress
 and 19 exchange cases, alongside the preceding 194 cases. See
-[reproduction](../../../tests/headless/ANALOG_COORDINATOR.md).
+[reproduction](../../../legacy/tests/headless/ANALOG_COORDINATOR.md).
 
 SN-017 remains **in_progress**. Next extract bounded Renode execution coordination
 (start/readiness, cancellation and result acceptance) from the CLI, preserving
@@ -3406,7 +3406,7 @@ Direct pipe checks verify borrowed channel lifetime, independent instances and
 premature cancellation without writes or commits. One ingress invocation lacked
 a reference; the next used summary JSON instead of raw grant text. Its failed
 report remains preserved; the corrected raw-grant run passed all 15 cases.
-See [reproduction](../../../tests/headless/EXECUTION_COORDINATOR.md).
+See [reproduction](../../../legacy/tests/headless/EXECUTION_COORDINATOR.md).
 
 SN-017 remains **in_progress**. Next extract remaining command dispatch and global
 pending/commit gates into a bounded application session, retaining protocol,
@@ -3440,7 +3440,7 @@ Fourteen CTest targets, 358 protocol/process cases and 18 Python tests passed.
 The direct composed-session test covers isolated state, separate commit,
 terminal failure, exit disposition and pending-worker rejection before commit,
 quit, begin and analog input. See
-[reproduction](../../../tests/headless/APPLICATION_SESSION.md).
+[reproduction](../../../legacy/tests/headless/APPLICATION_SESSION.md).
 
 SN-017 remains **in_progress**, pending acceptance audit. Next map its acceptance
 criteria to the extracted runner/contracts and evidence, explicitly identify

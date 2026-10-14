@@ -51,7 +51,7 @@ notification is not retroactively claimed to erase that notification.
 Arbitration/fault timing coverage remains bounded by ADR 0014; the new CPU-loss
 case is specifically after an observed stop and before cancellation confirmation.
 
-The [protocol](../../tests/headless/SESSION_CONTRACT.md) and
+The [protocol](../../legacy/tests/headless/SESSION_CONTRACT.md) and
 [evidence](../experiments/evidence/SN-017-session-contract-summary.json) record
 real-engine equivalence, two failure boundaries and fresh recovery. All code is
 owned project material; no additional dependency or redistribution is introduced.

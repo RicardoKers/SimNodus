@@ -29,7 +29,7 @@ Recreation creates fresh runner/GDB processes and resets the request state.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/READBACK_REQUEST.md) and
+See [protocol](../../legacy/tests/headless/READBACK_REQUEST.md) and
 [evidence](../experiments/evidence/SN-017-readback-request-summary.json). Real
 GDB results carry the native token and match the runner's raw input. Pipe tests
 cover wrong/legacy tokens, missing/duplicate requests, pending operations,

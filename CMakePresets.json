@@ -7,18 +7,34 @@
   },
   "configurePresets": [
     {
-      "name": "bootstrap",
-      "displayName": "Repository foundation",
-      "description": "Use the locally available generator and compiler; no simulator is built.",
-      "binaryDir": "${sourceDir}/build/bootstrap"
+      "name": "dev",
+      "displayName": "Development (Ninja, Release)",
+      "description": "Run from a developer shell; on Windows pass -DCMAKE_PREFIX_PATH=<Qt kit> or set it in CMakeUserPresets.json.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
     {
+      "name": "dev",
+      "configurePreset": "dev"
+    },
+    {
       "name": "check-repository",
-      "configurePreset": "bootstrap",
-      "configuration": "Debug",
+      "configurePreset": "dev",
       "targets": ["check-repository"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

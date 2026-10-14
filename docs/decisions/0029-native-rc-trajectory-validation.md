@@ -27,7 +27,7 @@ edge; it does not change the model or acceptance tolerance.
 
 ## Evidence and limits
 
-See the [protocol](../../tests/headless/RC_TRAJECTORY.md) and
+See the [protocol](../../legacy/tests/headless/RC_TRAJECTORY.md) and
 [evidence](../experiments/evidence/SN-017-rc-trajectory-summary.json). Tests cover
 both sides of the voltage tolerance, nonfinite values, endpoint disagreement,
 edge ordering, activation ordering and refusal to commit after rejection.

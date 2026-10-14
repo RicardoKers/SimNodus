@@ -13,7 +13,7 @@ this campaign's inconclusive status or repair its historical memory records.
 
 ## Predeclared method and reproduction
 
-The [contract](../../tests/headless/OBSERVER_CONTROL.md) was written before
+The [contract](../../legacy/tests/headless/OBSERVER_CONTROL.md) was written before
 execution. Three adjacent pairs use U,S / S,U / U,S, where U has no memory
 sampling and S uses the unchanged baseline sampler. Each batch executes six
 fresh sessions, for 18 per condition. No warm-up, discarded samples, engine

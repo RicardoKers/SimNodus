@@ -7,14 +7,14 @@ pending its bounded coverage/acceptance review.
 
 ## Identity correction and verification
 
-The new [sampler](../../tests/headless/process_memory.py) keeps process handles
+The new [sampler](../../legacy/tests/headless/process_memory.py) keeps process handles
 for the entire batch and queries creation/exit times and memory through the
 retained identities. A new child must be newer than its verified parent, created
 no later than snapshot start and, if known, no later than its parent's exit.
 Descendants of rejected candidates are not followed. Process names never grant
 membership. Handles close between batches, including error paths.
 
-Nine [tests](../../tests/headless/test_process_memory.py) passed before engine
+Nine [tests](../../legacy/tests/headless/test_process_memory.py) passed before engine
 execution: stale parent PID with unrelated descendants, PID reuse after snapshot,
 equal creation time, exit/access failure during open, child discovery after a
 known parent's exit, child creation after parent exit, handle cleanup, name
@@ -30,7 +30,7 @@ supervisor and startup PID retry are unchanged.
 
 ## Predeclared campaign and reproduction
 
-The [new contract](../../tests/headless/OBSERVER_IDENTITY.md) was recorded after
+The [new contract](../../legacy/tests/headless/OBSERVER_IDENTITY.md) was recorded after
 tests and before engine execution. It preserves U,S / S,U / U,S: three adjacent
 pairs, six batches, six fresh sessions per batch. U does not sample memory; S
 uses the corrected sampler. Both retain 100 ms outer poll sleeps. No warm-up,

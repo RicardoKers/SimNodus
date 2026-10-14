@@ -29,7 +29,7 @@ alongside explicit session abort; failed sessions remain terminal.
 ## Validation and limits
 
 [Evidence](../experiments/evidence/SN-017-inspection-coordinator-summary.json)
-and [reproduction](../../tests/headless/INSPECTION_COORDINATOR.md) retain the
+and [reproduction](../../legacy/tests/headless/INSPECTION_COORDINATOR.md) retain the
 real-engine matrix and earlier protocol regression suites. A direct C++ test
 checks command delegation without argument consumption, independent coordinator
 instances, normalized-mode isolation, commit prerequisites and terminal failure.

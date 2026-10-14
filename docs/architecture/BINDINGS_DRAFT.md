@@ -57,7 +57,7 @@ interface; every successful result reports `simulation_ready: false`.
 
 ## Validation and limits
 
-The [reference validator](../../tests/schema/bindings.py) removes only these known
+The [reference validator](../../legacy/tests/schema/bindings.py) removes only these known
 additions from an in-memory copy to reuse 0.2 validation. Unknown fields are not
 discarded; no migration occurs. Preserve all original 0.1/0.2 artifacts.
 
@@ -69,7 +69,7 @@ their meaning. CLI exit 0 reports `valid-descriptors-only`; exit 1 reports a
 structured validation error. Input documents are never rewritten.
 
 Round-trip fixtures preserve catalogs, maps, identities and parameters. The
-[owned fixture](../../tests/schema/fixtures/two-rc-bindings.json) includes three
+[owned fixture](../../legacy/tests/schema/fixtures/two-rc-bindings.json) includes three
 symbol interfaces and two passive-model interface declarations, with no external
 artwork, vendor models or executable implementation. There are no `path`, `url`,
 `dll`, `script`, `backend` or resource/license fields in this version. Such fields

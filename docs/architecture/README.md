@@ -46,7 +46,7 @@ Arrows show architectural relationships, not implemented threads or transport gu
 | `apps/cli` | Reproducible headless experiments and application facade for scripting, CI, external tools and AI agents | Own automation semantics, bypass session contracts, or substitute fake backends for integration evidence |
 | `apps/desktop` | Qt editor and instruments | Run the solver on the GUI thread |
 
-These are module destinations under [src](../../src/README.md). SN-017 has
+These are module destinations under [src](../../legacy/src/README.md). SN-017 has
 [accepted the bounded headless composition](../experiments/SN-017-acceptance.md):
 native contracts, adapters, supervision and application session, with explicit
 Python/C# fixture scheduling and GDB transport. The complete module design and

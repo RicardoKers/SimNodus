@@ -72,7 +72,7 @@ Definitions are never mutated. Topology recursion/depth checks still apply to
 all definitions, reachable or not. All declarations/bindings are checked even
 when unused by the selected root.
 
-The [0.2 fixture](../../tests/schema/fixtures/two-rc-parameters.json) resolves
+The [0.2 fixture](../../legacy/tests/schema/fixtures/two-rc-parameters.json) resolves
 left resistor/capacitor to 1000 ohm and 1e-6 F, and right to 2200 ohm and
 220e-9 F, through explicit RC parameter forwarding. The instances retain
 `main/left/r` versus `main/right/r` paths. This is an inspection snapshot of
@@ -92,7 +92,7 @@ unit or incompatible dimension), and `range` (invalid declaration, out-of-bounds
 literal or unsafe forwarding interval). Existing `shape`, `reference`, `id`,
 `budget`, `hierarchy`, `version` and `input` codes retain their meaning.
 
-The [developer CLI](../../tests/schema/parameters.py) returns exit 0 with
+The [developer CLI](../../legacy/tests/schema/parameters.py) returns exit 0 with
 `valid-parameters-only` plus an instance-path snapshot, or exit 1 with a
 structured validation error. Snapshot values use exact base-unit decimal strings
 and origins `default`, `literal`, or `containing-circuit:<parameter-id>`; trailing

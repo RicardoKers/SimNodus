@@ -8,12 +8,14 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using Renode for the microcontroller, ngspice for the
 circuit and a Qt 6 interface.
 
-**Status (2026-10-14): product rebuild, phase 0.** Backend feasibility is proven
-by experiments E-01..E-05 (ngspice, Renode/STM32 GPIO/EXTI, GPIO↔RC coupling,
-ADC, CubeIDE/GDB debugging). The application is being rebuilt around a clean
-QSpice-like editor, continuous interactive simulation and a separate Signal
-Analyzer window. Release 0.1 (analog interactive editor) is planned for
-2026-10-30; see the [roadmap](docs/planning/ROADMAP.md).
+**Status (2026-10-14): product rebuild, phase 0 complete.** Backend feasibility
+is proven by experiments E-01..E-05 (ngspice, Renode/STM32 GPIO/EXTI, GPIO↔RC
+coupling, ADC, CubeIDE/GDB debugging). The rebuilt application skeleton (three
+columns, separate Signal Analyzer window, run-time loaded ngspice) builds on
+Windows and Linux; CI publishes a portable Windows zip. Release 0.1 (analog
+interactive editor) is planned for 2026-10-30; see the
+[roadmap](docs/planning/ROADMAP.md). Build instructions:
+[getting started](docs/development/GETTING_STARTED.md).
 
 ## Start here
 
@@ -43,9 +45,13 @@ Analyzer window. Release 0.1 (analog interactive editor) is planned for
 
 | Path | Content |
 |---|---|
+| `apps/simnodus/` | Qt 6 Widgets application (editor, Signal Analyzer) |
+| `src/` | Qt-free libraries (engine runtime now; model, library, netlist, I/O next) |
+| `tests/` | Unit, engine, GUI and spike tests; backend experiments E-01..E-05 in `tests/experiments/` |
+| `resources/` | Owned ngspice initialization, package README and license notices |
+| `tools/` | Repository checker, backend fetch/verify, Windows packaging |
 | `docs/` | Requirements, architecture, plans, ADRs, experiment reports |
-| `tests/experiments/` | Backend experiments E-01..E-05 (reference, Windows) |
-| `src/`, `apps/`, `tests/` | Previous bounded product code, moving to `legacy/` in SN-101 |
+| `legacy/` | Product code of the first development line, not built by default |
 | `docs/archive/2026-10-legacy/` | Planning documents of the first development line |
 
 All repository documentation, code and comments are in English.
@@ -54,6 +60,6 @@ All repository documentation, code and comments are in English.
 
 Original SimNodus code and associated documentation are licensed under the [MIT License](LICENSE). Third-party software, firmware, models, fonts, and other assets keep their own terms; see the [licensing policy](docs/development/LICENSING.md).
 
-Created and maintained by **Ricardo Kerschbaumer** ([RicardoKers](https://github.com/RicardoKers)). Source code and documentation are public at [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus). Follow [issues](https://github.com/RicardoKers/SimNodus/issues), [milestones](https://github.com/RicardoKers/SimNodus/milestones), and [checks](https://github.com/RicardoKers/SimNodus/actions). No simulator release is available yet; the first is planned for 2026-10-30.
+Created and maintained by **Ricardo Kerschbaumer** ([RicardoKers](https://github.com/RicardoKers)). Source code and documentation are public at [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus). Follow [issues](https://github.com/RicardoKers/SimNodus/issues), [milestones](https://github.com/RicardoKers/SimNodus/milestones), and [checks](https://github.com/RicardoKers/SimNodus/actions). No simulator release is available yet; the first is planned for 2026-10-30. Development builds of the Windows zip are attached to each CI run.
 
 STM32 and other product names identify third-party technologies, not affiliations. A preliminary GitHub name search found no matching repository before publication; formal trademark and domain clearance remain unverified.

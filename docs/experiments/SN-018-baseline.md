@@ -12,7 +12,7 @@ identity before further measurements. Numerical/functional results are unchanged
 
 ## Contract and reproduction
 
-The [measurement contract](../../tests/headless/BASELINE.md) was written before
+The [measurement contract](../../legacy/tests/headless/BASELINE.md) was written before
 execution. The wrapper freezes its source/contract, cycle 27 reference inputs,
 commands and hashes in `build/sn018/baseline-01/manifest.json` before starting
 engines. Three sequential batches each execute three initial/recreated pairs:

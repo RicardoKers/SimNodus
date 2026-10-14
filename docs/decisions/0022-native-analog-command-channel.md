@@ -36,7 +36,7 @@ the transient access denial was not identified.
 
 ## Evidence and remaining scope
 
-See the [protocol](../../tests/headless/ANALOG_COMMANDS.md) and
+See the [protocol](../../legacy/tests/headless/ANALOG_COMMANDS.md) and
 [evidence](../experiments/evidence/SN-017-analog-command-summary.json).
 ADR 0014 capabilities, engine/fixture inputs and IDE PDF suppression are unchanged.
 No general circuit support, unpaced debugging or rollback is inferred. SN-017

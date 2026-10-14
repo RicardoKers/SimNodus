@@ -60,7 +60,7 @@ inert; this slice loads no resource and offers no engine execution.
 
 ## Implemented and measured
 
-The small [native lookup](../../src/application/project_inspection.hpp) selects
+The small [native lookup](../../legacy/src/application/project_inspection.hpp) selects
 by source circuit-definition/instance IDs and matches existing owned source
 provenance to the already resolved occurrence rows. It performs no I/O or new
 resolution. Borrowed rows require a retained graph. Presentation stores its own
@@ -114,7 +114,7 @@ recorded by the source PR. Unchanged backend/edit/layout matrices were reused.
 
 ## Reproduce the focused path
 
-Use the [existing Qt build instructions](../../apps/desktop/README.md), then build
+Use the [existing Qt build instructions](../../legacy/apps/desktop/README.md), then build
 `native_inspection_probe`, `editor_inspection_tests`, `editor_document_tests` and
 `simnodus_document_editor`. Run these existing CTest names:
 

@@ -7,8 +7,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / 'tests/schema'))
-sys.path.insert(0, str(ROOT / 'tests/resources'))
+sys.path.insert(0, str(ROOT / 'legacy/tests/schema'))
+sys.path.insert(0, str(ROOT / 'legacy/tests/resources'))
 import native_regression as resources
 import native_passive_regression as passive
 import run as e01
@@ -25,7 +25,7 @@ def main():
         with (output / 'assets.log').open('w', encoding='utf-8') as log:
             subprocess.run([sys.executable, str(ROOT / 'tools/check_backend_assets.py'),
                             '--ngspice-only'], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
-        document = json.loads((ROOT / 'tests/schema/fixtures/two-rc-resource-links.json').read_text())['lock']
+        document = json.loads((ROOT / 'legacy/tests/schema/fixtures/two-rc-resource-links.json').read_text())['lock']
         resources.PROBE = str(ROOT / 'build/sn021-save/Debug/native_resource_probe.exe')
         captured = resources.native(document, str(ROOT))
         source = captured[('owned-link-fixture', 'model')].data

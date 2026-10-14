@@ -1794,7 +1794,7 @@ ingress/graph specification after confirming PR #21's final squash/main state.
 
 Read CURRENT, BACKLOG, [ADR 0052](../../decisions/0052-bounded-local-resource-snapshots.md),
 the [physical contract](../../architecture/LOCAL_RESOURCE_VERIFICATION.md),
-[implementation](../../../tests/resources/README.md) and
+[implementation](../../../legacy/tests/resources/README.md) and
 [report/evidence](../../experiments/SN-021-local-resources.md). SN-021 is **in_progress**.
 The explicit reference operation accepts lock bytes and an absolute Windows/NTFS
 root, uses parent-relative handles and returns complete immutable byte snapshots.
@@ -1988,7 +1988,7 @@ Older handoffs below are historical.
 
 SN-018 is **in_progress**. Read CURRENT, BACKLOG and the
 [corrected observer report](../../experiments/SN-018-identity-control.md),
-[predeclared contract](../../../tests/headless/OBSERVER_IDENTITY.md) and
+[predeclared contract](../../../legacy/tests/headless/OBSERVER_IDENTITY.md) and
 [evidence](../../experiments/evidence/SN-018-identity-summary.json).
 Nine identity/adversarial/Windows-child tests passed before six real batches.
 All 36 sessions passed 324 fixed checkpoints and 36 pauses, final virtual
@@ -2015,7 +2015,7 @@ synchronization or publication is authorized. Older handoffs below are historica
 
 SN-018 remains **in_progress**. Read CURRENT, BACKLOG, ADRs 0014/0043 and the
 [observer control report](../../experiments/SN-018-observer-control.md),
-[predeclared contract](../../../tests/headless/OBSERVER_CONTROL.md) and
+[predeclared contract](../../../legacy/tests/headless/OBSERVER_CONTROL.md) and
 [annotated evidence](../../experiments/evidence/SN-018-observer-summary.json).
 Six U,S / S,U / U,S batches passed all 36 real-engine sessions and 324 fixed
 checkpoints, with unchanged final virtual time/ADC and numerical limits.
@@ -2042,7 +2042,7 @@ Older handoffs below are historical.
 
 SN-018 is **in_progress**. Read CURRENT, BACKLOG, ADRs 0014/0043 and the
 [first baseline report](../../experiments/SN-018-baseline.md),
-[predeclared contract](../../../tests/headless/BASELINE.md) and
+[predeclared contract](../../../legacy/tests/headless/BASELINE.md) and
 [evidence](../../experiments/evidence/SN-018-baseline-summary.json).
 Three batches / 18 fresh real-engine sessions passed using unchanged cycle 27
 inputs: 162 fixed checkpoints, 18 pauses, ADC 3541 and final virtual 4027000 ns.
@@ -2084,7 +2084,7 @@ Older handoffs below are historical.
 
 The twenty-seventh cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0042](../../decisions/0042-fixture-application-session.md), the
-[protocol](../../../tests/headless/APPLICATION_SESSION.md), and the
+[protocol](../../../legacy/tests/headless/APPLICATION_SESSION.md), and the
 [evidence](../../experiments/evidence/SN-017-application-session-summary.json).
 `FixtureSession` owns joint state, coordinators and global dispatch/pending/commit
 gates. CLI owns startup, endpoints and text I/O. Fourteen CTest targets, 358
@@ -2102,7 +2102,7 @@ is authorized. Older handoffs below are historical.
 
 The twenty-sixth cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0041](../../decisions/0041-fixture-execution-coordinator.md), the
-[protocol](../../../tests/headless/EXECUTION_COORDINATOR.md), and the
+[protocol](../../../legacy/tests/headless/EXECUTION_COORDINATOR.md), and the
 [evidence](../../experiments/evidence/SN-017-execution-coordinator-summary.json).
 `FixtureExecution` owns readiness/cancellation/debug state and borrows the CLI
 channel. Thirteen CTest targets, 358 protocol/process cases and 18 Python tests
@@ -2119,7 +2119,7 @@ below are historical.
 
 The twenty-fifth cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0040](../../decisions/0040-fixture-analog-coordinator.md), the
-[protocol](../../../tests/headless/ANALOG_COORDINATOR.md), and the
+[protocol](../../../legacy/tests/headless/ANALOG_COORDINATOR.md), and the
 [evidence](../../experiments/evidence/SN-017-analog-coordinator-summary.json).
 `FixtureAnalog` owns worker sequencing/acceptance and borrows CLI-owned endpoints.
 Twelve CTest targets, 251 protocol/process cases and 18 Python tests passed.
@@ -2135,7 +2135,7 @@ publication is authorized. Older handoffs below are historical.
 
 The twenty-fourth cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0039](../../decisions/0039-fixture-adc-coordinator.md), the
-[protocol](../../../tests/headless/ADC_COORDINATOR.md), and the
+[protocol](../../../legacy/tests/headless/ADC_COORDINATOR.md), and the
 [evidence](../../experiments/evidence/SN-017-adc-coordinator-summary.json).
 `FixtureAdc` owns preparation, transfer state, original deadline and helper
 lifetime. Eleven CTest targets, 194 protocol/process cases and 18 Python tests
@@ -2153,7 +2153,7 @@ authorized. Older handoffs below are historical.
 
 The twenty-third cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0038](../../decisions/0038-fixture-inspection-coordinator.md), the
-[protocol](../../../tests/headless/INSPECTION_COORDINATOR.md), and the
+[protocol](../../../legacy/tests/headless/INSPECTION_COORDINATOR.md), and the
 [evidence](../../experiments/evidence/SN-017-inspection-coordinator-summary.json).
 `src/application/fixture_inspection.hpp` owns final validation state and its
 existing protocol; CLI transport, global pending guards, abort and actual commit
@@ -2169,7 +2169,7 @@ No commit or remote publication is authorized. Older handoffs below are historic
 
 The twenty-second cycle is validated; SN-017 remains in progress. Read latest
 CURRENT, [ADR 0037](../../decisions/0037-native-post-inspection-time.md), the
-[protocol](../../../tests/headless/INSPECTION_TIME.md), and the
+[protocol](../../../legacy/tests/headless/INSPECTION_TIME.md), and the
 [evidence](../../experiments/evidence/SN-017-inspection-time-summary.json).
 `--native-inspection-time` requires raw time confirmation after the second
 register reply and before final commit, under the original 1900 ms deadline.
@@ -2185,7 +2185,7 @@ No commit or remote publication is authorized. Older handoffs below are historic
 
 The twenty-first cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0036](../../decisions/0036-native-observation-interval.md), the
-[protocol](../../../tests/headless/INSPECTION_INTERVAL.md), and the
+[protocol](../../../legacy/tests/headless/INSPECTION_INTERVAL.md), and the
 [evidence](../../experiments/evidence/SN-017-inspection-interval-summary.json).
 `--native-inspection-interval` withholds the second request until at least 100 ms
 of native monotonic time, without renewing the mailbox deadline. Six recovery
@@ -2200,7 +2200,7 @@ Older handoffs below are historical.
 
 The twentieth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0035](../../decisions/0035-native-register-pair-correlation.md), the
-[protocol](../../../tests/headless/INSPECTION_REQUEST.md), and the
+[protocol](../../../legacy/tests/headless/INSPECTION_REQUEST.md), and the
 [evidence](../../experiments/evidence/SN-017-inspection-request-summary.json).
 `--native-inspection-request` issues two sequential fixed register requests with
 distinct tokens under the original mailbox deadline. Six recovery sessions
@@ -2215,7 +2215,7 @@ publication is authorized. Older handoffs below are historical.
 
 The nineteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0034](../../decisions/0034-bounded-final-register-stability.md), the
-[protocol](../../../tests/headless/INSPECTION.md), and the
+[protocol](../../../legacy/tests/headless/INSPECTION.md), and the
 [evidence](../../experiments/evidence/SN-017-inspection-summary.json).
 `--native-inspection` compares the final r0/sp/lr records after timed readback
 and requires confirmation before final commit. Six recovery sessions passed;
@@ -2231,7 +2231,7 @@ below are historical.
 
 The eighteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0033](../../decisions/0033-native-raw-stopped-time-validation.md), the
-[protocol](../../../tests/headless/READBACK_TIME.md), and the
+[protocol](../../../legacy/tests/headless/READBACK_TIME.md), and the
 [evidence](../../experiments/evidence/SN-017-readback-time-summary.json).
 `--native-readback-time` validates raw elapsed-time and completion records with
 the mailbox under one deadline, rejecting normalized timestamps. Six recovery
@@ -2246,7 +2246,7 @@ are historical.
 
 The seventeenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0032](../../decisions/0032-bounded-mailbox-request-correlation.md), the
-[protocol](../../../tests/headless/READBACK_REQUEST.md), and the
+[protocol](../../../legacy/tests/headless/READBACK_REQUEST.md), and the
 [evidence](../../experiments/evidence/SN-017-readback-request-summary.json).
 `--native-readback-request` arms one native final mailbox request, matches its
 reserved MI token and enforces a 1900 ms acceptance deadline. Six recovery
@@ -2262,7 +2262,7 @@ Older handoffs below are historical.
 
 The sixteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0031](../../decisions/0031-native-raw-mi-mailbox-ingress.md), the
-[protocol](../../../tests/headless/READBACK_MI.md), and the
+[protocol](../../../legacy/tests/headless/READBACK_MI.md), and the
 [evidence](../../experiments/evidence/SN-017-readback-mi-summary.json).
 `--native-readback-mi` sends the unchanged final GDB memory result to native
 exact-format parsing and little-endian decoding. It rejects normalized bypass.
@@ -2278,7 +2278,7 @@ publication is authorized. Older handoffs below are historical.
 
 The fifteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0030](../../decisions/0030-bounded-native-mailbox-readback.md), the
-[protocol](../../../tests/headless/READBACK.md), and the
+[protocol](../../../legacy/tests/headless/READBACK.md), and the
 [evidence](../../experiments/evidence/SN-017-readback-summary.json).
 `--native-readback` verifies the final host-normalized mailbox against native
 prepared ADC state before the final commit. Host GDB collection and stability
@@ -2294,7 +2294,7 @@ No commit or publication is authorized. Older handoffs below are historical.
 
 The fourteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0029](../../decisions/0029-native-rc-trajectory-validation.md), the
-[protocol](../../../tests/headless/RC_TRAJECTORY.md), and the
+[protocol](../../../legacy/tests/headless/RC_TRAJECTORY.md), and the
 [evidence](../../experiments/evidence/SN-017-rc-trajectory-summary.json).
 `--native-rc` validates advance replies before analog acceptance using native
 high-command state. The original Python checks remain an independent oracle.
@@ -2310,7 +2310,7 @@ Older handoffs below are historical.
 
 The thirteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0026](../../decisions/0026-native-adc-helper-process.md), the
-[protocol](../../../tests/headless/ADC_PROCESS.md), and the
+[protocol](../../../legacy/tests/headless/ADC_PROCESS.md), and the
 [evidence](../../experiments/evidence/SN-017-adc-process-summary.json).
 `--native-adc-process` owns fixed helper invocation, bounded result ingress and
 job cleanup before confirmation, sharing the preparation deadline. Six real
@@ -2324,7 +2324,7 @@ authorized. Older handoffs below are historical.
 
 The twelfth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0025](../../decisions/0025-bounded-adc-input-coordination.md) and
-[protocol](../../../tests/headless/ADC_COORDINATION.md). `--native-adc` derives integer
+[protocol](../../../legacy/tests/headless/ADC_COORDINATION.md). `--native-adc` derives integer
 microvolts from native analog state at 4010750 ns and gates matching confirmation
 before commit. The host still invokes the existing ADC helper and supplies its
 microsecond-resolution confirmation. Next extract bounded helper invocation and
@@ -2336,7 +2336,7 @@ historical.
 
 The eleventh cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0024](../../decisions/0024-native-fixture-exchange-inspection.md) and
-[protocol](../../../tests/headless/EXCHANGE_INSPECTION.md). `--native-exchange` routes
+[protocol](../../../legacy/tests/headless/EXCHANGE_INSPECTION.md). `--native-exchange` routes
 the one measured GPIO high and stopped/analog-ready inspections through the native
 worker channel, preserving snapshots before commit. Next extract bounded ADC
 boundary-input coordination; retain host GPIO/GDB verification and separate joint
@@ -2347,7 +2347,7 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 
 The tenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0023](../../decisions/0023-native-analog-reply-ingress.md) and
-[protocol](../../../tests/headless/ANALOG_INGRESS.md). `--native-analog-results` gives
+[protocol](../../../legacy/tests/headless/ANALOG_INGRESS.md). `--native-analog-results` gives
 the runner sole stdout ownership for initial, advance and inspection/exchange
 replies. The host retains analytical checks, exchange, GDB verification and commit
 scheduling. Next select the smallest bounded exchange/inspection coordination
@@ -2359,7 +2359,7 @@ or publication is authorized. Older handoffs below are historical.
 
 The ninth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
 [ADR 0022](../../decisions/0022-native-analog-command-channel.md) and
-[protocol](../../../tests/headless/ANALOG_COMMANDS.md). `--native-analog` emits advance
+[protocol](../../../legacy/tests/headless/ANALOG_COMMANDS.md). `--native-analog` emits advance
 through an inherited worker stdin using confirmed CPU time; replies remain
 host-read. Next extract bounded analog reply ingress while keeping exchange,
 inspection and commit separate. The first recovery hit transient PID-file access
@@ -2371,7 +2371,7 @@ No commit or publication is authorized. Older handoffs below are historical.
 
 The eighth cycle is validated; SN-017 remains in progress. Read the latest CURRENT
 entry, [ADR 0021](../../decisions/0021-composite-fixture-grant-transitions.md) and
-[protocol](../../../tests/headless/GRANT_TRANSITIONS.md). `--native-grants` combines
+[protocol](../../../legacy/tests/headless/GRANT_TRANSITIONS.md). `--native-grants` combines
 begin/start and observed-stop/cancel in the runner, using existing readers and
 deadlines. Next extract bounded analog catch-up after CPU acknowledgement; keep
 exchange, inspection and joint commit separate. Complete orchestration is pending.
@@ -2382,7 +2382,7 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 
 The seventh cycle is validated; SN-017 remains in progress. Read the latest
 CURRENT entry, [ADR 0020](../../decisions/0020-native-debug-reply-ingress.md) and
-[ingress protocol](../../../tests/headless/DEBUG_INGRESS.md). Complete progress and
+[ingress protocol](../../../legacy/tests/headless/DEBUG_INGRESS.md). Complete progress and
 notification replies now run natively behind `--native-debug-results`, with
 Windows writer-closure checks and non-renewing phase deadlines. Next consolidate
 the smallest coherent bounded orchestration step; preserve the harness reference,
@@ -2393,7 +2393,7 @@ or publication is authorized. Older handoffs below are historical.
 
 The sixth extraction cycle is validated; SN-017 remains in progress. Read the
 latest CURRENT entry, [ADR 0019](../../decisions/0019-native-debug-command-emission.md)
-and [debug command protocol](../../../tests/headless/DEBUG_COMMANDS.md). Progress and
+and [debug command protocol](../../../legacy/tests/headless/DEBUG_COMMANDS.md). Progress and
 joint-notification emission now run through the native control channel. Their
 response files are still read by Python. Next extract complete-response ingress,
 including non-atomic publication handling, before consolidating orchestration.
@@ -2404,7 +2404,7 @@ No commit or publication is authorized. Older handoffs below are historical.
 
 The fifth extraction cycle is validated; SN-017 remains in progress. Read the
 latest CURRENT entry, [ADR 0018](../../decisions/0018-native-fixture-process-lifecycle.md)
-and [lifecycle protocol](../../../tests/headless/PROCESS_LIFECYCLE.md). Native Windows
+and [lifecycle protocol](../../../legacy/tests/headless/PROCESS_LIFECYCLE.md). Native Windows
 supervisors now create and reap both backend trees on the opt-in path. Real
 engine/supervisor loss and fresh recovery passed. Next extract the remaining
 bounded progress/joint-notification commands before native orchestration.
@@ -2415,7 +2415,7 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 
 The fourth extraction cycle is validated; SN-017 remains in progress. Read the
 latest CURRENT entry, [ADR 0017](../../decisions/0017-native-cancellation-channel.md)
-and [command protocol](../../../tests/headless/COMMAND_CHANNEL.md). Start/cancel,
+and [command protocol](../../../legacy/tests/headless/COMMAND_CHANNEL.md). Start/cancel,
 ready/error and result ingress now run in C++ on the opt-in path. Real-engine
 fault/fresh-recovery and native pipe tests passed. Next extract fixed-fixture
 process lifecycle, preserving the harness reference, all evidence, capability
@@ -2426,7 +2426,7 @@ handoffs below are historical.
 
 The third extraction cycle is validated; SN-017 remains in progress. Read the
 latest CURRENT entry, [ADR 0016](../../decisions/0016-bounded-cancellation-ingress.md)
-and [ingress protocol](../../../tests/headless/RESULT_INGRESS.md). Native parsing,
+and [ingress protocol](../../../legacy/tests/headless/RESULT_INGRESS.md). Native parsing,
 real Windows read locks and one result deadline passed real-engine and fault
 checks. Next extract cancellation commands and ready/error handshake under a
 single phase deadline, then process ownership and orchestration. Keep the
@@ -2437,7 +2437,7 @@ No commit or publication is authorized. Earlier handoffs below are historical.
 
 The second extraction cycle is validated; SN-017 remains in progress. Read the
 latest CURRENT entry, [ADR 0015](../../decisions/0015-incremental-session-contract.md)
-and [session protocol](../../../tests/headless/SESSION_CONTRACT.md). The opt-in C++
+and [session protocol](../../../legacy/tests/headless/SESSION_CONTRACT.md). The opt-in C++
 state gate ran against real engines with fault/fresh-recovery checks. Next extract
 Renode result parsing and bounded transport/deadline ownership. Preserve the
 experimental reference, prior evidence, capability limits and PDF suppression.
@@ -2447,7 +2447,7 @@ No commit or publication is authorized. Earlier handoffs below are historical.
 
 Updated: 2026-09-10 after the RC extraction cycle. SN-016 remains done for ADR
 0014; SN-017 is now in progress. Read the latest CURRENT entry and the
-[extraction protocol](../../../tests/headless/README.md), including reproduction
+[extraction protocol](../../../legacy/tests/headless/README.md), including reproduction
 commands and [evidence](../../experiments/evidence/SN-017-rc-extraction-summary.json).
 The extracted C++20 persistent RC runner passed real Renode/ngspice/GDB,
 differential boundary and fault/fresh-recovery checks. Next extract CPU

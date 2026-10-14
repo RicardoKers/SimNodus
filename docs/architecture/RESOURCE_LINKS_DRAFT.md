@@ -74,7 +74,7 @@ download, SVG rendering, model execution, firmware loading or engine runs occur.
 
 ## Evidence and remaining acceptance
 
-The [fixture](../../tests/schema/fixtures/two-rc-resource-links.json) embeds the
+The [fixture](../../legacy/tests/schema/fixtures/two-rc-resource-links.json) embeds the
 preserved two-RC topology and references owned SVG/SPICE fixture text plus LICENSE.
 Original asset text is MIT project material; no external asset was incorporated.
 The tiny model source is input for reference checks, not an accepted new electrical

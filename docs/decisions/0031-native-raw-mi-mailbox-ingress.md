@@ -27,7 +27,7 @@ uses the forwarded raw line, not Python's normalized words.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/READBACK_MI.md) and
+See [protocol](../../legacy/tests/headless/READBACK_MI.md) and
 [evidence](../experiments/evidence/SN-017-readback-mi-summary.json). Real-engine
 commands are compared byte-for-byte with final GDB log records. Tests exercise
 endianness, every truncation point, invalid hex positions, wrong address/range,

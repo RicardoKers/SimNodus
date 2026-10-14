@@ -16,7 +16,7 @@ the old entry on ordinary failure and never expose a partial or absent destinati
 This slice accepts reproducible counterexamples and keeps unsafe variants disabled.
 It does not accept successful replacement alone as proof of the required protocol.
 
-The [test](../../tests/resources/windows_overwrite_boundary.py) uses real Windows
+The [test](../../legacy/tests/resources/windows_overwrite_boundary.py) uses real Windows
 system APIs and NTFS. Every write/rename targets an exclusively created fixture
 directory. The test driver deliberately schedules a second writer between check
 and replacement; it does not mock the filesystem. No project, model, DLL chosen

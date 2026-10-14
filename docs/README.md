@@ -42,8 +42,8 @@ Planning documents of the first development line are in [archive/2026-10-legacy]
 - [E-03 GPIO/RC coupling results](experiments/E-03-results.md), [reproduction](../tests/experiments/coupling/README.md), and [ADR 0011](decisions/0011-e03-restricted-feedback.md).
 - [E-04 focused STM32F103 ADC results](experiments/E-04-results.md), [reproduction](../tests/experiments/adc/README.md), and [ADR 0012](decisions/0012-focused-stm32f103-adc.md).
 - [E-05 actual CubeIDE partial results](experiments/E-05-results.md) and [executable probe](../tests/experiments/debugging/cubeide.py).
-- [SN-017 headless acceptance audit](experiments/SN-017-acceptance.md) and [reproduction](../tests/headless/APPLICATION_SESSION.md).
-- [SN-018 first local baseline](experiments/SN-018-baseline.md) and [measurement contract](../tests/headless/BASELINE.md).
+- [SN-017 headless acceptance audit](experiments/SN-017-acceptance.md) and [reproduction](../legacy/tests/headless/APPLICATION_SESSION.md).
+- [SN-018 first local baseline](experiments/SN-018-baseline.md) and [measurement contract](../legacy/tests/headless/BASELINE.md).
 - [SN-018 observer control and sampler attribution defect](experiments/SN-018-observer-control.md).
 - [SN-018 corrected identity sampler and real-engine control](experiments/SN-018-identity-control.md).
 - [SN-018 bounded baseline acceptance](experiments/SN-018-acceptance.md).

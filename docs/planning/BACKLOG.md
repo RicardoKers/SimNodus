@@ -10,10 +10,10 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | ID | Task | Check | Status |
 |---|---|---|---|
 | SN-100 | New requirements, UI spec, architecture, roadmap, ADRs 0079–0081, archive of legacy planning | Owner review; repository checker passes | done |
-| SN-101 | Move previous product code (`src/`, `apps/`, related tests) to `legacy/`, keep backend experiments; simplified CMake and CI | Clean configure/build on Linux; CI green | todo |
-| SN-102 | Application skeleton: main window with three resizable/collapsible columns, analyzer window, settings persistence, empty canvas with grid/zoom/pan | Runs on Linux (offscreen smoke test) and Windows | todo |
-| SN-103 | Spike S1 — continuous ngspice run: pacing in the data callback, external sources for controls, memory growth and segmented restart with initial conditions | Report with measured memory/speed; recommendation recorded in ADR 0080 | todo |
-| SN-104 | Spike S2 — ngspice on Windows: runtime loading of the bundled DLL, version 47 vs Linux distribution version | Same netlist gives same result on both | todo |
+| SN-101 | Move previous product code (`src/`, `apps/`, related tests) to `legacy/`, keep backend experiments; simplified CMake and CI | Clean configure/build on Linux; CI green | doing |
+| SN-102 | Application skeleton: main window with three resizable/collapsible columns, analyzer window, settings persistence, empty canvas with grid/zoom/pan | Runs on Linux (offscreen smoke test) and Windows | doing |
+| SN-103 | Spike S1 — continuous ngspice run: pacing in the data callback, external sources for controls, memory growth and segmented restart with initial conditions | Report with measured memory/speed; recommendation recorded in ADR 0080 | done |
+| SN-104 | Spike S2 — ngspice on Windows: runtime loading of the bundled DLL, version 47 vs Linux distribution version | Same netlist gives same result on both | doing |
 
 ## Phase 1 — Analog interactive editor, release 0.1 (until 2026-10-30)
 

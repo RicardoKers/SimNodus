@@ -106,7 +106,7 @@ unsupported. Future schema changes must preserve earlier draft evidence.
 
 ## Fixture and next step
 
-The [owned lock](../../tests/schema/fixtures/owned-resource-lock.json) declares
+The [owned lock](../../legacy/tests/schema/fixtures/owned-resource-lock.json) declares
 the existing 0.3 binding fixture and root LICENSE, using the repository root.
 `0.3.0` is a fixture inventory label, not the application version. The recorded
 revision identifies the source checkpoint containing both files. Unit tests
