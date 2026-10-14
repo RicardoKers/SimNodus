@@ -44,7 +44,8 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - Renode engine (Windows, Renode 1.16.1): `engine-renode` 8/8 cases against
   the real Renode, ctest 9/9 in about 50 s. Renode starts in 3.5–6 s; a
   hand-assembled Thumb loop toggling PA0 gave 64 events in 20 µs (8 MIPS,
-  5-instruction loop). Linux: CI (portable .NET package).
+  5-instruction loop). Linux: `engine-renode` passed in CI (ubuntu-24.04,
+  GCC 13, portable .NET Renode package, 26 s) on PR #107.
 - Earlier evidence: [S1](../experiments/S1-continuous-run.md),
   [S2](../experiments/S2-ngspice-platforms.md), ADR 0080.
 
