@@ -4,6 +4,10 @@ Third-party software distributed with SimNodus
 SimNodus itself is MIT licensed (see LICENSE). The Windows package also
 contains the following unmodified components, each under its own license.
 
+nlohmann/json 3.11.3 (compiled into simnodus.exe)
+  License: MIT. Copyright (c) 2013-2023 Niels Lohmann.
+  Source: https://github.com/nlohmann/json
+
 Qt 6 (Qt Core, Gui, Widgets, Svg, Network and their plugins)
   License: GNU Lesser General Public License v3.0 (LGPL-3.0-only); texts in
   licenses/LGPL-3.0-only.txt and licenses/GPL-3.0-only.txt.

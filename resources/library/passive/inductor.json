@@ -1,0 +1,95 @@
+{
+  "type": "inductor",
+  "name": "Inductor",
+  "category": "Passive",
+  "prefix": "L",
+  "description": "Ideal inductor",
+  "symbol": {
+    "graphics": [
+      {
+        "arc": [
+          0,
+          -1.8,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -0.6,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          0,
+          0.6,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          0,
+          1.8,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -2.4
+        ]
+      },
+      {
+        "line": [
+          0,
+          2.4,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "L",
+  "parameters": [
+    {
+      "name": "L",
+      "label": "Inductance",
+      "unit": "H",
+      "default": "1m",
+      "description": "Inductance",
+      "min": "1p"
+    }
+  ],
+  "spice": [
+    "L_{ref} {node:1} {node:2} {L}"
+  ]
+}

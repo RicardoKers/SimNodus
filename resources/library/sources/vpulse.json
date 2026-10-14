@@ -1,0 +1,113 @@
+{
+  "type": "vpulse",
+  "name": "Pulse generator",
+  "category": "Sources",
+  "prefix": "V",
+  "description": "Square or pulse waveform",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      },
+      {
+        "polyline": [
+          -0.9,
+          0.5,
+          -0.4,
+          0.5,
+          -0.4,
+          -0.5,
+          0.4,
+          -0.5,
+          0.4,
+          0.5,
+          0.9,
+          0.5
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "f",
+  "parameters": [
+    {
+      "name": "Vlow",
+      "label": "Low level",
+      "unit": "V",
+      "default": "0",
+      "description": "Voltage during the low part"
+    },
+    {
+      "name": "Vhigh",
+      "label": "High level",
+      "unit": "V",
+      "default": "5",
+      "description": "Voltage during the high part"
+    },
+    {
+      "name": "f",
+      "label": "Frequency",
+      "unit": "Hz",
+      "default": "1k",
+      "description": "Repetition frequency",
+      "min": "1m"
+    },
+    {
+      "name": "duty",
+      "label": "Duty cycle",
+      "unit": "%",
+      "default": "50",
+      "description": "High time as a percentage of the period",
+      "min": "0",
+      "max": "100"
+    },
+    {
+      "name": "rise",
+      "label": "Rise/fall time",
+      "unit": "s",
+      "default": "1u",
+      "description": "Duration of each edge",
+      "min": "1p"
+    }
+  ],
+  "spice": [
+    "V_{ref} {node:+} {node:-} PULSE({Vlow} {Vhigh} 0 {rise} {rise} {= max(duty/100/f - rise, rise)} {= 1/f})"
+  ]
+}

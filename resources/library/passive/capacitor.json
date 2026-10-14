@@ -1,0 +1,75 @@
+{
+  "type": "capacitor",
+  "name": "Capacitor",
+  "category": "Passive",
+  "prefix": "C",
+  "description": "Ideal capacitor",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -1.2,
+          -0.4,
+          1.2,
+          -0.4
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          0.4,
+          1.2,
+          0.4
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.4
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.4,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "C",
+  "parameters": [
+    {
+      "name": "C",
+      "label": "Capacitance",
+      "unit": "F",
+      "default": "1u",
+      "description": "Capacitance",
+      "min": "1f"
+    }
+  ],
+  "spice": [
+    "C_{ref} {node:1} {node:2} {C}"
+  ]
+}

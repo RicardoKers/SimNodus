@@ -1,0 +1,55 @@
+{
+  "type": "ground",
+  "name": "Ground",
+  "category": "Sources",
+  "prefix": "GND",
+  "description": "Reference node 0",
+  "show_designator": false,
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          1,
+          1.2,
+          1
+        ]
+      },
+      {
+        "line": [
+          -0.8,
+          1.4,
+          0.8,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          1.8,
+          0.4,
+          1.8
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "0",
+        "at": [
+          0,
+          0
+        ],
+        "dir": "up"
+      }
+    ]
+  },
+  "ties_net": "0"
+}

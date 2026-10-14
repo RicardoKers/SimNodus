@@ -1,0 +1,70 @@
+{
+  "type": "voltmeter",
+  "name": "Voltmeter",
+  "category": "Instruments",
+  "prefix": "VM",
+  "description": "Shows the voltage of + relative to - while running",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "V",
+        "at": [
+          0,
+          0
+        ],
+        "size": 1.4
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "readout": {
+    "kind": "voltage",
+    "pins": [
+      "+",
+      "-"
+    ]
+  },
+  "spice": [
+    "R_{ref} {node:+} {node:-} 1e12"
+  ]
+}

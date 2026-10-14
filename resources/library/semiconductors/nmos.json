@@ -1,0 +1,150 @@
+{
+  "type": "nmos",
+  "name": "N-channel MOSFET",
+  "category": "Semiconductors",
+  "prefix": "Q",
+  "description": "Enhancement-mode MOSFET (2N7000-like), body tied to source",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -0.9,
+          0
+        ]
+      },
+      {
+        "line": [
+          -0.9,
+          -1.4,
+          -0.9,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -1.6,
+          -0.4,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -0.4,
+          -0.4,
+          0.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          0.8,
+          -0.4,
+          1.6
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -1.2,
+          2,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          2,
+          -1.2,
+          2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          1.2,
+          2,
+          1.2
+        ]
+      },
+      {
+        "line": [
+          2,
+          1.2,
+          2,
+          3
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "line": [
+          2,
+          0,
+          2,
+          1.2
+        ]
+      },
+      {
+        "polygon": [
+          -0.3,
+          0,
+          0.4,
+          -0.35,
+          0.4,
+          0.35
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "G",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D",
+        "at": [
+          2,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "S",
+        "at": [
+          2,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "spice": [
+    "M_{ref} {node:D} {node:G} {node:S} {node:S} NMOS_SN"
+  ],
+  "models": [
+    ".model NMOS_SN NMOS(LEVEL=1 VTO=2.1 KP=0.1 LAMBDA=0.02 CGSO=20n CGDO=5n)"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "type": "ammeter",
+  "name": "Ammeter",
+  "category": "Instruments",
+  "prefix": "AM",
+  "description": "Shows the current flowing into + while running",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          0,
+          0
+        ],
+        "size": 1.4
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "readout": {
+    "kind": "current",
+    "element": "V_{ref}"
+  },
+  "spice": [
+    "V_{ref} {node:+} {node:-} DC 0"
+  ]
+}

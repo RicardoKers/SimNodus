@@ -13,3 +13,10 @@ if(SIMNODUS_NGSPICE_LIBRARY)
 else()
     message(STATUS "engine-ngspice test skipped: SIMNODUS_NGSPICE_LIBRARY is not set")
 endif()
+
+add_executable(model_tests model_tests.cpp library_tests.cpp io_tests.cpp operations_tests.cpp test_main.cpp)
+target_include_directories(model_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(model_tests PRIVATE simnodus::model simnodus::library simnodus::io simnodus::editing
+    simnodus::warnings)
+target_compile_definitions(model_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library")
+add_test(NAME model-unit COMMAND model_tests)

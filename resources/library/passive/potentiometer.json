@@ -1,0 +1,108 @@
+{
+  "type": "potentiometer",
+  "name": "Potentiometer",
+  "category": "Passive",
+  "prefix": "RV",
+  "description": "Adjustable voltage divider; drag the wiper or use the wheel while running",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -0.6,
+          -1.8,
+          1.2,
+          3.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          3,
+          0,
+          0.9,
+          0
+        ]
+      },
+      {
+        "polygon": [
+          0.7,
+          0,
+          1.4,
+          -0.4,
+          1.4,
+          0.4
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "W",
+        "at": [
+          3,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "value_parameter": "R",
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Resistance",
+      "unit": "Ohm",
+      "default": "10k",
+      "description": "Total resistance between pins 1 and 2",
+      "min": "1"
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "unit": "%",
+      "default": "50",
+      "description": "Wiper position from pin 1 (0 %) to pin 2 (100 %)",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "position"
+  },
+  "spice": [
+    "B_a_{ref} {node:1} {node:W} I=V({node:1},{node:W})/({R}*max(V({control}),0.001))",
+    "B_b_{ref} {node:W} {node:2} I=V({node:W},{node:2})/({R}*max(1-V({control}),0.001))"
+  ]
+}

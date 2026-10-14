@@ -1,0 +1,105 @@
+{
+  "type": "vsine",
+  "name": "Sine generator",
+  "category": "Sources",
+  "prefix": "V",
+  "description": "Sinusoidal voltage",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      },
+      {
+        "arc": [
+          -0.45,
+          0,
+          0.45,
+          0,
+          180
+        ]
+      },
+      {
+        "arc": [
+          0.45,
+          0,
+          0.45,
+          180,
+          180
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "f",
+  "parameters": [
+    {
+      "name": "amplitude",
+      "label": "Amplitude",
+      "unit": "V",
+      "default": "1",
+      "description": "Peak voltage"
+    },
+    {
+      "name": "f",
+      "label": "Frequency",
+      "unit": "Hz",
+      "default": "1k",
+      "description": "Frequency",
+      "min": "1m"
+    },
+    {
+      "name": "offset",
+      "label": "Offset",
+      "unit": "V",
+      "default": "0",
+      "description": "DC offset"
+    },
+    {
+      "name": "phase",
+      "label": "Phase",
+      "unit": "deg",
+      "default": "0",
+      "description": "Phase at time zero"
+    }
+  ],
+  "spice": [
+    "V_{ref} {node:+} {node:-} SIN({offset} {amplitude} {f} 0 0 {phase})"
+  ]
+}

@@ -61,6 +61,8 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" "${PROJECT_SOURCE_DIR}/resources/package/README.txt"
         "${PROJECT_SOURCE_DIR}/resources/package/THIRD-PARTY-NOTICES.txt" DESTINATION .)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/package/licenses/" DESTINATION licenses)
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # MSVC C++ runtime next to the executable (app-local deployment).
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
@@ -69,6 +71,7 @@ else()
     install(TARGETS simnodus RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/ngspice")
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
 endif()
 
 if(BUILD_TESTING)

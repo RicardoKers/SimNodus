@@ -19,12 +19,12 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 
 | ID | Task | Requirements | Status |
 |---|---|---|---|
-| SN-110 | Document model with stable IDs and edit commands; unit tests | UI-08, PRJ-01 | todo |
-| SN-111 | Library format, loader and component set A symbols/templates | PRJ-04, SIM-06, UI-04 | todo |
+| SN-110 | Document model with stable IDs and edit commands; unit tests | UI-08, PRJ-01 | done |
+| SN-111 | Library format, loader and component set A symbols/templates | PRJ-04, SIM-06, UI-04 | doing |
 | SN-112 | Canvas: place, select, move, rotate, mirror, delete, copy/paste, undo/redo | UI-05, UI-08, UI-09, UI-11 | todo |
 | SN-113 | Wiring with orthogonal routing, junctions, attachment on move, net labels, ground | UI-06, UI-07 | todo |
 | SN-114 | Properties panel with engineering notation and validation | UI-10 | todo |
-| SN-115 | `.snx` save/open, recent files, backup, examples menu | PRJ-01..03, UI-15 | todo |
+| SN-115 | `.snx` save/open, recent files, backup, examples menu | PRJ-01..03, UI-15 | doing |
 | SN-116 | Connectivity, pre-run checks and SPICE generation with golden tests | SIM-05 | todo |
 | SN-117 | ngspice engine wrapper (runtime load, callbacks, errors) | SIM-04 | todo |
 | SN-118 | Interactive run: pacing, speed factor, controls, bounded memory, status | SIM-01, SIM-02, INT-01, UI-13 | todo |
