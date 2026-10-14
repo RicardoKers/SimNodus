@@ -28,3 +28,9 @@ target_link_libraries(simnodus_io PUBLIC simnodus::model PRIVATE simnodus_json s
 add_library(simnodus_editing STATIC editing/operations.cpp)
 add_library(simnodus::editing ALIAS simnodus_editing)
 target_link_libraries(simnodus_editing PUBLIC simnodus::model simnodus::library PRIVATE simnodus::io simnodus::warnings)
+
+add_library(simnodus_netlist STATIC
+    netlist/connectivity.cpp
+    netlist/netlist.cpp)
+add_library(simnodus::netlist ALIAS simnodus_netlist)
+target_link_libraries(simnodus_netlist PUBLIC simnodus::model simnodus::library PRIVATE simnodus::warnings)

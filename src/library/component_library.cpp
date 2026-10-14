@@ -200,7 +200,7 @@ void validate_templates(const ComponentDefinition& d)
             }
             if (t.kind == TemplateToken::Kind::Expression) {
                 for (const auto& name : expression_names(t.text)) {
-                    if (!d.parameter(name)) {
+                    if (name != "t0" && !d.parameter(name)) {
                         invalid("expression \"" + t.text + "\" uses unknown parameter \"" + name + "\"");
                     }
                 }

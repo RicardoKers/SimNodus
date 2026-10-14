@@ -5,10 +5,11 @@
 // ngspice is process-global, so one session serves every case.
 #include "test_support.hpp"
 
+#include "engine_fixture.hpp"
 #include "sim/ngspice_runtime.hpp"
 
-#include <atomic>
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <memory>
 
@@ -33,12 +34,7 @@ const std::vector<std::string> rc_netlist = {
 
 TEST_CASE("session opens and reports the engine version")
 {
-    std::string error;
-    session = NgspiceSession::open(location, error);
-    if (!session) {
-        std::printf("  %s\n", error.c_str());
-    }
-    REQUIRE(session != nullptr);
+    REQUIRE(simnodus::test::engine() != nullptr);
     REQUIRE(session->version().has_value());
     std::printf("  ngspice-%d from %s\n", *session->version(), location.library.string().c_str());
     CHECK(*session->version() >= 42);
@@ -50,7 +46,7 @@ TEST_CASE("session opens and reports the engine version")
 
 TEST_CASE("foreground RC transient matches the analytical response")
 {
-    REQUIRE(session != nullptr);
+    REQUIRE(simnodus::test::engine() != nullptr);
     std::size_t callbacks = 0;
     session->set_data_handler([&](const AcceptedPoint&) { ++callbacks; });
     REQUIRE(session->load_circuit(rc_netlist));
@@ -74,7 +70,7 @@ TEST_CASE("foreground RC transient matches the analytical response")
 
 TEST_CASE("external source drives a background run")
 {
-    REQUIRE(session != nullptr);
+    REQUIRE(simnodus::test::engine() != nullptr);
     std::atomic<int> queries{0};
     std::atomic<int> points{0};
     session->set_source_handler([&](const std::string&, double t) {
@@ -107,10 +103,25 @@ TEST_CASE("external source drives a background run")
 
 TEST_CASE("an invalid netlist is reported")
 {
-    REQUIRE(session != nullptr);
+    REQUIRE(simnodus::test::engine() != nullptr);
     CHECK(!session->load_circuit({"* missing diode model", "V1 a 0 DC 1", "D1 a 0 nosuchmodel", ".op", ".end"}));
     session->take_output();
     session->command("remcirc");
+}
+
+// Opens the session on first use; test files register in any order.
+simnodus::sim::NgspiceSession* simnodus::test::engine()
+{
+    static bool attempted = false;
+    if (!session && !attempted) {
+        attempted = true;
+        std::string error;
+        session = NgspiceSession::open(location, error);
+        if (!session) {
+            std::printf("  cannot open ngspice: %s\n", error.c_str());
+        }
+    }
+    return session.get();
 }
 
 int main(int argc, char** argv)
