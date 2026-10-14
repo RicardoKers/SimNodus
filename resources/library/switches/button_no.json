@@ -1,0 +1,131 @@
+{
+  "type": "button_no",
+  "name": "Push button (NO)",
+  "category": "Switches & Controls",
+  "prefix": "SW",
+  "description": "Closed while pressed; hold the mouse button on it while running",
+  "designator_offset": [
+    -1,
+    -3
+  ],
+  "value_offset": [
+    -1,
+    2
+  ],
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -1.5,
+          0
+        ]
+      },
+      {
+        "line": [
+          1.5,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "circle": [
+          -1.5,
+          0,
+          0.25
+        ]
+      },
+      {
+        "circle": [
+          1.5,
+          0,
+          0.25
+        ]
+      }
+    ],
+    "states": {
+      "0": [
+        {
+          "line": [
+            -1.6,
+            -1,
+            1.6,
+            -1
+          ]
+        },
+        {
+          "line": [
+            0,
+            -1,
+            0,
+            -2
+          ]
+        },
+        {
+          "line": [
+            -0.6,
+            -2,
+            0.6,
+            -2
+          ]
+        }
+      ],
+      "1": [
+        {
+          "line": [
+            -1.6,
+            -0.3,
+            1.6,
+            -0.3
+          ]
+        },
+        {
+          "line": [
+            0,
+            -0.3,
+            0,
+            -1.3
+          ]
+        },
+        {
+          "line": [
+            -0.6,
+            -1.3,
+            0.6,
+            -1.3
+          ]
+        }
+      ]
+    },
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "2",
+        "at": [
+          3,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "interactive": {
+    "kind": "button"
+  },
+  "spice": [
+    "S_{ref} {node:1} {node:2} {control} 0 SW_SN"
+  ],
+  "models": [
+    ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e9)",
+    ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e9)"
+  ]
+}

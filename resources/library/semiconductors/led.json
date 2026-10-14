@@ -1,0 +1,140 @@
+{
+  "type": "led",
+  "name": "LED",
+  "category": "Semiconductors",
+  "prefix": "LED",
+  "description": "Light-emitting diode; glows with its current while running",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          -0.8,
+          1,
+          -0.8,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0.8,
+          1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          1.2,
+          -0.2,
+          2,
+          -1
+        ]
+      },
+      {
+        "polygon": [
+          2.2,
+          -1.2,
+          1.6,
+          -1,
+          2,
+          -0.6
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          1.2,
+          0.5,
+          2,
+          -0.3
+        ]
+      },
+      {
+        "polygon": [
+          2.2,
+          -0.5,
+          1.6,
+          -0.3,
+          2,
+          0.1
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "K",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "color",
+  "parameters": [
+    {
+      "name": "color",
+      "label": "Color",
+      "unit": "",
+      "default": "red",
+      "description": "Emission color; sets the forward voltage (red about 1.9 V at 10 mA)",
+      "choices": [
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "white"
+      ]
+    }
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "D_{ref}"
+  },
+  "spice": [
+    "D_{ref} {node:A} {node:K} LED_{color}"
+  ],
+  "models": [
+    ".model LED_red D(IS=1.2e-18 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_yellow D(IS=1.7e-19 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_green D(IS=2.5e-20 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_blue D(IS=6.7e-28 N=2 RS=8 BV=5 IBV=10u)",
+    ".model LED_white D(IS=6.7e-28 N=2 RS=8 BV=5 IBV=10u)"
+  ]
+}

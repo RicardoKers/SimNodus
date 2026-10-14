@@ -1,0 +1,115 @@
+{
+  "type": "battery",
+  "name": "Battery",
+  "category": "Sources",
+  "prefix": "BT",
+  "description": "Voltage source with internal resistance",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -1.2,
+          -0.9,
+          1.2,
+          -0.9
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -0.3,
+          0.6,
+          -0.3
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          0.3,
+          1.2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          0.9,
+          0.6,
+          0.9
+        ]
+      },
+      {
+        "line": [
+          0.9,
+          -1.8,
+          0.9,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          0.6,
+          -1.5,
+          1.2,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.9
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.9,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "V",
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Voltage",
+      "unit": "V",
+      "default": "9",
+      "description": "Open-circuit voltage"
+    },
+    {
+      "name": "Rint",
+      "label": "Internal resistance",
+      "unit": "Ohm",
+      "default": "0.1",
+      "description": "Series resistance",
+      "min": "1u"
+    }
+  ],
+  "spice": [
+    "V_{ref} int_{ref} {node:-} DC {V}",
+    "R_int_{ref} int_{ref} {node:+} {Rint}"
+  ]
+}

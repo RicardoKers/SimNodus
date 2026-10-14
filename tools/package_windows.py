@@ -28,7 +28,8 @@ REQUIRED = [
     "simnodus.exe", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "platforms/qwindows.dll",
     "ngspice/ngspice.dll", "ngspice/sndfile.dll", "ngspice/samplerate.dll", "ngspice/libomp140.x86_64.dll",
     "ngspice/spinit", "ngspice/COPYING", "LICENSE", "README.txt", "THIRD-PARTY-NOTICES.txt",
-    "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt",
+    "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
+    "library/passive/resistor.json",
     "vcruntime140.dll", "msvcp140.dll",
 ]
 

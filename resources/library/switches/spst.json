@@ -1,0 +1,113 @@
+{
+  "type": "spst",
+  "name": "Switch SPST",
+  "category": "Switches & Controls",
+  "prefix": "SW",
+  "description": "Toggle switch; click it to operate while running",
+  "designator_offset": [
+    -1,
+    -2
+  ],
+  "value_offset": [
+    -1,
+    2
+  ],
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -1.5,
+          0
+        ]
+      },
+      {
+        "line": [
+          1.5,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "circle": [
+          -1.5,
+          0,
+          0.25
+        ]
+      },
+      {
+        "circle": [
+          1.5,
+          0,
+          0.25
+        ]
+      }
+    ],
+    "states": {
+      "0": [
+        {
+          "line": [
+            -1.3,
+            -0.1,
+            1.2,
+            -1.3
+          ]
+        }
+      ],
+      "1": [
+        {
+          "line": [
+            -1.3,
+            -0.1,
+            1.3,
+            -0.1
+          ]
+        }
+      ]
+    },
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "2",
+        "at": [
+          3,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "name": "closed",
+      "label": "Initial state",
+      "unit": "",
+      "default": "open",
+      "description": "State at the start of a run",
+      "choices": [
+        "open",
+        "closed"
+      ]
+    }
+  ],
+  "interactive": {
+    "kind": "toggle",
+    "parameter": "closed"
+  },
+  "spice": [
+    "S_{ref} {node:1} {node:2} {control} 0 SW_SN"
+  ],
+  "models": [
+    ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e9)",
+    ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e9)"
+  ]
+}

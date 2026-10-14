@@ -1,0 +1,69 @@
+{
+  "type": "diode",
+  "name": "Diode",
+  "category": "Semiconductors",
+  "prefix": "D",
+  "description": "Silicon small-signal diode (1N4148-like); anode at the top",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          -0.8,
+          1,
+          -0.8,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0.8,
+          1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "K",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "spice": [
+    "D_{ref} {node:A} {node:K} D1N4148_SN"
+  ],
+  "models": [
+    ".model D1N4148_SN D(IS=2.52n N=1.752 RS=0.568 BV=100 IBV=100u CJO=4p M=0.333 TT=11.5n)"
+  ]
+}

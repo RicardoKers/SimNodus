@@ -31,6 +31,7 @@ third-party file or distribution permission is introduced by SN-017 extraction.
 | ARM GCC | GNU Tools for STM32 14.3.rel1.20251027-0700; GCC 14.3.1 20250623 | E-02 built the owned ELF twice identically and booted it; compiler hash/flags recorded |
 | ARM GDB | Same toolchain; 15.2.90.20241229-git | `--version` ran; no target/debugger connection |
 | Qt | Local shared 6.11.1 MSVC x64 kit | Core/Gui/Widgets selected for the bounded [SN-022 experiment](../experiments/SN-022-qt-boundary.md); [module/license inventory](../development/QT_INVENTORY.md); production integration and distribution pending |
+| nlohmann/json | 3.11.3 single header, vendored in `third_party/nlohmann` | Project and library files; MIT; header-only, compiled into SimNodus |
 | WASM / Verilator | Deferred | No runtime selected or downloaded |
 
 ## Origins and integrity

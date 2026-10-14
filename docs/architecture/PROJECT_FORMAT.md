@@ -1,71 +1,51 @@
-# Project format
+# Project file format (.snx)
 
-Status: [project declaration baseline 0.1](PROJECT_SCHEMA.md) is accepted for
-SN-020 specification/reference validation. The native [bounded project lifecycle](../experiments/SN-021-project-lifecycle.md)
-now acquires owned documents and supports atomic create-only save/copy. Safe
-overwrite and full executable-project acceptance remain pending. Extensions such
-as `.snod` and `.snodsub` remain unselected.
+Revision 2 — 2026-10-14 (SN-110, SN-115; PRJ-01..PRJ-03). Implementation:
+[project_file](../../src/io/project_file.hpp). The project-directory format of
+the first development line is archived in
+[archive/2026-10-legacy/PROJECT_FORMAT.md](../archive/2026-10-legacy/PROJECT_FORMAT.md).
 
-The [topology-only 0.1 draft](TOPOLOGY_DRAFT.md) is the first SN-020 slice, with
-structural validation and JSON round-trip fixtures. It does not define the whole
-project format below or implement resource handling, saving or compilation.
-The separate [0.2 parameter draft](PARAMETERS_DRAFT.md) adds exact quantities and
-scoped instance overrides; it did not cover the later project/resource contracts.
-The [0.3 descriptor draft](BINDINGS_DRAFT.md) separates symbols and model interfaces
-with explicit mappings; it does not open graphical/model resources.
-The separate [resource lock 0.1](RESOURCE_LOCK_DRAFT.md) validates an inert file
-inventory and lexical paths. Physical byte capture is implemented separately in SN-021; these metadata
-declarations alone are not verification, interpretation or execution approval.
+A project is one UTF-8 JSON file. Reading it only parses data: no code is
+executed, no library is loaded and nothing is downloaded. Files written by a
+newer format version are refused with a message instead of being read
+partially.
 
-## Principle
-
-Store editable sources in a directory with readable JSON and relative resources. This supports review and version control. A ZIP exchange format may follow; a monolithic archive does not provide the same text diffs.
-
-```text
-lesson-project/
-  project.json
-  circuits/main.json
-  components/...
-  subcircuits/...
-  firmware/src/...
-  firmware/build/...        # generated; excluded from Git
-  assets/...
-  dependencies.lock.json
+```json
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 7,
+  "settings": {"mode": "interactive", "speed": 1, "max_step": 0.0001, "segment": 1,
+               "transient_stop": 0.01, "transient_max_step": 1e-06},
+  "components": [{"id": 1, "type": "resistor", "designator": "R1", "at": [10, -4],
+                  "rotation": 90, "mirrored": false, "parameters": {"R": "4k7"},
+                  "value_offset": [3, 2]}],
+  "wires": [{"id": 2, "points": [[13, -4], [20, -4], [20, 3]]}],
+  "labels": [{"id": 3, "at": [20, 3], "name": "OUT"}],
+  "probes": [{"id": 4, "kind": "current", "target": {"item": 1, "pin": "1", "at": [0, 0]},
+              "color": "#1f77b4"}]
+}
 ```
 
-Names are illustrative. No executable circuit project is included in this foundation.
+- **IDs** are positive integers, unique across all element kinds and never
+  reused (`next_id` keeps the counter, including gaps left by deleted
+  elements). Designators and net names are presentation only.
+- **Coordinates** are integer grid points.
+- **Parameters** keep the text the user typed (`4k7`); interpretation happens
+  when the netlist is generated.
+- **Probes** refer to a component pin (`item` + `pin`) or a point on a wire
+  (`item` + `at`). If the target is deleted the probe stays and is reported
+  as invalid; it is never rebound by name.
+- **Settings** out of range are replaced by defaults with a warning.
 
-## Required information
+## Saving
 
-- Schema version, project ID, and metadata; distinguish schema and application versions.
-- Circuits, instances, parameters, nets, ports, and persistent IDs.
-- Layout/symbols separated from connectivity.
-- Board/MCU profile, ELF path and hash; board and SoC are different concepts.
-- Locked dependencies with ID, version, origin, and content hash.
-- Temporal configuration, tolerances, and fidelity policies.
-- Model/license references without credentials or mandatory personal paths.
+`save_project` writes `<name>.snx.tmp-<n>` in the same folder, copies the
+existing file to `<name>.snx.bak` and then renames the temporary file over
+the project. A failure at any step leaves the previous project intact.
 
-Results, caches, and debugging sessions are not source documents. Trace exports include a reproduction manifest and do not modify the original circuit.
+## Clipboard
 
-[Persistent probes](DESKTOP_UX.md#shared-definitions-and-data-ownership) are
-editable measurement definitions associated with stable entity/instance IDs,
-quantity and explicit reference/orientation, rather than labels alone. Their
-captured samples/events remain results. Temporary inspection does not create
-persistent project edits. The probe schema and migration rules remain pending;
-this requirement does not extend the experimental SN-020 drafts.
-
-[Workspace geometry](DESKTOP_UX.md#circuit-editor-layout) is desirable presentation
-state. Its storage location, format and relationship to portable project data
-remain open; no personal monitor layout is made mandatory for opening a project.
-
-## Validation and evolution
-
-Reject unsupported major versions clearly. Create round-trip fixtures before migrations and preserve backups. Specify treatment of unknown fields rather than dropping user data silently.
-
-Save through temporary writing and atomic replacement where supported; a failed save must not truncate the original. Other-tool importers are later scope.
-
-## Paths and security
-
-Portable resources resolve inside the project/package root. Validate absolute paths, `..`, symlinks/junctions escaping the root, sizes, entity counts, and hierarchy depth. External imports either copy resources or create explicitly nonportable references.
-
-Future archive import must limit extracted size, file count, compression ratios, and destination paths. Opening a manifest must not fetch URLs, run host executables, invoke compilers, or load DLLs.
+Copy/paste uses the same element objects under `"format":
+"simnodus-clipboard"`; pasting assigns new IDs, renumbers designators that are
+taken and moves probes along with pasted targets.
