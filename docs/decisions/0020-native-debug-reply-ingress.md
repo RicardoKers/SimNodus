@@ -34,7 +34,7 @@ already delivered cannot be withdrawn after a later read/inspection failure.
 
 ## Evidence and limits
 
-See the [protocol](../../tests/headless/DEBUG_INGRESS.md) and
+See the [protocol](../../legacy/tests/headless/DEBUG_INGRESS.md) and
 [evidence](../experiments/evidence/SN-017-debug-ingress-summary.json).
 Real Renode/ngspice/GDB integration and host-read differential controls passed.
 Windows pipe/file tests exercise actual partial writers and sharing locks;

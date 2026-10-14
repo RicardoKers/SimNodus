@@ -30,7 +30,7 @@ monitor diagnostics such as host load and state text are not interpreted.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/READBACK_TIME.md) and
+See [protocol](../../legacy/tests/headless/READBACK_TIME.md) and
 [evidence](../experiments/evidence/SN-017-readback-time-summary.json). Pure parser
 tests cover all truncation points, invalid time fields, completion mismatch and
 unchanged output on failure. Process tests cover wrong/absent/error completion,

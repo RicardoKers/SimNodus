@@ -30,7 +30,7 @@ not cryptographic or untrusted-host attestation.
 
 ## Evidence and remaining scope
 
-See the [protocol](../../tests/headless/ADC_COORDINATION.md) and
+See the [protocol](../../legacy/tests/headless/ADC_COORDINATION.md) and
 [evidence](../experiments/evidence/SN-017-adc-coordination-summary.json).
 Pure numerical tests cover rounding, reference levels, saturation and invalid
 values; actual pipe tests cover pending-state and confirmation failures. Real

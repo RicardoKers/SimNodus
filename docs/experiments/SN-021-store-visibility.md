@@ -65,7 +65,7 @@ Windows 11 Enterprise Evaluation build 26200 and local NTFS. Its guest report
 SHA-256 is `58b78c51dd0fdca20eeb810766fb9b517a7da789324c845377e05670208084bc`.
 The [published audit result](evidence/SN-021-store-visibility-result.json) pins
 the source, binary, project and report hashes for all three attempts. The
-[read-only auditor](../../tests/resources/audit_managed_store_visibility.py)
+[read-only auditor](../../legacy/tests/resources/audit_managed_store_visibility.py)
 checked their retained reports and source snapshots without guest execution.
 The complete run recorded 11 fresh roots and 54 observations:
 

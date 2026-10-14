@@ -33,7 +33,7 @@ are preserved, with a changed object field order for RC diagnostics.
 ## Evidence and next step
 
 See [evidence](../experiments/evidence/SN-017-analog-coordinator-summary.json) and
-[reproduction](../../tests/headless/ANALOG_COORDINATOR.md). Real engine runs
+[reproduction](../../legacy/tests/headless/ANALOG_COORDINATOR.md). Real engine runs
 validate the extracted composition. Existing analog command, ingress and exchange
 cases cover stale/malformed responses, premature operations, deadlines and
 state mutation. A direct C++ pipe check proves coordinator destruction leaves

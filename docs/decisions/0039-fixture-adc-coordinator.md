@@ -32,7 +32,7 @@ are unchanged. No native library loading or extra host execution is introduced.
 ## Validation and next step
 
 See [evidence](../experiments/evidence/SN-017-adc-coordinator-summary.json) and
-[reproduction](../../tests/headless/ADC_COORDINATOR.md). Existing process cases
+[reproduction](../../legacy/tests/headless/ADC_COORDINATOR.md). Existing process cases
 cover timeout, shared deadline, malformed/replayed results, descendants, runner
 loss and cleanup. Direct coordinator checks cover isolated instances, single
 confirmation, pending policy, denied preparation and argument-preserving delegation.

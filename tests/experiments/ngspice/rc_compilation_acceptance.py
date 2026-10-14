@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / 'tests/schema'))
+sys.path.insert(0, str(ROOT / 'legacy/tests/schema'))
 import native_rc_compile_regression as compiler
 import run as e01
 
@@ -31,7 +31,7 @@ def main():
         report['elements'] = compiled['elements'];report['nodes'] = compiled['nodes']
         (output / 'rc.cir').write_bytes(compiled['netlist'])
         # Only the copied test package is changed; the historical fixture is intact.
-        (package / 'tests/schema/fixtures/assets/passive.cir').write_bytes(b'* replaced after compilation\n')
+        (package / 'legacy/tests/schema/fixtures/assets/passive.cir').write_bytes(b'* replaced after compilation\n')
         rejected = compiler.compile_project(doc, package)
         assert isinstance(rejected, list) and rejected[0] == '2', rejected
         report['recompile_after_replacement'] = rejected

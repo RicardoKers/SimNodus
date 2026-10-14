@@ -23,9 +23,9 @@ reparse-point, alias, byte-limit and race tests remain in the full suite.
 
 ## Implementation and results
 
-The test-only [native probe](../../tests/schema/native_lifecycle_probe.cpp) links
+The test-only [native probe](../../legacy/tests/schema/native_lifecycle_probe.cpp) links
 the unchanged acquisition, revision, create-only save and compiler libraries. Its
-capture barrier lets the [Python tests](../../tests/schema/native_lifecycle_regression.py)
+capture barrier lets the [Python tests](../../legacy/tests/schema/native_lifecycle_regression.py)
 replace only fixture-owned files between operations. The barrier grants no
 production lease or overwrite authority. Compilation retains the existing
 handle-based containment and byte-capture gates; no textual-prefix or

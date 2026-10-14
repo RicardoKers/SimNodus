@@ -13,7 +13,7 @@ handle, completion after release and final bytes. A successful probe is not a
 successful overwrite API: publication still needs expected identity/version,
 continuous exclusion, atomic visibility and ordinary-failure preservation.
 
-The [probe](../../tests/resources/windows_oplock_boundary.py) creates three fresh
+The [probe](../../legacy/tests/resources/windows_oplock_boundary.py) creates three fresh
 owned fixture directories, pins every ancestor with the existing Windows/NTFS
 handle-relative verifier, and obtains a volume-GUID spelling from that retained
 parent. The GUID path is a name, not a textual containment proof. All mutations

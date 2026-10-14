@@ -27,7 +27,7 @@ operation is introduced.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/INSPECTION_INTERVAL.md) and
+See [protocol](../../legacy/tests/headless/INSPECTION_INTERVAL.md) and
 [evidence](../experiments/evidence/SN-017-inspection-interval-summary.json).
 Actual pipe tests verify withheld requests, minimum native/host elapsed duration,
 early second-result rejection, repeated polls and original-budget expiry.

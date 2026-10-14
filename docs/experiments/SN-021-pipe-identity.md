@@ -7,7 +7,7 @@ IPC, save API, service or architecture is selected. SN-021 remains in progress.
 
 ## Scope and method
 
-The owner ran the [embedded guest probe](../../tests/resources/windows_pipe_identity.ps1)
+The owner ran the [embedded guest probe](../../legacy/tests/resources/windows_pipe_identity.ps1)
 in the same disposable VMware Windows 11 Enterprise Evaluation build 26200 VM,
 on NTFS. VIX located the operator-created baseline snapshot before provisioning;
 no snapshot restoration occurred. Administrative setup created three fresh ordinary

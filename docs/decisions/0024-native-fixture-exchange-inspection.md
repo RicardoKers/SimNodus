@@ -25,7 +25,7 @@ actual GDB checks, ADC boundary injection and final commit scheduling.
 
 ## Evidence and remaining scope
 
-See the [protocol](../../tests/headless/EXCHANGE_INSPECTION.md) and
+See the [protocol](../../legacy/tests/headless/EXCHANGE_INSPECTION.md) and
 [evidence](../experiments/evidence/SN-017-exchange-inspection-summary.json).
 Actual pipe tests exercise ordering, duplicate writes, stale/changed/missing
 replies and broken channels. Real engine/supervisor loss and fresh recovery run

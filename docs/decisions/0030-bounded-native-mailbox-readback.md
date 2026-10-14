@@ -26,7 +26,7 @@ commits without a new grant.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/READBACK.md) and
+See [protocol](../../legacy/tests/headless/READBACK.md) and
 [evidence](../experiments/evidence/SN-017-readback-summary.json). Analytical tests
 vary all eight words, time and ADC-code bounds. Actual Windows pipe tests cover
 ordering, missing confirmation, malformed fields and refusal to commit after

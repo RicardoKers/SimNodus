@@ -33,7 +33,7 @@ change is introduced. Core/domain gain no GDB, Qt or third-party types.
 ## Validation and next step
 
 [Evidence](../experiments/evidence/SN-017-execution-coordinator-summary.json) and
-[reproduction](../../tests/headless/EXECUTION_COORDINATOR.md) retain the real-engine
+[reproduction](../../legacy/tests/headless/EXECUTION_COORDINATOR.md) retain the real-engine
 matrix and protocol regressions. Direct pipe tests verify borrowed lifetime,
 independent instances and premature cancellation without a write or commit.
 Existing cases verify readiness, grants, cancellation files, locked/late/stale

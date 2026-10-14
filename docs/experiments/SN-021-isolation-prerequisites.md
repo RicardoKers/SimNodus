@@ -9,7 +9,7 @@ This closes the selected prerequisite batch in the
 
 The successful disposable VMware Windows 11 build 26200 / NTFS run took 52,701 ms.
 Three fresh ordinary identities were used; no service or host permissions changed.
-The [measured guest source](../../tests/resources/windows_isolation_prerequisites.ps1)
+The [measured guest source](../../legacy/tests/resources/windows_isolation_prerequisites.ps1)
 contains byte-for-byte unchanged protocol C#, plus a trusted fixture identity oracle
 and direct native mutation probes. It does not implement managed Save.
 
@@ -56,7 +56,7 @@ subsequent connection timeout. Those reports and collection hashes are preserved
 The coordinator now embeds failed child reports before refusing their status/SID.
 Rename/delete/replace/link/store-rename probes use direct Win32 calls, avoiding the
 managed rename precheck as a measurement obstacle. Missing-file error 2 is still not
-accepted as denial. The [failed guest source](../../tests/resources/windows_isolation_attempt3.ps1)
+accepted as denial. The [failed guest source](../../legacy/tests/resources/windows_isolation_attempt3.ps1)
 is retained as historical evidence, not the recommended runner.
 
 The fourth attempt (`20260924T231823Z-0261f4884c44`) produced the result above.

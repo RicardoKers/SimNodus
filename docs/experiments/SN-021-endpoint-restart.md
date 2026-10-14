@@ -9,7 +9,7 @@ saving or the complete [request contract](../architecture/AUTHORITY_REQUEST_EXPE
 The owner ran two attempts in the disposable VMware Windows 11 build 26200 guest
 on NTFS. The existing snapshot was verified, never restored. Fresh fixtures and
 three ordinary accounts were created per attempt; no service or host ACL changed.
-The [measured source](../../tests/resources/windows_endpoint_restart.ps1) preserves
+The [measured source](../../legacy/tests/resources/windows_endpoint_restart.ps1) preserves
 the retained-handle startup and fixed read-only protocol from the prior probe.
 It adds controlled hostile listeners, exact request capture and orderly restart
 orchestration. No project resource is executed.
@@ -53,7 +53,7 @@ flag caused refusal, nor prove that either flag independently suffices.
 
 The [audit](evidence/SN-021-endpoint-restart-summary.json) retains exact raw reports
 for both attempts, both guest-source hashes, 134 earlier evidence hashes and twelve
-preexisting local overlays. The [first guest source](../../tests/resources/windows_endpoint_restart_attempt1.ps1)
+preexisting local overlays. The [first guest source](../../legacy/tests/resources/windows_endpoint_restart_attempt1.ps1)
 is retained for reproduction of the failed assertion, not recommended execution.
 Private host credential helpers are not published. Raw localized diagnostics remain
 unchanged. Local preparation passed parsing, C# compilation, 81 frame checks and

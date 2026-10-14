@@ -29,7 +29,7 @@ new GDB operation or allowlist entry is added.
 
 ## Evidence and limits
 
-See [protocol](../../tests/headless/INSPECTION_REQUEST.md) and
+See [protocol](../../legacy/tests/headless/INSPECTION_REQUEST.md) and
 [evidence](../experiments/evidence/SN-017-inspection-request-summary.json). Real
 logs carry both native tokens in order. Tests cover missing/early requests,
 duplicate arming/results, wrong tokens, first-result replay as second, changed

@@ -652,18 +652,18 @@ def main():
             args.firmware / "firmware.elf")}}
     if args.session_runner:
         report["session_runner"] = str(args.session_runner)
-        for p in (args.session_runner, e.HERE / "session_contract.py", root / "src/core/joint_session.hpp",
-                  root / "apps/cli/session_contract_main.cpp", root / "src/application/fixture_inspection.hpp", root / "src/application/fixture_adc.hpp", root / "src/application/fixture_analog.hpp", root / "src/application/fixture_execution.hpp", root / "src/application/fixture_session.hpp", root / "src/core/adc_fixture.hpp", root / "src/core/fixture_readback.hpp", root / "src/adapters/gdb/fixture_memory.hpp", root / "src/adapters/gdb/fixture_time.hpp", root / "src/adapters/gdb/fixture_registers.hpp",
-                  root / "src/adapters/renode/adc_process.cpp", root / "src/adapters/renode/adc_process.hpp",
-                  root / "src/adapters/ngspice/worker_reply.cpp", root / "src/adapters/ngspice/worker_reply.hpp",
-                  root / "src/adapters/ngspice/worker_channel.cpp", root / "src/adapters/ngspice/worker_channel.hpp",
-                  root / "src/adapters/renode/cancellation_result.cpp",
-                  root / "src/adapters/renode/cancellation_result.hpp",
-                  root / "src/adapters/renode/control_channel.cpp", root / "src/adapters/renode/control_channel.hpp"):
+        for p in (args.session_runner, e.HERE / "session_contract.py", root / "legacy/src/core/joint_session.hpp",
+                  root / "legacy/apps/cli/session_contract_main.cpp", root / "legacy/src/application/fixture_inspection.hpp", root / "legacy/src/application/fixture_adc.hpp", root / "legacy/src/application/fixture_analog.hpp", root / "legacy/src/application/fixture_execution.hpp", root / "legacy/src/application/fixture_session.hpp", root / "legacy/src/core/adc_fixture.hpp", root / "legacy/src/core/fixture_readback.hpp", root / "legacy/src/adapters/gdb/fixture_memory.hpp", root / "legacy/src/adapters/gdb/fixture_time.hpp", root / "legacy/src/adapters/gdb/fixture_registers.hpp",
+                  root / "legacy/src/adapters/renode/adc_process.cpp", root / "legacy/src/adapters/renode/adc_process.hpp",
+                  root / "legacy/src/adapters/ngspice/worker_reply.cpp", root / "legacy/src/adapters/ngspice/worker_reply.hpp",
+                  root / "legacy/src/adapters/ngspice/worker_channel.cpp", root / "legacy/src/adapters/ngspice/worker_channel.hpp",
+                  root / "legacy/src/adapters/renode/cancellation_result.cpp",
+                  root / "legacy/src/adapters/renode/cancellation_result.hpp",
+                  root / "legacy/src/adapters/renode/control_channel.cpp", root / "legacy/src/adapters/renode/control_channel.hpp"):
             report["sha256"][str(p)] = e.sha(p)
     if args.process_runner:
         report["process_runner"] = str(args.process_runner)
-        for p in (args.process_runner, e.HERE / "native_process.py", root / "src/platform/windows/fixture_process.cpp"):
+        for p in (args.process_runner, e.HERE / "native_process.py", root / "legacy/src/platform/windows/fixture_process.cpp"):
             report["sha256"][str(p)] = e.sha(p)
     for repetition in range(1 if opts.fault else 3):
         result = {"checkpoints": []}

@@ -37,7 +37,7 @@ close SN-021. Existing tests do not substitute for missing physical measurements
 
 ## Scope and acceptance boundary
 
-The [Windows adapter](../../src/platform/windows/managed_store.cpp) combines the
+The [Windows adapter](../../legacy/src/platform/windows/managed_store.cpp) combines the
 inert record/chain modules with retained filesystem handles. Its fixture-only root
 is a direct child named `C:\SN021Managed-<12 lowercase hexadecimal characters>`.
 It opens the actual local NTFS volume, then opens children relative to retained
@@ -85,8 +85,8 @@ executed, rendered, downloaded or loaded as a library by this candidate.
 
 ## Prepared physical batch
 
-The [native probe](../../tests/resources/native_managed_store_probe.cpp) and
-[VM coordinator](../../tests/resources/windows_managed_store.ps1) create two fresh
+The [native probe](../../legacy/tests/resources/native_managed_store_probe.cpp) and
+[VM coordinator](../../legacy/tests/resources/windows_managed_store.ps1) create two fresh
 ordinary guest accounts and 24 fresh stores. They install no service and perform no
 automatic retry, cleanup or snapshot revert. Planned observations are:
 

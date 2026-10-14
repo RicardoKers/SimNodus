@@ -1,14 +1,16 @@
 # SimNodus documentation
 
-Latest SN-021 slice: [native declaration syntax ingress](experiments/SN-021-ingress.md).
-
-Initial baseline: 2026-08-31. These documents describe intent and development criteria, not existing simulator capabilities.
+Revision 2026-10-14: product rebuild ([ADR 0079](decisions/0079-product-rebuild-and-lightweight-process.md)).
+Planning documents of the first development line are in [archive/2026-10-legacy](archive/2026-10-legacy/CURRENT.md).
 
 ## Product and architecture
 
 - [Vision](VISION.md): audience, value, and boundaries.
-- [Requirements](REQUIREMENTS.md): traceable commitments and acceptance evidence.
-- [Architecture](architecture/README.md): modules, dependencies, and processes.
+- [Requirements](REQUIREMENTS.md): revision 2, numbered requirements by phase.
+- [Desktop UI design](architecture/DESKTOP_UX.md): editor layout, interaction, analyzer, shortcuts.
+- [Product architecture](architecture/PRODUCT_ARCHITECTURE.md): modules of the rebuilt application.
+- [Architecture index](architecture/README.md): backend contracts and earlier designs.
+- [Headless operation and automation](architecture/AUTOMATION.md): shared application boundary, structured CLI contracts, CI and future agent consumers.
 - [Virtual time and synchronization](architecture/SIMULATION_TIME.md).
 - [Temporal capability profile and E-03 gates](architecture/TEMPORAL_CAPABILITY_PROFILE.md).
 - [Backend contracts and electrical coupling](architecture/BACKEND_CONTRACTS.md).
@@ -16,12 +18,11 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [Project format](architecture/PROJECT_FORMAT.md).
 - [Bounded Windows local resource snapshots](architecture/LOCAL_RESOURCE_VERIFICATION.md).
 - [Debugging and instruments](architecture/DEBUGGING.md).
-- [Desktop UX and visual instrumentation](architecture/DESKTOP_UX.md): editor/analyzer windows, contextual probes, adjustable workspace and initial/future scope.
 - [Architecture decisions](decisions/README.md).
 
 ## Living planning documents
 
-- [Current state](planning/CURRENT.md): read first when resuming work.
+- [Current state](planning/CURRENT.md): read first when resuming work (short).
 - [Roadmap](planning/ROADMAP.md): milestones, dates, and gates.
 - [Backlog](planning/BACKLOG.md): tasks and dependencies.
 - [Risks](planning/RISKS.md): uncertainties that may change the plan.
@@ -41,8 +42,8 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [E-03 GPIO/RC coupling results](experiments/E-03-results.md), [reproduction](../tests/experiments/coupling/README.md), and [ADR 0011](decisions/0011-e03-restricted-feedback.md).
 - [E-04 focused STM32F103 ADC results](experiments/E-04-results.md), [reproduction](../tests/experiments/adc/README.md), and [ADR 0012](decisions/0012-focused-stm32f103-adc.md).
 - [E-05 actual CubeIDE partial results](experiments/E-05-results.md) and [executable probe](../tests/experiments/debugging/cubeide.py).
-- [SN-017 headless acceptance audit](experiments/SN-017-acceptance.md) and [reproduction](../tests/headless/APPLICATION_SESSION.md).
-- [SN-018 first local baseline](experiments/SN-018-baseline.md) and [measurement contract](../tests/headless/BASELINE.md).
+- [SN-017 headless acceptance audit](experiments/SN-017-acceptance.md) and [reproduction](../legacy/tests/headless/APPLICATION_SESSION.md).
+- [SN-018 first local baseline](experiments/SN-018-baseline.md) and [measurement contract](../legacy/tests/headless/BASELINE.md).
 - [SN-018 observer control and sampler attribution defect](experiments/SN-018-observer-control.md).
 - [SN-018 corrected identity sampler and real-engine control](experiments/SN-018-identity-control.md).
 - [SN-018 bounded baseline acceptance](experiments/SN-018-acceptance.md).

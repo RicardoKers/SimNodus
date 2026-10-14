@@ -2,6 +2,7 @@
 /build/
 /out/
 /dist/
+/legacy/build/
 **/firmware/build/
 *.elf
 *.hex

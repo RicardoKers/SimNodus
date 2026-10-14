@@ -7,7 +7,7 @@ separate from the [pipe identity observations](SN-021-pipe-identity.md). No endp
 
 ## Scope and acquisition
 
-The owner ran the [exact guest probe](../../tests/resources/windows_store_startup.ps1)
+The owner ran the [exact guest probe](../../legacy/tests/resources/windows_store_startup.ps1)
 in the disposable VMware Windows 11 Enterprise Evaluation build 26200 VM, on NTFS.
 VIX verified the operator snapshot's existence without restoring it. Administrator
 setup created one fresh ordinary writer account, a harness and ten fresh fixture

@@ -33,7 +33,7 @@ rolled back if reading, cleanup or later checks fail; no joint commit follows.
 
 ## Evidence and remaining scope
 
-See the [protocol](../../tests/headless/ADC_PROCESS.md) and
+See the [protocol](../../legacy/tests/headless/ADC_PROCESS.md) and
 [evidence](../experiments/evidence/SN-017-adc-process-summary.json).
 Actual process tests cover malformed/fragmented/oversized output, stderr, exit
 failure, hanging roots, descendants, runner loss and shared deadline. Real

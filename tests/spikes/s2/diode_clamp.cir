@@ -1,0 +1,9 @@
+* S2 diode_clamp: 5 V 1 kHz sine through 1 kOhm into a silicon diode
+* probes: in out v1#branch
+V1 in 0 SIN(0 5 1k)
+R1 in out 1k
+D1 out 0 dsig
+.model dsig D(IS=2.52n N=1.752 RS=0.568 CJO=4p M=0.4 TT=20n)
+.options reltol=1e-6 abstol=1e-12 vntol=1e-9
+.tran 1u 3m 0 1u
+.end

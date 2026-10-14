@@ -5,7 +5,7 @@ This extends the fixture-only [managed store](SN-021-managed-store-candidate.md)
 under ADRs [0076](../decisions/0076-managed-document-saving.md) and
 [0077](../decisions/0077-bounded-managed-commit-candidate.md). It does not implement
 a production endpoint, installation, UI or a new runtime profile.
-The [native test executable](../../tests/resources/native_managed_request_probe.cpp)
+The [native test executable](../../legacy/tests/resources/native_managed_request_probe.cpp)
 links the existing store directly; the historical v2 C# sources remain unchanged.
 
 ## First physical attempt: setup refused
@@ -25,7 +25,7 @@ input hashes are in the [attempt summary](evidence/SN-021-managed-request-attemp
 The fresh attempt `20260928T175932Z-937f055df11f` completed on Windows 11 build
 26200 and NTFS in 7,261 ms. Its 32 source snapshots, 82 copied artifacts, inventory
 and Probe reports match their retained SHA-256 values. The repeatable
-[independent auditor](../../tests/resources/audit_managed_request.py) checked the
+[independent auditor](../../legacy/tests/resources/audit_managed_request.py) checked the
 19 request artifacts and server decisions across three writer runs (15 + 2 + 2),
 24 child processes, 55 observations, four physical records and the unchanged
 manifest. The [measured summary](evidence/SN-021-managed-request-summary.json)
@@ -104,7 +104,7 @@ are verified by handle at both endpoints. No weaker endpoint fallback is allowed
 
 ## Predeclared acceptance and remaining gates
 
-The [guest coordinator](../../tests/resources/windows_managed_request.ps1) must
+The [guest coordinator](../../legacy/tests/resources/windows_managed_request.ps1) must
 record specific server decisions and independently preserve the committed files.
 
 | Case | Required evidence |

@@ -14,7 +14,7 @@ rejection and inspection of an existing compiler-produced owned firmware image.
 No image is mapped, relocated, booted or executed. Physical resource capture and
 typed project association remain separate operations.
 
-The [regression suite](../../tests/schema/native_elf_regression.py) has 12 cases,
+The [regression suite](../../legacy/tests/schema/native_elf_regression.py) has 12 cases,
 including every one of 260 truncated prefixes; exact file/table/address limits;
 integer overflow; alignment; zero-fill size without allocation; unsupported dynamic,
 interpreter and TLS types; opaque records; unknown raw machine/ABI values; and
@@ -27,7 +27,7 @@ results belong to the publication PR; this reader has no filesystem dependency.
 
 ## Historical compiler-output attempt and correction
 
-The explicit [fixture reader](../../tests/schema/elf_fixture_acceptance.py) checks
+The explicit [fixture reader](../../legacy/tests/schema/elf_fixture_acceptance.py) checks
 the existing SN-012 `firmware.elf` digest against its original `build.json`, then
 compares native fields with independent binary extraction. Its output file must
 be new, and failed attempts are retained. No compiler, Renode or firmware loader

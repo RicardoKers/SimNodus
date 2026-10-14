@@ -133,7 +133,7 @@ guest script digest is
 The fresh manual VM run `20260929T222514Z-a45b647a5b8d` completed all cases
 in 16,457 ms. The host retained 34 exact source snapshots and 60 copied
 artifacts from 19 child processes. The separate
-[byte audit](../../tests/resources/audit_managed_v3_boundary.py) passed against
+[byte audit](../../legacy/tests/resources/audit_managed_v3_boundary.py) passed against
 the retained raw host and guest reports, frames, pipe descriptors, replies,
 manifest, four complete records and their file identities. The
 [success summary](evidence/SN-021-v3-boundary-success-summary.json) records

@@ -25,7 +25,7 @@ an explicit differential reference, not a second production API commitment.
 
 ## Validation and next boundary
 
-See the [protocol](../../tests/headless/GRANT_TRANSITIONS.md) and
+See the [protocol](../../legacy/tests/headless/GRANT_TRANSITIONS.md) and
 [evidence](../experiments/evidence/SN-017-grant-transitions-summary.json).
 Actual pipes test wire bytes, ordering and failure; real Renode/ngspice/GDB runs
 test both fixed checkpoints and paced pauses. Capabilities, PDF suppression and

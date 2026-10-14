@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "tests/resources"))
+sys.path.insert(0, str(ROOT / "legacy/tests/resources"))
 import audit_managed_lifecycle as audit
 sys.path.insert(0, str(ROOT / "tests/experiments/ngspice"))
 from fixed_replay_acceptance import pinned_netlist
@@ -30,7 +30,7 @@ def compile_exact(project, package, binary):
     assert lines[0] == "OK" and bytes.fromhex(lines[2]) == project and lines[3] == "0 0"
     elements = [line.split() for line in lines[4:6]]
     assert [entry[0] for entry in elements] == ["main/left/r", "main/left/c"]
-    source = (package / "tests/schema/fixtures/assets/passive.cir").read_bytes()
+    source = (package / "legacy/tests/schema/fixtures/assets/passive.cir").read_bytes()
     for entry in elements:
         assert json.loads(project[int(entry[3]):int(entry[4])])["id"] == entry[0].split("/")[-1]
         assert source[int(entry[7]):int(entry[8])].startswith(b".subckt ")
@@ -61,8 +61,8 @@ def main():
                            cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
         package = output / "package"
         package.mkdir()
-        for name, relative in (("LICENSE", "LICENSE"), ("passive.svg", "tests/schema/fixtures/assets/passive.svg"),
-                               ("passive.cir", "tests/schema/fixtures/assets/passive.cir"),
+        for name, relative in (("LICENSE", "LICENSE"), ("passive.svg", "legacy/tests/schema/fixtures/assets/passive.svg"),
+                               ("passive.cir", "legacy/tests/schema/fixtures/assets/passive.cir"),
                                ("fixed-drive.csv", "fixed-drive.csv")):
             destination = package / relative
             destination.parent.mkdir(parents=True, exist_ok=True)

@@ -52,7 +52,7 @@ python tools/run_editor_demo.py --editor build/sn023-pin-preview/native-build/ap
 
 The build path and Qt version above identify the validated local environment;
 they are not a runtime discovery or packaging guarantee. Follow the existing
-[desktop build instructions](../../apps/desktop/README.md) for another machine.
+[desktop build instructions](../../legacy/apps/desktop/README.md) for another machine.
 Choose a new `--out` for each demonstration; an existing directory is refused.
 
 1. **File -> Open** the printed `document/original.json`. Opening remains inert.

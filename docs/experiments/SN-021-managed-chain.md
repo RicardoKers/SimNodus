@@ -7,7 +7,7 @@ It is not physical recovery, authentication, publication or a managed-save servi
 
 ## Implemented boundary
 
-[The native API](../../src/application/managed_chain.hpp) validates at most 64
+[The native API](../../legacy/src/application/managed_chain.hpp) validates at most 64
 supplied committed-record observations and 128 MiB of encoded bytes. It checks
 each record with the existing codec, requires an exact canonical revision leaf,
 scope/volume match, non-null unique file identities, contiguous revisions and the
@@ -46,7 +46,7 @@ project metadata. No pure byte API can establish that trust boundary.
 
 ## Tests and limits
 
-[Native adversarial tests](../../tests/resources/native_managed_chain.cpp) exercise
+[Native adversarial tests](../../legacy/tests/resources/native_managed_chain.cpp) exercise
 53 assertions including owned observations, reordered enumeration, exact request
 conflicts, stale/changed physical-token declarations, A-B-A byte revisions, retained
 older/middle receipts, gap/duplicate/corrupt/rehashed records, reused file/commit/

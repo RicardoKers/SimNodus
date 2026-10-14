@@ -7,7 +7,7 @@ create-only publication remain unchanged. No production project resource runs.
 
 ## Acceptance and environment
 
-The [manual guest probe](../../tests/resources/windows_authority_filesystem.ps1)
+The [manual guest probe](../../legacy/tests/resources/windows_authority_filesystem.ps1)
 runs under Windows PowerShell in the disposable VMware guest only. Administrative
 setup creates two fresh ordinary local accounts and a fresh NTFS directory tree.
 The measured writer and client processes must have distinct SIDs, no administrator

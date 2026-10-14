@@ -1,5 +1,15 @@
 # Experiment plan
 
+## Rebuild spikes (2026-10-14)
+
+- [S1: continuous interactive ngspice run](S1-continuous-run.md) (SN-103):
+  memory growth, real-time pacing, button latency and segmented restarts.
+- [S2: ngspice on Windows and Linux](S2-ngspice-platforms.md) (SN-104):
+  run-time DLL loading and the same netlists on ngspice-47 and the Linux
+  distribution version.
+
+## First development line
+
 [E-01 passed](E-01-results.md) for its bounded standalone Windows RC/lifecycle profile, [E-02 passed](E-02-results.md) for bounded owned firmware and digital GPIO/EXTI, [E-03 passed](E-03-results.md) for known-schedule replay plus an explicitly approximate sampled feedback profile, and [E-04 passed](E-04-results.md) for a focused direct-voltage STM32F103 ADC path. General live causal feedback and electrical ADC coupling remain unsupported. **E-05 and E-06 have not run.** [SN-010](SN-010-results.md) and [SN-019](SN-019-results.md) record dependency/control prerequisites. Use the [report template](REPORT_TEMPLATE.md) and store completed reports here as `E-xx-results.md`. Keep generated large traces in ignored build/output directories; commit a small sanitized reference only when useful.
 
 Every report must identify exact backend/client/platform revisions, host/toolchain, ELF/source hashes, circuit inputs, virtual-time configuration, commands, tolerances, observed results, and limitations.

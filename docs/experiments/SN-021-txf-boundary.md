@@ -10,7 +10,7 @@ when the destination handle closes. Probe whether transaction-level isolation ca
 span that gap, while checking expected identity and bytes before changing content.
 This evaluates a different mechanism; it does not repeat check-then-rename.
 
-The manually invoked [probe](../../tests/resources/windows_txf_boundary.py) creates
+The manually invoked [probe](../../legacy/tests/resources/windows_txf_boundary.py) creates
 six fresh owned fixtures. It pins every directory ancestor through the existing
 Windows/NTFS handle-relative checks, obtains a volume-GUID spelling from the retained
 parent and captures expected identity/bytes through the existing verifier. After

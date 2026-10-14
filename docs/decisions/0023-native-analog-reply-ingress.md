@@ -33,7 +33,7 @@ validation, GPIO/ADC exchange, GDB inspection or commit; these remain host-owned
 
 ## Validation and remaining scope
 
-See the [protocol](../../tests/headless/ANALOG_INGRESS.md) and
+See the [protocol](../../legacy/tests/headless/ANALOG_INGRESS.md) and
 [evidence](../experiments/evidence/SN-017-analog-ingress-summary.json).
 Actual fragmented pipes and real Renode/ngspice/GDB runs validate the slice.
 Early test failures reflected closed-pipe diagnostic expectations and an oversized

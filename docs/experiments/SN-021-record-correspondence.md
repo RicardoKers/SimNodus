@@ -13,9 +13,9 @@ executed no guest program and changed no snapshot. The collection result is
 The [byte archive](evidence/SN-021-managed-record-correspondence-bytes.json) stores
 the seven copied inert files as base64 with their SHA-256 values and the pinned hash
 of the prior physical report. This publishes evidence bytes, not an executable.
-The [independent reader](../../tests/resources/managed_record_correspondence.py)
+The [independent reader](../../legacy/tests/resources/managed_record_correspondence.py)
 uses Python `struct` and `hashlib`, with no project execution. The
-[replay helper](../../tests/resources/replay_managed_record_correspondence.py)
+[replay helper](../../legacy/tests/resources/replay_managed_record_correspondence.py)
 decodes the archive to a temporary directory and reproduces the checks:
 
 ```text

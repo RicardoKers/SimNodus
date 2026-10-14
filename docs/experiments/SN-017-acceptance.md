@@ -11,9 +11,9 @@ claim an autonomous all-C++ executable or a production simulation application.
 
 | Requirement | Implemented result | Acceptance evidence |
 |---|---|---|
-| Headless execution | Root-CMake RC worker, session CLI and Windows process supervisor, driven by the explicit fixture harness without Qt | [Complete reproduction](../../tests/headless/APPLICATION_SESSION.md); six initial and six recovery sessions |
-| Native contracts and time ownership | `JointSession` distinguishes granted, observed, CPU-acknowledged and jointly committed state; endpoint and RC/ADC/readback checks remain separate | [Core](../../src/core/joint_session.hpp), 14 CTest targets, 358 protocol/process cases |
-| Extracted application coordination | `FixtureSession` composes execution, analog, ADC and inspection, applying global pending/commit gates | [Session](../../src/application/fixture_session.hpp), direct composition tests and real native transition records |
+| Headless execution | Root-CMake RC worker, session CLI and Windows process supervisor, driven by the explicit fixture harness without Qt | [Complete reproduction](../../legacy/tests/headless/APPLICATION_SESSION.md); six initial and six recovery sessions |
+| Native contracts and time ownership | `JointSession` distinguishes granted, observed, CPU-acknowledged and jointly committed state; endpoint and RC/ADC/readback checks remain separate | [Core](../../legacy/src/core/joint_session.hpp), 14 CTest targets, 358 protocol/process cases |
+| Extracted application coordination | `FixtureSession` composes execution, analog, ADC and inspection, applying global pending/commit gates | [Session](../../legacy/src/application/fixture_session.hpp), direct composition tests and real native transition records |
 | Real integration | Patched Renode 1.16.1, ngspice 47, GDB 15.2.90.20241229, owned firmware and helper | [Cycle 27 evidence](evidence/SN-017-application-session-summary.json): 54 recovery checkpoints, 60 RC checks, six pauses, ADC 3541 |
 | Failure and recovery | No new commit on backend/owner loss; fresh sessions and owned helper cleanup | Four real loss controls retain two commits; six recreated/recovery sessions pass; process/adversarial suites retained |
 | Fidelity and capability limits | Same paced ADR 0014 single-CPU GPIO/RC and boundary-sampled ADC profile | Exact fixed time/digital records; two voltage differences below 2e-14 V, within 10 microvolt tolerance; no broadened peripheral or unpaced claim |

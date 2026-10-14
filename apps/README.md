@@ -1,5 +1,10 @@
-# Application entry points
+# Applications
 
-Planned `cli/`: headless backend experiments and reproducible simulation runs. The [bounded `desktop/` slice](desktop/README.md) implements inert document inspection/name editing; full circuit editing and instruments remain pending.
+`simnodus/` is the Qt 6 Widgets desktop application (ADR 0081): the Circuit
+Editor main window with component tree, schematic canvas and properties
+columns, and the separate Signal Analyzer window. Everything except `main()`
+is built into `simnodus_ui` so that [GUI tests](../tests/gui) use the same
+code.
 
-The full simulator applications remain pending. The CLI comes first; the desktop consumes the same application/domain contracts. Do not place solver ownership or a second scheduler inside the GUI.
+Command-line options: `--check-engine`, `--smoke-test`, `--screenshot FILE`,
+`--settings FILE` (see `simnodus --help`).
