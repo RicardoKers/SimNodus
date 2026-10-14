@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QScrollArea>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -101,13 +102,26 @@ PropertiesPanel::PropertiesPanel(Document* document, QWidget* parent) : QWidget(
     layout->addWidget(live_, 1);
 
     if (document_) {
-        connect(document_, &Document::changed, this, [this] {
-            if (!editing()) {
-                rebuild();
-            }
-        });
+        // A change is often applied from inside an editor's own signal or
+        // focus-out handler; rebuilding then would delete that editor while
+        // Qt still uses it. Rebuild once control is back in the event loop.
+        connect(document_, &Document::changed, this, &PropertiesPanel::schedule_rebuild);
     }
     clear_selection();
+}
+
+void PropertiesPanel::schedule_rebuild()
+{
+    if (rebuild_pending_) {
+        return;
+    }
+    rebuild_pending_ = true;
+    QTimer::singleShot(0, this, [this] {
+        rebuild_pending_ = false;
+        if (!editing()) {
+            rebuild();
+        }
+    });
 }
 
 bool PropertiesPanel::editing() const
@@ -152,8 +166,19 @@ void PropertiesPanel::rebuild()
 {
     rebuilding_ = true;
     value_editor_ = nullptr;
+    // Old editors may still be inside one of their own event handlers:
+    // detach them now and delete them later.
     while (form_->rowCount() > 0) {
-        form_->removeRow(0);
+        const auto row = form_->takeRow(0);
+        for (QLayoutItem* item : {row.labelItem, row.fieldItem}) {
+            if (item && item->widget()) {
+                QWidget* widget = item->widget();
+                widget->hide();
+                widget->setParent(nullptr);
+                widget->deleteLater();
+            }
+            delete item;
+        }
     }
     const model::Schematic* s = document_ ? &document_->schematic() : nullptr;
     std::vector<const model::Component*> components;
@@ -308,7 +333,7 @@ void PropertiesPanel::commit_designator(const QString& text)
     const std::string designator = text.trimmed().toStdString();
     if (const auto* other = s.component_by_designator(designator); other && other->id != id) {
         emit message(tr("The name %1 is already used.").arg(text.trimmed()));
-        rebuild();
+        schedule_rebuild();
         return;
     }
     document_->apply(editing::set_designator(s, id, designator));

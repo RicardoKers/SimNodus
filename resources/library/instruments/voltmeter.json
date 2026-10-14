@@ -3,7 +3,7 @@
   "name": "Voltmeter",
   "category": "Instruments",
   "prefix": "VM",
-  "description": "Shows the voltage of + relative to - while running",
+  "description": "Shows the voltage of + relative to - while running (1 GΩ input resistance)",
   "symbol": {
     "graphics": [
       {
@@ -65,6 +65,6 @@
     ]
   },
   "spice": [
-    "R_{ref} {node:+} {node:-} 1e12"
+    "R_{ref} {node:+} {node:-} 1e9"
   ]
 }

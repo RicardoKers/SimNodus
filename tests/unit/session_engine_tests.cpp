@@ -118,6 +118,39 @@ TEST_CASE("session: a button charges the capacitor in an interactive run")
     CHECK(session.status().state == sim::RunState::Stopped);
 }
 
+TEST_CASE("session: an open push button does not charge a capacitor")
+{
+    // Owner report 2026-10-14: a capacitor behind an open button slowly charged.
+    REQUIRE(test::engine() != nullptr);
+    for (const char* layout : {"parallel", "series"}) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("button_no", {{"1", "VCC"}, {"2", "A"}});
+        if (std::string(layout) == "parallel") {
+            b.add("capacitor", {{"1", "A"}, {"2", "0"}}, {{"C", "100n"}});
+            b.add("voltmeter", {{"+", "A"}, {"-", "0"}});
+        } else {
+            b.add("capacitor", {{"1", "A"}, {"2", "B"}}, {{"C", "100n"}});
+            b.add("voltmeter", {{"+", "B"}, {"-", "0"}});
+        }
+        auto settings = b.schematic.settings();
+        settings.speed = 0;
+        b.schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = b.schematic;
+        request.library = &components();
+        request.vectors = {"A", "B"};
+        sim::SimulationSession session;
+        std::string error;
+        REQUIRE(session.start(request, error));
+        REQUIRE(wait_for_time(session, 20.0, 60s));
+        const double a = session.latest("a").value_or(-1);
+        session.stop();
+        std::printf("  %s: V(A) after 20 s with the button open = %.3g V\n", layout, a);
+        CHECK(std::abs(a) < 1e-3);
+    }
+}
+
 TEST_CASE("session: periodic sources keep their phase across segments")
 {
     REQUIRE(test::engine() != nullptr);
