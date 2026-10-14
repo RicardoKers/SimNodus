@@ -22,10 +22,12 @@
 #endif
 
 #include <QApplication>
+#include <QComboBox>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
+#include <QPointer>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTest>
@@ -182,6 +184,46 @@ private slots:
         QTest::keyClick(edit, Qt::Key_Return);
         QCOMPARE(doc().schematic().component(r)->parameters.at("R"), std::string("4k7")); // invalid: not applied
         QVERIFY(!edit->toolTip().isEmpty());
+    }
+
+    void leaving_a_value_field_by_clicking_the_schematic_applies_it()
+    {
+        // Owner report 2026-10-14: the program closed while changing a resistor
+        // value. Leaving the field applies the value; that used to rebuild the
+        // form and delete the field inside its own focus-out handler.
+        const model::Id r1 = place("resistor", {0, 0});
+        const model::Id r2 = place("resistor", {20, 0});
+        window_->scene()->select_ids({r1});
+        QPointer<QLineEdit> edit = window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_R"));
+        QVERIFY(edit);
+        edit->selectAll();
+        QTest::keyClicks(edit, QStringLiteral("2k2"));
+        view()->setFocus(); // focus is elsewhere, as after a click on the schematic
+        QFocusEvent focus_out(QEvent::FocusOut, Qt::MouseFocusReason);
+        QApplication::sendEvent(edit, &focus_out);
+        QCOMPARE(doc().schematic().component(r1)->parameters.at("R"), std::string("2k2"));
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, {}, at({20, 0}));
+        QCoreApplication::processEvents();
+        QCOMPARE(window_->scene()->selected_ids(), (std::set<model::Id>{r2}));
+        QVERIFY(edit.isNull() || edit->parent() == nullptr); // old field detached, deleted later
+        auto* fresh = window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_R"));
+        QVERIFY(fresh);
+        QCOMPARE(fresh->text(), QStringLiteral("1k")); // r2's value
+    }
+
+    void choosing_a_value_from_a_list_applies_it()
+    {
+        const model::Id led = place("led", {0, 0});
+        window_->scene()->select_ids({led});
+        auto* box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_color"));
+        QVERIFY(box);
+        box->setCurrentIndex(box->findData(QStringLiteral("blue")));
+        emit box->activated(box->currentIndex());
+        QCoreApplication::processEvents();
+        QCOMPARE(doc().schematic().component(led)->parameters.at("color"), std::string("blue"));
+        box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_color"));
+        QVERIFY(box);
+        QCOMPARE(box->currentData().toString(), QStringLiteral("blue"));
     }
 
     void copy_paste_rotate_and_delete()

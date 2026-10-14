@@ -125,7 +125,7 @@
     "S_{ref} {node:1} {node:2} {control} 0 SW_SN"
   ],
   "models": [
-    ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e9)",
-    ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e9)"
+    ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e15)",
+    ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e15)"
   ]
 }

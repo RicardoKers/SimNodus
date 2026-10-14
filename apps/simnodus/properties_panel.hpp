@@ -43,6 +43,8 @@ signals:
 
 private:
     void rebuild();
+    // Rebuilds after the current event: editors may be inside their own handlers.
+    void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
     void commit_designator(const QString& text);
     void commit_label(const QString& text);
@@ -57,6 +59,7 @@ private:
     QWidget* value_editor_ = nullptr;
     QLabel* live_ = nullptr;
     bool rebuilding_ = false;
+    bool rebuild_pending_ = false;
 };
 
 } // namespace simnodus::ui

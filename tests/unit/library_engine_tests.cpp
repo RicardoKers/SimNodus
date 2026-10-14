@@ -179,7 +179,7 @@ TEST_CASE("library: instruments read voltage and current")
     b.add("ammeter", {{"+", "VCC"}, {"-", "A"}});
     b.add("resistor", {{"1", "A"}, {"2", "0"}});
     b.add("voltmeter", {{"+", "A"}, {"-", "0"}});
-    CHECK(close_to(op(b, "v_am1#branch"), 5e-3, 1e-9));
+    CHECK(close_to(op(b, "v_am1#branch"), 5e-3 + 5.0 / 1e9, 1e-10)); // includes the voltmeter's 1 GOhm
     CHECK(close_to(op(b, "a"), 5.0, 1e-6));
 }
 

@@ -78,7 +78,8 @@ copies:
 ## Known limits of 0.1
 
 - Device models are typical-value approximations for teaching, not
-  datasheet matches.
+  datasheet matches. Open switches are 10^15 Ω, the voltmeter has a 1 GΩ
+  input, the ammeter is ideal.
 - Semiconductor junction charge is not carried across interactive segments;
   a tiny step may appear once per second in circuits that depend on it.
 - No microcontroller yet (release 0.2), no AC/FFT analysis.
