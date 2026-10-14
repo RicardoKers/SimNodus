@@ -1,5 +1,7 @@
 # Product vision
 
+Revision 2 — 2026-10-14. First version: [archive](archive/2026-10-legacy/VISION.md).
+
 ## Problem
 
 Students need to see how firmware, peripheral configuration, and electrical behavior affect one another. SimNodus should let them assemble analog/digital circuits around STM32, execute real firmware, and inspect signals and mistakes without requiring a physical workbench for every attempt.
@@ -8,22 +10,19 @@ The owner has experienced stability and component/subcircuit authoring difficult
 
 ## Desired experience
 
-An instructor prepares a circuit, firmware, and lesson notes. A student opens the project, runs it, changes controls, observes instruments, and connects STM32CubeIDE for debugging. A circuit function can become a reusable subcircuit with explicit ports.
+An instructor prepares a circuit, firmware, and lesson notes. A student opens the project and runs it. The simulation keeps running while the student presses buttons, turns potentiometers and watches LEDs, meters and waveforms react in the circuit and in the microcontroller program. Signals are examined in a separate analyzer window, and STM32CubeIDE can debug the firmware. A circuit function can later become a reusable subcircuit with explicit ports.
 
-The [desktop experience](architecture/DESKTOP_UX.md) separates a Circuit Editor
-for assembly, interaction and immediate observation from an independent Signal
-Analyzer window for detailed history and analysis. Keep the canvas central,
-preview library symbols before insertion, and allow side panels to collapse for
-viewing. Shared measurements preserve context across both windows on one or
-multiple monitors. This is product direction, not an implemented interface.
+The [desktop experience](architecture/DESKTOP_UX.md) is a clean QSpice-like
+editor (components left, schematic center, properties right, adjustable widths)
+with continuous interactive simulation and a separate Signal Analyzer window.
 
 The baseline should run locally without an account or continuous network access. Offline classroom operation is a proposed requirement to confirm against laboratory constraints. Dependency downloads belong in setup, not silent project loading.
 
 ## First scope
 
-One STM32F103C8, a small circuit, and one simulation session. First prove firmware, GPIO, RC, digital feedback, and ADC without an editor. The first graphical teaching release adds minimal editing, essential instruments, and synchronized debugging.
+Backend feasibility (firmware, GPIO, RC, digital feedback, ADC, debugging) was proven headless in E-01..E-05. The rebuilt application now delivers in two-week releases: analog interactive editor first (0.1), then STM32F103C8 GPIO/EXTI/UART (0.2), ADC/PWM (0.3) and debugging/packaging (0.4); see the [roadmap](planning/ROADMAP.md).
 
-Windows comes first; Linux follows later. The intended classroom date is February 2027. January 2027 is reserved for stabilization, installation checks, and a teaching rehearsal.
+Windows is the classroom platform; the code is portable and also runs on Linux for development. The intended classroom date is February 2027, with the tool usable for lesson preparation from release 0.1.
 
 Do not confuse an external LED circuit with the board's onboard LED. Pin mapping, LED polarity, memory map, clocks, and board wiring must belong to an explicit board profile.
 

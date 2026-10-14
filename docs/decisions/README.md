@@ -1,5 +1,17 @@
 # Architecture decision records
 
+## Latest decisions (2026-10-14 rebuild)
+
+- [0081: Desktop UI technology and layout](0081-desktop-ui-technology.md): Qt Widgets,
+  QGraphicsView canvas, own plotting, data-driven symbols, QSpice-like layout.
+- [0080: Continuous interactive simulation](0080-continuous-interactive-simulation.md):
+  paced continuous ngspice run with external-source controls; memory strategy pending spike.
+- [0079: Product rebuild and lightweight process](0079-product-rebuild-and-lightweight-process.md):
+  previous product code moved to `legacy/`; backend evidence kept.
+
+ADRs 0001–0078 below are the history of the first development line. Where they
+conflict with 0079–0081, the newer ADRs prevail.
+
 ## Latest presentation decision
 
 - [0078: Qt Widgets and worker boundary](0078-qt-widgets-worker-boundary.md):
@@ -108,6 +120,9 @@ An ADR records context, decision, consequences, and revisit criteria. Do not rew
 | [0051](0051-project-declaration-baseline.md) | Project declaration baseline and SN-020 acceptance boundary | Accepted for schema/reference validation; runtime remains pending |
 
 Use the [template](TEMPLATE.md) for new decisions.
+
+- [0055: Automation-first headless application boundary](0055-automation-first-headless.md):
+  accepted direction; public contracts, MCP and Python integration remain pending.
 
 - [0054: Bounded native declaration syntax ingress](0054-declaration-ingress.md):
   immutable original bytes/tokens; native schema semantics and graph remain pending.

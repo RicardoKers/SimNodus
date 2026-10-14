@@ -1,59 +1,157 @@
 # Requirements
 
-Sources: the current request and owner approvals summarized in [SOURCES](research/SOURCES.md). Milestones are defined in the [roadmap](planning/ROADMAP.md). No simulator capability below is implemented in this foundation.
+Revision 2 — 2026-10-14. Supersedes the first requirements baseline, archived in
+[archive/2026-10-legacy/REQUIREMENTS.md](archive/2026-10-legacy/REQUIREMENTS.md).
+Decision context: [ADR 0079](decisions/0079-product-rebuild-and-lightweight-process.md),
+[ADR 0080](decisions/0080-continuous-interactive-simulation.md) and
+[ADR 0081](decisions/0081-desktop-ui-technology.md).
 
-## Functional requirements
+Status column: **planned** (not started), **in progress**, **done** (implemented
+and verified by the listed evidence). Phase numbers refer to the
+[roadmap](planning/ROADMAP.md).
 
-| ID | Requirement | Milestone | Acceptance evidence |
+## 1. Users and core use cases
+
+| User | Core use |
+|---|---|
+| Instructor | Builds lesson circuits, attaches STM32 firmware, prepares example projects and expected observations |
+| Student | Opens a project, runs it continuously, presses buttons/moves controls, watches LEDs, meters and waveforms, changes firmware or circuit, debugs with STM32CubeIDE |
+
+The defining experience: **the simulation runs continuously and reacts to the
+user.** Pressing a push button on the schematic must visibly change the circuit
+and the microcontroller program (for example an interrupt toggles an LED) while
+the simulation keeps running, and the signals can be examined in a separate
+analysis window.
+
+## 2. Main window (Circuit Editor)
+
+Visual reference: the clean, technical look of QSpice. Three adjustable columns,
+an optional bottom message panel and a compact toolbar.
+
+```text
++--------------------------------------------------------------------------+
+| File  Edit  View  Place  Simulate  Tools  Window  Help                   |
+| [New][Open][Save] | [Undo][Redo] | [Wire][Probe] | [>Run][||][#Stop] 1.00x|
++---------------+-------------------------------------------+--------------+
+| COMPONENTS    |                                           | PROPERTIES   |
+| [search.....] |                                           | R3  Resistor |
+| v Passive     |                                           | Value  [4.7k]|
+|    Resistor   |              SCHEMATIC CANVAS             | Tolerance    |
+|    Capacitor  |         (dot grid, wires, symbols,        | ...          |
+| v Sources     |          live values while running)       |--------------|
+| v Switches    |                                           | LIVE VALUES  |
+| v Semicond.   |                                           | V = 2.31 V   |
+| v Instruments |                                           | I = 0.49 mA  |
+| v MCU         |                                           | P = 1.13 mW  |
+|---------------|                                           |              |
+| PREVIEW       |                                           |              |
+| [symbol]      |                                           |              |
++---------------+-------------------------------------------+--------------+
+| Messages (collapsible): diagnostics, engine messages, click to locate    |
++--------------------------------------------------------------------------+
+| Running | t = 1.284 s | 0.98x real time | Interactive | 0 warnings       |
++--------------------------------------------------------------------------+
+```
+
+| ID | Requirement | Phase | Status |
 |---|---|---|---|
-| RF-01 | Run real ELF firmware on STM32F103C8/Blue Pill | M1 | Rebuildable firmware; observed boot and GPIO in Renode |
-| RF-02 | Couple MCU outputs to analog circuits | M2 | GPIO to RC/LED traces compared against a reference |
-| RF-03 | Deliver digital input and EXTI to firmware | M2 | Electrical transition causes an input read/interrupt at the modeled time |
-| RF-04 | Read analog voltage through ADC | M2 | Applied values, sampling time, units, and readback documented |
-| RF-05 | Debug through STM32CubeIDE/GDB | M2/M3 | Breakpoint, continue, step, and reset without silent domain divergence |
-| RF-06 | Edit, save, reopen, and run a small circuit | M3 | Round-trip preserves IDs, connectivity, parameters, and firmware reference |
-| RF-07 | Inspect voltage, branch current, digital signals, and UART | M2/M3 | Exportable traces first; graphical instruments later |
-| RF-08 | Separate symbol, pins, and simulation model | M1/M3 | Headless model; replacing a symbol does not change connectivity |
-| RF-09 | Reuse a subcircuit with explicit ports | M4 | Save locally and instantiate twice with independent state |
-| RF-10 | Discover project and user-library subcircuits | M4 | Predictable imports, conflicts, updates, and dependencies |
-| RF-11 | Explain circuit mistakes | M3/M5 | Diagnostics identify entity, time, cause, and modeling limits |
-| RF-12 | Author components through manifests and external models | M4/M6 | Validated package and example; explicit code-execution policy |
-| RF-13 | Support WASM components | M6 | Versioned API with tested memory/execution limits |
-| RF-14 | Integrate Verilog/Verilator | M7 | One time owner per model and a reproducible co-simulation example |
-| RF-15 | Inspect node/pin/peripheral/firmware relationships | M5+ | Traceable information with unavailable fields clearly identified |
-| RF-16 | Separate circuit editing/quick observation from detailed analysis in independent top-level windows | M3 | Open a circuit measurement in the analyzer on one or two monitors; closing/reopening a view preserves retained session data |
-| RF-17 | Browse/search components with preview before insertion and distinct instance properties | M3 | Keyboard/mouse selection updates symbol preview without insertion; Properties edits the selected circuit instance |
-| RF-18 | Use contextual inspection and persistent probes over shared measurement definitions | M3 basic; richer quantities later | Basic voltage/current/digital observation and send-to-analyzer use stable entity IDs, explicit references/orientation and common data; renaming preserves probes; temporary inspection does not persistently edit the project |
+| UI-01 | Three-column layout: component tree (left), schematic canvas (center), properties (right). Column widths are adjustable by dragging splitters | 1 | planned |
+| UI-02 | Each side panel can be collapsed and reopened at its previous width (View menu, toolbar and shortcut). Window geometry, panel widths/visibility and the analyzer geometry persist between sessions and are restored only onto an available monitor | 1 | planned |
+| UI-03 | Clean light theme: near-white canvas with a subtle dot grid, thin dark wires, consistent symbol line weight, restrained colors used only for meaning (selection, probes, live state). High-DPI aware. A dark theme is optional and later | 1 | planned |
+| UI-04 | Component tree with categories, incremental search and keyboard navigation. A preview pane under the tree shows the selected symbol, pin count and a one-line description before insertion | 1 | planned |
+| UI-05 | Placement: drag from the tree or activate an item, then click on the canvas. A ghost symbol follows the cursor; rotate and mirror before placing; repeat placement until Esc. Snap to grid. Automatic reference designators (R1, R2, ...) | 1 | planned |
+| UI-06 | Wiring: wire tool; click a pin or wire to start, click to add orthogonal bends, click a pin/wire to finish. Automatic junction dots, wire-to-wire T connections, dangling-end markers. Moving a component keeps its wires attached | 1 | planned |
+| UI-07 | Ground symbol and net labels connect by name. Net names are shown on hover and can be assigned explicitly | 1 | planned |
+| UI-08 | Selection and editing: click, rubber band, Ctrl toggle; move by dragging or arrow keys; rotate, mirror, delete, cut/copy/paste (new designators), select all. Unlimited multi-level Undo/Redo for every document change | 1 | planned |
+| UI-09 | Navigation: zoom at cursor with the wheel, pan with middle button (and Space+drag), Fit to content, zoom range suitable for both a full circuit and a single pin | 1 | planned |
+| UI-10 | Properties panel edits the selected instance: designator, value and model parameters with units. Accept engineering notation (`4k7`, `4.7k`, `100n`, `1meg`, `2.2u`), validate inline, apply on Enter or focus-out as one undoable change. Common properties are editable for multi-selection | 1 | planned |
+| UI-11 | Designator and value text appear next to each symbol and can be moved independently | 1 | planned |
+| UI-12 | Messages panel (bottom, collapsible) lists diagnostics and engine messages; double-click selects and centers the related item | 1 | planned |
+| UI-13 | Status bar shows simulation state, simulated time, achieved real-time factor, mode and warning count | 1 | planned |
+| UI-14 | Keyboard shortcuts for frequent actions (table in [DESKTOP_UX](architecture/DESKTOP_UX.md#keyboard-shortcuts)); all actions also reachable by menu | 1 | planned |
+| UI-15 | Examples menu opens bundled example projects as untitled copies | 1 | planned |
+| UI-16 | All user-visible strings go through Qt translation. English is the base language; a Brazilian Portuguese translation is delivered before classroom use | 1 / 4 | planned |
 
-## Nonfunctional requirements and constraints
+## 3. Interaction while the simulation runs
 
-| ID | Requirement | Evaluation |
-|---|---|---|
-| RNF-01 | Explicit virtual-time causality | No silently applied late events; approximate modes labeled |
-| RNF-02 | Reproducibility | Stable discrete traces in the same environment; published analog tolerances |
-| RNF-03 | Stability and recovery | Backend failure/timeout preserves the user's circuit document |
-| RNF-04 | Platform strategy | Windows first, Linux later; portable C++20 domain/kernel |
-| RNF-05 | Responsive interface | Solver outside the GUI thread; bounded queues and decoupled refresh |
-| RNF-06 | Portable, readable projects | Versioned format, no required personal absolute paths or implicit downloads |
-| RNF-07 | Safe model handling | Path/size limits; no automatic native code loading during project opening |
-| RNF-08 | Honest fidelity claims | Explicit board/peripheral coverage and approximations; no cycle-accuracy promise |
-| RNF-09 | Extensibility | Independent adapters; no public plugin ABI tied to C++ |
-| RNF-10 | Auditable redistribution | Origin, revision, license, and notices for dependencies and models |
-| RNF-11 | Shareable repository | All committed project text in English; original material under MIT |
-| RNF-12 | Classroom readiness | Windows rehearsal and known-limitations review before February 2027 |
-| RNF-13 | Adapt the desktop workspace to editing and viewing | Components/Preview and Properties panels resize, collapse and reopen at the previous size; geometry/workspace persistence is desirable where feasible |
-| RNF-14 | Keep visual instruments independent of acquisition and simulation timing | Meters, tooltips, analyzer and exports share instrumentation; GUI does not own primary captures, decoding or virtual time |
+| ID | Requirement | Phase | Status |
+|---|---|---|---|
+| INT-01 | Run, Pause, Resume, Stop and Reset are always available from toolbar, menu and shortcuts; the editor never freezes while the engine works | 1 | planned |
+| INT-02 | Interactive controls work during Run: toggle switch (click), push button (pressed while the mouse or key is held), potentiometer (drag or wheel), adjustable source value. The effect starts at the next engine step | 1 | planned |
+| INT-03 | Live visual state: LED brightness/color from its current, lamp brightness, switch position, meter readouts on the schematic, optional wire coloring by voltage. Refresh 10–30 Hz, independent of engine speed | 1 | planned |
+| INT-04 | Selecting an item while running shows its live values (V, I, P and model-specific values) in the Properties panel; hovering a net or pin shows a tooltip with its present voltage | 1 | planned |
+| INT-05 | Topology changes (add/delete/move/wire) are not applied to a running simulation. Editing the topology asks to stop the simulation first; value changes of non-interactive parts apply after a restart. The document is never lost because of an engine error | 1 | planned |
+| INT-06 | Microcontroller pins show their logic state/direction on the symbol while running; the on-board LED (PC13) and reset button of the Blue Pill are interactive | 2 | planned |
 
-## MVP boundary
+## 4. Signal Analyzer window
 
-M2 is the technical proof. M3 is the first teaching MVP: MCU, R/C/LED/switch/source/GND, basic observation, and debugging. M4 adds reusable subcircuits; earlier formats must preserve hierarchy as a design concern. M4 is a stretch goal for the first classroom release, not a prerequisite to proving co-simulation.
+A separate top-level window that can be placed on another monitor.
 
-[Desktop UX scope](architecture/DESKTOP_UX.md#initial-scope-and-future-analysis)
-applies RF-16 through RF-18 to the minimal editor and essential scope/logic views
-with the already planned UART terminal. Full meter catalogs, FFT/harmonics,
-AC/Bode/XY analysis, stacked decoders and multiple analyzer windows are future
-direction, not additional MVP commitments. Focus Circuit and detailed workspace
-persistence remain desirable design considerations. All listed UX acceptance
-evidence is pending implementation.
+| ID | Requirement | Phase | Status |
+|---|---|---|---|
+| AN-01 | Opens from toolbar/menu/shortcut as an independent window; closing it does not stop acquisition or delete retained data | 1 | planned |
+| AN-02 | Probe tool on the canvas: click a net to add a voltage channel (reference ground by default, differential optional), click a component terminal to add a current channel. Probes are colored like their analyzer traces and are saved in the project | 1 | planned |
+| AN-03 | Oscilloscope view: multiple analog channels, per-channel scale/offset or autoscale, common time base, roll mode during interactive runs, edge trigger (channel, level, slope) with auto/normal/single, Stop/Run of the display without stopping the simulation | 1 | planned |
+| AN-04 | Time zoom/pan, two cursors with Δt, 1/Δt and values; measurements: min, max, mean, RMS, peak-to-peak, frequency, duty cycle | 1 | planned |
+| AN-05 | Export visible channels to CSV and the plot to PNG | 1 | planned |
+| AN-06 | Transient analysis results open in the analyzer with full zoom over the complete dataset | 1 | planned |
+| AN-07 | Logic analyzer lanes for digital signals and MCU pins in the same time base as analog channels, with transition timestamps | 2 | planned |
+| AN-08 | UART terminal: receive/send text for each enabled MCU UART, with time stamps optional | 2 | planned |
+| AN-09 | Retained history is bounded and configurable (for example the last 10 s at full resolution); limits are visible to the user | 1 | planned |
 
-Performance, circuit-size limits, minimum PC specifications, and supported Windows versions will be measured and agreed before the classroom freeze. Calendar targets must not overrule correctness gates.
+## 5. Simulation
+
+| ID | Requirement | Phase | Status |
+|---|---|---|---|
+| SIM-01 | **Interactive mode (default):** continuous transient simulation without a fixed end time, paced to real time multiplied by a user speed factor (for example 0.001x to 1x, or maximum speed). If the engine cannot keep up, the achieved factor is shown instead of pretending real time | 1 | planned |
+| SIM-02 | Unlimited interactive runs use bounded memory in the engine and in acquisition | 1 | planned |
+| SIM-03 | **Transient mode:** a deterministic `.tran` with stop time and maximum step; reproducible results for the same project and versions | 1 | planned |
+| SIM-04 | Analog engine: ngspice as a shared library loaded at run time, never during project opening | 1 | planned |
+| SIM-05 | Pre-run checks with clickable diagnostics: missing ground, floating nets, unconnected pins, voltage-source/inductor loops, shorted sources, invalid values. Convergence failures are reported in plain language with the involved nets/components | 1 | planned |
+| SIM-06 | Initial component set A: resistor, capacitor, inductor, potentiometer, DC voltage source, DC current source, battery, pulse/square generator, sine generator, ground, SPST switch, SPDT switch, push button (NO/NC), diode, LED (several colors), NPN transistor, N-channel MOSFET, voltmeter, ammeter | 1 | planned |
+| SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | planned |
+| SIM-08 | The engine runs isolated from the editor so that an engine crash cannot crash the editor or lose the document | 4 | planned |
+| SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | planned |
+
+## 6. Microcontroller (STM32F103C8 / Blue Pill)
+
+| ID | Requirement | Phase | Status |
+|---|---|---|---|
+| MCU-01 | Blue Pill component with its real pin names; properties select the firmware ELF (path stored relative to the project) and offer Reload | 2 | planned |
+| MCU-02 | Real firmware runs in Renode, in lockstep with the analog engine using a coupling quantum Q (default to be chosen from measurements, configurable). MCU-to-circuit timing within Q is labeled approximate | 2 | planned |
+| MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | planned |
+| MCU-04 | GPIO input reads circuit voltages with Schmitt thresholds; EXTI interrupts fire from circuit transitions (pressing a button on the schematic triggers the firmware interrupt) | 2 | planned |
+| MCU-05 | UART output/input through the analyzer terminal | 2 | planned |
+| MCU-06 | ADC channels sample circuit voltages through the project-owned F103 ADC model | 3 | planned |
+| MCU-07 | Timer PWM outputs, after a coverage audit of the Renode STM32F1 timer model | 3 | planned |
+| MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
+| MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | planned |
+
+## 7. Projects and library
+
+| ID | Requirement | Phase | Status |
+|---|---|---|---|
+| PRJ-01 | Single-file, versioned, human-readable project (JSON, extension `.snx`) storing components, geometry, wires, labels, probes, simulation settings and relative firmware paths | 1 | planned |
+| PRJ-02 | New, Open, Save, Save As, recent files, unsaved-change prompt, atomic save and an automatic backup of the previous version | 1 | planned |
+| PRJ-03 | Opening a project never executes code, loads native libraries or downloads anything | 1 | planned |
+| PRJ-04 | Component definitions (symbol graphics, pins, parameters, SPICE model template) are data files in a library folder, not hard-coded, so that a symbol editor can be added later | 1 | planned |
+| PRJ-05 | Symbol editor: separate window for creating and editing symbols and pin layouts, writing the same library format | 5+ | planned |
+| PRJ-06 | Reusable subcircuits with explicit ports | after classroom | planned |
+
+## 8. Nonfunctional requirements
+
+| ID | Requirement |
+|---|---|
+| NF-01 | Windows 10/11 x64 is the classroom platform; the application also builds and runs on Linux for development and CI |
+| NF-02 | Offline operation; ngspice, Renode and Qt runtime are bundled by the Windows package; no account or network needed |
+| NF-03 | Responsiveness: engine work never on the GUI thread; canvas interaction stays smooth with 200 components; analyzer redraw at least 20 Hz with 8 channels |
+| NF-04 | Robustness: engine errors, timeouts and invalid files produce messages, never a crash or document loss |
+| NF-05 | Automated tests: model/netlist unit tests, simulation results against analytical references, offscreen GUI smoke tests; CI builds Windows and Linux and publishes a Windows test package |
+| NF-06 | Licensing: original material MIT; dependencies used under compatible terms (Qt LGPL dynamic linking, ngspice BSD-3, Renode MIT); no GPL-only plotting or widget libraries |
+| NF-07 | Repository content in English; conversation with the owner may be in Portuguese |
+
+## 9. Outside the current commitment
+
+PCB design, cloud services, collaboration, cycle-accurate MCU timing, a large MCU
+catalog, HDL/Verilog, WASM components, AC/Bode/FFT analysis and protocol decoders
+beyond the UART terminal. They may return after the classroom release.

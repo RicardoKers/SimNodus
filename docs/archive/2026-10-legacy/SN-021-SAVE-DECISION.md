@@ -7,8 +7,8 @@ the external original unchanged; export remains create-only. This selects the
 workflow and revises SN-021's saving destination criterion, not its identity/version,
 atomicity or preservation guarantees. External overwrite remains unsupported.
 
-[ADR 0076](../decisions/0076-managed-document-saving.md) records the decision and
-the [managed saving contract](../architecture/MANAGED_DOCUMENT_SAVE.md) defines
+[ADR 0076](../../decisions/0076-managed-document-saving.md) records the decision and
+the [managed saving contract](../../architecture/MANAGED_DOCUMENT_SAVE.md) defines
 acceptance. Installation, concrete commit layout and physical save/recovery evidence
 remain pending. No service installation is authorized. SN-021 remains in_progress.
 

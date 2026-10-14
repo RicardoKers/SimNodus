@@ -1,85 +1,45 @@
 # Roadmap
 
-Baseline: 2026-08-31. Owner target: classes in February 2027. Dates below are planning targets, dependent on available development time and experiment results. No staffing or weekly capacity has been assumed.
+Revision 2 — 2026-10-14. Replaces the August baseline (archived in
+[archive/2026-10-legacy/ROADMAP.md](../archive/2026-10-legacy/ROADMAP.md)).
+The owner needs a usable tool now to prepare lessons, so the plan delivers a
+usable release every two weeks, analog first, then the microcontroller.
+Each release is tested hands-on by the owner; feedback adjusts the next phase.
 
-## Before classroom use
+## Releases
 
-| Milestone | Target window | Deliverable | Exit gate |
-|---|---|---|---|
-| M0 — Foundation | August 2026 | English repository, architecture, MIT license, plans, local checks | Documents are consistent and next experiments actionable |
-| M1 — Standalone backends | September 2026 | Reproducible Renode/ELF and ngspice/RC experiments | Fixed versions; boot/GPIO and analog reference tests recorded |
-| M2 — Headless co-simulation | September–October 2026 | GPIO output, digital feedback, ADC, traces, synchronized debugging | E-03 through E-05 pass for a declared capability profile |
-| M3 — Teaching MVP | November–December 2026 | Minimal Windows editor, saving/loading, essential instruments, debug workflow | Three small lesson projects run reliably from a clean setup |
-| Classroom candidate | January 2027 | Installation package/recipe, offline assets, guide, known limitations | Owner rehearses a class on a representative Windows PC |
-| Classroom use | February 2027 | Frozen, tested teaching subset | No unreviewed feature upgrades immediately before class |
+| Phase | Dates | Release | Content | Exit check |
+|---|---|---|---|---|
+| 0 — Reset | 2026-10-14 → 10-16 | — | New requirements and plan, repository restructure (legacy code moved aside), application skeleton building on Windows and Linux CI, engine spikes S1/S2 | Skeleton window runs on both platforms; spike results recorded |
+| 1 — Analog interactive editor | 10-16 → **10-30** | **0.1** | Editor (place, wire, properties, undo), component set A, interactive continuous run with switches/buttons/potentiometers/LEDs/meters, transient mode, Signal Analyzer scope, `.snx` save/open, examples | Owner builds and runs his own analog lesson circuits on Windows |
+| 2 — MCU GPIO | 11-02 → **11-13** | **0.2** | Blue Pill component, Renode integration, ELF load/reload, GPIO out/in, EXTI from schematic buttons, UART terminal, logic lanes, lesson 1–2 examples | Button on schematic → interrupt → LED, observed in analyzer |
+| 3 — ADC, PWM, components B | 11-16 → **11-27** | **0.3** | ADC with circuit voltages, timer PWM (after audit), component set B, lesson 3 example | ADC reads a potentiometer; PWM drives RC/LED |
+| 4 — Debugging and packaging | 11-30 → **12-11** | **0.4** | CubeIDE/GDB debugging, engine process isolation, Windows installer, pt-BR translation, user guide, diagnostics polish | Clean-PC install and a full lesson run by the owner |
+| Freeze | **12-15** | 0.5 RC | Feature freeze; only fixes afterwards | Known-limitations list published |
+| 5 — Stabilization | 12-15 → 2027-01-31 | 1.0 | Bug fixes, performance, lab rehearsal by 2027-01-15, go/no-go by 2027-01-31 | Rehearsal on a lab-like PC |
+| Classroom | February 2027 | 1.0 | Frozen tested release | — |
 
-M3 must not be declared ready if its documented simulator behavior is unsupported. Early file-format and component work can proceed where it does not obscure M2 integration failures.
+Weekly cadence inside each phase: a test build every Friday (Windows package
+from CI) with a short list of what to try.
 
-## Acceleration priority
+## Scope protection
 
-The owner requests earlier delivery where the evidence supports it, reserving
-any gained time for tests and improvements. Keep the baseline target windows;
-no earlier delivery date is committed without measured progress and capacity.
-SN-016's bounded gate is complete under ADR 0014; SN-017's bounded headless
-composition is accepted under [ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md).
-SN-018's local baseline on that profile is accepted under
-[ADR 0044](../decisions/0044-bounded-baseline-acceptance.md); SN-020 has an
-[accepted declaration baseline](../experiments/SN-020-acceptance.md) for topology,
-parameters, resource bindings, board/firmware and requested temporal policy.
-Physical loading and executable project verification remain SN-021 work. This does not complete the
-M2 product runner or approve general unpaced debugging. Reuse passing fixtures and narrow regression
-runs to changed behavior; do not reopen completed experiments without a concrete
-reason. Preserve acceptance criteria and a declared supported capability profile.
-Use earned schedule margin first for fault coverage, clean-install rehearsals,
-lesson examples, and usability fixes before adding optional features. Update
-forecasts at completed gates, rather than counting partial probes as completion.
+- MCU work (phase 2) does not start before release 0.1 is usable.
+- If a phase slips more than three working days, reduce scope of that phase
+  (component set, analyzer extras) instead of moving later phases.
+- Debugging (phase 4) is the first candidate to postpone if needed; the classroom
+  can use Renode-only runs and UART output.
+- The Symbol Editor (PRJ-05), subcircuits, HDL, WASM, decoders, AC/FFT analysis
+  and Linux packaging are after the classroom release unless time remains.
 
-## Scope protection and decision dates
+## Initial lessons
 
-- By 2026-09-30: review M1 evidence, toolchain friction, peripheral gaps, and actual development capacity.
-- By 2026-10-31: decide whether feedback and synchronized debugging support the intended lessons. If not, reduce the first lesson to a clearly labeled validated subset and retain physical hardware/existing tools as the teaching fallback. Do not claim the full product is ready.
-- By 2026-12-15: freeze the classroom feature list. Prioritize defects, packaging, examples, and documentation.
-- By 2027-01-15: rehearse setup and exercises on laboratory-like hardware.
-- By 2027-01-31: record the go/no-go decision, exact tested release, supported lessons, and fallback materials.
+1. GPIO output: firmware blinks an external LED with a series resistor; RC
+   filter on a pin, observed in the scope.
+2. Button input and EXTI: push button with pull-up/pull-down and RC debounce
+   triggers an interrupt that toggles an LED; show bouncing/debounce on the scope.
+3. ADC and UART: potentiometer voltage measured by the ADC and reported over
+   UART; optional PWM into an RC filter.
 
-These dates are review checkpoints, not automatic scheduled jobs.
-
-## Initial lesson candidates
-
-1. Firmware-driven GPIO with an external resistor/LED and an RC transient.
-2. Button/RC input and EXTI, including a demonstrable wiring or firmware mistake.
-3. ADC measurement and UART reporting, optionally PWM-to-RC only after timer/ADC coverage passes.
-
-The owner will select the first lesson. Each distributed example needs source, build instructions, expected observations, known limitations, and tested versions.
-
-## Longer-term evolution
-
-The [desktop UX direction](../architecture/DESKTOP_UX.md) guides SN-022 through
-SN-024: evaluate Qt against independent windows and adjustable panels; keep M3
-focused on minimal editing, preview, basic probes and essential analyzer views.
-FFT/harmonics, AC/Bode/XY analysis, richer digital decoding and multiple analyzer
-windows are future direction. This documentation adds no implementation progress
-or milestone dates; the existing classroom scope gates remain in force.
-
-The [shared instrumentation direction](../architecture/DEBUGGING.md#instruments)
-guides SN-024's essential M3 views and SN-033's later circuit/firmware inspection.
-Exports, probes, plots, scope, and logic views share signal/event infrastructure
-and the kernel timeline. Advanced decoding remains M5+ work: the suggested native
-order is PWM/frequency, UART, I2C, then SPI; Python and sigrok paths are optional
-future evaluations. This does not add a runtime, decoder suite, or full inspection
-to the classroom commitment, change milestone dates, or alter SN-017 extraction.
-
-| Milestone | Scope | Prerequisites |
-|---|---|---|
-| M4 — Reuse | Subcircuit authoring, project/user libraries, dependency locking | Stable persistence and independent instance state |
-| M5 — Teaching depth | Better diagnostics, peripheral coverage, node/software inspection, decoders | Reliable trace provenance and validated device profiles |
-| M6 — Component SDK | Versioned WASM capabilities, safe authoring tools, package validation | Threat model and resource-limit tests |
-| M7 — HDL | Verilog/Verilator integration and selected logic examples | One scheduler owner per model; licensing/build review |
-| M8 — Expansion | Linux application release, additional STM32/other MCUs | Windows classroom baseline stable; platform CI and packaging; mature CPU/peripheral models and validated firmware, I/O, timing, and debug coverage for each selected MCU/backend |
-
-M4 is an optional pre-class stretch goal if M2/M3 are already secure. Linux portability is considered from the start, but a Linux application release is not a February commitment. Core Linux CI is useful earlier and does not imply application support.
-
-[MCU independence](../decisions/0028-mcu-platform-independence.md) preserves ESP32,
-AVR, and other platforms as future candidates through suitable backends; it is
-not a claim of current Renode coverage. STM32F103C8/Blue Pill remains the initial
-reference and MVP focus. No additional platform implementation is scheduled here.
+The owner may reorder or replace these; examples ship with firmware source,
+build instructions and expected observations.

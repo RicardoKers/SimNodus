@@ -1,14 +1,16 @@
 # SimNodus documentation
 
-Latest SN-021 slice: [native declaration syntax ingress](experiments/SN-021-ingress.md).
-
-Initial baseline: 2026-08-31. These documents describe intent and development criteria, not existing simulator capabilities.
+Revision 2026-10-14: product rebuild ([ADR 0079](decisions/0079-product-rebuild-and-lightweight-process.md)).
+Planning documents of the first development line are in [archive/2026-10-legacy](archive/2026-10-legacy/CURRENT.md).
 
 ## Product and architecture
 
 - [Vision](VISION.md): audience, value, and boundaries.
-- [Requirements](REQUIREMENTS.md): traceable commitments and acceptance evidence.
-- [Architecture](architecture/README.md): modules, dependencies, and processes.
+- [Requirements](REQUIREMENTS.md): revision 2, numbered requirements by phase.
+- [Desktop UI design](architecture/DESKTOP_UX.md): editor layout, interaction, analyzer, shortcuts.
+- [Product architecture](architecture/PRODUCT_ARCHITECTURE.md): modules of the rebuilt application.
+- [Architecture index](architecture/README.md): backend contracts and earlier designs.
+- [Headless operation and automation](architecture/AUTOMATION.md): shared application boundary, structured CLI contracts, CI and future agent consumers.
 - [Virtual time and synchronization](architecture/SIMULATION_TIME.md).
 - [Temporal capability profile and E-03 gates](architecture/TEMPORAL_CAPABILITY_PROFILE.md).
 - [Backend contracts and electrical coupling](architecture/BACKEND_CONTRACTS.md).
@@ -16,12 +18,11 @@ Initial baseline: 2026-08-31. These documents describe intent and development cr
 - [Project format](architecture/PROJECT_FORMAT.md).
 - [Bounded Windows local resource snapshots](architecture/LOCAL_RESOURCE_VERIFICATION.md).
 - [Debugging and instruments](architecture/DEBUGGING.md).
-- [Desktop UX and visual instrumentation](architecture/DESKTOP_UX.md): editor/analyzer windows, contextual probes, adjustable workspace and initial/future scope.
 - [Architecture decisions](decisions/README.md).
 
 ## Living planning documents
 
-- [Current state](planning/CURRENT.md): read first when resuming work.
+- [Current state](planning/CURRENT.md): read first when resuming work (short).
 - [Roadmap](planning/ROADMAP.md): milestones, dates, and gates.
 - [Backlog](planning/BACKLOG.md): tasks and dependencies.
 - [Risks](planning/RISKS.md): uncertainties that may change the plan.

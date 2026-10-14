@@ -1,6 +1,6 @@
 # Next conversation: continue SN-023 in small editor increments
 
-Latest tested increment: [fixed RC arrows](../experiments/SN-023-canvas-selection.md).
+Latest tested increment: [fixed RC arrows](../../experiments/SN-023-canvas-selection.md).
 Read CURRENT and dated frozen reports/summary; reconfirm actual source PR/checks/
 branch/index/unpublished/main/overlays. Parent Enter95 sourceea8e026 merged as
 b1a0969d7610f11181e438dc1efb1e63ae058d20 after exact Windows67/67 and Ubuntu56/56
@@ -18,7 +18,7 @@ SN017/021/022 bounds/failures/SN044 ownership/January stabilization/February2027
 classroom target remain; general editor/wiring/instruments/managed Save/real worker/
 IPC/full keyboard/keypad/accessibility/recovery/DPI/session/packaging pending.
 
-Latest tested increment: [selected Enter](../experiments/SN-023-canvas-enter.md).
+Latest tested increment: [selected Enter](../../experiments/SN-023-canvas-enter.md).
 Original isolated reports/summary remain dated frozen evidence. Owner confirmed
 Enter worked. Read CURRENT's newest section and reconfirm actual source PR/checks/
 main state. Parent PR94 source a41a9482f350807b726f976079d6ab520f6cd382 merged
@@ -39,7 +39,7 @@ SN017/021/022 limits/failures/SN044 ownership/January stabilization/February2027
 classroom planning targets remain; general editor/wiring/instruments/managed Save/
 real workers/IPC/full keyboard/keypad/accessibility/recovery/DPI/session/packaging pending.
 
-Latest tested increment: [double-click R/C activation](../experiments/SN-023-canvas-double-click.md).
+Latest tested increment: [double-click R/C activation](../../experiments/SN-023-canvas-double-click.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #93 source 2cd00033b9648a31ce01645a487624ca6fb94c32, squash
 c413f2f1e67b19111f28380f56841b9df7ea665e; exact Foundation Windows 67/67 and
@@ -67,7 +67,7 @@ classroom planning targets retained. General editor/wiring/instruments/managed
 Save/real workers/IPC/full keyboard/accessibility/recovery/DPI/session layout/
 packaging pending. Historical handoffs follow.
 
-Latest tested increment: [focused canvas keyboard navigation](../experiments/SN-023-canvas-keyboard.md).
+Latest tested increment: [focused canvas keyboard navigation](../../experiments/SN-023-canvas-keyboard.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR92 source aa39274d20a88d6031839faacb490f9a35cfbb9b, squash
 d6b383e3556b7a1c4165c69930c61fb4233be4d0; exact Foundation Windows67/67 and
@@ -93,7 +93,7 @@ instruments/managed Save/real workers/IPC pending. SN017/021/022 bounds/SN044
 ownership/January stabilization/February2027 classroom planning targets retained.
 Historical handoffs follow.
 
-Latest tested increment: [transient Focus Circuit](../experiments/SN-023-circuit-focus.md).
+Latest tested increment: [transient Focus Circuit](../../experiments/SN-023-circuit-focus.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #91 source ceb2fa318becd8f5fa448fe00f8d6115aff92fff, squash
 3c348080390f921c26827cce09f5ccd7aaf731fd; Foundation Windows 67/67 and Ubuntu 56/56
@@ -121,7 +121,7 @@ layout/packaging/general editor/wiring/instruments/managed Save/real workers/IPC
 remain pending. SN-017/021/022 limits/SN-044 ownership/January stabilization/
 February 2027 classroom planning targets retained. Historical handoffs follow.
 
-Latest tested increment: [fixed RC vertical wheel zoom](../experiments/SN-023-canvas-wheel.md).
+Latest tested increment: [fixed RC vertical wheel zoom](../../experiments/SN-023-canvas-wheel.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #90 source bb27ac61228f168f160a2fc8f7c0d7f2db5892bd, squash
 84ab9ba0e58f820673445b2bab7fca4c6676c0a3; Foundation Windows 67/67 and Ubuntu 56/56
@@ -154,7 +154,7 @@ retained. Only that byte was corrected; a new build and wheel25/pan28 runs passe
 on the final source/binary freeze. Earlier passing runs remain intact. This scripted
 retry does not establish a user recovery flow.
 
-Latest tested increment: [fixed RC middle-button pan](../experiments/SN-023-canvas-pan.md).
+Latest tested increment: [fixed RC middle-button pan](../../experiments/SN-023-canvas-pan.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #89 squash 4add16905cd60ffc268b9a52fe13d7985b1411d9, source
 4ff75709e6fd4c3aba6ab81347b2d8dbbccd82e6; required Foundation Windows 67/67 and
@@ -179,7 +179,7 @@ DPI/session/packaging remain pending. SN-023 stays in_progress, no ADR; SN-017/0
 022 bounds/SN-044 ownership/January stabilization/February 2027 targets remain.
 Historical handoffs follow.
 
-Latest tested increment: [fixed RC Fit and Zoom](../experiments/SN-023-canvas-zoom.md).
+Latest tested increment: [fixed RC Fit and Zoom](../../experiments/SN-023-canvas-zoom.md).
 Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
 Pre-edit PR #88 merged at d6106341f85a7e957a393821864d306593c032bd; Foundation
 Windows 67/67 and Ubuntu 56/56 passed, main copies equal/zero unpublished.
@@ -203,7 +203,7 @@ human recovery/mouse/keyboard/accessibility/DPI/session/packaging remain pending
 SN-017/021/022 bounds, SN-044 ownership and January stabilization/February 2027
 planning targets remain. Historical handoffs follow.
 
-Latest tested increment: [Circuit resistance editing](../experiments/SN-023-circuit-resistance.md).
+Latest tested increment: [Circuit resistance editing](../../experiments/SN-023-circuit-resistance.md).
 Read CURRENT's newest section and reconfirm source PR/required checks/squash/main.
 Pre-edit PR #87 merged at 061e7816e575a8a6b4281a27529ae6a686157fc9; exact-source
 Foundation Windows 67/67 and Ubuntu 56/56 passed, main copies equal/zero unpublished.
@@ -226,7 +226,7 @@ IPC/human recovery/keyboard/accessibility/DPI/session/packaging remain pending.
 SN-017/021/022 limits, SN-044 ownership and January stabilization/February 2027
 planning targets remain. Historical handoffs follow.
 
-Latest tested increment: [exact RC captions](../experiments/SN-023-rc-captions.md).
+Latest tested increment: [exact RC captions](../../experiments/SN-023-rc-captions.md).
 Read CURRENT's newest section and reconfirm the source PR, required checks,
 squash and main. Pre-edit PR #86 merged at
 2812d6cf0735d7bbb5ead912280111e7999a3526, with Foundation Windows 67/67 and
@@ -250,7 +250,7 @@ accessibility/DPI/session/packaging remain pending. SN-017/021/022 limits and
 SN-044 ownership remain; January stabilization/February 2027 are planning targets.
 Historical handoffs follow.
 
-Latest tested increment: [Circuit capacitance editing](../experiments/SN-023-circuit-capacitance.md).
+Latest tested increment: [Circuit capacitance editing](../../experiments/SN-023-circuit-capacitance.md).
 Read CURRENT's newest section; reconfirm source PR/required checks/squash/main.
 Pre-edit PR #85 merged at 64c30eb3d7a42fdbd2130485648fd2d298bd5141, Foundation Windows 67/67 and Ubuntu 56/56 passed; main copies equal and zero unpublished. Explicit Edit Capacitance
 shares existing Qt field/limits/Apply widgets and one draft with Details, retaining
@@ -267,7 +267,7 @@ execution/keyboard/accessibility/DPI/session/packaging stay pending. SN-017/021/
 limits/SN-044 ownership and January stabilization/February 2027 target retained.
 Historical handoffs follow.
 
-Latest tested increment: [fixed RC canvas](../experiments/SN-023-rc-canvas.md).
+Latest tested increment: [fixed RC canvas](../../experiments/SN-023-rc-canvas.md).
 Owner QSpice screenshot is a conceptual layout reference only; visual circuit
 work supersedes keyboard-first sequencing. Read CURRENT's newest section and
 reconfirm the newest source PR/required checks/squash/main before edits. PR #84
@@ -293,7 +293,7 @@ large-project/human recovery/packaging remain pending. Preserve SN-017/021/022
 limits, SN-044 independent windows/panels/shared instrumentation and January
 stabilization/February 2027 classroom planning target. Historical handoffs follow.
 
-Latest tested increment: [applied occurrence capacitance](../experiments/SN-023-occurrence-capacitance.md).
+Latest tested increment: [applied occurrence capacitance](../../experiments/SN-023-occurrence-capacitance.md).
 PR #83 was reconfirmed MERGED at cbd27e2191abab47042fe560479d18b84a826853,
 Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main copies and zero
 unpublished commits. Reconfirm the newest PR/squash before continuing. Two Qt
@@ -318,7 +318,7 @@ monitor-DPI/session layout/packaging remain pending. Preserve SN-017/021/022 lim
 separate windows/panels/shared ownership, January stabilization and February 2027
 classroom planning target. Historical handoffs follow.
 
-Latest tested increment: [explicit peer navigation](../experiments/SN-023-peer-navigation.md).
+Latest tested increment: [explicit peer navigation](../../experiments/SN-023-peer-navigation.md).
 PR #82 was reconfirmed MERGED at 4c082d1ffecf25f9fa4da515f231a7d26daa09b4,
 exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal
 and zero unpublished commits. Reconfirm the newest PR/squash before continuing.
@@ -343,7 +343,7 @@ large projects/monitor-DPI/session layout/packaging remain pending. Preserve
 SN-017/021/022 limits, all negatives, separate windows/panels/shared ownership,
 January stabilization and February 2027 classroom planning target. Historical handoffs follow.
 
-Latest tested increment: [declared local endpoints](../experiments/SN-023-local-endpoints.md).
+Latest tested increment: [declared local endpoints](../../experiments/SN-023-local-endpoints.md).
 PR #81 was reconfirmed MERGED at 9e8f51b4c903e9d7b2731afc8093a3dcfceb4392,
 Foundation Windows 67/67 and Ubuntu 56/56 successful, main copies equal and zero
 unpublished commits. Reconfirm the newest PR/squash before continuing. Explicit
@@ -370,7 +370,7 @@ monitor-DPI/session layout/packaging pending. Earlier demo visibility stays inco
 Preserve SN-017/021/022 limits and negatives, independent windows/panels/shared ownership,
 January stabilization and February 2027 classroom target. Historical handoffs follow.
 
-Latest tested increment: [declared local terminals](../experiments/SN-023-terminal-membership.md).
+Latest tested increment: [declared local terminals](../../experiments/SN-023-terminal-membership.md).
 PR #80 was reconfirmed MERGED at bab9f24e165a8a638576f7cc846fda04598eb7a8,
 with exact-source Foundation Windows 67/67 and Ubuntu 56/56 successful, equal main
 copies and zero unpublished commits. Reconfirm the newest PR/squash before continuing.
@@ -396,7 +396,7 @@ inconclusive. Preserve SN-017/021/022 boundaries, all negative evidence, indepen
 windows/panels/shared ownership, January stabilization and February 2027 classroom
 planning target. The following handoffs retain their narrower historical results.
 
-Latest tested increment: [read-only occurrence artwork](../experiments/SN-023-occurrence-view.md).
+Latest tested increment: [read-only occurrence artwork](../../experiments/SN-023-occurrence-view.md).
 PR #79 was reconfirmed MERGED at `1790b44dd7f6893978f5e100bf0dad7428131400`,
 with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
 main and zero unpublished commits. Reconfirm the newest source PR/squash before
@@ -423,7 +423,7 @@ general components/instruments block. Preserve SN-017/021/022 accepted limits,
 negative/inconclusive evidence, January stabilization and February 2027 planning.
 The following handoffs retain their historical narrower results and constraints.
 
-Latest increment: [interactive fixture demo](../experiments/SN-023-interactive-demo.md).
+Latest increment: [interactive fixture demo](../../experiments/SN-023-interactive-demo.md).
 PR #78 was reconfirmed MERGED at `b85b2a29b88dc0b2db438687599d7482582264ba`,
 with required Foundation Windows 66/66 and Ubuntu 55/55 successful, equal
 local/origin/remote main and zero unpublished commits. Reconfirm the newest source
@@ -446,7 +446,7 @@ windows/panels/shared instrumentation and all SN-017/021/022 accepted limits.
 January stabilization and February 2027 classroom use remain planning targets.
 The following handoffs retain their historical narrower results and constraints.
 
-Latest tested increment: [declared pins on owned fixture Preview](../experiments/SN-023-pin-preview.md).
+Latest tested increment: [declared pins on owned fixture Preview](../../experiments/SN-023-pin-preview.md).
 PR #77 was reconfirmed MERGED at `d84db84f86bba557eab832b56b46df4a3ad051b1`,
 with Foundation Windows 66/66 and Ubuntu 55/55 successful, equal local/origin/remote
 main and no unpublished commits. Reconfirm this increment's newest source PR/squash
@@ -473,7 +473,7 @@ profiles/tolerances, limits and all failed/inconclusive evidence. January stabil
 and February 2027 classroom use remain planning targets.
 The following handoffs retain their historical narrower results and constraints.
 
-Latest tested increment: [explicit owned fixture artwork Preview](../experiments/SN-023-fixture-preview.md).
+Latest tested increment: [explicit owned fixture artwork Preview](../../experiments/SN-023-fixture-preview.md).
 PR #76 was reconfirmed MERGED at `a364ba2088e7b07c796edeb464fe64a8d25c7f2d`,
 with Foundation Windows 65/65 and Ubuntu 54/54 successful, equal local/origin/remote
 main and no unpublished commits. Reconfirm this increment's newest source PR and
@@ -500,7 +500,7 @@ Retain SN-017/021/022 limits, failures, tolerances and ownership; January stabil
 and February 2027 classroom use remain planning targets.
 The following handoffs retain their historical narrower results and constraints.
 
-Latest tested increment: [read-only effective R/C inspection](../experiments/SN-023-effective-parameters.md).
+Latest tested increment: [read-only effective R/C inspection](../../experiments/SN-023-effective-parameters.md).
 PR #75 was reconfirmed at `661de58b380905e7ad40576965b5e6f5cb97a3e5`, with
 Foundation Windows 63/63 and Ubuntu 52/52 successful, equal local/origin/remote main
 and no unpublished commits before starting this branch. Reconfirm the newest
@@ -518,7 +518,7 @@ General edits, wiring, engines, instruments and usability remain pending. Preser
 all earlier SN-017/021/022 constraints and January stabilization/February 2027 target.
 The following handoffs retain their earlier narrower results and constraints.
 
-Latest tested increment: [existing literal capacitance value](../experiments/SN-023-capacitance-value.md).
+Latest tested increment: [existing literal capacitance value](../../experiments/SN-023-capacitance-value.md).
 PR #74 was reconfirmed at `0ba339f4fa2f38f2ea61ad6eb8e6c3ccbc023978`, with
 Foundation Windows 61/61 and Ubuntu 50/50 successful, equal local/origin/remote main
 and no unpublished commits before starting this branch. Reconfirm the newest
@@ -534,7 +534,7 @@ General edits, wiring, engines, instruments and usability remain pending. Januar
 stabilization and February 2027 classroom use remain planning targets.
 The following handoffs retain their earlier narrower results and constraints.
 
-Latest tested increment: [existing literal resistance value](../experiments/SN-023-resistance-value.md).
+Latest tested increment: [existing literal resistance value](../../experiments/SN-023-resistance-value.md).
 PR #73 was reconfirmed at `4126f74898fc12b256bba1ff6053dbd70baf37ff` with both
 required Foundation checks passing (Windows 59/59; Ubuntu 48/48), matching local
 and remote main and no unpublished commits before starting this branch. Reconfirm
@@ -614,7 +614,7 @@ GitHub has the final SN-021 evidence.
 > Continue SimNodus from the real repository state. Read AGENTS.md, README.md,
 > docs/planning/CURRENT.md, BACKLOG.md and NEXT_CONVERSATION.md, the relevant
 > architecture/decision indexes, ADRs 0076 and 0077, and the
-> [SN-021 final bounded acceptance audit](../experiments/SN-021-final-acceptance.md).
+> [SN-021 final bounded acceptance audit](../../experiments/SN-021-final-acceptance.md).
 > Verify branch, local changes, unpublished commits, main and remote status before
 > editing; preserve valid local work and all positive, negative and inconclusive
 > evidence. SN-021 accepted only the Windows/local-NTFS, one-managed-document
@@ -643,7 +643,7 @@ the live status above.
 ## Measured physical managed RC lifecycle batch
 
 Current branch: `codex/sn-021-managed-lifecycle`, based on main `7352359` after
-PR #67. The [bounded composition](../experiments/SN-021-managed-lifecycle.md)
+PR #67. The [bounded composition](../../experiments/SN-021-managed-lifecycle.md)
 passed a fresh disposable-VM run `20260929T002809Z-322f180b92ab`: exact
 external import into a managed copy, authenticated Open/edit/Save/reopen,
 create-only export, physical resource/root refusals and bound fixed E-01
@@ -651,11 +651,11 @@ compilation. An independent byte auditor verified 55 source snapshots, 42
 artifacts, three requests and two committed records. Only then did real ngspice
 consume the fixed netlist; 5,012 samples had 0.099 microvolts maximum analytical
 error within the 10 microvolt and 1 ps project limits. The
-[successful evidence](../experiments/evidence/SN-021-managed-lifecycle-vm-success-summary.json)
+[successful evidence](../../experiments/evidence/SN-021-managed-lifecycle-vm-success-summary.json)
 records exact raw-result hashes. Four local preflight cases and 56 CTests passed.
 
-Retain the [local preparation failure](../experiments/evidence/SN-021-managed-lifecycle-local-preparation-summary.json)
-and [first VM failure](../experiments/evidence/SN-021-managed-lifecycle-vm-attempt1-summary.json)
+Retain the [local preparation failure](../../experiments/evidence/SN-021-managed-lifecycle-local-preparation-summary.json)
+and [first VM failure](../../experiments/evidence/SN-021-managed-lifecycle-vm-attempt1-summary.json)
 as separate negative evidence. The successful run does not turn either failed
 attempt into a pass. SN-021 remains in_progress; audit the v3 competing-Save,
 endpoint, identity and deadline gates, then run final bounded acceptance checks.
@@ -665,7 +665,7 @@ and runtime readiness. The next-cycle prompt awaits actual SN-021 closure.
 
 ## Next SN-021 block: compose the managed document lifecycle
 
-The [local root-binding prerequisite](../experiments/SN-021-root-binding.md)
+The [local root-binding prerequisite](../../experiments/SN-021-root-binding.md)
 returns the original resource-root identity from the acquisition handle and
 checks it on the later resource-capture handle. Byte-identical root replacement
 is refused. Focused Windows regressions and explicit real E-01 replay passed;
@@ -685,7 +685,7 @@ closure. The twelve SN-045 overlays and historical negative evidence remain.
 
 ## Next SN-021 block: compose managed requests with the accepted RC lifecycle
 
-The [manual request candidate](../experiments/SN-021-managed-request.md) completed
+The [manual request candidate](../../experiments/SN-021-managed-request.md) completed
 19 authenticated Open/Save/Reconcile requests on `codex/sn-021-authenticated-save`,
 based on main `d6bdcf4` (PR #65), then integrated as PR #66 at `19e87bb`.
 The independent auditor matched 82 artifact hashes,
@@ -697,7 +697,7 @@ request, endpoint and deadline gates before broader acceptance.
 
 The first VM attempt failed before provisioning because the local-user description
 exceeded the 48-character Windows limit. The corrected description is 31 characters;
-the [failed attempt](../experiments/evidence/SN-021-managed-request-attempt1-summary.json)
+the [failed attempt](../../experiments/evidence/SN-021-managed-request-attempt1-summary.json)
 and exact hashes remain retained separately from the successful run.
 
 SN-021 stays in_progress. Preserve twelve SN-045 overlays, historical evidence,
@@ -706,7 +706,7 @@ The next-chat prompt awaits actual closure.
 
 ## Latest evidence: managed-store visibility and path-object refusal
 
-The [physical VM probe](../experiments/SN-021-store-visibility.md) completed
+The [physical VM probe](../../experiments/SN-021-store-visibility.md) completed
 11 fresh stores and 54 observations: serialized reader exclusion and complete
 old/new committed records, five case-only alias refusals, and five reparse-point
 refusals. The document junction was denied at initial open, so its same-handle
@@ -725,7 +725,7 @@ checks and final integration identities. No binaries or releases are published.
 
 ## Latest evidence: selected physical record correspondence
 
-The [read-only record collection](../experiments/SN-021-record-correspondence.md)
+The [read-only record collection](../../experiments/SN-021-record-correspondence.md)
 copied the manifest, original project and five selected committed records from the
 unreverted successful VM store. Independent Python checks matched prior physical
 hashes, exact project/context bytes, request/record digests and adjacent revision
@@ -743,7 +743,7 @@ source/squash identities; no executables or releases are published.
 
 ## Latest evidence: managed-store candidate
 
-The [physical candidate report](../experiments/SN-021-managed-store-candidate.md)
+The [physical candidate report](../../experiments/SN-021-managed-store-candidate.md)
 records the 20,996 ms disposable-VM batch: 64 revisions, 87 mutation denials,
 exclusive writer locking, eight injected-failure recoveries, six termination
 recoveries, older-receipt reconciliation and eight startup rejection cases.
@@ -761,7 +761,7 @@ checks and final source/squash identities; no binaries or releases are published
 
 ## Latest implementation: bounded chain and receipts
 
-The [chain/preparation module](../experiments/SN-021-managed-chain.md) validates
+The [chain/preparation module](../../experiments/SN-021-managed-chain.md) validates
 supplied record sequences and exact predecessor observations, preserves old receipts,
 rejects operation conflicts/stale tokens and prepares bounded inert commit bytes.
 Fifty-three native assertions passed, including A-B-A and the 64-revision capacity,
@@ -780,8 +780,8 @@ hosted checks and final source/squash identities.
 
 ## Latest implementation: inert managed record codec
 
-The [format 1 codec](../architecture/MANAGED_RECORD_FORMAT.md) implements the bounded
-record portion of ADR 0077. [Local evidence](../experiments/SN-021-managed-record-codec.md):
+The [format 1 codec](../../architecture/MANAGED_RECORD_FORMAT.md) implements the bounded
+record portion of ADR 0077. [Local evidence](../../experiments/SN-021-managed-record-codec.md):
 17 native checks and 370 independent struct/hashlib cases passed, including malformed
 records with recomputed hashes. Exact project/context bytes remain inert; native
 declarative validation and the original 1 MiB lock digest limit are preserved.
@@ -798,8 +798,8 @@ source and squash identities. Final next-cycle handoff still awaits actual compl
 
 ## Selected experiment: bounded managed commit chain
 
-[ADR 0077](../decisions/0077-bounded-managed-commit-candidate.md) selects the
-[commit candidate](../architecture/MANAGED_COMMIT_EXPERIMENT.md), dated 2026-09-24:
+[ADR 0077](../../decisions/0077-bounded-managed-commit-candidate.md) selects the
+[commit candidate](../../architecture/MANAGED_COMMIT_EXPERIMENT.md), dated 2026-09-24:
 one complete record binds document/resource context, predecessor version and
 operation receipt; create-only publication adds the next revision under protected
 exclusive-writer authority. No mutable head/catalog pair or external overwrite.
@@ -821,7 +821,7 @@ The PR records required checks and squash. No final next-cycle prompt yet.
 
 ## Latest evidence: isolation prerequisites
 
-The [isolation batch](../experiments/SN-021-isolation-prerequisites.md) observed twelve
+The [isolation batch](../../experiments/SN-021-isolation-prerequisites.md) observed twelve
 queries and thirty denied mutation sequences on 2026-09-24 in 52,701 ms. Unchanged
 private-v2 identity/authorization/replay checks and direct exclusion while the writer
 was active, forcibly stopped and restarted met their bounded criteria. Snapshots
@@ -842,8 +842,8 @@ checks and squash. No SN-021 closure or final next-cycle prompt yet.
 ## Accepted workflow: managed document saving
 
 On 2026-09-24 the owner accepted Save updating a copy managed by SimNodus.
-[ADR 0076](../decisions/0076-managed-document-saving.md) selects this SN-021 saving
-criterion; the [contract](../architecture/MANAGED_DOCUMENT_SAVE.md) defines required
+[ADR 0076](../../decisions/0076-managed-document-saving.md) selects this SN-021 saving
+criterion; the [contract](../../architecture/MANAGED_DOCUMENT_SAVE.md) defines required
 behavior. Explicit import preserves the external original; export remains create-only.
 External arbitrary-directory overwrite remains unsupported under ADR 0064. No
 service installation, production save implementation or physical acceptance is claimed.
@@ -862,7 +862,7 @@ The final next-cycle prompt still awaits actual SN-021 completion.
 
 ## Latest evidence: consolidated request matrix
 
-The [request matrix](../experiments/SN-021-request-matrix.md) observed 26 physical
+The [request matrix](../../experiments/SN-021-request-matrix.md) observed 26 physical
 case criteria on 2026-09-24 in 103,224 ms: private wire-v2 terminal exchange,
 response/duplicate/closure/deadline refusals, small-message rejection and nine
 startup refusals before readiness. Post-injection hashes/ACLs stayed unchanged.
@@ -879,7 +879,7 @@ The final next-cycle prompt awaits actual SN-021 completion.
 
 ## Latest evidence: endpoint and orderly restart
 
-The [endpoint/restart VM probe](../experiments/SN-021-endpoint-restart.md) observed
+The [endpoint/restart VM probe](../../experiments/SN-021-endpoint-restart.md) observed
 seven limited scenarios on 2026-09-24: owner/rights rejection before sending bytes,
 occupied-name refusal, original-server query, and exact old-request rejection after
 orderly restart, followed by a fresh query and refusal of altered startup bytes.
@@ -897,7 +897,7 @@ The final next-cycle prompt awaits actual SN-021 completion.
 
 ## Latest evidence: integrated read-only query
 
-The [integrated query VM probe](../experiments/SN-021-integrated-query.md) on
+The [integrated query VM probe](../../experiments/SN-021-integrated-query.md) on
 2026-09-24 met eighteen limited physical case criteria: retained startup handles,
 protected document/run mapping, real pipe identity, fixed framing, refusals and
 bounded cancellation. All cases preserved their post-setup fixture bytes. The
@@ -915,7 +915,7 @@ The final next-cycle prompt awaits actual SN-021 completion.
 
 ## Latest evidence: protected startup prerequisite
 
-The [startup VM probe](../experiments/SN-021-store-startup.md) on 2026-09-24 observed
+The [startup VM probe](../../experiments/SN-021-store-startup.md) on 2026-09-24 observed
 two valid starts in independent ordinary processes and nine expected refusals for
 bytes, identity, absence, hardlink, owner, rights, manifest size, junction and root
 rights. Volume/ancestor/file handles remain retained through validation, with exact
@@ -933,7 +933,7 @@ The final next-cycle prompt awaits actual SN-021 completion.
 
 ## Latest evidence: pipe identity prerequisite
 
-The [manual VM preflight](../experiments/SN-021-pipe-identity.md) completed five cases:
+The [manual VM preflight](../../experiments/SN-021-pipe-identity.md) completed five cases:
 two allowed clients, handler denial for a distinct connected SID, anonymous-token
 refusal, and pipe ACL denial. The ordinary writer identified real tokens at level 1
 without SeImpersonatePrivilege and verified reversion before dispatch. This uses a
@@ -951,7 +951,7 @@ The final next-cycle prompt awaits actual SN-021 completion.
 
 ## Next bounded experiment: authority requests
 
-The [request contract](../architecture/AUTHORITY_REQUEST_EXPERIMENT.md) specifies
+The [request contract](../../architecture/AUTHORITY_REQUEST_EXPERIMENT.md) specifies
 a read-only, 64-byte fixture query under real distinct Windows identities. It defines
 minimal named-pipe rights, server verification, identification-token authorization,
 bounded I/O, refusal cases and startup checks. Status: specified, not implemented
@@ -970,7 +970,7 @@ Base main: `7a8ee8d6bc13d67569bd499e9d8cd7eff288b2db`; branch
 ## Latest observation: SN-021 distinct-principal filesystem experiment
 
 On 2026-09-23 the owner-provided disposable VMware Windows 11 VM completed the
-[filesystem experiment](../experiments/SN-021-authority-filesystem.md): two ordinary
+[filesystem experiment](../../experiments/SN-021-authority-filesystem.md): two ordinary
 accounts, two writer processes and two client processes; all 18 client operations
 returned access denied while preserving target bytes, DACL/owner, identity and
 single-link count. Authorized replacement changed physical identity and bytes.
@@ -988,7 +988,7 @@ or prepare its final next-cycle prompt yet. Preserve the local SN-045 work.
 Base main: `279a430f371d328f299fe15b4ae38318196995c1`; branch
 `codex/sn-021-authority-filesystem`. The PR records final checks and squash identity.
 
-Read CURRENT, BACKLOG, ADR 0064 and the [proposal](../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md).
+Read CURRENT, BACKLOG, ADR 0064 and the [proposal](../../architecture/PUBLICATION_AUTHORITY_PROPOSAL.md).
 The proposal is not an architecture selection: managed save under a distinct writer
 identity changes the arbitrary-directory workflow. Same-user folders/helpers do not
 establish independent exclusion. No service, ACL policy or storage format was installed.
@@ -1012,7 +1012,7 @@ The next-cycle prompt awaits final SN-021 acceptance.
 
 # Historical handoff: SN-021 ordinary oplock limits
 
-Read CURRENT, BACKLOG, ADR 0064 and the [oplock report](../experiments/SN-021-oplock-boundary.md).
+Read CURRENT, BACKLOG, ADR 0064 and the [oplock report](../../experiments/SN-021-oplock-boundary.md).
 Three physical observations show directory RH/file RW permit replacement and file
 RWH also holds our separate-handle replacement until release. The directory ACK flag
 is not proof of child-entry exclusion. Preserve the initial invalid-bit failure;
@@ -1035,7 +1035,7 @@ branch `codex/sn-021-oplock-boundary`. Confirm final checks, squash and main ide
 
 # Historical handoff: SN-021 observed transaction isolation
 
-Read CURRENT, BACKLOG, ADR 0064 and the [TxF report](../experiments/SN-021-txf-boundary.md).
+Read CURRENT, BACKLOG, ADR 0064 and the [TxF report](../../experiments/SN-021-txf-boundary.md).
 Six disposable fixture cases observed transaction-level exclusion across writer
 handle close, commit/rollback, stale identity/bytes and existing writer/mapping
 conflicts. Eight separate competitor write/rename attempts rejected. The final
@@ -1058,8 +1058,8 @@ Base main: `5b2cf26aa6fa1564410bec8368e7e619936dffa3` (PR #46); branch
 
 # Historical handoff: SN-021 configured replay lifecycle
 
-Read CURRENT, BACKLOG, the [lifecycle report](../experiments/SN-021-replay-lifecycle.md)
-and [acceptance matrix](../experiments/SN-021-acceptance.md). Existing native create/
+Read CURRENT, BACKLOG, the [lifecycle report](../../experiments/SN-021-replay-lifecycle.md)
+and [acceptance matrix](../../experiments/SN-021-acceptance.md). Existing native create/
 acquire/name-edit/save-copy/reacquire now compose with explicit fixed replay in the
 test-only probe. Nineteen Windows cases and three targeted CTests passed. Real
 ngspice consumed the post-reopen artifact, matching pre-save compilation, with
@@ -1083,8 +1083,8 @@ squash and local/remote main identity before continuing.
 
 # Historical handoff: SN-021 fixed configured RC replay
 
-Read CURRENT, BACKLOG, [ADR 0075](../decisions/0075-fixed-e01-project-replay.md), the
-[contract](../architecture/FIXED_RC_REPLAY.md) and [report](../experiments/SN-021-fixed-replay.md).
+Read CURRENT, BACKLOG, [ADR 0075](../../decisions/0075-fixed-e01-project-replay.md), the
+[contract](../../architecture/FIXED_RC_REPLAY.md) and [report](../../experiments/SN-021-fixed-replay.md).
 A separate explicit native operation binds original configured replay metadata
 and exact captured schedule to the existing ideal RC compiler. One 5 ms interval,
 known 3.3 V drive and disabled debugging only; existing standalone gates remain.
@@ -1110,7 +1110,7 @@ Base main: `c6faf05dd7da55169f232f9888c4ece8ee761570` (PR #44); branch
 
 # Historical handoff: SN-021 acceptance gates
 
-Read the [acceptance matrix](../experiments/SN-021-acceptance.md), CURRENT and BACKLOG.
+Read the [acceptance matrix](../../experiments/SN-021-acceptance.md), CURRENT and BACKLOG.
 The matrix maps remaining work; earlier slice next-steps are historical. Loading,
 independent graph/source mapping, create-only persistence, explicit ideal RC
 compilation and isolated reference boot have bounded implementation and real evidence.
@@ -1135,8 +1135,8 @@ Base main: `04f0174e922ca87db85213d9d184692b276862d8` (PR #43); branch
 
 # Historical handoff: SN-021 reference target and real boot
 
-Read CURRENT, BACKLOG, [ADR 0074](../decisions/0074-explicit-reference-target-boot.md),
-the [contract](../architecture/REFERENCE_TARGET.md) and [report](../experiments/SN-021-reference-target.md).
+Read CURRENT, BACKLOG, [ADR 0074](../../decisions/0074-explicit-reference-target-boot.md),
+the [contract](../../architecture/REFERENCE_TARGET.md) and [report](../../experiments/SN-021-reference-target.md).
 Native explicit target/platform/firmware association remains inert. A separate
 Python experiment consumed owned snapshots through pinned staging and passed real
 Renode E-02 assertions for both existing 100/1000 us profiles. Seven gate cases
@@ -1156,8 +1156,8 @@ Base main: `fe32b2591ec4e5d611082684a116a2f5e6e82908` (PR #42); branch
 
 # Historical handoff: SN-021 static reference boot candidate
 
-Read CURRENT, BACKLOG, [ADR 0073](../decisions/0073-static-boot-candidate.md), the
-[contract](../architecture/BOOT_CANDIDATE.md) and [report](../experiments/SN-021-boot-candidate.md).
+Read CURRENT, BACKLOG, [ADR 0073](../../decisions/0073-static-boot-candidate.md), the
+[contract](../../architecture/BOOT_CANDIDATE.md) and [report](../../experiments/SN-021-boot-candidate.md).
 An explicit adapter-local SN-012 profile now checks ELF/header, memory-region,
 overlap, stack reserve and reset/vector correspondence. Eight cases and 48 Windows
 CTests passed. The historical image passed read-only hash/symbol comparison;
@@ -1178,8 +1178,8 @@ Base main: `e5306affc1c8a892c22096383d7f466238e9246c` (PR #41); branch
 
 # Historical handoff: SN-021 selected firmware capture
 
-Read CURRENT, BACKLOG, the [contract](../architecture/FIRMWARE_INSPECTION.md) and
-[report](../experiments/SN-021-firmware-inspection.md). Explicit native composition
+Read CURRENT, BACKLOG, the [contract](../../architecture/FIRMWARE_INSPECTION.md) and
+[report](../../experiments/SN-021-firmware-inspection.md). Explicit native composition
 now validates project metadata, selects firmware by ID, physically captures all
 locked resources and inspects retained ELF bytes. Nine cases (eight Windows passes,
 one platform skip), 47 CTests and historical real compiler-output capture passed.
@@ -1200,8 +1200,8 @@ Base main: `8122767d58d57570740c9bc948432b161b0e7e65` (PR #40); branch
 
 # Historical handoff: SN-021 inert ELF inspection
 
-Read CURRENT, BACKLOG, [ADR 0072](../decisions/0072-inert-elf-inspection.md), the
-[contract](../architecture/ELF_INSPECTION.md) and [report](../experiments/SN-021-elf-inspection.md).
+Read CURRENT, BACKLOG, [ADR 0072](../../decisions/0072-inert-elf-inspection.md), the
+[contract](../../architecture/ELF_INSPECTION.md) and [report](../../experiments/SN-021-elf-inspection.md).
 The pure reader owns ELF32 little-endian bytes and bounded program records with
 raw architecture/ABI/entry/flags and source offsets. Twelve adversarial cases and
 46 Windows CTests passed. Historical SN-012 compiler-output comparison passed;
@@ -1223,7 +1223,7 @@ Base main: `922f364c4464aa191cb0be214f2e0f67c65ba15a` (PR #39); branch
 
 # Historical handoff: SN-021 project lifecycle acceptance
 
-Read CURRENT, BACKLOG and the [lifecycle report](../experiments/SN-021-project-lifecycle.md).
+Read CURRENT, BACKLOG and the [lifecycle report](../../experiments/SN-021-project-lifecycle.md).
 Eight Windows cases and 45 CTests passed; two explicit real ngspice runs validated
 the reopened artifact with unchanged tolerances. Existing APIs now have combined
 create/open/name-edit/save-copy/reopen/compile evidence; no production API changed.
@@ -1242,9 +1242,9 @@ Base main: `a5f0c53a82092b12ecc086ddcc8639d3feb66e90` (PR #38). Branch:
 
 # Historical handoff: SN-021 explicit ideal RC compilation
 
-Read CURRENT, BACKLOG, [ADR 0071](../decisions/0071-explicit-ideal-rc-compilation.md),
-the [contract](../architecture/IDEAL_RC_COMPILATION.md) and
-[report](../experiments/SN-021-ideal-rc-compilation.md). Complete project validation,
+Read CURRENT, BACKLOG, [ADR 0071](../../decisions/0071-explicit-ideal-rc-compilation.md),
+the [contract](../../architecture/IDEAL_RC_COMPILATION.md) and
+[report](../../experiments/SN-021-ideal-rc-compilation.md). Complete project validation,
 structural connectivity and physical snapshots now feed an explicit fixed E-01
 compiler with root reference/drive/output selection and full source maps. Only
 1 kohm/1 uF, three-node standalone RC is accepted; no configured co-simulation.
@@ -1271,18 +1271,18 @@ Full SN-021 remains in progress; prepare the next-cycle prompt upon completion.
 Confirm final state and main identity before reviewing remaining acceptance gates.
 
 Preserve the initial Linux root-versus-platform test failure and its correction
-[evidence](../experiments/evidence/SN-021-ideal-rc-ci-correction.json). Only the test
+[evidence](../../experiments/evidence/SN-021-ideal-rc-ci-correction.json). Only the test
 expectation changed; final source hashes are recorded in that supplemental audit.
 
 Also preserve the subsequent Windows fixture-root failure and the
-[root correction audit](../experiments/evidence/SN-021-ideal-rc-root-correction.json).
+[root correction audit](../../experiments/evidence/SN-021-ideal-rc-root-correction.json).
 It contains the final source hashes; no production/path-policy relaxation occurred.
 
 # Historical handoff: SN-021 exact passive numerical binding
 
-Read CURRENT, BACKLOG, [ADR 0070](../decisions/0070-passive-numeric-binding.md),
-the [contract](../architecture/PASSIVE_NUMERIC_BINDING.md) and
-[report](../experiments/SN-021-passive-numeric.md). Source defaults now convert
+Read CURRENT, BACKLOG, [ADR 0070](../../decisions/0070-passive-numeric-binding.md),
+the [contract](../../architecture/PASSIVE_NUMERIC_BINDING.md) and
+[report](../../experiments/SN-021-passive-numeric.md). Source defaults now convert
 exactly and must be positive/in-range even if overridden or unused. Reachable
 component effective values and ordered logical pins retain paths and provenance.
 Eight cases, 40 Decimal comparisons and 43 Windows CTests passed. All readiness
@@ -1307,9 +1307,9 @@ Confirm final state and main identity before analysis authority/backend lowering
 
 # Historical handoff: SN-021 passive interface correspondence
 
-Read CURRENT, BACKLOG, [ADR 0069](../decisions/0069-passive-interface-correspondence.md),
-the [contract](../architecture/PASSIVE_INTERFACE.md) and
-[report](../experiments/SN-021-passive-interface.md). Selected descriptors now
+Read CURRENT, BACKLOG, [ADR 0069](../../decisions/0069-passive-interface-correspondence.md),
+the [contract](../../architecture/PASSIVE_INTERFACE.md) and
+[report](../../experiments/SN-021-passive-interface.md). Selected descriptors now
 match owned recognized R/C bytes by exact resource size/hash, entrypoint, explicit
 ordered terminal/parameter maps and primitive unit. All readiness flags stay false.
 Eight cases and 42 Windows CTests passed; this operation is pure and inert.
@@ -1334,9 +1334,9 @@ Confirm the final state and main identity before numerical binding work.
 
 # Historical handoff: SN-021 bounded passive source inspection
 
-Read CURRENT, BACKLOG, [ADR 0068](../decisions/0068-passive-source-inspection.md),
-the [contract](../architecture/PASSIVE_SPICE_SOURCE.md) and
-[report](../experiments/SN-021-passive-source.md). The pure reader owns recognized
+Read CURRENT, BACKLOG, [ADR 0068](../../decisions/0068-passive-source-inspection.md),
+the [contract](../../architecture/PASSIVE_SPICE_SOURCE.md) and
+[report](../../experiments/SN-021-passive-source.md). The pure reader owns recognized
 R/C source/interface spans and rejects unsupported constructs under fixed budgets.
 Seven cases and 41 Windows CTests passed. The explicit pinned ngspice E-01 run
 used physically captured owned fixture bytes: 5012 samples, maximum error
@@ -1361,9 +1361,9 @@ Confirm its final state and main identity before descriptor/parameter binding.
 
 # Historical handoff: SN-021 structural connectivity compilation
 
-Read CURRENT, BACKLOG, [ADR 0067](../decisions/0067-connectivity-compilation.md),
-the [contract](../architecture/CONNECTIVITY_COMPILATION.md) and
-[report](../experiments/SN-021-connectivity-compilation.md). The structural compiler
+Read CURRENT, BACKLOG, [ADR 0067](../../decisions/0067-connectivity-compilation.md),
+the [contract](../../architecture/CONNECTIVITY_COMPILATION.md) and
+[report](../../experiments/SN-021-connectivity-compilation.md). The structural compiler
 expands reachable occurrences and partitions only explicit connections. It retains
 singleton terminals, source-net aliases and full original provenance/metadata.
 No backend netlist, implicit ground or runtime approval is produced.
@@ -1389,9 +1389,9 @@ Confirm its final state and main identity before model/interface lowering work.
 
 # Historical handoff: SN-021 source-preserving display-name revision
 
-Read CURRENT, BACKLOG, [ADR 0066](../decisions/0066-project-name-revision.md),
-the [contract](../architecture/PROJECT_REVISION.md) and
-[report](../experiments/SN-021-revision.md). Renaming changes only the top-level
+Read CURRENT, BACKLOG, [ADR 0066](../../decisions/0066-project-name-revision.md),
+the [contract](../../architecture/PROJECT_REVISION.md) and
+[report](../../experiments/SN-021-revision.md). Renaming changes only the top-level
 display-name token after validating the base, then revalidates/rebuilds the graph
 and provenance. Semantic no-ops preserve every original byte. No I/O or save
 authority is granted. Acceptance: 11 cases/33 requests and 39 Windows CTests.
@@ -1416,9 +1416,9 @@ Confirm its final state and main identity before compiler contract work.
 
 # Historical handoff: SN-021 native project acquisition
 
-Read CURRENT, BACKLOG, [ADR 0065](../decisions/0065-project-acquisition.md),
-the [contract](../architecture/PROJECT_ACQUISITION.md) and
-[report](../experiments/SN-021-acquisition.md). Acquisition captures one selected
+Read CURRENT, BACKLOG, [ADR 0065](../../decisions/0065-project-acquisition.md),
+the [contract](../../architecture/PROJECT_ACQUISITION.md) and
+[report](../../experiments/SN-021-acquisition.md). Acquisition captures one selected
 document through retained Windows/NTFS handles, then validates/loads its owned
 graph. No declared resources open, and no pathname lease or overwrite authority
 is returned. The post-close replacement test preserves the original captured graph.
@@ -1443,8 +1443,8 @@ Confirm its final state and main identity before source revision work.
 
 # Historical handoff: SN-021 overwrite ownership boundary
 
-Read CURRENT, BACKLOG, [ADR 0064](../decisions/0064-overwrite-ownership-boundary.md)
-and the [report](../experiments/SN-021-overwrite-boundary.md). Seven physical NTFS
+Read CURRENT, BACKLOG, [ADR 0064](../../decisions/0064-overwrite-ownership-boundary.md)
+and the [report](../../experiments/SN-021-overwrite-boundary.md). Seven physical NTFS
 counterexamples reject unlocking/checking then replacing, POSIX handle-as-path
 ownership and a two-rename gap. All 37 local Windows CTests passed. No production
 overwrite API was added; create-only saving remains the supported operation.
@@ -1472,9 +1472,9 @@ Confirm its final state and main identity before native acquisition work.
 
 # Historical handoff: SN-021 atomic creation of project documents
 
-Read CURRENT, BACKLOG, [ADR 0063](../decisions/0063-atomic-project-create.md),
-the [contract](../architecture/ATOMIC_PROJECT_CREATE.md) and
-[report](../experiments/SN-021-save-create.md). Explicit create-only persistence
+Read CURRENT, BACKLOG, [ADR 0063](../../decisions/0063-atomic-project-create.md),
+the [contract](../../architecture/ATOMIC_PROJECT_CREATE.md) and
+[report](../../experiments/SN-021-save-create.md). Explicit create-only persistence
 validates project 0.1 and publishes its exact owned bytes using an exclusive
 temporary, flush and handle-relative native rename with replacement disabled.
 Existing/concurrent entries are never overwritten. No resource is imported/executed.
@@ -1506,9 +1506,9 @@ Confirm its final state and main identity before overwrite work.
 
 # Historical handoff: SN-021 native source connectivity graph
 
-Read CURRENT, BACKLOG, [ADR 0062](../decisions/0062-native-source-graph.md),
-the [contract](../architecture/NATIVE_SOURCE_GRAPH.md) and
-[report](../experiments/SN-021-graph.md). Project 0.1 now loads an immutable
+Read CURRENT, BACKLOG, [ADR 0062](../../decisions/0062-native-source-graph.md),
+the [contract](../../architecture/NATIVE_SOURCE_GRAPH.md) and
+[report](../../experiments/SN-021-graph.md). Project 0.1 now loads an immutable
 hierarchical connectivity graph with standard C++ domain types and a complete
 record/terminal source map. The entire validated declaration remains owned,
 including parameters and every non-connectivity field. Nothing is executed.
@@ -1540,9 +1540,9 @@ Confirm its final state and main identity before persistence work.
 
 # Historical handoff: SN-021 native project declarations
 
-Read CURRENT, BACKLOG, [ADR 0061](../decisions/0061-native-project-declarations.md),
-the [contract](../architecture/NATIVE_PROJECT_VALIDATION.md) and
-[report](../experiments/SN-021-project.md). Native project 0.1 now composes the
+Read CURRENT, BACKLOG, [ADR 0061](../../decisions/0061-native-project-declarations.md),
+the [contract](../../architecture/NATIVE_PROJECT_VALIDATION.md) and
+[report](../../experiments/SN-021-project.md). Native project 0.1 now composes the
 declarative baseline over one immutable source capture, including platform,
 firmware, target/pin-map and exact temporal rules. No resources are opened and
 all firmware/runtime/source-interface/readiness flags remain unverified.
@@ -1573,9 +1573,9 @@ Confirm its final state and main identity before source graph work.
 
 # Historical handoff: SN-021 native typed resource links
 
-Read CURRENT, BACKLOG, [ADR 0060](../decisions/0060-native-resource-links.md),
-the [contract](../architecture/NATIVE_RESOURCE_LINKS.md) and
-[report](../experiments/SN-021-links.md). Native resource-links 0.1 now composes
+Read CURRENT, BACKLOG, [ADR 0060](../../decisions/0060-native-resource-links.md),
+the [contract](../../architecture/NATIVE_RESOURCE_LINKS.md) and
+[report](../../experiments/SN-021-links.md). Native resource-links 0.1 now composes
 topology/lock validation over one owned capture, with typed assets, complete maps
 and explicit nulls. No resource is opened or execution granted. Standalone version
 gates remain strict, and nested values/source offsets preserve their identity.
@@ -1603,9 +1603,9 @@ and main identity before continuing with project composition.
 
 # Historical handoff: SN-021 native resource lock metadata
 
-Read CURRENT, BACKLOG, [ADR 0059](../decisions/0059-native-resource-lock.md),
-the [contract](../architecture/NATIVE_RESOURCE_LOCK.md) and
-[report](../experiments/SN-021-lock.md). Lock 0.1 now has native field/reference,
+Read CURRENT, BACKLOG, [ADR 0059](../../decisions/0059-native-resource-lock.md),
+the [contract](../../architecture/NATIVE_RESOURCE_LOCK.md) and
+[report](../../experiments/SN-021-lock.md). Lock 0.1 now has native field/reference,
 lexical path, exact budget and inventory fingerprint validation. It retains owned
 source syntax and immutable declared resource requests with original offsets.
 No root or resource is opened; physical/trust/readiness flags remain false.
@@ -1631,9 +1631,9 @@ state and local/remote main identity before continuing with typed resource links
 
 # Historical handoff: SN-021 native descriptor bindings
 
-Read CURRENT, BACKLOG, [ADR 0058](../decisions/0058-native-descriptor-bindings.md),
-the [contract](../architecture/NATIVE_BINDINGS.md) and
-[report](../experiments/SN-021-bindings.md). Topology 0.3 now has native descriptor,
+Read CURRENT, BACKLOG, [ADR 0058](../../decisions/0058-native-descriptor-bindings.md),
+the [contract](../../architecture/NATIVE_BINDINGS.md) and
+[report](../../experiments/SN-021-bindings.md). Topology 0.3 now has native descriptor,
 explicit-null, bijective-map and exact interval validation with immutable source
 ownership and parameter occurrence inspection. It never opens resources or engines.
 The earlier public 0.1 and 0.2 operations remain separate and strict.
@@ -1658,9 +1658,9 @@ Confirm its final state and main identity before continuing with resource metada
 
 # Historical handoff: SN-021 native exact parameters
 
-Read CURRENT, BACKLOG, [ADR 0057](../decisions/0057-native-exact-parameters.md),
-the [contract](../architecture/NATIVE_PARAMETERS.md) and
-[report](../experiments/SN-021-parameters.md). Native topology 0.2 now validates
+Read CURRENT, BACKLOG, [ADR 0057](../../decisions/0057-native-exact-parameters.md),
+the [contract](../../architecture/NATIVE_PARAMETERS.md) and
+[report](../../experiments/SN-021-parameters.md). Native topology 0.2 now validates
 exact quantities, units, ranges, scoped overrides and interval-safe forwarding,
 then returns immutable inspection rows with distinct occurrence paths and origins.
 The API retains source bytes/offsets and performs no resource or engine I/O.
@@ -1687,9 +1687,9 @@ local/remote main identity before continuing with descriptor declarations.
 
 # Historical handoff: SN-021 native topology semantics
 
-Read CURRENT, BACKLOG, [ADR 0056](../decisions/0056-native-topology-semantics.md),
-the [native contract](../architecture/NATIVE_TOPOLOGY_VALIDATION.md) and
-[report](../experiments/SN-021-topology.md). Native validation now covers the
+Read CURRENT, BACKLOG, [ADR 0056](../../decisions/0056-native-topology-semantics.md),
+the [native contract](../../architecture/NATIVE_TOPOLOGY_VALIDATION.md) and
+[report](../../experiments/SN-021-topology.md). Native validation now covers the
 complete preserved topology 0.1 semantic rules over immutable captured syntax.
 It checks all definitions, namespaces, typed references, terminal uniqueness,
 cycles, depth and expansion without opening any resource or invoking engines.
@@ -1714,9 +1714,9 @@ behavior and SN-017 Python/GDB fixture ownership. No issue sync or binary releas
 
 # Historical handoff: SN-021 native declaration syntax ingress
 
-Read CURRENT, BACKLOG, [ADR 0054](../decisions/0054-declaration-ingress.md),
-the [contract](../architecture/DECLARATION_INGRESS.md) and
-[report/evidence](../experiments/SN-021-ingress.md). The API captures at most
+Read CURRENT, BACKLOG, [ADR 0054](../../decisions/0054-declaration-ingress.md),
+the [contract](../../architecture/DECLARATION_INGRESS.md) and
+[report/evidence](../../experiments/SN-021-ingress.md). The API captures at most
 1 MiB into immutable original bytes and lossless syntax tokens. It performs no
 I/O and grants no schema validity, physical approval or execution authorization.
 
@@ -1744,10 +1744,10 @@ integration before continuing; do not repeat the syntax extraction.
 
 # Historical handoff: SN-021 native resource snapshots
 
-Read CURRENT, BACKLOG, [ADR 0053](../decisions/0053-native-resource-verification.md),
-the [native contract](../architecture/NATIVE_RESOURCE_VERIFICATION.md),
-[report](../experiments/SN-021-native-resources.md) and
-[evidence](../experiments/evidence/SN-021-native-resources-summary.json).
+Read CURRENT, BACKLOG, [ADR 0053](../../decisions/0053-native-resource-verification.md),
+the [native contract](../../architecture/NATIVE_RESOURCE_VERIFICATION.md),
+[report](../../experiments/SN-021-native-resources.md) and
+[evidence](../../experiments/evidence/SN-021-native-resources-summary.json).
 SN-021 remains **in_progress**. A typed C++20 API now returns immutable complete
 snapshots or structured errors; Windows details are confined to platform code.
 Complete declaration/lock JSON validation remains a caller-side Python gate.
@@ -1792,10 +1792,10 @@ ingress/graph specification after confirming PR #21's final squash/main state.
 
 # Historical handoff: SN-021 bounded local resource snapshots
 
-Read CURRENT, BACKLOG, [ADR 0052](../decisions/0052-bounded-local-resource-snapshots.md),
-the [physical contract](../architecture/LOCAL_RESOURCE_VERIFICATION.md),
-[implementation](../../tests/resources/README.md) and
-[report/evidence](../experiments/SN-021-local-resources.md). SN-021 is **in_progress**.
+Read CURRENT, BACKLOG, [ADR 0052](../../decisions/0052-bounded-local-resource-snapshots.md),
+the [physical contract](../../architecture/LOCAL_RESOURCE_VERIFICATION.md),
+[implementation](../../../tests/resources/README.md) and
+[report/evidence](../../experiments/SN-021-local-resources.md). SN-021 is **in_progress**.
 The explicit reference operation accepts lock bytes and an absolute Windows/NTFS
 root, uses parent-relative handles and returns complete immutable byte snapshots.
 Metadata validation remains inert; hashes do not establish interfaces, trust,
@@ -1830,9 +1830,9 @@ handoffs below are historical and do not override current authorization.
 # Historical handoff: SN-020 declaration baseline accepted
 
 SN-020 is **done for declaration schema/reference validation** under
-[ADR 0051](../decisions/0051-project-declaration-baseline.md). Read CURRENT,
-BACKLOG, the [project contract](../architecture/PROJECT_SCHEMA.md) and
-[acceptance audit/evidence](../experiments/SN-020-acceptance.md).
+[ADR 0051](../../decisions/0051-project-declaration-baseline.md). Read CURRENT,
+BACKLOG, the [project contract](../../architecture/PROJECT_SCHEMA.md) and
+[acceptance audit/evidence](../../experiments/SN-020-acceptance.md).
 All 94 schema tests and 15 CTest entries passed, native Debug build succeeded,
 and 25 prior schema hashes match. Resource links, explicit model entrypoints,
 board/MCU/firmware targets and requested temporal/fidelity policy are declarative.
@@ -1845,7 +1845,7 @@ with safe resource contents, real firmware compatibility or runtime capability.
 Keep stable source identities and test missing files, mismatches, aliases,
 symlinks/junctions and replacement races before consuming resources.
 
-SN-044 is done and its [UI/UX decision](../decisions/0049-desktop-ux-and-measurements.md)
+SN-044 is done and its [UI/UX decision](../../decisions/0049-desktop-ux-and-measurements.md)
 is preserved. Do not redo it or start Qt/UI/instrumentation tasks implicitly.
 Preserve all prior engine evidence, bounded Python/GDB/fixture ownership,
 capabilities, tolerances, PDF suppression, PID retry and ADRs 0027/0028.
@@ -1861,9 +1861,9 @@ ignored/local. Older handoffs describe historical task states.
 
 # Historical handoff: SN-020 inert resource lock
 
-Read CURRENT, BACKLOG, [ADR 0048](../decisions/0048-declarative-resource-lock.md),
-the [resource lock contract](../architecture/RESOURCE_LOCK_DRAFT.md) and its
-[report/evidence](../experiments/SN-020-resource-lock.md). SN-020 remains
+Read CURRENT, BACKLOG, [ADR 0048](../../decisions/0048-declarative-resource-lock.md),
+the [resource lock contract](../../architecture/RESOURCE_LOCK_DRAFT.md) and its
+[report/evidence](../../experiments/SN-020-resource-lock.md). SN-020 remains
 **in_progress**. All 64 tests passed; the valid CLI accepts two owned resources,
 and the traversal fixture fails with `path`. Nineteen prior hashes still match.
 
@@ -1886,9 +1886,9 @@ ignored and local.
 
 # Historical handoff: SN-020 descriptor bindings and authorized checkpoint
 
-SN-020 is **in_progress** through [0.3](../architecture/BINDINGS_DRAFT.md) under
-[ADR 0047](../decisions/0047-declarative-bindings-draft.md). Read CURRENT, BACKLOG
-and the [report/evidence](../experiments/SN-020-bindings.md).
+SN-020 is **in_progress** through [0.3](../../architecture/BINDINGS_DRAFT.md) under
+[ADR 0047](../../decisions/0047-declarative-bindings-draft.md). Read CURRENT, BACKLOG
+and the [report/evidence](../../experiments/SN-020-bindings.md).
 All 46 tests passed. Symbol/model interface catalogs and explicit complete
 pin/parameter maps are separate from topology. Replacing a symbol preserves
 connectivity, model bindings and resolved values. Models are declarations only;
@@ -1910,9 +1910,9 @@ notes below are historical and do not override this checkpoint authorization.
 # Historical handoff: SN-020 exact parameters/overrides passed
 
 SN-020 is **in_progress**. Read CURRENT, BACKLOG,
-[ADR 0046](../decisions/0046-exact-parameter-draft.md),
-[0.2 contract](../architecture/PARAMETERS_DRAFT.md) and
-[report/evidence](../experiments/SN-020-parameters.md).
+[ADR 0046](../../decisions/0046-exact-parameter-draft.md),
+[0.2 contract](../../architecture/PARAMETERS_DRAFT.md) and
+[report/evidence](../../experiments/SN-020-parameters.md).
 All 29 tests passed (15 preserved 0.1 topology tests plus 14 parameter tests).
 Exact decimal strings, closed units, inclusive ranges, literal instance overrides
 and direct containing-circuit forwarding are implemented in the developer tool.
@@ -1935,9 +1935,9 @@ issue synchronization or remote publication is authorized. Older notes are histo
 # Historical handoff: SN-020 topology draft passed
 
 SN-020 is **in_progress**. Read CURRENT, BACKLOG,
-[ADR 0045](../decisions/0045-experimental-topology-draft.md),
-[topology 0.1](../architecture/TOPOLOGY_DRAFT.md) and the
-[report/evidence](../experiments/SN-020-topology.md).
+[ADR 0045](../../decisions/0045-experimental-topology-draft.md),
+[topology 0.1](../../architecture/TOPOLOGY_DRAFT.md) and the
+[report/evidence](../../experiments/SN-020-topology.md).
 The developer reference validator accepts component pin declarations, circuits,
 instances, ports and explicit nets, with stable IDs and bounded hierarchy.
 Fifteen tests and valid/invalid CLI fixtures passed. Two RC instances demonstrate
@@ -1960,9 +1960,9 @@ issue synchronization or remote publication is authorized. Older notes are histo
 # Historical handoff: SN-018 accepted; next select SN-020
 
 SN-018 is **done for the bounded local Windows Debug baseline** under
-[ADR 0044](../decisions/0044-bounded-baseline-acceptance.md). Read CURRENT,
-BACKLOG, the [acceptance audit](../experiments/SN-018-acceptance.md) and
-[evidence](../experiments/evidence/SN-018-acceptance-summary.json).
+[ADR 0044](../../decisions/0044-bounded-baseline-acceptance.md). Read CURRENT,
+BACKLOG, the [acceptance audit](../../experiments/SN-018-acceptance.md) and
+[evidence](../../experiments/evidence/SN-018-acceptance-summary.json).
 Stepping, paced pause/resume and recreated-session references share one fixed
 circuit/firmware fixture. Latency/error/memory are measured, not product targets.
 Read-only audit revalidated 3793 hashes, 36 sessions, 324 fixed checkpoints,
@@ -1987,9 +1987,9 @@ Older handoffs below are historical.
 # Historical handoff: SN-018 corrected observer control passed
 
 SN-018 is **in_progress**. Read CURRENT, BACKLOG and the
-[corrected observer report](../experiments/SN-018-identity-control.md),
-[predeclared contract](../../tests/headless/OBSERVER_IDENTITY.md) and
-[evidence](../experiments/evidence/SN-018-identity-summary.json).
+[corrected observer report](../../experiments/SN-018-identity-control.md),
+[predeclared contract](../../../tests/headless/OBSERVER_IDENTITY.md) and
+[evidence](../../experiments/evidence/SN-018-identity-summary.json).
 Nine identity/adversarial/Windows-child tests passed before six real batches.
 All 36 sessions passed 324 fixed checkpoints and 36 pauses, final virtual
 4027000 ns and ADC 3541. Independent ancestry audit passed all 14122 sampled
@@ -2014,9 +2014,9 @@ synchronization or publication is authorized. Older handoffs below are historica
 # Historical handoff: SN-018 observer attribution defect
 
 SN-018 remains **in_progress**. Read CURRENT, BACKLOG, ADRs 0014/0043 and the
-[observer control report](../experiments/SN-018-observer-control.md),
-[predeclared contract](../../tests/headless/OBSERVER_CONTROL.md) and
-[annotated evidence](../experiments/evidence/SN-018-observer-summary.json).
+[observer control report](../../experiments/SN-018-observer-control.md),
+[predeclared contract](../../../tests/headless/OBSERVER_CONTROL.md) and
+[annotated evidence](../../experiments/evidence/SN-018-observer-summary.json).
 Six U,S / S,U / U,S batches passed all 36 real-engine sessions and 324 fixed
 checkpoints, with unchanged final virtual time/ADC and numerical limits.
 The measurement is nevertheless **inconclusive**: batch 3 included unrelated
@@ -2041,9 +2041,9 @@ Older handoffs below are historical.
 # Historical handoff: SN-018 first local baseline measured
 
 SN-018 is **in_progress**. Read CURRENT, BACKLOG, ADRs 0014/0043 and the
-[first baseline report](../experiments/SN-018-baseline.md),
-[predeclared contract](../../tests/headless/BASELINE.md) and
-[evidence](../experiments/evidence/SN-018-baseline-summary.json).
+[first baseline report](../../experiments/SN-018-baseline.md),
+[predeclared contract](../../../tests/headless/BASELINE.md) and
+[evidence](../../experiments/evidence/SN-018-baseline-summary.json).
 Three batches / 18 fresh real-engine sessions passed using unchanged cycle 27
 inputs: 162 fixed checkpoints, 18 pauses, ADC 3541 and final virtual 4027000 ns.
 Pause wall latency was 45.089-93.517 ms (median 68.609 ms); batch wall times
@@ -2065,9 +2065,9 @@ Older handoffs below are historical.
 # Historical handoff: SN-017 accepted; SN-018 ready
 
 SN-017 is done for the bounded native/Python headless composition under
-[ADR 0043](../decisions/0043-bounded-headless-extraction-acceptance.md). Read latest
-CURRENT, the [acceptance audit](../experiments/SN-017-acceptance.md) and its
-[evidence](../experiments/evidence/SN-017-acceptance-summary.json).
+[ADR 0043](../../decisions/0043-bounded-headless-extraction-acceptance.md). Read latest
+CURRENT, the [acceptance audit](../../experiments/SN-017-acceptance.md) and its
+[evidence](../../experiments/evidence/SN-017-acceptance-summary.json).
 Native contracts, adapters and application session are validated; Python still
 owns GDB transport, preparation, fixture scheduling and evidence collection.
 The audit revalidated unchanged cycle 27 inputs/results: 14 CTest targets,
@@ -2083,9 +2083,9 @@ Older handoffs below are historical.
 # Latest handoff: SN-017 application session composed
 
 The twenty-seventh cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0042](../decisions/0042-fixture-application-session.md), the
-[protocol](../../tests/headless/APPLICATION_SESSION.md), and the
-[evidence](../experiments/evidence/SN-017-application-session-summary.json).
+CURRENT, [ADR 0042](../../decisions/0042-fixture-application-session.md), the
+[protocol](../../../tests/headless/APPLICATION_SESSION.md), and the
+[evidence](../../experiments/evidence/SN-017-application-session-summary.json).
 `FixtureSession` owns joint state, coordinators and global dispatch/pending/commit
 gates. CLI owns startup, endpoints and text I/O. Fourteen CTest targets, 358
 protocol/process cases and 18 Python tests passed. Six recovery sessions passed
@@ -2101,9 +2101,9 @@ is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 execution coordinator extracted
 
 The twenty-sixth cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0041](../decisions/0041-fixture-execution-coordinator.md), the
-[protocol](../../tests/headless/EXECUTION_COORDINATOR.md), and the
-[evidence](../experiments/evidence/SN-017-execution-coordinator-summary.json).
+CURRENT, [ADR 0041](../../decisions/0041-fixture-execution-coordinator.md), the
+[protocol](../../../tests/headless/EXECUTION_COORDINATOR.md), and the
+[evidence](../../experiments/evidence/SN-017-execution-coordinator-summary.json).
 `FixtureExecution` owns readiness/cancellation/debug state and borrows the CLI
 channel. Thirteen CTest targets, 358 protocol/process cases and 18 Python tests
 passed. Six recovery sessions passed 54 checkpoints. Progress poll counts may
@@ -2118,9 +2118,9 @@ below are historical.
 # Latest handoff: SN-017 analog worker coordinator extracted
 
 The twenty-fifth cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0040](../decisions/0040-fixture-analog-coordinator.md), the
-[protocol](../../tests/headless/ANALOG_COORDINATOR.md), and the
-[evidence](../experiments/evidence/SN-017-analog-coordinator-summary.json).
+CURRENT, [ADR 0040](../../decisions/0040-fixture-analog-coordinator.md), the
+[protocol](../../../tests/headless/ANALOG_COORDINATOR.md), and the
+[evidence](../../experiments/evidence/SN-017-analog-coordinator-summary.json).
 `FixtureAnalog` owns worker sequencing/acceptance and borrows CLI-owned endpoints.
 Twelve CTest targets, 251 protocol/process cases and 18 Python tests passed.
 Six recovery sessions passed 54 checkpoints with unchanged analog counters.
@@ -2134,9 +2134,9 @@ publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 ADC coordinator extracted
 
 The twenty-fourth cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0039](../decisions/0039-fixture-adc-coordinator.md), the
-[protocol](../../tests/headless/ADC_COORDINATOR.md), and the
-[evidence](../experiments/evidence/SN-017-adc-coordinator-summary.json).
+CURRENT, [ADR 0039](../../decisions/0039-fixture-adc-coordinator.md), the
+[protocol](../../../tests/headless/ADC_COORDINATOR.md), and the
+[evidence](../../experiments/evidence/SN-017-adc-coordinator-summary.json).
 `FixtureAdc` owns preparation, transfer state, original deadline and helper
 lifetime. Eleven CTest targets, 194 protocol/process cases and 18 Python tests
 passed. Six recovery sessions passed 54 checkpoints and exactly one ADC transfer
@@ -2152,9 +2152,9 @@ authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 final inspection coordinator extracted
 
 The twenty-third cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0038](../decisions/0038-fixture-inspection-coordinator.md), the
-[protocol](../../tests/headless/INSPECTION_COORDINATOR.md), and the
-[evidence](../experiments/evidence/SN-017-inspection-coordinator-summary.json).
+CURRENT, [ADR 0038](../../decisions/0038-fixture-inspection-coordinator.md), the
+[protocol](../../../tests/headless/INSPECTION_COORDINATOR.md), and the
+[evidence](../../experiments/evidence/SN-017-inspection-coordinator-summary.json).
 `src/application/fixture_inspection.hpp` owns final validation state and its
 existing protocol; CLI transport, global pending guards, abort and actual commit
 remain. Ten CTest targets, 183 pipe cases and 18 Python tests passed. Six recovery
@@ -2168,9 +2168,9 @@ No commit or remote publication is authorized. Older handoffs below are historic
 # Latest handoff: SN-017 native post-pair time confirmation complete
 
 The twenty-second cycle is validated; SN-017 remains in progress. Read latest
-CURRENT, [ADR 0037](../decisions/0037-native-post-inspection-time.md), the
-[protocol](../../tests/headless/INSPECTION_TIME.md), and the
-[evidence](../experiments/evidence/SN-017-inspection-time-summary.json).
+CURRENT, [ADR 0037](../../decisions/0037-native-post-inspection-time.md), the
+[protocol](../../../tests/headless/INSPECTION_TIME.md), and the
+[evidence](../../experiments/evidence/SN-017-inspection-time-summary.json).
 `--native-inspection-time` requires raw time confirmation after the second
 register reply and before final commit, under the original 1900 ms deadline.
 Six recovery sessions passed 54 checkpoints; all post-pair replies match GDB logs.
@@ -2184,9 +2184,9 @@ No commit or remote publication is authorized. Older handoffs below are historic
 # Latest handoff: SN-017 native observation interval complete
 
 The twenty-first cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0036](../decisions/0036-native-observation-interval.md), the
-[protocol](../../tests/headless/INSPECTION_INTERVAL.md), and the
-[evidence](../experiments/evidence/SN-017-inspection-interval-summary.json).
+[ADR 0036](../../decisions/0036-native-observation-interval.md), the
+[protocol](../../../tests/headless/INSPECTION_INTERVAL.md), and the
+[evidence](../../experiments/evidence/SN-017-inspection-interval-summary.json).
 `--native-inspection-interval` withholds the second request until at least 100 ms
 of native monotonic time, without renewing the mailbox deadline. Six recovery
 sessions passed; release durations were 100.77-101.30 ms and all register results
@@ -2199,9 +2199,9 @@ Older handoffs below are historical.
 # Latest handoff: SN-017 native register-pair correlation complete
 
 The twentieth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0035](../decisions/0035-native-register-pair-correlation.md), the
-[protocol](../../tests/headless/INSPECTION_REQUEST.md), and the
-[evidence](../experiments/evidence/SN-017-inspection-request-summary.json).
+[ADR 0035](../../decisions/0035-native-register-pair-correlation.md), the
+[protocol](../../../tests/headless/INSPECTION_REQUEST.md), and the
+[evidence](../../experiments/evidence/SN-017-inspection-request-summary.json).
 `--native-inspection-request` issues two sequential fixed register requests with
 distinct tokens under the original mailbox deadline. Six recovery sessions
 passed; all 12 correlated replies matched GDB logs in order. The host still
@@ -2214,9 +2214,9 @@ publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 native final register stability complete
 
 The nineteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0034](../decisions/0034-bounded-final-register-stability.md), the
-[protocol](../../tests/headless/INSPECTION.md), and the
-[evidence](../experiments/evidence/SN-017-inspection-summary.json).
+[ADR 0034](../../decisions/0034-bounded-final-register-stability.md), the
+[protocol](../../../tests/headless/INSPECTION.md), and the
+[evidence](../../experiments/evidence/SN-017-inspection-summary.json).
 `--native-inspection` compares the final r0/sp/lr records after timed readback
 and requires confirmation before final commit. Six recovery sessions passed;
 all 12 register records matched GDB logs. Host ownership of the two reads,
@@ -2230,9 +2230,9 @@ below are historical.
 # Latest handoff: SN-017 raw elapsed-time validation complete
 
 The eighteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0033](../decisions/0033-native-raw-stopped-time-validation.md), the
-[protocol](../../tests/headless/READBACK_TIME.md), and the
-[evidence](../experiments/evidence/SN-017-readback-time-summary.json).
+[ADR 0033](../../decisions/0033-native-raw-stopped-time-validation.md), the
+[protocol](../../../tests/headless/READBACK_TIME.md), and the
+[evidence](../../experiments/evidence/SN-017-readback-time-summary.json).
 `--native-readback-time` validates raw elapsed-time and completion records with
 the mailbox under one deadline, rejecting normalized timestamps. Six recovery
 sessions passed, with 18 raw records matching GDB logs. MI output streams remain
@@ -2245,9 +2245,9 @@ are historical.
 # Latest handoff: SN-017 mailbox request correlation complete
 
 The seventeenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0032](../decisions/0032-bounded-mailbox-request-correlation.md), the
-[protocol](../../tests/headless/READBACK_REQUEST.md), and the
-[evidence](../experiments/evidence/SN-017-readback-request-summary.json).
+[ADR 0032](../../decisions/0032-bounded-mailbox-request-correlation.md), the
+[protocol](../../../tests/headless/READBACK_REQUEST.md), and the
+[evidence](../../experiments/evidence/SN-017-readback-request-summary.json).
 `--native-readback-request` arms one native final mailbox request, matches its
 reserved MI token and enforces a 1900 ms acceptance deadline. Six recovery
 sessions passed; all six request/reply pairs matched actual GDB log results.
@@ -2261,9 +2261,9 @@ Older handoffs below are historical.
 # Latest handoff: SN-017 native raw MI mailbox parsing complete
 
 The sixteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0031](../decisions/0031-native-raw-mi-mailbox-ingress.md), the
-[protocol](../../tests/headless/READBACK_MI.md), and the
-[evidence](../experiments/evidence/SN-017-readback-mi-summary.json).
+[ADR 0031](../../decisions/0031-native-raw-mi-mailbox-ingress.md), the
+[protocol](../../../tests/headless/READBACK_MI.md), and the
+[evidence](../../experiments/evidence/SN-017-readback-mi-summary.json).
 `--native-readback-mi` sends the unchanged final GDB memory result to native
 exact-format parsing and little-endian decoding. It rejects normalized bypass.
 Six final recovery sessions passed, and all six raw lines matched GDB logs.
@@ -2277,9 +2277,9 @@ publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 native final mailbox verification complete
 
 The fifteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0030](../decisions/0030-bounded-native-mailbox-readback.md), the
-[protocol](../../tests/headless/READBACK.md), and the
-[evidence](../experiments/evidence/SN-017-readback-summary.json).
+[ADR 0030](../../decisions/0030-bounded-native-mailbox-readback.md), the
+[protocol](../../../tests/headless/READBACK.md), and the
+[evidence](../../experiments/evidence/SN-017-readback-summary.json).
 `--native-readback` verifies the final host-normalized mailbox against native
 prepared ADC state before the final commit. Host GDB collection and stability
 proof remain required; raw origin/freshness are not independently established.
@@ -2293,9 +2293,9 @@ No commit or publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 native RC analytical validation complete
 
 The fourteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0029](../decisions/0029-native-rc-trajectory-validation.md), the
-[protocol](../../tests/headless/RC_TRAJECTORY.md), and the
-[evidence](../experiments/evidence/SN-017-rc-trajectory-summary.json).
+[ADR 0029](../../decisions/0029-native-rc-trajectory-validation.md), the
+[protocol](../../../tests/headless/RC_TRAJECTORY.md), and the
+[evidence](../../experiments/evidence/SN-017-rc-trajectory-summary.json).
 `--native-rc` validates advance replies before analog acceptance using native
 high-command state. The original Python checks remain an independent oracle.
 Final recovery passed six real sessions, 54 fixed checkpoints and 60 native RC
@@ -2309,9 +2309,9 @@ Older handoffs below are historical.
 # Latest handoff: SN-017 native ADC helper process complete
 
 The thirteenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0026](../decisions/0026-native-adc-helper-process.md), the
-[protocol](../../tests/headless/ADC_PROCESS.md), and the
-[evidence](../experiments/evidence/SN-017-adc-process-summary.json).
+[ADR 0026](../../decisions/0026-native-adc-helper-process.md), the
+[protocol](../../../tests/headless/ADC_PROCESS.md), and the
+[evidence](../../experiments/evidence/SN-017-adc-process-summary.json).
 `--native-adc-process` owns fixed helper invocation, bounded result ingress and
 job cleanup before confirmation, sharing the preparation deadline. Six real
 sessions and 21 process cases passed, with fault/recovery and reference controls.
@@ -2323,8 +2323,8 @@ authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 bounded ADC coordination complete
 
 The twelfth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0025](../decisions/0025-bounded-adc-input-coordination.md) and
-[protocol](../../tests/headless/ADC_COORDINATION.md). `--native-adc` derives integer
+[ADR 0025](../../decisions/0025-bounded-adc-input-coordination.md) and
+[protocol](../../../tests/headless/ADC_COORDINATION.md). `--native-adc` derives integer
 microvolts from native analog state at 4010750 ns and gates matching confirmation
 before commit. The host still invokes the existing ADC helper and supplies its
 microsecond-resolution confirmation. Next extract bounded helper invocation and
@@ -2335,8 +2335,8 @@ historical.
 # Latest handoff: SN-017 native high/inspection coordination complete
 
 The eleventh cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0024](../decisions/0024-native-fixture-exchange-inspection.md) and
-[protocol](../../tests/headless/EXCHANGE_INSPECTION.md). `--native-exchange` routes
+[ADR 0024](../../decisions/0024-native-fixture-exchange-inspection.md) and
+[protocol](../../../tests/headless/EXCHANGE_INSPECTION.md). `--native-exchange` routes
 the one measured GPIO high and stopped/analog-ready inspections through the native
 worker channel, preserving snapshots before commit. Next extract bounded ADC
 boundary-input coordination; retain host GPIO/GDB verification and separate joint
@@ -2346,8 +2346,8 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 # Latest handoff: SN-017 native analog reply ingress complete
 
 The tenth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0023](../decisions/0023-native-analog-reply-ingress.md) and
-[protocol](../../tests/headless/ANALOG_INGRESS.md). `--native-analog-results` gives
+[ADR 0023](../../decisions/0023-native-analog-reply-ingress.md) and
+[protocol](../../../tests/headless/ANALOG_INGRESS.md). `--native-analog-results` gives
 the runner sole stdout ownership for initial, advance and inspection/exchange
 replies. The host retains analytical checks, exchange, GDB verification and commit
 scheduling. Next select the smallest bounded exchange/inspection coordination
@@ -2358,8 +2358,8 @@ or publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 native analog command slice complete
 
 The ninth cycle is validated; SN-017 remains in progress. Read latest CURRENT,
-[ADR 0022](../decisions/0022-native-analog-command-channel.md) and
-[protocol](../../tests/headless/ANALOG_COMMANDS.md). `--native-analog` emits advance
+[ADR 0022](../../decisions/0022-native-analog-command-channel.md) and
+[protocol](../../../tests/headless/ANALOG_COMMANDS.md). `--native-analog` emits advance
 through an inherited worker stdin using confirmed CPU time; replies remain
 host-read. Next extract bounded analog reply ingress while keeping exchange,
 inspection and commit separate. The first recovery hit transient PID-file access
@@ -2370,8 +2370,8 @@ No commit or publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 composite grant transition slice complete
 
 The eighth cycle is validated; SN-017 remains in progress. Read the latest CURRENT
-entry, [ADR 0021](../decisions/0021-composite-fixture-grant-transitions.md) and
-[protocol](../../tests/headless/GRANT_TRANSITIONS.md). `--native-grants` combines
+entry, [ADR 0021](../../decisions/0021-composite-fixture-grant-transitions.md) and
+[protocol](../../../tests/headless/GRANT_TRANSITIONS.md). `--native-grants` combines
 begin/start and observed-stop/cancel in the runner, using existing readers and
 deadlines. Next extract bounded analog catch-up after CPU acknowledgement; keep
 exchange, inspection and joint commit separate. Complete orchestration is pending.
@@ -2381,8 +2381,8 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 # Latest handoff: SN-017 native debug reply ingress complete
 
 The seventh cycle is validated; SN-017 remains in progress. Read the latest
-CURRENT entry, [ADR 0020](../decisions/0020-native-debug-reply-ingress.md) and
-[ingress protocol](../../tests/headless/DEBUG_INGRESS.md). Complete progress and
+CURRENT entry, [ADR 0020](../../decisions/0020-native-debug-reply-ingress.md) and
+[ingress protocol](../../../tests/headless/DEBUG_INGRESS.md). Complete progress and
 notification replies now run natively behind `--native-debug-results`, with
 Windows writer-closure checks and non-renewing phase deadlines. Next consolidate
 the smallest coherent bounded orchestration step; preserve the harness reference,
@@ -2392,8 +2392,8 @@ or publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 debug command emission slice complete
 
 The sixth extraction cycle is validated; SN-017 remains in progress. Read the
-latest CURRENT entry, [ADR 0019](../decisions/0019-native-debug-command-emission.md)
-and [debug command protocol](../../tests/headless/DEBUG_COMMANDS.md). Progress and
+latest CURRENT entry, [ADR 0019](../../decisions/0019-native-debug-command-emission.md)
+and [debug command protocol](../../../tests/headless/DEBUG_COMMANDS.md). Progress and
 joint-notification emission now run through the native control channel. Their
 response files are still read by Python. Next extract complete-response ingress,
 including non-atomic publication handling, before consolidating orchestration.
@@ -2403,8 +2403,8 @@ No commit or publication is authorized. Older handoffs below are historical.
 # Latest handoff: SN-017 native backend lifecycle slice complete
 
 The fifth extraction cycle is validated; SN-017 remains in progress. Read the
-latest CURRENT entry, [ADR 0018](../decisions/0018-native-fixture-process-lifecycle.md)
-and [lifecycle protocol](../../tests/headless/PROCESS_LIFECYCLE.md). Native Windows
+latest CURRENT entry, [ADR 0018](../../decisions/0018-native-fixture-process-lifecycle.md)
+and [lifecycle protocol](../../../tests/headless/PROCESS_LIFECYCLE.md). Native Windows
 supervisors now create and reap both backend trees on the opt-in path. Real
 engine/supervisor loss and fresh recovery passed. Next extract the remaining
 bounded progress/joint-notification commands before native orchestration.
@@ -2414,8 +2414,8 @@ suppression. No commit or publication is authorized. Older handoffs are historic
 # Latest handoff: SN-017 native command/ready slice complete
 
 The fourth extraction cycle is validated; SN-017 remains in progress. Read the
-latest CURRENT entry, [ADR 0017](../decisions/0017-native-cancellation-channel.md)
-and [command protocol](../../tests/headless/COMMAND_CHANNEL.md). Start/cancel,
+latest CURRENT entry, [ADR 0017](../../decisions/0017-native-cancellation-channel.md)
+and [command protocol](../../../tests/headless/COMMAND_CHANNEL.md). Start/cancel,
 ready/error and result ingress now run in C++ on the opt-in path. Real-engine
 fault/fresh-recovery and native pipe tests passed. Next extract fixed-fixture
 process lifecycle, preserving the harness reference, all evidence, capability
@@ -2425,8 +2425,8 @@ handoffs below are historical.
 # Latest handoff: SN-017 native result-ingress slice complete
 
 The third extraction cycle is validated; SN-017 remains in progress. Read the
-latest CURRENT entry, [ADR 0016](../decisions/0016-bounded-cancellation-ingress.md)
-and [ingress protocol](../../tests/headless/RESULT_INGRESS.md). Native parsing,
+latest CURRENT entry, [ADR 0016](../../decisions/0016-bounded-cancellation-ingress.md)
+and [ingress protocol](../../../tests/headless/RESULT_INGRESS.md). Native parsing,
 real Windows read locks and one result deadline passed real-engine and fault
 checks. Next extract cancellation commands and ready/error handshake under a
 single phase deadline, then process ownership and orchestration. Keep the
@@ -2436,8 +2436,8 @@ No commit or publication is authorized. Earlier handoffs below are historical.
 # Latest handoff: SN-017 CPU/joint-state slice complete
 
 The second extraction cycle is validated; SN-017 remains in progress. Read the
-latest CURRENT entry, [ADR 0015](../decisions/0015-incremental-session-contract.md)
-and [session protocol](../../tests/headless/SESSION_CONTRACT.md). The opt-in C++
+latest CURRENT entry, [ADR 0015](../../decisions/0015-incremental-session-contract.md)
+and [session protocol](../../../tests/headless/SESSION_CONTRACT.md). The opt-in C++
 state gate ran against real engines with fault/fresh-recovery checks. Next extract
 Renode result parsing and bounded transport/deadline ownership. Preserve the
 experimental reference, prior evidence, capability limits and PDF suppression.
@@ -2447,8 +2447,8 @@ No commit or publication is authorized. Earlier handoffs below are historical.
 
 Updated: 2026-09-10 after the RC extraction cycle. SN-016 remains done for ADR
 0014; SN-017 is now in progress. Read the latest CURRENT entry and the
-[extraction protocol](../../tests/headless/README.md), including reproduction
-commands and [evidence](../experiments/evidence/SN-017-rc-extraction-summary.json).
+[extraction protocol](../../../tests/headless/README.md), including reproduction
+commands and [evidence](../../experiments/evidence/SN-017-rc-extraction-summary.json).
 The extracted C++20 persistent RC runner passed real Renode/ngspice/GDB,
 differential boundary and fault/fresh-recovery checks. Next extract CPU
 grant/result accounting and joint-state transitions; the joint orchestration
@@ -2476,9 +2476,9 @@ No milestone dates were advanced; January remains stabilization and February
 ## Completed gate
 
 **SN-016 is done for the declared bounded experimental profile. SN-017 is ready
-and has not started.** [ADR 0014](../decisions/0014-bounded-cooperative-debugging.md)
+and has not started.** [ADR 0014](../../decisions/0014-bounded-cooperative-debugging.md)
 records the capability/command/lifecycle decision. The
-[case-by-case E-05 review](../experiments/E-05-gate-review.md) maps the original
+[case-by-case E-05 review](../../experiments/E-05-gate-review.md) maps the original
 acceptance cases to measured evidence.
 
 The final direct-GDB runner now supports `--guarded` with `--steps --lifecycle
@@ -2500,10 +2500,10 @@ The final cycle also passed three IDE startup controls, three original four-stop
 GDB regressions with exact reference comparison, and all 14 relay/accounting tests.
 
 Evidence:
-- [Final gate](../experiments/evidence/E-05-final-gate-summary.json).
-- [35-session matrix](../experiments/evidence/E-05-steps-fault-matrix-summary.json).
-- [Shared-bridge direct regression](../experiments/evidence/E-05-steps-fault-plain-regression-summary.json).
-- [Final protocol](../../tests/experiments/debugging/FINAL_GATE.md).
+- [Final gate](../../experiments/evidence/E-05-final-gate-summary.json).
+- [35-session matrix](../../experiments/evidence/E-05-steps-fault-matrix-summary.json).
+- [Shared-bridge direct regression](../../experiments/evidence/E-05-steps-fault-plain-regression-summary.json).
+- [Final protocol](../../../tests/experiments/debugging/FINAL_GATE.md).
 
 The raw partial flags remain unchanged; the bounded gate result composes measured
 subprofiles. Do not relabel historical failures or claim arbitrary workloads,
@@ -2558,7 +2558,7 @@ git diff --check
 Experimental managed Renode: `build/sn016/source-notification`; native workers:
 `build/sn016/persistent-native/Debug`; ngspice 47:
 `build/deps/ngspice/Spice64_dll/dll-vs`. Keep the
-[managed-build recipe](../../tests/experiments/debugging/SOURCE_BUILD.md).
+[managed-build recipe](../../../tests/experiments/debugging/SOURCE_BUILD.md).
 The installed CubeIDE reports 2.2.0 despite its directory name; bundled GDB
 reports 15.2.90.20241229. Exact hashes are in the evidence.
 

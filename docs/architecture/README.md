@@ -1,6 +1,13 @@
-# Initial architecture
+# Architecture
 
-Status: design baseline, not implementation. Product direction and experimental implementation proposals are distinguished in [ADRs](../decisions/README.md).
+**Rebuild (2026-10-14):** the application now follows
+[PRODUCT_ARCHITECTURE](PRODUCT_ARCHITECTURE.md) and the
+[desktop UI design](DESKTOP_UX.md). The material below is the initial
+architecture of the first development line; its backend contracts, time
+semantics and instrumentation principles remain the reference for engine work,
+while module names and the SN-0xx implementation status are historical.
+
+Status of the initial design: design baseline, not implementation. Product direction and experimental implementation proposals are distinguished in [ADRs](../decisions/README.md).
 
 ## Module overview
 
@@ -36,7 +43,7 @@ Arrows show architectural relationships, not implemented threads or transport gu
 | `coupling` | Translate drive, voltage, logic, and ADC sampling | Treat GPIO as a universal ideal voltage source |
 | `application` | Project loading, session preparation, commands, persistence | Own a second simulation timeline |
 | `instrumentation` | Shared acquisition, signal/event stores, distribution, decoding, exports, diagnostics, correlation | Own simulation time or depend on GUI/backend-specific types |
-| `apps/cli` | Reproducible headless experiments | Substitute fake backends for integration evidence |
+| `apps/cli` | Reproducible headless experiments and application facade for scripting, CI, external tools and AI agents | Own automation semantics, bypass session contracts, or substitute fake backends for integration evidence |
 | `apps/desktop` | Qt editor and instruments | Run the solver on the GUI thread |
 
 These are module destinations under [src](../../src/README.md). SN-017 has
@@ -95,6 +102,13 @@ isolation alone is not a security sandbox.
 
 ## Session flow
 
+[Automation-first headless operation](AUTOMATION.md), under
+[ADR 0055](../decisions/0055-automation-first-headless.md), broadens the existing
+CLI purpose. CLI and GUI share application capabilities, structured diagnostics
+and instrumentation; a future Automation API describes this common boundary,
+not another timeline or a selected transport. MCP and Python consumers remain
+optional future facades.
+
 1. Validate project, dependencies, versions, IDs, and pin mappings.
 2. Resolve hierarchy into a simulation representation while retaining source mappings.
 3. Partition models between backends and create electrical/digital boundary couplers.
@@ -121,6 +135,8 @@ do not select Widgets or Quick. Detailed analysis and primary capture storage
 remain separate responsibilities.
 
 ## Detailed contracts
+
+- [Headless operation and automation](AUTOMATION.md).
 
 - [Desktop UX and visual instrumentation](DESKTOP_UX.md).
 

@@ -137,6 +137,12 @@ Distinguish configured, observed, and derived values with timestamps and provena
 
 ### Diagnostics and retained limits
 
+The [headless automation facade](AUTOMATION.md) consumes these same diagnostics,
+committed records and measurement definitions through application/session
+capabilities. Stable codes and entity IDs support machine-readable results;
+human messages do not become a parsing contract. CLI inspection introduces no
+parallel acquisition, decoding or debugging timeline.
+
 Diagnostics include code, severity, time, entities, explanation, and model limits. Overcurrent warnings require documented parameters and do not certify physical safety.
 
 Future inspection connects node, terminal, alternate function, peripheral, and register. Show unavailable data explicitly. Whole-circuit reverse debugging is outside the MVP: restoring the MCU alone does not restore solver history or queued events.
