@@ -32,7 +32,7 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-120 | Signal Analyzer scope: channels, roll/trigger, zoom, cursors, measurements, CSV/PNG | AN-01..06, AN-09 | done |
 | SN-121 | Transient mode and settings dialog | SIM-03 | done |
 | SN-122 | Messages panel, diagnostics with locate | UI-12, SIM-05 | done |
-| SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | doing |
+| SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | done |
 
 ## Phase 2 — MCU GPIO, release 0.2 (until 2026-11-13)
 
