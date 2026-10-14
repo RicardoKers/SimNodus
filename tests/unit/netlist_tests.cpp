@@ -219,6 +219,21 @@ TEST_CASE("pre-run checks find common mistakes")
     }
 }
 
+TEST_CASE("current probes insert a 0 V source in series with the pin")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}});
+    const Id r = b.add("resistor", {{"1", "IN"}, {"2", "0"}});
+    netlist::NetlistOptions options;
+    options.current_probes = {{r, "1"}};
+    const auto n = netlist::generate_netlist(b.schematic, lib, options);
+    CHECK(n.ok());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "R_R1 pm_R1_1 0 1000") != n.lines.end());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "V_pm_R1_1 IN pm_R1_1 DC 0") != n.lines.end());
+    CHECK(n.pin_current.at({r, "1"}) == "v_pm_r1_1#branch");
+}
+
 TEST_CASE("every library component generates a netlist line")
 {
     const auto lib = load();

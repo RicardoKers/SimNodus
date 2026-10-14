@@ -16,9 +16,11 @@ else()
 endif()
 
 add_executable(model_tests model_tests.cpp library_tests.cpp io_tests.cpp operations_tests.cpp netlist_tests.cpp
+    examples_tests.cpp
     test_main.cpp)
 target_include_directories(model_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(model_tests PRIVATE simnodus::model simnodus::library simnodus::io simnodus::editing
     simnodus::netlist simnodus::warnings)
-target_compile_definitions(model_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library")
+target_compile_definitions(model_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library"
+    SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 add_test(NAME model-unit COMMAND model_tests)

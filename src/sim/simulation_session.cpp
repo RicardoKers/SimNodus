@@ -89,7 +89,8 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     request_ = std::move(request);
     settings_ = request_.schematic.settings();
     const bool interactive = settings_.mode == model::SimulationMode::Interactive;
-    netlist_ = netlist::generate_netlist(request_.schematic, *request_.library, {interactive, 0.0});
+    netlist_ = netlist::generate_netlist(
+        request_.schematic, *request_.library, {interactive, 0.0, request_.current_probes});
     diagnostics_ = netlist_.diagnostics;
     if (!netlist_.ok()) {
         error = "The circuit has errors; see the Messages panel.";
@@ -110,6 +111,9 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         }
         save_vectors_.push_back(key);
     };
+    for (const auto& [pin, vector] : netlist_.pin_current) {
+        request_.vectors.push_back(vector);
+    }
     for (const auto& v : request_.vectors) {
         add(v);
     }
@@ -217,6 +221,13 @@ std::vector<Sample> SimulationSession::samples(const std::string& vector) const
     return it == rings_.end() ? std::vector<Sample>{} : it->second->snapshot();
 }
 
+std::vector<Sample> SimulationSession::samples_since(const std::string& vector, double from) const
+{
+    std::lock_guard lock(mutex_);
+    const auto it = rings_.find(lower(vector));
+    return it == rings_.end() ? std::vector<Sample>{} : it->second->since(from);
+}
+
 std::optional<double> SimulationSession::latest(const std::string& vector) const
 {
     std::lock_guard lock(mutex_);
@@ -263,7 +274,8 @@ void SimulationSession::fail(const std::string& message, NgspiceSession* engine)
 std::vector<std::string> SimulationSession::segment_deck(double t0, double length, bool interactive)
 {
     // Periodic sources depend on t0, so the netlist is generated per segment.
-    const auto n = netlist::generate_netlist(request_.schematic, *request_.library, {interactive, t0});
+    const auto n =
+        netlist::generate_netlist(request_.schematic, *request_.library, {interactive, t0, request_.current_probes});
     std::vector<std::string> lines;
     for (const auto& line : n.lines) {
         std::string out = line;

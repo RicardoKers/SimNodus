@@ -1,0 +1,167 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 11,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vpulse",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "Vlow": "0",
+        "Vhigh": "5",
+        "f": "2",
+        "duty": "50",
+        "rise": "1m"
+      }
+    },
+    {
+      "id": 2,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        8,
+        -8
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 3,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        16,
+        -3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "10u"
+      }
+    },
+    {
+      "id": 4,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 5,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -8
+        ],
+        [
+          5,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          11,
+          -8
+        ],
+        [
+          16,
+          -8
+        ],
+        [
+          16,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          16,
+          0
+        ],
+        [
+          16,
+          6
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 9,
+      "kind": "voltage",
+      "target": {
+        "item": 5,
+        "at": [
+          2,
+          -8
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 10,
+      "kind": "voltage",
+      "target": {
+        "item": 3,
+        "pin": "1",
+        "at": [
+          16,
+          -6
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

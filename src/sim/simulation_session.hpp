@@ -44,6 +44,9 @@ struct RunRequest {
     // Vectors to acquire, in ngspice naming: node names ("out"), source
     // currents ("v_am1#branch"). Matching is case-insensitive.
     std::vector<std::string> vectors;
+    // Pins whose current is acquired; their vectors are added automatically
+    // and listed in netlist().pin_current.
+    std::vector<netlist::PinRef> current_probes;
     std::size_t ring_capacity = 200000; // samples per vector (AN-09)
     std::size_t transient_limit = 2000000; // points kept in transient mode
 };
@@ -92,6 +95,8 @@ public:
     const netlist::Netlist& netlist() const { return netlist_; }
 
     std::vector<Sample> samples(const std::string& vector) const;
+    // Only the samples at or after `from` (cheap for a scrolling display).
+    std::vector<Sample> samples_since(const std::string& vector, double from) const;
     std::optional<double> latest(const std::string& vector) const;
     std::map<std::string, double> latest_all() const;
     TransientResult transient_result() const;

@@ -1,0 +1,196 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 12,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "battery",
+      "designator": "BT1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "9",
+        "Rint": "0.1"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ammeter",
+      "designator": "AM1",
+      "at": [
+        6,
+        -6
+      ],
+      "rotation": 270,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 3,
+      "type": "potentiometer",
+      "designator": "RV1",
+      "at": [
+        14,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "50"
+      }
+    },
+    {
+      "id": 4,
+      "type": "voltmeter",
+      "designator": "VM1",
+      "at": [
+        24,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 6,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -6
+        ],
+        [
+          3,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          9,
+          -6
+        ],
+        [
+          14,
+          -6
+        ],
+        [
+          14,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          17,
+          0
+        ],
+        [
+          20,
+          0
+        ],
+        [
+          20,
+          -6
+        ],
+        [
+          24,
+          -6
+        ],
+        [
+          24,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          14,
+          6
+        ],
+        [
+          14,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          24,
+          3
+        ],
+        [
+          24,
+          6
+        ],
+        [
+          14,
+          6
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 4,
+        "pin": "+",
+        "at": [
+          24,
+          -3
+        ]
+      },
+      "color": "#1f77b4"
+    }
+  ]
+}

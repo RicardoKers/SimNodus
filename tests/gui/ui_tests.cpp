@@ -12,6 +12,8 @@
 #include "scope_widget.hpp"
 #include "theme.hpp"
 
+#include "library/component_library.hpp"
+
 #include <QApplication>
 #include <QComboBox>
 #include <QLineEdit>
@@ -184,10 +186,12 @@ private slots:
 
     void component_search_filters_the_tree()
     {
-        ComponentPanel panel;
+        simnodus::library::ComponentLibrary library;
+        library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+        ComponentPanel panel(library);
         const int all = panel.visible_component_count();
-        QVERIFY(all >= 19);
-        panel.search_field()->setText(QStringLiteral("led"));
+        QCOMPARE(all, 20);
+        panel.search_field()->setText(QStringLiteral("LED"));
         const int filtered = panel.visible_component_count();
         QVERIFY(filtered >= 1 && filtered < all);
         QCOMPARE(panel.selected_type(), QStringLiteral("led"));
@@ -213,7 +217,7 @@ private slots:
         QCOMPARE(window.analyzer(), analyzer);
         QCOMPARE(analyzer->tabs()->count(), 3);
         analyzer->timebase()->setCurrentIndex(0);
-        QCOMPARE(analyzer->scope()->seconds_per_division(), 1e-6);
+        QVERIFY(std::abs(analyzer->scope()->seconds_per_division() - 1e-6) < 1e-12);
     }
 
     void errors_open_the_messages_panel()

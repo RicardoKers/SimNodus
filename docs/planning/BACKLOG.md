@@ -21,18 +21,18 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 |---|---|---|---|
 | SN-110 | Document model with stable IDs and edit commands; unit tests | UI-08, PRJ-01 | done |
 | SN-111 | Library format, loader and component set A symbols/templates | PRJ-04, SIM-06, UI-04 | done |
-| SN-112 | Canvas: place, select, move, rotate, mirror, delete, copy/paste, undo/redo | UI-05, UI-08, UI-09, UI-11 | todo |
-| SN-113 | Wiring with orthogonal routing, junctions, attachment on move, net labels, ground | UI-06, UI-07 | todo |
-| SN-114 | Properties panel with engineering notation and validation | UI-10 | todo |
-| SN-115 | `.snx` save/open, recent files, backup, examples menu | PRJ-01..03, UI-15 | doing |
+| SN-112 | Canvas: place, select, move, rotate, mirror, delete, copy/paste, undo/redo | UI-05, UI-08, UI-09, UI-11 | done |
+| SN-113 | Wiring with orthogonal routing, junctions, attachment on move, net labels, ground | UI-06, UI-07 | done |
+| SN-114 | Properties panel with engineering notation and validation | UI-10 | done |
+| SN-115 | `.snx` save/open, recent files, backup, examples menu | PRJ-01..03, UI-15 | done |
 | SN-116 | Connectivity, pre-run checks and SPICE generation with golden tests | SIM-05 | done |
 | SN-117 | ngspice engine wrapper (runtime load, callbacks, errors) | SIM-04 | done |
-| SN-118 | Interactive run: pacing, speed factor, controls, bounded memory, status | SIM-01, SIM-02, INT-01, UI-13 | doing |
-| SN-119 | Interactive components and live rendering (switches, button, pot, LED, meters, tooltips, live values) | INT-02..05 | todo |
-| SN-120 | Signal Analyzer scope: channels, roll/trigger, zoom, cursors, measurements, CSV/PNG | AN-01..06, AN-09 | todo |
-| SN-121 | Transient mode and settings dialog | SIM-03 | doing |
-| SN-122 | Messages panel, diagnostics with locate | UI-12, SIM-05 | todo |
-| SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | todo |
+| SN-118 | Interactive run: pacing, speed factor, controls, bounded memory, status | SIM-01, SIM-02, INT-01, UI-13 | done |
+| SN-119 | Interactive components and live rendering (switches, button, pot, LED, meters, tooltips, live values) | INT-02..05 | done |
+| SN-120 | Signal Analyzer scope: channels, roll/trigger, zoom, cursors, measurements, CSV/PNG | AN-01..06, AN-09 | done |
+| SN-121 | Transient mode and settings dialog | SIM-03 | done |
+| SN-122 | Messages panel, diagnostics with locate | UI-12, SIM-05 | done |
+| SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | doing |
 
 ## Phase 2 — MCU GPIO, release 0.2 (until 2026-11-13)
 

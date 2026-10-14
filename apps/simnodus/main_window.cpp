@@ -5,22 +5,34 @@
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
 #include "component_panel.hpp"
+#include "document.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
+#include "run_controller.hpp"
+#include "schematic_scene.hpp"
 #include "schematic_view.hpp"
+#include "settings_dialog.hpp"
 
+#include "editing/operations.hpp"
+#include "model/engineering.hpp"
 #include "sim/engine_check.hpp"
+#include "sim/engine_host.hpp"
 #include "simnodus/version.hpp"
 
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QInputDialog>
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSplitter>
+#include <QStandardPaths>
 #include <QStatusBar>
 #include <QStyle>
 #include <QThread>
@@ -47,20 +59,43 @@ QString panel_key(Panel panel)
 }
 
 constexpr int center_minimum = 200;
+constexpr int max_recent = 8;
+const QString project_filter = QStringLiteral("SimNodus projects (*.snx)");
+
+QStringList examples_folders()
+{
+    const QString app = QCoreApplication::applicationDirPath();
+    QStringList folders{app + QStringLiteral("/examples"), app + QStringLiteral("/../share/simnodus/examples")};
+#ifdef SIMNODUS_SOURCE_EXAMPLES_DIR
+    folders << QStringLiteral(SIMNODUS_SOURCE_EXAMPLES_DIR);
+#endif
+    return folders;
+}
+
+QString speed_text(double speed)
+{
+    return speed <= 0 ? QCoreApplication::translate("MainWindow", "Maximum") : QStringLiteral("%1x").arg(speed);
+}
 
 } // namespace
 
 MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(parent), settings_(settings)
 {
     setObjectName(QStringLiteral("mainWindow"));
-    setWindowTitle(tr("Untitled - SimNodus"));
     resize(1280, 800);
-    undo_stack_ = new QUndoStack(this);
+    sim::EngineHost::instance().set_application_dir(QCoreApplication::applicationDirPath().toStdWString());
 
-    components_ = new ComponentPanel;
-    view_ = new SchematicView;
-    properties_ = new PropertiesPanel;
     messages_ = new MessagesPanel;
+    load_library();
+    document_ = new Document(library_, this);
+    scene_ = new SchematicScene(*document_, this);
+    run_ = new RunController(*document_, *scene_, this);
+
+    components_ = new ComponentPanel(library_);
+    view_ = new SchematicView;
+    view_->set_schematic_scene(scene_);
+    view_->set_edit_guard([this] { return allow_structure_edit(); });
+    properties_ = new PropertiesPanel(document_);
 
     columns_ = new QSplitter(Qt::Horizontal);
     columns_->setObjectName(QStringLiteral("columns"));
@@ -87,36 +122,110 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     setCentralWidget(rows_);
 
     analyzer_ = std::make_unique<AnalyzerWindow>();
+    analyzer_->set_controller(run_);
 
     build_actions_and_menus();
     build_status_bar();
 
-    connect(components_, &ComponentPanel::placement_requested, this, [this](const QString&, const QString& name) {
-        properties_->show_type(name);
-        statusBar()->showMessage(tr("Placing %1 arrives with the schematic editor (next build).").arg(name), 4000);
+    connect(components_, &ComponentPanel::placement_requested, this, [this](const QString& type) {
+        view_->begin_place(library_.find(type.toStdString()));
+        view_->setFocus();
     });
     connect(view_, &SchematicView::cursor_moved, this, [this](QPointF p) {
         cursor_label_->setText(tr("x %1  y %2").arg(qRound(p.x())).arg(qRound(p.y())));
     });
     connect(view_, &SchematicView::zoom_changed, this,
         [this](double zoom) { zoom_label_->setText(tr("%1 %").arg(qRound(zoom * 100))); });
+    connect(view_, &SchematicView::status_message, this, [this](const QString& text) { statusBar()->showMessage(text, 6000); });
+    connect(view_, &SchematicView::edit_value_requested, this, [this](model::Id id) {
+        scene_->select_ids({id});
+        set_panel_visible(Panel::Properties, true);
+        properties_->focus_value();
+    });
+    connect(view_, &SchematicView::control_changed, run_, &RunController::set_control);
+    connect(view_, &SchematicView::label_name_needed, this, [this](model::Point at) { ask_label_name(at.x, at.y); });
+    connect(scene_, &QGraphicsScene::selectionChanged, this, [this] {
+        properties_->set_selection(scene_->selected_ids());
+        properties_->set_live_text(run_->live_text(scene_->selected_ids()));
+    });
+    connect(properties_, &PropertiesPanel::message, this, [this](const QString& text) {
+        statusBar()->showMessage(text, 6000);
+    });
+    connect(document_, &Document::file_changed, this, &MainWindow::update_title);
+    connect(document_, &Document::changed, this, [this] {
+        setWindowModified(document_->modified());
+        if (run_->active()) {
+            statusBar()->showMessage(tr("Changes take effect when the simulation is restarted."), 4000);
+        }
+    });
     connect(messages_, &MessagesPanel::counts_changed, this, &MainWindow::update_counts);
     connect(messages_, &MessagesPanel::error_added, this, [this] { set_panel_visible(Panel::Messages, true); });
+    connect(messages_, &MessagesPanel::items_activated, this, [this](const std::vector<model::Id>& ids) {
+        std::set<model::Id> present;
+        for (model::Id id : ids) {
+            if (document_->schematic().contains(id)) {
+                present.insert(id);
+            }
+        }
+        if (!present.empty()) {
+            view_->center_on_item(*present.begin());
+            scene_->select_ids(present);
+        }
+    });
     connect(analyzer_.get(), &AnalyzerWindow::visibility_changed, analyzer_action_, &QAction::setChecked);
+    connect(run_, &RunController::state_changed, this, &MainWindow::update_run_state);
+    connect(run_, &RunController::refreshed, this, [this] {
+        update_status();
+        properties_->set_live_text(run_->live_text(scene_->selected_ids()));
+    });
+    connect(run_, &RunController::failed, this, [this](const QString& message, const QStringList& output) {
+        for (const auto& line : output) {
+            messages_->add(Severity::Info, line, tr("Engine"));
+        }
+        messages_->add(Severity::Error, message, tr("Simulation"));
+    });
 
     columns_->setSizes({remembered_[0], 1280 - remembered_[0] - remembered_[1], remembered_[1]});
     rows_->setSizes({640, remembered_[2]});
     messages_->hide();
     restore_settings();
     sync_panel_actions();
-    messages_->add(Severity::Info, tr("SimNodus %1 started.").arg(QStringLiteral(SIMNODUS_VERSION_FULL)));
+    rebuild_recent_menu();
+    rebuild_examples_menu();
+    update_title();
+    update_run_state();
+    messages_->add(Severity::Info, tr("SimNodus %1 started; %2 component types loaded.")
+                                       .arg(QStringLiteral(SIMNODUS_VERSION_FULL))
+                                       .arg(static_cast<int>(library_.definitions().size())));
 }
 
 MainWindow::~MainWindow()
 {
+    run_->stop();
     if (engine_thread_) {
         engine_thread_->wait();
     }
+}
+
+void MainWindow::load_library()
+{
+    const std::filesystem::path app = QCoreApplication::applicationDirPath().toStdWString();
+    for (const auto& folder : library::library_candidates(app)) {
+        std::error_code ec;
+        if (!std::filesystem::is_directory(folder, ec)) {
+            continue;
+        }
+        for (const auto& m : library_.load_directory(folder)) {
+            messages_->add(Severity::Warning,
+                tr("Component file %1 skipped: %2")
+                    .arg(QString::fromStdWString(m.file.filename().wstring()), QString::fromStdString(m.text)),
+                tr("Library"));
+        }
+        if (!library_.empty()) {
+            return;
+        }
+    }
+    messages_->add(Severity::Error, tr("The component library was not found next to the application."), tr("Library"));
 }
 
 void MainWindow::build_actions_and_menus()
@@ -129,37 +238,48 @@ void MainWindow::build_actions_and_menus()
         action->setStatusTip(tr("Planned (%1)").arg(task));
         return action;
     };
+    auto place = [this](const char* type) {
+        return [this, type] { view_->begin_place(library_.find(type)); };
+    };
 
     auto* file = menuBar()->addMenu(tr("&File"));
-    auto* new_action = planned(file, tr("&New"), QKeySequence::New, QStringLiteral("SN-115"));
-    new_action->setIcon(style->standardIcon(QStyle::SP_FileIcon));
-    auto* open_action = planned(file, tr("&Open..."), QKeySequence::Open, QStringLiteral("SN-115"));
-    open_action->setIcon(style->standardIcon(QStyle::SP_DialogOpenButton));
-    auto* save_action = planned(file, tr("&Save"), QKeySequence::Save, QStringLiteral("SN-115"));
-    save_action->setIcon(style->standardIcon(QStyle::SP_DialogSaveButton));
-    planned(file, tr("Save &As..."), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), QStringLiteral("SN-115"));
-    file->addMenu(tr("&Examples"))->setEnabled(false);
+    auto* new_action = file->addAction(style->standardIcon(QStyle::SP_FileIcon), tr("&New"), this, &MainWindow::new_file);
+    new_action->setShortcut(QKeySequence::New);
+    auto* open_action =
+        file->addAction(style->standardIcon(QStyle::SP_DialogOpenButton), tr("&Open..."), this, &MainWindow::open_dialog);
+    open_action->setShortcut(QKeySequence::Open);
+    recent_menu_ = file->addMenu(tr("Open &Recent"));
+    examples_menu_ = file->addMenu(tr("&Examples"));
+    auto* save_action = file->addAction(style->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), this, [this] { save(); });
+    save_action->setShortcut(QKeySequence::Save);
+    auto* save_as_action = file->addAction(tr("Save &As..."), this, [this] { save_as(); });
+    save_as_action->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
     file->addSeparator();
     auto* quit = file->addAction(tr("E&xit"), this, &QWidget::close);
     quit->setShortcut(QKeySequence::Quit);
 
     auto* edit = menuBar()->addMenu(tr("&Edit"));
-    auto* undo = undo_stack_->createUndoAction(this, tr("&Undo"));
+    auto* undo = document_->undo_stack()->createUndoAction(this, tr("&Undo"));
     undo->setShortcut(QKeySequence::Undo);
     undo->setIcon(style->standardIcon(QStyle::SP_ArrowBack));
-    auto* redo = undo_stack_->createRedoAction(this, tr("&Redo"));
-    redo->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Y));
+    auto* redo = document_->undo_stack()->createRedoAction(this, tr("&Redo"));
+    redo->setShortcuts({QKeySequence(Qt::CTRL | Qt::Key_Y), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z)});
     redo->setIcon(style->standardIcon(QStyle::SP_ArrowForward));
     edit->addAction(undo);
     edit->addAction(redo);
     edit->addSeparator();
-    planned(edit, tr("Cu&t"), QKeySequence::Cut, QStringLiteral("SN-112"));
-    planned(edit, tr("&Copy"), QKeySequence::Copy, QStringLiteral("SN-112"));
-    planned(edit, tr("&Paste"), QKeySequence::Paste, QStringLiteral("SN-112"));
-    planned(edit, tr("&Delete"), QKeySequence::Delete, QStringLiteral("SN-112"));
+    edit->addAction(tr("Cu&t"), view_, &SchematicView::cut_selection)->setShortcut(QKeySequence::Cut);
+    edit->addAction(tr("&Copy"), view_, &SchematicView::copy_selection)->setShortcut(QKeySequence::Copy);
+    edit->addAction(tr("&Paste"), view_, &SchematicView::paste)->setShortcut(QKeySequence::Paste);
+    auto* del = edit->addAction(tr("&Delete"), view_, &SchematicView::delete_selection);
+    del->setShortcuts({QKeySequence::Delete, QKeySequence(Qt::Key_Backspace)});
+    edit->addAction(tr("Select &All"), view_, &SchematicView::select_all)->setShortcut(QKeySequence::SelectAll);
     edit->addSeparator();
-    planned(edit, tr("&Rotate"), QKeySequence(Qt::CTRL | Qt::Key_R), QStringLiteral("SN-112"));
-    planned(edit, tr("&Mirror"), QKeySequence(Qt::CTRL | Qt::Key_E), QStringLiteral("SN-112"));
+    edit->addAction(tr("&Rotate"), view_, &SchematicView::rotate)->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    edit->addAction(tr("&Mirror"), view_, &SchematicView::mirror)->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+    for (auto* action : edit->actions()) {
+        action->setShortcutContext(Qt::WindowShortcut);
+    }
 
     auto* view = menuBar()->addMenu(tr("&View"));
     const std::array<QString, 3> names{tr("&Components"), tr("&Properties"), tr("&Messages")};
@@ -177,36 +297,42 @@ void MainWindow::build_actions_and_menus()
     focus_action_->setShortcut(QKeySequence(Qt::Key_F11));
     connect(focus_action_, &QAction::triggered, this, &MainWindow::set_focus_canvas);
     view->addSeparator();
-    auto* zoom_in = view->addAction(tr("Zoom &In"), view_, &SchematicView::zoom_in);
-    zoom_in->setShortcut(QKeySequence::ZoomIn);
-    auto* zoom_out = view->addAction(tr("Zoom &Out"), view_, &SchematicView::zoom_out);
-    zoom_out->setShortcut(QKeySequence::ZoomOut);
-    auto* fit = view->addAction(tr("&Fit Circuit"), view_, &SchematicView::fit_content);
-    fit->setShortcuts({QKeySequence(Qt::Key_F), QKeySequence(Qt::Key_Home)});
+    view->addAction(tr("Zoom &In"), view_, &SchematicView::zoom_in)->setShortcut(QKeySequence::ZoomIn);
+    view->addAction(tr("Zoom &Out"), view_, &SchematicView::zoom_out)->setShortcut(QKeySequence::ZoomOut);
+    view->addAction(tr("&Fit Circuit"), view_, &SchematicView::fit_content)
+        ->setShortcuts({QKeySequence(Qt::Key_F), QKeySequence(Qt::Key_Home)});
     view->addSeparator();
-    planned(view, tr("Show &Voltages"), QKeySequence(), QStringLiteral("SN-119"));
+    auto* voltages = view->addAction(tr("Show &Voltages"));
+    voltages->setCheckable(true);
+    voltages->setStatusTip(tr("Color wires by their voltage while the simulation runs"));
+    connect(voltages, &QAction::toggled, scene_, &SchematicScene::set_show_voltages);
 
-    auto* place = menuBar()->addMenu(tr("&Place"));
-    auto* wire = planned(place, tr("&Wire"), QKeySequence(Qt::Key_W), QStringLiteral("SN-113"));
-    planned(place, tr("&Net Label"), QKeySequence(Qt::Key_N), QStringLiteral("SN-113"));
-    planned(place, tr("&Ground"), QKeySequence(Qt::Key_G), QStringLiteral("SN-113"));
-    auto* probe = planned(place, tr("P&robe"), QKeySequence(Qt::Key_P), QStringLiteral("SN-120"));
-    place->addSeparator();
-    planned(place, tr("Resistor"), QKeySequence(Qt::Key_R), QStringLiteral("SN-112"));
-    planned(place, tr("Capacitor"), QKeySequence(Qt::Key_C), QStringLiteral("SN-112"));
-    planned(place, tr("Inductor"), QKeySequence(Qt::Key_L), QStringLiteral("SN-112"));
-    planned(place, tr("Diode"), QKeySequence(Qt::Key_D), QStringLiteral("SN-112"));
+    auto* placement = menuBar()->addMenu(tr("&Place"));
+    auto* wire = placement->addAction(tr("&Wire"), this, [this] { view_->set_tool(Tool::Wire); });
+    wire->setShortcut(QKeySequence(Qt::Key_W));
+    placement->addAction(tr("&Net Label"), this, [this] { view_->set_tool(Tool::Label); })->setShortcut(QKeySequence(Qt::Key_N));
+    placement->addAction(tr("&Ground"), this, place("ground"))->setShortcut(QKeySequence(Qt::Key_G));
+    auto* probe = placement->addAction(tr("P&robe"), this, [this] { view_->set_tool(Tool::Probe); });
+    probe->setShortcut(QKeySequence(Qt::Key_P));
+    placement->addSeparator();
+    placement->addAction(tr("Resistor"), this, place("resistor"))->setShortcut(QKeySequence(Qt::Key_R));
+    placement->addAction(tr("Capacitor"), this, place("capacitor"))->setShortcut(QKeySequence(Qt::Key_C));
+    placement->addAction(tr("Inductor"), this, place("inductor"))->setShortcut(QKeySequence(Qt::Key_L));
+    placement->addAction(tr("Diode"), this, place("diode"))->setShortcut(QKeySequence(Qt::Key_D));
+    wire->setText(tr("&Wire"));
 
     auto* simulate = menuBar()->addMenu(tr("&Simulate"));
-    auto* run = planned(simulate, tr("&Run"), QKeySequence(Qt::Key_F5), QStringLiteral("SN-118"));
-    run->setIcon(style->standardIcon(QStyle::SP_MediaPlay));
-    auto* pause = planned(simulate, tr("&Pause / Resume"), QKeySequence(Qt::Key_F6), QStringLiteral("SN-118"));
-    pause->setIcon(style->standardIcon(QStyle::SP_MediaPause));
-    auto* stop = planned(simulate, tr("&Stop"), QKeySequence(Qt::SHIFT | Qt::Key_F5), QStringLiteral("SN-118"));
-    stop->setIcon(style->standardIcon(QStyle::SP_MediaStop));
-    planned(simulate, tr("R&eset"), QKeySequence(), QStringLiteral("SN-118"));
+    run_action_ = simulate->addAction(style->standardIcon(QStyle::SP_MediaPlay), tr("&Run"), this, &MainWindow::run);
+    run_action_->setShortcut(QKeySequence(Qt::Key_F5));
+    pause_action_ =
+        simulate->addAction(style->standardIcon(QStyle::SP_MediaPause), tr("&Pause / Resume"), this, &MainWindow::pause_resume);
+    pause_action_->setShortcut(QKeySequence(Qt::Key_F6));
+    stop_action_ = simulate->addAction(style->standardIcon(QStyle::SP_MediaStop), tr("&Stop"), this, &MainWindow::stop);
+    stop_action_->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F5));
+    reset_action_ = simulate->addAction(tr("R&eset"), this, &MainWindow::reset);
+    reset_action_->setStatusTip(tr("Restart the simulation from the beginning"));
     simulate->addSeparator();
-    planned(simulate, tr("&Transient Settings..."), QKeySequence(), QStringLiteral("SN-121"));
+    simulate->addAction(tr("Simulation &Settings..."), this, &MainWindow::edit_settings);
 
     auto* tools = menuBar()->addMenu(tr("&Tools"));
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
@@ -227,6 +353,7 @@ void MainWindow::build_actions_and_menus()
     auto* help = menuBar()->addMenu(tr("&Help"));
     help->addAction(tr("&About SimNodus"), this, &MainWindow::show_about);
     help->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
+    (void)planned;
 
     auto* toolbar = addToolBar(tr("Main"));
     toolbar->setObjectName(QStringLiteral("mainToolbar"));
@@ -242,27 +369,36 @@ void MainWindow::build_actions_and_menus()
     toolbar->addAction(wire);
     toolbar->addAction(probe);
     toolbar->addSeparator();
-    toolbar->addAction(run);
-    toolbar->addAction(pause);
-    toolbar->addAction(stop);
-    auto* speed = new QComboBox;
-    speed->setObjectName(QStringLiteral("speedFactor"));
-    speed->addItems({QStringLiteral("0.001x"), QStringLiteral("0.01x"), QStringLiteral("0.1x"),
-        QStringLiteral("1.00x"), tr("Maximum")});
-    speed->setCurrentIndex(3);
-    speed->setEnabled(false);
-    speed->setToolTip(tr("Simulation speed relative to real time (SN-118)"));
-    toolbar->addWidget(speed);
+    toolbar->addAction(run_action_);
+    toolbar->addAction(pause_action_);
+    toolbar->addAction(stop_action_);
+    speed_ = new QComboBox;
+    speed_->setObjectName(QStringLiteral("speedFactor"));
+    for (double s : {0.001, 0.01, 0.1, 0.5, 1.0, 0.0}) {
+        speed_->addItem(speed_text(s), s);
+    }
+    speed_->setCurrentIndex(4);
+    speed_->setToolTip(tr("Simulation speed relative to real time"));
+    connect(speed_, &QComboBox::activated, this, [this](int) {
+        const double s = speed_->currentData().toDouble();
+        run_->set_speed(s);
+        auto settings = document_->schematic().settings();
+        if (settings.speed != s) {
+            settings.speed = s;
+            document_->apply(editing::set_settings(document_->schematic(), settings));
+        }
+    });
+    toolbar->addWidget(speed_);
     toolbar->addSeparator();
     toolbar->addAction(analyzer_action_);
 }
 
 void MainWindow::build_status_bar()
 {
-    state_label_ = new QLabel(tr("Stopped"));
-    time_label_ = new QLabel(tr("t = -"));
-    speed_label_ = new QLabel(tr("- x real time"));
-    mode_label_ = new QLabel(tr("Interactive"));
+    state_label_ = new QLabel;
+    time_label_ = new QLabel;
+    speed_label_ = new QLabel;
+    mode_label_ = new QLabel;
     warnings_label_ = new QLabel;
     cursor_label_ = new QLabel;
     zoom_label_ = new QLabel(tr("%1 %").arg(qRound(view_->zoom() * 100)));
@@ -272,6 +408,7 @@ void MainWindow::build_status_bar()
     statusBar()->addPermanentWidget(cursor_label_);
     statusBar()->addPermanentWidget(zoom_label_);
     update_counts(0, 0);
+    update_status();
 }
 
 QWidget* MainWindow::panel_widget(Panel panel) const
@@ -382,6 +519,156 @@ void MainWindow::update_counts(int warnings, int errors)
                                         : tr("%n warning(s)", nullptr, warnings));
 }
 
+void MainWindow::update_title()
+{
+    setWindowTitle(QStringLiteral("%1[*] - SimNodus").arg(document_->display_name()));
+    setWindowModified(document_->modified());
+}
+
+void MainWindow::update_status()
+{
+    const auto status = run_->status();
+    const bool interactive = document_->schematic().settings().mode == model::SimulationMode::Interactive;
+    QString state;
+    switch (status.state) {
+    case sim::RunState::Running:
+        state = tr("Running");
+        break;
+    case sim::RunState::Paused:
+        state = tr("Paused");
+        break;
+    case sim::RunState::Finished:
+        state = tr("Finished");
+        break;
+    case sim::RunState::Failed:
+        state = tr("Failed");
+        break;
+    default:
+        state = tr("Stopped");
+    }
+    state_label_->setText(state);
+    const bool any = status.state != sim::RunState::Idle;
+    time_label_->setText(any ? tr("t = %1s").arg(QString::fromStdString(model::format_engineering(status.sim_time, 4)))
+                             : tr("t = -"));
+    if (status.state == sim::RunState::Running && status.mode == model::SimulationMode::Interactive) {
+        speed_label_->setText(tr("%1x real time").arg(QString::number(status.achieved_factor, 'f', status.achieved_factor < 0.1 ? 4 : 2)));
+    } else if (status.state == sim::RunState::Running) {
+        speed_label_->setText(tr("%1 %").arg(qRound(status.progress * 100)));
+    } else {
+        speed_label_->setText(tr("- x real time"));
+    }
+    mode_label_->setText(interactive ? tr("Interactive (step %1s)")
+                                           .arg(QString::fromStdString(
+                                               model::format_engineering(document_->schematic().settings().max_step)))
+                                     : tr("Transient"));
+}
+
+void MainWindow::update_run_state()
+{
+    const auto state = run_->state();
+    const bool active = state == sim::RunState::Running || state == sim::RunState::Paused;
+    run_action_->setEnabled(!active);
+    pause_action_->setEnabled(active && document_->schematic().settings().mode == model::SimulationMode::Interactive);
+    stop_action_->setEnabled(active);
+    reset_action_->setEnabled(active);
+    engine_action_->setEnabled(!active && !engine_check_running());
+    view_->set_running(active);
+    speed_->setEnabled(document_->schematic().settings().mode == model::SimulationMode::Interactive);
+    update_status();
+    if (state == sim::RunState::Finished && run_->transient_mode()) {
+        analyzer_->reload();
+        show_analyzer();
+        messages_->add(Severity::Info,
+            tr("Transient analysis finished (%1s simulated).")
+                .arg(QString::fromStdString(model::format_engineering(run_->status().sim_time))),
+            tr("Simulation"));
+    }
+}
+
+bool MainWindow::allow_structure_edit()
+{
+    if (!run_->active()) {
+        return true;
+    }
+    if (auto_discard_) {
+        run_->stop();
+        return true;
+    }
+    const auto answer = QMessageBox::question(this, tr("Simulation running"),
+        tr("The circuit cannot be changed while the simulation runs. Stop the simulation?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if (answer == QMessageBox::Yes) {
+        run_->stop();
+        return true;
+    }
+    return false;
+}
+
+void MainWindow::report_diagnostics()
+{
+    messages_->clear_source(tr("Check"));
+    for (const auto& d : run_->diagnostics()) {
+        const Severity severity = d.severity == netlist::Severity::Error ? Severity::Error
+            : d.severity == netlist::Severity::Warning                  ? Severity::Warning
+                                                                         : Severity::Info;
+        messages_->add(severity, QString::fromStdString(d.message), tr("Check"), d.items);
+    }
+}
+
+void MainWindow::run()
+{
+    if (run_->active()) {
+        return;
+    }
+    QString error;
+    const bool started = run_->start(error);
+    report_diagnostics();
+    if (!started) {
+        messages_->add(Severity::Error, error, tr("Simulation"));
+        return;
+    }
+    run_->set_speed(document_->schematic().settings().speed);
+    analyzer_->reload();
+    statusBar()->showMessage(tr("Simulation started. Click switches and buttons to operate them."), 4000);
+}
+
+void MainWindow::pause_resume()
+{
+    run_->pause_or_resume();
+}
+
+void MainWindow::stop()
+{
+    run_->stop();
+}
+
+void MainWindow::reset()
+{
+    run_->stop();
+    run();
+}
+
+void MainWindow::edit_settings()
+{
+    SimulationSettingsDialog dialog(document_->schematic().settings(), this);
+    if (dialog.exec() == QDialog::Accepted) {
+        document_->apply(editing::set_settings(document_->schematic(), dialog.settings()));
+        update_run_state();
+    }
+}
+
+void MainWindow::ask_label_name(int x, int y)
+{
+    bool ok = false;
+    const QString name = QInputDialog::getText(this, tr("Net label"),
+        tr("Name (points with the same name are connected; GND or 0 is ground):"), QLineEdit::Normal, last_label_, &ok);
+    if (!ok || name.trimmed().isEmpty() || !allow_structure_edit()) {
+        return;
+    }
+    last_label_ = name.trimmed();
+    document_->apply(editing::add_label(document_->id_source(), {x, y}, last_label_.toStdString()));
+}
+
 bool MainWindow::engine_check_running() const
 {
     return engine_thread_ && engine_thread_->isRunning();
@@ -389,7 +676,7 @@ bool MainWindow::engine_check_running() const
 
 void MainWindow::check_engine()
 {
-    if (engine_check_running()) {
+    if (engine_check_running() || run_->active()) {
         return;
     }
     engine_action_->setEnabled(false);
@@ -399,7 +686,7 @@ void MainWindow::check_engine()
     // The check loads a native library and runs a solve: never on the GUI thread.
     engine_thread_ = QThread::create([result, app_dir] { *result = sim::check_analog_engine(app_dir); });
     connect(engine_thread_, &QThread::finished, this, [this, result] {
-        engine_action_->setEnabled(true);
+        engine_action_->setEnabled(!run_->active());
         if (result->ok) {
             messages_->add(Severity::Info,
                 tr("Analog engine ready: ngspice-%1, reference divider %2 V (%3).")
@@ -425,11 +712,171 @@ void MainWindow::show_about()
     QMessageBox::about(this, tr("About SimNodus"),
         tr("<h3>SimNodus %1</h3>"
            "<p>Interactive circuit and STM32 simulator for teaching.</p>"
-           "<p>This is a development build of the rebuilt application: the editor, the continuous "
-           "simulation and the Signal Analyzer arrive in release 0.1.</p>"
+           "<p>Development build: analog circuits with continuous interactive simulation and the Signal "
+           "Analyzer. The microcontroller arrives in release 0.2.</p>"
            "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
            "Qt %2 (LGPL-3.0).</p>")
             .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));
+}
+
+bool MainWindow::confirm_discard()
+{
+    if (!document_->modified() || auto_discard_) {
+        return true;
+    }
+    const auto answer = QMessageBox::warning(this, tr("Unsaved changes"),
+        tr("%1 has unsaved changes. Save them?").arg(document_->display_name()),
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+    if (answer == QMessageBox::Save) {
+        return save();
+    }
+    return answer == QMessageBox::Discard;
+}
+
+void MainWindow::new_file()
+{
+    if (!confirm_discard()) {
+        return;
+    }
+    run_->stop();
+    document_->new_document();
+    scene_->clearSelection();
+}
+
+void MainWindow::open_dialog()
+{
+    if (!confirm_discard()) {
+        return;
+    }
+    const QString start = document_->file_path().isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+        : QFileInfo(document_->file_path()).path();
+    const QString path = QFileDialog::getOpenFileName(this, tr("Open project"), start, project_filter);
+    if (!path.isEmpty()) {
+        auto_discard_ = true; // already confirmed
+        open_file(path);
+        auto_discard_ = false;
+    }
+}
+
+bool MainWindow::open_file(const QString& path)
+{
+    if (!confirm_discard()) {
+        return false;
+    }
+    run_->stop();
+    QStringList errors, warnings;
+    if (!document_->open(path, errors, warnings)) {
+        for (const auto& e : errors) {
+            messages_->add(Severity::Error, tr("%1: %2").arg(QFileInfo(path).fileName(), e), tr("File"));
+        }
+        return false;
+    }
+    for (const auto& w : warnings) {
+        messages_->add(Severity::Warning, w, tr("File"));
+    }
+    add_recent(path);
+    speed_->setCurrentIndex(std::max(0, speed_->findData(document_->schematic().settings().speed)));
+    view_->fit_content();
+    update_run_state();
+    return true;
+}
+
+bool MainWindow::save()
+{
+    if (document_->file_path().isEmpty()) {
+        return save_as();
+    }
+    return save_to(document_->file_path());
+}
+
+bool MainWindow::save_as()
+{
+    QString start = document_->file_path();
+    if (start.isEmpty()) {
+        start = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/circuit.snx");
+    }
+    QString path = QFileDialog::getSaveFileName(this, tr("Save project"), start, project_filter);
+    if (path.isEmpty()) {
+        return false;
+    }
+    if (!path.endsWith(QStringLiteral(".snx"), Qt::CaseInsensitive)) {
+        path += QStringLiteral(".snx");
+    }
+    return save_to(path);
+}
+
+bool MainWindow::save_to(const QString& path)
+{
+    QString error;
+    if (!document_->save(path, error)) {
+        messages_->add(Severity::Error, tr("Saving failed: %1").arg(error), tr("File"));
+        QMessageBox::warning(this, tr("Save project"), tr("The project could not be saved:\n%1").arg(error));
+        return false;
+    }
+    add_recent(path);
+    statusBar()->showMessage(tr("Saved %1").arg(QDir::toNativeSeparators(path)), 4000);
+    return true;
+}
+
+void MainWindow::add_recent(const QString& path)
+{
+    QStringList recent = settings_.value(QStringLiteral("files/recent")).toStringList();
+    const QString absolute = QFileInfo(path).absoluteFilePath();
+    recent.removeAll(absolute);
+    recent.prepend(absolute);
+    while (recent.size() > max_recent) {
+        recent.removeLast();
+    }
+    settings_.setValue(QStringLiteral("files/recent"), recent);
+    rebuild_recent_menu();
+}
+
+void MainWindow::rebuild_recent_menu()
+{
+    recent_menu_->clear();
+    const QStringList recent = settings_.value(QStringLiteral("files/recent")).toStringList();
+    for (const auto& path : recent) {
+        auto* action = recent_menu_->addAction(QDir::toNativeSeparators(path));
+        action->setEnabled(QFileInfo::exists(path));
+        connect(action, &QAction::triggered, this, [this, path] { open_file(path); });
+    }
+    recent_menu_->setEnabled(!recent.isEmpty());
+}
+
+void MainWindow::rebuild_examples_menu()
+{
+    examples_menu_->clear();
+    for (const auto& folder : examples_folders()) {
+        const QDir dir(folder);
+        const auto files = dir.entryInfoList({QStringLiteral("*.snx")}, QDir::Files, QDir::Name);
+        if (files.isEmpty()) {
+            continue;
+        }
+        for (const auto& info : files) {
+            auto* action = examples_menu_->addAction(info.completeBaseName().replace(QLatin1Char('_'), QLatin1Char(' ')));
+            const QString path = info.absoluteFilePath();
+            connect(action, &QAction::triggered, this, [this, path] {
+                if (!confirm_discard()) {
+                    return;
+                }
+                run_->stop();
+                QStringList errors, warnings;
+                // Examples open as untitled copies (UI-15).
+                if (!document_->open_copy(path, errors, warnings)) {
+                    for (const auto& e : errors) {
+                        messages_->add(Severity::Error, e, tr("File"));
+                    }
+                    return;
+                }
+                speed_->setCurrentIndex(std::max(0, speed_->findData(document_->schematic().settings().speed)));
+                view_->fit_content();
+                update_run_state();
+            });
+        }
+        break;
+    }
+    examples_menu_->setEnabled(!examples_menu_->isEmpty());
 }
 
 void MainWindow::save_settings()
@@ -458,15 +905,18 @@ void MainWindow::restore_settings()
     restoreState(settings_.value(QStringLiteral("mainWindow/state")).toByteArray());
     for (int i = 0; i < 3; ++i) {
         const Panel panel = static_cast<Panel>(i);
-        const int size = settings_.value(QStringLiteral("panels/%1/size").arg(panel_key(panel)), remembered_[static_cast<std::size_t>(i)]).toInt();
+        const int size = settings_.value(QStringLiteral("panels/%1/size").arg(panel_key(panel)),
+            remembered_[static_cast<std::size_t>(i)]).toInt();
         remembered_[static_cast<std::size_t>(i)] = std::clamp(size, 60, 2000);
     }
-    columns_->setSizes({remembered_[0], std::max(center_minimum, width() - remembered_[0] - remembered_[1]), remembered_[1]});
+    columns_->setSizes(
+        {remembered_[0], std::max(center_minimum, width() - remembered_[0] - remembered_[1]), remembered_[1]});
     rows_->setSizes({std::max(200, height() - remembered_[2]), remembered_[2]});
     for (int i = 0; i < 3; ++i) {
         const Panel panel = static_cast<Panel>(i);
         const bool fallback = panel != Panel::Messages;
-        panel_widget(panel)->setVisible(settings_.value(QStringLiteral("panels/%1/visible").arg(panel_key(panel)), fallback).toBool());
+        panel_widget(panel)->setVisible(
+            settings_.value(QStringLiteral("panels/%1/visible").arg(panel_key(panel)), fallback).toBool());
     }
     analyzer_->restore_settings(settings_);
 }
@@ -480,6 +930,11 @@ void MainWindow::show_restored_windows()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+    if (!confirm_discard()) {
+        event->ignore();
+        return;
+    }
+    run_->stop();
     save_settings();
     analyzer_->hide();
     QMainWindow::closeEvent(event);

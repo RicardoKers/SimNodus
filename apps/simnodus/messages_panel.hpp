@@ -1,11 +1,15 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// Bottom panel (UI-12): diagnostics and engine messages. Locating the related
-// item by double-click arrives with SN-122.
+// Bottom panel (UI-12): diagnostics and engine messages; double-clicking a
+// message selects and centers the related items.
 #pragma once
 
+#include "model/schematic.hpp"
+
 #include <QWidget>
+
+#include <vector>
 
 class QTreeWidget;
 
@@ -18,7 +22,10 @@ class MessagesPanel : public QWidget {
 public:
     explicit MessagesPanel(QWidget* parent = nullptr);
 
-    void add(Severity severity, const QString& text, const QString& source = {});
+    // `items` are selected and centered when the user double-clicks the message.
+    void add(Severity severity, const QString& text, const QString& source = {}, std::vector<model::Id> items = {});
+    // Removes the messages of one source (for example the last pre-run check).
+    void clear_source(const QString& source);
     void clear();
     int count() const;
     int warning_count() const { return warnings_; }
@@ -27,6 +34,7 @@ public:
 signals:
     void counts_changed(int warnings, int errors);
     void error_added();
+    void items_activated(const std::vector<model::Id>& items);
 
 private:
     QTreeWidget* list_ = nullptr;

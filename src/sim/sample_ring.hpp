@@ -46,6 +46,32 @@ public:
         return result;
     }
 
+    // Samples with time >= `from`, oldest first (plus the one just before,
+    // so that a plot can draw into the window's left edge).
+    std::vector<Sample> since(double from) const
+    {
+        std::lock_guard lock(mutex_);
+        const std::size_t start = (head_ + data_.size() - size_) % data_.size();
+        // Times increase along the ring: binary search over logical positions.
+        std::size_t lo = 0;
+        std::size_t hi = size_;
+        while (lo < hi) {
+            const std::size_t mid = (lo + hi) / 2;
+            if (data_[(start + mid) % data_.size()].time < from) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        const std::size_t first = lo > 0 ? lo - 1 : 0;
+        std::vector<Sample> result;
+        result.reserve(size_ - first);
+        for (std::size_t i = first; i < size_; ++i) {
+            result.push_back(data_[(start + i) % data_.size()]);
+        }
+        return result;
+    }
+
     void clear()
     {
         std::lock_guard lock(mutex_);

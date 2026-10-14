@@ -156,6 +156,7 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
 
     bool has_elements = false;
     std::set<std::string> model_lines;
+    std::vector<std::string> probe_lines;
     for (const auto& c : schematic.components()) {
         const ComponentDefinition* d = library.find(c.type);
         if (!d) {
@@ -209,6 +210,19 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
             continue;
         }
 
+        // Current probes on this component's pins.
+        std::map<PinRef, std::string> probe_nodes;
+        for (const auto& pin : options.current_probes) {
+            if (pin.first == c.id && d->pin(pin.second) && out.pin_node.count(pin)) {
+                const std::string node = "pm_" + ref + "_" + sanitize_name(pin.second);
+                const std::string source = "V_pm_" + ref + "_" + sanitize_name(pin.second);
+                probe_nodes[pin] = node;
+                probe_lines.push_back(source + " " + out.pin_node.at(pin) + " " + node + " DC 0");
+                out.pin_current[pin] = lower(source) + "#branch";
+                out.elements.push_back({c.id, source, 'V', {out.pin_node.at(pin), node}, "DC 0"});
+            }
+        }
+
         std::string control_node;
         if (d->interactive) {
             ControlSource control;
@@ -250,9 +264,12 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 case library::TemplateToken::Kind::Control:
                     line += control_node;
                     break;
-                case library::TemplateToken::Kind::Node:
-                    line += out.pin_node.at({c.id, t.text});
+                case library::TemplateToken::Kind::Node: {
+                    const PinRef pin{c.id, t.text};
+                    const auto probe = probe_nodes.find(pin);
+                    line += probe == probe_nodes.end() ? out.pin_node.at(pin) : probe->second;
                     break;
+                }
                 case library::TemplateToken::Kind::Parameter:
                     if (words.count(t.text)) {
                         line += words[t.text];
@@ -297,6 +314,7 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
             }
         }
     }
+    out.lines.insert(out.lines.end(), probe_lines.begin(), probe_lines.end());
     for (const auto& control : out.controls) {
         const double v = control.initial;
         out.lines.push_back(control.source + " " + control.node + " 0 DC " + model::spice_number(v)
