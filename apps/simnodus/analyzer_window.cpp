@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDoubleSpinBox>
 #include <QFile>
 #include <QFileDialog>
@@ -143,7 +144,7 @@ QWidget* AnalyzerWindow::build_controls()
         const int index = channels_->indexOfTopLevelItem(item);
         if (index >= 0 && static_cast<std::size_t>(index) < visible_.size()) {
             visible_[static_cast<std::size_t>(index)] = item->checkState(0) == Qt::Checked;
-            refresh();
+            QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may rebuild this list
         }
     });
     connect(channels_, &QTreeWidget::currentItemChanged, this, [this] { update_measurements(); });
@@ -229,7 +230,7 @@ void AnalyzerWindow::rebuild_channel_list()
         connect(scale, &QComboBox::activated, this, [this, i, scale](int) {
             if (i < scales_.size()) {
                 scales_[i] = scale->currentData().toDouble();
-                refresh();
+                QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may delete this box
             }
         });
         channels_->setItemWidget(item, 1, scale);
@@ -458,6 +459,8 @@ bool AnalyzerWindow::export_csv(const QString& path, QString& error) const
         return false;
     }
     QTextStream out(&file);
+    out << "# SimNodus " << QCoreApplication::applicationVersion() << "; "
+        << (controller_ ? controller_->mode_description() : QString()) << "\n";
     out << "time_s";
     for (const auto* t : visible) {
         out << "," << t->name << "_" << t->unit;

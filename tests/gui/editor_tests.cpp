@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QComboBox>
+#include <QFile>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLineEdit>
@@ -258,6 +259,27 @@ private slots:
         QVERIFY(window_->messages()->error_count() > 0);
     }
 
+    void unsaved_work_is_recovered_after_a_crash()
+    {
+        place("resistor", {0, 0});
+        place("capacitor", {10, 0});
+        QVERIFY(window_->write_recovery());
+        const QString recovery = window_->recovery_file();
+        QVERIFY(QFileInfo::exists(recovery));
+        const model::Schematic before = doc().schematic();
+        delete window_; // like a crash: no close event, the recovery file stays
+        window_ = nullptr;
+        QVERIFY(QFileInfo::exists(recovery));
+        window_ = new MainWindow(*settings_);
+        window_->set_confirm_discard(true);
+        QVERIFY(window_->check_recovery(true));
+        QCOMPARE(doc().schematic().components(), before.components());
+        QVERIFY(doc().file_path().isEmpty()); // restored as an untitled copy
+        window_->close();                      // clean exit removes it
+        QVERIFY(!QFileInfo::exists(recovery));
+        QVERIFY(!window_->check_recovery(true));
+    }
+
     void prerun_check_reports_missing_ground()
     {
         place("resistor", {0, 0});
@@ -339,6 +361,24 @@ private slots:
         QString error;
         QVERIFY2(window_->analyzer()->export_csv(csv, error), qPrintable(error));
         QVERIFY(QFileInfo(csv).size() > 1000);
+        QFile exported(csv);
+        QVERIFY(exported.open(QIODevice::ReadOnly | QIODevice::Text));
+        QVERIFY(exported.readLine().startsWith("# SimNodus")); // how the data was computed (SIM-09)
+        QVERIFY(exported.readLine().startsWith("time_s,V(OUT)_V"));
+    }
+
+    void alt_click_sets_a_differential_reference()
+    {
+        const model::Id r = place("resistor", {0, 0});
+        view()->set_tool(Tool::Probe);
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::ShiftModifier, at({0, -3})); // voltage at pin 1
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::AltModifier, at({0, 3}));    // relative to pin 2
+        QCOMPARE(doc().schematic().probes().size(), std::size_t{1});
+        const auto& p = doc().schematic().probes()[0];
+        QCOMPARE(p.kind, model::ProbeKind::Voltage);
+        QVERIFY(p.reference.has_value());
+        QCOMPARE(p.reference->item, r);
+        QCOMPARE(p.reference->pin, std::string("2"));
     }
 };
 

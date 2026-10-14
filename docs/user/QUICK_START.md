@@ -29,7 +29,8 @@ For release 0.1 (analog circuits). Windows: unzip the package and run
 | Texts | Drag a part's name or value text to move it |
 
 A red circle marks a pin or wire end that is not connected; a dot marks a
-junction. Every circuit needs a ground symbol.
+junction. Hovering a wire or pin shows its net name. Every circuit needs a
+ground symbol.
 
 ## Running
 
@@ -51,8 +52,9 @@ step by default; edges of switches and generators are resolved to that step.
 ## Signal Analyzer
 
 - **P** (Probe tool): click a wire for a voltage, a component pin for the
-  current into that pin (Shift+click on a pin: its voltage). Probes are saved
-  with the project.
+  current into that pin (Shift+click on a pin: its voltage). Alt+click a
+  second net to measure the last voltage probe relative to it (differential).
+  Probes are saved with the project.
 - Window > Signal Analyzer (Ctrl+Shift+A) can be moved to another monitor.
   Choose the time base, Roll or Triggered mode (source, level, slope; Auto,
   Normal or Single), per-channel scale, or Autoscale.
@@ -60,12 +62,15 @@ step by default; edges of switches and generators are resolved to that step.
   max, mean, RMS, peak-to-peak, frequency and duty cycle of the selected
   channel.
 - Transient results open as a complete record: wheel zooms the time axis,
-  drag pans. Export CSV writes the visible channels, Export PNG the plot.
+  drag pans. Export CSV writes the visible channels (the first line says how
+  the data was computed), Export PNG the plot.
 
 ## Files
 
 Projects are `.snx` files (File > Save, Ctrl+S). Saving keeps the previous
-version as `.snx.bak`. File > Examples opens the bundled circuits as untitled
+version as `.snx.bak`. Unsaved changes are also written to a recovery file
+every minute; if SimNodus closes unexpectedly, the next start offers to
+restore them. File > Examples opens the bundled circuits as untitled
 copies:
 
 1. LED and push button

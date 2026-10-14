@@ -112,6 +112,7 @@ private:
     void cancel_wire();
     void place_at(const model::Point& at);
     void add_probe_at(const model::Point& at, bool force_voltage);
+    void set_probe_reference(const model::Point& at);
     bool handle_control_press(model::Id id, const QPointF& scene_point);
     void show_live_tooltip(const QPoint& view_point);
 

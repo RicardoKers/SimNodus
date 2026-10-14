@@ -14,6 +14,7 @@
 #include "settings_dialog.hpp"
 
 #include "editing/operations.hpp"
+#include "io/project_file.hpp"
 #include "model/engineering.hpp"
 #include "sim/engine_check.hpp"
 #include "sim/engine_host.hpp"
@@ -23,7 +24,9 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
@@ -36,6 +39,7 @@
 #include <QStatusBar>
 #include <QStyle>
 #include <QThread>
+#include <QTimer>
 #include <QToolBar>
 #include <QUndoStack>
 
@@ -194,6 +198,14 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     rebuild_examples_menu();
     update_title();
     update_run_state();
+    recovery_timer_ = new QTimer(this);
+    recovery_timer_->setInterval(60 * 1000);
+    connect(recovery_timer_, &QTimer::timeout, this, [this] {
+        if (document_->modified()) {
+            write_recovery();
+        }
+    });
+    recovery_timer_->start();
     messages_->add(Severity::Info, tr("SimNodus %1 started; %2 component types loaded.")
                                        .arg(QStringLiteral(SIMNODUS_VERSION_FULL))
                                        .arg(static_cast<int>(library_.definitions().size())));
@@ -557,7 +569,8 @@ void MainWindow::update_status()
     } else {
         speed_label_->setText(tr("- x real time"));
     }
-    mode_label_->setText(interactive ? tr("Interactive (step %1s)")
+    mode_label_->setToolTip(run_->mode_description());
+    mode_label_->setText(interactive ? tr("Interactive, approximate timing (step %1s)")
                                            .arg(QString::fromStdString(
                                                model::format_engineering(document_->schematic().settings().max_step)))
                                      : tr("Transient"));
@@ -815,6 +828,7 @@ bool MainWindow::save_to(const QString& path)
         return false;
     }
     add_recent(path);
+    QFile::remove(recovery_file()); // the saved file is now the safe copy
     statusBar()->showMessage(tr("Saved %1").arg(QDir::toNativeSeparators(path)), 4000);
     return true;
 }
@@ -829,7 +843,8 @@ void MainWindow::add_recent(const QString& path)
         recent.removeLast();
     }
     settings_.setValue(QStringLiteral("files/recent"), recent);
-    rebuild_recent_menu();
+    // Often called from one of the recent-file actions: rebuild after it returns.
+    QTimer::singleShot(0, this, &MainWindow::rebuild_recent_menu);
 }
 
 void MainWindow::rebuild_recent_menu()
@@ -928,12 +943,69 @@ void MainWindow::show_restored_windows()
     }
 }
 
+QString MainWindow::recovery_file() const
+{
+    // Next to the settings file, so that tests with their own settings stay apart.
+    return QFileInfo(settings_.fileName()).absolutePath() + QStringLiteral("/recovery.snx");
+}
+
+bool MainWindow::write_recovery()
+{
+    QDir().mkpath(QFileInfo(recovery_file()).absolutePath());
+    const auto text = io::to_json_text(document_->schematic());
+    QFile file(recovery_file() + QStringLiteral(".tmp"));
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        return false;
+    }
+    file.write(QByteArray::fromStdString(text));
+    file.close();
+    QFile::remove(recovery_file());
+    const bool ok = QFile::rename(file.fileName(), recovery_file());
+    settings_.setValue(QStringLiteral("recovery/original"), document_->file_path());
+    settings_.sync();
+    return ok;
+}
+
+bool MainWindow::check_recovery(bool automatic)
+{
+    const QString file = recovery_file();
+    if (!QFileInfo::exists(file)) {
+        return false;
+    }
+    const QString original = settings_.value(QStringLiteral("recovery/original")).toString();
+    const QString when = QFileInfo(file).lastModified().toString(QStringLiteral("yyyy-MM-dd HH:mm"));
+    bool restore = automatic;
+    if (!automatic) {
+        restore = QMessageBox::question(this, tr("Restore unsaved work"),
+                      tr("SimNodus did not close normally. Restore the circuit saved automatically at %1%2?")
+                          .arg(when, original.isEmpty() ? QString() : tr(" (from %1)").arg(QDir::toNativeSeparators(original))),
+                      QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)
+            == QMessageBox::Yes;
+    }
+    if (!restore) {
+        QFile::remove(file);
+        return false;
+    }
+    QStringList errors, warnings;
+    if (!document_->open_copy(file, errors, warnings)) {
+        for (const auto& e : errors) {
+            messages_->add(Severity::Error, tr("Recovery: %1").arg(e), tr("File"));
+        }
+        return false;
+    }
+    messages_->add(Severity::Warning,
+        tr("Restored unsaved work from %1. Save it with File > Save As.").arg(when), tr("File"));
+    view_->fit_content();
+    return true;
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (!confirm_discard()) {
         event->ignore();
         return;
     }
+    QFile::remove(recovery_file()); // clean exit
     run_->stop();
     save_settings();
     analyzer_->hide();

@@ -8,9 +8,7 @@ Decision context: [ADR 0079](decisions/0079-product-rebuild-and-lightweight-proc
 
 Status column: **planned** (not started), **in progress**, **done** (implemented
 and verified by automated tests and a visual check; see the
-[CHANGELOG](../CHANGELOG.md)). Known gaps of done items: AN-02 has no UI yet for
-differential probes (the project format supports a reference), UI-07 shows net
-names on hover only while running. Phase numbers refer to the
+[CHANGELOG](../CHANGELOG.md)). Phase numbers refer to the
 [roadmap](planning/ROADMAP.md).
 
 ## 1. Users and core use cases
@@ -114,7 +112,7 @@ A separate top-level window that can be placed on another monitor.
 | SIM-06 | Initial component set A: resistor, capacitor, inductor, potentiometer, DC voltage source, DC current source, battery, pulse/square generator, sine generator, ground, SPST switch, SPDT switch, push button (NO/NC), diode, LED (several colors), NPN transistor, N-channel MOSFET, voltmeter, ammeter | 1 | done |
 | SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | planned |
 | SIM-08 | The engine runs isolated from the editor so that an engine crash cannot crash the editor or lose the document | 4 | planned |
-| SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | in progress |
+| SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | done |
 
 ## 6. Microcontroller (STM32F103C8 / Blue Pill)
 

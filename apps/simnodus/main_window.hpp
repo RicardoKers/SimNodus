@@ -24,6 +24,7 @@ class QMenu;
 class QSettings;
 class QSplitter;
 class QThread;
+class QTimer;
 
 namespace simnodus::ui {
 
@@ -73,6 +74,14 @@ public:
     bool save_to(const QString& path);
     // For tests: the unsaved-changes prompt answers "discard" automatically.
     void set_confirm_discard(bool automatic) { auto_discard_ = automatic; }
+
+    // Crash recovery (NF-04): the modified document is written to a recovery
+    // file every minute; a clean exit removes it.
+    QString recovery_file() const;
+    bool write_recovery();
+    // Offers to restore a recovery file left by a session that did not exit
+    // cleanly; `automatic` restores without asking (tests). Returns true if restored.
+    bool check_recovery(bool automatic = false);
 
 public slots:
     void toggle_panel(Panel panel);
@@ -144,6 +153,7 @@ private:
     std::array<bool, 3> before_focus_{true, true, false};
     bool auto_discard_ = false;
     QString last_label_;
+    QTimer* recovery_timer_ = nullptr;
 
     QLabel* state_label_ = nullptr;
     QLabel* time_label_ = nullptr;
