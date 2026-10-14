@@ -36,5 +36,6 @@ Thumbs.db
 .private/
 .codex/
 .agents/
+.claude/settings.local.json
 
 # Do not ignore *.lib globally: SPICE model libraries can be source assets.

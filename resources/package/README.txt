@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Development build of release 0.1. Run simnodus.exe; no installation,
+Release 0.1 (analog circuits). Run simnodus.exe; no installation,
 account or network access is needed.
 
 Start with File > Examples, press F5 to run, and click switches, hold push

@@ -6,9 +6,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Where we are
 
-- **Phase 1 — analog interactive editor (release 0.1, due 2026-10-30):
-  feature-complete; the owner's retest passed (2026-10-14).** SN-110..SN-122
-  are done; SN-123 (package 0.1) only lacks the release build itself.
+- **Release 0.1.0 published on 2026-10-14** (due 2026-10-30): tag `v0.1.0`,
+  GitHub release with `SimNodus-0.1.0-windows-x64.zip`. Phase 1 (SN-110..SN-123)
+  is done; the owner's retest of the build passed.
 - Everything is merged in `main`: phase 0 (PR #97), phase 1 (#98–#100),
   fixes from the owner's first test (#101: open-switch leakage, crash when
   leaving a value field) and 0.1 polish (#102: crash recovery, net names on
@@ -41,14 +41,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Release 0.1.0 (when the owner says so, by 2026-10-30): configure with
-   `-DSIMNODUS_VERSION_SUFFIX=` (empty), package with Qt 6.11.1, tag
-   `v0.1.0`, GitHub release with the zip; reword the "Development build"
-   line in About.
-2. Carry semiconductor junction charge across segments only if the owner
+1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
+2. Phase 2 (release 0.2, until 2026-11-13; may start early): SN-130 Renode
+   engine wrapper first, then Blue Pill, GPIO/EXTI, UART terminal, logic lanes.
+3. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
-3. Phase 2 (from 2026-11-02): Renode integration, Blue Pill, GPIO/EXTI,
-   UART terminal, logic lanes.
 
 ## Known constraints
 
@@ -62,8 +59,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Resuming in a new session
 
-- **Waiting for:** the owner's go-ahead to publish release 0.1.0 (step 1 of
-  "Next steps"); otherwise continue with phase 2 preparation.
+- **Waiting for:** nothing; continue with "Next steps". Release builds:
+  configure a separate tree with `-DSIMNODUS_VERSION_SUFFIX=` (empty; `main`
+  stays `dev`), package it, tag `vX.Y.Z`, attach the zip to a GitHub release.
 - **Local folder:** `D:_Projects_Actives\SimNodus_project` is a Git
   clone on `main`, in sync with GitHub. `handoff/` and `START_HERE.md` are
   local only.

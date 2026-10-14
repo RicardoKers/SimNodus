@@ -34,7 +34,7 @@ HISTORICAL_NO_FINAL_NEWLINE = {
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {
-    ".git", ".codex", ".agents", ".private", ".vs", ".vscode",
+    ".git", ".claude", ".codex", ".agents", ".private", ".vs", ".vscode",
     "build", "out", "dist", ".venv", "venv", "__pycache__",
     ".cache", ".pytest_cache", "node_modules",
 }

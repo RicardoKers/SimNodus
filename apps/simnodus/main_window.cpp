@@ -734,7 +734,7 @@ void MainWindow::show_about()
     QMessageBox::about(this, tr("About SimNodus"),
         tr("<h3>SimNodus %1</h3>"
            "<p>Interactive circuit and STM32 simulator for teaching.</p>"
-           "<p>Development build: analog circuits with continuous interactive simulation and the Signal "
+           "<p>Release 0.1: analog circuits with continuous interactive simulation and the Signal "
            "Analyzer. The microcontroller arrives in release 0.2.</p>"
            "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
            "Qt %2 (LGPL-3.0).</p>")
