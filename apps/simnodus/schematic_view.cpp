@@ -228,7 +228,7 @@ void SchematicView::set_tool(Tool tool)
         break;
     case Tool::Probe:
         emit status_message(tr("Probe: click a wire for a voltage, a component pin for its current (Shift: "
-                               "voltage at the pin)."));
+                               "voltage at the pin, Alt: reference of the last voltage probe)."));
         break;
     case Tool::Place:
     case Tool::Select:
@@ -455,6 +455,41 @@ void SchematicView::add_probe_at(const model::Point& at, bool force_voltage)
     }
 }
 
+void SchematicView::set_probe_reference(const model::Point& at)
+{
+    if (!scene_ || !allowed()) {
+        return;
+    }
+    auto& d = scene_->document();
+    const model::Probe* last = nullptr;
+    for (const auto& p : d.schematic().probes()) {
+        if (p.kind == model::ProbeKind::Voltage) {
+            last = &p; // probes are ordered by ID: the newest is last
+        }
+    }
+    if (!last) {
+        emit status_message(tr("Add a voltage probe first, then Alt+click the reference net."));
+        return;
+    }
+    model::Anchor reference;
+    model::Id wire = model::no_id;
+    if (const auto pin = scene_->pin_at(at)) {
+        reference = {pin->first, pin->second, at};
+    } else if (scene_->wire_at(at, &wire)) {
+        reference = {wire, {}, at};
+    } else {
+        emit status_message(tr("Alt+click on a wire or a pin to set the reference."));
+        return;
+    }
+    model::Schematic work = d.schematic();
+    model::Probe updated = *last;
+    updated.reference = reference;
+    work.put(updated);
+    if (d.apply(model::make_edit(d.schematic(), work, "Set probe reference"))) {
+        emit status_message(tr("The last voltage probe now measures relative to this net."));
+    }
+}
+
 bool SchematicView::handle_control_press(model::Id id, const QPointF&)
 {
     if (!scene_) {
@@ -565,7 +600,11 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
         event->accept();
         return;
     case Tool::Probe:
-        add_probe_at(at, event->modifiers().testFlag(Qt::ShiftModifier));
+        if (event->modifiers().testFlag(Qt::AltModifier)) {
+            set_probe_reference(at);
+        } else {
+            add_probe_at(at, event->modifiers().testFlag(Qt::ShiftModifier));
+        }
         event->accept();
         return;
     case Tool::Select:
@@ -671,7 +710,7 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         event->accept();
         return;
     }
-    if (running_) {
+    if (tool_ == Tool::Select) {
         show_live_tooltip(position);
     }
     QGraphicsView::mouseMoveEvent(event);
@@ -888,6 +927,12 @@ void SchematicView::show_live_tooltip(const QPoint& view_point)
     for (auto& c : key) {
         c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
     }
+    const QString name = key == "0" ? tr("Ground (0)") : QString::fromStdString(*net);
+    if (!running_) {
+        // UI-07: the net name on hover; labels set names, others are numbered.
+        QToolTip::showText(mapToGlobal(view_point), tr("Net %1").arg(name), this);
+        return;
+    }
     double volts = 0.0;
     if (key != "0") {
         const auto it = scene_->live().nets.find(key);
@@ -897,7 +942,7 @@ void SchematicView::show_live_tooltip(const QPoint& view_point)
         volts = it->second;
     }
     QToolTip::showText(mapToGlobal(view_point),
-        tr("%1: %2V").arg(QString::fromStdString(*net), QString::fromStdString(model::format_engineering(volts))), this);
+        tr("%1: %2V").arg(name, QString::fromStdString(model::format_engineering(volts))), this);
 }
 
 void SchematicView::update_cursor_shape()

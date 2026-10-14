@@ -63,6 +63,10 @@ public:
     sim::TransientResult transient_result() const { return session_->transient_result(); }
     bool transient_mode() const { return mode_ == model::SimulationMode::Transient; }
 
+    // How the current or last run was computed, including its approximations
+    // (SIM-09); used in exports.
+    QString mode_description() const;
+
     // Live values of the selected components for the Properties panel.
     QString live_text(const std::set<model::Id>& selection) const;
 

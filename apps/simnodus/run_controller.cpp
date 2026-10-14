@@ -280,6 +280,20 @@ void RunController::refresh()
     }
 }
 
+QString RunController::mode_description() const
+{
+    const auto& s = snapshot_.settings();
+    const auto step = QString::fromStdString(model::format_engineering(
+        mode_ == model::SimulationMode::Interactive ? s.max_step : s.transient_max_step));
+    if (mode_ == model::SimulationMode::Transient) {
+        return tr("transient analysis, stop %1s, maximum step %2s")
+            .arg(QString::fromStdString(model::format_engineering(s.transient_stop)), step);
+    }
+    return tr("interactive (approximate): %1s segments, maximum step %2s; switch, button and generator edges "
+              "are resolved to the time step; semiconductor charge is not carried across segments")
+        .arg(QString::fromStdString(model::format_engineering(s.segment)), step);
+}
+
 QString RunController::live_text(const std::set<model::Id>& selection) const
 {
     if (!session_->active() && !(mode_ == model::SimulationMode::Transient && state() == sim::RunState::Finished)) {

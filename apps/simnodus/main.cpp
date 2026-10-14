@@ -173,5 +173,8 @@ int main(int argc, char** argv)
     }
     window.show();
     window.show_restored_windows();
+    if (parser.positionalArguments().isEmpty()) {
+        QTimer::singleShot(0, &window, [&window] { window.check_recovery(); });
+    }
     return QApplication::exec();
 }
