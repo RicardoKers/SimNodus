@@ -1,0 +1,2 @@
+// Windows resource: icon of simnodus.exe (Explorer, taskbar, shortcuts).
+IDI_ICON1 ICON "@SIMNODUS_ICON_FILE@"
