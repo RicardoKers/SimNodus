@@ -44,8 +44,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   Example 12 (`hal_clock`) is built from the STM32CubeF1 1.8.7 HAL in
   `~/STM32Cube/Repository` (`cube.json`, `stm32f103c8_cube.ld`).
 
-## Verified on 2026-10-15 (SN-137)
+## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
+- **Owner's test:** a project generated with STM32CubeMX and built in
+  STM32CubeIDE (HAL, LED blinking on PC13) runs in SimNodus; the period
+  seen in the analyzer matches the one programmed in CubeIDE.
+- CI: `Build (Linux)` and `Build (Windows)` passed on PR #118.
 - Renode: blink firmware after a register switch to PLL x9 toggles PC13
   every 55.55 ms, after SYSRESETREQ every 500.0 ms again; HAL example
   prints SYSCLK 72 MHz, HCLK 72, PCLK1 36, PCLK2 72 MHz, PC13 every
@@ -138,18 +142,16 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Merge the SN-137 pull request once `Build (Linux)` and `Build
-   (Windows)` pass.
-2. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
-   logic lanes, probe dragging, icon, a real CubeIDE HAL project at
-   72 MHz); release 0.2 by 2026-11-13 (ask before cutting it). Fix whatever
+1. Owner's hands-on test of the remaining phase 2 features (lessons 1–2,
+   terminal, logic lanes, probe dragging, icon; a CubeMX/CubeIDE HAL
+   project already passed); release 0.2 by 2026-11-13 (ask before cutting it). Fix whatever
    classroom use of 0.1.0 brings up.
-3. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
+2. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
    lesson 3) can start early; timers and ADC need the APB prescalers that
    the RCC model already computes the inputs for.
-4. If 72 MHz firmware feels slow in class (0.84x measured), consider a
+3. If 72 MHz firmware feels slow in class (0.84x measured), consider a
    larger default quantum for MCU runs or `__WFI()` in idle loops.
-5. Carry semiconductor junction charge across segments only if the owner
+4. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
@@ -180,7 +182,7 @@ STM32CubeF1 1.8.7 package in `~/STM32Cube/Repository` for `hal_clock`).
 
 ## Resuming in a new session
 
-- **Waiting for:** CI of the SN-137 pull request, then continue with "Next steps". Release builds:
+- **Waiting for:** the owner's test of the phase 2 features, then continue with "Next steps". Release builds:
   configure a separate tree with `-DSIMNODUS_VERSION_SUFFIX=` (empty; `main`
   stays `dev`), package it, tag `vX.Y.Z`, attach the zip to a GitHub release.
 - **Local folder:** `D:\03_Projects\01_Actives\SimNodus_project` is a Git
