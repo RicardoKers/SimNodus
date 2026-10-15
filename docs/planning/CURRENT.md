@@ -36,6 +36,14 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   Probes can be dragged to another wire or pin.
   Renode ships in the Windows zip (ADR 0082).
 
+## Verified on 2026-10-15 (timing fixes, PR #116)
+
+- Lesson 1 test under load (4 parallel runs, 3 rounds): 12/12 pass, 20
+  rising edges, ripple 0.79–0.80 V. Cause of the CI failures: after Stop,
+  ngspice computed up to 2.5 ms with frozen pin levels; those points are now
+  dropped. Diagnostics showed the runner's event stream complete in every
+  failing run. ctest 9/9.
+
 ## Verified on 2026-10-15 (SN-136)
 
 - Bounce: 9 edges in 3.21 ms with bounce, 1 without. Lesson 1: 20 rising
