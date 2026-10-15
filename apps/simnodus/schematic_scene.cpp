@@ -8,6 +8,7 @@
 
 #include "model/engineering.hpp"
 
+#include <QFileInfo>
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QPainterPathStroker>
@@ -139,6 +140,10 @@ public:
         const auto* p = definition_->parameter(definition_->value_parameter);
         const auto it = component_.parameters.find(definition_->value_parameter);
         QString text = QString::fromStdString(it == component_.parameters.end() ? p->default_value : it->second);
+        if (p && p->kind == library::Parameter::Kind::File) {
+            // Only the file name; an empty value asks for a file.
+            return text.isEmpty() ? QObject::tr("(no firmware)") : QFileInfo(text).fileName();
+        }
         if (p && p->choices.empty() && !p->unit.empty() && p->unit != "Ohm" && p->unit != "%" && p->unit != "deg") {
             text += QString::fromStdString(p->unit);
         }
@@ -271,6 +276,9 @@ public:
             painter->drawEllipse(QPointF(0, 0), 2.6, 2.6);
         }
         paint_symbol(*painter, *definition_, style);
+        if (definition_->mcu && live.running && !ghost_) {
+            paint_mcu(*painter, live);
+        }
         painter->restore();
         if (ghost_) {
             return;
@@ -298,6 +306,59 @@ public:
     }
 
 private:
+    // Pin states and the on-board LED of a running microcontroller board, in
+    // symbol coordinates (INT-06).
+    void paint_mcu(QPainter& painter, const LiveState& live) const
+    {
+        const auto board = live.mcu_pins.find(component_.id);
+        if (board == live.mcu_pins.end()) {
+            return;
+        }
+        const auto& states = board->second;
+        for (const auto& pin : definition_->pins) {
+            const auto it = states.find(pin.name);
+            if (it == states.end() || it->second.mode == mcu::PinMode::Unknown) {
+                continue;
+            }
+            const auto& state = it->second;
+            // Marker on the pin stub, between the pin tip and the board edge.
+            const double dx = pin.direction == library::PinDirection::Left ? 1.0
+                : pin.direction == library::PinDirection::Right             ? -1.0
+                                                                            : 0.0;
+            const double dy = pin.direction == library::PinDirection::Up ? 1.0
+                : pin.direction == library::PinDirection::Down           ? -1.0
+                                                                         : 0.0;
+            const QPointF center(pin.at.x + dx, pin.at.y + dy);
+            const QRectF marker(center.x() - 0.55, center.y() - 0.4, 1.1, 0.8);
+            if (state.mode == mcu::PinMode::Input || state.mode == mcu::PinMode::Analog) {
+                painter.setBrush(theme::canvas_background);
+                painter.setPen(QPen(theme::muted_text, 0.12));
+            } else {
+                painter.setBrush(state.level ? theme::pin_high : theme::pin_low);
+                painter.setPen(state.mode == mcu::PinMode::Alternate ? QPen(theme::ink, 0.16, Qt::DotLine)
+                                                                      : QPen(theme::ink, 0.08));
+            }
+            painter.drawRoundedRect(marker, 0.15, 0.15);
+        }
+        if (const auto& led = definition_->mcu->led) {
+            const auto it = states.find(led->pin);
+            const bool lit = it != states.end() && it->second.mode == mcu::PinMode::Output
+                && it->second.level != led->active_low;
+            if (lit) {
+                const QPointF at(led->at.x, led->at.y);
+                QRadialGradient halo(at, led->radius * 3);
+                halo.setColorAt(0, QColor(0x2e, 0xcc, 0x40, 200));
+                halo.setColorAt(1, QColor(0x2e, 0xcc, 0x40, 0));
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(halo);
+                painter.drawEllipse(at, led->radius * 3, led->radius * 3);
+                painter.setBrush(QColor(0x2e, 0xcc, 0x40));
+                painter.setPen(QPen(theme::ink, 0.08));
+                painter.drawEllipse(at, led->radius, led->radius);
+            }
+        }
+    }
+
     SchematicScene& scene_;
     bool ghost_ = false;
     model::Component component_;
@@ -603,7 +664,7 @@ void SchematicScene::rebuild(const model::Schematic& s)
     std::vector<model::Point> open_ends = connectivity_.dangling_ends;
     for (const auto& pin : connectivity_.unconnected_pins) {
         if (const auto* c = s.component(pin.first)) {
-            if (const auto* d = library().find(c->type)) {
+            if (const auto* d = library().find(c->type); d && !d->mcu) { // unused board pins are normal
                 if (const auto* p = d->pin(pin.second)) {
                     open_ends.push_back(library::pin_position(*d, *p, *c));
                 }

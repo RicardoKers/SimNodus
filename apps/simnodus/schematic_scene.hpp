@@ -9,6 +9,7 @@
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
+#include "mcu/mcu_runner.hpp"
 #include "model/schematic.hpp"
 #include "netlist/connectivity.hpp"
 #endif
@@ -49,6 +50,8 @@ struct LiveState {
     std::map<model::Id, double> led_current; // LED -> amperes
     std::map<model::Id, QString> readouts;  // meter/instrument text on the symbol
     std::map<std::string, double> nets;     // net name (lower case) -> volts
+    // Microcontroller boards: GPIO pin name -> level and mode (INT-06).
+    std::map<model::Id, std::map<std::string, mcu::PinState>> mcu_pins;
 };
 
 class SchematicScene : public QGraphicsScene {

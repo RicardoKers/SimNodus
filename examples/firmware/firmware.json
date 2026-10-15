@@ -1,0 +1,32 @@
+{
+  "compiler": "arm-none-eabi-gcc.exe (GNU Tools for STM32 14.3.rel1.20251027-0700) 14.3.1 20250623",
+  "flags": [
+    "-mcpu=cortex-m3",
+    "-mthumb",
+    "-std=c11",
+    "-Os",
+    "-g",
+    "-ffreestanding",
+    "-fno-builtin",
+    "-fno-common",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-nostdlib",
+    "-Wl,--build-id=none",
+    "-Wl,--gc-sections",
+    "-ffile-prefix-map={root}=."
+  ],
+  "firmware": {
+    "blink": {
+      "sources": [
+        "examples/firmware/blink/blink.c"
+      ],
+      "elf": "examples/firmware/blink/blink.elf",
+      "sha256": "9c58c21a833dd34c901f5123eee3424cb19fdf78f630d654e60b8a5302554911",
+      "size": 8144
+    }
+  }
+}

@@ -33,6 +33,7 @@ REQUIRED = [
     "vcruntime140.dll", "msvcp140.dll",
     "renode/renode.exe", "renode/licenses/renode-license", "renode/licenses/tlib-license",
     "mcu/LoopbackControl.cs", "mcu/stm32f103c8.repl", "mcu/licenses/MIT.txt",
+    "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
 ]
 
 

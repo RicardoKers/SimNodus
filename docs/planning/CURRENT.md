@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-14. Keep this file short: present state, last results, next
+Updated: 2026-10-15. Keep this file short: present state, last results, next
 steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md).
 
@@ -20,11 +20,26 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 started (release 0.2, due 2026-11-13).** SN-130 done: `src/mcu`
-  `RenodeEngine` (ADR 0082) runs the pinned Renode 1.16.1 as a child process
-  with a loopback-only control server; exact virtual-time steps, GPIO
-  set/get/events, bus access, clean stop and failure reporting. Not yet used
-  by the application (SN-131/132).
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130 and SN-131 done.** The
+  Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
+  interactive run: Renode starts first, firmware and circuit stay within
+  20 ms of simulated time (ADR 0083), pins show their state, the PC13 LED
+  lights, RESET restarts the firmware, Browse/Reload choose the ELF. Example
+  07 blinks. Renode ships in the Windows zip (ADR 0082). GPIO pins are not
+  yet electrically coupled (SN-132).
+
+## Verified on 2026-10-15
+
+- Windows 11, MSVC 19.51, Qt 6.11.1, ngspice-47, Renode 1.16.1: build
+  without warnings, ctest 9/9 (about 90 s): model 39 cases, engine 12
+  (including a Blue Pill run kept within the 20 ms window), Renode 19
+  (blink firmware timing, runner limit and reset, failures), GUI 13 widget +
+  12 editor cases (example 07: firmware field, pins, LED on/off, reset
+  click). Repository checker passed.
+- Package: 137 MB zip; `--check-engine`, `--check-mcu-engine` (Renode from
+  the package, 7.7 s start) and `--smoke-test` pass; example 07 from the
+  package runs at 0.95x real time with the expected counter and LED states.
+  Linux: CI.
 
 ## Verified on 2026-10-14
 
@@ -52,11 +67,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. SN-131: Blue Pill component and board profile (full GPIOA–C, RCC seed,
-   vector table), ELF selection/reload, pin states on the canvas; start the
-   engine off the GUI thread with progress (start-up takes seconds).
-3. SN-132 coupler (quantum lockstep, GPIO outputs into ngspice), then SN-133
-   EXTI inputs, SN-134 UART, SN-135 logic lanes, SN-136 lesson examples.
+2. SN-132 coupler: GPIO outputs drive the circuit through a pin model
+   (push-pull/open-drain, 3.3 V, output resistance) from the GPIO events,
+   narrowing the 20 ms window to the coupling quantum (E-03); then SN-133
+   inputs with Schmitt thresholds and AFIO-based EXTI, SN-134 UART, SN-135
+   logic lanes, SN-136 lesson examples (owner's firmware sources welcome).
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
    built with the GNU Tools for STM32 14.3.rel1 inside the owner's
@@ -75,6 +90,8 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   explicitly.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
+- Renode model deviations (ADR 0083): SysTick 125 ppm fast; GPIO
+  configuration reads as analog after reset (shown as input).
 - ARM compiler on the owner's laptop: `arm-none-eabi-gcc.exe` in
   `C:\ST\STM32CubeIDE_2.1.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_*\tools\bin`;
   CI uses Arm GNU Toolchain 14.3.rel1 (`tests/experiments/renode-stm32/ci-toolchain.json`).

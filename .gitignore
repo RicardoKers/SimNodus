@@ -5,6 +5,8 @@
 /legacy/build/
 **/firmware/build/
 *.elf
+# Example firmware is committed so that the examples run without a compiler (tools/build_firmware.py).
+!/examples/firmware/*/*.elf
 *.hex
 *.o
 *.obj

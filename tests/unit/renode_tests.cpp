@@ -8,12 +8,15 @@
 // firmware behavior.
 #include "test_support.hpp"
 
+#include "mcu/mcu_runner.hpp"
 #include "mcu/renode_engine.hpp"
 
 #include <chrono>
+#include <cmath>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <thread>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -237,6 +240,132 @@ TEST_CASE("a backend that dies fails the next call instead of hanging")
     CHECK(!engine->usable());
     std::printf("  after the kill: %s\n", engine->error().c_str());
     CHECK(engine->stop() != 0);
+}
+
+TEST_CASE("the blink example firmware toggles PC13 every 500 ms of virtual time")
+{
+    MachineOptions machine = options();
+    machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
+    machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
+    auto engine = start_engine(machine);
+    REQUIRE(engine);
+    REQUIRE(engine->watch_gpio("gpioPortC", 13));
+    REQUIRE(engine->watch_gpio("gpioPortA", 0));
+    for (int i = 0; i < 21; ++i) {
+        REQUIRE(engine->run_for(100000));
+    }
+    const auto events = engine->take_gpio_events();
+    std::vector<GpioEvent> led;
+    int pa0 = 0;
+    for (const auto& e : events) {
+        if (e.port == "gpioPortC") {
+            led.push_back(e);
+        } else {
+            ++pa0;
+        }
+    }
+    for (const auto& e : led) {
+        std::printf("  PC13 t=%llu us -> %d\n", static_cast<unsigned long long>(e.time_us), e.state ? 1 : 0);
+    }
+    // Reset handler: PC13 high (LED off); then low at 500 ms, high at 1000, low at 1500, high at 2000.
+    REQUIRE(led.size() == 5);
+    CHECK(led[0].state && led[0].time_us <= 1000);
+    for (std::size_t i = 1; i < led.size(); ++i) {
+        const double expected = 500000.0 * static_cast<double>(i);
+        CHECK(led[i].state == (i % 2 == 0));
+        // Renode's SysTick period is RVR cycles instead of RVR + 1 (125 ppm fast with
+        // RVR = 7999); allow that plus two quanta.
+        CHECK(std::abs(static_cast<double>(led[i].time_us) - expected) <= 2e-4 * expected + 200.0);
+    }
+    std::printf("  PA0 changes: %d\n", pa0);
+    CHECK(pa0 >= 8); // the counter's bit 0 changes every 250 ms
+    CHECK(engine->stop() == 0);
+}
+
+namespace {
+
+bool wait_for_time(const McuRunner& runner, std::uint64_t time_us)
+{
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+    while (runner.status().time_us < time_us && runner.status().state == McuState::Running) {
+        if (std::chrono::steady_clock::now() > deadline) {
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return runner.status().time_us == time_us;
+}
+
+} // namespace
+
+TEST_CASE("gpio pin names and pin modes are decoded")
+{
+    CHECK(gpio_pin("PC13").has_value() && gpio_pin("PC13")->port == "gpioPortC" && gpio_pin("PC13")->number == 13);
+    CHECK(gpio_pin("PA0")->port == "gpioPortA");
+    CHECK(!gpio_pin("NRST").has_value());
+    CHECK(!gpio_pin("3V3_1").has_value());
+    CHECK(!gpio_pin("PA16").has_value());
+    CHECK(decode_pin_mode(0x4) == PinMode::Input);     // reset value: floating input
+    CHECK(decode_pin_mode(0x0) == PinMode::Input);     // Renode reset state (chip: analog)
+    CHECK(decode_pin_mode(0x8) == PinMode::Input);     // pull-up/down input
+    CHECK(decode_pin_mode(0x2) == PinMode::Output);    // 2 MHz push-pull
+    CHECK(decode_pin_mode(0x6) == PinMode::Output);    // open drain
+    CHECK(decode_pin_mode(0xB) == PinMode::Alternate); // 50 MHz alternate push-pull
+}
+
+TEST_CASE("the runner follows its time limit, reports pin states and resets the firmware")
+{
+    McuRunOptions run;
+    run.machine = options();
+    run.machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    run.machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
+    run.machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
+    run.pins = {"PC13", "PA0", "PA3", "PA4", "PB12"};
+    McuRunner runner(run);
+    runner.start();
+    CHECK(runner.status().state == McuState::Starting);
+    std::atomic<bool> cancel{false};
+    REQUIRE(runner.wait_ready(cancel));
+    std::printf("  ready after %.1f s\n", runner.status().startup_seconds);
+    CHECK(runner.status().time_us == 0);
+
+    runner.set_limit_us(600000);
+    REQUIRE(wait_for_time(runner, 600000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    CHECK(runner.status().time_us == 600000); // never beyond the limit
+    auto pins = runner.pins();
+    CHECK(pins["PC13"].mode == PinMode::Output);
+    CHECK(!pins["PC13"].level); // low since 500 ms: LED lit
+    CHECK(pins["PA0"].mode == PinMode::Output);
+    CHECK(pins["PA4"].mode == PinMode::Input);
+    CHECK(pins["PB12"].mode == PinMode::Input);
+    CHECK(!pins["PA0"].level && pins["PA3"].level == false); // count 2 at 500 ms: PA1 only
+
+    // After a reset at 600 ms the firmware starts over: PC13 high, low again at 1100 ms.
+    // Without the reset it would be high from 1000 ms on.
+    runner.request_reset();
+    runner.set_limit_us(1200000);
+    REQUIRE(wait_for_time(runner, 1200000));
+    CHECK(runner.status().resets == 1);
+    pins = runner.pins();
+    CHECK(!pins["PC13"].level);
+    CHECK(pins["PB12"].mode == PinMode::Input); // restored after the reset as well
+    runner.stop();
+    CHECK(runner.status().state == McuState::Stopped);
+}
+
+TEST_CASE("a runner whose firmware is missing reports the failure")
+{
+    McuRunOptions run;
+    run.machine = options();
+    run.machine.firmware = fs::temp_directory_path() / "SimNodus tests" / "missing.elf";
+    McuRunner runner(run);
+    runner.start();
+    std::atomic<bool> cancel{false};
+    CHECK(!runner.wait_ready(cancel));
+    CHECK(runner.status().state == McuState::Failed);
+    CHECK(runner.status().message.find("firmware") != std::string::npos);
 }
 
 TEST_CASE("find_renode prefers SIMNODUS_RENODE")

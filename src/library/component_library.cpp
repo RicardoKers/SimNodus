@@ -279,9 +279,20 @@ ComponentDefinition parse_definition(const json& j)
             parameter.default_value = text(p, "default", true);
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");
+            parameter.filter = text(p, "filter");
+            const std::string kind = text(p, "kind");
+            if (kind == "file") {
+                parameter.kind = Parameter::Kind::File;
+            } else if (!kind.empty() && kind != "number" && kind != "choice") {
+                invalid("parameter kind must be number, choice or file");
+            } else if (!parameter.choices.empty()) {
+                parameter.kind = Parameter::Kind::Choice;
+            }
             parameter.min = bound(p, "min", parameter.unit);
             parameter.max = bound(p, "max", parameter.unit);
-            if (parameter.choices.empty()) {
+            if (parameter.kind == Parameter::Kind::File) {
+                // any text, including empty
+            } else if (parameter.choices.empty()) {
                 if (!model::parse_engineering(parameter.default_value, parameter.unit)) {
                     invalid("default of \"" + parameter.name + "\" is not a number");
                 }
@@ -335,6 +346,38 @@ ComponentDefinition parse_definition(const json& j)
             invalid("readout.kind must be voltage or current");
         }
         d.readout = readout;
+    }
+
+    if (j.contains("mcu") && !j["mcu"].is_null()) {
+        const auto& m = j["mcu"];
+        McuBoard board;
+        board.platform = text(m, "platform", true);
+        board.before_firmware = strings(m, "before_firmware");
+        board.after_firmware = strings(m, "after_firmware");
+        board.firmware_parameter = text(m, "firmware_parameter", true);
+        const auto* firmware = d.parameter(board.firmware_parameter);
+        if (!firmware || firmware->kind != Parameter::Kind::File) {
+            invalid("mcu.firmware_parameter must name a file parameter");
+        }
+        if (m.contains("led")) {
+            McuBoard::Led led;
+            led.pin = text(m["led"], "pin", true);
+            led.active_low = m["led"].value("active_low", false);
+            const auto at = numbers(m["led"]["at"], 2, "mcu.led.at");
+            led.at = {at[0], at[1]};
+            if (m["led"].contains("radius")) {
+                led.radius = number(m["led"]["radius"], "mcu.led.radius");
+            }
+            if (led.pin.size() < 3 || led.pin[0] != 'P') {
+                invalid("mcu.led.pin must be a GPIO pin name such as PC13");
+            }
+            board.led = led;
+        }
+        if (m.contains("reset_button")) {
+            const auto r = numbers(m["reset_button"], 4, "mcu.reset_button");
+            board.reset_button = std::vector<model::PointF>{{r[0], r[1]}, {r[2], r[3]}};
+        }
+        d.mcu = board;
     }
 
     d.spice = strings(j, "spice");

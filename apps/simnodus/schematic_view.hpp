@@ -84,6 +84,8 @@ signals:
     void edit_value_requested(model::Id component);
     // Interactive control while running: value 0..1 (INT-02).
     void control_changed(model::Id component, double value);
+    // The reset button of a microcontroller board was clicked while running.
+    void mcu_reset_requested(model::Id component);
     void label_name_needed(model::Point at);
 
 protected:

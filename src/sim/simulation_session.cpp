@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <set>
 
 namespace simnodus::sim {
@@ -99,6 +100,14 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     if (netlist_.elements.empty()) {
         error = "The schematic is empty.";
         return false;
+    }
+    if (!interactive && !request_.mcus.empty()) {
+        error = "Transient mode does not run microcontrollers yet; use interactive mode.";
+        return false;
+    }
+    mcus_.clear();
+    for (const auto& m : request_.mcus) {
+        mcus_[m.component] = std::make_unique<mcu::McuRunner>(m.options);
     }
 
     // Vectors: requested ones plus the state carried across segments.
@@ -361,8 +370,127 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
     return complete;
 }
 
+bool build_mcu_requests(const model::Schematic& schematic, const library::ComponentLibrary& library,
+    const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error)
+{
+    requests.clear();
+    for (const auto& c : schematic.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->mcu) {
+            continue;
+        }
+        const auto found = c.parameters.find(d->mcu->firmware_parameter);
+        const std::string firmware = found == c.parameters.end() ? std::string() : found->second;
+        if (firmware.empty()) {
+            error = c.designator + " has no firmware: choose an ELF file in its properties.";
+            return false;
+        }
+        std::filesystem::path path(std::u8string(firmware.begin(), firmware.end())); // UTF-8 text
+        if (path.is_relative()) {
+            path = environment.project_dir / path;
+        }
+        std::error_code ec;
+        if (!std::filesystem::is_regular_file(path, ec)) {
+            const auto text = path.u8string();
+            error = c.designator + ": the firmware file " + std::string(text.begin(), text.end()) + " does not exist.";
+            return false;
+        }
+        if (!environment.renode || !environment.resources) {
+            error = "The microcontroller engine (Renode) was not found next to the application.";
+            return false;
+        }
+        McuRequest request;
+        request.component = c.id;
+        auto& machine = request.options.machine;
+        machine.renode = *environment.renode;
+        machine.resources = *environment.resources;
+        machine.platform = d->mcu->platform;
+        machine.firmware = path;
+        machine.before_firmware = d->mcu->before_firmware;
+        machine.after_firmware = d->mcu->after_firmware;
+        for (const auto& pin : d->pins) {
+            if (mcu::gpio_pin(pin.name)) {
+                request.options.pins.push_back(pin.name);
+            }
+        }
+        requests.push_back(std::move(request));
+    }
+    return true;
+}
+
+bool SimulationSession::start_mcus()
+{
+    if (mcus_.empty()) {
+        return true;
+    }
+    {
+        std::lock_guard lock(mutex_);
+        status_.starting_mcu = true;
+    }
+    for (auto& [id, runner] : mcus_) {
+        runner->start();
+    }
+    for (auto& [id, runner] : mcus_) {
+        if (!runner->wait_ready(stop_requested_) && !stop_requested_) {
+            fail("The microcontroller could not start. " + runner->status().message, nullptr);
+            return false;
+        }
+    }
+    std::lock_guard lock(mutex_);
+    status_.starting_mcu = false;
+    return !stop_requested_;
+}
+
+void SimulationSession::stop_mcus()
+{
+    for (auto& [id, runner] : mcus_) {
+        runner->stop();
+    }
+    std::lock_guard lock(mutex_);
+    status_.starting_mcu = false;
+}
+
+std::optional<std::string> SimulationSession::mcu_failure() const
+{
+    for (const auto& [id, runner] : mcus_) {
+        const auto status = runner->status();
+        if (status.state == mcu::McuState::Failed) {
+            return status.message;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<mcu::McuStatus> SimulationSession::mcu_status(model::Id component) const
+{
+    const auto it = mcus_.find(component);
+    return it == mcus_.end() ? std::nullopt : std::optional<mcu::McuStatus>(it->second->status());
+}
+
+std::map<std::string, mcu::PinState> SimulationSession::mcu_pins(model::Id component) const
+{
+    const auto it = mcus_.find(component);
+    return it == mcus_.end() ? std::map<std::string, mcu::PinState>{} : it->second->pins();
+}
+
+void SimulationSession::mcu_reset(model::Id component)
+{
+    if (const auto it = mcus_.find(component); it != mcus_.end() && active()) {
+        it->second->request_reset();
+    }
+}
+
 void SimulationSession::run_interactive()
 {
+    // Renode starts first (seconds); the circuit waits for the firmware.
+    if (!start_mcus()) {
+        stop_mcus();
+        std::lock_guard lock(mutex_);
+        if (status_.state != RunState::Failed) {
+            status_.state = RunState::Stopped;
+        }
+        return;
+    }
     auto& host = EngineHost::instance();
     std::lock_guard engine_lock(host.lock());
     std::string error;
@@ -409,6 +537,15 @@ void SimulationSession::run_interactive()
                 }
             }
             status_.sim_time = global;
+        }
+        // Lockstep window: the firmware stays within mcu_lead_us of the circuit in
+        // both directions (the circuit waits for a slower firmware).
+        const auto analog_us = static_cast<std::uint64_t>(global * 1e6);
+        for (auto& [id, runner] : mcus_) {
+            runner->set_limit_us(analog_us + request_.mcu_lead_us);
+            if (analog_us > request_.mcu_lead_us) {
+                runner->wait_time_us(analog_us - request_.mcu_lead_us, stop_requested_);
+            }
         }
         // Pause inside the callback: the engine thread simply waits.
         if (pause_requested_ && !stop_requested_) {
@@ -458,11 +595,18 @@ void SimulationSession::run_interactive()
             break;
         }
         t0 += segment;
-        std::lock_guard lock(mutex_);
-        status_.segments += 1;
+        {
+            std::lock_guard lock(mutex_);
+            status_.segments += 1;
+        }
+        if (const auto failure = mcu_failure()) {
+            fail(*failure, nullptr);
+            break;
+        }
     }
     engine->set_data_handler(nullptr);
     engine->set_source_handler(nullptr);
+    stop_mcus();
     std::lock_guard lock(mutex_);
     if (status_.state != RunState::Failed) {
         status_.state = RunState::Stopped;

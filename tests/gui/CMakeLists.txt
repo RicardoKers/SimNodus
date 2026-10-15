@@ -15,6 +15,10 @@ if(SIMNODUS_NGSPICE_LIBRARY)
         SIMNODUS_TEST_NGSPICE_LIBRARY="${SIMNODUS_NGSPICE_LIBRARY}"
         SIMNODUS_TEST_NGSPICE_SCRIPTS="${PROJECT_SOURCE_DIR}/resources/ngspice")
 endif()
+target_compile_definitions(editor_tests PRIVATE SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
+if(SIMNODUS_RENODE)
+    target_compile_definitions(editor_tests PRIVATE SIMNODUS_TEST_RENODE=1)
+endif()
 add_test(NAME gui-editor COMMAND editor_tests)
 set_tests_properties(gui-editor PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 180)
 

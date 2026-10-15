@@ -178,6 +178,10 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
         for (const auto& p : d->parameters) {
             const auto found = c.parameters.find(p.name);
             const std::string text = found == c.parameters.end() ? p.default_value : found->second;
+            if (p.kind == library::Parameter::Kind::File) {
+                words[p.name] = text; // used by the run, not by the template
+                continue;
+            }
             if (!p.choices.empty()) {
                 if (std::find(p.choices.begin(), p.choices.end(), text) == p.choices.end()) {
                     report(Severity::Error, "invalid-value",
@@ -333,6 +337,9 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
         const auto* c = schematic.component(pin.first);
         const auto* d = c ? library.find(c->type) : nullptr;
         const auto* p = d ? d->pin(pin.second) : nullptr;
+        if (d && d->mcu) {
+            continue; // most pins of a microcontroller board stay unused
+        }
         report(Severity::Warning, "unconnected-pin",
             (c ? c->designator : std::string("?")) + ": pin " + pin.second + " is not connected.", {pin.first},
             c && d && p ? std::optional<Point>(library::pin_position(*d, *p, *c)) : std::nullopt);

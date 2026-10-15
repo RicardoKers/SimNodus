@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer; SPDX-License-Identifier: MIT
 // STM32F103C8 subset for SimNodus (from E-02): exact 64 KiB flash and 20 KiB
-// SRAM, fixed 8 MIPS and 8 MHz SysTick, GPIOA with EXTI; works offline.
-// Not a complete MCU description; the Blue Pill profile extends it (SN-131).
+// SRAM, fixed 8 MIPS and 8 MHz SysTick (the reset clock, HSI 8 MHz), GPIO
+// ports A-C; works offline. Not a complete MCU description: no clock tree,
+// EXTI only for PA1 (AFIO-based EXTI routing follows in SN-133).
 flash: Memory.MappedMemory @ {
     sysbus 0x08000000;
     sysbus 0x00000000
@@ -27,6 +28,10 @@ cpu: CPU.CortexM @ sysbus
 
 gpioPortA: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010800, +0x400>
     1 -> exti@1
+
+gpioPortB: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010C00, +0x400>
+
+gpioPortC: GPIOPort.STM32F1GPIOPort @ sysbus <0x40011000, +0x400>
 
 // Only reset-default PA1 -> EXTI1 -> NVIC IRQ7 routing is covered.
 exti: IRQControllers.STM32F4_EXTI @ sysbus 0x40010400

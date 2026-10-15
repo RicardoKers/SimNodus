@@ -11,10 +11,12 @@
 #include "model/geometry.hpp"
 #include "model/schematic.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace simnodus::library {
@@ -40,6 +42,10 @@ struct Graphic {
 };
 
 struct Parameter {
+    // Number (engineering notation), Choice (one of `choices`) or File (a path,
+    // stored relative to the project when possible; `filter` like "*.elf").
+    enum class Kind { Number, Choice, File };
+    Kind kind = Kind::Number;
     std::string name;
     std::string label;
     std::string unit; // "Ohm", "F", "H", "V", "A", "Hz", "s", "%", "deg" or empty
@@ -48,6 +54,24 @@ struct Parameter {
     std::optional<double> max;
     std::vector<std::string> choices; // non-empty: the value is one of these words
     std::string description;
+    std::string filter;
+};
+
+// Microcontroller board (MCU-01, INT-06): runs firmware in Renode. Pins named
+// like "PA0" are GPIO pins of port A; the others are power or control pins.
+struct McuBoard {
+    std::string platform;                 // platform description in the mcu/ folder
+    std::vector<std::string> before_firmware; // Renode monitor commands
+    std::vector<std::string> after_firmware;
+    std::string firmware_parameter;       // a File parameter
+    struct Led {
+        std::string pin;         // GPIO driving the on-board LED
+        bool active_low = false; // lit while the pin is low
+        model::PointF at;        // symbol coordinates
+        double radius = 0.6;
+    };
+    std::optional<Led> led;
+    std::optional<std::vector<model::PointF>> reset_button; // top-left and size, symbol coordinates
 };
 
 // Interactive control (INT-02). The netlist generator creates an external
@@ -87,6 +111,7 @@ struct ComponentDefinition {
     std::string ties_net;            // non-empty: all pins belong to this net ("0" for ground)
     std::optional<Interactive> interactive;
     std::optional<Readout> readout;
+    std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::filesystem::path source; // file it was loaded from
 
     const Pin* pin(const std::string& pin_name) const;

@@ -1,0 +1,1146 @@
+{
+  "type": "bluepill",
+  "name": "Blue Pill (STM32F103C8)",
+  "category": "Microcontrollers",
+  "prefix": "U",
+  "description": "STM32F103C8 board running your firmware (ELF) in Renode; on-board 3.3 V regulator, LED on PC13, reset button",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -7,
+          -22,
+          14,
+          44
+        ]
+      },
+      {
+        "rect": [
+          -2.5,
+          -24,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "USB",
+        "at": [
+          0,
+          -22.5
+        ],
+        "size": 0.8
+      },
+      {
+        "rect": [
+          -3,
+          -3,
+          6,
+          6
+        ]
+      },
+      {
+        "text": "STM32",
+        "at": [
+          0,
+          -0.8
+        ],
+        "size": 0.8
+      },
+      {
+        "text": "F103C8",
+        "at": [
+          0,
+          0.8
+        ],
+        "size": 0.8
+      },
+      {
+        "text": "Blue Pill",
+        "at": [
+          0,
+          8
+        ],
+        "size": 1.2
+      },
+      {
+        "circle": [
+          0,
+          -16,
+          0.6
+        ]
+      },
+      {
+        "text": "PC13",
+        "at": [
+          0,
+          -14.6
+        ],
+        "size": 0.7
+      },
+      {
+        "rect": [
+          -2,
+          -12,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          0,
+          -9.4
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -9,
+          -19,
+          -7,
+          -19
+        ]
+      },
+      {
+        "text": "B12",
+        "at": [
+          -5.3,
+          -19
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -17,
+          -7,
+          -17
+        ]
+      },
+      {
+        "text": "B13",
+        "at": [
+          -5.3,
+          -17
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -15,
+          -7,
+          -15
+        ]
+      },
+      {
+        "text": "B14",
+        "at": [
+          -5.3,
+          -15
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -13,
+          -7,
+          -13
+        ]
+      },
+      {
+        "text": "B15",
+        "at": [
+          -5.3,
+          -13
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -11,
+          -7,
+          -11
+        ]
+      },
+      {
+        "text": "A8",
+        "at": [
+          -5.3,
+          -11
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -9,
+          -7,
+          -9
+        ]
+      },
+      {
+        "text": "A9",
+        "at": [
+          -5.3,
+          -9
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -7,
+          -7,
+          -7
+        ]
+      },
+      {
+        "text": "A10",
+        "at": [
+          -5.3,
+          -7
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -5,
+          -7,
+          -5
+        ]
+      },
+      {
+        "text": "A11",
+        "at": [
+          -5.3,
+          -5
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -3,
+          -7,
+          -3
+        ]
+      },
+      {
+        "text": "A12",
+        "at": [
+          -5.3,
+          -3
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -1,
+          -7,
+          -1
+        ]
+      },
+      {
+        "text": "A15",
+        "at": [
+          -5.3,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          1,
+          -7,
+          1
+        ]
+      },
+      {
+        "text": "B3",
+        "at": [
+          -5.3,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          3,
+          -7,
+          3
+        ]
+      },
+      {
+        "text": "B4",
+        "at": [
+          -5.3,
+          3
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          5,
+          -7,
+          5
+        ]
+      },
+      {
+        "text": "B5",
+        "at": [
+          -5.3,
+          5
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          7,
+          -7,
+          7
+        ]
+      },
+      {
+        "text": "B6",
+        "at": [
+          -5.3,
+          7
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          9,
+          -7,
+          9
+        ]
+      },
+      {
+        "text": "B7",
+        "at": [
+          -5.3,
+          9
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          11,
+          -7,
+          11
+        ]
+      },
+      {
+        "text": "B8",
+        "at": [
+          -5.3,
+          11
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          13,
+          -7,
+          13
+        ]
+      },
+      {
+        "text": "B9",
+        "at": [
+          -5.3,
+          13
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          15,
+          -7,
+          15
+        ]
+      },
+      {
+        "text": "5V",
+        "at": [
+          -5.3,
+          15
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          17,
+          -7,
+          17
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          17
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          19,
+          -7,
+          19
+        ]
+      },
+      {
+        "text": "3.3",
+        "at": [
+          -5.3,
+          19
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -19,
+          9,
+          -19
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -19
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -17,
+          9,
+          -17
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -17
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -15,
+          9,
+          -15
+        ]
+      },
+      {
+        "text": "3.3",
+        "at": [
+          5.3,
+          -15
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -13,
+          9,
+          -13
+        ]
+      },
+      {
+        "text": "R",
+        "at": [
+          5.3,
+          -13
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -11,
+          9,
+          -11
+        ]
+      },
+      {
+        "text": "B11",
+        "at": [
+          5.3,
+          -11
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -9,
+          9,
+          -9
+        ]
+      },
+      {
+        "text": "B10",
+        "at": [
+          5.3,
+          -9
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -7,
+          9,
+          -7
+        ]
+      },
+      {
+        "text": "B1",
+        "at": [
+          5.3,
+          -7
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -5,
+          9,
+          -5
+        ]
+      },
+      {
+        "text": "B0",
+        "at": [
+          5.3,
+          -5
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -3,
+          9,
+          -3
+        ]
+      },
+      {
+        "text": "A7",
+        "at": [
+          5.3,
+          -3
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -1,
+          9,
+          -1
+        ]
+      },
+      {
+        "text": "A6",
+        "at": [
+          5.3,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          1,
+          9,
+          1
+        ]
+      },
+      {
+        "text": "A5",
+        "at": [
+          5.3,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          3,
+          9,
+          3
+        ]
+      },
+      {
+        "text": "A4",
+        "at": [
+          5.3,
+          3
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          5,
+          9,
+          5
+        ]
+      },
+      {
+        "text": "A3",
+        "at": [
+          5.3,
+          5
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          7,
+          9,
+          7
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          5.3,
+          7
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          9,
+          9,
+          9
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          5.3,
+          9
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          11,
+          9,
+          11
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          5.3,
+          11
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          13,
+          9,
+          13
+        ]
+      },
+      {
+        "text": "C15",
+        "at": [
+          5.3,
+          13
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          15,
+          9,
+          15
+        ]
+      },
+      {
+        "text": "C14",
+        "at": [
+          5.3,
+          15
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          17,
+          9,
+          17
+        ]
+      },
+      {
+        "text": "C13",
+        "at": [
+          5.3,
+          17
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          19,
+          9,
+          19
+        ]
+      },
+      {
+        "text": "VB",
+        "at": [
+          5.3,
+          19
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "PB12",
+        "at": [
+          -9,
+          -19
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB13",
+        "at": [
+          -9,
+          -17
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB14",
+        "at": [
+          -9,
+          -15
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB15",
+        "at": [
+          -9,
+          -13
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA8",
+        "at": [
+          -9,
+          -11
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA9",
+        "at": [
+          -9,
+          -9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA10",
+        "at": [
+          -9,
+          -7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA11",
+        "at": [
+          -9,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA12",
+        "at": [
+          -9,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA15",
+        "at": [
+          -9,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB3",
+        "at": [
+          -9,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB4",
+        "at": [
+          -9,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB5",
+        "at": [
+          -9,
+          5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB6",
+        "at": [
+          -9,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB7",
+        "at": [
+          -9,
+          9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB8",
+        "at": [
+          -9,
+          11
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB9",
+        "at": [
+          -9,
+          13
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "5V",
+        "at": [
+          -9,
+          15
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G1",
+        "at": [
+          -9,
+          17
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "3V3_1",
+        "at": [
+          -9,
+          19
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G2",
+        "at": [
+          9,
+          -19
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G3",
+        "at": [
+          9,
+          -17
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "3V3_2",
+        "at": [
+          9,
+          -15
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "NRST",
+        "at": [
+          9,
+          -13
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB11",
+        "at": [
+          9,
+          -11
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB10",
+        "at": [
+          9,
+          -9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB1",
+        "at": [
+          9,
+          -7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB0",
+        "at": [
+          9,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA7",
+        "at": [
+          9,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA6",
+        "at": [
+          9,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA5",
+        "at": [
+          9,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA4",
+        "at": [
+          9,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA3",
+        "at": [
+          9,
+          5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA2",
+        "at": [
+          9,
+          7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA1",
+        "at": [
+          9,
+          9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PA0",
+        "at": [
+          9,
+          11
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC15",
+        "at": [
+          9,
+          13
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC14",
+        "at": [
+          9,
+          15
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC13",
+        "at": [
+          9,
+          17
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VB",
+        "at": [
+          9,
+          19
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -7,
+    -25
+  ],
+  "value_offset": [
+    8,
+    -25
+  ],
+  "value_parameter": "firmware",
+  "parameters": [
+    {
+      "name": "firmware",
+      "label": "Firmware",
+      "kind": "file",
+      "filter": "*.elf",
+      "default": "",
+      "description": "ELF file built for the STM32F103C8 (for example with STM32CubeIDE); stored relative to the project"
+    }
+  ],
+  "mcu": {
+    "platform": "stm32f103c8.repl",
+    "firmware_parameter": "firmware",
+    "before_firmware": [
+      "sysbus WriteDoubleWord 0x40021000 0x83"
+    ],
+    "after_firmware": [
+      "sysbus.cpu VectorTableOffset 0x08000000"
+    ],
+    "led": {
+      "pin": "PC13",
+      "active_low": true,
+      "at": [
+        0,
+        -16
+      ],
+      "radius": 0.6
+    },
+    "reset_button": [
+      -2,
+      -12,
+      4,
+      2
+    ]
+  },
+  "spice": [
+    "R_{ref}_g12 {node:G1} {node:G2} 1m",
+    "R_{ref}_g13 {node:G1} {node:G3} 1m",
+    "R_{ref}_v12 {node:3V3_1} {node:3V3_2} 1m",
+    "V_{ref}_reg reg_{ref} {node:G1} DC 3.3",
+    "R_{ref}_reg reg_{ref} {node:3V3_1} 0.1",
+    "R_{ref}_5v {node:5V} {node:G1} 10Meg",
+    "R_{ref}_vb {node:VB} {node:G1} 10Meg",
+    "R_{ref}_nrst {node:NRST} {node:3V3_1} 40k",
+    "R_{ref}_pb12 {node:PB12} {node:G1} 100Meg",
+    "R_{ref}_pb13 {node:PB13} {node:G1} 100Meg",
+    "R_{ref}_pb14 {node:PB14} {node:G1} 100Meg",
+    "R_{ref}_pb15 {node:PB15} {node:G1} 100Meg",
+    "R_{ref}_pa8 {node:PA8} {node:G1} 100Meg",
+    "R_{ref}_pa9 {node:PA9} {node:G1} 100Meg",
+    "R_{ref}_pa10 {node:PA10} {node:G1} 100Meg",
+    "R_{ref}_pa11 {node:PA11} {node:G1} 100Meg",
+    "R_{ref}_pa12 {node:PA12} {node:G1} 100Meg",
+    "R_{ref}_pa15 {node:PA15} {node:G1} 100Meg",
+    "R_{ref}_pb3 {node:PB3} {node:G1} 100Meg",
+    "R_{ref}_pb4 {node:PB4} {node:G1} 100Meg",
+    "R_{ref}_pb5 {node:PB5} {node:G1} 100Meg",
+    "R_{ref}_pb6 {node:PB6} {node:G1} 100Meg",
+    "R_{ref}_pb7 {node:PB7} {node:G1} 100Meg",
+    "R_{ref}_pb8 {node:PB8} {node:G1} 100Meg",
+    "R_{ref}_pb9 {node:PB9} {node:G1} 100Meg",
+    "R_{ref}_pb11 {node:PB11} {node:G1} 100Meg",
+    "R_{ref}_pb10 {node:PB10} {node:G1} 100Meg",
+    "R_{ref}_pb1 {node:PB1} {node:G1} 100Meg",
+    "R_{ref}_pb0 {node:PB0} {node:G1} 100Meg",
+    "R_{ref}_pa7 {node:PA7} {node:G1} 100Meg",
+    "R_{ref}_pa6 {node:PA6} {node:G1} 100Meg",
+    "R_{ref}_pa5 {node:PA5} {node:G1} 100Meg",
+    "R_{ref}_pa4 {node:PA4} {node:G1} 100Meg",
+    "R_{ref}_pa3 {node:PA3} {node:G1} 100Meg",
+    "R_{ref}_pa2 {node:PA2} {node:G1} 100Meg",
+    "R_{ref}_pa1 {node:PA1} {node:G1} 100Meg",
+    "R_{ref}_pa0 {node:PA0} {node:G1} 100Meg",
+    "R_{ref}_pc15 {node:PC15} {node:G1} 100Meg",
+    "R_{ref}_pc14 {node:PC14} {node:G1} 100Meg",
+    "R_{ref}_pc13 {node:PC13} {node:G1} 100Meg"
+  ]
+}

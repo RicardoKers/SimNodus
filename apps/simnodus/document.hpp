@@ -44,6 +44,9 @@ public:
     bool save(const QString& path, QString& error);
 
     QString file_path() const { return path_; }
+    // Folder that relative file parameters (firmware) refer to: the project's
+    // folder, or for an example copy the folder it came from. Empty if none.
+    QString base_dir() const;
     QString display_name() const;
     bool modified() const;
 
@@ -59,6 +62,7 @@ private:
     model::Schematic schematic_;
     QUndoStack* undo_ = nullptr;
     QString path_;
+    QString origin_dir_; // folder of the file an untitled copy came from
 };
 
 } // namespace simnodus::ui

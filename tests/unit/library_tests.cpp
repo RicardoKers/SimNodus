@@ -146,3 +146,44 @@ TEST_CASE("template expressions evaluate parameters")
     CHECK(!library::evaluate_expression("(2", lookup, error));
     CHECK((library::expression_names("max(duty/100/f - 1e-3, rise)") == std::vector<std::string>{"duty", "f", "rise"}));
 }
+
+TEST_CASE("the Blue Pill board loads with its real pins and board profile")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* d = library.find("bluepill");
+    REQUIRE(d != nullptr);
+    CHECK(d->category == "Microcontrollers");
+    CHECK(d->prefix == "U");
+    CHECK(d->pins.size() == 40);
+    int gpio = 0;
+    for (const auto& p : d->pins) {
+        gpio += p.name.size() >= 3 && p.name[0] == 'P' ? 1 : 0;
+    }
+    CHECK(gpio == 32);
+    for (const char* name : {"PA0", "PA15", "PB12", "PC13", "PC15", "NRST", "5V", "VB", "G1", "3V3_2"}) {
+        CHECK(d->pin(name) != nullptr);
+    }
+    REQUIRE(d->mcu.has_value());
+    CHECK(d->mcu->platform == "stm32f103c8.repl");
+    REQUIRE(d->mcu->led.has_value());
+    CHECK(d->mcu->led->pin == "PC13");
+    CHECK(d->mcu->led->active_low);
+    CHECK(d->mcu->reset_button.has_value());
+    const auto* firmware = d->parameter(d->mcu->firmware_parameter);
+    REQUIRE(firmware != nullptr);
+    CHECK(firmware->kind == library::Parameter::Kind::File);
+    CHECK(firmware->filter == "*.elf");
+}
+
+TEST_CASE("an mcu section needs a file parameter for the firmware")
+{
+    ComponentLibrary library;
+    const auto error = library.add_from_json(R"({"type": "board", "name": "Board", "category": "Microcontrollers",
+        "prefix": "U", "symbol": {"graphics": [], "pins": [{"name": "PA0", "at": [0, 0], "dir": "up"}]},
+        "parameters": [{"name": "firmware", "default": "1"}],
+        "mcu": {"platform": "x.repl", "firmware_parameter": "firmware"},
+        "spice": ["R_{ref} {node:PA0} 0 1k"]})");
+    REQUIRE(error.has_value());
+    CHECK(error->find("file parameter") != std::string::npos);
+}

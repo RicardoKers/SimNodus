@@ -193,7 +193,8 @@ private slots:
         library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
         ComponentPanel panel(library);
         const int all = panel.visible_component_count();
-        QCOMPARE(all, 20);
+        QCOMPARE(all, static_cast<int>(library.definitions().size())); // component set A and the Blue Pill
+        QVERIFY(all >= 21);
         panel.search_field()->setText(QStringLiteral("LED"));
         const int filtered = panel.visible_component_count();
         QVERIFY(filtered >= 1 && filtered < all);

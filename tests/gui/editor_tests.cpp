@@ -28,6 +28,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QPointer>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -365,6 +366,52 @@ private slots:
         QVERIFY(exported.open(QIODevice::ReadOnly | QIODevice::Text));
         QVERIFY(exported.readLine().startsWith("# SimNodus")); // how the data was computed (SIM-09)
         QVERIFY(exported.readLine().startsWith("time_s,V(OUT)_V"));
+    }
+
+    void blue_pill_example_runs_its_firmware_and_resets()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
+        QSKIP("No ngspice or Renode configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        model::Id board = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            if (c.type == "bluepill") {
+                board = c.id;
+            }
+        }
+        QVERIFY(board != model::no_id);
+        QVERIFY(doc().base_dir().endsWith(QStringLiteral("examples")));
+
+        // The firmware field shows the path relative to the example's folder.
+        window_->scene()->select_ids({board});
+        auto* firmware = window_->properties()->findChild<QLineEdit*>(QStringLiteral("file_firmware"));
+        QTRY_VERIFY(firmware != nullptr || (firmware = window_->properties()->findChild<QLineEdit*>(
+                                                QStringLiteral("file_firmware"))) != nullptr);
+        QCOMPARE(firmware->text(), QStringLiteral("firmware/blink/blink.elf"));
+        QVERIFY(window_->properties()->findChild<QPushButton*>(QStringLiteral("reload_firmware")));
+
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        // Renode starts first; then the pins appear on the board.
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
+                && window_->scene()->live().mcu_pins.count(board)
+                && window_->scene()->live().mcu_pins.at(board).at("PC13").mode == mcu::PinMode::Output,
+            60000);
+        // PC13 low lights the on-board LED, high turns it off: both within a second.
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
+
+        // The reset button on the board restarts the firmware.
+        view()->fit_content();
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, -11}));
+        QTRY_COMPARE_WITH_TIMEOUT(window_->run_controller()->mcu_status(board)->resets, 1, 5000);
+        QVERIFY(window_->run_controller()->active());
+        window_->stop();
+        QVERIFY(!window_->run_controller()->active());
+#endif
     }
 
     void alt_click_sets_a_differential_reference()

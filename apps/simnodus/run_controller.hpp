@@ -56,6 +56,9 @@ public:
 
     void set_speed(double speed);
     void set_control(model::Id component, double value);
+    // The reset button of a microcontroller board.
+    void mcu_reset(model::Id component);
+    std::optional<mcu::McuStatus> mcu_status(model::Id component) const { return session_->mcu_status(component); }
 
     // Analyzer data.
     const std::vector<Channel>& channels() const { return channels_; }
