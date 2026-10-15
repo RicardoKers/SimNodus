@@ -137,7 +137,9 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     std::printf("  firmware ahead of the circuit by at most %llu us, behind by at most %llu us\n",
         static_cast<unsigned long long>(worst_lead), static_cast<unsigned long long>(worst_lag));
     CHECK(levels.size() == 2);
-    CHECK(worst_lead <= request.mcu_lead_us);
+    // The limit also follows ngspice's tentative time point, up to one maximum step
+    // (settings.max_step, 100 us by default) beyond the last accepted one.
+    CHECK(worst_lead <= request.mcu_lead_us + 2 * 100);
     // The status is sampled between the circuit's and the firmware's updates; allow one run chunk.
     CHECK(worst_lag <= request.mcu_lead_us + 10000);
     CHECK(session.latest("n1").has_value());
