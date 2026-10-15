@@ -426,13 +426,15 @@ void McuRunner::work()
     std::uint64_t last_config_us = 0;
     bool after_reset = false;
     // Circuit levels of input pins, before the firmware runs on (sampled exchange, E-03).
-    // Records what Renode reported during a run that started at `start`.
-    auto absorb = [&](std::uint64_t start) {
+    // Records what Renode reported. Events of an earlier chunk can arrive in a
+    // later run (held by the server, ADR 0085): they keep their own time, which
+    // the circuit has not used yet (the runner reports chunks one chunk late).
+    auto absorb = [&] {
         const auto events = engine->take_gpio_events();
         std::lock_guard lock(mutex_);
         for (const auto& e : events) {
             if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {
-                record_level(it->second, std::max(e.time_us, start), e.state);
+                record_level(it->second, e.time_us, e.state);
             }
         }
         for (const auto& b : engine->take_uart_bytes()) {
@@ -449,11 +451,18 @@ void McuRunner::work()
             }
         }
     };
-    auto set_pin = [&](std::size_t i, bool level, std::uint64_t since) {
+    // Applies a circuit level to an input pin; `applied` tells whether it changed the pin.
+    auto set_pin = [&](std::size_t i, bool level, std::uint64_t since, bool* applied = nullptr) {
+        if (applied) {
+            *applied = false;
+        }
         {
             std::lock_guard lock(mutex_);
             if (history_[i].back().second.mode != PinMode::Input || inputs_[i].applied == level) {
                 return true; // outputs ignore the circuit; the wanted level is applied if the pin becomes an input
+            }
+            if (applied) {
+                *applied = true;
             }
             inputs_[i].applied = level;
             if (now > since) {
@@ -471,19 +480,20 @@ void McuRunner::work()
             queue.swap(input_queue_);
         }
         for (std::size_t k = 0; k < queue.size(); ++k) {
-            if (!set_pin(queue[k].pin, queue[k].level, queue[k].time_us)) {
+            bool applied = false;
+            if (!set_pin(queue[k].pin, queue[k].level, queue[k].time_us, &applied)) {
                 return false;
             }
             // Keep the spacing to the next change (at most one chunk), so that the
-            // firmware sees every pulse with its width, only later.
-            if (k + 1 < queue.size() && queue[k + 1].time_us > queue[k].time_us) {
+            // firmware sees every pulse with its width, only later. Changes of
+            // output pins (their own level seen by the circuit) need no spacing.
+            if (applied && k + 1 < queue.size() && queue[k + 1].time_us > queue[k].time_us) {
                 const std::uint64_t gap = std::min(queue[k + 1].time_us - queue[k].time_us, options_.chunk_us);
-                const std::uint64_t start = now;
                 if (!engine->run_for(gap)) {
                     return false;
                 }
                 now += gap;
-                absorb(start);
+                absorb();
             }
         }
         // Wanted levels of pins that became inputs meanwhile.
@@ -553,7 +563,7 @@ void McuRunner::work()
             break;
         }
         now += step;
-        absorb(start);
+        absorb();
         const bool reset_done = after_reset;
         if (after_reset) {
             // The reset (done at Renode's next synchronization point) clears the

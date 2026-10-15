@@ -180,6 +180,7 @@ private:
     };
     std::map<std::string, ExternalRef> external_refs_;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
+    bool mcu_stale_ = false; // engine thread only: a firmware wait ended unreached
     double external_value(const ExternalRef& ref, double time);
     struct InputWatch {
         mcu::McuRunner* runner = nullptr;
