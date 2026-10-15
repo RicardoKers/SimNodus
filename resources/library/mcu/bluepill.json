@@ -1083,7 +1083,8 @@
       "sysbus WriteDoubleWord 0x40021000 0x83"
     ],
     "after_firmware": [
-      "sysbus.cpu VectorTableOffset 0x08000000"
+      "sysbus.cpu VectorTableOffset 0x08000000",
+      "emulation SetGlobalAdvanceImmediately true"
     ],
     "led": {
       "pin": "PC13",
@@ -1103,8 +1104,13 @@
     "pin_model": {
       "supply": 3.3,
       "output_resistance": 40,
-      "pull_resistance": 40000
-    }
+      "pull_resistance": 40000,
+      "input_high": 1.83,
+      "input_low": 1.16
+    },
+    "extensions": [
+      "SimNodusGpio.cs"
+    ]
   },
   "spice": [
     "R_{ref}_g12 {node:G1} {node:G2} 1m",

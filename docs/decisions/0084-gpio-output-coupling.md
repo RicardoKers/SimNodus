@@ -27,7 +27,8 @@ external sources through a callback at every time point.
 - **Causality.** The circuit never runs ahead of the firmware: before ngspice
   uses the pin sources at time t, the session waits until the firmware has
   reached t, so outputs are replayed from the firmware's recorded history
-  (E-03 profile P0). The firmware may lead by at most `mcu_lead_us` (20 ms).
+  (E-03 profile P0). The firmware may lead by at most `mcu_lead_us` (20 ms here; since ADR 0085 the
+  coupling quantum, default 1 ms).
 - **History.** The runner records each watched pin's level from Renode's GPIO
   events (Renode master-time stamps, quantum 100 µs) and its configuration
   (CRL/CRH/ODR) after every run chunk of at most 10 ms, effective from the

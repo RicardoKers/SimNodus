@@ -44,6 +44,7 @@ enum class RunState { Idle, Running, Paused, Finished, Stopped, Failed };
 struct McuRequest {
     model::Id component = model::no_id;
     mcu::McuRunOptions options;
+    std::string ground_pin = "G1"; // reference of the pin voltages
 };
 
 struct RunRequest {
@@ -58,7 +59,8 @@ struct RunRequest {
     std::size_t ring_capacity = 200000; // samples per vector (AN-09)
     std::size_t transient_limit = 2000000; // points kept in transient mode
     std::vector<McuRequest> mcus;
-    std::uint64_t mcu_lead_us = 20000; // firmware and circuit stay this close in virtual time
+    // Firmware lead over the circuit, set from the settings' mcu_quantum by start().
+    std::uint64_t mcu_lead_us = 1000;
 };
 
 struct RunStatus {
@@ -164,6 +166,16 @@ private:
     std::map<std::string, ExternalRef> external_refs_;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
     double external_value(const ExternalRef& ref, double time);
+    struct InputWatch {
+        mcu::McuRunner* runner = nullptr;
+        std::size_t pin = 0;
+        std::string node;   // pin net (lower case)
+        std::string ground; // board ground net, "0" for ground
+        mcu::PinModel model;
+        bool level = false;
+        bool sent = false;
+    };
+    std::vector<InputWatch> input_watches_; // updated in the engine thread under mutex_
 
     // Pacing and speed measurement (engine thread only).
     std::chrono::steady_clock::time_point wall_origin_;

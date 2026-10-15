@@ -36,6 +36,9 @@ struct MachineOptions {
     std::filesystem::path renode;    // executable
     std::filesystem::path resources; // see find_mcu_resources()
     std::string platform = "stm32f103c8.repl";
+    // C# peripheral models in `resources` that the platform uses; Renode
+    // compiles them at start-up (trusted application files).
+    std::vector<std::string> extensions{"SimNodusGpio.cs"};
     std::filesystem::path firmware;  // ELF; empty: no firmware
     // Monitor commands of the board profile, run after the platform is
     // loaded and after the firmware is loaded. Trusted application text.

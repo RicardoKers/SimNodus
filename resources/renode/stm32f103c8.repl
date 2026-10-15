@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer; SPDX-License-Identifier: MIT
 // STM32F103C8 subset for SimNodus (from E-02): exact 64 KiB flash and 20 KiB
 // SRAM, fixed 8 MIPS and 8 MHz SysTick (the reset clock, HSI 8 MHz), GPIO
-// ports A-C; works offline. Not a complete MCU description: no clock tree,
-// EXTI only for PA1 (AFIO-based EXTI routing follows in SN-133).
+// ports A-C (SimNodusGpio.cs, included before this file) with EXTI; works
+// offline. Not a complete MCU description: no clock tree, and no AFIO: EXTI
+// line n follows pin n of every port (AFIO_EXTICR port selection is not
+// modeled).
 flash: Memory.MappedMemory @ {
     sysbus 0x08000000;
     sysbus 0x00000000
@@ -26,14 +28,26 @@ cpu: CPU.CortexM @ sysbus
     nvic: nvic
     PerformanceInMips: 8
 
-gpioPortA: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010800, +0x400>
-    1 -> exti@1
+gpioPortA: GPIOPort.SimNodusSTM32F1GPIOPort @ sysbus <0x40010800, +0x400>
+    [0-15] -> exti@[0-15]
 
-gpioPortB: GPIOPort.STM32F1GPIOPort @ sysbus <0x40010C00, +0x400>
+gpioPortB: GPIOPort.SimNodusSTM32F1GPIOPort @ sysbus <0x40010C00, +0x400>
+    [0-15] -> exti@[0-15]
 
-gpioPortC: GPIOPort.STM32F1GPIOPort @ sysbus <0x40011000, +0x400>
+gpioPortC: GPIOPort.SimNodusSTM32F1GPIOPort @ sysbus <0x40011000, +0x400>
+    [0-15] -> exti@[0-15]
 
-// Only reset-default PA1 -> EXTI1 -> NVIC IRQ7 routing is covered.
+// EXTI0..4 -> IRQ 6..10, EXTI9_5 -> IRQ 23, EXTI15_10 -> IRQ 40 (as on the chip).
 exti: IRQControllers.STM32F4_EXTI @ sysbus 0x40010400
     numberOfOutputLines: 19
-    1 -> nvic@7
+    [0-4] -> nvic@[6-10]
+    [5-9] -> nvicInput23@[0-4]
+    [10-15] -> nvicInput40@[0-5]
+
+nvicInput23: Miscellaneous.CombinedInput @ none
+    numberOfInputs: 5
+    -> nvic@23
+
+nvicInput40: Miscellaneous.CombinedInput @ none
+    numberOfInputs: 6
+    -> nvic@40

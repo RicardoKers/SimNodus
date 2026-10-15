@@ -138,3 +138,24 @@ TEST_CASE("clipboard text holds selected elements")
     CHECK(!io::elements_from_json_text(io::to_json_text(s), error)); // a project is not a clipboard
     CHECK(!io::elements_from_json_text("garbage", error));
 }
+
+TEST_CASE("the microcontroller quantum is saved and checked")
+{
+    Schematic s;
+    SimulationSettings settings;
+    settings.mcu_quantum = 1e-4;
+    s.set_settings(settings);
+    const auto loaded = io::from_json_text(io::to_json_text(s));
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().mcu_quantum == 1e-4);
+
+    std::string text = io::to_json_text(s);
+    const auto at = text.find("\"mcu_quantum\"");
+    REQUIRE(at != std::string::npos);
+    const auto end = text.find_first_of(",}", at);
+    text.replace(at, end - at, "\"mcu_quantum\": 5");
+    const auto out_of_range = io::from_json_text(text);
+    REQUIRE(out_of_range.schematic.has_value());
+    CHECK(out_of_range.schematic->settings().mcu_quantum == SimulationSettings{}.mcu_quantum);
+    CHECK(!out_of_range.warnings.empty());
+}

@@ -1,0 +1,259 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 20,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06,
+    "mcu_quantum": 0.001
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/button_irq/button_irq.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 6,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 14,
+      "type": "button_no",
+      "designator": "SW1",
+      "at": [
+        17,
+        3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 15,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        23,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          12,
+          3
+        ],
+        [
+          14,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          20,
+          3
+        ],
+        [
+          23,
+          3
+        ],
+        [
+          23,
+          6
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 13,
+      "at": [
+        10,
+        11
+      ],
+      "name": "PA0"
+    },
+    {
+      "id": 18,
+      "at": [
+        11,
+        9
+      ],
+      "name": "PA1"
+    }
+  ],
+  "probes": [
+    {
+      "id": 19,
+      "kind": "voltage",
+      "target": {
+        "item": 16,
+        "at": [
+          11,
+          9
+        ]
+      },
+      "color": "#2ca02c"
+    },
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 8,
+        "at": [
+          10,
+          11
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "item": 6,
+        "pin": "A",
+        "at": [
+          26,
+          11
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

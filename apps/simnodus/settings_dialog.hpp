@@ -33,6 +33,7 @@ private:
     QRadioButton* interactive_ = nullptr;
     QRadioButton* transient_ = nullptr;
     QComboBox* interactive_step_ = nullptr;
+    QComboBox* quantum_ = nullptr;
     QLineEdit* segment_ = nullptr;
     QLineEdit* stop_ = nullptr;
     QLineEdit* transient_step_ = nullptr;

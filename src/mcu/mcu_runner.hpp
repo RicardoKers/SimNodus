@@ -36,8 +36,8 @@ enum class PinMode { Unknown, Input, Analog, Output, Alternate };
 enum class Pull { None, Up, Down };
 
 // Mode of an STM32F1 pin from its CRL/CRH nibble (MODE bits 1:0, CNF bits 3:2).
-// MODE 00 is reported as Input: Renode's model resets CNF to 00 although the
-// chip resets to 01 (floating input), so analog cannot be told apart there.
+// Needs the SimNodus GPIO model (resources/renode/SimNodusGpio.cs): Renode's
+// own model resets CNF to 00, which reads as analog.
 PinMode decode_pin_mode(std::uint32_t nibble);
 
 struct PinState {
@@ -64,7 +64,13 @@ struct PinModel {
     double supply = 3.3;
     double output_resistance = 40.0;
     double pull_resistance = 40000.0;
+    double input_high = 1.83; // Schmitt thresholds of inputs (MCU-04)
+    double input_low = 1.16;
 };
+
+// Input level after a voltage sample: 1 above input_high, 0 below input_low,
+// unchanged in between.
+bool schmitt(bool previous, double volts, const PinModel& model);
 struct PinDrive {
     double conductance = 0.0; // S
     double current = 0.0;     // A
@@ -78,6 +84,7 @@ struct McuStatus {
     std::uint64_t time_us = 0;
     double startup_seconds = 0.0;
     int resets = 0;      // resets done with the reset button
+    std::uint64_t max_input_delay_us = 0; // circuit-to-firmware delay of input changes
     std::string message; // failure reason
 };
 
@@ -85,7 +92,8 @@ struct McuRunOptions {
     MachineOptions machine;
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
     PinModel pin_model;
-    std::uint64_t chunk_us = 10000; // longest single run_for
+    std::uint64_t chunk_us = 1000;            // longest single run_for (the coupling quantum)
+    std::uint64_t config_interval_us = 10000; // CRL/CRH/ODR reads (each costs a bus round trip)
 };
 
 class McuRunner {
@@ -108,6 +116,10 @@ public:
     bool wait_time_us(std::uint64_t time_us, const std::atomic<bool>& cancel);
     // System reset of the microcontroller (the board's reset button).
     void request_reset();
+    // Logic level the circuit applies to a watched pin since circuit time
+    // `time_us`; it reaches the firmware before its next run chunk, if the pin
+    // is an input then (MCU-04).
+    void set_input(std::size_t pin, bool level, std::uint64_t time_us);
     void stop();
 
     McuStatus status() const;
@@ -138,6 +150,12 @@ private:
     std::uint64_t limit_us_ = 0;
     McuStatus status_;
     std::vector<History> history_;                 // per watched pin
+    struct Input {
+        bool desired = false;
+        bool applied = false;
+        std::uint64_t since_us = 0;
+    };
+    std::vector<Input> inputs_; // per watched pin
     std::map<std::string, std::size_t> event_pin_; // "port:number" -> index in options_.pins
 };
 

@@ -58,7 +58,7 @@ PinMode decode_pin_mode(std::uint32_t nibble)
     const std::uint32_t mode = nibble & 0x3u;
     const std::uint32_t cnf = (nibble >> 2) & 0x3u;
     if (mode == 0) {
-        return PinMode::Input; // see the header: CNF 00 is also Renode's reset state
+        return cnf == 0 ? PinMode::Analog : PinMode::Input;
     }
     return (cnf & 0x2u) ? PinMode::Alternate : PinMode::Output;
 }
@@ -74,6 +74,17 @@ PinState decode_pin_config(std::uint32_t nibble, bool odr_bit)
         state.open_drain = (cnf & 0x1u) != 0;
     }
     return state;
+}
+
+bool schmitt(bool previous, double volts, const PinModel& model)
+{
+    if (volts >= model.input_high) {
+        return true;
+    }
+    if (volts <= model.input_low) {
+        return false;
+    }
+    return previous;
 }
 
 PinDrive pin_drive(const PinState& state, const PinModel& model)
@@ -105,6 +116,7 @@ PinDrive pin_drive(const PinState& state, const PinModel& model)
 McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
 {
     history_.resize(options_.pins.size());
+    inputs_.resize(options_.pins.size());
     for (std::size_t i = 0; i < options_.pins.size(); ++i) {
         if (const auto pin = gpio_pin(options_.pins[i])) {
             event_pin_[key(pin->port, pin->number)] = i;
@@ -154,6 +166,15 @@ bool McuRunner::wait_time_us(std::uint64_t time_us, const std::atomic<bool>& can
         changed_.wait_for(lock, std::chrono::milliseconds(5));
     }
     return status_.time_us >= time_us;
+}
+
+void McuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_us)
+{
+    std::lock_guard lock(mutex_);
+    if (pin < inputs_.size() && inputs_[pin].desired != level) {
+        inputs_[pin].desired = level;
+        inputs_[pin].since_us = time_us;
+    }
 }
 
 void McuRunner::request_reset()
@@ -336,7 +357,33 @@ void McuRunner::work()
     changed_.notify_all();
 
     std::uint64_t now = 0;
+    std::uint64_t last_config_us = 0;
     bool after_reset = false;
+    // Circuit levels of input pins, before the firmware runs on (sampled exchange, E-03).
+    auto apply_inputs = [&] {
+        std::vector<std::pair<std::size_t, bool>> changes;
+        {
+            std::lock_guard lock(mutex_);
+            for (std::size_t i = 0; i < inputs_.size(); ++i) {
+                auto& in = inputs_[i];
+                if (in.desired != in.applied && history_[i].back().second.mode == PinMode::Input) {
+                    changes.emplace_back(i, in.desired);
+                    in.applied = in.desired;
+                    if (now > in.since_us) {
+                        status_.max_input_delay_us = std::max(status_.max_input_delay_us, now - in.since_us);
+                    }
+                    record_level(i, now, in.desired);
+                }
+            }
+        }
+        for (const auto& [i, level] : changes) {
+            const auto pin = gpio_pin(options_.pins[i]);
+            if (!pin || !engine->set_gpio(pin->port, pin->number, level)) {
+                return false;
+            }
+        }
+        return true;
+    };
     while (!stop_) {
         if (reset_.exchange(false)) {
             // SYSRESETREQ: Renode resets the machine; the firmware restarts from its reset vector.
@@ -361,6 +408,9 @@ void McuRunner::work()
         if (limit <= now) {
             continue;
         }
+        if (!apply_inputs()) {
+            break;
+        }
         const std::uint64_t start = now;
         const std::uint64_t step = std::min(limit - now, options_.chunk_us);
         if (!engine->run_for(step)) {
@@ -368,20 +418,27 @@ void McuRunner::work()
         }
         now += step;
         const auto events = engine->take_gpio_events();
+        const bool reset_done = after_reset;
         if (after_reset) {
             // The reset (done at Renode's next synchronization point) clears the
             // outputs without events: take the levels as they are now.
             read_levels(start);
             after_reset = false;
         }
-        // Configuration once per run chunk, effective from the chunk's start
-        // (firmware sets the mode before driving the pin); read before the new
-        // time is published so the circuit never sees a stale configuration.
-        const bool configs_ok = read_configs(*engine, configs);
+        // Configuration every config_interval_us of virtual time, effective from
+        // the previous read (firmware sets the mode before driving the pin); read
+        // before the new time is published so the circuit never sees a stale one.
+        bool configs_ok = false;
+        std::uint64_t config_from = start;
+        if (now - last_config_us >= options_.config_interval_us || reset_done) {
+            configs_ok = read_configs(*engine, configs);
+            config_from = last_config_us;
+            last_config_us = now;
+        }
         {
             std::lock_guard lock(mutex_);
             if (configs_ok) {
-                apply_configs(start, configs);
+                apply_configs(config_from, configs);
             }
             for (const auto& e : events) {
                 if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {

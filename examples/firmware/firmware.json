@@ -27,6 +27,14 @@
       "elf": "examples/firmware/blink/blink.elf",
       "sha256": "9c58c21a833dd34c901f5123eee3424cb19fdf78f630d654e60b8a5302554911",
       "size": 8144
+    },
+    "button_irq": {
+      "sources": [
+        "examples/firmware/button_irq/button_irq.c"
+      ],
+      "elf": "examples/firmware/button_irq/button_irq.elf",
+      "sha256": "91f230d27451a7b5af08fe66655b27a51a87db4fe4eb729bd3926b81fdde00d5",
+      "size": 8136
     }
   }
 }

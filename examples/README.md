@@ -13,6 +13,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `04_Transistor_switch.snx` | Switch, 10 kΩ base resistor, NPN, green LED | Toggle the switch; base voltage and LED current on the scope |
 | `05_RC_charging_transient.snx` | 5 V step into 1 kΩ / 10 µF, transient 50 ms | F5: the complete curve opens in the analyzer; use the cursors at τ = 10 ms |
 | `06_Half_wave_rectifier.snx` | 5 V 50 Hz sine, diode, 1 kΩ load, 47 µF | Ripple on the scope (10 ms/div); delete C1 and compare |
+| `08_Blue_Pill_button_interrupt.snx` | Blue Pill running `firmware/button_irq/button_irq.elf`, push button PA1–G, 330 Ω and green LED on PA0 | Each press toggles the LED from the EXTI1 interrupt (about 1 ms response); PC13 lights while held |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 Firmware sources are in `firmware/<name>/` and link with

@@ -109,8 +109,21 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    input_watches_.clear();
+    request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
     for (const auto& m : request_.mcus) {
-        mcus_[m.component] = std::make_unique<mcu::McuRunner>(m.options);
+        auto runner = std::make_unique<mcu::McuRunner>(m.options);
+        // Circuit-to-firmware direction (MCU-04): every GPIO pin's voltage to the board ground.
+        const auto ground = netlist_.pin_node.find({m.component, m.ground_pin});
+        const auto& names = runner->pin_names();
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            const auto node = netlist_.pin_node.find({m.component, names[i]});
+            if (node != netlist_.pin_node.end()) {
+                input_watches_.push_back({runner.get(), i, lower(node->second),
+                    ground == netlist_.pin_node.end() ? std::string("0") : lower(ground->second), m.options.pin_model});
+            }
+        }
+        mcus_[m.component] = std::move(runner);
     }
     // Pin driver sources of the boards: "pa0_g" / "pa0_i" -> pin PA0, conductance / current.
     for (const auto& e : netlist_.externals) {
@@ -150,6 +163,10 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     }
     for (const auto& v : request_.vectors) {
         add(v);
+    }
+    for (const auto& w : input_watches_) {
+        add(w.node);
+        add(w.ground);
     }
     for (const auto& e : netlist_.elements) {
         if (e.letter == 'C' && e.nodes.size() == 2) {
@@ -430,11 +447,15 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         machine.renode = *environment.renode;
         machine.resources = *environment.resources;
         machine.platform = d->mcu->platform;
+        machine.extensions = d->mcu->extensions;
         machine.firmware = path;
         machine.before_firmware = d->mcu->before_firmware;
         machine.after_firmware = d->mcu->after_firmware;
         request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
-            d->mcu->pin_model.pull_resistance};
+            d->mcu->pin_model.pull_resistance, d->mcu->pin_model.input_high, d->mcu->pin_model.input_low};
+        request.ground_pin = d->mcu->ground_pin;
+        const auto quantum = static_cast<std::uint64_t>(std::llround(schematic.settings().mcu_quantum * 1e6));
+        request.options.chunk_us = std::max<std::uint64_t>(quantum, 1);
         for (const auto& pin : d->pins) {
             if (mcu::gpio_pin(pin.name)) {
                 request.options.pins.push_back(pin.name);
@@ -587,6 +608,23 @@ void SimulationSession::run_interactive()
                 }
             }
             status_.sim_time = global;
+            // Input pins: Schmitt trigger on the pin voltage; changes go to the firmware
+            // before its next quantum (sampled exchange, labeled approximate).
+            const auto global_us = static_cast<std::uint64_t>(std::llround(global * 1e6));
+            for (auto& w : input_watches_) {
+                const auto v = latest_.find(w.node);
+                const auto g = w.ground == "0" ? latest_.end() : latest_.find(w.ground);
+                if (v == latest_.end()) {
+                    continue;
+                }
+                const double volts = v->second - (g == latest_.end() ? 0.0 : g->second);
+                const bool level = mcu::schmitt(w.level, volts, w.model);
+                if (level != w.level || !w.sent) {
+                    w.level = level;
+                    w.sent = true;
+                    w.runner->set_input(w.pin, level, global_us);
+                }
+            }
         }
         // Lockstep window: the firmware stays within mcu_lead_us of the circuit in
         // both directions (the circuit waits for a slower firmware).

@@ -81,6 +81,9 @@ struct SimulationSettings {
     double segment = 1.0;      // interactive segment length, seconds
     double transient_stop = 10e-3;
     double transient_max_step = 1e-6;
+    // Microcontroller coupling quantum Q (MCU-02, ADR 0085): the firmware runs at
+    // most Q ahead of the circuit, so circuit inputs reach it within about Q.
+    double mcu_quantum = 1e-3;
 
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };

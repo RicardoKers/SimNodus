@@ -352,12 +352,19 @@ ComponentDefinition parse_definition(const json& j)
         const auto& m = j["mcu"];
         McuBoard board;
         board.platform = text(m, "platform", true);
+        board.extensions = strings(m, "extensions");
         board.before_firmware = strings(m, "before_firmware");
         board.after_firmware = strings(m, "after_firmware");
         board.firmware_parameter = text(m, "firmware_parameter", true);
         const auto* firmware = d.parameter(board.firmware_parameter);
         if (!firmware || firmware->kind != Parameter::Kind::File) {
             invalid("mcu.firmware_parameter must name a file parameter");
+        }
+        if (m.contains("ground_pin")) {
+            board.ground_pin = text(m, "ground_pin", true);
+        }
+        if (!d.pin(board.ground_pin)) {
+            invalid("mcu.ground_pin is not a pin of the board");
         }
         if (m.contains("pin_model")) {
             const auto& pm = m["pin_model"];
@@ -366,9 +373,15 @@ ComponentDefinition parse_definition(const json& j)
                 number(pm.value("output_resistance", json(40.0)), "mcu.pin_model.output_resistance");
             board.pin_model.pull_resistance =
                 number(pm.value("pull_resistance", json(40000.0)), "mcu.pin_model.pull_resistance");
+            board.pin_model.input_high = number(pm.value("input_high", json(1.83)), "mcu.pin_model.input_high");
+            board.pin_model.input_low = number(pm.value("input_low", json(1.16)), "mcu.pin_model.input_low");
             if (board.pin_model.supply <= 0 || board.pin_model.output_resistance <= 0
                 || board.pin_model.pull_resistance <= 0) {
                 invalid("mcu.pin_model values must be positive");
+            }
+            if (!(board.pin_model.input_low < board.pin_model.input_high)
+                || board.pin_model.input_high > board.pin_model.supply) {
+                invalid("mcu.pin_model needs input_low < input_high <= supply");
             }
         }
         if (m.contains("led")) {
