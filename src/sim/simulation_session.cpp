@@ -187,9 +187,14 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         transient_ = {};
         controls_.clear();
         control_source_.clear();
+        bouncing_sources_.clear();
+        bounces_.clear();
         for (const auto& c : netlist_.controls) {
             controls_[lower(c.source)] = c.initial;
             control_source_[c.component] = lower(c.source);
+            if (c.bounce) {
+                bouncing_sources_.insert(lower(c.source));
+            }
         }
         status_ = {};
         status_.mode = settings_.mode;
@@ -245,8 +250,26 @@ void SimulationSession::set_control(model::Id component, double value)
     std::lock_guard lock(mutex_);
     const auto it = control_source_.find(component);
     if (it != control_source_.end()) {
+        const double previous = controls_[it->second];
+        if (bouncing_sources_.count(it->second) && previous != value) {
+            bounces_[it->second] = {status_.sim_time, previous};
+        }
         controls_[it->second] = value;
     }
+}
+
+static double bounce_value(double since_change, double value, double previous)
+{
+    // Intervals (ms after the change) in which the contact is back in its previous
+    // state: a fixed pattern, so runs are reproducible.
+    static constexpr double open[][2] = {{0.3, 0.6}, {1.0, 1.5}, {2.1, 2.4}, {3.0, 3.2}};
+    const double ms = since_change * 1e3;
+    for (const auto& interval : open) {
+        if (ms >= interval[0] && ms < interval[1]) {
+            return previous;
+        }
+    }
+    return value;
 }
 
 std::optional<double> SimulationSession::control(model::Id component) const
@@ -345,6 +368,12 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
             save += " " + save_vectors_[j];
         }
         extra.push_back(save);
+    }
+    if (interactive) {
+        // Gear integration: switches, buttons (with bounce) and GPIO edges change
+        // abruptly; the trapezoidal default rings there (a bouncing button over
+        // 1 uF swung its node to -2.4 V). Transient mode keeps the default.
+        extra.push_back(".options method=gear");
     }
     const double step = interactive ? settings_.max_step : settings_.transient_max_step;
     // Output step = maximum step keeps ngspice's preallocation small (S1).
@@ -613,7 +642,16 @@ void SimulationSession::run_interactive()
         }
         std::lock_guard lock(mutex_);
         const auto it = controls_.find(key);
-        return it == controls_.end() ? 0.0 : it->second;
+        if (it == controls_.end()) {
+            return 0.0;
+        }
+        if (const auto b = bounces_.find(key); b != bounces_.end()) {
+            const double since = segment_t0_ + time - b->second.start;
+            if (since >= 0 && since < 3.5e-3) {
+                return bounce_value(since, it->second, b->second.previous);
+            }
+        }
+        return it->second;
     });
     engine->set_data_handler([this, engine, &last_speed](const AcceptedPoint& point) {
         if (!index_valid_) {

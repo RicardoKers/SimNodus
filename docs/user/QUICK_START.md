@@ -94,6 +94,11 @@ step by default; edges of switches and generators are resolved to that step.
   carry the waveform.
 - Example: `09_Blue_Pill_serial_terminal` prints "tick N" every second;
   send `1` or `0` to switch the LED on PA0.
+- Push buttons have a **Contact bounce** property: with *yes* their contacts
+  bounce for about 3 ms after each press and release (a fixed pattern), as a
+  real button does to a microcontroller input.
+- Lessons: `10_Lesson1_GPIO_output` and `11_Lesson2_button_and_EXTI`, with
+  notes in `examples/lessons/` (goals, steps, expected observations).
 - **Logic lanes**: Signal Analyzer, tab **Logic**. Microcontroller pins
   appear as lanes by themselves when they change; check or uncheck any pin
   or voltage channel in the list (voltage channels read 1 above the **Probe

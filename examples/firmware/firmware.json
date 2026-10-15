@@ -36,6 +36,22 @@
       "sha256": "91f230d27451a7b5af08fe66655b27a51a87db4fe4eb729bd3926b81fdde00d5",
       "size": 8136
     },
+    "lesson1_gpio": {
+      "sources": [
+        "examples/firmware/lesson1_gpio/lesson1_gpio.c"
+      ],
+      "elf": "examples/firmware/lesson1_gpio/lesson1_gpio.elf",
+      "sha256": "3607d3e0e6e99a38b24000b26d09922e9b34351d1f2dffe1c03036a9f74caafe",
+      "size": 8220
+    },
+    "lesson2_button": {
+      "sources": [
+        "examples/firmware/lesson2_button/lesson2_button.c"
+      ],
+      "elf": "examples/firmware/lesson2_button/lesson2_button.elf",
+      "sha256": "8be3bc97623ee7f9e2ddb980cbc35e77b1724b8f99e1deca717188287e366ceb",
+      "size": 9736
+    },
     "uart_echo": {
       "sources": [
         "examples/firmware/uart_echo/uart_echo.c"

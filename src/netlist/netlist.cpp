@@ -242,6 +242,7 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                     control.initial = numbers[p->name] / (p->unit == "%" ? 100.0 : 1.0);
                 }
             }
+            control.bounce = words.count("bounce") && words["bounce"] == "yes";
             control_node = control.node;
             out.controls.push_back(control);
         }

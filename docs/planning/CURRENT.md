@@ -20,7 +20,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-135 done.** The
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-136 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
   interactive run: Renode starts first, the firmware leads the circuit by at
   most the coupling quantum (default 1 ms, ADR 0083/0085), pins show their
@@ -31,7 +31,17 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   interrupts (ADR 0085); example 08: a button toggles an LED from EXTI1.
   The analyzer's UART tab is a serial terminal (ADR 0086); example 09.
   The Logic tab shows pin and probe lanes on the scope's time base.
+  Lessons 1 and 2 ship with firmware and notes (`examples/lessons/`);
+  push buttons can bounce; interactive runs use Gear integration (ADR 0087).
+  Probes can be dragged to another wire or pin.
   Renode ships in the Windows zip (ADR 0082).
+
+## Verified on 2026-10-15 (SN-136)
+
+- Bounce: 9 edges in 3.21 ms with bounce, 1 without. Lesson 1: 20 rising
+  edges in 20 ms, RC ripple 0.79–0.80 V (theory 0.805 V). Lesson 2: 5 edges
+  per press without the filter, 1 with it; the node stays within 0..3.3 V
+  (it rang to −2.4 V with trapezoidal integration). ctest 9/9.
 
 ## Verified on 2026-10-15 (SN-135)
 
@@ -101,9 +111,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. SN-136 lesson examples (the owner has none yet: create them freely),
-   MCU-09 page of supported peripherals and limitations, and the 0.2
-   package by 2026-11-13.
+2. MCU-09: user page of supported peripherals and limitations; owner's
+   hands-on test of the phase 2 features; release 0.2 by 2026-11-13.
+3. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
+   lesson 3) can start early.
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
    built with the GNU Tools for STM32 14.3.rel1 inside the owner's

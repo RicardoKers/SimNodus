@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, phase 2: SN-136)
+
+- Lessons 1 and 2 (`examples/10_Lesson1_GPIO_output.snx`, `examples/11_Lesson2_button_and_EXTI.snx`) with firmware sources and notes in `examples/lessons/` (goals, circuit, firmware, steps, expected observations, questions, limits). Tests check them against theory: lesson 1's RC ripple matches 3.3·tanh(T/4τ) within 2.5 %; lesson 2 counts several edges per press without the RC filter and exactly one with it.
+- Push buttons have a **Contact bounce** parameter: a fixed bounce pattern for about 3 ms after each press and release.
+
+### Changed (2026-10-15)
+
+- Interactive runs use Gear integration ([ADR 0087](docs/decisions/0087-gear-integration-interactive.md)): the trapezoidal default rang on abrupt switching (a bouncing button over 1 µF swung to −2.4 V). Transient mode is unchanged.
+
 ### Added (2026-10-15, owner request)
 
 - Probes can be moved: drag the probe marker with the select tool onto another wire or pin; the probe keeps its color and analyzer channel (a current probe needs a pin); undoable. GUI test `probes_are_dragged_to_another_wire_or_pin`.

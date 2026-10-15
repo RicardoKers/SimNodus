@@ -5,7 +5,7 @@ add_test(NAME sim-unit COMMAND sim_tests)
 
 add_executable(engine_tests engine_tests.cpp library_engine_tests.cpp session_engine_tests.cpp session_mcu_tests.cpp)
 target_include_directories(engine_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(engine_tests PRIVATE simnodus::session simnodus::netlist simnodus::editing simnodus::warnings)
+target_link_libraries(engine_tests PRIVATE simnodus::session simnodus::netlist simnodus::editing simnodus::io simnodus::warnings)
 target_compile_definitions(engine_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library"
     SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples" SIMNODUS_TEST_MCU_DIR="${PROJECT_SOURCE_DIR}/resources/renode")
 if(SIMNODUS_RENODE)

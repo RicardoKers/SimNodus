@@ -127,5 +127,18 @@
   "models": [
     ".model SW_SN SW(VT=0.5 VH=0.1 RON=0.01 ROFF=1e15)",
     ".model SWI_SN SW(VT=-0.5 VH=0.1 RON=0.01 ROFF=1e15)"
+  ],
+  "parameters": [
+    {
+      "name": "bounce",
+      "label": "Contact bounce",
+      "unit": "",
+      "default": "no",
+      "choices": [
+        "no",
+        "yes"
+      ],
+      "description": "Contacts bounce for about 3 ms after each press and release, like a real push button"
+    }
   ]
 }

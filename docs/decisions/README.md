@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0087: Gear integration in interactive mode](0087-gear-integration-interactive.md):
+  avoids trapezoidal ringing on abrupt switching (bouncing buttons, GPIO edges).
 - [0086: UART terminal through the control protocol](0086-uart-terminal.md): new
   UART command in the loopback server and client; USART1–3; terminal tab with
   time stamps; baud rate not simulated.

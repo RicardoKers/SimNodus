@@ -45,6 +45,7 @@ struct ControlSource {
     std::string node;      // control node
     double initial = 0.0;  // 0/1, or 0..1 for a potentiometer
     library::Interactive::Kind kind = library::Interactive::Kind::Toggle;
+    bool bounce = false; // parameter "bounce" = "yes": contacts bounce after each change
 };
 
 // External voltage source set by the simulation, from a template's {ext:NAME}

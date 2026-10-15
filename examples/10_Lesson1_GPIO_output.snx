@@ -1,0 +1,288 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 22,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06,
+    "mcu_quantum": 0.001
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/lesson1_gpio/lesson1_gpio.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 4,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 5,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 6,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        15,
+        -3
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 13,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        21,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "100n"
+      }
+    },
+    {
+      "id": 15,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        21,
+        5
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          12,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          18,
+          -3
+        ],
+        [
+          21,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          21,
+          3
+        ],
+        [
+          21,
+          5
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 16,
+      "at": [
+        10,
+        11
+      ],
+      "name": "PA0"
+    },
+    {
+      "id": 17,
+      "at": [
+        12,
+        4
+      ],
+      "name": "PA1"
+    },
+    {
+      "id": 18,
+      "at": [
+        19,
+        -3
+      ],
+      "name": "RC"
+    }
+  ],
+  "probes": [
+    {
+      "id": 19,
+      "kind": "voltage",
+      "target": {
+        "item": 10,
+        "at": [
+          10,
+          9
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 20,
+      "kind": "voltage",
+      "target": {
+        "item": 12,
+        "at": [
+          20,
+          -3
+        ]
+      },
+      "color": "#ff7f0e"
+    },
+    {
+      "id": 21,
+      "kind": "current",
+      "target": {
+        "item": 5,
+        "pin": "A",
+        "at": [
+          26,
+          11
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

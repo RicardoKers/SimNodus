@@ -29,6 +29,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <string>
 #include <thread>
 #include <vector>
@@ -156,6 +157,14 @@ private:
     TransientResult transient_;
     std::map<std::string, double> controls_; // source name (lower case) -> value
     std::map<model::Id, std::string> control_source_;
+    // Contact bounce of controls with bounce enabled: after a change at
+    // `start` (seconds) the contact returns to `previous` in short intervals.
+    struct Bounce {
+        double start = 0.0;
+        double previous = 0.0;
+    };
+    std::set<std::string> bouncing_sources_; // lower case
+    std::map<std::string, Bounce> bounces_;
     // Created by start() before the worker exists and kept until the next start;
     // the runners themselves are thread-safe.
     std::map<model::Id, std::unique_ptr<mcu::McuRunner>> mcus_;

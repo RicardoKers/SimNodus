@@ -90,7 +90,7 @@ if(WIN32)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script).
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
-        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION mcu)
     if(SIMNODUS_RENODE)
         # The whole portable bundle with its licenses/, without Renode's own test suite.
