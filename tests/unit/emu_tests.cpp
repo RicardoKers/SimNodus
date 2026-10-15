@@ -671,6 +671,62 @@ TEST_CASE("a fault and a lockup are reported with the PC and the function name")
     CHECK(l.time_ns() >= 1000000); // time still advances; the host does not hang
 }
 
+TEST_CASE("exception model scenarios log the order the ARMv7-M manual prescribes")
+{
+    // tests/experiments/emu-exceptions/exceptions.s; expected logs from B1.5.
+    std::string error;
+    const auto image = read_elf(examples.parent_path() / "tests" / "experiments" / "emu-exceptions" / "exceptions.elf", error);
+    REQUIRE(image);
+    auto run_scenario = [&image](std::uint32_t scenario) {
+        Bus bus;
+        bus.add_memory("SRAM", 0x20000000, 0x5000, true);
+        bus.add_memory("flash", 0x08000000, 0x10000, false);
+        bus.add_alias("boot alias", 0, "flash");
+        Cpu cpu(bus);
+        bus.add_device(0xE000E000, 0x1000, &cpu.scs());
+        for (const auto& s : image->segments) {
+            bus.load(s.physical, s.data.data(), static_cast<std::uint32_t>(s.data.size()));
+        }
+        bus.write(0x200000F4, 4, scenario);
+        cpu.reset();
+        std::uint32_t done = 0;
+        for (int i = 0; i < 100 && done != 0xD1FF; ++i) {
+            cpu.run(cpu.cycles() + 1000);
+            bus.read(0x200000F8, 4, done);
+        }
+        std::vector<std::uint32_t> log;
+        std::uint32_t count = 0;
+        bus.read(0x200000F0, 4, count);
+        for (std::uint32_t i = 0; i < count && i < 64; ++i) {
+            std::uint32_t v = 0;
+            bus.read(0x20000100 + 4 * i, 4, v);
+            log.push_back(v);
+        }
+        return log;
+    };
+    using Log = std::vector<std::uint32_t>;
+    CHECK(run_scenario(0) == Log({0xEE}));
+    // Preemption: IRQ1 (0x40) preempts IRQ0 (0x80) as soon as IRQ0 pends it.
+    CHECK(run_scenario(1) == Log({0xA0, 0xA1, 0xB1, 0xB0, 0xEE}));
+    // PRIGROUP 5: 0x90 and 0x80 share group priority 0x80; IRQ1 waits, then tail-chains.
+    CHECK(run_scenario(2) == Log({0xA0, 0xB0, 0xA1, 0xB1, 0xEE}));
+    // BASEPRI 0x80 masks priority 0x80 until it is cleared.
+    CHECK(run_scenario(3) == Log({0xC0, 0xA0, 0xB0, 0xC1, 0xEE}));
+    // Pending after CPSIE: by priority, then by exception number.
+    CHECK(run_scenario(4) == Log({0xA3, 0xB3, 0xA2, 0xB2, 0xA4, 0xB4, 0xA5, 0xB5, 0xEE}));
+    // Thread on PSP: EXC_RETURN 0xFFFFFFFD, PSP restored.
+    CHECK(run_scenario(6) == Log({0xA6, 0xFFFFFFFDu, 0xB6, 0x20003000u, 0xEE}));
+    // Invalid EXC_RETURN: UsageFault INVPC, escalated (FORCED) because UsageFault is disabled.
+    CHECK(run_scenario(7) == Log({0x5C, 0xFF, 0x00040000u, 0x40000000u}));
+    // STKALIGN: SP = 0x20003FFC gives a frame at 0x20003FD8 with xPSR bit 9; SP restored.
+    CHECK(run_scenario(8) == Log({0xA7, 0x20003FD8u, 0x200, 0xB7, 0x20003FFCu, 0xEE}));
+    // FAULTMASK holds IRQ0 back but not NMI; NMI's return keeps FAULTMASK.
+    CHECK(run_scenario(9) == Log({0x4E, 0xC8, 0xA0, 0xB0, 0xC9, 0xEE}));
+    // WFI wakes on a pending IRQ masked by PRIMASK without running it; SVC under PRIMASK
+    // escalates to HardFault (FORCED).
+    CHECK(run_scenario(10) == Log({0xD0, 0xA0, 0xB0, 0xD1, 0xFF, 0, 0x40000000u}));
+}
+
 TEST_CASE("ELF errors are reported in plain words")
 {
     std::string error;

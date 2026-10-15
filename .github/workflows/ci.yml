@@ -43,6 +43,10 @@ jobs:
         run: cmake --build build/ci
       - name: Run tests (unit, engines, spikes, offscreen GUI)
         run: ctest --test-dir build/ci --output-on-failure
+      - name: Emulator speed (E-07, gate G0a.3; informational)
+        run: |
+          build/ci/apps/simnodus-emu/simnodus-emu examples/firmware/hal_clock/hal_clock.elf --ms 1600 --quiet
+          build/ci/apps/simnodus-emu/simnodus-emu tests/experiments/emu-benchmark/bench.elf --ms 3000 --quiet
       - name: Spike S1 quick matrix
         run: |
           library=$(sed -n 's/^SIMNODUS_NGSPICE_LIBRARY:FILEPATH=//p' build/ci/CMakeCache.txt)
@@ -89,6 +93,10 @@ jobs:
         run: cmake --build build/ci --config Release
       - name: Run tests (unit, engines, spikes, offscreen GUI)
         run: ctest --test-dir build/ci -C Release --output-on-failure
+      - name: Emulator speed (E-07, gate G0a.3; informational)
+        run: |
+          build/ci/apps/simnodus-emu/Release/simnodus-emu.exe examples/firmware/hal_clock/hal_clock.elf --ms 1600 --quiet
+          build/ci/apps/simnodus-emu/Release/simnodus-emu.exe tests/experiments/emu-benchmark/bench.elf --ms 3000 --quiet
       - name: Show the GUI test log after a failure
         if: failure()
         env:
