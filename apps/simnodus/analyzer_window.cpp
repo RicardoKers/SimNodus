@@ -44,17 +44,6 @@ const double timebase_steps[] = {1e-6, 2e-6, 5e-6, 1e-5, 2e-5, 5e-5, 1e-4, 2e-4,
 const double scale_steps[] = {1e-6, 2e-6, 5e-6, 1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2,
     5e-2, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100};
 
-QWidget* placeholder(const QString& text)
-{
-    auto* label = new QLabel(text);
-    label->setAlignment(Qt::AlignCenter);
-    label->setWordWrap(true);
-    QPalette palette = label->palette();
-    palette.setColor(QPalette::WindowText, theme::muted_text);
-    label->setPalette(palette);
-    return label;
-}
-
 QString quantity(double value, const QString& unit)
 {
     return QString::fromStdString(model::format_engineering(value, 4)) + unit;
