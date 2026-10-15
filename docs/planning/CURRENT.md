@@ -113,9 +113,15 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. MCU-09: user page of supported peripherals and limitations; owner's
-   hands-on test of the phase 2 features; release 0.2 by 2026-11-13.
-3. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
+2. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
+   logic lanes, probe dragging); release 0.2 by 2026-11-13. MCU-09 page:
+   `docs/user/MICROCONTROLLER.md` (update with phases 3–4).
+3. **Clock model (high priority):** RCC is plain storage, so HSE/PLL ready
+   flags never come on and STM32CubeIDE HAL projects hang in
+   `SystemClock_Config()`. Model RCC ready flags and the system clock
+   (SysTick and CPU speed following PLL/prescalers) so that CubeIDE projects
+   run; needed for lessons built with HAL and for MCU-08.
+4. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
    lesson 3) can start early.
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is

@@ -52,6 +52,9 @@ step by default; edges of switches and generators are resolved to that step.
 
 ## Microcontroller (Blue Pill)
 
+What the simulated STM32F103C8 supports and where it differs from a real
+board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
+
 - Place **Blue Pill (STM32F103C8)** from Microcontrollers and connect one of
   its **G** pins to ground. In Properties, **Browse...** chooses the firmware
   (an `.elf` built for the STM32F103C8, for example with STM32CubeIDE); the

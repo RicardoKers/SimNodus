@@ -86,6 +86,7 @@ if(WIN32)
         "${PROJECT_SOURCE_DIR}/resources/package/THIRD-PARTY-NOTICES.txt" DESTINATION .)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/package/licenses/" DESTINATION licenses)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/QUICK_START.md" DESTINATION . RENAME QUICK-START.md)
+    install(FILES "${PROJECT_SOURCE_DIR}/docs/user/MICROCONTROLLER.md" DESTINATION .)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script).
