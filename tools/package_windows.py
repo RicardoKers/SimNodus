@@ -34,11 +34,12 @@ REQUIRED = [
     "renode/renode.exe", "renode/licenses/renode-license", "renode/licenses/tlib-license",
     "mcu/LoopbackControl.cs", "mcu/stm32f103c8.repl", "mcu/licenses/MIT.txt",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
-    "mcu/SimNodusGpio.cs", "examples/08_Blue_Pill_button_interrupt.snx", "examples/firmware/button_irq/button_irq.elf",
+    "mcu/SimNodusGpio.cs", "mcu/SimNodusRcc.cs", "examples/08_Blue_Pill_button_interrupt.snx", "examples/firmware/button_irq/button_irq.elf",
     "examples/09_Blue_Pill_serial_terminal.snx", "examples/firmware/uart_echo/uart_echo.elf",
     "examples/10_Lesson1_GPIO_output.snx", "examples/firmware/lesson1_gpio/lesson1_gpio.elf",
     "examples/11_Lesson2_button_and_EXTI.snx", "examples/firmware/lesson2_button/lesson2_button.elf",
     "examples/lessons/lesson1_gpio_output.md", "examples/lessons/lesson2_button_exti.md",
+    "examples/12_Blue_Pill_HAL_72MHz.snx", "examples/firmware/hal_clock/hal_clock.elf",
 ]
 
 

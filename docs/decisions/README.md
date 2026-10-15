@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0088: Clock model for the STM32F103C8](0088-clock-model.md): RCC ready
+  flags and SWS, CPU MIPS and SysTick follow HCLK, bit-banding; CubeIDE HAL
+  projects run at 72 MHz.
 - [0087: Gear integration in interactive mode](0087-gear-integration-interactive.md):
   avoids trapezoidal ringing on abrupt switching (bouncing buttons, GPIO edges).
 - [0086: UART terminal through the control protocol](0086-uart-terminal.md): new
