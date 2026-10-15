@@ -5,6 +5,7 @@
 #include "main_window.hpp"
 #include "theme.hpp"
 
+#include "mcu/mcu_check.hpp"
 #include "sim/engine_check.hpp"
 #include "simnodus/version.hpp"
 
@@ -70,6 +71,22 @@ int check_engine()
         return 0;
     }
     std::printf("FAIL: analog engine not available\n");
+    return 1;
+}
+
+int check_mcu_engine()
+{
+    const std::filesystem::path app_dir = QCoreApplication::applicationDirPath().toStdWString();
+    const auto result = simnodus::mcu::check_mcu_engine(app_dir);
+    for (const auto& line : result.messages) {
+        std::printf("%s\n", line.c_str());
+    }
+    if (result.ok) {
+        std::printf("PASS: Renode from %s started in %.1f s, ran 1 ms of virtual time, exited cleanly\n",
+            result.renode.string().c_str(), result.startup_seconds);
+        return 0;
+    }
+    std::printf("FAIL: microcontroller engine not available\n");
     return 1;
 }
 
@@ -139,12 +156,14 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Open the windows, run built-in checks and exit."));
     const QCommandLineOption engine_option(QStringLiteral("check-engine"),
         QCoreApplication::translate("main", "Load the analog engine, solve a reference circuit and exit."));
+    const QCommandLineOption mcu_option(QStringLiteral("check-mcu-engine"),
+        QCoreApplication::translate("main", "Start the microcontroller engine, run 1 ms and exit."));
     const QCommandLineOption screenshot_option(QStringLiteral("screenshot"),
         QCoreApplication::translate("main", "Save images of the windows to this PNG file and exit."),
         QStringLiteral("file"));
     const QCommandLineOption run_option(QStringLiteral("run"),
         QCoreApplication::translate("main", "Start the simulation after opening the project."));
-    parser.addOptions({settings_option, smoke_option, engine_option, screenshot_option, run_option});
+    parser.addOptions({settings_option, smoke_option, engine_option, mcu_option, screenshot_option, run_option});
     parser.addPositionalArgument(QStringLiteral("project"),
         QCoreApplication::translate("main", "Project file (.snx) to open."), QStringLiteral("[project]"));
     parser.process(application);
@@ -152,6 +171,10 @@ int main(int argc, char** argv)
     if (parser.isSet(engine_option)) {
         attach_console();
         return check_engine();
+    }
+    if (parser.isSet(mcu_option)) {
+        attach_console();
+        return check_mcu_engine();
     }
 
     simnodus::ui::theme::apply(application);

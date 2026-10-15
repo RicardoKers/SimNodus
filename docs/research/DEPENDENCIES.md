@@ -67,7 +67,7 @@ Original SimNodus material remains MIT. Development use and selecting an experim
 | Material | Observed terms / required follow-up |
 |---|---|
 | Renode original code/client | MIT, Antmicro; root license and source notice inspected |
-| Renode bundled dependencies | Separate `licenses/` notices, including LGPL 2.1 tlib and other components; retain/audit the full bundle and corresponding-source obligations before redistribution |
+| Renode bundled dependencies | Reviewed 2026-10-14 for the Windows zip ([ADR 0082](../decisions/0082-renode-engine-integration.md)): MIT core and .NET runtime, LGPL-2.1 tlib, LGPL-3.0 NetMQ/Packet.Net, LGPL-2.0 GTK#, LGPL MinGW runtime, MPL-2.0 AsyncIO, permissive others; no GPL-only part. Shipped unmodified as a separate process with `renode/licenses/` and a pointer to the v1.16.1 source archive |
 | ngspice source and binary | Source `COPYING` describes modified BSD plus exceptions: KLU/numparam LGPL, OSDI MPL 2.0, optional XSPICE table GPL v2 or later; do not label the complete archive simply MIT/BSD |
 | Optional `.cm`/OSDI/VPI assets | Not loaded or approved for redistribution; per-file provenance and terms still required |
 | libsndfile | [Upstream LGPL terms](https://libsndfile.github.io/libsndfile/); source and bundled codec obligations require a distribution audit |

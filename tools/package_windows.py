@@ -31,6 +31,8 @@ REQUIRED = [
     "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
     "library/passive/resistor.json", "examples/01_LED_and_push_button.snx", "QUICK-START.md",
     "vcruntime140.dll", "msvcp140.dll",
+    "renode/renode.exe", "renode/licenses/renode-license", "renode/licenses/tlib-license",
+    "mcu/LoopbackControl.cs", "mcu/stm32f103c8.repl", "mcu/licenses/MIT.txt",
 ]
 
 
@@ -93,6 +95,8 @@ def main() -> int:
         exe = str(staging / "simnodus.exe")
         engine = run([exe, "--check-engine"], env=env, capture_output=True, text=True, timeout=120)
         print(engine.stdout.strip())
+        mcu = run([exe, "--check-mcu-engine"], env=env, capture_output=True, text=True, timeout=180)
+        print(mcu.stdout.strip())
         with tempfile.TemporaryDirectory() as temp:
             # The package ships only the native platform plugin, so this opens real windows briefly.
             smoke = run([exe, "--smoke-test", "--settings", str(Path(temp) / "s.ini")],

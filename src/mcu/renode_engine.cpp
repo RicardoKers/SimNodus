@@ -129,7 +129,8 @@ std::optional<fs::path> find_renode(const fs::path& application_dir)
 std::optional<fs::path> find_mcu_resources(const fs::path& application_dir)
 {
     std::error_code ec;
-    for (const fs::path& folder : {application_dir / "mcu", fs::path(SIMNODUS_SOURCE_MCU_DIR)}) {
+    for (const fs::path& folder : {application_dir / "mcu", application_dir.parent_path() / "share/simnodus/mcu",
+             fs::path(SIMNODUS_SOURCE_MCU_DIR)}) {
         if (fs::is_regular_file(folder / server_file, ec)) {
             return folder;
         }
