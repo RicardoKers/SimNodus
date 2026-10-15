@@ -86,6 +86,14 @@ step by default; edges of switches and generators are resolved to that step.
   time quantum. Transient mode does not run microcontrollers yet.
 - EXTI line n follows pin n of every port (the AFIO port selection of the
   chip is not modeled): use one pin number per EXTI line.
+- **Serial terminal**: Signal Analyzer, tab **UART**. Choose the port (USART1
+  on PA9/PA10, USART2 on PA2/PA3, USART3 on PB10/PB11), read what the
+  firmware prints, type a line and press Enter or Send (choose the line
+  ending). **Time stamps** starts every line with its simulated time. Bytes
+  move instantly: the baud rate is not simulated and the TX pin does not
+  carry the waveform.
+- Example: `09_Blue_Pill_serial_terminal` prints "tick N" every second;
+  send `1` or `0` to switch the LED on PA0.
 
 ## Signal Analyzer
 

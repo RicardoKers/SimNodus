@@ -144,6 +144,7 @@ using Antmicro.Renode;
             commandHandlers.Register(new ADC(this));
             commandHandlers.Register(new GPIOPort(this));
             commandHandlers.Register(new SystemBus(this));
+            commandHandlers.Register(new UART(this));
 
             var getMachineHandler = new GetMachine(this);
             Machines = getMachineHandler;
@@ -843,6 +844,7 @@ using Antmicro.Renode;
         ADC,
         GPIOPort,
         SystemBus,
+        UART, // SimNodus addition (SN-134)
     }
 
     public interface ICommand
@@ -1919,6 +1921,81 @@ using Antmicro.Renode;
             Word = 2,
             DoubleWord = 4,
             QuadWord = 8,
+        }
+    }
+}
+//
+// Copyright (c) 2026 Ricardo Kerschbaumer
+//
+// This file is licensed under the MIT License.
+// Full license text is available in 'licenses/MIT.txt'.
+//
+// SimNodus addition (SN-134): UART access through the external control
+// protocol, in the style of the GPIOPort command. Write feeds bytes to the
+// peripheral's receiver (WriteChar); RegisterEvent reports every byte the
+// peripheral transmits (CharReceived) with Renode's virtual time, during RunFor.
+
+namespace SimNodus.Renode.ExternalControl
+{
+using System;
+using System.Collections.Generic;
+using Antmicro.Renode.Core;
+using Antmicro.Renode.Peripherals.UART;
+using Antmicro.Renode;
+    public class UART : BaseCommand, IHasEvents, IInstanceBasedCommand<IUART>
+    {
+        public UART(ExternalControlServer parent)
+            : base(parent)
+        {
+            Instances = new InstanceCollection<IUART>();
+        }
+
+        public override Response Invoke(List<byte> data) => this.InvokeHandledWithInstance(data);
+
+        public Response Invoke(IUART instance, List<byte> data)
+        {
+            if(data.Count < 1)
+            {
+                return Response.CommandFailed(Identifier, "Expected a UART command");
+            }
+            switch((UARTCommand)data[0])
+            {
+            case UARTCommand.Write:
+                for(var i = 1; i < data.Count; ++i)
+                {
+                    instance.WriteChar(data[i]);
+                }
+                return Response.Success(Identifier);
+            case UARTCommand.RegisterEvent:
+                if(data.Count != 1 + sizeof(int))
+                {
+                    return Response.CommandFailed(Identifier, "Expected an event descriptor");
+                }
+                var descriptor = BitConverter.ToInt32(data.GetRange(1, sizeof(int)).ToArray(), 0);
+                instance.CharReceived += value => SendEvent(value, descriptor);
+                return Response.Success(Identifier);
+            default:
+                return Response.CommandFailed(Identifier, "Unexpected UART command");
+            }
+        }
+
+        public override Command Identifier => Command.UART;
+        public override byte Version => 0x0;
+        public InstanceCollection<IUART> Instances { get; }
+        public event Action<Response> EventReported;
+
+        private void SendEvent(byte value, int descriptor)
+        {
+            var bytes = new List<byte>(BitConverter.GetBytes(
+                (ulong)EmulationManager.Instance.CurrentEmulation.MasterTimeSource.ElapsedVirtualTime.TotalMicroseconds));
+            bytes.Add(value);
+            EventReported?.Invoke(Response.Event(Identifier, descriptor, bytes));
+        }
+
+        private enum UARTCommand : byte
+        {
+            Write = 0,
+            RegisterEvent = 1,
         }
     }
 }

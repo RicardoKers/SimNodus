@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <utility>
 
 namespace simnodus::mcu {
 
@@ -117,6 +118,9 @@ McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
 {
     history_.resize(options_.pins.size());
     inputs_.resize(options_.pins.size());
+    for (const auto& uart : options_.uarts) {
+        uarts_[uart] = {};
+    }
     for (std::size_t i = 0; i < options_.pins.size(); ++i) {
         if (const auto pin = gpio_pin(options_.pins[i])) {
             event_pin_[key(pin->port, pin->number)] = i;
@@ -175,6 +179,39 @@ void McuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_us)
         inputs_[pin].desired = level;
         inputs_[pin].since_us = time_us;
     }
+}
+
+void McuRunner::uart_send(const std::string& uart, const std::string& bytes)
+{
+    std::lock_guard lock(mutex_);
+    if (const auto it = uarts_.find(uart); it != uarts_.end()) {
+        it->second.pending += bytes;
+    }
+}
+
+std::uint64_t McuRunner::uart_received(
+    const std::string& uart, std::uint64_t from, std::string& bytes, std::vector<std::uint64_t>* times) const
+{
+    std::lock_guard lock(mutex_);
+    bytes.clear();
+    if (times) {
+        times->clear();
+    }
+    const auto it = uarts_.find(uart);
+    if (it == uarts_.end()) {
+        return 0;
+    }
+    const auto& log = it->second;
+    const std::uint64_t first = log.total - log.bytes.size();
+    const std::uint64_t start = std::max(from, first);
+    if (start < log.total) {
+        const auto offset = static_cast<std::size_t>(start - first);
+        bytes = log.bytes.substr(offset);
+        if (times) {
+            times->assign(log.times.begin() + static_cast<std::ptrdiff_t>(offset), log.times.end());
+        }
+    }
+    return log.total;
 }
 
 void McuRunner::request_reset()
@@ -343,6 +380,13 @@ void McuRunner::work()
             return;
         }
     }
+    for (const auto& uart : options_.uarts) {
+        if (!engine->watch_uart(uart)) {
+            fail("Cannot open " + uart + ": " + engine->error());
+            engine->stop();
+            return;
+        }
+    }
     read_levels(0);
     std::vector<PinState> configs;
     if (read_configs(*engine, configs)) {
@@ -411,6 +455,22 @@ void McuRunner::work()
         if (!apply_inputs()) {
             break;
         }
+        std::vector<std::pair<std::string, std::string>> sends;
+        {
+            std::lock_guard lock(mutex_);
+            for (auto& [name, log] : uarts_) {
+                if (!log.pending.empty()) {
+                    sends.emplace_back(name, std::exchange(log.pending, {}));
+                }
+            }
+        }
+        bool sent = true;
+        for (const auto& [name, bytes] : sends) {
+            sent = sent && engine->write_uart(name, std::vector<std::uint8_t>(bytes.begin(), bytes.end()));
+        }
+        if (!sent) {
+            break;
+        }
         const std::uint64_t start = now;
         const std::uint64_t step = std::min(limit - now, options_.chunk_us);
         if (!engine->run_for(step)) {
@@ -443,6 +503,19 @@ void McuRunner::work()
             for (const auto& e : events) {
                 if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {
                     record_level(it->second, std::max(e.time_us, start), e.state);
+                }
+            }
+            for (const auto& b : engine->take_uart_bytes()) {
+                if (const auto it = uarts_.find(b.uart); it != uarts_.end()) {
+                    auto& log = it->second;
+                    log.bytes.push_back(static_cast<char>(b.value));
+                    log.times.push_back(b.time_us);
+                    ++log.total;
+                    if (log.bytes.size() > (1u << 20)) {
+                        const std::size_t drop = log.bytes.size() - (1u << 20) + 4096;
+                        log.bytes.erase(0, drop);
+                        log.times.erase(log.times.begin(), log.times.begin() + static_cast<std::ptrdiff_t>(drop));
+                    }
                 }
             }
             status_.time_us = now;

@@ -428,6 +428,53 @@ TEST_CASE("a falling edge on PA1 runs the EXTI1 handler of the button firmware")
     CHECK(engine->stop() == 0);
 }
 
+TEST_CASE("the UART example prints, echoes and obeys commands through USART1")
+{
+    MachineOptions machine = options();
+    machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "uart_echo" / "uart_echo.elf";
+    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
+    machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000", "emulation SetGlobalAdvanceImmediately true"};
+    auto engine = start_engine(machine);
+    REQUIRE(engine);
+    REQUIRE(engine->watch_uart("usart1"));
+    REQUIRE(engine->watch_gpio("gpioPortA", 0));
+    for (int i = 0; i < 11; ++i) {
+        REQUIRE(engine->run_for(100000));
+    }
+    std::string text;
+    std::uint64_t tick_at = 0;
+    for (const auto& b : engine->take_uart_bytes()) {
+        CHECK(b.uart == "usart1");
+        text += static_cast<char>(b.value);
+        if (text.size() >= 6 && text.compare(text.size() - 6, 6, "tick 1") == 0) {
+            tick_at = b.time_us;
+        }
+    }
+    std::printf("  received: %s", text.c_str());
+    CHECK(text.rfind("SimNodus Blue Pill ready.", 0) == 0);
+    CHECK(text.find("tick 1\r\n") != std::string::npos);
+    std::printf("  'tick 1' at %llu us\n", static_cast<unsigned long long>(tick_at));
+    CHECK(tick_at > 990000 && tick_at < 1010000);
+
+    engine->take_gpio_events();
+    REQUIRE(engine->write_uart("usart1", {'1'}));
+    REQUIRE(engine->run_for(1000));
+    auto echo = engine->take_uart_bytes();
+    REQUIRE(echo.size() == 1);
+    CHECK(echo[0].value == '1');
+    auto events = engine->take_gpio_events();
+    REQUIRE(events.size() == 1);
+    CHECK(events[0].state); // LED on
+    REQUIRE(engine->write_uart("usart1", {'0'}));
+    REQUIRE(engine->run_for(1000));
+    events = engine->take_gpio_events();
+    REQUIRE(events.size() == 1);
+    CHECK(!events[0].state);
+    CHECK(!engine->watch_uart("usart9"));
+    CHECK(engine->usable());
+    CHECK(engine->stop() == 0);
+}
+
 TEST_CASE("find_renode prefers SIMNODUS_RENODE")
 {
 #ifdef _WIN32

@@ -84,6 +84,11 @@ struct McuBoard {
     };
     std::optional<Led> led;
     std::optional<std::vector<model::PointF>> reset_button; // top-left and size, symbol coordinates
+    struct Uart {
+        std::string name;  // Renode peripheral ("usart1")
+        std::string label; // terminal text ("USART1 (PA9 TX, PA10 RX)")
+    };
+    std::vector<Uart> uarts; // serial ports for the terminal (MCU-05)
 };
 
 // Interactive control (INT-02). The netlist generator creates an external

@@ -448,6 +448,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         machine.resources = *environment.resources;
         machine.platform = d->mcu->platform;
         machine.extensions = d->mcu->extensions;
+        for (const auto& uart : d->mcu->uarts) {
+            request.options.uarts.push_back(uart.name);
+        }
         machine.firmware = path;
         machine.before_firmware = d->mcu->before_firmware;
         machine.after_firmware = d->mcu->after_firmware;
@@ -538,6 +541,24 @@ std::map<std::string, mcu::PinState> SimulationSession::mcu_pins(model::Id compo
 {
     const auto it = mcus_.find(component);
     return it == mcus_.end() ? std::map<std::string, mcu::PinState>{} : it->second->pins();
+}
+
+void SimulationSession::mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes)
+{
+    if (const auto it = mcus_.find(component); it != mcus_.end() && active()) {
+        it->second->uart_send(uart, bytes);
+    }
+}
+
+std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
+    std::string& bytes, std::vector<std::uint64_t>* times) const
+{
+    const auto it = mcus_.find(component);
+    if (it == mcus_.end()) {
+        bytes.clear();
+        return 0;
+    }
+    return it->second->uart_received(uart, from, bytes, times);
 }
 
 void SimulationSession::mcu_reset(model::Id component)

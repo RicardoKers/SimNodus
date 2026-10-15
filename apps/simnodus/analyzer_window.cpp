@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 #include "analyzer_window.hpp"
 
+#include "uart_terminal.hpp"
+
 #include "app_settings.hpp"
 #include "run_controller.hpp"
 #include "theme.hpp"
@@ -101,7 +103,9 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     tabs_->addTab(placeholder(tr("Logic lanes for digital signals and MCU pins arrive with the microcontroller "
                                  "in release 0.2.")),
         tr("Logic"));
-    tabs_->addTab(placeholder(tr("The UART terminal arrives with the microcontroller in release 0.2.")), tr("UART"));
+    terminal_ = new UartTerminal;
+    terminal_->setObjectName(QStringLiteral("uartTerminal"));
+    tabs_->addTab(terminal_, tr("UART"));
     splitter->addWidget(tabs_);
     splitter->setStretchFactor(1, 1);
     splitter->setSizes({240, 720});
@@ -197,6 +201,7 @@ QWidget* AnalyzerWindow::build_controls()
 void AnalyzerWindow::set_controller(RunController* controller)
 {
     controller_ = controller;
+    terminal_->set_controller(controller);
     reload();
 }
 
@@ -244,6 +249,7 @@ void AnalyzerWindow::rebuild_channel_list()
 
 void AnalyzerWindow::reload()
 {
+    terminal_->reload();
     rebuild_channel_list();
     record_mode_ = false;
     single_done_ = false;
@@ -316,6 +322,7 @@ void AnalyzerWindow::refresh()
     if (!controller_ || !isVisible()) {
         return;
     }
+    terminal_->refresh();
     if (controller_->channels().size() != channel_count_) {
         rebuild_channel_list();
     }

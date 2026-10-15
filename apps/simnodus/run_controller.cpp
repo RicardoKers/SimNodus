@@ -233,6 +233,23 @@ std::optional<double> RunController::net_voltage(const std::string& net) const
     return session_->latest(net);
 }
 
+std::vector<RunController::UartPort> RunController::uart_ports() const
+{
+    std::vector<UartPort> ports;
+    const auto& library = document_.library();
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->mcu || !session_->mcu_status(c.id)) {
+            continue;
+        }
+        for (const auto& uart : d->mcu->uarts) {
+            ports.push_back({c.id, uart.name,
+                QString::fromStdString(c.designator) + QLatin1Char(' ') + QString::fromStdString(uart.label)});
+        }
+    }
+    return ports;
+}
+
 void RunController::mcu_reset(model::Id component)
 {
     session_->mcu_reset(component);

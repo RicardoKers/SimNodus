@@ -37,6 +37,16 @@ gpioPortB: GPIOPort.SimNodusSTM32F1GPIOPort @ sysbus <0x40010C00, +0x400>
 gpioPortC: GPIOPort.SimNodusSTM32F1GPIOPort @ sysbus <0x40011000, +0x400>
     [0-15] -> exti@[0-15]
 
+// USART1..3 (SN-134): bytes move instantly; the baud rate is not simulated.
+usart1: UART.STM32_UART @ sysbus <0x40013800, +0x100>
+    -> nvic@37
+
+usart2: UART.STM32_UART @ sysbus <0x40004400, +0x100>
+    -> nvic@38
+
+usart3: UART.STM32_UART @ sysbus <0x40004800, +0x100>
+    -> nvic@39
+
 // EXTI0..4 -> IRQ 6..10, EXTI9_5 -> IRQ 23, EXTI15_10 -> IRQ 40 (as on the chip).
 exti: IRQControllers.STM32F4_EXTI @ sysbus 0x40010400
     numberOfOutputLines: 19

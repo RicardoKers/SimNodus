@@ -13,6 +13,7 @@
 #include "schematic_scene.hpp"
 #include "schematic_view.hpp"
 #include "theme.hpp"
+#include "uart_terminal.hpp"
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "editing/operations.hpp"
@@ -22,12 +23,14 @@
 #endif
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFile>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QPointer>
 #include <QSettings>
@@ -465,6 +468,46 @@ private slots:
         QTest::qWait(300);
         QVERIFY(led_current() > 2e-3); // release keeps it on
         window_->run_controller()->set_control(button, 1.0);
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
+        window_->stop();
+#endif
+    }
+
+    void uart_terminal_talks_to_the_firmware()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
+        QSKIP("No ngspice or Renode configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/09_Blue_Pill_serial_terminal.snx"), errors, warnings));
+        model::Id led = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            led = c.type == "led" ? c.id : led;
+        }
+        auto led_current = [this, led] {
+            const auto& live = window_->scene()->live().led_current;
+            const auto it = live.find(led);
+            return it == live.end() ? 0.0 : it->second;
+        };
+        window_->show_analyzer();
+        UartTerminal* terminal = window_->analyzer()->terminal();
+        terminal->timestamps()->setChecked(true);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->ports()->count() == 3, 60000);
+        QVERIFY(terminal->ports()->currentText().contains(QStringLiteral("USART1")));
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Blue Pill ready")), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("tick 1")), 10000);
+        // Time stamps: "tick 1" is printed at about 1 s of simulated time.
+        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[0.99")));
+        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral(" s] tick 1")));
+        QVERIFY(led_current() < 1e-4);
+        terminal->input()->setText(QStringLiteral("1"));
+        terminal->send();
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() > 2e-3, 5000);
+        terminal->input()->setText(QStringLiteral("0"));
+        QTest::keyClick(terminal->input(), Qt::Key_Return);
         QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
         window_->stop();
 #endif

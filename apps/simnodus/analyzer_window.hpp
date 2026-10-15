@@ -26,6 +26,7 @@ class QTreeWidget;
 namespace simnodus::ui {
 
 class RunController;
+class UartTerminal;
 
 class AnalyzerWindow : public QMainWindow {
     Q_OBJECT
@@ -35,6 +36,7 @@ public:
     void set_controller(RunController* controller);
     ScopeWidget* scope() const { return scope_; }
     QTabWidget* tabs() const { return tabs_; }
+    UartTerminal* terminal() const { return terminal_; }
     QComboBox* timebase() const { return timebase_; }
     QLabel* measurement_row() const { return measurements_; }
 
@@ -67,6 +69,7 @@ private:
     RunController* controller_ = nullptr;
     ScopeWidget* scope_ = nullptr;
     QTabWidget* tabs_ = nullptr;
+    UartTerminal* terminal_ = nullptr;
     QComboBox* timebase_ = nullptr;
     QComboBox* mode_ = nullptr;
     QComboBox* trigger_source_ = nullptr;

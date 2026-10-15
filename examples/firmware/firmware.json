@@ -35,6 +35,14 @@
       "elf": "examples/firmware/button_irq/button_irq.elf",
       "sha256": "91f230d27451a7b5af08fe66655b27a51a87db4fe4eb729bd3926b81fdde00d5",
       "size": 8136
+    },
+    "uart_echo": {
+      "sources": [
+        "examples/firmware/uart_echo/uart_echo.c"
+      ],
+      "elf": "examples/firmware/uart_echo/uart_echo.elf",
+      "sha256": "badf8088907193545e12ad207192bd9e07244b8c9d03efba8a6eafcf99c8dd52",
+      "size": 10032
     }
   }
 }

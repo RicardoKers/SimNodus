@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0086: UART terminal through the control protocol](0086-uart-terminal.md): new
+  UART command in the loopback server and client; USART1–3; terminal tab with
+  time stamps; baud rate not simulated.
 - [0085: GPIO inputs, EXTI and the coupling quantum](0085-gpio-inputs-and-quantum.md):
   Schmitt inputs (1.16/1.83 V) reach the firmware within the quantum Q (default
   1 ms); own STM32F1 GPIO model; EXTI routing; Renode idle skipping.

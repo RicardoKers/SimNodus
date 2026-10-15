@@ -56,6 +56,12 @@ struct GpioEvent {
     bool state = false;
 };
 
+struct UartByte {
+    std::uint64_t time_us = 0; // Renode virtual time
+    std::string uart;          // peripheral, e.g. "usart1"
+    std::uint8_t value = 0;
+};
+
 class RenodeEngine {
 public:
     static std::unique_ptr<RenodeEngine> start(const MachineOptions& options, std::string& error);
@@ -79,6 +85,12 @@ public:
     bool set_gpio(const std::string& port, int pin, bool state); // does not advance time
     std::optional<bool> gpio(const std::string& port, int pin);
 
+    // UART by peripheral name ("usart1"): bytes the firmware transmits arrive
+    // during run_for; written bytes reach the peripheral's receiver at once.
+    bool watch_uart(const std::string& uart);
+    std::vector<UartByte> take_uart_bytes();
+    bool write_uart(const std::string& uart, const std::vector<std::uint8_t>& bytes);
+
     std::optional<std::uint32_t> read32(std::uint64_t address);
     bool write32(std::uint64_t address, std::uint32_t value);
 
@@ -97,6 +109,7 @@ private:
     RenodeEngine();
     bool check(void* renode_error, const char* what);
     void* gpio_handle(const std::string& port);
+    void* uart_handle(const std::string& uart);
 
     struct Impl;
     std::unique_ptr<Impl> impl_;

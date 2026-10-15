@@ -60,6 +60,7 @@ control pins. Unconnected board pins are not reported.
 | `pin_model` | Electrical GPIO model: supply, output and pull resistance, input thresholds `input_high` / `input_low` |
 | `extensions` | C# peripheral models in `mcu/` the platform uses (`SimNodusGpio.cs`) |
 | `ground_pin` | Reference of the pin voltages (default `G1`) |
+| `uarts` | `[{"name": "usart1", "label": "USART1 (PA9 TX, PA10 RX)"}]`: serial ports for the terminal |
 
 `pin_model` (`{"supply": 3.3, "output_resistance": 40, "pull_resistance":
 40000}`) sets the electrical GPIO model ([ADR 0084](../decisions/0084-gpio-output-coupling.md)).
