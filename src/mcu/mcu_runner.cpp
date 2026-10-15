@@ -222,6 +222,7 @@ void McuRunner::work()
 
     std::uint64_t now = 0;
     auto last_modes = std::chrono::steady_clock::now();
+    std::uint64_t last_modes_us = 0;
     while (!stop_) {
         if (reset_.exchange(false)) {
             // SYSRESETREQ: Renode resets the machine; the firmware restarts from its reset vector.
@@ -252,6 +253,14 @@ void McuRunner::work()
         }
         now += step;
         const auto events = engine->take_gpio_events();
+        // Modes every 50 ms of wall or virtual time, read before the new time is
+        // published: a reported time is never more than 50 ms newer than the modes.
+        if (std::chrono::steady_clock::now() - last_modes > std::chrono::milliseconds(50)
+            || now - last_modes_us >= 50000) {
+            read_modes(*engine);
+            last_modes = std::chrono::steady_clock::now();
+            last_modes_us = now;
+        }
         {
             std::lock_guard lock(mutex_);
             for (const auto& e : events) {
@@ -262,10 +271,6 @@ void McuRunner::work()
             status_.time_us = now;
         }
         changed_.notify_all();
-        if (std::chrono::steady_clock::now() - last_modes > std::chrono::milliseconds(50)) {
-            read_modes(*engine);
-            last_modes = std::chrono::steady_clock::now();
-        }
     }
     if (!stop_) {
         const std::string reason = engine->error();

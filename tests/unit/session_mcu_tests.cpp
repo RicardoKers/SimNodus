@@ -32,10 +32,20 @@ library::ComponentLibrary& board_library()
 #ifdef SIMNODUS_TEST_RENODE
 sim::McuEnvironment environment()
 {
-    return {SIMNODUS_TEST_EXAMPLES_DIR, std::filesystem::path(SIMNODUS_TEST_RENODE),
-        std::filesystem::path(SIMNODUS_TEST_MCU_DIR)};
+    sim::McuEnvironment e;
+    e.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    e.renode = std::filesystem::path(SIMNODUS_TEST_RENODE);
+    e.resources = std::filesystem::path(SIMNODUS_TEST_MCU_DIR);
+    return e;
 }
 #endif
+
+sim::McuEnvironment folder_only(const std::filesystem::path& folder)
+{
+    sim::McuEnvironment e;
+    e.project_dir = folder;
+    return e;
+}
 
 } // namespace
 
@@ -45,19 +55,19 @@ TEST_CASE("session: boards without firmware or engine are explained")
     b.add("bluepill", {{"G1", "0"}});
     std::vector<sim::McuRequest> requests;
     std::string error;
-    CHECK(!sim::build_mcu_requests(b.schematic, board_library(), {"."}, requests, error));
+    CHECK(!sim::build_mcu_requests(b.schematic, board_library(), folder_only("."), requests, error));
     CHECK(error.find("no firmware") != std::string::npos);
 
     test::CircuitBuilder missing(board_library());
     missing.add("bluepill", {{"G1", "0"}}, {{"firmware", "does/not/exist.elf"}});
     error.clear();
-    CHECK(!sim::build_mcu_requests(missing.schematic, board_library(), {"."}, requests, error));
+    CHECK(!sim::build_mcu_requests(missing.schematic, board_library(), folder_only("."), requests, error));
     CHECK(error.find("does not exist") != std::string::npos);
 
     test::CircuitBuilder no_engine(board_library());
     no_engine.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
     error.clear();
-    CHECK(!sim::build_mcu_requests(no_engine.schematic, board_library(), {SIMNODUS_TEST_EXAMPLES_DIR}, requests, error));
+    CHECK(!sim::build_mcu_requests(no_engine.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
     CHECK(error.find("Renode") != std::string::npos);
 }
 
@@ -117,7 +127,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
             worst_lag = std::max(worst_lag, analog_us - status->time_us);
         }
         const auto pins = session.mcu_pins(board);
-        if (status->time_us > 1000) { // the reset handler has configured the pins
+        if (status->time_us > 60000) { // modes are at most 50 ms older than the time
             levels.insert(pins.at("PC13").level);
             CHECK(pins.at("PC13").mode == mcu::PinMode::Output);
         }
