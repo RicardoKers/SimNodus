@@ -124,13 +124,14 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
         REQUIRE(status->state == mcu::McuState::Running);
         const double analog = session.status().sim_time;
         const auto analog_us = static_cast<std::uint64_t>(analog * 1e6);
-        if (status->time_us > analog_us) {
-            worst_lead = std::max(worst_lead, status->time_us - analog_us);
+        const std::uint64_t firmware_us = status->time_ns / 1000;
+        if (firmware_us > analog_us) {
+            worst_lead = std::max(worst_lead, firmware_us - analog_us);
         } else {
-            worst_lag = std::max(worst_lag, analog_us - status->time_us);
+            worst_lag = std::max(worst_lag, analog_us - firmware_us);
         }
         const auto pins = session.mcu_pins(board);
-        if (status->time_us > 60000) { // modes are at most 50 ms older than the time
+        if (firmware_us > 60000) { // modes are at most 50 ms older than the time
             levels.insert(pins.at("PC13").level);
             CHECK(pins.at("PC13").mode == mcu::PinMode::Output);
         }
@@ -279,8 +280,8 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     const auto status = session.mcu_status(session.netlist().externals.front().component);
     REQUIRE(status.has_value());
     std::printf("  largest circuit-to-firmware input delay: %llu us\n",
-        static_cast<unsigned long long>(status->max_input_delay_us));
-    CHECK(status->max_input_delay_us <= 2 * 1000 + 100); // two quanta plus one circuit step
+        static_cast<unsigned long long>(status->max_input_delay_ns / 1000));
+    CHECK(status->max_input_delay_ns / 1000 <= 2 * 1000 + 100); // two quanta plus one circuit step
 
     // Delay from the button's falling edge to the output's rising edge, in circuit time.
     const auto btn = session.samples("btn");
@@ -431,9 +432,9 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
             }
         }
         const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PA1",
-            static_cast<std::uint64_t>(from * 1e6));
+            static_cast<std::uint64_t>(from * 1e9));
         for (std::size_t i = 0; i < log.changes.size() && i < 40; ++i) {
-            std::printf("  renode PA1 %llu us -> %d\n", static_cast<unsigned long long>(log.changes[i].first),
+            std::printf("  renode PA1 %llu us -> %d\n", static_cast<unsigned long long>(log.changes[i].first / 1000),
                 log.changes[i].second ? 1 : 0);
         }
     }

@@ -286,10 +286,10 @@ RunController::LaneData RunController::lane_data(const LogicLane& lane, double f
     LaneData data;
     if (lane.channel < 0) {
         const auto log = session_->mcu_pin_log(
-            lane.board, lane.pin, static_cast<std::uint64_t>(std::llround(std::max(0.0, from) * 1e6)));
+            lane.board, lane.pin, static_cast<std::uint64_t>(std::llround(std::max(0.0, from) * 1e9)));
         data.initial = log.initial;
         for (const auto& [t, level] : log.changes) {
-            data.changes.emplace_back(static_cast<double>(t) * 1e-6, level);
+            data.changes.emplace_back(static_cast<double>(t) * 1e-9, level);
         }
         return data;
     }

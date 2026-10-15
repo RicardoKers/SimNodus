@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-15, emulator track, SN-171)
+
+- The session talks to microcontrollers through an engine-independent interface (`McuBackend`, times in nanoseconds); the Renode runner implements it as `RenodeMcuRunner`. No change in behavior; the logic lanes and the UART time stamps read nanoseconds.
+
+### Added (2026-10-15, emulator track E-07)
+
+- Exception-model scenarios (`tests/experiments/emu-exceptions`): preemption, priority grouping, BASEPRI, pending order, PSP, invalid EXC_RETURN, stack alignment, FAULTMASK with NMI, WFI under PRIMASK, SVC escalation; logs worked out from the ARMv7-M manual and checked in `emu-unit`. Renode deviates in three of them (documented in the scenarios' README).
+- CI prints the emulator's speed on Linux and Windows (step "Emulator speed"); `tests/experiments/emu-benchmark/bench.elf` is committed for it.
+
 ### Fixed (2026-10-15, found by experiment E-07)
 
 - GPIO: a BSRR write that resets some pins and sets others now changes them in one step, as on the chip. The pins used to go low and high again at the same instant (zero-width glitches in the Logic tab, for example on PA0-PA3 of example 07).

@@ -131,7 +131,7 @@ PinDrive pin_drive(const PinState& state, const PinModel& model)
     return {};
 }
 
-McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
+RenodeMcuRunner::RenodeMcuRunner(McuRunOptions options) : options_(std::move(options))
 {
     history_.resize(options_.pins.size());
     inputs_.resize(options_.pins.size());
@@ -154,12 +154,12 @@ McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
     }
 }
 
-McuRunner::~McuRunner()
+RenodeMcuRunner::~RenodeMcuRunner()
 {
     stop();
 }
 
-void McuRunner::start()
+void RenodeMcuRunner::start()
 {
     {
         std::lock_guard lock(mutex_);
@@ -167,10 +167,10 @@ void McuRunner::start()
         status_.state = McuState::Starting;
     }
     stop_ = false;
-    worker_ = std::thread(&McuRunner::work, this);
+    worker_ = std::thread(&RenodeMcuRunner::work, this);
 }
 
-bool McuRunner::wait_ready(const std::atomic<bool>& cancel)
+bool RenodeMcuRunner::wait_ready(const std::atomic<bool>& cancel)
 {
     std::unique_lock lock(mutex_);
     while (status_.state == McuState::Starting && !cancel) {
@@ -179,26 +179,27 @@ bool McuRunner::wait_ready(const std::atomic<bool>& cancel)
     return status_.state == McuState::Running;
 }
 
-void McuRunner::set_limit_us(std::uint64_t limit)
+void RenodeMcuRunner::set_limit_ns(std::uint64_t limit)
 {
     {
         std::lock_guard lock(mutex_);
-        limit_us_ = std::max(limit_us_, limit);
+        limit_us_ = std::max(limit_us_, limit / 1000);
     }
     changed_.notify_all();
 }
 
-bool McuRunner::wait_time_us(std::uint64_t time_us, const std::atomic<bool>& cancel)
+bool RenodeMcuRunner::wait_time_ns(std::uint64_t time_ns, const std::atomic<bool>& cancel)
 {
     std::unique_lock lock(mutex_);
-    while (status_.time_us < time_us && status_.state == McuState::Running && !cancel) {
+    while (status_.time_ns < time_ns && status_.state == McuState::Running && !cancel) {
         changed_.wait_for(lock, std::chrono::milliseconds(5));
     }
-    return status_.time_us >= time_us;
+    return status_.time_ns >= time_ns;
 }
 
-void McuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_us)
+void RenodeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_ns)
 {
+    const std::uint64_t time_us = time_ns / 1000;
     std::lock_guard lock(mutex_);
     if (pin < inputs_.size() && inputs_[pin].desired != level) {
         inputs_[pin].desired = level;
@@ -207,7 +208,7 @@ void McuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_us)
     }
 }
 
-void McuRunner::uart_send(const std::string& uart, const std::string& bytes)
+void RenodeMcuRunner::uart_send(const std::string& uart, const std::string& bytes)
 {
     std::lock_guard lock(mutex_);
     if (const auto it = uarts_.find(uart); it != uarts_.end()) {
@@ -215,7 +216,7 @@ void McuRunner::uart_send(const std::string& uart, const std::string& bytes)
     }
 }
 
-std::uint64_t McuRunner::uart_received(
+std::uint64_t RenodeMcuRunner::uart_received(
     const std::string& uart, std::uint64_t from, std::string& bytes, std::vector<std::uint64_t>* times) const
 {
     std::lock_guard lock(mutex_);
@@ -234,19 +235,21 @@ std::uint64_t McuRunner::uart_received(
         const auto offset = static_cast<std::size_t>(start - first);
         bytes = log.bytes.substr(offset);
         if (times) {
-            times->assign(log.times.begin() + static_cast<std::ptrdiff_t>(offset), log.times.end());
+            for (auto t = log.times.begin() + static_cast<std::ptrdiff_t>(offset); t != log.times.end(); ++t) {
+                times->push_back(*t * 1000);
+            }
         }
     }
     return log.total;
 }
 
-void McuRunner::request_reset()
+void RenodeMcuRunner::request_reset()
 {
     reset_ = true;
     changed_.notify_all();
 }
 
-void McuRunner::stop()
+void RenodeMcuRunner::stop()
 {
     stop_ = true;
     changed_.notify_all();
@@ -259,13 +262,13 @@ void McuRunner::stop()
     }
 }
 
-McuStatus McuRunner::status() const
+McuStatus RenodeMcuRunner::status() const
 {
     std::lock_guard lock(mutex_);
     return status_;
 }
 
-std::map<std::string, PinState> McuRunner::pins() const
+std::map<std::string, PinState> RenodeMcuRunner::pins() const
 {
     std::lock_guard lock(mutex_);
     std::map<std::string, PinState> result;
@@ -275,8 +278,9 @@ std::map<std::string, PinState> McuRunner::pins() const
     return result;
 }
 
-std::vector<PinDrive> McuRunner::drives_at(std::uint64_t time_us)
+std::vector<PinDrive> RenodeMcuRunner::drives_at(std::uint64_t time_ns)
 {
+    const std::uint64_t time_us = time_ns / 1000;
     std::lock_guard lock(mutex_);
     std::vector<PinDrive> drives(options_.pins.size());
     for (std::size_t i = 0; i < history_.size(); ++i) {
@@ -297,8 +301,9 @@ std::vector<PinDrive> McuRunner::drives_at(std::uint64_t time_us)
     return drives;
 }
 
-PinLog McuRunner::pin_log(std::size_t pin, std::uint64_t from_us) const
+PinLog RenodeMcuRunner::pin_log(std::size_t pin, std::uint64_t from_ns) const
 {
+    const std::uint64_t from_us = from_ns / 1000;
     std::lock_guard lock(mutex_);
     PinLog result;
     if (pin >= levels_.size()) {
@@ -308,11 +313,13 @@ PinLog McuRunner::pin_log(std::size_t pin, std::uint64_t from_us) const
     auto it = std::upper_bound(log.begin(), log.end(), from_us,
         [](std::uint64_t t, const auto& entry) { return t < entry.first; });
     result.initial = it == log.begin() ? log.front().second : std::prev(it)->second;
-    result.changes.assign(it, log.end());
+    for (; it != log.end(); ++it) {
+        result.changes.emplace_back(it->first * 1000, it->second);
+    }
     return result;
 }
 
-void McuRunner::fail(const std::string& message)
+void RenodeMcuRunner::fail(const std::string& message)
 {
     {
         std::lock_guard lock(mutex_);
@@ -322,7 +329,7 @@ void McuRunner::fail(const std::string& message)
     changed_.notify_all();
 }
 
-bool McuRunner::read_configs(RenodeEngine& engine, std::vector<PinState>& configs)
+bool RenodeMcuRunner::read_configs(RenodeEngine& engine, std::vector<PinState>& configs)
 {
     std::map<std::uint64_t, std::uint32_t> registers;
     auto reg = [&](std::uint64_t address) -> std::optional<std::uint32_t> {
@@ -362,7 +369,7 @@ bool McuRunner::read_configs(RenodeEngine& engine, std::vector<PinState>& config
     return true;
 }
 
-void McuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>& configs)
+void RenodeMcuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>& configs)
 {
     for (std::size_t i = 0; i < configs.size() && i < history_.size(); ++i) {
         auto& history = history_[i];
@@ -391,7 +398,7 @@ void McuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>
     }
 }
 
-void McuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool level)
+void RenodeMcuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool level)
 {
     auto& history = history_[pin];
     PinState state = history.back().second;
@@ -407,7 +414,7 @@ void McuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool level)
     }
 }
 
-void McuRunner::work()
+void RenodeMcuRunner::work()
 {
     // The engine lives in this thread: on Linux, Renode dies with the thread that started it.
     std::string error;
@@ -505,7 +512,7 @@ void McuRunner::work()
             }
             inputs_[i].applied = level;
             if (now > since) {
-                status_.max_input_delay_us = std::max(status_.max_input_delay_us, now - since);
+                status_.max_input_delay_ns = std::max(status_.max_input_delay_ns, (now - since) * 1000);
             }
             record_level(i, now, level);
         }
@@ -630,7 +637,7 @@ void McuRunner::work()
             if (configs_ok) {
                 apply_configs(config_from, configs);
             }
-            status_.time_us = complete;
+            status_.time_ns = complete * 1000;
         }
         changed_.notify_all();
     }
