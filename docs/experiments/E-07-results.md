@@ -1,7 +1,7 @@
 # E-07: SimNodus STM32 emulator prototype
 
-Date: 2026-10-15 (in progress; gate reviews G0a on 2026-10-24 and G0b on
-2026-10-30). Task: SN-170. Result: in progress.
+Date: 2026-10-15. Task: SN-170. Result: **passed** (decision D0 taken by the
+owner on 2026-10-15, ahead of the planned gate reviews of 10-24 and 10-30).
 
 ## Question and predeclared acceptance criteria
 
@@ -25,7 +25,7 @@ tests).
 |---|---|---|---|
 | G0a.1 | Instruction tests from the ARMv7-M pseudocode | met on 2026-10-15 | `emu-unit`: flags, shifts by 0/32, multiply/divide, saturation, bitfields, every addressing mode, IT blocks, branches, special registers, exclusive monitor, SVC entry, faults, lockup, SysTick; plus ten exception-model scenarios (`tests/experiments/emu-exceptions`: preemption, PRIGROUP, BASEPRI, pending order, PSP, INVPC, STKALIGN, FAULTMASK with NMI, WFI under PRIMASK, SVC escalation) with logs worked out from B1.5. Renode agrees on seven; in three it deviates from the manual (no INVPC fault, a pending IRQ lost under FAULTMASK, SVC under PRIMASK neither taken nor escalated) |
 | G0a.2 | Random differential with decoder coverage, zero unexplained differences | met on 2026-10-15 | 20 480 blocks of 16 instructions (seeds 1-40, 512 blocks each), 0 differing words; every random-tested decoder entry executed at least 1 000 times; WFI, SVC, BKPT, UDF and undefined encodings are covered by directed cases only. After the inline fast path, 4 096 blocks again with 0 differences. No third reference was needed. Injected ADC bug detected (sanity check) |
-| G0a.3 | ≥ 150 MIPS busy loop, ≥ 100 MIPS benchmark mix, Windows and Linux | Windows met; Linux to measure | 168-185 MIPS (HAL example busy loop), 119-141 MIPS (`tests/experiments/emu-benchmark`), idle machine |
+| G0a.3 | ≥ 150 MIPS busy loop, ≥ 100 MIPS benchmark mix, Windows and Linux | met on Windows; Linux on CI only | Owner's laptop, Windows (MSVC): 168-185 MIPS (HAL example busy loop), 119-141 MIPS (`tests/experiments/emu-benchmark`). GitHub CI runners (slower, shared): Linux (GCC) 125 and 98 MIPS, Windows (MSVC) 111 and 87 MIPS, so the GCC build is about 13 % faster on the same hardware; 72 MHz firmware runs at 1.2-1.7x real time on every machine measured |
 | G0a.4 | Decoding never crashes the host | met on 2026-10-15 | `emu-unit`: all 65 536 16-bit patterns and 1 000 000 random 32-bit patterns decode to a valid operation of the right size; 200 random 1 KiB code images run 5 000 cycles each (faults, lockups, wild branches) without a host crash or hang |
 | G0b.1 | Example firmware event sequences equal to Renode | met on 2026-10-15 | `emu-firmware` (`tests/unit/emu_firmware_compare.cpp`): blink, button_irq, uart_echo, lesson1_gpio, lesson2_button, hal_clock and freertos_tasks with scripted inputs give equal pin-transition and UART sequences; largest time difference 4-258 µs. Deviations, each with a third reference: Renode's SysTick period is RVR instead of RVR + 1 cycles (ADR 0083; ARMv7-M B3.3), so it drifts 1/(RVR + 1) (258 µs after 2 s of blink); the emulator's blink period is exactly 500.000 ms. The emulator's instruction-count timing is checked directly: 72 000 loop instructions take 1000.25 µs at 72 MHz including the GPIO calls |
 | G0b.2 | Owner's CubeIDE project period within 0.1 % | **met on 2026-10-15** | Owner's STM32CubeMX/CubeIDE project with `HAL_Delay(200)` (72 MHz, HSE + PLL): PC13 toggles every 200.999958-201.000167 ms; HAL_Delay waits one extra tick, so 201 ms is the expected period on the chip; error below 0.0001 %. 122 MIPS, 1.70x real time |
@@ -58,4 +58,9 @@ cycle model comes later (plan N5).
 
 ## Decision and next step
 
-Pending gates G0a and G0b (decision D0).
+**D0 (owner, 2026-10-15): continue with the own emulator.** ADR 0089 is accepted.
+Every G0a and G0b criterion is met, with one recorded limit: G0a.3 asks for the
+speed on the owner's laptop under Windows and Linux; the owner has no Linux
+system, so Linux was measured on the CI runner, which is slower than the laptop
+(see the table). Next: plan N1 (SN-171..SN-174), gate G1 and decision D1 on
+2026-11-13.
