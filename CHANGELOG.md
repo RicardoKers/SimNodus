@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-15, owner question)
+
+- A USART TX pin (PA9, PA2, PB10) in alternate-function mode now rests at 3.3 V while the USART and its transmitter are enabled, as on the board; before it read 0 V. The bits themselves are still not drawn on the pin (Renode moves whole bytes). Renode test `a USART TX pin rests high while the transmitter is enabled`.
+
 ### Added (2026-10-15, phase 2: SN-137)
 
 - Clock model for the Blue Pill ([ADR 0088](docs/decisions/0088-clock-model.md)): RCC ready flags (HSE, PLL, LSE, LSI) come on when enabled, SWS follows SW, and the CPU speed and SysTick follow HCLK, so the `SystemClock_Config()` that STM32CubeIDE generates runs and HAL projects work at 72 MHz. The Cortex-M3 bit-band aliases are mapped (the F1 HAL uses them), and `FLASH_ACR`/`PWR` keep what is written. RESET returns to 8 MHz.

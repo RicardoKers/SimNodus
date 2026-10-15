@@ -99,6 +99,10 @@ struct McuRunOptions {
     MachineOptions machine;
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
     std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
+    // TX pin of each UART ("usart1" -> "PA9"). Renode moves bytes without
+    // driving the pin, so a watched TX pin in alternate-function mode is held
+    // high (the line at rest) while the USART and its transmitter are enabled.
+    std::map<std::string, std::string> uart_tx_pins;
     PinModel pin_model;
     // Longest single run_for (the coupling quantum). The runner may run one chunk
     // past the limit and reports a chunk as complete one chunk later.
@@ -170,6 +174,7 @@ private:
     std::uint64_t limit_us_ = 0;
     McuStatus status_;
     std::vector<History> history_;                 // per watched pin
+    std::vector<std::uint64_t> tx_usart_;          // per watched pin: USART base if it is a TX pin, else 0
     struct Input {
         bool desired = false;
         bool applied = false;

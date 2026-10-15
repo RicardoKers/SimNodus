@@ -480,6 +480,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         machine.extensions = d->mcu->extensions;
         for (const auto& uart : d->mcu->uarts) {
             request.options.uarts.push_back(uart.name);
+            if (!uart.tx_pin.empty()) {
+                request.options.uart_tx_pins[uart.name] = uart.tx_pin;
+            }
         }
         machine.firmware = path;
         machine.before_firmware = d->mcu->before_firmware;

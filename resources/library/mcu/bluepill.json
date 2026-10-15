@@ -1113,14 +1113,17 @@
     "uarts": [
       {
         "name": "usart1",
+        "tx_pin": "PA9",
         "label": "USART1 (PA9 TX, PA10 RX)"
       },
       {
         "name": "usart2",
+        "tx_pin": "PA2",
         "label": "USART2 (PA2 TX, PA3 RX)"
       },
       {
         "name": "usart3",
+        "tx_pin": "PB10",
         "label": "USART3 (PB10 TX, PB11 RX)"
       }
     ]

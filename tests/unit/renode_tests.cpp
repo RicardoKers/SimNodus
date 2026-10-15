@@ -404,6 +404,39 @@ TEST_CASE("a runner whose firmware is missing reports the failure")
     CHECK(runner.status().message.find("firmware") != std::string::npos);
 }
 
+TEST_CASE("a USART TX pin rests high while the transmitter is enabled")
+{
+    McuRunOptions run;
+    run.machine = options();
+    run.machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "uart_echo" / "uart_echo.elf";
+    run.machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
+    run.pins = {"PA9", "PA10"};
+    run.uarts = {"usart1"};
+    run.uart_tx_pins = {{"usart1", "PA9"}};
+    McuRunner runner(run);
+    runner.start();
+    std::atomic<bool> cancel{false};
+    REQUIRE(runner.wait_ready(cancel));
+    runner.set_limit_us(50000);
+    REQUIRE(wait_for_time(runner, 50000));
+    auto pins = runner.pins();
+    CHECK(pins["PA9"].mode == PinMode::Alternate);
+    CHECK(pins["PA9"].level);
+    const auto drive = pin_drive(pins["PA9"], run.pin_model);
+    CHECK(std::abs(drive.current / drive.conductance - 3.3) < 1e-9); // 3.3 V behind 40 ohm
+    CHECK(pins["PA10"].mode == PinMode::Input);
+    const auto log = runner.pin_log(0, 0);
+    std::printf("  PA9 initial %d\n", log.initial ? 1 : 0);
+    for (const auto& [t, level] : log.changes) {
+        std::printf("  PA9 log: %llu us -> %d\n", static_cast<unsigned long long>(t), level ? 1 : 0);
+    }
+    // Configurations hold from the previous read, so the line rests high from the
+    // first read on (the firmware sets the USART up in its first microseconds).
+    CHECK(log.initial);
+    CHECK(log.changes.empty());
+    runner.stop();
+}
+
 TEST_CASE("a falling edge on PA1 runs the EXTI1 handler of the button firmware")
 {
     MachineOptions machine = options();

@@ -29,6 +29,23 @@ std::optional<std::uint64_t> port_base(const std::string& port)
     return std::nullopt;
 }
 
+std::uint64_t usart_base(const std::string& uart)
+{
+    if (uart == "usart1") {
+        return 0x40013800;
+    }
+    if (uart == "usart2") {
+        return 0x40004400;
+    }
+    if (uart == "usart3") {
+        return 0x40004800;
+    }
+    return 0;
+}
+
+constexpr std::uint32_t usart_cr1_ue = 1u << 13; // USART enable
+constexpr std::uint32_t usart_cr1_te = 1u << 3;  // transmitter enable
+
 std::string key(const std::string& port, int number)
 {
     return port + ':' + std::to_string(number);
@@ -119,6 +136,13 @@ McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
     history_.resize(options_.pins.size());
     inputs_.resize(options_.pins.size());
     levels_.assign(options_.pins.size(), {{0, false}});
+    tx_usart_.assign(options_.pins.size(), 0);
+    for (const auto& [uart, tx] : options_.uart_tx_pins) {
+        const auto it = std::find(options_.pins.begin(), options_.pins.end(), tx);
+        if (it != options_.pins.end()) {
+            tx_usart_[static_cast<std::size_t>(it - options_.pins.begin())] = usart_base(uart);
+        }
+    }
     for (const auto& uart : options_.uarts) {
         uarts_[uart] = {};
     }
@@ -325,6 +349,15 @@ bool McuRunner::read_configs(RenodeEngine& engine, std::vector<PinState>& config
         }
         const std::uint32_t nibble = (*cr >> (4 * (pin->number % 8))) & 0xFu;
         configs[i] = decode_pin_config(nibble, ((*odr >> pin->number) & 1u) != 0);
+        if (tx_usart_[i] != 0 && configs[i].mode == PinMode::Alternate) {
+            // The level of a TX pin is the USART's: high at rest (bits are not simulated).
+            const auto cr1 = reg(tx_usart_[i] + 0x0C);
+            if (!cr1) {
+                return false;
+            }
+            const std::uint32_t on = usart_cr1_ue | usart_cr1_te;
+            configs[i].level = (*cr1 & on) == on;
+        }
     }
     return true;
 }
@@ -334,6 +367,9 @@ void McuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>
     for (std::size_t i = 0; i < configs.size() && i < history_.size(); ++i) {
         auto& history = history_[i];
         if (history.back().second.same_config(configs[i])) {
+            if (tx_usart_[i] != 0 && configs[i].mode == PinMode::Alternate) {
+                record_level(i, time_us, configs[i].level);
+            }
             continue;
         }
         // The new configuration holds from `time_us`, also for levels recorded after it.
@@ -348,6 +384,9 @@ void McuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>
             at->second.mode = state.mode;
             at->second.open_drain = state.open_drain;
             at->second.pull = state.pull;
+        }
+        if (tx_usart_[i] != 0 && configs[i].mode == PinMode::Alternate) {
+            record_level(i, time_us, configs[i].level);
         }
     }
 }
