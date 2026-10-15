@@ -439,14 +439,18 @@ TEST_CASE("the STM32F103 runs the STM32CubeIDE HAL example at 72 MHz")
     std::uint64_t rise = 0;
     std::vector<std::uint64_t> pulses;
     std::vector<std::uint64_t> led;
-    for (const auto& e : m.take_pin_events()) {
-        if (e.port == 0 && e.pin == 1) {
+    bool pa1 = false;
+    bool pc13 = false;
+    for (const auto& e : m.take_pin_events()) { // level transitions only (events also report configuration)
+        if (e.port == 0 && e.pin == 1 && e.level != pa1) {
+            pa1 = e.level;
             if (e.level) {
                 rise = e.time_ns;
             } else if (rise) {
                 pulses.push_back(e.time_ns - rise);
             }
-        } else if (e.port == 2 && e.pin == 13) {
+        } else if (e.port == 2 && e.pin == 13 && e.level != pc13) {
+            pc13 = e.level;
             led.push_back(e.time_ns);
         }
     }

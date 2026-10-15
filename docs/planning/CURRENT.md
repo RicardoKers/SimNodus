@@ -60,21 +60,16 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   firmware runs: blink with exact 500.000 ms periods, the HAL example at
   72 MHz (UART report, 1000.25 µs pulse), EXTI button, UART echo, lessons
   1-2. `emu-unit`: 15 cases with pseudocode vectors (PR #122).
-  **Toward G0a (measured 2026-10-15, Windows):** differential test against
-  Renode (`tests/experiments/emu-differential`): 20 480 random blocks of 16
-  instructions, zero differing words; every random-tested decoder entry hit
-  at least 1 000 times (WFI, SVC, BKPT, UDF and undefined encodings are
-  covered by directed cases only). Speed after inline execution of the
-  frequent forms: 168-185 MIPS on the HAL busy loop, 119-141 MIPS on the
-  benchmark mix (`tests/experiments/emu-benchmark`). Gate status per
-  criterion: [E-07-results.md](../experiments/E-07-results.md). G0b.1-G0b.5
-  and G0b.7 met (every example firmware and a FreeRTOS demo equal to Renode;
-  the owner's CubeIDE project with `HAL_Delay(200)` toggles every 201.000 ms).
-  The comparison found a BSRR glitch in our Renode GPIO model (fixed) and a
-  Renode SysTick start-up deviation (FreeRTOS ticks start 2.1 s late at
-  8 MHz; documented). Still open: Linux speed (G0a.3), differential test
-  confirmed on Linux CI (G0b.6). Gate reviews with the owner: G0a 10-24,
-  G0b 10-30.
+  **E-07 passed; D0 taken on 2026-10-15 (owner): ADR 0089 accepted.** Every
+  G0a/G0b criterion met ([E-07-results.md](../experiments/E-07-results.md));
+  Linux speed measured on CI only (owner has no Linux machine).
+  **N1 in progress:** `McuBackend` interface in ns (SN-171, PR #125);
+  `NativeMcuRunner` with engine choice per board profile and the Simulate menu
+  option "Use the SimNodus Emulator for Microcontrollers (Experimental)"
+  (SN-172); session and GUI MCU tests also run on the emulator (SN-173).
+  Next: native-only tight timing assertions, deterministic window coupling and
+  measured lead `L` (SN-173), packaging and owner test build (SN-174), gate G1
+  and decision D1 on 11-13.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 

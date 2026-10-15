@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, emulator track N1: SN-172, SN-173)
+
+- **Simulate > Use the SimNodus Emulator for Microcontrollers (Experimental):** boards run their firmware in SimNodus's own STM32F103 emulator instead of Renode (`NativeMcuRunner`). The board starts at once; pin changes, inputs from the circuit and UART bytes carry nanosecond times; faults and unsimulated peripherals appear in the Messages panel with the board's name. Board profiles may set `"engine": "native"`; the environment variable `SIMNODUS_MCU_ENGINE` overrides both (for tests).
+- The session's microcontroller tests and the GUI editor tests also run on the emulator (`engine-native`, `gui-editor-native`): 7 s instead of 50 s, and 7 s instead of 41 s.
+- The emulator reports pin configuration changes as events, so the pin history needs no register polling.
+
+### Decided (2026-10-15)
+
+- Decision D0: SimNodus continues with its own STM32 emulator; [ADR 0089](docs/decisions/0089-own-stm32-emulator.md) accepted after experiment E-07 met its gates ([report](docs/experiments/E-07-results.md)).
+
 ### Changed (2026-10-15, emulator track, SN-171)
 
 - The session talks to microcontrollers through an engine-independent interface (`McuBackend`, times in nanoseconds); the Renode runner implements it as `RenodeMcuRunner`. No change in behavior; the logic lanes and the UART time stamps read nanoseconds.

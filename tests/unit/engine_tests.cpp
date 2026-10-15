@@ -126,12 +126,16 @@ simnodus::sim::NgspiceSession* simnodus::test::engine()
     return session;
 }
 
+// Microcontroller engine for the session MCU cases ("" = the board's default).
+std::string test_mcu_engine;
+
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        std::printf("usage: engine_tests <ngspice-library> <scripts-dir> [filter]\n");
+        std::printf("usage: engine_tests <ngspice-library> <scripts-dir> [filter] [renode|native]\n");
         return 2;
     }
+    test_mcu_engine = argc > 4 ? argv[4] : "";
     location = {argv[1], argv[2]};
     simnodus::sim::EngineHost::instance().set_location(location);
     return simnodus::test::run_all(argc > 3 ? argv[3] : "");

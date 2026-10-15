@@ -113,7 +113,12 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
     for (const auto& m : request_.mcus) {
-        std::unique_ptr<mcu::McuBackend> runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
+        std::unique_ptr<mcu::McuBackend> runner;
+        if (m.engine == "native") {
+            runner = std::make_unique<mcu::NativeMcuRunner>(m.options);
+        } else {
+            runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
+        }
         // Circuit-to-firmware direction (MCU-04): every GPIO pin's voltage to the board ground.
         const auto ground = netlist_.pin_node.find({m.component, m.ground_pin});
         const auto& names = runner->pin_names();
@@ -467,15 +472,16 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             error = c.designator + ": the firmware file " + std::string(text.begin(), text.end()) + " does not exist.";
             return false;
         }
-        if (!environment.renode || !environment.resources) {
+        McuRequest request;
+        request.component = c.id;
+        request.engine = environment.engine.empty() ? d->mcu->engine : environment.engine;
+        if (request.engine == "renode" && (!environment.renode || !environment.resources)) {
             error = "The microcontroller engine (Renode) was not found next to the application.";
             return false;
         }
-        McuRequest request;
-        request.component = c.id;
         auto& machine = request.options.machine;
-        machine.renode = *environment.renode;
-        machine.resources = *environment.resources;
+        machine.renode = environment.renode.value_or(std::filesystem::path());
+        machine.resources = environment.resources.value_or(std::filesystem::path());
         machine.platform = d->mcu->platform;
         machine.extensions = d->mcu->extensions;
         for (const auto& uart : d->mcu->uarts) {
@@ -572,6 +578,17 @@ std::optional<mcu::McuStatus> SimulationSession::mcu_status(model::Id component)
 {
     const auto it = mcus_.find(component);
     return it == mcus_.end() ? std::nullopt : std::optional<mcu::McuStatus>(it->second->status());
+}
+
+std::vector<std::pair<model::Id, std::string>> SimulationSession::take_mcu_diagnostics()
+{
+    std::vector<std::pair<model::Id, std::string>> result;
+    for (auto& [id, runner] : mcus_) {
+        for (auto& text : runner->take_diagnostics()) {
+            result.emplace_back(id, std::move(text));
+        }
+    }
+    return result;
 }
 
 std::map<std::string, mcu::PinState> SimulationSession::mcu_pins(model::Id component) const
