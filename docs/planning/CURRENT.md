@@ -43,6 +43,15 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   mapped; `FLASH_ACR`/`PWR` stores. STM32CubeIDE HAL projects run at 72 MHz.
   Example 12 (`hal_clock`) is built from the STM32CubeF1 1.8.7 HAL in
   `~/STM32Cube/Repository` (`cube.json`, `stm32f103c8_cube.ld`).
+- USART TX pins rest at 3.3 V while the transmitter is on (PR #120, owner
+  question); the bits themselves need the own emulator.
+- **Emulator track (decided by the owner on 2026-10-15):** SimNodus's own
+  STM32 emulator, F103 first, F407 later. Design
+  [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md), plan with milestones
+  N0–N8, gates and decisions D0–D5 in
+  [MCU_EMULATOR_PLAN.md](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md)
+  proposed, tasks SN-170..SN-187. Now: N0 / experiment E-07 (SN-170, doing),
+  gates G0a 10-24 and G0b 10-30. Releases keep shipping on Renode until G1.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -142,16 +151,18 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Owner's hands-on test of the remaining phase 2 features (lessons 1–2,
+1. **E-07 (SN-170):** start N0 package 0.1 (`src/emu`, CLI, ELF loader),
+   then the core packages in plan order; work packages land as PRs that name
+   the gate criteria they advance. Record the gate review G0a on 10-24.
+2. Owner's hands-on test of the remaining phase 2 features (lessons 1–2,
    terminal, logic lanes, probe dragging, icon; a CubeMX/CubeIDE HAL
-   project already passed); release 0.2 by 2026-11-13 (ask before cutting it). Fix whatever
-   classroom use of 0.1.0 brings up.
-2. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
-   lesson 3) can start early; timers and ADC need the APB prescalers that
-   the RCC model already computes the inputs for.
-3. If 72 MHz firmware feels slow in class (0.84x measured), consider a
+   project already passed); release 0.2 on Renode by 2026-11-13 (ask before
+   cutting it). Fix whatever classroom use of 0.1.0 brings up.
+3. Phase 3 (ADC, PWM, lesson 3) waits for decision D2 on 11-13 (emulator or
+   Renode); component set B (SN-142) can start any time.
+4. If 72 MHz firmware feels slow in class (0.84x measured), consider a
    larger default quantum for MCU runs or `__WFI()` in idle loops.
-4. Carry semiconductor junction charge across segments only if the owner
+5. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's

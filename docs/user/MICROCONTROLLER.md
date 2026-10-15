@@ -55,7 +55,7 @@ where it differs from a real board (MCU-09). Release 0.2.
   pin does not carry the serial waveform. The TX pin (PA9, PA2, PB10) rests
   high (3.3 V) while the USART and its transmitter are enabled, as on the
   board; the scope shows that level, not the bits. Real waveforms are planned
-  with SimNodus's own STM32 emulator (E-06).
+  with SimNodus's own STM32 emulator (E-07).
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source

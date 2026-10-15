@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Planned (2026-10-15, owner decision)
+
+- Own STM32 emulator track: design [MCU_EMULATOR.md](docs/architecture/MCU_EMULATOR.md), plan with gates and decision points [MCU_EMULATOR_PLAN.md](docs/planning/MCU_EMULATOR_PLAN.md), [ADR 0089](docs/decisions/0089-own-stm32-emulator.md) (proposed), experiment E-07 with predeclared criteria, backlog SN-170..SN-187, requirements MCU-10 (serial frames on pins) and MCU-11 (own emulator), risks R-110..R-117. The plan was reviewed by an independent agent review before publication; its findings are folded in (revision 2).
+
 ### Fixed (2026-10-15, owner question)
 
 - A USART TX pin (PA9, PA2, PB10) in alternate-function mode now rests at 3.3 V while the USART and its transmitter are enabled, as on the board; before it read 0 V. The bits themselves are still not drawn on the pin (Renode moves whole bytes). Renode test `a USART TX pin rests high while the transmitter is enabled`.

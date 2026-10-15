@@ -86,6 +86,25 @@ Record effective stop times in each domain. Test a breakpoint inside an advancem
 
 **Pass:** Consistent committed state on every supported action; unsupported commands are rejected or diagnosed. Produce the actual tested CubeIDE launch recipe and versions.
 
+## E-07: Own STM32F103 emulator prototype — SN-170
+
+Question: can an in-process emulator written for SimNodus run the existing
+STM32F103 firmware as correctly as Renode, fast enough for 72 MHz in real time
+and with a near-instant start? Design in [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md),
+decision in [ADR 0089](../decisions/0089-own-stm32-emulator.md) (proposed).
+
+**Predeclared criteria (gates G0a on 10-24 and G0b on 10-30, recorded
+2026-10-15 before any emulator code):** the tables "Gate G0a" and "Gate G0b"
+in [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md): instruction tests
+from the ARMv7-M pseudocode, random differential blocks with every decoder entry
+hit at least 1 000 times and zero unexplained differences (a Renode deviation
+needs a third reference), at least 150 MIPS on a busy loop and 100 MIPS on the
+benchmark mix on Windows and Linux, identical GPIO/UART event sequences for
+every example and test firmware, the owner's CubeIDE project within 0.1 % of
+its period, a FreeRTOS demo, fault and reset behavior, ELF load under 50 ms
+and identical traces on repeated runs. The analog edge spike E-07b (SN-186)
+records speed and edge error per technique. Report: `E-07-results.md`.
+
 ## E-06: Classroom rehearsal — SN-028
 
 On a representative Windows PC, reproduce installation without development-machine paths. Open each lesson, build/load firmware, run and debug, save/reopen, and recover from an intentional error. Test offline operation when required. Record setup duration, memory, responsiveness, missing assets, and instructor observations.

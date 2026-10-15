@@ -2,7 +2,8 @@
 
 **Rebuild (2026-10-14):** the application now follows
 [PRODUCT_ARCHITECTURE](PRODUCT_ARCHITECTURE.md) and the
-[desktop UI design](DESKTOP_UX.md). The material below is the initial
+[desktop UI design](DESKTOP_UX.md). The own STM32 emulator (proposed) is
+designed in [MCU_EMULATOR](MCU_EMULATOR.md). The material below is the initial
 architecture of the first development line; its backend contracts, time
 semantics and instrumentation principles remain the reference for engine work,
 while module names and the SN-0xx implementation status are historical.
