@@ -366,6 +366,19 @@ TEST_CASE("the runner follows its time limit, reports pin states and resets the 
     CHECK(pins["PB12"].mode == PinMode::Input);
     CHECK(!pins["PA0"].level && pins["PA3"].level == false); // count 2 at 500 ms: PA1 only
 
+    // Logic lane log of PC13 (pin index 0): high at reset, low at about 500 ms.
+    const auto log = runner.pin_log(0, 0);
+    for (const auto& [t, level] : log.changes) {
+        std::printf("  PC13 log: %llu us -> %d\n", static_cast<unsigned long long>(t), level ? 1 : 0);
+    }
+    CHECK(log.initial); // the reset handler drives PC13 high at time 0
+    REQUIRE(log.changes.size() == 1);
+    CHECK(!log.changes[0].second);
+    CHECK(log.changes[0].first > 499000 && log.changes[0].first < 501000);
+    const auto later = runner.pin_log(0, 550000);
+    CHECK(!later.initial);
+    CHECK(later.changes.empty());
+
     // After a reset at 600 ms the firmware starts over: PC13 high, low again at 1100 ms.
     // Without the reset it would be high from 1000 ms on.
     runner.request_reset();

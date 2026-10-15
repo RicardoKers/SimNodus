@@ -6,6 +6,7 @@
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
 #include "document.hpp"
+#include "logic_widget.hpp"
 #include "main_window.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
@@ -29,6 +30,7 @@
 #include <QFileInfo>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -509,6 +511,42 @@ private slots:
         terminal->input()->setText(QStringLiteral("0"));
         QTest::keyClick(terminal->input(), Qt::Key_Return);
         QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
+        window_->stop();
+#endif
+    }
+
+    void logic_lanes_show_the_pins_that_change()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
+        QSKIP("No ngspice or Renode configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/07_Blue_Pill_blink.snx"), errors, warnings));
+        window_->show_analyzer();
+        AnalyzerWindow* analyzer = window_->analyzer();
+        analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(0.5)); // 500 ms/div
+        window_->run();
+        // 32 pin lanes plus V(PA0); the blinking pins appear without being chosen.
+        QTRY_VERIFY_WITH_TIMEOUT(analyzer->lane_list()->count() == 33, 150000);
+        auto lane_index = [analyzer](const QString& title) {
+            const auto& lanes = analyzer->logic()->lanes();
+            for (std::size_t i = 0; i < lanes.size(); ++i) {
+                if (lanes[i].title == title) {
+                    return static_cast<int>(i);
+                }
+            }
+            return -1;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(lane_index(QStringLiteral("U1.PC13")) >= 0 && lane_index(QStringLiteral("U1.PA3")) >= 0,
+            15000);
+        QCOMPARE(analyzer->lane_list()->item(0)->text(), QStringLiteral("U1.PA0")); // natural pin order
+        QVERIFY(lane_index(QStringLiteral("U1.PB12")) < 0); // unused pins stay hidden
+        const int pc13 = lane_index(QStringLiteral("U1.PC13"));
+        QTRY_VERIFY_WITH_TIMEOUT(analyzer->logic()->visible_transitions(pc13).size() >= 2, 15000);
+        analyzer->logic()->set_selected(pc13);
+        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("U1.PC13")));
+        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));
         window_->stop();
 #endif
     }

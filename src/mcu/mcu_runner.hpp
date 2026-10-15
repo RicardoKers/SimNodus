@@ -77,6 +77,13 @@ struct PinDrive {
 };
 PinDrive pin_drive(const PinState& state, const PinModel& model);
 
+// Level changes of one pin for the logic lanes (AN-07): the level at `from`
+// and every change after it, in virtual microseconds.
+struct PinLog {
+    bool initial = false;
+    std::vector<std::pair<std::uint64_t, bool>> changes;
+};
+
 enum class McuState { Starting, Running, Failed, Stopped };
 
 struct McuStatus {
@@ -137,6 +144,9 @@ public:
     // Drive of each watched pin (in pin_names() order) at virtual time
     // `time_us`; history older than 100 ms before it is discarded.
     std::vector<PinDrive> drives_at(std::uint64_t time_us);
+    // Level changes of a watched pin from `from_us` (the newest 50 000 changes
+    // per pin are kept).
+    PinLog pin_log(std::size_t pin, std::uint64_t from_us) const;
 
 private:
     using History = std::vector<std::pair<std::uint64_t, PinState>>; // sorted by time
@@ -164,6 +174,7 @@ private:
         std::uint64_t since_us = 0;
     };
     std::vector<Input> inputs_; // per watched pin
+    std::vector<std::vector<std::pair<std::uint64_t, bool>>> levels_; // per pin: level changes, from time 0
     struct UartLog {
         std::string bytes;      // the newest bytes
         std::vector<std::uint64_t> times; // virtual time of each kept byte

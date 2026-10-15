@@ -74,6 +74,22 @@ public:
     }
     void uart_send(const UartPort& port, const std::string& bytes) { session_->mcu_uart_send(port.board, port.uart, bytes); }
 
+    // Logic analyzer lanes (AN-07): every GPIO pin of the boards, then a digital
+    // view of every voltage channel (above / below a threshold).
+    struct LogicLane {
+        model::Id board = model::no_id; // pin lanes
+        std::string pin;
+        int channel = -1;               // probe lanes: index in channels()
+        QString title;                  // "U1.PA0", "V(OUT)"
+        QColor color;
+    };
+    struct LaneData {
+        bool initial = false;                       // level at the start of the window
+        std::vector<std::pair<double, bool>> changes; // seconds, new level
+    };
+    std::vector<LogicLane> logic_lanes() const;
+    LaneData lane_data(const LogicLane& lane, double from, double threshold) const;
+
     // Analyzer data.
     const std::vector<Channel>& channels() const { return channels_; }
     std::vector<sim::Sample> samples(const Channel& channel, double from) const;

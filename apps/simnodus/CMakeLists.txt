@@ -33,6 +33,8 @@ add_library(simnodus_ui STATIC
     schematic_view.cpp
     schematic_view.hpp
     scope_widget.cpp
+    logic_widget.cpp
+    logic_widget.hpp
     uart_terminal.cpp
     uart_terminal.hpp
     scope_widget.hpp

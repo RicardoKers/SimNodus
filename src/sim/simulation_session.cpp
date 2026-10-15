@@ -561,6 +561,20 @@ std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const st
     return it->second->uart_received(uart, from, bytes, times);
 }
 
+mcu::PinLog SimulationSession::mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_us) const
+{
+    const auto it = mcus_.find(component);
+    if (it == mcus_.end()) {
+        return {};
+    }
+    const auto& names = it->second->pin_names();
+    const auto index = std::find(names.begin(), names.end(), pin);
+    if (index == names.end()) {
+        return {};
+    }
+    return it->second->pin_log(static_cast<std::size_t>(index - names.begin()), from_us);
+}
+
 void SimulationSession::mcu_reset(model::Id component)
 {
     if (const auto it = mcus_.find(component); it != mcus_.end() && active()) {

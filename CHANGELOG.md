@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, phase 2: SN-135)
+
+- Logic lanes in the Signal Analyzer (AN-07): every board GPIO pin and a digital view of every voltage channel (adjustable threshold); pins appear by themselves when they change; the lanes follow the scope's time window and cursors; edge times on hover and a transition list for the selected lane. The runner keeps the newest 50 000 level changes per pin.
+
 ### Added (2026-10-15, phase 2: SN-134)
 
 - UART terminal in the Signal Analyzer ([ADR 0086](docs/decisions/0086-uart-terminal.md)): choose a board's USART1–3, read what the firmware transmits, send text with a selectable line ending, optional time stamps per line. New `UART` command of the loopback control protocol (server and client); USART1–3 in the platform; the board's `uarts` list in the library.

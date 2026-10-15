@@ -118,6 +118,8 @@ public:
     std::optional<mcu::McuStatus> mcu_status(model::Id component) const;
     std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const;
     void mcu_reset(model::Id component);
+    // Level changes of a board pin for the logic lanes (empty for unknown pins).
+    mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_us) const;
     // Serial terminal of a board's UART (see McuRunner::uart_send / uart_received).
     void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes);
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,

@@ -118,6 +118,7 @@ McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
 {
     history_.resize(options_.pins.size());
     inputs_.resize(options_.pins.size());
+    levels_.assign(options_.pins.size(), {{0, false}});
     for (const auto& uart : options_.uarts) {
         uarts_[uart] = {};
     }
@@ -271,6 +272,21 @@ std::vector<PinDrive> McuRunner::drives_at(std::uint64_t time_us)
     return drives;
 }
 
+PinLog McuRunner::pin_log(std::size_t pin, std::uint64_t from_us) const
+{
+    std::lock_guard lock(mutex_);
+    PinLog result;
+    if (pin >= levels_.size()) {
+        return result;
+    }
+    const auto& log = levels_[pin];
+    auto it = std::upper_bound(log.begin(), log.end(), from_us,
+        [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+    result.initial = it == log.begin() ? log.front().second : std::prev(it)->second;
+    result.changes.assign(it, log.end());
+    return result;
+}
+
 void McuRunner::fail(const std::string& message)
 {
     {
@@ -344,6 +360,11 @@ void McuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool level)
     }
     state.level = level;
     history.push_back({std::max(time_us, history.back().first), state});
+    auto& log = levels_[pin];
+    log.emplace_back(history.back().first, level);
+    if (log.size() > 50000) {
+        log.erase(log.begin(), log.begin() + 5000);
+    }
 }
 
 void McuRunner::work()
