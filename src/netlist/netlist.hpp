@@ -47,6 +47,16 @@ struct ControlSource {
     library::Interactive::Kind kind = library::Interactive::Kind::Toggle;
 };
 
+// External voltage source set by the simulation, from a template's {ext:NAME}
+// (microcontroller pin drivers). Its value is read through the same ngspice
+// callback as the controls.
+struct ExternalSource {
+    Id component = model::no_id;
+    std::string name;   // NAME of the template
+    std::string source; // element name, e.g. "V_ext_U1_pa0_g"
+    std::string node;
+};
+
 struct NetlistOptions {
     bool interactive = true; // control sources use the ngspice "external" option
     double t0 = 0.0;         // segment start time for periodic sources
@@ -60,6 +70,7 @@ struct Netlist {
     std::vector<std::string> models; // unique .model lines
     std::vector<Element> elements;
     std::vector<ControlSource> controls;
+    std::vector<ExternalSource> externals;
     Connectivity connectivity;
     std::map<PinRef, std::string> pin_node;
     // Current probes: pin -> ngspice vector of the current into the pin.

@@ -3,7 +3,7 @@
   "name": "Blue Pill (STM32F103C8)",
   "category": "Microcontrollers",
   "prefix": "U",
-  "description": "STM32F103C8 board running your firmware (ELF) in Renode; on-board 3.3 V regulator, LED on PC13, reset button",
+  "description": "STM32F103C8 board running your firmware (ELF) in Renode; GPIO outputs drive the circuit (40 ohm, 3.3 V); on-board 3.3 V regulator, LED on PC13, reset button",
   "symbol": {
     "graphics": [
       {
@@ -1099,7 +1099,12 @@
       -12,
       4,
       2
-    ]
+    ],
+    "pin_model": {
+      "supply": 3.3,
+      "output_resistance": 40,
+      "pull_resistance": 40000
+    }
   },
   "spice": [
     "R_{ref}_g12 {node:G1} {node:G2} 1m",
@@ -1141,6 +1146,38 @@
     "R_{ref}_pa0 {node:PA0} {node:G1} 100Meg",
     "R_{ref}_pc15 {node:PC15} {node:G1} 100Meg",
     "R_{ref}_pc14 {node:PC14} {node:G1} 100Meg",
-    "R_{ref}_pc13 {node:PC13} {node:G1} 100Meg"
+    "R_{ref}_pc13 {node:PC13} {node:G1} 100Meg",
+    "B_{ref}_pb12 {node:G1} {node:PB12} I=V({ext:pb12_i})-V({ext:pb12_g})*(V({node:PB12})-V({node:G1}))",
+    "B_{ref}_pb13 {node:G1} {node:PB13} I=V({ext:pb13_i})-V({ext:pb13_g})*(V({node:PB13})-V({node:G1}))",
+    "B_{ref}_pb14 {node:G1} {node:PB14} I=V({ext:pb14_i})-V({ext:pb14_g})*(V({node:PB14})-V({node:G1}))",
+    "B_{ref}_pb15 {node:G1} {node:PB15} I=V({ext:pb15_i})-V({ext:pb15_g})*(V({node:PB15})-V({node:G1}))",
+    "B_{ref}_pa8 {node:G1} {node:PA8} I=V({ext:pa8_i})-V({ext:pa8_g})*(V({node:PA8})-V({node:G1}))",
+    "B_{ref}_pa9 {node:G1} {node:PA9} I=V({ext:pa9_i})-V({ext:pa9_g})*(V({node:PA9})-V({node:G1}))",
+    "B_{ref}_pa10 {node:G1} {node:PA10} I=V({ext:pa10_i})-V({ext:pa10_g})*(V({node:PA10})-V({node:G1}))",
+    "B_{ref}_pa11 {node:G1} {node:PA11} I=V({ext:pa11_i})-V({ext:pa11_g})*(V({node:PA11})-V({node:G1}))",
+    "B_{ref}_pa12 {node:G1} {node:PA12} I=V({ext:pa12_i})-V({ext:pa12_g})*(V({node:PA12})-V({node:G1}))",
+    "B_{ref}_pa15 {node:G1} {node:PA15} I=V({ext:pa15_i})-V({ext:pa15_g})*(V({node:PA15})-V({node:G1}))",
+    "B_{ref}_pb3 {node:G1} {node:PB3} I=V({ext:pb3_i})-V({ext:pb3_g})*(V({node:PB3})-V({node:G1}))",
+    "B_{ref}_pb4 {node:G1} {node:PB4} I=V({ext:pb4_i})-V({ext:pb4_g})*(V({node:PB4})-V({node:G1}))",
+    "B_{ref}_pb5 {node:G1} {node:PB5} I=V({ext:pb5_i})-V({ext:pb5_g})*(V({node:PB5})-V({node:G1}))",
+    "B_{ref}_pb6 {node:G1} {node:PB6} I=V({ext:pb6_i})-V({ext:pb6_g})*(V({node:PB6})-V({node:G1}))",
+    "B_{ref}_pb7 {node:G1} {node:PB7} I=V({ext:pb7_i})-V({ext:pb7_g})*(V({node:PB7})-V({node:G1}))",
+    "B_{ref}_pb8 {node:G1} {node:PB8} I=V({ext:pb8_i})-V({ext:pb8_g})*(V({node:PB8})-V({node:G1}))",
+    "B_{ref}_pb9 {node:G1} {node:PB9} I=V({ext:pb9_i})-V({ext:pb9_g})*(V({node:PB9})-V({node:G1}))",
+    "B_{ref}_pb11 {node:G1} {node:PB11} I=V({ext:pb11_i})-V({ext:pb11_g})*(V({node:PB11})-V({node:G1}))",
+    "B_{ref}_pb10 {node:G1} {node:PB10} I=V({ext:pb10_i})-V({ext:pb10_g})*(V({node:PB10})-V({node:G1}))",
+    "B_{ref}_pb1 {node:G1} {node:PB1} I=V({ext:pb1_i})-V({ext:pb1_g})*(V({node:PB1})-V({node:G1}))",
+    "B_{ref}_pb0 {node:G1} {node:PB0} I=V({ext:pb0_i})-V({ext:pb0_g})*(V({node:PB0})-V({node:G1}))",
+    "B_{ref}_pa7 {node:G1} {node:PA7} I=V({ext:pa7_i})-V({ext:pa7_g})*(V({node:PA7})-V({node:G1}))",
+    "B_{ref}_pa6 {node:G1} {node:PA6} I=V({ext:pa6_i})-V({ext:pa6_g})*(V({node:PA6})-V({node:G1}))",
+    "B_{ref}_pa5 {node:G1} {node:PA5} I=V({ext:pa5_i})-V({ext:pa5_g})*(V({node:PA5})-V({node:G1}))",
+    "B_{ref}_pa4 {node:G1} {node:PA4} I=V({ext:pa4_i})-V({ext:pa4_g})*(V({node:PA4})-V({node:G1}))",
+    "B_{ref}_pa3 {node:G1} {node:PA3} I=V({ext:pa3_i})-V({ext:pa3_g})*(V({node:PA3})-V({node:G1}))",
+    "B_{ref}_pa2 {node:G1} {node:PA2} I=V({ext:pa2_i})-V({ext:pa2_g})*(V({node:PA2})-V({node:G1}))",
+    "B_{ref}_pa1 {node:G1} {node:PA1} I=V({ext:pa1_i})-V({ext:pa1_g})*(V({node:PA1})-V({node:G1}))",
+    "B_{ref}_pa0 {node:G1} {node:PA0} I=V({ext:pa0_i})-V({ext:pa0_g})*(V({node:PA0})-V({node:G1}))",
+    "B_{ref}_pc15 {node:G1} {node:PC15} I=V({ext:pc15_i})-V({ext:pc15_g})*(V({node:PC15})-V({node:G1}))",
+    "B_{ref}_pc14 {node:G1} {node:PC14} I=V({ext:pc14_i})-V({ext:pc14_g})*(V({node:PC14})-V({node:G1}))",
+    "B_{ref}_pc13 {node:G1} {node:PC13} I=V({ext:pc13_i})-V({ext:pc13_g})*(V({node:PC13})-V({node:G1}))"
   ]
 }

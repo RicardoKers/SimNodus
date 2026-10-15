@@ -228,6 +228,13 @@ std::optional<std::vector<TemplateToken>> tokenize_template(std::string_view lin
             tokens.push_back({TemplateToken::Kind::Ref, {}});
         } else if (inside == "control") {
             tokens.push_back({TemplateToken::Kind::Control, {}});
+        } else if (inside.rfind("ext:", 0) == 0) {
+            const std::string name = trimmed(std::string_view(inside).substr(4));
+            if (name.empty() || !std::all_of(name.begin(), name.end(), identifier_char)) {
+                error = "invalid external source name in {" + inside + "}";
+                return std::nullopt;
+            }
+            tokens.push_back({TemplateToken::Kind::External, name});
         } else if (inside.rfind("node:", 0) == 0) {
             tokens.push_back({TemplateToken::Kind::Node, trimmed(std::string_view(inside).substr(5))});
         } else if (inside.front() == '=') {

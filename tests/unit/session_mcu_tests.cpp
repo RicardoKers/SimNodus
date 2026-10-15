@@ -10,6 +10,7 @@
 #include "sim/simulation_session.hpp"
 
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <set>
 #include <thread>
@@ -160,4 +161,64 @@ TEST_CASE("session: transient mode refuses microcontrollers")
     std::string error;
     CHECK(!session.start(request, error));
     CHECK(error.find("Transient mode") != std::string::npos);
+}
+
+TEST_CASE("session: a GPIO output drives the circuit through its pin model")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(board_library());
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0.0;
+    settings.segment = 0.5;
+    settings.max_step = 1e-4;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &board_library();
+    request.vectors = {"OUT"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.1) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(20ms);
+    }
+    session.stop();
+    const auto samples = session.samples("out");
+    REQUIRE(samples.size() > 100);
+    // Edges where the voltage crosses half the supply.
+    std::vector<std::pair<double, bool>> edges;
+    double high = 0.0;
+    for (std::size_t i = 1; i < samples.size(); ++i) {
+        const bool before = samples[i - 1].value > 1.65;
+        const bool after = samples[i].value > 1.65;
+        if (before != after) {
+            edges.emplace_back(samples[i].time, after);
+        }
+        if (after) {
+            high = std::max(high, samples[i].value);
+        }
+    }
+    for (const auto& [t, rising] : edges) {
+        std::printf("  %s edge at %.6f s\n", rising ? "rising" : "falling", t);
+    }
+    // 3.3 V through 40 Ohm into 1 kOhm.
+    std::printf("  high level %.4f V\n", high);
+    CHECK(std::abs(high - 3.3 * 1000.0 / 1040.0) < 0.01);
+    REQUIRE(edges.size() == 4);
+    for (std::size_t i = 0; i < edges.size(); ++i) {
+        const double expected = 0.25 * static_cast<double>(i + 1);
+        CHECK(edges[i].second == (i % 2 == 0));
+        // Renode's SysTick is 125 ppm fast; events have its 100 us quantum; plus one step.
+        CHECK(std::abs(edges[i].first - expected) < 2e-4 * expected + 3e-4);
+    }
+#endif
 }

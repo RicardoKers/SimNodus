@@ -64,6 +64,14 @@ struct McuBoard {
     std::vector<std::string> before_firmware; // Renode monitor commands
     std::vector<std::string> after_firmware;
     std::string firmware_parameter;       // a File parameter
+    // Electrical GPIO model (MCU-03): driven outputs through a resistance to the
+    // supply or ground, internal pull resistors of inputs.
+    struct PinModel {
+        double supply = 3.3;              // V, relative to the board ground pin
+        double output_resistance = 40.0;  // Ohm
+        double pull_resistance = 40000.0; // Ohm
+    };
+    PinModel pin_model;
     struct Led {
         std::string pin;         // GPIO driving the on-board LED
         bool active_low = false; // lit while the pin is low

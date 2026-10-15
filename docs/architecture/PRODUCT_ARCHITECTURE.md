@@ -114,8 +114,10 @@ results with analytical references (RC, RL, divider, diode clamp).
   before the circuit and keeps firmware and circuit within `mcu_lead_us` of
   each other; pin levels and modes feed the board symbol, the reset button
   writes SCB AIRCR.
-- **Coupler** (phase 2, SN-132): Renode leads by quantum Q; GPIO outputs
-  become external sources; analog crossings feed GPIO inputs at the end of the
+- **Coupler** (phase 2): GPIO outputs drive the circuit (SN-132,
+  [ADR 0084](../decisions/0084-gpio-output-coupling.md)): two external sources
+  per pin feed a behavioral current source, set from the runner's pin history
+  at the circuit's time, which the firmware has always reached. Next (SN-133): analog crossings feed GPIO inputs at the end of the
   quantum (E-03 sampled exchange, labeled approximate). Reused knowledge:
   STM32F103 platform description, owned ADC model, cancellable run patch for
   debugging.

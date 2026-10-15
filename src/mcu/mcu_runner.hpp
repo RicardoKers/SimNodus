@@ -1,11 +1,12 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// Runs one microcontroller (SN-131): a worker thread owns a RenodeEngine,
-// advances virtual time up to a limit set by the analog run, and keeps the
-// level and mode of every watched GPIO pin for the display (INT-06). The
-// analog run sets the limit, so the firmware never runs ahead of the circuit
-// by more than the lead it allows; the electrical coupling is SN-132.
+// Runs one microcontroller (SN-131, SN-132): a worker thread owns a
+// RenodeEngine, advances virtual time up to a limit set by the analog run, and
+// records every watched GPIO pin's level and configuration over time. The
+// display shows the latest state (INT-06); the analog run asks for the pins'
+// electrical drive at its own time (MCU-03), which the firmware has always
+// reached before (the circuit waits otherwise).
 #pragma once
 
 #include "renode_engine.hpp"
@@ -18,6 +19,7 @@
 #include <optional>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 namespace simnodus::mcu {
@@ -31,6 +33,7 @@ struct GpioPin {
 std::optional<GpioPin> gpio_pin(const std::string& name);
 
 enum class PinMode { Unknown, Input, Analog, Output, Alternate };
+enum class Pull { None, Up, Down };
 
 // Mode of an STM32F1 pin from its CRL/CRH nibble (MODE bits 1:0, CNF bits 3:2).
 // MODE 00 is reported as Input: Renode's model resets CNF to 00 although the
@@ -40,7 +43,33 @@ PinMode decode_pin_mode(std::uint32_t nibble);
 struct PinState {
     bool level = false; // output level (for outputs and alternate functions)
     PinMode mode = PinMode::Unknown;
+    bool open_drain = false; // outputs: CNF bit 2
+    Pull pull = Pull::None;  // inputs: CNF 10 with the ODR bit choosing up or down
+
+    bool same_config(const PinState& other) const
+    {
+        return mode == other.mode && open_drain == other.open_drain && pull == other.pull;
+    }
 };
+
+// Full configuration from the CRL/CRH nibble and the pin's ODR bit.
+PinState decode_pin_config(std::uint32_t nibble, bool odr_bit);
+
+// Electrical GPIO model (MCU-03): the pin pushes current
+// `current - conductance * V(pin)` into its net (V relative to the board's
+// ground). Push-pull outputs are a source of `supply` or 0 V behind
+// `output_resistance`; open-drain outputs only pull low; inputs are open
+// unless a pull resistor is enabled.
+struct PinModel {
+    double supply = 3.3;
+    double output_resistance = 40.0;
+    double pull_resistance = 40000.0;
+};
+struct PinDrive {
+    double conductance = 0.0; // S
+    double current = 0.0;     // A
+};
+PinDrive pin_drive(const PinState& state, const PinModel& model);
 
 enum class McuState { Starting, Running, Failed, Stopped };
 
@@ -55,6 +84,7 @@ struct McuStatus {
 struct McuRunOptions {
     MachineOptions machine;
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
+    PinModel pin_model;
     std::uint64_t chunk_us = 10000; // longest single run_for
 };
 
@@ -81,11 +111,22 @@ public:
     void stop();
 
     McuStatus status() const;
+    // Latest state of every watched pin (the firmware's current time).
     std::map<std::string, PinState> pins() const;
+    const std::vector<std::string>& pin_names() const { return options_.pins; }
+    // Drive of each watched pin (in pin_names() order) at virtual time
+    // `time_us`; history older than 100 ms before it is discarded.
+    std::vector<PinDrive> drives_at(std::uint64_t time_us);
 
 private:
+    using History = std::vector<std::pair<std::uint64_t, PinState>>; // sorted by time
+
     void work();
-    void read_modes(RenodeEngine& engine);
+    // Configuration of every watched pin from CRL/CRH/ODR; false on a bus error.
+    bool read_configs(RenodeEngine& engine, std::vector<PinState>& configs);
+    // Records configurations that changed, effective from `time_us` (under the lock).
+    void apply_configs(std::uint64_t time_us, const std::vector<PinState>& configs);
+    void record_level(std::size_t pin, std::uint64_t time_us, bool level);
     void fail(const std::string& message);
 
     McuRunOptions options_;
@@ -96,8 +137,8 @@ private:
     std::condition_variable changed_;
     std::uint64_t limit_us_ = 0;
     McuStatus status_;
-    std::map<std::string, PinState> pins_;
-    std::map<std::string, std::string> event_pin_; // "port:number" -> pin name
+    std::vector<History> history_;                 // per watched pin
+    std::map<std::string, std::size_t> event_pin_; // "port:number" -> index in options_.pins
 };
 
 } // namespace simnodus::mcu

@@ -268,6 +268,16 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 case library::TemplateToken::Kind::Control:
                     line += control_node;
                     break;
+                case library::TemplateToken::Kind::External: {
+                    const std::string node = "ext_" + ref + "_" + t.text;
+                    const bool known = std::any_of(out.externals.begin(), out.externals.end(),
+                        [&](const ExternalSource& e) { return e.component == c.id && e.name == t.text; });
+                    if (!known) {
+                        out.externals.push_back({c.id, t.text, "V_ext_" + ref + "_" + t.text, node});
+                    }
+                    line += node;
+                    break;
+                }
                 case library::TemplateToken::Kind::Node: {
                     const PinRef pin{c.id, t.text};
                     const auto probe = probe_nodes.find(pin);
@@ -324,6 +334,10 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
         out.lines.push_back(control.source + " " + control.node + " 0 DC " + model::spice_number(v)
             + (options.interactive ? " external" : ""));
         out.elements.push_back({control.component, control.source, 'V', {control.node, "0"}, ""});
+    }
+    for (const auto& external : out.externals) {
+        out.lines.push_back(external.source + " " + external.node + " 0 DC 0" + (options.interactive ? " external" : ""));
+        out.elements.push_back({external.component, external.source, 'V', {external.node, "0"}, ""});
     }
 
     // ---- Pre-run checks -------------------------------------------------
