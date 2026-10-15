@@ -114,6 +114,8 @@ private:
     void cancel_wire();
     void place_at(const model::Point& at);
     void add_probe_at(const model::Point& at, bool force_voltage);
+    // Retargets a probe to the wire or pin at `at`; false if nothing suits it there.
+    bool move_probe_to(model::Id probe, const model::Point& at);
     void set_probe_reference(const model::Point& at);
     bool handle_control_press(model::Id id, const QPointF& scene_point);
     void show_live_tooltip(const QPoint& view_point);
@@ -129,6 +131,7 @@ private:
 
     // Select tool drag state.
     bool dragging_ = false;
+    model::Id probe_drag_ = model::no_id; // probe being moved to another wire or pin
     bool rubber_band_ = false;
     model::Point drag_origin_;
     model::Point drag_delta_;

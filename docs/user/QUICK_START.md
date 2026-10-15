@@ -106,7 +106,9 @@ step by default; edges of switches and generators are resolved to that step.
 - **P** (Probe tool): click a wire for a voltage, a component pin for the
   current into that pin (Shift+click on a pin: its voltage). Alt+click a
   second net to measure the last voltage probe relative to it (differential).
-  Probes are saved with the project.
+  Probes are saved with the project. To move a probe, drag its marker (with
+  the select tool) onto another wire or pin: it keeps its color and analyzer
+  channel; a current probe needs a pin. Ctrl+Z undoes the move.
 - Window > Signal Analyzer (Ctrl+Shift+A) can be moved to another monitor.
   Choose the time base, Roll or Triggered mode (source, level, slope; Auto,
   Normal or Single), per-channel scale, or Autoscale.

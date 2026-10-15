@@ -28,6 +28,7 @@
 #include <QComboBox>
 #include <QFile>
 #include <QFileInfo>
+#include <QGraphicsItem>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -549,6 +550,49 @@ private slots:
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));
         window_->stop();
 #endif
+    }
+
+    void probes_are_dragged_to_another_wire_or_pin()
+    {
+        const model::Id r1 = place("resistor", {0, 0}); // pins at (0,-3) and (0,3)
+        const model::Id r2 = place("resistor", {10, 0});
+        model::Id wire = model::no_id;
+        doc().apply(editing::add_wire(doc().id_source(), {{0, 3}, {0, 6}, {10, 6}, {10, 3}}, &wire));
+        model::Probe voltage;
+        voltage.kind = model::ProbeKind::Voltage;
+        voltage.target = {r1, "1", {0, -3}};
+        voltage.color = "#1f77b4";
+        model::Id probe = model::no_id;
+        doc().apply(editing::add_probe(doc().id_source(), voltage, &probe));
+        model::Probe current = voltage;
+        current.kind = model::ProbeKind::Current;
+        current.target = {r2, "1", {10, -3}};
+        model::Id current_probe = model::no_id;
+        doc().apply(editing::add_probe(doc().id_source(), current, &current_probe));
+
+        auto drag = [this](model::Id id, model::Point to) {
+            const QPoint from = view()->mapFromScene(window_->scene()->item_of(id)->sceneBoundingRect().center());
+            QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, from);
+            move_to(to, Qt::LeftButton);
+            QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at(to));
+        };
+        // A voltage probe moves from R1's pin to a point on the wire.
+        drag(probe, {5, 6});
+        const auto* moved = doc().schematic().probe(probe);
+        QVERIFY(moved);
+        QCOMPARE(moved->target.item, wire);
+        QVERIFY(moved->target.pin.empty());
+        QCOMPARE(moved->kind, model::ProbeKind::Voltage);
+        QCOMPARE(moved->color, std::string("#1f77b4"));
+        doc().undo_stack()->undo();
+        QCOMPARE(doc().schematic().probe(probe)->target.item, r1);
+
+        // A current probe refuses a wire but moves to another pin.
+        drag(current_probe, {5, 6});
+        QCOMPARE(doc().schematic().probe(current_probe)->target.item, r2);
+        drag(current_probe, {10, 3});
+        QCOMPARE(doc().schematic().probe(current_probe)->target.pin, std::string("2"));
+        QCOMPARE(doc().schematic().probe(current_probe)->kind, model::ProbeKind::Current);
     }
 
     void alt_click_sets_a_differential_reference()
