@@ -103,7 +103,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     while (session.status().starting_mcu || session.status().sim_time == 0.0) {
         saw_starting = saw_starting || session.status().starting_mcu;
         REQUIRE(session.active());
-        REQUIRE(std::chrono::steady_clock::now() - begin < 60s);
+        REQUIRE(std::chrono::steady_clock::now() - begin < 180s);
         std::this_thread::sleep_for(10ms);
     }
     std::printf("  circuit started after %.1f s\n",
@@ -116,7 +116,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     std::uint64_t worst_lag = 0;
     while (session.status().sim_time < 1.6) {
         REQUIRE(session.active());
-        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
         const auto status = session.mcu_status(board);
         REQUIRE(status.has_value());
         REQUIRE(status->state == mcu::McuState::Running);
@@ -190,7 +190,7 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
     const auto begin = std::chrono::steady_clock::now();
     while (session.status().sim_time < 1.1) {
         REQUIRE(session.active());
-        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
         std::this_thread::sleep_for(20ms);
     }
     session.stop();
@@ -252,7 +252,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     auto wait_until = [&](auto condition) {
         while (!condition()) {
             REQUIRE(session.active());
-            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
             std::this_thread::sleep_for(5ms);
         }
     };

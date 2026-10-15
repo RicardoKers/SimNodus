@@ -51,6 +51,7 @@ MachineOptions options()
     MachineOptions o;
     o.renode = renode;
     o.resources = spaced_resources();
+    o.start_timeout = std::chrono::milliseconds(180000); // shared CI runners can be very slow
     return o;
 }
 
@@ -288,7 +289,7 @@ namespace {
 
 bool wait_for_time(const McuRunner& runner, std::uint64_t time_us)
 {
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
     while (runner.status().time_us < time_us && runner.status().state == McuState::Running) {
         if (std::chrono::steady_clock::now() > deadline) {
             return false;

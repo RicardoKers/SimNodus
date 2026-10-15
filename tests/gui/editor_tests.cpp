@@ -402,7 +402,7 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
                 && window_->scene()->live().mcu_pins.count(board)
                 && window_->scene()->live().mcu_pins.at(board).at("PC13").mode == mcu::PinMode::Output,
-            60000);
+            150000);
         // PC13 low lights the on-board LED, high turns it off: both within a second.
         QTRY_VERIFY_WITH_TIMEOUT(!window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
         QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
@@ -457,7 +457,7 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
                 && window_->scene()->live().mcu_pins.count(board)
                 && window_->scene()->live().mcu_pins.at(board).at("PA1").mode == mcu::PinMode::Input,
-            60000);
+            150000);
         // The internal pull-up gives the open button's input a 1.
         QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().mcu_pins.at(board).at("PA1").level, 5000);
         QVERIFY(led_current() < 1e-4);
@@ -495,9 +495,9 @@ private slots:
         UartTerminal* terminal = window_->analyzer()->terminal();
         terminal->timestamps()->setChecked(true);
         window_->run();
-        QTRY_VERIFY_WITH_TIMEOUT(terminal->ports()->count() == 3, 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->ports()->count() == 3, 150000);
         QVERIFY(terminal->ports()->currentText().contains(QStringLiteral("USART1")));
-        QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Blue Pill ready")), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Blue Pill ready")), 150000);
         QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("tick 1")), 10000);
         // Time stamps: "tick 1" is printed at about 1 s of simulated time.
         QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[0.99")));

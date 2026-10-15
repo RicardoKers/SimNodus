@@ -20,7 +20,7 @@ if(SIMNODUS_RENODE)
     target_compile_definitions(editor_tests PRIVATE SIMNODUS_TEST_RENODE=1)
 endif()
 add_test(NAME gui-editor COMMAND editor_tests)
-set_tests_properties(gui-editor PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 180)
+set_tests_properties(gui-editor PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 900)
 
 # The real executable's built-in checks, offscreen.
 add_test(NAME gui-app-smoke

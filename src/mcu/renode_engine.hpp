@@ -45,7 +45,8 @@ struct MachineOptions {
     std::vector<std::string> before_firmware;
     std::vector<std::string> after_firmware;
     std::uint32_t quantum_us = 100; // Renode global quantum
-    std::chrono::milliseconds start_timeout{60000};
+    // Generous: a cold first start on a slow PC took 54 s in CI (warm: 4-9 s).
+    std::chrono::milliseconds start_timeout{120000};
     const std::atomic<bool>* cancel = nullptr; // start() gives up when it becomes true
 };
 
