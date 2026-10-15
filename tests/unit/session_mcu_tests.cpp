@@ -419,6 +419,22 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
     const double expected = 3.3 * std::tanh(1e-3 / (4 * 10040.0 * 100e-9));
     std::printf("  %d rising edges in 20 ms, RC %.3f .. %.3f V, peak-to-peak %.3f V (expected %.3f V)\n", rising, low,
         high, high - low, expected);
+    if (rising < 19 || rising > 21) {
+        // Diagnostics: the circuit's PA1 edges next to the times Renode reported.
+        int shown = 0;
+        for (std::size_t i = 1; i < pa1.size() && shown < 12; ++i) {
+            if (pa1[i].time >= from && (pa1[i - 1].value < 1.65) != (pa1[i].value < 1.65)) {
+                std::printf("  circuit PA1 edge %.6f s -> %.2f V\n", pa1[i].time, pa1[i].value);
+                ++shown;
+            }
+        }
+        const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PA1",
+            static_cast<std::uint64_t>(from * 1e6));
+        for (std::size_t i = 0; i < log.changes.size() && i < 12; ++i) {
+            std::printf("  renode PA1 %llu us -> %d\n", static_cast<unsigned long long>(log.changes[i].first),
+                log.changes[i].second ? 1 : 0);
+        }
+    }
     CHECK(rising >= 19 && rising <= 21);
     CHECK(std::abs((high - low) - expected) < 0.02); // edges on the 100 us Renode quantum
     CHECK(std::abs((high + low) / 2 - 1.65) < 0.05);

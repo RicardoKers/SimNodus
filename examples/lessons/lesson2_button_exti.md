@@ -40,8 +40,9 @@ pending bit, counts the edge and toggles the LED. The main loop prints
 
 ## Expected observations
 
-- Without the filter one press counts several edges (about 5 with the
-  simulated bounce), so the LED may end up on or off by chance.
+- Without the filter one press counts several edges: 5 falling edges while
+  pressing and 4 more while releasing with the simulated bounce, so the LED
+  may end up on or off by chance.
 - The bounces are 0.2–0.5 ms pulses during about 3 ms after the press.
 - With the filter V(BTN) falls at once when pressed (C1 discharges through
   the contact) and rises slowly on release (about 8 ms to the 1.83 V input

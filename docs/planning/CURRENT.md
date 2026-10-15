@@ -39,8 +39,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Verified on 2026-10-15 (SN-136)
 
 - Bounce: 9 edges in 3.21 ms with bounce, 1 without. Lesson 1: 20 rising
-  edges in 20 ms, RC ripple 0.79–0.80 V (theory 0.805 V). Lesson 2: 5 edges
-  per press without the filter, 1 with it; the node stays within 0..3.3 V
+  edges in 20 ms, RC ripple 0.79–0.80 V (theory 0.805 V). Lesson 2: 9
+  falling edges per press and release without the filter, 1 with it (input
+  changes are queued and replayed with their spacing, so bounces shorter
+  than the quantum reach the firmware); the node stays within 0..3.3 V
   (it rang to −2.4 V with trapezoidal integration). ctest 9/9.
 
 ## Verified on 2026-10-15 (SN-135)
