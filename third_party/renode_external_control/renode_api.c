@@ -14,6 +14,7 @@
 #include <stddef.h>
 
 #include "renode_api.h"
+#include "renode_api_simnodus.h"
 #include "transport.h"
 
 #define MAX_CALLBACK_COUNT 1024
@@ -152,6 +153,7 @@ typedef enum {
     ADC,
     GPIO,
     SYSTEM_BUS,
+    UART, // SimNodus addition
     EVENT = -1,
 } api_command_t;
 
@@ -163,6 +165,7 @@ static uint8_t command_versions[][2] = {
     { ADC, 0x0 },
     { GPIO, 0x1 },
     { SYSTEM_BUS, 0x0 },
+    { UART, 0x0 },
 };
 
 
@@ -287,6 +290,12 @@ static renode_error_t *invoke_callback(renode_t *renode, struct renode_event *re
 {
     switch(response->command)
     {
+    case UART: {
+        assert_msg(response->ed < renode->callbacks_count, "Tried to invoke callback for an invalid event descriptor");
+        assert_msg(response->size == sizeof(renode_uart_event_data_t), ERRMSG_UNEXPECTED_RESPONSE_PAYLOAD_SIZE);
+        renode->callbacks[response->ed](renode->callback_user_data[response->ed], response->data);
+        return NO_ERROR;
+    }
     case GPIO:
         assert_msg(response->ed < renode->callbacks_count, "Tried to invoke callback for an invalid event descriptor");
         assert_msg(response->size == sizeof(renode_gpio_event_data_t), ERRMSG_UNEXPECTED_RESPONSE_PAYLOAD_SIZE);
@@ -909,4 +918,63 @@ void renode_set_operation_timeout(renode_t *renode, uint32_t milliseconds)
     if (renode != NULL) {
         sn_set_timeout(renode->socket_fd, milliseconds);
     }
+}
+
+// SimNodus addition (SN-134): UART through the server's UART command.
+struct renode_uart {
+    renode_machine_t *machine;
+    int32_t id;
+};
+
+renode_error_t *renode_get_uart(renode_machine_t *machine, const char *name, renode_uart_t **uart)
+{
+    int32_t id;
+    return_error_if_fails(renode_get_instance_descriptor(machine, UART, name, &id));
+
+    *uart = xmalloc(sizeof(renode_uart_t));
+    (*uart)->machine = machine;
+    (*uart)->id = id;
+    return NO_ERROR;
+}
+
+renode_error_t *renode_uart_write(renode_uart_t *uart, const uint8_t *data, uint32_t count)
+{
+    assert(uart != NULL && (data != NULL || count == 0) && count <= 65536);
+    const uint32_t size = 5 + count;
+    uint8_t *frame = xmalloc(size);
+    memcpy(frame, &uart->id, 4);
+    frame[4] = 0; // write
+    if (count) {
+        memcpy(frame + 5, data, count);
+    }
+    uint32_t response_size;
+    cleanup_call(renode_execute_command(uart->machine->renode, UART, frame, size, size, &response_size), frame);
+    cleanup_assert(response_size == 0, ERRMSG_UNEXPECTED_RESPONSE_PAYLOAD_SIZE, frame, uart->machine->renode);
+    free(frame);
+    return NO_ERROR;
+}
+
+#pragma pack(push, 1)
+struct event_uart_frame
+{
+    int32_t id;
+    int8_t command;
+    int32_t ed;
+};
+#pragma pack(pop)
+
+renode_error_t *renode_register_uart_callback(renode_uart_t *uart, void *user_data, void (*callback)(void *, renode_uart_event_data_t *))
+{
+    uint32_t ed;
+    return_error_if_fails(register_callback(uart->machine->renode, (raw_callback_t)callback, user_data, &ed));
+
+    struct event_uart_frame frame = {
+        .id = uart->id,
+        .command = 1, // register event
+        .ed = (int32_t)ed,
+    };
+    uint32_t response_size;
+    return_error_if_fails(renode_execute_command(uart->machine->renode, UART, &frame, sizeof(frame), sizeof(frame), &response_size));
+    assert_msg(response_size == 0, ERRMSG_UNEXPECTED_RESPONSE_PAYLOAD_SIZE);
+    return NO_ERROR;
 }

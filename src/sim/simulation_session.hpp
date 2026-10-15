@@ -118,6 +118,10 @@ public:
     std::optional<mcu::McuStatus> mcu_status(model::Id component) const;
     std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const;
     void mcu_reset(model::Id component);
+    // Serial terminal of a board's UART (see McuRunner::uart_send / uart_received).
+    void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes);
+    std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
+        std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const;
 
 private:
     bool start_mcus();

@@ -1,0 +1,176 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 14,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/uart_echo/uart_echo.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 6,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "yellow"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 13,
+      "at": [
+        10,
+        11
+      ],
+      "name": "PA0"
+    }
+  ],
+  "probes": [
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 8,
+        "at": [
+          10,
+          11
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "item": 6,
+        "pin": "A",
+        "at": [
+          26,
+          11
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

@@ -91,6 +91,7 @@ struct McuStatus {
 struct McuRunOptions {
     MachineOptions machine;
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
+    std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
     PinModel pin_model;
     std::uint64_t chunk_us = 1000;            // longest single run_for (the coupling quantum)
     std::uint64_t config_interval_us = 10000; // CRL/CRH/ODR reads (each costs a bus round trip)
@@ -120,6 +121,13 @@ public:
     // `time_us`; it reaches the firmware before its next run chunk, if the pin
     // is an input then (MCU-04).
     void set_input(std::size_t pin, bool level, std::uint64_t time_us);
+    // Terminal (MCU-05): bytes for a UART's receiver, delivered before the next
+    // run chunk; and the bytes it transmitted since byte number `from` (the
+    // newest 1 MiB is kept). Returns the total number of bytes transmitted.
+    void uart_send(const std::string& uart, const std::string& bytes);
+    // `times` (optional) receives the virtual time of each byte in microseconds.
+    std::uint64_t uart_received(const std::string& uart, std::uint64_t from, std::string& bytes,
+        std::vector<std::uint64_t>* times = nullptr) const;
     void stop();
 
     McuStatus status() const;
@@ -156,6 +164,13 @@ private:
         std::uint64_t since_us = 0;
     };
     std::vector<Input> inputs_; // per watched pin
+    struct UartLog {
+        std::string bytes;      // the newest bytes
+        std::vector<std::uint64_t> times; // virtual time of each kept byte
+        std::uint64_t total = 0; // bytes transmitted so far
+        std::string pending;    // to send to the receiver
+    };
+    std::map<std::string, UartLog> uarts_;
     std::map<std::string, std::size_t> event_pin_; // "port:number" -> index in options_.pins
 };
 

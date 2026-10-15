@@ -152,6 +152,23 @@ struct RenodeEngine::Impl {
     std::map<std::string, renode_gpio_t*> ports;
     std::list<Watch> watches; // stable addresses for the callbacks
     std::vector<GpioEvent> events;
+    struct UartWatch {
+        Impl* owner;
+        std::string uart;
+    };
+    std::map<std::string, renode_uart_t*> uarts;
+    std::list<UartWatch> uart_watches;
+    std::vector<UartByte> uart_bytes;
+
+    static void on_uart(void* user, renode_uart_event_data_t* data)
+    {
+        auto* watch = static_cast<UartWatch*>(user);
+        try {
+            watch->owner->uart_bytes.push_back({data->timestamp_us, watch->uart, data->byte});
+        } catch (...) {
+            watch->owner->broken = true;
+        }
+    }
     bool broken = false;
 
     static void on_gpio(void* user, renode_gpio_event_data_t* data)
@@ -170,6 +187,10 @@ struct RenodeEngine::Impl {
             std::free(gpio);
         }
         ports.clear();
+        for (auto& [name, uart] : uarts) {
+            std::free(uart);
+        }
+        uarts.clear();
         std::free(sysbus);
         sysbus = nullptr;
         std::free(machine);
@@ -415,6 +436,45 @@ std::optional<bool> RenodeEngine::gpio(const std::string& port, int pin)
         return std::nullopt;
     }
     return state;
+}
+
+void* RenodeEngine::uart_handle(const std::string& uart)
+{
+    if (!usable()) {
+        return nullptr;
+    }
+    if (const auto it = impl_->uarts.find(uart); it != impl_->uarts.end()) {
+        return it->second;
+    }
+    renode_uart_t* handle = nullptr;
+    if (!check(renode_get_uart(impl_->machine, uart.c_str(), &handle), ("Cannot find " + uart).c_str())) {
+        return nullptr;
+    }
+    impl_->uarts[uart] = handle;
+    return handle;
+}
+
+bool RenodeEngine::watch_uart(const std::string& uart)
+{
+    auto* handle = static_cast<renode_uart_t*>(uart_handle(uart));
+    if (!handle) {
+        return false;
+    }
+    auto& watch = impl_->uart_watches.emplace_back(Impl::UartWatch{impl_.get(), uart});
+    return check(renode_register_uart_callback(handle, &watch, &Impl::on_uart), ("Cannot watch " + uart).c_str());
+}
+
+std::vector<UartByte> RenodeEngine::take_uart_bytes()
+{
+    return std::exchange(impl_->uart_bytes, {});
+}
+
+bool RenodeEngine::write_uart(const std::string& uart, const std::vector<std::uint8_t>& bytes)
+{
+    auto* handle = static_cast<renode_uart_t*>(uart_handle(uart));
+    return handle
+        && check(renode_uart_write(handle, bytes.data(), static_cast<std::uint32_t>(bytes.size())),
+            ("Cannot write to " + uart).c_str());
 }
 
 std::optional<std::uint32_t> RenodeEngine::read32(std::uint64_t address)

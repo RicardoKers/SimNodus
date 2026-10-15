@@ -1110,6 +1110,20 @@
     },
     "extensions": [
       "SimNodusGpio.cs"
+    ],
+    "uarts": [
+      {
+        "name": "usart1",
+        "label": "USART1 (PA9 TX, PA10 RX)"
+      },
+      {
+        "name": "usart2",
+        "label": "USART2 (PA2 TX, PA3 RX)"
+      },
+      {
+        "name": "usart3",
+        "label": "USART3 (PB10 TX, PB11 RX)"
+      }
     ]
   },
   "spice": [

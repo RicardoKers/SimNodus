@@ -20,7 +20,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-133 done.** The
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-134 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
   interactive run: Renode starts first, the firmware leads the circuit by at
   most the coupling quantum (default 1 ms, ADR 0083/0085), pins show their
@@ -29,7 +29,14 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   circuit through the pin model (ADR 0084); example 07 blinks an external
   LED on PA0. Inputs read the circuit with Schmitt thresholds and fire EXTI
   interrupts (ADR 0085); example 08: a button toggles an LED from EXTI1.
+  The analyzer's UART tab is a serial terminal (ADR 0086); example 09.
   Renode ships in the Windows zip (ADR 0082).
+
+## Verified on 2026-10-15 (SN-134)
+
+- Renode UART case (greeting, "tick 1" at 999.875 ms, echo, LED commands);
+  GUI: example 09 terminal shows the greeting and time-stamped ticks, `1`
+  and `0` sent from the terminal switch the LED. Screenshot of the UART tab.
 
 ## Verified on 2026-10-15 (SN-133)
 
@@ -86,9 +93,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. SN-134 UART terminal (USART1/2 in the platform, analyzer UART tab), then
-   SN-135 logic lanes, SN-136 lesson examples (owner's firmware sources
-   welcome), and the 0.2 package by 2026-11-13.
+2. SN-135 logic lanes in the analyzer (MCU pins over time, from the runner's
+   pin history), then SN-136 lesson examples (the owner has none yet:
+   create them), MCU-09 limitations page, and the 0.2 package by 2026-11-13.
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
    built with the GNU Tools for STM32 14.3.rel1 inside the owner's

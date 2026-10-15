@@ -60,6 +60,20 @@ public:
     void mcu_reset(model::Id component);
     std::optional<mcu::McuStatus> mcu_status(model::Id component) const { return session_->mcu_status(component); }
 
+    // Serial ports of the boards of the current run, for the terminal (MCU-05).
+    struct UartPort {
+        model::Id board = model::no_id;
+        std::string uart;
+        QString title; // "U1 USART1 (PA9 TX, PA10 RX)"
+    };
+    std::vector<UartPort> uart_ports() const;
+    std::uint64_t uart_received(const UartPort& port, std::uint64_t from, std::string& bytes,
+        std::vector<std::uint64_t>* times = nullptr) const
+    {
+        return session_->mcu_uart_received(port.board, port.uart, from, bytes, times);
+    }
+    void uart_send(const UartPort& port, const std::string& bytes) { session_->mcu_uart_send(port.board, port.uart, bytes); }
+
     // Analyzer data.
     const std::vector<Channel>& channels() const { return channels_; }
     std::vector<sim::Sample> samples(const Channel& channel, double from) const;

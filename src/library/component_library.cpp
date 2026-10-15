@@ -398,6 +398,15 @@ ComponentDefinition parse_definition(const json& j)
             }
             board.led = led;
         }
+        if (m.contains("uarts")) {
+            for (const auto& u : m["uarts"]) {
+                McuBoard::Uart uart{text(u, "name", true), text(u, "label")};
+                if (uart.label.empty()) {
+                    uart.label = uart.name;
+                }
+                board.uarts.push_back(uart);
+            }
+        }
         if (m.contains("reset_button")) {
             const auto r = numbers(m["reset_button"], 4, "mcu.reset_button");
             board.reset_button = std::vector<model::PointF>{{r[0], r[1]}, {r[2], r[3]}};
