@@ -27,7 +27,8 @@ namespace simnodus::mcu {
 // staged by tools/fetch_backends.py --renode.
 std::optional<std::filesystem::path> find_renode(const std::filesystem::path& application_dir);
 // Folder with LoopbackControl.cs and the platform descriptions: mcu/ next to
-// the application, then resources/renode in the source tree.
+// the application, ../share/simnodus/mcu (Linux install), then resources/renode
+// in the source tree.
 std::optional<std::filesystem::path> find_mcu_resources(const std::filesystem::path& application_dir);
 
 struct MachineOptions {

@@ -43,5 +43,23 @@ windeployqt for the Qt rendering backend
   redistributed under Microsoft's DirectX redistribution terms.
   Source: https://github.com/microsoft/DirectXShaderCompiler
 
+Renode 1.16.1 (renode/), the microcontroller emulator, run as a separate
+process; the official Windows portable .NET bundle, unmodified (its own test
+suite is left out)
+  License: MIT, Copyright (c) Antmicro (renode/licenses/renode-license). The
+  bundle contains components under their own licenses, all listed with their
+  full texts in renode/licenses/: among others tlib (LGPL-2.1), NetMQ and
+  Packet.Net (LGPL-3.0), GTK# bindings (LGPL-2.0), the MinGW-w64 runtime
+  (LGPL), AsyncIO (MPL-2.0) and the bundled .NET 8 runtime (MIT).
+  Source of exactly this version, including those components:
+  https://github.com/renode/renode/releases/tag/v1.16.1
+  (renode_1.16.1_source.tar.xz), commit d66b0c2aa3d420408eccecfd1d3bab0fd702a6db.
+  You may replace the renode/ folder with another build of Renode 1.16.1.
+
+Renode external control client and server (compiled into simnodus.exe, and
+mcu/LoopbackControl.cs compiled by Renode at run time)
+  License: MIT, Copyright (c) Antmicro and Copyright (c) Realtime Embedded;
+  adapted by SimNodus (loopback-only server). Text in mcu/licenses/MIT.txt.
+
 The pinned archives and their SHA-256 digests are listed in
 tools/backend-baseline.json of the SimNodus repository.

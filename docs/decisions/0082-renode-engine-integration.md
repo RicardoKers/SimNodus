@@ -16,7 +16,8 @@ runners. The facts to respect are:
   never cleared, and the experiment transport had a fixed 1 s deadline that
   would also cut long `RunFor` requests.
 - The monitor's `include @file` cannot quote paths, so paths with spaces fail.
-- Renode takes about 3.5–6 s to start (warm), most of it .NET start-up.
+- Renode takes about 3.5–8 s to start (warm, depending on machine load), most
+  of it .NET start-up.
 - Renode's own temporary-file cleanup misbehaves with a shared `TEMP` (SN-019).
 - The server sends GPIO events only while a `RunFor` is running.
 
@@ -62,7 +63,7 @@ runners. The facts to respect are:
 
 ## Consequences
 
-- Start-up costs 3.5–6 s per run; the application must start the engine
+- Start-up costs 3.5–8 s per run; the application must start the engine
   asynchronously and show progress (SN-131/132).
 - GPIO event timestamps have the granularity of Renode's master clock
   (one quantum); changes made with bus writes outside `RunFor` are not events.
@@ -70,11 +71,18 @@ runners. The facts to respect are:
   Renode's bind; the start then fails (no wrong connection is accepted, as the
   listener line must name the port and the handshake must succeed). Retry is
   left to the caller.
-- **Distribution is not decided here.** The Renode bundle contains components
-  under other licenses (for example LGPL-2.1 tlib) and its own .NET runtime; a
-  license and update review must precede shipping it in the Windows zip
-  (packaging task of release 0.2). Until then developers fetch it with
-  `tools/fetch_backends.py --renode`.
+- **Distribution** (owner approval, 2026-10-14): the Windows zip ships the
+  official portable bundle unmodified in `renode/` (without its test suite),
+  with all its license texts in `renode/licenses/`, and `mcu/` with the
+  server and platform files. The review of `renode/licenses/` found MIT
+  (Renode, .NET runtime), LGPL-2.1 (tlib), LGPL-3.0 (NetMQ, Packet.Net),
+  LGPL-2.0 (GTK# bindings), LGPL (MinGW-w64 runtime), MPL-2.0 (AsyncIO) and
+  permissive licenses; no GPL-only component. Renode is a separate process,
+  so nothing of it is linked into SimNodus. THIRD-PARTY-NOTICES points to
+  the source of exactly this version (release v1.16.1 source archive) and
+  states that the folder can be replaced. The zip grows from about 27 MB to
+  about 137 MB. Updates of the bundled .NET 8 runtime follow Renode releases;
+  a Renode upgrade is a separate, tested change.
 - Tests run against the real Renode on Windows and Linux in CI
   (`engine-renode`, required there with `SIMNODUS_REQUIRE_RENODE=ON`).
 

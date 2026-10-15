@@ -2,6 +2,7 @@
 # process found at run time; nothing here downloads or starts it at build time.
 add_library(simnodus_mcu STATIC
     child_process.cpp
+    mcu_check.cpp
     renode_engine.cpp)
 add_library(simnodus::mcu ALIAS simnodus_mcu)
 target_include_directories(simnodus_mcu PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")

@@ -15,8 +15,12 @@ Command line
   simnodus.exe FILE.snx         open a project
   simnodus.exe FILE.snx --run   open and start the simulation
   simnodus.exe --check-engine   load ngspice and solve a reference circuit
+  simnodus.exe --check-mcu-engine  start Renode (microcontroller), run 1 ms
   simnodus.exe --smoke-test     open the windows, run built-in checks, exit
   simnodus.exe --settings FILE  use FILE instead of the user's settings
+
+The renode folder holds the microcontroller emulator (Renode 1.16.1); it
+starts only when a simulation with a microcontroller runs.
 
 Settings are stored in %APPDATA%\SimNodus\SimNodus.ini.
 

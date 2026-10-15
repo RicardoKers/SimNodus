@@ -44,7 +44,7 @@ target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets simnodus::session simnodus::editing simnodus::io
-    simnodus::netlist PRIVATE simnodus::warnings)
+    simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
 # Last-resort examples location for running from a build tree.
 target_compile_definitions(simnodus_ui PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 
@@ -53,8 +53,10 @@ set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON)
 target_link_libraries(simnodus PRIVATE simnodus_ui simnodus::warnings)
 
 # Layout of an installed (or packaged) application:
-#   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine
-#   Linux:   bin/simnodus, share/simnodus/ngspice/spinit; system libngspice
+#   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine,
+#            renode/ (unmodified Renode 1.16.1 portable bundle) and mcu/
+#   Linux:   bin/simnodus, share/simnodus/{ngspice,mcu}; system libngspice;
+#            Renode found through SIMNODUS_RENODE
 if(WIN32)
     install(TARGETS simnodus RUNTIME DESTINATION .)
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit" DESTINATION ngspice)
@@ -83,6 +85,14 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples FILES_MATCHING PATTERN "*.snx")
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION mcu)
+    if(SIMNODUS_RENODE)
+        # The whole portable bundle with its licenses/, without Renode's own test suite.
+        get_filename_component(_simnodus_renode_bundle "${SIMNODUS_RENODE}" DIRECTORY)
+        install(DIRECTORY "${_simnodus_renode_bundle}/" DESTINATION renode PATTERN "tests" EXCLUDE)
+    else()
+        message(STATUS "Renode not staged; the install tree will not contain the microcontroller engine")
+    endif()
     # MSVC C++ runtime next to the executable (app-local deployment).
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
@@ -94,6 +104,7 @@ else()
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
         FILES_MATCHING PATTERN "*.snx")
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/mcu")
 endif()
 
 if(BUILD_TESTING)

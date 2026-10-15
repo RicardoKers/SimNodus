@@ -42,7 +42,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   from the package. Linux: verified by CI for each PR (GCC 13, Qt 6.4,
   ngspice-42); the Windows CI job uses Qt 6.10.2.
 - Renode engine (Windows, Renode 1.16.1): `engine-renode` 8/8 cases against
-  the real Renode, ctest 9/9 in about 50 s. Renode starts in 3.5–6 s; a
+  the real Renode, ctest 9/9 in about 50 s. Renode starts in 3.5–8 s; a
   hand-assembled Thumb loop toggling PA0 gave 64 events in 20 µs (8 MIPS,
   5-instruction loop). Linux: `engine-renode` passed in CI (ubuntu-24.04,
   GCC 13, portable .NET Renode package, 26 s) on PR #107.
@@ -57,8 +57,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
    engine off the GUI thread with progress (start-up takes seconds).
 3. SN-132 coupler (quantum lockstep, GPIO outputs into ngspice), then SN-133
    EXTI inputs, SN-134 UART, SN-135 logic lanes, SN-136 lesson examples.
-4. Before the 0.2 package: license/update review of the Renode bundle
-   (LGPL tlib, bundled .NET runtime) for shipping it in the zip (ADR 0082).
+4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
+   in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
+   built with the GNU Tools for STM32 14.3.rel1 inside the owner's
+   STM32CubeIDE 2.1.1 (same compiler version as E-02).
 5. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
 
@@ -73,8 +75,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   explicitly.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
-- No ARM toolchain on the owner's laptop; firmware for tests and lessons
-  needs one (Arm GNU Toolchain 14.3, as in E-02) or committed ELFs (SN-136).
+- ARM compiler on the owner's laptop: `arm-none-eabi-gcc.exe` in
+  `C:\ST\STM32CubeIDE_2.1.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_*\tools\bin`;
+  CI uses Arm GNU Toolchain 14.3.rel1 (`tests/experiments/renode-stm32/ci-toolchain.json`).
 
 ## Resuming in a new session
 
