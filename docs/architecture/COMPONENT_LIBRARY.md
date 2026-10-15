@@ -57,7 +57,9 @@ control pins. Unconnected board pins are not reported.
 | `before_firmware`, `after_firmware` | Renode monitor commands of the board profile, around `sysbus LoadELF` |
 | `led` | `{"pin": "PC13", "active_low": true, "at": [x, y], "radius"}`: on-board LED drawn lit by the pin |
 | `reset_button` | `[x, y, width, height]`: clicking it while running resets the microcontroller |
-| `pin_model` | Electrical GPIO model: supply, output and pull resistance |
+| `pin_model` | Electrical GPIO model: supply, output and pull resistance, input thresholds `input_high` / `input_low` |
+| `extensions` | C# peripheral models in `mcu/` the platform uses (`SimNodusGpio.cs`) |
+| `ground_pin` | Reference of the pin voltages (default `G1`) |
 
 `pin_model` (`{"supply": 3.3, "output_resistance": 40, "pull_resistance":
 40000}`) sets the electrical GPIO model ([ADR 0084](../decisions/0084-gpio-output-coupling.md)).

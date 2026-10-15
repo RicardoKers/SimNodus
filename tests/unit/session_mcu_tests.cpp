@@ -137,7 +137,9 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     std::printf("  firmware ahead of the circuit by at most %llu us, behind by at most %llu us\n",
         static_cast<unsigned long long>(worst_lead), static_cast<unsigned long long>(worst_lag));
     CHECK(levels.size() == 2);
-    CHECK(worst_lead <= request.mcu_lead_us);
+    // The limit also follows ngspice's tentative time point, up to one maximum step
+    // (settings.max_step, 100 us by default) beyond the last accepted one.
+    CHECK(worst_lead <= request.mcu_lead_us + 2 * 100);
     // The status is sampled between the circuit's and the firmware's updates; allow one run chunk.
     CHECK(worst_lag <= request.mcu_lead_us + 10000);
     CHECK(session.latest("n1").has_value());
@@ -220,5 +222,81 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
         // Renode's SysTick is 125 ppm fast; events have its 100 us quantum; plus one step.
         CHECK(std::abs(edges[i].first - expected) < 2e-4 * expected + 3e-4);
     }
+#endif
+}
+
+TEST_CASE("session: a push button on the schematic triggers the firmware interrupt")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(board_library());
+    b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "BTN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+    const model::Id button = b.add("button_no", {{"1", "BTN"}, {"2", "0"}});
+    b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 1.0;
+    settings.segment = 0.5;
+    settings.max_step = 1e-4;
+    b.schematic.set_settings(settings); // mcu_quantum: default 1 ms
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &board_library();
+    request.vectors = {"OUT", "BTN"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_until = [&](auto condition) {
+        while (!condition()) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(5ms);
+        }
+    };
+    wait_until([&] { return session.status().sim_time > 0.2; });
+    // The internal pull-up (40 kOhm) holds the open button's pin high; the LED output is low.
+    CHECK(session.latest("btn").value_or(0) > 3.2);
+    CHECK(session.latest("out").value_or(9) < 0.1);
+
+    auto press = [&](bool pressed, bool expected_out) {
+        session.set_control(button, pressed ? 1.0 : 0.0);
+        const double from = session.status().sim_time;
+        wait_until([&] { return session.status().sim_time > from + 0.1; });
+        CHECK((session.latest("out").value_or(0) > 1.65) == expected_out);
+    };
+    press(true, true);   // first press: interrupt turns the LED on
+    press(false, true);  // release: no change
+    press(true, false);  // second press: off
+    press(false, false);
+    session.stop();
+    const auto status = session.mcu_status(session.netlist().externals.front().component);
+    REQUIRE(status.has_value());
+    std::printf("  largest circuit-to-firmware input delay: %llu us\n",
+        static_cast<unsigned long long>(status->max_input_delay_us));
+    CHECK(status->max_input_delay_us <= 1000 + 100); // quantum plus one circuit step
+
+    // Delay from the button's falling edge to the output's rising edge, in circuit time.
+    const auto btn = session.samples("btn");
+    const auto out = session.samples("out");
+    double pressed_at = -1;
+    double lit_at = -1;
+    for (std::size_t i = 1; i < btn.size() && pressed_at < 0; ++i) {
+        if (btn[i - 1].value > 1.16 && btn[i].value <= 1.16) {
+            pressed_at = btn[i].time;
+        }
+    }
+    for (std::size_t i = 1; i < out.size() && lit_at < 0; ++i) {
+        if (out[i - 1].value < 1.65 && out[i].value >= 1.65) {
+            lit_at = out[i].time;
+        }
+    }
+    std::printf("  button edge %.6f s, LED edge %.6f s, response %.0f us\n", pressed_at, lit_at,
+        (lit_at - pressed_at) * 1e6);
+    REQUIRE(pressed_at > 0);
+    REQUIRE(lit_at > pressed_at);
+    CHECK(lit_at - pressed_at < 1.5e-3); // quantum, Renode quantum and steps
 #endif
 }

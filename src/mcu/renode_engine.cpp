@@ -196,10 +196,12 @@ std::unique_ptr<RenodeEngine> RenodeEngine::start(const MachineOptions& options,
         error = "Renode was not found at " + options.renode.string() + ".";
         return nullptr;
     }
-    for (const char* name : {server_file, options.platform.c_str()}) {
-        if (!fs::is_regular_file(options.resources / name, ec)) {
-            error = "The microcontroller support file " + std::string(name) + " is missing in "
-                + options.resources.string() + ".";
+    std::vector<std::string> needed{server_file, options.platform};
+    needed.insert(needed.end(), options.extensions.begin(), options.extensions.end());
+    for (const auto& name : needed) {
+        // Plain file names only: they are copied into the run folder and named in monitor commands.
+        if (name.find_first_of("/\\ ;\"") != std::string::npos || !fs::is_regular_file(options.resources / name, ec)) {
+            error = "The microcontroller support file " + name + " is missing in " + options.resources.string() + ".";
             return nullptr;
         }
     }
@@ -223,6 +225,11 @@ std::unique_ptr<RenodeEngine> RenodeEngine::start(const MachineOptions& options,
     if (!ec) {
         fs::copy_file(options.resources / options.platform, engine->run_dir_ / "platform.repl", ec);
     }
+    for (const auto& name : options.extensions) {
+        if (!ec) {
+            fs::copy_file(options.resources / name, engine->run_dir_ / name, ec);
+        }
+    }
     if (!ec && !options.firmware.empty()) {
         fs::copy_file(options.firmware, engine->run_dir_ / "firmware.elf", ec);
     }
@@ -236,8 +243,12 @@ std::unique_ptr<RenodeEngine> RenodeEngine::start(const MachineOptions& options,
         error = "No free loopback port for the microcontroller engine.";
         return nullptr;
     }
-    std::vector<std::string> script{std::string("include @") + server_file,
-        std::string("mach create \"") + machine_name + '"', "machine LoadPlatformDescription @platform.repl"};
+    std::vector<std::string> script{std::string("include @") + server_file};
+    for (const auto& name : options.extensions) {
+        script.push_back("include @" + name);
+    }
+    script.push_back(std::string("mach create \"") + machine_name + '"');
+    script.emplace_back("machine LoadPlatformDescription @platform.repl");
     script.insert(script.end(), options.before_firmware.begin(), options.before_firmware.end());
     if (!options.firmware.empty()) {
         script.emplace_back("sysbus LoadELF @firmware.elf");

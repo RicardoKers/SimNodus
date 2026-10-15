@@ -57,7 +57,9 @@ suite is left out)
   You may replace the renode/ folder with another build of Renode 1.16.1.
 
 Renode external control client and server (compiled into simnodus.exe, and
-mcu/LoopbackControl.cs compiled by Renode at run time)
+mcu/LoopbackControl.cs compiled by Renode at run time), and the STM32F1 GPIO
+model mcu/SimNodusGpio.cs (derived from Renode's STM32F1GPIOPort, compiled by
+Renode at run time)
   License: MIT, Copyright (c) Antmicro and Copyright (c) Realtime Embedded;
   adapted by SimNodus (loopback-only server). Text in mcu/licenses/MIT.txt.
 

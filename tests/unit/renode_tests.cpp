@@ -215,6 +215,7 @@ TEST_CASE("missing files and a broken platform are reported, not hung")
     const fs::path broken = fs::temp_directory_path() / "SimNodus tests" / "broken platform";
     fs::create_directories(broken);
     fs::copy_file(resources / "LoopbackControl.cs", broken / "LoopbackControl.cs", fs::copy_options::overwrite_existing);
+    fs::copy_file(resources / "SimNodusGpio.cs", broken / "SimNodusGpio.cs", fs::copy_options::overwrite_existing);
     std::ofstream(broken / "stm32f103c8.repl") << "this is not a platform description\n";
     o = options();
     o.resources = broken;
@@ -307,7 +308,7 @@ TEST_CASE("gpio pin names and pin modes are decoded")
     CHECK(!gpio_pin("3V3_1").has_value());
     CHECK(!gpio_pin("PA16").has_value());
     CHECK(decode_pin_mode(0x4) == PinMode::Input);     // reset value: floating input
-    CHECK(decode_pin_mode(0x0) == PinMode::Input);     // Renode reset state (chip: analog)
+    CHECK(decode_pin_mode(0x0) == PinMode::Analog);
     CHECK(decode_pin_mode(0x8) == PinMode::Input);     // pull-up/down input
     CHECK(decode_pin_mode(0x2) == PinMode::Output);    // 2 MHz push-pull
     CHECK(decode_pin_mode(0x6) == PinMode::Output);    // open drain
@@ -388,6 +389,43 @@ TEST_CASE("a runner whose firmware is missing reports the failure")
     CHECK(!runner.wait_ready(cancel));
     CHECK(runner.status().state == McuState::Failed);
     CHECK(runner.status().message.find("firmware") != std::string::npos);
+}
+
+TEST_CASE("a falling edge on PA1 runs the EXTI1 handler of the button firmware")
+{
+    MachineOptions machine = options();
+    machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "button_irq" / "button_irq.elf";
+    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
+    machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000", "emulation SetGlobalAdvanceImmediately true"};
+    auto engine = start_engine(machine);
+    REQUIRE(engine);
+    REQUIRE(engine->watch_gpio("gpioPortA", 0));
+    REQUIRE(engine->set_gpio("gpioPortA", 1, true)); // released: the pull-up holds PA1 high
+    REQUIRE(engine->run_for(10000));
+    // The SimNodus GPIO model keeps ODR for inputs: bit 1 selects the pull-up.
+    const auto crl = engine->read32(0x40010800);
+    const auto odr = engine->read32(0x4001080C);
+    REQUIRE(crl.has_value() && odr.has_value());
+    CHECK((*crl & 0xFFu) == 0x82u);
+    CHECK((*odr & 0x2u) != 0);
+    CHECK(engine->read32(0x40010C00) == 0x44444444u); // untouched port B: floating inputs, as on the chip
+    engine->take_gpio_events();
+
+    auto press = [&](bool pressed) {
+        REQUIRE(engine->set_gpio("gpioPortA", 1, !pressed));
+        REQUIRE(engine->run_for(5000));
+    };
+    press(true);
+    auto events = engine->take_gpio_events();
+    REQUIRE(events.size() == 1);
+    CHECK(events[0].state); // first press: LED on
+    press(false);
+    CHECK(engine->take_gpio_events().empty()); // release does not toggle
+    press(true);
+    events = engine->take_gpio_events();
+    REQUIRE(events.size() == 1);
+    CHECK(!events[0].state); // second press: LED off
+    CHECK(engine->stop() == 0);
 }
 
 TEST_CASE("find_renode prefers SIMNODUS_RENODE")

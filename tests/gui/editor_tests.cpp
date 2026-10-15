@@ -428,6 +428,48 @@ private slots:
 #endif
     }
 
+    void blue_pill_button_triggers_the_interrupt()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
+        QSKIP("No ngspice or Renode configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/08_Blue_Pill_button_interrupt.snx"), errors, warnings));
+        model::Id button = model::no_id;
+        model::Id led = model::no_id;
+        model::Id board = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            button = c.type == "button_no" ? c.id : button;
+            led = c.type == "led" ? c.id : led;
+            board = c.type == "bluepill" ? c.id : board;
+        }
+        auto led_current = [this, led] {
+            const auto& live = window_->scene()->live().led_current;
+            const auto it = live.find(led);
+            return it == live.end() ? 0.0 : it->second;
+        };
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
+                && window_->scene()->live().mcu_pins.count(board)
+                && window_->scene()->live().mcu_pins.at(board).at("PA1").mode == mcu::PinMode::Input,
+            60000);
+        // The internal pull-up gives the open button's input a 1.
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().mcu_pins.at(board).at("PA1").level, 5000);
+        QVERIFY(led_current() < 1e-4);
+        window_->run_controller()->set_control(button, 1.0); // press: EXTI1 toggles PA0
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() > 2e-3, 5000);
+        QVERIFY(!window_->scene()->live().mcu_pins.at(board).at("PA1").level);
+        window_->run_controller()->set_control(button, 0.0);
+        QTest::qWait(300);
+        QVERIFY(led_current() > 2e-3); // release keeps it on
+        window_->run_controller()->set_control(button, 1.0);
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
+        window_->stop();
+#endif
+    }
+
     void alt_click_sets_a_differential_reference()
     {
         const model::Id r = place("resistor", {0, 0});

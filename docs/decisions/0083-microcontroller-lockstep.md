@@ -22,6 +22,9 @@ meaningless and the pin display misleading.
   by the analog time. Since SN-132 the circuit also waits until the firmware
   has reached the circuit's time before it uses the pin drivers, so the
   firmware leads by 0 to 20 ms ([ADR 0084](0084-gpio-output-coupling.md)).
+  Since SN-133 the window is the configurable coupling quantum, default
+  1 ms ([ADR 0085](0085-gpio-inputs-and-quantum.md)), and the GPIO reset
+  deviation below is fixed by the SimNodus GPIO model.
 - **Start order.** A run with a microcontroller starts Renode first
   (status "Starting the microcontroller...") and starts the circuit only
   when every firmware is ready; a start failure fails the run with Renode's

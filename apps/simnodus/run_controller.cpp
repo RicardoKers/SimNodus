@@ -326,9 +326,10 @@ QString RunController::mode_description() const
             const auto* d = library.find(c.type);
             return d && d->mcu;
         })) {
-        text += tr("; microcontroller firmware runs in Renode ahead of the circuit (at most 20 ms); GPIO outputs "
-                   "drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit voltages do not "
-                   "reach GPIO inputs yet");
+        text += tr("; microcontroller firmware runs in Renode at most %1s ahead of the circuit (coupling quantum); "
+                   "GPIO outputs drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit "
+                   "voltages reach GPIO inputs through Schmitt thresholds (1.16 V / 1.83 V) up to one quantum late")
+                    .arg(QString::fromStdString(model::format_engineering(s.mcu_quantum)));
     }
     return text;
 }

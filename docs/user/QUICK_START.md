@@ -58,8 +58,8 @@ step by default; edges of switches and generators are resolved to that step.
   path is stored relative to the project. **Reload** uses a rebuilt file and
   restarts a running simulation.
 - **F5** first starts the microcontroller engine (Renode, a few seconds);
-  the circuit runs when the firmware is ready. Firmware and circuit stay
-  within 20 ms of each other in simulated time.
+  the circuit runs when the firmware is ready. The firmware runs at most one
+  microcontroller quantum (default 1 ms) ahead of the circuit.
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
@@ -71,9 +71,21 @@ step by default; edges of switches and generators are resolved to that step.
 - Example: File > Examples > `07_Blue_Pill_blink` (PC13 blinks every 500 ms,
   PA0..PA3 count, the LED on PA0 blinks at 2 Hz; see V(PA0) and the LED
   current in the analyzer). Its source is in `examples/firmware/blink/`.
-- Not yet in this build: circuit voltages do not reach GPIO inputs (next
-  step of release 0.2); transient mode does not run microcontrollers.
-  Output edges fall on Renode's 100 µs time quantum.
+- GPIO inputs read the circuit: a voltage above 1.83 V reads 1, below
+  1.16 V reads 0 (Schmitt trigger, as the STM32F103 datasheet guarantees).
+  A push button from an input with internal pull-up to G works as on the
+  board, and EXTI interrupts fire on its edges. The input border on the
+  symbol turns red when the pin reads 1.
+- Example: `08_Blue_Pill_button_interrupt` — every press of SW1 (PA1)
+  toggles the LED on PA0 from the EXTI1 interrupt; PC13 lights while the
+  button is held.
+- Timing: the firmware runs at most one **microcontroller quantum** (Simulate >
+  Simulation Settings, default 1 ms) ahead of the circuit, so circuit
+  changes reach the firmware up to one quantum late; a smaller quantum
+  responds faster but runs slower. Output edges fall on Renode's 100 µs
+  time quantum. Transient mode does not run microcontrollers yet.
+- EXTI line n follows pin n of every port (the AFIO port selection of the
+  chip is not modeled): use one pin number per EXTI line.
 
 ## Signal Analyzer
 

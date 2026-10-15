@@ -61,15 +61,19 @@ struct Parameter {
 // like "PA0" are GPIO pins of port A; the others are power or control pins.
 struct McuBoard {
     std::string platform;                 // platform description in the mcu/ folder
+    std::vector<std::string> extensions;  // C# peripheral models the platform uses
     std::vector<std::string> before_firmware; // Renode monitor commands
     std::vector<std::string> after_firmware;
     std::string firmware_parameter;       // a File parameter
+    std::string ground_pin = "G1";        // reference of the pin voltages
     // Electrical GPIO model (MCU-03): driven outputs through a resistance to the
     // supply or ground, internal pull resistors of inputs.
     struct PinModel {
         double supply = 3.3;              // V, relative to the board ground pin
         double output_resistance = 40.0;  // Ohm
         double pull_resistance = 40000.0; // Ohm
+        double input_high = 1.83;         // V: an input reads 1 above this (Schmitt, rising)
+        double input_low = 1.16;          // V: and 0 below this (falling)
     };
     PinModel pin_model;
     struct Led {

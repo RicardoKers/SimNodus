@@ -188,7 +188,7 @@ json settings_json(const SimulationSettings& s)
 {
     return json{{"mode", s.mode == SimulationMode::Interactive ? "interactive" : "transient"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
-        {"transient_max_step", s.transient_max_step}};
+        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}};
 }
 
 SimulationSettings settings_from(const json& j, std::vector<std::string>& warnings)
@@ -219,6 +219,11 @@ SimulationSettings settings_from(const json& j, std::vector<std::string>& warnin
     positive("segment", s.segment, false);
     positive("transient_stop", s.transient_stop, false);
     positive("transient_max_step", s.transient_max_step, false);
+    positive("mcu_quantum", s.mcu_quantum, false);
+    if (s.mcu_quantum < 1e-4 || s.mcu_quantum > 0.02) {
+        warnings.push_back("setting mcu_quantum out of range (0.1 ms to 20 ms); default used");
+        s.mcu_quantum = SimulationSettings{}.mcu_quantum;
+    }
     return s;
 }
 

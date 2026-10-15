@@ -20,14 +20,25 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-132 done.** The
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-133 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
-  interactive run: Renode starts first, the firmware leads the circuit by
-  0–20 ms (ADR 0083), pins show their state, the PC13 LED lights, RESET
+  interactive run: Renode starts first, the firmware leads the circuit by at
+  most the coupling quantum (default 1 ms, ADR 0083/0085), pins show their
+  state, the PC13 LED lights, RESET
   restarts the firmware, Browse/Reload choose the ELF. GPIO outputs drive the
   circuit through the pin model (ADR 0084); example 07 blinks an external
-  LED on PA0. Renode ships in the Windows zip (ADR 0082). Circuit-to-GPIO
-  inputs are next (SN-133).
+  LED on PA0. Inputs read the circuit with Schmitt thresholds and fire EXTI
+  interrupts (ADR 0085); example 08: a button toggles an LED from EXTI1.
+  Renode ships in the Windows zip (ADR 0082).
+
+## Verified on 2026-10-15 (SN-133)
+
+- ctest 9/9 (116 s): Renode EXTI case (falling edge runs the handler, pull-up
+  readable in ODR, port B resets to 0x44444444); session: button on the
+  schematic toggles the LED through EXTI1, input delay at most 1000 µs at
+  Q = 1 ms, button-to-LED response 1.1 ms; GUI: example 08 press/release.
+- Renode speed with `SetGlobalAdvanceImmediately` (blink firmware): 1.43x
+  real time with 1 ms chunks, 4.21x with 10 ms (0.71x / 0.96x without).
 
 ## Verified on 2026-10-15 (SN-132)
 
@@ -75,12 +86,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. SN-133: GPIO inputs read circuit voltages with Schmitt thresholds,
-   applied to Renode at exchange boundaries (E-03 sampled, labeled
-   approximate; quantum from measurements, configurable for MCU-02), and
-   AFIO-based EXTI routing in the platform; a button on the schematic
-   triggers the firmware interrupt. Then SN-134 UART, SN-135 logic lanes,
-   SN-136 lesson examples (owner's firmware sources welcome).
+2. SN-134 UART terminal (USART1/2 in the platform, analyzer UART tab), then
+   SN-135 logic lanes, SN-136 lesson examples (owner's firmware sources
+   welcome), and the 0.2 package by 2026-11-13.
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
    built with the GNU Tools for STM32 14.3.rel1 inside the owner's
@@ -99,8 +107,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   explicitly.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
-- Renode model deviations (ADR 0083): SysTick 125 ppm fast; GPIO
-  configuration reads as analog after reset (shown as input).
+- Renode model deviations: SysTick 125 ppm fast (ADR 0083); EXTI line n
+  follows pin n of every port, AFIO not modeled (ADR 0085). The GPIO reset
+  and ODR deviations are fixed by `SimNodusGpio.cs`.
 - ARM compiler on the owner's laptop: `arm-none-eabi-gcc.exe` in
   `C:\ST\STM32CubeIDE_2.1.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_*\tools\bin`;
   CI uses Arm GNU Toolchain 14.3.rel1 (`tests/experiments/renode-stm32/ci-toolchain.json`).

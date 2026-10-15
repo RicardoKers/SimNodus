@@ -331,8 +331,10 @@ private:
             const QPointF center(pin.at.x + dx, pin.at.y + dy);
             const QRectF marker(center.x() - 0.55, center.y() - 0.4, 1.1, 0.8);
             if (state.mode == mcu::PinMode::Input || state.mode == mcu::PinMode::Analog) {
+                // Hollow; the border shows the level the circuit gives an input (red: 1).
                 painter.setBrush(theme::canvas_background);
-                painter.setPen(QPen(theme::muted_text, 0.12));
+                painter.setPen(state.mode == mcu::PinMode::Input && state.level ? QPen(theme::pin_high, 0.18)
+                                                                                : QPen(theme::muted_text, 0.12));
             } else {
                 painter.setBrush(state.level ? theme::pin_high : theme::pin_low);
                 painter.setPen(state.mode == mcu::PinMode::Alternate ? QPen(theme::ink, 0.16, Qt::DotLine)

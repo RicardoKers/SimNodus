@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0085: GPIO inputs, EXTI and the coupling quantum](0085-gpio-inputs-and-quantum.md):
+  Schmitt inputs (1.16/1.83 V) reach the firmware within the quantum Q (default
+  1 ms); own STM32F1 GPIO model; EXTI routing; Renode idle skipping.
 - [0084: GPIO outputs drive the circuit](0084-gpio-output-coupling.md): pin model
   (40 Ω push-pull, open drain, 40 kΩ pulls) as a behavioral source per pin; the
   circuit never runs ahead of the firmware.
