@@ -20,6 +20,8 @@
 #include <QScrollBar>
 #include <QToolTip>
 #include <QTransform>
+
+#include <utility>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -456,6 +458,37 @@ void SchematicView::add_probe_at(const model::Point& at, bool force_voltage)
     }
 }
 
+bool SchematicView::move_probe_to(model::Id probe, const model::Point& at)
+{
+    auto& d = scene_->document();
+    const auto* current = d.schematic().probe(probe);
+    if (!current) {
+        return false;
+    }
+    model::Probe updated = *current;
+    model::Id wire = model::no_id;
+    if (const auto pin = scene_->pin_at(at)) {
+        updated.target = {pin->first, pin->second, at}; // current probes stay current, voltage probes measure the pin
+    } else if (updated.kind == model::ProbeKind::Voltage && scene_->wire_at(at, &wire)) {
+        updated.target = {wire, {}, at};
+    } else {
+        emit status_message(updated.kind == model::ProbeKind::Current
+                ? tr("A current probe goes on a component pin.")
+                : tr("Drop the probe on a wire or a component pin."));
+        return false;
+    }
+    if (updated.target == current->target) {
+        return false;
+    }
+    model::Schematic work = d.schematic();
+    work.put(updated);
+    if (!d.apply(model::make_edit(d.schematic(), work, "Move probe"))) {
+        return false;
+    }
+    emit status_message(tr("Probe moved."));
+    return true;
+}
+
 void SchematicView::set_probe_reference(const model::Point& at)
 {
     if (!scene_ || !allowed()) {
@@ -649,6 +682,15 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
         if (!item->isSelected()) {
             scene_->select_ids({id});
         }
+        if (!running_ && scene_->document().schematic().probe(id)) {
+            // Probes are dragged to another wire or pin, not moved with the selection.
+            scene_->select_ids({id});
+            probe_drag_ = id;
+            drag_origin_ = at;
+            drag_delta_ = {};
+            event->accept();
+            return;
+        }
         if (!running_) {
             dragging_ = true;
             drag_origin_ = at;
@@ -709,6 +751,22 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         event->accept();
         return;
     }
+    if (probe_drag_) {
+        const model::Point delta = at - drag_origin_;
+        if (!(delta == drag_delta_)) {
+            drag_delta_ = delta;
+            // Preview: the marker follows the mouse.
+            model::Schematic preview = scene_->document().schematic();
+            if (const auto* p = preview.probe(probe_drag_)) {
+                model::Probe moved = *p;
+                moved.target = {model::no_id, {}, at};
+                preview.put(moved);
+                scene_->sync_from(preview);
+            }
+        }
+        event->accept();
+        return;
+    }
     if (dragging_) {
         const model::Point delta = at - drag_origin_;
         if (!(delta == drag_delta_)) {
@@ -747,6 +805,17 @@ void SchematicView::mouseReleaseEvent(QMouseEvent* event)
     }
     if (pot_drag_) {
         pot_drag_ = model::no_id;
+        event->accept();
+        return;
+    }
+    if (probe_drag_) {
+        const model::Id probe = std::exchange(probe_drag_, model::no_id);
+        const bool moved = !(drag_delta_ == model::Point{}) && allowed()
+            && move_probe_to(probe, grid_at(event->position().toPoint()));
+        if (!moved) {
+            scene_->sync();
+        }
+        scene_->select_ids({probe});
         event->accept();
         return;
     }
