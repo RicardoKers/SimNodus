@@ -141,9 +141,10 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     CHECK(levels.size() == 2);
     // The limit also follows ngspice's tentative time point, up to one maximum step
     // (settings.max_step, 100 us by default) beyond the last accepted one.
-    CHECK(worst_lead <= request.mcu_lead_us + 2 * 100);
+    const auto lead = static_cast<std::uint64_t>(std::llround(b.schematic.settings().mcu_quantum * 1e6));
+    CHECK(worst_lead <= lead + 2 * 100);
     // The status is sampled between the circuit's and the firmware's updates; allow one run chunk.
-    CHECK(worst_lag <= request.mcu_lead_us + 10000);
+    CHECK(worst_lag <= lead + 10000);
     CHECK(session.latest("n1").has_value());
     session.stop();
     CHECK(session.mcu_status(board)->state == mcu::McuState::Stopped);
@@ -241,7 +242,8 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     settings.speed = 1.0;
     settings.segment = 0.5;
     settings.max_step = 1e-4;
-    b.schematic.set_settings(settings); // mcu_quantum: default 1 ms
+    settings.mcu_quantum = 1e-3;
+    b.schematic.set_settings(settings);
     sim::RunRequest request;
     request.schematic = b.schematic;
     request.library = &board_library();

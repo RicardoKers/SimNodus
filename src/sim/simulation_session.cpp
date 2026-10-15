@@ -506,7 +506,9 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
     const auto time_us = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e6));
     if (cache.time_us != time_us || cache.drives.empty()) {
         auto& runner = *mcus_.at(ref.component);
-        runner.set_limit_us(time_us + request_.mcu_lead_us); // never wait for a firmware that may not run
+        // Never wait for a firmware that may not run. When the firmware reaches this
+        // limit it collects held events and reports the complete time.
+        runner.set_limit_us(time_us + request_.mcu_lead_us);
         runner.wait_time_us(time_us, stop_requested_);
         cache.drives = runner.drives_at(time_us);
         cache.time_us = time_us;

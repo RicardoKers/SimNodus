@@ -568,12 +568,29 @@ void McuRunner::work()
             config_from = last_config_us;
             last_config_us = now;
         }
+        // Renode can raise an event of this chunk only after the run returned; the
+        // server then holds it for the next RunFor. So only the time before this
+        // chunk is complete, unless the runner is about to wait anyway: then a
+        // zero-length run collects the held events and everything is complete.
+        std::uint64_t complete = start;
+        bool caught_up = false;
+        {
+            std::lock_guard lock(mutex_);
+            caught_up = limit_us_ <= now;
+        }
+        if (caught_up) {
+            if (!engine->run_for(0)) {
+                break;
+            }
+            absorb(start);
+            complete = now;
+        }
         {
             std::lock_guard lock(mutex_);
             if (configs_ok) {
                 apply_configs(config_from, configs);
             }
-            status_.time_us = now;
+            status_.time_us = complete;
         }
         changed_.notify_all();
     }

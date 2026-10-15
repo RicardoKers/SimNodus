@@ -15,7 +15,8 @@ BSRR/ODR writes for input pins, so the pull-up/pull-down choice was lost.
 
 ## Decision
 
-- **Coupling quantum Q** (project setting `mcu_quantum`, default 1 ms,
+- **Coupling quantum Q** (project setting `mcu_quantum`, default 2 ms since
+  SN-136 — see below; 1 ms originally,
   0.1 ms to 20 ms, in Simulation Settings): the firmware runs at most Q ahead
   of the circuit and advances in chunks of Q. Inputs observed by the circuit
   at time t reach the firmware before its next chunk, so their delay is at
@@ -41,6 +42,18 @@ BSRR/ODR writes for input pins, so the pull-up/pull-down choice was lost.
   0.71x → 1.43x real time with 1 ms chunks, 0.96x → 4.21x with 10 ms; the
   event times were unchanged. Bus reads cost about 0.1 ms each, so pin
   configurations are read every 10 ms of virtual time.
+
+## Update (SN-136)
+
+- Renode can raise an event of a run chunk after the RunFor returned; the
+  upstream server dropped it (lost edges on Linux CI). The server now holds
+  such events for the next RunFor, the runner reports a chunk as complete
+  only after the following chunk or a zero-length run that collects them,
+  and input changes are queued and replayed with their spacing (pulses
+  shorter than Q survive).
+- The completing run costs a round trip per chunk: example 08 ran at 0.75x
+  real time with Q = 1 ms and at 1.00x with Q = 2 ms or 10 ms. The default
+  is 2 ms; 1 ms and 0.1 ms remain in Simulation Settings.
 
 ## Alternatives
 

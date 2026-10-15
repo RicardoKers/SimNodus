@@ -11,6 +11,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Changed (2026-10-15)
 
+- No GPIO event is lost any more: the loopback server holds events Renode raises after a RunFor returned and sends them with the next one; the runner reports a chunk as complete only when its events are in (ADR 0085 update). This removes intermittent missing edges (seen on Linux CI).
+- Default microcontroller quantum 2 ms (was 1 ms): measured 1.00x real time instead of 0.75x for example 08; 1 ms and 0.1 ms remain selectable.
 - Interactive runs use Gear integration ([ADR 0087](docs/decisions/0087-gear-integration-interactive.md)): the trapezoidal default rang on abrupt switching (a bouncing button over 1 µF swung to −2.4 V). Transient mode is unchanged.
 
 ### Added (2026-10-15, owner request)
