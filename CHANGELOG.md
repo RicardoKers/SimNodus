@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, emulator track E-07, SN-170)
+
+- First version of SimNodus's own STM32 emulator, not yet used by the application: `src/emu` (system bus with bit-band aliases, ELF loader, Cortex-M3 core with the ARMv7-M Thumb-2 instruction set, exception model with NVIC priorities, SysTick, SCB, faults and lockup; STM32F103 machine with RCC, flash interface, PWR, GPIO A-E, AFIO, EXTI, USART1-3 at byte level, DWT cycle counter and register stubs that report unsimulated peripherals). `simnodus-emu` runs an ELF from the command line and prints pin changes, UART text, diagnostics and the speed reached. Test suite `emu-unit`: instruction vectors from the ARMv7-M pseudocode and the example firmware (exact 500 ms SysTick periods, the HAL example at 72 MHz, EXTI).
+
 ### Planned (2026-10-15, owner decision)
 
 - Own STM32 emulator track: design [MCU_EMULATOR.md](docs/architecture/MCU_EMULATOR.md), plan with gates and decision points [MCU_EMULATOR_PLAN.md](docs/planning/MCU_EMULATOR_PLAN.md), [ADR 0089](docs/decisions/0089-own-stm32-emulator.md) (proposed), experiment E-07 with predeclared criteria, backlog SN-170..SN-187, requirements MCU-10 (serial frames on pins) and MCU-11 (own emulator), risks R-110..R-117. The plan was reviewed by an independent agent review before publication; its findings are folded in (revision 2).

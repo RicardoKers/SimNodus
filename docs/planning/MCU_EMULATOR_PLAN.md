@@ -39,7 +39,7 @@ Work packages, in order:
 
 | # | Package | Done when |
 |---|---|---|
-| 0.1 | `src/emu` library and `tools/simnodus-emu` CLI in CMake (Windows and Linux CI); ELF loader; `McuBackend`-style time in nanoseconds from the start | Loads every example ELF; CLI prints entry point and segments |
+| 0.1 | `src/emu` library and `apps/simnodus-emu` CLI in CMake (Windows and Linux CI); ELF loader; `McuBackend`-style time in nanoseconds from the start | Loads every example ELF; CLI prints entry point and segments |
 | 0.2 | Core state, 16-bit Thumb instructions, flags | Instruction tests pass |
 | 0.3 | 32-bit Thumb-2 instructions, IT blocks, exclusive monitor; decoder hit counters (per decoder entry) | Instruction tests for every encoding group pass |
 | 0.4 | Differential harness for random SRAM blocks against Renode (batched dumps: registers, flags, memory window), QEMU `mps2-an385` as a second test-only oracle | Runs in ctest as `emu-differential` when the oracles are installed |

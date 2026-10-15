@@ -79,6 +79,7 @@ message(STATUS "Renode for engine tests: ${SIMNODUS_RENODE}")
 add_subdirectory(third_party/renode_external_control)
 
 add_subdirectory(src)
+add_subdirectory(apps/simnodus-emu)
 
 if(BUILD_TESTING)
     add_subdirectory(tests/unit)

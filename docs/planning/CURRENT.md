@@ -52,6 +52,16 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   [MCU_EMULATOR_PLAN.md](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md)
   proposed, tasks SN-170..SN-187. Now: N0 / experiment E-07 (SN-170, doing),
   gates G0a 10-24 and G0b 10-30. Releases keep shipping on Renode until G1.
+  **E-07 status (2026-10-15):** `src/emu` (bus with bit-band, ELF loader,
+  Cortex-M3 core with every ARMv7-M Thumb encoding group, exceptions, NVIC,
+  SysTick, SCB, faults and lockup; STM32F103 machine with RCC, flash
+  interface, PWR, GPIO A-E, AFIO, EXTI, USART1-3 at byte level, DWT, stubs
+  for the other peripherals) and the CLI `apps/simnodus-emu`. Every example
+  firmware runs: blink with exact 500.000 ms periods, the HAL example at
+  72 MHz (UART report, 1000.25 µs pulse), EXTI button, UART echo, lessons
+  1-2. `emu-unit`: 15 cases with pseudocode vectors. Speed 77 MIPS on the
+  HAL busy loop (G0a needs 150; package 0.5). Next: differential harness
+  against Renode and QEMU (0.4), decoder coverage counters, performance.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
