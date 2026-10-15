@@ -7,6 +7,7 @@
 *.elf
 # Example firmware is committed so that the examples run without a compiler (tools/build_firmware.py).
 !/examples/firmware/*/*.elf
+!/tests/experiments/emu-differential/corpus/*.elf
 *.hex
 *.o
 *.obj

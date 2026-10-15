@@ -1,0 +1,21 @@
+// Copyright (c) 2026 Ricardo Kerschbaumer; SPDX-License-Identifier: MIT
+// Bare Cortex-M3 for the emulator differential test (E-07): 1 MiB flash with its
+// alias at 0, 1 MiB SRAM, NVIC. No peripherals: the blocks only use the core.
+flash: Memory.MappedMemory @ {
+    sysbus 0x08000000;
+    sysbus 0x00000000
+}
+    size: 0x100000
+
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x100000
+
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    priorityMask: 0xF0
+    systickFrequency: 8000000
+    IRQ -> cpu@0
+
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m3"
+    nvic: nvic
+    PerformanceInMips: 100

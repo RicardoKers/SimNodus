@@ -115,6 +115,7 @@ private:
 
     // Execution.
     void step();
+    bool fast(const Insn& insn); // inline forms of the run loop; false: use step()
     void execute(const Insn& insn);
     const Insn& fetch_decode();
     bool condition_passed(unsigned cond) const;
@@ -186,6 +187,8 @@ private:
     std::uint64_t st_base_ = 0;      // cycle at which the counter held st_start_
     std::uint32_t st_start_ = 0;
     bool st_countflag_ = false;
+    std::uint64_t st_next_ = 0;      // cached systick_next_event()
+    void systick_reschedule() { st_next_ = systick_next_event(); }
 
     // Run state.
     std::uint64_t cycles_ = 0;

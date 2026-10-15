@@ -34,6 +34,17 @@ target_include_directories(emu_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(emu_tests PRIVATE simnodus::emu simnodus::warnings)
 add_test(NAME emu-unit COMMAND emu_tests "${PROJECT_SOURCE_DIR}/examples")
 
+# Differential test against Renode (E-07): batches from
+# tests/experiments/emu-differential/generate.py; the committed corpus runs in ctest.
+add_executable(emu_differential emu_differential.cpp)
+target_link_libraries(emu_differential PRIVATE simnodus::emu simnodus::mcu simnodus::warnings)
+set(_emu_corpus "${PROJECT_SOURCE_DIR}/tests/experiments/emu-differential/corpus")
+if(SIMNODUS_RENODE AND EXISTS "${_emu_corpus}/seed1-512.elf")
+    add_test(NAME emu-differential COMMAND emu_differential "${SIMNODUS_RENODE}" "${PROJECT_SOURCE_DIR}/resources/renode"
+        "${PROJECT_SOURCE_DIR}/tests/experiments/emu-differential/diff.repl" 512 "${_emu_corpus}/seed1-512.elf")
+    set_tests_properties(emu-differential PROPERTIES TIMEOUT 900)
+endif()
+
 add_executable(renode_tests renode_tests.cpp)
 target_include_directories(renode_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(renode_tests PRIVATE simnodus::mcu simnodus::warnings)

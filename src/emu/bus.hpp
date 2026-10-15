@@ -7,7 +7,9 @@
 // turns that into a BusFault as the chip does.
 #pragma once
 
+#include <array>
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,8 +37,32 @@ public:
     // Bit-band alias of [target_base, target_base + size / 32): one word per bit.
     void add_bit_band(std::uint32_t alias_base, std::uint32_t alias_size, std::uint32_t target_base);
 
-    bool read(std::uint32_t address, unsigned size, std::uint32_t& value);
-    bool write(std::uint32_t address, unsigned size, std::uint32_t value);
+    // Plain memories are checked first, inline; devices and gaps go the slow way.
+    bool read(std::uint32_t address, unsigned size, std::uint32_t& value)
+    {
+        for (int i = 0; i < fast_count_; ++i) {
+            const Fast& f = fast_[static_cast<std::size_t>(i)];
+            if (address - f.base <= f.size - size) {
+                std::uint32_t v = 0;
+                std::memcpy(&v, f.data + (address - f.base), size);
+                value = v;
+                return true;
+            }
+        }
+        return read_slow(address, size, value);
+    }
+    bool write(std::uint32_t address, unsigned size, std::uint32_t value)
+    {
+        for (int i = 0; i < fast_count_; ++i) {
+            const Fast& f = fast_[static_cast<std::size_t>(i)];
+            if (f.writable && address - f.base <= f.size - size) {
+                std::memcpy(f.data + (address - f.base), &value, size);
+                ++memory_writes_;
+                return true;
+            }
+        }
+        return write_slow(address, size, value);
+    }
 
     // Loader access to memories (ignores `writable`); false if not inside one memory.
     bool load(std::uint32_t address, const std::uint8_t* data, std::uint32_t size);
@@ -66,12 +92,23 @@ private:
         bool writable = true;
         bool bit_band = false;
     };
+    struct Fast {
+        std::uint32_t base = 0;
+        std::uint32_t size = 0;
+        std::uint8_t* data = nullptr;
+        bool writable = false;
+    };
+    bool read_slow(std::uint32_t address, unsigned size, std::uint32_t& value);
+    bool write_slow(std::uint32_t address, unsigned size, std::uint32_t value);
+    void add_fast(std::uint32_t base, std::uint32_t size, std::uint8_t* data, bool writable);
     const Region* find(std::uint32_t address) const;
     bool bit_band_read(const Region& region, std::uint32_t address, unsigned size, std::uint32_t& value);
     bool bit_band_write(const Region& region, std::uint32_t address, std::uint32_t value);
 
     std::vector<std::unique_ptr<Storage>> storages_;
     std::vector<Region> regions_; // sorted by base
+    std::array<Fast, 4> fast_{};  // the first memories added (SRAM, flash, its alias)
+    int fast_count_ = 0;
     std::uint64_t memory_writes_ = 0;
 };
 

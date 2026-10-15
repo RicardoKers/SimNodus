@@ -6,6 +6,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-15, emulator track E-07, SN-170)
 
+- Differential test of the emulator against Renode: `tests/experiments/emu-differential` generates random Thumb-2 blocks covering every encoding group (no UNPREDICTABLE forms) and compares all registers, flags, PRIMASK and scratch memory after each block; ctest `emu-differential` runs a committed 512-block corpus when Renode is present. 20 480 blocks compared with zero differences.
+- Emulator speed: frequent instruction forms execute inline in the run loop (2.3x faster); 168-185 MIPS on the HAL example's busy loop and 119-141 MIPS on the benchmark mix in `tests/experiments/emu-benchmark` (Windows, owner's laptop).
 - First version of SimNodus's own STM32 emulator, not yet used by the application: `src/emu` (system bus with bit-band aliases, ELF loader, Cortex-M3 core with the ARMv7-M Thumb-2 instruction set, exception model with NVIC priorities, SysTick, SCB, faults and lockup; STM32F103 machine with RCC, flash interface, PWR, GPIO A-E, AFIO, EXTI, USART1-3 at byte level, DWT cycle counter and register stubs that report unsimulated peripherals). `simnodus-emu` runs an ELF from the command line and prints pin changes, UART text, diagnostics and the speed reached. Test suite `emu-unit`: instruction vectors from the ARMv7-M pseudocode and the example firmware (exact 500 ms SysTick periods, the HAL example at 72 MHz, EXTI).
 
 ### Planned (2026-10-15, owner decision)
