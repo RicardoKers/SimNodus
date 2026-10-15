@@ -179,6 +179,7 @@ void McuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_us)
     if (pin < inputs_.size() && inputs_[pin].desired != level) {
         inputs_[pin].desired = level;
         inputs_[pin].since_us = time_us;
+        input_queue_.push_back({pin, level, time_us});
     }
 }
 
@@ -425,25 +426,76 @@ void McuRunner::work()
     std::uint64_t last_config_us = 0;
     bool after_reset = false;
     // Circuit levels of input pins, before the firmware runs on (sampled exchange, E-03).
-    auto apply_inputs = [&] {
-        std::vector<std::pair<std::size_t, bool>> changes;
-        {
-            std::lock_guard lock(mutex_);
-            for (std::size_t i = 0; i < inputs_.size(); ++i) {
-                auto& in = inputs_[i];
-                if (in.desired != in.applied && history_[i].back().second.mode == PinMode::Input) {
-                    changes.emplace_back(i, in.desired);
-                    in.applied = in.desired;
-                    if (now > in.since_us) {
-                        status_.max_input_delay_us = std::max(status_.max_input_delay_us, now - in.since_us);
-                    }
-                    record_level(i, now, in.desired);
+    // Records what Renode reported during a run that started at `start`.
+    auto absorb = [&](std::uint64_t start) {
+        const auto events = engine->take_gpio_events();
+        std::lock_guard lock(mutex_);
+        for (const auto& e : events) {
+            if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {
+                record_level(it->second, std::max(e.time_us, start), e.state);
+            }
+        }
+        for (const auto& b : engine->take_uart_bytes()) {
+            if (const auto it = uarts_.find(b.uart); it != uarts_.end()) {
+                auto& log = it->second;
+                log.bytes.push_back(static_cast<char>(b.value));
+                log.times.push_back(b.time_us);
+                ++log.total;
+                if (log.bytes.size() > (1u << 20)) {
+                    const std::size_t drop = log.bytes.size() - (1u << 20) + 4096;
+                    log.bytes.erase(0, drop);
+                    log.times.erase(log.times.begin(), log.times.begin() + static_cast<std::ptrdiff_t>(drop));
                 }
             }
         }
-        for (const auto& [i, level] : changes) {
-            const auto pin = gpio_pin(options_.pins[i]);
-            if (!pin || !engine->set_gpio(pin->port, pin->number, level)) {
+    };
+    auto set_pin = [&](std::size_t i, bool level, std::uint64_t since) {
+        {
+            std::lock_guard lock(mutex_);
+            if (history_[i].back().second.mode != PinMode::Input || inputs_[i].applied == level) {
+                return true; // outputs ignore the circuit; the wanted level is applied if the pin becomes an input
+            }
+            inputs_[i].applied = level;
+            if (now > since) {
+                status_.max_input_delay_us = std::max(status_.max_input_delay_us, now - since);
+            }
+            record_level(i, now, level);
+        }
+        const auto pin = gpio_pin(options_.pins[i]);
+        return pin && engine->set_gpio(pin->port, pin->number, level);
+    };
+    auto apply_inputs = [&] {
+        std::vector<InputChange> queue;
+        {
+            std::lock_guard lock(mutex_);
+            queue.swap(input_queue_);
+        }
+        for (std::size_t k = 0; k < queue.size(); ++k) {
+            if (!set_pin(queue[k].pin, queue[k].level, queue[k].time_us)) {
+                return false;
+            }
+            // Keep the spacing to the next change (at most one chunk), so that the
+            // firmware sees every pulse with its width, only later.
+            if (k + 1 < queue.size() && queue[k + 1].time_us > queue[k].time_us) {
+                const std::uint64_t gap = std::min(queue[k + 1].time_us - queue[k].time_us, options_.chunk_us);
+                const std::uint64_t start = now;
+                if (!engine->run_for(gap)) {
+                    return false;
+                }
+                now += gap;
+                absorb(start);
+            }
+        }
+        // Wanted levels of pins that became inputs meanwhile.
+        for (std::size_t i = 0; i < inputs_.size(); ++i) {
+            bool level = false;
+            std::uint64_t since = 0;
+            {
+                std::lock_guard lock(mutex_);
+                level = inputs_[i].desired;
+                since = inputs_[i].since_us;
+            }
+            if (!set_pin(i, level, since)) {
                 return false;
             }
         }
@@ -498,7 +550,7 @@ void McuRunner::work()
             break;
         }
         now += step;
-        const auto events = engine->take_gpio_events();
+        absorb(start);
         const bool reset_done = after_reset;
         if (after_reset) {
             // The reset (done at Renode's next synchronization point) clears the
@@ -516,30 +568,29 @@ void McuRunner::work()
             config_from = last_config_us;
             last_config_us = now;
         }
+        // Renode can raise an event of this chunk only after the run returned; the
+        // server then holds it for the next RunFor. So only the time before this
+        // chunk is complete, unless the runner is about to wait anyway: then a
+        // zero-length run collects the held events and everything is complete.
+        std::uint64_t complete = start;
+        bool caught_up = false;
+        {
+            std::lock_guard lock(mutex_);
+            caught_up = limit_us_ <= now;
+        }
+        if (caught_up) {
+            if (!engine->run_for(0)) {
+                break;
+            }
+            absorb(start);
+            complete = now;
+        }
         {
             std::lock_guard lock(mutex_);
             if (configs_ok) {
                 apply_configs(config_from, configs);
             }
-            for (const auto& e : events) {
-                if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {
-                    record_level(it->second, std::max(e.time_us, start), e.state);
-                }
-            }
-            for (const auto& b : engine->take_uart_bytes()) {
-                if (const auto it = uarts_.find(b.uart); it != uarts_.end()) {
-                    auto& log = it->second;
-                    log.bytes.push_back(static_cast<char>(b.value));
-                    log.times.push_back(b.time_us);
-                    ++log.total;
-                    if (log.bytes.size() > (1u << 20)) {
-                        const std::size_t drop = log.bytes.size() - (1u << 20) + 4096;
-                        log.bytes.erase(0, drop);
-                        log.times.erase(log.times.begin(), log.times.begin() + static_cast<std::ptrdiff_t>(drop));
-                    }
-                }
-            }
-            status_.time_us = now;
+            status_.time_us = complete;
         }
         changed_.notify_all();
     }

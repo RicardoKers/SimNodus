@@ -1,0 +1,359 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 27,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06,
+    "mcu_quantum": 0.002
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/lesson2_button/lesson2_button.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        15
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 7,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        18
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 10,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        23
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 12,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        12,
+        -7
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 14,
+      "type": "button_no",
+      "designator": "SW1",
+      "at": [
+        20,
+        -4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "bounce": "yes"
+      }
+    },
+    {
+      "id": 17,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        23,
+        -2
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 19,
+      "type": "spst",
+      "designator": "SW2",
+      "at": [
+        18,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 21,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        24,
+        7
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "1u"
+      }
+    },
+    {
+      "id": 23,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        24,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          11,
+          15
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          17,
+          15
+        ],
+        [
+          26,
+          15
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          26,
+          21
+        ],
+        [
+          26,
+          23
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          12,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          12,
+          -4
+        ],
+        [
+          17,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          23,
+          -4
+        ],
+        [
+          23,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          12,
+          4
+        ],
+        [
+          15,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          21,
+          4
+        ],
+        [
+          24,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          24,
+          10
+        ],
+        [
+          24,
+          12
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 4,
+      "at": [
+        9,
+        -15
+      ],
+      "name": "3V3"
+    },
+    {
+      "id": 13,
+      "at": [
+        12,
+        -10
+      ],
+      "name": "3V3"
+    },
+    {
+      "id": 24,
+      "at": [
+        12,
+        6
+      ],
+      "name": "BTN"
+    }
+  ],
+  "probes": [
+    {
+      "id": 25,
+      "kind": "voltage",
+      "target": {
+        "item": 11,
+        "at": [
+          10,
+          9
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 26,
+      "kind": "current",
+      "target": {
+        "item": 7,
+        "pin": "A",
+        "at": [
+          26,
+          15
+        ]
+      },
+      "color": "#2ca02c"
+    }
+  ]
+}

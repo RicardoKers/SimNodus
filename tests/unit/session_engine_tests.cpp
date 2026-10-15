@@ -271,3 +271,48 @@ TEST_CASE("session: circuits with errors do not start")
     CHECK(!session.diagnostics().empty());
     CHECK(!session.active());
 }
+
+TEST_CASE("session: a bouncing push button chatters for about 3 ms")
+{
+    REQUIRE(test::engine() != nullptr);
+    for (const char* bounce : {"yes", "no"}) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "3.3"}});
+        const model::Id button = b.add("button_no", {{"1", "VCC"}, {"2", "SW"}}, {{"bounce", bounce}});
+        b.add("resistor", {{"1", "SW"}, {"2", "0"}}, {{"R", "10k"}});
+        auto settings = b.schematic.settings();
+        settings.speed = 0.0;
+        settings.segment = 0.25;
+        settings.max_step = 1e-5;
+        b.schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = b.schematic;
+        request.library = &components();
+        request.vectors = {"SW"};
+        request.ring_capacity = 200000;
+        sim::SimulationSession session;
+        std::string error;
+        REQUIRE(session.start(request, error));
+        REQUIRE(wait_for_time(session, 0.05));
+        session.set_control(button, 1.0);
+        const double pressed = session.status().sim_time;
+        REQUIRE(wait_for_time(session, pressed + 0.02));
+        session.stop();
+        const auto samples = session.samples("sw");
+        int edges = 0;
+        double last_edge = 0.0;
+        for (std::size_t i = 1; i < samples.size(); ++i) {
+            if ((samples[i - 1].value > 1.65) != (samples[i].value > 1.65) && samples[i].time >= pressed - 1e-3) {
+                ++edges;
+                last_edge = samples[i].time;
+            }
+        }
+        std::printf("  bounce %s: %d edges, the last %.2f ms after the press\n", bounce, edges, (last_edge - pressed) * 1e3);
+        if (std::string(bounce) == "yes") {
+            CHECK(edges == 9); // closes, then opens and closes again four times
+            CHECK(last_edge - pressed < 3.5e-3);
+        } else {
+            CHECK(edges == 1);
+        }
+    }
+}

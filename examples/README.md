@@ -15,6 +15,8 @@ opens and passes the pre-run checks without errors or warnings.
 | `06_Half_wave_rectifier.snx` | 5 V 50 Hz sine, diode, 1 kΩ load, 47 µF | Ripple on the scope (10 ms/div); delete C1 and compare |
 | `08_Blue_Pill_button_interrupt.snx` | Blue Pill running `firmware/button_irq/button_irq.elf`, push button PA1–G, 330 Ω and green LED on PA0 | Each press toggles the LED from the EXTI1 interrupt (about 1 ms response); PC13 lights while held |
 | `09_Blue_Pill_serial_terminal.snx` | Blue Pill running `firmware/uart_echo/uart_echo.elf` (USART1, 115200 baud on a real board), LED on PA0 | Analyzer > UART: "tick N" every second; send `1` / `0` to switch the LED |
+| `10_Lesson1_GPIO_output.snx` | **Lesson 1** ([notes](lessons/lesson1_gpio_output.md)): LED on PA0, 1 kHz square wave on PA1 into a 10 kΩ / 100 nF RC filter | V(PA1), V(RC) ramps of about 0.8 V peak-to-peak, LED current 3.8 mA |
+| `11_Lesson2_button_and_EXTI.snx` | **Lesson 2** ([notes](lessons/lesson2_button_exti.md)): bouncing push button with 10 kΩ pull-up on PA1, switchable 1 µF RC filter, LED on PA0, EXTI1 counter on USART1 | Without the filter one press and release count 9 falling edges (5 on press, 4 on release); with it exactly one |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 Firmware sources are in `firmware/<name>/` and link with

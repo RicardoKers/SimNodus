@@ -44,7 +44,7 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-133 | GPIO input with Schmitt thresholds and EXTI | MCU-04 | done |
 | SN-134 | UART terminal | MCU-05, AN-08 | done |
 | SN-135 | Logic lanes in the analyzer | AN-07 | done |
-| SN-136 | Lesson 1 and 2 example projects with firmware source | — | todo |
+| SN-136 | Lesson 1 and 2 example projects with firmware source | — | done |
 
 ## Phase 3 — ADC, PWM, components B, release 0.3 (until 2026-11-27)
 

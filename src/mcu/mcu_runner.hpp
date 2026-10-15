@@ -174,6 +174,14 @@ private:
         std::uint64_t since_us = 0;
     };
     std::vector<Input> inputs_; // per watched pin
+    // Every input change in circuit order: applied one after the other with the
+    // same spacing, so pulses shorter than a run chunk (contact bounce) survive.
+    struct InputChange {
+        std::size_t pin = 0;
+        bool level = false;
+        std::uint64_t time_us = 0;
+    };
+    std::vector<InputChange> input_queue_;
     std::vector<std::vector<std::pair<std::uint64_t, bool>>> levels_; // per pin: level changes, from time 0
     struct UartLog {
         std::string bytes;      // the newest bytes

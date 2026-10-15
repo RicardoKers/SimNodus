@@ -59,7 +59,7 @@ step by default; edges of switches and generators are resolved to that step.
   restarts a running simulation.
 - **F5** first starts the microcontroller engine (Renode, a few seconds);
   the circuit runs when the firmware is ready. The firmware runs at most one
-  microcontroller quantum (default 1 ms) ahead of the circuit.
+  microcontroller quantum (default 2 ms) ahead of the circuit.
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
@@ -80,7 +80,7 @@ step by default; edges of switches and generators are resolved to that step.
   toggles the LED on PA0 from the EXTI1 interrupt; PC13 lights while the
   button is held.
 - Timing: the firmware runs at most one **microcontroller quantum** (Simulate >
-  Simulation Settings, default 1 ms) ahead of the circuit, so circuit
+  Simulation Settings, default 2 ms) ahead of the circuit, so circuit
   changes reach the firmware up to one quantum late; a smaller quantum
   responds faster but runs slower. Output edges fall on Renode's 100 µs
   time quantum. Transient mode does not run microcontrollers yet.
@@ -94,6 +94,11 @@ step by default; edges of switches and generators are resolved to that step.
   carry the waveform.
 - Example: `09_Blue_Pill_serial_terminal` prints "tick N" every second;
   send `1` or `0` to switch the LED on PA0.
+- Push buttons have a **Contact bounce** property: with *yes* their contacts
+  bounce for about 3 ms after each press and release (a fixed pattern), as a
+  real button does to a microcontroller input.
+- Lessons: `10_Lesson1_GPIO_output` and `11_Lesson2_button_and_EXTI`, with
+  notes in `examples/lessons/` (goals, steps, expected observations).
 - **Logic lanes**: Signal Analyzer, tab **Logic**. Microcontroller pins
   appear as lanes by themselves when they change; check or uncheck any pin
   or voltage channel in the list (voltage channels read 1 above the **Probe

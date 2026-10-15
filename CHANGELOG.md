@@ -4,6 +4,17 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, phase 2: SN-136)
+
+- Lessons 1 and 2 (`examples/10_Lesson1_GPIO_output.snx`, `examples/11_Lesson2_button_and_EXTI.snx`) with firmware sources and notes in `examples/lessons/` (goals, circuit, firmware, steps, expected observations, questions, limits). Tests check them against theory: lesson 1's RC ripple matches 3.3·tanh(T/4τ) within 2.5 %; lesson 2 counts 9 falling edges per press and release without the RC filter and exactly one with it. Input changes from the circuit are now queued and replayed in order with their spacing, so pulses shorter than the coupling quantum (bounces) reach the firmware.
+- Push buttons have a **Contact bounce** parameter: a fixed bounce pattern for about 3 ms after each press and release.
+
+### Changed (2026-10-15)
+
+- No GPIO event is lost any more: the loopback server holds events Renode raises after a RunFor returned and sends them with the next one; the runner reports a chunk as complete only when its events are in (ADR 0085 update). This removes intermittent missing edges (seen on Linux CI).
+- Default microcontroller quantum 2 ms (was 1 ms): measured 1.00x real time instead of 0.75x for example 08; 1 ms and 0.1 ms remain selectable.
+- Interactive runs use Gear integration ([ADR 0087](docs/decisions/0087-gear-integration-interactive.md)): the trapezoidal default rang on abrupt switching (a bouncing button over 1 µF swung to −2.4 V). Transient mode is unchanged.
+
 ### Added (2026-10-15, owner request)
 
 - Probes can be moved: drag the probe marker with the select tool onto another wire or pin; the probe keeps its color and analyzer channel (a current probe needs a pin); undoable. GUI test `probes_are_dragged_to_another_wire_or_pin`.

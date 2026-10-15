@@ -396,8 +396,8 @@ QString RunController::mode_description() const
         return tr("transient analysis, stop %1s, maximum step %2s")
             .arg(QString::fromStdString(model::format_engineering(s.transient_stop)), step);
     }
-    QString text = tr("interactive (approximate): %1s segments, maximum step %2s; switch, button and generator edges "
-                      "are resolved to the time step; semiconductor charge is not carried across segments")
+    QString text = tr("interactive (approximate): %1s segments, maximum step %2s, Gear integration; switch, button and "
+                      "generator edges are resolved to the time step; semiconductor charge is not carried across segments")
                        .arg(QString::fromStdString(model::format_engineering(s.segment)), step);
     const auto& library = document_.library();
     const auto& components = snapshot_.components();

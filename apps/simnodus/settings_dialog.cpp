@@ -49,8 +49,9 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
     interactive_form->addRow(tr("Segment length (s)"), segment_);
     quantum_ = new QComboBox;
     quantum_->setObjectName(QStringLiteral("mcuQuantum"));
-    quantum_->addItem(tr("1 ms (default)"), 1e-3);
-    quantum_->addItem(tr("0.1 ms (faster input response, slower run)"), 1e-4);
+    quantum_->addItem(tr("2 ms (default)"), 2e-3);
+    quantum_->addItem(tr("1 ms (faster input response, slower run)"), 1e-3);
+    quantum_->addItem(tr("0.1 ms (fastest input response, much slower run)"), 1e-4);
     quantum_->addItem(tr("10 ms (faster run, inputs up to 10 ms late)"), 1e-2);
     const int quantum_index = quantum_->findData(settings.mcu_quantum);
     if (quantum_index >= 0) {

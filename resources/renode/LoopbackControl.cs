@@ -385,7 +385,16 @@ using Antmicro.Renode;
                 // we ever have more command handlers that need to do this.
                 if(commandHandler is RunFor)
                 {
-                    EventsEnabled = true;
+                    // SimNodus: deliver the events held back since the last RunFor first.
+                    lock(locker)
+                    {
+                        EventsEnabled = true;
+                        foreach(var held in heldEvents)
+                        {
+                            SendResponse(held);
+                        }
+                        heldEvents.Clear();
+                    }
                 }
 
                 response = commandHandler.Invoke(data);
@@ -401,18 +410,34 @@ using Antmicro.Renode;
             {
                 if(commandHandler is RunFor)
                 {
-                    EventsEnabled = false;
+                    lock(locker)
+                    {
+                        EventsEnabled = false;
+                    }
                 }
             }
         }
 
+        // SimNodus: events raised outside a RunFor (for example by the emulation
+        // thread right after the run ended) were dropped upstream; they are held
+        // and sent at the start of the next RunFor, with their own timestamps.
         private void SendEventResponse(Response response)
         {
-            if(EventsEnabled)
+            lock(locker)
             {
-                SendResponse(response);
+                if(EventsEnabled)
+                {
+                    SendResponse(response);
+                }
+                else if(heldEvents.Count < MaximumHeldEvents)
+                {
+                    heldEvents.Add(response);
+                }
             }
         }
+
+        private readonly List<Response> heldEvents = new List<Response>();
+        private const int MaximumHeldEvents = 100000;
 
         private void SendResponse(Response response)
         {
