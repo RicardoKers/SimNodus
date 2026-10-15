@@ -1,0 +1,12 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/icons">
+    <file>simnodus_16.png</file>
+    <file>simnodus_24.png</file>
+    <file>simnodus_32.png</file>
+    <file>simnodus_48.png</file>
+    <file>simnodus_64.png</file>
+    <file>simnodus_128.png</file>
+    <file>simnodus_256.png</file>
+  </qresource>
+</RCC>

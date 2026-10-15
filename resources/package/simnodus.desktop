@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SimNodus
+Comment=Interactive circuit and STM32 simulator for teaching
+Exec=simnodus %f
+Icon=simnodus
+Terminal=false
+Categories=Education;Electronics;Engineering;

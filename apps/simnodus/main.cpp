@@ -13,6 +13,7 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFileInfo>
+#include <QIcon>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
@@ -103,6 +104,7 @@ int smoke_test(simnodus::ui::MainWindow& window)
     window.show();
     QCoreApplication::processEvents();
     expect(window.columns()->count() == 3, "three columns");
+    expect(!QApplication::windowIcon().availableSizes().isEmpty(), "application icon");
     window.set_panel_visible(Panel::Components, false);
     expect(!window.panel_visible(Panel::Components), "components panel hides");
     window.set_panel_visible(Panel::Components, true);
@@ -143,6 +145,13 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationName(QStringLiteral("SimNodus"));
     QCoreApplication::setApplicationName(QStringLiteral("SimNodus"));
     QCoreApplication::setApplicationVersion(QStringLiteral(SIMNODUS_VERSION_FULL));
+    {
+        QIcon icon;
+        for (const int size : {16, 24, 32, 48, 64, 128, 256}) {
+            icon.addFile(QStringLiteral(":/icons/simnodus_%1.png").arg(size), QSize(size, size));
+        }
+        QApplication::setWindowIcon(icon);
+    }
     install_translations(application);
 
     QCommandLineParser parser;

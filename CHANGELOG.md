@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, owner request)
+
+- Application icon (provided by the owner): `simnodus.exe` carries the multi-resolution Windows icon, the windows use it through a Qt resource, and Linux installs it under `share/icons/hicolor` with a `simnodus.desktop` file. Files in `resources/icons/` ([origin and use](resources/icons/README.md)). The app's `--smoke-test` checks the icon.
+
 ### Added (2026-10-15)
 
 - User page [MICROCONTROLLER.md](docs/user/MICROCONTROLLER.md): supported STM32F103C8 peripherals, what is not simulated yet, and the differences from a real board (MCU-09, release 0.2 state).

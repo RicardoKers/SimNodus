@@ -35,6 +35,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   push buttons can bounce; interactive runs use Gear integration (ADR 0087).
   Probes can be dragged to another wire or pin.
   Renode ships in the Windows zip (ADR 0082).
+- After SN-136: user page [MICROCONTROLLER.md](../user/MICROCONTROLLER.md)
+  (MCU-09) and timing fixes merged in #116 (chunk reported complete one
+  chunk late, default quantum 1 ms, points after Stop dropped, GUI wait
+  for logic lanes 60 s). Application icon: PR #117 (Windows exe icon, window
+  icon, Linux hicolor icons + `.desktop`).
 
 ## Verified on 2026-10-15 (timing fixes, PR #116)
 
@@ -120,23 +125,25 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
-   logic lanes, probe dragging); release 0.2 by 2026-11-13. MCU-09 page:
-   `docs/user/MICROCONTROLLER.md` (update with phases 3–4).
-3. **Clock model (high priority):** RCC is plain storage, so HSE/PLL ready
-   flags never come on and STM32CubeIDE HAL projects hang in
-   `SystemClock_Config()`. Model RCC ready flags and the system clock
-   (SysTick and CPU speed following PLL/prescalers) so that CubeIDE projects
-   run; needed for lessons built with HAL and for MCU-08.
+1. Merge PR #117 (application icon) once `Build (Linux)` and `Build
+   (Windows)` pass.
+2. **SN-137 clock model (high priority, next task):** RCC is plain storage, so
+   HSE/PLL ready flags never come on and STM32CubeIDE HAL projects hang in
+   `SystemClock_Config()`. Model RCC ready flags (HSERDY, PLLRDY, SWS
+   following SW) and the system clock (SysTick and CPU speed following
+   PLL/prescalers, 72 MHz) so that CubeIDE projects run; needed for lessons
+   built with HAL and for MCU-08. Likely a C# model next to
+   `resources/renode/SimNodusGpio.cs`; update MICROCONTROLLER.md.
+3. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
+   logic lanes, probe dragging, icon); release 0.2 by 2026-11-13 (ask
+   before cutting it). Fix whatever classroom use of 0.1.0 brings up.
 4. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
    lesson 3) can start early.
-4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
-   in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
-   built with the GNU Tools for STM32 14.3.rel1 inside the owner's
-   STM32CubeIDE 2.1.1 (same compiler version as E-02).
 5. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
+
+Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
+STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it).
 
 ## Known constraints
 
@@ -161,20 +168,20 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Resuming in a new session
 
-- **Waiting for:** nothing; continue with "Next steps". Release builds:
+- **Waiting for:** CI of PR #117, then continue with "Next steps". Release builds:
   configure a separate tree with `-DSIMNODUS_VERSION_SUFFIX=` (empty; `main`
   stays `dev`), package it, tag `vX.Y.Z`, attach the zip to a GitHub release.
-- **Local folder:** `D:_Projects_Actives\SimNodus_project` is a Git
+- **Local folder:** `D:\03_Projects\01_Actives\SimNodus_project` is a Git
   clone on `main`, in sync with GitHub. `handoff/` and `START_HERE.md` are
   local only.
 - **Toolchain (owner's laptop):** VS 18 Build Tools (MSVC 14.51), Qt 6.11.1
-  `C:\Qt.11.1\msvc2022_64`, CMake/Ninja from the Build Tools. Run
+  `C:\Qt\6.11.1\msvc2022_64`, CMake/Ninja from the Build Tools. Run
   commands in a developer shell (`vcvars64.bat`; it needs
   `C:\Program Files (x86)\Microsoft Visual Studio\Installer` on `PATH`).
 - **Build and test:** `python tools/fetch_backends.py` (once), then
   `cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64`, `cmake --build build/dev`,
-  `ctest --test-dir build/dev` (8 suites), `python tools/check_repository.py`.
+  `ctest --test-dir build/dev` (9 suites, about 4 min), `python tools/check_repository.py`.
 - **Package:** `python tools/package_windows.py --build-dir build/dev` writes
   `dist/SimNodus-0.1.0-dev-windows-x64.zip` and runs the packaged
   `--check-engine` and `--smoke-test`. Screenshots for checks:
@@ -187,4 +194,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   `#ifndef Q_MOC_RUN`; GCC treats missing aggregate initializers and implicit
   `[=]` captures as errors; never delete a widget inside its own signal
   (defer with `QTimer::singleShot(0, ...)`); offscreen GUI tests must send
-  mouse-move events explicitly.
+  mouse-move events explicitly; an intermittent MCU test failure was a
+  session artifact (points computed after Stop), not Renode: compare the
+  runner's event stream with what the circuit reads before blaming the
+  backend.

@@ -52,8 +52,15 @@ target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets simnodus::session simnodus
 # Last-resort examples location for running from a build tree.
 target_compile_definitions(simnodus_ui PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 
-add_executable(simnodus main.cpp)
-set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON)
+# Application icon: Qt resource for the windows, Windows resource for the .exe.
+set(SIMNODUS_ICON_FILE "${PROJECT_SOURCE_DIR}/resources/icons/simnodus.ico")
+set(_simnodus_icon_sources "${PROJECT_SOURCE_DIR}/resources/icons/icons.qrc")
+if(WIN32)
+    configure_file(simnodus.rc.in "${CMAKE_CURRENT_BINARY_DIR}/generated/simnodus.rc" @ONLY)
+    list(APPEND _simnodus_icon_sources "${CMAKE_CURRENT_BINARY_DIR}/generated/simnodus.rc")
+endif()
+add_executable(simnodus main.cpp ${_simnodus_icon_sources})
+set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON AUTORCC ON)
 target_link_libraries(simnodus PRIVATE simnodus_ui simnodus::warnings)
 
 # Layout of an installed (or packaged) application:
@@ -112,6 +119,11 @@ else()
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
         FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/mcu")
+    install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+    foreach(_size 16 24 32 48 64 128 256 512)
+        install(FILES "${PROJECT_SOURCE_DIR}/resources/icons/simnodus_${_size}.png"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_size}x${_size}/apps" RENAME simnodus.png)
+    endforeach()
 endif()
 
 if(BUILD_TESTING)

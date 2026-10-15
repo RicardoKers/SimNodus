@@ -45,6 +45,7 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-134 | UART terminal | MCU-05, AN-08 | done |
 | SN-135 | Logic lanes in the analyzer | AN-07 | done |
 | SN-136 | Lesson 1 and 2 example projects with firmware source | — | done |
+| SN-137 | Clock model: RCC ready flags (HSE, PLL, SWS) and SysTick/CPU speed following the configured clock, so STM32CubeIDE HAL projects run | MCU-01, MCU-08 | todo |
 
 ## Phase 3 — ADC, PWM, components B, release 0.3 (until 2026-11-27)
 
