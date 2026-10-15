@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0083: Microcontroller in lockstep with the circuit](0083-microcontroller-lockstep.md):
+  firmware and circuit stay within 20 ms of simulated time in both directions;
+  board profiles are library data; measured Renode model deviations.
 - [0082: Renode engine integration](0082-renode-engine-integration.md): one Renode
   process per run, loopback-only control server, per-run folder, vendored client;
   distribution of the Renode bundle still needs a license review.

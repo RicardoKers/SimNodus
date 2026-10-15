@@ -50,6 +50,26 @@ ground symbol.
 Interactive runs are computed in 1 s segments with a 100 µs maximum time
 step by default; edges of switches and generators are resolved to that step.
 
+## Microcontroller (Blue Pill)
+
+- Place **Blue Pill (STM32F103C8)** from Microcontrollers and connect one of
+  its **G** pins to ground. In Properties, **Browse...** chooses the firmware
+  (an `.elf` built for the STM32F103C8, for example with STM32CubeIDE); the
+  path is stored relative to the project. **Reload** uses a rebuilt file and
+  restarts a running simulation.
+- **F5** first starts the microcontroller engine (Renode, a few seconds);
+  the circuit runs when the firmware is ready. Firmware and circuit stay
+  within 20 ms of each other in simulated time.
+- While running, every GPIO pin shows its state: red = output high, blue =
+  output low, dotted outline = alternate function, hollow = input. The PC13
+  LED on the board lights when PC13 is low; click **RESET** to restart the
+  firmware.
+- Example: File > Examples > `07_Blue_Pill_blink` (PC13 blinks every 500 ms,
+  PA0..PA3 count). Its source is in `examples/firmware/blink/`.
+- Not yet in this build: GPIO outputs do not drive the circuit and circuit
+  voltages do not reach GPIO inputs (next steps of release 0.2); transient
+  mode does not run microcontrollers.
+
 ## Signal Analyzer
 
 - **P** (Probe tool): click a wire for a voltage, a component pin for the

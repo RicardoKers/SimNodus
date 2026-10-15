@@ -9,6 +9,7 @@
 #pragma once
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "library/component_library.hpp"
 #include "model/schematic.hpp"
 #endif
 
@@ -40,12 +41,16 @@ public:
 
 signals:
     void message(const QString& text);
+    // Reload of a microcontroller's firmware (restarts a running simulation).
+    void firmware_reload_requested();
 
 private:
     void rebuild();
     // Rebuilds after the current event: editors may be inside their own handlers.
     void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
+    QWidget* file_editor(const library::Parameter& parameter, const QString& value);
+    QString project_dir() const;
     void commit_designator(const QString& text);
     void commit_label(const QString& text);
     bool editing() const;

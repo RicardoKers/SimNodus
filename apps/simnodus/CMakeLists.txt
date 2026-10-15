@@ -84,7 +84,9 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/QUICK_START.md" DESTINATION . RENAME QUICK-START.md)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
-    install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples FILES_MATCHING PATTERN "*.snx")
+    # Example projects with their firmware (ELF, C source and linker script).
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION mcu)
     if(SIMNODUS_RENODE)
         # The whole portable bundle with its licenses/, without Renode's own test suite.
@@ -103,7 +105,7 @@ else()
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/ngspice")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
-        FILES_MATCHING PATTERN "*.snx")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/mcu")
 endif()
 

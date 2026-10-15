@@ -6,10 +6,15 @@
 #include "schematic_scene.hpp"
 
 #include "library/component_library.hpp"
+#include "mcu/renode_engine.hpp"
 #include "model/engineering.hpp"
 
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QStringList>
 
+#include <algorithm>
 #include <cctype>
 
 namespace simnodus::ui {
@@ -85,6 +90,18 @@ bool RunController::start(QString& error)
         }
     }
     std::string reason;
+    // Microcontroller boards: firmware relative to the project file, Renode next to the application.
+    sim::McuEnvironment environment;
+    const QString base = document_.base_dir();
+    environment.project_dir = std::filesystem::path((base.isEmpty() ? QDir::currentPath() : base).toStdWString());
+    const std::filesystem::path application_dir = QCoreApplication::applicationDirPath().toStdWString();
+    environment.renode = mcu::find_renode(application_dir);
+    environment.resources = mcu::find_mcu_resources(application_dir);
+    if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason)) {
+        error = QString::fromStdString(reason);
+        emit state_changed();
+        return false;
+    }
     if (!session_->start(std::move(request), reason)) {
         error = QString::fromStdString(reason);
         emit state_changed();
@@ -216,6 +233,11 @@ std::optional<double> RunController::net_voltage(const std::string& net) const
     return session_->latest(net);
 }
 
+void RunController::mcu_reset(model::Id component)
+{
+    session_->mcu_reset(component);
+}
+
 void RunController::refresh()
 {
     const auto status = session_->status();
@@ -259,6 +281,12 @@ void RunController::refresh()
             }
         }
     }
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        if (d && d->mcu) {
+            live.mcu_pins[c.id] = session_->mcu_pins(c.id);
+        }
+    }
     scene_.set_live(std::move(live));
     emit refreshed();
     if (status.state != last_state_) {
@@ -289,9 +317,19 @@ QString RunController::mode_description() const
         return tr("transient analysis, stop %1s, maximum step %2s")
             .arg(QString::fromStdString(model::format_engineering(s.transient_stop)), step);
     }
-    return tr("interactive (approximate): %1s segments, maximum step %2s; switch, button and generator edges "
-              "are resolved to the time step; semiconductor charge is not carried across segments")
-        .arg(QString::fromStdString(model::format_engineering(s.segment)), step);
+    QString text = tr("interactive (approximate): %1s segments, maximum step %2s; switch, button and generator edges "
+                      "are resolved to the time step; semiconductor charge is not carried across segments")
+                       .arg(QString::fromStdString(model::format_engineering(s.segment)), step);
+    const auto& library = document_.library();
+    const auto& components = snapshot_.components();
+    if (std::any_of(components.begin(), components.end(), [&library](const model::Component& c) {
+            const auto* d = library.find(c.type);
+            return d && d->mcu;
+        })) {
+        text += tr("; microcontroller firmware runs in Renode within 20 ms of the circuit's time, and its pins are "
+                   "not yet connected electrically");
+    }
+    return text;
 }
 
 QString RunController::live_text(const std::set<model::Id>& selection) const

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: MIT
 #include "document.hpp"
 
+#include "editing/operations.hpp"
 #include "io/project_file.hpp"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QUndoCommand>
 #include <QUndoStack>
@@ -54,6 +56,7 @@ void Document::replace(model::Schematic schematic, const QString& path)
     undo_->clear();
     schematic_ = std::move(schematic);
     path_ = path;
+    origin_dir_.clear();
     undo_->setClean();
     emit changed();
     emit file_changed();
@@ -86,13 +89,48 @@ bool Document::open_copy(const QString& path, QStringList& errors, QStringList& 
     if (!open(path, errors, warnings)) {
         return false;
     }
+    origin_dir_ = QFileInfo(path).absolutePath();
     path_.clear();
     emit file_changed();
     return true;
 }
 
+QString Document::base_dir() const
+{
+    return path_.isEmpty() ? origin_dir_ : QFileInfo(path_).absolutePath();
+}
+
 bool Document::save(const QString& path, QString& error)
 {
+    // Relative file parameters keep pointing at the same files from the new folder.
+    const QString old_base = base_dir();
+    const QString new_base = QFileInfo(path).absolutePath();
+    if (!old_base.isEmpty() && QDir(old_base) != QDir(new_base)) {
+        model::Schematic work = schematic_;
+        for (const auto& c : schematic_.components()) {
+            const auto* d = library_.find(c.type);
+            if (!d) {
+                continue;
+            }
+            for (const auto& p : d->parameters) {
+                const auto it = c.parameters.find(p.name);
+                if (p.kind != library::Parameter::Kind::File || it == c.parameters.end() || it->second.empty()) {
+                    continue;
+                }
+                const QString value = QString::fromStdString(it->second);
+                if (QDir::isAbsolutePath(value)) {
+                    continue;
+                }
+                const QString absolute = QDir(old_base).absoluteFilePath(value);
+                QString moved = QDir(new_base).relativeFilePath(absolute);
+                if (QDir::isAbsolutePath(moved)) { // another drive
+                    moved = absolute;
+                }
+                editing::set_parameter(work, c.id, p.name, moved.toStdString()).apply(work);
+            }
+        }
+        apply(model::make_edit(schematic_, work, "Update file paths"));
+    }
     const auto result = io::save_project(schematic_, path.toStdWString());
     if (!result.ok) {
         error = QString::fromStdString(result.error);

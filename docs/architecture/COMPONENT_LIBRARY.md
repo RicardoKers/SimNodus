@@ -27,16 +27,39 @@ clockwise in 90° steps.
 | `designator_offset`, `value_offset` | — | Default text positions; default `[2, -1]` and `[2, 1]` |
 | `show_designator` | — | `false` hides the designator (ground) |
 | `value_parameter` | — | Parameter shown next to the symbol |
-| `parameters` | — | `{"name", "label", "unit", "default", "min", "max", "choices", "description"}` |
+| `parameters` | — | `{"name", "label", "unit", "default", "min", "max", "choices", "description", "kind", "filter"}` |
 | `spice` | unless `ties_net` | SPICE template lines (below) |
 | `models` | — | `.model` lines, emitted once per netlist |
 | `ties_net` | — | All pins belong to this net; `"0"` makes the ground symbol |
 | `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running |
 | `readout` | — | Live value: `{"kind": "voltage", "pins": ["+", "-"]}` or `{"kind": "current", "element": "V_{ref}"}` |
+| `mcu` | — | Microcontroller board (below) |
 
 Parameter values are text in [engineering notation](../../src/model/engineering.hpp)
 (`4k7`, `100n`, `1meg`; upper-case `M` is mega). A parameter with `choices`
 takes one of the listed words instead (LED color, initial switch state).
+`"kind": "file"` makes a file path (firmware) with an optional `filter`
+(`"*.elf"`); it is stored relative to the project when possible and is not
+used by the SPICE template.
+
+## Microcontroller boards
+
+`mcu` turns a component into a board whose firmware runs in Renode
+([ADR 0082](../decisions/0082-renode-engine-integration.md),
+[ADR 0083](../decisions/0083-microcontroller-lockstep.md)). Pins named like
+`PA0` are GPIO pins (port letter and number); the others are power and
+control pins. Unconnected board pins are not reported.
+
+| Field | Meaning |
+|---|---|
+| `platform` | Platform description in the `mcu/` folder (`stm32f103c8.repl`) |
+| `firmware_parameter` | The `file` parameter holding the ELF |
+| `before_firmware`, `after_firmware` | Renode monitor commands of the board profile, around `sysbus LoadELF` |
+| `led` | `{"pin": "PC13", "active_low": true, "at": [x, y], "radius"}`: on-board LED drawn lit by the pin |
+| `reset_button` | `[x, y, width, height]`: clicking it while running resets the microcontroller |
+
+Until the electrical coupling (SN-132), the SPICE template gives GPIO pins
+a 100 MΩ load; the board's 3.3 V regulator and ground pins are real.
 
 ## Graphics
 
@@ -81,3 +104,6 @@ NO and NC push buttons, diode (1N4148-like), LED (five colors), NPN
 (2N2222-like), N-MOSFET (2N7000-like), voltmeter and ammeter. Device models
 are typical-value approximations for teaching; they are not datasheet
 matches.
+
+`resources/library/mcu/bluepill.json` adds the Blue Pill (STM32F103C8) with
+the 40 header pins in board order, the PC13 LED and the reset button.

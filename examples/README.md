@@ -13,6 +13,11 @@ opens and passes the pre-run checks without errors or warnings.
 | `04_Transistor_switch.snx` | Switch, 10 kΩ base resistor, NPN, green LED | Toggle the switch; base voltage and LED current on the scope |
 | `05_RC_charging_transient.snx` | 5 V step into 1 kΩ / 10 µF, transient 50 ms | F5: the complete curve opens in the analyzer; use the cursors at τ = 10 ms |
 | `06_Half_wave_rectifier.snx` | 5 V 50 Hz sine, diode, 1 kΩ load, 47 µF | Ripple on the scope (10 ms/div); delete C1 and compare |
+| `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf` | PC13 LED blinks every 500 ms, PA0..PA3 count; click RESET |
 
-MCU examples with firmware arrive in release 0.2 (lessons 1–3 of the
-roadmap).
+Firmware sources are in `firmware/<name>/` and link with
+`firmware/stm32f103c8.ld` without libraries; the ELF files are committed so
+that the examples run without a compiler. `python tools/build_firmware.py`
+rebuilds them (arm-none-eabi-gcc on PATH, or the GNU Tools for STM32 of an
+STM32CubeIDE installation) and records compiler and hashes in
+`firmware/firmware.json`. Lesson examples 1–3 follow in release 0.2.

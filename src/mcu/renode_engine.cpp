@@ -277,6 +277,10 @@ std::unique_ptr<RenodeEngine> RenodeEngine::start(const MachineOptions& options,
             error = "Renode exited while starting.\n" + engine->log_tail();
             return nullptr;
         }
+        if (options.cancel && *options.cancel) {
+            error = "The start was cancelled.";
+            return nullptr;
+        }
         if (startup_failed(read_file(engine->log_file()))) {
             error = "Renode could not set up the microcontroller.\n" + engine->log_tail();
             return nullptr;

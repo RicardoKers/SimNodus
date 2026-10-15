@@ -259,3 +259,23 @@ TEST_CASE("every library component generates a netlist line")
         CHECK(!n.lines.empty());
     }
 }
+
+TEST_CASE("a Blue Pill gives its regulator and high-impedance pins, without unconnected-pin warnings")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    b.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink.elf"}});
+    const auto n = netlist::generate_netlist(b.schematic, lib);
+    if (!n.ok() || !n.diagnostics.empty()) {
+        dump(n);
+    }
+    CHECK(n.ok());
+    CHECK(!has(n, "unconnected-pin"));
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "V_U1_reg reg_U1 0 DC 3.3") != n.lines.end());
+    const auto high_impedance = std::count_if(n.lines.begin(), n.lines.end(),
+        [](const std::string& l) { return l.size() > 7 && l.compare(l.size() - 7, 7, " 100Meg") == 0; });
+    if (high_impedance != 32) {
+        dump(n);
+    }
+    CHECK(high_impedance == 32);
+}

@@ -161,9 +161,13 @@ int main(int argc, char** argv)
     const QCommandLineOption screenshot_option(QStringLiteral("screenshot"),
         QCoreApplication::translate("main", "Save images of the windows to this PNG file and exit."),
         QStringLiteral("file"));
+    const QCommandLineOption delay_option(QStringLiteral("screenshot-delay"),
+        QCoreApplication::translate("main", "Milliseconds before the screenshot (default 300, 2500 with --run)."),
+        QStringLiteral("ms"));
     const QCommandLineOption run_option(QStringLiteral("run"),
         QCoreApplication::translate("main", "Start the simulation after opening the project."));
-    parser.addOptions({settings_option, smoke_option, engine_option, mcu_option, screenshot_option, run_option});
+    parser.addOptions(
+        {settings_option, smoke_option, engine_option, mcu_option, screenshot_option, delay_option, run_option});
     parser.addPositionalArgument(QStringLiteral("project"),
         QCoreApplication::translate("main", "Project file (.snx) to open."), QStringLiteral("[project]"));
     parser.process(application);
@@ -192,7 +196,10 @@ int main(int argc, char** argv)
     }
     if (parser.isSet(screenshot_option)) {
         attach_console();
-        return screenshot(window, parser.value(screenshot_option), parser.isSet(run_option) ? 2500 : 300);
+        const int delay = parser.isSet(delay_option) ? parser.value(delay_option).toInt()
+            : parser.isSet(run_option)                ? 2500
+                                                      : 300;
+        return screenshot(window, parser.value(screenshot_option), delay);
     }
     window.show();
     window.show_restored_windows();

@@ -82,7 +82,7 @@ an optional bottom message panel and a compact toolbar.
 | INT-03 | Live visual state: LED brightness/color from its current, lamp brightness, switch position, meter readouts on the schematic, optional wire coloring by voltage. Refresh 10–30 Hz, independent of engine speed | 1 | done |
 | INT-04 | Selecting an item while running shows its live values (V, I, P and model-specific values) in the Properties panel; hovering a net or pin shows a tooltip with its present voltage | 1 | done |
 | INT-05 | Topology changes (add/delete/move/wire) are not applied to a running simulation. Editing the topology asks to stop the simulation first; value changes of non-interactive parts apply after a restart. The document is never lost because of an engine error | 1 | done |
-| INT-06 | Microcontroller pins show their logic state/direction on the symbol while running; the on-board LED (PC13) and reset button of the Blue Pill are interactive | 2 | planned |
+| INT-06 | Microcontroller pins show their logic state/direction on the symbol while running; the on-board LED (PC13) and reset button of the Blue Pill are interactive | 2 | done |
 
 ## 4. Signal Analyzer window
 
@@ -118,7 +118,7 @@ A separate top-level window that can be placed on another monitor.
 
 | ID | Requirement | Phase | Status |
 |---|---|---|---|
-| MCU-01 | Blue Pill component with its real pin names; properties select the firmware ELF (path stored relative to the project) and offer Reload | 2 | planned |
+| MCU-01 | Blue Pill component with its real pin names; properties select the firmware ELF (path stored relative to the project) and offer Reload | 2 | done |
 | MCU-02 | Real firmware runs in Renode, in lockstep with the analog engine using a coupling quantum Q (default to be chosen from measurements, configurable). MCU-to-circuit timing within Q is labeled approximate | 2 | planned |
 | MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | planned |
 | MCU-04 | GPIO input reads circuit voltages with Schmitt thresholds; EXTI interrupts fire from circuit transitions (pressing a button on the schematic triggers the firmware interrupt) | 2 | planned |

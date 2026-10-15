@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QToolTip>
+#include <QTransform>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -490,13 +491,27 @@ void SchematicView::set_probe_reference(const model::Point& at)
     }
 }
 
-bool SchematicView::handle_control_press(model::Id id, const QPointF&)
+bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_point)
 {
     if (!scene_) {
         return false;
     }
     const auto* c = scene_->document().schematic().component(id);
     const auto* d = c ? scene_->library().find(c->type) : nullptr;
+    if (d && d->mcu && d->mcu->reset_button) {
+        // Symbol coordinates of the click: undo the item position, rotation and mirror.
+        QPointF local = scene_->item_of(id)->mapFromScene(scene_point) / scene_grid;
+        QTransform orientation;
+        orientation.rotate(c->orientation.rotation);
+        orientation.scale(c->orientation.mirrored ? -1 : 1, 1);
+        local = orientation.inverted().map(local);
+        const auto& r = *d->mcu->reset_button;
+        if (QRectF(r[0].x, r[0].y, r[1].x, r[1].y).contains(local)) {
+            emit mcu_reset_requested(id);
+            return true;
+        }
+        return false;
+    }
     if (!d || !d->interactive) {
         return false;
     }

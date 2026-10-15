@@ -11,6 +11,13 @@
 
 #include <QApplication>
 #include <QComboBox>
+#include <QDateTime>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QHBoxLayout>
+#include <QLocale>
+#include <QPushButton>
 #include <QCoreApplication>
 #include <QFormLayout>
 #include <QLabel>
@@ -32,7 +39,7 @@ QString translated(const std::string& text)
 // Empty if valid; otherwise the reason shown on the field.
 QString validate(const library::Parameter& p, const QString& text)
 {
-    if (!p.choices.empty()) {
+    if (!p.choices.empty() || p.kind == library::Parameter::Kind::File) {
         return {};
     }
     const auto value = model::parse_engineering(text.toStdString(), p.unit);
@@ -261,7 +268,9 @@ void PropertiesPanel::rebuild()
                 + QStringLiteral(")");
         }
         QWidget* editor = nullptr;
-        if (!p.choices.empty()) {
+        if (p.kind == library::Parameter::Kind::File) {
+            editor = file_editor(p, common ? value : QString());
+        } else if (!p.choices.empty()) {
             auto* box = new QComboBox;
             for (const auto& choice : p.choices) {
                 box->addItem(translated(choice), QString::fromStdString(choice));
@@ -299,6 +308,59 @@ void PropertiesPanel::rebuild()
         }
     }
     rebuilding_ = false;
+}
+
+QString PropertiesPanel::project_dir() const
+{
+    return document_ ? document_->base_dir() : QString();
+}
+
+QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString& value)
+{
+    auto* host = new QWidget;
+    auto* row = new QHBoxLayout(host);
+    row->setContentsMargins(0, 0, 0, 0);
+    auto* edit = new QLineEdit(value);
+    edit->setObjectName(QStringLiteral("file_%1").arg(QString::fromStdString(p.name)));
+    edit->setPlaceholderText(tr("Choose a file"));
+    const QString dir = project_dir();
+    const QString absolute = value.isEmpty() || dir.isEmpty() ? value : QDir(dir).absoluteFilePath(value);
+    const QFileInfo info(absolute);
+    edit->setToolTip(value.isEmpty() ? translated(p.description)
+            : info.isFile() ? tr("%1\n%2 bytes, modified %3")
+                                  .arg(QDir::toNativeSeparators(info.absoluteFilePath()))
+                                  .arg(info.size())
+                                  .arg(QLocale().toString(info.lastModified(), QLocale::ShortFormat))
+                            : tr("%1 does not exist").arg(QDir::toNativeSeparators(absolute)));
+    mark(edit, value.isEmpty() || info.isFile() ? QString() : edit->toolTip());
+    const std::string name = p.name;
+    connect(edit, &QLineEdit::editingFinished, this, [this, edit, name] {
+        if (!rebuilding_) {
+            commit_parameter(name, QDir::fromNativeSeparators(edit->text().trimmed()));
+        }
+    });
+    auto* browse = new QPushButton(tr("Browse..."));
+    browse->setObjectName(QStringLiteral("browse_%1").arg(QString::fromStdString(p.name)));
+    const QString filter = p.filter.empty() ? tr("All files (*)")
+                                            : tr("Firmware (%1);;All files (*)").arg(QString::fromStdString(p.filter));
+    connect(browse, &QPushButton::clicked, this, [this, name, filter, absolute] {
+        const QString start = !absolute.isEmpty() ? QFileInfo(absolute).absolutePath() : project_dir();
+        const QString chosen = QFileDialog::getOpenFileName(this, tr("Choose the firmware"), start, filter);
+        if (chosen.isEmpty()) {
+            return;
+        }
+        // Relative to the project when it has a folder, so projects can be moved with their firmware.
+        const QString dir = project_dir();
+        commit_parameter(name, dir.isEmpty() ? chosen : QDir(dir).relativeFilePath(chosen));
+    });
+    auto* reload = new QPushButton(tr("Reload"));
+    reload->setObjectName(QStringLiteral("reload_%1").arg(QString::fromStdString(p.name)));
+    reload->setToolTip(tr("Use the rebuilt file: restarts a running simulation"));
+    connect(reload, &QPushButton::clicked, this, &PropertiesPanel::firmware_reload_requested);
+    row->addWidget(edit, 1);
+    row->addWidget(browse);
+    row->addWidget(reload);
+    return host;
 }
 
 void PropertiesPanel::commit_parameter(const std::string& name, const QString& text)

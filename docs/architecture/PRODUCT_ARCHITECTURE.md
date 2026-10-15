@@ -109,6 +109,11 @@ results with analytical references (RC, RL, divider, diode clamp).
   `resources/renode/LoopbackControl.cs`, a per-run folder with relative paths,
   exact `run_for` virtual time, GPIO set/get and change events with virtual
   timestamps (quantum granularity, only during `run_for`), 32-bit bus access.
+- **McuRunner** (`src/mcu`, SN-131, [ADR 0083](../decisions/0083-microcontroller-lockstep.md)):
+  one thread per board owning its RenodeEngine; `SimulationSession` starts it
+  before the circuit and keeps firmware and circuit within `mcu_lead_us` of
+  each other; pin levels and modes feed the board symbol, the reset button
+  writes SCB AIRCR.
 - **Coupler** (phase 2, SN-132): Renode leads by quantum Q; GPIO outputs
   become external sources; analog crossings feed GPIO inputs at the end of the
   quantum (E-03 sampled exchange, labeled approximate). Reused knowledge:

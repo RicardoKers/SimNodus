@@ -39,7 +39,7 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | ID | Task | Requirements | Status |
 |---|---|---|---|
 | SN-130 | Renode engine wrapper (Linux and Windows, pinned 1.16.1), process lifecycle, time control | MCU-02 | done |
-| SN-131 | Blue Pill component, board profile, ELF selection/reload, pin state display | MCU-01, INT-06 | todo |
+| SN-131 | Blue Pill component, board profile, ELF selection/reload, pin state display | MCU-01, INT-06 | done |
 | SN-132 | Coupler: lockstep quantum, GPIO output electrical model into ngspice | MCU-02, MCU-03 | todo |
 | SN-133 | GPIO input with Schmitt thresholds and EXTI | MCU-04 | todo |
 | SN-134 | UART terminal | MCU-05, AN-08 | todo |

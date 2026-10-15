@@ -153,10 +153,20 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
         properties_->focus_value();
     });
     connect(view_, &SchematicView::control_changed, run_, &RunController::set_control);
+    connect(view_, &SchematicView::mcu_reset_requested, run_, &RunController::mcu_reset);
     connect(view_, &SchematicView::label_name_needed, this, [this](model::Point at) { ask_label_name(at.x, at.y); });
     connect(scene_, &QGraphicsScene::selectionChanged, this, [this] {
         properties_->set_selection(scene_->selected_ids());
         properties_->set_live_text(run_->live_text(scene_->selected_ids()));
+    });
+    connect(properties_, &PropertiesPanel::firmware_reload_requested, this, [this] {
+        if (run_->active()) {
+            run_->stop();
+            run();
+            statusBar()->showMessage(tr("Firmware reloaded; the simulation restarted."), 4000);
+        } else {
+            statusBar()->showMessage(tr("The firmware is read when the simulation starts."), 4000);
+        }
     });
     connect(properties_, &PropertiesPanel::message, this, [this](const QString& text) {
         statusBar()->showMessage(text, 6000);
@@ -553,7 +563,7 @@ void MainWindow::update_status()
     QString state;
     switch (status.state) {
     case sim::RunState::Running:
-        state = tr("Running");
+        state = status.starting_mcu ? tr("Starting the microcontroller...") : tr("Running");
         break;
     case sim::RunState::Paused:
         state = tr("Paused");
@@ -651,7 +661,14 @@ void MainWindow::run()
     }
     run_->set_speed(document_->schematic().settings().speed);
     analyzer_->reload();
-    statusBar()->showMessage(tr("Simulation started. Click switches and buttons to operate them."), 4000);
+    const auto& components = document_->schematic().components();
+    const bool board = std::any_of(components.begin(), components.end(), [this](const model::Component& c) {
+        const auto* d = library_.find(c.type);
+        return d && d->mcu;
+    });
+    statusBar()->showMessage(board ? tr("Starting the microcontroller; the circuit runs when its firmware is ready.")
+                                   : tr("Simulation started. Click switches and buttons to operate them."),
+        board ? 8000 : 4000);
 }
 
 void MainWindow::pause_resume()

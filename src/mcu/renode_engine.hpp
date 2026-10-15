@@ -12,6 +12,7 @@
 // that runs the simulation.
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
@@ -42,6 +43,7 @@ struct MachineOptions {
     std::vector<std::string> after_firmware;
     std::uint32_t quantum_us = 100; // Renode global quantum
     std::chrono::milliseconds start_timeout{60000};
+    const std::atomic<bool>* cancel = nullptr; // start() gives up when it becomes true
 };
 
 struct GpioEvent {
