@@ -109,6 +109,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
     for (const auto& m : request_.mcus) {
@@ -509,8 +510,10 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
         // Never wait for a firmware that may not run. When the firmware reaches this
         // limit it collects held events and reports the complete time.
         runner.set_limit_us(time_us + request_.mcu_lead_us);
-        runner.wait_time_us(time_us, stop_requested_);
+        const bool reached = runner.wait_time_us(time_us, stop_requested_);
         cache.drives = runner.drives_at(time_us);
+        // Only after a stop (or a failed firmware): the levels are stale.
+        mcu_stale_ = mcu_stale_ || !reached;
         cache.time_us = time_us;
     }
     if (ref.pin >= cache.drives.size()) {
@@ -656,6 +659,10 @@ void SimulationSession::run_interactive()
         return it->second;
     });
     engine->set_data_handler([this, engine, &last_speed](const AcceptedPoint& point) {
+        // Points computed after the firmware stopped would show stale pin levels.
+        if (mcu_stale_) {
+            return;
+        }
         if (!index_valid_) {
             const auto names = engine->vector_names();
             index_.assign(names.size(), -1);

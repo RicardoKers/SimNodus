@@ -126,7 +126,7 @@ A separate top-level window that can be placed on another monitor.
 | MCU-06 | ADC channels sample circuit voltages through the project-owned F103 ADC model | 3 | planned |
 | MCU-07 | Timer PWM outputs, after a coverage audit of the Renode STM32F1 timer model | 3 | planned |
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
-| MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | planned |
+| MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
 
 ## 7. Projects and library
 

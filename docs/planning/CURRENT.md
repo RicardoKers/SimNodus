@@ -23,7 +23,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-136 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
   interactive run: Renode starts first, the firmware leads the circuit by at
-  most the coupling quantum (default 2 ms, ADR 0083/0085), pins show their
+  most two coupling quanta (default 1 ms, ADR 0083/0085), pins show their
   state, the PC13 LED lights, RESET
   restarts the firmware, Browse/Reload choose the ELF. GPIO outputs drive the
   circuit through the pin model (ADR 0084); example 07 blinks an external
@@ -35,6 +35,14 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   push buttons can bounce; interactive runs use Gear integration (ADR 0087).
   Probes can be dragged to another wire or pin.
   Renode ships in the Windows zip (ADR 0082).
+
+## Verified on 2026-10-15 (timing fixes, PR #116)
+
+- Lesson 1 test under load (4 parallel runs, 3 rounds): 12/12 pass, 20
+  rising edges, ripple 0.79–0.80 V. Cause of the CI failures: after Stop,
+  ngspice computed up to 2.5 ms with frozen pin levels; those points are now
+  dropped. Diagnostics showed the runner's event stream complete in every
+  failing run. ctest 9/9.
 
 ## Verified on 2026-10-15 (SN-136)
 
@@ -113,9 +121,15 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. MCU-09: user page of supported peripherals and limitations; owner's
-   hands-on test of the phase 2 features; release 0.2 by 2026-11-13.
-3. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
+2. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
+   logic lanes, probe dragging); release 0.2 by 2026-11-13. MCU-09 page:
+   `docs/user/MICROCONTROLLER.md` (update with phases 3–4).
+3. **Clock model (high priority):** RCC is plain storage, so HSE/PLL ready
+   flags never come on and STM32CubeIDE HAL projects hang in
+   `SystemClock_Config()`. Model RCC ready flags and the system clock
+   (SysTick and CPU speed following PLL/prescalers) so that CubeIDE projects
+   run; needed for lessons built with HAL and for MCU-08.
+4. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
    lesson 3) can start early.
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
@@ -133,10 +147,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   20 Hz display).
 - QTest mouse-move events are not delivered offscreen; GUI tests send them
   explicitly.
-- `gui-editor` failed intermittently on the Windows CI runner (Qt 6.10.2,
-  2 of 3 runs on 2026-10-15) without any test output; it passes locally
-  with Qt 6.11.1. CI now prints the GUI test log after a failure: read it
-  at the next occurrence.
+- `gui-editor` failed intermittently on the Windows CI runner: the CI log
+  showed the logic lanes case waiting 15 s for PA3, which first changes at
+  4 s of simulated time and took 16.7 s there. The waits are now 60 s.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
 - Renode model deviations: SysTick 125 ppm fast (ADR 0083); EXTI line n

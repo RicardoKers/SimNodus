@@ -15,8 +15,7 @@ BSRR/ODR writes for input pins, so the pull-up/pull-down choice was lost.
 
 ## Decision
 
-- **Coupling quantum Q** (project setting `mcu_quantum`, default 2 ms since
-  SN-136 — see below; 1 ms originally,
+- **Coupling quantum Q** (project setting `mcu_quantum`, default 1 ms,
   0.1 ms to 20 ms, in Simulation Settings): the firmware runs at most Q ahead
   of the circuit and advances in chunks of Q. Inputs observed by the circuit
   at time t reach the firmware before its next chunk, so their delay is at
@@ -45,15 +44,19 @@ BSRR/ODR writes for input pins, so the pull-up/pull-down choice was lost.
 
 ## Update (SN-136)
 
-- Renode can raise an event of a run chunk after the RunFor returned; the
-  upstream server dropped it (lost edges on Linux CI). The server now holds
-  such events for the next RunFor, the runner reports a chunk as complete
-  only after the following chunk or a zero-length run that collects them,
-  and input changes are queued and replayed with their spacing (pulses
-  shorter than Q survive).
-- The completing run costs a round trip per chunk: example 08 ran at 0.75x
-  real time with Q = 1 ms and at 1.00x with Q = 2 ms or 10 ms. The default
-  is 2 ms; 1 ms and 0.1 ms remain in Simulation Settings.
+- Renode can raise GPIO events of a run chunk after the RunFor returned (its
+  CPU thread finishes the quantum): a whole chunk of PA1 edges reached the
+  circuit 2 ms late in about one run of seven, and the upstream server
+  dropped events outside a RunFor. The server now holds such events for the
+  next RunFor, and the runner reports a chunk as complete only after the
+  next one; it may run one chunk past the circuit's limit to keep going. The
+  firmware therefore leads by up to two quanta and inputs arrive up to two
+  quanta late (measured: 2000 µs at Q = 1 ms). 0 failures in 15 repeated
+  lesson 1 runs afterwards.
+- Input changes are queued and replayed with their spacing (pulses shorter
+  than Q survive).
+- Speed of example 08 without the extra round trip: 1.00x real time at
+  Q = 1 ms (a zero-length "completing" run per chunk had cost 25 %).
 
 ## Alternatives
 
