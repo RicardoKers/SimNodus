@@ -96,7 +96,7 @@ A separate top-level window that can be placed on another monitor.
 | AN-04 | Time zoom/pan, two cursors with Δt, 1/Δt and values; measurements: min, max, mean, RMS, peak-to-peak, frequency, duty cycle | 1 | done |
 | AN-05 | Export visible channels to CSV and the plot to PNG | 1 | done |
 | AN-06 | Transient analysis results open in the analyzer with full zoom over the complete dataset | 1 | done |
-| AN-07 | Logic analyzer lanes for digital signals and MCU pins in the same time base as analog channels, with transition timestamps | 2 | planned |
+| AN-07 | Logic analyzer lanes for digital signals and MCU pins in the same time base as analog channels, with transition timestamps | 2 | done |
 | AN-08 | UART terminal: receive/send text for each enabled MCU UART, with time stamps optional | 2 | done |
 | AN-09 | Retained history is bounded and configurable (for example the last 10 s at full resolution); limits are visible to the user | 1 | done |
 

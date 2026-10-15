@@ -8,15 +8,19 @@
 // zoom and pan.
 #pragma once
 
+#include "run_controller.hpp"
 #include "scope_widget.hpp"
 
 #include <QMainWindow>
 #include <QTimer>
 
+#include <map>
 #include <optional>
+#include <set>
 
 class QAction;
 class QComboBox;
+class QListWidget;
 class QDoubleSpinBox;
 class QLabel;
 class QSettings;
@@ -27,6 +31,7 @@ namespace simnodus::ui {
 
 class RunController;
 class UartTerminal;
+class LogicWidget;
 
 class AnalyzerWindow : public QMainWindow {
     Q_OBJECT
@@ -37,6 +42,9 @@ public:
     ScopeWidget* scope() const { return scope_; }
     QTabWidget* tabs() const { return tabs_; }
     UartTerminal* terminal() const { return terminal_; }
+    LogicWidget* logic() const { return logic_; }
+    QListWidget* lane_list() const { return lane_list_; }
+    QLabel* transitions() const { return transitions_; }
     QComboBox* timebase() const { return timebase_; }
     QLabel* measurement_row() const { return measurements_; }
 
@@ -60,6 +68,10 @@ protected:
 
 private:
     QWidget* build_controls();
+    QWidget* build_logic_page();
+    void refresh_scope();
+    void refresh_logic();
+    void update_transitions();
     void rebuild_channel_list();
     std::vector<ScopeTrace> collect(double from, double to) const;
     void update_measurements();
@@ -70,6 +82,13 @@ private:
     ScopeWidget* scope_ = nullptr;
     QTabWidget* tabs_ = nullptr;
     UartTerminal* terminal_ = nullptr;
+    LogicWidget* logic_ = nullptr;
+    QListWidget* lane_list_ = nullptr;
+    QDoubleSpinBox* threshold_ = nullptr;
+    QLabel* transitions_ = nullptr;
+    std::vector<RunController::LogicLane> logic_lanes_;
+    std::map<QString, bool> lane_choice_; // lanes the user checked or unchecked
+    std::set<QString> auto_shown_;        // pin lanes shown because they changed
     QComboBox* timebase_ = nullptr;
     QComboBox* mode_ = nullptr;
     QComboBox* trigger_source_ = nullptr;

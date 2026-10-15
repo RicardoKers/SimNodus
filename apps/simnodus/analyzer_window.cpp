@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "analyzer_window.hpp"
 
+#include "logic_widget.hpp"
 #include "uart_terminal.hpp"
 
 #include "app_settings.hpp"
@@ -11,6 +12,8 @@
 #include "model/engineering.hpp"
 #include "sim/measurements.hpp"
 
+#include <QHBoxLayout>
+#include <QListWidget>
 #include <QAction>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -40,17 +43,6 @@ const double timebase_steps[] = {1e-6, 2e-6, 5e-6, 1e-5, 2e-5, 5e-5, 1e-4, 2e-4,
     1e-2, 2e-2, 5e-2, 0.1, 0.2, 0.5, 1.0};
 const double scale_steps[] = {1e-6, 2e-6, 5e-6, 1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2,
     5e-2, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100};
-
-QWidget* placeholder(const QString& text)
-{
-    auto* label = new QLabel(text);
-    label->setAlignment(Qt::AlignCenter);
-    label->setWordWrap(true);
-    QPalette palette = label->palette();
-    palette.setColor(QPalette::WindowText, theme::muted_text);
-    label->setPalette(palette);
-    return label;
-}
 
 QString quantity(double value, const QString& unit)
 {
@@ -100,9 +92,7 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     measurements_->setWordWrap(true);
     scope_layout->addWidget(measurements_);
     tabs_->addTab(scope_page, tr("Scope"));
-    tabs_->addTab(placeholder(tr("Logic lanes for digital signals and MCU pins arrive with the microcontroller "
-                                 "in release 0.2.")),
-        tr("Logic"));
+    tabs_->addTab(build_logic_page(), tr("Logic"));
     terminal_ = new UartTerminal;
     terminal_->setObjectName(QStringLiteral("uartTerminal"));
     tabs_->addTab(terminal_, tr("UART"));
@@ -317,12 +307,123 @@ std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to) const
     return traces;
 }
 
+QWidget* AnalyzerWindow::build_logic_page()
+{
+    auto* page = new QWidget;
+    auto* row = new QHBoxLayout(page);
+    row->setContentsMargins(4, 4, 4, 4);
+    auto* side = new QVBoxLayout;
+    lane_list_ = new QListWidget;
+    lane_list_->setObjectName(QStringLiteral("logicLanes"));
+    lane_list_->setToolTip(tr("Signals shown as lanes; microcontroller pins appear by themselves when they change"));
+    lane_list_->setMaximumWidth(180);
+    side->addWidget(lane_list_, 1);
+    auto* threshold_row = new QHBoxLayout;
+    threshold_row->addWidget(new QLabel(tr("Probe threshold")));
+    threshold_ = new QDoubleSpinBox;
+    threshold_->setObjectName(QStringLiteral("logicThreshold"));
+    threshold_->setRange(-100, 100);
+    threshold_->setDecimals(2);
+    threshold_->setSingleStep(0.1);
+    threshold_->setValue(1.65);
+    threshold_->setSuffix(QStringLiteral(" V"));
+    threshold_->setToolTip(tr("Voltage channels read 1 above this level"));
+    threshold_row->addWidget(threshold_);
+    side->addLayout(threshold_row);
+    row->addLayout(side);
+    auto* main = new QVBoxLayout;
+    logic_ = new LogicWidget;
+    logic_->setObjectName(QStringLiteral("logicView"));
+    main->addWidget(logic_, 1);
+    transitions_ = new QLabel;
+    transitions_->setObjectName(QStringLiteral("logicTransitions"));
+    transitions_->setWordWrap(true);
+    transitions_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    main->addWidget(transitions_);
+    row->addLayout(main, 1);
+    connect(lane_list_, &QListWidget::itemChanged, this, [this](QListWidgetItem* item) {
+        lane_choice_[item->text()] = item->checkState() == Qt::Checked;
+        QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may rebuild this list
+    });
+    connect(logic_, &LogicWidget::lane_selected, this, [this](int) { update_transitions(); });
+    return page;
+}
+
 void AnalyzerWindow::refresh()
 {
     if (!controller_ || !isVisible()) {
         return;
     }
     terminal_->refresh();
+    refresh_scope();
+    refresh_logic();
+}
+
+void AnalyzerWindow::refresh_logic()
+{
+    const auto lanes = controller_->logic_lanes();
+    if (lanes.size() != logic_lanes_.size()
+        || !std::equal(lanes.begin(), lanes.end(), logic_lanes_.begin(),
+            [](const auto& a, const auto& b) { return a.title == b.title; })) {
+        logic_lanes_ = lanes;
+        const QSignalBlocker blocker(lane_list_);
+        lane_list_->clear();
+        for (const auto& lane : logic_lanes_) {
+            auto* item = new QListWidgetItem(lane.title, lane_list_);
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+            const auto choice = lane_choice_.find(lane.title);
+            item->setCheckState(choice != lane_choice_.end() && choice->second ? Qt::Checked : Qt::Unchecked);
+        }
+    }
+    const double from = scope_->window_start();
+    std::vector<LogicLaneView> views;
+    for (int i = 0; i < static_cast<int>(logic_lanes_.size()); ++i) {
+        const auto& lane = logic_lanes_[static_cast<std::size_t>(i)];
+        auto* item = lane_list_->item(i);
+        const bool chosen = lane_choice_.count(lane.title) > 0;
+        if (!item || (item->checkState() != Qt::Checked && chosen)) {
+            continue;
+        }
+        auto lane_data = controller_->lane_data(lane, from, threshold_->value());
+        if (item->checkState() != Qt::Checked) {
+            // Not chosen by the user yet: board pins appear once they change.
+            if (lane.channel >= 0 || (lane_data.changes.empty() && !auto_shown_.count(lane.title))) {
+                continue;
+            }
+            auto_shown_.insert(lane.title);
+            const QSignalBlocker blocker(lane_list_);
+            item->setCheckState(Qt::Checked);
+        }
+        views.push_back({lane.title, lane.color, lane_data.initial, std::move(lane_data.changes)});
+    }
+    logic_->set_lanes(std::move(views));
+    logic_->set_window(scope_->window_start(), scope_->window_end());
+    logic_->set_cursors(scope_->cursors_enabled(), scope_->cursor(0), scope_->cursor(1));
+    update_transitions();
+}
+
+void AnalyzerWindow::update_transitions()
+{
+    const int lane = logic_->selected();
+    if (lane < 0) {
+        transitions_->setText(tr("Click a lane to list its transitions in the window."));
+        return;
+    }
+    const auto changes = logic_->visible_transitions(lane);
+    QStringList parts;
+    const std::size_t first = changes.size() > 12 ? changes.size() - 12 : 0;
+    for (std::size_t i = first; i < changes.size(); ++i) {
+        parts << QStringLiteral("%1 %2s").arg(QChar(changes[i].second ? 0x2191 : 0x2193), // up / down arrow
+            QString::fromStdString(model::format_engineering(changes[i].first, 7)));
+    }
+    transitions_->setText(tr("%1: %2 transition(s) in the window%3")
+                              .arg(logic_->lanes()[static_cast<std::size_t>(lane)].title)
+                              .arg(changes.size())
+                              .arg(parts.isEmpty() ? QString() : QStringLiteral(": ") + parts.join(QStringLiteral("  "))));
+}
+
+void AnalyzerWindow::refresh_scope()
+{
     if (controller_->channels().size() != channel_count_) {
         rebuild_channel_list();
     }

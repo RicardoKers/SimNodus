@@ -16,6 +16,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <cstdlib>
 
 namespace simnodus::ui {
 namespace {
@@ -248,6 +250,66 @@ std::vector<RunController::UartPort> RunController::uart_ports() const
         }
     }
     return ports;
+}
+
+std::vector<RunController::LogicLane> RunController::logic_lanes() const
+{
+    std::vector<LogicLane> lanes;
+    const auto& library = document_.library();
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->mcu || !session_->mcu_status(c.id)) {
+            continue;
+        }
+        std::vector<std::pair<std::pair<char, int>, std::string>> pins; // (port, number) -> name
+        for (const auto& p : d->pins) {
+            if (p.name.size() >= 3 && p.name[0] == 'P') {
+                pins.push_back({{p.name[1], std::atoi(p.name.c_str() + 2)}, p.name});
+            }
+        }
+        std::sort(pins.begin(), pins.end()); // PA0, PA1, ..., PB0, ..., PC13
+        for (const auto& [order, name] : pins) {
+            lanes.push_back({c.id, name, -1, QString::fromStdString(c.designator + "." + name), QColor(0x2f, 0x5f, 0xd0)});
+        }
+    }
+    for (int i = 0; i < static_cast<int>(channels_.size()); ++i) {
+        const auto& ch = channels_[static_cast<std::size_t>(i)];
+        if (ch.unit == QStringLiteral("V") && ch.valid) {
+            lanes.push_back({model::no_id, {}, i, ch.name, ch.color});
+        }
+    }
+    return lanes;
+}
+
+RunController::LaneData RunController::lane_data(const LogicLane& lane, double from, double threshold) const
+{
+    LaneData data;
+    if (lane.channel < 0) {
+        const auto log = session_->mcu_pin_log(
+            lane.board, lane.pin, static_cast<std::uint64_t>(std::llround(std::max(0.0, from) * 1e6)));
+        data.initial = log.initial;
+        for (const auto& [t, level] : log.changes) {
+            data.changes.emplace_back(static_cast<double>(t) * 1e-6, level);
+        }
+        return data;
+    }
+    if (lane.channel >= static_cast<int>(channels_.size())) {
+        return data;
+    }
+    const auto samples_in = samples(channels_[static_cast<std::size_t>(lane.channel)], from);
+    if (samples_in.empty()) {
+        return data;
+    }
+    bool level = samples_in.front().value > threshold;
+    data.initial = level;
+    for (const auto& s : samples_in) {
+        const bool now = s.value > threshold;
+        if (now != level) {
+            data.changes.emplace_back(s.time, now);
+            level = now;
+        }
+    }
+    return data;
 }
 
 void RunController::mcu_reset(model::Id component)

@@ -89,6 +89,14 @@ jobs:
         run: cmake --build build/ci --config Release
       - name: Run tests (unit, engines, spikes, offscreen GUI)
         run: ctest --test-dir build/ci -C Release --output-on-failure
+      - name: Show the GUI test log after a failure
+        if: failure()
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          build/ci/tests/gui/Release/editor_tests.exe -o editor-log.txt,txt -o -,txt
+          Write-Host "exit code $LASTEXITCODE"
+          Get-Content editor-log.txt
       - name: Spike S1 quick matrix
         run: >-
           python tests/spikes/run_s1.py --quick --exe build/ci/tests/spikes/Release/s1_continuous.exe

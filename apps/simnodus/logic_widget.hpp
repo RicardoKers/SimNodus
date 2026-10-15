@@ -1,0 +1,65 @@
+// Copyright (c) 2026 Ricardo Kerschbaumer
+// SPDX-License-Identifier: MIT
+//
+// Logic analyzer lanes (AN-07): one row per digital signal, drawn in the same
+// time window as the oscilloscope, with the scope's cursors. Hovering a lane
+// shows the time of the nearest transition; clicking selects the lane.
+#pragma once
+
+#include <QColor>
+#include <QString>
+#include <QWidget>
+
+#include <optional>
+#include <utility>
+#include <vector>
+
+namespace simnodus::ui {
+
+struct LogicLaneView {
+    QString title;
+    QColor color;
+    bool initial = false;                          // level at the window start
+    std::vector<std::pair<double, bool>> changes; // seconds, new level
+};
+
+class LogicWidget : public QWidget {
+    Q_OBJECT
+public:
+    explicit LogicWidget(QWidget* parent = nullptr);
+
+    void set_lanes(std::vector<LogicLaneView> lanes);
+    const std::vector<LogicLaneView>& lanes() const { return lanes_; }
+    void set_window(double start, double end);
+    void set_cursors(bool enabled, double a, double b);
+    int selected() const { return selected_; }
+    void set_selected(int lane);
+    // Transitions of a lane inside the window (for the list under the lanes).
+    std::vector<std::pair<double, bool>> visible_transitions(int lane) const;
+
+    QSize minimumSizeHint() const override { return {320, 120}; }
+
+signals:
+    void lane_selected(int lane);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    bool event(QEvent* event) override; // tooltips
+
+private:
+    QRectF plot_rect() const;
+    double x_at(double time) const;
+    double time_at(double x) const;
+    int lane_at(double y) const;
+
+    std::vector<LogicLaneView> lanes_;
+    double start_ = 0.0;
+    double end_ = 1.0;
+    bool cursors_ = false;
+    double cursor_a_ = 0.0;
+    double cursor_b_ = 0.0;
+    int selected_ = -1;
+};
+
+} // namespace simnodus::ui
