@@ -540,11 +540,11 @@ private slots:
             return -1;
         };
         QTRY_VERIFY_WITH_TIMEOUT(lane_index(QStringLiteral("U1.PC13")) >= 0 && lane_index(QStringLiteral("U1.PA3")) >= 0,
-            15000);
+            60000); // PA3 first changes at 4 s of simulated time
         QCOMPARE(analyzer->lane_list()->item(0)->text(), QStringLiteral("U1.PA0")); // natural pin order
         QVERIFY(lane_index(QStringLiteral("U1.PB12")) < 0); // unused pins stay hidden
         const int pc13 = lane_index(QStringLiteral("U1.PC13"));
-        QTRY_VERIFY_WITH_TIMEOUT(analyzer->logic()->visible_transitions(pc13).size() >= 2, 15000);
+        QTRY_VERIFY_WITH_TIMEOUT(analyzer->logic()->visible_transitions(pc13).size() >= 2, 60000);
         analyzer->logic()->set_selected(pc13);
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("U1.PC13")));
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));

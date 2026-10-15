@@ -147,10 +147,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   20 Hz display).
 - QTest mouse-move events are not delivered offscreen; GUI tests send them
   explicitly.
-- `gui-editor` failed intermittently on the Windows CI runner (Qt 6.10.2,
-  2 of 3 runs on 2026-10-15) without any test output; it passes locally
-  with Qt 6.11.1. CI now prints the GUI test log after a failure: read it
-  at the next occurrence.
+- `gui-editor` failed intermittently on the Windows CI runner: the CI log
+  showed the logic lanes case waiting 15 s for PA3, which first changes at
+  4 s of simulated time and took 16.7 s there. The waits are now 60 s.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
 - Renode model deviations: SysTick 125 ppm fast (ADR 0083); EXTI line n
