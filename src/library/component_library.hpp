@@ -87,6 +87,7 @@ struct McuBoard {
     struct Uart {
         std::string name;  // Renode peripheral ("usart1")
         std::string label; // terminal text ("USART1 (PA9 TX, PA10 RX)")
+        std::string tx_pin; // "PA9": held high while the transmitter is on; empty if unknown
     };
     std::vector<Uart> uarts; // serial ports for the terminal (MCU-05)
 };

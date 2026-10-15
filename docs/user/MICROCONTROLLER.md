@@ -52,7 +52,10 @@ where it differs from a real board (MCU-09). Release 0.2.
 - **AFIO.** EXTI line *n* follows pin *n* of every port; the port selection
   in `AFIO_EXTICR` is not simulated. Use one pin number per EXTI line.
 - **UART.** Bytes move instantly: the baud rate is not simulated and the TX
-  pin does not carry the serial waveform.
+  pin does not carry the serial waveform. The TX pin (PA9, PA2, PB10) rests
+  high (3.3 V) while the USART and its transmitter are enabled, as on the
+  board; the scope shows that level, not the bits. Real waveforms are planned
+  with SimNodus's own STM32 emulator (E-06).
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source
