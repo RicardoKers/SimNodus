@@ -1079,9 +1079,7 @@
   "mcu": {
     "platform": "stm32f103c8.repl",
     "firmware_parameter": "firmware",
-    "before_firmware": [
-      "sysbus WriteDoubleWord 0x40021000 0x83"
-    ],
+    "before_firmware": [],
     "after_firmware": [
       "sysbus.cpu VectorTableOffset 0x08000000",
       "emulation SetGlobalAdvanceImmediately true"
@@ -1109,7 +1107,8 @@
       "input_low": 1.16
     },
     "extensions": [
-      "SimNodusGpio.cs"
+      "SimNodusGpio.cs",
+      "SimNodusRcc.cs"
     ],
     "uarts": [
       {

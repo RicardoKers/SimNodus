@@ -217,6 +217,7 @@ TEST_CASE("missing files and a broken platform are reported, not hung")
     fs::create_directories(broken);
     fs::copy_file(resources / "LoopbackControl.cs", broken / "LoopbackControl.cs", fs::copy_options::overwrite_existing);
     fs::copy_file(resources / "SimNodusGpio.cs", broken / "SimNodusGpio.cs", fs::copy_options::overwrite_existing);
+    fs::copy_file(resources / "SimNodusRcc.cs", broken / "SimNodusRcc.cs", fs::copy_options::overwrite_existing);
     std::ofstream(broken / "stm32f103c8.repl") << "this is not a platform description\n";
     o = options();
     o.resources = broken;
@@ -248,7 +249,6 @@ TEST_CASE("the blink example firmware toggles PC13 every 500 ms of virtual time"
 {
     MachineOptions machine = options();
     machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
-    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
     machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
     auto engine = start_engine(machine);
     REQUIRE(engine);
@@ -343,7 +343,6 @@ TEST_CASE("the runner follows its time limit, reports pin states and resets the 
     McuRunOptions run;
     run.machine = options();
     run.machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
-    run.machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
     run.machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
     run.pins = {"PC13", "PA0", "PA3", "PA4", "PB12"};
     McuRunner runner(run);
@@ -409,7 +408,6 @@ TEST_CASE("a falling edge on PA1 runs the EXTI1 handler of the button firmware")
 {
     MachineOptions machine = options();
     machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "button_irq" / "button_irq.elf";
-    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
     machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000", "emulation SetGlobalAdvanceImmediately true"};
     auto engine = start_engine(machine);
     REQUIRE(engine);
@@ -446,7 +444,6 @@ TEST_CASE("the UART example prints, echoes and obeys commands through USART1")
 {
     MachineOptions machine = options();
     machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "uart_echo" / "uart_echo.elf";
-    machine.before_firmware = {"sysbus WriteDoubleWord 0x40021000 0x83"};
     machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000", "emulation SetGlobalAdvanceImmediately true"};
     auto engine = start_engine(machine);
     REQUIRE(engine);
@@ -486,6 +483,142 @@ TEST_CASE("the UART example prints, echoes and obeys commands through USART1")
     CHECK(!events[0].state);
     CHECK(!engine->watch_uart("usart9"));
     CHECK(engine->usable());
+    CHECK(engine->stop() == 0);
+}
+
+namespace {
+
+constexpr std::uint64_t rcc_cr = 0x40021000;
+constexpr std::uint64_t rcc_cfgr = 0x40021004;
+constexpr std::uint64_t scb_aircr = 0xE000ED0C;
+
+// Times of the PC13 changes among `events`.
+std::vector<std::uint64_t> pc13_times(const std::vector<GpioEvent>& events)
+{
+    std::vector<std::uint64_t> times;
+    for (const auto& e : events) {
+        if (e.port == "gpioPortC" && e.pin == 13) {
+            times.push_back(e.time_us);
+        }
+    }
+    return times;
+}
+
+} // namespace
+
+TEST_CASE("the clock model sets ready flags, switches SYSCLK and speeds up SysTick until reset")
+{
+    // The blink firmware never touches RCC: its SysTick reload of 7999 gives
+    // 1 ms at 8 MHz, so PC13 toggles every 500 ms; at 72 MHz every 55.6 ms.
+    MachineOptions machine = options();
+    machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
+    machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
+    auto engine = start_engine(machine);
+    REQUIRE(engine);
+    REQUIRE(engine->watch_gpio("gpioPortC", 13));
+    CHECK(engine->read32(rcc_cr) == 0x83u);   // HSION, HSIRDY, HSITRIM 16
+    CHECK(engine->read32(rcc_cfgr) == 0u);    // HSI drives SYSCLK
+    CHECK(engine->read32(rcc_cr + 0x24) == 0x0C000000u); // CSR: power-on and pin reset flags
+
+    // A switch to a source that is not running is ignored.
+    REQUIRE(engine->write32(rcc_cfgr, 0x1));
+    CHECK(engine->read32(rcc_cfgr) == 0x1u); // SW = HSE, SWS still HSI
+    REQUIRE(engine->write32(rcc_cfgr, 0x0));
+
+    REQUIRE(engine->run_for(600000));
+    engine->take_gpio_events();
+    // HSE on, PLL from HSE x9 on, then SW = PLL: 72 MHz, as SystemClock_Config does.
+    REQUIRE(engine->write32(rcc_cr, 0x83u | (1u << 16) | (1u << 24)));
+    CHECK(engine->read32(rcc_cr) == (0x83u | (3u << 16) | (3u << 24)));
+    CHECK(engine->read32(rcc_cr + 0x08) == ((1u << 3) | (1u << 4))); // CIR: HSERDYF, PLLRDYF
+    REQUIRE(engine->write32(rcc_cfgr, (7u << 18) | (1u << 16)));
+    REQUIRE(engine->write32(rcc_cfgr, (7u << 18) | (1u << 16) | 0x2u));
+    CHECK(engine->read32(rcc_cfgr) == ((7u << 18) | (1u << 16) | 0xAu)); // SWS = PLL
+    REQUIRE(engine->run_for(300000));
+    auto times = pc13_times(engine->take_gpio_events());
+    for (const auto t : times) {
+        std::printf("  72 MHz: PC13 at %llu us\n", static_cast<unsigned long long>(t));
+    }
+    REQUIRE(times.size() >= 4);
+    for (std::size_t i = 1; i < times.size(); ++i) {
+        // 500 ticks of 8000 cycles at 72 MHz; two quanta for the timestamps.
+        CHECK(std::abs(static_cast<double>(times[i] - times[i - 1]) - 500.0 * 8000.0 / 72.0) <= 200.0);
+    }
+
+    // SYSRESETREQ: the clock tree and the SysTick go back to 8 MHz HSI.
+    REQUIRE(engine->write32(scb_aircr, 0x05FA0004));
+    REQUIRE(engine->run_for(100));
+    CHECK(engine->read32(rcc_cfgr) == 0u);
+    CHECK(engine->read32(rcc_cr) == 0x83u);
+    const auto reset_at = engine->time_us().value_or(0);
+    engine->take_gpio_events();
+    REQUIRE(engine->run_for(1100000));
+    times = pc13_times(engine->take_gpio_events());
+    REQUIRE(times.size() >= 2);
+    std::printf("  after reset at %llu us: PC13 at %llu and %llu us\n", static_cast<unsigned long long>(reset_at),
+        static_cast<unsigned long long>(times[times.size() - 2]), static_cast<unsigned long long>(times.back()));
+    CHECK(std::abs(static_cast<double>(times.back() - times[times.size() - 2]) - 500000.0) <= 300.0);
+    CHECK(engine->stop() == 0);
+}
+
+TEST_CASE("an STM32CubeIDE HAL project configures 72 MHz and keeps HAL time")
+{
+    MachineOptions machine = options();
+    machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "hal_clock" / "hal_clock.elf";
+    machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000", "emulation SetGlobalAdvanceImmediately true"};
+    auto engine = start_engine(machine);
+    REQUIRE(engine);
+    REQUIRE(engine->watch_uart("usart1"));
+    REQUIRE(engine->watch_gpio("gpioPortC", 13));
+    REQUIRE(engine->watch_gpio("gpioPortA", 1));
+    const auto begin = std::chrono::steady_clock::now();
+    for (int i = 0; i < 16; ++i) {
+        REQUIRE(engine->run_for(100000));
+    }
+    std::printf("  1.6 s of firmware time in %.1f s\n",
+        std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count());
+    std::string text;
+    for (const auto& b : engine->take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    std::printf("  received:\n%s", text.c_str());
+    CHECK(text.find("SYSCLK 72000000 Hz\r\n") != std::string::npos);
+    CHECK(text.find("HCLK   72000000 Hz\r\n") != std::string::npos);
+    CHECK(text.find("PCLK1  36000000 Hz\r\n") != std::string::npos);
+    CHECK(text.find("PCLK2  72000000 Hz\r\n") != std::string::npos);
+    CHECK((engine->read32(rcc_cfgr).value_or(0) & 0xCu) == 0x8u); // SWS = PLL
+
+    const auto events = engine->take_gpio_events();
+    const auto led = pc13_times(events);
+    std::vector<std::uint64_t> pulses; // PA1 high time in microseconds
+    std::uint64_t rise = 0;
+    for (const auto& e : events) {
+        if (e.port == "gpioPortA" && e.pin == 1) {
+            if (e.state) {
+                rise = e.time_us;
+            } else if (rise != 0) {
+                pulses.push_back(e.time_us - rise);
+            }
+        }
+    }
+    for (const auto t : led) {
+        std::printf("  PC13 at %llu us\n", static_cast<unsigned long long>(t));
+    }
+    for (const auto p : pulses) {
+        std::printf("  PA1 pulse %llu us\n", static_cast<unsigned long long>(p));
+    }
+    // Configured as output (high) during start-up, then toggled every 500 HAL ticks.
+    REQUIRE(led.size() == 4);
+    CHECK(led[0] < 1000);
+    for (std::size_t i = 2; i < led.size(); ++i) {
+        CHECK(std::abs(static_cast<double>(led[i] - led[i - 1]) - 500000.0) <= 200.0);
+    }
+    // 72000 instructions at 72 MIPS: 1 ms (9 ms at 8 MIPS); timestamps are quantum-granular.
+    REQUIRE(pulses.size() == 3);
+    for (const auto p : pulses) {
+        CHECK(p >= 900);
+        CHECK(p <= 1200);
+    }
     CHECK(engine->stop() == 0);
 }
 

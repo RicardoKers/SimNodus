@@ -17,10 +17,14 @@ opens and passes the pre-run checks without errors or warnings.
 | `09_Blue_Pill_serial_terminal.snx` | Blue Pill running `firmware/uart_echo/uart_echo.elf` (USART1, 115200 baud on a real board), LED on PA0 | Analyzer > UART: "tick N" every second; send `1` / `0` to switch the LED |
 | `10_Lesson1_GPIO_output.snx` | **Lesson 1** ([notes](lessons/lesson1_gpio_output.md)): LED on PA0, 1 kHz square wave on PA1 into a 10 kΩ / 100 nF RC filter | V(PA1), V(RC) ramps of about 0.8 V peak-to-peak, LED current 3.8 mA |
 | `11_Lesson2_button_and_EXTI.snx` | **Lesson 2** ([notes](lessons/lesson2_button_exti.md)): bouncing push button with 10 kΩ pull-up on PA1, switchable 1 µF RC filter, LED on PA0, EXTI1 counter on USART1 | Without the filter one press and release count 9 falling edges (5 on press, 4 on release); with it exactly one |
+| `12_Blue_Pill_HAL_72MHz.snx` | Blue Pill running `firmware/hal_clock/hal_clock.elf`, an STM32CubeIDE-style HAL project at 72 MHz (HSE + PLL x9); 330 Ω and yellow LED on PA1 | Analyzer > UART shows SYSCLK 72000000 Hz; PC13 blinks every 500 ms; PA1 pulses for 1 ms (72000 instructions at 72 MHz) every 500 ms |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 Firmware sources are in `firmware/<name>/` and link with
-`firmware/stm32f103c8.ld` without libraries; the ELF files are committed so
+`firmware/stm32f103c8.ld` without libraries, except `hal_clock`, which is
+built like an STM32CubeIDE project from the STM32CubeF1 HAL (`cube.json`
+names the files; `firmware/stm32f103c8_cube.ld`; notices in the package's
+THIRD-PARTY-NOTICES.txt); the ELF files are committed so
 that the examples run without a compiler. `python tools/build_firmware.py`
 rebuilds them (arm-none-eabi-gcc on PATH, or the GNU Tools for STM32 of an
 STM32CubeIDE installation) and records compiler and hashes in

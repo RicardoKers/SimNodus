@@ -20,7 +20,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-136 done.** The
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-137 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
   interactive run: Renode starts first, the firmware leads the circuit by at
   most two coupling quanta (default 1 ms, ADR 0083/0085), pins show their
@@ -35,11 +35,24 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   push buttons can bounce; interactive runs use Gear integration (ADR 0087).
   Probes can be dragged to another wire or pin.
   Renode ships in the Windows zip (ADR 0082).
-- After SN-136: user page [MICROCONTROLLER.md](../user/MICROCONTROLLER.md)
-  (MCU-09) and timing fixes merged in #116 (chunk reported complete one
-  chunk late, default quantum 1 ms, points after Stop dropped, GUI wait
-  for logic lanes 60 s). Application icon: PR #117 (Windows exe icon, window
-  icon, Linux hicolor icons + `.desktop`).
+  User page [MICROCONTROLLER.md](../user/MICROCONTROLLER.md) (MCU-09);
+  timing fixes (#116); application icon (#117).
+- **SN-137 clock model (ADR 0088):** `resources/renode/SimNodusRcc.cs`
+  replaces the RCC store: ready flags, SWS following SW, SYSCLK/HCLK from
+  the PLL settings; CPU MIPS and SysTick follow HCLK; bit-band aliases
+  mapped; `FLASH_ACR`/`PWR` stores. STM32CubeIDE HAL projects run at 72 MHz.
+  Example 12 (`hal_clock`) is built from the STM32CubeF1 1.8.7 HAL in
+  `~/STM32Cube/Repository` (`cube.json`, `stm32f103c8_cube.ld`).
+
+## Verified on 2026-10-15 (SN-137)
+
+- Renode: blink firmware after a register switch to PLL x9 toggles PC13
+  every 55.55 ms, after SYSRESETREQ every 500.0 ms again; HAL example
+  prints SYSCLK 72 MHz, HCLK 72, PCLK1 36, PCLK2 72 MHz, PC13 every
+  500.0 ms, PA1 pulse of 72000 instructions = 1000 µs. Standalone 1.6 s in
+  1.3 s. GUI: example 12 shows the report in the UART tab, running at
+  0.84x real time (busy-wait at 72 MIPS). ctest 9/9 (216 s), build without
+  warnings, package checks pass, repository checker passed.
 
 ## Verified on 2026-10-15 (timing fixes, PR #116)
 
@@ -125,25 +138,23 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Merge PR #117 (application icon) once `Build (Linux)` and `Build
+1. Merge the SN-137 pull request once `Build (Linux)` and `Build
    (Windows)` pass.
-2. **SN-137 clock model (high priority, next task):** RCC is plain storage, so
-   HSE/PLL ready flags never come on and STM32CubeIDE HAL projects hang in
-   `SystemClock_Config()`. Model RCC ready flags (HSERDY, PLLRDY, SWS
-   following SW) and the system clock (SysTick and CPU speed following
-   PLL/prescalers, 72 MHz) so that CubeIDE projects run; needed for lessons
-   built with HAL and for MCU-08. Likely a C# model next to
-   `resources/renode/SimNodusGpio.cs`; update MICROCONTROLLER.md.
-3. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
-   logic lanes, probe dragging, icon); release 0.2 by 2026-11-13 (ask
-   before cutting it). Fix whatever classroom use of 0.1.0 brings up.
-4. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
-   lesson 3) can start early.
+2. Owner's hands-on test of the phase 2 features (lessons 1–2, terminal,
+   logic lanes, probe dragging, icon, a real CubeIDE HAL project at
+   72 MHz); release 0.2 by 2026-11-13 (ask before cutting it). Fix whatever
+   classroom use of 0.1.0 brings up.
+3. Phase 3 (ADC with circuit voltages, timer PWM audit, component set B,
+   lesson 3) can start early; timers and ADC need the APB prescalers that
+   the RCC model already computes the inputs for.
+4. If 72 MHz firmware feels slow in class (0.84x measured), consider a
+   larger default quantum for MCU runs or `__WFI()` in idle loops.
 5. Carry semiconductor junction charge across segments only if the owner
    sees steps (not seen in the retest).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
-STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it).
+STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the
+STM32CubeF1 1.8.7 package in `~/STM32Cube/Repository` for `hal_clock`).
 
 ## Known constraints
 
@@ -159,7 +170,8 @@ STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it).
   4 s of simulated time and took 16.7 s there. The waits are now 60 s.
 - Renode reports GPIO events only during `run_for`, with quantum-granular
   timestamps; on Linux the child dies with the thread that started it.
-- Renode model deviations: SysTick 125 ppm fast (ADR 0083); EXTI line n
+- Renode model deviations: SysTick 125 ppm fast at 8 MHz, 14 ppm at
+  72 MHz (ADR 0083); one instruction per cycle, no clock gating (ADR 0088); EXTI line n
   follows pin n of every port, AFIO not modeled (ADR 0085). The GPIO reset
   and ODR deviations are fixed by `SimNodusGpio.cs`.
 - ARM compiler on the owner's laptop: `arm-none-eabi-gcc.exe` in
@@ -168,7 +180,7 @@ STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it).
 
 ## Resuming in a new session
 
-- **Waiting for:** CI of PR #117, then continue with "Next steps". Release builds:
+- **Waiting for:** CI of the SN-137 pull request, then continue with "Next steps". Release builds:
   configure a separate tree with `-DSIMNODUS_VERSION_SUFFIX=` (empty; `main`
   stays `dev`), package it, tag `vX.Y.Z`, attach the zip to a GitHub release.
 - **Local folder:** `D:\03_Projects\01_Actives\SimNodus_project` is a Git

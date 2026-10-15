@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-15, phase 2: SN-137)
+
+- Clock model for the Blue Pill ([ADR 0088](docs/decisions/0088-clock-model.md)): RCC ready flags (HSE, PLL, LSE, LSI) come on when enabled, SWS follows SW, and the CPU speed and SysTick follow HCLK, so the `SystemClock_Config()` that STM32CubeIDE generates runs and HAL projects work at 72 MHz. The Cortex-M3 bit-band aliases are mapped (the F1 HAL uses them), and `FLASH_ACR`/`PWR` keep what is written. RESET returns to 8 MHz.
+- Example 12 (`examples/12_Blue_Pill_HAL_72MHz.snx`): firmware written like an STM32CubeIDE project with the STM32CubeF1 HAL; prints the clock frequencies on USART1, blinks PC13 every 500 ms and shows a 1 ms pulse of 72000 instructions on PA1. `tools/build_firmware.py` builds such projects from the local STM32Cube repository (`cube.json`); notices for the HAL, CMSIS and newlib in THIRD-PARTY-NOTICES.txt.
+- Renode tests: the clock model (ready flags, SWS, SysTick nine times faster after a switch to PLL x9, back to 8 MHz after reset) and the HAL example (UART report, 500 ms ticks, 1000 µs pulse).
+
 ### Added (2026-10-15, owner request)
 
 - Application icon (provided by the owner): `simnodus.exe` carries the multi-resolution Windows icon, the windows use it through a Qt resource, and Linux installs it under `share/icons/hicolor` with a `simnodus.desktop` file. Files in `resources/icons/` ([origin and use](resources/icons/README.md)). The app's `--smoke-test` checks the icon.
