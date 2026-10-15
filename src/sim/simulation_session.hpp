@@ -120,8 +120,8 @@ public:
     std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const;
     void mcu_reset(model::Id component);
     // Level changes of a board pin for the logic lanes (empty for unknown pins).
-    mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_us) const;
-    // Serial terminal of a board's UART (see McuRunner::uart_send / uart_received).
+    mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const;
+    // Serial terminal of a board's UART (see McuBackend::uart_send / uart_received; times in ns).
     void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes);
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const;
@@ -167,7 +167,7 @@ private:
     std::map<std::string, Bounce> bounces_;
     // Created by start() before the worker exists and kept until the next start;
     // the runners themselves are thread-safe.
-    std::map<model::Id, std::unique_ptr<mcu::McuRunner>> mcus_;
+    std::map<model::Id, std::unique_ptr<mcu::McuBackend>> mcus_;
     // Pin driver sources (SN-132): source name (lower case) -> board pin.
     struct ExternalRef {
         model::Id component = model::no_id;
@@ -183,7 +183,7 @@ private:
     bool mcu_stale_ = false; // engine thread only: a firmware wait ended unreached
     double external_value(const ExternalRef& ref, double time);
     struct InputWatch {
-        mcu::McuRunner* runner = nullptr;
+        mcu::McuBackend* runner = nullptr;
         std::size_t pin = 0;
         std::string node;   // pin net (lower case)
         std::string ground; // board ground net, "0" for ground

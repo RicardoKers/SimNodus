@@ -44,7 +44,7 @@ void append(QString& text, bool& after_cr, bool& line_start, const std::string& 
             continue;
         }
         if (line_start && times && i < times->size()) {
-            text += QStringLiteral("[%1 s] ").arg(static_cast<double>((*times)[i]) / 1e6, 0, 'f', 6);
+            text += QStringLiteral("[%1 s] ").arg(static_cast<double>((*times)[i]) / 1e9, 0, 'f', 6);
         }
         line_start = false;
         if (c < 0x20 && c != '\t') {

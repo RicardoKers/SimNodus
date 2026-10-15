@@ -11,5 +11,6 @@ python tests/experiments/emu-benchmark/build.py
 build/dev/apps/simnodus-emu/simnodus-emu tests/experiments/emu-benchmark/bench.elf --ms 3000 --quiet
 ```
 
-The ELF is built locally (not committed). Measured on 2026-10-15 on the owner's
+`bench.elf` is committed so that CI can print the speed on Linux and Windows
+(step "Emulator speed" of the CI workflow). Measured on 2026-10-15 on the owner's
 laptop (Windows, MSVC Release): 119-141 MIPS.

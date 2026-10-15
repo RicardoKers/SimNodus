@@ -287,16 +287,16 @@ TEST_CASE("the blink example firmware toggles PC13 every 500 ms of virtual time"
 
 namespace {
 
-bool wait_for_time(const McuRunner& runner, std::uint64_t time_us)
+bool wait_for_time(const RenodeMcuRunner& runner, std::uint64_t time_us)
 {
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(180);
-    while (runner.status().time_us < time_us && runner.status().state == McuState::Running) {
+    while (runner.status().time_ns < time_us * 1000 && runner.status().state == McuState::Running) {
         if (std::chrono::steady_clock::now() > deadline) {
             return false;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    return runner.status().time_us == time_us;
+    return runner.status().time_ns == time_us * 1000;
 }
 
 } // namespace
@@ -345,18 +345,18 @@ TEST_CASE("the runner follows its time limit, reports pin states and resets the 
     run.machine.firmware = fs::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf";
     run.machine.after_firmware = {"sysbus.cpu VectorTableOffset 0x08000000"};
     run.pins = {"PC13", "PA0", "PA3", "PA4", "PB12"};
-    McuRunner runner(run);
+    RenodeMcuRunner runner(run);
     runner.start();
     CHECK(runner.status().state == McuState::Starting);
     std::atomic<bool> cancel{false};
     REQUIRE(runner.wait_ready(cancel));
     std::printf("  ready after %.1f s\n", runner.status().startup_seconds);
-    CHECK(runner.status().time_us == 0);
+    CHECK(runner.status().time_ns == 0);
 
-    runner.set_limit_us(600000);
+    runner.set_limit_ns(600000000);
     REQUIRE(wait_for_time(runner, 600000));
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    CHECK(runner.status().time_us == 600000); // never beyond the limit
+    CHECK(runner.status().time_ns == 600000000); // never beyond the limit
     auto pins = runner.pins();
     CHECK(pins["PC13"].mode == PinMode::Output);
     CHECK(!pins["PC13"].level); // low since 500 ms: LED lit
@@ -373,15 +373,15 @@ TEST_CASE("the runner follows its time limit, reports pin states and resets the 
     CHECK(log.initial); // the reset handler drives PC13 high at time 0
     REQUIRE(log.changes.size() == 1);
     CHECK(!log.changes[0].second);
-    CHECK(log.changes[0].first > 499000 && log.changes[0].first < 501000);
-    const auto later = runner.pin_log(0, 550000);
+    CHECK(log.changes[0].first > 499000000 && log.changes[0].first < 501000000);
+    const auto later = runner.pin_log(0, 550000000);
     CHECK(!later.initial);
     CHECK(later.changes.empty());
 
     // After a reset at 600 ms the firmware starts over: PC13 high, low again at 1100 ms.
     // Without the reset it would be high from 1000 ms on.
     runner.request_reset();
-    runner.set_limit_us(1200000);
+    runner.set_limit_ns(1200000000);
     REQUIRE(wait_for_time(runner, 1200000));
     CHECK(runner.status().resets == 1);
     pins = runner.pins();
@@ -396,7 +396,7 @@ TEST_CASE("a runner whose firmware is missing reports the failure")
     McuRunOptions run;
     run.machine = options();
     run.machine.firmware = fs::temp_directory_path() / "SimNodus tests" / "missing.elf";
-    McuRunner runner(run);
+    RenodeMcuRunner runner(run);
     runner.start();
     std::atomic<bool> cancel{false};
     CHECK(!runner.wait_ready(cancel));
@@ -413,11 +413,11 @@ TEST_CASE("a USART TX pin rests high while the transmitter is enabled")
     run.pins = {"PA9", "PA10"};
     run.uarts = {"usart1"};
     run.uart_tx_pins = {{"usart1", "PA9"}};
-    McuRunner runner(run);
+    RenodeMcuRunner runner(run);
     runner.start();
     std::atomic<bool> cancel{false};
     REQUIRE(runner.wait_ready(cancel));
-    runner.set_limit_us(50000);
+    runner.set_limit_ns(50000000);
     REQUIRE(wait_for_time(runner, 50000));
     auto pins = runner.pins();
     CHECK(pins["PA9"].mode == PinMode::Alternate);

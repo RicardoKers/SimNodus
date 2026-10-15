@@ -9,7 +9,7 @@
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
-#include "mcu/mcu_runner.hpp"
+#include "mcu/mcu_backend.hpp"
 #include "model/schematic.hpp"
 #include "netlist/connectivity.hpp"
 #endif

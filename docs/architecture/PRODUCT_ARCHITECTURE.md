@@ -109,7 +109,12 @@ results with analytical references (RC, RL, divider, diode clamp).
   `resources/renode/LoopbackControl.cs`, a per-run folder with relative paths,
   exact `run_for` virtual time, GPIO set/get and change events with virtual
   timestamps (quantum granularity, only during `run_for`), 32-bit bus access.
-- **McuRunner** (`src/mcu`, SN-131, [ADR 0083](../decisions/0083-microcontroller-lockstep.md)):
+- **McuBackend** (`src/mcu/mcu_backend.hpp`, SN-171): the engine-independent
+  interface the session uses for a running board (start, time limit and wait,
+  inputs, UART, pin states and drives, logic logs), with times in virtual
+  nanoseconds and pins named as on the board. `RenodeMcuRunner` implements it
+  today; SimNodus's own emulator will implement it in plan N1.
+- **RenodeMcuRunner** (formerly McuRunner; `src/mcu`, SN-131, [ADR 0083](../decisions/0083-microcontroller-lockstep.md)):
   one thread per board owning its RenodeEngine; `SimulationSession` starts it
   before the circuit and keeps firmware and circuit within `mcu_lead_us` of
   each other; pin levels and modes feed the board symbol, the reset button

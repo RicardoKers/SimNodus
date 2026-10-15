@@ -113,7 +113,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
     for (const auto& m : request_.mcus) {
-        auto runner = std::make_unique<mcu::McuRunner>(m.options);
+        std::unique_ptr<mcu::McuBackend> runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
         // Circuit-to-firmware direction (MCU-04): every GPIO pin's voltage to the board ground.
         const auto ground = netlist_.pin_node.find({m.component, m.ground_pin});
         const auto& names = runner->pin_names();
@@ -512,9 +512,9 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
         auto& runner = *mcus_.at(ref.component);
         // Never wait for a firmware that may not run. When the firmware reaches this
         // limit it collects held events and reports the complete time.
-        runner.set_limit_us(time_us + request_.mcu_lead_us);
-        const bool reached = runner.wait_time_us(time_us, stop_requested_);
-        cache.drives = runner.drives_at(time_us);
+        runner.set_limit_ns((time_us + request_.mcu_lead_us) * 1000);
+        const bool reached = runner.wait_time_ns(time_us * 1000, stop_requested_);
+        cache.drives = runner.drives_at(time_us * 1000);
         // Only after a stop (or a failed firmware): the levels are stale.
         mcu_stale_ = mcu_stale_ || !reached;
         cache.time_us = time_us;
@@ -598,7 +598,7 @@ std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const st
     return it->second->uart_received(uart, from, bytes, times);
 }
 
-mcu::PinLog SimulationSession::mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_us) const
+mcu::PinLog SimulationSession::mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const
 {
     const auto it = mcus_.find(component);
     if (it == mcus_.end()) {
@@ -609,7 +609,7 @@ mcu::PinLog SimulationSession::mcu_pin_log(model::Id component, const std::strin
     if (index == names.end()) {
         return {};
     }
-    return it->second->pin_log(static_cast<std::size_t>(index - names.begin()), from_us);
+    return it->second->pin_log(static_cast<std::size_t>(index - names.begin()), from_ns);
 }
 
 void SimulationSession::mcu_reset(model::Id component)
@@ -707,7 +707,7 @@ void SimulationSession::run_interactive()
                 if (level != w.level || !w.sent) {
                     w.level = level;
                     w.sent = true;
-                    w.runner->set_input(w.pin, level, global_us);
+                    w.runner->set_input(w.pin, level, global_us * 1000);
                 }
             }
         }
@@ -715,9 +715,9 @@ void SimulationSession::run_interactive()
         // both directions (the circuit waits for a slower firmware).
         const auto analog_us = static_cast<std::uint64_t>(global * 1e6);
         for (auto& [id, runner] : mcus_) {
-            runner->set_limit_us(analog_us + request_.mcu_lead_us);
+            runner->set_limit_ns((analog_us + request_.mcu_lead_us) * 1000);
             if (analog_us > request_.mcu_lead_us) {
-                runner->wait_time_us(analog_us - request_.mcu_lead_us, stop_requested_);
+                runner->wait_time_ns((analog_us - request_.mcu_lead_us) * 1000, stop_requested_);
             }
         }
         // Pause inside the callback: the engine thread simply waits.
