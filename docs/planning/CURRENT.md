@@ -20,13 +20,21 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   potentiometers, glowing LEDs, meter readouts; transient mode; Signal
   Analyzer with probes, roll/trigger, cursors, measurements, CSV/PNG export.
   See the [quick start](../user/QUICK_START.md).
-- **Phase 2 (release 0.2, due 2026-11-13): SN-130 and SN-131 done.** The
+- **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-132 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
-  interactive run: Renode starts first, firmware and circuit stay within
-  20 ms of simulated time (ADR 0083), pins show their state, the PC13 LED
-  lights, RESET restarts the firmware, Browse/Reload choose the ELF. Example
-  07 blinks. Renode ships in the Windows zip (ADR 0082). GPIO pins are not
-  yet electrically coupled (SN-132).
+  interactive run: Renode starts first, the firmware leads the circuit by
+  0–20 ms (ADR 0083), pins show their state, the PC13 LED lights, RESET
+  restarts the firmware, Browse/Reload choose the ELF. GPIO outputs drive the
+  circuit through the pin model (ADR 0084); example 07 blinks an external
+  LED on PA0. Renode ships in the Windows zip (ADR 0082). Circuit-to-GPIO
+  inputs are next (SN-133).
+
+## Verified on 2026-10-15 (SN-132)
+
+- ctest 9/9 (91 s); new: blink firmware into 1 kΩ gives 3.1731 V with edges
+  within 0.1 ms of 250/500/750/1000 ms; pin model unit cases (push-pull,
+  open drain, pulls); GUI: the example's LED reaches > 2 mA and goes dark.
+  Screenshot: V(PA0) 2 Hz, 50 %, 3.145 V with the LED, LED current 3.8 mA.
 
 ## Verified on 2026-10-15
 
@@ -67,11 +75,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 ## Next steps
 
 1. Fix whatever classroom use of 0.1.0 brings up (patch releases 0.1.x).
-2. SN-132 coupler: GPIO outputs drive the circuit through a pin model
-   (push-pull/open-drain, 3.3 V, output resistance) from the GPIO events,
-   narrowing the 20 ms window to the coupling quantum (E-03); then SN-133
-   inputs with Schmitt thresholds and AFIO-based EXTI, SN-134 UART, SN-135
-   logic lanes, SN-136 lesson examples (owner's firmware sources welcome).
+2. SN-133: GPIO inputs read circuit voltages with Schmitt thresholds,
+   applied to Renode at exchange boundaries (E-03 sampled, labeled
+   approximate; quantum from measurements, configurable for MCU-02), and
+   AFIO-based EXTI routing in the platform; a button on the schematic
+   triggers the firmware interrupt. Then SN-134 UART, SN-135 logic lanes,
+   SN-136 lesson examples (owner's firmware sources welcome).
 4. Renode ships in the Windows zip (owner approval 2026-10-14, license review
    in ADR 0082); `--check-mcu-engine` checks it from the package. Firmware is
    built with the GNU Tools for STM32 14.3.rel1 inside the owner's

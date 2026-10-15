@@ -64,11 +64,16 @@ step by default; edges of switches and generators are resolved to that step.
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
   firmware.
+- GPIO outputs drive the circuit like the real pins: push-pull outputs are
+  3.3 V or 0 V behind about 40 Ω, open-drain outputs only pull low, inputs
+  with pull-up or pull-down have 40 kΩ. An LED with a series resistor on an
+  output lights as on the real board.
 - Example: File > Examples > `07_Blue_Pill_blink` (PC13 blinks every 500 ms,
-  PA0..PA3 count). Its source is in `examples/firmware/blink/`.
-- Not yet in this build: GPIO outputs do not drive the circuit and circuit
-  voltages do not reach GPIO inputs (next steps of release 0.2); transient
-  mode does not run microcontrollers.
+  PA0..PA3 count, the LED on PA0 blinks at 2 Hz; see V(PA0) and the LED
+  current in the analyzer). Its source is in `examples/firmware/blink/`.
+- Not yet in this build: circuit voltages do not reach GPIO inputs (next
+  step of release 0.2); transient mode does not run microcontrollers.
+  Output edges fall on Renode's 100 µs time quantum.
 
 ## Signal Analyzer
 

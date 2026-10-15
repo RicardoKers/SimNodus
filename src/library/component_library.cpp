@@ -359,6 +359,18 @@ ComponentDefinition parse_definition(const json& j)
         if (!firmware || firmware->kind != Parameter::Kind::File) {
             invalid("mcu.firmware_parameter must name a file parameter");
         }
+        if (m.contains("pin_model")) {
+            const auto& pm = m["pin_model"];
+            board.pin_model.supply = number(pm.value("supply", json(3.3)), "mcu.pin_model.supply");
+            board.pin_model.output_resistance =
+                number(pm.value("output_resistance", json(40.0)), "mcu.pin_model.output_resistance");
+            board.pin_model.pull_resistance =
+                number(pm.value("pull_resistance", json(40000.0)), "mcu.pin_model.pull_resistance");
+            if (board.pin_model.supply <= 0 || board.pin_model.output_resistance <= 0
+                || board.pin_model.pull_resistance <= 0) {
+                invalid("mcu.pin_model values must be positive");
+            }
+        }
         if (m.contains("led")) {
             McuBoard::Led led;
             led.pin = text(m["led"], "pin", true);

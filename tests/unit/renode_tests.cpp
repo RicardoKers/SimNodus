@@ -312,6 +312,28 @@ TEST_CASE("gpio pin names and pin modes are decoded")
     CHECK(decode_pin_mode(0x2) == PinMode::Output);    // 2 MHz push-pull
     CHECK(decode_pin_mode(0x6) == PinMode::Output);    // open drain
     CHECK(decode_pin_mode(0xB) == PinMode::Alternate); // 50 MHz alternate push-pull
+
+    CHECK(decode_pin_config(0x6, false).open_drain);            // general open drain
+    CHECK(!decode_pin_config(0x2, false).open_drain);
+    CHECK(decode_pin_config(0x8, true).pull == Pull::Up);        // input with pull, ODR 1
+    CHECK(decode_pin_config(0x8, false).pull == Pull::Down);
+    CHECK(decode_pin_config(0x4, true).pull == Pull::None);      // floating input
+
+    const PinModel model;
+    PinState out = decode_pin_config(0x2, false);
+    out.level = true;
+    CHECK(std::abs(pin_drive(out, model).conductance - 1.0 / 40.0) < 1e-12);
+    CHECK(std::abs(pin_drive(out, model).current - 3.3 / 40.0) < 1e-12);
+    out.level = false;
+    CHECK(pin_drive(out, model).current == 0.0);
+    PinState drain = decode_pin_config(0x6, false);
+    drain.level = true; // released: open
+    CHECK(pin_drive(drain, model).conductance == 0.0);
+    drain.level = false;
+    CHECK(pin_drive(drain, model).conductance > 0.0);
+    const PinDrive up = pin_drive(decode_pin_config(0x8, true), model);
+    CHECK(std::abs(up.current / up.conductance - 3.3) < 1e-9); // Thevenin: 3.3 V behind 40 kOhm
+    CHECK(pin_drive(decode_pin_config(0x4, false), model).conductance == 0.0);
 }
 
 TEST_CASE("the runner follows its time limit, reports pin states and resets the firmware")

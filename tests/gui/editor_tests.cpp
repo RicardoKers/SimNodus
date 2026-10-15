@@ -403,6 +403,20 @@ private slots:
         // PC13 low lights the on-board LED, high turns it off: both within a second.
         QTRY_VERIFY_WITH_TIMEOUT(!window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
         QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().mcu_pins.at(board).at("PC13").level, 5000);
+        // PA0 drives the external LED through 330 Ohm (SN-132): it blinks at 2 Hz.
+        model::Id led = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            if (c.type == "led") {
+                led = c.id;
+            }
+        }
+        auto led_current = [this, led] {
+            const auto& live = window_->scene()->live().led_current;
+            const auto it = live.find(led);
+            return it == live.end() ? 0.0 : it->second;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() > 2e-3, 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
 
         // The reset button on the board restarts the firmware.
         view()->fit_content();

@@ -19,7 +19,9 @@ meaningless and the pin display misleading.
   waits inside its data callback when the firmware falls more than that
   behind. Each microcontroller has its own `McuRunner` thread that owns its
   `RenodeEngine` and advances in chunks of at most 10 ms up to the limit set
-  by the analog time.
+  by the analog time. Since SN-132 the circuit also waits until the firmware
+  has reached the circuit's time before it uses the pin drivers, so the
+  firmware leads by 0 to 20 ms ([ADR 0084](0084-gpio-output-coupling.md)).
 - **Start order.** A run with a microcontroller starts Renode first
   (status "Starting the microcontroller...") and starts the circuit only
   when every firmware is ready; a start failure fails the run with Renode's

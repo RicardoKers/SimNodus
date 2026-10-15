@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <filesystem>
 #include <set>
 
@@ -106,8 +107,32 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         return false;
     }
     mcus_.clear();
+    external_refs_.clear();
+    mcu_caches_.clear();
     for (const auto& m : request_.mcus) {
         mcus_[m.component] = std::make_unique<mcu::McuRunner>(m.options);
+    }
+    // Pin driver sources of the boards: "pa0_g" / "pa0_i" -> pin PA0, conductance / current.
+    for (const auto& e : netlist_.externals) {
+        const auto runner = mcus_.find(e.component);
+        const auto split = e.name.rfind('_');
+        if (runner == mcus_.end() || split == std::string::npos) {
+            continue;
+        }
+        std::string pin = e.name.substr(0, split);
+        for (auto& ch : pin) {
+            ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+        }
+        const auto& names = runner->second->pin_names();
+        const auto index = std::find(names.begin(), names.end(), pin);
+        if (index == names.end()) {
+            continue;
+        }
+        if (!mcu_caches_.count(e.component)) {
+            mcu_caches_[e.component] = {};
+        }
+        external_refs_[lower(e.source)] = {e.component, static_cast<std::size_t>(index - names.begin()),
+            e.name.substr(split + 1) == "g"};
     }
 
     // Vectors: requested ones plus the state carried across segments.
@@ -408,6 +433,8 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         machine.firmware = path;
         machine.before_firmware = d->mcu->before_firmware;
         machine.after_firmware = d->mcu->after_firmware;
+        request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
+            d->mcu->pin_model.pull_resistance};
         for (const auto& pin : d->pins) {
             if (mcu::gpio_pin(pin.name)) {
                 request.options.pins.push_back(pin.name);
@@ -416,6 +443,25 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         requests.push_back(std::move(request));
     }
     return true;
+}
+
+double SimulationSession::external_value(const ExternalRef& ref, double time)
+{
+    // Engine thread only. One drive table per board and time point; the firmware
+    // must have reached the circuit's time before its outputs are known.
+    auto& cache = mcu_caches_[ref.component];
+    const auto time_us = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e6));
+    if (cache.time_us != time_us || cache.drives.empty()) {
+        auto& runner = *mcus_.at(ref.component);
+        runner.set_limit_us(time_us + request_.mcu_lead_us); // never wait for a firmware that may not run
+        runner.wait_time_us(time_us, stop_requested_);
+        cache.drives = runner.drives_at(time_us);
+        cache.time_us = time_us;
+    }
+    if (ref.pin >= cache.drives.size()) {
+        return 0.0;
+    }
+    return ref.conductance ? cache.drives[ref.pin].conductance : cache.drives[ref.pin].current;
 }
 
 bool SimulationSession::start_mcus()
@@ -504,9 +550,13 @@ void SimulationSession::run_interactive()
     history_.clear();
     double last_speed = speed_;
 
-    engine->set_source_handler([this](const std::string& source, double) {
+    engine->set_source_handler([this](const std::string& source, double time) {
+        const std::string key = lower(source);
+        if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
+            return external_value(e->second, segment_t0_ + time);
+        }
         std::lock_guard lock(mutex_);
-        const auto it = controls_.find(lower(source));
+        const auto it = controls_.find(key);
         return it == controls_.end() ? 0.0 : it->second;
     });
     engine->set_data_handler([this, engine, &last_speed](const AcceptedPoint& point) {

@@ -13,7 +13,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `04_Transistor_switch.snx` | Switch, 10 kΩ base resistor, NPN, green LED | Toggle the switch; base voltage and LED current on the scope |
 | `05_RC_charging_transient.snx` | 5 V step into 1 kΩ / 10 µF, transient 50 ms | F5: the complete curve opens in the analyzer; use the cursors at τ = 10 ms |
 | `06_Half_wave_rectifier.snx` | 5 V 50 Hz sine, diode, 1 kΩ load, 47 µF | Ripple on the scope (10 ms/div); delete C1 and compare |
-| `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf` | PC13 LED blinks every 500 ms, PA0..PA3 count; click RESET |
+| `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 Firmware sources are in `firmware/<name>/` and link with
 `firmware/stm32f103c8.ld` without libraries; the ELF files are committed so

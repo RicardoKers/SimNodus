@@ -326,8 +326,9 @@ QString RunController::mode_description() const
             const auto* d = library.find(c.type);
             return d && d->mcu;
         })) {
-        text += tr("; microcontroller firmware runs in Renode within 20 ms of the circuit's time, and its pins are "
-                   "not yet connected electrically");
+        text += tr("; microcontroller firmware runs in Renode ahead of the circuit (at most 20 ms); GPIO outputs "
+                   "drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit voltages do not "
+                   "reach GPIO inputs yet");
     }
     return text;
 }

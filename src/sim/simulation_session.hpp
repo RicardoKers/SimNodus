@@ -151,6 +151,19 @@ private:
     // Created by start() before the worker exists and kept until the next start;
     // the runners themselves are thread-safe.
     std::map<model::Id, std::unique_ptr<mcu::McuRunner>> mcus_;
+    // Pin driver sources (SN-132): source name (lower case) -> board pin.
+    struct ExternalRef {
+        model::Id component = model::no_id;
+        std::size_t pin = 0;
+        bool conductance = false; // false: current
+    };
+    struct McuCache {
+        std::uint64_t time_us = 0;
+        std::vector<mcu::PinDrive> drives;
+    };
+    std::map<std::string, ExternalRef> external_refs_;
+    std::map<model::Id, McuCache> mcu_caches_; // engine thread only
+    double external_value(const ExternalRef& ref, double time);
 
     // Pacing and speed measurement (engine thread only).
     std::chrono::steady_clock::time_point wall_origin_;

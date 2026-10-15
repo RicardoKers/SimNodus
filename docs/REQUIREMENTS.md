@@ -119,8 +119,8 @@ A separate top-level window that can be placed on another monitor.
 | ID | Requirement | Phase | Status |
 |---|---|---|---|
 | MCU-01 | Blue Pill component with its real pin names; properties select the firmware ELF (path stored relative to the project) and offer Reload | 2 | done |
-| MCU-02 | Real firmware runs in Renode, in lockstep with the analog engine using a coupling quantum Q (default to be chosen from measurements, configurable). MCU-to-circuit timing within Q is labeled approximate | 2 | planned |
-| MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | planned |
+| MCU-02 | Real firmware runs in Renode, in lockstep with the analog engine using a coupling quantum Q (default to be chosen from measurements, configurable). MCU-to-circuit timing within Q is labeled approximate | 2 | in progress |
+| MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | done |
 | MCU-04 | GPIO input reads circuit voltages with Schmitt thresholds; EXTI interrupts fire from circuit transitions (pressing a button on the schematic triggers the firmware interrupt) | 2 | planned |
 | MCU-05 | UART output/input through the analyzer terminal | 2 | planned |
 | MCU-06 | ADC channels sample circuit voltages through the project-owned F103 ADC model | 3 | planned |

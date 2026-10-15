@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 5,
+  "next_id": 14,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -36,6 +36,46 @@
       "rotation": 0,
       "mirrored": false,
       "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 6,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
     }
   ],
   "wires": [
@@ -55,22 +95,82 @@
           21
         ]
       ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
     }
   ],
-  "labels": [],
+  "labels": [
+    {
+      "id": 13,
+      "at": [
+        10,
+        11
+      ],
+      "name": "PA0"
+    }
+  ],
   "probes": [
     {
-      "id": 4,
+      "id": 11,
       "kind": "voltage",
       "target": {
-        "item": 1,
-        "pin": "3V3_1",
+        "item": 8,
         "at": [
-          -9,
-          19
+          10,
+          11
         ]
       },
       "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "item": 6,
+        "pin": "A",
+        "at": [
+          26,
+          11
+        ]
+      },
+      "color": "#d62728"
     }
   ]
 }

@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0084: GPIO outputs drive the circuit](0084-gpio-output-coupling.md): pin model
+  (40 Ω push-pull, open drain, 40 kΩ pulls) as a behavioral source per pin; the
+  circuit never runs ahead of the firmware.
 - [0083: Microcontroller in lockstep with the circuit](0083-microcontroller-lockstep.md):
   firmware and circuit stay within 20 ms of simulated time in both directions;
   board profiles are library data; measured Renode model deviations.

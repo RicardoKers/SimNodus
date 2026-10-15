@@ -5,6 +5,8 @@
 //   {ref}        designator of the instance (R1)
 //   {node:NAME}  net of pin NAME
 //   {control}    node of the interactive control source
+//   {ext:NAME}   node of an external source NAME of the instance, set by the
+//                simulation (microcontroller pin drivers, SN-132)
 //   {NAME}       value of parameter NAME (a number in SPICE form, or the
 //                chosen word for a parameter with choices)
 //   {= EXPR}     arithmetic on parameters: + - * / parentheses, min(), max(),
@@ -23,7 +25,7 @@
 namespace simnodus::library {
 
 struct TemplateToken {
-    enum class Kind { Literal, Ref, Node, Parameter, Expression, Control };
+    enum class Kind { Literal, Ref, Node, Parameter, Expression, Control, External };
     Kind kind = Kind::Literal;
     std::string text; // literal text, pin name, parameter name or expression
 };

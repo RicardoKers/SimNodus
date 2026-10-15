@@ -12,6 +12,7 @@ namespace {
 
 constexpr std::uint64_t aircr = 0xE000ED0C;
 constexpr std::uint32_t aircr_sysresetreq = 0x05FA0004; // VECTKEY | SYSRESETREQ
+constexpr std::uint64_t history_keep_us = 100000;
 
 std::optional<std::uint64_t> port_base(const std::string& port)
 {
@@ -62,13 +63,53 @@ PinMode decode_pin_mode(std::uint32_t nibble)
     return (cnf & 0x2u) ? PinMode::Alternate : PinMode::Output;
 }
 
+PinState decode_pin_config(std::uint32_t nibble, bool odr_bit)
+{
+    PinState state;
+    state.mode = decode_pin_mode(nibble);
+    const std::uint32_t cnf = (nibble >> 2) & 0x3u;
+    if (state.mode == PinMode::Input) {
+        state.pull = cnf == 2 ? (odr_bit ? Pull::Up : Pull::Down) : Pull::None;
+    } else {
+        state.open_drain = (cnf & 0x1u) != 0;
+    }
+    return state;
+}
+
+PinDrive pin_drive(const PinState& state, const PinModel& model)
+{
+    const double out = 1.0 / model.output_resistance;
+    const double pull = 1.0 / model.pull_resistance;
+    switch (state.mode) {
+    case PinMode::Output:
+    case PinMode::Alternate:
+        if (state.open_drain) {
+            return state.level ? PinDrive{} : PinDrive{out, 0.0};
+        }
+        return {out, state.level ? model.supply * out : 0.0};
+    case PinMode::Input:
+        if (state.pull == Pull::Up) {
+            return {pull, model.supply * pull};
+        }
+        if (state.pull == Pull::Down) {
+            return {pull, 0.0};
+        }
+        return {};
+    case PinMode::Analog:
+    case PinMode::Unknown:
+        break;
+    }
+    return {};
+}
+
 McuRunner::McuRunner(McuRunOptions options) : options_(std::move(options))
 {
-    for (const auto& name : options_.pins) {
-        if (const auto pin = gpio_pin(name)) {
-            pins_[name] = {};
-            event_pin_[key(pin->port, pin->number)] = name;
+    history_.resize(options_.pins.size());
+    for (std::size_t i = 0; i < options_.pins.size(); ++i) {
+        if (const auto pin = gpio_pin(options_.pins[i])) {
+            event_pin_[key(pin->port, pin->number)] = i;
         }
+        history_[i].push_back({0, PinState{}});
     }
 }
 
@@ -143,7 +184,33 @@ McuStatus McuRunner::status() const
 std::map<std::string, PinState> McuRunner::pins() const
 {
     std::lock_guard lock(mutex_);
-    return pins_;
+    std::map<std::string, PinState> result;
+    for (std::size_t i = 0; i < options_.pins.size(); ++i) {
+        result[options_.pins[i]] = history_[i].back().second;
+    }
+    return result;
+}
+
+std::vector<PinDrive> McuRunner::drives_at(std::uint64_t time_us)
+{
+    std::lock_guard lock(mutex_);
+    std::vector<PinDrive> drives(options_.pins.size());
+    for (std::size_t i = 0; i < history_.size(); ++i) {
+        auto& history = history_[i];
+        // Last entry at or before time_us (the first entry is at time 0).
+        auto it = std::upper_bound(history.begin(), history.end(), time_us,
+            [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+        const auto current = it == history.begin() ? history.begin() : std::prev(it);
+        drives[i] = pin_drive(current->second, options_.pin_model);
+        // Keep one entry before the window that the circuit may still ask for.
+        const std::uint64_t horizon = time_us > history_keep_us ? time_us - history_keep_us : 0;
+        auto keep = std::upper_bound(history.begin(), history.end(), horizon,
+            [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+        if (keep != history.begin() && std::prev(keep) != history.begin()) {
+            history.erase(history.begin(), std::prev(keep));
+        }
+    }
+    return drives;
 }
 
 void McuRunner::fail(const std::string& message)
@@ -156,31 +223,69 @@ void McuRunner::fail(const std::string& message)
     changed_.notify_all();
 }
 
-void McuRunner::read_modes(RenodeEngine& engine)
+bool McuRunner::read_configs(RenodeEngine& engine, std::vector<PinState>& configs)
 {
     std::map<std::uint64_t, std::uint32_t> registers;
-    std::map<std::string, PinState> update;
-    for (const auto& name : options_.pins) {
-        const auto pin = gpio_pin(name);
+    auto reg = [&](std::uint64_t address) -> std::optional<std::uint32_t> {
+        if (const auto it = registers.find(address); it != registers.end()) {
+            return it->second;
+        }
+        const auto value = engine.read32(address);
+        if (value) {
+            registers[address] = *value;
+        }
+        return value;
+    };
+    configs.assign(options_.pins.size(), PinState{});
+    for (std::size_t i = 0; i < options_.pins.size(); ++i) {
+        const auto pin = gpio_pin(options_.pins[i]);
         const auto base = pin ? port_base(pin->port) : std::nullopt;
         if (!base) {
             continue;
         }
-        const std::uint64_t address = *base + (pin->number >= 8 ? 4u : 0u);
-        if (!registers.count(address)) {
-            const auto value = engine.read32(address);
-            if (!value) {
-                return;
-            }
-            registers[address] = *value;
+        const auto cr = reg(*base + (pin->number >= 8 ? 4u : 0u));
+        const auto odr = reg(*base + 0x0C);
+        if (!cr || !odr) {
+            return false;
         }
-        const std::uint32_t nibble = (registers[address] >> (4 * (pin->number % 8))) & 0xFu;
-        update[name].mode = decode_pin_mode(nibble);
+        const std::uint32_t nibble = (*cr >> (4 * (pin->number % 8))) & 0xFu;
+        configs[i] = decode_pin_config(nibble, ((*odr >> pin->number) & 1u) != 0);
     }
-    std::lock_guard lock(mutex_);
-    for (const auto& [name, state] : update) {
-        pins_[name].mode = state.mode;
+    return true;
+}
+
+void McuRunner::apply_configs(std::uint64_t time_us, const std::vector<PinState>& configs)
+{
+    for (std::size_t i = 0; i < configs.size() && i < history_.size(); ++i) {
+        auto& history = history_[i];
+        if (history.back().second.same_config(configs[i])) {
+            continue;
+        }
+        // The new configuration holds from `time_us`, also for levels recorded after it.
+        auto at = std::upper_bound(history.begin(), history.end(), time_us,
+            [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+        PinState state = std::prev(at)->second;
+        state.mode = configs[i].mode;
+        state.open_drain = configs[i].open_drain;
+        state.pull = configs[i].pull;
+        at = history.insert(at, {time_us, state});
+        for (++at; at != history.end(); ++at) {
+            at->second.mode = state.mode;
+            at->second.open_drain = state.open_drain;
+            at->second.pull = state.pull;
+        }
     }
+}
+
+void McuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool level)
+{
+    auto& history = history_[pin];
+    PinState state = history.back().second;
+    if (state.level == level) {
+        return;
+    }
+    state.level = level;
+    history.push_back({std::max(time_us, history.back().first), state});
 }
 
 void McuRunner::work()
@@ -200,6 +305,15 @@ void McuRunner::work()
         fail(error);
         return;
     }
+    auto read_levels = [&](std::uint64_t time_us) {
+        for (std::size_t i = 0; i < options_.pins.size(); ++i) {
+            const auto pin = gpio_pin(options_.pins[i]);
+            if (const auto level = pin ? engine->gpio(pin->port, pin->number) : std::nullopt) {
+                std::lock_guard lock(mutex_);
+                record_level(i, time_us, *level);
+            }
+        }
+    };
     for (const auto& name : options_.pins) {
         const auto pin = gpio_pin(name);
         if (!pin || !engine->watch_gpio(pin->port, pin->number)) {
@@ -207,12 +321,13 @@ void McuRunner::work()
             engine->stop();
             return;
         }
-        if (const auto level = engine->gpio(pin->port, pin->number)) {
-            std::lock_guard lock(mutex_);
-            pins_[name].level = *level;
-        }
     }
-    read_modes(*engine);
+    read_levels(0);
+    std::vector<PinState> configs;
+    if (read_configs(*engine, configs)) {
+        std::lock_guard lock(mutex_);
+        apply_configs(0, configs);
+    }
     {
         std::lock_guard lock(mutex_);
         status_.state = McuState::Running;
@@ -221,8 +336,7 @@ void McuRunner::work()
     changed_.notify_all();
 
     std::uint64_t now = 0;
-    auto last_modes = std::chrono::steady_clock::now();
-    std::uint64_t last_modes_us = 0;
+    bool after_reset = false;
     while (!stop_) {
         if (reset_.exchange(false)) {
             // SYSRESETREQ: Renode resets the machine; the firmware restarts from its reset vector.
@@ -233,7 +347,7 @@ void McuRunner::work()
                 std::lock_guard lock(mutex_);
                 ++status_.resets;
             }
-            read_modes(*engine);
+            after_reset = true;
         }
         std::uint64_t limit = 0;
         {
@@ -247,25 +361,31 @@ void McuRunner::work()
         if (limit <= now) {
             continue;
         }
+        const std::uint64_t start = now;
         const std::uint64_t step = std::min(limit - now, options_.chunk_us);
         if (!engine->run_for(step)) {
             break;
         }
         now += step;
         const auto events = engine->take_gpio_events();
-        // Modes every 50 ms of wall or virtual time, read before the new time is
-        // published: a reported time is never more than 50 ms newer than the modes.
-        if (std::chrono::steady_clock::now() - last_modes > std::chrono::milliseconds(50)
-            || now - last_modes_us >= 50000) {
-            read_modes(*engine);
-            last_modes = std::chrono::steady_clock::now();
-            last_modes_us = now;
+        if (after_reset) {
+            // The reset (done at Renode's next synchronization point) clears the
+            // outputs without events: take the levels as they are now.
+            read_levels(start);
+            after_reset = false;
         }
+        // Configuration once per run chunk, effective from the chunk's start
+        // (firmware sets the mode before driving the pin); read before the new
+        // time is published so the circuit never sees a stale configuration.
+        const bool configs_ok = read_configs(*engine, configs);
         {
             std::lock_guard lock(mutex_);
+            if (configs_ok) {
+                apply_configs(start, configs);
+            }
             for (const auto& e : events) {
                 if (const auto it = event_pin_.find(key(e.port, e.pin)); it != event_pin_.end()) {
-                    pins_[it->second].level = e.state;
+                    record_level(it->second, std::max(e.time_us, start), e.state);
                 }
             }
             status_.time_us = now;
