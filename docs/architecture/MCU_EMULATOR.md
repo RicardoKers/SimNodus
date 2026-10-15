@@ -78,7 +78,7 @@ src/emu   (new, Qt-free C++20, no third-party code)  ▼
           pins          chip pin states, timestamped change log, inputs
           elf           ELF32 loader, symbols
           gdb           remote serial protocol server (loopback only)
-tools/    simnodus-emu  command-line runner: ELF + time -> pin/UART trace (tests, E-07)
+apps/     simnodus-emu  command-line runner: ELF + time -> pin/UART trace (tests, E-07)
 ```
 
 Rules (same as the rest of `src/`): C++20, no Qt, builds and runs on Windows

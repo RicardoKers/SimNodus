@@ -29,6 +29,11 @@ target_compile_definitions(model_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJ
     SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 add_test(NAME model-unit COMMAND model_tests)
 
+add_executable(emu_tests emu_tests.cpp)
+target_include_directories(emu_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(emu_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-unit COMMAND emu_tests "${PROJECT_SOURCE_DIR}/examples")
+
 add_executable(renode_tests renode_tests.cpp)
 target_include_directories(renode_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(renode_tests PRIVATE simnodus::mcu simnodus::warnings)

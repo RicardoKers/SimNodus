@@ -4,6 +4,7 @@ target_include_directories(simnodus_json SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}
 
 add_subdirectory(sim)
 add_subdirectory(mcu)
+add_subdirectory(emu)
 
 add_library(simnodus_model STATIC
     model/edit.cpp
