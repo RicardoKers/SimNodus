@@ -2124,6 +2124,9 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
     if (state_ == CoreState::Lockup) {
         return;
     }
+    if (number >= EX_HARDFAULT && number <= EX_USAGEFAULT && on_fault) {
+        on_fault(number, last_fault_);
+    }
     // Stacking (B1.5.6) on the stack in use.
     const bool frame_align = (ccr_ & (1u << 9)) && (r_[13] & 4u);
     const std::uint32_t frame = (r_[13] - 0x20u) & ~(frame_align ? 4u : 0u);

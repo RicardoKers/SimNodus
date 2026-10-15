@@ -482,6 +482,195 @@ TEST_CASE("EXTI1 from a falling edge on PA1 runs the button handler")
     CHECK(led_on);
 }
 
+TEST_CASE("every 16-bit pattern and a million 32-bit patterns decode and execute without crashing the host")
+{
+    int bad = 0;
+    for (std::uint32_t h = 0; h < 0x10000; ++h) {
+        const Insn in = Cpu::decode(h, 0);
+        const bool wide = (h >> 11) >= 0x1D;
+        bad += (in.op == 0 || in.op >= Cpu::op_count() || in.size != (wide ? 4 : 2)) ? 1 : 0;
+    }
+    std::uint32_t seed = 12345;
+    auto next = [&seed] {
+        seed = seed * 1664525u + 1013904223u;
+        return seed;
+    };
+    for (int i = 0; i < 1000000; ++i) {
+        const std::uint32_t h1 = 0xE800u | ((next() >> 16) & 0x17FFu);
+        const Insn in = Cpu::decode(h1, next() >> 16);
+        bad += (in.op == 0 || in.op >= Cpu::op_count() || in.size != 4) ? 1 : 0;
+    }
+    CHECK(bad == 0);
+    // Execute random halfword streams: faults, lockups and wild branches are fine,
+    // host crashes or hangs are not.
+    for (int run = 0; run < 200; ++run) {
+        Core c{{}};
+        std::vector<std::uint16_t> code(512);
+        for (auto& h : code) {
+            h = static_cast<std::uint16_t>(next() >> 16);
+        }
+        c.bus.load(code_base, reinterpret_cast<const std::uint8_t*>(code.data()), static_cast<std::uint32_t>(code.size() * 2));
+        c.cpu.reset();
+        for (int n = 0; n < 16; ++n) {
+            c.set(n == 13 ? 0 : n, next()); // R13 keeps its value; others random
+        }
+        c.set(13, stack_top);
+        c.steps(5000);
+        CHECK(c.cpu.cycles() <= 5000 + 1);
+    }
+}
+
+namespace {
+
+std::unique_ptr<Stm32F103> machine_with(const char* firmware)
+{
+    std::string error;
+    const auto image = read_elf(examples / "firmware" / firmware / (std::string(firmware) + ".elf"), error);
+    if (!image) {
+        return nullptr;
+    }
+    auto m = std::make_unique<Stm32F103>();
+    if (!m->load(*image, error)) {
+        return nullptr;
+    }
+    return m;
+}
+
+std::uint32_t read_word(Stm32F103& m, std::uint32_t address)
+{
+    std::uint32_t value = 0;
+    m.bus().read(address, 4, value);
+    return value;
+}
+
+} // namespace
+
+TEST_CASE("resets keep SRAM, record their cause in RCC_CSR and restart the firmware")
+{
+    auto m = machine_with("blink");
+    REQUIRE(m);
+    constexpr std::uint32_t rcc_csr = 0x40021024;
+    constexpr std::uint32_t marker = 0x20004000; // beyond the blink firmware's data
+    CHECK(read_word(*m, rcc_csr) == 0x0C000000u); // power-on: PORRSTF | PINRSTF
+    m->run_until_ns(10000000);
+    m->bus().write(marker, 4, 0xCAFEF00Du);
+    m->bus().write(rcc_csr, 4, 1u << 24); // RMVF clears the flags
+    CHECK(read_word(*m, rcc_csr) == 0);
+
+    m->reset(ResetKind::Pin); // NRST
+    CHECK(read_word(*m, rcc_csr) == 0x04000000u);
+    CHECK(read_word(*m, marker) == 0xCAFEF00Du);
+    CHECK(m->cpu().pc() == 0x0800009Cu); // Reset_Handler again
+
+    // SYSRESETREQ from the firmware's point of view: written to AIRCR while running.
+    m->run_until_ns(20000000);
+    m->bus().write(0xE000ED0C, 4, 0x05FA0004u);
+    m->take_pin_events();
+    const std::uint64_t reset_at = m->time_ns();
+    m->run_until_ns(reset_at + 600000000);
+    CHECK(read_word(*m, rcc_csr) == 0x14000000u); // SFTRSTF | PINRSTF
+    CHECK(read_word(*m, marker) == 0xCAFEF00Du);
+    std::vector<PinEvent> led;
+    for (const auto& e : m->take_pin_events()) {
+        if (e.port == 2 && e.pin == 13) {
+            led.push_back(e);
+        }
+    }
+    REQUIRE(!led.empty());
+    // After the reset the firmware starts over: PC13 low 500 ms after it.
+    CHECK(!led.back().level);
+    CHECK(led.back().time_ns - reset_at > 499000000 && led.back().time_ns - reset_at < 501000000);
+
+    // Power-on clears SRAM and the flags start again.
+    m->reset(ResetKind::PowerOn);
+    CHECK(read_word(*m, marker) == 0);
+    CHECK(read_word(*m, rcc_csr) == 0x0C000000u);
+}
+
+TEST_CASE("two runs with the same inputs give identical traces")
+{
+    auto trace = [](const char* firmware) {
+        auto m = machine_with(firmware);
+        std::string text;
+        if (!m) {
+            return text;
+        }
+        m->set_pin_input(0, 1, true);
+        m->run_until_ns(50000000);
+        m->set_pin_input(0, 1, false);
+        m->uart_receive(1, '1');
+        m->run_until_ns(300000000);
+        char line[64];
+        for (const auto& e : m->take_pin_events()) {
+            std::snprintf(line, sizeof line, "%llu P%d.%d=%d\n", static_cast<unsigned long long>(e.time_ns), e.port, e.pin,
+                e.level ? 1 : 0);
+            text += line;
+        }
+        for (const auto& b : m->take_uart_bytes()) {
+            std::snprintf(line, sizeof line, "%llu U%d=%u\n", static_cast<unsigned long long>(b.time_ns), b.usart, b.value);
+            text += line;
+        }
+        return text;
+    };
+    for (const char* firmware : {"hal_clock", "lesson2_button", "uart_echo"}) {
+        const std::string first = trace(firmware);
+        CHECK(!first.empty());
+        CHECK(first == trace(firmware));
+    }
+}
+
+TEST_CASE("a fault and a lockup are reported with the PC and the function name")
+{
+    // Reset_Handler: ldr r1, [pc, #0]; ldr r0, [r1]; b . ; literal 0x60000000 (nothing mapped).
+    // HardFault handler: b . (first image) or the same faulting load (second image).
+    auto image_with = [](std::uint16_t hardfault_code) {
+        ElfImage image;
+        std::vector<std::uint8_t> bytes(0x40, 0);
+        auto put32 = [&bytes](std::size_t at, std::uint32_t v) {
+            for (int i = 0; i < 4; ++i) {
+                bytes[at + static_cast<std::size_t>(i)] = static_cast<std::uint8_t>(v >> (8 * i));
+            }
+        };
+        auto put16 = [&bytes](std::size_t at, std::uint16_t v) {
+            bytes[at] = static_cast<std::uint8_t>(v);
+            bytes[at + 1] = static_cast<std::uint8_t>(v >> 8);
+        };
+        put32(0, 0x20005000u);
+        put32(4, 0x08000021u);
+        put32(12, 0x08000031u);
+        put16(0x20, 0x4900); // ldr r1, [pc, #0]  -> literal at 0x24
+        put16(0x22, 0x6808); // ldr r0, [r1]
+        put32(0x24, 0x60000000u);
+        put16(0x30, hardfault_code);
+        put16(0x32, 0xE7FE);
+        image.entry = 0x08000021;
+        image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
+        image.functions = {{"Reset_Handler", 0x08000020, 8}, {"HardFault_Handler", 0x08000030, 4}};
+        return image;
+    };
+    std::string error;
+    Stm32F103 m;
+    REQUIRE(m.load(image_with(0xE7FE), error));
+    m.run_until_ns(1000000);
+    auto diagnostics = m.take_diagnostics();
+    REQUIRE(diagnostics.size() == 1);
+    CHECK(diagnostics[0].text.find("HardFault") != std::string::npos);
+    CHECK(diagnostics[0].text.find("0x60000000") != std::string::npos);
+    CHECK(diagnostics[0].text.find("PC 0x08000022") != std::string::npos);
+    CHECK(diagnostics[0].text.find("Reset_Handler") != std::string::npos);
+    CHECK(m.cpu().pc() == 0x08000030u); // the handler is a b . loop
+
+    Stm32F103 l;
+    REQUIRE(l.load(image_with(0x6808), error)); // the handler faults again: lockup
+    l.run_until_ns(1000000);
+    CHECK(l.cpu().state() == CoreState::Lockup);
+    diagnostics = l.take_diagnostics();
+    REQUIRE(!diagnostics.empty());
+    CHECK(diagnostics.back().text.find("Lockup") != std::string::npos);
+    CHECK(diagnostics.back().text.find("HardFault_Handler") != std::string::npos);
+    CHECK(l.time_ns() >= 1000000); // time still advances; the host does not hang
+}
+
 TEST_CASE("ELF errors are reported in plain words")
 {
     std::string error;

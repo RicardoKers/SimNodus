@@ -48,6 +48,9 @@ struct PinConfig {
     bool pull_up = false;      // input with pull (CNF 10): ODR bit 1
 };
 
+// Why the chip resets (RCC_CSR reset flags, RM0008 7.3.10).
+enum class ResetKind { PowerOn, Pin, Software };
+
 struct MachineOptions {
     std::uint32_t flash_size = 64 * 1024;  // STM32F103C8
     std::uint32_t sram_size = 20 * 1024;
@@ -65,9 +68,9 @@ public:
 
     // Copies the image into flash and SRAM, then resets the chip (power-on).
     bool load(const ElfImage& image, std::string& error);
-    // Power-on reset (true) or a system reset through NRST/SYSRESETREQ (false):
-    // peripherals and core reset; SRAM keeps its contents; RCC_CSR records why.
-    void reset(bool power_on);
+    // Resets peripherals and core. SRAM keeps its contents except at power-on;
+    // RCC_CSR records why (the flags accumulate until the firmware clears them).
+    void reset(ResetKind kind);
 
     // Runs the firmware until virtual time `time_ns` (nanoseconds since power-on).
     void run_until_ns(std::uint64_t time_ns);
@@ -139,7 +142,6 @@ private:
     std::uint64_t base_cycles_ = 0;
     std::uint64_t base_ns_ = 0;
     bool reset_requested_ = false;
-    bool power_on_flags_ = true;
     std::uint32_t reset_flags_ = 0x0C000000u; // RCC_CSR: PORRSTF | PINRSTF
 
     std::vector<PinEvent> pin_events_;

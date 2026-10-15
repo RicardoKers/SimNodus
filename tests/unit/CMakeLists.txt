@@ -38,6 +38,13 @@ add_test(NAME emu-unit COMMAND emu_tests "${PROJECT_SOURCE_DIR}/examples")
 # tests/experiments/emu-differential/generate.py; the committed corpus runs in ctest.
 add_executable(emu_differential emu_differential.cpp)
 target_link_libraries(emu_differential PRIVATE simnodus::emu simnodus::mcu simnodus::warnings)
+add_executable(emu_firmware_compare emu_firmware_compare.cpp)
+target_link_libraries(emu_firmware_compare PRIVATE simnodus::emu simnodus::mcu simnodus::warnings)
+if(SIMNODUS_RENODE)
+    add_test(NAME emu-firmware COMMAND emu_firmware_compare "${SIMNODUS_RENODE}" "${PROJECT_SOURCE_DIR}/resources/renode"
+        "${PROJECT_SOURCE_DIR}/examples")
+    set_tests_properties(emu-firmware PROPERTIES TIMEOUT 900)
+endif()
 set(_emu_corpus "${PROJECT_SOURCE_DIR}/tests/experiments/emu-differential/corpus")
 if(SIMNODUS_RENODE AND EXISTS "${_emu_corpus}/seed1-512.elf")
     add_test(NAME emu-differential COMMAND emu_differential "${SIMNODUS_RENODE}" "${PROJECT_SOURCE_DIR}/resources/renode"

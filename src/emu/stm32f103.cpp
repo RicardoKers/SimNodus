@@ -877,13 +877,22 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     bus_.add_device(0xE00FF000u, 0x1000, debug_zero_.get()); // ROM table
 
     cpu_.on_system_reset = [this] { reset_requested_ = true; };
-    reset(true);
+    cpu_.on_fault = [this](int number, const std::string& why) {
+        static const char* const names[] = {"", "", "", "HardFault", "MemManage fault", "BusFault", "UsageFault"};
+        diagnostic(std::string(names[number]) + ": " + (why.empty() ? "fault" : why)
+            + ". The firmware continues in its fault handler.");
+    };
+    reset(ResetKind::PowerOn);
 }
 
 Stm32F103::~Stm32F103() = default;
 
 bool Stm32F103::load(const ElfImage& image, std::string& error)
 {
+    // Power-on first (it clears SRAM), then the image, then the core reads its vectors.
+    image_ = std::make_unique<ElfImage>(image);
+    reset(ResetKind::PowerOn);
+    take_diagnostics();
     for (const auto& segment : image.segments) {
         if (!segment.data.empty()
             && !bus_.load(segment.physical, segment.data.data(), static_cast<std::uint32_t>(segment.data.size()))) {
@@ -900,18 +909,29 @@ bool Stm32F103::load(const ElfImage& image, std::string& error)
                 segment.memory_size - static_cast<std::uint32_t>(segment.data.size()));
         }
     }
-    image_ = std::make_unique<ElfImage>(image);
-    reset(true);
+    cpu_.reset();
+    if (cpu_.state() == CoreState::Lockup) {
+        diagnostic(cpu_.last_fault());
+    }
     return true;
 }
 
-void Stm32F103::reset(bool power_on)
+void Stm32F103::reset(ResetKind kind)
 {
-    if (power_on) {
+    switch (kind) {
+    case ResetKind::PowerOn:
         reset_flags_ = 0x0C000000u; // PORRSTF | PINRSTF
         rcc_->reset_backup_domain();
-    } else {
-        reset_flags_ |= 0x14000000u; // SFTRSTF | PINRSTF (NRST is driven low by the reset)
+        if (std::uint8_t* sram = bus_.memory_at(0x20000000u, options_.sram_size)) {
+            std::fill(sram, sram + options_.sram_size, std::uint8_t{0});
+        }
+        break;
+    case ResetKind::Pin:
+        reset_flags_ |= 0x04000000u; // PINRSTF
+        break;
+    case ResetKind::Software:
+        reset_flags_ |= 0x14000000u; // SFTRSTF | PINRSTF (the reset also drives NRST low)
+        break;
     }
     reset_requested_ = false;
     bus_.reset_devices();
@@ -956,7 +976,7 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
     bool reported_lockup = false;
     while (time_ns() < target_ns) {
         if (reset_requested_) {
-            reset(false);
+            reset(ResetKind::Software);
         }
         const std::uint64_t target = std::max(cycles_at_ns(target_ns), cpu_.cycles() + 1);
         const CoreState state = cpu_.run(target);
@@ -967,7 +987,7 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
             }
         }
         if (reset_requested_) {
-            reset(false);
+            reset(ResetKind::Software);
         }
     }
 }

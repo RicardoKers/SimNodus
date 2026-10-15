@@ -45,6 +45,13 @@ where it differs from a real board (MCU-09). Release 0.2.
   (`RCC_APB2ENR` …) are not checked: a peripheral works even if its clock
   was never switched on, which would fail on the board. The clock security
   system and MCO are not simulated.
+- **FreeRTOS start-up.** Renode starts SysTick with a full 24-bit period
+  when firmware enables it with the counter at 0, as FreeRTOS does: the first
+  tick comes about 2.1 s late at 8 MHz (0.23 s at 72 MHz), then ticks are
+  regular. A real chip ticks after one period. SimNodus's own emulator, being
+  built (E-07), does not have this difference. STM32CubeIDE projects with
+  FreeRTOS also use a timer (TIM) as the HAL time base, which is not simulated
+  yet (release 0.3).
 - **Speed with 72 MHz firmware.** At 72 MHz Renode executes nine times more
   instructions per simulated second than at 8 MHz. Firmware that waits in a
   loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a

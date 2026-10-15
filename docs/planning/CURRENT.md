@@ -66,10 +66,15 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   at least 1 000 times (WFI, SVC, BKPT, UDF and undefined encodings are
   covered by directed cases only). Speed after inline execution of the
   frequent forms: 168-185 MIPS on the HAL busy loop, 119-141 MIPS on the
-  benchmark mix (`tests/experiments/emu-benchmark`). Still open for G0a:
-  QEMU as third reference (no differences need one so far), Linux speed.
-  Next: G0b work (FreeRTOS demo, fault/reset cases, firmware traces against
-  Renode), then the gate report E-07-results.md.
+  benchmark mix (`tests/experiments/emu-benchmark`). Gate status per
+  criterion: [E-07-results.md](../experiments/E-07-results.md). G0b.1-G0b.5
+  and G0b.7 met (every example firmware and a FreeRTOS demo equal to Renode;
+  the owner's CubeIDE project with `HAL_Delay(200)` toggles every 201.000 ms).
+  The comparison found a BSRR glitch in our Renode GPIO model (fixed) and a
+  Renode SysTick start-up deviation (FreeRTOS ticks start 2.1 s late at
+  8 MHz; documented). Still open: Linux speed (G0a.3), differential test
+  confirmed on Linux CI (G0b.6). Gate reviews with the owner: G0a 10-24,
+  G0b 10-30.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
