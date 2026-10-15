@@ -36,6 +36,39 @@
       "sha256": "91f230d27451a7b5af08fe66655b27a51a87db4fe4eb729bd3926b81fdde00d5",
       "size": 8136
     },
+    "freertos_tasks": {
+      "sources": [
+        "examples/firmware/freertos_tasks/main.c"
+      ],
+      "elf": "examples/firmware/freertos_tasks/freertos_tasks.elf",
+      "sha256": "5ab5daf1cfda10ae2afb7b0ff5b70610ddbfe8dc1c2df0de0352b65e5948f3bb",
+      "size": 87892,
+      "flags": [
+        "-mcpu=cortex-m3",
+        "-mthumb",
+        "-std=gnu11",
+        "-Os",
+        "-g",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wall",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-Wl,--build-id=none",
+        "-Wl,--gc-sections",
+        "-Wl,--no-warn-rwx-segments",
+        "-ffile-prefix-map={root}=.",
+        "-ffile-prefix-map={package}={package_name}",
+        "-DSTM32F103xB",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c",
+        "STM32Cube_FW_F1_V1.8.7/Middlewares/Third_Party/FreeRTOS/Source/list.c",
+        "STM32Cube_FW_F1_V1.8.7/Middlewares/Third_Party/FreeRTOS/Source/queue.c",
+        "STM32Cube_FW_F1_V1.8.7/Middlewares/Third_Party/FreeRTOS/Source/tasks.c",
+        "STM32Cube_FW_F1_V1.8.7/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/port.c",
+        "STM32Cube_FW_F1_V1.8.7/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c"
+      ]
+    },
     "hal_clock": {
       "sources": [
         "examples/firmware/hal_clock/main.c"

@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-15, found by experiment E-07)
+
+- GPIO: a BSRR write that resets some pins and sets others now changes them in one step, as on the chip. The pins used to go low and high again at the same instant (zero-width glitches in the Logic tab, for example on PA0-PA3 of example 07).
+
+### Added (2026-10-15, emulator track E-07, SN-170: gate G0b work)
+
+- Example firmware with FreeRTOS (`examples/firmware/freertos_tasks`, FreeRTOS 10.3.1 from STM32CubeF1): three tasks and a queue; every task switch writes the task's number to PB0-PB2. No example project yet.
+- Emulator: explicit reset kinds (power-on, NRST pin, software) with RCC_CSR flags; every fault exception is reported with its cause, PC and function name. `emu-firmware` compares every example firmware between Renode and the emulator; `emu-unit` adds resets, repeatability, fault diagnostics and a decoder robustness case. Gate status in `docs/experiments/E-07-results.md`.
+
 ### Added (2026-10-15, emulator track E-07, SN-170)
 
 - Differential test of the emulator against Renode: `tests/experiments/emu-differential` generates random Thumb-2 blocks covering every encoding group (no UNPREDICTABLE forms) and compares all registers, flags, PRIMASK and scratch memory after each block; ctest `emu-differential` runs a committed 512-block corpus when Renode is present. 20 480 blocks compared with zero differences.

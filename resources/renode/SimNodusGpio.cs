@@ -12,7 +12,9 @@
 //   - ODR is a real register: BSRR/BRR/ODR writes also set it for input pins,
 //     so the pull-up/pull-down choice of CNF 10 is readable (the original
 //     ignored those writes and read ODR back from the pin states);
-//   - a pin that becomes a general-purpose output drives its ODR level.
+//   - a pin that becomes a general-purpose output drives its ODR level;
+//   - a BSRR write that resets and sets pins at once changes them in one step
+//     (two separate fields produced zero-width glitches, found by E-07).
 // Renode compiles this file at start-up (include), like LoopbackControl.cs.
 using System.Collections.Generic;
 
@@ -64,9 +66,11 @@ namespace Antmicro.Renode.Peripherals.GPIOPort
                 {(long)Registers.OutputData, new DoubleWordRegister(this)
                     .WithValueField(0, 16, name: "ODR", writeCallback: (_, value) => WriteOutputData((uint)value), valueProviderCallback: _ => outputData)
                 },
+                // One write applies BR and BS together (BS wins), as on the chip; two
+                // separate fields would drive the pins low and high again (a glitch).
                 {(long)Registers.BitSetReset, new DoubleWordRegister(this)
-                    .WithValueField(16, 16, FieldMode.Write, name: "BR", writeCallback: (_, value) => WriteOutputData(outputData & ~(uint)value))
-                    .WithValueField(0, 16, FieldMode.Write, name: "BS", writeCallback: (_, value) => WriteOutputData(outputData | (uint)value))
+                    .WithValueField(0, 32, FieldMode.Write, name: "BSRR",
+                        writeCallback: (_, value) => WriteOutputData((outputData & ~((uint)value >> 16)) | ((uint)value & 0xFFFFu)))
                 },
                 {(long)Registers.BitReset, new DoubleWordRegister(this)
                     .WithValueField(0, 16, FieldMode.Write, name: "BR", writeCallback: (_, value) => WriteOutputData(outputData & ~(uint)value))

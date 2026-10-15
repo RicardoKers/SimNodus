@@ -20,6 +20,10 @@ opens and passes the pre-run checks without errors or warnings.
 | `12_Blue_Pill_HAL_72MHz.snx` | Blue Pill running `firmware/hal_clock/hal_clock.elf`, an STM32CubeIDE-style HAL project at 72 MHz (HSE + PLL x9); 330 Ω and yellow LED on PA1 | Analyzer > UART shows SYSCLK 72000000 Hz; PC13 blinks every 500 ms; PA1 pulses for 1 ms (72000 instructions at 72 MHz) every 500 ms |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
+`firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the
+STM32CubeF1 package; three tasks, a queue, task switches on PB0-PB2) is test
+firmware for the emulator experiment E-07; an example project follows.
+
 Firmware sources are in `firmware/<name>/` and link with
 `firmware/stm32f103c8.ld` without libraries, except `hal_clock`, which is
 built like an STM32CubeIDE project from the STM32CubeF1 HAL (`cube.json`

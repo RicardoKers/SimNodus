@@ -88,6 +88,9 @@ public:
 
     // Called when the firmware requests a system reset (AIRCR.SYSRESETREQ).
     std::function<void()> on_system_reset;
+    // Called when the core enters a fault handler (HardFault, MemManage, BusFault,
+    // UsageFault), before the PC moves to the handler; the text says why.
+    std::function<void(int number, const std::string& why)> on_fault;
     // Called when the next time event may have changed (SysTick reprogrammed).
     std::function<void()> on_schedule_changed;
 
