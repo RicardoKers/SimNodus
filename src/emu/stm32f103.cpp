@@ -93,7 +93,7 @@ public:
         case 2: {
             const bool from_hse = (cfgr_ >> 16) & 1u;
             const std::uint32_t input = from_hse ? m_.options_.hse_hz / (((cfgr_ >> 17) & 1u) ? 2u : 1u) : hsi_hz / 2;
-            const std::uint32_t mul = std::min(((cfgr_ >> 18) & 15u) + 2u, 16u);
+            const std::uint32_t mul = std::min<std::uint32_t>(((cfgr_ >> 18) & 15u) + 2u, 16u);
             return input * mul;
         }
         default: return hsi_hz;
@@ -205,7 +205,8 @@ private:
                 std::snprintf(text, sizeof text,
                     "SYSCLK is %u Hz but FLASH_ACR has %u wait state(s); the STM32F103 needs %u above %s MHz. "
                     "A real chip may crash; set the flash latency before switching the clock.",
-                    sys, m_.flash_latency(), needed, needed == 2 ? "48" : "24");
+                    static_cast<unsigned>(sys), static_cast<unsigned>(m_.flash_latency()),
+                    static_cast<unsigned>(needed), needed == 2 ? "48" : "24");
                 m_.diagnostic(text);
             }
         }
@@ -889,8 +890,8 @@ bool Stm32F103::load(const ElfImage& image, std::string& error)
             char text[200];
             std::snprintf(text, sizeof text,
                 "The firmware does not fit the STM32F103: %u bytes at 0x%08X are outside its flash (%u KiB) and SRAM (%u KiB).",
-                static_cast<unsigned>(segment.data.size()), segment.physical, options_.flash_size / 1024,
-                options_.sram_size / 1024);
+                static_cast<unsigned>(segment.data.size()), static_cast<unsigned>(segment.physical),
+                static_cast<unsigned>(options_.flash_size / 1024), static_cast<unsigned>(options_.sram_size / 1024));
             error = text;
             return false;
         }

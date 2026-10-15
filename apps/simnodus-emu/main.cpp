@@ -128,10 +128,11 @@ int main(int argc, char** argv)
     const double load_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - load_begin).count();
     if (info) {
         std::printf("entry 0x%08X, %zu segment(s), %zu function symbol(s), loaded and reset in %.2f ms\n",
-            image->entry, image->segments.size(), image->functions.size(), load_ms);
+            static_cast<unsigned>(image->entry), image->segments.size(), image->functions.size(), load_ms);
         for (const auto& s : image->segments) {
-            std::printf("  segment 0x%08X (virtual 0x%08X): %zu bytes in file, %u in memory%s\n", s.physical,
-                s.virtual_address, s.data.size(), s.memory_size, s.executable ? ", executable" : "");
+            std::printf("  segment 0x%08X (virtual 0x%08X): %zu bytes in file, %u in memory%s\n",
+                static_cast<unsigned>(s.physical), static_cast<unsigned>(s.virtual_address), s.data.size(),
+                static_cast<unsigned>(s.memory_size), s.executable ? ", executable" : "");
         }
     }
     machine.cpu().count_ops(count_ops);
@@ -190,7 +191,7 @@ int main(int argc, char** argv)
     const std::uint64_t executed = machine.cpu().instructions() - instructions_before;
     std::printf("simulated %.3f ms in %.3f s (%.2fx real time); %llu instructions, %.1f MIPS; HCLK %u Hz%s\n",
         static_cast<double>(machine.time_ns()) / 1e6, seconds, (static_cast<double>(machine.time_ns()) / 1e9) / seconds,
-        static_cast<unsigned long long>(executed), static_cast<double>(executed) / seconds / 1e6, machine.hclk_hz(),
+        static_cast<unsigned long long>(executed), static_cast<double>(executed) / seconds / 1e6, static_cast<unsigned>(machine.hclk_hz()),
         machine.cpu().state() == CoreState::Lockup ? ", core locked up" : "");
     if (count_ops) {
         const auto& hits = machine.cpu().op_hits();

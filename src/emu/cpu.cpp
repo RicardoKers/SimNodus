@@ -380,7 +380,7 @@ Insn decode16(std::uint32_t h)
                 in.op = OP_IT;
                 in.imm = h & 0xFFu;
             } else {
-                static const std::uint8_t hints[5] = {OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV};
+                static const Op hints[5] = {OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV};
                 const std::uint32_t hint = (h >> 4) & 15u;
                 in.op = hint < 5 ? hints[hint] : OP_NOP;
             }
@@ -541,7 +541,7 @@ Insn decode_branch_misc(std::uint32_t h1, std::uint32_t h2)
             in.mode = u8(bits(h2, 11, 10));
             in.imm = bits(h2, 7, 0);
         } else if (op == 0x3A) {
-            static const std::uint8_t hints[5] = {OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV};
+            static const Op hints[5] = {OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV};
             const std::uint32_t hint = bits(h2, 7, 0);
             if (bits(h2, 10, 8) != 0) {
                 return undefined(4);
@@ -1790,7 +1790,7 @@ void Cpu::raise_bus_fault(std::uint32_t bfsr_bit, std::uint32_t address, bool ad
         bfar_ = address;
     }
     char text[160];
-    std::snprintf(text, sizeof text, "%s (address 0x%08X)", what, address);
+    std::snprintf(text, sizeof text, "%s (address 0x%08X)", what, static_cast<unsigned>(address));
     fault(EX_BUSFAULT, text);
 }
 
@@ -1798,7 +1798,7 @@ void Cpu::fault(int number, const std::string& what)
 {
     faulted_ = true;
     char where[48];
-    std::snprintf(where, sizeof where, " at PC 0x%08X", pc_);
+    std::snprintf(where, sizeof where, " at PC 0x%08X", static_cast<unsigned>(pc_));
     last_fault_ = what + where;
     bool enabled = true;
     if (number == EX_MEMMANAGE) {
@@ -1844,7 +1844,7 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
         if (!bus_.write(frame + 4 * i, 4, values[i])) {
             char text[120];
             std::snprintf(text, sizeof text,
-                "the stack pointer 0x%08X is outside RAM during exception entry (stack overflow?)", r_[13]);
+                "the stack pointer 0x%08X is outside RAM during exception entry (stack overflow?)", static_cast<unsigned>(r_[13]));
             lockup(text);
             return;
         }

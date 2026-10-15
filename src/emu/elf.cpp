@@ -159,7 +159,8 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
                 continue;
             }
             const char* text = reinterpret_cast<const char*>(bytes.data() + str_offset + name);
-            const std::size_t length = strnlen(text, str_size - name);
+            const void* end = std::memchr(text, 0, str_size - name);
+            const std::size_t length = end ? static_cast<std::size_t>(static_cast<const char*>(end) - text) : str_size - name;
             image.functions.push_back({std::string(text, length), value & ~1u, size});
         }
     }
