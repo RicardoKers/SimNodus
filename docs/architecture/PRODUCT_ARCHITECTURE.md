@@ -122,6 +122,11 @@ results with analytical references (RC, RL, divider, diode clamp).
   STM32F103 platform description, owned ADC model, cancellable run patch for
   debugging.
 
+- **Own STM32 emulator** (proposed, [ADR 0089](../decisions/0089-own-stm32-emulator.md)):
+  `src/emu` would replace Renode behind the same runner interface
+  (`McuBackend`); design in [MCU_EMULATOR.md](MCU_EMULATOR.md), plan and gates
+  in [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md).
+
 ## Threads and processes
 
 - Phase 1–3: engine runs in a worker thread of the application process.

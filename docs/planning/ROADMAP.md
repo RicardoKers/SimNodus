@@ -22,6 +22,14 @@ Each release is tested hands-on by the owner; feedback adjusts the next phase.
 Weekly cadence inside each phase: a test build every Friday (Windows package
 from CI) with a short list of what to try.
 
+## Emulator track
+
+From 2026-10-16 an own STM32 emulator is built in parallel
+([plan](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md),
+proposed). Releases keep their dates and ship on Renode until the emulator
+passes gate G1; decisions D1–D3 decide when phase 3 and 4 features move to it
+and which engine the classroom release uses.
+
 ## Scope protection
 
 - MCU work (phase 2) does not start before release 0.1 is usable.

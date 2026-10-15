@@ -2,6 +2,9 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0089: Own STM32 emulator as the microcontroller engine](0089-own-stm32-emulator.md):
+  **proposed**, decided at gates G0a/G0b (E-07); in-process ARMv7-M emulator with
+  pin-level peripherals, Renode as fallback.
 - [0088: Clock model for the STM32F103C8](0088-clock-model.md): RCC ready
   flags and SWS, CPU MIPS and SysTick follow HCLK, bit-banding; CubeIDE HAL
   projects run at 72 MHz.

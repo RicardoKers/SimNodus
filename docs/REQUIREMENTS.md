@@ -127,6 +127,8 @@ A separate top-level window that can be placed on another monitor.
 | MCU-07 | Timer PWM outputs, after a coverage audit of the Renode STM32F1 timer model | 3 | planned |
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
 | MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
+| MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | planned |
+| MCU-11 | SimNodus's own STM32 emulator runs the firmware in-process with exact pin timestamps; the engine is selectable per board while Renode remains available ([ADR 0089](decisions/0089-own-stm32-emulator.md)) | 2–4 | planned |
 
 ## 7. Projects and library
 

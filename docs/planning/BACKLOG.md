@@ -47,6 +47,32 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-136 | Lesson 1 and 2 example projects with firmware source | — | done |
 | SN-137 | Clock model: RCC ready flags (HSE, PLL, SWS) and SysTick/CPU speed following the configured clock, so STM32CubeIDE HAL projects run | MCU-01, MCU-08 | done |
 
+## Emulator track — own STM32 emulator (parallel, from 2026-10-16)
+
+Plan, gates and decisions: [MCU_EMULATOR_PLAN.md](MCU_EMULATOR_PLAN.md);
+design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisions/0089-own-stm32-emulator.md) (proposed).
+
+| ID | Task | Milestone / gate | Requirements | Status |
+|---|---|---|---|---|
+| SN-170 | Experiment E-07: prototype emulator (`src/emu`, CLI, Thumb-2 core, exceptions, tier-1 devices), differential tests against Renode and QEMU, benchmark | N0 / G0a (10-24), G0b (10-30) | MCU-11 | doing |
+| SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N0 / G0b | MCU-10 | todo |
+| SN-171 | Extract the `McuBackend` interface in nanoseconds with `analog_at`; current runner becomes `RenodeMcuRunner` | N1 / G1 | MCU-11 | todo |
+| SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | todo |
+| SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | todo |
+| SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | todo |
+| SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | todo |
+| SN-176 | ngspice breakpoints at upcoming firmware edges | N2 / G2 | MCU-10 | todo |
+| SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | todo |
+| SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | todo |
+| SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | todo |
+| SN-187 | IWDG, WWDG, CRC, RTC/BKP | after the freeze | — | todo |
+| SN-180 | GDB server and whole-simulation pause | N4 / G4 | MCU-08 | todo |
+| SN-181 | Cortex-M3 cycle model validated on the owner's board | N5 / G5 | — | todo |
+| SN-182 | Chip component and board profiles that reference it | N6 | PRJ-06 | todo |
+| SN-183 | ADR: keep or remove Renode (D4) | N7 | — | todo |
+| SN-184 | Cortex-M4F core variant (DSP, FPU) | N8 | — | todo |
+| SN-185 | STM32F407 peripherals and board | N8 | — | todo |
+
 ## Phase 3 — ADC, PWM, components B, release 0.3 (until 2026-11-27)
 
 | ID | Task | Requirements | Status |
