@@ -100,7 +100,9 @@ struct McuRunOptions {
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
     std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
     PinModel pin_model;
-    std::uint64_t chunk_us = 1000;            // longest single run_for (the coupling quantum)
+    // Longest single run_for (the coupling quantum). The runner may run one chunk
+    // past the limit and reports a chunk as complete one chunk later.
+    std::uint64_t chunk_us = 1000;
     std::uint64_t config_interval_us = 10000; // CRL/CRH/ODR reads (each costs a bus round trip)
 };
 

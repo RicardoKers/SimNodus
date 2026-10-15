@@ -23,7 +23,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - **Phase 2 (release 0.2, due 2026-11-13): SN-130..SN-136 done.** The
   Blue Pill component runs real firmware (ELF) in Renode 1.16.1 during an
   interactive run: Renode starts first, the firmware leads the circuit by at
-  most the coupling quantum (default 2 ms, ADR 0083/0085), pins show their
+  most two coupling quanta (default 1 ms, ADR 0083/0085), pins show their
   state, the PC13 LED lights, RESET
   restarts the firmware, Browse/Reload choose the ELF. GPIO outputs drive the
   circuit through the pin model (ADR 0084); example 07 blinks an external

@@ -83,7 +83,7 @@ struct SimulationSettings {
     double transient_max_step = 1e-6;
     // Microcontroller coupling quantum Q (MCU-02, ADR 0085): the firmware runs at
     // most Q ahead of the circuit, so circuit inputs reach it within about Q.
-    double mcu_quantum = 2e-3; // 2 ms keeps idle firmware at real time (ADR 0085)
+    double mcu_quantum = 1e-3; // inputs reach the firmware within two quanta (ADR 0085)
 
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };

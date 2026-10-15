@@ -9,7 +9,7 @@
     "segment": 1,
     "transient_stop": 0.01,
     "transient_max_step": 1e-06,
-    "mcu_quantum": 0.002
+    "mcu_quantum": 0.001
   },
   "components": [
     {

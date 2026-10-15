@@ -513,14 +513,17 @@ void McuRunner::work()
             }
             after_reset = true;
         }
+        // The runner may run one chunk past the limit: it reports only the time
+        // before its last chunk as complete (see below), and the circuit must be
+        // able to reach the limit.
         std::uint64_t limit = 0;
         {
             std::unique_lock lock(mutex_);
-            if (limit_us_ <= now && !stop_ && !reset_) {
+            if (limit_us_ + options_.chunk_us <= now && !stop_ && !reset_) {
                 changed_.wait_for(lock, std::chrono::milliseconds(5));
                 continue;
             }
-            limit = limit_us_;
+            limit = limit_us_ + options_.chunk_us;
         }
         if (limit <= now) {
             continue;
@@ -568,23 +571,11 @@ void McuRunner::work()
             config_from = last_config_us;
             last_config_us = now;
         }
-        // Renode can raise an event of this chunk only after the run returned; the
-        // server then holds it for the next RunFor. So only the time before this
-        // chunk is complete, unless the runner is about to wait anyway: then a
-        // zero-length run collects the held events and everything is complete.
-        std::uint64_t complete = start;
-        bool caught_up = false;
-        {
-            std::lock_guard lock(mutex_);
-            caught_up = limit_us_ <= now;
-        }
-        if (caught_up) {
-            if (!engine->run_for(0)) {
-                break;
-            }
-            absorb(start);
-            complete = now;
-        }
+        // Renode can raise events of a chunk after the RunFor returned (its CPU
+        // thread finishes the quantum; seen as a whole chunk of PA1 edges arriving
+        // late). The server holds them for the next RunFor, so only the time
+        // before this chunk is complete.
+        const std::uint64_t complete = start;
         {
             std::lock_guard lock(mutex_);
             if (configs_ok) {

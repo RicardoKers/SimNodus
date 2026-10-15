@@ -61,8 +61,8 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
   path is stored relative to the project. **Reload** uses a rebuilt file and
   restarts a running simulation.
 - **F5** first starts the microcontroller engine (Renode, a few seconds);
-  the circuit runs when the firmware is ready. The firmware runs at most one
-  microcontroller quantum (default 2 ms) ahead of the circuit.
+  the circuit runs when the firmware is ready. The firmware runs at most two
+  microcontroller quanta (default 1 ms each) ahead of the circuit.
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
@@ -82,9 +82,9 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
 - Example: `08_Blue_Pill_button_interrupt` — every press of SW1 (PA1)
   toggles the LED on PA0 from the EXTI1 interrupt; PC13 lights while the
   button is held.
-- Timing: the firmware runs at most one **microcontroller quantum** (Simulate >
-  Simulation Settings, default 2 ms) ahead of the circuit, so circuit
-  changes reach the firmware up to one quantum late; a smaller quantum
+- Timing: the firmware runs at most two **microcontroller quanta** (Simulate >
+  Simulation Settings, default 1 ms) ahead of the circuit, so circuit
+  changes reach the firmware up to two quanta late; a smaller quantum
   responds faster but runs slower. Output edges fall on Renode's 100 µs
   time quantum. Transient mode does not run microcontrollers yet.
 - EXTI line n follows pin n of every port (the AFIO port selection of the

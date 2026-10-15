@@ -142,7 +142,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     // The limit also follows ngspice's tentative time point, up to one maximum step
     // (settings.max_step, 100 us by default) beyond the last accepted one.
     const auto lead = static_cast<std::uint64_t>(std::llround(b.schematic.settings().mcu_quantum * 1e6));
-    CHECK(worst_lead <= lead + 2 * 100);
+    CHECK(worst_lead <= 2 * lead + 2 * 100); // one chunk past the limit (held events, ADR 0085)
     // The status is sampled between the circuit's and the firmware's updates; allow one run chunk.
     CHECK(worst_lag <= lead + 10000);
     CHECK(session.latest("n1").has_value());
@@ -280,7 +280,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     REQUIRE(status.has_value());
     std::printf("  largest circuit-to-firmware input delay: %llu us\n",
         static_cast<unsigned long long>(status->max_input_delay_us));
-    CHECK(status->max_input_delay_us <= 1000 + 100); // quantum plus one circuit step
+    CHECK(status->max_input_delay_us <= 2 * 1000 + 100); // two quanta plus one circuit step
 
     // Delay from the button's falling edge to the output's rising edge, in circuit time.
     const auto btn = session.samples("btn");
@@ -301,7 +301,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
         (lit_at - pressed_at) * 1e6);
     REQUIRE(pressed_at > 0);
     REQUIRE(lit_at > pressed_at);
-    CHECK(lit_at - pressed_at < 1.5e-3); // quantum, Renode quantum and steps
+    CHECK(lit_at - pressed_at < 2.5e-3); // two quanta, Renode quantum and steps
 #endif
 }
 

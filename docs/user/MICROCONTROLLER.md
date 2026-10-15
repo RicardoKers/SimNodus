@@ -30,11 +30,11 @@ where it differs from a real board (MCU-09). Release 0.2.
 
 ## Differences from the real board
 
-- **Timing between firmware and circuit.** The firmware runs at most one
-  *microcontroller quantum* (Simulate > Simulation Settings, default 2 ms)
+- **Timing between firmware and circuit.** The firmware runs at most two
+  *microcontroller quanta* (Simulate > Simulation Settings, default 1 ms)
   ahead of the circuit. Output changes reach the circuit at their exact
   firmware time (rounded to Renode's 100 µs time step). Circuit changes
-  reach the firmware up to one quantum late, in order and with their
+  reach the firmware up to two quanta late, in order and with their
   spacing. The status bar tooltip states these approximations.
 - **AFIO.** EXTI line *n* follows pin *n* of every port; the port selection
   in `AFIO_EXTICR` is not simulated. Use one pin number per EXTI line.
