@@ -59,9 +59,17 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   for the other peripherals) and the CLI `apps/simnodus-emu`. Every example
   firmware runs: blink with exact 500.000 ms periods, the HAL example at
   72 MHz (UART report, 1000.25 µs pulse), EXTI button, UART echo, lessons
-  1-2. `emu-unit`: 15 cases with pseudocode vectors. Speed 77 MIPS on the
-  HAL busy loop (G0a needs 150; package 0.5). Next: differential harness
-  against Renode and QEMU (0.4), decoder coverage counters, performance.
+  1-2. `emu-unit`: 15 cases with pseudocode vectors (PR #122).
+  **Toward G0a (measured 2026-10-15, Windows):** differential test against
+  Renode (`tests/experiments/emu-differential`): 20 480 random blocks of 16
+  instructions, zero differing words; every random-tested decoder entry hit
+  at least 1 000 times (WFI, SVC, BKPT, UDF and undefined encodings are
+  covered by directed cases only). Speed after inline execution of the
+  frequent forms: 168-185 MIPS on the HAL busy loop, 119-141 MIPS on the
+  benchmark mix (`tests/experiments/emu-benchmark`). Still open for G0a:
+  QEMU as third reference (no differences need one so far), Linux speed.
+  Next: G0b work (FreeRTOS demo, fault/reset cases, firmware traces against
+  Renode), then the gate report E-07-results.md.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 

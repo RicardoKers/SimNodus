@@ -812,9 +812,9 @@ public:
 
 Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
 {
+    bus_.add_memory("SRAM", 0x20000000u, options_.sram_size, true); // first: checked first on every access
     bus_.add_memory("flash", 0x08000000u, options_.flash_size, false);
     bus_.add_alias("flash (boot alias)", 0x00000000u, "flash");
-    bus_.add_memory("SRAM", 0x20000000u, options_.sram_size, true);
     bus_.add_memory("system memory", 0x1FFFF000u, 0x810u, false);
     bus_.add_bit_band(0x22000000u, options_.sram_size * 32u, 0x20000000u);
     bus_.add_bit_band(0x42000000u, 0x02000000u, 0x40000000u);

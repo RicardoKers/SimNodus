@@ -18,6 +18,7 @@ void Bus::add_memory(const std::string& name, std::uint32_t base, std::uint32_t 
     region.size = size;
     region.storage = storage.get();
     region.writable = writable;
+    add_fast(base, size, storage->bytes.data(), writable);
     storages_.push_back(std::move(storage));
     regions_.push_back(region);
     std::sort(regions_.begin(), regions_.end(), [](const Region& a, const Region& b) { return a.base < b.base; });
@@ -39,6 +40,7 @@ void Bus::add_alias(const std::string& name, std::uint32_t base, const std::stri
             }
             regions_.push_back(region);
             std::sort(regions_.begin(), regions_.end(), [](const Region& a, const Region& b) { return a.base < b.base; });
+            add_fast(base, region.size, storage->bytes.data(), region.writable);
             (void)name;
             return;
         }
@@ -67,6 +69,13 @@ void Bus::add_bit_band(std::uint32_t alias_base, std::uint32_t alias_size, std::
     std::sort(regions_.begin(), regions_.end(), [](const Region& a, const Region& b) { return a.base < b.base; });
 }
 
+void Bus::add_fast(std::uint32_t base, std::uint32_t size, std::uint8_t* data, bool writable)
+{
+    if (fast_count_ < static_cast<int>(fast_.size())) {
+        fast_[static_cast<std::size_t>(fast_count_++)] = {base, size, data, writable};
+    }
+}
+
 const Bus::Region* Bus::find(std::uint32_t address) const
 {
     // Few regions (about 40): binary search on the sorted bases.
@@ -82,7 +91,7 @@ const Bus::Region* Bus::find(std::uint32_t address) const
     return nullptr;
 }
 
-bool Bus::read(std::uint32_t address, unsigned size, std::uint32_t& value)
+bool Bus::read_slow(std::uint32_t address, unsigned size, std::uint32_t& value)
 {
     const Region* region = find(address);
     if (!region || address - region->base > region->size - size) {
@@ -100,7 +109,7 @@ bool Bus::read(std::uint32_t address, unsigned size, std::uint32_t& value)
     return bit_band_read(*region, address, size, value);
 }
 
-bool Bus::write(std::uint32_t address, unsigned size, std::uint32_t value)
+bool Bus::write_slow(std::uint32_t address, unsigned size, std::uint32_t value)
 {
     const Region* region = find(address);
     if (!region || address - region->base > region->size - size) {

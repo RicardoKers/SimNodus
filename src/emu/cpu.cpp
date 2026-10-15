@@ -25,6 +25,9 @@ enum Op : std::uint8_t {
     OP_LDM, OP_STM, OP_TBB, OP_TBH,
     OP_B, OP_BCOND, OP_BL, OP_BX, OP_BLX, OP_CBZ, OP_CBNZ, OP_IT,
     OP_MRS, OP_MSR, OP_CPS, OP_NOP, OP_YIELD, OP_WFE, OP_WFI, OP_SEV, OP_BARRIER, OP_SVC, OP_BKPT, OP_UDF,
+    // Fast forms chosen after decoding (specialize): no shift, Rd is not the PC,
+    // word accesses with a plain positive offset.
+    OP_ADD_I, OP_SUB_I, OP_CMP_I, OP_MOV_I, OP_ADD_R, OP_SUB_R, OP_CMP_R, OP_MOV_R, OP_LDR_W, OP_STR_W,
     OP_COUNT
 };
 
@@ -38,6 +41,8 @@ const char* const op_names[OP_COUNT] = {
     "LDM", "STM", "TBB", "TBH",
     "B", "B<cond>", "BL", "BX", "BLX", "CBZ", "CBNZ", "IT",
     "MRS", "MSR", "CPS", "NOP", "YIELD", "WFE", "WFI", "SEV", "barrier", "SVC", "BKPT", "UDF",
+    "ADD immediate", "SUB immediate", "CMP immediate", "MOV immediate", "ADD register", "SUB register",
+    "CMP register", "MOV register", "LDR word", "STR word",
 };
 
 // Data-processing operations (Insn::alu).
@@ -793,12 +798,40 @@ Cpu::Cpu(Bus& bus) : bus_(bus)
     flash_cache_.resize(cache_bytes / 2);
 }
 
+namespace {
+
+// Rewrites frequent instruction forms into opcodes that the run loop executes
+// inline. The semantics are those of the general form.
+void specialize(Insn& in)
+{
+    if (in.op == OP_DP_IMM && in.rd != 15 && in.carry < 0) {
+        switch (in.alu) {
+        case ADD: in.op = OP_ADD_I; break;
+        case SUB: in.op = OP_SUB_I; break;
+        case CMP: in.op = OP_CMP_I; break;
+        case MOV: in.op = OP_MOV_I; break;
+        default: break;
+        }
+    } else if (in.op == OP_DP_REG && in.rd != 15 && in.shift_t == LSL && in.shift_n == 0) {
+        switch (in.alu) {
+        case ADD: in.op = OP_ADD_R; break;
+        case SUB: in.op = OP_SUB_R; break;
+        case CMP: in.op = OP_CMP_R; break;
+        case MOV: in.op = OP_MOV_R; break;
+        default: break;
+        }
+    } else if ((in.op == OP_LDR || in.op == OP_STR) && in.mode == (4 | M_P | M_U) && in.rd != 15) {
+        in.op = in.op == OP_LDR ? OP_LDR_W : OP_STR_W;
+    }
+}
+
+} // namespace
+
 Insn Cpu::decode(std::uint32_t hw1, std::uint32_t hw2)
 {
-    if ((hw1 >> 11) >= 0x1Du) {
-        return decode32(hw1, hw2);
-    }
-    return decode16(hw1);
+    Insn in = (hw1 >> 11) >= 0x1Du ? decode32(hw1, hw2) : decode16(hw1);
+    specialize(in);
+    return in;
 }
 
 const char* Cpu::op_name(std::uint8_t op)
@@ -1012,6 +1045,7 @@ void Cpu::reset()
     st_base_ = cycles_;
     st_start_ = 0;
     st_countflag_ = false;
+    systick_reschedule();
     state_ = CoreState::Running;
     attention_ = true;
     faulted_ = false;
@@ -1038,7 +1072,7 @@ CoreState Cpu::run(std::uint64_t limit)
 {
     stop_requested_ = false;
     while (cycles_ < limit && !stop_requested_) {
-        if (cycles_ >= systick_next_event()) {
+        if (cycles_ >= st_next_) {
             systick_update(cycles_);
         }
         if (state_ == CoreState::Lockup) {
@@ -1052,15 +1086,251 @@ CoreState Cpu::run(std::uint64_t limit)
             const bool wake = pending_exception() != 0;
             primask_ = saved;
             if (!wake) {
-                cycles_ = std::min(limit, systick_next_event());
+                cycles_ = std::min(limit, st_next_);
                 continue;
             }
             state_ = CoreState::Running;
             attention_ = true;
         }
+        // Fast path: cached flash code outside IT blocks with nothing to check.
+        if (!attention_ && thumb_ && itstate_ == 0 && !count_ops_ && pc_ - flash_base < cache_bytes) {
+            const Insn& in = flash_cache_[(pc_ - flash_base) >> 1];
+            if (in.op != OP_NONE && fast(in)) {
+                continue;
+            }
+        }
         step();
     }
     return state_;
+}
+
+inline bool Cpu::fast(const Insn& in)
+{
+    const std::uint32_t pc = pc_;
+    std::uint32_t next = pc + in.size;
+    ++cycles_; // counted before the effects, as in step(): device events see the same time
+    switch (in.op) {
+    case OP_ADD_I:
+    case OP_SUB_I:
+    case OP_CMP_I:
+    case OP_ADD_R:
+    case OP_SUB_R:
+    case OP_CMP_R: {
+        const std::uint32_t a = in.rn == 15 ? pc + 4 : r_[in.rn];
+        const bool reg = in.op >= OP_ADD_R;
+        const std::uint32_t b = reg ? (in.rm == 15 ? pc + 4 : r_[in.rm]) : in.imm;
+        const bool add = in.op == OP_ADD_I || in.op == OP_ADD_R;
+        const Sum sum = add ? add_with_carry(a, b, false) : add_with_carry(a, ~b, true);
+        if (in.op != OP_CMP_I && in.op != OP_CMP_R) {
+            if (in.rd == 13) {
+                r_[13] = sum.value & ~3u;
+            } else {
+                r_[in.rd] = sum.value;
+            }
+        }
+        if (in.s == 1 || in.s == 2) { // never inside an IT block on this path
+            n_ = (sum.value >> 31) != 0;
+            z_ = sum.value == 0;
+            c_ = sum.carry;
+            v_ = sum.overflow;
+        }
+        break;
+    }
+    case OP_MOV_I:
+    case OP_MOV_R: {
+        const std::uint32_t value = in.op == OP_MOV_I ? in.imm : (in.rm == 15 ? pc + 4 : r_[in.rm]);
+        if (in.rd == 13) {
+            r_[13] = value & ~3u;
+        } else {
+            r_[in.rd] = value;
+        }
+        if (in.s == 1 || in.s == 2) {
+            n_ = (value >> 31) != 0;
+            z_ = value == 0;
+        }
+        break;
+    }
+    case OP_LDR_W:
+    case OP_STR_W: {
+        const std::uint32_t base = in.rn == 15 ? ((pc + 4) & ~3u) : r_[in.rn];
+        const std::uint32_t address = base + in.imm;
+        if (ccr_ & (1u << 3)) {
+            { --cycles_; return false; } // UNALIGN_TRP: the general path checks alignment
+        }
+        if (in.op == OP_LDR_W) {
+            std::uint32_t value = 0;
+            if (!bus_.read(address, 4, value)) {
+                { --cycles_; return false; } // the general path raises the fault
+            }
+            if (in.rd == 13) {
+                r_[13] = value & ~3u;
+            } else {
+                r_[in.rd] = value;
+            }
+        } else if (!bus_.write(address, 4, in.rd == 15 ? pc + 4 : r_[in.rd])) {
+            { --cycles_; return false; }
+        }
+        break;
+    }
+    case OP_B:
+        next = pc + 4 + in.imm;
+        break;
+    case OP_BCOND:
+        if (condition_passed(in.alu)) {
+            next = pc + 4 + in.imm;
+        }
+        break;
+    case OP_BL:
+        r_[14] = next | 1u;
+        next = pc + 4 + in.imm;
+        break;
+    case OP_BX: {
+        const std::uint32_t target = in.rm == 15 ? pc + 4 : r_[in.rm];
+        if ((target & 1u) == 0 || (ipsr_ != 0 && (target >> 28) == 0xFu)) {
+            { --cycles_; return false; } // interworking fault or exception return: general path
+        }
+        next = target & ~1u;
+        break;
+    }
+    case OP_CBZ:
+    case OP_CBNZ:
+        if ((r_[in.rn] == 0) == (in.op == OP_CBZ)) {
+            next = pc + 4 + in.imm;
+        }
+        break;
+    case OP_NOP:
+        break;
+    case OP_DP_IMM:
+    case OP_DP_REG: {
+        if (in.rd == 15) {
+            { --cycles_; return false; }
+        }
+        std::uint32_t operand;
+        bool carry = c_;
+        if (in.op == OP_DP_IMM) {
+            operand = in.imm;
+            if (in.carry >= 0) {
+                carry = in.carry != 0;
+            }
+        } else {
+            const Shifted sh = shift_c(in.rm == 15 ? pc + 4 : r_[in.rm], in.shift_t, in.shift_n, c_);
+            operand = sh.value;
+            carry = sh.carry;
+        }
+        const std::uint32_t a = in.rn == 15 ? pc + 4 : r_[in.rn];
+        std::uint32_t result;
+        bool overflow = v_;
+        bool write = true;
+        switch (in.alu) {
+        case AND: result = a & operand; break;
+        case EOR: result = a ^ operand; break;
+        case ORR: result = a | operand; break;
+        case ORN: result = a | ~operand; break;
+        case BIC: result = a & ~operand; break;
+        case MOV: result = operand; break;
+        case MVN: result = ~operand; break;
+        case TST: result = a & operand; write = false; break;
+        case TEQ: result = a ^ operand; write = false; break;
+        default: {
+            Sum sum{};
+            switch (in.alu) {
+            case ADD: sum = add_with_carry(a, operand, false); break;
+            case ADC: sum = add_with_carry(a, operand, c_); break;
+            case SUB: sum = add_with_carry(a, ~operand, true); break;
+            case SBC: sum = add_with_carry(a, ~operand, c_); break;
+            case RSB: sum = add_with_carry(~a, operand, true); break;
+            case CMP: sum = add_with_carry(a, ~operand, true); write = false; break;
+            default: sum = add_with_carry(a, operand, false); write = false; break; // CMN
+            }
+            result = sum.value;
+            carry = sum.carry;
+            overflow = sum.overflow;
+            break;
+        }
+        }
+        if (write) {
+            if (in.rd == 13) {
+                r_[13] = result & ~3u;
+            } else {
+                r_[in.rd] = result;
+            }
+        }
+        if (in.s != 0) { // outside IT blocks "only outside IT" means "yes"
+            n_ = (result >> 31) != 0;
+            z_ = result == 0;
+            c_ = carry;
+            v_ = overflow;
+        }
+        break;
+    }
+    case OP_LDR:
+    case OP_STR: {
+        if (in.rd == 15 || (ccr_ & (1u << 3)) || ((in.mode & M_REG) && in.rm == 15)) {
+            { --cycles_; return false; }
+        }
+        const unsigned size = in.mode & 7u;
+        const std::uint32_t base = in.rn == 15 ? ((pc + 4) & ~3u) : r_[in.rn];
+        const std::uint32_t offset = (in.mode & M_REG) ? (r_[in.rm] << in.shift_n) : in.imm;
+        const std::uint32_t offset_address = (in.mode & M_U) ? base + offset : base - offset;
+        const std::uint32_t address = (in.mode & M_P) ? offset_address : base;
+        if (in.op == OP_LDR) {
+            std::uint32_t value = 0;
+            if (!bus_.read(address, size, value)) {
+                { --cycles_; return false; }
+            }
+            if (in.mode & M_SIGNED) {
+                value = sign_extend(value, size * 8);
+            }
+            if (in.mode & M_W) {
+                r_[in.rn] = in.rn == 13 ? offset_address & ~3u : offset_address;
+            }
+            r_[in.rd] = in.rd == 13 ? value & ~3u : value;
+        } else {
+            if (!bus_.write(address, size, r_[in.rd])) {
+                { --cycles_; return false; }
+            }
+            if (in.mode & M_W) {
+                r_[in.rn] = in.rn == 13 ? offset_address & ~3u : offset_address;
+            }
+        }
+        break;
+    }
+    case OP_SBFX:
+    case OP_UBFX: {
+        const unsigned width = in.imm + 1;
+        if (in.shift_n + width > 32 || in.rd == 15) {
+            { --cycles_; return false; }
+        }
+        const std::uint32_t field = (r_[in.rn] >> in.shift_n) & (width == 32 ? 0xFFFFFFFFu : ((1u << width) - 1u));
+        r_[in.rd] = in.op == OP_SBFX ? sign_extend(field, width) : field;
+        break;
+    }
+    case OP_MUL:
+    case OP_MLA: {
+        if (in.rd == 15 || in.rd == 13) {
+            { --cycles_; return false; }
+        }
+        const std::uint32_t result = r_[in.rn] * r_[in.rm] + (in.op == OP_MLA ? r_[in.ra] : 0u);
+        r_[in.rd] = result;
+        if (in.s != 0) {
+            n_ = (result >> 31) != 0;
+            z_ = result == 0;
+        }
+        break;
+    }
+    case OP_MOVW:
+    case OP_MOVT:
+        if (in.rd == 15 || in.rd == 13) {
+            { --cycles_; return false; }
+        }
+        r_[in.rd] = in.op == OP_MOVW ? in.imm : ((r_[in.rd] & 0xFFFFu) | (in.imm << 16));
+        break;
+    default:
+        { --cycles_; return false; }
+    }
+    ++instructions_;
+    pc_ = next;
+    return true;
 }
 
 void Cpu::advance_idle(std::uint64_t to)
@@ -1120,8 +1390,27 @@ void Cpu::step()
     pc_ = next_pc_;
 }
 
-void Cpu::execute(const Insn& in)
+void Cpu::execute(const Insn& original)
 {
+    // Specialized forms run through their general implementation here.
+    Insn general = original;
+    switch (original.op) {
+    case OP_ADD_I: case OP_SUB_I: case OP_CMP_I: case OP_MOV_I:
+        general.op = OP_DP_IMM;
+        break;
+    case OP_ADD_R: case OP_SUB_R: case OP_CMP_R: case OP_MOV_R:
+        general.op = OP_DP_REG;
+        break;
+    case OP_LDR_W:
+        general.op = OP_LDR;
+        break;
+    case OP_STR_W:
+        general.op = OP_STR;
+        break;
+    default:
+        break;
+    }
+    const Insn& in = general;
     const bool setflags = in.s == 1 || (in.s == 2 && !in_it_);
     switch (in.op) {
     case OP_DP_IMM:
@@ -1974,6 +2263,7 @@ void Cpu::systick_update(std::uint64_t now)
         st_start_ = 0;
         zero = systick_next_event();
     }
+    st_next_ = zero;
 }
 
 std::uint32_t Cpu::systick_value(std::uint64_t now) const
@@ -1997,6 +2287,7 @@ void Cpu::systick_restart(std::uint64_t now, std::uint32_t value)
 {
     st_base_ = now;
     st_start_ = value;
+    systick_reschedule();
     if (on_schedule_changed) {
         on_schedule_changed();
     }
@@ -2207,16 +2498,13 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
             systick_restart(cycles_, current);
         } else if (was_enabled && !(st_ctrl_ & 1u)) {
             st_start_ = current;
-        } else if (on_schedule_changed) {
-            on_schedule_changed();
         }
+        systick_reschedule();
         return true;
     }
     case 0x014:
         st_reload_ = value & 0x00FFFFFFu;
-        if (on_schedule_changed) {
-            on_schedule_changed();
-        }
+        systick_reschedule();
         return true;
     case 0x018:
         st_countflag_ = false;
@@ -2225,6 +2513,7 @@ bool Cpu::scs_write(std::uint32_t offset, std::uint32_t value)
         } else {
             st_start_ = 0;
         }
+        systick_reschedule();
         return true;
     case 0xD04: // ICSR
         if (value & (1u << 31)) {
