@@ -43,6 +43,10 @@ public:
 
     bool attached() const { return socket_.connected(); }
     bool halted() const { return state_ == State::Halted; }
+    // Until the first client connects, service() keeps the firmware halted (a
+    // debugging run starts with the firmware waiting at its reset handler).
+    void wait_for_client(bool on) { wait_first_ = on; }
+    bool waiting() const { return wait_first_ && state_ == State::NoClient; }
 
 private:
     enum class State { NoClient, Halted, Running };
@@ -63,6 +67,7 @@ private:
     GdbSocket socket_;
     State state_ = State::NoClient;
     std::set<std::uint32_t> breakpoints_;
+    bool wait_first_ = false;
 };
 
 } // namespace simnodus::emu

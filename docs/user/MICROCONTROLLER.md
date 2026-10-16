@@ -41,7 +41,7 @@ the same firmware timing.
 | ADC features: conversions started by a timer or EXTI, discontinuous and dual modes; DMA requests of timers, SPI and I2C | Later; the firmware gets a message in the Messages panel when it uses one |
 | Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
 | SPI, I2C, CAN, USB, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
-| Debugging with STM32CubeIDE / GDB | Release 0.4 |
+| Watchpoints (break when a variable changes) | Later |
 | Transient mode with a microcontroller | Not yet: use interactive mode |
 
 ## Differences from the real board
@@ -102,6 +102,44 @@ the same firmware timing.
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source
   behind 0.1 Ω); 5 V and VBAT pins are not connected inside.
+
+## Debugging with STM32CubeIDE or GDB
+
+SimNodus's emulator contains a GDB server (SN-180), so the firmware can be
+debugged while it drives the circuit: breakpoints, stepping, variables,
+registers and memory. While the firmware is halted, **the circuit stands
+still too**; when it runs again, both continue from the same instant.
+
+1. In SimNodus, check **Simulate > Debug Firmware with GDB (port 3333)** and
+   start the run (F5). The status bar shows *Waiting for the debugger (GDB
+   port 3333)*: the firmware waits at its reset handler and the circuit at
+   0 s. A second board uses port 3334, and so on.
+2. The ELF in the board's properties must be the one the debugger uses
+   (STM32CubeIDE: `Debug/<project>.elf`); after rebuilding, click
+   **Reload**.
+3. **STM32CubeIDE:** Run > Debug Configurations…, select the project's
+   *STM32 C/C++ Application* configuration. On the **Debugger** tab choose
+   *Connect to remote GDB server*, host `localhost`, port `3333`. On the
+   **Startup** tab, in *Load Image and Symbols*, edit the entry and clear
+   *Download* (SimNodus has already loaded the firmware; keep *Load
+   symbols*). Click **Debug**. Then use breakpoints, Step Over/Into,
+   Resume, Suspend and the Variables, Registers and Expressions views as
+   with a board. *(These steps were written for STM32CubeIDE 2.1.1 and are
+   being confirmed in the owner's test; the GDB route below is verified.)*
+4. **arm-none-eabi-gdb** (it comes with STM32CubeIDE, in the GNU Tools for
+   STM32 folder): `arm-none-eabi-gdb Debug/project.elf`, then
+   `target extended-remote :3333`, `break main`, `continue`, `next`,
+   `print variable`, `monitor reset`, `detach`.
+5. Stopping the debugger (detach or terminate) lets the firmware run on;
+   the run itself continues until you stop it in SimNodus.
+
+Supported: any number of breakpoints, Step, Resume, Suspend (Ctrl-C),
+registers (r0–r15, xPSR, MSP, PSP, PRIMASK, CONTROL), memory and
+peripheral registers, `monitor reset` and `monitor reset halt`, `load`.
+Not yet: watchpoints. Reading a peripheral register in the debugger has the
+same side effects as on the chip (reading `USART_DR` clears RXNE). The GDB
+server listens on 127.0.0.1 only. After `monitor reset`, gdb may keep
+showing the old PC until the next step or continue.
 
 ## Building firmware
 

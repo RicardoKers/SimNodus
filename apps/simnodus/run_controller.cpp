@@ -100,6 +100,7 @@ bool RunController::start(QString& error)
     environment.renode = mcu::find_renode(application_dir);
     environment.resources = mcu::find_mcu_resources(application_dir);
     environment.engine = mcu_engine_;
+    environment.gdb_port = gdb_port_;
     if (const QString forced = qEnvironmentVariable("SIMNODUS_MCU_ENGINE"); !forced.isEmpty()) {
         environment.engine = forced.toStdString();
     }

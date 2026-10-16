@@ -69,6 +69,10 @@ struct McuStatus {
     int resets = 0;                       // resets done with the reset button
     std::uint64_t max_input_delay_ns = 0; // circuit-to-firmware delay of input changes
     std::uint64_t late_analog_samples = 0; // ADC samples that took the circuit's latest value
+    int gdb_port = -1;           // GDB server port, -1 without one
+    bool debug_waiting = false;  // waiting for the first GDB client
+    bool debug_halted = false;   // halted by the debugger (or waiting for it)
+    int debug_resumes = 0;       // times the debugger let a halted firmware run again
     std::string message;                  // failure reason
 };
 

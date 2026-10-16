@@ -110,6 +110,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    debug_resumes_ = 0;
     analog_points_.clear();
     edge_feeds_.clear();
     mcu_stale_ = false;
@@ -123,6 +124,8 @@ bool SimulationSession::start(RunRequest request, std::string& error)
             request_.mcu_lead_us = std::min(request_.mcu_lead_us, m.options.chunk_us);
         }
     }
+    request_.debugging = std::any_of(request_.mcus.begin(), request_.mcus.end(),
+        [](const McuRequest& m) { return m.options.gdb_port >= 0; });
     for (const auto& m : request_.mcus) {
         std::unique_ptr<mcu::McuBackend> runner;
         if (m.engine == "native") {
@@ -324,8 +327,22 @@ std::optional<double> SimulationSession::control(model::Id component) const
 
 RunStatus SimulationSession::status() const
 {
-    std::lock_guard lock(mutex_);
-    return status_;
+    RunStatus status;
+    {
+        std::lock_guard lock(mutex_);
+        status = status_;
+    }
+    if (status.state == RunState::Running || status.state == RunState::Paused) {
+        for (const auto& [id, runner] : mcus_) {
+            const auto mcu = runner->status();
+            status.debugger_waiting = status.debugger_waiting || mcu.debug_waiting;
+            status.debugger_halted = status.debugger_halted || mcu.debug_halted;
+            if (status.gdb_port < 0) {
+                status.gdb_port = mcu.gdb_port;
+            }
+        }
+    }
+    return status;
 }
 
 std::vector<Sample> SimulationSession::samples(const std::string& vector) const
@@ -546,6 +563,14 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             if (mcu::gpio_pin(pin.name)) {
                 request.options.pins.push_back(pin.name);
             }
+        }
+        if (environment.gdb_port >= 0) {
+            if (request.engine != "native") {
+                error = c.designator + ": debugging needs SimNodus's own emulator; turn off Simulate > Use Renode "
+                                       "for Microcontrollers.";
+                return false;
+            }
+            request.options.gdb_port = environment.gdb_port + static_cast<int>(requests.size());
         }
         requests.push_back(std::move(request));
     }
@@ -871,6 +896,20 @@ void SimulationSession::run_interactive()
             lock.unlock();
             wall_origin_ += Clock::now() - paused_at;
             history_.clear();
+        }
+        // A debugger halted and resumed a firmware: the wall time it stood still
+        // is not to be caught up.
+        if (request_.debugging) {
+            int resumes = 0;
+            for (const auto& [id, runner] : mcus_) {
+                resumes += runner->status().debug_resumes;
+            }
+            if (resumes != debug_resumes_) {
+                debug_resumes_ = resumes;
+                wall_origin_ = Clock::now();
+                sim_origin_ = global;
+                history_.clear();
+            }
         }
         // Pace against wall clock x speed (re-anchored when the speed changes).
         const double speed = speed_;

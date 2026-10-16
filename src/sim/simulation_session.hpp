@@ -65,6 +65,7 @@ struct RunRequest {
     std::vector<McuRequest> mcus;
     // Firmware lead over the circuit, set from the settings' mcu_quantum by start().
     std::uint64_t mcu_lead_us = 1000;
+    bool debugging = false; // set by start(): a board has a GDB server
 };
 
 struct RunStatus {
@@ -76,6 +77,9 @@ struct RunStatus {
     int segments = 0;
     double progress = 0.0;       // transient: 0..1
     bool starting_mcu = false;   // waiting for the microcontroller engine
+    bool debugger_waiting = false; // a board waits for its GDB client (SN-180)
+    bool debugger_halted = false;  // a board's firmware is halted by its debugger
+    int gdb_port = -1;             // first board's GDB port, -1 without debugging
     std::string message;         // failure reason in plain language
     std::vector<std::string> engine_output; // ngspice error lines of a failure
 };
@@ -186,6 +190,7 @@ private:
     };
     std::map<std::string, ExternalRef> external_refs_;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
+    int debug_resumes_ = 0; // engine thread: debugger resumes seen (re-anchors the pacing)
     // Exact edges (ADR 0093, settings.exact_edges): for a board whose engine
     // reports its edges ahead, ngspice gets a breakpoint just before every drive
     // change of a wired pin, and its steps are capped at the firmware's time.
@@ -238,6 +243,9 @@ struct McuEnvironment {
     std::string engine;
     std::optional<std::filesystem::path> renode;    // mcu::find_renode()
     std::optional<std::filesystem::path> resources; // mcu::find_mcu_resources()
+    // Debugging (SN-180): boards on the own emulator get GDB servers on ports
+    // gdb_port, gdb_port + 1, ... in schematic order; -1 for none.
+    int gdb_port = -1;
 };
 bool build_mcu_requests(const model::Schematic& schematic, const library::ComponentLibrary& library,
     const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error);

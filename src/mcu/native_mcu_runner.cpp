@@ -3,6 +3,7 @@
 #include "native_mcu_runner.hpp"
 
 #include "emu/elf.hpp"
+#include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
@@ -406,6 +407,37 @@ void NativeMcuRunner::work()
     for (std::size_t i = 0; i < ports_.size(); ++i) {
         watched[ports_[i]] = i;
     }
+    // Debugging (SN-180): the GDB server lives on this thread, which owns the machine.
+    std::unique_ptr<emu::GdbServer> gdb;
+    if (options_.gdb_port >= 0) {
+        gdb = std::make_unique<emu::GdbServer>(*machine);
+        if (!gdb->start(static_cast<std::uint16_t>(options_.gdb_port), error)) {
+            fail("Debugging: " + error);
+            return;
+        }
+        gdb->wait_for_client(true);
+        std::lock_guard lock(mutex_);
+        status_.gdb_port = gdb->port();
+        status_.debug_waiting = status_.debug_halted = true;
+    }
+    bool gdb_may_run = !gdb;
+    auto last_service = std::chrono::steady_clock::now();
+    // Talks to the debugger: every 2 ms while running, continuously while halted.
+    auto service_debugger = [&] {
+        const auto wall = std::chrono::steady_clock::now();
+        if (gdb_may_run && wall - last_service < std::chrono::milliseconds(2)) {
+            return;
+        }
+        last_service = wall;
+        const bool was = gdb_may_run;
+        gdb_may_run = gdb->service(gdb_may_run ? 0 : 20);
+        std::lock_guard lock(mutex_);
+        status_.debug_waiting = gdb->waiting();
+        status_.debug_halted = !gdb_may_run;
+        if (!was && gdb_may_run) {
+            ++status_.debug_resumes;
+        }
+    };
     machine->set_analog_source([this, &watched](int port, int pin, std::uint64_t time_ns) {
         const auto it = watched.find({port, pin});
         return it == watched.end() ? 0.0 : analog_value(it->second, time_ns);
@@ -471,6 +503,13 @@ void NativeMcuRunner::work()
     auto boundary_above = [window_ns](std::uint64_t t) { return (t + window_ns - 1) / window_ns * window_ns; };
     std::deque<InputChange> pending; // circuit inputs not applied yet, in time order
     while (!stop_) {
+        if (gdb) {
+            service_debugger();
+            if (!gdb_may_run) {
+                changed_.notify_all();
+                continue; // halted: the firmware's time stands still, and so does the circuit
+            }
+        }
         std::uint64_t limit = 0;
         std::vector<std::pair<int, std::string>> to_send;
         {
@@ -544,6 +583,14 @@ void NativeMcuRunner::work()
                 target = std::max(pending.front().apply_ns, machine->time_ns() + 1);
             }
             machine->run_until_ns(target);
+            if (gdb) {
+                gdb->after_run();
+                if (gdb->halted()) {
+                    gdb_may_run = false; // a breakpoint
+                    std::lock_guard lock(mutex_);
+                    status_.debug_halted = true;
+                }
+            }
             apply_due();
         }
         {

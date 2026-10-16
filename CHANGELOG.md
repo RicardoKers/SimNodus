@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, SN-180 part 2)
+
+- **Simulate > Debug Firmware with GDB (port 3333)**: the next run gives each board on the own emulator a GDB server (3333, 3334, ...); the firmware waits at its reset handler for STM32CubeIDE or arm-none-eabi-gdb. While a debugger halts the firmware, the circuit stands still; the status bar shows *Waiting for the debugger* or *Halted by the debugger*, and after a resume the run continues at its pace instead of catching up. User guide: MICROCONTROLLER.md, "Debugging with STM32CubeIDE or GDB".
+- Session test: waiting at 0 s, Ctrl-C, a breakpoint in the SysTick handler with the circuit standing still (no drift over 300 ms), detach and both run on.
+
 ### Added (2026-10-16, SN-180 part 1)
 
 - **GDB server in the own emulator** (`src/emu/gdb_server.*`, `gdb_socket.*`): GDB remote serial protocol on 127.0.0.1 only. Supported: a Cortex-M target description (r0–pc, xpsr, msp, psp, primask, control), register and memory reads and writes (flash through the loader, so `load` works), any number of breakpoints, continue, step, Ctrl-C, `monitor reset` / `monitor reset halt`, detach and kill. A client that connects halts the firmware where it is; after detach it runs on. With a debugger attached, `BKPT` halts the core instead of raising a HardFault. Watchpoints are not supported yet.

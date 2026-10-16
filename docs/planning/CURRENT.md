@@ -187,8 +187,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 - **N4 debugging (SN-180), part 1:** GDB server in the emulator and
   `simnodus-emu --gdb PORT`; arm-none-eabi-gdb from CubeIDE works with it
-  (breakpoints, step, registers, variables, reset, detach). Part 2: the run
-  pauses with the firmware, GUI status, CubeIDE launch guide, owner's test (G4).
+  (breakpoints, step, registers, variables, reset, detach). **Part 2 done:**
+  Simulate > Debug Firmware with GDB; the circuit stands still while the
+  firmware is halted; status bar; guide in MICROCONTROLLER.md. **Next: the
+  owner's test from STM32CubeIDE (gate G4)**, then watchpoints.
 
 ## Next steps
 
