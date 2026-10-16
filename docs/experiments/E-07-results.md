@@ -59,6 +59,12 @@ cycle model comes later (plan N5).
 ## Decision and next step
 
 **D0 (owner, 2026-10-15): continue with the own emulator.** ADR 0089 is accepted.
+
+Correction (2026-10-15, after D0): work package 0.9, the analog edge spike
+E-07b (SN-186), was not run in N0, although the plan said its data would fix
+the G2 speed criterion at G0b. It is not one of the numbered G0a/G0b criteria,
+so D0 stands; E-07b now runs at the start of N2, before SN-175/SN-176, and the
+G2 speed criterion is fixed from its data before N2 code starts.
 Every G0a and G0b criterion is met, with one recorded limit: G0a.3 asks for the
 speed on the owner's laptop under Windows and Linux; the owner has no Linux
 system, so Linux was measured on the CI runner, which is slower than the laptop

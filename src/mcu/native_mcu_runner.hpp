@@ -3,10 +3,16 @@
 //
 // Runs one microcontroller in SimNodus's own STM32F103 emulator (src/emu,
 // SN-172, ADR 0089): the same McuBackend contract as RenodeMcuRunner, without
-// a child process. A worker thread advances the firmware up to the limit set
-// by the circuit; pin changes carry their exact virtual time in nanoseconds;
-// circuit inputs apply at their circuit time when the firmware has not passed
-// it yet, otherwise at once (the delay is reported, as with Renode).
+// a child process. A worker thread advances the firmware; pin changes carry
+// their exact virtual time in nanoseconds.
+//
+// Deterministic coupling (SN-173, MCU_EMULATOR.md section 7): time is cut into
+// windows of L = chunk_us. The firmware runs only up to the window boundary at
+// or below the limit the circuit grants, and an input the circuit produces at
+// time tc applies exactly at the next boundary at or after tc. The session
+// delivers every input before it raises the limit past the input's time, so
+// the result depends only on simulated times, never on thread scheduling;
+// inputs are late by less than L (labeled approximate).
 #pragma once
 
 #include "mcu_backend.hpp"
@@ -72,7 +78,8 @@ private:
     struct InputChange {
         std::size_t pin = 0;
         bool level = false;
-        std::uint64_t time_ns = 0;
+        std::uint64_t time_ns = 0;  // circuit time
+        std::uint64_t apply_ns = 0; // the window boundary at which the firmware sees it
     };
     std::vector<InputChange> input_queue_;
     std::vector<bool> input_desired_;

@@ -212,6 +212,9 @@ const char* to_string(RunState state);
 // Microcontroller requests for the boards of a schematic: the firmware path is
 // resolved against `project_dir` when relative. Returns false with a message
 // for the first board without a usable firmware or engine.
+// Coupling window of the own emulator (SN-173): the quantum setting is capped to it.
+inline constexpr std::uint64_t native_window_us = 100;
+
 struct McuEnvironment {
     std::filesystem::path project_dir;
     // "renode" or "native" overrides the engine of every board's profile; empty

@@ -324,7 +324,7 @@ can talk through wires.
 |---|---|---|
 | EQ-1 | Interpreter speed on the owner's laptop and on lab PCs (Q-103) | E-07 benchmark; lab specs |
 | EQ-2 | Cost of each edge technique (breakpoints, rise times, logic-only nets); interaction with segment restarts | Spike E-07b in N0 |
-| EQ-3 | Smallest useful lead `L` without slowing the circuit | N1 measurement |
+| EQ-3 | Smallest useful lead `L` without slowing the circuit | **Resolved 2026-10-15 (SN-173):** at maximum speed with an EXTI-driven firmware, windows of 1 ms, 100 µs and 20 µs ran at 2.48x, 2.40x and 2.32x real time; the own emulator uses 100 µs (inputs late by less than 0.1 ms, button-to-LED response 100 µs instead of 1.1 ms with Renode) |
 | EQ-4 | Can ST's SVD files (register descriptions) be used to generate register tables? License to be checked; otherwise tables are written from RM0008 | before N3 |
 | EQ-5 | Which clock-gating behaviors to model, checked on the real board | N1 |
 | EQ-6 | Keep Renode as an optional engine after the switch, or remove it | decision D4 in the plan |
