@@ -21,11 +21,17 @@
 
 namespace simnodus::emu {
 
+// A change of a pin's level (outputs) or configuration (any pin), with the
+// pin's configuration at that instant.
 struct PinEvent {
     std::uint64_t time_ns = 0;
     int port = 0; // 0 = A ... 4 = E
     int pin = 0;
     bool level = false;
+    std::uint8_t mode = 0; // MODE bits
+    std::uint8_t cnf = 1;  // CNF bits
+    bool drive_high = false;
+    bool pull_up = false;
 };
 
 struct UartByte {
@@ -44,7 +50,8 @@ struct Diagnostic {
 struct PinConfig {
     std::uint8_t mode = 0; // MODE bits: 0 input, 1..3 output (10, 2, 50 MHz)
     std::uint8_t cnf = 1;  // CNF bits
-    bool output_level = false; // level driven when the pin is an output
+    bool output_level = false; // level on the pin (outputs and inputs)
+    bool drive_high = false;   // outputs: the ODR bit, or the peripheral's level for alternate functions
     bool pull_up = false;      // input with pull (CNF 10): ODR bit 1
 };
 

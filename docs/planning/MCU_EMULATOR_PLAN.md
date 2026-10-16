@@ -230,7 +230,7 @@ and the release ships on Renode for that feature.
 
 | ID | When | Question | Default if not decided |
 |---|---|---|---|
-| D0 | 10-30 (G0a, G0b) | Continue with the emulator? | Stop; keep Renode |
+| D0 | 10-30 (G0a, G0b) | Continue with the emulator? **Taken 2026-10-15: yes** (E-07 passed; ADR 0089 accepted) | Stop; keep Renode |
 | D1 | 11-13 (G1) | Native as the default engine? | Renode stays default |
 | D1b | any release with native default | Roll back to Renode after an unfixed regression (3 working days) | Roll back |
 | D2 | 11-13 | Build phase 3/4 features only on the emulator? (removes them from the Renode fallback) | On Renode, as planned |

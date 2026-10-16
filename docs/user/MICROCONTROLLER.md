@@ -4,6 +4,16 @@ SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in Renode 1.16.1
 next to the circuit. This page lists what the simulated chip supports and
 where it differs from a real board (MCU-09). Release 0.2.
 
+## Engines
+
+Firmware runs in Renode 1.16.1 by default. **Simulate > Use the SimNodus
+Emulator for Microcontrollers (Experimental)** runs it in SimNodus's own STM32
+emulator instead (ADR 0089): it starts at once instead of after several
+seconds, gives pin changes their exact time and avoids the Renode differences
+listed below; its own limits are the same as Renode's for the peripherals in
+the table (the timers, ADC, SPI, I2C and DMA are not simulated in either yet).
+The choice applies to the next run and is remembered.
+
 ## Supported
 
 | Part | Status | Notes |

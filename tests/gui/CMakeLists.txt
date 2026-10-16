@@ -21,6 +21,9 @@ if(SIMNODUS_RENODE)
 endif()
 add_test(NAME gui-editor COMMAND editor_tests)
 set_tests_properties(gui-editor PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 900)
+# The same editor cases with microcontrollers on SimNodus's own emulator (SN-173).
+add_test(NAME gui-editor-native COMMAND editor_tests)
+set_tests_properties(gui-editor-native PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;SIMNODUS_MCU_ENGINE=native" TIMEOUT 900)
 
 # The real executable's built-in checks, offscreen.
 add_test(NAME gui-app-smoke

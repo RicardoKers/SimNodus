@@ -327,6 +327,7 @@ public:
         c.mode = static_cast<std::uint8_t>(n & 3u);
         c.cnf = static_cast<std::uint8_t>(n >> 2);
         c.output_level = level(pin);
+        c.drive_high = ((n >> 2) >= 2 ? (af_level_ >> pin) : (odr_ >> pin)) & 1u;
         c.pull_up = (odr_ >> pin) & 1u;
         return c;
     }
@@ -374,10 +375,14 @@ public:
         outputs_ = outputs;
         for (int pin = 0; pin < 16; ++pin) {
             const std::uint32_t bit = 1u << pin;
-            if ((changed & bit) || ((outputs ^ was_outputs) & bit)) {
-                if ((outputs | was_outputs) & bit) {
-                    m_.pin_output_changed(port_, pin, (levels & bit) != 0);
-                }
+            // Configuration as the pin sees it: CRL/CRH nibble, the ODR bit (pull
+            // or output level) and the alternate-function level.
+            const std::uint8_t config = static_cast<std::uint8_t>(nibble(pin) | ((odr_ >> pin) & 1u) << 4
+                | ((af_level_ >> pin) & 1u) << 5);
+            const bool config_changed = config != configs_[static_cast<std::size_t>(pin)];
+            configs_[static_cast<std::size_t>(pin)] = config;
+            if (config_changed || (((changed & bit) || ((outputs ^ was_outputs) & bit)) && ((outputs | was_outputs) & bit))) {
+                m_.pin_output_changed(port_, pin, (levels & bit) != 0);
             }
             if (changed & bit) {
                 m_.pin_input_changed(port_, pin, (levels & bit) != 0);
@@ -424,6 +429,7 @@ private:
     std::uint32_t crl_ = 0, crh_ = 0, odr_ = 0, lckr_ = 0;
     std::uint32_t input_ = 0, input_set_ = 0, af_level_ = 0;
     std::uint32_t levels_ = 0, outputs_ = 0;
+    std::array<std::uint8_t, 16> configs_{};
 };
 
 // ---------------------------------------------------------------------------
@@ -1044,7 +1050,11 @@ void Stm32F103::diagnostic(const std::string& text)
 
 void Stm32F103::pin_output_changed(int port, int pin, bool level)
 {
-    pin_events_.push_back({time_ns(), port, pin, level});
+    if (!gpio_[static_cast<std::size_t>(port)]) {
+        return; // the port is being constructed
+    }
+    const PinConfig c = gpio_[static_cast<std::size_t>(port)]->config(pin);
+    pin_events_.push_back({time_ns(), port, pin, level, c.mode, c.cnf, c.drive_high, c.pull_up});
 }
 
 void Stm32F103::pin_input_changed(int port, int pin, bool level)

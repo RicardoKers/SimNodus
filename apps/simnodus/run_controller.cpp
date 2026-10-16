@@ -99,6 +99,10 @@ bool RunController::start(QString& error)
     const std::filesystem::path application_dir = QCoreApplication::applicationDirPath().toStdWString();
     environment.renode = mcu::find_renode(application_dir);
     environment.resources = mcu::find_mcu_resources(application_dir);
+    environment.engine = mcu_engine_;
+    if (const QString forced = qEnvironmentVariable("SIMNODUS_MCU_ENGINE"); !forced.isEmpty()) {
+        environment.engine = forced.toStdString();
+    }
     if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason)) {
         error = QString::fromStdString(reason);
         emit state_changed();
@@ -319,6 +323,9 @@ void RunController::mcu_reset(model::Id component)
 
 void RunController::refresh()
 {
+    for (const auto& [board, text] : session_->take_mcu_diagnostics()) {
+        emit mcu_message(board, QString::fromStdString(text));
+    }
     const auto status = session_->status();
     LiveState live;
     live.running = status.state == sim::RunState::Running || status.state == sim::RunState::Paused

@@ -60,6 +60,7 @@ struct Parameter {
 // Microcontroller board (MCU-01, INT-06): runs firmware in Renode. Pins named
 // like "PA0" are GPIO pins of port A; the others are power or control pins.
 struct McuBoard {
+    std::string engine = "renode";        // "renode" or "native" (SimNodus's own emulator, ADR 0089)
     std::string platform;                 // platform description in the mcu/ folder
     std::vector<std::string> extensions;  // C# peripheral models the platform uses
     std::vector<std::string> before_firmware; // Renode monitor commands

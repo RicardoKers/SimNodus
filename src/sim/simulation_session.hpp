@@ -20,6 +20,7 @@
 
 #include "library/component_library.hpp"
 #include "mcu/mcu_runner.hpp"
+#include "mcu/native_mcu_runner.hpp"
 #include "model/schematic.hpp"
 #include "netlist/netlist.hpp"
 
@@ -44,6 +45,7 @@ enum class RunState { Idle, Running, Paused, Finished, Stopped, Failed };
 // started before the analog run and kept within `mcu_lead_us` of its time.
 struct McuRequest {
     model::Id component = model::no_id;
+    std::string engine = "renode"; // "renode" or "native" (SN-172)
     mcu::McuRunOptions options;
     std::string ground_pin = "G1"; // reference of the pin voltages
 };
@@ -117,6 +119,8 @@ public:
 
     // Microcontrollers of the current or last run.
     std::optional<mcu::McuStatus> mcu_status(model::Id component) const;
+    // Messages of the boards' engines since the last call (faults, unsimulated features).
+    std::vector<std::pair<model::Id, std::string>> take_mcu_diagnostics();
     std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const;
     void mcu_reset(model::Id component);
     // Level changes of a board pin for the logic lanes (empty for unknown pins).
@@ -210,6 +214,9 @@ const char* to_string(RunState state);
 // for the first board without a usable firmware or engine.
 struct McuEnvironment {
     std::filesystem::path project_dir;
+    // "renode" or "native" overrides the engine of every board's profile; empty
+    // keeps the profile's choice.
+    std::string engine;
     std::optional<std::filesystem::path> renode;    // mcu::find_renode()
     std::optional<std::filesystem::path> resources; // mcu::find_mcu_resources()
 };

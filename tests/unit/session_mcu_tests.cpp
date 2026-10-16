@@ -20,6 +20,8 @@
 using namespace simnodus;
 using namespace std::chrono_literals;
 
+extern std::string test_mcu_engine; // engine_tests.cpp
+
 namespace {
 
 library::ComponentLibrary& board_library()
@@ -36,6 +38,7 @@ library::ComponentLibrary& board_library()
 sim::McuEnvironment environment()
 {
     sim::McuEnvironment e;
+    e.engine = test_mcu_engine;
     e.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
     e.renode = std::filesystem::path(SIMNODUS_TEST_RENODE);
     e.resources = std::filesystem::path(SIMNODUS_TEST_MCU_DIR);
@@ -110,7 +113,9 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     }
     std::printf("  circuit started after %.1f s\n",
         std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count());
-    CHECK(saw_starting);
+    if (test_mcu_engine != "native") {
+        CHECK(saw_starting); // Renode takes seconds; the own emulator is ready at once
+    }
 
     // Watch PC13 over 1.6 s of virtual time: the firmware toggles it every 500 ms.
     std::set<bool> levels;

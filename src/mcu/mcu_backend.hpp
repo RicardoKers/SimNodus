@@ -106,6 +106,8 @@ public:
     virtual std::vector<PinDrive> drives_at(std::uint64_t time_ns) = 0;
     // Level changes of watched pin `pin` from `from_ns`.
     virtual PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const = 0;
+    // Messages for the user since the last call (faults, unsimulated features).
+    virtual std::vector<std::string> take_diagnostics() { return {}; }
 };
 
 } // namespace simnodus::mcu

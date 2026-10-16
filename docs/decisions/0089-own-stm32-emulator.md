@@ -1,7 +1,8 @@
 # ADR 0089: Own STM32 emulator as the microcontroller engine
 
-Date: 2026-10-15. Status: **proposed**: accepted or rejected at gates G0a
-(2026-10-24) and G0b (2026-10-30) of experiment E-07 (decision D0).
+Date: 2026-10-15. Status: **accepted** on 2026-10-15 (decision D0, owner),
+after experiment E-07 met the criteria of gates G0a and G0b
+([E-07-results.md](../experiments/E-07-results.md)).
 
 ## Context
 

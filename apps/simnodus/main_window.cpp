@@ -198,6 +198,10 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
         update_status();
         properties_->set_live_text(run_->live_text(scene_->selected_ids()));
     });
+    connect(run_, &RunController::mcu_message, this, [this](model::Id board, const QString& text) {
+        const model::Component* c = document_->schematic().component(board);
+        messages_->add(Severity::Warning, text, c ? QString::fromStdString(c->designator) : tr("Microcontroller"), {board});
+    });
     connect(run_, &RunController::failed, this, [this](const QString& message, const QStringList& output) {
         for (const auto& line : output) {
             messages_->add(Severity::Info, line, tr("Engine"));
@@ -362,6 +366,16 @@ void MainWindow::build_actions_and_menus()
     reset_action_->setStatusTip(tr("Restart the simulation from the beginning"));
     simulate->addSeparator();
     simulate->addAction(tr("Simulation &Settings..."), this, &MainWindow::edit_settings);
+    native_mcu_action_ = simulate->addAction(tr("Use the SimNodus &Emulator for Microcontrollers (Experimental)"));
+    native_mcu_action_->setCheckable(true);
+    native_mcu_action_->setStatusTip(
+        tr("Run firmware in SimNodus's own STM32 emulator instead of Renode; applies to the next run"));
+    native_mcu_action_->setChecked(settings_.value(QStringLiteral("mcu/nativeEngine"), false).toBool());
+    connect(native_mcu_action_, &QAction::toggled, this, [this](bool on) {
+        settings_.setValue(QStringLiteral("mcu/nativeEngine"), on);
+        run_->set_mcu_engine(on ? "native" : "");
+    });
+    run_->set_mcu_engine(native_mcu_action_->isChecked() ? "native" : "");
 
     auto* tools = menuBar()->addMenu(tr("&Tools"));
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
@@ -666,9 +680,11 @@ void MainWindow::run()
         const auto* d = library_.find(c.type);
         return d && d->mcu;
     });
-    statusBar()->showMessage(board ? tr("Starting the microcontroller; the circuit runs when its firmware is ready.")
-                                   : tr("Simulation started. Click switches and buttons to operate them."),
-        board ? 8000 : 4000);
+    // Renode takes seconds to start; SimNodus's own emulator starts at once.
+    const bool slow_start = board && !native_mcu_action_->isChecked();
+    statusBar()->showMessage(slow_start ? tr("Starting the microcontroller; the circuit runs when its firmware is ready.")
+                                        : tr("Simulation started. Click switches and buttons to operate them."),
+        slow_start ? 8000 : 4000);
 }
 
 void MainWindow::pause_resume()

@@ -502,8 +502,10 @@ private slots:
         QVERIFY(terminal->ports()->currentText().contains(QStringLiteral("USART1")));
         QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Blue Pill ready")), 150000);
         QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("tick 1")), 10000);
-        // Time stamps: "tick 1" is printed at about 1 s of simulated time.
-        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[0.99")));
+        // Time stamps: "tick 1" is printed at about 1 s of simulated time (0.999875 s in
+        // Renode, whose SysTick runs 125 ppm fast; 1.000021 s in the SimNodus emulator).
+        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[0.99"))
+            || terminal->output()->toPlainText().contains(QStringLiteral("[1.00")));
         QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral(" s] tick 1")));
         QVERIFY(led_current() < 1e-4);
         terminal->input()->setText(QStringLiteral("1"));
