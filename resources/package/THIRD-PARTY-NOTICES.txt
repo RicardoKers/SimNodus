@@ -64,8 +64,9 @@ Renode at run time)
   adapted by SimNodus (loopback-only server). Text in mcu/licenses/MIT.txt.
   The clock model mcu/SimNodusRcc.cs is original SimNodus code (MIT).
 
-Example firmware examples/firmware/hal_clock/hal_clock.elf contains compiled
-code from the STM32CubeF1 package 1.8.7 and the GNU Tools for STM32 C library:
+Example firmware examples/firmware/hal_clock/hal_clock.elf and
+examples/firmware/hal_adc_dma/hal_adc_dma.elf contain compiled code from the
+STM32CubeF1 package 1.8.7 and the GNU Tools for STM32 C library:
   - STM32F1xx HAL driver, Copyright (c) 2016 STMicroelectronics, under the
     BSD-3-Clause license:
     Redistribution and use in source and binary forms, with or without

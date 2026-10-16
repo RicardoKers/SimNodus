@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, SN-179)
+
+- **DMA1 in the own emulator** (`src/emu/stm32f1_dma.*`): seven channels with increments, 8/16/32-bit sizes, circular and memory-to-memory modes, half-transfer, transfer-complete and transfer-error flags and interrupts (IRQ 11–17). ADC1 requests channel 1 after each regular conversion; USART1–3 request their TX and RX channels (CR3.DMAT/DMAR). Transfers take no time.
+- Example 15 (`15_Blue_Pill_HAL_ADC_DMA.snx`, firmware `hal_adc_dma`): an STM32CubeIDE-style HAL project at 72 MHz with `HAL_ADCEx_Calibration_Start`, `HAL_ADC_Start_DMA` (scan of PA1 and VREFINT, circular), `HAL_TIM_PWM_Start` and `HAL_UART_Transmit_DMA`. Measured: 23 808 scans per second (42 µs each, as the sample times give), VREFINT code 1489, PWM high time 605 µs for code 2482; 2.3x real time without a circuit.
+- `simnodus-emu --info` prints the final PC and its function.
+
+### Fixed (2026-10-16)
+
+- ADC: setting RSTCAL or CAL with a read-modify-write (as HAL does, ADON still 1) started a conversion, so HAL's calibration timed out. Only a write that changes no other bit starts one (RM0008 11.12.3).
+
 ### Added (2026-10-16, SN-178, ADR 0092)
 
 - **ADC1 and ADC2 in the own emulator** (`src/emu/stm32f1_adc.*`): power-on, calibration, single, continuous and scan conversion, injected channels with offsets and JAUTO, per-channel sample times and the conversion time from PCLK2 and ADCPRE, alignment, analog watchdog, EOC/JEOC/AWD interrupt (IRQ 18), temperature sensor and VREFINT. Pins IN0–IN9 read the circuit: the session sends the wired pins' voltages at every accepted point, and a sample reads the voltage at a circuit time the circuit has always passed (0.1–0.2 ms before the sample), so codes repeat exactly. DMA, timer/EXTI triggers, discontinuous and dual modes are reported once.

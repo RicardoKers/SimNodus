@@ -11,8 +11,10 @@
 // ADCs), the temperature sensor (1.43 V at 25 °C) and VREFINT (1.20 V).
 // The channel's voltage is taken at the end of its sampling time from the
 // host, which reads the circuit. Codes are 12 bits over 0..3.3 V (VDDA).
-// Not simulated yet (reported once): DMA requests (SN-179), external triggers
-// from timers and EXTI, discontinuous mode, dual-ADC modes.
+// With CR2.DMA, ADC1 asks DMA1 channel 1 to read DR after each regular
+// conversion (SN-179); ADC2 has no DMA request on the F103 (reported).
+// Not simulated yet (reported once): external triggers from timers and EXTI,
+// discontinuous mode, dual-ADC modes.
 #pragma once
 
 #include "bus.hpp"
@@ -36,6 +38,7 @@ public:
     virtual void adc_irq_changed() = 0; // the machine ORs both ADCs onto IRQ 18
     virtual void adc_schedule_changed() = 0;
     virtual void adc_diagnostic(const std::string& text) = 0;
+    virtual void adc_dma_request() = 0; // ADC1: DMA1 channel 1 reads DR
 };
 
 class Stm32F1Adc : public Device, public TimedDevice {
@@ -93,6 +96,7 @@ private:
     bool injected_active_ = false;
     int injected_index_ = 0;
     std::uint32_t reported_ = 0;
+    bool in_event_ = false; // processing events: a DMA read of DR must not run the next ones
 };
 
 } // namespace simnodus::emu
