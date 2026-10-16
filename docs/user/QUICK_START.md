@@ -48,6 +48,9 @@ ground symbol.
   and **transient** (fixed time span, complete result) mode. With a
   microcontroller, **Exact microcontroller edges** makes PWM and other
   firmware square waves exact on the scope at the cost of speed.
+- **Simulate > Debug Firmware with GDB** lets STM32CubeIDE or
+  arm-none-eabi-gdb debug the firmware while it drives the circuit (see
+  [MICROCONTROLLER.md](MICROCONTROLLER.md#debugging-with-stm32cubeide-or-gdb)).
 
 Interactive runs are computed in 1 s segments with a 100 µs maximum time
 step by default; edges of switches and generators are resolved to that step.

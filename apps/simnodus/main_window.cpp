@@ -376,6 +376,18 @@ void MainWindow::build_actions_and_menus()
         run_->set_mcu_engine(on ? "renode" : "");
     });
     run_->set_mcu_engine(renode_mcu_action_->isChecked() ? "renode" : "");
+    debug_action_ = simulate->addAction(tr("&Debug Firmware with GDB (port %1)").arg(default_gdb_port));
+    debug_action_->setCheckable(true);
+    debug_action_->setStatusTip(tr("The next run waits for STM32CubeIDE or arm-none-eabi-gdb on 127.0.0.1 port %1 "
+                                   "(the next board on %2, ...); the circuit stops while the firmware is halted")
+                                    .arg(default_gdb_port)
+                                    .arg(default_gdb_port + 1));
+    debug_action_->setChecked(settings_.value(QStringLiteral("mcu/debug"), false).toBool());
+    connect(debug_action_, &QAction::toggled, this, [this](bool on) {
+        settings_.setValue(QStringLiteral("mcu/debug"), on);
+        run_->set_gdb_port(on ? default_gdb_port : -1);
+    });
+    run_->set_gdb_port(debug_action_->isChecked() ? default_gdb_port : -1);
 
     auto* tools = menuBar()->addMenu(tr("&Tools"));
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
@@ -577,7 +589,13 @@ void MainWindow::update_status()
     QString state;
     switch (status.state) {
     case sim::RunState::Running:
-        state = status.starting_mcu ? tr("Starting the microcontroller...") : tr("Running");
+        if (status.debugger_waiting) {
+            state = tr("Waiting for the debugger (GDB port %1)").arg(status.gdb_port);
+        } else if (status.debugger_halted) {
+            state = tr("Halted by the debugger");
+        } else {
+            state = status.starting_mcu ? tr("Starting the microcontroller...") : tr("Running");
+        }
         break;
     case sim::RunState::Paused:
         state = tr("Paused");
@@ -682,6 +700,13 @@ void MainWindow::run()
     });
     // Renode takes seconds to start; SimNodus's own emulator starts at once.
     const bool slow_start = board && renode_mcu_action_->isChecked();
+    if (board && debug_action_->isChecked()) {
+        statusBar()->showMessage(tr("Waiting for the debugger: connect STM32CubeIDE or arm-none-eabi-gdb to "
+                                    "localhost:%1. The circuit starts when the firmware runs.")
+                                     .arg(default_gdb_port),
+            15000);
+        return;
+    }
     statusBar()->showMessage(slow_start ? tr("Starting the microcontroller; the circuit runs when its firmware is ready.")
                                         : tr("Simulation started. Click switches and buttons to operate them."),
         slow_start ? 8000 : 4000);

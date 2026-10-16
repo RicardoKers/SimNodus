@@ -6,6 +6,8 @@
 #include "test_support.hpp"
 
 #include "circuit_builder.hpp"
+#include "emu/elf.hpp"
+#include "emu/gdb_socket.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
 #include "sim/process_memory.hpp"
@@ -999,6 +1001,85 @@ TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM
     session.set_control(pot, 0.25);
     wait_until(1.45);
     check(0.25);
+    session.stop();
+#endif
+}
+
+TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: debugging needs the own emulator (SN-180)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_Blue_Pill_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    request.library = &board_library();
+    auto env = environment();
+    env.gdb_port = 0; // any free port
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto status = session.status();
+    while (!status.debugger_waiting || status.gdb_port <= 0) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 30s);
+        std::this_thread::sleep_for(10ms);
+        status = session.status();
+    }
+    std::this_thread::sleep_for(300ms);
+    const double waiting_at = session.status().sim_time;
+    CHECK(waiting_at < 0.001); // the circuit waits with the firmware at its reset handler
+
+    emu::GdbSocket client;
+    REQUIRE(client.connect_client(static_cast<std::uint16_t>(status.gdb_port), error));
+    auto ask = [&client](const std::string& packet) {
+        std::string reply;
+        client.send_raw(emu::GdbSocket::frame(packet));
+        return client.receive_packet(10000, reply) ? reply : std::string("<no reply>");
+    };
+    CHECK(ask("?") == "S05");
+    // blink: SysTick every millisecond; break there after about 0.2 s of circuit time.
+    std::string error2;
+    const auto image = emu::read_elf(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "blink" / "blink.elf", error2);
+    REQUIRE(image.has_value());
+    std::uint32_t systick = 0;
+    for (const auto& f : image->functions) {
+        systick = f.name == "SysTick_Handler" ? (f.address & ~1u) : systick;
+    }
+    REQUIRE(systick != 0);
+    client.send_raw(emu::GdbSocket::frame("c"));
+    while (session.status().sim_time < 0.2) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 60s);
+        std::this_thread::sleep_for(5ms);
+    }
+    char z0[40];
+    std::snprintf(z0, sizeof z0, "Z0,%x,2", static_cast<unsigned>(systick));
+    client.send_raw("\x03"); // halt to set the breakpoint, as a debugger does
+    std::string reply;
+    REQUIRE(client.receive_packet(10000, reply));
+    CHECK(reply == "S02");
+    CHECK(ask(z0) == "OK");
+    CHECK(ask("c") == "S05");
+    std::this_thread::sleep_for(100ms);
+    const auto halted = session.status();
+    CHECK(halted.debugger_halted);
+    CHECK(!halted.debugger_waiting);
+    std::this_thread::sleep_for(300ms);
+    const double drift = session.status().sim_time - halted.sim_time;
+    std::printf("  halted at %.4f s of circuit time; %.6f s more after 300 ms of wall time\n", halted.sim_time, drift);
+    CHECK(drift < 0.001); // the circuit stands still with the firmware
+
+    CHECK(ask("D") == "OK");
+    std::this_thread::sleep_for(300ms);
+    CHECK(!session.status().debugger_halted);
+    CHECK(session.status().sim_time > halted.sim_time + 0.1); // both run on
     session.stop();
 #endif
 }

@@ -168,9 +168,10 @@ void GdbServer::detach()
 bool GdbServer::service(int wait_ms)
 {
     if (state_ == State::NoClient) {
-        if (!socket_.accept(0)) {
-            return true;
+        if (!socket_.accept(wait_first_ ? wait_ms : 0)) {
+            return !wait_first_;
         }
+        wait_first_ = false; // after this client detaches, the firmware runs freely
         attach();
     }
     std::vector<std::string> packets;

@@ -59,6 +59,9 @@ struct McuRunOptions {
     // circuit has always passed when the firmware may run window k (the lead
     // plus the circuit's maximum step). Same input, same codes, every run.
     std::uint64_t analog_lag_ns = 200000;
+    // Own emulator: GDB server on 127.0.0.1:gdb_port (SN-180), -1 for none. The
+    // firmware then waits halted at its reset handler for the first client.
+    int gdb_port = -1;
 };
 
 class RenodeMcuRunner : public McuBackend {
