@@ -21,4 +21,5 @@ Revision 2 — 2026-10-14. Previous register: [archive](../archive/2026-10-legac
 | R-115 | Emulator code written and reviewed only by agents | Shared blind spots | Independent references: ARMv7-M pseudocode vectors, Renode and QEMU as test oracles, the owner's real board for disputed cases |
 | R-116 | Tests on two engines double CI time (ctest already about 4 min) | Slower feedback | Renode variants in a nightly job once the native engine is default |
 | R-117 | After D2 the Renode fallback lacks phase 3/4 features | A fallback at the freeze ships without ADC/PWM/debugging | D2 taken explicitly with this consequence; D3 options state it |
+| R-118 | ngspice keeps memory at every interactive segment restart | Slow growth in long runs (about 8 MB per hour with a Blue Pill at 1 s segments) | Measured 2026-10-16 (G1 soak); SN-188 revisits the segment length; destroy all + remcirc already run after each segment |
 | R-109 | Lab constraints (no admin rights, old PCs) unknown | Install/perf problems | Portable zip without installer as fallback; ask lab specs (Q-103) |

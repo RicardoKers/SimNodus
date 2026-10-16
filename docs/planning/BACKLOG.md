@@ -59,13 +59,14 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-171 | Extract the `McuBackend` interface in nanoseconds with `analog_at`; current runner becomes `RenodeMcuRunner` | N1 / G1 | MCU-11 | doing (interface in ns done; `analog_at` with the ADC, SN-178) |
 | SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | doing (runner, profile field, Simulate menu option, diagnostics in Messages) |
 | SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | done |
-| SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | todo |
+| SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | done (owner tried the build on 2026-10-15) |
 | SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | todo |
 | SN-176 | ngspice breakpoints at upcoming firmware edges | N2 / G2 | MCU-10 | todo |
 | SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | todo |
 | SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | todo |
 | SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | todo |
 | SN-187 | IWDG, WWDG, CRC, RTC/BKP | after the freeze | — | todo |
+| SN-188 | Revisit the interactive segment length (ADR 0080): ngspice keeps about 0.7 KB (analog example) to 2 KB (Blue Pill circuit) per segment restart; example 07 for one hour grew 7.5 MB with 1 s segments and stayed flat with 10 s segments, which also ran 2.9x instead of 1.8x real time but used 24 MB more | G1 finding | SIM-02 | todo |
 | SN-180 | GDB server and whole-simulation pause | N4 / G4 | MCU-08 | todo |
 | SN-181 | Cortex-M3 cycle model validated on the owner's board | N5 / G5 | — | todo |
 | SN-182 | Chip component and board profiles that reference it | N6 | PRJ-06 | todo |

@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Measured (2026-10-16, gate G1 evidence)
+
+- One hour of example 07 on the own emulator: memory grew 7.5 MB with the default 1 s segments and stayed flat (+0.9 MB) with 10 s segments. The growth comes from ngspice at each segment restart (also without a microcontroller: +0.9 MB per 20 minutes with 1 s segments, +0.2 MB with 10 s), not from the emulator. Segment length to be revisited (SN-188). Soak cases: `engine_tests ... "soak:" native [segment]`.
+
+### Changed (2026-10-16)
+
+- Pin histories of pins without a wire stay bounded in both microcontroller runners (they were only trimmed when the circuit read the pin).
+- User guide: the quick start and MICROCONTROLLER.md describe both engines (start time, timing, AFIO with the own emulator).
+
 ### Changed (2026-10-15, emulator track N1: SN-173)
 
 - The own emulator couples to the circuit deterministically: firmware time advances in windows of 100 µs, and an input from the circuit reaches the firmware at the next window boundary. Two runs with the same circuit repeat exactly; inputs are late by less than 0.1 ms (button-to-LED response 100 µs instead of 1.1 ms with Renode). Measured cost of the smaller window: 2.40x instead of 2.48x real time at maximum speed. Tests: tighter timing assertions on the emulator, a repeatability case and the window measurement.
