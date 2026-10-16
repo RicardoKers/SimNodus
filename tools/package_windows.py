@@ -39,6 +39,8 @@ REQUIRED = [
     "examples/10_Lesson1_GPIO_output.snx", "examples/firmware/lesson1_gpio/lesson1_gpio.elf",
     "examples/11_Lesson2_button_and_EXTI.snx", "examples/firmware/lesson2_button/lesson2_button.elf",
     "examples/lessons/lesson1_gpio_output.md", "examples/lessons/lesson2_button_exti.md",
+    "examples/16_Lesson3_ADC_and_UART.snx", "examples/firmware/lesson3_adc/lesson3_adc.elf",
+    "examples/lessons/lesson3_adc_uart.md",
     "examples/12_Blue_Pill_HAL_72MHz.snx", "examples/firmware/hal_clock/hal_clock.elf",
     "examples/13_Blue_Pill_timer_PWM.snx", "examples/firmware/timer_pwm/timer_pwm.elf",
     "examples/14_Blue_Pill_ADC_to_PWM.snx", "examples/firmware/adc_pwm/adc_pwm.elf",

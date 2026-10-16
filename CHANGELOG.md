@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, SN-143)
+
+- **Lesson 3 — ADC and UART** (`examples/16_Lesson3_ADC_and_UART.snx`, notes `examples/lessons/lesson3_adc_uart.md`, firmware `lesson3_adc`): potentiometer on ADC1 IN2, single conversions with EOC polling, millivolts over USART1, PWM duty from the code into a 10 kΩ / 1 µF filter read back on IN1. Measured: code 2048 at 1.65 V and 1024 at 0.825 V; the RC reading sits 25–30 mV under duty × 3.3 V because the 200 ms sampling always meets the same phase of the ripple (a question in the lesson).
+
 ### Added (2026-10-16, ADR 0093, owner's request)
 
 - **Simulate > Simulation Settings > Exact microcontroller edges (slower)**, saved in the project (`exact_edges`, off by default): the circuit takes a time point at every firmware edge of a wired pin (ngspice breakpoints, steps capped at the firmware's time), so square waves stay square at the 100 µs step. Lesson 1: no points between the levels and a ripple of 0.806 V (formula 0.805 V) instead of 0.58 V read from the points; 1.2x instead of 2.9x real time. Other examples 0.8x–2.9x (table in ADR 0093); a 10 µs step gave the owner the same waveforms at 0.25x.

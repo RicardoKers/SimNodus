@@ -1,0 +1,290 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 40,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/lesson3_adc/lesson3_adc.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 3,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        17,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 4,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        23,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "1u"
+      }
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        23,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "potentiometer",
+      "designator": "RV1",
+      "at": [
+        30,
+        7
+      ],
+      "rotation": 180,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "50"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        30,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 10,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          14,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          20,
+          11
+        ],
+        [
+          23,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          23,
+          17
+        ],
+        [
+          23,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          20,
+          11
+        ],
+        [
+          20,
+          9
+        ],
+        [
+          9,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          9,
+          7
+        ],
+        [
+          27,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          30,
+          4
+        ],
+        [
+          30,
+          -15
+        ],
+        [
+          9,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          30,
+          10
+        ],
+        [
+          30,
+          21
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 20,
+      "at": [
+        12,
+        11
+      ],
+      "name": "PWM"
+    },
+    {
+      "id": 21,
+      "at": [
+        15,
+        9
+      ],
+      "name": "RC"
+    },
+    {
+      "id": 22,
+      "at": [
+        15,
+        7
+      ],
+      "name": "POT"
+    }
+  ],
+  "probes": [
+    {
+      "id": 23,
+      "kind": "voltage",
+      "target": {
+        "item": 15,
+        "at": [
+          18,
+          7
+        ]
+      },
+      "color": "#2ca02c"
+    },
+    {
+      "id": 24,
+      "kind": "voltage",
+      "target": {
+        "item": 11,
+        "at": [
+          11,
+          11
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 25,
+      "kind": "voltage",
+      "target": {
+        "item": 14,
+        "at": [
+          17,
+          9
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ]
+}

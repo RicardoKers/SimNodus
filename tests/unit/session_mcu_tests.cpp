@@ -937,3 +937,68 @@ TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us
     }
 #endif
 }
+
+TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM it sets")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: the ADC is simulated only by the own emulator (ADR 0090)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "16_Lesson3_ADC_and_UART.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    model::Id pot = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+        pot = c.designator == "RV1" ? c.id : pot;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"pot", "rc"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_until = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(5ms);
+        }
+    };
+    // The last line "POT <code> = <mV> mV  duty <d> %  RC <mV> mV": the code of the
+    // wiper voltage, and the RC average of the duty set 200 ms before (tau = 10 ms).
+    auto check = [&](double position) {
+        std::string text;
+        session.mcu_uart_received(board, "usart1", 0, text);
+        const auto at = text.rfind("POT ");
+        REQUIRE(at != std::string::npos);
+        const int code = std::atoi(text.c_str() + at + 4);
+        const auto rc_at = text.find("RC ", at);
+        REQUIRE(rc_at != std::string::npos);
+        const int rc_mv = std::atoi(text.c_str() + rc_at + 3);
+        const double wiper = session.samples("pot").back().value;
+        const int expected = static_cast<int>(std::clamp(std::floor(wiper / 3.3 * 4096.0 + 0.5), 0.0, 4095.0));
+        const double duty = (code * 1000 / 4096) / 1000.0;
+        std::printf("  position %.0f %%: wiper %.4f V -> code %d (expected %d), RC %d mV (duty x 3.3 V = %.0f mV)\n",
+            position * 100, wiper, code, expected, rc_mv, duty * 3300);
+        CHECK(std::abs(code - expected) <= 2);
+        CHECK(std::abs(rc_mv - duty * 3300) < 60); // ripple of about +-40 mV at 50 %
+    };
+    wait_until(0.65);
+    check(0.5);
+    session.set_control(pot, 0.25);
+    wait_until(1.45);
+    check(0.25);
+    session.stop();
+#endif
+}
