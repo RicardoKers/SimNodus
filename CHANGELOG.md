@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Measured (2026-10-16, SN-188)
+
+- Segment length re-measured with the current emulator coupling (30 s of circuit time at maximum speed): lesson 1 1.97x / 1.74x / 1.72x, example 13 1.71x / 1.78x / 1.77x, example 14 1.05x / 1.06x / 1.04x real time with 1 s / 5 s / 10 s segments, memory within a few MB in every case. The earlier 2.9x-vs-1.8x difference no longer appears, so the 1 s default stays; the one-hour growth of 7.5 MB with 1 s segments is within the G1 limit.
+
 ### Added (2026-10-16, SN-143)
 
 - **Lesson 3 — ADC and UART** (`examples/16_Lesson3_ADC_and_UART.snx`, notes `examples/lessons/lesson3_adc_uart.md`, firmware `lesson3_adc`): potentiometer on ADC1 IN2, single conversions with EOC polling, millivolts over USART1, PWM duty from the code into a 10 kΩ / 1 µF filter read back on IN1. Measured: code 2048 at 1.65 V and 1024 at 0.825 V; the RC reading sits 25–30 mV under duty × 3.3 V because the 200 ms sampling always meets the same phase of the ripple (a question in the lesson).
