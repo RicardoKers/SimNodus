@@ -331,7 +331,9 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
     }
     out.lines.insert(out.lines.end(), probe_lines.begin(), probe_lines.end());
     for (const auto& control : out.controls) {
-        const double v = control.initial;
+        // ngspice adds the DC value to an external source's value (vsrcload.c),
+        // so an interactive control is DC 0 and the session supplies all of it.
+        const double v = options.interactive ? 0.0 : control.initial;
         out.lines.push_back(control.source + " " + control.node + " 0 DC " + model::spice_number(v)
             + (options.interactive ? " external" : ""));
         out.elements.push_back({control.component, control.source, 'V', {control.node, "0"}, ""});

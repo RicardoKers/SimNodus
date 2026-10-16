@@ -226,9 +226,15 @@ Candidate techniques for them, compared in the spike E-07b (SN-186):
 Whatever is chosen, an ideal zero-time step is not injected. The behavior
 across segment restarts (ADR 0080) is part of the spike.
 
-**ADC sampling.** A conversion samples its channel at the end of the sampling
-time. The runner asks the session for the node voltage at that instant
-(`analog_at(pin, t_ns)` in the backend interface). The circuit's history is
+**ADC sampling.** Implemented in SN-178 as ADR 0092 describes: the session
+sends the wired pins' voltages at every accepted point (`set_analog`), and a
+sample in window k reads the voltage at (k+1)L minus the lead and the maximum
+step, a time the circuit has always passed, so no wait and no deadlock. The
+original plan below (an `analog_at` call that waits) was dropped because the
+wait can deadlock with ngspice's trial steps. Original text: A conversion
+samples its channel at the end of the sampling time. The runner asks the
+session for the node voltage at that instant (`analog_at(pin, t_ns)` in the
+backend interface). The circuit's history is
 kept for the window, so samples inside a window are read from it
 (interpolated between accepted points) and the firmware waits at most once per
 window, never once per sample, which would stop the lead at high sample rates.
@@ -269,7 +275,7 @@ can talk through wires.
 | Tier | Devices | Needed for |
 |---|---|---|
 | 1 (parity with Renode) | RCC, FLASH interface (ACR), PWR, GPIOA–D, AFIO (EXTICR, remaps), EXTI, USART1–3, DBGMCU IDCODE, flash size and unique ID registers | E-07, N1 |
-| 2 (lessons) | TIM1–4 (PWM, output compare, input capture, one-pulse; encoder later; done in SN-177, `src/emu/stm32f1_timer.*`), ADC1–2 (single, continuous, scan, sample times, injected later), DMA1 as HAL needs it | N3 |
+| 2 (lessons) | TIM1–4 (PWM, output compare, input capture, one-pulse; encoder later; done in SN-177, `src/emu/stm32f1_timer.*`), ADC1–2 (single, continuous, scan, sample times, injected; done in SN-178, `src/emu/stm32f1_adc.*`), DMA1 as HAL needs it | N3 |
 | 2b (after the freeze) | IWDG, WWDG, RTC/BKP, CRC | SN-187 |
 | 3 (later) | SPI1–2, I2C1–2 (with digital parts in the library), CAN, USB | after the classroom release |
 

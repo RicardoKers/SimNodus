@@ -29,6 +29,7 @@ the same firmware timing.
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
 | USART1–3 | yes | Text in the Signal Analyzer's UART tab |
+| ADC1 and ADC2 (emulator only) | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
 | Timers TIM1–TIM4 (emulator only) | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
 
@@ -36,7 +37,7 @@ the same firmware timing.
 
 | Part | Planned |
 |---|---|
-| ADC (analog inputs) | Release 0.3 |
+| ADC features: DMA transfer (next), conversions started by a timer or EXTI, discontinuous and dual modes | Later; the firmware gets a message in the Messages panel when it uses one |
 | Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
 | SPI, I2C, CAN, USB, DMA, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
 | Debugging with STM32CubeIDE / GDB | Release 0.4 |
@@ -69,6 +70,11 @@ the same firmware timing.
   instructions per simulated second than at 8 MHz. Firmware that waits in a
   loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a
   2026 laptop; the status bar shows the actual speed.
+- **ADC timing.** The firmware runs up to 0.1 ms ahead of the circuit, so a
+  conversion reads the pin voltage the circuit had 0.1–0.2 ms before the
+  sample instant (ADR 0092). Slow signals (potentiometers, sensors, filtered
+  PWM) give the code of their voltage; a fast waveform shows that delay. Two
+  runs with the same circuit give the same codes.
 - **Edges in the circuit.** The emulator times every edge exactly. The
   circuit takes time steps of up to 0.1 ms (Simulation Settings, maximum
   step) and receives, for each step, the pin's output averaged over that step

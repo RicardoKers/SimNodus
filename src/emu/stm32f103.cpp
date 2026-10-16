@@ -100,6 +100,14 @@ public:
         }
     }
 
+    // HCLK cycles per ADC clock: APB2 divider times ADCPRE (2, 4, 6, 8).
+    std::uint32_t hclk_per_adc_clock() const
+    {
+        const std::uint32_t ppre2 = (cfgr_ >> 11) & 7u;
+        const std::uint32_t apb2 = ppre2 < 4 ? 1u : 2u << (ppre2 - 4);
+        return apb2 * 2u * (((cfgr_ >> 14) & 3u) + 1u);
+    }
+
     // HCLK cycles per timer kernel clock tick (RM0008 figure 8: the timer
     // clock is PCLK with APB divider 1, else twice PCLK).
     std::uint32_t hclk_per_timer_tick(bool apb2) const
@@ -874,6 +882,17 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     bus_.add_device(0x40000000u, 0x400, timers_[1].get());
     bus_.add_device(0x40000400u, 0x400, timers_[2].get());
     bus_.add_device(0x40000800u, 0x400, timers_[3].get());
+    for (int n = 1; n <= 2; ++n) {
+        adcs_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1Adc>(static_cast<AdcHost&>(*this), n);
+    }
+    bus_.add_device(0x40012400u, 0x400, adcs_[0].get());
+    bus_.add_device(0x40012800u, 0x400, adcs_[1].get());
+    for (const auto& timer : timers_) {
+        timed_.push_back(timer.get());
+    }
+    for (const auto& adc : adcs_) {
+        timed_.push_back(adc.get());
+    }
 
     struct StubBlock {
         std::uint32_t base;
@@ -883,7 +902,7 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         {0x40002800u, "RTC"},
         {0x40002C00u, "WWDG"}, {0x40003000u, "IWDG"}, {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
         {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
-        {0x40006C00u, "BKP"}, {0x40012400u, "ADC1"}, {0x40012800u, "ADC2"},
+        {0x40006C00u, "BKP"},
         {0x40013000u, "SPI1"}, {0x40020000u, "DMA1"}, {0x40023000u, "CRC"},
     };
     for (const auto& block : blocks) {
@@ -1143,9 +1162,9 @@ std::uint32_t Stm32F103::afio_mapr() const
 
 std::uint64_t Stm32F103::next_timer_event() const
 {
-    std::uint64_t next = ~std::uint64_t{0};
-    for (const auto& timer : timers_) {
-        next = std::min(next, timer->next_event());
+    std::uint64_t next = no_event;
+    for (const TimedDevice* device : timed_) {
+        next = std::min(next, device->next_event());
     }
     return next;
 }
@@ -1153,13 +1172,13 @@ std::uint64_t Stm32F103::next_timer_event() const
 void Stm32F103::run_timers()
 {
     for (;;) {
-        Stm32F1Timer* first = nullptr;
+        TimedDevice* first = nullptr;
         std::uint64_t at = cpu_.cycles();
-        for (const auto& timer : timers_) {
-            const std::uint64_t event = timer->next_event();
+        for (TimedDevice* device : timed_) {
+            const std::uint64_t event = device->next_event();
             if (event <= at) {
                 at = event;
-                first = timer.get();
+                first = device;
             }
         }
         if (!first) {
@@ -1167,6 +1186,35 @@ void Stm32F103::run_timers()
         }
         first->on_time(at);
     }
+}
+
+std::uint32_t Stm32F103::hclk_per_adc_clock() const
+{
+    return rcc_->hclk_per_adc_clock();
+}
+
+double Stm32F103::adc_channel_voltage(int channel, std::uint64_t cycle)
+{
+    // IN0..IN7: PA0..PA7, IN8..IN9: PB0..PB1, IN10..IN15: PC0..PC5.
+    int port = 0;
+    int pin = channel;
+    if (channel >= 8 && channel < 10) {
+        port = 1;
+        pin = channel - 8;
+    } else if (channel >= 10) {
+        port = 2;
+        pin = channel - 10;
+    }
+    if (analog_source_) {
+        return analog_source_(port, pin, ns_at_cycles(cycle));
+    }
+    return pin_level(port, pin) ? Stm32F1Adc::vdda : 0.0;
+}
+
+void Stm32F103::adc_irq_changed()
+{
+    const bool level = (adcs_[0] && adcs_[0]->irq()) || (adcs_[1] && adcs_[1]->irq());
+    cpu_.set_irq_line(18, level); // ADC1_2
 }
 
 void Stm32F103::apb_changed()

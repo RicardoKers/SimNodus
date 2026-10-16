@@ -10,7 +10,7 @@ namespace simnodus::emu {
 
 namespace {
 
-constexpr std::uint64_t never = std::numeric_limits<std::uint64_t>::max();
+constexpr std::uint64_t never = no_event;
 
 // Register offsets (RM0008 15.4 / 14.4).
 enum : std::uint32_t {

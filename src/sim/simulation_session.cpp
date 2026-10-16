@@ -109,6 +109,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    analog_points_.clear();
     mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
@@ -123,7 +124,11 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     for (const auto& m : request_.mcus) {
         std::unique_ptr<mcu::McuBackend> runner;
         if (m.engine == "native") {
-            runner = std::make_unique<mcu::NativeMcuRunner>(m.options);
+            auto options = m.options;
+            // ADC samples read the circuit at a time it has passed (SN-178).
+            options.analog_lag_ns = request_.mcu_lead_us * 1000
+                + static_cast<std::uint64_t>(std::llround(std::max(settings_.max_step, 0.0) * 1e9));
+            runner = std::make_unique<mcu::NativeMcuRunner>(options);
         } else {
             runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
         }
@@ -137,6 +142,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
                     ground == netlist_.pin_node.end() ? std::string("0") : lower(ground->second), m.options.pin_model});
             }
         }
+        analog_points_[runner.get()].assign(names.size(), std::nan(""));
         mcus_[m.component] = std::move(runner);
     }
     // Pin driver sources of the boards: "pa0_g" / "pa0_i" -> pin PA0, conductance / current.
@@ -535,7 +541,9 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
         auto& runner = *mcus_.at(ref.component);
         // Never wait for a firmware that may not run. When the firmware reaches this
         // limit it collects held events and reports the complete time.
-        runner.set_limit_ns(time_ns + request_.mcu_lead_us * 1000);
+        if (!stop_requested_) { // after Stop the firmware stays where it is
+            runner.set_limit_ns(time_ns + request_.mcu_lead_us * 1000);
+        }
         const bool reached = runner.wait_time_ns(time_ns, stop_requested_);
         cache.drives = runner.average_drives(from_ns, time_ns);
         // Only after a stop (or a failed firmware): the levels are stale.
@@ -731,6 +739,9 @@ void SimulationSession::run_interactive()
             // Input pins: Schmitt trigger on the pin voltage; changes go to the firmware
             // before its next quantum (sampled exchange, labeled approximate).
             const auto global_us = static_cast<std::uint64_t>(std::llround(global * 1e6));
+            for (auto& [runner, volts] : analog_points_) {
+                std::fill(volts.begin(), volts.end(), std::nan(""));
+            }
             for (auto& w : input_watches_) {
                 const auto v = latest_.find(w.node);
                 const auto g = w.ground == "0" ? latest_.end() : latest_.find(w.ground);
@@ -738,6 +749,10 @@ void SimulationSession::run_interactive()
                     continue;
                 }
                 const double volts = v->second - (g == latest_.end() ? 0.0 : g->second);
+                auto& pins = analog_points_[w.runner];
+                if (w.pin < pins.size()) {
+                    pins[w.pin] = volts;
+                }
                 const bool level = mcu::schmitt(w.level, volts, w.model);
                 if (level != w.level || !w.sent) {
                     w.level = level;
@@ -745,6 +760,11 @@ void SimulationSession::run_interactive()
                     w.runner->set_input(w.pin, level, global_us * 1000);
                 }
             }
+        }
+        // Pin voltages for the ADC, sent before the limit lets the firmware run on.
+        const auto global_ns = static_cast<std::uint64_t>(std::llround(global * 1e9));
+        for (const auto& [runner, volts] : analog_points_) {
+            runner->set_analog(global_ns, volts);
         }
         // Lockstep window: the firmware stays within mcu_lead_us of the circuit in
         // both directions (the circuit waits for a slower firmware).

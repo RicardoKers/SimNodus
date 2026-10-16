@@ -20,6 +20,14 @@
     "-ffile-prefix-map={root}=."
   ],
   "firmware": {
+    "adc_pwm": {
+      "sources": [
+        "examples/firmware/adc_pwm/adc_pwm.c"
+      ],
+      "elf": "examples/firmware/adc_pwm/adc_pwm.elf",
+      "sha256": "432166936bd08504aa91d05b029f6de086b40a70ab3676b9d420176a1b1be2d0",
+      "size": 10372
+    },
     "blink": {
       "sources": [
         "examples/firmware/blink/blink.c"

@@ -197,6 +197,7 @@ private:
         bool sent = false;
     };
     std::vector<InputWatch> input_watches_; // updated in the engine thread under mutex_
+    std::map<mcu::McuBackend*, std::vector<double>> analog_points_; // engine thread: pin voltages per board
 
     // Pacing and speed measurement (engine thread only).
     std::chrono::steady_clock::time_point wall_origin_;
