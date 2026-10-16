@@ -86,6 +86,22 @@ public:
     // Fault or lockup description for diagnostics (empty if none).
     const std::string& last_fault() const { return last_fault_; }
 
+    // Debugger (GDB server, SN-180). With breakpoints set, run() stops before
+    // executing an instruction at one of them (debug_halted() is then true).
+    // With a debugger attached, BKPT halts the core
+    // instead of raising a HardFault.
+    void set_debugger_attached(bool attached);
+    void set_breakpoints(std::vector<std::uint32_t> addresses);
+    bool debug_halted() const { return debug_halted_; }
+    // Resumes after a halt: the next run() executes the instruction at the PC
+    // even if it has a breakpoint (otherwise it would halt again at once).
+    void resume_from_halt();
+    // Executes one instruction (or the entry into a pending exception).
+    void step_instruction();
+    void set_xpsr(std::uint32_t value); // the APSR flags, EPSR.T and IT bits (IPSR is read-only)
+    // Code in memory changed outside the CPU's stores (debugger, loader).
+    void invalidate_code_cache();
+
     // Called when the firmware requests a system reset (AIRCR.SYSRESETREQ).
     std::function<void()> on_system_reset;
     // Called when the core enters a fault handler (HardFault, MemManage, BusFault,
@@ -192,6 +208,13 @@ private:
     bool st_countflag_ = false;
     std::uint64_t st_next_ = 0;      // cached systick_next_event()
     void systick_reschedule() { st_next_ = systick_next_event(); }
+
+    // Debugger.
+    bool is_breakpoint(std::uint32_t address) const;
+    bool debugger_ = false;
+    std::vector<std::uint32_t> breakpoints_;
+    bool debug_halted_ = false;
+    bool skip_breakpoint_ = false; // the instruction at the PC runs once despite a breakpoint
 
     // Run state.
     std::uint64_t cycles_ = 0;

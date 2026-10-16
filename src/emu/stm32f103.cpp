@@ -1055,6 +1055,9 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
         const std::uint64_t target = std::max(std::min(cycles_at_ns(target_ns), next_timer_event()), cpu_.cycles() + 1);
         const CoreState state = cpu_.run(target);
         run_timers();
+        if (cpu_.debug_halted()) {
+            return; // a breakpoint: the debugger decides what happens next
+        }
         if (state == CoreState::Lockup && !reported_lockup) {
             reported_lockup = true;
             if (diagnostics_.empty() || diagnostics_.back().text != cpu_.last_fault()) {
@@ -1064,6 +1067,18 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
         if (reset_requested_) {
             reset(ResetKind::Software);
         }
+    }
+}
+
+void Stm32F103::step_instruction()
+{
+    if (reset_requested_) {
+        reset(ResetKind::Software);
+    }
+    cpu_.step_instruction();
+    run_timers();
+    if (reset_requested_) {
+        reset(ResetKind::Software);
     }
 }
 

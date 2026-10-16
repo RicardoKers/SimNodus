@@ -12,14 +12,18 @@
 
 #include "emu/cpu.hpp"
 #include "emu/elf.hpp"
+#include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
+#include <atomic>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <filesystem>
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <thread>
 #include <tuple>
 #include <vector>
 
@@ -1263,6 +1267,177 @@ TEST_CASE("an STM32CubeIDE HAL project runs ADC1 scan with DMA, TIM2 PWM and UAR
     CHECK(rises.back() - rises[rises.size() - 2] == 1000000u);
     CHECK(high == 605000u);
     CHECK(m->take_diagnostics().empty());
+}
+
+namespace {
+
+// The machine's owner: services the GDB server between 1 ms run steps, as the
+// microcontroller runner does.
+struct DebugTarget {
+    std::unique_ptr<Stm32F103> machine;
+    std::unique_ptr<GdbServer> server;
+    std::atomic<bool> stop{false};
+    std::atomic<std::uint64_t> time_ns{0};
+    std::thread thread;
+
+    bool start(const char* firmware)
+    {
+        machine = machine_with(firmware);
+        if (!machine) {
+            return false;
+        }
+        server = std::make_unique<GdbServer>(*machine);
+        std::string error;
+        if (!server->start(0, error)) {
+            return false;
+        }
+        thread = std::thread([this] {
+            while (!stop) {
+                if (server->service(5)) {
+                    machine->run_until_ns(machine->time_ns() + 1000000);
+                    server->after_run();
+                    time_ns = machine->time_ns();
+                }
+            }
+        });
+        return true;
+    }
+    ~DebugTarget()
+    {
+        stop = true;
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+};
+
+std::string ask(GdbSocket& client, const std::string& packet)
+{
+    std::string reply;
+    client.send_raw(GdbSocket::frame(packet));
+    if (!client.receive_packet(5000, reply)) {
+        return "<no reply>";
+    }
+    return reply;
+}
+
+std::uint32_t le_word(const std::string& hex)
+{
+    std::uint32_t value = 0;
+    for (int i = 3; i >= 0; --i) {
+        value = (value << 8) | static_cast<std::uint32_t>(std::stoul(hex.substr(static_cast<std::size_t>(2 * i), 2), nullptr, 16));
+    }
+    return value;
+}
+
+std::uint32_t function_address(const char* firmware, const char* name)
+{
+    std::string error;
+    const auto image = read_elf(examples / "firmware" / firmware / (std::string(firmware) + ".elf"), error);
+    if (image) {
+        for (const auto& f : image->functions) {
+            if (f.name == name) {
+                return f.address & ~1u;
+            }
+        }
+    }
+    return 0;
+}
+
+} // namespace
+
+TEST_CASE("GDB server: attach halts, breakpoints, registers, memory, step, reset and detach")
+{
+    DebugTarget target;
+    REQUIRE(target.start("blink"));
+    GdbSocket client;
+    std::string error;
+    REQUIRE(client.connect_client(target.server->port(), error));
+
+    CHECK(ask(client, "qSupported:multiprocess+;xmlRegisters=arm").find("qXfer:features:read+") != std::string::npos);
+    const std::string xml = ask(client, "qXfer:features:read:target.xml:0,fff");
+    CHECK(xml.rfind("l<?xml", 0) == 0);
+    CHECK(xml.find("org.gnu.gdb.arm.m-profile") != std::string::npos);
+    CHECK(ask(client, "?") == "S05");
+    const std::string registers = ask(client, "g");
+    REQUIRE(registers.size() == 21 * 8);
+    const auto reset_handler = function_address("blink", "Reset_Handler");
+    REQUIRE(reset_handler != 0);
+    const std::uint64_t halted_at = target.time_ns;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    CHECK(target.time_ns == halted_at); // attaching halted the firmware
+
+    // A breakpoint in the SysTick handler: continue stops there.
+    const auto systick = function_address("blink", "SysTick_Handler");
+    REQUIRE(systick != 0);
+    char z0[40];
+    std::snprintf(z0, sizeof z0, "Z0,%x,2", static_cast<unsigned>(systick));
+    CHECK(ask(client, z0) == "OK");
+    CHECK(ask(client, "c") == "S05");
+    CHECK(le_word(ask(client, "pf")) == systick);
+    CHECK((le_word(ask(client, "p10")) & 0x1FFu) == 15u); // xPSR: in exception 15 (SysTick)
+    // Single step moves on; continue comes back to the breakpoint one tick later.
+    CHECK(ask(client, "s") == "S05");
+    CHECK(le_word(ask(client, "pf")) != systick);
+    CHECK(ask(client, "vCont;c") == "S05");
+    CHECK(le_word(ask(client, "pf")) == systick);
+    z0[0] = 'z';
+    CHECK(ask(client, z0) == "OK");
+
+    // Memory: write SRAM, read it back; registers: write r0.
+    CHECK(ask(client, "M20004800,4:78563412") == "OK");
+    CHECK(ask(client, "m20004800,4") == "78563412");
+    CHECK(ask(client, "P0=efbeadde") == "OK");
+    CHECK(le_word(ask(client, "p0")) == 0xDEADBEEFu);
+    CHECK(ask(client, "m60000000,4") == "E01"); // nothing there
+
+    // monitor reset: an O packet with text, then OK; the PC is the reset handler.
+    std::string text;
+    client.send_raw(GdbSocket::frame("qRcmd,7265736574")); // "reset"
+    REQUIRE(client.receive_packet(5000, text));
+    CHECK(text[0] == 'O');
+    REQUIRE(client.receive_packet(5000, text));
+    CHECK(text == "OK");
+    CHECK(le_word(ask(client, "pf")) == reset_handler);
+
+    // Ctrl-C while running halts with SIGINT.
+    client.send_raw(GdbSocket::frame("c"));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    client.send_raw("\x03");
+    CHECK((client.receive_packet(5000, text) ? text : "") == "S02");
+
+    // Detach: the firmware runs on.
+    CHECK(ask(client, "D") == "OK");
+    const std::uint64_t detached_at = target.time_ns;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    CHECK(target.time_ns > detached_at);
+}
+
+TEST_CASE("GDB server: BKPT halts with a debugger and faults without one")
+{
+    ElfImage image;
+    std::vector<std::uint8_t> bytes(0x24, 0);
+    const std::uint32_t words[2] = {0x20005000u, 0x08000021u};
+    std::memcpy(bytes.data(), words, sizeof words);
+    bytes[0x20] = 0x00; // bkpt #0
+    bytes[0x21] = 0xBE;
+    bytes[0x22] = 0xFE; // b .
+    bytes[0x23] = 0xE7;
+    image.entry = 0x08000021;
+    image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
+    Stm32F103 m;
+    std::string error;
+    REQUIRE(m.load(image, error));
+    m.cpu().set_debugger_attached(true);
+    m.run_until_ns(10000);
+    CHECK(m.halted());
+    CHECK(m.cpu().pc() == 0x08000020u);
+    CHECK(m.take_diagnostics().empty());
+    m.cpu().set_debugger_attached(false);
+    m.run_until_ns(20000);
+    const auto diagnostics = m.take_diagnostics();
+    REQUIRE(!diagnostics.empty());
+    CHECK(diagnostics[0].text.find("BKPT") != std::string::npos);
 }
 
 TEST_CASE("ELF errors are reported in plain words")

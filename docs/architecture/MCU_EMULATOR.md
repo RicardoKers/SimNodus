@@ -44,7 +44,7 @@ Goals:
    symbols, the function name.
 6. Extensible: chips are assembled from a core variant, a memory map and
    reusable STM32 peripheral blocks.
-7. A GDB remote server for STM32CubeIDE debugging (MCU-08).
+7. A GDB remote server for STM32CubeIDE debugging (MCU-08); `src/emu/gdb_server.*` since SN-180.
 
 Non-goals, at least until after the classroom release:
 

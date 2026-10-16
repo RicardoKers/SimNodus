@@ -85,8 +85,12 @@ public:
     // RCC_CSR records why (the flags accumulate until the firmware clears them).
     void reset(ResetKind kind);
 
-    // Runs the firmware until virtual time `time_ns` (nanoseconds since power-on).
+    // Runs the firmware until virtual time `time_ns` (nanoseconds since power-on),
+    // or until the core halts at a debugger breakpoint (halted()).
     void run_until_ns(std::uint64_t time_ns);
+    bool halted() const { return cpu_.debug_halted(); }
+    // Debugger: one instruction, with the devices' events due by then.
+    void step_instruction();
     std::uint64_t time_ns() const;
     std::uint64_t cycles() const { return cpu_.cycles(); }
     std::uint32_t hclk_hz() const { return hclk_; }
