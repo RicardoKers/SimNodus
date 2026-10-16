@@ -11,6 +11,7 @@
 #include "sim/process_memory.hpp"
 #include "sim/simulation_session.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
@@ -798,4 +799,79 @@ TEST_CASE("the own emulator's runner averages a pin's drive over a step with exa
     CHECK(std::abs(low - runner.drives_at(10400000)[0].current) < 1e-12);
     CHECK(std::abs(runner.average_drives(10400000, 10400000)[0].current - low) < 1e-12);
     runner.stop();
+}
+
+TEST_CASE("session: example 14 converts the potentiometer voltage and sets the PWM duty from it")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: the ADC is simulated only by the own emulator (ADR 0090)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "14_Blue_Pill_ADC_to_PWM.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    model::Id pot = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+        pot = c.designator == "RV1" ? c.id : pot;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"pot", "rc"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_until = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(5ms);
+        }
+    };
+    // The firmware reports "ADC <code> = <mV> mV" every 500 ms: compare the last
+    // report with the code of the wiper voltage the circuit computed (G3: 2 LSB).
+    auto check = [&](double position) {
+        std::string text;
+        session.mcu_uart_received(board, "usart1", 0, text);
+        const auto at = text.rfind("ADC ");
+        REQUIRE(at != std::string::npos);
+        const int code = std::atoi(text.c_str() + at + 4);
+        const double wiper = session.samples("pot").back().value;
+        const int expected = static_cast<int>(std::clamp(std::floor(wiper / 3.3 * 4096.0 + 0.5), 0.0, 4095.0));
+        // The duty follows the code: RC averages duty x the pin's high level (3.3 V
+        // less the drop of the LED current in the 40 Ohm driver).
+        const auto rc = session.samples("rc");
+        double area = 0;
+        double span = 0;
+        for (std::size_t i = 1; i < rc.size(); ++i) {
+            if (rc[i - 1].time >= rc.back().time - 0.02) {
+                area += (rc[i].time - rc[i - 1].time) * (rc[i].value + rc[i - 1].value) / 2;
+                span += rc[i].time - rc[i - 1].time;
+            }
+        }
+        const double duty = std::floor(code * 1000.0 / 4096.0) / 1000.0;
+        std::printf("  position %.0f %%: wiper %.4f V -> code %d (expected %d), V(RC) %.3f V, duty %.1f %%\n",
+            position * 100, wiper, code, expected, area / span, duty * 100);
+        CHECK(std::abs(code - expected) <= 2);
+        CHECK(std::abs(area / span - duty * 3.3) < 0.15);
+    };
+    wait_until(0.55);
+    check(0.5);
+    session.set_control(pot, 0.2);
+    wait_until(1.05);
+    check(0.2);
+    // Every sample read a circuit time the circuit had passed (deterministic codes).
+    CHECK(session.mcu_status(board)->late_analog_samples == 0);
+    session.stop();
+#endif
 }

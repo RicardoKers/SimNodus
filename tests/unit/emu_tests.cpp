@@ -20,6 +20,7 @@
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 using namespace simnodus::emu;
@@ -948,6 +949,149 @@ TEST_CASE("timer features that are not simulated are reported once")
     REQUIRE(diagnostics.size() == 2);
     CHECK(diagnostics[0].text.find("TIM1: center-aligned counting is not simulated yet") != std::string::npos);
     CHECK(diagnostics[1].text.find("TIM2: the slave mode controller") != std::string::npos);
+}
+
+namespace {
+
+constexpr std::uint32_t adc1 = 0x40012400, adc2 = 0x40012800;
+
+// Records which pin the ADC sampled at which time; the voltage is a ramp of
+// 1 V per ms on every pin plus 0.1 V per pin number (so pins and times differ).
+struct AnalogLog {
+    std::vector<std::tuple<int, int, std::uint64_t>> samples;
+    double volts(int port, int pin, std::uint64_t ns) const
+    {
+        return static_cast<double>(ns % 3000000) * 1e-6 + 0.1 * (port * 16 + pin);
+    }
+};
+
+std::unique_ptr<Stm32F103> adc_machine(AnalogLog& log)
+{
+    auto m = idle_machine();
+    if (m) {
+        m->set_analog_source([&log](int port, int pin, std::uint64_t ns) {
+            log.samples.emplace_back(port, pin, ns);
+            return log.volts(port, pin, ns);
+        });
+    }
+    return m;
+}
+
+} // namespace
+
+TEST_CASE("ADC: 12-bit codes over 0..3.3 V")
+{
+    CHECK(Stm32F1Adc::code_of(0.0) == 0);
+    CHECK(Stm32F1Adc::code_of(-0.2) == 0);
+    CHECK(Stm32F1Adc::code_of(1.65) == 2048);
+    CHECK(Stm32F1Adc::code_of(3.3) == 4095);
+    CHECK(Stm32F1Adc::code_of(5.0) == 4095);
+    CHECK(Stm32F1Adc::code_of(3.3 / 4096 * 1000) == 1000);
+}
+
+TEST_CASE("ADC: calibration, a single conversion and its exact sample and end times")
+{
+    AnalogLog log;
+    auto m = adc_machine(log);
+    REQUIRE(m);
+    // HSI 8 MHz, APB2 / 1, ADCPRE / 2: one ADC clock is 2 CPU cycles (250 ns).
+    poke(*m, adc1 + 0x08, 1);         // ADON: power on
+    poke(*m, adc1 + 0x08, 1 | 4);     // CAL
+    m->run_until_ns(m->time_ns() + 20000);
+    CHECK((read_word(*m, adc1 + 0x08) & 4u) == 4u); // still calibrating at 20 us
+    m->run_until_ns(m->time_ns() + 1000);
+    CHECK((read_word(*m, adc1 + 0x08) & 4u) == 0); // calibration done (83 ADC clocks = 20.75 us)
+    poke(*m, adc1 + 0x34, 3);         // SQ1 = IN3 (PA3)
+    poke(*m, adc1 + 0x10, 7u << 9);   // SMP3 = 239.5 cycles
+    const std::uint64_t start = m->time_ns();
+    poke(*m, adc1 + 0x08, 1);         // ADON again: start
+    REQUIRE(log.samples.empty());
+    m->run_until_ns(start + 100000);
+    REQUIRE(log.samples.size() == 1);
+    const auto [port, pin, sampled] = log.samples[0];
+    CHECK(port == 0);
+    CHECK(pin == 3);
+    CHECK(sampled - start == 59875); // 239.5 ADC clocks of 250 ns
+    CHECK((read_word(*m, adc1) & 2u) == 2u); // EOC
+    const std::uint32_t code = read_word(*m, adc1 + 0x4C);
+    CHECK(code == Stm32F1Adc::code_of(log.volts(0, 3, sampled)));
+    CHECK((read_word(*m, adc1) & 2u) == 0u); // reading DR cleared EOC
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("ADC: continuous scan of a regular group with per-channel sample times")
+{
+    AnalogLog log;
+    auto m = adc_machine(log);
+    REQUIRE(m);
+    poke(*m, adc1 + 0x08, 1);
+    poke(*m, adc1 + 0x04, 1u << 8);                    // SCAN
+    poke(*m, adc1 + 0x2C, 2u << 20);                   // L = 2: three conversions
+    poke(*m, adc1 + 0x34, 0u | (8u << 5) | (17u << 10)); // IN0 (PA0), IN8 (PB0), IN17 (VREFINT)
+    poke(*m, adc1 + 0x10, 1u << 24);                   // SMP8 = 7.5 cycles, others 1.5
+    poke(*m, adc1 + 0x08, 1 | 2 | (7u << 17) | (1u << 20) | (1u << 23)); // CONT, EXTSEL = SWSTART, EXTTRIG, TSVREFE
+    const std::uint64_t start = m->time_ns();
+    poke(*m, adc1 + 0x08, 1 | 2 | (7u << 17) | (1u << 20) | (1u << 23) | (1u << 22)); // SWSTART
+    m->run_until_ns(start + 24000);
+    // Group: 14 + 20 + 14 ADC clocks = 12 us; two groups in 24 us, VREFINT not from the pins.
+    REQUIRE(log.samples.size() >= 4);
+    CHECK(std::get<0>(log.samples[0]) == 0);
+    CHECK(std::get<1>(log.samples[0]) == 0);
+    CHECK(std::get<2>(log.samples[0]) - start == 375);   // 1.5 clocks
+    CHECK(std::get<0>(log.samples[1]) == 1);
+    CHECK(std::get<1>(log.samples[1]) == 0);
+    CHECK(std::get<2>(log.samples[1]) - start == 5375);  // 14 clocks, then 7.5
+    CHECK(std::get<2>(log.samples[2]) - start == 12375); // next group starts at 12 us
+    CHECK((read_word(*m, adc1) & 2u) == 2u);
+    CHECK(read_word(*m, adc1 + 0x4C) == Stm32F1Adc::code_of(1.20)); // the last of the group: VREFINT
+    poke(*m, adc1 + 0x08, 0); // power down stops the conversions
+    const auto count = log.samples.size();
+    m->run_until_ns(m->time_ns() + 50000);
+    CHECK(log.samples.size() == count);
+}
+
+TEST_CASE("ADC: injected group with offsets after the regular group, left alignment and the watchdog")
+{
+    AnalogLog log;
+    auto m = adc_machine(log);
+    REQUIRE(m);
+    poke(*m, adc2 + 0x08, 1);
+    poke(*m, adc2 + 0x04, (1u << 8) | (1u << 10) | (1u << 23) | (1u << 22) | (1u << 6)); // SCAN, JAUTO, AWDEN, JAWDEN, AWDIE
+    poke(*m, adc2 + 0x24, 100);                     // HTR: every pin voltage here is above it
+    poke(*m, adc2 + 0x34, 1);                       // SQ1 = IN1
+    poke(*m, adc2 + 0x38, (1u << 20) | (4u << 10) | (5u << 15)); // JL = 1: JSQ3 = IN4, JSQ4 = IN5
+    poke(*m, adc2 + 0x14, 10);                      // JOFR1
+    poke(*m, adc2 + 0x18, 20);                      // JOFR2
+    poke(*m, adc2 + 0x08, 1 | (1u << 11));          // ALIGN left (changes a bit: no start)
+    REQUIRE(log.samples.empty());
+    poke(*m, adc2 + 0x08, 1 | (1u << 11));          // ADON again: start
+    m->run_until_ns(m->time_ns() + 20000);
+    REQUIRE(log.samples.size() == 3);
+    CHECK(std::get<1>(log.samples[1]) == 4); // JSQ3 first, as JL = 1 selects
+    CHECK(std::get<1>(log.samples[2]) == 5);
+    const std::uint32_t sr = read_word(*m, adc2);
+    CHECK((sr & 7u) == 7u); // AWD, EOC, JEOC
+    const auto code1 = Stm32F1Adc::code_of(log.volts(0, 1, std::get<2>(log.samples[0])));
+    const auto code4 = Stm32F1Adc::code_of(log.volts(0, 4, std::get<2>(log.samples[1])));
+    const auto code5 = Stm32F1Adc::code_of(log.volts(0, 5, std::get<2>(log.samples[2])));
+    CHECK(read_word(*m, adc2 + 0x4C) == code1 << 4);
+    CHECK(read_word(*m, adc2 + 0x3C) == (((code4 - 10) << 3) & 0xFFFFu));
+    CHECK(read_word(*m, adc2 + 0x40) == (((code5 - 20) << 3) & 0xFFFFu));
+}
+
+TEST_CASE("ADC: unsimulated features are reported once")
+{
+    AnalogLog log;
+    auto m = adc_machine(log);
+    REQUIRE(m);
+    poke(*m, adc1 + 0x08, 1 | (1u << 8));             // DMA
+    poke(*m, adc1 + 0x08, 1 | (4u << 17) | (1u << 20)); // EXTSEL = TIM3_TRGO
+    poke(*m, adc1 + 0x04, 1u << 11);                   // DISCEN
+    const auto diagnostics = m->take_diagnostics();
+    REQUIRE(diagnostics.size() == 3);
+    CHECK(diagnostics[0].text.find("ADC1: DMA") != std::string::npos);
+    CHECK(diagnostics[1].text.find("timer or EXTI trigger") != std::string::npos);
+    CHECK(diagnostics[2].text.find("discontinuous") != std::string::npos);
 }
 
 TEST_CASE("ELF errors are reported in plain words")

@@ -67,6 +67,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   and 13 at about 2x real time). Breakpoints at every edge were measured
   (exact but lesson 1 at 0.85x real time) and not taken. Example 13 is back
   at 1 kHz.
+- **SN-178 ADC done (ADR 0092):** ADC1/ADC2 in `src/emu/stm32f1_adc.*`; a
+  sample reads the circuit 0.1–0.2 ms back (a time the circuit has always
+  passed: deterministic, no deadlock). Example 14: potentiometer → ADC → PWM,
+  codes exactly those of the voltages ngspice computed. **Bug found and fixed
+  on the way:** interactive potentiometers/closed switches were offset by
+  their initial value since 0.1.0 (ngspice adds DC to external sources).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -166,12 +172,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. SN-178 ADC (circuit voltages sampled at the conversion instant), then
-   SN-179 DMA as HAL ADC/UART need it; a HAL PWM/ADC example from CubeMX.
-2. Owner's hands-on test of 1 kHz PWM (example 13, a CubeMX project);
-   release 0.2 by 2026-11-13 (ask before cutting it).
-3. SN-188 segment length (memory per ngspice restart); N2 serial frames
-   (SN-175, spike SN-186: averaging hides 8.7 µs bits in the analog view).
+1. SN-179 DMA (HAL ADC+DMA, UART+DMA: circular/normal, TC/HT interrupts);
+   then a HAL ADC/PWM project from CubeMX as the G3 check.
+2. Owner's hands-on test of examples 13–14 and the potentiometer fix
+   (example 03 at 50 % should read about 4.5 V); release 0.2 by 2026-11-13 (ask
+   before cutting it).
+3. SN-188 segment length; N2 serial frames (SN-175, spike SN-186).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the

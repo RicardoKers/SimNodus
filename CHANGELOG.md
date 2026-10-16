@@ -4,6 +4,18 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, SN-178, ADR 0092)
+
+- **ADC1 and ADC2 in the own emulator** (`src/emu/stm32f1_adc.*`): power-on, calibration, single, continuous and scan conversion, injected channels with offsets and JAUTO, per-channel sample times and the conversion time from PCLK2 and ADCPRE, alignment, analog watchdog, EOC/JEOC/AWD interrupt (IRQ 18), temperature sensor and VREFINT. Pins IN0–IN9 read the circuit: the session sends the wired pins' voltages at every accepted point, and a sample reads the voltage at a circuit time the circuit has always passed (0.1–0.2 ms before the sample), so codes repeat exactly. DMA, timer/EXTI triggers, discontinuous and dual modes are reported once.
+- The machine's scheduler runs timers and ADCs as timed devices (`timed_device.hpp`).
+- Example 14 (`14_Blue_Pill_ADC_to_PWM.snx`, firmware `adc_pwm`): potentiometer → ADC → PWM duty on an LED and an RC filter, code on USART1. Measured: code 2048 at 1.65 V, 819 at 0.66 V (the codes of the voltages ngspice computed); 1.26x real time with 16 000 conversions per second.
+- Tests: ADC codes, conversion and sample times, calibration, scan with per-channel sample times, injected group with offsets and alignment, watchdog, diagnostics; session cases for example 14 and for controls (below).
+
+### Fixed (2026-10-16)
+
+- **Potentiometers, closed switches and normally-closed buttons started at the wrong value in interactive runs** (since 0.1.0): ngspice adds an external source's DC value to the value SimNodus supplies, so a potentiometer at 25 % behaved as 50 % (example 03 at 50 % showed the wiper near the top) and a switch that started closed could not be opened. Interactive control sources are now DC 0.
+- After Stop, ngspice's last trial steps no longer let the firmware run ahead.
+
 ### Changed (2026-10-16, SN-176, ADR 0091)
 
 - **PWM averages are exact in the circuit.** Each circuit step gets the pin's drive averaged over the step (own emulator), instead of the level at the step's end. A 1 kHz, 25 % PWM into an RC filter: 0.8251 V (ideal 0.825 V) at the default 100 µs step, where it was 0.66–0.99 V; speed unchanged (example 13 and lesson 1 at about 2x real time). An edge is spread over the step that contains it; the logic lanes keep the exact edges.

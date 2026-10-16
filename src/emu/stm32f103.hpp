@@ -4,8 +4,8 @@
 // STM32F103 (medium density, x8/xB) machine of the SimNodus emulator: memory
 // map (RM0008, section 3.3), timebase from HCLK, and the tier-1 devices of
 // docs/architecture/MCU_EMULATOR.md (RCC, flash interface, PWR, GPIO A-E,
-// AFIO, EXTI, USART1-3 at byte level) and the timers TIM1-TIM4
-// (stm32f1_timer.hpp). Other peripherals of the chip are
+// AFIO, EXTI, USART1-3 at byte level), the timers TIM1-TIM4
+// (stm32f1_timer.hpp) and ADC1-2 (stm32f1_adc.hpp). Other peripherals of the chip are
 // stubs that keep their register values and report once that they are not
 // simulated.
 #pragma once
@@ -13,10 +13,12 @@
 #include "bus.hpp"
 #include "cpu.hpp"
 #include "elf.hpp"
+#include "stm32f1_adc.hpp"
 #include "stm32f1_timer.hpp"
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -66,7 +68,7 @@ struct MachineOptions {
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
 };
 
-class Stm32F103 : private TimerHost {
+class Stm32F103 : private TimerHost, private AdcHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -89,6 +91,10 @@ public:
 
     // Inputs from outside the chip, effective now.
     void set_pin_input(int port, int pin, bool level);
+    // Voltage on a pin for the ADC, asked at the sample instant (ns since power-on).
+    // Without a source the ADC reads 3.3 V or 0 V from the pin's logic level.
+    using AnalogSource = std::function<double(int port, int pin, std::uint64_t time_ns)>;
+    void set_analog_source(AnalogSource source) { analog_source_ = std::move(source); }
     void uart_receive(int usart, std::uint8_t value);
 
     // Output: pin changes and transmitted bytes since the last call.
@@ -134,7 +140,7 @@ private:
     void remap_changed();
     void apb_changed();
     std::uint64_t next_timer_event() const;
-    void run_timers(); // processes the timer events due by now, in time order
+    void run_timers(); // processes the events of the timed devices due by now, in time order
 
     // TimerHost
     std::uint64_t now_cycles() const override { return cpu_.cycles(); }
@@ -144,6 +150,13 @@ private:
     void timer_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
     void timer_schedule_changed() override { cpu_.request_stop(); }
     void timer_diagnostic(const std::string& text) override { diagnostic(text); }
+
+    // AdcHost
+    std::uint32_t hclk_per_adc_clock() const override;
+    double adc_channel_voltage(int channel, std::uint64_t cycle) override;
+    void adc_irq_changed() override;
+    void adc_schedule_changed() override { cpu_.request_stop(); }
+    void adc_diagnostic(const std::string& text) override { diagnostic(text); }
     void exti_selection_changed();
 
     MachineOptions options_;
@@ -157,6 +170,9 @@ private:
     std::unique_ptr<Exti> exti_;
     std::array<std::unique_ptr<Usart>, 3> usart_;
     std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
+    std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
+    std::vector<TimedDevice*> timed_;                     // timers and ADCs
+    AnalogSource analog_source_;
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
     std::unique_ptr<Dbgmcu> dbgmcu_;

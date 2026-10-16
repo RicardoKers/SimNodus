@@ -68,6 +68,7 @@ struct McuStatus {
     double startup_seconds = 0.0;
     int resets = 0;                       // resets done with the reset button
     std::uint64_t max_input_delay_ns = 0; // circuit-to-firmware delay of input changes
+    std::uint64_t late_analog_samples = 0; // ADC samples that took the circuit's latest value
     std::string message;                  // failure reason
 };
 
@@ -90,6 +91,14 @@ public:
     // Logic level the circuit applies to watched pin `pin` (index in
     // pin_names()) since circuit time `time_ns` (MCU-04).
     virtual void set_input(std::size_t pin, bool level, std::uint64_t time_ns) = 0;
+    // Voltages of the watched pins (pin_names() order; NaN for a pin without a
+    // node) at an accepted circuit point, for the ADC (MCU-06). Engines without
+    // an ADC model ignore them.
+    virtual void set_analog(std::uint64_t time_ns, const std::vector<double>& volts)
+    {
+        (void)time_ns;
+        (void)volts;
+    }
     // Terminal (MCU-05): bytes for a UART's receiver; and the bytes it
     // transmitted since byte number `from`, with their times if `times` is
     // given. Returns the total number of bytes transmitted.

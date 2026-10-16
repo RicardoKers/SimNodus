@@ -123,8 +123,8 @@ A separate top-level window that can be placed on another monitor.
 | MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | done |
 | MCU-04 | GPIO input reads circuit voltages with Schmitt thresholds; EXTI interrupts fire from circuit transitions (pressing a button on the schematic triggers the firmware interrupt) | 2 | done |
 | MCU-05 | UART output/input through the analyzer terminal | 2 | done |
-| MCU-06 | ADC channels sample circuit voltages (in SimNodus's own emulator, ADR 0090) | 3 | planned |
-| MCU-07 | Timers with PWM outputs on the pins (in SimNodus's own emulator, ADR 0090) | 3 | planned |
+| MCU-06 | ADC channels sample circuit voltages (in SimNodus's own emulator, ADR 0090) | 3 | done (ADC; DMA in SN-179) |
+| MCU-07 | Timers with PWM outputs on the pins (in SimNodus's own emulator, ADR 0090) | 3 | done |
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
 | MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
 | MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | planned |

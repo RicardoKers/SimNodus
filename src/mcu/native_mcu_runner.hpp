@@ -44,6 +44,7 @@ public:
     bool wait_time_ns(std::uint64_t time_ns, const std::atomic<bool>& cancel) override;
     void request_reset() override;
     void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override;
+    void set_analog(std::uint64_t time_ns, const std::vector<double>& volts) override;
     void uart_send(const std::string& uart, const std::string& bytes) override;
     std::uint64_t uart_received(const std::string& uart, std::uint64_t from, std::string& bytes,
         std::vector<std::uint64_t>* times = nullptr) const override;
@@ -64,6 +65,8 @@ private:
     void fail(const std::string& message);
     // Pin states from the machine, recorded at `time_ns` where they changed (under the lock).
     void sample_pins(emu::Stm32F103& machine, std::uint64_t time_ns);
+    // Pin voltage for an ADC sample at firmware time `time_ns` (worker thread).
+    double analog_value(std::size_t pin, std::uint64_t time_ns);
 
     McuRunOptions options_;
     std::thread worker_;
@@ -84,6 +87,7 @@ private:
     };
     std::vector<InputChange> input_queue_;
     std::vector<bool> input_desired_;
+    std::vector<std::vector<std::pair<std::uint64_t, double>>> analog_; // per pin: circuit voltages
     struct UartLog {
         int number = 1;
         std::string bytes;

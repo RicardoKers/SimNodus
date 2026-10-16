@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdlib>
 #include <deque>
 
@@ -72,6 +73,7 @@ NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(opt
     history_.resize(options_.pins.size());
     levels_.assign(options_.pins.size(), {{0, false}});
     input_desired_.assign(options_.pins.size(), false);
+    analog_.resize(options_.pins.size());
     for (std::size_t i = 0; i < options_.pins.size(); ++i) {
         ports_.push_back(port_pin(options_.pins[i]));
         history_[i].push_back({0, PinState{}});
@@ -143,6 +145,52 @@ void NativeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_
         input_queue_.push_back({pin, level, time_ns});
     }
     changed_.notify_all();
+}
+
+void NativeMcuRunner::set_analog(std::uint64_t time_ns, const std::vector<double>& volts)
+{
+    std::lock_guard lock(mutex_);
+    for (std::size_t i = 0; i < volts.size() && i < analog_.size(); ++i) {
+        if (std::isnan(volts[i])) {
+            continue;
+        }
+        auto& history = analog_[i];
+        if (!history.empty() && history.back().first >= time_ns) {
+            history.back() = {time_ns, volts[i]}; // the same point again
+            continue;
+        }
+        history.emplace_back(time_ns, volts[i]);
+        if (history.size() > 4096) {
+            history.erase(history.begin(), history.begin() + 2048); // far older than any sample needs
+        }
+    }
+}
+
+double NativeMcuRunner::analog_value(std::size_t pin, std::uint64_t time_ns)
+{
+    // The voltage at the end of the sample's window minus the lag: a time the
+    // circuit has passed whenever the firmware may run this window, so the code
+    // does not depend on thread timing (MCU_EMULATOR.md section 7).
+    const std::uint64_t window_ns = std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
+    const std::uint64_t window_end = (time_ns / window_ns + 1) * window_ns;
+    const std::uint64_t at = window_end > options_.analog_lag_ns ? window_end - options_.analog_lag_ns : 0;
+    std::lock_guard lock(mutex_);
+    if (pin >= analog_.size() || analog_[pin].empty()) {
+        return 0.0; // no node: an open pin reads 0 V
+    }
+    const auto& history = analog_[pin];
+    auto after = std::lower_bound(history.begin(), history.end(), at,
+        [](const auto& entry, std::uint64_t t) { return entry.first < t; });
+    if (after == history.end()) {
+        ++status_.late_analog_samples; // the circuit is not there yet: its latest value
+        return history.back().second;
+    }
+    if (after == history.begin() || after->first == at) {
+        return after->second;
+    }
+    const auto before = std::prev(after);
+    const double f = static_cast<double>(at - before->first) / static_cast<double>(after->first - before->first);
+    return before->second + f * (after->second - before->second);
 }
 
 void NativeMcuRunner::uart_send(const std::string& uart, const std::string& bytes)
@@ -330,6 +378,10 @@ void NativeMcuRunner::work()
     for (std::size_t i = 0; i < ports_.size(); ++i) {
         watched[ports_[i]] = i;
     }
+    machine->set_analog_source([this, &watched](int port, int pin, std::uint64_t time_ns) {
+        const auto it = watched.find({port, pin});
+        return it == watched.end() ? 0.0 : analog_value(it->second, time_ns);
+    });
 
     // Firmware events of a run step into the pin history, the level logs and the terminal.
     auto collect = [&] {

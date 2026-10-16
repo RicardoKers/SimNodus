@@ -73,6 +73,39 @@ struct ButtonCircuit {
 
 } // namespace
 
+TEST_CASE("session: a potentiometer and a closed switch start where their parameters say")
+{
+    // Interactive controls start from their parameters and follow set_control:
+    // before 2026-10-16 ngspice added the initial value on top (a pot at 25 %
+    // gave 50 %, a closed switch could not be opened).
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "10"}});
+    const model::Id pot = b.add("potentiometer", {{"1", "0"}, {"W", "W"}, {"2", "VCC"}}, {{"position", "25"}});
+    const model::Id sw = b.add("spst", {{"1", "VCC"}, {"2", "S"}}, {{"closed", "closed"}});
+    b.add("resistor", {{"1", "S"}, {"2", "0"}}, {{"R", "1k"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0.0;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &components();
+    request.vectors = {"W", "S"};
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    REQUIRE(wait_for_time(session, 0.05));
+    CHECK(std::abs(session.latest("w").value_or(-1) - 2.5) < 1e-3);
+    CHECK(std::abs(session.latest("s").value_or(-1) - 10.0) < 1e-2);
+    session.set_control(pot, 0.75);
+    session.set_control(sw, 0.0);
+    const double changed_at = session.status().sim_time;
+    REQUIRE(wait_for_time(session, changed_at + 0.05));
+    CHECK(std::abs(session.latest("w").value_or(-1) - 7.5) < 1e-3);
+    CHECK(session.latest("s").value_or(-1) < 0.01);
+    session.stop();
+}
+
 TEST_CASE("session: a button charges the capacitor in an interactive run")
 {
     REQUIRE(test::engine() != nullptr);

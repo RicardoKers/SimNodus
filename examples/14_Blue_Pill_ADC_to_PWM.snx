@@ -1,0 +1,373 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 40,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/adc_pwm/adc_pwm.elf"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 3,
+      "type": "potentiometer",
+      "designator": "RV1",
+      "at": [
+        13,
+        0
+      ],
+      "rotation": 180,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "50"
+      }
+    },
+    {
+      "id": 4,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        13,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        11
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 6,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        20,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        20,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 8,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        14,
+        24
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 9,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        20,
+        27
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "1u"
+      }
+    },
+    {
+      "id": 10,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        20,
+        33
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 11,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          10,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          13,
+          -3
+        ],
+        [
+          13,
+          -15
+        ],
+        [
+          9,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          13,
+          3
+        ],
+        [
+          13,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          20,
+          17
+        ],
+        [
+          20,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "points": [
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          24
+        ],
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          17,
+          24
+        ],
+        [
+          20,
+          24
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "points": [
+        [
+          20,
+          30
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 30,
+      "at": [
+        10,
+        4
+      ],
+      "name": "POT"
+    },
+    {
+      "id": 31,
+      "at": [
+        10,
+        18
+      ],
+      "name": "PA0"
+    },
+    {
+      "id": 32,
+      "at": [
+        18,
+        24
+      ],
+      "name": "RC"
+    }
+  ],
+  "probes": [
+    {
+      "id": 33,
+      "kind": "voltage",
+      "target": {
+        "item": 12,
+        "at": [
+          10,
+          6
+        ]
+      },
+      "color": "#2ca02c"
+    },
+    {
+      "id": 34,
+      "kind": "voltage",
+      "target": {
+        "item": 19,
+        "at": [
+          10,
+          20
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 35,
+      "kind": "voltage",
+      "target": {
+        "item": 20,
+        "at": [
+          19,
+          24
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ]
+}

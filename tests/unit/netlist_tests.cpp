@@ -125,10 +125,14 @@ TEST_CASE("interactive parts get external control sources")
     CHECK(n.controls[1].initial == 0.25);
     CHECK(n.controls[2].initial == 1.0);
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW1 ctl_SW1 0 DC 0 external") != n.lines.end());
+    // ngspice adds DC to the external value: the session supplies the position.
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_RV1 ctl_RV1 0 DC 0 external") != n.lines.end());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW2 ctl_SW2 0 DC 0 external") != n.lines.end());
     CHECK(std::find(n.lines.begin(), n.lines.end(), "S_SW1 VCC A ctl_SW1 0 SW_SN") != n.lines.end());
     CHECK(n.models.size() == 2); // switch models emitted once
     n = netlist::generate_netlist(b.schematic, lib, {false, 0.0, {}});
     CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_SW1 ctl_SW1 0 DC 0") != n.lines.end());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "V_ctl_RV1 ctl_RV1 0 DC 0.25") != n.lines.end());
 }
 
 TEST_CASE("periodic sources keep their phase across segments")

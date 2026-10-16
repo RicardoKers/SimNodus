@@ -54,6 +54,11 @@ struct McuRunOptions {
     // past the limit and reports a chunk as complete one chunk later.
     std::uint64_t chunk_us = 1000;
     std::uint64_t config_interval_us = 10000; // CRL/CRH/ODR reads (each costs a bus round trip)
+    // ADC (own emulator, SN-178): a sample taken in coupling window k reads the
+    // pin voltage at the end of window k minus this lag, a circuit time the
+    // circuit has always passed when the firmware may run window k (the lead
+    // plus the circuit's maximum step). Same input, same codes, every run.
+    std::uint64_t analog_lag_ns = 200000;
 };
 
 class RenodeMcuRunner : public McuBackend {

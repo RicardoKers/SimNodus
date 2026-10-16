@@ -15,6 +15,7 @@
 #pragma once
 
 #include "bus.hpp"
+#include "timed_device.hpp"
 
 #include <array>
 #include <cstdint>
@@ -39,7 +40,7 @@ public:
     virtual void timer_diagnostic(const std::string& text) = 0;
 };
 
-class Stm32F1Timer : public Device {
+class Stm32F1Timer : public Device, public TimedDevice {
 public:
     // number: 1 (advanced, APB2) or 2..4 (general purpose, APB1).
     Stm32F1Timer(TimerHost& host, int number);
@@ -51,9 +52,9 @@ public:
 
     // Scheduler: cycle of the next counter event (update or compare match), or
     // the maximum when the counter is stopped.
-    std::uint64_t next_event() const;
+    std::uint64_t next_event() const override;
     // Processes the events due at or before `cycle`.
-    void on_time(std::uint64_t cycle);
+    void on_time(std::uint64_t cycle) override;
     // The kernel clock changed (APB prescaler): the counter continues at the new rate.
     void clocks_changed();
     // AFIO_MAPR changed: the channels move to their new pins.
