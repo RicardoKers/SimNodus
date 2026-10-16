@@ -327,7 +327,9 @@ void NativeMcuRunner::work()
     }
     changed_.notify_all();
 
-    const std::uint64_t chunk_ns = std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
+    const std::uint64_t window_ns = std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
+    auto boundary_below = [window_ns](std::uint64_t t) { return t / window_ns * window_ns; };
+    auto boundary_above = [window_ns](std::uint64_t t) { return (t + window_ns - 1) / window_ns * window_ns; };
     std::deque<InputChange> pending; // circuit inputs not applied yet, in time order
     while (!stop_) {
         std::uint64_t limit = 0;
@@ -340,10 +342,11 @@ void NativeMcuRunner::work()
                 for (const auto& [name, log] : uarts_) {
                     sending = sending || !log.pending.empty();
                 }
-                return stop_ || reset_ || limit_ns_ > now || !input_queue_.empty() || sending;
+                return stop_ || reset_ || boundary_below(limit_ns_) > now || !input_queue_.empty() || sending;
             });
-            limit = limit_ns_;
-            for (auto& change : input_queue_) {
+            limit = boundary_below(limit_ns_);
+            for (auto change : input_queue_) {
+                change.apply_ns = boundary_above(change.time_ns);
                 pending.push_back(change);
             }
             input_queue_.clear();
@@ -368,13 +371,12 @@ void NativeMcuRunner::work()
             }
         }
         std::stable_sort(pending.begin(), pending.end(),
-            [](const InputChange& a, const InputChange& b) { return a.time_ns < b.time_ns; });
+            [](const InputChange& a, const InputChange& b) { return a.apply_ns < b.apply_ns; });
 
-        // Inputs whose circuit time the firmware has reached apply now; later ones
-        // apply exactly at their time.
+        // Inputs apply at their window boundary; the firmware stops there for them.
         auto apply_due = [&] {
             const std::uint64_t now = machine->time_ns();
-            while (!pending.empty() && pending.front().time_ns <= now) {
+            while (!pending.empty() && pending.front().apply_ns <= now) {
                 const auto& change = pending.front();
                 const auto [port, pin] = ports_[change.pin];
                 if (port >= 0) {
@@ -398,9 +400,9 @@ void NativeMcuRunner::work()
         };
         apply_due();
         if (limit > machine->time_ns()) {
-            std::uint64_t target = std::min(limit, machine->time_ns() + chunk_ns);
-            if (!pending.empty() && pending.front().time_ns < target) {
-                target = std::max(pending.front().time_ns, machine->time_ns() + 1);
+            std::uint64_t target = std::min(limit, boundary_below(machine->time_ns()) + window_ns);
+            if (!pending.empty() && pending.front().apply_ns < target) {
+                target = std::max(pending.front().apply_ns, machine->time_ns() + 1);
             }
             machine->run_until_ns(target);
             apply_due();

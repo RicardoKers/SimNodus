@@ -230,6 +230,133 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
         CHECK(edges[i].second == (i % 2 == 0));
         // Renode's SysTick is 125 ppm fast; events have its 100 us quantum; plus one step.
         CHECK(std::abs(edges[i].first - expected) < 2e-4 * expected + 3e-4);
+        if (test_mcu_engine == "native") {
+            // Exact SysTick and exact edge times: only the circuit step (0.1 ms) remains.
+            CHECK(std::abs(edges[i].first - expected) <= 1.2e-4);
+        }
+    }
+#endif
+}
+
+TEST_CASE("session: coupled runs with the same circuit inputs repeat exactly on the own emulator")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (test_mcu_engine != "native") {
+        std::printf("  skipped: determinism is a property of the own emulator's window coupling (SN-173)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    // A 25 Hz square wave on PA1 through 1 kOhm: every falling edge runs the EXTI1
+    // handler of button_irq, which toggles PA0. Inputs reach the firmware at
+    // window boundaries, so the PA0 log must be the same in every run. (With the
+    // earlier rule, "at the circuit time or at once", this scenario happened to
+    // repeat as well, because the idle firmware always waits at its limit; the
+    // window rule guarantees it by construction.)
+    auto run_once = [] {
+        test::CircuitBuilder b(board_library());
+        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+        b.add("vpulse", {{"+", "SRC"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "3.3"}, {"f", "25"}, {"duty", "50"}, {"rise", "10u"}});
+        b.add("resistor", {{"1", "SRC"}, {"2", "IN"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
+        auto settings = b.schematic.settings();
+        settings.speed = 0; // as fast as possible: pacing must not matter
+        settings.segment = 0.5;
+        settings.max_step = 1e-4;
+        settings.mcu_quantum = 1e-3;
+        b.schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = b.schematic;
+        request.library = &board_library();
+        request.vectors = {"OUT", "IN"};
+        std::string error;
+        std::vector<std::pair<std::uint64_t, bool>> log;
+        if (!sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error)) {
+            return log;
+        }
+        sim::SimulationSession session;
+        if (!session.start(request, error)) {
+            return log;
+        }
+        const auto begin = std::chrono::steady_clock::now();
+        while (session.status().sim_time < 0.5 && session.active()
+            && std::chrono::steady_clock::now() - begin < 120s) {
+            std::this_thread::sleep_for(5ms);
+        }
+        const model::Id board = session.netlist().externals.front().component;
+        log = session.mcu_pin_log(board, "PA0", 0).changes;
+        session.stop();
+        // Compare only what both runs certainly reached.
+        while (!log.empty() && log.back().first > 450000000ull) {
+            log.pop_back();
+        }
+        return log;
+    };
+    const auto first = run_once();
+    const auto second = run_once();
+    std::printf("  PA0 changes in 0.45 s: %zu and %zu\n", first.size(), second.size());
+    REQUIRE(first.size() >= 10); // a falling edge every 40 ms: 11 by 0.45 s
+    CHECK(first == second);
+    for (std::size_t i = 0; i < first.size() && i < second.size(); ++i) {
+        if (first[i] != second[i]) {
+            std::printf("  first difference #%zu: %llu vs %llu ns\n", i, static_cast<unsigned long long>(first[i].first),
+                static_cast<unsigned long long>(second[i].first));
+            break;
+        }
+    }
+#endif
+}
+
+TEST_CASE("session: measured cost of the coupling window on the own emulator")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (test_mcu_engine != "native") {
+        std::printf("  skipped: measures the own emulator's window L (EQ-3)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    // A 100 Hz square wave on PA1 (EXTI1 toggles PA0) for 2 s of circuit time at
+    // maximum speed, for several windows L. Reported, not asserted: it informed
+    // the default window of 100 us (MCU_EMULATOR.md EQ-3; measured before the cap,
+    // a 1 ms window ran at 2.48x real time, 100 us at 2.40x, 20 us at 2.32x).
+    for (const double window : {1e-4, 2e-5}) {
+        test::CircuitBuilder b(board_library());
+        b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "IN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
+        b.add("vpulse", {{"+", "SRC"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "3.3"}, {"f", "100"}, {"duty", "50"}, {"rise", "10u"}});
+        b.add("resistor", {{"1", "SRC"}, {"2", "IN"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
+        auto settings = b.schematic.settings();
+        settings.speed = 0;
+        settings.segment = 0.5;
+        settings.max_step = 1e-4;
+        settings.mcu_quantum = window;
+        b.schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = b.schematic;
+        request.library = &board_library();
+        request.vectors = {"OUT", "IN"};
+        std::string error;
+        REQUIRE(sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error));
+        sim::SimulationSession session;
+        REQUIRE(session.start(request, error));
+        const auto begin = std::chrono::steady_clock::now();
+        while (session.status().sim_time < 2.0 && session.active() && std::chrono::steady_clock::now() - begin < 300s) {
+            std::this_thread::sleep_for(2ms);
+        }
+        const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+        const model::Id board = session.netlist().externals.front().component;
+        const auto status = session.mcu_status(board);
+        const auto toggles = session.mcu_pin_log(board, "PA0", 0).changes.size();
+        session.stop();
+        REQUIRE(status.has_value());
+        std::printf("  window %6.0f us: 2 s of circuit time in %.2f s wall (%.2fx real time), largest input delay %.0f us, "
+                    "%zu PA0 toggles\n",
+            window * 1e6, seconds, 2.0 / seconds, static_cast<double>(status->max_input_delay_ns) / 1000.0, toggles);
+        CHECK(toggles >= 190); // 200 falling edges in 2 s
+        CHECK(static_cast<double>(status->max_input_delay_ns) <= window * 1e9 + 1);
     }
 #endif
 }
@@ -287,6 +414,9 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     std::printf("  largest circuit-to-firmware input delay: %llu us\n",
         static_cast<unsigned long long>(status->max_input_delay_ns / 1000));
     CHECK(status->max_input_delay_ns / 1000 <= 2 * 1000 + 100); // two quanta plus one circuit step
+    if (test_mcu_engine == "native") {
+        CHECK(status->max_input_delay_ns <= 1000000); // at most one window (the 1 ms quantum)
+    }
 
     // Delay from the button's falling edge to the output's rising edge, in circuit time.
     const auto btn = session.samples("btn");
@@ -308,6 +438,9 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     REQUIRE(pressed_at > 0);
     REQUIRE(lit_at > pressed_at);
     CHECK(lit_at - pressed_at < 2.5e-3); // two quanta, Renode quantum and steps
+    if (test_mcu_engine == "native") {
+        CHECK(lit_at - pressed_at <= 1.0e-3 + 2.5e-4); // one window plus the circuit steps of both edges
+    }
 #endif
 }
 

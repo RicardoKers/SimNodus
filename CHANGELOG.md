@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-15, emulator track N1: SN-173)
+
+- The own emulator couples to the circuit deterministically: firmware time advances in windows of 100 µs, and an input from the circuit reaches the firmware at the next window boundary. Two runs with the same circuit repeat exactly; inputs are late by less than 0.1 ms (button-to-LED response 100 µs instead of 1.1 ms with Renode). Measured cost of the smaller window: 2.40x instead of 2.48x real time at maximum speed. Tests: tighter timing assertions on the emulator, a repeatability case and the window measurement.
+
 ### Added (2026-10-15, emulator track N1: SN-172, SN-173)
 
 - **Simulate > Use the SimNodus Emulator for Microcontrollers (Experimental):** boards run their firmware in SimNodus's own STM32F103 emulator instead of Renode (`NativeMcuRunner`). The board starts at once; pin changes, inputs from the circuit and UART bytes carry nanosecond times; faults and unsimulated peripherals appear in the Messages panel with the board's name. Board profiles may set `"engine": "native"`; the environment variable `SIMNODUS_MCU_ENGINE` overrides both (for tests).

@@ -66,10 +66,13 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   **N1 in progress:** `McuBackend` interface in ns (SN-171, PR #125);
   `NativeMcuRunner` with engine choice per board profile and the Simulate menu
   option "Use the SimNodus Emulator for Microcontrollers (Experimental)"
-  (SN-172); session and GUI MCU tests also run on the emulator (SN-173).
-  Next: native-only tight timing assertions, deterministic window coupling and
-  measured lead `L` (SN-173), packaging and owner test build (SN-174), gate G1
-  and decision D1 on 11-13.
+  (SN-172, PR #126; the owner tried it on 2026-10-15: everything worked, the
+  instant start "ficou ótima"). SN-173 done: deterministic 100 µs window
+  coupling (inputs late < 0.1 ms, button response 100 µs), tight timing
+  assertions and a repeatability case on the emulator. E-07b (edge spike) moved
+  to the start of N2 (it was not run in N0; recorded in the E-07 report).
+  Next: SN-174 (packaging, docs, owner test build), gate G1 and decision D1 on
+  11-13; then N2 (E-07b, serial frames on TX/RX).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 

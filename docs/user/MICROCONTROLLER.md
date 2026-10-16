@@ -12,7 +12,10 @@ emulator instead (ADR 0089): it starts at once instead of after several
 seconds, gives pin changes their exact time and avoids the Renode differences
 listed below; its own limits are the same as Renode's for the peripherals in
 the table (the timers, ADC, SPI, I2C and DMA are not simulated in either yet).
-The choice applies to the next run and is remembered.
+The choice applies to the next run and is remembered. With the emulator,
+circuit changes reach the firmware within 0.1 ms (a coupling window of
+100 µs instead of the 1 ms quantum), and two runs with the same circuit give
+the same firmware timing.
 
 ## Supported
 

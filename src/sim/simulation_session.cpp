@@ -112,6 +112,14 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
+    // With only the own emulator, the firmware leads by its (smaller) window, which
+    // the deterministic coupling needs (NativeMcuRunner, SN-173).
+    if (!request_.mcus.empty()
+        && std::all_of(request_.mcus.begin(), request_.mcus.end(), [](const McuRequest& m) { return m.engine == "native"; })) {
+        for (const auto& m : request_.mcus) {
+            request_.mcu_lead_us = std::min(request_.mcu_lead_us, m.options.chunk_us);
+        }
+    }
     for (const auto& m : request_.mcus) {
         std::unique_ptr<mcu::McuBackend> runner;
         if (m.engine == "native") {
@@ -498,6 +506,11 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         request.ground_pin = d->mcu->ground_pin;
         const auto quantum = static_cast<std::uint64_t>(std::llround(schematic.settings().mcu_quantum * 1e6));
         request.options.chunk_us = std::max<std::uint64_t>(quantum, 1);
+        if (request.engine == "native") {
+            // Measured (SN-173, EQ-3): windows of 1 ms, 100 us and 20 us run at 2.48x,
+            // 2.40x and 2.32x real time; 100 us keeps inputs late by less than 0.1 ms.
+            request.options.chunk_us = std::min<std::uint64_t>(request.options.chunk_us, native_window_us);
+        }
         for (const auto& pin : d->pins) {
             if (mcu::gpio_pin(pin.name)) {
                 request.options.pins.push_back(pin.name);
