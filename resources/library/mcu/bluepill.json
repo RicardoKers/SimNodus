@@ -1077,6 +1077,7 @@
     }
   ],
   "mcu": {
+    "engine": "native",
     "platform": "stm32f103c8.repl",
     "firmware_parameter": "firmware",
     "before_firmware": [],

@@ -156,7 +156,7 @@ private:
     QAction* pause_action_ = nullptr;
     QAction* stop_action_ = nullptr;
     QAction* reset_action_ = nullptr;
-    QAction* native_mcu_action_ = nullptr;
+    QAction* renode_mcu_action_ = nullptr;
     QComboBox* speed_ = nullptr;
     QMenu* recent_menu_ = nullptr;
     QMenu* examples_menu_ = nullptr;

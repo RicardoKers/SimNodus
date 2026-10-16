@@ -62,7 +62,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | done (owner tried the build on 2026-10-15) |
 | SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | todo |
 | SN-176 | ngspice breakpoints at upcoming firmware edges | N2 / G2 | MCU-10 | todo |
-| SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | todo |
+| SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | doing |
 | SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | todo |
 | SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | todo |
 | SN-187 | IWDG, WWDG, CRC, RTC/BKP | after the freeze | — | todo |
@@ -78,8 +78,8 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 
 | ID | Task | Requirements | Status |
 |---|---|---|---|
-| SN-140 | ADC through the owned F103 model with circuit voltages | MCU-06 | todo |
-| SN-141 | Timer/PWM audit of Renode STM32F1 model and support | MCU-07 | todo |
+| SN-140 | ADC through the owned F103 model with circuit voltages | MCU-06 | superseded by SN-178 (ADR 0090) |
+| SN-141 | Timer/PWM audit of Renode STM32F1 model and support | MCU-07 | superseded by SN-177 (ADR 0090) |
 | SN-142 | Component set B | SIM-07 | todo |
 | SN-143 | Lesson 3 example | — | todo |
 

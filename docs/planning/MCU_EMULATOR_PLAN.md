@@ -231,9 +231,9 @@ and the release ships on Renode for that feature.
 | ID | When | Question | Default if not decided |
 |---|---|---|---|
 | D0 | 10-30 (G0a, G0b) | Continue with the emulator? **Taken 2026-10-15: yes** (E-07 passed; ADR 0089 accepted) | Stop; keep Renode |
-| D1 | 11-13 (G1) | Native as the default engine? | Renode stays default |
+| D1 | 11-13 (G1) | Native as the default engine? **Taken 2026-10-16: yes** (ADR 0090) | Renode stays default |
 | D1b | any release with native default | Roll back to Renode after an unfixed regression (3 working days) | Roll back |
-| D2 | 11-13 | Build phase 3/4 features only on the emulator? (removes them from the Renode fallback) | On Renode, as planned |
+| D2 | 11-13 | Build phase 3/4 features only on the emulator? (removes them from the Renode fallback) **Taken 2026-10-16: yes; Renode frozen** (ADR 0090) | On Renode, as planned |
 | D3 | 12-15 | Engine of the classroom release (options above) | Renode |
 | D4 | after two native releases | Remove Renode from the package? | Keep it |
 | D5 | after the classroom | First M4 chip: F407 or F411 | F407 |

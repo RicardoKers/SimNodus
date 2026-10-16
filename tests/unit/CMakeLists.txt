@@ -15,10 +15,11 @@ if(SIMNODUS_NGSPICE_LIBRARY)
     add_test(NAME engine-ngspice
         COMMAND engine_tests "${SIMNODUS_NGSPICE_LIBRARY}" "${PROJECT_SOURCE_DIR}/resources/ngspice")
     set_tests_properties(engine-ngspice PROPERTIES TIMEOUT 900)
-    # The session's microcontroller cases on SimNodus's own emulator (SN-173).
-    add_test(NAME engine-native
-        COMMAND engine_tests "${SIMNODUS_NGSPICE_LIBRARY}" "${PROJECT_SOURCE_DIR}/resources/ngspice" "session:" native)
-    set_tests_properties(engine-native PROPERTIES TIMEOUT 900)
+    # The session's microcontroller cases on Renode, the legacy engine kept as a
+    # fallback (D1, ADR 0090); engine-ngspice runs them on the own emulator.
+    add_test(NAME engine-renode-session
+        COMMAND engine_tests "${SIMNODUS_NGSPICE_LIBRARY}" "${PROJECT_SOURCE_DIR}/resources/ngspice" "session:" renode)
+    set_tests_properties(engine-renode-session PROPERTIES TIMEOUT 900)
 else()
     message(STATUS "engine-ngspice test skipped: SIMNODUS_NGSPICE_LIBRARY is not set")
 endif()

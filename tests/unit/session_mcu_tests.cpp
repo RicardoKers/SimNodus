@@ -21,8 +21,14 @@
 using namespace simnodus;
 using namespace std::chrono_literals;
 
-extern std::string test_mcu_engine; // engine_tests.cpp
+extern std::string test_mcu_engine; // engine_tests.cpp ("" = the board's default: the own emulator)
 extern double test_soak_segment;
+
+// True unless the cases run on Renode (the legacy engine, D1 on 2026-10-16).
+bool on_native()
+{
+    return test_mcu_engine != "renode";
+}
 
 namespace {
 
@@ -72,10 +78,18 @@ TEST_CASE("session: boards without firmware or engine are explained")
     CHECK(!sim::build_mcu_requests(missing.schematic, board_library(), folder_only("."), requests, error));
     CHECK(error.find("does not exist") != std::string::npos);
 
-    test::CircuitBuilder no_engine(board_library());
-    no_engine.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    // The own emulator (the default, ADR 0090) needs nothing installed; Renode, the
+    // legacy engine, must be found when it is chosen.
+    test::CircuitBuilder no_renode(board_library());
+    no_renode.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
     error.clear();
-    CHECK(!sim::build_mcu_requests(no_engine.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
+    requests.clear();
+    CHECK(sim::build_mcu_requests(no_renode.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
+    CHECK(requests.size() == 1 && requests.front().engine == "native");
+    auto legacy = folder_only(SIMNODUS_TEST_EXAMPLES_DIR);
+    legacy.engine = "renode";
+    error.clear();
+    CHECK(!sim::build_mcu_requests(no_renode.schematic, board_library(), legacy, requests, error));
     CHECK(error.find("Renode") != std::string::npos);
 }
 
@@ -115,7 +129,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     }
     std::printf("  circuit started after %.1f s\n",
         std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count());
-    if (test_mcu_engine != "native") {
+    if (!on_native()) {
         CHECK(saw_starting); // Renode takes seconds; the own emulator is ready at once
     }
 
@@ -232,7 +246,7 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
         CHECK(edges[i].second == (i % 2 == 0));
         // Renode's SysTick is 125 ppm fast; events have its 100 us quantum; plus one step.
         CHECK(std::abs(edges[i].first - expected) < 2e-4 * expected + 3e-4);
-        if (test_mcu_engine == "native") {
+        if (on_native()) {
             // Exact SysTick and exact edge times: only the circuit step (0.1 ms) remains.
             CHECK(std::abs(edges[i].first - expected) <= 1.2e-4);
         }
@@ -245,7 +259,7 @@ TEST_CASE("session: coupled runs with the same circuit inputs repeat exactly on 
 #ifndef SIMNODUS_TEST_RENODE
     std::printf("  skipped: no Renode in this build\n");
 #else
-    if (test_mcu_engine != "native") {
+    if (!on_native()) {
         std::printf("  skipped: determinism is a property of the own emulator's window coupling (SN-173)\n");
         return;
     }
@@ -315,7 +329,7 @@ TEST_CASE("session: measured cost of the coupling window on the own emulator")
 #ifndef SIMNODUS_TEST_RENODE
     std::printf("  skipped: no Renode in this build\n");
 #else
-    if (test_mcu_engine != "native") {
+    if (!on_native()) {
         std::printf("  skipped: measures the own emulator's window L (EQ-3)\n");
         return;
     }
@@ -416,7 +430,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     std::printf("  largest circuit-to-firmware input delay: %llu us\n",
         static_cast<unsigned long long>(status->max_input_delay_ns / 1000));
     CHECK(status->max_input_delay_ns / 1000 <= 2 * 1000 + 100); // two quanta plus one circuit step
-    if (test_mcu_engine == "native") {
+    if (on_native()) {
         CHECK(status->max_input_delay_ns <= 1000000); // at most one window (the 1 ms quantum)
     }
 
@@ -440,7 +454,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     REQUIRE(pressed_at > 0);
     REQUIRE(lit_at > pressed_at);
     CHECK(lit_at - pressed_at < 2.5e-3); // two quanta, Renode quantum and steps
-    if (test_mcu_engine == "native") {
+    if (on_native()) {
         CHECK(lit_at - pressed_at <= 1.0e-3 + 2.5e-4); // one window plus the circuit steps of both edges
     }
 #endif

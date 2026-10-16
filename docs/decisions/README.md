@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0090: The own emulator is the default engine; Renode is frozen](0090-own-emulator-default.md):
+  decisions D1 and D2 (2026-10-16); new MCU features only on the emulator.
 - [0089: Own STM32 emulator as the microcontroller engine](0089-own-stm32-emulator.md):
   **accepted** 2026-10-15 (D0, after E-07); in-process ARMv7-M emulator with
   pin-level peripherals, Renode as fallback.

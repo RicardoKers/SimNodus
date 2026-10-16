@@ -45,7 +45,7 @@ enum class RunState { Idle, Running, Paused, Finished, Stopped, Failed };
 // started before the analog run and kept within `mcu_lead_us` of its time.
 struct McuRequest {
     model::Id component = model::no_id;
-    std::string engine = "renode"; // "renode" or "native" (SN-172)
+    std::string engine = "native"; // "native" or "renode" (legacy; SN-172, ADR 0090)
     mcu::McuRunOptions options;
     std::string ground_pin = "G1"; // reference of the pin voltages
 };
