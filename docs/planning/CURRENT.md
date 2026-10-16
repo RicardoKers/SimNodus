@@ -83,6 +83,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   edges" (off by default): square waves at the 100 µs step, 0.8x–2.9x real
   time (lesson 1: 1.2x). Speeds with the CPU free, default settings:
   examples 07 2.8x, 10 2.9x, 12 1.2x, 13 2.7x, 14 1.6x, 15 1.0x.
+- **Owner's test 2026-10-16 (dist zip):** everything worked; a 10 kHz PWM
+  with a 10 µs step and exact edges showed proper waveforms at 0.2x real
+  time (acceptable to the owner). A CubeMX ADC+DMA project is not tested yet.
+- **Lesson 3 (SN-143):** example 16 and `examples/lessons/lesson3_adc_uart.md`
+  (potentiometer → ADC → UART, PWM → RC → ADC).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -182,13 +187,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Owner's hands-on test of examples 13–15, the potentiometer fix and a
-   CubeMX project with ADC/DMA (gate G3); release 0.2 by 2026-11-13 (ask
-   before cutting it).
-2. Lesson 3 (potentiometer → ADC → UART report, PWM → RC filter) from
-   examples 14/15 for the G3 lesson check.
-3. SN-188 segment length; N2 serial frames (SN-175, spike SN-186); timer
-   triggers for the ADC if a lesson needs timed sampling.
+1. Gate G3 review: lesson 3 by the owner, a CubeMX project with ADC+DMA;
+   record the result in the plan. Release 0.2 by 2026-11-13 (ask before
+   cutting it).
+2. SN-188 segment length (memory per ngspice restart).
+3. N2 serial frames on the pins (SN-175, spike SN-186); timer triggers for
+   the ADC if a lesson needs timed sampling; component set B (SN-142).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the
