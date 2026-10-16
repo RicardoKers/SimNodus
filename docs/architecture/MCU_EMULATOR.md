@@ -204,11 +204,12 @@ on scheduling). The cost is an input delay of up to `L`, labeled approximate;
 without inter-process calls `L` can be much smaller than today's two 1 ms
 quanta, and it is chosen by measurement in plan N1 (EQ-3).
 
-**Edges in the analog engine.** Today edges fall on the circuit's 100 µs
-step (ADR 0084). Because the firmware runs ahead, its next output edges are
-already known when the circuit integrates. Serial frames (8.68 µs bits at
-115200 baud) and PWM need the analog solution to follow them. Candidate
-techniques, compared in the spike E-07b before N2:
+**Edges in the analog engine.** Since SN-176 (ADR 0091) each circuit step
+gets the pin's drive averaged over the step, so PWM averages are exact at the
+100 µs step; an edge is spread over its step. Breakpoints at every edge were
+measured and not taken (lesson 1 fell to 0.85x real time; numbers in ADR
+0091). Serial frames (8.68 µs bits at 115200 baud) need more than averaging.
+Candidate techniques for them, compared in the spike E-07b (SN-186):
 
 - `ngSpice_SetBkpt(time)` for each upcoming edge: in the shared library it
   adds a timestep breakpoint (`CKTsetBreak`; checked in the ngspice source),

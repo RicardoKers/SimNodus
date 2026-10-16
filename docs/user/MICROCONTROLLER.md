@@ -69,13 +69,15 @@ the same firmware timing.
   instructions per simulated second than at 8 MHz. Firmware that waits in a
   loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a
   2026 laptop; the status bar shows the actual speed.
-- **PWM into the circuit.** The emulator times every edge exactly, but the
-  circuit takes a time step of up to 0.1 ms (Simulation Settings, maximum
-  step), so an edge acts at the circuit's next time point. A 100 Hz PWM
-  (example 13) averages within about 1 % of the ideal; at 1 kHz the duty
-  cycle the circuit sees can be off by up to 10 percentage points. A smaller
-  maximum step helps but slows the run; exact edges in the circuit are
-  planned (SN-176).
+- **Edges in the circuit.** The emulator times every edge exactly. The
+  circuit takes time steps of up to 0.1 ms (Simulation Settings, maximum
+  step) and receives, for each step, the pin's output averaged over that step
+  (ADR 0091). So the average of a PWM is exact at any frequency (example 13:
+  0.825 V from 25 % of 3.3 V), but an edge is spread over the step that
+  contains it: the scope shows one point between the levels, and signals
+  faster than the step (a serial frame's bits) are averaged away there. The
+  logic lanes show the exact edges. With Renode an edge acts at the next time
+  point instead.
 - **AFIO (Renode only).** With Renode, EXTI line *n* follows pin *n* of
   every port; the port selection in `AFIO_EXTICR` is not simulated, so use
   one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`

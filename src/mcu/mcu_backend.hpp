@@ -104,6 +104,15 @@ public:
     virtual const std::vector<std::string>& pin_names() const = 0;
     // Drive of each watched pin (in pin_names() order) at virtual time `time_ns`.
     virtual std::vector<PinDrive> drives_at(std::uint64_t time_ns) = 0;
+    // Drive of each watched pin averaged over (from_ns, to_ns] (SN-176): a circuit
+    // step that contains an edge gets the charge the pin delivered during the
+    // step, so PWM averages are exact whatever the step. Engines that only know
+    // levels late (Renode) return the drive at `to_ns`.
+    virtual std::vector<PinDrive> average_drives(std::uint64_t from_ns, std::uint64_t to_ns)
+    {
+        (void)from_ns;
+        return drives_at(to_ns);
+    }
     // Level changes of watched pin `pin` from `from_ns`.
     virtual PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const = 0;
     // Messages for the user since the last call (faults, unsimulated features).

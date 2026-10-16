@@ -57,11 +57,16 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   complementary outputs and MOE, input capture, interrupts, AFIO remaps,
   APB timer clocks; edges exact to the timer clock (the core stops at the
   next timer event). Example 13 (`timer_pwm`, 100 Hz PWM into RC: 0.823 V
-  vs 0.825 V ideal, input capture, TIM3 interrupt). **Limit found:** at the
-  default 100 µs circuit step a 1 kHz PWM averages 20–30 % instead of 25 %
-  (edges act at the circuit's next time point); a 10 µs step fixes it but
-  runs at 0.3x real time. SN-176 (ngspice breakpoints at firmware edges)
-  is now the priority before kHz PWM lessons.
+  vs 0.825 V ideal, input capture, TIM3 interrupt). **Owner's test
+  (2026-10-16, dist zip):** example 13 and the owner's own CubeMX/CubeIDE
+  project (TIM1 PWM at 100 Hz, switching 25 %/75 % every 2 s) worked
+  correctly.
+- **SN-176 done (ADR 0091):** each circuit step gets the pin's drive averaged
+  over the step, so a 1 kHz PWM averages exactly (0.8251 V vs 0.825 V at the
+  default 100 µs step; it was 0.66–0.99 V) at unchanged speed (examples 10
+  and 13 at about 2x real time). Breakpoints at every edge were measured
+  (exact but lesson 1 at 0.85x real time) and not taken. Example 13 is back
+  at 1 kHz.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -161,14 +166,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. **SN-176 / E-07b:** breakpoints at upcoming firmware edges so kHz PWM
-   reaches the circuit exactly at the 100 µs default step (measure speed and
-   edge error; then restore 1 kHz in example 13).
-2. SN-178 ADC (circuit voltages sampled at the conversion instant), then
-   SN-179 DMA as HAL ADC/UART need it; a HAL PWM example from CubeMX.
-3. Owner's hands-on test of PWM (example 13 and a CubeMX project); release
-   0.2 by 2026-11-13 (ask before cutting it).
-4. SN-188 segment length (memory per ngspice restart); N2 serial frames.
+1. SN-178 ADC (circuit voltages sampled at the conversion instant), then
+   SN-179 DMA as HAL ADC/UART need it; a HAL PWM/ADC example from CubeMX.
+2. Owner's hands-on test of 1 kHz PWM (example 13, a CubeMX project);
+   release 0.2 by 2026-11-13 (ask before cutting it).
+3. SN-188 segment length (memory per ngspice restart); N2 serial frames
+   (SN-175, spike SN-186: averaging hides 8.7 µs bits in the analog view).
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the

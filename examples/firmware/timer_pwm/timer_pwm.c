@@ -3,15 +3,13 @@
 //
 // Timers without libraries, for SimNodus and for a real Blue Pill (internal
 // 8 MHz clock, so every timer counts at 8 MHz before its prescaler).
-//   PA0 (TIM2_CH1): PWM 100 Hz, 25 % duty (PWM mode 1, CCR preload).
-//   PA8 (TIM1_CH1) and PB13 (TIM1_CH1N): PWM 100 Hz, high for the last 10 %
+//   PA0 (TIM2_CH1): PWM 1 kHz, 25 % duty (PWM mode 1, CCR preload).
+//   PA8 (TIM1_CH1) and PB13 (TIM1_CH1N): PWM 1 kHz, high for the last 10 %
 //   of each period (PWM mode 2), PB13 the complement.
 //   PC13 (on-board LED, lit when low): toggled by the TIM3 update interrupt
 //   every 10 ms.
-//   PB6 (TIM4_CH1): input capture of rising edges at 100 kHz; PB12 goes high
-//   while the measured period is between 9 and 11 ms (wire PA0 to PB6).
-// 100 Hz keeps the edges well apart from the circuit's 100 us time step; the
-// timers themselves run at any rate.
+//   PB6 (TIM4_CH1): input capture of rising edges at 1 MHz; PB12 goes high
+//   while the measured period is between 900 and 1100 us (wire PA0 to PB6).
 #include <stdint.h>
 
 #define REG(address) (*(volatile uint32_t *)(address))
@@ -62,7 +60,7 @@ const uintptr_t vectors[47] = {
 };
 
 volatile uint32_t ticks;
-volatile uint32_t period_10us;
+volatile uint32_t period_us;
 
 void Default_Handler(void)
 {
@@ -83,10 +81,10 @@ void TIM4_IRQHandler(void)
     static uint32_t seen;
     if (TIM_SR(TIM4) & (1u << 1u)) {
         const uint32_t now = TIM_CCR1(TIM4); // reading CCR1 clears CC1IF
-        period_10us = (now - last) & 0xFFFFu;
+        period_us = (now - last) & 0xFFFFu;
         last = now;
         if (seen++ > 0u) {
-            GPIOB_BSRR = (period_10us >= 900u && period_10us <= 1100u) ? (1u << 12u) : (1u << (12u + 16u));
+            GPIOB_BSRR = (period_us >= 900u && period_us <= 1100u) ? (1u << 12u) : (1u << (12u + 16u));
         }
     }
 }
@@ -113,8 +111,8 @@ void Reset_Handler(void)
     GPIOB_CRH = (GPIOB_CRH & ~(0xFFu << 16u)) | (0xA2u << 16u);
     GPIOC_CRH = (GPIOC_CRH & ~(0xFu << 20u)) | (0x2u << 20u);
 
-    // TIM2: 100 kHz counter, 1000 counts per period, CH1 PWM mode 1 with preload.
-    TIM_PSC(TIM2) = 79u;
+    // TIM2: 1 MHz counter, 1000 counts per period, CH1 PWM mode 1 with preload.
+    TIM_PSC(TIM2) = 7u;
     TIM_ARR(TIM2) = 999u;
     TIM_CCR1(TIM2) = 250u;
     TIM_CCMR1(TIM2) = (6u << 4u) | (1u << 3u); // OC1M = PWM 1, OC1PE
@@ -123,7 +121,7 @@ void Reset_Handler(void)
     TIM_CR1(TIM2) = (1u << 7u) | 1u;            // ARPE, CEN
 
     // TIM1: the same period, CH1 in PWM mode 2 (high from CCR1 = 900 on), CH1N complement.
-    TIM_PSC(TIM1) = 79u;
+    TIM_PSC(TIM1) = 7u;
     TIM_ARR(TIM1) = 999u;
     TIM_CCR1(TIM1) = 900u;
     TIM_CCMR1(TIM1) = (7u << 4u) | (1u << 3u); // OC1M = PWM 2, OC1PE
@@ -140,8 +138,8 @@ void Reset_Handler(void)
     TIM_DIER(TIM3) = 1u; // UIE
     TIM_CR1(TIM3) = 1u;
 
-    // TIM4: 100 kHz free-running counter, CH1 captures rising edges of PB6 (TI1).
-    TIM_PSC(TIM4) = 79u;
+    // TIM4: 1 MHz free-running counter, CH1 captures rising edges of PB6 (TI1).
+    TIM_PSC(TIM4) = 7u;
     TIM_ARR(TIM4) = 0xFFFFu;
     TIM_CCMR1(TIM4) = 1u; // CC1S = 01: input, IC1 on TI1
     TIM_CCER(TIM4) = 1u;  // CC1E, rising edge

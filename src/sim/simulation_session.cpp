@@ -523,20 +523,25 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
 
 double SimulationSession::external_value(const ExternalRef& ref, double time)
 {
-    // Engine thread only. One drive table per board and time point; the firmware
-    // must have reached the circuit's time before its outputs are known.
+    // Engine thread only. One drive table per board and trial step; the firmware
+    // must have reached the circuit's time before its outputs are known. The
+    // drive is averaged over the step from the last accepted point (SN-176): an
+    // edge inside the step contributes its exact share instead of acting at the
+    // step's end, which made a 1 kHz PWM average 20-30 % instead of 25 %.
     auto& cache = mcu_caches_[ref.component];
-    const auto time_us = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e6));
-    if (cache.time_us != time_us || cache.drives.empty()) {
+    const auto time_ns = static_cast<std::uint64_t>(std::llround(std::max(0.0, time) * 1e9));
+    const auto from_ns = static_cast<std::uint64_t>(std::llround((segment_t0_ + last_time_) * 1e9));
+    if (cache.time_ns != time_ns || cache.from_ns != from_ns || cache.drives.empty()) {
         auto& runner = *mcus_.at(ref.component);
         // Never wait for a firmware that may not run. When the firmware reaches this
         // limit it collects held events and reports the complete time.
-        runner.set_limit_ns((time_us + request_.mcu_lead_us) * 1000);
-        const bool reached = runner.wait_time_ns(time_us * 1000, stop_requested_);
-        cache.drives = runner.drives_at(time_us * 1000);
+        runner.set_limit_ns(time_ns + request_.mcu_lead_us * 1000);
+        const bool reached = runner.wait_time_ns(time_ns, stop_requested_);
+        cache.drives = runner.average_drives(from_ns, time_ns);
         // Only after a stop (or a failed firmware): the levels are stale.
         mcu_stale_ = mcu_stale_ || !reached;
-        cache.time_us = time_us;
+        cache.time_ns = time_ns;
+        cache.from_ns = from_ns;
     }
     if (ref.pin >= cache.drives.size()) {
         return 0.0;

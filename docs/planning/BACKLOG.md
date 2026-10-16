@@ -55,14 +55,14 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | ID | Task | Milestone / gate | Requirements | Status |
 |---|---|---|---|---|
 | SN-170 | Experiment E-07: prototype emulator (`src/emu`, CLI, Thumb-2 core, exceptions, tier-1 devices), differential tests against Renode and QEMU, benchmark | N0 / G0a, G0b (met 10-15, D0) | MCU-11 | done |
-| SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N2 start (was N0; not run before D0) | MCU-10 | todo |
+| SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N2 start (was N0; not run before D0) | MCU-10 | todo (PWM part answered by SN-176 / ADR 0091; serial frames remain) |
 | SN-171 | Extract the `McuBackend` interface in nanoseconds with `analog_at`; current runner becomes `RenodeMcuRunner` | N1 / G1 | MCU-11 | doing (interface in ns done; `analog_at` with the ADC, SN-178) |
 | SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | doing (runner, profile field, Simulate menu option, diagnostics in Messages) |
 | SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | done |
 | SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | done (owner tried the build on 2026-10-15) |
 | SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | todo |
-| SN-176 | ngspice breakpoints at upcoming firmware edges | N2 / G2 | MCU-10 | todo |
-| SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | done (example 13; kHz PWM in the circuit needs SN-176) |
+| SN-176 | Firmware edges into the circuit (PWM averages) | N2 / G2 | MCU-10 | done: step-averaged drive (ADR 0091); breakpoints measured, not taken |
+| SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | done (example 13) |
 | SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | todo |
 | SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | todo |
 | SN-187 | IWDG, WWDG, CRC, RTC/BKP | after the freeze | — | todo |
