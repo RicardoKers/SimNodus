@@ -77,6 +77,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   CubeMX-style HAL project (ADC scan + circular DMA, TIM PWM, UART DMA) and
   runs as on the chip (23 808 scans/s, VREFINT 1489). N3 is complete; gate G3
   needs the owner's CubeMX check and lesson 3.
+- **Exact edges option (ADR 0093, owner's request 2026-10-16):** after the
+  owner saw deformed 1 kHz waveforms at 100 µs (and 0.25x at 10 µs), the
+  SN-176 breakpoint code returned as the setting "Exact microcontroller
+  edges" (off by default): square waves at the 100 µs step, 0.8x–2.9x real
+  time (lesson 1: 1.2x). Speeds with the CPU free, default settings:
+  examples 07 2.8x, 10 2.9x, 12 1.2x, 13 2.7x, 14 1.6x, 15 1.0x.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 

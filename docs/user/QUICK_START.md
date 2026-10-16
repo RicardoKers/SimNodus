@@ -45,7 +45,9 @@ ground symbol.
 - Changing the circuit while running asks to stop first; value changes apply
   at the next run.
 - Simulate > Simulation Settings switches between **interactive** (continuous)
-  and **transient** (fixed time span, complete result) mode.
+  and **transient** (fixed time span, complete result) mode. With a
+  microcontroller, **Exact microcontroller edges** makes PWM and other
+  firmware square waves exact on the scope at the cost of speed.
 
 Interactive runs are computed in 1 s segments with a 100 µs maximum time
 step by default; edges of switches and generators are resolved to that step.

@@ -55,6 +55,7 @@ using CircFn = int(char**);
 using CurPlotFn = char*();
 using AllVecsFn = char**(char*);
 using RunningFn = NgBool();
+using SetBkptFn = NgBool(double);
 }
 
 struct Api {
@@ -66,6 +67,7 @@ struct Api {
     CurPlotFn* cur_plot = nullptr;
     AllVecsFn* all_vecs = nullptr;
     RunningFn* running = nullptr;
+    SetBkptFn* set_bkpt = nullptr; // optional
 };
 
 } // namespace simnodus::sim::ngspice_abi

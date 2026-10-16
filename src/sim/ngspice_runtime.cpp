@@ -144,12 +144,15 @@ std::unique_ptr<NgspiceSession> NgspiceSession::open(const NgspiceLocation& loca
         || !bind(library, "ngSpice_running", api.running, error)) {
         return fail(error);
     }
+    if (void* address = find_symbol(library, "ngSpice_SetBkpt")) {
+        std::memcpy(&api.set_bkpt, &address, sizeof(api.set_bkpt));
+    }
     // SendData callbacks need a non-null SendInitData (E-01 finding 1).
     if (api.init(&on_char, &on_stat, &on_exit, &on_data, &on_init_data, &on_bg_thread, session.get()) != 0) {
         return fail("ngSpice_Init failed.");
     }
     int ident = 0;
-    if (api.init_sync(&on_vsrc, nullptr, nullptr, &ident, session.get()) != 0) {
+    if (api.init_sync(&on_vsrc, nullptr, &on_sync, &ident, session.get()) != 0) {
         return fail("ngSpice_Init_Sync failed.");
     }
     session->command("version -s");
@@ -179,11 +182,21 @@ void NgspiceSession::set_source_handler(SourceHandler handler)
     source_handler_ = std::move(handler);
 }
 
+void NgspiceSession::set_step_handler(StepHandler handler)
+{
+    step_handler_ = std::move(handler);
+}
+
 bool NgspiceSession::command(const std::string& text)
 {
     std::vector<char> buffer(text.begin(), text.end());
     buffer.push_back('\0');
     return api_.command(buffer.data()) == 0;
+}
+
+bool NgspiceSession::set_breakpoint(double time)
+{
+    return api_.set_bkpt && api_.set_bkpt(time);
 }
 
 bool NgspiceSession::load_circuit(const std::vector<std::string>& lines)
@@ -354,6 +367,18 @@ int NgspiceSession::on_vsrc(double* value, double time, char* name, int, void* u
 {
     auto* self = static_cast<NgspiceSession*>(user);
     *value = self->source_handler_ ? self->source_handler_(name ? name : "", time) : 0.0;
+    return 0;
+}
+
+// sharedsync() in ngspice's sharedspice.c: location 0 after the breakpoint
+// handling of a new step, location 1 after it converged (redo: it is retried
+// from `time` with `delta`). Returning 0 never asks for an extra redo.
+int NgspiceSession::on_sync(double time, double* delta, double, int redo, int, int location, void* user)
+{
+    auto* self = static_cast<NgspiceSession*>(user);
+    if (self->step_handler_ && delta && (location == 0 || redo)) {
+        self->step_handler_(time, *delta);
+    }
     return 0;
 }
 

@@ -875,3 +875,65 @@ TEST_CASE("session: example 14 converts the potentiometer voltage and sets the P
     session.stop();
 #endif
 }
+
+TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us step")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: exact edges need the own emulator (ADR 0093)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "10_Lesson1_GPIO_output.snx");
+    REQUIRE(loaded.schematic.has_value());
+    for (const bool exact : {false, true}) {
+        sim::RunRequest request;
+        request.schematic = *loaded.schematic;
+        auto settings = request.schematic.settings();
+        settings.speed = 0.0;
+        settings.max_step = 1e-4; // the default step
+        settings.exact_edges = exact;
+        request.schematic.set_settings(settings);
+        request.library = &board_library();
+        request.vectors = {"pa1", "rc"};
+        std::string error;
+        REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+        sim::SimulationSession session;
+        REQUIRE(session.start(request, error));
+        const auto begin = std::chrono::steady_clock::now();
+        constexpr double run_to = 0.1;
+        while (session.status().sim_time < run_to) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(5ms);
+        }
+        session.stop();
+        // Over 20 ms: points of PA1 between the levels (the averaged drive puts one
+        // at each edge; exact edges none), and the RC ripple (expected 0.805 V).
+        const double from = run_to - 0.02;
+        int between = 0;
+        for (const auto& s : session.samples("pa1")) {
+            between += s.time >= from && s.time <= run_to && s.value > 0.3 && s.value < 3.0 ? 1 : 0;
+        }
+        double low = 9;
+        double high = -9;
+        for (const auto& s : session.samples("rc")) {
+            if (s.time >= from && s.time <= run_to) {
+                low = std::min(low, s.value);
+                high = std::max(high, s.value);
+            }
+        }
+        const double expected = 3.3 * std::tanh(1e-3 / (4 * 10040.0 * 100e-9));
+        std::printf("  exact edges %s: %d PA1 points between the levels, ripple %.4f V (expected %.4f V)\n",
+            exact ? "on " : "off", between, high - low, expected);
+        if (exact) {
+            CHECK(between == 0);
+            CHECK(std::abs((high - low) - expected) < 0.005);
+        } else {
+            CHECK(between >= 30); // one per edge: 40 edges in 20 ms
+        }
+    }
+#endif
+}

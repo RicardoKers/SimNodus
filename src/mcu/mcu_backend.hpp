@@ -122,6 +122,18 @@ public:
         (void)from_ns;
         return drives_at(to_ns);
     }
+    // Edge look-ahead for exact edges (ADR 0093): times in (from_ns, to_ns] at
+    // which the drive of one of `pins` changes, for a span the firmware has run.
+    // Engines that only report edges late (Renode) return nothing.
+    virtual bool reports_edges_ahead() const { return false; }
+    virtual std::vector<std::uint64_t> drive_changes(
+        const std::vector<std::size_t>& pins, std::uint64_t from_ns, std::uint64_t to_ns) const
+    {
+        (void)pins;
+        (void)from_ns;
+        (void)to_ns;
+        return {};
+    }
     // Level changes of watched pin `pin` from `from_ns`.
     virtual PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const = 0;
     // Messages for the user since the last call (faults, unsimulated features).

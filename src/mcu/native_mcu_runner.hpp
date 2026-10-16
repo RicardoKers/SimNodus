@@ -55,6 +55,9 @@ public:
     const std::vector<std::string>& pin_names() const override { return options_.pins; }
     std::vector<PinDrive> drives_at(std::uint64_t time_ns) override;
     std::vector<PinDrive> average_drives(std::uint64_t from_ns, std::uint64_t to_ns) override;
+    bool reports_edges_ahead() const override { return true; }
+    std::vector<std::uint64_t> drive_changes(
+        const std::vector<std::size_t>& pins, std::uint64_t from_ns, std::uint64_t to_ns) const override;
     PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const override;
     std::vector<std::string> take_diagnostics() override;
 

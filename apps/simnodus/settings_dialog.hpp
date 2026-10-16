@@ -11,6 +11,7 @@
 
 #include <QDialog>
 
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -34,6 +35,7 @@ private:
     QRadioButton* transient_ = nullptr;
     QComboBox* interactive_step_ = nullptr;
     QComboBox* quantum_ = nullptr;
+    QCheckBox* exact_edges_ = nullptr;
     QLineEdit* segment_ = nullptr;
     QLineEdit* stop_ = nullptr;
     QLineEdit* transient_step_ = nullptr;

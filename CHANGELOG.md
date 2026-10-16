@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, ADR 0093, owner's request)
+
+- **Simulate > Simulation Settings > Exact microcontroller edges (slower)**, saved in the project (`exact_edges`, off by default): the circuit takes a time point at every firmware edge of a wired pin (ngspice breakpoints, steps capped at the firmware's time), so square waves stay square at the 100 µs step. Lesson 1: no points between the levels and a ripple of 0.806 V (formula 0.805 V) instead of 0.58 V read from the points; 1.2x instead of 2.9x real time. Other examples 0.8x–2.9x (table in ADR 0093); a 10 µs step gave the owner the same waveforms at 0.25x.
+- The status bar's description of the approximations describes the own emulator (it still described Renode).
+
 ### Added (2026-10-16, SN-179)
 
 - **DMA1 in the own emulator** (`src/emu/stm32f1_dma.*`): seven channels with increments, 8/16/32-bit sizes, circular and memory-to-memory modes, half-transfer, transfer-complete and transfer-error flags and interrupts (IRQ 11–17). ADC1 requests channel 1 after each regular conversion; USART1–3 request their TX and RX channels (CR3.DMAT/DMAR). Transfers take no time.
