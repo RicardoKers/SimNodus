@@ -783,22 +783,22 @@ TEST_CASE("timer example: PWM, complementary output, update interrupt and input 
 {
     auto m = machine_with("timer_pwm");
     REQUIRE(m);
-    m->run_until_ns(200000000);
+    m->run_until_ns(50000000);
     const auto events = m->take_pin_events();
     const auto pa0 = edges(events, 0, 0);
-    REQUIRE(pa0.size() >= 36);
+    REQUIRE(pa0.size() >= 90);
     // The first pulse starts when CC1E is set, a few instructions before CEN.
-    for (std::size_t i = 4; i + 1 < pa0.size(); i += 2) { // 100 Hz, high for 2.5 ms: exact at 8 MHz
+    for (std::size_t i = 4; i + 1 < pa0.size(); i += 2) { // 1 kHz, high for 250 us: exact at 8 MHz
         REQUIRE(pa0[i].second);
-        CHECK(pa0[i].first - pa0[i - 2].first == 10000000u);
-        CHECK(pa0[i + 1].first - pa0[i].first == 2500000u);
+        CHECK(pa0[i].first - pa0[i - 2].first == 1000000u);
+        CHECK(pa0[i + 1].first - pa0[i].first == 250000u);
     }
     const auto pa8 = edges(events, 0, 8);
     const auto pb13 = edges(events, 1, 13);
-    REQUIRE(pa8.size() >= 36);
+    REQUIRE(pa8.size() >= 90);
     for (std::size_t i = 0; i + 1 < pa8.size(); i += 2) { // PWM 2: high for the last 100 counts
         REQUIRE(pa8[i].second);
-        CHECK(pa8[i + 1].first - pa8[i].first == 1000000u);
+        CHECK(pa8[i + 1].first - pa8[i].first == 100000u);
     }
     // The complement changes at the same instants (no dead time).
     std::size_t matched = 0;
@@ -812,12 +812,12 @@ TEST_CASE("timer example: PWM, complementary output, update interrupt and input 
     }
     CHECK(matched + 1 >= pa8.size());
     const auto pc13 = edges(events, 2, 13);
-    REQUIRE(pc13.size() >= 18);
+    REQUIRE(pc13.size() >= 4);
     for (std::size_t i = 1; i < pc13.size(); ++i) {
         CHECK(pc13[i].first - pc13[i - 1].first == 10000000u); // TIM3 update every 10 ms
     }
 
-    // Input capture: PB6 follows PA0 (100 Hz, measured within the 50 us steps).
+    // Input capture: PB6 follows PA0 (1 kHz, measured within the 50 us steps).
     bool pa0_level = m->pin_level(0, 0);
     auto feed = [&](std::uint64_t until, std::uint64_t half_period) {
         for (std::uint64_t t = m->time_ns(); t < until; t += 50000) {
@@ -830,9 +830,9 @@ TEST_CASE("timer example: PWM, complementary output, update interrupt and input 
             m->run_until_ns(t + 50000);
         }
     };
-    feed(300000000, 0);
-    CHECK(m->pin_level(1, 12)); // period 9.95..10.05 ms
-    feed(400000000, 10000000);  // 20 ms period
+    feed(70000000, 0);
+    CHECK(m->pin_level(1, 12)); // period 950..1050 us
+    feed(90000000, 1000000);    // 2 ms period
     CHECK(!m->pin_level(1, 12));
     CHECK(m->take_diagnostics().empty());
 }

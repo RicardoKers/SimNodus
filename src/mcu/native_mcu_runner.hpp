@@ -53,6 +53,7 @@ public:
     std::map<std::string, PinState> pins() const override;
     const std::vector<std::string>& pin_names() const override { return options_.pins; }
     std::vector<PinDrive> drives_at(std::uint64_t time_ns) override;
+    std::vector<PinDrive> average_drives(std::uint64_t from_ns, std::uint64_t to_ns) override;
     PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const override;
     std::vector<std::string> take_diagnostics() override;
 

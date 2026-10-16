@@ -230,6 +230,45 @@ std::vector<PinDrive> NativeMcuRunner::drives_at(std::uint64_t time_ns)
     return drives;
 }
 
+std::vector<PinDrive> NativeMcuRunner::average_drives(std::uint64_t from_ns, std::uint64_t to_ns)
+{
+    std::vector<PinDrive> drives = drives_at(to_ns); // also prunes old history
+    if (to_ns <= from_ns) {
+        return drives;
+    }
+    std::lock_guard lock(mutex_);
+    const double span = static_cast<double>(to_ns - from_ns);
+    for (std::size_t i = 0; i < history_.size(); ++i) {
+        const auto& history = history_[i];
+        auto it = std::upper_bound(history.begin(), history.end(), from_ns,
+            [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+        if (it == history.end() || it->first >= to_ns) {
+            continue; // no change inside the step: the drive at its end
+        }
+        // Time-weighted drive: the state in force at from_ns, then each change.
+        auto current = it == history.begin() ? it : std::prev(it);
+        PinDrive sum;
+        std::uint64_t at = from_ns;
+        for (;;) {
+            const auto next_entry = std::next(current);
+            const std::uint64_t until =
+                next_entry != history.end() && next_entry->first < to_ns ? next_entry->first : to_ns;
+            const PinDrive d = pin_drive(current->second, options_.pin_model);
+            const double weight = static_cast<double>(until - at);
+            sum.conductance += d.conductance * weight;
+            sum.current += d.current * weight;
+            if (until >= to_ns) {
+                break;
+            }
+            at = until;
+            current = next_entry;
+        }
+        drives[i].conductance = sum.conductance / span;
+        drives[i].current = sum.current / span;
+    }
+    return drives;
+}
+
 PinLog NativeMcuRunner::pin_log(std::size_t pin, std::uint64_t from_ns) const
 {
     std::lock_guard lock(mutex_);

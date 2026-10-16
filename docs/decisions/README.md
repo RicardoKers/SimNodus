@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0091: Firmware outputs enter the circuit as a step-averaged drive](0091-step-averaged-pin-drive.md):
+  SN-176; exact PWM averages at the default step, breakpoints measured and not taken.
 - [0090: The own emulator is the default engine; Renode is frozen](0090-own-emulator-default.md):
   decisions D1 and D2 (2026-10-16); new MCU features only on the emulator.
 - [0089: Own STM32 emulator as the microcontroller engine](0089-own-stm32-emulator.md):

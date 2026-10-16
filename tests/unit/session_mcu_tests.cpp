@@ -696,12 +696,16 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
         }
     }
     CHECK(rising >= 19 && rising <= 21);
-    CHECK(std::abs((high - low) - expected) < 0.02); // edges on the 100 us Renode quantum
+    // Within 0.03 V: the circuit takes the pin's drive averaged over each 10 us step
+    // (SN-176; Renode: the level at the step's end), so an edge is spread over one
+    // step and no time point falls on the peak itself: 0.784 V measured from the
+    // points on the emulator, 0.79-0.80 V with Renode.
+    CHECK(std::abs((high - low) - expected) < 0.03);
     CHECK(std::abs((high + low) / 2 - 1.65) < 0.05);
 #endif
 }
 
-TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the capture sees 100 Hz")
+TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the capture sees 1 kHz")
 {
 #ifndef SIMNODUS_TEST_RENODE
     std::printf("  skipped: no Renode in this build\n");
@@ -725,36 +729,73 @@ TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the captur
     sim::SimulationSession session;
     REQUIRE(session.start(request, error));
     const auto begin = std::chrono::steady_clock::now();
-    while (session.status().sim_time < 0.6) {
+    // Past the 1 s segment boundary (a new transient starts there).
+    constexpr double run_to = 1.2;
+    while (session.status().sim_time < run_to) {
         REQUIRE(session.active());
         REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
         std::this_thread::sleep_for(10ms);
     }
     const double wall = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
     session.stop();
-    // Steady state over the last 100 ms (tau = 100 ms, filtered by the average):
-    // the 25 % PWM. The edges reach the circuit at its next time point (100 us
-    // max step) until SN-176 adds breakpoints: 2.5 ms high can count as 2.6 ms.
-    // At 1 kHz that error would be 10 times larger.
+    // Steady state over 20 ms (tau = 10 ms): the 25 % PWM at the default 100 us
+    // maximum step. Before SN-176 the circuit saw 20-30 % here (each edge acted at
+    // the next time point); now each step gets the pin's average drive. A fixed
+    // window: the points after Stop are not part of the run.
     const auto rc = session.samples("rc");
     REQUIRE(!rc.empty());
-    const double from = rc.back().time - 0.1;
-    double sum = 0;
-    int n = 0;
-    for (const auto& s : rc) {
-        if (s.time >= from) {
-            sum += s.value;
-            ++n;
+    const double from = run_to - 0.02;
+    // Time-weighted (trapezoids), independent of where the time points fall.
+    double area = 0;
+    double span = 0;
+    for (std::size_t i = 1; i < rc.size(); ++i) {
+        if (rc[i - 1].time >= from && rc[i].time <= run_to) {
+            const double dt = rc[i].time - rc[i - 1].time;
+            area += dt * (rc[i].value + rc[i - 1].value) / 2;
+            span += dt;
         }
     }
-    REQUIRE(n > 0);
-    const double average = sum / n;
-    std::printf("  V(RC) average %.3f V over the last 100 ms (expected 0.825 V); 0.6 s simulated in %.2f s\n",
-        average, wall);
-    CHECK(std::abs(average - 0.825) < 0.05);
-    // TIM4 measured a period between 9 and 11 ms: PB12 lights the LED.
+    REQUIRE(span > 0.01);
+    std::size_t points = 0;
+    for (const auto& s : rc) {
+        points += s.time >= from && s.time <= run_to ? 1 : 0;
+    }
+    const double average = area / span;
+    std::printf("  V(RC) average %.4f V over 20 ms (expected 0.825 V), %zu time points; %.1f s simulated in %.2f s\n",
+        average, points, run_to, wall);
+    CHECK(std::abs(average - 0.825) < 0.005); // 0.66-0.99 V without SN-176
+    // TIM4 measured a period between 900 and 1100 us: PB12 lights the LED.
     const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PB12", 0);
     REQUIRE(!log.changes.empty());
     CHECK(log.changes.back().second);
 #endif
+}
+
+TEST_CASE("the own emulator's runner averages a pin's drive over a step with exact edges")
+{
+    // SN-176: the circuit asks for the drive averaged over each step. PA0 carries
+    // the 1 kHz, 25 % PWM of example 13: every 1 ms window holds exactly 250 us high.
+    mcu::McuRunOptions options;
+    options.machine.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "timer_pwm" / "timer_pwm.elf";
+    options.pins = {"PA0"};
+    mcu::NativeMcuRunner runner(options);
+    runner.start();
+    std::atomic<bool> cancel{false};
+    REQUIRE(runner.wait_ready(cancel));
+    runner.set_limit_ns(20000000);
+    REQUIRE(runner.wait_time_ns(20000000, cancel));
+    double high = 0;
+    for (std::uint64_t t = 10000000; t < 11000000; t += 10000) { // the drive while high
+        high = std::max(high, runner.drives_at(t)[0].current);
+    }
+    REQUIRE(high > 0);
+    for (const std::uint64_t start : {10000000ull, 10123457ull, 12999999ull}) {
+        const auto average = runner.average_drives(start, start + 1000000);
+        CHECK(std::abs(average[0].current / high - 0.25) < 1e-9);
+    }
+    // A step without an edge: the drive at its end; an empty step: likewise.
+    const auto low = runner.average_drives(10300000, 10400000)[0].current;
+    CHECK(std::abs(low - runner.drives_at(10400000)[0].current) < 1e-12);
+    CHECK(std::abs(runner.average_drives(10400000, 10400000)[0].current - low) < 1e-12);
+    runner.stop();
 }

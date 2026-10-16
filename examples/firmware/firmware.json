@@ -131,7 +131,7 @@
         "examples/firmware/timer_pwm/timer_pwm.c"
       ],
       "elf": "examples/firmware/timer_pwm/timer_pwm.elf",
-      "sha256": "c35fb50b70c8aee735f70c9887e79d3525361623d873a5480e498286626221a3",
+      "sha256": "6c9151ff294652f2be1a69f5fb52ac041831e1dcbe4d31572c73bd6a667682e7",
       "size": 9320
     },
     "uart_echo": {

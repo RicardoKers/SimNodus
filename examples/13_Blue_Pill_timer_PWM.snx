@@ -62,7 +62,7 @@
       "rotation": 0,
       "mirrored": false,
       "parameters": {
-        "C": "10u"
+        "C": "1u"
       }
     },
     {

@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-16, SN-176, ADR 0091)
+
+- **PWM averages are exact in the circuit.** Each circuit step gets the pin's drive averaged over the step (own emulator), instead of the level at the step's end. A 1 kHz, 25 % PWM into an RC filter: 0.8251 V (ideal 0.825 V) at the default 100 µs step, where it was 0.66–0.99 V; speed unchanged (example 13 and lesson 1 at about 2x real time). An edge is spread over the step that contains it; the logic lanes keep the exact edges.
+- Example 13 runs its PWM at 1 kHz again (1 µF filter, capture window 0.9–1.1 ms).
+- Tests: the runner's averaged drive over windows with exact edges; example 13 checked within 5 mV past a segment boundary; lesson 1's ripple tolerance is 0.03 V (0.784 V measured from the time points).
+
+### Measured (2026-10-16, SN-176)
+
+- ngspice breakpoints at every firmware edge (`ngSpice_SetBkpt`) with steps capped at the firmware's time (GetSyncData): exact edges and ripple, but about 11 extra time points per edge and no overlap between circuit and firmware: lesson 1 at 0.85x real time (1.84x before), example 13 at 1.0–1.4x. Not taken; numbers in ADR 0091.
+
 ### Added (2026-10-16, emulator track N3: SN-177)
 
 - **Timers TIM1–TIM4 in the own emulator** (`src/emu/stm32f1_timer.*`): up/down counting with prescaler, auto-reload preload, one-pulse mode, update disable and request source, TIM1 repetition counter; output compare and PWM modes 1/2 with CCR preload, polarity, TIM1 main output enable and complementary outputs; input capture with edge selection, capture prescaler and overcapture; update and capture/compare interrupts; channel pins with the AFIO remaps; timer clock from the APB prescalers (x2 when divided). Edges come at the exact timer-clock cycle: the machine stops the core at the next timer event. A pin driven by two peripherals (TIM1_CH2 and USART1_TX on PA9) is high while either drives it high. Center-aligned counting, slave modes, input filters, dead time, break and timer DMA are reported once in the Messages panel.

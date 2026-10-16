@@ -179,7 +179,8 @@ private:
         bool conductance = false; // false: current
     };
     struct McuCache {
-        std::uint64_t time_us = 0;
+        std::uint64_t time_ns = ~std::uint64_t{0};
+        std::uint64_t from_ns = 0; // the step's start (last accepted point)
         std::vector<mcu::PinDrive> drives;
     };
     std::map<std::string, ExternalRef> external_refs_;
