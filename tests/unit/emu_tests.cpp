@@ -15,6 +15,7 @@
 #include "emu/stm32f103.hpp"
 
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <initializer_list>
 #include <memory>
@@ -729,6 +730,224 @@ TEST_CASE("exception model scenarios log the order the ARMv7-M manual prescribes
     // WFI wakes on a pending IRQ masked by PRIMASK without running it; SVC under PRIMASK
     // escalates to HardFault (FORCED).
     CHECK(run_scenario(10) == Log({0xD0, 0xA0, 0xB0, 0xD1, 0xFF, 0, 0x40000000u}));
+}
+
+namespace {
+
+// A chip whose firmware only spins (b .): tests drive the peripherals through the bus.
+std::unique_ptr<Stm32F103> idle_machine()
+{
+    ElfImage image;
+    std::vector<std::uint8_t> bytes(0x24, 0);
+    const std::uint32_t words[2] = {0x20005000u, 0x08000021u};
+    std::memcpy(bytes.data(), words, sizeof words);
+    bytes[0x20] = 0xFE; // b .
+    bytes[0x21] = 0xE7;
+    image.entry = 0x08000021;
+    image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
+    auto m = std::make_unique<Stm32F103>();
+    std::string error;
+    if (!m->load(image, error)) {
+        return nullptr;
+    }
+    m->run_until_ns(1000);
+    return m;
+}
+
+void poke(Stm32F103& m, std::uint32_t address, std::uint32_t value)
+{
+    m.bus().write(address, 4, value);
+}
+
+// Level changes of one pin as (time, level), starting from low.
+std::vector<std::pair<std::uint64_t, bool>> edges(const std::vector<PinEvent>& events, int port, int pin)
+{
+    std::vector<std::pair<std::uint64_t, bool>> out;
+    bool level = false;
+    for (const auto& e : events) {
+        if (e.port == port && e.pin == pin && e.level != level) {
+            level = e.level;
+            out.emplace_back(e.time_ns, level);
+        }
+    }
+    return out;
+}
+
+constexpr std::uint32_t tim1 = 0x40012C00, tim2 = 0x40000000, tim3 = 0x40000400, tim4 = 0x40000800;
+constexpr std::uint32_t gpioa_crl = 0x40010800, gpioc_crl = 0x40011000, afio_mapr = 0x40010004;
+constexpr std::uint32_t rcc_cfgr = 0x40021004;
+
+} // namespace
+
+TEST_CASE("timer example: PWM, complementary output, update interrupt and input capture with exact edges")
+{
+    auto m = machine_with("timer_pwm");
+    REQUIRE(m);
+    m->run_until_ns(200000000);
+    const auto events = m->take_pin_events();
+    const auto pa0 = edges(events, 0, 0);
+    REQUIRE(pa0.size() >= 36);
+    // The first pulse starts when CC1E is set, a few instructions before CEN.
+    for (std::size_t i = 4; i + 1 < pa0.size(); i += 2) { // 100 Hz, high for 2.5 ms: exact at 8 MHz
+        REQUIRE(pa0[i].second);
+        CHECK(pa0[i].first - pa0[i - 2].first == 10000000u);
+        CHECK(pa0[i + 1].first - pa0[i].first == 2500000u);
+    }
+    const auto pa8 = edges(events, 0, 8);
+    const auto pb13 = edges(events, 1, 13);
+    REQUIRE(pa8.size() >= 36);
+    for (std::size_t i = 0; i + 1 < pa8.size(); i += 2) { // PWM 2: high for the last 100 counts
+        REQUIRE(pa8[i].second);
+        CHECK(pa8[i + 1].first - pa8[i].first == 1000000u);
+    }
+    // The complement changes at the same instants (no dead time).
+    std::size_t matched = 0;
+    for (const auto& [t, level] : pa8) {
+        for (const auto& [tn, level_n] : pb13) {
+            if (tn == t) {
+                CHECK(level_n != level);
+                ++matched;
+            }
+        }
+    }
+    CHECK(matched + 1 >= pa8.size());
+    const auto pc13 = edges(events, 2, 13);
+    REQUIRE(pc13.size() >= 18);
+    for (std::size_t i = 1; i < pc13.size(); ++i) {
+        CHECK(pc13[i].first - pc13[i - 1].first == 10000000u); // TIM3 update every 10 ms
+    }
+
+    // Input capture: PB6 follows PA0 (100 Hz, measured within the 50 us steps).
+    bool pa0_level = m->pin_level(0, 0);
+    auto feed = [&](std::uint64_t until, std::uint64_t half_period) {
+        for (std::uint64_t t = m->time_ns(); t < until; t += 50000) {
+            if (half_period == 0) {
+                pa0_level = m->pin_level(0, 0);
+            } else {
+                pa0_level = (t / half_period) % 2 != 0;
+            }
+            m->set_pin_input(1, 6, pa0_level);
+            m->run_until_ns(t + 50000);
+        }
+    };
+    feed(300000000, 0);
+    CHECK(m->pin_level(1, 12)); // period 9.95..10.05 ms
+    feed(400000000, 10000000);  // 20 ms period
+    CHECK(!m->pin_level(1, 12));
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("timer: toggle on match, down-counting PWM and the APB divider set exact periods")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, gpioa_crl, 0x444444AAu); // PA0, PA1: alternate-function push-pull
+    poke(*m, tim2 + 0x2C, 99);        // ARR: 100 counts
+    poke(*m, tim2 + 0x34, 25);        // CCR1
+    poke(*m, tim2 + 0x38, 50);        // CCR2
+    poke(*m, tim2 + 0x18, (3u << 12) | (6u << 4)); // OC2M toggle, OC1M PWM 1
+    poke(*m, tim2 + 0x20, 0x11);      // CC1E, CC2E
+    poke(*m, tim2 + 0x00, (1u << 4) | 1u); // DIR down, CEN
+    m->run_until_ns(1000000);
+    auto events = m->take_pin_events();
+    const auto toggles = edges(events, 0, 1);
+    REQUIRE(toggles.size() >= 70);
+    for (std::size_t i = 1; i < toggles.size(); ++i) {
+        CHECK(toggles[i].first - toggles[i - 1].first == 12500u); // 100 cycles at 8 MHz
+    }
+    const auto pwm = edges(events, 0, 0);
+    REQUIRE(pwm.size() >= 70);
+    for (std::size_t i = 2; i + 1 < pwm.size(); i += 2) { // the first pulse starts at CC1E
+        REQUIRE(pwm[i].second);
+        CHECK(pwm[i + 1].first - pwm[i].first == 3250u); // CNT <= 25 while counting down: 26 counts
+    }
+
+    // APB1 / 2 keeps the timer clock at HCLK (x2 multiplier); APB1 / 4 halves it.
+    poke(*m, rcc_cfgr, 4u << 8);
+    m->run_until_ns(2000000);
+    m->take_pin_events();
+    m->run_until_ns(3000000);
+    auto apb_half = edges(m->take_pin_events(), 0, 1);
+    REQUIRE(apb_half.size() > 10);
+    CHECK(apb_half[2].first - apb_half[1].first == 12500u);
+    poke(*m, rcc_cfgr, 5u << 8);
+    m->run_until_ns(4000000);
+    m->take_pin_events();
+    m->run_until_ns(5000000);
+    auto quarter = edges(m->take_pin_events(), 0, 1);
+    REQUIRE(quarter.size() > 10);
+    CHECK(quarter[2].first - quarter[1].first == 25000u);
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("timer: one-pulse mode, update request source, preload and remapped pins")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    // One-pulse: the counter stops at the update event.
+    poke(*m, tim3 + 0x2C, 99);
+    poke(*m, tim3 + 0x00, (1u << 3) | 1u); // OPM, CEN
+    m->run_until_ns(100000);
+    CHECK(read_word(*m, tim3 + 0x00) == (1u << 3));
+    CHECK(read_word(*m, tim3 + 0x24) == 0);
+    CHECK((read_word(*m, tim3 + 0x10) & 1u) == 1u); // UIF
+    poke(*m, tim3 + 0x10, 0);
+    // UG with URS: shadow registers load without UIF.
+    poke(*m, tim3 + 0x00, 1u << 2); // URS
+    poke(*m, tim3 + 0x18, (6u << 4) | (1u << 3)); // CH1 PWM 1 with preload
+    poke(*m, tim3 + 0x34, 40);
+    CHECK(read_word(*m, tim3 + 0x34) == 40);
+    poke(*m, tim3 + 0x14, 1); // UG
+    CHECK((read_word(*m, tim3 + 0x10) & 1u) == 0u);
+
+    // Full remap: TIM3_CH1 on PC6.
+    poke(*m, afio_mapr, 3u << 10);
+    poke(*m, gpioc_crl, 0x4A444444u); // PC6 alternate-function push-pull
+    poke(*m, tim3 + 0x20, 1);         // CC1E
+    poke(*m, tim3 + 0x00, 1);         // CEN
+    m->run_until_ns(400000);
+    const auto pc6 = edges(m->take_pin_events(), 2, 6);
+    REQUIRE(pc6.size() >= 4);
+    CHECK(pc6[1].first - pc6[0].first == 5000u); // 40 counts high
+    CHECK(pc6[2].first - pc6[0].first == 12500u);
+}
+
+TEST_CASE("timer: input capture records the counter at the edge and flags overcapture")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, tim4 + 0x28, 7);      // PSC: 1 MHz
+    poke(*m, tim4 + 0x14, 1);      // UG loads it
+    poke(*m, tim4 + 0x18, 1);      // CC1S = 01: TI1 (PB6)
+    poke(*m, tim4 + 0x20, 1);      // CC1E, rising edge
+    poke(*m, tim4 + 0x10, 0);
+    poke(*m, tim4 + 0x00, 1);      // CEN
+    const std::uint64_t start = m->time_ns();
+    m->run_until_ns(start + 300000);
+    m->set_pin_input(1, 6, true);
+    CHECK((read_word(*m, tim4 + 0x10) & 2u) == 2u); // CC1IF
+    m->run_until_ns(start + 400000);
+    m->set_pin_input(1, 6, false); // falling: no capture
+    m->run_until_ns(start + 500000);
+    m->set_pin_input(1, 6, true);
+    CHECK((read_word(*m, tim4 + 0x10) & (1u << 9)) != 0); // CC1OF: CC1IF was still set
+    const std::uint32_t captured = read_word(*m, tim4 + 0x34);
+    CHECK(captured >= 499);
+    CHECK(captured <= 501);
+    CHECK((read_word(*m, tim4 + 0x10) & 2u) == 0u); // reading CCR1 cleared CC1IF
+}
+
+TEST_CASE("timer features that are not simulated are reported once")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, tim1 + 0x00, 1u << 5); // CMS: center-aligned
+    poke(*m, tim1 + 0x00, 2u << 5);
+    poke(*m, tim2 + 0x08, 3);       // SMS: encoder mode 3
+    const auto diagnostics = m->take_diagnostics();
+    REQUIRE(diagnostics.size() == 2);
+    CHECK(diagnostics[0].text.find("TIM1: center-aligned counting is not simulated yet") != std::string::npos);
+    CHECK(diagnostics[1].text.find("TIM2: the slave mode controller") != std::string::npos);
 }
 
 TEST_CASE("ELF errors are reported in plain words")

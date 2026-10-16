@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-15. Keep this file short: present state, last results, next
+Updated: 2026-10-16. Keep this file short: present state, last results, next
 steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md).
 
@@ -45,41 +45,23 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   `~/STM32Cube/Repository` (`cube.json`, `stm32f103c8_cube.ld`).
 - USART TX pins rest at 3.3 V while the transmitter is on (PR #120, owner
   question); the bits themselves need the own emulator.
-- **Emulator track (decided by the owner on 2026-10-15):** SimNodus's own
-  STM32 emulator, F103 first, F407 later. Design
-  [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md), plan with milestones
-  N0–N8, gates and decisions D0–D5 in
-  [MCU_EMULATOR_PLAN.md](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md)
-  proposed, tasks SN-170..SN-187. Now: N0 / experiment E-07 (SN-170, doing),
-  gates G0a 10-24 and G0b 10-30. Releases keep shipping on Renode until G1.
-  **E-07 status (2026-10-15):** `src/emu` (bus with bit-band, ELF loader,
-  Cortex-M3 core with every ARMv7-M Thumb encoding group, exceptions, NVIC,
-  SysTick, SCB, faults and lockup; STM32F103 machine with RCC, flash
-  interface, PWR, GPIO A-E, AFIO, EXTI, USART1-3 at byte level, DWT, stubs
-  for the other peripherals) and the CLI `apps/simnodus-emu`. Every example
-  firmware runs: blink with exact 500.000 ms periods, the HAL example at
-  72 MHz (UART report, 1000.25 µs pulse), EXTI button, UART echo, lessons
-  1-2. `emu-unit`: 15 cases with pseudocode vectors (PR #122).
-  **E-07 passed; D0 taken on 2026-10-15 (owner): ADR 0089 accepted.** Every
-  G0a/G0b criterion met ([E-07-results.md](../experiments/E-07-results.md));
-  Linux speed measured on CI only (owner has no Linux machine).
-  **N1 in progress:** `McuBackend` interface in ns (SN-171, PR #125);
-  `NativeMcuRunner` with engine choice per board profile and the Simulate menu
-  option "Use the SimNodus Emulator for Microcontrollers (Experimental)"
-  (SN-172, PR #126; the owner tried it on 2026-10-15: everything worked, the
-  instant start "ficou ótima"). SN-173 done: deterministic 100 µs window
-  coupling (inputs late < 0.1 ms, button response 100 µs), tight timing
-  assertions and a repeatability case on the emulator. E-07b (edge spike) moved
-  to the start of N2 (it was not run in N0; recorded in the E-07 report).
-  SN-174 done (docs per engine, owner test build). G1 memory criterion
-  measured 2026-10-16: one hour of example 07 on the emulator +7.5 MB with
-  1 s segments (ngspice keeps memory per segment restart; flat with 10 s
-  segments, SN-188). All N1 tasks done; **G1 met** (examples 07-12 at 1.00x
-  on the emulator, native suites green on Linux CI; results in E-07-results.md).
-  **D1 and D2 taken 2026-10-16 (ADR 0090): the own emulator is the default
-  engine; Renode is frozen (legacy menu option, kept until D4).** Now N3 on the
-  emulator: SN-177 timers/PWM, then SN-178 ADC, SN-179 DMA. Then N2 (E-07b, serial frames on
-  TX/RX).
+- **Emulator track:** SimNodus's own STM32 emulator (ADR 0089; design
+  [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md), plan
+  [MCU_EMULATOR_PLAN.md](MCU_EMULATOR_PLAN.md)). E-07 passed (D0), N1 done and
+  gate G1 met ([E-07-results.md](../experiments/E-07-results.md)).
+  **D1 and D2 taken 2026-10-16 (ADR 0090, PR #130): the emulator is the
+  default engine; Renode is frozen** (legacy menu option, kept until D4).
+  Deterministic 100 µs window coupling; examples 07–12 at 1.00x real time.
+- **N3 on the emulator: SN-177 timers done (2026-10-16).** TIM1–TIM4 in
+  `src/emu/stm32f1_timer.*`: time base, output compare, PWM 1/2, TIM1
+  complementary outputs and MOE, input capture, interrupts, AFIO remaps,
+  APB timer clocks; edges exact to the timer clock (the core stops at the
+  next timer event). Example 13 (`timer_pwm`, 100 Hz PWM into RC: 0.823 V
+  vs 0.825 V ideal, input capture, TIM3 interrupt). **Limit found:** at the
+  default 100 µs circuit step a 1 kHz PWM averages 20–30 % instead of 25 %
+  (edges act at the circuit's next time point); a 10 µs step fixes it but
+  runs at 0.3x real time. SN-176 (ngspice breakpoints at firmware edges)
+  is now the priority before kHz PWM lessons.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -179,19 +161,14 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. **E-07 (SN-170):** start N0 package 0.1 (`src/emu`, CLI, ELF loader),
-   then the core packages in plan order; work packages land as PRs that name
-   the gate criteria they advance. Record the gate review G0a on 10-24.
-2. Owner's hands-on test of the remaining phase 2 features (lessons 1–2,
-   terminal, logic lanes, probe dragging, icon; a CubeMX/CubeIDE HAL
-   project already passed); release 0.2 on Renode by 2026-11-13 (ask before
-   cutting it). Fix whatever classroom use of 0.1.0 brings up.
-3. Phase 3 (ADC, PWM, lesson 3) waits for decision D2 on 11-13 (emulator or
-   Renode); component set B (SN-142) can start any time.
-4. If 72 MHz firmware feels slow in class (0.84x measured), consider a
-   larger default quantum for MCU runs or `__WFI()` in idle loops.
-5. Carry semiconductor junction charge across segments only if the owner
-   sees steps (not seen in the retest).
+1. **SN-176 / E-07b:** breakpoints at upcoming firmware edges so kHz PWM
+   reaches the circuit exactly at the 100 µs default step (measure speed and
+   edge error; then restore 1 kHz in example 13).
+2. SN-178 ADC (circuit voltages sampled at the conversion instant), then
+   SN-179 DMA as HAL ADC/UART need it; a HAL PWM example from CubeMX.
+3. Owner's hands-on test of PWM (example 13 and a CubeMX project); release
+   0.2 by 2026-11-13 (ask before cutting it).
+4. SN-188 segment length (memory per ngspice restart); N2 serial frames.
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the

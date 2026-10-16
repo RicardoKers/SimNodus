@@ -4,7 +4,8 @@
 // STM32F103 (medium density, x8/xB) machine of the SimNodus emulator: memory
 // map (RM0008, section 3.3), timebase from HCLK, and the tier-1 devices of
 // docs/architecture/MCU_EMULATOR.md (RCC, flash interface, PWR, GPIO A-E,
-// AFIO, EXTI, USART1-3 at byte level). Other peripherals of the chip are
+// AFIO, EXTI, USART1-3 at byte level) and the timers TIM1-TIM4
+// (stm32f1_timer.hpp). Other peripherals of the chip are
 // stubs that keep their register values and report once that they are not
 // simulated.
 #pragma once
@@ -12,6 +13,7 @@
 #include "bus.hpp"
 #include "cpu.hpp"
 #include "elf.hpp"
+#include "stm32f1_timer.hpp"
 
 #include <array>
 #include <cstdint>
@@ -64,7 +66,7 @@ struct MachineOptions {
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
 };
 
-class Stm32F103 {
+class Stm32F103 : private TimerHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -94,7 +96,7 @@ public:
     std::vector<UartByte> take_uart_bytes();
     std::vector<Diagnostic> take_diagnostics();
     PinConfig pin_config(int port, int pin) const;
-    bool pin_level(int port, int pin) const; // level on the pin (output or input)
+    bool pin_level(int port, int pin) const override; // level on the pin (output or input)
 
     Cpu& cpu() { return cpu_; }
     Bus& bus() { return bus_; }
@@ -106,7 +108,9 @@ public:
     void pin_output_changed(int port, int pin, bool level);
     void pin_input_changed(int port, int pin, bool level);
     void uart_transmit(int usart, std::uint8_t value);
-    void af_output(int port, int pin, int source, bool level); // source: peripheral id
+    // Alternate-function output of peripheral `source` (USART number, or a timer
+    // channel id); the pin is high while any source drives it high.
+    void af_output(int port, int pin, int source, bool level);
     int exti_port(int line) const;
     void exti_input(int line, bool level);
     std::uint32_t sysclk_hz() const;
@@ -126,7 +130,20 @@ private:
     class Zero;
 
     std::uint64_t cycles_at_ns(std::uint64_t ns) const;
+    std::uint64_t ns_at_cycles(std::uint64_t cycles) const;
     void remap_changed();
+    void apb_changed();
+    std::uint64_t next_timer_event() const;
+    void run_timers(); // processes the timer events due by now, in time order
+
+    // TimerHost
+    std::uint64_t now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_kernel_tick(bool apb2) const override;
+    std::uint32_t afio_mapr() const override;
+    void timer_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void timer_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
+    void timer_schedule_changed() override { cpu_.request_stop(); }
+    void timer_diagnostic(const std::string& text) override { diagnostic(text); }
     void exti_selection_changed();
 
     MachineOptions options_;
@@ -139,6 +156,7 @@ private:
     std::unique_ptr<Afio> afio_;
     std::unique_ptr<Exti> exti_;
     std::array<std::unique_ptr<Usart>, 3> usart_;
+    std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
     std::unique_ptr<Dbgmcu> dbgmcu_;
@@ -150,6 +168,11 @@ private:
     std::uint64_t base_ns_ = 0;
     bool reset_requested_ = false;
     std::uint32_t reset_flags_ = 0x0C000000u; // RCC_CSR: PORRSTF | PINRSTF
+
+    // Alternate-function sources driving each pin high (port * 16 + pin).
+    std::array<std::vector<int>, num_ports * 16> af_high_;
+    bool stamping_ = false;       // pin events take the time of `stamp_cycles_`
+    std::uint64_t stamp_cycles_ = 0;
 
     std::vector<PinEvent> pin_events_;
     std::vector<UartByte> uart_bytes_;

@@ -3,7 +3,7 @@
   "name": "Blue Pill (STM32F103C8)",
   "category": "Microcontrollers",
   "prefix": "U",
-  "description": "STM32F103C8 board running your firmware (ELF) in Renode; GPIO outputs drive the circuit (40 ohm, 3.3 V); on-board 3.3 V regulator, LED on PC13, reset button",
+  "description": "STM32F103C8 board running your firmware (ELF) in the SimNodus STM32 emulator; GPIO outputs drive the circuit (40 ohm, 3.3 V); on-board 3.3 V regulator, LED on PC13, reset button",
   "symbol": {
     "graphics": [
       {

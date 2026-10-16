@@ -126,6 +126,14 @@
       "sha256": "8be3bc97623ee7f9e2ddb980cbc35e77b1724b8f99e1deca717188287e366ceb",
       "size": 9736
     },
+    "timer_pwm": {
+      "sources": [
+        "examples/firmware/timer_pwm/timer_pwm.c"
+      ],
+      "elf": "examples/firmware/timer_pwm/timer_pwm.elf",
+      "sha256": "c35fb50b70c8aee735f70c9887e79d3525361623d873a5480e498286626221a3",
+      "size": 9320
+    },
     "uart_echo": {
       "sources": [
         "examples/firmware/uart_echo/uart_echo.c"
