@@ -8,6 +8,7 @@
 #include "circuit_builder.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
+#include "sim/process_memory.hpp"
 #include "sim/simulation_session.hpp"
 
 #include <chrono>
@@ -21,6 +22,7 @@ using namespace simnodus;
 using namespace std::chrono_literals;
 
 extern std::string test_mcu_engine; // engine_tests.cpp
+extern double test_soak_segment;
 
 namespace {
 
@@ -510,6 +512,109 @@ TEST_CASE("session: lesson 2 counts bounces without the RC filter and one edge w
         }
     }
 #endif
+}
+
+// Long run for gate G1 (memory flat over an hour). Not part of the regular suites:
+// engine-native filters "session:", and with Renode the case returns at once.
+//   engine_tests <ngspice> <scripts> "soak:" native
+TEST_CASE("soak: one hour of example 07 on the own emulator keeps memory flat")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (test_mcu_engine != "native") {
+        std::printf("  skipped: run explicitly with the native engine\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_Blue_Pill_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0; // the hour as fast as the machine allows
+    settings.segment = test_soak_segment;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"pa0"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::uint64_t warm = 0;
+    double next_report = 60.0;
+    while (session.status().sim_time < 3600.0) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 7200s);
+        std::this_thread::sleep_for(200ms);
+        const double t = session.status().sim_time;
+        if (t >= next_report) {
+            const auto memory = sim::current_process_memory();
+            if (warm == 0) {
+                warm = memory.private_bytes;
+            }
+            std::printf("  %6.0f s simulated after %6.0f s: private %.1f MB (%+.1f MB since 60 s)\n", t,
+                std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count(),
+                static_cast<double>(memory.private_bytes) / 1e6,
+                (static_cast<double>(memory.private_bytes) - static_cast<double>(warm)) / 1e6);
+            std::fflush(stdout);
+            next_report += 300.0;
+        }
+    }
+    const auto end = sim::current_process_memory();
+    session.stop();
+    CHECK(end.private_bytes < warm + 10000000); // under 10 MB growth over the hour (G1)
+#endif
+}
+
+// Reference for the soak above: the same LED circuit driven by a 2 Hz pulse
+// source instead of the board, for 1500 s of circuit time (memory growth of the
+// analog side alone). Run explicitly: engine_tests ... "soak:" native
+TEST_CASE("soak: the analog circuit alone, for comparison")
+{
+    if (test_mcu_engine != "native") {
+        std::printf("  skipped: run explicitly with \"soak:\" native\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(board_library());
+    b.add("vpulse", {{"+", "PA0"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "3.3"}, {"f", "2"}, {"duty", "50"}, {"rise", "1u"}});
+    b.add("resistor", {{"1", "PA0"}, {"2", "A"}}, {{"R", "330"}});
+    b.add("led", {{"A", "A"}, {"K", "0"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0.0;
+    settings.segment = test_soak_segment;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &board_library();
+    request.vectors = {"pa0"};
+    std::string error;
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::uint64_t warm = 0;
+    double next_report = 60.0;
+    while (session.status().sim_time < 1500.0) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 7200s);
+        std::this_thread::sleep_for(200ms);
+        const double t = session.status().sim_time;
+        if (t >= next_report) {
+            const auto memory = sim::current_process_memory();
+            if (warm == 0) {
+                warm = memory.private_bytes;
+            }
+            std::printf("  %6.0f s simulated after %6.0f s: private %.1f MB (%+.1f MB since 60 s)\n", t,
+                std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count(),
+                static_cast<double>(memory.private_bytes) / 1e6,
+                (static_cast<double>(memory.private_bytes) - static_cast<double>(warm)) / 1e6);
+            std::fflush(stdout);
+            next_report += 300.0;
+        }
+    }
+    session.stop();
 }
 
 TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula predicts")

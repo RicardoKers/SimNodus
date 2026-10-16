@@ -15,6 +15,24 @@ constexpr std::uint64_t aircr = 0xE000ED0C;
 constexpr std::uint32_t aircr_sysresetreq = 0x05FA0004; // VECTKEY | SYSRESETREQ
 constexpr std::uint64_t history_keep_us = 100000;
 
+// Bounds a pin history that the circuit never reads (a pin without a wire):
+// drives_at() prunes the others. Keeps the window the circuit may still ask for.
+template <typename History, typename Time>
+void trim_history(History& history, Time keep)
+{
+    if (history.size() < 1024) {
+        return;
+    }
+    const Time newest = history.back().first;
+    const Time horizon = newest > keep ? newest - keep : 0;
+    auto first_kept = std::upper_bound(history.begin(), history.end(), horizon,
+        [](Time t, const auto& entry) { return t < entry.first; });
+    if (first_kept != history.begin()) {
+        --first_kept; // the state in force at the horizon
+    }
+    history.erase(history.begin(), first_kept);
+}
+
 std::optional<std::uint64_t> port_base(const std::string& port)
 {
     if (port == "gpioPortA") {
@@ -407,6 +425,7 @@ void RenodeMcuRunner::record_level(std::size_t pin, std::uint64_t time_us, bool 
     }
     state.level = level;
     history.push_back({std::max(time_us, history.back().first), state});
+    trim_history(history, history_keep_us);
     auto& log = levels_[pin];
     log.emplace_back(history.back().first, level);
     if (log.size() > 50000) {

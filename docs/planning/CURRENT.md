@@ -71,8 +71,12 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   coupling (inputs late < 0.1 ms, button response 100 µs), tight timing
   assertions and a repeatability case on the emulator. E-07b (edge spike) moved
   to the start of N2 (it was not run in N0; recorded in the E-07 report).
-  Next: SN-174 (packaging, docs, owner test build), gate G1 and decision D1 on
-  11-13; then N2 (E-07b, serial frames on TX/RX).
+  SN-174 done (docs per engine, owner test build). G1 memory criterion
+  measured 2026-10-16: one hour of example 07 on the emulator +7.5 MB with
+  1 s segments (ngspice keeps memory per segment restart; flat with 10 s
+  segments, SN-188). All N1 tasks done; G1 review and decision D1 with the
+  owner (planned 11-13, can come earlier). Then N2 (E-07b, serial frames on
+  TX/RX).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 

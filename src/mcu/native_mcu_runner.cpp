@@ -18,6 +18,24 @@ constexpr std::uint64_t history_keep_ns = 100000000; // as RenodeMcuRunner: 100 
 constexpr std::size_t uart_keep = 1 << 20;
 constexpr std::size_t log_keep = 50000;
 
+// Bounds a pin history that the circuit never reads (a pin without a wire):
+// drives_at() prunes the others. Keeps the window the circuit may still ask for.
+template <typename History, typename Time>
+void trim_history(History& history, Time keep)
+{
+    if (history.size() < 1024) {
+        return;
+    }
+    const Time newest = history.back().first;
+    const Time horizon = newest > keep ? newest - keep : 0;
+    auto first_kept = std::upper_bound(history.begin(), history.end(), horizon,
+        [](Time t, const auto& entry) { return t < entry.first; });
+    if (first_kept != history.begin()) {
+        --first_kept; // the state in force at the horizon
+    }
+    history.erase(history.begin(), first_kept);
+}
+
 // "PA9" -> {0, 9}; {-1, -1} for anything else.
 std::pair<int, int> port_pin(const std::string& name)
 {
@@ -254,6 +272,7 @@ void NativeMcuRunner::sample_pins(emu::Stm32F103& machine, std::uint64_t time_ns
         const PinState& last = history_[i].back().second;
         if (!state.same_config(last) || state.level != last.level) {
             history_[i].push_back({std::max(time_ns, history_[i].back().first), state});
+            trim_history(history_[i], history_keep_ns);
         }
     }
 }
@@ -284,6 +303,7 @@ void NativeMcuRunner::work()
             PinState state = pin_state(e.mode, e.cnf, e.drive_high, e.pull_up, e.level);
             auto& history = history_[i];
             history.push_back({std::max(e.time_ns, history.back().first), state});
+            trim_history(history, history_keep_ns);
             auto& log = levels_[i];
             if (log.back().second != e.level) {
                 log.emplace_back(e.time_ns, e.level);

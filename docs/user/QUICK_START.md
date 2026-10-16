@@ -60,9 +60,11 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
   (an `.elf` built for the STM32F103C8, for example with STM32CubeIDE); the
   path is stored relative to the project. **Reload** uses a rebuilt file and
   restarts a running simulation.
-- **F5** first starts the microcontroller engine (Renode, a few seconds);
-  the circuit runs when the firmware is ready. The firmware runs at most two
-  microcontroller quanta (default 1 ms each) ahead of the circuit.
+- **F5** first starts the microcontroller engine; the circuit runs when the
+  firmware is ready. Renode, the default engine, takes a few seconds;
+  **Simulate > Use the SimNodus Emulator for Microcontrollers
+  (Experimental)** runs the firmware in SimNodus's own emulator, which starts
+  at once (see [MICROCONTROLLER.md](MICROCONTROLLER.md#engines)).
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
@@ -82,11 +84,13 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
 - Example: `08_Blue_Pill_button_interrupt` — every press of SW1 (PA1)
   toggles the LED on PA0 from the EXTI1 interrupt; PC13 lights while the
   button is held.
-- Timing: the firmware runs at most two **microcontroller quanta** (Simulate >
-  Simulation Settings, default 1 ms) ahead of the circuit, so circuit
-  changes reach the firmware up to two quanta late; a smaller quantum
-  responds faster but runs slower. Output edges fall on Renode's 100 µs
-  time quantum. Transient mode does not run microcontrollers yet.
+- Timing with Renode: the firmware runs at most two **microcontroller
+  quanta** (Simulate > Simulation Settings, default 1 ms) ahead of the
+  circuit, so circuit changes reach the firmware up to two quanta late; a
+  smaller quantum responds faster but runs slower. Output edges fall on
+  Renode's 100 µs time quantum. With the SimNodus emulator, circuit changes
+  reach the firmware within 0.1 ms and output edges keep their exact time.
+  Transient mode does not run microcontrollers yet.
 - EXTI line n follows pin n of every port (the AFIO port selection of the
   chip is not modeled): use one pin number per EXTI line.
 - **Serial terminal**: Signal Analyzer, tab **UART**. Choose the port (USART1
@@ -149,5 +153,7 @@ copies:
   input, the ammeter is ideal.
 - Semiconductor junction charge is not carried across interactive segments;
   a tiny step may appear once per second in circuits that depend on it.
-- No microcontroller yet (release 0.2), no AC/FFT analysis.
+- The microcontroller simulates GPIO, EXTI, USART (whole bytes), SysTick and
+  the clock tree; timers, ADC, SPI, I2C and DMA come later
+  ([MICROCONTROLLER.md](MICROCONTROLLER.md)). No AC/FFT analysis.
 - The user interface is in English; the Portuguese translation comes later.

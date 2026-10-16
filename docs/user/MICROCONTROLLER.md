@@ -69,8 +69,10 @@ the same firmware timing.
   instructions per simulated second than at 8 MHz. Firmware that waits in a
   loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a
   2026 laptop; the status bar shows the actual speed.
-- **AFIO.** EXTI line *n* follows pin *n* of every port; the port selection
-  in `AFIO_EXTICR` is not simulated. Use one pin number per EXTI line.
+- **AFIO (Renode only).** With Renode, EXTI line *n* follows pin *n* of
+  every port; the port selection in `AFIO_EXTICR` is not simulated, so use
+  one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`
+  and the USART pin remaps.
 - **UART.** Bytes move instantly: the baud rate is not simulated and the TX
   pin does not carry the serial waveform. The TX pin (PA9, PA2, PB10) rests
   high (3.3 V) while the USART and its transmitter are enabled, as on the
