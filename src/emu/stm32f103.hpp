@@ -5,7 +5,8 @@
 // map (RM0008, section 3.3), timebase from HCLK, and the tier-1 devices of
 // docs/architecture/MCU_EMULATOR.md (RCC, flash interface, PWR, GPIO A-E,
 // AFIO, EXTI, USART1-3 at byte level), the timers TIM1-TIM4
-// (stm32f1_timer.hpp) and ADC1-2 (stm32f1_adc.hpp). Other peripherals of the chip are
+// (stm32f1_timer.hpp), ADC1-2 (stm32f1_adc.hpp) and DMA1 (stm32f1_dma.hpp).
+// Other peripherals of the chip are
 // stubs that keep their register values and report once that they are not
 // simulated.
 #pragma once
@@ -14,6 +15,7 @@
 #include "cpu.hpp"
 #include "elf.hpp"
 #include "stm32f1_adc.hpp"
+#include "stm32f1_dma.hpp"
 #include "stm32f1_timer.hpp"
 
 #include <array>
@@ -68,7 +70,7 @@ struct MachineOptions {
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
 };
 
-class Stm32F103 : private TimerHost, private AdcHost {
+class Stm32F103 : private TimerHost, private AdcHost, private DmaHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -157,6 +159,13 @@ private:
     void adc_irq_changed() override;
     void adc_schedule_changed() override { cpu_.request_stop(); }
     void adc_diagnostic(const std::string& text) override { diagnostic(text); }
+    void adc_dma_request() override { dma_->request(1); }
+
+    // DmaHost
+    Bus& dma_bus() override { return bus_; }
+    void dma_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void dma_diagnostic(const std::string& text) override { diagnostic(text); }
+    void dma_channel_enabled(int channel) override;
     void exti_selection_changed();
 
     MachineOptions options_;
@@ -171,6 +180,7 @@ private:
     std::array<std::unique_ptr<Usart>, 3> usart_;
     std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
     std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
+    std::unique_ptr<Stm32F1Dma> dma_;                     // DMA1
     std::vector<TimedDevice*> timed_;                     // timers and ADCs
     AnalogSource analog_source_;
     std::vector<std::unique_ptr<Stub>> stubs_;

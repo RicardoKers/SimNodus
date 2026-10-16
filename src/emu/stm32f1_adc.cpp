@@ -104,7 +104,9 @@ int Stm32F1Adc::injected_channel(int index) const
 
 void Stm32F1Adc::catch_up()
 {
-    on_time(host_.now_cycles());
+    if (!in_event_) {
+        on_time(host_.now_cycles());
+    }
 }
 
 std::uint64_t Stm32F1Adc::next_event() const
@@ -114,9 +116,12 @@ std::uint64_t Stm32F1Adc::next_event() const
 
 void Stm32F1Adc::on_time(std::uint64_t cycle)
 {
+    const bool nested = in_event_;
+    in_event_ = true;
     while (busy_ != Busy::None && end_at_ <= cycle) {
         finish_step();
     }
+    in_event_ = nested;
 }
 
 void Stm32F1Adc::schedule_next(std::uint64_t at)
@@ -182,7 +187,11 @@ void Stm32F1Adc::finish_step()
         }
     }
     update_irq();
+    const bool dma = busy_ == Busy::Regular && (cr2_ & CR2_DMA) && number_ == 1;
     schedule_next(at);
+    if (dma) {
+        host_.adc_dma_request(); // reads DR (which clears EOC)
+    }
 }
 
 void Stm32F1Adc::check_watchdog(int channel, std::uint32_t code, bool injected)
@@ -300,8 +309,10 @@ void Stm32F1Adc::write32(std::uint32_t offset, std::uint32_t value, std::uint32_
         const std::uint32_t old = cr2_;
         const std::uint32_t written = value & mask;
         std::uint32_t now = merge(cr2_) & 0x00FEF90Fu;
+        // "ADON again" starts a conversion only if no other bit changes (RM0008
+        // 11.12.3): HAL sets RSTCAL and CAL with ADON still 1, which must not start one.
         const bool adon_again = (old & CR2_ADON) && (written & CR2_ADON)
-            && ((now ^ old) & ~(CR2_SWSTART | CR2_JSWSTART | CR2_RSTCAL)) == 0;
+            && ((now ^ old) & ~(CR2_SWSTART | CR2_JSWSTART)) == 0;
         now &= ~(CR2_SWSTART | CR2_JSWSTART | CR2_RSTCAL); // cleared as soon as they act
         cr2_ = now;
         if (!(now & CR2_ADON)) {
@@ -310,8 +321,8 @@ void Stm32F1Adc::write32(std::uint32_t offset, std::uint32_t value, std::uint32_
             host_.adc_schedule_changed();
             break;
         }
-        if (now & CR2_DMA) {
-            report(F_DMA, "DMA transfer of conversions (SN-179)");
+        if ((now & CR2_DMA) && number_ != 1) {
+            report(F_DMA, "DMA (ADC2 has no DMA request on the STM32F103; use ADC1)");
         }
         const bool regular_software = ((now >> 17) & 7u) == 7u;
         const bool injected_software = ((now >> 12) & 7u) == 7u;

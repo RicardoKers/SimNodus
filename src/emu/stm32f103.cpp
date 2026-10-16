@@ -600,6 +600,11 @@ class Stm32F103::Usart : public RegDevice {
 public:
     Usart(Stm32F103& m, int number, int irq) : m_(m), number_(number), irq_(irq)
     {
+        // DMA1 channels (RM0008 table 78): TX 4, 7, 2; RX 5, 6, 3.
+        static const int tx[3] = {4, 7, 2};
+        static const int rx[3] = {5, 6, 3};
+        dma_tx_ = tx[number - 1];
+        dma_rx_ = rx[number - 1];
         std::snprintf(name_, sizeof name_, "USART%d", number);
         reset();
     }
@@ -627,6 +632,16 @@ public:
             dr_ = rx_.front();
             rx_.erase(rx_.begin());
             sr_ |= 0x20u; // RXNE
+        }
+        // DMA (CR3.DMAR, CR3.DMAT): the channel moves received bytes out of DR and
+        // writes bytes to send into it; each transfer re-enters update(), hence the guard.
+        if (enabled && !in_dma_ && m_.dma_) {
+            in_dma_ = true;
+            while ((cr3_ & (1u << 6)) && (sr_ & 0x20u) && m_.dma_->request(dma_rx_)) {
+            }
+            while ((cr3_ & (1u << 7)) && (cr1_ & (1u << 3)) && (sr_ & 0x80u) && m_.dma_->request(dma_tx_)) {
+            }
+            in_dma_ = false;
         }
         // TX pin: the line rests high while the transmitter is on.
         const auto [port, pin] = tx_pin();
@@ -709,6 +724,9 @@ private:
     char name_[8] = {};
     std::uint32_t sr_ = 0, dr_ = 0, brr_ = 0, cr1_ = 0, cr2_ = 0, cr3_ = 0, gtpr_ = 0;
     std::vector<std::uint8_t> rx_;
+    int dma_tx_ = 0;
+    int dma_rx_ = 0;
+    bool in_dma_ = false;
     int tx_port_ = -1;
     int tx_pin_ = 0;
 };
@@ -885,6 +903,8 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     for (int n = 1; n <= 2; ++n) {
         adcs_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1Adc>(static_cast<AdcHost&>(*this), n);
     }
+    dma_ = std::make_unique<Stm32F1Dma>(static_cast<DmaHost&>(*this));
+    bus_.add_device(0x40020000u, 0x400, dma_.get());
     bus_.add_device(0x40012400u, 0x400, adcs_[0].get());
     bus_.add_device(0x40012800u, 0x400, adcs_[1].get());
     for (const auto& timer : timers_) {
@@ -903,7 +923,7 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         {0x40002C00u, "WWDG"}, {0x40003000u, "IWDG"}, {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
         {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
         {0x40006C00u, "BKP"},
-        {0x40013000u, "SPI1"}, {0x40020000u, "DMA1"}, {0x40023000u, "CRC"},
+        {0x40013000u, "SPI1"}, {0x40023000u, "CRC"},
     };
     for (const auto& block : blocks) {
         stubs_.push_back(std::make_unique<Stub>(*this, block.name));
@@ -1209,6 +1229,16 @@ double Stm32F103::adc_channel_voltage(int channel, std::uint64_t cycle)
         return analog_source_(port, pin, ns_at_cycles(cycle));
     }
     return pin_level(port, pin) ? Stm32F1Adc::vdda : 0.0;
+}
+
+void Stm32F103::dma_channel_enabled(int channel)
+{
+    for (auto& usart : usart_) {
+        if (usart) {
+            usart->update(); // a transmitter waiting with DMAT set starts now
+        }
+    }
+    (void)channel;
 }
 
 void Stm32F103::adc_irq_changed()

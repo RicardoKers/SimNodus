@@ -29,6 +29,7 @@ the same firmware timing.
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
 | USART1–3 | yes | Text in the Signal Analyzer's UART tab |
+| DMA1 (emulator only) | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |
 | ADC1 and ADC2 (emulator only) | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
 | Timers TIM1–TIM4 (emulator only) | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
@@ -37,9 +38,9 @@ the same firmware timing.
 
 | Part | Planned |
 |---|---|
-| ADC features: DMA transfer (next), conversions started by a timer or EXTI, discontinuous and dual modes | Later; the firmware gets a message in the Messages panel when it uses one |
+| ADC features: conversions started by a timer or EXTI, discontinuous and dual modes; DMA requests of timers, SPI and I2C | Later; the firmware gets a message in the Messages panel when it uses one |
 | Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
-| SPI, I2C, CAN, USB, DMA, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
+| SPI, I2C, CAN, USB, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
 | Debugging with STM32CubeIDE / GDB | Release 0.4 |
 | Transient mode with a microcontroller | Not yet: use interactive mode |
 
@@ -102,8 +103,9 @@ the same firmware timing.
 
 Any STM32F103C8 project works if it produces an ELF, including STM32CubeIDE
 projects with the HAL and its generated `SystemClock_Config()`. Most examples
-in `examples/firmware/` use no libraries; `hal_clock` (example 12) is written
-like an STM32CubeIDE project and uses the STM32CubeF1 HAL. All build with
+in `examples/firmware/` use no libraries; `hal_clock` (example 12) and
+`hal_adc_dma` (example 15, ADC with DMA, timer PWM, UART with DMA) are written
+like STM32CubeIDE projects and use the STM32CubeF1 HAL. All build with
 `python tools/build_firmware.py` (finds the compiler of an STM32CubeIDE
 installation or `arm-none-eabi-gcc` on PATH, and the STM32CubeF1 package
 that STM32CubeIDE downloads to `~/STM32Cube/Repository`). Projects store the ELF path

@@ -996,11 +996,13 @@ TEST_CASE("ADC: calibration, a single conversion and its exact sample and end ti
     REQUIRE(m);
     // HSI 8 MHz, APB2 / 1, ADCPRE / 2: one ADC clock is 2 CPU cycles (250 ns).
     poke(*m, adc1 + 0x08, 1);         // ADON: power on
+    poke(*m, adc1 + 0x08, 1 | 8);     // RSTCAL with ADON still 1 (as HAL writes it): no conversion
     poke(*m, adc1 + 0x08, 1 | 4);     // CAL
     m->run_until_ns(m->time_ns() + 20000);
     CHECK((read_word(*m, adc1 + 0x08) & 4u) == 4u); // still calibrating at 20 us
     m->run_until_ns(m->time_ns() + 1000);
     CHECK((read_word(*m, adc1 + 0x08) & 4u) == 0); // calibration done (83 ADC clocks = 20.75 us)
+    CHECK(log.samples.empty());
     poke(*m, adc1 + 0x34, 3);         // SQ1 = IN3 (PA3)
     poke(*m, adc1 + 0x10, 7u << 9);   // SMP3 = 239.5 cycles
     const std::uint64_t start = m->time_ns();
@@ -1084,14 +1086,183 @@ TEST_CASE("ADC: unsimulated features are reported once")
     AnalogLog log;
     auto m = adc_machine(log);
     REQUIRE(m);
-    poke(*m, adc1 + 0x08, 1 | (1u << 8));             // DMA
+    poke(*m, adc1 + 0x08, 1 | (1u << 8));             // DMA on ADC1: simulated, no message
+    poke(*m, adc2 + 0x08, 1 | (1u << 8));             // ADC2 has no DMA request
     poke(*m, adc1 + 0x08, 1 | (4u << 17) | (1u << 20)); // EXTSEL = TIM3_TRGO
     poke(*m, adc1 + 0x04, 1u << 11);                   // DISCEN
     const auto diagnostics = m->take_diagnostics();
     REQUIRE(diagnostics.size() == 3);
-    CHECK(diagnostics[0].text.find("ADC1: DMA") != std::string::npos);
+    CHECK(diagnostics[0].text.find("ADC2: DMA") != std::string::npos);
     CHECK(diagnostics[1].text.find("timer or EXTI trigger") != std::string::npos);
     CHECK(diagnostics[2].text.find("discontinuous") != std::string::npos);
+}
+
+namespace {
+
+constexpr std::uint32_t dma1 = 0x40020000;
+
+// Register of DMA1 channel n (1..7): CCR, CNDTR, CPAR, CMAR at 0, 4, 8, 12.
+constexpr std::uint32_t dma_ch(int n, std::uint32_t reg)
+{
+    return dma1 + 0x08 + 0x14 * static_cast<std::uint32_t>(n - 1) + reg;
+}
+
+std::uint16_t read_half(Stm32F103& m, std::uint32_t address)
+{
+    std::uint32_t value = 0;
+    m.bus().read(address, 2, value);
+    return static_cast<std::uint16_t>(value);
+}
+
+} // namespace
+
+TEST_CASE("DMA: ADC1 scan results go to memory in circular mode with half and complete flags")
+{
+    AnalogLog log;
+    auto m = adc_machine(log);
+    REQUIRE(m);
+    constexpr std::uint32_t buffer = 0x20000100;
+    poke(*m, dma_ch(1, 8), adc1 + 0x4C);            // CPAR: ADC1_DR
+    poke(*m, dma_ch(1, 12), buffer);                // CMAR
+    poke(*m, dma_ch(1, 4), 4);                      // CNDTR: two groups of two
+    // PSIZE 16, MSIZE 16, MINC, CIRC, HTIE, TCIE, EN
+    poke(*m, dma_ch(1, 0), (1u << 8) | (1u << 10) | (1u << 7) | (1u << 5) | (1u << 2) | (1u << 1) | 1u);
+    poke(*m, adc1 + 0x08, 1);
+    poke(*m, adc1 + 0x04, 1u << 8);                 // SCAN
+    poke(*m, adc1 + 0x2C, 1u << 20);                // L = 1: two conversions
+    poke(*m, adc1 + 0x34, 2u | (3u << 5));          // IN2, IN3
+    poke(*m, adc1 + 0x08, 1 | 2 | (1u << 8));       // CONT, DMA
+    const std::uint64_t start = m->time_ns();
+    poke(*m, adc1 + 0x08, 1 | 2 | (1u << 8));       // ADON again: start
+    m->run_until_ns(start + 7000);                  // one group: 2 x 14 ADC clocks = 7 us
+    REQUIRE(log.samples.size() == 2);
+    CHECK((read_word(*m, dma1) & 0x7u) == 0x5u);    // GIF1, HTIF1
+    CHECK(read_word(*m, dma_ch(1, 4)) == 2);
+    m->run_until_ns(start + 14000);
+    REQUIRE(log.samples.size() == 4);
+    CHECK((read_word(*m, dma1) & 0x7u) == 0x7u);    // and TCIF1
+    CHECK(read_word(*m, dma_ch(1, 4)) == 4);        // circular: reloaded
+    for (std::size_t i = 0; i < 4; ++i) {
+        const auto [port, pin, at] = log.samples[i];
+        CHECK(read_half(*m, buffer + 2 * static_cast<std::uint32_t>(i)) == Stm32F1Adc::code_of(log.volts(port, pin, at)));
+    }
+    CHECK((read_word(*m, adc1) & 2u) == 0u); // the DMA read DR, which clears EOC
+    poke(*m, dma1 + 4, 1u);                  // CGIF1 clears the channel's flags
+    CHECK((read_word(*m, dma1) & 0xFu) == 0u);
+    m->run_until_ns(start + 21000);          // circular: the buffer is written again from its start
+    const auto [port, pin, at] = log.samples[4];
+    CHECK(read_half(*m, buffer) == Stm32F1Adc::code_of(log.volts(port, pin, at)));
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("DMA: USART1 sends a buffer and receives bytes into memory")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    constexpr std::uint32_t text = 0x20000200;
+    constexpr std::uint32_t received = 0x20000300;
+    const char hello[] = "Hello";
+    for (std::uint32_t i = 0; i < 5; ++i) {
+        m->bus().write(text + i, 1, static_cast<std::uint8_t>(hello[i]));
+    }
+    m->take_uart_bytes();
+    poke(*m, 0x4001380C, (1u << 13) | (1u << 3) | (1u << 2)); // UE, TE, RE
+    // TX: channel 4, memory to peripheral, 8-bit, MINC; the USART asks once DMAT is set.
+    poke(*m, dma_ch(4, 8), 0x40013804);
+    poke(*m, dma_ch(4, 12), text);
+    poke(*m, dma_ch(4, 4), 5);
+    poke(*m, dma_ch(4, 0), (1u << 7) | (1u << 4) | 1u);
+    CHECK(m->take_uart_bytes().empty());
+    poke(*m, 0x40013814, 1u << 7); // CR3.DMAT
+    std::string sent;
+    for (const auto& b : m->take_uart_bytes()) {
+        sent += static_cast<char>(b.value);
+    }
+    CHECK(sent == "Hello");
+    CHECK(read_word(*m, dma_ch(4, 4)) == 0);
+    CHECK((read_word(*m, dma1) >> 12 & 2u) == 2u); // TCIF4
+    // RX: channel 5, peripheral to memory, 8-bit, MINC.
+    poke(*m, dma_ch(5, 8), 0x40013804);
+    poke(*m, dma_ch(5, 12), received);
+    poke(*m, dma_ch(5, 4), 3);
+    poke(*m, dma_ch(5, 0), (1u << 7) | 1u);
+    poke(*m, 0x40013814, (1u << 7) | (1u << 6)); // CR3.DMAR too
+    for (const char c : std::string("abcd")) {
+        m->uart_receive(1, static_cast<std::uint8_t>(c));
+    }
+    CHECK((read_word(*m, received) & 0xFFFFFFu) == 0x636261u); // "abc"
+    CHECK(read_word(*m, dma_ch(5, 4)) == 0);
+    CHECK((read_word(*m, 0x40013800) & 0x20u) == 0x20u); // "d" waits in DR: the channel is done
+    CHECK((read_word(*m, 0x40013804) & 0xFFu) == 'd');
+}
+
+TEST_CASE("DMA: memory to memory with size conversion, and a transfer error")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, 0x20000400, 0x11223344);
+    poke(*m, 0x20000404, 0x55667788);
+    // 32-bit source (peripheral side) to 16-bit destination: truncated.
+    poke(*m, dma_ch(2, 8), 0x20000400);
+    poke(*m, dma_ch(2, 12), 0x20000500);
+    poke(*m, dma_ch(2, 4), 2);
+    poke(*m, dma_ch(2, 0), (1u << 14) | (2u << 8) | (1u << 10) | (1u << 6) | (1u << 7) | 1u);
+    CHECK(read_word(*m, 0x20000500) == 0x77883344u);
+    CHECK((read_word(*m, dma1) >> 4 & 2u) == 2u); // TCIF2
+    // A memory address outside the chip: TEIF, the channel switches off.
+    poke(*m, dma_ch(3, 8), 0x20000400);
+    poke(*m, dma_ch(3, 12), 0x30000000);
+    poke(*m, dma_ch(3, 4), 1);
+    poke(*m, dma_ch(3, 0), (1u << 14) | 1u);
+    CHECK((read_word(*m, dma1) >> 8 & 8u) == 8u); // TEIF3
+    CHECK((read_word(*m, dma_ch(3, 0)) & 1u) == 0u);
+    const auto diagnostics = m->take_diagnostics();
+    REQUIRE(diagnostics.size() == 1);
+    CHECK(diagnostics[0].text.find("transfer error") != std::string::npos);
+}
+
+TEST_CASE("an STM32CubeIDE HAL project runs ADC1 scan with DMA, TIM2 PWM and UART DMA at 72 MHz")
+{
+    // examples/firmware/hal_adc_dma: HAL_ADCEx_Calibration_Start, HAL_ADC_Start_DMA
+    // (circular), HAL_TIM_PWM_Start, HAL_UART_Transmit_DMA. Without a circuit PA1
+    // reads 0 V; VREFINT is 1.20 V.
+    auto m = machine_with("hal_adc_dma");
+    REQUIRE(m);
+    m->set_analog_source([](int port, int pin, std::uint64_t) { return port == 0 && pin == 1 ? 2.0 : 0.0; });
+    m->run_until_ns(1100000000);
+    std::string text;
+    for (const auto& b : m->take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    std::printf("%s", text.substr(text.size() > 120 ? text.size() - 120 : 0).c_str());
+    const auto at = text.rfind("PA1 ");
+    REQUIRE(at != std::string::npos);
+    CHECK(std::atoi(text.c_str() + at + 4) == static_cast<int>(Stm32F1Adc::code_of(2.0)));
+    CHECK(text.find("VREFINT 1489") != std::string::npos);
+    // One group: 2 x (239.5 + 12.5) ADC clocks at 12 MHz = 42 us: 23 809 groups per second.
+    const auto groups = std::atoi(text.c_str() + text.rfind("groups ") + 7);
+    CHECK(groups >= 23800);
+    CHECK(groups <= 23815);
+    // TIM2 PWM at 1 kHz with the duty of the PA1 code (2482 / 4096 = 60.5 %).
+    std::vector<std::uint64_t> rises;
+    std::uint64_t high = 0;
+    bool level = false;
+    std::uint64_t rose = 0;
+    for (const auto& e : m->take_pin_events()) {
+        if (e.port == 0 && e.pin == 0 && e.level != level) {
+            level = e.level;
+            if (level) {
+                rises.push_back(e.time_ns);
+                rose = e.time_ns;
+            } else if (rose) {
+                high = e.time_ns - rose;
+            }
+        }
+    }
+    REQUIRE(rises.size() > 100);
+    CHECK(rises.back() - rises[rises.size() - 2] == 1000000u);
+    CHECK(high == 605000u);
+    CHECK(m->take_diagnostics().empty());
 }
 
 TEST_CASE("ELF errors are reported in plain words")

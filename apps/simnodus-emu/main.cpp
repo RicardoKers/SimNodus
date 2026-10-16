@@ -193,6 +193,11 @@ int main(int argc, char** argv)
         static_cast<double>(machine.time_ns()) / 1e6, seconds, (static_cast<double>(machine.time_ns()) / 1e9) / seconds,
         static_cast<unsigned long long>(executed), static_cast<double>(executed) / seconds / 1e6, static_cast<unsigned>(machine.hclk_hz()),
         machine.cpu().state() == CoreState::Lockup ? ", core locked up" : "");
+    if (info) {
+        const ElfSymbol* function = image->function_at(machine.cpu().pc());
+        std::printf("final PC 0x%08X%s%s\n", static_cast<unsigned>(machine.cpu().pc()), function ? " in " : "",
+            function ? function->name.c_str() : "");
+    }
     if (count_ops) {
         const auto& hits = machine.cpu().op_hits();
         for (int op = 1; op < static_cast<int>(hits.size()); ++op) {

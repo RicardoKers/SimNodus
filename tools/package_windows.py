@@ -42,6 +42,7 @@ REQUIRED = [
     "examples/12_Blue_Pill_HAL_72MHz.snx", "examples/firmware/hal_clock/hal_clock.elf",
     "examples/13_Blue_Pill_timer_PWM.snx", "examples/firmware/timer_pwm/timer_pwm.elf",
     "examples/14_Blue_Pill_ADC_to_PWM.snx", "examples/firmware/adc_pwm/adc_pwm.elf",
+    "examples/15_Blue_Pill_HAL_ADC_DMA.snx", "examples/firmware/hal_adc_dma/hal_adc_dma.elf",
 ]
 
 

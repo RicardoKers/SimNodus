@@ -73,6 +73,10 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   codes exactly those of the voltages ngspice computed. **Bug found and fixed
   on the way:** interactive potentiometers/closed switches were offset by
   their initial value since 0.1.0 (ngspice adds DC to external sources).
+- **SN-179 DMA done:** DMA1 for ADC1 and USART1–3; example 15 is a
+  CubeMX-style HAL project (ADC scan + circular DMA, TIM PWM, UART DMA) and
+  runs as on the chip (23 808 scans/s, VREFINT 1489). N3 is complete; gate G3
+  needs the owner's CubeMX check and lesson 3.
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
 
@@ -172,12 +176,13 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. SN-179 DMA (HAL ADC+DMA, UART+DMA: circular/normal, TC/HT interrupts);
-   then a HAL ADC/PWM project from CubeMX as the G3 check.
-2. Owner's hands-on test of examples 13–14 and the potentiometer fix
-   (example 03 at 50 % should read about 4.5 V); release 0.2 by 2026-11-13 (ask
+1. Owner's hands-on test of examples 13–15, the potentiometer fix and a
+   CubeMX project with ADC/DMA (gate G3); release 0.2 by 2026-11-13 (ask
    before cutting it).
-3. SN-188 segment length; N2 serial frames (SN-175, spike SN-186).
+2. Lesson 3 (potentiometer → ADC → UART report, PWM → RC filter) from
+   examples 14/15 for the G3 lesson check.
+3. SN-188 segment length; N2 serial frames (SN-175, spike SN-186); timer
+   triggers for the ADC if a lesson needs timed sampling.
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the

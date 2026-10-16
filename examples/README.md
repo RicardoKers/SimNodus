@@ -20,6 +20,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `12_Blue_Pill_HAL_72MHz.snx` | Blue Pill running `firmware/hal_clock/hal_clock.elf`, an STM32CubeIDE-style HAL project at 72 MHz (HSE + PLL x9); 330 Ω and yellow LED on PA1 | Analyzer > UART shows SYSCLK 72000000 Hz; PC13 blinks every 500 ms; PA1 pulses for 1 ms (72000 instructions at 72 MHz) every 500 ms |
 | `13_Blue_Pill_timer_PWM.snx` | Blue Pill running `firmware/timer_pwm/timer_pwm.elf` (registers, no HAL): TIM2 PWM 1 kHz / 25 % on PA0 into 10 kΩ / 1 µF; PA0 wired back to PB6, where TIM4 captures the period; TIM3 interrupt toggles PC13 every 10 ms; TIM1 PWM with complementary output on PA8/PB13 | V(RC) settles at 0.825 V (a quarter of 3.3 V) with a small ripple; the green LED on PB12 lights when TIM4 measures 0.9–1.1 ms; probe PA8 and PB13 |
 | `14_Blue_Pill_ADC_to_PWM.snx` | Blue Pill running `firmware/adc_pwm/adc_pwm.elf` (registers, no HAL): 10 kΩ potentiometer between 3.3 V and ground, wiper on PA1 (ADC1 IN1, continuous conversions with interrupt); the code sets the duty of a 1 kHz PWM on PA0 into an LED and a 10 kΩ / 1 µF filter; USART1 reports the code | Turn the potentiometer: the LED dims and brightens, V(RC) follows (half of 3.3 V at the middle), Analyzer > UART shows "ADC 2048 = 1650 mV"; PC13 lights above the middle |
+| `15_Blue_Pill_HAL_ADC_DMA.snx` | The circuit of example 14 with `firmware/hal_adc_dma/hal_adc_dma.elf`, an STM32CubeIDE-style HAL project at 72 MHz: ADC1 scans PA1 and VREFINT continuously into memory by circular DMA (`HAL_ADC_Start_DMA`), TIM2 PWM (`HAL_TIM_PWM_Start`), reports with `HAL_UART_Transmit_DMA` | Analyzer > UART: "PA1 2048 VREFINT 1489 groups ..." every 500 ms (23 800 scans per second); turn the potentiometer: the LED and V(RC) follow within 0.1 s |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the
@@ -27,8 +28,8 @@ STM32CubeF1 package; three tasks, a queue, task switches on PB0-PB2) is test
 firmware for the emulator experiment E-07; an example project follows.
 
 Firmware sources are in `firmware/<name>/` and link with
-`firmware/stm32f103c8.ld` without libraries, except `hal_clock`, which is
-built like an STM32CubeIDE project from the STM32CubeF1 HAL (`cube.json`
+`firmware/stm32f103c8.ld` without libraries, except `hal_clock` and
+`hal_adc_dma`, which are built like STM32CubeIDE projects from the STM32CubeF1 HAL (`cube.json`
 names the files; `firmware/stm32f103c8_cube.ld`; notices in the package's
 THIRD-PARTY-NOTICES.txt); the ELF files are committed so
 that the examples run without a compiler. `python tools/build_firmware.py`
