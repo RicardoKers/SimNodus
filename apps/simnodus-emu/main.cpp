@@ -6,10 +6,12 @@
 // diagnostic, then a summary with the speed reached.
 //
 //   simnodus-emu firmware.elf [--ms 1000] [--info] [--quiet] [--count-ops]
-//                [--input PA1=0@100] [--uart 1:text@50]
+//                [--input PA1=0@100] [--uart 1:text@50] [--gdb PORT]
 //
 // --input sets a pin level from outside at a time in milliseconds; --uart
-// sends text to USART1..3 at a time in milliseconds.
+// sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
+// client on 127.0.0.1:PORT (0: any free port) and runs under its control.
+#include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
@@ -17,7 +19,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace simnodus::emu;
@@ -52,7 +56,7 @@ void usage()
 {
     std::fprintf(stderr,
         "usage: simnodus-emu firmware.elf [--ms 1000] [--info] [--quiet] [--count-ops]\n"
-        "                    [--input PA1=0@100] [--uart 1:text@50]\n");
+        "                    [--input PA1=0@100] [--uart 1:text@50] [--gdb PORT]\n");
 }
 
 } // namespace
@@ -68,12 +72,17 @@ int main(int argc, char** argv)
     bool info = false;
     bool quiet = false;
     bool count_ops = false;
+    bool ms_given = false;
+    int gdb_port = -1;
     std::vector<Stimulus> stimuli;
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
         const bool has_value = i + 1 < argc;
         if (arg == "--ms" && has_value) {
             ms = std::strtod(argv[++i], nullptr);
+            ms_given = true;
+        } else if (arg == "--gdb" && has_value) {
+            gdb_port = std::atoi(argv[++i]);
         } else if (arg == "--info") {
             info = true;
         } else if (arg == "--quiet") {
@@ -138,6 +147,24 @@ int main(int argc, char** argv)
     machine.cpu().count_ops(count_ops);
 
     std::sort(stimuli.begin(), stimuli.end(), [](const Stimulus& a, const Stimulus& b) { return a.time_ns < b.time_ns; });
+    std::unique_ptr<GdbServer> gdb;
+    if (gdb_port >= 0) {
+        gdb = std::make_unique<GdbServer>(machine);
+        if (!gdb->start(static_cast<std::uint16_t>(gdb_port), error)) {
+            std::fprintf(stderr, "error: %s\n", error.c_str());
+            return 1;
+        }
+        std::printf("GDB server on 127.0.0.1:%u; waiting for a client (target extended-remote :%u)\n",
+            static_cast<unsigned>(gdb->port()), static_cast<unsigned>(gdb->port()));
+        std::fflush(stdout);
+        while (!gdb->attached()) {
+            gdb->service(0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        if (!ms_given) {
+            ms = 3.6e6; // an hour of firmware time
+        }
+    }
     const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
     std::size_t next = 0;
     std::string uart_line[4];
@@ -167,8 +194,17 @@ int main(int argc, char** argv)
         }
     };
     while (machine.time_ns() < end_ns) {
-        const std::uint64_t until = next < stimuli.size() ? std::min(stimuli[next].time_ns, end_ns) : end_ns;
+        if (gdb && !gdb->service(50)) {
+            continue; // halted by the debugger
+        }
+        std::uint64_t until = next < stimuli.size() ? std::min(stimuli[next].time_ns, end_ns) : end_ns;
+        if (gdb) {
+            until = std::min(until, machine.time_ns() + 1000000); // let the debugger in every millisecond
+        }
         machine.run_until_ns(until);
+        if (gdb) {
+            gdb->after_run();
+        }
         flush();
         while (next < stimuli.size() && stimuli[next].time_ns <= machine.time_ns()) {
             const Stimulus& s = stimuli[next++];

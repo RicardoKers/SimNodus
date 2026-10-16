@@ -1068,10 +1068,76 @@ void Cpu::reset()
     pc_ = entry & ~1u;
 }
 
+bool Cpu::is_breakpoint(std::uint32_t address) const
+{
+    return std::find(breakpoints_.begin(), breakpoints_.end(), address) != breakpoints_.end();
+}
+
+void Cpu::set_debugger_attached(bool attached)
+{
+    debugger_ = attached;
+    if (!attached) {
+        breakpoints_.clear();
+        debug_halted_ = false;
+    }
+}
+
+void Cpu::set_breakpoints(std::vector<std::uint32_t> addresses)
+{
+    breakpoints_ = std::move(addresses);
+}
+
+void Cpu::resume_from_halt()
+{
+    debug_halted_ = false;
+    skip_breakpoint_ = true;
+}
+
+void Cpu::step_instruction()
+{
+    // One cycle of run() without breakpoints: SysTick and pending exceptions are
+    // handled as in a normal run; a sleeping core wakes, as halting debug does.
+    debug_halted_ = false;
+    std::vector<std::uint32_t> saved = std::move(breakpoints_);
+    breakpoints_.clear();
+    if (state_ == CoreState::Sleeping) {
+        state_ = CoreState::Running;
+        attention_ = true;
+    }
+    run(cycles_ + 1);
+    breakpoints_ = std::move(saved);
+}
+
+void Cpu::set_xpsr(std::uint32_t value)
+{
+    n_ = (value >> 31) & 1u;
+    z_ = (value >> 30) & 1u;
+    c_ = (value >> 29) & 1u;
+    v_ = (value >> 28) & 1u;
+    q_ = (value >> 27) & 1u;
+    thumb_ = (value >> 24) & 1u;
+    itstate_ = ((value >> 25) & 3u) | (((value >> 10) & 0x3Fu) << 2);
+}
+
+void Cpu::invalidate_code_cache()
+{
+    std::fill(flash_cache_.begin(), flash_cache_.end(), Insn{});
+}
+
 CoreState Cpu::run(std::uint64_t limit)
 {
     stop_requested_ = false;
+    if (debug_halted_) {
+        return state_; // halted by the debugger until resume_from_halt()
+    }
     while (cycles_ < limit && !stop_requested_) {
+        if (!breakpoints_.empty() && state_ == CoreState::Running) {
+            if (is_breakpoint(pc_) && !skip_breakpoint_) {
+                debug_halted_ = true;
+                break;
+            }
+            skip_breakpoint_ = false;
+        }
         if (cycles_ >= st_next_) {
             systick_update(cycles_);
         }
@@ -1093,6 +1159,7 @@ CoreState Cpu::run(std::uint64_t limit)
             attention_ = true;
         }
         // Fast path: cached flash code outside IT blocks with nothing to check.
+        // Breakpoints were checked above, before either path runs the instruction.
         if (!attention_ && thumb_ && itstate_ == 0 && !count_ops_ && pc_ - flash_base < cache_bytes) {
             const Insn& in = flash_cache_[(pc_ - flash_base) >> 1];
             if (in.op != OP_NONE && fast(in)) {
@@ -1344,9 +1411,13 @@ void Cpu::step()
 {
     if (attention_) {
         attention_ = false;
+        const std::uint32_t before = pc_;
         check_exceptions();
         if (state_ != CoreState::Running) {
             return;
+        }
+        if (pc_ != before && !breakpoints_.empty() && is_breakpoint(pc_)) {
+            return; // entered a handler with a breakpoint on its first instruction
         }
     }
     if (!thumb_) {
@@ -1950,6 +2021,12 @@ void Cpu::execute(const Insn& original)
         attention_ = true;
         return;
     case OP_BKPT:
+        if (debugger_) {
+            next_pc_ = pc_; // halting debug: the PC stays at the BKPT
+            debug_halted_ = true;
+            stop_requested_ = true;
+            return;
+        }
         hfsr_ |= HF_DEBUGEVT;
         fault(EX_HARDFAULT, "BKPT instruction executed without a debugger");
         return;

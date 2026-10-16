@@ -185,6 +185,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - Earlier evidence: [S1](../experiments/S1-continuous-run.md),
   [S2](../experiments/S2-ngspice-platforms.md), ADR 0080.
 
+- **N4 debugging (SN-180), part 1:** GDB server in the emulator and
+  `simnodus-emu --gdb PORT`; arm-none-eabi-gdb from CubeIDE works with it
+  (breakpoints, step, registers, variables, reset, detach). Part 2: the run
+  pauses with the firmware, GUI status, CubeIDE launch guide, owner's test (G4).
+
 ## Next steps
 
 1. Gate G3 review: lesson 3 by the owner, a CubeMX project with ADC+DMA;

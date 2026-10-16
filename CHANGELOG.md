@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, SN-180 part 1)
+
+- **GDB server in the own emulator** (`src/emu/gdb_server.*`, `gdb_socket.*`): GDB remote serial protocol on 127.0.0.1 only. Supported: a Cortex-M target description (r0–pc, xpsr, msp, psp, primask, control), register and memory reads and writes (flash through the loader, so `load` works), any number of breakpoints, continue, step, Ctrl-C, `monitor reset` / `monitor reset halt`, detach and kill. A client that connects halts the firmware where it is; after detach it runs on. With a debugger attached, `BKPT` halts the core instead of raising a HardFault. Watchpoints are not supported yet.
+- `simnodus-emu firmware.elf --gdb PORT` waits for a GDB client and runs under its control. Checked with arm-none-eabi-gdb from STM32CubeIDE 2.1.1 on the HAL example: breakpoints in `main`, the SysTick handler and `HAL_GPIO_TogglePin`, a backtrace through the interrupt, variables, `next`, `monitor reset`, detach.
+- Breakpoints cost almost nothing: the core checks them before each instruction and keeps its fast path (181 MIPS without, the HAL example at about real time with one).
+
 ### Measured (2026-10-16, SN-188)
 
 - Segment length re-measured with the current emulator coupling (30 s of circuit time at maximum speed): lesson 1 1.97x / 1.74x / 1.72x, example 13 1.71x / 1.78x / 1.77x, example 14 1.05x / 1.06x / 1.04x real time with 1 s / 5 s / 10 s segments, memory within a few MB in every case. The earlier 2.9x-vs-1.8x difference no longer appears, so the 1 s default stays; the one-hour growth of 7.5 MB with 1 s segments is within the G1 limit.
