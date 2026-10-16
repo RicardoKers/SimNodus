@@ -1,7 +1,7 @@
 # Microcontroller: what is simulated
 
-SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in Renode 1.16.1
-next to the circuit. This page lists what the simulated chip supports and
+SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in its own STM32
+emulator next to the circuit. This page lists what the simulated chip supports and
 where it differs from a real board (MCU-09). Release 0.2.
 
 ## Engines
@@ -29,6 +29,7 @@ the same firmware timing.
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
 | USART1–3 | yes | Text in the Signal Analyzer's UART tab |
+| Timers TIM1–TIM4 (emulator only) | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
 
 ## Not yet simulated
@@ -36,7 +37,7 @@ the same firmware timing.
 | Part | Planned |
 |---|---|
 | ADC (analog inputs) | Release 0.3 |
-| Timers / PWM outputs | Release 0.3, after an audit of the Renode model |
+| Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
 | SPI, I2C, CAN, USB, DMA, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
 | Debugging with STM32CubeIDE / GDB | Release 0.4 |
 | Transient mode with a microcontroller | Not yet: use interactive mode |
@@ -62,12 +63,19 @@ the same firmware timing.
   tick comes about 2.1 s late at 8 MHz (0.23 s at 72 MHz), then ticks are
   regular. A real chip ticks after one period. SimNodus's own emulator, being
   built (E-07), does not have this difference. STM32CubeIDE projects with
-  FreeRTOS also use a timer (TIM) as the HAL time base, which is not simulated
-  yet (release 0.3).
+  FreeRTOS also use a timer (TIM) as the HAL time base, which only the
+  emulator simulates.
 - **Speed with 72 MHz firmware.** At 72 MHz Renode executes nine times more
   instructions per simulated second than at 8 MHz. Firmware that waits in a
   loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a
   2026 laptop; the status bar shows the actual speed.
+- **PWM into the circuit.** The emulator times every edge exactly, but the
+  circuit takes a time step of up to 0.1 ms (Simulation Settings, maximum
+  step), so an edge acts at the circuit's next time point. A 100 Hz PWM
+  (example 13) averages within about 1 % of the ideal; at 1 kHz the duty
+  cycle the circuit sees can be off by up to 10 percentage points. A smaller
+  maximum step helps but slows the run; exact edges in the circuit are
+  planned (SN-176).
 - **AFIO (Renode only).** With Renode, EXTI line *n* follows pin *n* of
   every port; the port selection in `AFIO_EXTICR` is not simulated, so use
   one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`

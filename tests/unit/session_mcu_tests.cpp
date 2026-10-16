@@ -700,3 +700,61 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
     CHECK(std::abs((high + low) / 2 - 1.65) < 0.05);
 #endif
 }
+
+TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the capture sees 100 Hz")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: timers are simulated only by the own emulator (ADR 0090)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "13_Blue_Pill_timer_PWM.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"pa0", "rc"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 0.6) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+    }
+    const double wall = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    session.stop();
+    // Steady state over the last 100 ms (tau = 100 ms, filtered by the average):
+    // the 25 % PWM. The edges reach the circuit at its next time point (100 us
+    // max step) until SN-176 adds breakpoints: 2.5 ms high can count as 2.6 ms.
+    // At 1 kHz that error would be 10 times larger.
+    const auto rc = session.samples("rc");
+    REQUIRE(!rc.empty());
+    const double from = rc.back().time - 0.1;
+    double sum = 0;
+    int n = 0;
+    for (const auto& s : rc) {
+        if (s.time >= from) {
+            sum += s.value;
+            ++n;
+        }
+    }
+    REQUIRE(n > 0);
+    const double average = sum / n;
+    std::printf("  V(RC) average %.3f V over the last 100 ms (expected 0.825 V); 0.6 s simulated in %.2f s\n",
+        average, wall);
+    CHECK(std::abs(average - 0.825) < 0.05);
+    // TIM4 measured a period between 9 and 11 ms: PB12 lights the LED.
+    const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PB12", 0);
+    REQUIRE(!log.changes.empty());
+    CHECK(log.changes.back().second);
+#endif
+}

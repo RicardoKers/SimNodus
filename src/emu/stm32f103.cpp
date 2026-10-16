@@ -100,6 +100,14 @@ public:
         }
     }
 
+    // HCLK cycles per timer kernel clock tick (RM0008 figure 8: the timer
+    // clock is PCLK with APB divider 1, else twice PCLK).
+    std::uint32_t hclk_per_timer_tick(bool apb2) const
+    {
+        const std::uint32_t ppre = (cfgr_ >> (apb2 ? 11 : 8)) & 7u;
+        return ppre < 4 ? 1u : (2u << (ppre - 4)) / 2u;
+    }
+
     std::uint32_t hclk() const
     {
         const std::uint32_t hpre = (cfgr_ >> 4) & 15u;
@@ -194,6 +202,11 @@ private:
 
     void update_clocks()
     {
+        const std::uint32_t apb = cfgr_ & 0x3F00u;
+        if (apb != applied_apb_) {
+            applied_apb_ = apb;
+            m_.apb_changed();
+        }
         const std::uint32_t hz = hclk();
         if (hz != applied_) {
             applied_ = hz;
@@ -215,7 +228,7 @@ private:
     Stm32F103& m_;
     std::uint32_t cr_ = 0, cfgr_ = 0, cir_flags_ = 0, cir_ie_ = 0, apb2rstr_ = 0, apb1rstr_ = 0;
     std::uint32_t ahbenr_ = 0, apb2enr_ = 0, apb1enr_ = 0, bdcr_ = 0, csr_ = 0;
-    std::uint32_t sws_ = 0, previous_ready_ = 0, applied_ = 0;
+    std::uint32_t sws_ = 0, previous_ready_ = 0, applied_ = 0, applied_apb_ = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -854,16 +867,23 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     bus_.add_device(0x40013800u, 0x400, usart_[0].get());
     bus_.add_device(0x40004400u, 0x400, usart_[1].get());
     bus_.add_device(0x40004800u, 0x400, usart_[2].get());
+    for (int n = 1; n <= 4; ++n) {
+        timers_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1Timer>(static_cast<TimerHost&>(*this), n);
+    }
+    bus_.add_device(0x40012C00u, 0x400, timers_[0].get());
+    bus_.add_device(0x40000000u, 0x400, timers_[1].get());
+    bus_.add_device(0x40000400u, 0x400, timers_[2].get());
+    bus_.add_device(0x40000800u, 0x400, timers_[3].get());
 
     struct StubBlock {
         std::uint32_t base;
         const char* name;
     };
     static const StubBlock blocks[] = {
-        {0x40000000u, "TIM2"}, {0x40000400u, "TIM3"}, {0x40000800u, "TIM4"}, {0x40002800u, "RTC"},
+        {0x40002800u, "RTC"},
         {0x40002C00u, "WWDG"}, {0x40003000u, "IWDG"}, {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
         {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
-        {0x40006C00u, "BKP"}, {0x40012400u, "ADC1"}, {0x40012800u, "ADC2"}, {0x40012C00u, "TIM1"},
+        {0x40006C00u, "BKP"}, {0x40012400u, "ADC1"}, {0x40012800u, "ADC2"},
         {0x40013000u, "SPI1"}, {0x40020000u, "DMA1"}, {0x40023000u, "CRC"},
     };
     for (const auto& block : blocks) {
@@ -940,6 +960,9 @@ void Stm32F103::reset(ResetKind kind)
         break;
     }
     reset_requested_ = false;
+    for (auto& sources : af_high_) {
+        sources.clear();
+    }
     bus_.reset_devices();
     for (auto& gpio : gpio_) {
         gpio->update();
@@ -966,6 +989,11 @@ std::uint64_t Stm32F103::cycles_at_ns(std::uint64_t ns) const
     return base_cycles_ + scale(ns - base_ns_, hclk_, ns_per_s, true);
 }
 
+std::uint64_t Stm32F103::ns_at_cycles(std::uint64_t cycles) const
+{
+    return base_ns_ + (cycles > base_cycles_ ? scale(cycles - base_cycles_, ns_per_s, hclk_, false) : 0);
+}
+
 void Stm32F103::set_hclk(std::uint32_t hz)
 {
     if (hz == 0 || hz == hclk_) {
@@ -984,8 +1012,10 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
         if (reset_requested_) {
             reset(ResetKind::Software);
         }
-        const std::uint64_t target = std::max(cycles_at_ns(target_ns), cpu_.cycles() + 1);
+        // The core stops at the next timer event, which then runs at its cycle.
+        const std::uint64_t target = std::max(std::min(cycles_at_ns(target_ns), next_timer_event()), cpu_.cycles() + 1);
         const CoreState state = cpu_.run(target);
+        run_timers();
         if (state == CoreState::Lockup && !reported_lockup) {
             reported_lockup = true;
             if (diagnostics_.empty() || diagnostics_.back().text != cpu_.last_fault()) {
@@ -1054,13 +1084,22 @@ void Stm32F103::pin_output_changed(int port, int pin, bool level)
         return; // the port is being constructed
     }
     const PinConfig c = gpio_[static_cast<std::size_t>(port)]->config(pin);
-    pin_events_.push_back({time_ns(), port, pin, level, c.mode, c.cnf, c.drive_high, c.pull_up});
+    std::uint64_t at = stamping_ ? ns_at_cycles(stamp_cycles_) : time_ns();
+    if (!pin_events_.empty()) {
+        at = std::max(at, pin_events_.back().time_ns); // a timer event can be found an instruction late
+    }
+    pin_events_.push_back({at, port, pin, level, c.mode, c.cnf, c.drive_high, c.pull_up});
 }
 
 void Stm32F103::pin_input_changed(int port, int pin, bool level)
 {
     if (exti_ && exti_port(pin) == port) {
         exti_->input(pin, level);
+    }
+    for (const auto& timer : timers_) {
+        if (timer) {
+            timer->pin_changed(port, pin, level);
+        }
     }
 }
 
@@ -1071,9 +1110,71 @@ void Stm32F103::uart_transmit(int usart, std::uint8_t value)
 
 void Stm32F103::af_output(int port, int pin, int source, bool level)
 {
-    (void)source;
-    if (port >= 0 && port < num_ports) {
-        gpio_[static_cast<std::size_t>(port)]->set_af(pin, level);
+    if (port < 0 || port >= num_ports || pin < 0 || pin >= 16) {
+        return;
+    }
+    auto& sources = af_high_[static_cast<std::size_t>(port * 16 + pin)];
+    const auto it = std::find(sources.begin(), sources.end(), source);
+    if (level && it == sources.end()) {
+        sources.push_back(source);
+    } else if (!level && it != sources.end()) {
+        sources.erase(it);
+    }
+    gpio_[static_cast<std::size_t>(port)]->set_af(pin, !sources.empty());
+}
+
+void Stm32F103::timer_output(int port, int pin, int source, bool level, std::uint64_t cycle)
+{
+    stamping_ = true;
+    stamp_cycles_ = cycle;
+    af_output(port, pin, source, level);
+    stamping_ = false;
+}
+
+std::uint32_t Stm32F103::hclk_per_kernel_tick(bool apb2) const
+{
+    return rcc_->hclk_per_timer_tick(apb2);
+}
+
+std::uint32_t Stm32F103::afio_mapr() const
+{
+    return afio_ ? afio_->mapr() : 0;
+}
+
+std::uint64_t Stm32F103::next_timer_event() const
+{
+    std::uint64_t next = ~std::uint64_t{0};
+    for (const auto& timer : timers_) {
+        next = std::min(next, timer->next_event());
+    }
+    return next;
+}
+
+void Stm32F103::run_timers()
+{
+    for (;;) {
+        Stm32F1Timer* first = nullptr;
+        std::uint64_t at = cpu_.cycles();
+        for (const auto& timer : timers_) {
+            const std::uint64_t event = timer->next_event();
+            if (event <= at) {
+                at = event;
+                first = timer.get();
+            }
+        }
+        if (!first) {
+            return;
+        }
+        first->on_time(at);
+    }
+}
+
+void Stm32F103::apb_changed()
+{
+    for (const auto& timer : timers_) {
+        if (timer) {
+            timer->clocks_changed();
+        }
     }
 }
 
@@ -1091,6 +1192,9 @@ void Stm32F103::remap_changed()
 {
     for (auto& usart : usart_) {
         usart->update();
+    }
+    for (const auto& timer : timers_) {
+        timer->remap_changed();
     }
 }
 

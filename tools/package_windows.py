@@ -40,6 +40,7 @@ REQUIRED = [
     "examples/11_Lesson2_button_and_EXTI.snx", "examples/firmware/lesson2_button/lesson2_button.elf",
     "examples/lessons/lesson1_gpio_output.md", "examples/lessons/lesson2_button_exti.md",
     "examples/12_Blue_Pill_HAL_72MHz.snx", "examples/firmware/hal_clock/hal_clock.elf",
+    "examples/13_Blue_Pill_timer_PWM.snx", "examples/firmware/timer_pwm/timer_pwm.elf",
 ]
 
 

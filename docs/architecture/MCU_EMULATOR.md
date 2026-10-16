@@ -268,7 +268,7 @@ can talk through wires.
 | Tier | Devices | Needed for |
 |---|---|---|
 | 1 (parity with Renode) | RCC, FLASH interface (ACR), PWR, GPIOA–D, AFIO (EXTICR, remaps), EXTI, USART1–3, DBGMCU IDCODE, flash size and unique ID registers | E-07, N1 |
-| 2 (lessons) | TIM1–4 (PWM, output compare, input capture, one-pulse; encoder later), ADC1–2 (single, continuous, scan, sample times, injected later), DMA1 as HAL needs it | N3 |
+| 2 (lessons) | TIM1–4 (PWM, output compare, input capture, one-pulse; encoder later; done in SN-177, `src/emu/stm32f1_timer.*`), ADC1–2 (single, continuous, scan, sample times, injected later), DMA1 as HAL needs it | N3 |
 | 2b (after the freeze) | IWDG, WWDG, RTC/BKP, CRC | SN-187 |
 | 3 (later) | SPI1–2, I2C1–2 (with digital parts in the library), CAN, USB | after the classroom release |
 

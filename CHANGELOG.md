@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-16, emulator track N3: SN-177)
+
+- **Timers TIM1–TIM4 in the own emulator** (`src/emu/stm32f1_timer.*`): up/down counting with prescaler, auto-reload preload, one-pulse mode, update disable and request source, TIM1 repetition counter; output compare and PWM modes 1/2 with CCR preload, polarity, TIM1 main output enable and complementary outputs; input capture with edge selection, capture prescaler and overcapture; update and capture/compare interrupts; channel pins with the AFIO remaps; timer clock from the APB prescalers (x2 when divided). Edges come at the exact timer-clock cycle: the machine stops the core at the next timer event. A pin driven by two peripherals (TIM1_CH2 and USART1_TX on PA9) is high while either drives it high. Center-aligned counting, slave modes, input filters, dead time, break and timer DMA are reported once in the Messages panel.
+- Example 13 (`13_Blue_Pill_timer_PWM.snx`, firmware `timer_pwm`): 100 Hz PWM into an RC filter (0.823 V measured, 0.825 V ideal), input capture of the period, update interrupt, complementary output.
+- Tests: five emulator cases with exact edge times (PWM, complementary output, toggle on match, down-counting PWM, APB divider, one-pulse, URS, preload, remap, input capture with overcapture, diagnostics) and a session case for example 13.
+
+### Measured (2026-10-16, SN-177)
+
+- 1 kHz PWM (25 %) into the circuit at the default 100 µs maximum step: the RC filter averaged 0.66–0.99 V instead of 0.825 V, because an edge acts at the circuit's next time point. With a 10 µs step: 0.825 V, but 0.3x real time. Exact edges in the circuit are SN-176 (ngspice breakpoints).
+
 ### Changed (2026-10-16, decisions D1 and D2, ADR 0090)
 
 - **Microcontrollers run in SimNodus's own emulator by default.** Renode is the legacy engine: **Simulate > Use Renode for Microcontrollers (Legacy)** (or `SIMNODUS_MCU_ENGINE=renode`). New MCU features (ADC, timers/PWM, serial frames, debugging) are built only on the emulator; Renode is frozen and stays in the package until decision D4.
