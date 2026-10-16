@@ -55,9 +55,9 @@ public:
     const std::vector<netlist::Diagnostic>& diagnostics() const { return session_->diagnostics(); }
 
     void set_speed(double speed);
-    // Microcontroller engine for the next run: "renode", "native" (SimNodus's
-    // own emulator, experimental) or empty for each board's default. The
-    // environment variable SIMNODUS_MCU_ENGINE, when set, takes precedence.
+    // Microcontroller engine for the next run: "native" (SimNodus's own
+    // emulator), "renode" (legacy) or empty for each board's default (native).
+    // The environment variable SIMNODUS_MCU_ENGINE, when set, takes precedence.
     void set_mcu_engine(const std::string& engine) { mcu_engine_ = engine; }
     const std::string& mcu_engine() const { return mcu_engine_; }
     void set_control(model::Id component, double value);

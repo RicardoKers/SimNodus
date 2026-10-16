@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-16, decisions D1 and D2, ADR 0090)
+
+- **Microcontrollers run in SimNodus's own emulator by default.** Renode is the legacy engine: **Simulate > Use Renode for Microcontrollers (Legacy)** (or `SIMNODUS_MCU_ENGINE=renode`). New MCU features (ADC, timers/PWM, serial frames, debugging) are built only on the emulator; Renode is frozen and stays in the package until decision D4.
+- Tests: the default suites run the MCU cases on the emulator; `engine-renode-session` and `gui-editor-renode` keep the Renode path tested.
+
 ### Measured (2026-10-16, gate G1 evidence)
 
 - One hour of example 07 on the own emulator: memory grew 7.5 MB with the default 1 s segments and stayed flat (+0.9 MB) with 10 s segments. The growth comes from ngspice at each segment restart (also without a microcontroller: +0.9 MB per 20 minutes with 1 s segments, +0.2 MB with 10 s), not from the emulator. Segment length to be revisited (SN-188). Soak cases: `engine_tests ... "soak:" native [segment]`.

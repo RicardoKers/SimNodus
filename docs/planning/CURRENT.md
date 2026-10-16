@@ -76,7 +76,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   1 s segments (ngspice keeps memory per segment restart; flat with 10 s
   segments, SN-188). All N1 tasks done; **G1 met** (examples 07-12 at 1.00x
   on the emulator, native suites green on Linux CI; results in E-07-results.md).
-  Decision D1 (native as default) is the owner's (planned 11-13). Then N2 (E-07b, serial frames on
+  **D1 and D2 taken 2026-10-16 (ADR 0090): the own emulator is the default
+  engine; Renode is frozen (legacy menu option, kept until D4).** Now N3 on the
+  emulator: SN-177 timers/PWM, then SN-178 ADC, SN-179 DMA. Then N2 (E-07b, serial frames on
   TX/RX).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)

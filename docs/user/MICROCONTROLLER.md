@@ -6,13 +6,12 @@ where it differs from a real board (MCU-09). Release 0.2.
 
 ## Engines
 
-Firmware runs in Renode 1.16.1 by default. **Simulate > Use the SimNodus
-Emulator for Microcontrollers (Experimental)** runs it in SimNodus's own STM32
-emulator instead (ADR 0089): it starts at once instead of after several
-seconds, gives pin changes their exact time and avoids the Renode differences
-listed below; its own limits are the same as Renode's for the peripherals in
-the table (the timers, ADC, SPI, I2C and DMA are not simulated in either yet).
-The choice applies to the next run and is remembered. With the emulator,
+Firmware runs in SimNodus's own STM32 emulator (ADR 0089, 0090): it starts at
+once, gives pin changes their exact time and avoids the Renode differences
+listed below. **Simulate > Use Renode for Microcontrollers (Legacy)** runs it
+in Renode 1.16.1 instead, which takes several seconds to start; Renode gets no
+new features, so the timers, ADC and later additions work only in the
+emulator. The choice applies to the next run and is remembered. With the emulator,
 circuit changes reach the firmware within 0.1 ms (a coupling window of
 100 µs instead of the 1 ms quantum), and two runs with the same circuit give
 the same firmware timing.

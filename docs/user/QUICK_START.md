@@ -60,11 +60,10 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
   (an `.elf` built for the STM32F103C8, for example with STM32CubeIDE); the
   path is stored relative to the project. **Reload** uses a rebuilt file and
   restarts a running simulation.
-- **F5** first starts the microcontroller engine; the circuit runs when the
-  firmware is ready. Renode, the default engine, takes a few seconds;
-  **Simulate > Use the SimNodus Emulator for Microcontrollers
-  (Experimental)** runs the firmware in SimNodus's own emulator, which starts
-  at once (see [MICROCONTROLLER.md](MICROCONTROLLER.md#engines)).
+- **F5** starts the firmware in SimNodus's own STM32 emulator at once.
+  **Simulate > Use Renode for Microcontrollers (Legacy)** uses Renode
+  instead, which takes a few seconds to start (see
+  [MICROCONTROLLER.md](MICROCONTROLLER.md#engines)).
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
