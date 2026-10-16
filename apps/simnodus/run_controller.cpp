@@ -412,10 +412,19 @@ QString RunController::mode_description() const
             const auto* d = library.find(c.type);
             return d && d->mcu;
         })) {
-        text += tr("; microcontroller firmware runs in Renode at most two quanta of %1s ahead of the circuit; "
-                   "GPIO outputs drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit "
-                   "voltages reach GPIO inputs through Schmitt thresholds (1.16 V / 1.83 V) up to two quanta late")
-                    .arg(QString::fromStdString(model::format_engineering(s.mcu_quantum)));
+        if (mcu_engine_ == "renode") {
+            text += tr("; microcontroller firmware runs in Renode at most two quanta of %1s ahead of the circuit; "
+                       "GPIO outputs drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit "
+                       "voltages reach GPIO inputs through Schmitt thresholds (1.16 V / 1.83 V) up to two quanta late")
+                        .arg(QString::fromStdString(model::format_engineering(s.mcu_quantum)));
+        } else {
+            text += tr("; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; "
+                       "GPIO outputs drive the circuit through 40 Ohm, %1; circuit voltages reach GPIO inputs "
+                       "through Schmitt thresholds (1.16 V / 1.83 V) less than 0.1 ms late, and the ADC reads them "
+                       "0.1-0.2 ms back")
+                        .arg(s.exact_edges ? tr("with a time point at every edge (exact edges)")
+                                           : tr("averaged over each time step (an edge is spread over one step)"));
+        }
     }
     return text;
 }

@@ -8,6 +8,7 @@
 #include "model/engineering.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <cctype>
 #include <cmath>
 #include <filesystem>
@@ -110,6 +111,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     external_refs_.clear();
     mcu_caches_.clear();
     analog_points_.clear();
+    edge_feeds_.clear();
     mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
@@ -166,6 +168,24 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         }
         external_refs_[lower(e.source)] = {e.component, static_cast<std::size_t>(index - names.begin()),
             e.name.substr(split + 1) == "g"};
+    }
+    for (const auto& m : request_.mcus) {
+        auto* runner = mcus_.at(m.component).get();
+        if (!settings_.exact_edges || !runner->reports_edges_ahead()) {
+            continue;
+        }
+        EdgeFeed feed;
+        feed.runner = runner;
+        feed.window_ns = std::max<std::uint64_t>(m.options.chunk_us, 1) * 1000;
+        for (const auto& [source, ref] : external_refs_) {
+            if (ref.component == m.component
+                && std::find(feed.pins.begin(), feed.pins.end(), ref.pin) == feed.pins.end()) {
+                feed.pins.push_back(ref.pin);
+            }
+        }
+        if (!feed.pins.empty()) {
+            edge_feeds_.push_back(std::move(feed));
+        }
     }
 
     // Vectors: requested ones plus the state carried across segments.
@@ -407,6 +427,11 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
 {
     segment_t0_ = t0;
     last_time_ = 0.0;
+    for (auto& feed : edge_feeds_) {
+        feed.done_ns = static_cast<std::uint64_t>(std::llround(t0 * 1e9)); // a new transient has no breakpoints
+    }
+    step_limit_ = std::numeric_limits<double>::infinity();
+    edge_breakpoints_.clear();
     index_valid_ = false;
     engine.take_output();
     if (!engine.load_circuit(deck)) {
@@ -557,6 +582,44 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
     return ref.conductance ? cache.drives[ref.pin].conductance : cache.drives[ref.pin].current;
 }
 
+void SimulationSession::feed_edges(NgspiceSession& engine, double point_time)
+{
+    if (edge_feeds_.empty() || !engine.supports_breakpoints() || stop_requested_) {
+        return;
+    }
+    const double global = segment_t0_ + point_time;
+    const auto now_ns = static_cast<std::uint64_t>(std::llround(global * 1e9));
+    std::uint64_t known_ns = std::numeric_limits<std::uint64_t>::max();
+    for (auto& feed : edge_feeds_) {
+        // The firmware runs to the window boundary below its limit; wait for it so the
+        // edges up to there are known before ngspice chooses its next step.
+        const std::uint64_t limit = now_ns + request_.mcu_lead_us * 1000;
+        const std::uint64_t horizon = limit / feed.window_ns * feed.window_ns;
+        if (horizon <= feed.done_ns) {
+            known_ns = std::min(known_ns, feed.done_ns);
+            continue;
+        }
+        feed.runner->set_limit_ns(limit);
+        if (!feed.runner->wait_time_ns(horizon, stop_requested_)) {
+            return;
+        }
+        for (const std::uint64_t edge : feed.runner->drive_changes(feed.pins, feed.done_ns, horizon)) {
+            // A time point 0.7 ns before the edge still reads the old level (drives
+            // are looked up at whole ns); every later point reads the new one.
+            const double t = static_cast<double>(edge) * 1e-9 - 0.7e-9 - segment_t0_;
+            if (t > point_time && engine.set_breakpoint(t)) {
+                edge_breakpoints_.push_back(t);
+            }
+        }
+        feed.done_ns = horizon;
+        known_ns = std::min(known_ns, horizon);
+    }
+    // Steps stop where the firmware's edges are known; a capped step, unlike a
+    // breakpoint, does not make ngspice restart with small steps.
+    const double limit = static_cast<double>(known_ns) * 1e-9 - segment_t0_;
+    step_limit_ = limit > point_time ? limit : std::numeric_limits<double>::infinity();
+}
+
 bool SimulationSession::start_mcus()
 {
     if (mcus_.empty()) {
@@ -686,6 +749,28 @@ void SimulationSession::run_interactive()
     history_.clear();
     double last_speed = speed_;
 
+    engine->set_step_handler([this](double time, double& delta) {
+        if (edge_feeds_.empty()) {
+            return;
+        }
+        // After a breakpoint ngspice restarts with a tenth of the step and doubles
+        // it per step: about 11 extra time points per edge. After an edge breakpoint
+        // the step goes back to the maximum step; ngspice's error control still
+        // shortens a step that is too long (ADR 0093).
+        while (!edge_breakpoints_.empty() && edge_breakpoints_.front() < time - 1e-9) {
+            edge_breakpoints_.pop_front();
+        }
+        if (!edge_breakpoints_.empty() && edge_breakpoints_.front() <= time + 1e-9) {
+            edge_breakpoints_.pop_front();
+            delta = std::max(delta, settings_.max_step);
+            if (!edge_breakpoints_.empty()) {
+                delta = std::min(delta, edge_breakpoints_.front() - time);
+            }
+        }
+        if (time + delta > step_limit_ && step_limit_ > time) {
+            delta = step_limit_ - time;
+        }
+    });
     engine->set_source_handler([this](const std::string& source, double time) {
         const std::string key = lower(source);
         if (const auto e = external_refs_.find(key); e != external_refs_.end()) {
@@ -775,6 +860,7 @@ void SimulationSession::run_interactive()
                 runner->wait_time_ns((analog_us - request_.mcu_lead_us) * 1000, stop_requested_);
             }
         }
+        feed_edges(*engine, point.time);
         // Pause inside the callback: the engine thread simply waits.
         if (pause_requested_ && !stop_requested_) {
             set_state(RunState::Paused);
@@ -834,6 +920,7 @@ void SimulationSession::run_interactive()
     }
     engine->set_data_handler(nullptr);
     engine->set_source_handler(nullptr);
+    engine->set_step_handler(nullptr);
     stop_mcus();
     std::lock_guard lock(mutex_);
     if (status_.state != RunState::Failed) {

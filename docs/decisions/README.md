@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0093: Exact microcontroller edges as a simulation setting](0093-exact-edges-option.md):
+  breakpoints at firmware edges on request (square waves at the 100 µs step, slower runs).
 - [0092: ADC samples read the circuit at a time it has always passed](0092-adc-samples-known-circuit-time.md):
   SN-178; deterministic codes, 0.1–0.2 ms delay at the default settings.
 - [0091: Firmware outputs enter the circuit as a step-averaged drive](0091-step-averaged-pin-drive.md):

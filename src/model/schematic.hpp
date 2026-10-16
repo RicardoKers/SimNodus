@@ -84,6 +84,10 @@ struct SimulationSettings {
     // Microcontroller coupling quantum Q (MCU-02, ADR 0085): the firmware runs at
     // most Q ahead of the circuit, so circuit inputs reach it within about Q.
     double mcu_quantum = 1e-3; // inputs reach the firmware within two quanta (ADR 0085)
+    // Interactive runs with the own emulator: a time point at every firmware edge
+    // of a wired pin (ADR 0093), for square waveforms at a slower run. Off: each
+    // step gets the pin's average drive (ADR 0091).
+    bool exact_edges = false;
 
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };

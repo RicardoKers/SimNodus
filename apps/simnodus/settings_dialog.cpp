@@ -4,6 +4,7 @@
 
 #include "model/engineering.hpp"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -63,6 +64,14 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
     quantum_->setToolTip(tr("Microcontroller coupling quantum: the firmware runs at most two quanta ahead of the "
                             "circuit, so circuit voltages reach its inputs within two quanta."));
     interactive_form->addRow(tr("Microcontroller quantum"), quantum_);
+    exact_edges_ = new QCheckBox(tr("Exact microcontroller edges (slower)"));
+    exact_edges_->setObjectName(QStringLiteral("exactEdges"));
+    exact_edges_->setChecked(settings.exact_edges);
+    exact_edges_->setToolTip(tr("Off: each time step gets the pin's average output, so PWM averages are right and "
+                                "the run is fastest, but an edge is spread over one step on the scope. On: the circuit "
+                                "takes a time point at every firmware edge, so square waves stay square at the 100 us "
+                                "step; runs are slower (about 1x real time with a 1 kHz PWM)."));
+    interactive_form->addRow(QString(), exact_edges_);
     layout->addWidget(interactive_box);
 
     auto* transient_box = new QGroupBox(tr("Transient mode"));
@@ -119,6 +128,7 @@ void SimulationSettingsDialog::validate_and_accept()
     result_.max_step = interactive_step_->currentData().toDouble();
     result_.segment = *segment;
     result_.mcu_quantum = quantum_->currentData().toDouble();
+    result_.exact_edges = exact_edges_->isChecked();
     result_.transient_stop = *stop;
     result_.transient_max_step = *step;
     accept();

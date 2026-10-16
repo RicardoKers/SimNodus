@@ -139,6 +139,33 @@ TEST_CASE("clipboard text holds selected elements")
     CHECK(!io::elements_from_json_text("garbage", error));
 }
 
+TEST_CASE("exact edges are saved; old projects and wrong values keep the default")
+{
+    Schematic s;
+    SimulationSettings settings;
+    settings.exact_edges = true;
+    s.set_settings(settings);
+    auto loaded = io::from_json_text(io::to_json_text(s));
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().exact_edges);
+
+    std::string text = io::to_json_text(s);
+    const auto at = text.find("\"exact_edges\"");
+    REQUIRE(at != std::string::npos);
+    const auto end = text.find_first_of(",}", at);
+    text.replace(at, end - at, "\"exact_edges\": 1");
+    loaded = io::from_json_text(text);
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(!loaded.schematic->settings().exact_edges);
+    CHECK(!loaded.warnings.empty());
+
+    const std::string wrong = "\"exact_edges\": 1";
+    text.replace(text.find(wrong), wrong.size(), "\"speed\": 1");
+    loaded = io::from_json_text(text); // a project from before the setting
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(!loaded.schematic->settings().exact_edges);
+}
+
 TEST_CASE("the microcontroller quantum is saved and checked")
 {
     Schematic s;

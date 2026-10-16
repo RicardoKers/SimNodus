@@ -188,7 +188,7 @@ json settings_json(const SimulationSettings& s)
 {
     return json{{"mode", s.mode == SimulationMode::Interactive ? "interactive" : "transient"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
-        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}};
+        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges}};
 }
 
 SimulationSettings settings_from(const json& j, std::vector<std::string>& warnings)
@@ -223,6 +223,13 @@ SimulationSettings settings_from(const json& j, std::vector<std::string>& warnin
     if (s.mcu_quantum < 1e-4 || s.mcu_quantum > 0.02) {
         warnings.push_back("setting mcu_quantum out of range (0.1 ms to 20 ms); default used");
         s.mcu_quantum = SimulationSettings{}.mcu_quantum;
+    }
+    if (j.contains("exact_edges")) {
+        if (j["exact_edges"].is_boolean()) {
+            s.exact_edges = j["exact_edges"].get<bool>();
+        } else {
+            warnings.push_back("setting exact_edges is not true or false; default used");
+        }
     }
     return s;
 }

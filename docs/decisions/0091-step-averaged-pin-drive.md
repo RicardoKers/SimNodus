@@ -57,6 +57,8 @@ Measured on 2026-10-16 (Windows laptop, release build, maximum speed):
   averaged away in the analog view; the logic lanes still show the exact
   edges. Serial frames on the pins need SN-175/SN-186.
 - The breakpoint code was measured and removed; this ADR keeps the numbers.
+  ADR 0093 brought it back as the setting "Exact microcontroller edges" after
+  the owner's test of a 1 kHz PWM.
 
 ## Revisit criteria
 

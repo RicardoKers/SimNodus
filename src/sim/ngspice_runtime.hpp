@@ -51,6 +51,9 @@ public:
     // Value of an external voltage source at trial time `time`. Trial times
     // can repeat or move backward (E-01 finding 2): return a function of time.
     using SourceHandler = std::function<double(const std::string& source, double time)>;
+    // Before each time step from accepted time `time`: may shorten `delta` (the
+    // GetSyncData callback; ngspice keeps it registered once set).
+    using StepHandler = std::function<void(double time, double& delta)>;
 
     static std::unique_ptr<NgspiceSession> open(const NgspiceLocation& location, std::string& error);
     ~NgspiceSession();
@@ -63,8 +66,14 @@ public:
     // no run is active.
     void set_data_handler(DataHandler handler);
     void set_source_handler(SourceHandler handler);
+    void set_step_handler(StepHandler handler);
 
     bool command(const std::string& text);
+    // Adds a time point the running transient must land on (ngSpice_SetBkpt,
+    // which calls CKTsetBreak; the run does not stop). Engine thread, inside a
+    // callback. False if the library lacks the function or the time is refused.
+    bool set_breakpoint(double time);
+    bool supports_breakpoints() const { return api_.set_bkpt != nullptr; }
     bool load_circuit(const std::vector<std::string>& lines);
     // Vector names reported in the first data callback of the current run.
     std::vector<std::string> vector_names() const;
@@ -89,6 +98,7 @@ private:
     static int on_init_data(ngspice_abi::VecInfoAll* info, int id, void* user);
     static int on_bg_thread(ngspice_abi::NgBool not_running, int id, void* user);
     static int on_vsrc(double* value, double time, char* name, int id, void* user);
+    static int on_sync(double time, double* delta, double old_delta, int redo, int id, int location, void* user);
 
     ngspice_abi::Api api_;
     std::optional<int> version_;
@@ -103,6 +113,7 @@ private:
 
     DataHandler data_handler_;
     SourceHandler source_handler_;
+    StepHandler step_handler_;
     AcceptedPoint scratch_;
 };
 

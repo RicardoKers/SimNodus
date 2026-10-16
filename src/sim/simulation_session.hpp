@@ -26,6 +26,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <deque>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -185,6 +186,19 @@ private:
     };
     std::map<std::string, ExternalRef> external_refs_;
     std::map<model::Id, McuCache> mcu_caches_; // engine thread only
+    // Exact edges (ADR 0093, settings.exact_edges): for a board whose engine
+    // reports its edges ahead, ngspice gets a breakpoint just before every drive
+    // change of a wired pin, and its steps are capped at the firmware's time.
+    struct EdgeFeed {
+        mcu::McuBackend* runner = nullptr;
+        std::vector<std::size_t> pins; // wired pins (driver sources)
+        std::uint64_t window_ns = 0;   // coupling window of the runner
+        std::uint64_t done_ns = 0;     // edges up to here are breakpoints already
+    };
+    std::vector<EdgeFeed> edge_feeds_;    // engine thread only after start()
+    double step_limit_ = 0.0;             // segment time ngspice may not step past
+    std::deque<double> edge_breakpoints_; // segment times of the edge breakpoints ahead
+    void feed_edges(NgspiceSession& engine, double point_time);
     bool mcu_stale_ = false; // engine thread only: a firmware wait ended unreached
     double external_value(const ExternalRef& ref, double time);
     struct InputWatch {

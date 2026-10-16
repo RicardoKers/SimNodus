@@ -317,6 +317,34 @@ std::vector<PinDrive> NativeMcuRunner::average_drives(std::uint64_t from_ns, std
     return drives;
 }
 
+std::vector<std::uint64_t> NativeMcuRunner::drive_changes(
+    const std::vector<std::size_t>& pins, std::uint64_t from_ns, std::uint64_t to_ns) const
+{
+    std::lock_guard lock(mutex_);
+    std::vector<std::uint64_t> times;
+    for (const std::size_t pin : pins) {
+        if (pin >= history_.size()) {
+            continue;
+        }
+        const auto& history = history_[pin];
+        auto it = std::upper_bound(history.begin(), history.end(), from_ns,
+            [](std::uint64_t t, const auto& entry) { return t < entry.first; });
+        for (; it != history.end() && it->first <= to_ns; ++it) {
+            if (it == history.begin()) {
+                continue;
+            }
+            const PinDrive now = pin_drive(it->second, options_.pin_model);
+            const PinDrive before = pin_drive(std::prev(it)->second, options_.pin_model);
+            if (now.conductance != before.conductance || now.current != before.current) {
+                times.push_back(it->first);
+            }
+        }
+    }
+    std::sort(times.begin(), times.end());
+    times.erase(std::unique(times.begin(), times.end()), times.end());
+    return times;
+}
+
 PinLog NativeMcuRunner::pin_log(std::size_t pin, std::uint64_t from_ns) const
 {
     std::lock_guard lock(mutex_);

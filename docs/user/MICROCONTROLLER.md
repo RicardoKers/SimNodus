@@ -83,8 +83,12 @@ the same firmware timing.
   0.825 V from 25 % of 3.3 V), but an edge is spread over the step that
   contains it: the scope shows one point between the levels, and signals
   faster than the step (a serial frame's bits) are averaged away there. The
-  logic lanes show the exact edges. With Renode an edge acts at the next time
-  point instead.
+  logic lanes show the exact edges. **Simulate > Simulation Settings > Exact
+  microcontroller edges** gives the circuit a time point at every firmware
+  edge instead (ADR 0093): square waves stay square at the 100 µs step and RC
+  responses match the formulas, but runs are slower (lesson 1: 1.2x instead of
+  2.9x real time on a 2026 laptop; a 10 µs step gives the same waveforms at
+  about 0.25x). With Renode an edge acts at the next time point.
 - **AFIO (Renode only).** With Renode, EXTI line *n* follows pin *n* of
   every port; the port selection in `AFIO_EXTICR` is not simulated, so use
   one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`
