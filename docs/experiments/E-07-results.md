@@ -70,3 +70,21 @@ speed on the owner's laptop under Windows and Linux; the owner has no Linux
 system, so Linux was measured on the CI runner, which is slower than the laptop
 (see the table). Next: plan N1 (SN-171..SN-174), gate G1 and decision D1 on
 2026-11-13.
+
+## Gate G1 (plan N1), measured 2026-10-16
+
+Criteria from the "Gate G1" paragraph of [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md).
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Every MCU test passes on both engines; native-only tight timing | met | ctest 14/14 on Windows and Linux CI (PR #128): `engine-native` (session MCU cases) and `gui-editor-native` (GUI MCU cases) besides the Renode suites; on the emulator GPIO edges within 120 µs of the expected time, input delay ≤ one window, button-to-LED response 100 µs |
+| Every example ≥ 1.0x real time with the native engine (owner's laptop) | met | Examples 07-12 at 1x speed after 10 s: 1.00-1.01x real time each (example 12, HAL at 72 MHz: 1.00x; 0.84x with Renode) |
+| Startup of a run with a board under 1 s | met | The circuit starts at once ("circuit started after 0.0 s" in the session case); Renode needs 7-9 s |
+| Two coupled runs with scripted inputs give identical traces | met | Session case with a 25 Hz pulse into PA1 (EXTI) gives identical PA0 logs in two runs; deterministic window coupling (SN-173). The pulse source replaces button presses, which a test cannot time exactly |
+| One-hour run of example 07 keeps memory flat (< 10 MB) | met, with a finding | +7.5 MB with 1 s segments; the growth is ngspice at each segment restart (the analog circuit alone shows it too) and disappears with 10 s segments (+0.9 MB). SN-188 revisits the segment length |
+| GUI smoke test with the native engine on Linux CI | met | `gui-editor-native` passed on Linux CI (6.8 s) |
+| Owner's hands-on test (lessons 1-2, own CubeIDE project) | met | Owner on 2026-10-15: everything worked; the instant start "ficou ótima"; PA9 shows no serial bits yet (planned for N2) |
+
+All G1 criteria are met. Decision D1 (native as the default engine) is the
+owner's; planned for 2026-11-13, possible earlier.
+

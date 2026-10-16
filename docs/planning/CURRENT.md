@@ -74,8 +74,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   SN-174 done (docs per engine, owner test build). G1 memory criterion
   measured 2026-10-16: one hour of example 07 on the emulator +7.5 MB with
   1 s segments (ngspice keeps memory per segment restart; flat with 10 s
-  segments, SN-188). All N1 tasks done; G1 review and decision D1 with the
-  owner (planned 11-13, can come earlier). Then N2 (E-07b, serial frames on
+  segments, SN-188). All N1 tasks done; **G1 met** (examples 07-12 at 1.00x
+  on the emulator, native suites green on Linux CI; results in E-07-results.md).
+  Decision D1 (native as default) is the owner's (planned 11-13). Then N2 (E-07b, serial frames on
   TX/RX).
 
 ## Verified on 2026-10-15 (SN-137, merged in PR #118)
