@@ -265,6 +265,36 @@ private slots:
         QCOMPARE(format_seconds(5e-6), QString::fromUtf8("5 µs"));
         QCOMPARE(format_seconds(1.5), QStringLiteral("1.5 s"));
     }
+
+    void scope_zero_marker_moves_its_channel()
+    {
+        // SN-189: dragging a channel's 0 V marker sets its offset (fifths of a
+        // division); a double-click puts 0 V back at the center.
+        ScopeWidget scope;
+        scope.resize(600, 400);
+        ScopeTrace trace;
+        trace.name = QStringLiteral("V(OUT)");
+        trace.unit = QStringLiteral("V");
+        trace.color = Qt::blue;
+        trace.per_division = 1.0;
+        scope.set_traces({trace});
+        scope.set_selected_trace(0);
+        QSignalSpy spy(&scope, &ScopeWidget::offset_changed);
+        const QRectF plot = scope.plot_rect();
+        const QPointF marker(plot.left() - 3, plot.center().y()); // 0 V at the center
+        const double division = plot.height() / ScopeWidget::vertical_divisions;
+        auto send = [&scope](QEvent::Type type, QPointF at, Qt::MouseButtons buttons) {
+            QMouseEvent event(type, at, scope.mapToGlobal(at), Qt::LeftButton, buttons, Qt::NoModifier);
+            QApplication::sendEvent(&scope, &event);
+        };
+        send(QEvent::MouseButtonPress, marker, Qt::LeftButton);
+        send(QEvent::MouseMove, marker + QPointF(0, 2 * division), Qt::LeftButton); // two divisions down
+        send(QEvent::MouseButtonRelease, marker + QPointF(0, 2 * division), Qt::NoButton);
+        QVERIFY(!spy.isEmpty());
+        QVERIFY(std::abs(spy.last().at(1).toDouble() - 2.0) < 1e-9); // the center line now shows 2 V
+        send(QEvent::MouseButtonDblClick, marker + QPointF(0, 2 * division), Qt::LeftButton);
+        QVERIFY(std::abs(spy.last().at(1).toDouble()) < 1e-12);
+    }
 };
 
 QTEST_MAIN(UiTests)
