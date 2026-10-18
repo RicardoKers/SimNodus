@@ -1,0 +1,130 @@
+{
+  "type": "dcmotor",
+  "name": "DC motor",
+  "category": "Electromechanical",
+  "prefix": "M",
+  "description": "Small permanent-magnet DC motor without load: winding resistance and inductance, back-EMF, inertia (50 ms mechanical time constant) and friction; shows its speed",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.8
+        ]
+      },
+      {
+        "text": "M",
+        "at": [
+          0,
+          0
+        ],
+        "size": 1.6
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.8,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "+",
+        "at": [
+          0.9,
+          -2.5
+        ],
+        "size": 1
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "V",
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Rated voltage",
+      "unit": "V",
+      "default": "6",
+      "description": "Voltage for the no-load speed",
+      "min": "0.5",
+      "max": "48"
+    },
+    {
+      "name": "rpm",
+      "label": "No-load speed",
+      "unit": "rpm",
+      "default": "6000",
+      "description": "Speed at the rated voltage without load",
+      "min": "10",
+      "max": "100k"
+    },
+    {
+      "name": "Istall",
+      "label": "Stall current",
+      "unit": "A",
+      "default": "2",
+      "description": "Current with the shaft held (sets the resistance)",
+      "min": "1m",
+      "max": "100"
+    },
+    {
+      "name": "Inoload",
+      "label": "No-load current",
+      "unit": "A",
+      "default": "100m",
+      "description": "Current at the rated voltage without load (sets the friction)",
+      "min": "100u",
+      "max": "10"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "w_{ref}",
+    "scale": 9.5492966,
+    "unit": "rpm"
+  },
+  "spice": [
+    "R_{ref} {node:+} a_{ref} {= V / Istall}",
+    "L_{ref} a_{ref} b_{ref} 1m",
+    "V_sense_{ref} b_{ref} e_{ref} DC 0",
+    "B_{ref}_emf e_{ref} {node:-} V={= V * 60 / (6.2831853 * rpm)}*V(w_{ref})",
+    "B_{ref}_t 0 w_{ref} I={= V * 60 / (6.2831853 * rpm)}*I(V_sense_{ref})",
+    "C_{ref}_j w_{ref} 0 {= 0.05 * (V * 60 / (6.2831853 * rpm)) * (V * 60 / (6.2831853 * rpm)) * Istall / V}",
+    "R_{ref}_b w_{ref} 0 {= (rpm * 6.2831853 / 60) / ((V * 60 / (6.2831853 * rpm)) * Inoload)}"
+  ]
+}

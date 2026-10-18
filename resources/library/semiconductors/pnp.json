@@ -1,0 +1,110 @@
+{
+  "type": "pnp",
+  "name": "PNP transistor",
+  "category": "Semiconductors",
+  "prefix": "Q",
+  "description": "Bipolar junction transistor (2N2907-like); emitter at the top",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -0.6,
+          0
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -1.4,
+          -0.6,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -0.6,
+          2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          2,
+          -2,
+          2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          0.6,
+          2,
+          2
+        ]
+      },
+      {
+        "line": [
+          2,
+          2,
+          2,
+          3
+        ]
+      },
+      {
+        "polygon": [
+          -0.2,
+          -0.8,
+          0.7,
+          -0.75,
+          0.35,
+          -1.45
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "B",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "E",
+        "at": [
+          2,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "C",
+        "at": [
+          2,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "spice": [
+    "Q_{ref} {node:C} {node:B} {node:E} QPNP_SN"
+  ],
+  "models": [
+    ".model QPNP_SN PNP(IS=650f BF=200 VAF=115 IKF=0.65 BR=4 RB=10 RC=1 CJE=20p CJC=9p TF=0.5n TR=50n)"
+  ]
+}

@@ -47,7 +47,12 @@ inline model::Point to_grid(const QPointF& p)
 struct LiveState {
     bool running = false;
     std::map<model::Id, double> controls;   // interactive component -> control value
-    std::map<model::Id, double> led_current; // LED -> amperes
+    // Glowing parts (LED, lamp): brightness 0..1 and color ("red", "#ffd27a").
+    struct Glow {
+        double level = 0.0;
+        std::string color;
+    };
+    std::map<model::Id, Glow> glow;
     std::map<model::Id, QString> readouts;  // meter/instrument text on the symbol
     std::map<std::string, double> nets;     // net name (lower case) -> volts
     // Microcontroller boards: GPIO pin name -> level and mode (INT-06).

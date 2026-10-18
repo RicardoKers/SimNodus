@@ -1,0 +1,103 @@
+{
+  "type": "zener",
+  "name": "Zener diode",
+  "category": "Semiconductors",
+  "prefix": "D",
+  "description": "Zener diode; conducts in reverse at its Zener voltage (cathode at the top for a regulator)",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          0.8,
+          1,
+          0.8,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          -0.8,
+          1,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          -0.8,
+          -1.4,
+          -0.4
+        ]
+      },
+      {
+        "line": [
+          1,
+          -0.8,
+          1.4,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "K",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "A",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "Vz",
+  "parameters": [
+    {
+      "name": "Vz",
+      "label": "Zener voltage",
+      "unit": "V",
+      "default": "5.1",
+      "description": "Reverse voltage at 5 mA",
+      "min": "1",
+      "max": "200"
+    }
+  ],
+  "spice": [
+    "D_{ref} {node:A} {node:K} DZ_{ref}",
+    ".model DZ_{ref} D(IS=1n N=1.2 RS=2 BV={Vz} IBV=5m CJO=50p)"
+  ]
+}

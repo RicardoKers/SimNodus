@@ -250,9 +250,10 @@ public:
         style.draw_pins = ghost_;
         const auto& live = scene_.live();
         if (live.running) {
-            if (const auto it = live.led_current.find(component_.id); it != live.led_current.end()) {
-                QColor glow = led_color(component_.parameters.count("color") ? component_.parameters.at("color") : "red");
-                glow.setAlphaF(std::clamp(it->second / 0.01, 0.0, 1.0) * 0.9);
+            if (const auto it = live.glow.find(component_.id); it != live.glow.end()) {
+                const std::string& name = it->second.color;
+                QColor glow = !name.empty() && name[0] == '#' ? QColor(QString::fromStdString(name)) : led_color(name);
+                glow.setAlphaF(std::clamp(it->second.level, 0.0, 1.0) * 0.9);
                 style.glow = glow;
             }
         }

@@ -1,0 +1,109 @@
+{
+  "type": "lamp",
+  "name": "Lamp",
+  "category": "Electromechanical",
+  "prefix": "LP",
+  "description": "Incandescent lamp at its hot resistance (rated voltage / rated current); glows with its current",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          -1.06,
+          -1.06,
+          1.06,
+          1.06
+        ]
+      },
+      {
+        "line": [
+          -1.06,
+          1.06,
+          1.06,
+          -1.06
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "V",
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Rated voltage",
+      "unit": "V",
+      "default": "6",
+      "description": "Voltage for full brightness",
+      "min": "0.5",
+      "max": "250"
+    },
+    {
+      "name": "I",
+      "label": "Rated current",
+      "unit": "A",
+      "default": "100m",
+      "description": "Current at the rated voltage",
+      "min": "1m",
+      "max": "10"
+    }
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_meas_{ref}",
+    "glow": {
+      "full_parameter": "I",
+      "color": "#ffd27a"
+    }
+  },
+  "spice": [
+    "V_meas_{ref} {node:1} a_{ref} DC 0",
+    "R_{ref} a_{ref} {node:2} {= V / I}"
+  ]
+}

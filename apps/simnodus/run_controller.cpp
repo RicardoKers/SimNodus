@@ -80,8 +80,10 @@ bool RunController::start(QString& error)
     readout_vectors_.clear();
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
-        if (d && d->readout && d->readout->kind == library::Readout::Kind::Current) {
-            const auto vector = lower(element_name(d->readout->element, c.designator)) + "#branch";
+        if (d && d->readout && d->readout->kind != library::Readout::Kind::Voltage) {
+            // Current: the branch of a measuring source; node: an internal node (motor speed).
+            const bool current = d->readout->kind == library::Readout::Kind::Current;
+            const auto vector = lower(element_name(d->readout->element, c.designator)) + (current ? "#branch" : "");
             readout_vectors_[c.id] = vector;
             request.vectors.push_back(vector);
         }
@@ -345,13 +347,31 @@ void RunController::refresh()
         if (!d || !d->readout) {
             continue;
         }
-        if (d->readout->kind == library::Readout::Kind::Current) {
+        if (d->readout->kind == library::Readout::Kind::Node) {
+            const auto it = latest.find(readout_vectors_[c.id]);
+            if (it != latest.end()) {
+                const double value = it->second * d->readout->scale;
+                live.readouts[c.id] = QStringLiteral("%1 %2")
+                                          .arg(std::abs(value) >= 100 ? QString::number(value, 'f', 0) : QString::number(value, 'g', 3),
+                                              QString::fromStdString(d->readout->unit));
+            }
+        } else if (d->readout->kind == library::Readout::Kind::Current) {
             const auto it = latest.find(readout_vectors_[c.id]);
             if (it == latest.end()) {
                 continue;
             }
-            if (c.type == "led") {
-                live.led_current[c.id] = it->second;
+            if (d->readout->glows()) {
+                const auto& r = *d->readout;
+                auto parameter = [&c](const std::string& name) {
+                    const auto p = c.parameters.find(name);
+                    return p == c.parameters.end() ? std::string() : p->second;
+                };
+                double full = r.glow_full;
+                if (!r.glow_full_parameter.empty()) {
+                    full = model::parse_engineering(parameter(r.glow_full_parameter), "A").value_or(0.0);
+                }
+                const std::string color = r.glow_color_parameter.empty() ? r.glow_color : parameter(r.glow_color_parameter);
+                live.glow[c.id] = {full > 0 ? std::abs(it->second) / full : 0.0, color};
             } else {
                 live.readouts[c.id] = quantity(it->second, "A");
             }

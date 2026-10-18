@@ -1,0 +1,138 @@
+{
+  "type": "opamp",
+  "name": "Op-amp",
+  "category": "Integrated circuits",
+  "prefix": "U",
+  "description": "Behavioral operational amplifier: gain 100 000, 1 MHz gain-bandwidth, output within 0.1 V of its supply pins, 50 ohm output; draws no supply current",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -3,
+          -3,
+          -3,
+          3,
+          3,
+          0
+        ]
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -3,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -3,
+          2
+        ]
+      },
+      {
+        "line": [
+          3,
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          4,
+          0,
+          1.5
+        ]
+      },
+      {
+        "text": "−",
+        "at": [
+          -2.2,
+          -2
+        ],
+        "size": 1.2
+      },
+      {
+        "text": "+",
+        "at": [
+          -2.2,
+          2
+        ],
+        "size": 1.2
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN-",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "IN+",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          5,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "V+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "V-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    2,
+    -4
+  ],
+  "value_offset": [
+    2,
+    3
+  ],
+  "spice": [
+    "E_{ref} d_{ref} 0 {node:IN+} {node:IN-} 100k",
+    "R_{ref}_p d_{ref} p_{ref} 1meg",
+    "C_{ref}_p p_{ref} 0 15.9n",
+    "B_{ref} o_{ref} 0 V=max(min(V(p_{ref}), V({node:V+})-0.1), V({node:V-})+0.1)",
+    "R_{ref}_o o_{ref} {node:OUT} 50",
+    "R_{ref}_in {node:IN+} {node:IN-} 10meg",
+    "R_{ref}_gp {node:IN+} 0 1G",
+    "R_{ref}_vp {node:V+} 0 1G",
+    "R_{ref}_vn {node:V-} 0 1G"
+  ]
+}

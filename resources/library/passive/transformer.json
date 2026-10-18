@@ -1,0 +1,250 @@
+{
+  "type": "transformer",
+  "name": "Transformer",
+  "category": "Passive",
+  "prefix": "T",
+  "description": "Two windings on one core (coupling 0.999, 1 ohm primary resistance); primary P1-P2, secondary S1-S2 with the turns ratio; the dots are at P1 and S1",
+  "symbol": {
+    "graphics": [
+      {
+        "arc": [
+          -1.2,
+          -1.8,
+          0.6,
+          90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          -1.2,
+          -0.6,
+          0.6,
+          90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          -1.2,
+          0.6,
+          0.6,
+          90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          -1.2,
+          1.8,
+          0.6,
+          90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          1.2,
+          -1.8,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          1.2,
+          -0.6,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          1.2,
+          0.6,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "arc": [
+          1.2,
+          1.8,
+          0.6,
+          -90,
+          180
+        ]
+      },
+      {
+        "line": [
+          -0.25,
+          -2.6,
+          -0.25,
+          2.6
+        ]
+      },
+      {
+        "line": [
+          0.25,
+          -2.6,
+          0.25,
+          2.6
+        ]
+      },
+      {
+        "line": [
+          -3,
+          -3,
+          -1.2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          -3,
+          -1.2,
+          -2.4
+        ]
+      },
+      {
+        "line": [
+          -3,
+          3,
+          -1.2,
+          3
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          3,
+          -1.2,
+          2.4
+        ]
+      },
+      {
+        "line": [
+          3,
+          -3,
+          1.2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          1.2,
+          -3,
+          1.2,
+          -2.4
+        ]
+      },
+      {
+        "line": [
+          3,
+          3,
+          1.2,
+          3
+        ]
+      },
+      {
+        "line": [
+          1.2,
+          3,
+          1.2,
+          2.4
+        ]
+      },
+      {
+        "circle": [
+          -2.2,
+          -2.2,
+          0.25
+        ],
+        "fill": true
+      },
+      {
+        "circle": [
+          2.2,
+          -2.2,
+          0.25
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "P1",
+        "at": [
+          -3,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "P2",
+        "at": [
+          -3,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "S1",
+        "at": [
+          3,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "S2",
+        "at": [
+          3,
+          3
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -2,
+    -5
+  ],
+  "value_offset": [
+    -2,
+    5
+  ],
+  "value_parameter": "n",
+  "parameters": [
+    {
+      "name": "n",
+      "label": "Turns ratio",
+      "unit": "",
+      "default": "10",
+      "description": "Primary turns per secondary turn (10: 230 V becomes 23 V)",
+      "min": "0.01",
+      "max": "1000"
+    },
+    {
+      "name": "Lp",
+      "label": "Primary inductance",
+      "unit": "H",
+      "default": "10",
+      "description": "Magnetizing inductance of the primary",
+      "min": "1u",
+      "max": "1k"
+    }
+  ],
+  "spice": [
+    "R_{ref}_wp {node:P1} p_{ref} 1",
+    "L_{ref}_p p_{ref} {node:P2} {Lp}",
+    "R_{ref}_ws {node:S1} s_{ref} {= 1 / (n * n)}",
+    "L_{ref}_s s_{ref} {node:S2} {= Lp / (n * n)}",
+    "K_{ref} L_{ref}_p L_{ref}_s 0.999",
+    "R_{ref}_iso {node:P2} {node:S2} 100meg"
+  ]
+}

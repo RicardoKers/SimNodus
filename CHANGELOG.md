@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, SN-142, component set B)
+
+- **New components:** PNP transistor (2N2907-like), P-channel MOSFET (BS250-like), Zener diode (Vz parameter), behavioral op-amp (gain 100 000, 1 MHz gain-bandwidth, output within 0.1 V of its supply pins, 50 ohm output), lamp (rated voltage and current; glows), relay (coil voltage, inductive coil, changeover contact with pull-in at 74 % and drop-out at 10 % of the coil current), DC motor (resistance, inductance, back-EMF, inertia, friction; shows its speed in rpm), transformer (turns ratio, primary inductance, coupling 0.999). New categories *Integrated circuits* and *Electromechanical*.
+- Library format: readouts may glow (`glow`, used by the LED and the lamp) or show a scaled internal node (`"kind": "node"`, the motor's rpm).
+- Tests: each new part in a reference circuit (switching, regulation, gain and clipping, contact change, motor speed, transformer ratio).
+
 ### Added (2026-10-18, SN-180)
 
 - **Watchpoints** in the GDB server (Z2 write, Z3 read, Z4 access, any number and length): the core halts after the accessing instruction and reports `watch`/`rwatch`/`awatch` with the address. Checked with arm-none-eabi-gdb: `watch uwTick` stops at each change (old 0, new 1; old 1, new 2), `rwatch` at the read in `main`. While a watchpoint is set the emulator leaves its fast path.
