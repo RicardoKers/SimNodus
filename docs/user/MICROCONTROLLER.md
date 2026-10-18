@@ -28,7 +28,7 @@ the same firmware timing.
 | GPIO outputs into the circuit | yes | 3.3 V or 0 V behind 40 Ω; open drain only pulls low |
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
-| USART1–3 | yes | Text in the Signal Analyzer's UART tab |
+| USART1–3 | yes | Text in the Signal Analyzer's UART tab. With the own emulator each byte goes out on the TX pin bit by bit at the baud rate (start, 8 or 9 data bits with parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, so serial output takes as long as on the board. A board's TX wired to another board's RX passes the bytes on |
 | DMA1 (emulator only) | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |
 | ADC1 and ADC2 (emulator only) | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
 | Timers TIM1–TIM4 (emulator only) | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
@@ -92,11 +92,13 @@ the same firmware timing.
   every port; the port selection in `AFIO_EXTICR` is not simulated, so use
   one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`
   and the USART pin remaps.
-- **UART.** Bytes move instantly: the baud rate is not simulated and the TX
-  pin does not carry the serial waveform. The TX pin (PA9, PA2, PB10) rests
-  high (3.3 V) while the USART and its transmitter are enabled, as on the
-  board; the scope shows that level, not the bits. Real waveforms are planned
-  with SimNodus's own STM32 emulator (E-07).
+- **UART.** The logic lanes show the exact bits on the TX pin. On the scope a
+  bit at 115200 baud (8.7 µs) is shorter than the circuit's 0.1 ms step: turn
+  on *Exact microcontroller edges* with a 10 µs step to see the frame. The RX
+  pin is not sampled from the circuit: bytes reach a board from the terminal
+  or from another board's TX on the same net (passed on at the byte level,
+  one frame apart). With Renode bytes move instantly and the TX pin only rests
+  high.
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source

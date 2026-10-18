@@ -430,7 +430,7 @@ ComponentDefinition parse_definition(const json& j)
         }
         if (m.contains("uarts")) {
             for (const auto& u : m["uarts"]) {
-                McuBoard::Uart uart{text(u, "name", true), text(u, "label"), text(u, "tx_pin")};
+                McuBoard::Uart uart{text(u, "name", true), text(u, "label"), text(u, "tx_pin"), text(u, "rx_pin")};
                 if (uart.label.empty()) {
                     uart.label = uart.name;
                 }

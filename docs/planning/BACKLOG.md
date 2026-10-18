@@ -60,7 +60,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | doing (runner, profile field, Simulate menu option, diagnostics in Messages) |
 | SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | done |
 | SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | done (owner tried the build on 2026-10-15) |
-| SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | todo |
+| SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | done 2026-10-18 (TX frames, board-to-board links; RX from the circuit not sampled) |
 | SN-176 | Firmware edges into the circuit (PWM averages) | N2 / G2 | MCU-10 | done: step-averaged drive (ADR 0091); breakpoints measured, not taken |
 | SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | done (example 13) |
 | SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | done (ADR 0092, example 14) |

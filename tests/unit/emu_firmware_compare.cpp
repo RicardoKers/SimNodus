@@ -80,7 +80,9 @@ Trace run_emulator(const Case& c, const fs::path& elf, std::string& error)
 {
     Trace trace;
     const auto image = emu::read_elf(elf, error);
-    emu::Stm32F103 m;
+    emu::MachineOptions options;
+    options.uart_frames = false; // Renode moves bytes at once; frames would delay firmware that waits for TXE
+    emu::Stm32F103 m(options);
     if (!image || !m.load(*image, error)) {
         return trace;
     }

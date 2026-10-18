@@ -110,6 +110,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcus_.clear();
     external_refs_.clear();
     mcu_caches_.clear();
+    serial_links_.clear();
     debug_resumes_ = 0;
     analog_points_.clear();
     edge_feeds_.clear();
@@ -122,6 +123,23 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         && std::all_of(request_.mcus.begin(), request_.mcus.end(), [](const McuRequest& m) { return m.engine == "native"; })) {
         for (const auto& m : request_.mcus) {
             request_.mcu_lead_us = std::min(request_.mcu_lead_us, m.options.chunk_us);
+        }
+    }
+    // Serial links between boards: a TX pin and an RX pin on one net.
+    for (const auto& a : request_.mcus) {
+        for (const auto& b : request_.mcus) {
+            if (a.component == b.component) {
+                continue;
+            }
+            for (const auto& [ua, pins_a] : a.uart_pins) {
+                for (const auto& [ub, pins_b] : b.uart_pins) {
+                    const auto tx = netlist_.pin_node.find({a.component, pins_a.first});
+                    const auto rx = netlist_.pin_node.find({b.component, pins_b.second});
+                    if (tx != netlist_.pin_node.end() && rx != netlist_.pin_node.end() && tx->second == rx->second) {
+                        serial_links_.push_back({a.component, ua, b.component, ub, 0});
+                    }
+                }
+            }
         }
     }
     request_.debugging = std::any_of(request_.mcus.begin(), request_.mcus.end(),
@@ -548,6 +566,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             if (!uart.tx_pin.empty()) {
                 request.options.uart_tx_pins[uart.name] = uart.tx_pin;
             }
+            request.uart_pins[uart.name] = {uart.tx_pin, uart.rx_pin};
         }
         machine.firmware = path;
         machine.before_firmware = d->mcu->before_firmware;
@@ -608,6 +627,18 @@ double SimulationSession::external_value(const ExternalRef& ref, double time)
         return 0.0;
     }
     return ref.conductance ? cache.drives[ref.pin].conductance : cache.drives[ref.pin].current;
+}
+
+void SimulationSession::pass_serial_bytes()
+{
+    for (auto& link : serial_links_) {
+        std::string bytes;
+        const std::uint64_t total = mcus_.at(link.from)->uart_received(link.from_uart, link.sent, bytes);
+        if (!bytes.empty()) {
+            mcus_.at(link.to)->uart_send(link.to_uart, bytes); // arrive one frame apart, as on the wire
+        }
+        link.sent = total;
+    }
 }
 
 void SimulationSession::feed_edges(NgspiceSession& engine, double point_time)
@@ -889,6 +920,7 @@ void SimulationSession::run_interactive()
             }
         }
         feed_edges(*engine, point.time);
+        pass_serial_bytes();
         // Pause inside the callback: the engine thread simply waits.
         if (pause_requested_ && !stop_requested_) {
             set_state(RunState::Paused);

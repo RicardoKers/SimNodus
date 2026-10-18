@@ -1115,17 +1115,20 @@
       {
         "name": "usart1",
         "tx_pin": "PA9",
-        "label": "USART1 (PA9 TX, PA10 RX)"
+        "label": "USART1 (PA9 TX, PA10 RX)",
+        "rx_pin": "PA10"
       },
       {
         "name": "usart2",
         "tx_pin": "PA2",
-        "label": "USART2 (PA2 TX, PA3 RX)"
+        "label": "USART2 (PA2 TX, PA3 RX)",
+        "rx_pin": "PA3"
       },
       {
         "name": "usart3",
         "tx_pin": "PB10",
-        "label": "USART3 (PB10 TX, PB11 RX)"
+        "label": "USART3 (PB10 TX, PB11 RX)",
+        "rx_pin": "PB11"
       }
     ]
   },

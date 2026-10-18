@@ -1083,3 +1083,50 @@ TEST_CASE("session: a GDB client halts firmware and circuit together, and detach
     session.stop();
 #endif
 }
+
+TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: serial links need the own emulator (SN-175)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    // Board U1 (HAL example) prints its clocks on PA9; PA9 goes to U2's PA10, and
+    // U2 (uart_echo) echoes every byte it receives on its own TX.
+    test::CircuitBuilder b(board_library());
+    b.add("bluepill", {{"G1", "0"}, {"PA9", "LINK"}}, {{"firmware", "firmware/hal_clock/hal_clock.elf"}});
+    const model::Id echo = b.add("bluepill", {{"G1", "0"}, {"PA10", "LINK"}}, {{"firmware", "firmware/uart_echo/uart_echo.elf"}});
+    b.add("resistor", {{"1", "LINK"}, {"2", "0"}}, {{"R", "100k"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0.0;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &board_library();
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 0.05) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(5ms);
+    }
+    session.stop();
+    std::string text;
+    session.mcu_uart_received(echo, "usart1", 0, text);
+    // U2's echo interrupt interleaves with its own greeting, as on a chip: look
+    // for U1's first line as a subsequence.
+    const std::string first = "HAL clock example";
+    std::size_t matched = 0;
+    for (const char c : text) {
+        matched += matched < first.size() && c == first[matched] ? 1 : 0;
+    }
+    CHECK(matched == first.size());
+    CHECK(text.find("SYSCLK 72000000 Hz") != std::string::npos);
+#endif
+}

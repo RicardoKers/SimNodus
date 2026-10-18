@@ -4,7 +4,7 @@
 // STM32F103 (medium density, x8/xB) machine of the SimNodus emulator: memory
 // map (RM0008, section 3.3), timebase from HCLK, and the tier-1 devices of
 // docs/architecture/MCU_EMULATOR.md (RCC, flash interface, PWR, GPIO A-E,
-// AFIO, EXTI, USART1-3 at byte level), the timers TIM1-TIM4
+// AFIO, EXTI, USART1-3 with frames at the baud rate), the timers TIM1-TIM4
 // (stm32f1_timer.hpp), ADC1-2 (stm32f1_adc.hpp) and DMA1 (stm32f1_dma.hpp).
 // Other peripherals of the chip are
 // stubs that keep their register values and report once that they are not
@@ -68,6 +68,7 @@ struct MachineOptions {
     std::uint32_t flash_size = 64 * 1024;  // STM32F103C8
     std::uint32_t sram_size = 20 * 1024;
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
+    bool uart_frames = true; // false: bytes move at once, as in Renode (for comparisons)
 };
 
 class Stm32F103 : private TimerHost, private AdcHost, private DmaHost {
@@ -119,7 +120,7 @@ public:
     void set_hclk(std::uint32_t hz);
     void pin_output_changed(int port, int pin, bool level);
     void pin_input_changed(int port, int pin, bool level);
-    void uart_transmit(int usart, std::uint8_t value);
+    void uart_transmit(int usart, std::uint8_t value, std::uint64_t cycle); // the frame ended at `cycle`
     // Alternate-function output of peripheral `source` (USART number, or a timer
     // channel id); the pin is high while any source drives it high.
     void af_output(int port, int pin, int source, bool level);

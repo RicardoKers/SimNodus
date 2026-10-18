@@ -1477,6 +1477,37 @@ TEST_CASE("GDB server: BKPT halts with a debugger and faults without one")
     CHECK(diagnostics[0].text.find("BKPT") != std::string::npos);
 }
 
+TEST_CASE("USART: frames on the TX pin at the baud rate, TXE and TC follow the shift register")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    m->take_uart_bytes();
+    poke(*m, 0x40010804, 0x444444B4u);        // PA9: alternate-function push-pull
+    poke(*m, 0x40013808, 69);                  // BRR: 8 MHz / 69 = 115942 baud; a bit is 69 cycles
+    poke(*m, 0x4001380C, (1u << 13) | (1u << 3)); // UE, TE
+    m->run_until_ns(m->time_ns() + 10000);
+    m->take_pin_events();
+    const std::uint64_t start = m->time_ns();
+    poke(*m, 0x40013804, 0x55);                // into the shift register: TXE stays set
+    CHECK((read_word(*m, 0x40013800) & 0xC0u) == 0x80u); // TXE, not TC
+    poke(*m, 0x40013804, 0xF0);                // waits in DR
+    CHECK((read_word(*m, 0x40013800) & 0x80u) == 0u);
+    m->run_until_ns(start + 200000);
+    CHECK((read_word(*m, 0x40013800) & 0xC0u) == 0xC0u); // both frames done
+    const auto bytes = m->take_uart_bytes();
+    REQUIRE(bytes.size() == 2);
+    CHECK(bytes[0].time_ns - start == 10 * 69 * 125u); // 10 bits of 8.625 us
+    CHECK(bytes[1].time_ns - start == 20 * 69 * 125u);
+    // 0x55: start 0, then 1 0 1 0 1 0 1 0, stop 1: an edge at every bit boundary.
+    const auto pa9 = edges(m->take_pin_events(), 0, 9);
+    REQUIRE(pa9.size() >= 10);
+    // edges() starts from low, so the first change seen is the start of the second
+    // bit (high); the start bit's falling edge is at `start`.
+    for (std::size_t i = 1; i < 9; ++i) {
+        CHECK(pa9[i].first - pa9[i - 1].first == 69 * 125u);
+    }
+}
+
 TEST_CASE("ELF errors are reported in plain words")
 {
     std::string error;
