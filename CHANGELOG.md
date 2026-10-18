@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-18, owner's test)
+
+- Scope: the 0 V marker of a channel could not be moved in the Signal Analyzer: the analyzer connected to the scope's marker signals before the scope existed, so each live refresh put the old offset back and clicking a marker did not select its channel in the list. The connections are now made after the scope is created; a live GUI test drags a marker during a run. Where markers overlap, the selected channel's marker now wins.
+
 ### Release 0.2 summary (to be dated when the owner releases it)
 
 - Microcontrollers run in SimNodus's own STM32F103 emulator (starts at once; Renode stays as a legacy option): GPIO, EXTI, USART with frames on the TX pin and board-to-board links, timers with PWM and input capture, ADC, DMA; STM32CubeIDE HAL projects at 72 MHz.

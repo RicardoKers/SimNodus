@@ -111,6 +111,18 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     connect(cursors_, &QAction::toggled, scope_, &ScopeWidget::set_cursors_enabled);
     connect(scope_, &ScopeWidget::cursors_changed, this, &AnalyzerWindow::update_measurements);
     connect(scope_, &ScopeWidget::window_changed, this, [this] { update_measurements(); });
+    // The scope's left margin: clicking a channel's 0 V marker selects it, dragging moves it (SN-189).
+    // Connected here, not in build_controls(): the scope does not exist yet when the controls are built.
+    connect(scope_, &ScopeWidget::trace_selected, this, [this](int index) {
+        if (auto* item = channels_->topLevelItem(index)) {
+            channels_->setCurrentItem(item);
+        }
+    });
+    connect(scope_, &ScopeWidget::offset_changed, this, [this](int index, double offset) {
+        if (index >= 0 && static_cast<std::size_t>(index) < offsets_.size()) {
+            offsets_[static_cast<std::size_t>(index)] = offset;
+        }
+    });
     connect(timebase_, &QComboBox::currentIndexChanged, this, [this](int index) {
         scope_->set_seconds_per_division(timebase_->itemData(index).toDouble());
         refresh();
@@ -145,18 +157,6 @@ QWidget* AnalyzerWindow::build_controls()
         scope_->set_selected_trace(channels_->indexOfTopLevelItem(channels_->currentItem()));
         update_measurements();
     });
-    // The scope's left margin: clicking a channel's 0 V marker selects it, dragging moves it (SN-189).
-    connect(scope_, &ScopeWidget::trace_selected, this, [this](int index) {
-        if (auto* item = channels_->topLevelItem(index)) {
-            channels_->setCurrentItem(item);
-        }
-    });
-    connect(scope_, &ScopeWidget::offset_changed, this, [this](int index, double offset) {
-        if (index >= 0 && static_cast<std::size_t>(index) < offsets_.size()) {
-            offsets_[static_cast<std::size_t>(index)] = offset;
-        }
-    });
-
     layout->addWidget(theme::make_caption(tr("Timebase")));
     auto* timebase_form = new QFormLayout;
     timebase_form->setContentsMargins(6, 0, 6, 0);

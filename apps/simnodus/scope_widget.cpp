@@ -128,6 +128,15 @@ int ScopeWidget::marker_at(const QPointF& position) const
     if (position.x() > plot.left() + 2) {
         return -1;
     }
+    // Markers of several channels may overlap (all at 0 V by default): the
+    // selected channel's marker wins, so dragging it never grabs another channel.
+    if (selected_ >= 0 && selected_ < static_cast<int>(traces_.size())) {
+        const auto& trace = traces_[static_cast<std::size_t>(selected_)];
+        if (trace.visible && trace.per_division > 0
+            && std::abs(position.y() - std::clamp(zero_y(trace, plot), plot.top(), plot.bottom())) < 8.0) {
+            return selected_;
+        }
+    }
     int best = -1;
     double distance = 8.0;
     for (std::size_t i = 0; i < traces_.size(); ++i) {
