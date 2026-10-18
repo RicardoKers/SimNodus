@@ -12,8 +12,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #154 (SN-195 potentiometer position). Branch
-  `buses`: SN-196.
+- `main` has everything up to #155 (SN-196 buses). Branch `fix-debug-pot`:
+  fixes from the owner's test of the 0.3 preview zip (debug mode remembered,
+  potentiometer drag direction).
 - **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
   the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
   to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,

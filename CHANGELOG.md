@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-18, owner's test of the 0.3 preview)
+
+- Boards seemed dead (no pin colors, flat waveforms) after a debugging session: *Simulate > Debug Firmware with GDB* was remembered between sessions, so every later run waited for a debugger, with only a short status-bar hint. The option now always starts off, and a run in debug mode also says so in the Messages panel.
+- Dragging a potentiometer moved its wiper against the mouse when the part was turned (examples 14-16 have it upside down): the drag now follows the wiper's track on screen whatever the rotation, and starts from the clicked point.
+
 ### Added (2026-10-18)
 
 - Buses with splitters (SN-196, UI-19, ADR 0096), like hneemann's *Digital*: *Place > Bus* (`B`) draws a thick named line (`D`); *Place > Splitter* (`S`) puts a splitter on it with a first bit and a number of bits, and each numbered bit pin acts as the net label `D0`, `D1`, ...; splitters of the same bus join equal bits. Renaming a bus in Properties renames the splitters on it; splitters rotate and mirror, and wires on their pins stay attached. The netlist is the same as with single wires. Example 18 (four switches to four LEDs over a 4-bit bus). Tests: connectivity and net names, rename, rotation, paste, file round trip, Properties.

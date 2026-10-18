@@ -390,11 +390,10 @@ void MainWindow::build_actions_and_menus()
                                    "(the next board on %2, ...); the circuit stops while the firmware is halted")
                                     .arg(default_gdb_port)
                                     .arg(default_gdb_port + 1));
-    debug_action_->setChecked(settings_.value(QStringLiteral("mcu/debug"), false).toBool());
-    connect(debug_action_, &QAction::toggled, this, [this](bool on) {
-        settings_.setValue(QStringLiteral("mcu/debug"), on);
-        run_->set_gdb_port(on ? default_gdb_port : -1);
-    });
+    // Not remembered between sessions: a forgotten debug mode left every board
+    // waiting for a debugger that never came (owner's test, 2026-10-18).
+    settings_.remove(QStringLiteral("mcu/debug"));
+    connect(debug_action_, &QAction::toggled, this, [this](bool on) { run_->set_gdb_port(on ? default_gdb_port : -1); });
     run_->set_gdb_port(debug_action_->isChecked() ? default_gdb_port : -1);
 
     auto* tools = menuBar()->addMenu(tr("&Tools"));
@@ -715,10 +714,12 @@ void MainWindow::run()
         return d && d->mcu;
     });
     if (board && debug_action_->isChecked()) {
-        statusBar()->showMessage(tr("Waiting for the debugger: connect STM32CubeIDE or arm-none-eabi-gdb to "
-                                    "localhost:%1. The circuit starts when the firmware runs.")
-                                     .arg(default_gdb_port),
-            15000);
+        const QString text = tr("Waiting for the debugger: connect STM32CubeIDE or arm-none-eabi-gdb to localhost:%1. "
+                                "The circuit starts when the firmware runs. To run without a debugger, turn off "
+                                "Simulate > Debug Firmware with GDB.")
+                                 .arg(default_gdb_port);
+        statusBar()->showMessage(text, 15000);
+        messages_->add(Severity::Info, text, tr("Simulation"));
         return;
     }
     statusBar()->showMessage(tr("Simulation started. Click switches and buttons to operate them."), 4000);
