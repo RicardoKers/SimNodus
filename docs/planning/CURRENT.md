@@ -201,6 +201,9 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 - **Component set B (SN-142) done 2026-10-18:** PNP, PMOS, Zener, op-amp,
   lamp, relay, DC motor, transformer (logic gates when a lesson needs them).
 
+- **SN-189 done 2026-10-18:** scope vertical scale, 0 V markers and offset
+  by dragging (owner's request).
+
 ## Next steps
 
 1. Gate G3 review: lesson 3 by the owner, a CubeMX project with ADC+DMA;

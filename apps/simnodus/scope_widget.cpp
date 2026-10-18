@@ -110,6 +110,101 @@ void ScopeWidget::set_trigger_marker(std::optional<double> level, QColor color)
     update();
 }
 
+void ScopeWidget::set_selected_trace(int index)
+{
+    selected_ = index;
+    update();
+}
+
+double ScopeWidget::zero_y(const ScopeTrace& trace, const QRectF& plot) const
+{
+    const double units_per_pixel = trace.per_division * vertical_divisions / plot.height();
+    return plot.center().y() + trace.offset / units_per_pixel;
+}
+
+int ScopeWidget::marker_at(const QPointF& position) const
+{
+    const QRectF plot = plot_rect();
+    if (position.x() > plot.left() + 2) {
+        return -1;
+    }
+    int best = -1;
+    double distance = 8.0;
+    for (std::size_t i = 0; i < traces_.size(); ++i) {
+        if (!traces_[i].visible || traces_[i].per_division <= 0) {
+            continue;
+        }
+        const double y = std::clamp(zero_y(traces_[i], plot), plot.top(), plot.bottom());
+        if (std::abs(position.y() - y) < distance) {
+            distance = std::abs(position.y() - y);
+            best = static_cast<int>(i);
+        }
+    }
+    return best;
+}
+
+void ScopeWidget::set_offset(int index, double offset)
+{
+    if (index < 0 || index >= static_cast<int>(traces_.size())) {
+        return;
+    }
+    traces_[static_cast<std::size_t>(index)].offset = offset;
+    update();
+    emit offset_changed(index, offset);
+}
+
+void ScopeWidget::paint_scale(QPainter& painter, const QRectF& plot) const
+{
+    const QFontMetrics metrics(font());
+    // 0 V markers: a triangle per channel at its 0 V level, at the edge when off screen.
+    for (std::size_t i = 0; i < traces_.size(); ++i) {
+        const auto& trace = traces_[i];
+        if (!trace.visible || trace.per_division <= 0) {
+            continue;
+        }
+        const double y = zero_y(trace, plot);
+        const double x = plot.left() - 1;
+        QPolygonF marker;
+        if (y < plot.top()) {
+            marker << QPointF(x - 4, plot.top() + 6) << QPointF(x - 9, plot.top() + 6) << QPointF(x - 6.5, plot.top());
+        } else if (y > plot.bottom()) {
+            marker << QPointF(x - 4, plot.bottom() - 6) << QPointF(x - 9, plot.bottom() - 6) << QPointF(x - 6.5, plot.bottom());
+        } else {
+            marker << QPointF(x, y) << QPointF(x - 8, y - 4.5) << QPointF(x - 8, y + 4.5);
+        }
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(trace.color);
+        painter.drawPolygon(marker);
+    }
+    painter.setBrush(Qt::NoBrush);
+    if (selected_ < 0 || selected_ >= static_cast<int>(traces_.size())) {
+        return;
+    }
+    const auto& trace = traces_[static_cast<std::size_t>(selected_)];
+    if (!trace.visible || trace.per_division <= 0) {
+        return;
+    }
+    // The selected channel's value at each horizontal grid line.
+    painter.setPen(trace.color.darker(130));
+    for (int i = 0; i <= vertical_divisions; ++i) {
+        const double y = plot.top() + plot.height() * i / vertical_divisions;
+        const double value = trace.offset + (vertical_divisions / 2.0 - i) * trace.per_division;
+        const QString label = QString::fromStdString(model::format_engineering(std::abs(value) < 1e-12 ? 0.0 : value, 3))
+            + trace.unit;
+        const double w = metrics.horizontalAdvance(label);
+        const double top = std::clamp(y - metrics.height() / 2.0, 0.0, height() - metrics.height() * 1.0);
+        painter.drawText(QRectF(plot.left() - 12 - w, top, w, metrics.height()), Qt::AlignRight | Qt::AlignVCenter, label);
+    }
+    // Its 0 V line across the plot.
+    const double y0 = zero_y(trace, plot);
+    if (y0 > plot.top() && y0 < plot.bottom()) {
+        QPen zero(trace.color, 1, Qt::DashLine);
+        zero.setCosmetic(true);
+        painter.setPen(zero);
+        painter.drawLine(QPointF(plot.left(), y0), QPointF(plot.right(), y0));
+    }
+}
+
 void ScopeWidget::set_message(const QString& message)
 {
     message_ = message;
@@ -119,7 +214,7 @@ void ScopeWidget::set_message(const QString& message)
 QRectF ScopeWidget::plot_rect() const
 {
     const QFontMetrics metrics(font());
-    const double left = 12.0;
+    const double left = metrics.horizontalAdvance(QStringLiteral("-888.8mV")) + 16.0; // scale and 0 V markers
     const double bottom = metrics.height() + 10.0;
     return QRectF(left, 10.0, std::max(10.0, width() - left - 12.0), std::max(10.0, height() - 10.0 - bottom));
 }
@@ -234,6 +329,10 @@ void ScopeWidget::paintEvent(QPaintEvent*)
             any = any || !trace.samples.empty();
         }
     }
+    painter.restore();
+    paint_scale(painter, plot);
+    painter.save();
+    painter.setClipRect(plot);
     if (trigger_level_) {
         // Trigger level marker at the right edge (y in pixels).
         painter.setPen(QPen(trigger_color_, 1.5));
@@ -277,11 +376,18 @@ void ScopeWidget::paintEvent(QPaintEvent*)
 
 void ScopeWidget::wheelEvent(QWheelEvent* event)
 {
+    const double steps = event->angleDelta().y() / 120.0;
+    if (event->position().x() < plot_rect().left() && selected_ >= 0 && selected_ < static_cast<int>(traces_.size())) {
+        // Over the scale: move the selected channel up or down by half a division per step.
+        const auto& trace = traces_[static_cast<std::size_t>(selected_)];
+        set_offset(selected_, trace.offset - steps * trace.per_division / 2);
+        event->accept();
+        return;
+    }
     if (!navigation_) {
         QWidget::wheelEvent(event);
         return;
     }
-    const double steps = event->angleDelta().y() / 120.0;
     const double factor = std::pow(0.8, steps);
     const double at = time_at(event->position().x());
     const double start = at - (at - start_) * factor;
@@ -299,6 +405,17 @@ void ScopeWidget::mousePressEvent(QMouseEvent* event)
         return;
     }
     const double x = event->position().x();
+    if (const int marker = marker_at(event->position()); marker >= 0) {
+        dragging_marker_ = marker;
+        drag_origin_y_ = event->position().y();
+        drag_origin_offset_ = traces_[static_cast<std::size_t>(marker)].offset;
+        if (marker != selected_) {
+            set_selected_trace(marker);
+            emit trace_selected(marker);
+        }
+        setCursor(Qt::SizeVerCursor);
+        return;
+    }
     if (cursors_) {
         for (int i = 0; i < 2; ++i) {
             if (std::abs(x - x_at(i == 0 ? cursor_a_ : cursor_b_)) < 6) {
@@ -318,6 +435,15 @@ void ScopeWidget::mousePressEvent(QMouseEvent* event)
 void ScopeWidget::mouseMoveEvent(QMouseEvent* event)
 {
     const double x = event->position().x();
+    if (dragging_marker_ >= 0) {
+        // Dragging 0 V down moves the trace down: the center line then shows a higher value.
+        const auto& trace = traces_[static_cast<std::size_t>(dragging_marker_)];
+        const double units_per_pixel = trace.per_division * vertical_divisions / plot_rect().height();
+        const double step = trace.per_division / 5;
+        const double offset = drag_origin_offset_ + (event->position().y() - drag_origin_y_) * units_per_pixel;
+        set_offset(dragging_marker_, std::round(offset / step) * step);
+        return;
+    }
     if (dragging_cursor_ >= 0) {
         set_cursor(dragging_cursor_, std::clamp(time_at(x), start_, end_));
         return;
@@ -329,6 +455,10 @@ void ScopeWidget::mouseMoveEvent(QMouseEvent* event)
         emit window_changed(start_, end_);
         return;
     }
+    if (marker_at(event->position()) >= 0) {
+        setCursor(Qt::SizeVerCursor);
+        return;
+    }
     bool near = false;
     if (cursors_) {
         near = std::abs(x - x_at(cursor_a_)) < 6 || std::abs(x - x_at(cursor_b_)) < 6;
@@ -336,9 +466,17 @@ void ScopeWidget::mouseMoveEvent(QMouseEvent* event)
     setCursor(near ? Qt::SizeHorCursor : (navigation_ ? Qt::OpenHandCursor : Qt::ArrowCursor));
 }
 
+void ScopeWidget::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    if (const int marker = marker_at(event->position()); marker >= 0) {
+        set_offset(marker, 0.0); // 0 V back at the center line
+    }
+}
+
 void ScopeWidget::mouseReleaseEvent(QMouseEvent*)
 {
     dragging_cursor_ = -1;
+    dragging_marker_ = -1;
     if (panning_) {
         panning_ = false;
         setCursor(Qt::OpenHandCursor);

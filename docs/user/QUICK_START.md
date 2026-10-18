@@ -127,7 +127,11 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
   channel; a current probe needs a pin. Ctrl+Z undoes the move.
 - Window > Signal Analyzer (Ctrl+Shift+A) can be moved to another monitor.
   Choose the time base, Roll or Triggered mode (source, level, slope; Auto,
-  Normal or Single), per-channel scale, or Autoscale.
+  Normal or Single), per-channel scale, or Autoscale. The left edge of the
+  scope shows the selected channel's volts per grid line and a colored
+  triangle at each channel's 0 V; drag a triangle (or turn the wheel over the
+  scale) to move that channel up or down, double-click it to put 0 V back in
+  the middle.
 - Cursors show Δt, 1/Δt and the values; the row below the plot shows min,
   max, mean, RMS, peak-to-peak, frequency and duty cycle of the selected
   channel.

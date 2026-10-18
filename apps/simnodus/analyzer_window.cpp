@@ -141,7 +141,21 @@ QWidget* AnalyzerWindow::build_controls()
             QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may rebuild this list
         }
     });
-    connect(channels_, &QTreeWidget::currentItemChanged, this, [this] { update_measurements(); });
+    connect(channels_, &QTreeWidget::currentItemChanged, this, [this] {
+        scope_->set_selected_trace(channels_->indexOfTopLevelItem(channels_->currentItem()));
+        update_measurements();
+    });
+    // The scope's left margin: clicking a channel's 0 V marker selects it, dragging moves it (SN-189).
+    connect(scope_, &ScopeWidget::trace_selected, this, [this](int index) {
+        if (auto* item = channels_->topLevelItem(index)) {
+            channels_->setCurrentItem(item);
+        }
+    });
+    connect(scope_, &ScopeWidget::offset_changed, this, [this](int index, double offset) {
+        if (index >= 0 && static_cast<std::size_t>(index) < offsets_.size()) {
+            offsets_[static_cast<std::size_t>(index)] = offset;
+        }
+    });
 
     layout->addWidget(theme::make_caption(tr("Timebase")));
     auto* timebase_form = new QFormLayout;
@@ -222,6 +236,8 @@ void AnalyzerWindow::rebuild_channel_list()
             scale->addItem(quantity(s, ch.unit) + tr("/div"), s);
         }
         scale->setCurrentIndex(scale->findData(1.0));
+        scale->setToolTip(tr("Volts or amperes per division; drag the channel's 0 V marker on the left of the "
+                             "scope to move it up or down, double-click it to center 0 V"));
         connect(scale, &QComboBox::activated, this, [this, i, scale](int) {
             if (i < scales_.size()) {
                 scales_[i] = scale->currentData().toDouble();
@@ -234,6 +250,7 @@ void AnalyzerWindow::rebuild_channel_list()
     if (channels_->topLevelItemCount() > 0) {
         channels_->setCurrentItem(channels_->topLevelItem(0));
     }
+    scope_->set_selected_trace(channels_->topLevelItemCount() > 0 ? 0 : -1);
     channels_->resizeColumnToContents(0);
 }
 

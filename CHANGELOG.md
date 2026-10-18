@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, SN-189, owner's request)
+
+- **Scope vertical scale and offset:** the left edge shows the selected channel's value at each grid line and its 0 V as a dashed line; every channel has a colored 0 V marker (an arrow at the edge when 0 V is off screen). Dragging a marker moves its channel up or down (in fifths of a division), the wheel over the scale moves the selected channel by half a division, and a double-click puts 0 V back at the center. Clicking a marker selects the channel in the list.
+
 ### Added (2026-10-18, SN-142, component set B)
 
 - **New components:** PNP transistor (2N2907-like), P-channel MOSFET (BS250-like), Zener diode (Vz parameter), behavioral op-amp (gain 100 000, 1 MHz gain-bandwidth, output within 0.1 V of its supply pins, 50 ohm output), lamp (rated voltage and current; glows), relay (coil voltage, inductive coil, changeover contact with pull-in at 74 % and drop-out at 10 % of the coil current), DC motor (resistance, inductance, back-EMF, inertia, friction; shows its speed in rpm), transformer (turns ratio, primary inductance, coupling 0.999). New categories *Integrated circuits* and *Electromechanical*.

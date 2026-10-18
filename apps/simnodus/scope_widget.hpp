@@ -4,7 +4,9 @@
 // Project-owned oscilloscope plot (ADR 0081, AN-03/AN-04): 10 x 8 divisions
 // drawn with QPainter, min/max decimation per pixel column, per-channel
 // scale and offset, two time cursors, and time zoom/pan for complete
-// (transient) records.
+// (transient) records. The left margin shows the selected channel's vertical
+// scale and a 0 V marker per channel; dragging a marker (or the wheel over
+// the margin) moves its channel up and down, a double-click centers 0 V (SN-189).
 #pragma once
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
@@ -58,6 +60,9 @@ public:
     void set_cursor(int index, double time);
 
     void set_trigger_marker(std::optional<double> level, QColor color);
+    // Channel whose scale the left margin shows (index in traces()), -1 for none.
+    void set_selected_trace(int index);
+    int selected_trace() const { return selected_; }
     void set_message(const QString& message);
 
     QRectF plot_rect() const;
@@ -66,6 +71,8 @@ public:
 signals:
     void window_changed(double start, double end);
     void cursors_changed();
+    void trace_selected(int index);
+    void offset_changed(int index, double offset); // value at the center line
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -73,11 +80,16 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
     double time_at(double x) const;
     double x_at(double time) const;
     void paint_trace(QPainter& painter, const ScopeTrace& trace, const QRectF& plot) const;
+    void paint_scale(QPainter& painter, const QRectF& plot) const;
+    double zero_y(const ScopeTrace& trace, const QRectF& plot) const; // unclamped
+    int marker_at(const QPointF& position) const; // trace whose 0 V marker is there, -1 for none
+    void set_offset(int index, double offset);
 
     std::vector<ScopeTrace> traces_;
     double start_ = 0.0;
@@ -94,6 +106,10 @@ private:
     std::optional<double> trigger_level_;
     QColor trigger_color_;
     QString message_;
+    int selected_ = -1;
+    int dragging_marker_ = -1;
+    double drag_origin_y_ = 0.0;
+    double drag_origin_offset_ = 0.0;
 };
 
 // "1 ms", "200 µs", "2 s": engineering format for axis labels.
