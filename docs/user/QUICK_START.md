@@ -25,6 +25,7 @@ For release 0.1 (analog circuits). Windows: unzip the package and run
 | Place a part | Choose it in the tree; click to place, repeat, Esc ends. Ctrl+R rotates, Ctrl+E mirrors before placing. Shortcuts: R, C, L, D, G (ground) |
 | Wire | W, then click a pin to start, click to add bends, click a pin or wire to finish. Space changes the corner. Double-click ends at an open point. Esc cancels |
 | Net label | N, then click a wire or pin. Labels with the same name are connected; GND or 0 is ground |
+| Potentiometer | The arrow on the body shows the wiper position and the percentage next to it (0 % at pin 1); set it in Properties > Position, or while running drag the potentiometer or turn the mouse wheel over it |
 | Part models | Select a transistor, MOSFET or diode: Properties > Model lists built-in parts (2N2222A, BC547B, 1N4007, 1N5819, IRF540N...; SimNodus approximations of typical datasheet values) and the models of your folder. Tools > Open Models Folder: put `.lib` files with `.model` lines there (for example copied from a manufacturer); a chosen model is saved in the project |
 | Text note | T, then click where the text starts and type it, for example instructions for the simulation. Double-click a note to edit it; an empty text deletes it |
 | Select and move | Click, Ctrl+click, or drag a rectangle; drag to move (wires stay attached), arrow keys move one grid step |

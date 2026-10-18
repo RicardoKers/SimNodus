@@ -100,6 +100,14 @@ struct Interactive {
     enum class Kind { Toggle, Button, Potentiometer };
     Kind kind = Kind::Toggle;
     std::string parameter; // parameter holding the initial state ("closed", "position")
+    // Potentiometer (UI-18): the wiper arrow's tip moves along this track, from
+    // the first point (0 %) to the second (100 %), and joins the wiper pin.
+    struct Wiper {
+        model::PointF start;
+        model::PointF end;
+        std::string pin;
+    };
+    std::optional<Wiper> wiper;
 };
 
 // Value shown on the symbol while running (INT-03).

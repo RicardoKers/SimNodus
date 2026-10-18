@@ -31,7 +31,7 @@ clockwise in 90° steps.
 | `spice` | unless `ties_net` | SPICE template lines (below) |
 | `models` | — | `.model` lines, emitted once per netlist |
 | `ties_net` | — | All pins belong to this net; `"0"` makes the ground symbol |
-| `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running |
+| `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running. A potentiometer may add `"wiper": {"track": [x0, y0, x1, y1], "pin": "W"}`: the arrow's tip moves from (x0, y0) at 0 % to (x1, y1) at 100 %, joined to the wiper pin, and the percentage is shown next to it (UI-18) |
 | `readout` | — | Live value: `{"kind": "voltage", "pins": ["+", "-"]}`, `{"kind": "current", "element": "V_{ref}"}` or `{"kind": "node", "element": "w_{ref}", "scale": 9.549, "unit": "rpm"}` (an internal node, scaled). A current readout may glow instead of showing text: `"glow": {"full": "10m", "color_parameter": "color"}` or `{"full_parameter": "I", "color": "#ffd27a"}` (full brightness at that current) |
 | `mcu` | — | Microcontroller board (below) |
 

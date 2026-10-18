@@ -238,3 +238,15 @@ TEST_CASE("the built-in models cover the semiconductor parts")
     CHECK(library.model("NPN", "1N5819") == nullptr); // names are looked up per type
     CHECK(library.models().size() >= 20);
 }
+
+TEST_CASE("the potentiometer's wiper moves along its track")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* d = library.find("potentiometer");
+    REQUIRE(d != nullptr && d->interactive.has_value() && d->interactive->wiper.has_value());
+    const auto& w = *d->interactive->wiper;
+    CHECK(w.pin == "W");
+    CHECK(w.start.y < w.end.y); // 0 % at pin 1 (top), 100 % at pin 2
+    CHECK(d->pin("1")->at.y < d->pin("2")->at.y);
+}
