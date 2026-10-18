@@ -606,6 +606,19 @@ private slots:
         analyzer->logic()->set_selected(pc13);
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("U1.PC13")));
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));
+        // Only the checked lanes go to the VCD file (AN-10).
+        const QString vcd = dir_.filePath(QStringLiteral("lanes.vcd"));
+        QString error;
+        QVERIFY2(analyzer->export_vcd(vcd, error), qPrintable(error));
+        QFile exported(vcd);
+        QVERIFY(exported.open(QIODevice::ReadOnly));
+        const QString text = QString::fromUtf8(exported.readAll());
+        QVERIFY(text.contains(QStringLiteral("$timescale 1 ns $end")));
+        QVERIFY(text.contains(QStringLiteral(" U1_PC13 $end")));
+        QVERIFY(text.contains(QStringLiteral(" U1_PA3 $end")));
+        QVERIFY(!text.contains(QStringLiteral("U1_PB12")));
+        QVERIFY(!text.contains(QStringLiteral("V_PA0")));
+        QVERIFY(text.count(QLatin1Char('#')) >= 3); // dump start and at least two changes
         window_->stop();
 #endif
     }

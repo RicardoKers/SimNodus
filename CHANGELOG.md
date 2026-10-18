@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, owner's request)
+
+- Signal Analyzer, Logic tab: *Export VCD...* writes the checked lanes (microcontroller pins and probe lanes) to an IEEE 1364 Value Change Dump with a 1 ns timescale, for PulseView or GTKWave (SN-190, AN-10). It covers the retained history from the point where every chosen lane has data (probe lanes are limited by the sample buffer); the initial levels go in `$dumpvars`, then only the value changes. Lane names become VCD identifiers (`U1.PA0` → `U1_PA0`, `V(OUT)` → `V_OUT`). The writer is a Qt-free module (`src/sim/vcd.*`) with a unit test; a live GUI test exports the blinking pins of example 07.
+
+### Changed (2026-10-18)
+
+- `CURRENT.md` rewritten short for resuming in a new session.
+
 ## 0.2.0 — 2026-10-18
 
 ### Summary
