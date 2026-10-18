@@ -12,12 +12,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #155 (SN-196 buses). Branch `fix-debug-pot`:
-  fixes from the owner's test of the 0.3 preview zip (debug mode remembered,
-  potentiometer drag direction).
+- Everything is merged in `main` (last: #156, fixes from the owner's test of
+  the 0.3 preview zip: debug mode no longer remembered, potentiometer drag
+  direction). The owner tried the preview zip on 2026-10-18: all examples
+  run, and a USART capture exported as VCD decodes correctly in PulseView.
 - **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
-  the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
-  to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,
+  the checked lanes as an IEEE 1364 VCD (1 ns timescale); checked by the owner
+  in PulseView (serial text decoded). SN-191: NOT, AND, NAND, OR, NOR,
   XOR gates (behavioral, hidden supply VDD), example 17 (half adder).
   SN-192: USART RX decoded from the pin (exact edges, or bits of four
   steps); exact edges work with two boards again. SN-183: Renode removed
