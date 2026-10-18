@@ -8,18 +8,21 @@
 // (writes to flash go through the loader, so `load` works; the first run or
 // step after a flash write resets the chip, as an ST-LINK does), breakpoints (Z0/Z1,
 // any number), continue, step, Ctrl-C, `monitor reset` / `monitor reset halt`,
-// detach and kill (the firmware runs on). Not yet: watchpoints (Z2-Z4).
+// detach and kill (the firmware runs on), watchpoints on writes, reads or both
+// (Z2-Z4).
 //
 // The machine's owner calls service() between run steps and after_run() after
 // each, on the thread that runs the machine. A client that connects halts the
 // firmware where it is.
 #pragma once
 
+#include "cpu.hpp"
 #include "gdb_socket.hpp"
 
 #include <cstdint>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace simnodus::emu {
 
@@ -63,12 +66,14 @@ private:
     bool write_memory(std::uint32_t address, const std::string& bytes);
     void monitor(const std::string& command);
     void update_breakpoints();
+    std::string stop_reply() const;
     void start_after_load();
 
     Stm32F103& machine_;
     GdbSocket socket_;
     State state_ = State::NoClient;
     std::set<std::uint32_t> breakpoints_;
+    std::vector<Cpu::Watchpoint> watchpoints_;
     bool wait_first_ = false;
     bool flash_written_ = false; // since the last reset: the next run starts with one
 };

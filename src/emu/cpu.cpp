@@ -996,8 +996,23 @@ void Cpu::it_advance()
     }
 }
 
+void Cpu::check_watch(std::uint32_t address, unsigned size, bool write)
+{
+    for (const auto& w : watchpoints_) {
+        const bool kind = w.kind == WatchKind::Access || (write ? w.kind == WatchKind::Write : w.kind == WatchKind::Read);
+        if (kind && address < w.address + w.length && w.address < address + size) {
+            watch_hit_ = {true, w.address, w.kind};
+            stop_requested_ = true; // the instruction completes, then the core halts
+            return;
+        }
+    }
+}
+
 bool Cpu::mem_read(std::uint32_t address, unsigned size, std::uint32_t& value)
 {
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, false);
+    }
     if (bus_.read(address, size, value)) {
         return true;
     }
@@ -1007,6 +1022,9 @@ bool Cpu::mem_read(std::uint32_t address, unsigned size, std::uint32_t& value)
 
 bool Cpu::mem_write(std::uint32_t address, unsigned size, std::uint32_t value)
 {
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, true);
+    }
     if (bus_.write(address, size, value)) {
         return true;
     }
@@ -1087,9 +1105,15 @@ void Cpu::set_breakpoints(std::vector<std::uint32_t> addresses)
     breakpoints_ = std::move(addresses);
 }
 
+void Cpu::set_watchpoints(std::vector<Watchpoint> watchpoints)
+{
+    watchpoints_ = std::move(watchpoints);
+}
+
 void Cpu::resume_from_halt()
 {
     debug_halted_ = false;
+    watch_hit_ = {};
     skip_breakpoint_ = true;
 }
 
@@ -1098,6 +1122,7 @@ void Cpu::step_instruction()
     // One cycle of run() without breakpoints: SysTick and pending exceptions are
     // handled as in a normal run; a sleeping core wakes, as halting debug does.
     debug_halted_ = false;
+    watch_hit_ = {};
     std::vector<std::uint32_t> saved = std::move(breakpoints_);
     breakpoints_.clear();
     if (state_ == CoreState::Sleeping) {
@@ -1159,14 +1184,19 @@ CoreState Cpu::run(std::uint64_t limit)
             attention_ = true;
         }
         // Fast path: cached flash code outside IT blocks with nothing to check.
-        // Breakpoints were checked above, before either path runs the instruction.
-        if (!attention_ && thumb_ && itstate_ == 0 && !count_ops_ && pc_ - flash_base < cache_bytes) {
+        // Breakpoints were checked above, before either path runs the instruction;
+        // watchpoints need the slow path, whose loads and stores check them.
+        if (!attention_ && watchpoints_.empty() && thumb_ && itstate_ == 0 && !count_ops_
+            && pc_ - flash_base < cache_bytes) {
             const Insn& in = flash_cache_[(pc_ - flash_base) >> 1];
             if (in.op != OP_NONE && fast(in)) {
                 continue;
             }
         }
         step();
+    }
+    if (watch_hit_.hit && !debug_halted_) {
+        debug_halted_ = true; // a watchpoint: halted after the accessing instruction
     }
     return state_;
 }

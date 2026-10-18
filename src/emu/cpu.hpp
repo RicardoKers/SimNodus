@@ -92,6 +92,22 @@ public:
     // instead of raising a HardFault.
     void set_debugger_attached(bool attached);
     void set_breakpoints(std::vector<std::uint32_t> addresses);
+    // Watchpoints: a data access of the CPU that overlaps one halts the core
+    // after the instruction (debug_halted()); last_watch() tells which. The
+    // fast path is off while any is set.
+    enum class WatchKind { Write = 2, Read = 3, Access = 4 }; // GDB's Z2, Z3, Z4
+    struct Watchpoint {
+        std::uint32_t address = 0;
+        std::uint32_t length = 1;
+        WatchKind kind = WatchKind::Write;
+    };
+    struct WatchHit {
+        bool hit = false;
+        std::uint32_t address = 0;
+        WatchKind kind = WatchKind::Write;
+    };
+    void set_watchpoints(std::vector<Watchpoint> watchpoints);
+    const WatchHit& last_watch() const { return watch_hit_; }
     bool debug_halted() const { return debug_halted_; }
     // Resumes after a halt: the next run() executes the instruction at the PC
     // even if it has a breakpoint (otherwise it would halt again at once).
@@ -215,6 +231,9 @@ private:
     std::vector<std::uint32_t> breakpoints_;
     bool debug_halted_ = false;
     bool skip_breakpoint_ = false; // the instruction at the PC runs once despite a breakpoint
+    std::vector<Watchpoint> watchpoints_;
+    WatchHit watch_hit_;
+    void check_watch(std::uint32_t address, unsigned size, bool write);
 
     // Run state.
     std::uint64_t cycles_ = 0;

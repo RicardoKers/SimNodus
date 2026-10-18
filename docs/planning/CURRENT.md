@@ -195,7 +195,8 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   hard because the firmware had to be set in SimNodus (the IDE did not load
   it). Fixed: the debugger's `load` now writes the firmware and a board may
   start without one. Owner asked for scope vertical scale, 0 V marker and
-  offset (SN-189, later).
+  offset (SN-189, later). Watchpoints added (SN-180 done; gate G4 met by the
+  owner's test).
 
 ## Next steps
 
