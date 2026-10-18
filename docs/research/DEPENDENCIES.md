@@ -1,6 +1,6 @@
 # Dependency inventory
 
-Updated: 2026-09-01, through SN-015. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), [firmware/I/O report](../experiments/E-02-results.md), and [ADC report](../experiments/E-04-results.md).
+Updated: 2026-09-01, through SN-015. Since [ADR 0094](../decisions/0094-remove-renode.md) (2026-10-18) Renode is no longer a SimNodus dependency: it is neither fetched, built against nor shipped; its rows below are the dated baseline. This is a **Windows x64 experiment baseline**, not a supported simulator distribution. See the [baseline report](../experiments/SN-010-results.md), [setup recipe](../development/WINDOWS_BACKENDS.md), [control report](../experiments/SN-019-results.md), [firmware/I/O report](../experiments/E-02-results.md), and [ADC report](../experiments/E-04-results.md).
 
 For the later accepted headless composition, [ADR 0014](../decisions/0014-bounded-cooperative-debugging.md)
 and the [SN-017 acceptance audit](../experiments/SN-017-acceptance.md) record the
@@ -32,13 +32,11 @@ third-party file or distribution permission is introduced by SN-017 extraction.
 | ARM GDB | Same toolchain; 15.2.90.20241229-git | `--version` ran; no target/debugger connection |
 | Qt | Local shared 6.11.1 MSVC x64 kit | Core/Gui/Widgets selected for the bounded [SN-022 experiment](../experiments/SN-022-qt-boundary.md); [module/license inventory](../development/QT_INVENTORY.md); production integration and distribution pending |
 | nlohmann/json | 3.11.3 single header, vendored in `third_party/nlohmann` | Project and library files; MIT; header-only, compiled into SimNodus |
-| Renode external control client | Renode 1.16.1 client, adapted, vendored in `third_party/renode_external_control`; server `resources/renode/LoopbackControl.cs` | MIT (Antmicro); compiled into SimNodus / compiled by Renode at run time ([ADR 0082](../decisions/0082-renode-engine-integration.md)) |
-| Renode (Linux) | Official `renode-1.16.1.linux-portable-dotnet.tar.gz`, SHA-256 `00e113cd...38c0` (GitHub asset digest) | Fetched by `tools/fetch_backends.py --renode` for development and CI; not distributed |
 | WASM / Verilator | Deferred | No runtime selected or downloaded |
 
 ## Origins and integrity
 
-[backend-baseline.json](../../tools/backend-baseline.json) records four exact archive URLs and SHA-256 hashes, plus ten important extracted files. All 14 matched locally. Archive hashes match the GitHub asset digest or SourceForge download page; extracted hashes were computed locally from those archives. This is content integrity evidence, not a malware scan or a full dependency/security attestation.
+[backend-baseline.json](../../tools/backend-baseline.json) records four exact archive URLs and SHA-256 hashes, plus ten important extracted files. All 14 matched locally. Since ADR 0094 the manifest lists only the ngspice packages (three archives, six files). Archive hashes match the GitHub asset digest or SourceForge download page; extracted hashes were computed locally from those archives. This is content integrity evidence, not a malware scan or a full dependency/security attestation.
 
 - [Renode v1.16.1 release](https://github.com/renode/renode/releases/tag/v1.16.1): executable, client, platforms, and bundled notices.
 - [Pinned client header](https://github.com/renode/renode/blob/d66b0c2aa3d420408eccecfd1d3bab0fd702a6db/tools/external_control_client/include/renode_api.h): microsecond base units and `timestamp_us`. Do not substitute the changing `latest` API documentation.
@@ -67,7 +65,7 @@ Original SimNodus material remains MIT. Development use and selecting an experim
 | Material | Observed terms / required follow-up |
 |---|---|
 | Renode original code/client | MIT, Antmicro; root license and source notice inspected |
-| Renode bundled dependencies | Reviewed 2026-10-14 for the Windows zip ([ADR 0082](../decisions/0082-renode-engine-integration.md)): MIT core and .NET runtime, LGPL-2.1 tlib, LGPL-3.0 NetMQ/Packet.Net, LGPL-2.0 GTK#, LGPL MinGW runtime, MPL-2.0 AsyncIO, permissive others; no GPL-only part. Shipped unmodified as a separate process with `renode/licenses/` and a pointer to the v1.16.1 source archive |
+| Renode bundled dependencies | Reviewed 2026-10-14 for the Windows zip ([ADR 0082](../decisions/0082-renode-engine-integration.md)): MIT core and .NET runtime, LGPL-2.1 tlib, LGPL-3.0 NetMQ/Packet.Net, LGPL-2.0 GTK#, LGPL MinGW runtime, MPL-2.0 AsyncIO, permissive others; no GPL-only part. Shipped in release 0.2.0; no longer shipped since [ADR 0094](../decisions/0094-remove-renode.md) |
 | ngspice source and binary | Source `COPYING` describes modified BSD plus exceptions: KLU/numparam LGPL, OSDI MPL 2.0, optional XSPICE table GPL v2 or later; do not label the complete archive simply MIT/BSD |
 | Optional `.cm`/OSDI/VPI assets | Not loaded or approved for redistribution; per-file provenance and terms still required |
 | libsndfile | [Upstream LGPL terms](https://libsndfile.github.io/libsndfile/); source and bundled codec obligations require a distribution audit |

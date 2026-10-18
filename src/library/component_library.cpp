@@ -375,16 +375,6 @@ ComponentDefinition parse_definition(const json& j)
     if (j.contains("mcu") && !j["mcu"].is_null()) {
         const auto& m = j["mcu"];
         McuBoard board;
-        board.platform = text(m, "platform", true);
-        if (const std::string engine = text(m, "engine"); !engine.empty()) {
-            if (engine != "renode" && engine != "native") {
-                invalid("mcu.engine must be \"renode\" or \"native\"");
-            }
-            board.engine = engine;
-        }
-        board.extensions = strings(m, "extensions");
-        board.before_firmware = strings(m, "before_firmware");
-        board.after_firmware = strings(m, "after_firmware");
         board.firmware_parameter = text(m, "firmware_parameter", true);
         const auto* firmware = d.parameter(board.firmware_parameter);
         if (!firmware || firmware->kind != Parameter::Kind::File) {

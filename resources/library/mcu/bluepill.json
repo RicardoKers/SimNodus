@@ -1077,14 +1077,7 @@
     }
   ],
   "mcu": {
-    "engine": "native",
-    "platform": "stm32f103c8.repl",
     "firmware_parameter": "firmware",
-    "before_firmware": [],
-    "after_firmware": [
-      "sysbus.cpu VectorTableOffset 0x08000000",
-      "emulation SetGlobalAdvanceImmediately true"
-    ],
     "led": {
       "pin": "PC13",
       "active_low": true,
@@ -1107,10 +1100,6 @@
       "input_high": 1.83,
       "input_low": 1.16
     },
-    "extensions": [
-      "SimNodusGpio.cs",
-      "SimNodusRcc.cs"
-    ],
     "uarts": [
       {
         "name": "usart1",

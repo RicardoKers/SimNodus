@@ -16,14 +16,8 @@ if(SIMNODUS_NGSPICE_LIBRARY)
         SIMNODUS_TEST_NGSPICE_SCRIPTS="${PROJECT_SOURCE_DIR}/resources/ngspice")
 endif()
 target_compile_definitions(editor_tests PRIVATE SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
-if(SIMNODUS_RENODE)
-    target_compile_definitions(editor_tests PRIVATE SIMNODUS_TEST_RENODE=1)
-endif()
 add_test(NAME gui-editor COMMAND editor_tests)
 set_tests_properties(gui-editor PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 900)
-# The same editor cases with microcontrollers on Renode, the legacy engine (D1, ADR 0090).
-add_test(NAME gui-editor-renode COMMAND editor_tests)
-set_tests_properties(gui-editor-renode PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen;SIMNODUS_MCU_ENGINE=renode" TIMEOUT 900)
 
 # The real executable's built-in checks, offscreen.
 add_test(NAME gui-app-smoke

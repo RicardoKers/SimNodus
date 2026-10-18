@@ -57,14 +57,10 @@ struct Parameter {
     std::string filter;
 };
 
-// Microcontroller board (MCU-01, INT-06): runs firmware in Renode. Pins named
-// like "PA0" are GPIO pins of port A; the others are power or control pins.
+// Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
+// STM32F103 emulator (ADR 0089, 0094). Pins named like "PA0" are GPIO pins of
+// port A; the others are power or control pins.
 struct McuBoard {
-    std::string engine = "native";        // "native" (SimNodus's own emulator, ADR 0089/0090) or "renode" (legacy)
-    std::string platform;                 // platform description in the mcu/ folder
-    std::vector<std::string> extensions;  // C# peripheral models the platform uses
-    std::vector<std::string> before_firmware; // Renode monitor commands
-    std::vector<std::string> after_firmware;
     std::string firmware_parameter;       // a File parameter
     std::string ground_pin = "G1";        // reference of the pin voltages
     // Electrical GPIO model (MCU-03): driven outputs through a resistance to the
@@ -86,7 +82,7 @@ struct McuBoard {
     std::optional<Led> led;
     std::optional<std::vector<model::PointF>> reset_button; // top-left and size, symbol coordinates
     struct Uart {
-        std::string name;  // Renode peripheral ("usart1")
+        std::string name;  // peripheral ("usart1")
         std::string label; // terminal text ("USART1 (PA9 TX, PA10 RX)")
         std::string tx_pin; // "PA9": held high while the transmitter is on; empty if unknown
         std::string rx_pin; // "PA10": a board's TX on the same net sends it bytes (SN-175)

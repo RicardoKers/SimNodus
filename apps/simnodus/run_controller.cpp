@@ -6,7 +6,6 @@
 #include "schematic_scene.hpp"
 
 #include "library/component_library.hpp"
-#include "mcu/renode_engine.hpp"
 #include "model/engineering.hpp"
 
 #include <QCoreApplication>
@@ -94,18 +93,11 @@ bool RunController::start(QString& error)
         }
     }
     std::string reason;
-    // Microcontroller boards: firmware relative to the project file, Renode next to the application.
+    // Microcontroller boards: firmware relative to the project file.
     sim::McuEnvironment environment;
     const QString base = document_.base_dir();
     environment.project_dir = std::filesystem::path((base.isEmpty() ? QDir::currentPath() : base).toStdWString());
-    const std::filesystem::path application_dir = QCoreApplication::applicationDirPath().toStdWString();
-    environment.renode = mcu::find_renode(application_dir);
-    environment.resources = mcu::find_mcu_resources(application_dir);
-    environment.engine = mcu_engine_;
     environment.gdb_port = gdb_port_;
-    if (const QString forced = qEnvironmentVariable("SIMNODUS_MCU_ENGINE"); !forced.isEmpty()) {
-        environment.engine = forced.toStdString();
-    }
     if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason)) {
         error = QString::fromStdString(reason);
         emit state_changed();
@@ -433,19 +425,12 @@ QString RunController::mode_description() const
             const auto* d = library.find(c.type);
             return d && d->mcu;
         })) {
-        if (mcu_engine_ == "renode") {
-            text += tr("; microcontroller firmware runs in Renode at most two quanta of %1s ahead of the circuit; "
-                       "GPIO outputs drive the circuit through 40 Ohm with edges on Renode's 100 us quantum; circuit "
-                       "voltages reach GPIO inputs through Schmitt thresholds (1.16 V / 1.83 V) up to two quanta late")
-                        .arg(QString::fromStdString(model::format_engineering(s.mcu_quantum)));
-        } else {
-            text += tr("; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; "
-                       "GPIO outputs drive the circuit through 40 Ohm, %1; circuit voltages reach GPIO inputs "
-                       "through Schmitt thresholds (1.16 V / 1.83 V) less than 0.1 ms late, and the ADC reads them "
-                       "0.1-0.2 ms back")
-                        .arg(s.exact_edges ? tr("with a time point at every edge (exact edges)")
-                                           : tr("averaged over each time step (an edge is spread over one step)"));
-        }
+        text += tr("; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; "
+                   "GPIO outputs drive the circuit through 40 Ohm, %1; circuit voltages reach GPIO inputs "
+                   "through Schmitt thresholds (1.16 V / 1.83 V) less than 0.1 ms late, and the ADC reads them "
+                   "0.1-0.2 ms back")
+                    .arg(s.exact_edges ? tr("with a time point at every edge (exact edges)")
+                                       : tr("averaged over each time step (an edge is spread over one step)"));
     }
     return text;
 }

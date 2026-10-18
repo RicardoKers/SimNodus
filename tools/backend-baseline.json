@@ -2,22 +2,7 @@
   "schema_version": 1,
   "recorded_on": "2026-08-31",
   "purpose": "SN-010 Windows x64 experiment baseline; not a simulator release lockfile",
-  "renode_revision": "d66b0c2aa3d420408eccecfd1d3bab0fd702a6db",
-  "renode_infrastructure_revision": "add012af003a0f620d3da52828262676f374d121",
   "archives": [
-    {
-      "path": "downloads/renode-1.16.1.windows-portable-dotnet.zip",
-      "url": "https://github.com/renode/renode/releases/download/v1.16.1/renode-1.16.1.windows-portable-dotnet.zip",
-      "sha256": "d09b7934cfd560cd06bde8f131ef78f521f10d423d5aac6096f2a583224aeb3e",
-      "hash_source": "GitHub release asset digest, matched locally"
-    },
-    {
-      "path": "downloads/renode-1.16.1.linux-portable-dotnet.tar.gz",
-      "url": "https://github.com/renode/renode/releases/download/v1.16.1/renode-1.16.1.linux-portable-dotnet.tar.gz",
-      "sha256": "00e113cdbd0f5354cf2f64bbe3f5a070d8958409542fca66e45ac97d982938c0",
-      "hash_source": "GitHub release asset digest, matched locally (2026-10-14)",
-      "platform": "linux"
-    },
     {
       "path": "downloads/ngspice-47_dll_64.7z",
       "url": "https://master.dl.sourceforge.net/project/ngspice/ng-spice-rework/47/ngspice-47_dll_64.7z?viasf=1",
@@ -38,22 +23,6 @@
     }
   ],
   "files": [
-    {
-      "path": "renode/renode_1.16.1-dotnet_portable/Renode.exe",
-      "sha256": "895fddb36f65237af5a47928e49984cf1e1992e27e0d37546b3b8ea29ad57385"
-    },
-    {
-      "path": "renode/renode_1.16.1-dotnet_portable/tools/external_control_client/include/renode_api.h",
-      "sha256": "33102605ecd4c4a52ff4fe0844c98cb79ccce5f29a0747243584b4c71b66ecee"
-    },
-    {
-      "path": "renode/renode_1.16.1-dotnet_portable/tools/external_control_client/lib/renode_api.c",
-      "sha256": "7e210d973799f131fcd4fcfd0540d02ceb7919968e1d0d5bc34d8e0d7de36dec"
-    },
-    {
-      "path": "renode/renode_1.16.1-dotnet_portable/platforms/cpus/stm32f103.repl",
-      "sha256": "6fc49804f4483cc6b9d97120736809cee42b5a005c5ce537559d99e2dd008e41"
-    },
     {
       "path": "ngspice/Spice64_dll/dll-vs/ngspice.dll",
       "sha256": "0ad7c4ce9794efaefed12552a077de63fc021fe2c98c164831e8bb92d3d72d9e"

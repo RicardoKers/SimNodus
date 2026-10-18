@@ -4,9 +4,9 @@ Status: design invariants, informed by [E-01](../experiments/E-01-results.md), [
 
 ## Representation
 
-Selected `SimTime`: unsigned, checked integer ticks of 1 ns at orchestration boundaries. Resolution is not model accuracy. The ngspice adapter converts to floating-point seconds with explicit rounding and tolerances. Internal analog steps may be smaller; committed timestamps must not move backward through conversion. Check overflow and maximum session duration. Round input forward, never into a consumer's past, when converting to Renode's microsecond grid.
+Selected `SimTime`: unsigned, checked integer ticks of 1 ns at orchestration boundaries. Resolution is not model accuracy. The ngspice adapter converts to floating-point seconds with explicit rounding and tolerances. Internal analog steps may be smaller; committed timestamps must not move backward through conversion. Check overflow and maximum session duration. Round input forward, never into a consumer's past, when converting to a coarser backend grid.
 
-The selected Renode 1.16.1 external client uses microseconds, as recorded in the [pinned inventory](../research/DEPENDENCIES.md). Newer external-control documentation must not be substituted for that API. The selected internal 1 ns representation does not establish 1 ns MCU control precision.
+SimNodus's own STM32 emulator reports pin times in nanoseconds from its cycle count ([ADR 0089](../decisions/0089-own-stm32-emulator.md)); the Renode 1.16.1 client used until [ADR 0094](../decisions/0094-remove-renode.md) worked in microseconds. The internal 1 ns representation does not by itself establish 1 ns MCU control precision.
 
 `t_committed` is the last consistent point across all domains. Tentative solver time, granted MCU time, UI time, and host wall time are distinct.
 
@@ -21,7 +21,7 @@ The selected Renode 1.16.1 external client uses microseconds, as recorded in the
 
 ## The central experiment
 
-Running Renode to T, collecting GPIO, then running ngspice to T can establish a one-way demonstration. With feedback, the MCU may already have executed instructions that should depend on an analog input before T. Delivering the event afterward does not restore causality.
+Running the MCU to T, collecting GPIO, then running ngspice to T can establish a one-way demonstration. With feedback, the MCU may already have executed instructions that should depend on an analog input before T. Delivering the event afterward does not restore causality.
 
 Therefore a conceptual `advance_until(T)` interface is not proof of synchronization. Determine whether a backend can stop at I/O boundaries, what lookahead it guarantees, whether partial advancement is observable, and when callbacks arrive. Do not assume future-GPIO prediction or whole-system rollback.
 

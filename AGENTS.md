@@ -23,7 +23,7 @@ Current user instructions take precedence over this file.
 ## Technical principles
 
 - C++20. `src/` libraries are Qt-free; Qt 6 Widgets only in `apps/simnodus`.
-- No GUI code calls ngspice or Renode directly; use the simulation session API.
+- No GUI code calls ngspice or the microcontroller emulator directly; use the simulation session API.
 - Backends are loaded at run time, never while opening a project. Opening a
   project never executes code or downloads anything.
 - Approximate simulation modes are labeled; never claim fidelity that was not

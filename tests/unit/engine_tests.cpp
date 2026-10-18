@@ -126,18 +126,18 @@ simnodus::sim::NgspiceSession* simnodus::test::engine()
     return session;
 }
 
-// Microcontroller engine for the session MCU cases ("" = the board's default).
-std::string test_mcu_engine;
+// The long soak cases run only with a fourth argument "soak".
+bool test_soak = false;
 // Segment length of the soak cases (seconds); a fifth argument changes it.
 double test_soak_segment = 1.0;
 
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        std::printf("usage: engine_tests <ngspice-library> <scripts-dir> [filter] [renode|native]\n");
+        std::printf("usage: engine_tests <ngspice-library> <scripts-dir> [filter] [soak [segment-seconds]]\n");
         return 2;
     }
-    test_mcu_engine = argc > 4 ? argv[4] : "";
+    test_soak = argc > 4 && std::string(argv[4]) == "soak";
     test_soak_segment = argc > 5 ? std::atof(argv[5]) : 1.0;
     location = {argv[1], argv[2]};
     simnodus::sim::EngineHost::instance().set_location(location);

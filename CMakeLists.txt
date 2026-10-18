@@ -56,28 +56,6 @@ if(NOT SIMNODUS_NGSPICE_LIBRARY)
 endif()
 message(STATUS "ngspice for engine tests: ${SIMNODUS_NGSPICE_LIBRARY}")
 
-# Optional Renode for the microcontroller engine tests and for running from a
-# build tree: the copy staged by `tools/fetch_backends.py --renode`. Never
-# required to build; the tests are skipped when it is not found.
-if(WIN32)
-    set(_simnodus_renode_dir "${CMAKE_CURRENT_SOURCE_DIR}/build/deps/renode")
-    set(_simnodus_renode_name "renode.exe")
-else()
-    set(_simnodus_renode_dir "${CMAKE_CURRENT_SOURCE_DIR}/build/deps/renode-linux")
-    set(_simnodus_renode_name "renode")
-endif()
-set(SIMNODUS_RENODE "" CACHE FILEPATH "Renode executable for the microcontroller engine tests")
-option(SIMNODUS_REQUIRE_RENODE "Fail the configuration if Renode is not found (CI)" OFF)
-if(NOT SIMNODUS_RENODE AND EXISTS "${_simnodus_renode_dir}/renode_1.16.1-dotnet_portable/${_simnodus_renode_name}")
-    set(SIMNODUS_RENODE "${_simnodus_renode_dir}/renode_1.16.1-dotnet_portable/${_simnodus_renode_name}" CACHE FILEPATH "" FORCE)
-endif()
-if(EXISTS "${_simnodus_renode_dir}")
-    set(SIMNODUS_DEV_RENODE_DIR "${_simnodus_renode_dir}")
-endif()
-message(STATUS "Renode for engine tests: ${SIMNODUS_RENODE}")
-
-add_subdirectory(third_party/renode_external_control)
-
 add_subdirectory(src)
 add_subdirectory(apps/simnodus-emu)
 

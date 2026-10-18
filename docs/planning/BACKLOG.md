@@ -57,7 +57,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-170 | Experiment E-07: prototype emulator (`src/emu`, CLI, Thumb-2 core, exceptions, tier-1 devices), differential tests against Renode and QEMU, benchmark | N0 / G0a, G0b (met 10-15, D0) | MCU-11 | done |
 | SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N2 start (was N0; not run before D0) | MCU-10 | todo (PWM part answered by SN-176 / ADR 0091; serial frames remain) |
 | SN-171 | Extract the `McuBackend` interface in nanoseconds with `analog_at`; current runner becomes `RenodeMcuRunner` | N1 / G1 | MCU-11 | done (analog input as `set_analog`, ADR 0092) |
-| SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | doing (runner, profile field, Simulate menu option, diagnostics in Messages) |
+| SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | done (runner and diagnostics in Messages; the engine selection went with Renode, SN-183) |
 | SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | done |
 | SN-174 | Packaging, MICROCONTROLLER.md per engine, owner test build | N1 / G1 | MCU-09 | done (owner tried the build on 2026-10-15) |
 | SN-175 | Nanosecond MCU times in the session; USART frames on TX and RX sampling | N2 / G2 | MCU-10 | done 2026-10-18 (TX frames, board-to-board links; RX from the circuit not sampled) |
@@ -70,7 +70,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-180 | GDB server and whole-simulation pause | N4 / G4 | MCU-08 | done (owner's STM32CubeIDE test 2026-10-18; load like an ST-LINK; watchpoints) |
 | SN-181 | Cortex-M3 cycle model validated on the owner's board | N5 / G5 | — | todo |
 | SN-182 | Chip component and board profiles that reference it | N6 | PRJ-06 | todo |
-| SN-183 | ADR: keep or remove Renode (D4) | N7 | — | todo |
+| SN-183 | ADR: keep or remove Renode (D4) | N7 | — | done 2026-10-18: removed (owner's decision, ADR 0094) |
 | SN-184 | Cortex-M4F core variant (DSP, FPU) | N8 | — | todo |
 | SN-185 | STM32F407 peripherals and board | N8 | — | todo |
 
@@ -91,7 +91,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 
 | ID | Task | Requirements | Status |
 |---|---|---|---|
-| SN-150 | CubeIDE/GDB debugging with the cancellable Renode build | MCU-08 | todo |
+| SN-150 | CubeIDE/GDB debugging with the cancellable Renode build | MCU-08 | dropped: debugging runs on the own emulator (SN-180); Renode removed (ADR 0094) |
 | SN-151 | Engine in a child process | SIM-08 | todo |
 | SN-152 | Windows installer and clean-PC test | NF-02 | todo |
 | SN-153 | pt-BR translation | UI-16 | todo |

@@ -156,7 +156,6 @@ private:
     QAction* pause_action_ = nullptr;
     QAction* stop_action_ = nullptr;
     QAction* reset_action_ = nullptr;
-    QAction* renode_mcu_action_ = nullptr;
     QAction* debug_action_ = nullptr;
     static constexpr int default_gdb_port = 3333; // OpenOCD's default, which CubeIDE's dialog offers
     QComboBox* speed_ = nullptr;

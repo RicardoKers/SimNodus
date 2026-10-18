@@ -118,13 +118,10 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
-    // With only the own emulator, the firmware leads by its (smaller) window, which
-    // the deterministic coupling needs (NativeMcuRunner, SN-173).
-    if (!request_.mcus.empty()
-        && std::all_of(request_.mcus.begin(), request_.mcus.end(), [](const McuRequest& m) { return m.engine == "native"; })) {
-        for (const auto& m : request_.mcus) {
-            request_.mcu_lead_us = std::min(request_.mcu_lead_us, m.options.chunk_us);
-        }
+    // The firmware leads by its window, which the deterministic coupling needs
+    // (NativeMcuRunner, SN-173).
+    for (const auto& m : request_.mcus) {
+        request_.mcu_lead_us = std::min(request_.mcu_lead_us, m.options.chunk_us);
     }
     // Serial links between boards: a TX pin and an RX pin on one net.
     for (const auto& a : request_.mcus) {
@@ -147,7 +144,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         [](const McuRequest& m) { return m.options.gdb_port >= 0; });
     for (const auto& m : request_.mcus) {
         std::unique_ptr<mcu::McuBackend> runner;
-        if (m.engine == "native") {
+        {
             auto options = m.options;
             // ADC samples read the circuit at a time it has passed (SN-178).
             options.analog_lag_ns = request_.mcu_lead_us * 1000
@@ -165,8 +162,6 @@ bool SimulationSession::start(RunRequest request, std::string& error)
                     static_cast<std::uint64_t>(std::llround(4 * std::max(settings_.max_step, 0.0) * 1e9));
             }
             runner = std::make_unique<mcu::NativeMcuRunner>(options);
-        } else {
-            runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
         }
         // Circuit-to-firmware direction (MCU-04): every GPIO pin's voltage to the board ground.
         const auto ground = netlist_.pin_node.find({m.component, m.ground_pin});
@@ -564,47 +559,25 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         }
         McuRequest request;
         request.component = c.id;
-        request.engine = environment.engine.empty() ? d->mcu->engine : environment.engine;
-        if (request.engine == "renode" && (!environment.renode || !environment.resources)) {
-            error = "The microcontroller engine (Renode) was not found next to the application.";
-            return false;
-        }
-        auto& machine = request.options.machine;
-        machine.renode = environment.renode.value_or(std::filesystem::path());
-        machine.resources = environment.resources.value_or(std::filesystem::path());
-        machine.platform = d->mcu->platform;
-        machine.extensions = d->mcu->extensions;
         for (const auto& uart : d->mcu->uarts) {
             request.options.uarts.push_back(uart.name);
-            if (!uart.tx_pin.empty()) {
-                request.options.uart_tx_pins[uart.name] = uart.tx_pin;
-            }
             request.uart_pins[uart.name] = {uart.tx_pin, uart.rx_pin};
         }
-        machine.firmware = path;
-        machine.before_firmware = d->mcu->before_firmware;
-        machine.after_firmware = d->mcu->after_firmware;
+        request.options.firmware = loaded_by_debugger ? std::filesystem::path() : path;
         request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
             d->mcu->pin_model.pull_resistance, d->mcu->pin_model.input_high, d->mcu->pin_model.input_low};
         request.ground_pin = d->mcu->ground_pin;
         const auto quantum = static_cast<std::uint64_t>(std::llround(schematic.settings().mcu_quantum * 1e6));
         request.options.chunk_us = std::max<std::uint64_t>(quantum, 1);
-        if (request.engine == "native") {
-            // Measured (SN-173, EQ-3): windows of 1 ms, 100 us and 20 us run at 2.48x,
-            // 2.40x and 2.32x real time; 100 us keeps inputs late by less than 0.1 ms.
-            request.options.chunk_us = std::min<std::uint64_t>(request.options.chunk_us, native_window_us);
-        }
+        // Measured (SN-173, EQ-3): windows of 1 ms, 100 us and 20 us run at 2.48x,
+        // 2.40x and 2.32x real time; 100 us keeps inputs late by less than 0.1 ms.
+        request.options.chunk_us = std::min<std::uint64_t>(request.options.chunk_us, native_window_us);
         for (const auto& pin : d->pins) {
             if (mcu::gpio_pin(pin.name)) {
                 request.options.pins.push_back(pin.name);
             }
         }
         if (environment.gdb_port >= 0) {
-            if (request.engine != "native") {
-                error = c.designator + ": debugging needs SimNodus's own emulator; turn off Simulate > Use Renode "
-                                       "for Microcontrollers.";
-                return false;
-            }
             request.options.gdb_port = environment.gdb_port + static_cast<int>(requests.size());
         }
         requests.push_back(std::move(request));
@@ -803,7 +776,7 @@ void SimulationSession::mcu_reset(model::Id component)
 
 void SimulationSession::run_interactive()
 {
-    // Renode starts first (seconds); the circuit waits for the firmware.
+    // The boards start first; the circuit waits for the firmware.
     if (!start_mcus()) {
         stop_mcus();
         std::lock_guard lock(mutex_);

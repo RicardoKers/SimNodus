@@ -12,7 +12,7 @@ Each release is tested hands-on by the owner; feedback adjusts the next phase.
 |---|---|---|---|---|
 | 0 — Reset | 2026-10-14 → 10-16 | — | New requirements and plan, repository restructure (legacy code moved aside), application skeleton building on Windows and Linux CI, engine spikes S1/S2 | Skeleton window runs on both platforms; spike results recorded |
 | 1 — Analog interactive editor | 10-16 → **10-30** | **0.1** | Editor (place, wire, properties, undo), component set A, interactive continuous run with switches/buttons/potentiometers/LEDs/meters, transient mode, Signal Analyzer scope, `.snx` save/open, examples | Owner builds and runs his own analog lesson circuits on Windows |
-| 2 — MCU GPIO | 11-02 → **11-13** | **0.2** | Blue Pill component, Renode integration, ELF load/reload, GPIO out/in, EXTI from schematic buttons, UART terminal, logic lanes, lesson 1–2 examples | Button on schematic → interrupt → LED, observed in analyzer |
+| 2 — MCU GPIO | 11-02 → **11-13** | **0.2** | Blue Pill component, microcontroller engine (Renode first, then the own emulator), ELF load/reload, GPIO out/in, EXTI from schematic buttons, UART terminal, logic lanes, lesson 1–2 examples | Button on schematic → interrupt → LED, observed in analyzer |
 | 3 — ADC, PWM, components B | 11-16 → **11-27** | **0.3** | ADC with circuit voltages, timer PWM (after audit), component set B, lesson 3 example | ADC reads a potentiometer; PWM drives RC/LED |
 | 4 — Debugging and packaging | 11-30 → **12-11** | **0.4** | CubeIDE/GDB debugging, engine process isolation, Windows installer, pt-BR translation, user guide, diagnostics polish | Clean-PC install and a full lesson run by the owner |
 | Freeze | **12-15** | 0.5 RC | Feature freeze; only fixes afterwards | Known-limitations list published |
@@ -25,10 +25,10 @@ from CI) with a short list of what to try.
 ## Emulator track
 
 From 2026-10-16 an own STM32 emulator is built in parallel
-([plan](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md),
-proposed). Releases keep their dates and ship on Renode until the emulator
-passes gate G1; decisions D1–D3 decide when phase 3 and 4 features move to it
-and which engine the classroom release uses.
+([plan](MCU_EMULATOR_PLAN.md), [ADR 0089](../decisions/0089-own-stm32-emulator.md)).
+It became the default engine on 2026-10-16 (D1, D2,
+[ADR 0090](../decisions/0090-own-emulator-default.md)) and the only one on
+2026-10-18, when Renode was removed (D4, [ADR 0094](../decisions/0094-remove-renode.md)).
 
 ## Scope protection
 
@@ -36,7 +36,7 @@ and which engine the classroom release uses.
 - If a phase slips more than three working days, reduce scope of that phase
   (component set, analyzer extras) instead of moving later phases.
 - Debugging (phase 4) is the first candidate to postpone if needed; the classroom
-  can use Renode-only runs and UART output.
+  can use runs without the debugger and UART output.
 - The Symbol Editor (PRJ-05), subcircuits, HDL, WASM, decoders, AC/FFT analysis
   and Linux packaging are after the classroom release unless time remains.
 

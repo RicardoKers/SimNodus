@@ -6,6 +6,10 @@ findings are folded in, see "Review" at the end). Design:
 [ADR 0089](../decisions/0089-own-stm32-emulator.md) (proposed until gate G0b).
 Tasks: SN-170..SN-186 in the [backlog](BACKLOG.md).
 
+Update 2026-10-18: decisions D0, D1, D2 and D4 are taken; Renode was removed
+([ADR 0094](../decisions/0094-remove-renode.md)), so the Renode fallback,
+rollback D1b and the Renode option of D3 described below no longer exist.
+
 ## Principles
 
 1. **Releases keep their dates.** 0.2 (11-13), 0.3 (11-27), 0.4 (12-11) and the
@@ -199,6 +203,8 @@ several boards in one circuit; full subcircuit editing waits for PRJ-06 (SN-161)
 
 After two releases on the native engine without MCU regressions, decide in an
 ADR whether Renode leaves the package (about 100 MB less) or stays optional.
+**Taken 2026-10-18** by the owner, after release 0.2.0: Renode is removed from
+SimNodus ([ADR 0094](../decisions/0094-remove-renode.md)).
 
 ### N8 — Next chips (SN-184, SN-185), after the classroom release
 
@@ -232,10 +238,10 @@ and the release ships on Renode for that feature.
 |---|---|---|---|
 | D0 | 10-30 (G0a, G0b) | Continue with the emulator? **Taken 2026-10-15: yes** (E-07 passed; ADR 0089 accepted) | Stop; keep Renode |
 | D1 | 11-13 (G1) | Native as the default engine? **Taken 2026-10-16: yes** (ADR 0090) | Renode stays default |
-| D1b | any release with native default | Roll back to Renode after an unfixed regression (3 working days) | Roll back |
+| D1b | any release with native default | Roll back to Renode after an unfixed regression (3 working days) **No longer applies since D4** (ADR 0094) | Roll back |
 | D2 | 11-13 | Build phase 3/4 features only on the emulator? (removes them from the Renode fallback) **Taken 2026-10-16: yes; Renode frozen** (ADR 0090) | On Renode, as planned |
 | D3 | 12-15 | Engine of the classroom release (options above) | Renode |
-| D4 | after two native releases | Remove Renode from the package? | Keep it |
+| D4 | after two native releases | Remove Renode from the package? **Taken 2026-10-18: yes, removed completely** ([ADR 0094](../decisions/0094-remove-renode.md)) | Keep it |
 | D5 | after the classroom | First M4 chip: F407 or F411 | F407 |
 
 ## Risks

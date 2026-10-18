@@ -69,7 +69,7 @@ struct MachineOptions {
     std::uint32_t flash_size = 64 * 1024;  // STM32F103C8
     std::uint32_t sram_size = 20 * 1024;
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
-    bool uart_frames = true; // false: bytes move at once, as in Renode (for comparisons)
+    bool uart_frames = true; // false: bytes move at once, without frames on the pins
     // RX from the pin (SN-192): a USART decodes frames from its RX pin's input
     // edges, taken at the times they happened. Edges reach the chip late (at a
     // coupling window boundary), so a frame is decided this long after the

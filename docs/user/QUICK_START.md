@@ -66,9 +66,6 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
   path is stored relative to the project. **Reload** uses a rebuilt file and
   restarts a running simulation.
 - **F5** starts the firmware in SimNodus's own STM32 emulator at once.
-  **Simulate > Use Renode for Microcontrollers (Legacy)** uses Renode
-  instead, which takes a few seconds to start (see
-  [MICROCONTROLLER.md](MICROCONTROLLER.md#engines)).
 - While running, every GPIO pin shows its state: red = output high, blue =
   output low, dotted outline = alternate function, hollow = input. The PC13
   LED on the board lights when PC13 is low; click **RESET** to restart the
@@ -88,21 +85,14 @@ board: [MICROCONTROLLER.md](MICROCONTROLLER.md).
 - Example: `08_Blue_Pill_button_interrupt` — every press of SW1 (PA1)
   toggles the LED on PA0 from the EXTI1 interrupt; PC13 lights while the
   button is held.
-- Timing with Renode: the firmware runs at most two **microcontroller
-  quanta** (Simulate > Simulation Settings, default 1 ms) ahead of the
-  circuit, so circuit changes reach the firmware up to two quanta late; a
-  smaller quantum responds faster but runs slower. Output edges fall on
-  Renode's 100 µs time quantum. With the SimNodus emulator, circuit changes
-  reach the firmware within 0.1 ms and output edges keep their exact time.
-  Transient mode does not run microcontrollers yet.
-- EXTI line n follows pin n of every port (the AFIO port selection of the
-  chip is not modeled): use one pin number per EXTI line.
+- Timing: circuit changes reach the firmware within 0.1 ms and output edges
+  keep their exact time. Transient mode does not run microcontrollers yet.
 - **Serial terminal**: Signal Analyzer, tab **UART**. Choose the port (USART1
   on PA9/PA10, USART2 on PA2/PA3, USART3 on PB10/PB11), read what the
   firmware prints, type a line and press Enter or Send (choose the line
-  ending). **Time stamps** starts every line with its simulated time. Bytes
-  move instantly: the baud rate is not simulated and the TX pin does not
-  carry the waveform.
+  ending). **Time stamps** starts every line with its simulated time. Each
+  byte goes out on the TX pin bit by bit at the baud rate (see
+  [MICROCONTROLLER.md](MICROCONTROLLER.md)).
 - Example: `09_Blue_Pill_serial_terminal` prints "tick N" every second;
   send `1` or `0` to switch the LED on PA0.
 - Push buttons have a **Contact bounce** property: with *yes* their contacts

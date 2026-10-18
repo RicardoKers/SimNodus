@@ -5,7 +5,8 @@
 #include "main_window.hpp"
 #include "theme.hpp"
 
-#include "mcu/mcu_check.hpp"
+#include "emu/elf.hpp"
+#include "emu/stm32f103.hpp"
 #include "sim/engine_check.hpp"
 #include "simnodus/version.hpp"
 
@@ -21,7 +22,9 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include <chrono>
 #include <cstdio>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -75,20 +78,43 @@ int check_engine()
     return 1;
 }
 
+// Runs the blink example's firmware for 1.1 s of virtual time in the
+// microcontroller emulator; PC13 must toggle every 500 ms.
 int check_mcu_engine()
 {
     const std::filesystem::path app_dir = QCoreApplication::applicationDirPath().toStdWString();
-    const auto result = simnodus::mcu::check_mcu_engine(app_dir);
-    for (const auto& line : result.messages) {
-        std::printf("%s\n", line.c_str());
+    std::filesystem::path firmware;
+    for (const auto& examples : {app_dir / "examples", app_dir / ".." / "share" / "simnodus" / "examples"}) {
+        if (std::filesystem::exists(examples / "firmware" / "blink" / "blink.elf")) {
+            firmware = examples / "firmware" / "blink" / "blink.elf";
+            break;
+        }
     }
-    if (result.ok) {
-        std::printf("PASS: Renode from %s started in %.1f s, ran 1 ms of virtual time, exited cleanly\n",
-            result.renode.string().c_str(), result.startup_seconds);
-        return 0;
+    if (firmware.empty()) {
+        std::printf("FAIL: examples/firmware/blink/blink.elf was not found next to the application\n");
+        return 1;
     }
-    std::printf("FAIL: microcontroller engine not available\n");
-    return 1;
+    std::string error;
+    const auto image = simnodus::emu::read_elf(firmware, error);
+    simnodus::emu::Stm32F103 machine;
+    if (!image || !machine.load(*image, error)) {
+        std::printf("FAIL: %s\n", error.c_str());
+        return 1;
+    }
+    const auto begin = std::chrono::steady_clock::now();
+    machine.run_until_ns(1100000000);
+    const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    int toggles = 0;
+    for (const auto& e : machine.take_pin_events()) {
+        toggles += e.port == 2 && e.pin == 13 ? 1 : 0;
+    }
+    if (toggles < 2) {
+        std::printf("FAIL: the blink firmware toggled PC13 %d time(s) in 1.1 s of virtual time\n", toggles);
+        return 1;
+    }
+    std::printf("PASS: microcontroller emulator ran blink.elf for 1.1 s of virtual time in %.2f s; PC13 toggled %d times\n",
+        seconds, toggles);
+    return 0;
 }
 
 // Opens the windows, exercises the panel and analyzer actions and exits.
@@ -166,7 +192,7 @@ int main(int argc, char** argv)
     const QCommandLineOption engine_option(QStringLiteral("check-engine"),
         QCoreApplication::translate("main", "Load the analog engine, solve a reference circuit and exit."));
     const QCommandLineOption mcu_option(QStringLiteral("check-mcu-engine"),
-        QCoreApplication::translate("main", "Start the microcontroller engine, run 1 ms and exit."));
+        QCoreApplication::translate("main", "Run the blink example's firmware in the microcontroller emulator and exit."));
     const QCommandLineOption screenshot_option(QStringLiteral("screenshot"),
         QCoreApplication::translate("main", "Save images of the windows to this PNG file and exit."),
         QStringLiteral("file"));

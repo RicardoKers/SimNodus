@@ -12,7 +12,6 @@ The license contains warranty/liability disclaimers. It does not establish trade
 
 | Material | Policy |
 |---|---|
-| Renode | Review the selected release and bundled libraries; its top-level MIT terms do not cover every dependency |
 | ngspice/XSPICE | Review the exact build's notices and exceptions, not just the general BSD description |
 | Qt 6 | Inventory each module and runtime; prefer a reviewed LGPL-compatible dynamic-linking distribution for the MIT application |
 | Firmware/toolchains | Distribute owned source/build recipes; verify startup, HAL/CMSIS, toolchain and example terms separately |

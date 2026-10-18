@@ -64,10 +64,8 @@ set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON AUTORCC ON)
 target_link_libraries(simnodus PRIVATE simnodus_ui simnodus::warnings)
 
 # Layout of an installed (or packaged) application:
-#   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine,
-#            renode/ (unmodified Renode 1.16.1 portable bundle) and mcu/
-#   Linux:   bin/simnodus, share/simnodus/{ngspice,mcu}; system libngspice;
-#            Renode found through SIMNODUS_RENODE
+#   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine
+#   Linux:   bin/simnodus, share/simnodus/ngspice; system libngspice
 if(WIN32)
     install(TARGETS simnodus RUNTIME DESTINATION .)
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit" DESTINATION ngspice)
@@ -99,14 +97,6 @@ if(WIN32)
     # Example projects with their firmware (ELF, C source and linker script).
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
         FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md")
-    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION mcu)
-    if(SIMNODUS_RENODE)
-        # The whole portable bundle with its licenses/, without Renode's own test suite.
-        get_filename_component(_simnodus_renode_bundle "${SIMNODUS_RENODE}" DIRECTORY)
-        install(DIRECTORY "${_simnodus_renode_bundle}/" DESTINATION renode PATTERN "tests" EXCLUDE)
-    else()
-        message(STATUS "Renode not staged; the install tree will not contain the microcontroller engine")
-    endif()
     # MSVC C++ runtime next to the executable (app-local deployment).
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
@@ -118,7 +108,6 @@ else()
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
         FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld")
-    install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/renode/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/mcu")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
     foreach(_size 16 24 32 48 64 128 256 512)
         install(FILES "${PROJECT_SOURCE_DIR}/resources/icons/simnodus_${_size}.png"

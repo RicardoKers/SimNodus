@@ -8,7 +8,7 @@ Prefer compatible ELF firmware and GDB debug interfaces where supported;
 the initial CubeIDE recipe does not make CubeIDE part of the core or imply
 that all future devices expose identical loading/debug capabilities.
 
-Preserve STM32CubeIDE connectivity to the virtual MCU through GDB. Renode documents a GDB server and common debugging operations; this alone does not validate a particular CubeIDE version with the entire co-simulation. [Official documentation](https://renode.readthedocs.io/en/latest/debugging/gdb.html).
+Preserve STM32CubeIDE connectivity to the virtual MCU through GDB. SimNodus's own emulator contains the GDB server (SN-180); the [user guide](../user/MICROCONTROLLER.md#debugging-with-stm32cubeide-or-gdb) lists what is supported and the CubeIDE version that was tried.
 
 Start with one single-core MCU, ELF debug symbols, and local GDB. Create a CubeIDE launch recipe after testing the installed version. Do not assume menu names or compatibility with ST-LINK/OpenOCD scripts.
 
@@ -36,7 +36,7 @@ Reset while running first requires coordinated stopping. A debugger-triggered MC
 
 ## Coordinated pause
 
-Renode distinguishes a pause that blocks a time domain from `IsHalted` behavior that may let other members advance. Do not treat one boolean as a universal pause contract. SimNodus must propagate debugger stops to ngspice and verify the result. [Time framework](https://renode.readthedocs.io/en/latest/advanced/time_framework.html).
+SimNodus must propagate debugger stops to ngspice and verify the result: while the firmware is halted, the circuit stands still too, and both continue from the same instant.
 
 Observe the effective stop time and whether another engine already passed it. If consistency cannot be preserved, report a limitation/error rather than a fictitious synchronized pause. Wall-clock timeouts detect communication failures; they never advance simulation time.
 
@@ -74,7 +74,7 @@ is the shared analysis/distribution boundary, not a second instrumentation stack
 
 ```text
 ngspice adapter ----+
-Renode adapter -----+--> kernel-coordinated acquisition / Simulation Timeline
+MCU emulator -------+--> kernel-coordinated acquisition / Simulation Timeline
 digital sources ----+                        |
                           +------------------+------------------+
                           |                                     |
@@ -109,7 +109,7 @@ Bound memory and distribution queues. Display downsampling must not discard even
 
 ### Instruments and decoders
 
-Oscilloscope, Logic Analyzer, and Probe Inspector consume shared records and immutable snapshots rather than calling ngspice or Renode directly. Acquisition and decoding operate without Qt. The future integrated logic analyzer is conceptually similar to PulseView: multiple MCU pins, circuit nets, or digital component outputs on one timeline, with zoom, temporal navigation, cursors, measurements, and decoder annotations. This is product direction, not a GUI library selection or implemented capability.
+Oscilloscope, Logic Analyzer, and Probe Inspector consume shared records and immutable snapshots rather than calling ngspice or the microcontroller emulator directly. Acquisition and decoding operate without Qt. The future integrated logic analyzer is conceptually similar to PulseView: multiple MCU pins, circuit nets, or digital component outputs on one timeline, with zoom, temporal navigation, cursors, measurements, and decoder annotations. This is product direction, not a GUI library selection or implemented capability.
 
 Protocol interpretation belongs outside the GUI. A provisional DecoderManager consumes digital events and distributes implementation-independent results. Conceptually, an annotation contains start/end time, row or channel, text, and kind, with source provenance. Types, streaming/batch interfaces, lifecycle, and extension ABI remain undecided. The GUI presents annotations without knowing protocol internals. Decoders observe; they do not grant simulation time or drive inputs.
 
@@ -147,4 +147,4 @@ Diagnostics include code, severity, time, entities, explanation, and model limit
 
 Future inspection connects node, terminal, alternate function, peripheral, and register. Show unavailable data explicitly. Whole-circuit reverse debugging is outside the MVP: restoring the MCU alone does not restore solver history or queued events.
 
-Control/debug servers should bind only to loopback by default, with configurable ports. Verify the chosen Renode version's actual bind behavior; do not assume GDB authentication.
+Control/debug servers should bind only to loopback by default, with configurable ports; the emulator's GDB server listens on 127.0.0.1 only. Do not assume GDB authentication.

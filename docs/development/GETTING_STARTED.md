@@ -14,11 +14,9 @@ the first development line; its commands for the legacy tree are in
 | ngspice | ngspice-47 DLL, fetched and verified by `tools/fetch_backends.py` | distribution library (`libngspice0-dev`) |
 | Python | 3.10+, standard library only | 3.10+ |
 
-Renode 1.16.1 (microcontroller engine) is fetched and verified with
-`python tools/fetch_backends.py --renode` on Windows and Linux (into
-`build/deps/renode` or `build/deps/renode-linux`). CMake finds it there for the
-`engine-renode` test; without it that test is skipped (`-DSIMNODUS_REQUIRE_RENODE=ON`
-turns the skip into an error, as in CI).
+Microcontroller firmware runs in SimNodus's own STM32 emulator (`src/emu`),
+which is part of the build; no other microcontroller engine is downloaded
+([ADR 0094](../decisions/0094-remove-renode.md)).
 
 ## Windows
 
@@ -74,5 +72,5 @@ Windows, runs the S1 quick matrix on both, compares S2 results across the two
 platforms, and uploads the Windows zip as the `simnodus-windows-x64` artifact.
 The Windows job uses Qt 6.10.2 because aqtinstall 3.3.0 cannot install the
 6.11 series yet; local and release builds use Qt 6.11.1.
-The E-01..E-05 experiment workflows are unchanged and run only when their
-files change.
+The remaining experiment workflow (E-01 ngspice) runs only when its files
+change; the Renode experiment workflows were removed with Renode (ADR 0094).

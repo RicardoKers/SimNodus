@@ -1,6 +1,6 @@
 # ADR 0082: Renode engine integration
 
-Date: 2026-10-14. Status: accepted.
+Date: 2026-10-14. Status: superseded by [ADR 0094](0094-remove-renode.md) (2026-10-18).
 
 ## Context
 

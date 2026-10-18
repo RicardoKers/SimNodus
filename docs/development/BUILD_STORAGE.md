@@ -1,5 +1,8 @@
 # Local build storage and safe cache cleanup
 
+This concerns the Renode experiments (SN-012..SN-019); SimNodus itself no
+longer uses Renode ([ADR 0094](../decisions/0094-remove-renode.md)).
+
 The Windows experiments give every Renode process a fresh `TEMP`/`TMP`
 directory under its result directory. The pinned executable extracts its .NET
 runtime into `runtime-*/.net/Renode`. Each copy is approximately 265 MiB and

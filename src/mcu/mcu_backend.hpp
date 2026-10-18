@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Microcontroller engine interface (SN-171, docs/planning/MCU_EMULATOR_PLAN.md):
-// what SimulationSession needs from a running board, independent of the engine
-// (Renode today, SimNodus's own emulator later). Times are virtual
+// what SimulationSession needs from a running board (NativeMcuRunner, SimNodus's
+// own emulator; Renode was removed, ADR 0094). Times are virtual
 // nanoseconds since the run started; pins are named as on the board ("PA9").
 #pragma once
 
@@ -122,7 +122,7 @@ public:
     // Drive of each watched pin averaged over (from_ns, to_ns] (SN-176): a circuit
     // step that contains an edge gets the charge the pin delivered during the
     // step, so PWM averages are exact whatever the step. Engines that only know
-    // levels late (Renode) return the drive at `to_ns`.
+    // levels late return the drive at `to_ns`.
     virtual std::vector<PinDrive> average_drives(std::uint64_t from_ns, std::uint64_t to_ns)
     {
         (void)from_ns;
@@ -130,7 +130,7 @@ public:
     }
     // Edge look-ahead for exact edges (ADR 0093): times in (from_ns, to_ns] at
     // which the drive of one of `pins` changes, for a span the firmware has run.
-    // Engines that only report edges late (Renode) return nothing.
+    // Engines that only report edges late return nothing.
     virtual bool reports_edges_ahead() const { return false; }
     virtual std::vector<std::uint64_t> drive_changes(
         const std::vector<std::size_t>& pins, std::uint64_t from_ns, std::uint64_t to_ns) const

@@ -30,7 +30,9 @@ The shared library provides controls and callbacks; temporal behavior must be te
 
 Graph-to-netlist conversion, stable node names, ground reference, external sources, and source mappings belong to the adapter and circuit compiler. Untrusted `.control`, `.include`, and native code models need specific handling, not unrestricted forwarding.
 
-## Renode
+## Renode (historical)
+
+Renode was removed from the product by [ADR 0094](../decisions/0094-remove-renode.md); SimNodus's own STM32 emulator is the microcontroller engine. This section records the experiment evidence.
 
 Pin the executable, client, and platform revisions. Observe execution, pins, and debugging without adopting register polling as the final integration strategy. A logical GPIO callback does not necessarily expose drive mode, pulls, or alternate-function routing.
 

@@ -2,7 +2,7 @@
 
 ## Foundation checks
 
-Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows run E-01, SN-019, E-02, E-03, and E-04.
+Run `python tools/check_repository.py` for documentation/link/JSON hygiene. Root CMake configuration verifies the build scaffold can select a C++ compiler; it does not compile a simulator. The foundation CI workflow checks this layer; separate Windows workflows ran E-01, SN-019, E-02, E-03, and E-04 (only the E-01 ngspice workflow remains since ADR 0094 removed Renode).
 
 Local foundation verification on 2026-08-31:
 
@@ -40,7 +40,7 @@ These checks establish only the reported ideal RC/voltage-source profile. Nonlin
 
 The [SN-019 report](../experiments/SN-019-results.md) records two complete 20-case local runs. Each includes real Renode control using normal and one-byte transfers, six connections, 36 exact time advancements, machine lookup/error recovery, and observed loopback endpoint/PID and shutdown checks. Nineteen separate input/fault cases exercise missing peers, closed/slow/incomplete streams, malformed/fatal frames, error ownership, rejected connection cleanup, and invalid ports. The real time results repeated identically; timeout and handle metrics are reported with their actual limits.
 
-The [dedicated workflow](../../.github/workflows/renode-client.yml) repeats the full suite on Windows. Source and package hashes are verified before generated client/extension use; the original all-interface server is not opened. The checker now includes C source text. These results do not validate firmware, peripheral APIs, in-flight cancellation, coupled timing, Linux execution, or leak endurance.
+The dedicated workflow (`.github/workflows/renode-client.yml`, removed with Renode by ADR 0094) repeats the full suite on Windows. Source and package hashes are verified before generated client/extension use; the original all-interface server is not opened. The checker now includes C source text. These results do not validate firmware, peripheral APIs, in-flight cancellation, coupled timing, Linux execution, or leak endurance.
 
 Local repository verification passed for 88 text files, Python syntax and whitespace checks, and the root CMake configure/check target. The existing eight-case ngspice suite also passed after adding the Renode-only dependency-check option.
 
@@ -49,7 +49,7 @@ Local repository verification passed for 88 text files, Python syntax and whites
 ## Coupled GPIO/RC evidence
 
 [E-03](../experiments/E-03-results.md) has a dedicated real-backend host and
-[Windows workflow](../../.github/workflows/coupling.yml). The analyzer compares
+Windows workflow (`.github/workflows/coupling.yml`, removed with Renode by ADR 0094). The analyzer compares
 accepted ngspice samples with the analytical RC, localizes Schmitt crossings,
 checks producer/observation/application times, repeats discrete signatures, and
 exercises boundary, pulse, late-input, and worker-recreation cases. It reports
@@ -80,7 +80,7 @@ loopback ownership, exact repeated results, and an expected-diagnostic allowlist
 The local final run had zero maximum code error and exact declared virtual-time
 endpoints in every repetition.
 
-The [dedicated Windows workflow](../../.github/workflows/adc.yml) downloads and
+The dedicated Windows workflow (`.github/workflows/adc.yml`, removed with Renode by ADR 0094) downloads and
 verifies the pinned Renode and Arm compiler packages, verifies the source audit,
 rebuilds the firmware/native host, and runs the complete three-process profile.
 [Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33484129645)
@@ -95,7 +95,7 @@ The direct known-schedule voltage path does not broaden E-03's causality result.
 
 The [E-02 report](../experiments/E-02-results.md) records two fresh runs, each with a 100 us and 1000 us profile. The owned ELF built twice identically. The checks cover vector/flash alias, initialized data/BSS startup, exact RunFor endpoints, periodic output, persistent input, both-edge EXTI, a 20 us pulse, same-time input collapse, GPIO modes, missing ADC, loopback ownership, and normal cleanup.
 
-The [dedicated workflow](../../.github/workflows/renode-stm32.yml) verifies the pinned Renode and compiler archives, prepares source-verified control/audit files, rebuilds the firmware and native probe, and repeats both profiles twice. It does not distribute generated artifacts. [Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33441607168) passed all four profile runs with the same ELF hash as the local build; foundation, SN-019, and E-01 regressions also passed for that revision.
+The dedicated workflow (`.github/workflows/renode-stm32.yml`, removed with Renode by ADR 0094) verifies the pinned Renode and compiler archives, prepares source-verified control/audit files, rebuilds the firmware and native probe, and repeats both profiles twice. It does not distribute generated artifacts. [Hosted verification](https://github.com/RicardoKers/SimNodus/actions/runs/33441607168) passed all four profile runs with the same ELF hash as the local build; foundation, SN-019, and E-01 regressions also passed for that revision.
 
 Local repository verification passed for 104 text files, Python syntax, JSON parsing, and whitespace checks after E-02. The root CMake check and full SN-019/ngspice regression are repeated before publication.
 

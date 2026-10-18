@@ -16,7 +16,7 @@ namespace simnodus::mcu {
 
 namespace {
 
-constexpr std::uint64_t history_keep_ns = 100000000; // as RenodeMcuRunner: 100 ms
+constexpr std::uint64_t history_keep_ns = 100000000; // 100 ms
 constexpr std::size_t uart_keep = 1 << 20;
 constexpr std::size_t log_keep = 50000;
 
@@ -411,8 +411,8 @@ void NativeMcuRunner::work()
     auto machine = std::make_unique<emu::Stm32F103>(machine_options);
     // Without a firmware file (debugging only) the flash stays empty until the
     // debugger's `load` writes it.
-    if (!options_.machine.firmware.empty() || options_.gdb_port < 0) {
-        const auto image = emu::read_elf(options_.machine.firmware, error);
+    if (!options_.firmware.empty() || options_.gdb_port < 0) {
+        const auto image = emu::read_elf(options_.firmware, error);
         if (!image || !machine->load(*image, error)) {
             fail(error);
             return;
