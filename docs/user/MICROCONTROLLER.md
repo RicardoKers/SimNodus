@@ -41,7 +41,6 @@ the same firmware timing.
 | ADC features: conversions started by a timer or EXTI, discontinuous and dual modes; DMA requests of timers, SPI and I2C | Later; the firmware gets a message in the Messages panel when it uses one |
 | Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
 | SPI, I2C, CAN, USB, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
-| Watchpoints (break when a variable changes) | Later |
 | Transient mode with a microcontroller | Not yet: use interactive mode |
 
 ## Differences from the real board
@@ -131,10 +130,13 @@ still too**; when it runs again, both continue from the same instant.
 5. Stopping the debugger (detach or terminate) lets the firmware run on;
    the run itself continues until you stop it in SimNodus.
 
-Supported: any number of breakpoints, Step, Resume, Suspend (Ctrl-C),
+Supported: any number of breakpoints and watchpoints (break when a variable
+is written, read or either: STM32CubeIDE's *Add Watchpoint*, gdb's `watch`,
+`rwatch`, `awatch`; the firmware runs slower while one is set), Step, Resume,
+Suspend (Ctrl-C),
 registers (r0–r15, xPSR, MSP, PSP, PRIMASK, CONTROL), memory and
 peripheral registers, `monitor reset` and `monitor reset halt`, `load`.
-Not yet: watchpoints. Reading a peripheral register in the debugger has the
+Reading a peripheral register in the debugger has the
 same side effects as on the chip (reading `USART_DR` clears RXNE). The GDB
 server listens on 127.0.0.1 only. After `monitor reset`, gdb may keep
 showing the old PC until the next step or continue.

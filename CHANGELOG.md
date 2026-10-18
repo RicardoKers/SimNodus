@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, SN-180)
+
+- **Watchpoints** in the GDB server (Z2 write, Z3 read, Z4 access, any number and length): the core halts after the accessing instruction and reports `watch`/`rwatch`/`awatch` with the address. Checked with arm-none-eabi-gdb: `watch uwTick` stops at each change (old 0, new 1; old 1, new 2), `rwatch` at the read in `main`. While a watchpoint is set the emulator leaves its fast path.
+
 ### Changed (2026-10-18, SN-180, owner's test)
 
 - **The debugger loads the firmware, as with an ST-LINK:** with Simulate > Debug Firmware with GDB, a board may start without a firmware file, and the debugger's `load` (STM32CubeIDE's *Download*) writes the image; the first run or step after a download resets the chip so it starts from the new vector table. Checked with arm-none-eabi-gdb loading `hal_clock.elf` over a running blink firmware.

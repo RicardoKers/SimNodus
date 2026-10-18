@@ -1433,6 +1433,23 @@ TEST_CASE("GDB server: after a load into flash the next step starts from reset, 
     CHECK(ask(client, "D") == "OK");
 }
 
+TEST_CASE("GDB server: a write watchpoint halts after the store and reports the address")
+{
+    DebugTarget target;
+    REQUIRE(target.start("blink"));
+    GdbSocket client;
+    std::string error;
+    REQUIRE(client.connect_client(target.server->port(), error));
+    REQUIRE(ask(client, "?") == "S05");
+    // blink's variables lie at the start of SRAM; the stack is at its end.
+    CHECK(ask(client, "Z2,20000000,100") == "OK");
+    CHECK(ask(client, "c") == "T05watch:20000000;");
+    CHECK(ask(client, "z2,20000000,100") == "OK");
+    CHECK(ask(client, "Z3,20000000,100") == "OK");
+    CHECK(ask(client, "c").rfind("T05rwatch:", 0) == 0);
+    CHECK(ask(client, "D") == "OK");
+}
+
 TEST_CASE("GDB server: BKPT halts with a debugger and faults without one")
 {
     ElfImage image;

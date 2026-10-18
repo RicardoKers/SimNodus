@@ -160,6 +160,8 @@ void GdbServer::attach()
 void GdbServer::detach()
 {
     machine_.cpu().set_debugger_attached(false); // clears breakpoints and the halt
+    machine_.cpu().set_watchpoints({});
+    watchpoints_.clear();
     breakpoints_.clear();
     socket_.close_client();
     state_ = State::NoClient;
@@ -197,7 +199,7 @@ void GdbServer::after_run()
 {
     if (state_ == State::Running && machine_.halted()) {
         state_ = State::Halted;
-        reply("S05"); // SIGTRAP: breakpoint or BKPT
+        reply(stop_reply());
     }
 }
 
@@ -286,6 +288,18 @@ void GdbServer::start_after_load()
     }
 }
 
+std::string GdbServer::stop_reply() const
+{
+    const auto& watch = const_cast<Stm32F103&>(machine_).cpu().last_watch();
+    if (!watch.hit) {
+        return "S05"; // SIGTRAP: breakpoint, BKPT or step
+    }
+    const char* kind = watch.kind == Cpu::WatchKind::Write ? "watch" : (watch.kind == Cpu::WatchKind::Read ? "rwatch" : "awatch");
+    char text[48];
+    std::snprintf(text, sizeof text, "T05%s:%08x;", kind, static_cast<unsigned>(watch.address));
+    return text;
+}
+
 void GdbServer::update_breakpoints()
 {
     machine_.cpu().set_breakpoints({breakpoints_.begin(), breakpoints_.end()});
@@ -364,8 +378,25 @@ void GdbServer::handle(const std::string& packet)
     case 'Z':
     case 'z': {
         const char type = packet.size() > 1 ? packet[1] : '?';
+        if (type >= '2' && type <= '4') {
+            at = 3;
+            const std::uint32_t address = parse_hex(packet, at);
+            ++at;
+            const std::uint32_t length = std::max<std::uint32_t>(parse_hex(packet, at), 1);
+            const auto watch_kind = static_cast<Cpu::WatchKind>(type - '0');
+            auto same = [&](const Cpu::Watchpoint& w) {
+                return w.address == address && w.length == length && w.kind == watch_kind;
+            };
+            watchpoints_.erase(std::remove_if(watchpoints_.begin(), watchpoints_.end(), same), watchpoints_.end());
+            if (kind == 'Z') {
+                watchpoints_.push_back({address, length, watch_kind});
+            }
+            machine_.cpu().set_watchpoints(watchpoints_);
+            reply("OK");
+            return;
+        }
         if (type != '0' && type != '1') {
-            reply(""); // watchpoints: not supported yet
+            reply("");
             return;
         }
         at = 3;
