@@ -24,6 +24,7 @@ Schematic sample()
     r.orientation = {90, true};
     r.parameters = {{"R", "4k7"}};
     r.value_offset = Point{3, 2};
+    r.models = {{"model", ".model MY-R R(TC1=0)"}};
     s.put(r);
     s.put(Wire{s.allocate_id(), {{13, -4}, {20, -4}, {20, 3}}});
     s.put(NetLabel{s.allocate_id(), {20, 3}, "OUT"});

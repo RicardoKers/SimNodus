@@ -182,6 +182,39 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 words[p.name] = text; // used by the run, not by the template
                 continue;
             }
+            if (p.kind == library::Parameter::Kind::Model) {
+                // PRJ-07: a model kept in the component (not built in), else a
+                // built-in one. Netlist names are SimNodus's own, so any model
+                // name works and two parts never clash.
+                std::optional<library::SpiceModel> chosen;
+                if (const auto kept = c.models.find(p.name); kept != c.models.end()) {
+                    chosen = library::parse_spice_model(kept->second);
+                    if (chosen && chosen->name != text) {
+                        chosen.reset();
+                    }
+                }
+                std::string as_name;
+                if (chosen) {
+                    as_name = "UM_" + sanitize_name(c.designator) + "_" + sanitize_name(p.name);
+                } else if (const auto* built_in = library.model(p.model_type, text)) {
+                    chosen = *built_in;
+                    as_name = "BM_" + sanitize_name(p.model_type) + "_" + sanitize_name(text);
+                }
+                if (!chosen || chosen->type != p.model_type) {
+                    report(Severity::Error, "unknown-model",
+                        c.designator + ": the " + p.model_type + " model \"" + text
+                            + "\" is not available. Choose another model in Properties.",
+                        {c.id}, c.position);
+                    values_ok = false;
+                    continue;
+                }
+                const std::string card = chosen->card(as_name);
+                if (model_lines.insert(card).second) {
+                    out.models.push_back(card);
+                }
+                words[p.name] = as_name;
+                continue;
+            }
             if (!p.choices.empty()) {
                 if (std::find(p.choices.begin(), p.choices.end(), text) == p.choices.end()) {
                     report(Severity::Error, "invalid-value",

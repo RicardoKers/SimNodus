@@ -3,6 +3,7 @@
 #include "test_support.hpp"
 
 #include "library/component_library.hpp"
+#include "library/spice_model.hpp"
 #include "library/spice_template.hpp"
 
 #include <cmath>
@@ -185,4 +186,55 @@ TEST_CASE("an mcu section needs a file parameter for the firmware")
         "spice": ["R_{ref} {node:PA0} 0 1k"]})");
     REQUIRE(error.has_value());
     CHECK(error->find("file parameter") != std::string::npos);
+}
+
+TEST_CASE("SPICE model files: .model statements are read, the rest is skipped")
+{
+    const std::string text = "* Models pasted from a vendor library\n"
+                             "* 2N2222A: general purpose NPN\n"
+                             ".MODEL 2N2222A npn (IS=14.34f BF=255.9 ; end-of-line comment\n"
+                             "+ VAF=74.03 IKF=.2847)\n"
+                             "\n"
+                             ".model D1N4148 D IS=2.52n RS=.568\n"
+                             ".subckt OPAMP 1 2 3\n"
+                             ".model INNER NPN(BF=50)\n"
+                             ".ends OPAMP\n"
+                             ".model JF1 NJF(VTO=-2)\n"
+                             ".model BAD NPN(BF={beta})\n"
+                             "R1 1 2 1k\n"
+                             ".control\n";
+    int skipped = 0;
+    const auto models = library::parse_spice_models(text, &skipped);
+    REQUIRE(models.size() == 2);
+    CHECK(models[0].name == "2N2222A");
+    CHECK(models[0].type == "NPN");
+    CHECK(models[0].parameters == "IS=14.34f BF=255.9 VAF=74.03 IKF=.2847");
+    CHECK(models[0].description == "2N2222A: general purpose NPN");
+    CHECK(models[0].card("BM_X") == ".model BM_X NPN(IS=14.34f BF=255.9 VAF=74.03 IKF=.2847)");
+    CHECK(models[1].name == "D1N4148");
+    CHECK(models[1].parameters == "IS=2.52n RS=.568");
+    CHECK(models[1].description.empty());
+    CHECK(skipped == 3); // the subcircuit, the JFET type and the expression
+    // Only the statement itself is kept: text after the parameters is dropped.
+    CHECK(library::parse_spice_model(".model X NPN(BF=100) .control")->card() == ".model X NPN(BF=100)");
+    CHECK(!library::parse_spice_model(".model X$Y NPN(BF=100)").has_value());
+}
+
+TEST_CASE("the built-in models cover the semiconductor parts")
+{
+    ComponentLibrary library;
+    const auto messages = library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    CHECK(messages.empty());
+    for (const char* type : {"npn", "pnp", "diode", "nmos", "pmos"}) {
+        const auto* d = library.find(type);
+        REQUIRE(d != nullptr);
+        const auto* p = d->parameter("model");
+        REQUIRE(p != nullptr);
+        CHECK(p->kind == library::Parameter::Kind::Model);
+        CHECK(library.model(p->model_type, "Generic") != nullptr);
+    }
+    CHECK(library.model("NPN", "2N2222A") != nullptr);
+    CHECK(library.model("D", "1N5819") != nullptr);
+    CHECK(library.model("NPN", "1N5819") == nullptr); // names are looked up per type
+    CHECK(library.models().size() >= 20);
 }

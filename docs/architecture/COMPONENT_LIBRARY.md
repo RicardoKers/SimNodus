@@ -40,7 +40,22 @@ Parameter values are text in [engineering notation](../../src/model/engineering.
 takes one of the listed words instead (LED color, initial switch state).
 `"kind": "file"` makes a file path (firmware) with an optional `filter`
 (`"*.elf"`); it is stored relative to the project when possible and is not
-used by the SPICE template.
+used by the SPICE template. `"kind": "model"` with `"model_type"` (`NPN`,
+`PNP`, `D`, `NMOS`, `PMOS`) names a SPICE model ([ADR 0095](../decisions/0095-model-variants.md));
+the template uses it like any parameter (`Q_{ref} {node:C} {node:B} {node:E} {model}`)
+and the netlist adds the chosen `.model` statement under a SimNodus name.
+
+### SPICE models
+
+`*.lib` files of the library folder hold the built-in models as `.model`
+statements; the comment line just above each one is its description
+(`resources/library/models/basic_models.lib`). A model parameter's default
+must be one of them. The user's models folder (Documents/SimNodus/models, or
+`SIMNODUS_MODELS_DIR`) is read the same way by the application; a model chosen
+from it is copied into the component (`models` in the project file), so the
+project does not need the folder. Only `.model` statements of the five types
+are taken; subcircuits, other statements, `{}` expressions and quotes are
+skipped.
 
 ## Microcontroller boards
 

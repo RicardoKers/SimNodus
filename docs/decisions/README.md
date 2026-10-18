@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0095: Model variants of basic parts, built in and from the user's folder](0095-model-variants.md):
+  SN-194; SimNodus's own approximations built in, user models copied into the project.
 - [0094: Remove Renode; the own emulator is the only microcontroller engine](0094-remove-renode.md):
   decision D4 (2026-10-18); supersedes ADR 0082 and the legacy-engine part of ADR 0090.
 - [0093: Exact microcontroller edges as a simulation setting](0093-exact-edges-option.md):

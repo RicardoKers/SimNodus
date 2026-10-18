@@ -142,9 +142,17 @@
     1
   ],
   "spice": [
-    "M_{ref} {node:D} {node:G} {node:S} {node:S} NMOS_SN"
+    "M_{ref} {node:D} {node:G} {node:S} {node:S} {model}"
   ],
-  "models": [
-    ".model NMOS_SN NMOS(LEVEL=1 VTO=2.1 KP=0.1 LAMBDA=0.02 CGSO=20n CGDO=5n)"
+  "value_parameter": "model",
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "model_type": "NMOS",
+      "default": "Generic",
+      "description": "SPICE model: a built-in part or one from your models folder (Tools > Open Models Folder)"
+    }
   ]
 }

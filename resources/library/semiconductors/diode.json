@@ -61,9 +61,17 @@
     ]
   },
   "spice": [
-    "D_{ref} {node:A} {node:K} D1N4148_SN"
+    "D_{ref} {node:A} {node:K} {model}"
   ],
-  "models": [
-    ".model D1N4148_SN D(IS=2.52n N=1.752 RS=0.568 BV=100 IBV=100u CJO=4p M=0.333 TT=11.5n)"
+  "value_parameter": "model",
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "model_type": "D",
+      "default": "Generic",
+      "description": "SPICE model: a built-in part or one from your models folder (Tools > Open Models Folder)"
+    }
   ]
 }

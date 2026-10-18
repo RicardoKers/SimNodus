@@ -12,8 +12,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #151 (SN-183, Renode removed). Branch
-  `text-notes`: SN-193.
+- `main` has everything up to #152 (SN-193 text notes). Branch
+  `model-variants`: SN-194.
 - **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
   the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
   to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,
@@ -22,7 +22,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   steps); exact edges work with two boards again. SN-183: Renode removed
   (owner's decision 2026-10-18, ADR 0094): one microcontroller engine, the
   test suite runs in about 20 s instead of about 3 min, no Renode in the
-  package. SN-193: text notes on the schematic (`T`).
+  package. SN-193: text notes on the schematic (`T`). SN-194: model
+  variants of transistors, MOSFETs and diodes (built in and from the user's
+  models folder, ADR 0095).
 - **What 0.2 contains:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
     Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–16, continuous interactive
@@ -50,9 +52,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 1. Classroom feedback on 0.2 is postponed (depends on the academic
    calendar); fix what the owner reports when it arrives.
 2. Owner's order (2026-10-18): logic gates (SN-191), USART RX from the
-   circuit (SN-192), Renode's removal (SN-183) and text notes (SN-193) done;
-   next model variants (SN-194), potentiometer position (SN-195), buses
-   (SN-196), in that order. Installer, pt-BR and dark theme wait; a zip is
+   circuit (SN-192), Renode's removal (SN-183), text notes (SN-193) and model
+   variants (SN-194) done; next potentiometer position (SN-195), then buses
+   (SN-196). Installer, pt-BR and dark theme wait; a zip is
    enough for the tests.
 3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
 

@@ -12,6 +12,7 @@
 #include "schematic_scene.hpp"
 #include "schematic_view.hpp"
 #include "settings_dialog.hpp"
+#include "user_models.hpp"
 
 #include "editing/operations.hpp"
 #include "io/project_file.hpp"
@@ -25,6 +26,7 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -45,6 +47,7 @@
 #include <QStyle>
 #include <QThread>
 #include <QTimer>
+#include <QUrl>
 #include <QToolBar>
 #include <QUndoStack>
 #include <QVBoxLayout>
@@ -386,6 +389,14 @@ void MainWindow::build_actions_and_menus()
     auto* tools = menuBar()->addMenu(tr("&Tools"));
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
     engine_action_->setStatusTip(tr("Load the analog engine and solve a reference circuit"));
+    auto* models = tools->addAction(tr("Open &Models Folder"), this, [this] {
+        if (!ensure_user_models_folder()) {
+            QMessageBox::warning(this, tr("Models folder"), tr("The folder %1 could not be created.").arg(user_models_folder()));
+            return;
+        }
+        QDesktopServices::openUrl(QUrl::fromLocalFile(user_models_folder()));
+    });
+    models->setStatusTip(tr("SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties"));
 
     auto* window = menuBar()->addMenu(tr("&Window"));
     analyzer_action_ = window->addAction(tr("Signal &Analyzer"));

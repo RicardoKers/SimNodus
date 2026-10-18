@@ -102,9 +102,17 @@
     1
   ],
   "spice": [
-    "Q_{ref} {node:C} {node:B} {node:E} QNPN_SN"
+    "Q_{ref} {node:C} {node:B} {node:E} {model}"
   ],
-  "models": [
-    ".model QNPN_SN NPN(IS=14f BF=200 VAF=74 IKF=0.28 BR=6 RB=10 RC=1 CJE=22p CJC=7p TF=0.4n TR=46n)"
+  "value_parameter": "model",
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "model_type": "NPN",
+      "default": "Generic",
+      "description": "SPICE model: a built-in part or one from your models folder (Tools > Open Models Folder)"
+    }
   ]
 }

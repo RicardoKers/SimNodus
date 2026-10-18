@@ -55,6 +55,10 @@ Edit rotate_items(const model::Schematic& schematic, const library::ComponentLib
 Edit mirror_items(const model::Schematic& schematic, const library::ComponentLibrary& library, const std::set<Id>& ids);
 
 Edit set_parameter(const model::Schematic& schematic, Id component, const std::string& name, const std::string& value);
+// Chooses a SPICE model (PRJ-07): `statement` is the `.model` text of a model
+// that is not built in, kept in the component; empty for a built-in model.
+Edit set_model(const model::Schematic& schematic, Id component, const std::string& parameter, const std::string& name,
+    const std::string& statement);
 Edit set_designator(const model::Schematic& schematic, Id component, const std::string& designator);
 // Moves a component's designator or value text (UI-11); `value` selects which.
 Edit move_text(const model::Schematic& schematic, Id component, bool value, Point offset);

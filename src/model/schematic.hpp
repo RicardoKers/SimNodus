@@ -32,6 +32,10 @@ struct Component {
     // empty means the library default.
     std::optional<Point> designator_offset;
     std::optional<Point> value_offset;
+    // Model parameter -> `.model` statement of a model that is not built in
+    // (from the user's models folder, PRJ-07): the project keeps it, so it
+    // opens the same on another computer.
+    std::map<std::string, std::string> models;
 
     friend bool operator==(const Component&, const Component&) = default;
 };

@@ -37,6 +37,8 @@ add_library(simnodus_ui STATIC
     logic_widget.hpp
     uart_terminal.cpp
     uart_terminal.hpp
+    user_models.cpp
+    user_models.hpp
     scope_widget.hpp
     settings_dialog.cpp
     settings_dialog.hpp

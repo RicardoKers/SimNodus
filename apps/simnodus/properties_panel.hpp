@@ -50,6 +50,8 @@ private:
     void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
     QWidget* file_editor(const library::Parameter& parameter, const QString& value);
+    QWidget* model_editor(const library::Parameter& parameter, const model::Component& first, const QString& value);
+    void commit_model(const std::string& parameter, const std::string& name, const std::string& statement);
     QString project_dir() const;
     void commit_designator(const QString& text);
     void commit_label(const QString& text);

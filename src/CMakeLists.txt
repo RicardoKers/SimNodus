@@ -16,6 +16,7 @@ target_link_libraries(simnodus_model PRIVATE simnodus::warnings)
 
 add_library(simnodus_library STATIC
     library/component_library.cpp
+    library/spice_model.cpp
     library/spice_template.cpp)
 add_library(simnodus::library ALIAS simnodus_library)
 target_link_libraries(simnodus_library PUBLIC simnodus::model PRIVATE simnodus_json simnodus::warnings)

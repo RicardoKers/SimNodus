@@ -88,6 +88,9 @@ json element_json(const Element& element)
                 if (e.value_offset) {
                     j["value_offset"] = point_json(*e.value_offset);
                 }
+                if (!e.models.empty()) {
+                    j["models"] = e.models;
+                }
                 return j;
             } else if constexpr (std::is_same_v<T, Wire>) {
                 json points = json::array();
@@ -139,6 +142,17 @@ Component component_from(const json& j)
     }
     if (j.contains("value_offset")) {
         c.value_offset = point_from(j["value_offset"], "value offset");
+    }
+    if (j.contains("models")) {
+        if (!j["models"].is_object()) {
+            throw std::runtime_error("models must be an object");
+        }
+        for (const auto& [name, value] : j["models"].items()) {
+            if (!value.is_string()) {
+                throw std::runtime_error("model " + name + " must be text");
+            }
+            c.models[name] = value.get<std::string>();
+        }
     }
     return c;
 }

@@ -26,6 +26,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QGraphicsItem>
@@ -192,6 +193,37 @@ private slots:
         QTest::keyClick(edit, Qt::Key_Return);
         QCOMPARE(doc().schematic().component(r)->parameters.at("R"), std::string("4k7")); // invalid: not applied
         QVERIFY(!edit->toolTip().isEmpty());
+    }
+
+    void model_list_offers_built_in_and_folder_models()
+    {
+        // A models folder with a user's NPN (and a line that is not a model).
+        const QString folder = dir_.filePath(QStringLiteral("models"));
+        QVERIFY(QDir().mkpath(folder));
+        QFile file(folder + QStringLiteral("/mine.lib"));
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("* MY-NPN: a test transistor\n.model MY-NPN NPN(BF=50)\nR1 1 2 1k\n");
+        file.close();
+        qputenv("SIMNODUS_MODELS_DIR", folder.toUtf8());
+        const model::Id q = place("npn", {0, 0});
+        window_->scene()->select_ids({q});
+        auto* box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_model"));
+        QVERIFY(box);
+        QCOMPARE(box->currentText(), QStringLiteral("Generic"));
+        QVERIFY(box->findText(QStringLiteral("2N2222A")) >= 0);
+        QVERIFY(box->findText(QStringLiteral("1N4148")) < 0); // diodes are not offered for an NPN
+        const int mine = box->findText(QStringLiteral("MY-NPN"));
+        QVERIFY(mine >= 0);
+        QVERIFY(box->itemData(mine, Qt::ToolTipRole).toString().contains(QStringLiteral("mine.lib")));
+        emit box->activated(mine);
+        const auto* c = doc().schematic().component(q);
+        QCOMPARE(c->parameters.at("model"), std::string("MY-NPN"));
+        QCOMPARE(c->models.at("model"), std::string(".model MY-NPN NPN(BF=50)"));
+        // Back to a built-in model: nothing is kept in the component.
+        box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_model"));
+        emit box->activated(box->findText(QStringLiteral("2N3904")));
+        QVERIFY(doc().schematic().component(q)->models.empty());
+        qunsetenv("SIMNODUS_MODELS_DIR");
     }
 
     void text_notes_show_move_and_edit_in_the_properties_panel()

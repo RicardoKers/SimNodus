@@ -83,6 +83,37 @@ TEST_CASE("net names are unique ignoring case")
     CHECK(n1->name != n2->name);
 }
 
+TEST_CASE("model parameters choose a built-in model or one kept in the component")
+{
+    const auto lib = load();
+    test::CircuitBuilder b(lib);
+    b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+    const Id q1 = b.add("npn", {{"C", "VCC"}, {"B", "B"}, {"E", "0"}}, {{"model", "2N2222A"}});
+    const Id q2 = b.add("npn", {{"C", "VCC"}, {"B", "B"}, {"E", "0"}});
+    b.add("resistor", {{"1", "VCC"}, {"2", "B"}}, {{"R", "100k"}});
+    auto n = netlist::generate_netlist(b.schematic, lib);
+    if (!n.ok()) {
+        dump(n);
+    }
+    REQUIRE(n.ok());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "Q_Q1 VCC B 0 BM_NPN_2N2222A") != n.lines.end());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "Q_Q2 VCC B 0 BM_NPN_Generic") != n.lines.end());
+    CHECK(n.models.size() == 2);
+    CHECK(n.models.front().rfind(".model BM_NPN_2N2222A NPN(", 0) == 0);
+    // A model from the user's folder travels inside the component.
+    editing::set_model(b.schematic, q2, "model", "MY-NPN", ".model MY-NPN NPN(BF=50)").apply(b.schematic);
+    n = netlist::generate_netlist(b.schematic, lib);
+    REQUIRE(n.ok());
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "Q_Q2 VCC B 0 UM_Q2_model") != n.lines.end());
+    CHECK(std::find(n.models.begin(), n.models.end(), ".model UM_Q2_model NPN(BF=50)") != n.models.end());
+    // An unknown model, or one of the wrong type, is an error that names the part.
+    editing::set_parameter(b.schematic, q1, "model", "NOPE").apply(b.schematic);
+    n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(has(n, "unknown-model"));
+    editing::set_model(b.schematic, q1, "model", "D1", ".model D1 D(IS=1n)").apply(b.schematic);
+    CHECK(has(netlist::generate_netlist(b.schematic, lib), "unknown-model"));
+}
+
 TEST_CASE("an RC circuit gives the expected netlist")
 {
     const auto lib = load();

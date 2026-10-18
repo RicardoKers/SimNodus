@@ -7,6 +7,7 @@
 
 #include "circuit_builder.hpp"
 #include "engine_fixture.hpp"
+#include "editing/operations.hpp"
 #include "netlist/netlist.hpp"
 
 #include <algorithm>
@@ -327,6 +328,39 @@ TEST_CASE("library: component set B behaves like its parts")
             b.add("not_gate", {{"A", "A"}, {"Y", "Y"}}, {{"VDD", vdd}});
             CHECK(close_to(op(b, "y"), in ? 0.0 : high, 0.01));
         }
+    }
+    { // model variants: a Schottky drops less than a silicon diode; a user model is used
+        auto forward = [&](const char* model, const std::string& card) {
+            test::CircuitBuilder b(components());
+            supply(b, "VCC", "5");
+            b.add("resistor", {{"1", "VCC"}, {"2", "A"}}, {{"R", "1k"}});
+            const auto d = b.add("diode", {{"A", "A"}, {"K", "0"}}, {{"model", model}});
+            if (!card.empty()) {
+                editing::set_model(b.schematic, d, "model", model, card).apply(b.schematic);
+            }
+            return op(b, "a");
+        };
+        const double silicon = forward("1N4148", "");
+        const double schottky = forward("1N5819", "");
+        const double user = forward("MYD", ".model MYD D(IS=1e-6 N=1)");
+        std::printf("  forward at 4 mA: 1N4148 %.3f V, 1N5819 %.3f V, user model %.3f V\n", silicon, schottky, user);
+        CHECK(silicon > 0.6 && silicon < 0.8);
+        CHECK(schottky > 0.15 && schottky < silicon - 0.2);
+        CHECK(user > 0.1 && user < 0.25);
+        // MOSFETs switched on with 10 V at the gate: on-resistance near the datasheet's.
+        auto on_resistance = [&](const char* model, const char* load, double amps) {
+            test::CircuitBuilder b(components());
+            supply(b, "VCC", "12");
+            supply(b, "G", "10");
+            b.add("resistor", {{"1", "VCC"}, {"2", "D"}}, {{"R", load}});
+            b.add("nmos", {{"D", "D"}, {"G", "G"}, {"S", "0"}}, {{"model", model}});
+            return op(b, "d") / amps;
+        };
+        const double irf540n = on_resistance("IRF540N", "12", 1.0);
+        const double n2n7000 = on_resistance("2N7000", "120", 0.1);
+        std::printf("  on-resistance at 10 V: IRF540N %.3f ohm, 2N7000 %.2f ohm\n", irf540n, n2n7000);
+        CHECK(irf540n > 0.02 && irf540n < 0.08);
+        CHECK(n2n7000 > 1.0 && n2n7000 < 3.0);
     }
     { // three inverters in a ring oscillate through the gate delay
         test::CircuitBuilder b(components());
