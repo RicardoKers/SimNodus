@@ -11,6 +11,7 @@
 
 #include "model/engineering.hpp"
 #include "sim/measurements.hpp"
+#include "sim/vcd.hpp"
 
 #include <QHBoxLayout>
 #include <QListWidget>
@@ -347,6 +348,11 @@ QWidget* AnalyzerWindow::build_logic_page()
     threshold_->setToolTip(tr("Voltage channels read 1 above this level"));
     threshold_row->addWidget(threshold_);
     side->addLayout(threshold_row);
+    auto* export_vcd_button = new QPushButton(tr("Export VCD..."));
+    export_vcd_button->setObjectName(QStringLiteral("logicExportVcd"));
+    export_vcd_button->setToolTip(tr("Write the checked lanes, over the whole retained history, to a VCD file for PulseView or GTKWave"));
+    connect(export_vcd_button, &QPushButton::clicked, this, &AnalyzerWindow::export_vcd_dialog);
+    side->addWidget(export_vcd_button);
     row->addLayout(side);
     auto* main = new QVBoxLayout;
     logic_ = new LogicWidget;
@@ -617,6 +623,67 @@ void AnalyzerWindow::export_csv_dialog()
     QString error;
     if (!export_csv(path, error)) {
         QMessageBox::warning(this, tr("Export channels"), error);
+    }
+}
+
+bool AnalyzerWindow::export_vcd(const QString& path, QString& error) const
+{
+    std::vector<const RunController::LogicLane*> chosen;
+    for (int i = 0; i < static_cast<int>(logic_lanes_.size()); ++i) {
+        const auto* item = lane_list_->item(i);
+        if (item && item->checkState() == Qt::Checked) {
+            chosen.push_back(&logic_lanes_[static_cast<std::size_t>(i)]);
+        }
+    }
+    if (!controller_ || chosen.empty()) {
+        error = tr("Check the lanes to export in the Logic tab.");
+        return false;
+    }
+    // The dump starts where every chosen lane has data: probe history is
+    // limited by the sample buffer, pin logs reach further back.
+    double start = 0.0;
+    for (const auto* lane : chosen) {
+        if (lane->channel >= 0 && lane->channel < static_cast<int>(controller_->channels().size())) {
+            const auto samples = controller_->samples(controller_->channels()[static_cast<std::size_t>(lane->channel)], 0.0);
+            if (!samples.empty()) {
+                start = std::max(start, samples.front().time);
+            }
+        }
+    }
+    auto to_ns = [](double seconds) { return static_cast<std::uint64_t>(std::llround(std::max(0.0, seconds) * 1e9)); };
+    std::vector<sim::VcdSignal> dump;
+    for (const auto* lane : chosen) {
+        const auto levels = controller_->lane_data(*lane, start, threshold_->value());
+        sim::VcdSignal signal{lane->title.toStdString(), levels.initial, {}};
+        for (const auto& [time, level] : levels.changes) {
+            signal.changes.emplace_back(to_ns(time), level);
+        }
+        dump.push_back(std::move(signal));
+    }
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        error = file.errorString();
+        return false;
+    }
+    const std::string text = sim::write_vcd(dump, to_ns(start),
+        "SimNodus " + QCoreApplication::applicationVersion().toStdString(),
+        controller_->mode_description().toStdString());
+    if (file.write(text.data(), static_cast<qint64>(text.size())) != static_cast<qint64>(text.size())) {
+        error = file.errorString();
+        return false;
+    }
+    return true;
+}
+
+void AnalyzerWindow::export_vcd_dialog()
+{
+    const QString path = QFileDialog::getSaveFileName(this, tr("Export logic lanes"), tr("signals.vcd"), tr("VCD files (*.vcd)"));
+    if (path.isEmpty()) {
+        return;
+    }
+    QString error;
+    if (!export_vcd(path, error)) {
+        QMessageBox::warning(this, tr("Export logic lanes"), error);
     }
 }
 

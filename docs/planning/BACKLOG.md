@@ -82,6 +82,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-141 | Timer/PWM audit of Renode STM32F1 model and support | MCU-07 | superseded by SN-177 (ADR 0090) |
 | SN-142 | Component set B | SIM-07 | done 2026-10-18 (logic gates when a lesson needs them) |
 | SN-189 | Scope: vertical scale on the left for the selected trace, a 0 V marker per trace, and a vertical offset per trace to move it up and down (owner's request, 2026-10-18) | AN-02 | done 2026-10-18 |
+| SN-190 | Export selected digital signals to VCD: *Export VCD...* in the Logic tab writes the checked lanes (MCU pins and probe lanes) as IEEE 1364 VCD, 1 ns timescale, initial values in `$dumpvars`, then only value changes, over the retained history. Owner's request 2026-10-18 | AN-10 | done 2026-10-18 (unit and live GUI tests; owner opens a file in PulseView) |
 | SN-143 | Lesson 3 example | — | done (example 16, `lesson3_adc_uart.md`) |
 
 ## Phase 4 — Debugging and packaging, release 0.4 (until 2026-12-11)
@@ -103,4 +104,3 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-162 | Dark theme, ANSI symbol variant |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
 | SN-164 | Linux package |
-| SN-190 | Export selected digital signals to VCD (AN-10): in the Logic tab the user picks the lanes to export (MCU pins and digital signals); writes IEEE 1364 VCD with a timescale fine enough for the retained edges (1 ns), one `$var wire 1` per lane named after it, the initial values in `$dumpvars` and only the value changes after that; covers the retained history (or the record of a finished transient run). Tests: a known lane set gives the expected file; the file opens in PulseView (owner checks). Owner's request 2026-10-18; not a priority |

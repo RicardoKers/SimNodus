@@ -6,6 +6,7 @@
 #include "sim/ngspice_runtime.hpp"
 #include "sim/process_memory.hpp"
 #include "sim/sample_ring.hpp"
+#include "sim/vcd.hpp"
 
 #include <cmath>
 
@@ -130,6 +131,45 @@ TEST_CASE("trigger finds the last crossing")
     CHECK(!find_trigger(s, 5.0, true, 0, 4).has_value());
     CHECK(std::abs(value_at(s, 0.5).value_or(-1) - 1.0) < 1e-12);
     CHECK(!value_at(s, 9).has_value());
+}
+
+TEST_CASE("VCD names keep letters, digits and underscores")
+{
+    CHECK(vcd_name("U1.PA0") == "U1_PA0");
+    CHECK(vcd_name("V(OUT)") == "V_OUT");
+    CHECK(vcd_name("V(A,B)") == "V_A_B");
+    CHECK(vcd_name("()") == "signal");
+}
+
+TEST_CASE("VCD lists the selected signals and their value changes")
+{
+    const std::vector<VcdSignal> signals{
+        {"U1.PC13", true, {{500, false}, {2000, true}, {3000, true}}},
+        {"V(OUT)", false, {{1500, true}, {2000, false}, {2000, true}}},
+        {"U1.PC13", false, {}},
+    };
+    const std::string expected = "$version SimNodus 0.3.0 $end\n"
+                                 "$comment interactive run $end\n"
+                                 "$timescale 1 ns $end\n"
+                                 "$scope module simnodus $end\n"
+                                 "$var wire 1 ! U1_PC13 $end\n"
+                                 "$var wire 1 \" V_OUT $end\n"
+                                 "$var wire 1 # U1_PC13_2 $end\n"
+                                 "$upscope $end\n"
+                                 "$enddefinitions $end\n"
+                                 "#1000\n"
+                                 "$dumpvars\n"
+                                 "0!\n"
+                                 "0\"\n"
+                                 "0#\n"
+                                 "$end\n"
+                                 "#1500\n"
+                                 "1\"\n"
+                                 "#2000\n"
+                                 "1!\n";
+    // The change at 500 ns falls before the start and sets the initial level;
+    // at 2000 ns V(OUT) ends where it was, so only U1.PC13 is written.
+    CHECK(write_vcd(signals, 1000, "SimNodus 0.3.0", "interactive run") == expected);
 }
 
 int main(int argc, char** argv)

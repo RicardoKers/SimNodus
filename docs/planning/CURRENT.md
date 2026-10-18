@@ -12,8 +12,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- Everything is merged in `main` (last PRs: #146 scope 0 V marker fix, #147
-  release docs). No open branches or PRs.
+- `main` has everything up to #147 (release docs). Open: PR #148 (this
+  document, SN-190 VCD export).
+- **Since 0.2 (for 0.3):** SN-190 done: *Export VCD...* in the Logic tab
+  writes the checked lanes as an IEEE 1364 VCD (1 ns timescale). The owner
+  still has to open an exported file in PulseView.
 - **What 0.2 contains:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
     Zener, op-amp, lamp, relay, DC motor, transformer; logic gates still
@@ -39,12 +42,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Classroom feedback on 0.2; fix what the owner reports first.
-2. Backlog candidates, none urgent: SN-190 VCD export of selected digital
-   signals (owner's request 2026-10-18, not a priority); logic gates when a
-   lesson needs them; RX sampled from the circuit for slow baud rates if
-   wanted; phase 4 items (installer SN-152, pt-BR SN-153, user guide SN-154,
-   engine in a child process SN-151). Ask the owner which block comes next.
+1. Classroom feedback on 0.2 is postponed (depends on the academic
+   calendar); fix what the owner reports when it arrives.
+2. Backlog candidates, none urgent: logic gates when a lesson needs them; RX
+   sampled from the circuit for slow baud rates if wanted; phase 4 items
+   (installer SN-152, pt-BR SN-153, user guide SN-154, engine in a child
+   process SN-151). Ask the owner which block comes next.
 3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
 
 ## Known constraints

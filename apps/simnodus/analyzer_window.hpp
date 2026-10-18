@@ -54,6 +54,8 @@ public:
     // Rebuilds the channel list and, for transient results, the record.
     void reload();
     bool export_csv(const QString& path, QString& error) const;
+    // Lanes checked in the Logic tab, over the retained history (AN-10).
+    bool export_vcd(const QString& path, QString& error) const;
 
 public slots:
     void autoscale();
@@ -76,6 +78,7 @@ private:
     std::vector<ScopeTrace> collect(double from, double to) const;
     void update_measurements();
     void export_csv_dialog();
+    void export_vcd_dialog();
     void export_png_dialog();
 
     RunController* controller_ = nullptr;
