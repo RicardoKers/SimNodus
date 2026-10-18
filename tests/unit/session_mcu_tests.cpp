@@ -1130,3 +1130,66 @@ TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
     CHECK(text.find("SYSCLK 72000000 Hz") != std::string::npos);
 #endif
 }
+
+TEST_CASE("session: a receiver decodes frames from its RX pin through the circuit")
+{
+#ifndef SIMNODUS_TEST_RENODE
+    std::printf("  skipped: no Renode in this build\n");
+#else
+    if (!on_native()) {
+        std::printf("  skipped: RX from the pin needs the own emulator (SN-192)\n");
+        return;
+    }
+    REQUIRE(test::engine() != nullptr);
+    // As above, but through a 1 kOhm resistor: TX and RX are different nets, so
+    // no byte link; U2 decodes the frames on PA10 (115200 baud, exact edges).
+    for (const bool exact : {false, true}) {
+        test::CircuitBuilder b(board_library());
+        b.add("bluepill", {{"G1", "0"}, {"PA9", "TX"}}, {{"firmware", "firmware/hal_clock/hal_clock.elf"}});
+        const model::Id echo =
+            b.add("bluepill", {{"G1", "0"}, {"PA10", "RX"}}, {{"firmware", "firmware/uart_echo/uart_echo.elf"}});
+        b.add("resistor", {{"1", "TX"}, {"2", "RX"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "RX"}, {"2", "0"}}, {{"R", "100k"}});
+        auto settings = b.schematic.settings();
+        settings.speed = 0.0;
+        settings.exact_edges = exact;
+        b.schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = b.schematic;
+        request.library = &board_library();
+        std::string error;
+        REQUIRE(sim::build_mcu_requests(b.schematic, board_library(), environment(), request.mcus, error));
+        sim::SimulationSession session;
+        REQUIRE(session.start(request, error));
+        const auto begin = std::chrono::steady_clock::now();
+        while (session.status().sim_time < 0.05) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(5ms);
+        }
+        session.stop();
+        std::string text;
+        session.mcu_uart_received(echo, "usart1", 0, text);
+        bool reported = false;
+        for (const auto& [component, message] : session.take_mcu_diagnostics()) {
+            reported = reported || (component == echo && message.find("not decoded at 115") != std::string::npos);
+        }
+        std::printf("  exact edges %s: U2 sent %zu bytes, diagnostic %s\n", exact ? "on" : "off", text.size(),
+            reported ? "yes" : "no");
+        if (exact) {
+            const std::string first = "HAL clock example";
+            std::size_t matched = 0;
+            for (const char c : text) {
+                matched += matched < first.size() && c == first[matched] ? 1 : 0;
+            }
+            CHECK(matched == first.size());
+            CHECK(text.find("SYSCLK 72000000 Hz") != std::string::npos);
+            CHECK(!reported);
+        } else {
+            // 8.7 us bits cannot show at the 100 us step: nothing decoded, and the user is told why.
+            CHECK(text.find("HAL") == std::string::npos);
+            CHECK(reported);
+        }
+    }
+#endif
+}

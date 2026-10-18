@@ -95,10 +95,18 @@ the same firmware timing.
 - **UART.** The logic lanes show the exact bits on the TX pin. On the scope a
   bit at 115200 baud (8.7 µs) is shorter than the circuit's 0.1 ms step: turn
   on *Exact microcontroller edges* with a 10 µs step to see the frame. The RX
-  pin is not sampled from the circuit: bytes reach a board from the terminal
-  or from another board's TX on the same net (passed on at the byte level,
-  one frame apart). With Renode bytes move instantly and the TX pin only rests
-  high.
+  pin is decoded from the circuit (SimNodus emulator): any source on RX, for
+  example another board's TX through a resistor or logic gates, sends frames
+  that the USART reads at the bit centers, with the framing (FE) and parity
+  (PE) flags. The circuit must show the bits: turn on *Exact microcontroller
+  edges* (any baud rate when a board drives the line), or keep a bit at least
+  four time steps long (2400 baud or slower at the 0.1 ms step); otherwise
+  the Messages panel says that the pin is not decoded. A byte reaches DR about
+  0.4 ms after its stop bit (inputs reach the firmware late, by up to one
+  coupling window). Bytes also arrive from the terminal, and a board's TX on
+  the same net as another board's RX is passed on at the byte level (one frame
+  apart) at any step. With Renode bytes move instantly, the TX pin only rests
+  high, and RX is not decoded.
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source

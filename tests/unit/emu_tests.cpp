@@ -740,7 +740,7 @@ TEST_CASE("exception model scenarios log the order the ARMv7-M manual prescribes
 namespace {
 
 // A chip whose firmware only spins (b .): tests drive the peripherals through the bus.
-std::unique_ptr<Stm32F103> idle_machine()
+std::unique_ptr<Stm32F103> idle_machine(MachineOptions options = {})
 {
     ElfImage image;
     std::vector<std::uint8_t> bytes(0x24, 0);
@@ -750,7 +750,7 @@ std::unique_ptr<Stm32F103> idle_machine()
     bytes[0x21] = 0xE7;
     image.entry = 0x08000021;
     image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
-    auto m = std::make_unique<Stm32F103>();
+    auto m = std::make_unique<Stm32F103>(options);
     std::string error;
     if (!m->load(image, error)) {
         return nullptr;
@@ -1505,6 +1505,120 @@ TEST_CASE("USART: frames on the TX pin at the baud rate, TXE and TC follow the s
     // bit (high); the start bit's falling edge is at `start`.
     for (std::size_t i = 1; i < 9; ++i) {
         CHECK(pa9[i].first - pa9[i - 1].first == 69 * 125u);
+    }
+}
+
+TEST_CASE("USART: frames on the RX pin are decoded from the pin's edge times")
+{
+    // 8 MHz, BRR 69: 115942 baud, a bit is 8.625 us. PA10 stays a floating input.
+    constexpr std::uint64_t bit = 69 * 125;
+    auto receiver = [](MachineOptions options, std::uint32_t cr1 = 0) {
+        auto m = idle_machine(options);
+        if (m) {
+            m->set_pin_input(0, 10, true); // the line rests high
+            poke(*m, 0x40013808, 69);
+            poke(*m, 0x4001380C, (1u << 13) | (1u << 2) | cr1); // UE, RE
+        }
+        return m;
+    };
+    // Edges of one frame from `start`: start bit, LSB first, stop bit (`stop` level).
+    auto frame = [](std::uint64_t start, std::uint32_t bits, int count, bool stop) {
+        std::vector<std::pair<std::uint64_t, bool>> edges{{start, false}};
+        bool level = false;
+        for (int i = 0; i <= count; ++i) {
+            const bool next = i < count ? ((bits >> i) & 1u) != 0 : stop;
+            if (next != level) {
+                edges.emplace_back(start + bit * static_cast<std::uint64_t>(i + 1), next);
+                level = next;
+            }
+        }
+        if (!stop) {
+            edges.emplace_back(start + bit * static_cast<std::uint64_t>(count + 2), true); // the line goes back up
+        }
+        return edges;
+    };
+    // Each edge reaches the chip `late` ns after it happened, with its own time.
+    auto deliver = [](Stm32F103& m, const std::vector<std::pair<std::uint64_t, bool>>& edges, std::uint64_t late) {
+        for (const auto& [at, level] : edges) {
+            m.run_until_ns(std::max(m.time_ns(), at + late));
+            m.set_pin_input(0, 10, level, at);
+        }
+    };
+    auto received = [](Stm32F103& m) {
+        std::string text;
+        while (read_word(m, 0x40013800) & 0x20u) {
+            text += static_cast<char>(read_word(m, 0x40013804));
+        }
+        return text;
+    };
+
+    { // in time: "Hi" one after the other
+        auto m = receiver({});
+        REQUIRE(m);
+        const std::uint64_t start = m->time_ns() + 5000;
+        deliver(*m, frame(start, 'H', 8, true), 0);
+        deliver(*m, frame(start + 10 * bit, 'i', 8, true), 0);
+        m->run_until_ns(start + 21 * bit);
+        CHECK(received(*m) == "Hi"); // the second byte waits until DR is read
+    }
+    { // late by 150 us (inputs at window boundaries): decided after the lag, same bytes
+        MachineOptions options;
+        options.uart_rx_lag_ns = 200000;
+        auto m = receiver(options);
+        REQUIRE(m);
+        const std::uint64_t start = m->time_ns() + 5000;
+        deliver(*m, frame(start, 'O', 8, true), 150000);
+        m->run_until_ns(start + 9 * bit + bit / 2 + 190000);
+        CHECK(!(read_word(*m, 0x40013800) & 0x20u)); // not decided until 200 us after the stop bit's center
+        deliver(*m, frame(start + 10 * bit, 'K', 8, true), 150000);
+        m->run_until_ns(start + 30 * bit + 200000);
+        std::string text = received(*m);
+        text += received(*m);
+        CHECK(text == "OK");
+    }
+    { // a low stop bit sets FE; even parity with a wrong bit sets PE
+        auto m = receiver({}, 1u << 10); // PCE, even parity: 7 data bits and the parity bit
+        REQUIRE(m);
+        const std::uint64_t start = m->time_ns() + 5000;
+        deliver(*m, frame(start, 0x41u | 0x00u, 8, true), 0); // 'A' has two ones: parity bit 0 is right
+        m->run_until_ns(start + 11 * bit);
+        CHECK((read_word(*m, 0x40013800) & 0x23u) == 0x20u);
+        CHECK(read_word(*m, 0x40013804) == 0x41u);
+        deliver(*m, frame(start + 20 * bit, 0x43u, 8, true), 0); // 'C' has three ones: parity 0 is wrong
+        m->run_until_ns(start + 31 * bit);
+        CHECK((read_word(*m, 0x40013800) & 0x23u) == 0x21u); // RXNE, PE
+        read_word(*m, 0x40013804);
+        deliver(*m, frame(start + 40 * bit, 0x41u, 8, false), 0);
+        m->run_until_ns(start + 52 * bit);
+        CHECK((read_word(*m, 0x40013800) & 0x22u) == 0x22u); // RXNE, FE
+    }
+    { // a short low glitch is not a start bit
+        auto m = receiver({});
+        REQUIRE(m);
+        const std::uint64_t start = m->time_ns() + 5000;
+        deliver(*m, {{start, false}, {start + bit / 4, true}}, 0);
+        m->run_until_ns(start + 12 * bit);
+        CHECK(received(*m).empty());
+    }
+    { // a UART fed by another board's bytes, or bits too short for the circuit, do not decode the pin
+        MachineOptions linked;
+        linked.uart_rx_pins = 0x6u;
+        MachineOptions coarse;
+        coarse.uart_rx_min_bit_ns = 4 * 100000; // four steps of 100 us
+        for (const auto& options : {linked, coarse}) {
+            auto m = receiver(options);
+            REQUIRE(m);
+            m->take_diagnostics();
+            const std::uint64_t start = m->time_ns() + 5000;
+            deliver(*m, frame(start, 'x', 8, true), 0);
+            m->run_until_ns(start + 12 * bit);
+            CHECK(received(*m).empty());
+            const auto diagnostics = m->take_diagnostics();
+            CHECK(diagnostics.size() == (options.uart_rx_min_bit_ns > 0 ? 1u : 0u));
+            if (!diagnostics.empty()) {
+                CHECK(diagnostics.front().text.find("115942 baud") != std::string::npos);
+            }
+        }
     }
 }
 

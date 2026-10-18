@@ -22,6 +22,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -69,6 +70,15 @@ struct MachineOptions {
     std::uint32_t sram_size = 20 * 1024;
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
     bool uart_frames = true; // false: bytes move at once, as in Renode (for comparisons)
+    // RX from the pin (SN-192): a USART decodes frames from its RX pin's input
+    // edges, taken at the times they happened. Edges reach the chip late (at a
+    // coupling window boundary), so a frame is decided this long after the
+    // middle of its stop bit, when every edge up to there has arrived.
+    std::uint64_t uart_rx_lag_ns = 0;
+    std::uint32_t uart_rx_pins = 0x7u; // bit n-1 set: USART n samples its RX pin
+    // Bits shorter than this are not decoded (the circuit cannot show them; a
+    // diagnostic says so once per USART); 0 decodes any baud rate.
+    std::uint64_t uart_rx_min_bit_ns = 0;
 };
 
 class Stm32F103 : private TimerHost, private AdcHost, private DmaHost {
@@ -96,8 +106,10 @@ public:
     std::uint64_t cycles() const { return cpu_.cycles(); }
     std::uint32_t hclk_hz() const { return hclk_; }
 
-    // Inputs from outside the chip, effective now.
+    // Inputs from outside the chip, effective now; `changed_ns` (not after now)
+    // is when the level changed outside, for receivers that decode edge times.
     void set_pin_input(int port, int pin, bool level);
+    void set_pin_input(int port, int pin, bool level, std::uint64_t changed_ns);
     // Voltage on a pin for the ADC, asked at the sample instant (ns since power-on).
     // Without a source the ADC reads 3.3 V or 0 V from the pin's logic level.
     using AnalogSource = std::function<double(int port, int pin, std::uint64_t time_ns)>;
@@ -204,6 +216,7 @@ private:
     std::array<std::vector<int>, num_ports * 16> af_high_;
     bool stamping_ = false;       // pin events take the time of `stamp_cycles_`
     std::uint64_t stamp_cycles_ = 0;
+    std::optional<std::uint64_t> input_changed_ns_; // set_pin_input's outside time
 
     std::vector<PinEvent> pin_events_;
     std::vector<UartByte> uart_bytes_;

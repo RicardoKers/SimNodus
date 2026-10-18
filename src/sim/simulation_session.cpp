@@ -114,6 +114,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     debug_resumes_ = 0;
     analog_points_.clear();
     edge_feeds_.clear();
+    last_edge_point_ = -1.0;
     mcu_stale_ = false;
     input_watches_.clear();
     request_.mcu_lead_us = std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(settings_.mcu_quantum * 1e6)), 1);
@@ -151,6 +152,18 @@ bool SimulationSession::start(RunRequest request, std::string& error)
             // ADC samples read the circuit at a time it has passed (SN-178).
             options.analog_lag_ns = request_.mcu_lead_us * 1000
                 + static_cast<std::uint64_t>(std::llround(std::max(settings_.max_step, 0.0) * 1e9));
+            // RX from the pin (SN-192): a linked board's bytes come directly, so its
+            // pin is not decoded twice; without exact edges a bit must span four
+            // circuit steps to show on the pin.
+            for (const auto& link : serial_links_) {
+                if (link.to == m.component) {
+                    options.uart_rx_byte_links.insert(link.to_uart);
+                }
+            }
+            if (!settings_.exact_edges) {
+                options.uart_rx_min_bit_ns =
+                    static_cast<std::uint64_t>(std::llround(4 * std::max(settings_.max_step, 0.0) * 1e9));
+            }
             runner = std::make_unique<mcu::NativeMcuRunner>(options);
         } else {
             runner = std::make_unique<mcu::RenodeMcuRunner>(m.options);
@@ -673,6 +686,10 @@ void SimulationSession::feed_edges(NgspiceSession& engine, double point_time)
         feed.done_ns = horizon;
         known_ns = std::min(known_ns, horizon);
     }
+    // Several boards add their edges one after the other; the step handler takes
+    // them in time order (unsorted, a past edge of the second board behind a future
+    // one of the first made a negative step: no convergence with two boards).
+    std::sort(edge_breakpoints_.begin(), edge_breakpoints_.end());
     // Steps stop where the firmware's edges are known; a capped step, unlike a
     // breakpoint, does not make ngspice restart with small steps.
     const double limit = static_cast<double>(known_ns) * 1e-9 - segment_t0_;
@@ -820,7 +837,10 @@ void SimulationSession::run_interactive()
             edge_breakpoints_.pop_front();
         }
         if (!edge_breakpoints_.empty() && edge_breakpoints_.front() <= time + 1e-9) {
-            edge_breakpoints_.pop_front();
+            while (!edge_breakpoints_.empty() && edge_breakpoints_.front() <= time + 1e-9) {
+                edge_breakpoints_.pop_front(); // edges of several boards at the same instant
+            }
+            last_edge_point_ = segment_t0_ + time;
             delta = std::max(delta, settings_.max_step);
             if (!edge_breakpoints_.empty()) {
                 delta = std::min(delta, edge_breakpoints_.front() - time);
@@ -899,10 +919,26 @@ void SimulationSession::run_interactive()
                 }
                 const bool level = mcu::schmitt(w.level, volts, w.model);
                 if (level != w.level || !w.sent) {
+                    // The change happened where the voltage crossed the threshold
+                    // between the last point and this one (serial receivers decode
+                    // edge times, SN-192).
+                    const std::uint64_t point_ns = global_us * 1000;
+                    std::uint64_t at = point_ns;
+                    const double threshold = level ? w.model.input_high : w.model.input_low;
+                    if (w.sent && std::abs(w.time - last_edge_point_) < 1e-12) {
+                        // The step began at a firmware edge (exact edges) and the step
+                        // after one is long (ADR 0093): the change started at the edge.
+                        at = static_cast<std::uint64_t>(std::llround(w.time * 1e9)) + 1;
+                    } else if (w.sent && std::isfinite(w.volts) && global > w.time && volts != w.volts) {
+                        const double f = std::clamp((threshold - w.volts) / (volts - w.volts), 0.0, 1.0);
+                        at = static_cast<std::uint64_t>(std::llround((w.time + f * (global - w.time)) * 1e9));
+                    }
                     w.level = level;
                     w.sent = true;
-                    w.runner->set_input(w.pin, level, global_us * 1000);
+                    w.runner->set_input(w.pin, level, point_ns, at);
                 }
+                w.volts = volts;
+                w.time = global;
             }
         }
         // Pin voltages for the ADC, sent before the limit lets the firmware run on.

@@ -608,6 +608,13 @@ private:
 // PCLK / BRR (start, 8 or 9 data bits with parity, stop bits); TXE, TC and the
 // byte's time follow the frame. Received bytes from the terminal arrive one
 // frame apart. With BRR 0 bytes move at once, as before.
+
+// RX from the pin (SN-192): the receiver decodes the RX pin's input edges, kept
+// with the times they happened, like the hardware's center sample: a falling
+// edge starts a frame, the start bit must still be low half a bit later, data
+// bits are read at their centers, a low stop bit sets FE, a wrong parity PE.
+// A frame is decided uart_rx_lag_ns after its stop bit's center (inputs reach
+// the chip late); the byte then joins the received bytes like a terminal byte.
 class Stm32F103::Usart : public RegDevice, public TimedDevice {
 public:
     Usart(Stm32F103& m, int number, int irq) : m_(m), number_(number), irq_(irq)
@@ -629,6 +636,9 @@ public:
         brr_ = cr1_ = cr2_ = cr3_ = gtpr_ = 0;
         rx_.clear();
         rx_last_ready_ = 0;
+        rx_edges_.clear();
+        rx_base_ = true;
+        rx_scan_ = 0;
         shifting_ = tdr_full_ = false;
         line_ = true;
         update();
@@ -642,14 +652,29 @@ public:
             ready = std::max(now, rx_last_ready_) + frame; // one frame after the previous byte
         }
         rx_last_ready_ = ready;
-        rx_.push_back({value, ready});
+        rx_.push_back({value, ready, 0});
         m_.cpu_.request_stop();
         update();
+    }
+
+    // A level change on a pin at `cycle` (not after now); only the RX pin counts.
+    void pin_changed(int port, int pin, bool level, std::uint64_t cycle)
+    {
+        if (!(m_.options_.uart_rx_pins & (1u << (number_ - 1))) || rx_pin() != std::pair{port, pin}) {
+            return;
+        }
+        const auto at = std::upper_bound(rx_edges_.begin(), rx_edges_.end(), cycle,
+            [](std::uint64_t c, const std::pair<std::uint64_t, bool>& e) { return c < e.first; });
+        rx_edges_.insert(at, {cycle, level});
+        m_.cpu_.request_stop(); // the run loop asks next_event() again
     }
 
     std::uint64_t next_event() const override
     {
         std::uint64_t next = shifting_ ? next_edge_ : no_event;
+        if (const auto start = rx_start()) {
+            next = std::min(next, rx_decision(*start));
+        }
         // A received byte is an event only while the receiver can take it (UE, RE,
         // DR empty); otherwise it waits without stopping the core again and again.
         if (!rx_.empty() && !(sr_ & 0x20u) && (cr1_ & (1u << 13)) && (cr1_ & (1u << 2))) {
@@ -677,6 +702,7 @@ public:
                 sr_ |= 0x40u; // TC
             }
         }
+        decode_rx(cycle);
         update_rx(cycle);
         update();
     }
@@ -710,7 +736,8 @@ public:
         }
         const bool irq = enabled
             && (((cr1_ & (1u << 7)) && (sr_ & 0x80u)) || ((cr1_ & (1u << 6)) && (sr_ & 0x40u))
-                || ((cr1_ & (1u << 5)) && (sr_ & 0x28u)) || ((cr1_ & (1u << 4)) && (sr_ & 0x10u)));
+                || ((cr1_ & (1u << 5)) && (sr_ & 0x28u)) || ((cr1_ & (1u << 4)) && (sr_ & 0x10u))
+                || ((cr1_ & (1u << 8)) && (sr_ & 0x01u)));
         m_.cpu().set_irq_line(irq_, irq);
     }
 
@@ -722,7 +749,7 @@ protected:
         case 0x00: value = sr_; return true;
         case 0x04:
             value = dr_;
-            sr_ &= ~0x28u; // reading DR clears RXNE (and ORE after an SR read)
+            sr_ &= ~0x2Fu; // reading DR clears RXNE (and PE, FE, NE, ORE after an SR read)
             update();
             return true;
         case 0x08: value = brr_; return true;
@@ -836,8 +863,116 @@ private:
         const bool enabled = (cr1_ & (1u << 13)) != 0;
         if (enabled && (cr1_ & (1u << 2)) && !(sr_ & 0x20u) && !rx_.empty() && rx_.front().ready <= cycle) {
             dr_ = rx_.front().value;
+            sr_ |= 0x20u | rx_.front().errors; // RXNE, with the byte's FE and PE
             rx_.pop_front();
-            sr_ |= 0x20u; // RXNE
+        }
+    }
+
+    // Level of the RX line at `cycle` from the kept edges.
+    bool rx_level_at(std::uint64_t cycle) const
+    {
+        bool level = rx_base_;
+        for (const auto& [at, value] : rx_edges_) {
+            if (at > cycle) {
+                break;
+            }
+            level = value;
+        }
+        return level;
+    }
+
+    // The first falling edge at or after rx_scan_: a frame may start there.
+    std::optional<std::uint64_t> rx_start() const
+    {
+        bool level = rx_base_;
+        for (const auto& [at, value] : rx_edges_) {
+            if (at >= rx_scan_ && level && !value) {
+                return at;
+            }
+            level = value;
+        }
+        return std::nullopt;
+    }
+
+    std::uint64_t rx_stop_sample(std::uint64_t start) const
+    {
+        const std::uint64_t bit = std::max<std::uint64_t>(bit_cycles(), 1);
+        const int data = (cr1_ & (1u << 12)) ? 9 : 8;
+        return start + bit / 2 + bit * static_cast<std::uint64_t>(data + 1);
+    }
+
+    std::uint64_t rx_decision(std::uint64_t start) const
+    {
+        const std::uint64_t lag = m_.options_.uart_rx_lag_ns * m_.hclk_ / 1000000000u;
+        return rx_stop_sample(start) + lag;
+    }
+
+    void decode_rx(std::uint64_t cycle)
+    {
+        while (const auto start = rx_start()) {
+            if (rx_decision(*start) > cycle) {
+                break;
+            }
+            const std::uint64_t bit = bit_cycles();
+            bool on = (cr1_ & (1u << 13)) && (cr1_ & (1u << 2)) && bit > 0 && m_.options_.uart_frames;
+            if (on && bit * 1000000000u < m_.options_.uart_rx_min_bit_ns * m_.hclk_) {
+                on = false;
+                if (!rx_too_fast_reported_) {
+                    rx_too_fast_reported_ = true;
+                    char text[200];
+                    std::snprintf(text, sizeof text,
+                        "%s: frames on the RX pin are not decoded at %u baud: the circuit's step cannot show bits that "
+                        "short (turn on Exact microcontroller edges or lower the maximum step)",
+                        name_, static_cast<unsigned>(m_.hclk_ / bit));
+                    m_.diagnostic(text);
+                }
+            }
+            if (!on || rx_level_at(*start + bit / 2)) {
+                rx_scan_ = *start + 1; // receiver off, or a glitch rather than a start bit
+            } else {
+                const int data = (cr1_ & (1u << 12)) ? 9 : 8;
+                std::uint32_t bits = 0;
+                for (int i = 0; i < data; ++i) {
+                    if (rx_level_at(*start + bit / 2 + bit * static_cast<std::uint64_t>(i + 1))) {
+                        bits |= 1u << i;
+                    }
+                }
+                const std::uint64_t stop = rx_stop_sample(*start);
+                std::uint8_t errors = rx_level_at(stop) ? 0 : 0x02u; // FE
+                if (cr1_ & (1u << 10)) { // PCE: even (or odd) number of ones with the parity bit
+                    int ones = 0;
+                    for (std::uint32_t v = bits; v; v >>= 1) {
+                        ones += static_cast<int>(v & 1u);
+                    }
+                    const bool odd = (cr1_ & (1u << 9)) != 0;
+                    if ((ones % 2 == 1) != odd) {
+                        errors |= 0x01u; // PE
+                    }
+                    bits &= (1u << (data - 1)) - 1u;
+                }
+                rx_.push_back({static_cast<std::uint8_t>(bits & 0xFFu), cycle, errors});
+                rx_scan_ = stop;
+            }
+            // Edges before the scan point only matter for the level there.
+            while (!rx_edges_.empty() && rx_edges_.front().first < rx_scan_) {
+                rx_base_ = rx_edges_.front().second;
+                rx_edges_.pop_front();
+            }
+        }
+    }
+
+    std::pair<int, int> rx_pin() const
+    {
+        const std::uint32_t mapr = m_.afio_->mapr();
+        switch (number_) {
+        case 1: return (mapr & 4u) ? std::pair{1, 7} : std::pair{0, 10};
+        case 2: return (mapr & 8u) ? std::pair{3, 6} : std::pair{0, 3};
+        default:
+            switch ((mapr >> 4) & 3u) {
+            case 1: return {2, 11};
+            case 3: return {3, 9};
+            default: return {1, 11};
+            }
         }
     }
 
@@ -864,9 +999,14 @@ private:
     struct RxByte {
         std::uint8_t value = 0;
         std::uint64_t ready = 0; // cycle at which its stop bit ends
+        std::uint8_t errors = 0; // SR flags that come with it (FE, PE)
     };
     std::deque<RxByte> rx_;
     std::uint64_t rx_last_ready_ = 0;
+    std::deque<std::pair<std::uint64_t, bool>> rx_edges_; // RX pin: cycle, new level
+    bool rx_base_ = true;       // RX level before the first kept edge
+    std::uint64_t rx_scan_ = 0; // a start bit is looked for from here
+    bool rx_too_fast_reported_ = false;
     bool shifting_ = false; // a frame is on the line
     std::vector<std::pair<bool, std::uint64_t>> symbols_; // level and length in cycles
     std::size_t symbol_ = 0;
@@ -1243,6 +1383,13 @@ void Stm32F103::set_pin_input(int port, int pin, bool level)
     }
 }
 
+void Stm32F103::set_pin_input(int port, int pin, bool level, std::uint64_t changed_ns)
+{
+    input_changed_ns_ = changed_ns;
+    set_pin_input(port, pin, level);
+    input_changed_ns_.reset();
+}
+
 void Stm32F103::uart_receive(int usart, std::uint8_t value)
 {
     if (usart >= 1 && usart <= 3) {
@@ -1307,6 +1454,13 @@ void Stm32F103::pin_input_changed(int port, int pin, bool level)
     for (const auto& timer : timers_) {
         if (timer) {
             timer->pin_changed(port, pin, level);
+        }
+    }
+    const std::uint64_t now = cpu_.cycles();
+    const std::uint64_t at = input_changed_ns_ ? std::min(cycles_at_ns(*input_changed_ns_), now) : now;
+    for (const auto& usart : usart_) {
+        if (usart) {
+            usart->pin_changed(port, pin, level, at);
         }
     }
 }

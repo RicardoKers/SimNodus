@@ -135,7 +135,7 @@ void NativeMcuRunner::request_reset()
     changed_.notify_all();
 }
 
-void NativeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_ns)
+void NativeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_ns, std::uint64_t changed_ns)
 {
     {
         std::lock_guard lock(mutex_);
@@ -143,7 +143,7 @@ void NativeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_
             return;
         }
         input_desired_[pin] = level;
-        input_queue_.push_back({pin, level, time_ns});
+        input_queue_.push_back({pin, level, time_ns, std::min(changed_ns, time_ns)});
     }
     changed_.notify_all();
 }
@@ -397,7 +397,18 @@ void NativeMcuRunner::work()
 {
     const auto begin = std::chrono::steady_clock::now();
     std::string error;
-    auto machine = std::make_unique<emu::Stm32F103>();
+    emu::MachineOptions machine_options;
+    // A frame on the RX pin is decided once every edge up to its stop bit has
+    // arrived: the ADC's lag plus two windows (an input is applied at a window
+    // boundary, while the firmware may be a window further on).
+    machine_options.uart_rx_lag_ns = options_.analog_lag_ns + 2 * std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
+    machine_options.uart_rx_min_bit_ns = options_.uart_rx_min_bit_ns;
+    for (const auto& uart : options_.uart_rx_byte_links) {
+        if (!uart.empty() && uart.back() >= '1' && uart.back() <= '3') {
+            machine_options.uart_rx_pins &= ~(1u << (uart.back() - '1'));
+        }
+    }
+    auto machine = std::make_unique<emu::Stm32F103>(machine_options);
     // Without a firmware file (debugging only) the flash stays empty until the
     // debugger's `load` writes it.
     if (!options_.machine.firmware.empty() || options_.gdb_port < 0) {
@@ -562,7 +573,7 @@ void NativeMcuRunner::work()
                 const auto& change = pending.front();
                 const auto [port, pin] = ports_[change.pin];
                 if (port >= 0) {
-                    machine->set_pin_input(port, pin, change.level);
+                    machine->set_pin_input(port, pin, change.level, change.changed_ns);
                 }
                 {
                     std::lock_guard lock(mutex_);

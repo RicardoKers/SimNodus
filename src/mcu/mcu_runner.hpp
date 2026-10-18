@@ -18,6 +18,7 @@
 #include <map>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <string>
 #include <thread>
 #include <utility>
@@ -59,6 +60,12 @@ struct McuRunOptions {
     // circuit has always passed when the firmware may run window k (the lead
     // plus the circuit's maximum step). Same input, same codes, every run.
     std::uint64_t analog_lag_ns = 200000;
+    // USART RX from the pin (own emulator, SN-192): UARTs whose RX gets another
+    // board's bytes directly ("usart1") do not decode their pin as well; bits
+    // shorter than uart_rx_min_bit_ns are not decoded (the circuit's step
+    // cannot show them).
+    std::set<std::string> uart_rx_byte_links;
+    std::uint64_t uart_rx_min_bit_ns = 0;
     // Own emulator: GDB server on 127.0.0.1:gdb_port (SN-180), -1 for none. The
     // firmware then waits halted at its reset handler for the first client.
     int gdb_port = -1;
@@ -79,7 +86,7 @@ public:
     void set_limit_ns(std::uint64_t limit) override;
     bool wait_time_ns(std::uint64_t time_ns, const std::atomic<bool>& cancel) override;
     void request_reset() override;
-    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override;
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns, std::uint64_t changed_ns) override;
     // Bytes reach the receiver before the next run chunk; the newest 1 MiB of
     // transmitted bytes is kept.
     void uart_send(const std::string& uart, const std::string& bytes) override;
