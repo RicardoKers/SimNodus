@@ -229,6 +229,9 @@ void SchematicView::set_tool(Tool tool)
     case Tool::Label:
         emit status_message(tr("Net label: click a wire or pin. Labels with the same name are connected."));
         break;
+    case Tool::Note:
+        emit status_message(tr("Text note: click where the text starts. Double-click a note to edit it."));
+        break;
     case Tool::Probe:
         emit status_message(tr("Probe: click a wire for a voltage, a component pin for its current (Shift: "
                                "voltage at the pin, Alt: reference of the last voltage probe)."));
@@ -382,6 +385,9 @@ void SchematicView::select_all()
     }
     for (const auto& p : s.probes()) {
         ids.insert(p.id);
+    }
+    for (const auto& n : s.notes()) {
+        ids.insert(n.id);
     }
     scene_->select_ids(ids);
 }
@@ -647,6 +653,10 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
         emit label_name_needed(at);
         event->accept();
         return;
+    case Tool::Note:
+        emit note_text_needed(at, model::no_id);
+        event->accept();
+        return;
     case Tool::Probe:
         if (event->modifiers().testFlag(Qt::AltModifier)) {
             set_probe_reference(at);
@@ -865,6 +875,11 @@ void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
             event->accept();
             return;
         }
+        if (const auto* note = scene_->document().schematic().note(id)) {
+            emit note_text_needed(note->position, id);
+            event->accept();
+            return;
+        }
     }
     QGraphicsView::mouseDoubleClickEvent(event);
 }
@@ -1035,7 +1050,8 @@ void SchematicView::update_cursor_shape()
         viewport()->setCursor(Qt::ClosedHandCursor);
     } else if (space_held_) {
         viewport()->setCursor(Qt::OpenHandCursor);
-    } else if (tool_ == Tool::Wire || tool_ == Tool::Probe || tool_ == Tool::Label || tool_ == Tool::Place) {
+    } else if (tool_ == Tool::Wire || tool_ == Tool::Probe || tool_ == Tool::Label || tool_ == Tool::Note
+               || tool_ == Tool::Place) {
         viewport()->setCursor(Qt::CrossCursor);
     } else {
         viewport()->unsetCursor();

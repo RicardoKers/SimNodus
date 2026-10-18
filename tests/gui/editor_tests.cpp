@@ -194,6 +194,31 @@ private slots:
         QVERIFY(!edit->toolTip().isEmpty());
     }
 
+    void text_notes_show_move_and_edit_in_the_properties_panel()
+    {
+        model::Id note = model::no_id;
+        doc().apply(editing::add_note(doc().id_source(), {4, 4}, "Close SW1.\nThen watch the LED.", &note));
+        QVERIFY(window_->scene()->item_of(note));
+        // Clicking the text selects the note; dragging it moves it on the grid.
+        const QPoint start = at({6, 5});
+        QCOMPARE(window_->scene()->element_at(view()->mapToScene(start)), note);
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, start);
+        move_to({9, 7}, Qt::LeftButton);
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({9, 7}));
+        QCOMPARE(doc().schematic().note(note)->position, (model::Point{7, 6}));
+        window_->scene()->select_ids({note});
+        auto* text = window_->properties()->findChild<QPlainTextEdit*>(QStringLiteral("noteText"));
+        QVERIFY(text);
+        QCOMPARE(text->toPlainText(), QStringLiteral("Close SW1.\nThen watch the LED."));
+        text->setPlainText(QStringLiteral("Press the button."));
+        auto* apply = window_->properties()->findChild<QPushButton*>(QStringLiteral("noteApply"));
+        QVERIFY(apply);
+        apply->click();
+        QCOMPARE(doc().schematic().note(note)->text, std::string("Press the button."));
+        doc().undo_stack()->undo();
+        QCOMPARE(doc().schematic().note(note)->text, std::string("Close SW1.\nThen watch the LED."));
+    }
+
     void leaving_a_value_field_by_clicking_the_schematic_applies_it()
     {
         // Owner report 2026-10-14: the program closed while changing a resistor

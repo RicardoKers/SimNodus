@@ -491,6 +491,54 @@ private:
     model::NetLabel label_;
 };
 
+// Text note (UI-17): the text as typed, line by line, from its top-left corner.
+class NoteItem : public QGraphicsItem {
+public:
+    NoteItem()
+    {
+        setFlag(ItemIsSelectable, true);
+        setZValue(2);
+    }
+
+    void set(const model::TextNote& note)
+    {
+        if (note == note_) {
+            return;
+        }
+        prepareGeometryChange();
+        note_ = note;
+        setPos(to_scene(note.position));
+        setData(key_id, QVariant::fromValue<qulonglong>(note.id));
+        update();
+    }
+
+    QRectF text_box() const
+    {
+        const QFontMetricsF metrics(schematic_font(false));
+        const QRectF text = metrics.boundingRect(
+            QRectF(0, 0, 4000, 4000), Qt::AlignLeft | Qt::AlignTop, QString::fromStdString(note_.text));
+        return text.adjusted(-3, -2, 3, 2);
+    }
+
+    QRectF boundingRect() const override { return text_box().adjusted(-1, -1, 1, 1); }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
+    {
+        const QRectF box = text_box();
+        if (isSelected()) {
+            painter->setPen(QPen(theme::selection, 1.0, Qt::DashLine));
+            painter->setBrush(Qt::NoBrush);
+            painter->drawRect(box);
+        }
+        painter->setPen(isSelected() ? theme::selection : theme::ink);
+        painter->setFont(schematic_font(false));
+        painter->drawText(box.adjusted(3, 2, -3, -2), Qt::AlignLeft | Qt::AlignTop, QString::fromStdString(note_.text));
+    }
+
+private:
+    model::TextNote note_;
+};
+
 class ProbeItem : public QGraphicsItem {
 public:
     ProbeItem()
@@ -623,6 +671,7 @@ void SchematicScene::rebuild(const model::Schematic& s)
     prune(wires_, [&s](model::Id id) { return s.wire(id) != nullptr; });
     prune(labels_, [&s](model::Id id) { return s.label(id) != nullptr; });
     prune(probes_, [&s](model::Id id) { return s.probe(id) != nullptr; });
+    prune(notes_, [&s](model::Id id) { return s.note(id) != nullptr; });
     for (const auto& c : s.components()) {
         auto& item = components_[c.id];
         if (!item) {
@@ -646,6 +695,14 @@ void SchematicScene::rebuild(const model::Schematic& s)
             addItem(item);
         }
         item->set(l);
+    }
+    for (const auto& n : s.notes()) {
+        auto& item = notes_[n.id];
+        if (!item) {
+            item = new NoteItem;
+            addItem(item);
+        }
+        item->set(n);
     }
     int index = 0;
     for (const auto& p : s.probes()) {
@@ -719,6 +776,9 @@ QGraphicsItem* SchematicScene::item_of(model::Id id) const
         return it->second;
     }
     if (auto it = probes_.find(id); it != probes_.end()) {
+        return it->second;
+    }
+    if (auto it = notes_.find(id); it != notes_.end()) {
         return it->second;
     }
     return nullptr;

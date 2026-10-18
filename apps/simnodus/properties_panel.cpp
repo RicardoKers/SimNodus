@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QFormLayout>
 #include <QLabel>
+#include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QScrollArea>
 #include <QTimer>
@@ -190,6 +191,7 @@ void PropertiesPanel::rebuild()
     const model::Schematic* s = document_ ? &document_->schematic() : nullptr;
     std::vector<const model::Component*> components;
     std::vector<const model::NetLabel*> labels;
+    std::vector<const model::TextNote*> notes;
     int others = 0;
     for (model::Id id : selection_) {
         if (!s) {
@@ -199,6 +201,8 @@ void PropertiesPanel::rebuild()
             components.push_back(c);
         } else if (const auto* l = s->label(id)) {
             labels.push_back(l);
+        } else if (const auto* n = s->note(id)) {
+            notes.push_back(n);
         } else if (s->contains(id)) {
             ++others;
         }
@@ -216,6 +220,28 @@ void PropertiesPanel::rebuild()
         connect(name, &QLineEdit::editingFinished, this, [this, name] { commit_label(name->text()); });
         form_->addRow(tr("Name"), name);
         value_editor_ = name;
+        rebuilding_ = false;
+        return;
+    }
+    if (components.empty() && labels.empty() && notes.size() == 1 && others == 0) {
+        title_->setText(tr("Text note"));
+        subtitle_->setText(tr("Presentation only; it does not change the circuit."));
+        auto* text = new QPlainTextEdit(QString::fromStdString(notes.front()->text));
+        text->setObjectName(QStringLiteral("noteText"));
+        text->setTabChangesFocus(true);
+        text->setMinimumHeight(90);
+        auto* apply = new QPushButton(tr("Apply"));
+        apply->setObjectName(QStringLiteral("noteApply"));
+        connect(apply, &QPushButton::clicked, this, [this, text] {
+            if (document_ && selection_.size() == 1) {
+                document_->apply(editing::set_note_text(
+                    document_->schematic(), *selection_.begin(), text->toPlainText().trimmed().isEmpty()
+                        ? std::string() : text->toPlainText().toStdString()));
+            }
+        });
+        form_->addRow(tr("Text"), text);
+        form_->addRow(QString(), apply);
+        value_editor_ = text;
         rebuilding_ = false;
         return;
     }

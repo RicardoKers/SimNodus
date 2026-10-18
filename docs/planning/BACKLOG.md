@@ -86,6 +86,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-143 | Lesson 3 example | — | done (example 16, `lesson3_adc_uart.md`) |
 | SN-191 | Logic gates (rest of component set B): gates for digital circuits next to the Blue Pill; first in the owner's order 2026-10-18 | SIM-07 | done 2026-10-18: NOT, AND, NAND, OR, NOR, XOR as behavioral 74HC-style gates on a hidden supply VDD (5 V default), example 17 (half adder) |
 | SN-192 | USART RX sampled from the circuit (start bit, data bits at the configured baud rate) so that any source driving the RX pin is received, not only another board's link; second in the owner's order 2026-10-18 | MCU-10 | done 2026-10-18: frames decoded from edge times at the bit centers, FE and PE; needs exact edges or bits of four steps; fixed exact edges with two boards (no convergence) |
+| SN-193 | Text notes on the schematic: Place > Text Note (`T`), multi-line text, edit by double-click or in Properties, move, copy, undo; `notes` in `.snx`; not part of the netlist. Owner's request 2026-10-18 | UI-17 | done 2026-10-18 (example 17 has a note) |
 
 ## Phase 4 — Debugging and packaging, release 0.4 (until 2026-12-11)
 
@@ -106,7 +107,6 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-162 | Dark theme, ANSI symbol variant |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
 | SN-164 | Linux package |
-| SN-193 | Text notes on the schematic: place, edit, move, delete, undo; saved in `.snx`; not part of the netlist (UI-17, owner's request 2026-10-18) |
 | SN-194 | Model variants for basic components: model list per component definition, selection in the properties panel, user-added models in a data file; check licenses before bundling models from the KiCad-Spice-Library (PRJ-07, owner's request 2026-10-18) |
 | SN-195 | Potentiometer wiper position shown on the symbol, as a mark and a percentage (UI-18, owner's request 2026-10-18) |
 | SN-196 | Buses with splitters like hneemann's *Digital*; presentation only, same netlist (UI-19, owner's request 2026-10-18) |

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18)
+
+- Text notes on the schematic (SN-193, UI-17): *Place > Text Note* (`T`) puts free text, for example instructions for the simulation, where you click; double-click a note or use the Properties panel to edit it, an empty text deletes it. Notes move, copy, paste and undo like other elements, are saved in the project file (`notes`) and never change the circuit. Example 17 carries one. Tests: file round trip, editing operations, and a GUI case (drag, edit in Properties, undo).
+
 ### Removed (2026-10-18, owner's decision)
 
 - Renode (SN-183, ADR 0094). SimNodus's own STM32F103 emulator, the default since 0.2, is the only microcontroller engine: the Simulate menu option *Use Renode for Microcontrollers (Legacy)*, the Renode engine and runner, the Renode client in `third_party/`, the platform description and C# models in `resources/renode/`, the Renode bundle in the Windows package, `tools/fetch_backends.py --renode`, the CMake options `SIMNODUS_RENODE` and `SIMNODUS_REQUIRE_RENODE`, the Renode test suites and comparisons (`engine-renode`, `engine-renode-session`, `emu-firmware`, `emu-differential`, `gui-editor-renode`) and the experiment workflows that downloaded Renode. Board profiles lose the Renode-only fields (`engine`, `platform`, `extensions`, `before_firmware`, `after_firmware`). The test suite runs in about 20 s instead of about 3 minutes. `--check-mcu-engine` now runs the blink example's firmware in the emulator for 1.1 s of virtual time. The *Microcontroller quantum* choice leaves the Simulation Settings dialog: the emulator always couples in windows of 100 µs (projects keep the stored value). The Windows zip shrinks from 145 MB (0.2.0) to about 27 MB.

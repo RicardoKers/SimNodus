@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Graphics scene of the schematic (ADR 0081): one item per component, wire,
-// net label and probe, kept in sync with the document by ID. Junction dots
+// net label, probe and text note, kept in sync with the document by ID. Junction dots
 // and open-end markers come from the connectivity (UI-06). While a run is
 // active the scene also shows live state (INT-03).
 #pragma once
@@ -28,6 +28,7 @@ class ComponentItem;
 class WireItem;
 class LabelItem;
 class ProbeItem;
+class NoteItem;
 class DecorationItem;
 
 // Grid unit in scene coordinates (same as SchematicView::grid).
@@ -77,7 +78,7 @@ public:
     void select_ids(const std::set<model::Id>& ids);
     model::Id id_of(const QGraphicsItem* item) const;
     QGraphicsItem* item_of(model::Id id) const;
-    // Topmost element at a scene point (components, labels, probes, wires).
+    // Topmost element at a scene point (components, labels, probes, notes, wires).
     model::Id element_at(const QPointF& scene_point) const;
     // Pin at a grid point: component ID and pin name.
     std::optional<netlist::PinRef> pin_at(const model::Point& point) const;
@@ -114,6 +115,7 @@ private:
     std::map<model::Id, WireItem*> wires_;
     std::map<model::Id, LabelItem*> labels_;
     std::map<model::Id, ProbeItem*> probes_;
+    std::map<model::Id, NoteItem*> notes_;
     DecorationItem* decorations_ = nullptr;
     ComponentItem* ghost_ = nullptr;
     WireItem* wire_preview_ = nullptr;

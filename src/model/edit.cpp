@@ -60,6 +60,9 @@ Edit make_edit(const Schematic& before, const Schematic& after, std::string desc
         for (const auto& e : s.probes()) {
             ids.push_back(e.id);
         }
+        for (const auto& e : s.notes()) {
+            ids.push_back(e.id);
+        }
     };
     collect(before);
     collect(after);

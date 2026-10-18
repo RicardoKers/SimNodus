@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 38,
+  "next_id": 39,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -507,6 +507,16 @@
         ]
       },
       "color": "#2ca02c"
+    }
+  ],
+  "notes": [
+    {
+      "id": 38,
+      "at": [
+        -2,
+        -20
+      ],
+      "text": "Half adder: SUM = A XOR B, CARRY = A AND B.\nRun (F5), then click SW1 and SW2 to change the inputs."
     }
   ]
 }

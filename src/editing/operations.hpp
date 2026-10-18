@@ -33,6 +33,11 @@ Edit add_label(model::Schematic& schematic, Point position, const std::string& n
 
 Edit add_probe(model::Schematic& schematic, const model::Probe& probe, Id* created = nullptr);
 
+// Text note (UI-17); an empty or blank text gives an empty Edit.
+Edit add_note(model::Schematic& schematic, Point position, const std::string& text, Id* created = nullptr);
+// New text of a note; a blank text deletes the note.
+Edit set_note_text(const model::Schematic& schematic, Id note, const std::string& text);
+
 // Deletes the elements. Probes pointing at deleted items stay and become
 // invalid (they are reported, never silently rebound).
 Edit delete_items(const model::Schematic& schematic, const std::set<Id>& ids);

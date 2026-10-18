@@ -23,9 +23,14 @@ partially.
   "wires": [{"id": 2, "points": [[13, -4], [20, -4], [20, 3]]}],
   "labels": [{"id": 3, "at": [20, 3], "name": "OUT"}],
   "probes": [{"id": 4, "kind": "current", "target": {"item": 1, "pin": "1", "at": [0, 0]},
-              "color": "#1f77b4"}]
+              "color": "#1f77b4"}],
+  "notes": [{"id": 5, "at": [0, -10], "text": "Close SW1.\nThen watch the LED."}]
 }
 ```
+
+- **Notes** (UI-17) are free text, top-left corner at `at`, lines separated by
+  `\n`; they are presentation only and never reach the netlist. Files without
+  `notes` load as before.
 
 - **IDs** are positive integers, unique across all element kinds and never
   reused (`next_id` keeps the counter, including gaps left by deleted

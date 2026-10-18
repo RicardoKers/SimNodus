@@ -27,6 +27,7 @@ Schematic sample()
     s.put(r);
     s.put(Wire{s.allocate_id(), {{13, -4}, {20, -4}, {20, 3}}});
     s.put(NetLabel{s.allocate_id(), {20, 3}, "OUT"});
+    s.put(TextNote{s.allocate_id(), {0, -10}, "Close SW1, then watch V(OUT).\nSecond line: \"quoted\" text"});
     Probe p;
     p.id = s.allocate_id();
     p.kind = ProbeKind::Current;
