@@ -514,16 +514,19 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         }
         const auto found = c.parameters.find(d->mcu->firmware_parameter);
         const std::string firmware = found == c.parameters.end() ? std::string() : found->second;
-        if (firmware.empty()) {
+        // With debugging, a board may start without firmware: the debugger's `load`
+        // writes it, as with an ST-LINK.
+        const bool loaded_by_debugger = firmware.empty() && environment.gdb_port >= 0;
+        if (firmware.empty() && !loaded_by_debugger) {
             error = c.designator + " has no firmware: choose an ELF file in its properties.";
             return false;
         }
         std::filesystem::path path(std::u8string(firmware.begin(), firmware.end())); // UTF-8 text
-        if (path.is_relative()) {
+        if (!loaded_by_debugger && path.is_relative()) {
             path = environment.project_dir / path;
         }
         std::error_code ec;
-        if (!std::filesystem::is_regular_file(path, ec)) {
+        if (!loaded_by_debugger && !std::filesystem::is_regular_file(path, ec)) {
             const auto text = path.u8string();
             error = c.designator + ": the firmware file " + std::string(text.begin(), text.end()) + " does not exist.";
             return false;

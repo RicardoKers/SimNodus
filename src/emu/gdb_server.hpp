@@ -5,7 +5,8 @@
 // MCU-08), for STM32CubeIDE ("Connect to remote GDB server") and
 // arm-none-eabi-gdb. Supported: Cortex-M target description (r0-r12, sp, lr,
 // pc, xpsr, msp, psp, primask, control), register and memory reads and writes
-// (writes to flash go through the loader, so `load` works), breakpoints (Z0/Z1,
+// (writes to flash go through the loader, so `load` works; the first run or
+// step after a flash write resets the chip, as an ST-LINK does), breakpoints (Z0/Z1,
 // any number), continue, step, Ctrl-C, `monitor reset` / `monitor reset halt`,
 // detach and kill (the firmware runs on). Not yet: watchpoints (Z2-Z4).
 //
@@ -62,12 +63,14 @@ private:
     bool write_memory(std::uint32_t address, const std::string& bytes);
     void monitor(const std::string& command);
     void update_breakpoints();
+    void start_after_load();
 
     Stm32F103& machine_;
     GdbSocket socket_;
     State state_ = State::NoClient;
     std::set<std::uint32_t> breakpoints_;
     bool wait_first_ = false;
+    bool flash_written_ = false; // since the last reset: the next run starts with one
 };
 
 } // namespace simnodus::emu

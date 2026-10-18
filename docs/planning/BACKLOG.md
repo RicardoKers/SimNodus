@@ -81,6 +81,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-140 | ADC through the owned F103 model with circuit voltages | MCU-06 | superseded by SN-178 (ADR 0090) |
 | SN-141 | Timer/PWM audit of Renode STM32F1 model and support | MCU-07 | superseded by SN-177 (ADR 0090) |
 | SN-142 | Component set B | SIM-07 | todo |
+| SN-189 | Scope: vertical scale on the left for the selected trace, a 0 V marker per trace, and a vertical offset per trace to move it up and down (owner's request, 2026-10-18) | AN-02 | todo |
 | SN-143 | Lesson 3 example | — | done (example 16, `lesson3_adc_uart.md`) |
 
 ## Phase 4 — Debugging and packaging, release 0.4 (until 2026-12-11)

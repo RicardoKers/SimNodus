@@ -267,12 +267,23 @@ bool GdbServer::write_memory(std::uint32_t address, const std::string& bytes)
                 return false;
             }
             code = true;
+            flash_written_ = true;
         }
     }
     if (code || address < 0x20000000u) {
         machine_.cpu().invalidate_code_cache();
     }
     return true;
+}
+
+void GdbServer::start_after_load()
+{
+    // After `load` the vector table is new: reset so the core takes its stack
+    // pointer and reset handler from it (gdb only sets the PC).
+    if (flash_written_) {
+        flash_written_ = false;
+        machine_.reset(ResetKind::Pin);
+    }
 }
 
 void GdbServer::update_breakpoints()
@@ -285,6 +296,7 @@ void GdbServer::monitor(const std::string& command)
     std::string text;
     if (command == "reset" || command == "reset halt" || command == "reset init") {
         machine_.reset(ResetKind::Pin);
+        flash_written_ = false;
         text = "Reset: the firmware is halted at its reset handler.\n";
     } else if (command == "halt") {
         text = "Halted.\n";
@@ -369,11 +381,13 @@ void GdbServer::handle(const std::string& packet)
     }
     case 'c':
     case 'C':
+        start_after_load();
         machine_.cpu().resume_from_halt();
         state_ = State::Running;
         return; // the stop reply comes when the firmware halts
     case 's':
     case 'S':
+        start_after_load();
         machine_.step_instruction();
         reply("S05");
         return;

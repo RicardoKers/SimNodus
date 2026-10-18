@@ -191,6 +191,11 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
   Simulate > Debug Firmware with GDB; the circuit stands still while the
   firmware is halted; status bar; guide in MICROCONTROLLER.md. **Next: the
   owner's test from STM32CubeIDE (gate G4)**, then watchpoints.
+  **Owner's test 2026-10-18:** debugging from STM32CubeIDE worked; setup was
+  hard because the firmware had to be set in SimNodus (the IDE did not load
+  it). Fixed: the debugger's `load` now writes the firmware and a board may
+  start without one. Owner asked for scope vertical scale, 0 V marker and
+  offset (SN-189, later).
 
 ## Next steps
 
