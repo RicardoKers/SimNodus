@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // ELF32 (ARM, little-endian, executable) reader for firmware images: loadable
-// segments at their physical addresses (as debuggers and Renode load them:
+// segments at their physical addresses (as debuggers load them:
 // initialized data lands in flash and the start-up code copies it to SRAM)
 // and function symbols for diagnostics.
 #pragma once

@@ -1,11 +1,17 @@
 # SimNodus STM32 emulator (design)
 
-Revision 2 — 2026-10-15 (review findings folded in). Status: **proposed** ([ADR 0089](../decisions/0089-own-stm32-emulator.md));
+Revision 2 — 2026-10-15 (review findings folded in). Status: **accepted** ([ADR 0089](../decisions/0089-own-stm32-emulator.md), 2026-10-15);
 the prototype is experiment E-07 (SN-170). The delivery plan, gates and dates
 are in [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md).
 
-SimNodus runs microcontroller firmware in Renode 1.16.1 today (ADR 0082–0088).
-This document designs a replacement written for SimNodus: an in-process
+Update 2026-10-18: the emulator is the default engine since
+[ADR 0090](../decisions/0090-own-emulator-default.md) and the only one since
+[ADR 0094](../decisions/0094-remove-renode.md), which removed Renode. The
+comparisons with Renode below (sections 1 and 9) are the record of how it was
+chosen and validated.
+
+SimNodus ran microcontroller firmware in Renode 1.16.1 when this was written
+(ADR 0082–0088). This document designs a replacement written for SimNodus: an in-process
 emulator of the STM32F103, built so that further STM32 chips (STM32F407 first)
 reuse its core and peripheral models.
 
@@ -24,8 +30,8 @@ Measured limits of the Renode path, each traced to an ADR:
 
 The costs are real too: the Thumb-2 instruction set, exceptions and every
 peripheral must be written and validated by us. Section 9 describes the
-validation; the plan keeps Renode as the shipped engine until the emulator has
-passed its gates.
+validation; the plan kept Renode as the shipped engine until the emulator had
+passed its gates (ADR 0090), and ADR 0094 then removed it.
 
 ## 2. Goals and non-goals
 
@@ -63,8 +69,8 @@ apps/simnodus (Qt)                      unchanged: talks to SimulationSession on
 src/sim  SimulationSession ─────────────┐
                                          │ McuBackend interface (extracted from McuRunner)
           ┌──────────────────────────────┴───────────────────────────┐
-src/mcu   RenodeMcuRunner (today's McuRunner)       NativeMcuRunner (new)
-          RenodeEngine, child process                 │ owns one emu::Machine per board
+src/mcu   (RenodeMcuRunner, removed by ADR 0094)    NativeMcuRunner (new)
+                                                      │ owns one emu::Machine per board
                                                       │
 src/emu   (new, Qt-free C++20, no third-party code)  ▼
           core/armv7m   registers, decoder, executor, exceptions, NVIC, SysTick,
@@ -299,6 +305,9 @@ as another board's TX keeps the byte link and is not decoded twice.
      register, flag by flag and memory after each block;
    - whole-firmware traces (GPIO and UART events in order, timestamps within
      Renode's 100 µs reporting step) for every example and test firmware.
+   (Done in E-07, results in [E-07-results.md](../experiments/E-07-results.md);
+   the tests `emu-differential` and `emu-firmware` were removed with Renode by
+   ADR 0094.)
    Renode is used only as a separate test oracle; differences are analyzed,
    not assumed to be our bugs (Renode has known deviations, ADR 0083/0085).
    A difference is accepted as a Renode deviation only when a third
@@ -343,4 +352,4 @@ as another board's TX keeps the byte link and is not decoded twice.
 | EQ-3 | Smallest useful lead `L` without slowing the circuit | **Resolved 2026-10-15 (SN-173):** at maximum speed with an EXTI-driven firmware, windows of 1 ms, 100 µs and 20 µs ran at 2.48x, 2.40x and 2.32x real time; the own emulator uses 100 µs (inputs late by less than 0.1 ms, button-to-LED response 100 µs instead of 1.1 ms with Renode) |
 | EQ-4 | Can ST's SVD files (register descriptions) be used to generate register tables? License to be checked; otherwise tables are written from RM0008 | before N3 |
 | EQ-5 | Which clock-gating behaviors to model, checked on the real board | N1 |
-| EQ-6 | Keep Renode as an optional engine after the switch, or remove it | decision D4 in the plan |
+| EQ-6 | Keep Renode as an optional engine after the switch, or remove it | **Resolved 2026-10-18:** removed (decision D4, [ADR 0094](../decisions/0094-remove-renode.md)) |

@@ -54,5 +54,7 @@ registers are written directly, as in the reference manual (RM0008).
 
 ## Limits of the simulation
 
-Output edges fall on Renode's 100 µs time quantum; the pin is modeled as
-3.3 V / 0 V behind 40 Ω (ADR 0084). Renode's SysTick is 125 ppm fast.
+Output edges keep their exact firmware time; the circuit receives each
+pin's output averaged over its time step unless *Exact microcontroller edges*
+is on (ADR 0091, 0093). The pin is modeled as 3.3 V / 0 V behind 40 Ω
+(ADR 0084).

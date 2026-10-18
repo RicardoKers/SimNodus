@@ -165,7 +165,6 @@ TEST_CASE("the Blue Pill board loads with its real pins and board profile")
         CHECK(d->pin(name) != nullptr);
     }
     REQUIRE(d->mcu.has_value());
-    CHECK(d->mcu->platform == "stm32f103c8.repl");
     REQUIRE(d->mcu->led.has_value());
     CHECK(d->mcu->led->pin == "PC13");
     CHECK(d->mcu->led->active_low);
@@ -182,7 +181,7 @@ TEST_CASE("an mcu section needs a file parameter for the firmware")
     const auto error = library.add_from_json(R"({"type": "board", "name": "Board", "category": "Microcontrollers",
         "prefix": "U", "symbol": {"graphics": [], "pins": [{"name": "PA0", "at": [0, 0], "dir": "up"}]},
         "parameters": [{"name": "firmware", "default": "1"}],
-        "mcu": {"platform": "x.repl", "firmware_parameter": "firmware"},
+        "mcu": {"firmware_parameter": "firmware"},
         "spice": ["R_{ref} {node:PA0} 0 1k"]})");
     REQUIRE(error.has_value());
     CHECK(error->find("file parameter") != std::string::npos);

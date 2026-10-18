@@ -28,17 +28,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build qt6-base-dev qt6-qpa-plugins \
             libgl1-mesa-dev libxkbcommon-dev libngspice0-dev
-      - name: Cache pinned backend archives
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: build/deps/downloads
-          key: backends-linux-${{ hashFiles('tools/backend-baseline.json') }}
       - name: Check repository files
         run: python3 tools/check_repository.py
-      - name: Download and verify Renode
-        run: python3 tools/fetch_backends.py --renode
       - name: Configure
-        run: cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=Release -DSIMNODUS_REQUIRE_RENODE=ON
+        run: cmake -S . -B build/ci -G Ninja -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build/ci
       - name: Run tests (unit, engines, spikes, offscreen GUI)
@@ -85,10 +78,10 @@ jobs:
           key: backends-windows-${{ hashFiles('tools/backend-baseline.json') }}
       - name: Check repository files
         run: python tools/check_repository.py
-      - name: Download, verify and stage ngspice and Renode
-        run: python tools/fetch_backends.py --renode
+      - name: Download, verify and stage ngspice
+        run: python tools/fetch_backends.py
       - name: Configure
-        run: cmake -S . -B build/ci -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR" -DSIMNODUS_REQUIRE_RENODE=ON
+        run: cmake -S . -B build/ci -A x64 "-DCMAKE_PREFIX_PATH=$env:QT_ROOT_DIR"
       - name: Build
         run: cmake --build build/ci --config Release
       - name: Run tests (unit, engines, spikes, offscreen GUI)

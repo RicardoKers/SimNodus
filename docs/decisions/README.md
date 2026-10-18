@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0094: Remove Renode; the own emulator is the only microcontroller engine](0094-remove-renode.md):
+  decision D4 (2026-10-18); supersedes ADR 0082 and the legacy-engine part of ADR 0090.
 - [0093: Exact microcontroller edges as a simulation setting](0093-exact-edges-option.md):
   breakpoints at firmware edges on request (square waves at the 100 µs step, slower runs).
 - [0092: ADC samples read the circuit at a time it has always passed](0092-adc-samples-known-circuit-time.md):
@@ -9,7 +11,8 @@
 - [0091: Firmware outputs enter the circuit as a step-averaged drive](0091-step-averaged-pin-drive.md):
   SN-176; exact PWM averages at the default step, breakpoints measured and not taken.
 - [0090: The own emulator is the default engine; Renode is frozen](0090-own-emulator-default.md):
-  decisions D1 and D2 (2026-10-16); new MCU features only on the emulator.
+  decisions D1 and D2 (2026-10-16); new MCU features only on the emulator (Renode part
+  superseded by ADR 0094).
 - [0089: Own STM32 emulator as the microcontroller engine](0089-own-stm32-emulator.md):
   **accepted** 2026-10-15 (D0, after E-07); in-process ARMv7-M emulator with
   pin-level peripherals, Renode as fallback.
@@ -30,8 +33,8 @@
 - [0083: Microcontroller in lockstep with the circuit](0083-microcontroller-lockstep.md):
   firmware and circuit stay within 20 ms of simulated time in both directions;
   board profiles are library data; measured Renode model deviations.
-- [0082: Renode engine integration](0082-renode-engine-integration.md): one Renode
-  process per run, loopback-only control server, per-run folder, vendored client;
+- [0082: Renode engine integration](0082-renode-engine-integration.md): **superseded
+  by ADR 0094**; one Renode process per run, loopback-only control server, per-run folder, vendored client;
   distribution of the Renode bundle still needs a license review.
 - [0081: Desktop UI technology and layout](0081-desktop-ui-technology.md): Qt Widgets,
   QGraphicsView canvas, own plotting, data-driven symbols, QSpice-like layout.

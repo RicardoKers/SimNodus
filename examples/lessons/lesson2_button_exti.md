@@ -63,5 +63,5 @@ pending bit, counts the edge and toggles the LED. The main loop prints
 
 The bounce pattern is fixed (the same for every press) so that runs are
 reproducible; real contacts bounce differently each time. Circuit changes
-reach the firmware within two microcontroller quanta (1 ms each by default,
-ADR 0085); input thresholds are 1.16 V / 1.83 V.
+reach the firmware within 0.1 ms (one coupling window of the emulator,
+ADR 0090); input thresholds are 1.16 V / 1.83 V.

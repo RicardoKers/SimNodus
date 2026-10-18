@@ -1,5 +1,9 @@
 # Emulator differential test (E-07)
 
+Historical: the comparison program (`tests/unit/emu_differential.cpp`) and its
+ctest entry were removed with Renode on 2026-10-18 (ADR 0094); the generator
+and the corpus stay as the record of gate G0a.2.
+
 Compares the SimNodus STM32 emulator (`src/emu`) with Renode 1.16.1 on random
 Thumb-2 instruction blocks, for gate G0a.2 of the
 [emulator plan](../../../docs/planning/MCU_EMULATOR_PLAN.md).

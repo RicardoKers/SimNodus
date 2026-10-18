@@ -21,7 +21,7 @@ remain authoritative for engine behavior and are referenced, not repeated.
 | src/io      .snx JSON read/write  |       |  - control inputs (external sources)    |
 | src/library component definitions |       |  - acquisition ring buffers             |
 | src/netlist connectivity + checks |------>|  NgspiceEngine (shared lib, runtime load)|
-|             SPICE generation      |       |  RenodeEngine (phase 2) + Coupler       |
+|             SPICE generation      |       |  NativeMcuRunner (src/emu) + Coupler    |
 +-----------------------------------+       +-----------------------------------------+
 ```
 
@@ -31,7 +31,7 @@ Rules:
   C++20 with no Qt dependency, so they run in tests, a future CLI and the engine
   process. JSON uses the vendored single-header nlohmann/json (MIT).
 - `apps/simnodus` contains all Qt code. Qt Widgets only (ADR 0081).
-- No GUI code calls ngspice or Renode directly; it talks to `SimulationSession`
+- No GUI code calls ngspice or the microcontroller emulator directly; it talks to `SimulationSession`
   through a thread-safe command queue and reads snapshots of acquired data.
 - Backends are loaded at run time (`LoadLibrary`/`dlopen`), never when a project
   is opened.
@@ -103,34 +103,29 @@ results with analytical references (RC, RL, divider, diode clamp).
 - **Acquisition**: ring buffers per channel with min/max decimation for display;
   analog samples are irregular in time (SPICE steps) and are stored with their
   timestamps.
-- **RenodeEngine** (`src/mcu`, SN-130, [ADR 0082](../decisions/0082-renode-engine-integration.md)):
-  one Renode 1.16.1 child process per run (Job Object / parent-death signal),
-  a loopback-only external control server compiled by Renode from
-  `resources/renode/LoopbackControl.cs`, a per-run folder with relative paths,
-  exact `run_for` virtual time, GPIO set/get and change events with virtual
-  timestamps (quantum granularity, only during `run_for`), 32-bit bus access.
 - **McuBackend** (`src/mcu/mcu_backend.hpp`, SN-171): the engine-independent
   interface the session uses for a running board (start, time limit and wait,
   inputs, UART, pin states and drives, logic logs), with times in virtual
-  nanoseconds and pins named as on the board. `RenodeMcuRunner` implements it
-  today; SimNodus's own emulator will implement it in plan N1.
-- **RenodeMcuRunner** (formerly McuRunner; `src/mcu`, SN-131, [ADR 0083](../decisions/0083-microcontroller-lockstep.md)):
-  one thread per board owning its RenodeEngine; `SimulationSession` starts it
-  before the circuit and keeps firmware and circuit within `mcu_lead_us` of
-  each other; pin levels and modes feed the board symbol, the reset button
-  writes SCB AIRCR.
+  nanoseconds and pins named as on the board. `NativeMcuRunner` implements it.
+- **NativeMcuRunner** (`src/mcu`, [ADR 0090](../decisions/0090-own-emulator-default.md)):
+  one thread per board owning an emulated STM32F103 (`src/emu`);
+  `SimulationSession` starts it before the circuit and keeps firmware and
+  circuit within one coupling window (100 µs) of each other
+  ([ADR 0083](../decisions/0083-microcontroller-lockstep.md)); pin levels and
+  modes feed the board symbol, the reset button writes SCB AIRCR. Renode, the
+  earlier engine ([ADR 0082](../decisions/0082-renode-engine-integration.md)),
+  was removed by [ADR 0094](../decisions/0094-remove-renode.md).
 - **Coupler** (phase 2): GPIO outputs drive the circuit (SN-132,
   [ADR 0084](../decisions/0084-gpio-output-coupling.md)): two external sources
   per pin feed a behavioral current source, set from the runner's pin history
   at the circuit's time, which the firmware has always reached. Next (SN-133): analog crossings feed GPIO inputs at the end of the
-  quantum (E-03 sampled exchange, labeled approximate). Reused knowledge:
-  STM32F103 platform description, owned ADC model, cancellable run patch for
-  debugging.
+  coupling window (E-03 sampled exchange, labeled approximate).
 
-- **Own STM32 emulator** (proposed, [ADR 0089](../decisions/0089-own-stm32-emulator.md)):
-  `src/emu` would replace Renode behind the same runner interface
-  (`McuBackend`); design in [MCU_EMULATOR.md](MCU_EMULATOR.md), plan and gates
-  in [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md).
+- **Own STM32 emulator** ([ADR 0089](../decisions/0089-own-stm32-emulator.md),
+  [ADR 0090](../decisions/0090-own-emulator-default.md)): `src/emu`, Qt-free,
+  in-process (core, bus, STM32F103 peripherals, GDB server); design in
+  [MCU_EMULATOR.md](MCU_EMULATOR.md), plan and gates in
+  [MCU_EMULATOR_PLAN.md](../planning/MCU_EMULATOR_PLAN.md).
 
 ## Threads and processes
 
@@ -143,8 +138,8 @@ results with analytical references (RC, RL, divider, diode clamp).
 
 ```text
 apps/simnodus/        Qt application (editor, analyzer)
-src/model, src/io, src/library, src/netlist, src/sim, src/mcu (Renode engine)
-resources/renode/     Renode server extension, platform descriptions
+src/model, src/io, src/library, src/netlist, src/sim, src/mcu (runner),
+src/emu (own STM32 emulator)
 resources/library/    component JSON files
 examples/             example projects (.snx) and firmware
 tests/unit/           C++ unit and simulation tests (ctest)

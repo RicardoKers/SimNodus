@@ -19,7 +19,7 @@ Advanced users, automated regression systems and external agents are intended co
 
 The CLI is a facade over application/session and domain capabilities. Automation semantics belong there, rather than in command parsing or Qt widgets. The future Automation API is a shared application boundary, not necessarily a separate service or a new framework. GUI and CLI use the same session concepts, validation, measurements and diagnostics. Neither owns a second timeline.
 
-Expose SimNodus projects, components, pins, signals and measurements. Backend vector names, Renode calls and STM32 register interpretation stay in adapters/platform descriptions; they are not the primary public automation contract. A consumer should not need to know which backend supplies a quantity. Availability still depends on the validated device/model profile; neutral naming does not promise unsupported observations.
+Expose SimNodus projects, components, pins, signals and measurements. Backend vector names, emulator calls and STM32 register interpretation stay in adapters/platform descriptions; they are not the primary public automation contract. A consumer should not need to know which backend supplies a quantity. Availability still depends on the validated device/model profile; neutral naming does not promise unsupported observations.
 
 ## Required product contract
 

@@ -4,17 +4,12 @@ SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in its own STM32
 emulator next to the circuit. This page lists what the simulated chip supports and
 where it differs from a real board (MCU-09). Release 0.2.
 
-## Engines
+## Engine
 
-Firmware runs in SimNodus's own STM32 emulator (ADR 0089, 0090): it starts at
-once, gives pin changes their exact time and avoids the Renode differences
-listed below. **Simulate > Use Renode for Microcontrollers (Legacy)** runs it
-in Renode 1.16.1 instead, which takes several seconds to start; Renode gets no
-new features, so the timers, ADC and later additions work only in the
-emulator. The choice applies to the next run and is remembered. With the emulator,
-circuit changes reach the firmware within 0.1 ms (a coupling window of
-100 µs instead of the 1 ms quantum), and two runs with the same circuit give
-the same firmware timing.
+Firmware runs in SimNodus's own STM32 emulator (ADR 0089, 0090, 0094): it
+starts at once and gives pin changes their exact time. Circuit changes reach
+the firmware within 0.1 ms (a coupling window of 100 µs), and two runs with
+the same circuit give the same firmware timing.
 
 ## Supported
 
@@ -23,15 +18,15 @@ the same firmware timing.
 | Cortex-M3 core, 64 KiB flash, 20 KiB SRAM | yes | ELF files built for the STM32F103C8 (STM32CubeIDE, arm-none-eabi-gcc) |
 | Clock (RCC) | yes | Starts on HSI 8 MHz. HSE (the board's 8 MHz crystal), PLL, LSE and LSI report ready as soon as they are switched on, and SYSCLK follows SW, so the `SystemClock_Config()` that STM32CubeIDE generates runs (72 MHz with PLL x9). The CPU runs one instruction per HCLK cycle and SysTick counts at HCLK; RESET returns to 8 MHz. Example 12 uses the HAL at 72 MHz |
 | Flash access control, PWR | registers only | `FLASH_ACR` (wait states) and `PWR_CR` keep what is written, so HAL can check them; flash programming and low-power modes are not simulated |
-| SysTick | yes | Counts at HCLK; slightly fast (RVR instead of RVR + 1 cycles: 125 ppm at 8 MHz, 14 ppm at 72 MHz) |
+| SysTick | yes | Counts at HCLK; a period of RVR + 1 cycles, as on the chip |
 | GPIO ports A, B, C | yes | Modes from CRL/CRH, ODR/BSRR/BRR/IDR; push-pull, open-drain, inputs with pull-up/pull-down |
 | GPIO outputs into the circuit | yes | 3.3 V or 0 V behind 40 Ω; open drain only pulls low |
 | GPIO inputs from the circuit | yes | Schmitt trigger: 1 above 1.83 V, 0 below 1.16 V; floating inputs read 0 |
 | EXTI 0–15 and NVIC | yes | Lines reach IRQ 6–10, 23 (5–9) and 40 (10–15) as on the chip |
-| USART1–3 | yes | Text in the Signal Analyzer's UART tab. With the own emulator each byte goes out on the TX pin bit by bit at the baud rate (start, 8 or 9 data bits with parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, so serial output takes as long as on the board. A board's TX wired to another board's RX passes the bytes on |
-| DMA1 (emulator only) | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |
-| ADC1 and ADC2 (emulator only) | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
-| Timers TIM1–TIM4 (emulator only) | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
+| USART1–3 | yes | Text in the Signal Analyzer's UART tab. Each byte goes out on the TX pin bit by bit at the baud rate (start, 8 or 9 data bits with parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, so serial output takes as long as on the board. A board's TX wired to another board's RX passes the bytes on |
+| DMA1 | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |
+| ADC1 and ADC2 | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
+| Timers TIM1–TIM4 | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
 
 ## Not yet simulated
@@ -45,12 +40,11 @@ the same firmware timing.
 
 ## Differences from the real board
 
-- **Timing between firmware and circuit.** The firmware runs at most two
-  *microcontroller quanta* (Simulate > Simulation Settings, default 1 ms)
-  ahead of the circuit. Output changes reach the circuit at their exact
-  firmware time (rounded to Renode's 100 µs time step). Circuit changes
-  reach the firmware up to two quanta late, in order and with their
-  spacing. The status bar tooltip states these approximations.
+- **Timing between firmware and circuit.** The firmware runs at most one
+  coupling window (100 µs) ahead of the circuit. Output changes reach the
+  circuit at their exact firmware time. Circuit changes reach the firmware
+  less than 0.1 ms late, in order and with their spacing. The status bar
+  tooltip states these approximations.
 - **Clock.** Oscillators and the PLL are ready at once (a real HSE takes
   about 1–2 ms). The CPU executes one instruction per clock cycle: a real
   Cortex-M3 needs extra cycles for taken branches, loads and flash wait
@@ -59,17 +53,8 @@ the same firmware timing.
   (`RCC_APB2ENR` …) are not checked: a peripheral works even if its clock
   was never switched on, which would fail on the board. The clock security
   system and MCO are not simulated.
-- **FreeRTOS start-up.** Renode starts SysTick with a full 24-bit period
-  when firmware enables it with the counter at 0, as FreeRTOS does: the first
-  tick comes about 2.1 s late at 8 MHz (0.23 s at 72 MHz), then ticks are
-  regular. A real chip ticks after one period. SimNodus's own emulator, being
-  built (E-07), does not have this difference. STM32CubeIDE projects with
-  FreeRTOS also use a timer (TIM) as the HAL time base, which only the
-  emulator simulates.
-- **Speed with 72 MHz firmware.** At 72 MHz Renode executes nine times more
-  instructions per simulated second than at 8 MHz. Firmware that waits in a
-  loop (`HAL_Delay()`) ran example 12 at about 0.85x real time on a
-  2026 laptop; the status bar shows the actual speed.
+- **Speed.** At 72 MHz the emulator executes nine times more instructions
+  per simulated second than at 8 MHz; the status bar shows the actual speed.
 - **ADC timing.** The firmware runs up to 0.1 ms ahead of the circuit, so a
   conversion reads the pin voltage the circuit had 0.1–0.2 ms before the
   sample instant (ADR 0092). Slow signals (potentiometers, sensors, filtered
@@ -87,15 +72,11 @@ the same firmware timing.
   edge instead (ADR 0093): square waves stay square at the 100 µs step and RC
   responses match the formulas, but runs are slower (lesson 1: 1.2x instead of
   2.9x real time on a 2026 laptop; a 10 µs step gives the same waveforms at
-  about 0.25x). With Renode an edge acts at the next time point.
-- **AFIO (Renode only).** With Renode, EXTI line *n* follows pin *n* of
-  every port; the port selection in `AFIO_EXTICR` is not simulated, so use
-  one pin number per EXTI line. The SimNodus emulator simulates `AFIO_EXTICR`
-  and the USART pin remaps.
+  about 0.25x).
 - **UART.** The logic lanes show the exact bits on the TX pin. On the scope a
   bit at 115200 baud (8.7 µs) is shorter than the circuit's 0.1 ms step: turn
   on *Exact microcontroller edges* with a 10 µs step to see the frame. The RX
-  pin is decoded from the circuit (SimNodus emulator): any source on RX, for
+  pin is decoded from the circuit: any source on RX, for
   example another board's TX through a resistor or logic gates, sends frames
   that the USART reads at the bit centers, with the framing (FE) and parity
   (PE) flags. The circuit must show the bits: turn on *Exact microcontroller
@@ -105,8 +86,7 @@ the same firmware timing.
   0.4 ms after its stop bit (inputs reach the firmware late, by up to one
   coupling window). Bytes also arrive from the terminal, and a board's TX on
   the same net as another board's RX is passed on at the byte level (one frame
-  apart) at any step. With Renode bytes move instantly, the TX pin only rests
-  high, and RX is not decoded.
+  apart) at any step.
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source
@@ -163,4 +143,4 @@ installation or `arm-none-eabi-gcc` on PATH, and the STM32CubeF1 package
 that STM32CubeIDE downloads to `~/STM32Cube/Repository`). Projects store the ELF path
 relative to the project file; **Reload** in Properties picks up a rebuilt ELF.
 
-Technical background: ADR 0082–0088 in `docs/decisions/`.
+Technical background: ADR 0083–0094 in `docs/decisions/`.

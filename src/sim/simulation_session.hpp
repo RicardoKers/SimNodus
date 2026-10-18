@@ -42,12 +42,11 @@ class NgspiceSession;
 
 enum class RunState { Idle, Running, Paused, Finished, Stopped, Failed };
 
-// A microcontroller of the circuit (SN-131): its firmware runs in Renode,
-// started before the analog run and kept within `mcu_lead_us` of its time.
+// A microcontroller of the circuit (SN-131): its firmware runs in SimNodus's own
+// emulator, started before the analog run and kept within `mcu_lead_us` of its time.
 struct McuRequest {
     std::map<std::string, std::pair<std::string, std::string>> uart_pins; // UART -> TX pin, RX pin
     model::Id component = model::no_id;
-    std::string engine = "native"; // "native" or "renode" (legacy; SN-172, ADR 0090)
     mcu::McuRunOptions options;
     std::string ground_pin = "G1"; // reference of the pin voltages
 };
@@ -254,12 +253,7 @@ inline constexpr std::uint64_t native_window_us = 100;
 
 struct McuEnvironment {
     std::filesystem::path project_dir;
-    // "renode" or "native" overrides the engine of every board's profile; empty
-    // keeps the profile's choice.
-    std::string engine;
-    std::optional<std::filesystem::path> renode;    // mcu::find_renode()
-    std::optional<std::filesystem::path> resources; // mcu::find_mcu_resources()
-    // Debugging (SN-180): boards on the own emulator get GDB servers on ports
+    // Debugging (SN-180): boards get GDB servers on ports
     // gdb_port, gdb_port + 1, ... in schematic order; -1 for none.
     int gdb_port = -1;
 };

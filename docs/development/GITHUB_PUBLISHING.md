@@ -145,7 +145,7 @@ Do not publish raw chat transcripts. The research synthesis is sufficient and do
 
 Repository: [RicardoKers/SimNodus](https://github.com/RicardoKers/SimNodus). Description: “Open-source mixed-signal and embedded systems simulator, starting with STM32.”
 
-Suggested topics: `simulation`, `electronics`, `stm32`, `ngspice`, `renode`, `education`, `cpp`, `qt`. Default branch: `main`.
+Suggested topics: `simulation`, `electronics`, `stm32`, `ngspice`, `education`, `cpp`, `qt`. Default branch: `main`.
 
 Use a reviewed initial commit and an empty remote, then add the remote and push explicitly. Do not generate an unrelated remote README/license that creates an avoidable history conflict. The owner has authorized these steps. Formal trademark/domain clearance remains open; the preliminary public-name check is not legal clearance.
 

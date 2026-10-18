@@ -123,7 +123,7 @@ A separate top-level window that can be placed on another monitor.
 | ID | Requirement | Phase | Status |
 |---|---|---|---|
 | MCU-01 | Blue Pill component with its real pin names; properties select the firmware ELF (path stored relative to the project) and offer Reload | 2 | done |
-| MCU-02 | Real firmware runs in Renode, in lockstep with the analog engine using a coupling quantum Q (default to be chosen from measurements, configurable). MCU-to-circuit timing within Q is labeled approximate | 2 | done |
+| MCU-02 | Real firmware runs in SimNodus's own STM32 emulator, in lockstep with the analog engine using a coupling window (100 µs, chosen from measurements). MCU-to-circuit timing within the window is labeled approximate | 2 | done |
 | MCU-03 | GPIO output drives the circuit through an electrical pin model (push-pull/open-drain, supply 3.3 V, finite output resistance) | 2 | done |
 | MCU-04 | GPIO input reads circuit voltages with Schmitt thresholds; EXTI interrupts fire from circuit transitions (pressing a button on the schematic triggers the firmware interrupt) | 2 | done |
 | MCU-05 | UART output/input through the analyzer terminal | 2 | done |
@@ -132,7 +132,7 @@ A separate top-level window that can be placed on another monitor.
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
 | MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
 | MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | done (SN-175 TX frames and board links, SN-192 RX decoded from the pin) |
-| MCU-11 | SimNodus's own STM32 emulator runs the firmware in-process with exact pin timestamps; the engine is selectable per board while Renode remains available ([ADR 0089](decisions/0089-own-stm32-emulator.md)) | 2–4 | planned |
+| MCU-11 | SimNodus's own STM32 emulator runs the firmware in-process with exact pin timestamps; it is the only microcontroller engine ([ADR 0089](decisions/0089-own-stm32-emulator.md), [ADR 0094](decisions/0094-remove-renode.md)) | 2–4 | done |
 
 ## 7. Projects and library
 
@@ -151,11 +151,11 @@ A separate top-level window that can be placed on another monitor.
 | ID | Requirement |
 |---|---|
 | NF-01 | Windows 10/11 x64 is the classroom platform; the application also builds and runs on Linux for development and CI |
-| NF-02 | Offline operation; ngspice, Renode and Qt runtime are bundled by the Windows package; no account or network needed |
+| NF-02 | Offline operation; ngspice and the Qt runtime are bundled by the Windows package; no account or network needed |
 | NF-03 | Responsiveness: engine work never on the GUI thread; canvas interaction stays smooth with 200 components; analyzer redraw at least 20 Hz with 8 channels |
 | NF-04 | Robustness: engine errors, timeouts and invalid files produce messages, never a crash or document loss |
 | NF-05 | Automated tests: model/netlist unit tests, simulation results against analytical references, offscreen GUI smoke tests; CI builds Windows and Linux and publishes a Windows test package |
-| NF-06 | Licensing: original material MIT; dependencies used under compatible terms (Qt LGPL dynamic linking, ngspice BSD-3, Renode MIT); no GPL-only plotting or widget libraries |
+| NF-06 | Licensing: original material MIT; dependencies used under compatible terms (Qt LGPL dynamic linking, ngspice BSD-3); no GPL-only plotting or widget libraries |
 | NF-07 | Repository content in English; conversation with the owner may be in Portuguese |
 
 ## 9. Outside the current commitment

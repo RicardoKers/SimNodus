@@ -63,7 +63,7 @@ protected:
 
 // ---------------------------------------------------------------------------
 // RCC (RM0008 7.3): ready flags follow the enables, SWS follows SW, HCLK drives
-// the CPU and SysTick (the behavior of resources/renode/SimNodusRcc.cs, ADR 0088).
+// the CPU and SysTick (ADR 0088).
 
 class Stm32F103::Rcc : public RegDevice {
 public:

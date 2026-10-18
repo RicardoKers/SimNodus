@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Runs one microcontroller in SimNodus's own STM32F103 emulator (src/emu,
-// SN-172, ADR 0089): the same McuBackend contract as RenodeMcuRunner, without
-// a child process. A worker thread advances the firmware; pin changes carry
+// SN-172, ADR 0089) behind the McuBackend contract. A worker thread advances the firmware; pin changes carry
 // their exact virtual time in nanoseconds.
 //
 // Deterministic coupling (SN-173, MCU_EMULATOR.md section 7): time is cut into
@@ -31,7 +30,7 @@ namespace simnodus::mcu {
 
 class NativeMcuRunner : public McuBackend {
 public:
-    // Uses options.machine.firmware, pins, uarts, pin_model and chunk_us.
+    // Uses options.firmware, pins, uarts, pin_model and chunk_us.
     explicit NativeMcuRunner(McuRunOptions options);
     ~NativeMcuRunner() override;
 

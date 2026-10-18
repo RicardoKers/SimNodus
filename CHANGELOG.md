@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Removed (2026-10-18, owner's decision)
+
+- Renode (SN-183, ADR 0094). SimNodus's own STM32F103 emulator, the default since 0.2, is the only microcontroller engine: the Simulate menu option *Use Renode for Microcontrollers (Legacy)*, the Renode engine and runner, the Renode client in `third_party/`, the platform description and C# models in `resources/renode/`, the Renode bundle in the Windows package, `tools/fetch_backends.py --renode`, the CMake options `SIMNODUS_RENODE` and `SIMNODUS_REQUIRE_RENODE`, the Renode test suites and comparisons (`engine-renode`, `engine-renode-session`, `emu-firmware`, `emu-differential`, `gui-editor-renode`) and the experiment workflows that downloaded Renode. Board profiles lose the Renode-only fields (`engine`, `platform`, `extensions`, `before_firmware`, `after_firmware`). The test suite runs in about 20 s instead of about 3 minutes. `--check-mcu-engine` now runs the blink example's firmware in the emulator for 1.1 s of virtual time. The *Microcontroller quantum* choice leaves the Simulation Settings dialog: the emulator always couples in windows of 100 µs (projects keep the stored value). The Windows zip shrinks from 145 MB (0.2.0) to about 27 MB.
+
 ### Added (2026-10-18)
 
 - USART RX from the circuit (SN-192, own emulator): the receiver decodes frames on its RX pin from the times the pin voltage crossed the input thresholds, sampling at the bit centers like the chip; a low stop bit sets FE, a wrong parity PE (PEIE raises the interrupt). Any source works, for example another board's TX through a resistor or gates. The circuit must resolve the bits: with *Exact microcontroller edges* any baud rate, otherwise bits of at least four time steps; faster frames are not decoded and the Messages panel says why. A frame is decided after a fixed lag (about 0.4 ms) so that every edge has arrived; boards on one net keep the byte link. Tests: emulator cases (in time, late, FE, PE, glitch, disabled) and a session where one board's output reaches the other through 1 kΩ at 115200 baud.

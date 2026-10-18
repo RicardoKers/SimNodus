@@ -23,7 +23,7 @@ component-package/
   examples/...
 ```
 
-Bundled packages must have verified origin and license terms. Supported model categories are intended to include SPICE/XSPICE, MCU/Renode, trusted built-in behavior, and later WASM/HDL. The manifest declares required capabilities and pin mappings. Missing models cause explicit errors, not silent replacement with an ideal component.
+Bundled packages must have verified origin and license terms. Supported model categories are intended to include SPICE/XSPICE, MCU (SimNodus's own emulator), trusted built-in behavior, and later WASM/HDL. The manifest declares required capabilities and pin mappings. Missing models cause explicit errors, not silent replacement with an ideal component.
 
 Vendor SPICE files may require dialect adaptation and may restrict redistribution. A file extension proves neither compatibility nor permission.
 

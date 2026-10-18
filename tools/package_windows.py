@@ -31,10 +31,8 @@ REQUIRED = [
     "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
     "library/passive/resistor.json", "examples/01_LED_and_push_button.snx", "QUICK-START.md", "MICROCONTROLLER.md",
     "vcruntime140.dll", "msvcp140.dll",
-    "renode/renode.exe", "renode/licenses/renode-license", "renode/licenses/tlib-license",
-    "mcu/LoopbackControl.cs", "mcu/stm32f103c8.repl", "mcu/licenses/MIT.txt",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
-    "mcu/SimNodusGpio.cs", "mcu/SimNodusRcc.cs", "examples/08_Blue_Pill_button_interrupt.snx", "examples/firmware/button_irq/button_irq.elf",
+    "library/logic/nand.json", "examples/17_Logic_gates_half_adder.snx", "examples/08_Blue_Pill_button_interrupt.snx", "examples/firmware/button_irq/button_irq.elf",
     "examples/09_Blue_Pill_serial_terminal.snx", "examples/firmware/uart_echo/uart_echo.elf",
     "examples/10_Lesson1_GPIO_output.snx", "examples/firmware/lesson1_gpio/lesson1_gpio.elf",
     "examples/11_Lesson2_button_and_EXTI.snx", "examples/firmware/lesson2_button/lesson2_button.elf",
@@ -107,7 +105,7 @@ def main() -> int:
         exe = str(staging / "simnodus.exe")
         engine = run([exe, "--check-engine"], env=env, capture_output=True, text=True, timeout=120)
         print(engine.stdout.strip())
-        mcu = run([exe, "--check-mcu-engine"], env=env, capture_output=True, text=True, timeout=180)
+        mcu = run([exe, "--check-mcu-engine"], env=env, capture_output=True, text=True, timeout=60)
         print(mcu.stdout.strip())
         with tempfile.TemporaryDirectory() as temp:
             # The package ships only the native platform plugin, so this opens real windows briefly.

@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// A Blue Pill in an interactive run (SN-131): ngspice and Renode together.
-// Skipped (and reported) when the build has no Renode.
+// A Blue Pill in an interactive run (SN-131): ngspice and SimNodus's own
+// STM32F103 emulator together.
 #include "test_support.hpp"
 
 #include "circuit_builder.hpp"
@@ -24,14 +24,8 @@
 using namespace simnodus;
 using namespace std::chrono_literals;
 
-extern std::string test_mcu_engine; // engine_tests.cpp ("" = the board's default: the own emulator)
+extern bool test_soak; // engine_tests.cpp: the long soak cases run only when asked for
 extern double test_soak_segment;
-
-// True unless the cases run on Renode (the legacy engine, D1 on 2026-10-16).
-bool on_native()
-{
-    return test_mcu_engine != "renode";
-}
 
 namespace {
 
@@ -45,17 +39,12 @@ library::ComponentLibrary& board_library()
     return library;
 }
 
-#ifdef SIMNODUS_TEST_RENODE
 sim::McuEnvironment environment()
 {
     sim::McuEnvironment e;
-    e.engine = test_mcu_engine;
     e.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
-    e.renode = std::filesystem::path(SIMNODUS_TEST_RENODE);
-    e.resources = std::filesystem::path(SIMNODUS_TEST_MCU_DIR);
     return e;
 }
-#endif
 
 sim::McuEnvironment folder_only(const std::filesystem::path& folder)
 {
@@ -66,7 +55,42 @@ sim::McuEnvironment folder_only(const std::filesystem::path& folder)
 
 } // namespace
 
-TEST_CASE("session: boards without firmware or engine are explained")
+TEST_CASE("session: pin names, Schmitt inputs and pin drives")
+{
+    CHECK(mcu::gpio_pin("PC13").has_value() && mcu::gpio_pin("PC13")->port == 'C' && mcu::gpio_pin("PC13")->number == 13);
+    CHECK(mcu::gpio_pin("PA0")->port == 'A');
+    CHECK(!mcu::gpio_pin("NRST").has_value());
+    CHECK(!mcu::gpio_pin("3V3_1").has_value());
+    CHECK(!mcu::gpio_pin("PA16").has_value());
+
+    const mcu::PinModel model;
+    CHECK(mcu::schmitt(false, 1.9, model));
+    CHECK(!mcu::schmitt(true, 1.1, model));
+    CHECK(mcu::schmitt(true, 1.5, model) && !mcu::schmitt(false, 1.5, model)); // hysteresis
+
+    mcu::PinState out;
+    out.mode = mcu::PinMode::Output;
+    out.level = true;
+    CHECK(std::abs(mcu::pin_drive(out, model).conductance - 1.0 / 40.0) < 1e-12);
+    CHECK(std::abs(mcu::pin_drive(out, model).current - 3.3 / 40.0) < 1e-12);
+    out.level = false;
+    CHECK(mcu::pin_drive(out, model).current == 0.0);
+    mcu::PinState drain = out;
+    drain.open_drain = true;
+    drain.level = true; // released: open
+    CHECK(mcu::pin_drive(drain, model).conductance == 0.0);
+    drain.level = false;
+    CHECK(mcu::pin_drive(drain, model).conductance > 0.0);
+    mcu::PinState pulled;
+    pulled.mode = mcu::PinMode::Input;
+    pulled.pull = mcu::Pull::Up;
+    const mcu::PinDrive up = mcu::pin_drive(pulled, model);
+    CHECK(std::abs(up.current / up.conductance - 3.3) < 1e-9); // Thevenin: 3.3 V behind 40 kOhm
+    pulled.pull = mcu::Pull::None;
+    CHECK(mcu::pin_drive(pulled, model).conductance == 0.0);
+}
+
+TEST_CASE("session: boards without firmware are explained")
 {
     test::CircuitBuilder b(board_library());
     b.add("bluepill", {{"G1", "0"}});
@@ -81,26 +105,17 @@ TEST_CASE("session: boards without firmware or engine are explained")
     CHECK(!sim::build_mcu_requests(missing.schematic, board_library(), folder_only("."), requests, error));
     CHECK(error.find("does not exist") != std::string::npos);
 
-    // The own emulator (the default, ADR 0090) needs nothing installed; Renode, the
-    // legacy engine, must be found when it is chosen.
-    test::CircuitBuilder no_renode(board_library());
-    no_renode.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
+    // The emulator needs nothing installed.
+    test::CircuitBuilder blink(board_library());
+    blink.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
     error.clear();
     requests.clear();
-    CHECK(sim::build_mcu_requests(no_renode.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
-    CHECK(requests.size() == 1 && requests.front().engine == "native");
-    auto legacy = folder_only(SIMNODUS_TEST_EXAMPLES_DIR);
-    legacy.engine = "renode";
-    error.clear();
-    CHECK(!sim::build_mcu_requests(no_renode.schematic, board_library(), legacy, requests, error));
-    CHECK(error.find("Renode") != std::string::npos);
+    CHECK(sim::build_mcu_requests(blink.schematic, board_library(), folder_only(SIMNODUS_TEST_EXAMPLES_DIR), requests, error));
+    CHECK(requests.size() == 1);
 }
 
 TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
     const model::Id board = b.add("bluepill", {{"G1", "0"}}, {{"firmware", "firmware/blink/blink.elf"}});
@@ -132,9 +147,7 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     }
     std::printf("  circuit started after %.1f s\n",
         std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count());
-    if (!on_native()) {
-        CHECK(saw_starting); // Renode takes seconds; the own emulator is ready at once
-    }
+    (void)saw_starting; // the emulator is ready at once
 
     // Watch PC13 over 1.6 s of virtual time: the firmware toggles it every 500 ms.
     std::set<bool> levels;
@@ -173,7 +186,6 @@ TEST_CASE("session: a Blue Pill runs its firmware alongside the circuit")
     CHECK(session.latest("n1").has_value());
     session.stop();
     CHECK(session.mcu_status(board)->state == mcu::McuState::Stopped);
-#endif
 }
 
 TEST_CASE("session: transient mode refuses microcontrollers")
@@ -195,9 +207,6 @@ TEST_CASE("session: transient mode refuses microcontrollers")
 
 TEST_CASE("session: a GPIO output drives the circuit through its pin model")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
     b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}}, {{"firmware", "firmware/blink/blink.elf"}});
@@ -247,25 +256,13 @@ TEST_CASE("session: a GPIO output drives the circuit through its pin model")
     for (std::size_t i = 0; i < edges.size(); ++i) {
         const double expected = 0.25 * static_cast<double>(i + 1);
         CHECK(edges[i].second == (i % 2 == 0));
-        // Renode's SysTick is 125 ppm fast; events have its 100 us quantum; plus one step.
-        CHECK(std::abs(edges[i].first - expected) < 2e-4 * expected + 3e-4);
-        if (on_native()) {
-            // Exact SysTick and exact edge times: only the circuit step (0.1 ms) remains.
-            CHECK(std::abs(edges[i].first - expected) <= 1.2e-4);
-        }
+        // Exact SysTick and exact edge times: only the circuit step (0.1 ms) remains.
+        CHECK(std::abs(edges[i].first - expected) <= 1.2e-4);
     }
-#endif
 }
 
 TEST_CASE("session: coupled runs with the same circuit inputs repeat exactly on the own emulator")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: determinism is a property of the own emulator's window coupling (SN-173)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     // A 25 Hz square wave on PA1 through 1 kOhm: every falling edge runs the EXTI1
     // handler of button_irq, which toggles PA0. Inputs reach the firmware at
@@ -324,18 +321,10 @@ TEST_CASE("session: coupled runs with the same circuit inputs repeat exactly on 
             break;
         }
     }
-#endif
 }
 
 TEST_CASE("session: measured cost of the coupling window on the own emulator")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: measures the own emulator's window L (EQ-3)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     // A 100 Hz square wave on PA1 (EXTI1 toggles PA0) for 2 s of circuit time at
     // maximum speed, for several windows L. Reported, not asserted: it informed
@@ -377,14 +366,10 @@ TEST_CASE("session: measured cost of the coupling window on the own emulator")
         CHECK(toggles >= 190); // 200 falling edges in 2 s
         CHECK(static_cast<double>(status->max_input_delay_ns) <= window * 1e9 + 1);
     }
-#endif
 }
 
 TEST_CASE("session: a push button on the schematic triggers the firmware interrupt")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
     REQUIRE(test::engine() != nullptr);
     test::CircuitBuilder b(board_library());
     b.add("bluepill", {{"G1", "0"}, {"PA0", "OUT"}, {"PA1", "BTN"}}, {{"firmware", "firmware/button_irq/button_irq.elf"}});
@@ -432,10 +417,7 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
     REQUIRE(status.has_value());
     std::printf("  largest circuit-to-firmware input delay: %llu us\n",
         static_cast<unsigned long long>(status->max_input_delay_ns / 1000));
-    CHECK(status->max_input_delay_ns / 1000 <= 2 * 1000 + 100); // two quanta plus one circuit step
-    if (on_native()) {
-        CHECK(status->max_input_delay_ns <= 1000000); // at most one window (the 1 ms quantum)
-    }
+    CHECK(status->max_input_delay_ns <= 1000000); // at most one window (the 1 ms quantum)
 
     // Delay from the button's falling edge to the output's rising edge, in circuit time.
     const auto btn = session.samples("btn");
@@ -456,18 +438,11 @@ TEST_CASE("session: a push button on the schematic triggers the firmware interru
         (lit_at - pressed_at) * 1e6);
     REQUIRE(pressed_at > 0);
     REQUIRE(lit_at > pressed_at);
-    CHECK(lit_at - pressed_at < 2.5e-3); // two quanta, Renode quantum and steps
-    if (on_native()) {
-        CHECK(lit_at - pressed_at <= 1.0e-3 + 2.5e-4); // one window plus the circuit steps of both edges
-    }
-#endif
+    CHECK(lit_at - pressed_at <= 1.0e-3 + 2.5e-4); // one window plus the circuit steps of both edges
 }
 
 TEST_CASE("session: lesson 2 counts bounces without the RC filter and one edge with it")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "11_Lesson2_button_and_EXTI.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -528,19 +503,15 @@ TEST_CASE("session: lesson 2 counts bounces without the RC filter and one edge w
             CHECK(edges > 2); // bounces on press and on release
         }
     }
-#endif
 }
 
 // Long run for gate G1 (memory flat over an hour). Not part of the regular suites:
-// engine-native filters "session:", and with Renode the case returns at once.
-//   engine_tests <ngspice> <scripts> "soak:" native
+// engine-ngspice skips it; run it explicitly:
+//   engine_tests <ngspice> <scripts> "soak:" soak
 TEST_CASE("soak: one hour of example 07 on the own emulator keeps memory flat")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (test_mcu_engine != "native") {
-        std::printf("  skipped: run explicitly with the native engine\n");
+    if (!test_soak) {
+        std::printf("  skipped: run explicitly with \"soak:\" soak\n");
         return;
     }
     REQUIRE(test::engine() != nullptr);
@@ -582,16 +553,15 @@ TEST_CASE("soak: one hour of example 07 on the own emulator keeps memory flat")
     const auto end = sim::current_process_memory();
     session.stop();
     CHECK(end.private_bytes < warm + 10000000); // under 10 MB growth over the hour (G1)
-#endif
 }
 
 // Reference for the soak above: the same LED circuit driven by a 2 Hz pulse
 // source instead of the board, for 1500 s of circuit time (memory growth of the
-// analog side alone). Run explicitly: engine_tests ... "soak:" native
+// analog side alone). Run explicitly: engine_tests ... "soak:" soak
 TEST_CASE("soak: the analog circuit alone, for comparison")
 {
-    if (test_mcu_engine != "native") {
-        std::printf("  skipped: run explicitly with \"soak:\" native\n");
+    if (!test_soak) {
+        std::printf("  skipped: run explicitly with \"soak:\" soak\n");
         return;
     }
     REQUIRE(test::engine() != nullptr);
@@ -636,9 +606,6 @@ TEST_CASE("soak: the analog circuit alone, for comparison")
 
 TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula predicts")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "10_Lesson1_GPIO_output.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -683,7 +650,7 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
     std::printf("  %d rising edges in 20 ms, RC %.3f .. %.3f V, peak-to-peak %.3f V (expected %.3f V)\n", rising, low,
         high, high - low, expected);
     if (rising < 19 || rising > 21 || std::abs((high - low) - expected) >= 0.02) {
-        // Diagnostics: the circuit's PA1 edges next to the times Renode reported.
+        // Diagnostics: the circuit's PA1 edges next to the times the emulator reported.
         int shown = 0;
         for (std::size_t i = 1; i < pa1.size() && shown < 40; ++i) {
             if (pa1[i].time >= from && (pa1[i - 1].value < 1.65) != (pa1[i].value < 1.65)) {
@@ -694,29 +661,20 @@ TEST_CASE("session: lesson 1 filters the 1 kHz square wave as the RC formula pre
         const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PA1",
             static_cast<std::uint64_t>(from * 1e9));
         for (std::size_t i = 0; i < log.changes.size() && i < 40; ++i) {
-            std::printf("  renode PA1 %llu us -> %d\n", static_cast<unsigned long long>(log.changes[i].first / 1000),
+            std::printf("  emulator PA1 %llu us -> %d\n", static_cast<unsigned long long>(log.changes[i].first / 1000),
                 log.changes[i].second ? 1 : 0);
         }
     }
     CHECK(rising >= 19 && rising <= 21);
     // Within 0.03 V: the circuit takes the pin's drive averaged over each 10 us step
-    // (SN-176; Renode: the level at the step's end), so an edge is spread over one
-    // step and no time point falls on the peak itself: 0.784 V measured from the
-    // points on the emulator, 0.79-0.80 V with Renode.
+    // (SN-176), so an edge is spread over one step and no time point falls on the
+    // peak itself: 0.784 V measured from the points.
     CHECK(std::abs((high - low) - expected) < 0.03);
     CHECK(std::abs((high + low) / 2 - 1.65) < 0.05);
-#endif
 }
 
 TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the capture sees 1 kHz")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: timers are simulated only by the own emulator (ADR 0090)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "13_Blue_Pill_timer_PWM.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -771,7 +729,6 @@ TEST_CASE("session: example 13 PWM averages to a quarter of 3.3 V and the captur
     const auto log = session.mcu_pin_log(session.netlist().externals.front().component, "PB12", 0);
     REQUIRE(!log.changes.empty());
     CHECK(log.changes.back().second);
-#endif
 }
 
 TEST_CASE("the own emulator's runner averages a pin's drive over a step with exact edges")
@@ -779,7 +736,7 @@ TEST_CASE("the own emulator's runner averages a pin's drive over a step with exa
     // SN-176: the circuit asks for the drive averaged over each step. PA0 carries
     // the 1 kHz, 25 % PWM of example 13: every 1 ms window holds exactly 250 us high.
     mcu::McuRunOptions options;
-    options.machine.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "timer_pwm" / "timer_pwm.elf";
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "timer_pwm" / "timer_pwm.elf";
     options.pins = {"PA0"};
     mcu::NativeMcuRunner runner(options);
     runner.start();
@@ -805,13 +762,6 @@ TEST_CASE("the own emulator's runner averages a pin's drive over a step with exa
 
 TEST_CASE("session: example 14 converts the potentiometer voltage and sets the PWM duty from it")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: the ADC is simulated only by the own emulator (ADR 0090)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "14_Blue_Pill_ADC_to_PWM.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -875,18 +825,10 @@ TEST_CASE("session: example 14 converts the potentiometer voltage and sets the P
     // Every sample read a circuit time the circuit had passed (deterministic codes).
     CHECK(session.mcu_status(board)->late_analog_samples == 0);
     session.stop();
-#endif
 }
 
 TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us step")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: exact edges need the own emulator (ADR 0093)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "10_Lesson1_GPIO_output.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -937,18 +879,10 @@ TEST_CASE("session: exact edges keep lesson 1's square wave square at the 100 us
             CHECK(between >= 30); // one per edge: 40 edges in 20 ms
         }
     }
-#endif
 }
 
 TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM it sets")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: the ADC is simulated only by the own emulator (ADR 0090)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "16_Lesson3_ADC_and_UART.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -1002,18 +936,10 @@ TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM
     wait_until(1.45);
     check(0.25);
     session.stop();
-#endif
 }
 
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: debugging needs the own emulator (SN-180)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "07_Blue_Pill_blink.snx");
     REQUIRE(loaded.schematic.has_value());
@@ -1081,18 +1007,10 @@ TEST_CASE("session: a GDB client halts firmware and circuit together, and detach
     CHECK(!session.status().debugger_halted);
     CHECK(session.status().sim_time > halted.sim_time + 0.1); // both run on
     session.stop();
-#endif
 }
 
 TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: serial links need the own emulator (SN-175)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     // Board U1 (HAL example) prints its clocks on PA9; PA9 goes to U2's PA10, and
     // U2 (uart_echo) echoes every byte it receives on its own TX.
@@ -1128,18 +1046,10 @@ TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
     }
     CHECK(matched == first.size());
     CHECK(text.find("SYSCLK 72000000 Hz") != std::string::npos);
-#endif
 }
 
 TEST_CASE("session: a receiver decodes frames from its RX pin through the circuit")
 {
-#ifndef SIMNODUS_TEST_RENODE
-    std::printf("  skipped: no Renode in this build\n");
-#else
-    if (!on_native()) {
-        std::printf("  skipped: RX from the pin needs the own emulator (SN-192)\n");
-        return;
-    }
     REQUIRE(test::engine() != nullptr);
     // As above, but through a 1 kOhm resistor: TX and RX are different nets, so
     // no byte link; U2 decodes the frames on PA10 (115200 baud, exact edges).
@@ -1191,5 +1101,4 @@ TEST_CASE("session: a receiver decodes frames from its RX pin through the circui
             CHECK(reported);
         }
     }
-#endif
 }

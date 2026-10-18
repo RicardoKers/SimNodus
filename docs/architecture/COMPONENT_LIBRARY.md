@@ -44,23 +44,22 @@ used by the SPICE template.
 
 ## Microcontroller boards
 
-`mcu` turns a component into a board whose firmware runs in Renode
-([ADR 0082](../decisions/0082-renode-engine-integration.md),
-[ADR 0083](../decisions/0083-microcontroller-lockstep.md)). Pins named like
+`mcu` turns a component into a board whose firmware runs in SimNodus's own
+STM32F103 emulator ([ADR 0083](../decisions/0083-microcontroller-lockstep.md),
+[ADR 0094](../decisions/0094-remove-renode.md)). The Renode-only fields
+`engine`, `platform`, `extensions`, `before_firmware` and `after_firmware` are
+no longer part of the format. Pins named like
 `PA0` are GPIO pins (port letter and number); the others are power and
 control pins. Unconnected board pins are not reported.
 
 | Field | Meaning |
 |---|---|
-| `platform` | Platform description in the `mcu/` folder (`stm32f103c8.repl`) |
 | `firmware_parameter` | The `file` parameter holding the ELF |
-| `before_firmware`, `after_firmware` | Renode monitor commands of the board profile, around `sysbus LoadELF` |
 | `led` | `{"pin": "PC13", "active_low": true, "at": [x, y], "radius"}`: on-board LED drawn lit by the pin |
 | `reset_button` | `[x, y, width, height]`: clicking it while running resets the microcontroller |
 | `pin_model` | Electrical GPIO model: supply, output and pull resistance, input thresholds `input_high` / `input_low` |
-| `extensions` | C# peripheral models in `mcu/` the platform uses (`SimNodusGpio.cs`) |
 | `ground_pin` | Reference of the pin voltages (default `G1`) |
-| `uarts` | `[{"name": "usart1", "label": "USART1 (PA9 TX, PA10 RX)"}]`: serial ports for the terminal |
+| `uarts` | `[{"name": "usart1", "tx_pin": "PA9", "rx_pin": "PA10", "label": "USART1 (PA9 TX, PA10 RX)"}]`: serial ports for the terminal and their pins |
 
 `pin_model` (`{"supply": 3.3, "output_resistance": 40, "pull_resistance":
 40000}`) sets the electrical GPIO model ([ADR 0084](../decisions/0084-gpio-output-coupling.md)).

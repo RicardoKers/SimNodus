@@ -4,7 +4,7 @@ This reproduces **SN-010 dependency checks**, not E-01/E-02. Read the [inventory
 
 ## Download explicitly and verify before extraction
 
-Run from the repository root in PowerShell. These commands download about 149 MB into ignored build output; they do not install services, change PATH, or configure the operating system. Review the manifest URLs before running.
+Run from the repository root in PowerShell. These commands download the pinned ngspice packages into ignored build output; they do not install services, change PATH, or configure the operating system. Review the manifest URLs before running.
 
 ```powershell
 $ErrorActionPreference = 'Stop'
@@ -30,8 +30,6 @@ Use empty destination directories for a fresh reproduction. Do not overlay a new
 
 ```powershell
 $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
-& $sevenZip x build/deps/downloads/renode-1.16.1.windows-portable-dotnet.zip '-obuild/deps/renode' -y
-if ($LASTEXITCODE -ne 0) { throw 'Renode extraction failed' }
 & $sevenZip x build/deps/downloads/ngspice-47_dll_64.7z '-obuild/deps/ngspice' -y
 if ($LASTEXITCODE -ne 0) { throw 'ngspice DLL extraction failed' }
 & $sevenZip x build/deps/downloads/ngspice-47_64.7z '-obuild/deps/ngspice-console' -y
@@ -43,7 +41,7 @@ python tools/check_backend_assets.py
 if ($LASTEXITCODE -ne 0) { throw 'Extracted-file verification failed' }
 ```
 
-Expected: 14 checked files, zero failures. The checker neither loads binaries nor downloads anything. It checks the listed files, not every extracted transitive dependency; keep the full packages unmodified. `--root` supports an alternative dependency directory with the same relative layout.
+Expected: 9 checked files, zero failures. The checker neither loads binaries nor downloads anything. It checks the listed files, not every extracted transitive dependency; keep the full packages unmodified. `--root` supports an alternative dependency directory with the same relative layout.
 
 ## Run the C++ ngspice probe
 
@@ -68,32 +66,13 @@ The third argument must contain the exact owned one-line `spinit`. Before loadin
 
 For failure checks, pass a missing DLL, an existing empty directory instead of the audio directory, or a directory with a different `spinit`; each must exit nonzero. A harmless `.spiceinit` containing `echo UNEXPECTED_USER_INIT_LOADED` in the working directory must not appear in the normal probe output. Run native probes in a child process with a timeout when automating them; the DLL can crash its host.
 
-## Check Renode startup
+## Renode (removed)
 
-```powershell
-$renode = 'build/deps/renode/renode_1.16.1-dotnet_portable/Renode.exe'
-& $renode --version
-if ($LASTEXITCODE -ne 0) { throw 'Renode version check failed' }
-& $renode --disable-xwt --console --plain --execute 'quit'
-if ($LASTEXITCODE -ne 0) { throw 'Renode startup check failed' }
-```
-
-Expected: `v1.16.1.19220`, build `d66b0c2a-202602161036`, bundled .NET `8.0.10`, then a successful headless quit. Renode creates its normal per-user configuration directory; a restricted runner may need permission for that write. This check opens no control/debugger port and loads no firmware or platform.
-
-## Reproduce the known native client build failure
-
-The client source is already in the Renode package. This is a **diagnostic command expected to fail**, not an installation step that has succeeded:
-
-```powershell
-cmake -S build/deps/renode/renode_1.16.1-dotnet_portable/tools/external_control_client/lib `
-    -B build/sn010-renode-client -G 'Visual Studio 18 2026' -A x64 `
-    '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
-cmake --build build/sn010-renode-client --config Debug
-```
-
-CMake 4 needs the policy minimum override for this old upstream project. With it, the unchanged client configures but fails with D8021 for `/Werror`. Source also includes POSIX sockets/`unistd.h` and GCC-specific constructs. [SN-019](../experiments/SN-019-results.md) now provides a tested native adaptation while preserving the protocol. Follow its [reproduction recipe](../../tests/experiments/renode-client/README.md), not this expected-failure command, for the working experiment.
-
-The original external-control server binds all IPv4 interfaces. Do not start it as a shortcut: use SN-019's explicitly generated loopback extension and endpoint/PID check. It also supplies isolated configuration and temporary directories for the selected runtime.
+SN-010 also checked the Renode 1.16.1 portable package and reproduced the
+native client build failure with MSVC. Renode was removed from SimNodus by
+[ADR 0094](../decisions/0094-remove-renode.md) and from the pinned manifest;
+those steps and their results remain in the [SN-010 report](../experiments/SN-010-results.md)
+and [SN-019](../experiments/SN-019-results.md).
 
 ## Firmware tools and next experiments
 

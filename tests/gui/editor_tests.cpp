@@ -432,8 +432,8 @@ private slots:
 
     void blue_pill_example_runs_its_firmware_and_resets()
     {
-#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
-        QSKIP("No ngspice or Renode configured for this build.");
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
 #else
         QStringList errors;
         QStringList warnings;
@@ -457,7 +457,7 @@ private slots:
 
         window_->run();
         QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
-        // Renode starts first; then the pins appear on the board.
+        // The board starts first; then the pins appear on it.
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
                 && window_->scene()->live().mcu_pins.count(board)
                 && window_->scene()->live().mcu_pins.at(board).at("PC13").mode == mcu::PinMode::Output,
@@ -492,8 +492,8 @@ private slots:
 
     void blue_pill_button_triggers_the_interrupt()
     {
-#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
-        QSKIP("No ngspice or Renode configured for this build.");
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
 #else
         QStringList errors;
         QStringList warnings;
@@ -534,8 +534,8 @@ private slots:
 
     void uart_terminal_talks_to_the_firmware()
     {
-#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
-        QSKIP("No ngspice or Renode configured for this build.");
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
 #else
         QStringList errors;
         QStringList warnings;
@@ -558,10 +558,8 @@ private slots:
         QVERIFY(terminal->ports()->currentText().contains(QStringLiteral("USART1")));
         QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Blue Pill ready")), 150000);
         QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("tick 1")), 10000);
-        // Time stamps: "tick 1" is printed at about 1 s of simulated time (0.999875 s in
-        // Renode, whose SysTick runs 125 ppm fast; 1.000021 s in the SimNodus emulator).
-        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[0.99"))
-            || terminal->output()->toPlainText().contains(QStringLiteral("[1.00")));
+        // Time stamps: "tick 1" is printed at about 1 s of simulated time (1.000021 s).
+        QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral("[1.00")));
         QVERIFY(terminal->output()->toPlainText().contains(QStringLiteral(" s] tick 1")));
         QVERIFY(led_current() < 1e-4);
         terminal->input()->setText(QStringLiteral("1"));
@@ -576,8 +574,8 @@ private slots:
 
     void logic_lanes_show_the_pins_that_change()
     {
-#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY) || !defined(SIMNODUS_TEST_RENODE)
-        QSKIP("No ngspice or Renode configured for this build.");
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
 #else
         QStringList errors;
         QStringList warnings;

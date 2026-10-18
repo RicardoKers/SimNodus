@@ -55,12 +55,7 @@ public:
     const std::vector<netlist::Diagnostic>& diagnostics() const { return session_->diagnostics(); }
 
     void set_speed(double speed);
-    // Microcontroller engine for the next run: "native" (SimNodus's own
-    // emulator), "renode" (legacy) or empty for each board's default (native).
-    // The environment variable SIMNODUS_MCU_ENGINE, when set, takes precedence.
-    void set_mcu_engine(const std::string& engine) { mcu_engine_ = engine; }
     void set_gdb_port(int port) { gdb_port_ = port; } // -1: no debugging
-    const std::string& mcu_engine() const { return mcu_engine_; }
     void set_control(model::Id component, double value);
     // The reset button of a microcontroller board.
     void mcu_reset(model::Id component);
@@ -130,7 +125,6 @@ private:
     std::vector<Channel> channels_;
     std::map<model::Id, std::string> readout_vectors_; // component -> current vector
     sim::RunState last_state_ = sim::RunState::Idle;
-    std::string mcu_engine_;
     int gdb_port_ = -1;
 };
 

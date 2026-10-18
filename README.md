@@ -5,16 +5,16 @@
 SimNodus is an open-source (MIT) educational desktop simulator that combines
 analog circuits, digital logic and real microcontroller firmware in one
 continuously running, interactive simulation. Its first target is the
-STM32F103C8/Blue Pill, using Renode for the microcontroller, ngspice for the
-circuit and a Qt 6 interface.
+STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
+microcontroller, ngspice for the circuit and a Qt 6 interface.
 
 **Status (2026-10-14): release 0.1.0 — analog interactive editor.** Draw
 circuits from 20 component types, run them continuously while clicking
 switches, holding push buttons and turning potentiometers, and watch the
 signals in the Signal Analyzer. Download the portable Windows zip from the
 [releases](https://github.com/RicardoKers/SimNodus/releases) and see the
-[quick start](docs/user/QUICK_START.md). The STM32/Blue Pill microcontroller
-(Renode) arrives in release 0.2; see the [roadmap](docs/planning/ROADMAP.md). Build instructions:
+[quick start](docs/user/QUICK_START.md). Release 0.2.0 (2026-10-18) adds the
+STM32/Blue Pill microcontroller; see the [roadmap](docs/planning/ROADMAP.md). Build instructions:
 [getting started](docs/development/GETTING_STARTED.md).
 
 ## Start here
@@ -38,7 +38,7 @@ signals in the Signal Analyzer. Download the portable Windows zip from the
 |  (tree,    |  press buttons, turn pots,    |  values,   | --> |  scope, logic,   |
 |  preview)  |  LEDs and meters react live   |  live V/I  |     |  UART, cursors   |
 +------------+-------------------------------+------------+     +------------------+
-                 ngspice (analog)  <-- lockstep -->  Renode (STM32 firmware)
+                 ngspice (analog)  <-- lockstep -->  own emulator (STM32 firmware)
 ```
 
 ## Repository layout

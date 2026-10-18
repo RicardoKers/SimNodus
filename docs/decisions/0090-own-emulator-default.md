@@ -1,7 +1,8 @@
 # ADR 0090: The own emulator is the default engine; Renode is frozen
 
 Date: 2026-10-16. Status: accepted (decisions D1 and D2 of the
-[emulator plan](../planning/MCU_EMULATOR_PLAN.md), owner).
+[emulator plan](../planning/MCU_EMULATOR_PLAN.md), owner); the Renode legacy
+engine is superseded by [ADR 0094](0094-remove-renode.md).
 
 ## Context
 
