@@ -334,6 +334,18 @@ ComponentDefinition parse_definition(const json& j)
         if (!interactive.parameter.empty() && !d.parameter(interactive.parameter)) {
             invalid("interactive.parameter is not a parameter");
         }
+        if (i.contains("wiper")) {
+            const auto& w = i["wiper"];
+            const auto track = numbers(w.value("track", json()), 4, "interactive.wiper.track");
+            if (track.size() != 4) {
+                invalid("interactive.wiper.track needs four numbers");
+            }
+            Interactive::Wiper wiper{{track[0], track[1]}, {track[2], track[3]}, text(w, "pin", true)};
+            if (!d.pin(wiper.pin)) {
+                invalid("interactive.wiper.pin is not a pin");
+            }
+            interactive.wiper = wiper;
+        }
         d.interactive = interactive;
     }
     if (j.contains("readout") && !j["readout"].is_null()) {

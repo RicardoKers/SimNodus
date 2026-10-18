@@ -24,7 +24,12 @@ struct SymbolStyle {
     QString state;             // control state graphics to draw ("0", "1"), empty = none
     QColor glow;               // LED glow (transparent = off)
     bool draw_pins = false;    // small pin markers (preview, placement)
+    double wiper = 0.5;        // potentiometer position, 0..1 (UI-18)
 };
+
+// Tip of a potentiometer's wiper arrow at `position` (0..1), in grid units; the
+// definition must have an interactive wiper.
+QPointF wiper_tip(const library::ComponentDefinition& definition, double position);
 
 void paint_symbol(QPainter& painter, const library::ComponentDefinition& definition, const SymbolStyle& style);
 

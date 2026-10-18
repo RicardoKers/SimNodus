@@ -195,6 +195,18 @@ private slots:
         QVERIFY(!edit->toolTip().isEmpty());
     }
 
+    void potentiometer_shows_its_position()
+    {
+        const model::Id rv = place("potentiometer", {0, 0});
+        auto* item = window_->scene()->item_of(rv);
+        QVERIFY(item);
+        const QRectF at_half = item->boundingRect(); // "50 %" left of the body
+        doc().apply(editing::set_parameter(doc().schematic(), rv, "position", "100"));
+        const QRectF at_full = item->boundingRect(); // "100 %", wider and lower
+        QVERIFY(at_full.left() < at_half.left());
+        QVERIFY(at_full.bottom() >= at_half.bottom());
+    }
+
     void model_list_offers_built_in_and_folder_models()
     {
         // A models folder with a user's NPN (and a line that is not a model).

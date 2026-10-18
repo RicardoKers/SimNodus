@@ -77,6 +77,13 @@ void paint_graphic(QPainter& painter, const Graphic& g, const SymbolStyle& style
 
 } // namespace
 
+QPointF wiper_tip(const library::ComponentDefinition& definition, double position)
+{
+    const auto& wiper = *definition.interactive->wiper;
+    const double t = std::clamp(position, 0.0, 1.0);
+    return {wiper.start.x + t * (wiper.end.x - wiper.start.x), wiper.start.y + t * (wiper.end.y - wiper.start.y)};
+}
+
 void paint_symbol(QPainter& painter, const library::ComponentDefinition& definition, const SymbolStyle& style)
 {
     painter.save();
@@ -95,6 +102,24 @@ void paint_symbol(QPainter& painter, const library::ComponentDefinition& definit
                 paint_graphic(painter, g, style, false);
             }
         }
+    }
+    if (definition.interactive && definition.interactive->wiper) {
+        // Wiper (UI-18): from the pin across to the track, then an arrow onto the body.
+        const auto& w = *definition.interactive->wiper;
+        const auto* pin = definition.pin(w.pin);
+        const QPointF tip = wiper_tip(definition, style.wiper);
+        if (pin) {
+            const QPointF from(pin->at.x, pin->at.y);
+            // The bend stays next to the body, clear of the designator and value texts.
+            const double base = tip.x() + 0.7;
+            const double turn = base + 0.2;
+            painter.setPen(QPen(style.ink, style.line_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter.setBrush(Qt::NoBrush);
+            painter.drawPolyline(QPolygonF{from, QPointF(turn, from.y()), QPointF(turn, tip.y()), QPointF(base, tip.y())});
+        }
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(style.ink);
+        painter.drawPolygon(QPolygonF{tip, QPointF(tip.x() + 0.7, tip.y() - 0.4), QPointF(tip.x() + 0.7, tip.y() + 0.4)});
     }
     if (style.draw_pins) {
         painter.setPen(Qt::NoPen);

@@ -29,25 +29,6 @@
           0,
           3
         ]
-      },
-      {
-        "line": [
-          3,
-          0,
-          0.9,
-          0
-        ]
-      },
-      {
-        "polygon": [
-          0.7,
-          0,
-          1.4,
-          -0.4,
-          1.4,
-          0.4
-        ],
-        "fill": true
       }
     ],
     "pins": [
@@ -99,7 +80,16 @@
   ],
   "interactive": {
     "kind": "potentiometer",
-    "parameter": "position"
+    "parameter": "position",
+    "wiper": {
+      "track": [
+        0.7,
+        -1.5,
+        0.7,
+        1.5
+      ],
+      "pin": "W"
+    }
   },
   "spice": [
     "B_a_{ref} {node:1} {node:W} I=V({node:1},{node:W})/({R}*max(V({control}),0.001))",

@@ -188,6 +188,9 @@ public:
                 r = r.united(text_rect(value, text_offset(true)));
             }
             r = r.united(readout_rect());
+            if (const QRectF w = wiper_text_rect(); !w.isNull()) {
+                r = r.united(w);
+            }
         }
         return r.adjusted(-2, -2, 2, 2);
     }
@@ -213,6 +216,61 @@ public:
         const QRectF symbol = symbol_rect();
         const QSizeF size(metrics.horizontalAdvance(it->second) + 8, metrics.height() + 4);
         return QRectF(QPointF(symbol.center().x() - size.width() / 2, symbol.bottom() + 3), size);
+    }
+
+    // Potentiometer position 0..1 (UI-18): the live control while running, else
+    // the position parameter; nullopt for parts without a wiper.
+    std::optional<double> wiper_position() const
+    {
+        if (!definition_ || !definition_->interactive || !definition_->interactive->wiper) {
+            return std::nullopt;
+        }
+        const auto& live = scene_.live();
+        if (live.running) {
+            if (const auto it = live.controls.find(component_.id); it != live.controls.end()) {
+                return std::clamp(it->second, 0.0, 1.0);
+            }
+        }
+        const auto* p = definition_->parameter(definition_->interactive->parameter);
+        if (!p) {
+            return 0.5;
+        }
+        const auto it = component_.parameters.find(p->name);
+        const auto value = model::parse_engineering(it == component_.parameters.end() ? p->default_value : it->second, p->unit);
+        return std::clamp(value.value_or(50.0) / 100.0, 0.0, 1.0);
+    }
+
+    // Percentage next to the wiper, upright whatever the symbol's orientation.
+    QRectF wiper_text_rect(QString* text = nullptr) const
+    {
+        const auto position = wiper_position();
+        if (!position) {
+            return {};
+        }
+        const QString label = QStringLiteral("%1 %").arg(qRound(*position * 100));
+        if (text) {
+            *text = label;
+        }
+        const auto& w = *definition_->interactive->wiper;
+        const QPointF tip = wiper_tip(*definition_, *position);
+        // Opposite the wiper pin, a little away from the body.
+        const auto* pin = definition_->pin(w.pin);
+        const double side = pin && pin->at.x > tip.x() ? -1.0 : 1.0;
+        QTransform t;
+        t.scale(scene_grid, scene_grid);
+        t.rotate(component_.orientation.rotation);
+        t.scale(component_.orientation.mirrored ? -1 : 1, 1);
+        const QPointF anchor = t.map(QPointF(tip.x() + side * 1.6, tip.y()));
+        const QFontMetricsF metrics(schematic_font());
+        const QSizeF size(metrics.horizontalAdvance(label) + 2, metrics.height());
+        const QPointF outward = anchor - t.map(QPointF(tip.x(), tip.y()));
+        const double left = outward.x() < -0.1 ? anchor.x() - size.width()
+            : outward.x() > 0.1                ? anchor.x()
+                                               : anchor.x() - size.width() / 2;
+        const double top = outward.y() < -0.1 ? anchor.y() - size.height()
+            : outward.y() > 0.1               ? anchor.y()
+                                              : anchor.y() - size.height() / 2;
+        return QRectF(QPointF(left, top), size);
     }
 
     QString state_key() const
@@ -251,6 +309,7 @@ public:
         style.line_width = line_width / scene_grid;
         style.state = state_key();
         style.draw_pins = ghost_;
+        style.wiper = wiper_position().value_or(0.5);
         const auto& live = scene_.live();
         if (live.running) {
             if (const auto it = live.glow.find(component_.id); it != live.glow.end()) {
@@ -297,6 +356,11 @@ public:
         if (!value.isEmpty()) {
             painter->setPen(isSelected() ? theme::selection : theme::muted_text);
             painter->drawText(text_rect(value, text_offset(true)), Qt::AlignLeft | Qt::AlignVCenter, value);
+        }
+        QString position;
+        if (const QRectF r = wiper_text_rect(&position); !position.isEmpty()) {
+            painter->setPen(isSelected() ? theme::selection : theme::muted_text);
+            painter->drawText(r, Qt::AlignCenter, position);
         }
         const QRectF readout = readout_rect();
         if (!readout.isNull()) {
