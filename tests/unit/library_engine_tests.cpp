@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 
 using namespace simnodus;
 
@@ -301,6 +302,49 @@ TEST_CASE("library: component set B behaves like its parts")
         supply(b, "VM", "6");
         b.add("dcmotor", {{"+", "VM"}, {"-", "0"}}, {{"V", "6"}, {"rpm", "6000"}, {"Istall", "2"}, {"Inoload", "100m"}});
         CHECK(close_to(op(b, "w_m1") * 9.5492966, 6000 * (1 - 0.1 / 2), 60));
+    }
+    for (const char* vdd : {"5", "3.3"}) { // logic gates: truth tables, output loaded by 10 kohm
+        const double high = std::atof(vdd);
+        const std::vector<std::pair<const char*, int>> gates{
+            {"and_gate", 0b1000}, {"nand_gate", 0b0111}, {"or_gate", 0b1110}, {"nor_gate", 0b0001}, {"xor_gate", 0b0110}};
+        for (const auto& [gate, table] : gates) {
+            for (int inputs = 0; inputs < 4; ++inputs) {
+                test::CircuitBuilder b(components());
+                supply(b, "A", inputs & 1 ? vdd : "0");
+                supply(b, "B", inputs & 2 ? vdd : "0");
+                b.add(gate, {{"A", "A"}, {"B", "B"}, {"Y", "Y"}}, {{"VDD", vdd}});
+                b.add("resistor", {{"1", "Y"}, {"2", "0"}}, {{"R", "10k"}});
+                const double expected = (table >> inputs) & 1 ? high : 0.0;
+                if (!close_to(op(b, "y"), expected, 0.05)) {
+                    std::printf("  %s at VDD %s, inputs %d\n", gate, vdd, inputs);
+                    CHECK(false);
+                }
+            }
+        }
+        for (const bool in : {false, true}) {
+            test::CircuitBuilder b(components());
+            supply(b, "A", in ? vdd : "0");
+            b.add("not_gate", {{"A", "A"}, {"Y", "Y"}}, {{"VDD", vdd}});
+            CHECK(close_to(op(b, "y"), in ? 0.0 : high, 0.01));
+        }
+    }
+    { // three inverters in a ring oscillate through the gate delay
+        test::CircuitBuilder b(components());
+        b.add("not_gate", {{"A", "N1"}, {"Y", "N2"}});
+        b.add("not_gate", {{"A", "N2"}, {"Y", "N3"}});
+        b.add("not_gate", {{"A", "N3"}, {"Y", "N1"}});
+        b.add("resistor", {{"1", "N1"}, {"2", "0"}}, {{"R", "1meg"}}); // the circuit's ground reference
+        const auto r = simulate(b, ".tran 1n 1u 0 1n uic", {"time", "n1"});
+        REQUIRE(r.count("n1") && r.count("time") && !r.at("n1").empty());
+        int edges = 0;
+        bool high = r.at("n1").front() > 2.5;
+        for (const double v : r.at("n1")) {
+            if ((v > 2.5) != high) {
+                high = !high;
+                ++edges;
+            }
+        }
+        CHECK(edges > 10); // about 15 MHz from 3 x 10 ns stages
     }
     { // transformer 10:1 with a 10 V, 50 Hz primary: about 1 V on the secondary
         test::CircuitBuilder b(components());

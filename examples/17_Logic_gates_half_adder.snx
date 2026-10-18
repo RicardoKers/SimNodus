@@ -1,0 +1,512 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 38,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "spst",
+      "designator": "SW1",
+      "at": [
+        7,
+        -12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 7,
+      "type": "spst",
+      "designator": "SW2",
+      "at": [
+        7,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 8,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        12,
+        -9
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 9,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        12,
+        -4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        12,
+        3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 12,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        12,
+        8
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 18,
+      "type": "xor_gate",
+      "designator": "U1",
+      "at": [
+        24,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "VDD": "5"
+      }
+    },
+    {
+      "id": 19,
+      "type": "and_gate",
+      "designator": "U2",
+      "at": [
+        24,
+        8
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "VDD": "5"
+      }
+    },
+    {
+      "id": 21,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        32,
+        -7
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 22,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        32,
+        -1
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 23,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        32,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 26,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        40,
+        11
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 27,
+      "type": "led",
+      "designator": "LED2",
+      "at": [
+        40,
+        17
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 28,
+      "type": "ground",
+      "designator": "GND5",
+      "at": [
+        40,
+        22
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -12
+        ],
+        [
+          4,
+          -12
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          2,
+          -12
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          12,
+          -6
+        ],
+        [
+          12,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          8
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          10,
+          -12
+        ],
+        [
+          17,
+          -12
+        ],
+        [
+          17,
+          7
+        ],
+        [
+          20,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          17,
+          -11
+        ],
+        [
+          20,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          0
+        ],
+        [
+          15,
+          9
+        ],
+        [
+          20,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          15,
+          0
+        ],
+        [
+          15,
+          -9
+        ],
+        [
+          20,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          28,
+          -10
+        ],
+        [
+          32,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          32,
+          2
+        ],
+        [
+          32,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          28,
+          8
+        ],
+        [
+          40,
+          8
+        ]
+      ]
+    },
+    {
+      "id": 29,
+      "points": [
+        [
+          40,
+          20
+        ],
+        [
+          40,
+          22
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 30,
+      "at": [
+        17,
+        -6
+      ],
+      "name": "A"
+    },
+    {
+      "id": 31,
+      "at": [
+        15,
+        -4
+      ],
+      "name": "B"
+    },
+    {
+      "id": 32,
+      "at": [
+        31,
+        -10
+      ],
+      "name": "SUM"
+    },
+    {
+      "id": 33,
+      "at": [
+        36,
+        8
+      ],
+      "name": "CARRY"
+    }
+  ],
+  "probes": [
+    {
+      "id": 34,
+      "kind": "voltage",
+      "target": {
+        "item": 14,
+        "at": [
+          17,
+          0
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 35,
+      "kind": "voltage",
+      "target": {
+        "item": 16,
+        "at": [
+          15,
+          6
+        ]
+      },
+      "color": "#ff7f0e"
+    },
+    {
+      "id": 36,
+      "kind": "voltage",
+      "target": {
+        "item": 20,
+        "at": [
+          29,
+          -10
+        ]
+      },
+      "color": "#d62728"
+    },
+    {
+      "id": 37,
+      "kind": "voltage",
+      "target": {
+        "item": 25,
+        "at": [
+          31,
+          8
+        ]
+      },
+      "color": "#2ca02c"
+    }
+  ]
+}

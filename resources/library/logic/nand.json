@@ -1,0 +1,118 @@
+{
+  "type": "nand_gate",
+  "name": "NAND gate",
+  "category": "Logic gates",
+  "prefix": "U",
+  "description": "Behavioral NAND gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current",
+  "symbol": {
+    "graphics": [
+      {
+        "polyline": [
+          0,
+          -2,
+          -2,
+          -2,
+          -2,
+          2,
+          0,
+          2
+        ]
+      },
+      {
+        "arc": [
+          0,
+          0,
+          2,
+          90,
+          -180
+        ]
+      },
+      {
+        "line": [
+          -4,
+          -1,
+          -2,
+          -1
+        ]
+      },
+      {
+        "line": [
+          -4,
+          1,
+          -2,
+          1
+        ]
+      },
+      {
+        "circle": [
+          2.4,
+          0,
+          0.4
+        ]
+      },
+      {
+        "line": [
+          2.8,
+          0,
+          4,
+          0
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -4,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B",
+        "at": [
+          -4,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Y",
+        "at": [
+          4,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -2,
+    -3
+  ],
+  "value_offset": [
+    -2,
+    3
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref} x_{ref} 0 V={VDD}*(1-(0.5*(1+tanh({= 40 / VDD}*(V({node:A})-{= VDD / 2}))))*(0.5*(1+tanh({= 40 / VDD}*(V({node:B})-{= VDD / 2})))))",
+    "R_{ref}_d x_{ref} y_{ref} 1k",
+    "C_{ref}_d y_{ref} 0 10p",
+    "B_{ref}_o z_{ref} 0 V=V(y_{ref})",
+    "R_{ref}_o z_{ref} {node:Y} 50",
+    "R_{ref}_a {node:A} 0 1G",
+    "R_{ref}_b {node:B} 0 1G"
+  ]
+}
