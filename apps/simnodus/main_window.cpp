@@ -155,6 +155,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(view_, &SchematicView::control_changed, run_, &RunController::set_control);
     connect(view_, &SchematicView::mcu_reset_requested, run_, &RunController::mcu_reset);
     connect(view_, &SchematicView::label_name_needed, this, [this](model::Point at) { ask_label_name(at.x, at.y); });
+    connect(view_, &SchematicView::note_text_needed, this, &MainWindow::ask_note_text);
     connect(scene_, &QGraphicsScene::selectionChanged, this, [this] {
         properties_->set_selection(scene_->selected_ids());
         properties_->set_live_text(run_->live_text(scene_->selected_ids()));
@@ -345,6 +346,9 @@ void MainWindow::build_actions_and_menus()
     wire->setShortcut(QKeySequence(Qt::Key_W));
     placement->addAction(tr("&Net Label"), this, [this] { view_->set_tool(Tool::Label); })->setShortcut(QKeySequence(Qt::Key_N));
     placement->addAction(tr("&Ground"), this, place("ground"))->setShortcut(QKeySequence(Qt::Key_G));
+    auto* note = placement->addAction(tr("&Text Note"), this, [this] { view_->set_tool(Tool::Note); });
+    note->setShortcut(QKeySequence(Qt::Key_T));
+    note->setStatusTip(tr("Free text on the schematic, such as instructions for the simulation"));
     auto* probe = placement->addAction(tr("P&robe"), this, [this] { view_->set_tool(Tool::Probe); });
     probe->setShortcut(QKeySequence(Qt::Key_P));
     placement->addSeparator();
@@ -733,6 +737,27 @@ void MainWindow::ask_label_name(int x, int y)
     }
     last_label_ = name.trimmed();
     document_->apply(editing::add_label(document_->id_source(), {x, y}, last_label_.toStdString()));
+}
+
+void MainWindow::ask_note_text(model::Point at, model::Id note)
+{
+    const auto* existing = document_->schematic().note(note);
+    bool ok = false;
+    const QString text = QInputDialog::getMultiLineText(this, existing ? tr("Edit text note") : tr("Text note"),
+        tr("Text (an empty text deletes the note):"),
+        existing ? QString::fromStdString(existing->text) : QString(), &ok);
+    if (!ok || !allow_structure_edit()) {
+        return;
+    }
+    const std::string value = text.trimmed().isEmpty() ? std::string() : text.toStdString();
+    if (existing) {
+        document_->apply(editing::set_note_text(document_->schematic(), note, value));
+    } else if (!value.empty()) {
+        model::Id created = model::no_id;
+        document_->apply(editing::add_note(document_->id_source(), at, value, &created));
+        scene_->select_ids({created});
+        view_->set_tool(Tool::Select);
+    }
 }
 
 bool MainWindow::engine_check_running() const

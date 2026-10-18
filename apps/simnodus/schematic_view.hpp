@@ -28,7 +28,7 @@ namespace simnodus::ui {
 
 class SchematicScene;
 
-enum class Tool { Select, Place, Wire, Label, Probe };
+enum class Tool { Select, Place, Wire, Label, Probe, Note };
 
 class SchematicView : public QGraphicsView {
     Q_OBJECT
@@ -87,6 +87,8 @@ signals:
     // The reset button of a microcontroller board was clicked while running.
     void mcu_reset_requested(model::Id component);
     void label_name_needed(model::Point at);
+    // Text of a new note at `at` (note = no_id) or of an existing note (UI-17).
+    void note_text_needed(model::Point at, model::Id note);
 
 protected:
     void drawBackground(QPainter* painter, const QRectF& rect) override;

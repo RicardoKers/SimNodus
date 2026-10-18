@@ -133,6 +133,7 @@ private:
     void rebuild_recent_menu();
     void rebuild_examples_menu();
     void ask_label_name(int x, int y);
+    void ask_note_text(model::Point at, model::Id note);
     void report_diagnostics();
 
     QSettings& settings_;

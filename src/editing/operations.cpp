@@ -107,6 +107,8 @@ std::vector<Point> selection_points(const Schematic& s, const library::Component
             result.insert(result.end(), w->points.begin(), w->points.end());
         } else if (const auto* l = s.label(id)) {
             result.push_back(l->position);
+        } else if (const auto* n = s.note(id)) {
+            result.push_back(n->position);
         }
     }
     return result;
@@ -154,6 +156,10 @@ Edit transform_items(const Schematic& schematic, const library::ComponentLibrary
         } else if (const auto* l = schematic.label(id)) {
             NetLabel updated = *l;
             updated.position = map_point(l->position);
+            work.put(updated);
+        } else if (const auto* n = schematic.note(id)) {
+            TextNote updated = *n;
+            updated.position = map_point(n->position);
             work.put(updated);
         }
     }
@@ -238,6 +244,37 @@ Edit add_label(Schematic& schematic, Point position, const std::string& name, Id
         *created = l.id;
     }
     return make_edit(schematic, work, "Place net label " + name);
+}
+
+Edit add_note(Schematic& schematic, Point position, const std::string& text, Id* created)
+{
+    if (text.find_first_not_of(" \t\r\n") == std::string::npos) {
+        return {};
+    }
+    Schematic work = schematic;
+    TextNote n{schematic.allocate_id(), position, text};
+    work.put(n);
+    if (created) {
+        *created = n.id;
+    }
+    return make_edit(schematic, work, "Place text note");
+}
+
+Edit set_note_text(const Schematic& schematic, Id note, const std::string& text)
+{
+    const auto* n = schematic.note(note);
+    if (!n || n->text == text) {
+        return {};
+    }
+    Schematic work = schematic;
+    if (text.find_first_not_of(" \t\r\n") == std::string::npos) {
+        work.erase(note);
+        return make_edit(schematic, work, "Delete text note");
+    }
+    TextNote updated = *n;
+    updated.text = text;
+    work.put(updated);
+    return make_edit(schematic, work, "Edit text note");
 }
 
 Edit add_probe(Schematic& schematic, const Probe& probe, Id* created)
@@ -401,7 +438,7 @@ Edit paste_items(Schematic& schematic, const library::ComponentLibrary& library,
                     for (auto& p : item.points) {
                         p = p + offset;
                     }
-                } else if constexpr (std::is_same_v<T, NetLabel>) {
+                } else if constexpr (std::is_same_v<T, NetLabel> || std::is_same_v<T, TextNote>) {
                     item.position = item.position + offset;
                 } else {
                     // Probes follow their pasted targets; others keep pointing at the original.

@@ -52,6 +52,7 @@ canvas* action (`F11`) hides all panels temporarily and restores them.
 | Wire | `W` or toolbar; click pin/wire/empty point to start; each click adds an orthogonal bend; `Space` toggles horizontal/vertical first; click a pin or wire to finish; double-click ends at an open point; `Esc` cancels |
 | Junctions | Automatic dot when three or more connections meet; T connection when a wire ends on another wire; red circle on unconnected pin/wire ends |
 | Labels | Net label tool (`N`); same name means same net; ground symbol is net `0` |
+| Text notes | Text note tool (`T`): click where the text starts and type it (several lines); double-click a note or use Properties to edit it; an empty text deletes it; notes move, copy and undo like other elements and never change the circuit (UI-17) |
 | Edit value | Double-click a component opens its value field in Properties; double-click its value text edits it in place |
 | Zoom/pan | Wheel at cursor; middle-drag or Space+drag; `F` or Home fits the circuit |
 | Probe | `P` or toolbar; click net = voltage probe, click component terminal = current probe; Alt+click second net = differential voltage |
@@ -122,7 +123,7 @@ menus so the list stays current, plus the canvas keys and mouse gestures.
 | `Ctrl+Z` / `Ctrl+Y` | Undo / Redo |
 | `Ctrl+X` / `Ctrl+C` / `Ctrl+V` / `Del` | Cut / Copy / Paste / Delete |
 | `Ctrl+R` / `Ctrl+E` | Rotate / Mirror |
-| `W` / `N` / `G` / `P` | Wire / Net label / Ground / Probe |
+| `W` / `N` / `G` / `P` / `T` | Wire / Net label / Ground / Probe / Text note |
 | `R` / `C` / `L` / `D` | Quick place resistor / capacitor / inductor / diode |
 | `F` or `Home` | Fit circuit |
 | `F5` / `F6` / `Shift+F5` | Run / Pause-resume / Stop |

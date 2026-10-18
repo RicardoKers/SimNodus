@@ -61,6 +61,9 @@ void Schematic::set_next_id(Id next)
     for (const auto& p : probes_) {
         highest = std::max(highest, p.id);
     }
+    for (const auto& n : notes_) {
+        highest = std::max(highest, n.id);
+    }
     next_id_ = std::max({next, highest + 1, next_id_});
 }
 
@@ -82,6 +85,11 @@ const NetLabel* Schematic::label(Id id) const
 const Probe* Schematic::probe(Id id) const
 {
     return find(probes_, id);
+}
+
+const TextNote* Schematic::note(Id id) const
+{
+    return find(notes_, id);
 }
 
 const Component* Schematic::component_by_designator(const std::string& designator) const
@@ -108,6 +116,9 @@ std::optional<Element> Schematic::get(Id id) const
     if (const auto* p = probe(id)) {
         return *p;
     }
+    if (const auto* n = note(id)) {
+        return *n;
+    }
     return std::nullopt;
 }
 
@@ -130,14 +141,19 @@ void Schematic::put(const Element& element)
             if constexpr (!std::is_same_v<T, Probe>) {
                 erase_id(probes_, id);
             }
+            if constexpr (!std::is_same_v<T, TextNote>) {
+                erase_id(notes_, id);
+            }
             if constexpr (std::is_same_v<T, Component>) {
                 put_sorted(components_, e);
             } else if constexpr (std::is_same_v<T, Wire>) {
                 put_sorted(wires_, e);
             } else if constexpr (std::is_same_v<T, NetLabel>) {
                 put_sorted(labels_, e);
-            } else {
+            } else if constexpr (std::is_same_v<T, Probe>) {
                 put_sorted(probes_, e);
+            } else {
+                put_sorted(notes_, e);
             }
         },
         element);
@@ -148,12 +164,13 @@ void Schematic::put(const Element& element)
 
 void Schematic::erase(Id id)
 {
-    erase_id(components_, id) || erase_id(wires_, id) || erase_id(labels_, id) || erase_id(probes_, id);
+    erase_id(components_, id) || erase_id(wires_, id) || erase_id(labels_, id) || erase_id(probes_, id)
+        || erase_id(notes_, id);
 }
 
 bool Schematic::empty() const
 {
-    return components_.empty() && wires_.empty() && labels_.empty() && probes_.empty();
+    return components_.empty() && wires_.empty() && labels_.empty() && probes_.empty() && notes_.empty();
 }
 
 std::string next_designator(const Schematic& schematic, const std::string& prefix)

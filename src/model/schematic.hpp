@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// Schematic document (PRJ-01): components, wires, net labels, probes and
-// simulation settings. Every element has a stable 64-bit ID that survives
+// Schematic document (PRJ-01): components, wires, net labels, probes, text
+// notes and simulation settings. Every element has a stable 64-bit ID that survives
 // save/load, rename and undo; IDs are never reused within a document.
 // Labels such as designators are presentation, not identity.
 #pragma once
@@ -51,6 +51,16 @@ struct NetLabel {
     friend bool operator==(const NetLabel&, const NetLabel&) = default;
 };
 
+// Free text on the schematic (UI-17): instructions or explanations for the
+// reader. Presentation only, never part of the netlist.
+struct TextNote {
+    Id id = no_id;
+    Point position; // top-left corner of the text
+    std::string text; // may span several lines
+
+    friend bool operator==(const TextNote&, const TextNote&) = default;
+};
+
 // A connection point of the schematic: a component pin, or a point on a wire.
 struct Anchor {
     Id item = no_id;
@@ -92,7 +102,7 @@ struct SimulationSettings {
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };
 
-using Element = std::variant<Component, Wire, NetLabel, Probe>;
+using Element = std::variant<Component, Wire, NetLabel, Probe, TextNote>;
 
 Id element_id(const Element& element);
 
@@ -108,6 +118,7 @@ public:
     const std::vector<Wire>& wires() const { return wires_; }
     const std::vector<NetLabel>& labels() const { return labels_; }
     const std::vector<Probe>& probes() const { return probes_; }
+    const std::vector<TextNote>& notes() const { return notes_; }
     const SimulationSettings& settings() const { return settings_; }
     void set_settings(const SimulationSettings& settings) { settings_ = settings; }
 
@@ -115,6 +126,7 @@ public:
     const Wire* wire(Id id) const;
     const NetLabel* label(Id id) const;
     const Probe* probe(Id id) const;
+    const TextNote* note(Id id) const;
     const Component* component_by_designator(const std::string& designator) const;
 
     std::optional<Element> get(Id id) const;
@@ -132,6 +144,7 @@ private:
     std::vector<Wire> wires_;
     std::vector<NetLabel> labels_;
     std::vector<Probe> probes_;
+    std::vector<TextNote> notes_;
     SimulationSettings settings_;
 };
 

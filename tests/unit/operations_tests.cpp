@@ -163,6 +163,34 @@ TEST_CASE("delete, parameters and designators are undoable")
     CHECK(editing::set_parameter(s, 999, "R", "1").empty());
 }
 
+TEST_CASE("text notes are placed, edited, moved, pasted and deleted")
+{
+    const auto lib = test_library();
+    Schematic s;
+    CHECK(editing::add_note(s, {0, 0}, "  \n ").empty()); // blank: nothing to place
+    Id n = 0;
+    const auto placed = applied(s, editing::add_note(s, {2, -4}, "Close SW1.\nThen watch the LED.", &n));
+    REQUIRE(s.note(n) != nullptr);
+    CHECK(s.note(n)->text == "Close SW1.\nThen watch the LED.");
+    const auto changed = applied(s, editing::set_note_text(s, n, "Press the button."));
+    CHECK(s.note(n)->text == "Press the button.");
+    CHECK(editing::set_note_text(s, n, "Press the button.").empty()); // unchanged
+    applied(s, editing::move_items(s, lib, {n}, {3, 1}));
+    CHECK((s.note(n)->position == Point{5, -3}));
+    std::set<Id> created;
+    applied(s, editing::paste_items(s, lib, editing::copy_items(s, {n}), {0, 10}, &created));
+    REQUIRE(created.size() == 1);
+    CHECK((s.note(*created.begin())->position == Point{5, 7}));
+    const auto cleared = applied(s, editing::set_note_text(s, n, " "));
+    CHECK(s.note(n) == nullptr); // a blank text deletes the note
+    cleared.revert(s);
+    CHECK(s.note(n)->text == "Press the button.");
+    applied(s, editing::delete_items(s, {n}));
+    CHECK(s.notes().size() == 1);
+    (void)placed;
+    (void)changed;
+}
+
 TEST_CASE("copy and paste create new ids and designators")
 {
     const auto lib = test_library();

@@ -12,8 +12,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #150 (SN-192). Branch `remove-renode`:
-  Renode removed (SN-183, ADR 0094).
+- `main` has everything up to #151 (SN-183, Renode removed). Branch
+  `text-notes`: SN-193.
 - **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
   the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
   to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,
@@ -22,7 +22,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   steps); exact edges work with two boards again. SN-183: Renode removed
   (owner's decision 2026-10-18, ADR 0094): one microcontroller engine, the
   test suite runs in about 20 s instead of about 3 min, no Renode in the
-  package.
+  package. SN-193: text notes on the schematic (`T`).
 - **What 0.2 contains:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
     Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–16, continuous interactive
@@ -50,10 +50,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 1. Classroom feedback on 0.2 is postponed (depends on the academic
    calendar); fix what the owner reports when it arrives.
 2. Owner's order (2026-10-18): logic gates (SN-191), USART RX from the
-   circuit (SN-192) and Renode's removal (SN-183) done. Ask the owner which
-   block comes next. Installer, pt-BR and dark theme wait;
-   a zip is enough for the tests. New, not urgent: text notes (SN-193),
-   model variants (SN-194), potentiometer position (SN-195), buses (SN-196).
+   circuit (SN-192), Renode's removal (SN-183) and text notes (SN-193) done;
+   next model variants (SN-194), potentiometer position (SN-195), buses
+   (SN-196), in that order. Installer, pt-BR and dark theme wait; a zip is
+   enough for the tests.
 3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
 
 ## Known constraints

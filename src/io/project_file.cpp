@@ -97,6 +97,8 @@ json element_json(const Element& element)
                 return json{{"id", e.id}, {"points", points}};
             } else if constexpr (std::is_same_v<T, NetLabel>) {
                 return json{{"id", e.id}, {"at", point_json(e.position)}, {"name", e.name}};
+            } else if constexpr (std::is_same_v<T, TextNote>) {
+                return json{{"id", e.id}, {"at", point_json(e.position)}, {"text", e.text}};
             } else {
                 json j{{"id", e.id}, {"kind", e.kind == ProbeKind::Voltage ? "voltage" : "current"},
                     {"target", anchor_json(e.target)}, {"color", e.color}};
@@ -165,6 +167,15 @@ NetLabel label_from(const json& j)
         throw std::runtime_error("a net label needs a name");
     }
     return l;
+}
+
+TextNote note_from(const json& j)
+{
+    TextNote n;
+    n.id = id_from(j.value("id", json()), "note id");
+    n.position = point_from(j.value("at", json()), "note position");
+    n.text = string_from(j, "text");
+    return n;
 }
 
 Probe probe_from(const json& j)
@@ -264,6 +275,7 @@ std::vector<Element> read_elements(const json& root)
     each(root, "wires", [&](const json& j) { elements.emplace_back(wire_from(j)); });
     each(root, "labels", [&](const json& j) { elements.emplace_back(label_from(j)); });
     each(root, "probes", [&](const json& j) { elements.emplace_back(probe_from(j)); });
+    each(root, "notes", [&](const json& j) { elements.emplace_back(note_from(j)); });
     return elements;
 }
 
@@ -273,10 +285,12 @@ json write_elements(json root, const std::vector<Element>& elements)
     root["wires"] = json::array();
     root["labels"] = json::array();
     root["probes"] = json::array();
+    root["notes"] = json::array();
     for (const auto& e : elements) {
         const char* key = std::holds_alternative<Component>(e) ? "components"
             : std::holds_alternative<Wire>(e)                  ? "wires"
             : std::holds_alternative<NetLabel>(e)              ? "labels"
+            : std::holds_alternative<TextNote>(e)              ? "notes"
                                                                : "probes";
         root[key].push_back(element_json(e));
     }
@@ -297,6 +311,9 @@ std::vector<Element> all_elements(const Schematic& s)
     }
     for (const auto& p : s.probes()) {
         result.emplace_back(p);
+    }
+    for (const auto& n : s.notes()) {
+        result.emplace_back(n);
     }
     return result;
 }
