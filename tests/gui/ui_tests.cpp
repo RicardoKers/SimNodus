@@ -277,8 +277,11 @@ private slots:
         trace.unit = QStringLiteral("V");
         trace.color = Qt::blue;
         trace.per_division = 1.0;
-        scope.set_traces({trace});
-        scope.set_selected_trace(0);
+        ScopeTrace other = trace; // a second channel whose 0 V marker lies on top of the first
+        other.name = QStringLiteral("V(IN)");
+        other.color = Qt::red;
+        scope.set_traces({other, trace});
+        scope.set_selected_trace(1); // the selected channel's marker wins where they overlap
         QSignalSpy spy(&scope, &ScopeWidget::offset_changed);
         const QRectF plot = scope.plot_rect();
         const QPointF marker(plot.left() - 3, plot.center().y()); // 0 V at the center
@@ -291,6 +294,8 @@ private slots:
         send(QEvent::MouseMove, marker + QPointF(0, 2 * division), Qt::LeftButton); // two divisions down
         send(QEvent::MouseButtonRelease, marker + QPointF(0, 2 * division), Qt::NoButton);
         QVERIFY(!spy.isEmpty());
+        QCOMPARE(spy.last().at(0).toInt(), 1);
+        QCOMPARE(scope.selected_trace(), 1);
         QVERIFY(std::abs(spy.last().at(1).toDouble() - 2.0) < 1e-9); // the center line now shows 2 V
         send(QEvent::MouseButtonDblClick, marker + QPointF(0, 2 * division), Qt::LeftButton);
         QVERIFY(std::abs(spy.last().at(1).toDouble()) < 1e-12);
