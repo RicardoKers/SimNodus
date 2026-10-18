@@ -159,6 +159,7 @@ private:
     model::Id pot_drag_ = model::no_id;
     double pot_start_value_ = 0.0;
     QPoint pot_start_point_;
+    QPointF pot_direction_{0, 1}; // screen direction of the wiper's track, 0 % to 100 %
 
     int next_probe_color_ = 0;
 };

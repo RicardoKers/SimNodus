@@ -224,6 +224,22 @@ private slots:
         QCOMPARE(doc().schematic().splitter(splitter)->count, 4);
     }
 
+    void dragging_a_potentiometer_moves_the_wiper_with_the_mouse()
+    {
+        // Upside down (pin 1 at the bottom, as in examples 14-16): dragging up must
+        // move the arrow up, that is towards 100 %.
+        const model::Id rv = place("potentiometer", {0, 0}, {180, false});
+        double last = -1;
+        connect(view(), &SchematicView::control_changed, this, [&last](model::Id, double value) { last = value; });
+        view()->set_running(true);
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, 0}));
+        move_to({0, -4}, Qt::LeftButton);
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, -4}));
+        view()->set_running(false);
+        QVERIFY2(last > 0.0, qPrintable(QStringLiteral("value %1").arg(last)));
+        (void)rv;
+    }
+
     void potentiometer_shows_its_position()
     {
         const model::Id rv = place("potentiometer", {0, 0});
