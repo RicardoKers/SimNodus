@@ -8,6 +8,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - **USART frames on the TX pin:** with BRR set, each byte goes out bit by bit at PCLK / BRR (start, 8 or 9 data bits with even/odd parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, and DMA moves one byte per frame. Bytes from the terminal arrive one frame apart. Measured: 0x55 at 115200 baud gives an edge every 8.625 µs; the HAL example's first line takes 1.74 ms.
 - **Board-to-board serial:** a board's UART TX pin on the same net as another board's RX pin passes its bytes on (byte level, one frame apart). Session test: the HAL example on one board, `uart_echo` on the other, echoing what it receives.
+
 ### Added (2026-10-18, SN-189, owner's request)
 
 - **Scope vertical scale and offset:** the left edge shows the selected channel's value at each grid line and its 0 V as a dashed line; every channel has a colored 0 V marker (an arrow at the edge when 0 V is off screen). Dragging a marker moves its channel up or down (in fifths of a division), the wheel over the scale moves the selected channel by half a division, and a double-click puts 0 V back at the center. Clicking a marker selects the channel in the list.
