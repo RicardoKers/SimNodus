@@ -125,7 +125,11 @@
   ],
   "readout": {
     "kind": "current",
-    "element": "V_meas_{ref}"
+    "element": "V_meas_{ref}",
+    "glow": {
+      "full": "10m",
+      "color_parameter": "color"
+    }
   },
   "spice": [
     "V_meas_{ref} {node:A} a_{ref} DC 0",

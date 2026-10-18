@@ -110,7 +110,7 @@ A separate top-level window that can be placed on another monitor.
 | SIM-04 | Analog engine: ngspice as a shared library loaded at run time, never during project opening | 1 | done |
 | SIM-05 | Pre-run checks with clickable diagnostics: missing ground, floating nets, unconnected pins, voltage-source/inductor loops, shorted sources, invalid values. Convergence failures are reported in plain language with the involved nets/components | 1 | done |
 | SIM-06 | Initial component set A: resistor, capacitor, inductor, potentiometer, DC voltage source, DC current source, battery, pulse/square generator, sine generator, ground, SPST switch, SPDT switch, push button (NO/NC), diode, LED (several colors), NPN transistor, N-channel MOSFET, voltmeter, ammeter | 1 | done |
-| SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | planned |
+| SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | done except logic gates (when a lesson needs them) |
 | SIM-08 | The engine runs isolated from the editor so that an engine crash cannot crash the editor or lose the document | 4 | planned |
 | SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | done |
 

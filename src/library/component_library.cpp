@@ -19,7 +19,8 @@ namespace {
 using nlohmann::json;
 
 const std::vector<std::string> category_order{
-    "Passive", "Sources", "Switches & Controls", "Semiconductors", "Instruments", "Microcontrollers", "Logic"};
+    "Passive", "Sources", "Switches & Controls", "Semiconductors", "Integrated circuits", "Electromechanical",
+    "Instruments", "Microcontrollers", "Logic"};
 
 [[noreturn]] void invalid(const std::string& message)
 {
@@ -342,8 +343,31 @@ ComponentDefinition parse_definition(const json& j)
         } else if (kind == "current") {
             readout.kind = Readout::Kind::Current;
             readout.element = text(r, "element", true);
+            if (r.contains("glow")) {
+                const auto& g = r["glow"];
+                if (g.contains("full")) {
+                    const auto full = model::parse_engineering(text(g, "full"), "A");
+                    if (!full || *full <= 0) {
+                        invalid("readout.glow.full must be a positive current");
+                    }
+                    readout.glow_full = *full;
+                }
+                readout.glow_full_parameter = text(g, "full_parameter");
+                readout.glow_color = text(g, "color");
+                readout.glow_color_parameter = text(g, "color_parameter");
+                if (!readout.glows()) {
+                    invalid("readout.glow needs full or full_parameter");
+                }
+            }
+        } else if (kind == "node") {
+            readout.kind = Readout::Kind::Node;
+            readout.element = text(r, "element", true);
+            readout.unit = text(r, "unit");
+            if (r.contains("scale")) {
+                readout.scale = number(r["scale"], "readout.scale");
+            }
         } else {
-            invalid("readout.kind must be voltage or current");
+            invalid("readout.kind must be voltage, current or node");
         }
         d.readout = readout;
     }

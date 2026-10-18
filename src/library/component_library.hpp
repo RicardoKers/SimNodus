@@ -104,10 +104,20 @@ struct Interactive {
 
 // Value shown on the symbol while running (INT-03).
 struct Readout {
-    enum class Kind { Voltage, Current };
+    enum class Kind { Voltage, Current, Node };
     Kind kind = Kind::Voltage;
     std::vector<std::string> pins; // voltage: + and - pin
-    std::string element;           // current: template element name, e.g. "V_{ref}"
+    std::string element;           // current: template element name, e.g. "V_{ref}"; node: internal node, "w_{ref}"
+    double scale = 1.0;            // node: shown value = scale x node voltage
+    std::string unit;              // node: unit of the shown value
+    // Current readouts may make the symbol glow: full brightness at glow_full
+    // amperes, or at the value of parameter glow_full_parameter; the color is
+    // glow_color ("#rrggbb") or the value of parameter glow_color_parameter.
+    double glow_full = 0.0;
+    std::string glow_full_parameter;
+    std::string glow_color;
+    std::string glow_color_parameter;
+    bool glows() const { return glow_full > 0 || !glow_full_parameter.empty(); }
 };
 
 struct ComponentDefinition {

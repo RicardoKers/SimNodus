@@ -236,3 +236,85 @@ TEST_CASE("library: reactive parts and generators in a transient")
         CHECK(close_to(*smin, -2.0, 1e-3));
     }
 }
+
+TEST_CASE("library: component set B behaves like its parts")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto supply = [](test::CircuitBuilder& b, const char* net, const char* volts) {
+        b.add("vdc", {{"+", net}, {"-", "0"}}, {{"V", volts}});
+    };
+    { // PNP high-side switch: base pulled low turns it on
+        test::CircuitBuilder b(components());
+        supply(b, "VCC", "5");
+        b.add("pnp", {{"E", "VCC"}, {"B", "B"}, {"C", "C"}});
+        b.add("resistor", {{"1", "B"}, {"2", "0"}}, {{"R", "10k"}});
+        b.add("resistor", {{"1", "C"}, {"2", "0"}}, {{"R", "1k"}});
+        CHECK(op(b, "c") > 4.7);
+    }
+    for (const char* gate : {"0", "5"}) { // P-channel MOSFET: on with the gate low
+        test::CircuitBuilder b(components());
+        supply(b, "VCC", "5");
+        supply(b, "G", gate);
+        b.add("pmos", {{"S", "VCC"}, {"G", "G"}, {"D", "D"}});
+        b.add("resistor", {{"1", "D"}, {"2", "0"}}, {{"R", "1k"}});
+        const double d = op(b, "d");
+        CHECK(gate[0] == '0' ? d > 4.5 : d < 0.1);
+    }
+    { // Zener regulator
+        test::CircuitBuilder b(components());
+        supply(b, "VIN", "12");
+        b.add("resistor", {{"1", "VIN"}, {"2", "K"}}, {{"R", "1k"}});
+        b.add("zener", {{"K", "K"}, {"A", "0"}}, {{"Vz", "5.1"}});
+        CHECK(close_to(op(b, "k"), 5.1, 0.25));
+    }
+    for (const char* in : {"1", "3"}) { // op-amp: non-inverting gain 2 on a 5 V supply, clipped at the rail
+        test::CircuitBuilder b(components());
+        supply(b, "VCC", "5");
+        supply(b, "IN", in);
+        b.add("opamp", {{"IN+", "IN"}, {"IN-", "FB"}, {"OUT", "OUT"}, {"V+", "VCC"}, {"V-", "0"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "FB"}}, {{"R", "10k"}});
+        b.add("resistor", {{"1", "FB"}, {"2", "0"}}, {{"R", "10k"}});
+        CHECK(close_to(op(b, "out"), in[0] == '1' ? 2.0 : 4.9, 0.02));
+    }
+    { // lamp: 6 V / 100 mA is 60 ohm
+        test::CircuitBuilder b(components());
+        supply(b, "VCC", "12");
+        b.add("resistor", {{"1", "VCC"}, {"2", "MID"}}, {{"R", "60"}});
+        b.add("lamp", {{"1", "MID"}, {"2", "0"}}, {{"V", "6"}, {"I", "100m"}});
+        CHECK(close_to(op(b, "mid"), 6.0, 0.01));
+    }
+    for (const char* coil : {"5", "0"}) { // relay: an energized coil moves COM from NC to NO
+        test::CircuitBuilder b(components());
+        supply(b, "COIL", coil);
+        supply(b, "SW", "3");
+        b.add("relay", {{"A", "COIL"}, {"B", "0"}, {"COM", "SW"}, {"NO", "NO"}, {"NC", "NC"}}, {{"Vcoil", "5"}});
+        b.add("resistor", {{"1", "NO"}, {"2", "0"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "NC"}, {"2", "0"}}, {{"R", "1k"}});
+        const auto r = simulate(b, ".op", {"no", "nc"});
+        REQUIRE(r.count("no") && r.count("nc"));
+        const bool on = coil[0] == '5';
+        CHECK(close_to(r.at("no").front(), on ? 3.0 : 0.0, 0.01));
+        CHECK(close_to(r.at("nc").front(), on ? 0.0 : 3.0, 0.01));
+    }
+    { // DC motor at its rated voltage: no-load speed less the friction's share
+        test::CircuitBuilder b(components());
+        supply(b, "VM", "6");
+        b.add("dcmotor", {{"+", "VM"}, {"-", "0"}}, {{"V", "6"}, {"rpm", "6000"}, {"Istall", "2"}, {"Inoload", "100m"}});
+        CHECK(close_to(op(b, "w_m1") * 9.5492966, 6000 * (1 - 0.1 / 2), 60));
+    }
+    { // transformer 10:1 with a 10 V, 50 Hz primary: about 1 V on the secondary
+        test::CircuitBuilder b(components());
+        b.add("vsine", {{"+", "P"}, {"-", "0"}}, {{"amplitude", "10"}, {"f", "50"}});
+        b.add("transformer", {{"P1", "P"}, {"P2", "0"}, {"S1", "S"}, {"S2", "0"}}, {{"n", "10"}, {"Lp", "10"}});
+        b.add("resistor", {{"1", "S"}, {"2", "0"}}, {{"R", "1k"}});
+        const auto r = simulate(b, ".tran 50u 60m", {"time", "s"});
+        REQUIRE(r.count("s") && r.count("time"));
+        double peak = 0;
+        for (std::size_t i = 0; i < r.at("s").size(); ++i) {
+            if (r.at("time")[i] > 0.04) {
+                peak = std::max(peak, r.at("s")[i]);
+            }
+        }
+        CHECK(close_to(peak, 1.0, 0.05));
+    }
+}

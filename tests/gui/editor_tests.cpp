@@ -316,13 +316,13 @@ private slots:
         window_->run();
         QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
         QTest::qWait(300);
-        QVERIFY(window_->scene()->live().led_current.count(led));
-        QVERIFY(window_->scene()->live().led_current.at(led) < 1e-6); // button released: dark
+        QVERIFY(window_->scene()->live().glow.count(led));
+        QVERIFY(window_->scene()->live().glow.at(led).level < 1e-4); // button released: dark
         window_->run_controller()->set_control(button, 1.0);
-        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().led_current.at(led) > 5e-3, 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.at(led).level > 0.5, 5000);
         // Structural edits are refused while running unless the run is stopped.
         window_->run_controller()->set_control(button, 0.0);
-        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().led_current.at(led) < 1e-6, 5000);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.at(led).level < 1e-4, 5000);
         const auto status = window_->run_controller()->status();
         QVERIFY(status.sim_time > 0.2);
         window_->stop();
@@ -417,9 +417,9 @@ private slots:
             }
         }
         auto led_current = [this, led] {
-            const auto& live = window_->scene()->live().led_current;
+            const auto& live = window_->scene()->live().glow; // level x 10 mA = amperes
             const auto it = live.find(led);
-            return it == live.end() ? 0.0 : it->second;
+            return it == live.end() ? 0.0 : it->second.level * 0.01;
         };
         QTRY_VERIFY_WITH_TIMEOUT(led_current() > 2e-3, 5000);
         QTRY_VERIFY_WITH_TIMEOUT(led_current() < 1e-4, 5000);
@@ -452,9 +452,9 @@ private slots:
             board = c.type == "bluepill" ? c.id : board;
         }
         auto led_current = [this, led] {
-            const auto& live = window_->scene()->live().led_current;
+            const auto& live = window_->scene()->live().glow; // level x 10 mA = amperes
             const auto it = live.find(led);
-            return it == live.end() ? 0.0 : it->second;
+            return it == live.end() ? 0.0 : it->second.level * 0.01;
         };
         window_->run();
         QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->status().starting_mcu
@@ -490,9 +490,9 @@ private slots:
             led = c.type == "led" ? c.id : led;
         }
         auto led_current = [this, led] {
-            const auto& live = window_->scene()->live().led_current;
+            const auto& live = window_->scene()->live().glow; // level x 10 mA = amperes
             const auto it = live.find(led);
-            return it == live.end() ? 0.0 : it->second;
+            return it == live.end() ? 0.0 : it->second.level * 0.01;
         };
         window_->show_analyzer();
         UartTerminal* terminal = window_->analyzer()->terminal();

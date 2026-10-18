@@ -1,0 +1,186 @@
+{
+  "type": "relay",
+  "name": "Relay",
+  "category": "Electromechanical",
+  "prefix": "K",
+  "description": "Relay with a coil (0.36 W, with inductance: add a flyback diode) and a changeover contact; closes NO above 74 % of the coil current, falls back below 10 %",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -1.5,
+          2,
+          3
+        ]
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -2,
+          -2,
+          -2,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -2,
+          2
+        ]
+      },
+      {
+        "line": [
+          -2,
+          2,
+          -2,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          5,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "line": [
+          3,
+          0,
+          1.2,
+          -1.4
+        ]
+      },
+      {
+        "line": [
+          5,
+          -2,
+          1,
+          -2
+        ]
+      },
+      {
+        "line": [
+          1,
+          -2,
+          1,
+          -1.6
+        ]
+      },
+      {
+        "line": [
+          5,
+          2,
+          1,
+          2
+        ]
+      },
+      {
+        "line": [
+          1,
+          2,
+          1,
+          1.2
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0,
+          2,
+          -0.7
+        ]
+      },
+      {
+        "text": "K",
+        "at": [
+          -2,
+          0
+        ],
+        "size": 1.2
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "NC",
+        "at": [
+          5,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "COM",
+        "at": [
+          5,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "NO",
+        "at": [
+          5,
+          2
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -3
+  ],
+  "value_offset": [
+    2,
+    4
+  ],
+  "value_parameter": "Vcoil",
+  "parameters": [
+    {
+      "name": "Vcoil",
+      "label": "Coil voltage",
+      "unit": "V",
+      "default": "5",
+      "description": "Nominal coil voltage (current from A to B)",
+      "min": "3",
+      "max": "48"
+    }
+  ],
+  "spice": [
+    "V_sense_{ref} {node:A} c1_{ref} DC 0",
+    "R_{ref}_coil c1_{ref} c2_{ref} {= Vcoil * Vcoil / 0.36}",
+    "L_{ref}_coil c2_{ref} {node:B} {= Vcoil / 50}",
+    "W_{ref}_no {node:COM} {node:NO} V_sense_{ref} RLY_{ref}_ON",
+    "W_{ref}_nc {node:COM} {node:NC} V_sense_{ref} RLY_{ref}_OFF",
+    ".model RLY_{ref}_ON CSW(IT={= 0.42 * 0.36 / Vcoil} IH={= 0.32 * 0.36 / Vcoil} RON=0.05 ROFF=1e9)",
+    ".model RLY_{ref}_OFF CSW(IT={= 0.42 * 0.36 / Vcoil} IH={= 0.32 * 0.36 / Vcoil} RON=1e9 ROFF=0.05)"
+  ]
+}
