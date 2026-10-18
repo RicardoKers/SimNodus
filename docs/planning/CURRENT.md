@@ -208,12 +208,13 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. Gate G3 review: lesson 3 by the owner, a CubeMX project with ADC+DMA;
-   record the result in the plan. Release 0.2 by 2026-11-13 (ask before
-   cutting it).
-2. N2 serial frames on the pins (SN-175, spike SN-186); timer triggers for
-   the ADC if a lesson needs timed sampling; component set B (SN-142).
-   (SN-188 closed 2026-10-16: segment length no longer affects speed; 1 s kept.)
+1. **Release 0.2 (due 2026-11-13):** version 0.2.0 and the package README are
+   ready; the owner tests the package (ideally on a clean classroom PC) and
+   gives the go-ahead, then: configure with `-DSIMNODUS_VERSION_SUFFIX=`,
+   package, tag `v0.2.0`, attach the zip to a GitHub release, date the
+   CHANGELOG summary.
+2. Then: classroom feedback; logic gates when a lesson needs them; RX sampled
+   from the circuit for slow baud rates if wanted.
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
 STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it, and the

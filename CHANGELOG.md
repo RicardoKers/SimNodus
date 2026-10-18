@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Release 0.2 summary (to be dated when the owner releases it)
+
+- Microcontrollers run in SimNodus's own STM32F103 emulator (starts at once; Renode stays as a legacy option): GPIO, EXTI, USART with frames on the TX pin and board-to-board links, timers with PWM and input capture, ADC, DMA; STM32CubeIDE HAL projects at 72 MHz.
+- Firmware edges reach the circuit as step averages (exact PWM averages) or, with *Exact microcontroller edges*, as exact edges.
+- Debugging from STM32CubeIDE or arm-none-eabi-gdb (breakpoints, stepping, watchpoints, `load`); the circuit pauses with the firmware.
+- Scope: vertical scale, 0 V markers and offsets.
+- Component set B: PNP, P-channel MOSFET, Zener, op-amp, lamp, relay, DC motor, transformer.
+- Examples 13–16, among them lesson 3 (ADC and UART); lessons 1–3 with notes.
+- Fixed: interactive potentiometers and closed switches started offset by their initial value (since 0.1.0).
+
 ### Added (2026-10-18, SN-175, serial frames)
 
 - **USART frames on the TX pin:** with BRR set, each byte goes out bit by bit at PCLK / BRR (start, 8 or 9 data bits with even/odd parity, 0.5–2 stop bits); TXE, TC and the byte's time follow the frame, and DMA moves one byte per frame. Bytes from the terminal arrive one frame apart. Measured: 0x55 at 115200 baud gives an edge every 8.625 µs; the HAL example's first line takes 1.74 ms.
