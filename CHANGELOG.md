@@ -6,7 +6,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Fixed (2026-10-18, owner's test)
 
-- Scope: dragging the selected channel's 0 V marker grabbed another channel when their markers overlapped (all channels at 0 V by default), so the scale switched channels and the selected trace did not move. The selected channel's marker now wins.
+- Scope: the 0 V marker of a channel could not be moved in the Signal Analyzer: the analyzer connected to the scope's marker signals before the scope existed, so each live refresh put the old offset back and clicking a marker did not select its channel in the list. The connections are now made after the scope is created; a live GUI test drags a marker during a run. Where markers overlap, the selected channel's marker now wins.
 
 ### Release 0.2 summary (to be dated when the owner releases it)
 

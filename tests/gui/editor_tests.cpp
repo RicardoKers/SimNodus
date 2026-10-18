@@ -329,6 +329,62 @@ private slots:
         QVERIFY(!window_->run_controller()->active());
     }
 
+    void scope_zero_marker_drag_holds_in_a_live_run()
+    {
+        // Owner's report (2026-10-18): dragging the selected channel's 0 V marker in a
+        // live run snapped back. The offset must stay where the drag left it.
+        if (!engine_available()) {
+            QSKIP("No ngspice library configured for this build.");
+        }
+        const model::Id v = place("vpulse", {0, 0});
+        label(v, "+", "IN");
+        label(v, "-", "0");
+        const model::Id r = place("resistor", {20, 0});
+        label(r, "1", "IN");
+        label(r, "2", "OUT");
+        const model::Id c = place("capacitor", {40, 0});
+        label(c, "1", "OUT");
+        label(c, "2", "0");
+        for (const model::Id item : {v, c}) {
+            model::Probe probe;
+            probe.target = {item, item == v ? "+" : "1", {}};
+            doc().apply(editing::add_probe(doc().id_source(), probe));
+        }
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        window_->show_analyzer();
+        auto* analyzer = window_->analyzer();
+        auto* scope = analyzer->scope();
+        scope->resize(700, 400);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->status().sim_time > 1.5, 20000); // after the first autoscale
+        QTest::qWait(300);
+        scope->set_selected_trace(1);
+        const QRectF plot = scope->plot_rect();
+        const auto& before = scope->traces();
+        QCOMPARE(before.size(), std::size_t{2});
+        const double upp = before[1].per_division * ScopeWidget::vertical_divisions / plot.height();
+        const QPointF marker(plot.left() - 3, std::clamp(plot.center().y() + before[1].offset / upp, plot.top(), plot.bottom()));
+        auto send = [scope](QEvent::Type type, QPointF at, Qt::MouseButtons buttons) {
+            QMouseEvent event(type, at, scope->mapToGlobal(at), Qt::LeftButton, buttons, Qt::NoModifier);
+            QApplication::sendEvent(scope, &event);
+        };
+        const double division = plot.height() / ScopeWidget::vertical_divisions;
+        const double start = before[1].offset;
+        send(QEvent::MouseButtonPress, marker, Qt::LeftButton);
+        for (int i = 1; i <= 10; ++i) {
+            send(QEvent::MouseMove, marker - QPointF(0, i * division / 5), Qt::LeftButton); // up two divisions
+            QTest::qWait(30);
+        }
+        send(QEvent::MouseButtonRelease, marker - QPointF(0, 2 * division), Qt::NoButton);
+        const double expected = start - 2 * scope->traces()[1].per_division;
+        QCOMPARE(scope->traces()[1].offset, expected);
+        QTest::qWait(500); // several refreshes of the live display
+        QCOMPARE(scope->selected_trace(), 1);
+        QVERIFY2(std::abs(scope->traces()[1].offset - expected) < 1e-9,
+            qPrintable(QStringLiteral("offset %1, expected %2").arg(scope->traces()[1].offset).arg(expected)));
+        window_->stop();
+    }
+
     void transient_run_opens_the_record_in_the_analyzer()
     {
         if (!engine_available()) {
