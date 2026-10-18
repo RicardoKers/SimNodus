@@ -34,7 +34,7 @@ Status: `todo`, `doing`, `done`. A task is `done` only when its check passes.
 | SN-122 | Messages panel, diagnostics with locate | UI-12, SIM-05 | done |
 | SN-123 | Windows package 0.1 (zip with Qt runtime and ngspice), quick-start guide, 4–6 analog examples | NF-02 | done |
 
-## Phase 2 — MCU GPIO, release 0.2 (until 2026-11-13)
+## Phase 2 — MCU GPIO, release 0.2 (until 2026-11-13; released 2026-10-18)
 
 | ID | Task | Requirements | Status |
 |---|---|---|---|
