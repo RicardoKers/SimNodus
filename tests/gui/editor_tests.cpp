@@ -38,6 +38,7 @@
 #include <QPushButton>
 #include <QPointer>
 #include <QSettings>
+#include <QSpinBox>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QUndoStack>
@@ -193,6 +194,34 @@ private slots:
         QTest::keyClick(edit, Qt::Key_Return);
         QCOMPARE(doc().schematic().component(r)->parameters.at("R"), std::string("4k7")); // invalid: not applied
         QVERIFY(!edit->toolTip().isEmpty());
+    }
+
+    void buses_and_splitters_edit_in_the_properties_panel()
+    {
+        model::Id bus = model::no_id;
+        model::Id splitter = model::no_id;
+        doc().apply(editing::add_bus(doc().id_source(), {{0, 0}, {20, 0}}, "D", &bus));
+        doc().apply(editing::add_splitter(doc().id_source(), {20, 0}, "D", 0, 4, &splitter));
+        QVERIFY(window_->scene()->item_of(bus));
+        QVERIFY(window_->scene()->item_of(splitter));
+        QCOMPARE(window_->scene()->element_at(view()->mapToScene(at({10, 0}))), bus);
+        // Bit 2's pin is a named net: a wire may end there.
+        QCOMPARE(window_->scene()->net_name_at({22, 4}).value_or(""), std::string("D2"));
+        window_->scene()->select_ids({bus});
+        auto* name = window_->properties()->findChild<QLineEdit*>(QStringLiteral("busName"));
+        QVERIFY(name);
+        name->setText(QStringLiteral("DATA"));
+        emit name->editingFinished();
+        QCOMPARE(doc().schematic().bus(bus)->name, std::string("DATA"));
+        QCOMPARE(doc().schematic().splitter(splitter)->bus, std::string("DATA")); // follows the bus
+        window_->scene()->select_ids({splitter});
+        auto* count = window_->properties()->findChild<QSpinBox*>(QStringLiteral("splitterCount"));
+        QVERIFY(count);
+        count->setValue(2);
+        emit count->editingFinished();
+        QCOMPARE(doc().schematic().splitter(splitter)->count, 2);
+        doc().undo_stack()->undo();
+        QCOMPARE(doc().schematic().splitter(splitter)->count, 4);
     }
 
     void potentiometer_shows_its_position()

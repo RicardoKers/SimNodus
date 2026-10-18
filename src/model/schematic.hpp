@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Schematic document (PRJ-01): components, wires, net labels, probes, text
-// notes and simulation settings. Every element has a stable 64-bit ID that survives
+// notes, buses, splitters and simulation settings. Every element has a stable 64-bit ID that survives
 // save/load, rename and undo; IDs are never reused within a document.
 // Labels such as designators are presentation, not identity.
 #pragma once
@@ -65,6 +65,35 @@ struct TextNote {
     friend bool operator==(const TextNote&, const TextNote&) = default;
 };
 
+// Bus (UI-19): a thick line standing for several wires, for the reader only.
+// Signals join through splitters, by name: bit k of bus "D" is net "Dk".
+struct Bus {
+    Id id = no_id;
+    std::vector<Point> points; // orthogonal polyline, at least two points
+    std::string name;          // "D"
+
+    friend bool operator==(const Bus&, const Bus&) = default;
+};
+
+// Splitter (UI-19): joins a bus to single wires, like hneemann's Digital. Its
+// bus point is at `position`; bit pins `first` .. `first + count - 1` follow at
+// local (2, 0), (2, 2), ... and each one acts as a net label "<bus><bit>".
+struct Splitter {
+    Id id = no_id;
+    Point position;
+    Orientation orientation;
+    std::string bus; // bus name, "D"
+    int first = 0;
+    int count = 8;
+
+    friend bool operator==(const Splitter&, const Splitter&) = default;
+};
+
+// Schematic points of a splitter's bit pins, in bit order.
+std::vector<Point> splitter_pins(const Splitter& splitter);
+// Net name of bit pin `k` (0 = the first pin): "D0", "D1", ...
+std::string splitter_net(const Splitter& splitter, int k);
+
 // A connection point of the schematic: a component pin, or a point on a wire.
 struct Anchor {
     Id item = no_id;
@@ -106,7 +135,7 @@ struct SimulationSettings {
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };
 
-using Element = std::variant<Component, Wire, NetLabel, Probe, TextNote>;
+using Element = std::variant<Component, Wire, NetLabel, Probe, TextNote, Bus, Splitter>;
 
 Id element_id(const Element& element);
 
@@ -123,6 +152,8 @@ public:
     const std::vector<NetLabel>& labels() const { return labels_; }
     const std::vector<Probe>& probes() const { return probes_; }
     const std::vector<TextNote>& notes() const { return notes_; }
+    const std::vector<Bus>& buses() const { return buses_; }
+    const std::vector<Splitter>& splitters() const { return splitters_; }
     const SimulationSettings& settings() const { return settings_; }
     void set_settings(const SimulationSettings& settings) { settings_ = settings; }
 
@@ -131,6 +162,8 @@ public:
     const NetLabel* label(Id id) const;
     const Probe* probe(Id id) const;
     const TextNote* note(Id id) const;
+    const Bus* bus(Id id) const;
+    const Splitter* splitter(Id id) const;
     const Component* component_by_designator(const std::string& designator) const;
 
     std::optional<Element> get(Id id) const;
@@ -149,6 +182,8 @@ private:
     std::vector<NetLabel> labels_;
     std::vector<Probe> probes_;
     std::vector<TextNote> notes_;
+    std::vector<Bus> buses_;
+    std::vector<Splitter> splitters_;
     SimulationSettings settings_;
 };
 

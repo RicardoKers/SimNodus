@@ -102,6 +102,15 @@ json element_json(const Element& element)
                 return json{{"id", e.id}, {"at", point_json(e.position)}, {"name", e.name}};
             } else if constexpr (std::is_same_v<T, TextNote>) {
                 return json{{"id", e.id}, {"at", point_json(e.position)}, {"text", e.text}};
+            } else if constexpr (std::is_same_v<T, Bus>) {
+                json points = json::array();
+                for (const auto& p : e.points) {
+                    points.push_back(point_json(p));
+                }
+                return json{{"id", e.id}, {"points", points}, {"name", e.name}};
+            } else if constexpr (std::is_same_v<T, Splitter>) {
+                return json{{"id", e.id}, {"at", point_json(e.position)}, {"rotation", e.orientation.rotation},
+                    {"mirrored", e.orientation.mirrored}, {"bus", e.bus}, {"first", e.first}, {"count", e.count}};
             } else {
                 json j{{"id", e.id}, {"kind", e.kind == ProbeKind::Voltage ? "voltage" : "current"},
                     {"target", anchor_json(e.target)}, {"color", e.color}};
@@ -181,6 +190,40 @@ NetLabel label_from(const json& j)
         throw std::runtime_error("a net label needs a name");
     }
     return l;
+}
+
+Bus bus_from(const json& j)
+{
+    Bus b;
+    b.id = id_from(j.value("id", json()), "bus id");
+    const auto points = j.value("points", json());
+    if (!points.is_array() || points.size() < 2) {
+        throw std::runtime_error("a bus needs at least two points");
+    }
+    for (const auto& p : points) {
+        b.points.push_back(point_from(p, "bus point"));
+    }
+    b.name = string_from(j, "name");
+    return b;
+}
+
+Splitter splitter_from(const json& j)
+{
+    Splitter s;
+    s.id = id_from(j.value("id", json()), "splitter id");
+    s.position = point_from(j.value("at", json()), "splitter position");
+    const int rotation = j.value("rotation", 0);
+    if (rotation % 90 != 0) {
+        throw std::runtime_error("rotation must be a multiple of 90 degrees");
+    }
+    s.orientation = {normalized_rotation(rotation), j.value("mirrored", false)};
+    s.bus = string_from(j, "bus");
+    s.first = j.value("first", 0);
+    s.count = j.value("count", 8);
+    if (s.first < 0 || s.count < 1 || s.count > 64) {
+        throw std::runtime_error("a splitter needs 1 to 64 bits from bit 0 on");
+    }
+    return s;
 }
 
 TextNote note_from(const json& j)
@@ -290,6 +333,8 @@ std::vector<Element> read_elements(const json& root)
     each(root, "labels", [&](const json& j) { elements.emplace_back(label_from(j)); });
     each(root, "probes", [&](const json& j) { elements.emplace_back(probe_from(j)); });
     each(root, "notes", [&](const json& j) { elements.emplace_back(note_from(j)); });
+    each(root, "buses", [&](const json& j) { elements.emplace_back(bus_from(j)); });
+    each(root, "splitters", [&](const json& j) { elements.emplace_back(splitter_from(j)); });
     return elements;
 }
 
@@ -300,11 +345,15 @@ json write_elements(json root, const std::vector<Element>& elements)
     root["labels"] = json::array();
     root["probes"] = json::array();
     root["notes"] = json::array();
+    root["buses"] = json::array();
+    root["splitters"] = json::array();
     for (const auto& e : elements) {
         const char* key = std::holds_alternative<Component>(e) ? "components"
             : std::holds_alternative<Wire>(e)                  ? "wires"
             : std::holds_alternative<NetLabel>(e)              ? "labels"
             : std::holds_alternative<TextNote>(e)              ? "notes"
+            : std::holds_alternative<Bus>(e)                   ? "buses"
+            : std::holds_alternative<Splitter>(e)              ? "splitters"
                                                                : "probes";
         root[key].push_back(element_json(e));
     }
@@ -328,6 +377,12 @@ std::vector<Element> all_elements(const Schematic& s)
     }
     for (const auto& n : s.notes()) {
         result.emplace_back(n);
+    }
+    for (const auto& b : s.buses()) {
+        result.emplace_back(b);
+    }
+    for (const auto& sp : s.splitters()) {
+        result.emplace_back(sp);
     }
     return result;
 }

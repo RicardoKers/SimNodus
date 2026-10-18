@@ -36,6 +36,9 @@
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QFormLayout>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -159,6 +162,8 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(view_, &SchematicView::mcu_reset_requested, run_, &RunController::mcu_reset);
     connect(view_, &SchematicView::label_name_needed, this, [this](model::Point at) { ask_label_name(at.x, at.y); });
     connect(view_, &SchematicView::note_text_needed, this, &MainWindow::ask_note_text);
+    connect(view_, &SchematicView::bus_name_needed, this, &MainWindow::ask_bus_name);
+    connect(view_, &SchematicView::splitter_needed, this, &MainWindow::ask_splitter);
     connect(scene_, &QGraphicsScene::selectionChanged, this, [this] {
         properties_->set_selection(scene_->selected_ids());
         properties_->set_live_text(run_->live_text(scene_->selected_ids()));
@@ -352,6 +357,12 @@ void MainWindow::build_actions_and_menus()
     auto* note = placement->addAction(tr("&Text Note"), this, [this] { view_->set_tool(Tool::Note); });
     note->setShortcut(QKeySequence(Qt::Key_T));
     note->setStatusTip(tr("Free text on the schematic, such as instructions for the simulation"));
+    auto* bus = placement->addAction(tr("&Bus"), this, [this] { view_->set_tool(Tool::Bus); });
+    bus->setShortcut(QKeySequence(Qt::Key_B));
+    bus->setStatusTip(tr("A thick line standing for several wires; splitters join its bits to wires"));
+    auto* splitter = placement->addAction(tr("&Splitter"), this, [this] { view_->set_tool(Tool::Splitter); });
+    splitter->setShortcut(QKeySequence(Qt::Key_S));
+    splitter->setStatusTip(tr("Joins a bus to single wires: its bit pins act as labels D0, D1, ..."));
     auto* probe = placement->addAction(tr("P&robe"), this, [this] { view_->set_tool(Tool::Probe); });
     probe->setShortcut(QKeySequence(Qt::Key_P));
     placement->addSeparator();
@@ -769,6 +780,63 @@ void MainWindow::ask_note_text(model::Point at, model::Id note)
         scene_->select_ids({created});
         view_->set_tool(Tool::Select);
     }
+}
+
+QString MainWindow::bus_name_at(const model::Point& point) const
+{
+    for (const auto& b : document_->schematic().buses()) {
+        for (std::size_t i = 0; i + 1 < b.points.size(); ++i) {
+            if (model::on_segment(point, b.points[i], b.points[i + 1])) {
+                return QString::fromStdString(b.name);
+            }
+        }
+    }
+    return {};
+}
+
+void MainWindow::ask_bus_name(std::vector<model::Point> points)
+{
+    // A bus that starts or ends on another bus continues it: same name.
+    QString name = bus_name_at(points.front());
+    if (name.isEmpty()) {
+        name = bus_name_at(points.back());
+    }
+    bool ok = false;
+    name = QInputDialog::getText(this, tr("Bus"),
+        tr("Name (bit k of bus D is the net Dk, joined by splitters):"), QLineEdit::Normal,
+        name.isEmpty() ? last_bus_ : name, &ok).trimmed();
+    if (!ok || name.isEmpty() || !allow_structure_edit()) {
+        return;
+    }
+    last_bus_ = name;
+    document_->apply(editing::add_bus(document_->id_source(), std::move(points), name.toStdString()));
+}
+
+void MainWindow::ask_splitter(model::Point at)
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Splitter"));
+    auto* form = new QFormLayout(&dialog);
+    auto* name = new QLineEdit(bus_name_at(at).isEmpty() ? last_bus_ : bus_name_at(at));
+    name->setObjectName(QStringLiteral("splitterBus"));
+    auto* first = new QSpinBox;
+    first->setRange(0, 63);
+    auto* count = new QSpinBox;
+    count->setRange(1, 64);
+    count->setValue(8);
+    form->addRow(tr("Bus name"), name);
+    form->addRow(tr("First bit"), first);
+    form->addRow(tr("Number of bits"), count);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted || name->text().trimmed().isEmpty() || !allow_structure_edit()) {
+        return;
+    }
+    last_bus_ = name->text().trimmed();
+    document_->apply(editing::add_splitter(
+        document_->id_source(), at, last_bus_.toStdString(), first->value(), count->value()));
 }
 
 bool MainWindow::engine_check_running() const

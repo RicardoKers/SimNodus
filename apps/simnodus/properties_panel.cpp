@@ -20,6 +20,7 @@
 #include <QHBoxLayout>
 #include <QLocale>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QCoreApplication>
 #include <QFormLayout>
 #include <QLabel>
@@ -224,6 +225,56 @@ void PropertiesPanel::rebuild()
         value_editor_ = name;
         rebuilding_ = false;
         return;
+    }
+    if (selection_.size() == 1) {
+        const model::Id id = *selection_.begin();
+        if (const auto* b = s->bus(id)) {
+            title_->setText(tr("Bus"));
+            subtitle_->setText(tr("Bit k is the net named after the bus and k; splitters on the bus follow a new name."));
+            auto* name = new QLineEdit(QString::fromStdString(b->name));
+            name->setObjectName(QStringLiteral("busName"));
+            connect(name, &QLineEdit::editingFinished, this, [this, name, id] {
+                if (document_ && !rebuilding_ && !name->text().trimmed().isEmpty()) {
+                    document_->apply(editing::rename_bus(document_->schematic(), id, name->text().trimmed().toStdString()));
+                }
+            });
+            form_->addRow(tr("Name"), name);
+            value_editor_ = name;
+            rebuilding_ = false;
+            return;
+        }
+        if (const auto* sp = s->splitter(id)) {
+            title_->setText(tr("Splitter"));
+            subtitle_->setText(tr("Its bit pins act as net labels: %1%2 ... %1%3.")
+                                   .arg(QString::fromStdString(sp->bus))
+                                   .arg(sp->first)
+                                   .arg(sp->first + sp->count - 1));
+            auto* bus = new QLineEdit(QString::fromStdString(sp->bus));
+            bus->setObjectName(QStringLiteral("splitterBus"));
+            auto* first = new QSpinBox;
+            first->setObjectName(QStringLiteral("splitterFirst"));
+            first->setRange(0, 63);
+            first->setValue(sp->first);
+            auto* count = new QSpinBox;
+            count->setObjectName(QStringLiteral("splitterCount"));
+            count->setRange(1, 64);
+            count->setValue(sp->count);
+            auto commit = [this, id, bus, first, count] {
+                if (document_ && !rebuilding_ && !bus->text().trimmed().isEmpty()) {
+                    document_->apply(editing::set_splitter(
+                        document_->schematic(), id, bus->text().trimmed().toStdString(), first->value(), count->value()));
+                }
+            };
+            connect(bus, &QLineEdit::editingFinished, this, commit);
+            connect(first, &QSpinBox::editingFinished, this, commit);
+            connect(count, &QSpinBox::editingFinished, this, commit);
+            form_->addRow(tr("Bus name"), bus);
+            form_->addRow(tr("First bit"), first);
+            form_->addRow(tr("Number of bits"), count);
+            value_editor_ = bus;
+            rebuilding_ = false;
+            return;
+        }
     }
     if (components.empty() && labels.empty() && notes.size() == 1 && others == 0) {
         title_->setText(tr("Text note"));

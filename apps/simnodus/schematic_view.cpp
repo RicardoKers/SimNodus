@@ -232,6 +232,14 @@ void SchematicView::set_tool(Tool tool)
     case Tool::Note:
         emit status_message(tr("Text note: click where the text starts. Double-click a note to edit it."));
         break;
+    case Tool::Bus:
+        emit status_message(tr("Bus: click to start, click to add bends, double-click or right-click to finish; "
+                               "then give it a name. Splitters join its bits to wires."));
+        break;
+    case Tool::Splitter:
+        emit status_message(tr("Splitter: click a point of a bus. Its bit pins act as labels named after the bus "
+                               "(D0, D1, ...); Ctrl+R rotates it."));
+        break;
     case Tool::Probe:
         emit status_message(tr("Probe: click a wire for a voltage, a component pin for its current (Shift: "
                                "voltage at the pin, Alt: reference of the last voltage probe)."));
@@ -424,6 +432,12 @@ void SchematicView::update_wire_preview(const model::Point& cursor)
 void SchematicView::finish_wire()
 {
     if (scene_ && wire_points_.size() >= 2 && allowed()) {
+        if (tool_ == Tool::Bus) {
+            const auto points = wire_points_;
+            cancel_wire();
+            emit bus_name_needed(points);
+            return;
+        }
         auto& d = scene_->document();
         d.apply(editing::add_wire(d.id_source(), wire_points_));
     }
@@ -602,7 +616,7 @@ void SchematicView::wheelEvent(QWheelEvent* event)
 void SchematicView::mousePressEvent(QMouseEvent* event)
 {
     const QPoint position = event->position().toPoint();
-    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && space_held_ && tool_ != Tool::Wire)) {
+    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && space_held_ && !drawing_line())) {
         panning_ = true;
         pan_origin_ = position;
         update_cursor_shape();
@@ -615,7 +629,7 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
     }
     const model::Point at = grid_at(position);
     if (event->button() == Qt::RightButton) {
-        if (tool_ == Tool::Wire && !wire_points_.empty()) {
+        if (drawing_line() && !wire_points_.empty()) {
             finish_wire();
         } else if (tool_ != Tool::Select) {
             set_tool(Tool::Select);
@@ -632,6 +646,11 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
         place_at(ghost_at_);
         event->accept();
         return;
+    case Tool::Splitter:
+        emit splitter_needed(at);
+        event->accept();
+        return;
+    case Tool::Bus:
     case Tool::Wire: {
         if (wire_points_.empty()) {
             wire_points_.push_back(at);
@@ -639,8 +658,10 @@ void SchematicView::mousePressEvent(QMouseEvent* event)
             const auto tail = route(wire_points_.back(), at);
             wire_points_.insert(wire_points_.end(), tail.begin() + 1, tail.end());
             wire_points_ = editing::normalize_polyline(wire_points_);
-            // Ending on a pin, a wire or a label connects and finishes the wire.
-            const bool connection = scene_->pin_at(at) || scene_->wire_at(at) || scene_->net_name_at(at);
+            // Ending on a pin, a wire or a label connects and finishes the wire; a
+            // bus finishes on double-click or right-click.
+            const bool connection = tool_ == Tool::Wire
+                && (scene_->pin_at(at) || scene_->wire_at(at) || scene_->net_name_at(at));
             if (connection && wire_points_.size() >= 2) {
                 finish_wire();
             }
@@ -756,7 +777,7 @@ void SchematicView::mouseMoveEvent(QMouseEvent* event)
         event->accept();
         return;
     }
-    if (tool_ == Tool::Wire) {
+    if (drawing_line()) {
         update_wire_preview(at);
         event->accept();
         return;
@@ -862,7 +883,7 @@ void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
         QGraphicsView::mouseDoubleClickEvent(event);
         return;
     }
-    if (tool_ == Tool::Wire) {
+    if (drawing_line()) {
         // Double-click ends the wire at an open point.
         finish_wire();
         event->accept();
@@ -887,7 +908,7 @@ void SchematicView::mouseDoubleClickEvent(QMouseEvent* event)
 void SchematicView::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
-        if (tool_ == Tool::Wire) {
+        if (drawing_line()) {
             horizontal_first_ = !horizontal_first_;
             update_wire_preview(grid_at(mapFromGlobal(QCursor::pos())));
         } else {
@@ -898,7 +919,7 @@ void SchematicView::keyPressEvent(QKeyEvent* event)
         return;
     }
     if (event->key() == Qt::Key_Escape) {
-        if (tool_ == Tool::Wire && !wire_points_.empty()) {
+        if (drawing_line() && !wire_points_.empty()) {
             cancel_wire();
         } else if (tool_ != Tool::Select) {
             set_tool(Tool::Select);
@@ -1050,7 +1071,7 @@ void SchematicView::update_cursor_shape()
         viewport()->setCursor(Qt::ClosedHandCursor);
     } else if (space_held_) {
         viewport()->setCursor(Qt::OpenHandCursor);
-    } else if (tool_ == Tool::Wire || tool_ == Tool::Probe || tool_ == Tool::Label || tool_ == Tool::Note
+    } else if (drawing_line() || tool_ == Tool::Splitter || tool_ == Tool::Probe || tool_ == Tool::Label || tool_ == Tool::Note
                || tool_ == Tool::Place) {
         viewport()->setCursor(Qt::CrossCursor);
     } else {

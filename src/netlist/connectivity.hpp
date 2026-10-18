@@ -7,7 +7,9 @@
 // - a wire connects to another wire where a vertex or end of one lies on the
 //   other (T connection); a plain crossing does not connect;
 // - net labels with the same name connect; a ground symbol, or a label named
-//   0 or GND, is the reference net "0".
+//   0 or GND, is the reference net "0";
+// - a splitter's bit pin is a label named after its bus and bit ("D3", UI-19);
+//   buses themselves are drawings and connect nothing.
 #pragma once
 
 #include "library/component_library.hpp"
@@ -33,6 +35,7 @@ struct Net {
     std::vector<Id> wires;
     std::vector<Id> labels;
     std::vector<std::string> label_names; // all label names on this net
+    int taps = 0;                         // splitter bit pins on this net
 };
 
 struct Connectivity {
@@ -40,6 +43,7 @@ struct Connectivity {
     std::map<PinRef, int> pin_net;
     std::map<Id, int> wire_net;
     std::map<Id, int> label_net;
+    std::map<Point, int> tap_net; // splitter bit pins
     std::vector<Point> junctions;      // three or more connections meet: draw a dot
     std::vector<Point> dangling_ends;  // wire ends connected to nothing
     std::vector<PinRef> unconnected_pins;
