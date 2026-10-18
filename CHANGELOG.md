@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Planned (2026-10-18, owner's request)
+
+- Backlog task SN-190 (requirement AN-10): export selected digital signals to a VCD file for tools such as PulseView. Not a priority.
+
+### Changed (2026-10-18)
+
+- `CURRENT.md` rewritten short for resuming in a new session.
+
 ## 0.2.0 — 2026-10-18
 
 ### Summary

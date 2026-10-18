@@ -103,3 +103,4 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-162 | Dark theme, ANSI symbol variant |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
 | SN-164 | Linux package |
+| SN-190 | Export selected digital signals to VCD (AN-10): in the Logic tab the user picks the lanes to export (MCU pins and digital signals); writes IEEE 1364 VCD with a timescale fine enough for the retained edges (1 ns), one `$var wire 1` per lane named after it, the initial values in `$dumpvars` and only the value changes after that; covers the retained history (or the record of a finished transient run). Tests: a known lane set gives the expected file; the file opens in PulseView (owner checks). Owner's request 2026-10-18; not a priority |
