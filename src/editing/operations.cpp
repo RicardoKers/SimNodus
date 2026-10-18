@@ -362,6 +362,25 @@ Edit set_parameter(const Schematic& schematic, Id component, const std::string& 
     return make_edit(schematic, work, "Set " + c->designator + " " + name);
 }
 
+Edit set_model(const Schematic& schematic, Id component, const std::string& parameter, const std::string& name,
+    const std::string& statement)
+{
+    const auto* c = schematic.component(component);
+    if (!c || name.empty()) {
+        return {};
+    }
+    Schematic work = schematic;
+    Component updated = *c;
+    updated.parameters[parameter] = name;
+    if (statement.empty()) {
+        updated.models.erase(parameter);
+    } else {
+        updated.models[parameter] = statement;
+    }
+    work.put(updated);
+    return make_edit(schematic, work, "Set " + c->designator + " model " + name);
+}
+
 Edit set_designator(const Schematic& schematic, Id component, const std::string& designator)
 {
     const auto* c = schematic.component(component);

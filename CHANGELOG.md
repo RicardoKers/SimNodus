@@ -6,6 +6,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-18)
 
+- Model variants of basic parts (SN-194, PRJ-07, ADR 0095): NPN, PNP, N- and P-channel MOSFETs and diodes have a *Model* in Properties. Built in: 2N2222A, 2N3904, BC547B, BD139, 2N2907A, 2N3906, BC557B, BD140, 1N4148, 1N4007, 1N5408, 1N5819, 2N7000, BS170, IRF540N, IRLZ44N, BS250, IRF9540N and the former generic models (the default, so existing projects simulate as before); they are SimNodus's own approximations from typical datasheet values. *Tools > Open Models Folder* opens a folder for the user's `.lib` files with `.model` statements (for example from manufacturers); a model chosen from it is saved inside the component, so the project opens the same elsewhere. Models from the KiCad-Spice-Library are not bundled: each file has its own vendor terms. Tests: model file reading, netlists, file round trip, undo, simulations (diode forward drops, MOSFET on-resistance: IRF540N 0.045 ohm, 2N7000 1.8 ohm at 10 V) and the Properties list.
+
+### Added (2026-10-18)
+
 - Text notes on the schematic (SN-193, UI-17): *Place > Text Note* (`T`) puts free text, for example instructions for the simulation, where you click; double-click a note or use the Properties panel to edit it, an empty text deletes it. Notes move, copy, paste and undo like other elements, are saved in the project file (`notes`) and never change the circuit. Example 17 carries one. Tests: file round trip, editing operations, and a GUI case (drag, edit in Properties, undo).
 
 ### Removed (2026-10-18, owner's decision)

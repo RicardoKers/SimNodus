@@ -140,6 +140,9 @@ public:
         const auto* p = definition_->parameter(definition_->value_parameter);
         const auto it = component_.parameters.find(definition_->value_parameter);
         QString text = QString::fromStdString(it == component_.parameters.end() ? p->default_value : it->second);
+        if (p && p->kind == library::Parameter::Kind::Model && text == QString::fromStdString(p->default_value)) {
+            return {}; // the generic model needs no text on the symbol
+        }
         if (p && p->kind == library::Parameter::Kind::File) {
             // Only the file name; an empty value asks for a file.
             return text.isEmpty() ? QObject::tr("(no firmware)") : QFileInfo(text).fileName();

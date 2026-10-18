@@ -284,15 +284,21 @@ ComponentDefinition parse_definition(const json& j)
             const std::string kind = text(p, "kind");
             if (kind == "file") {
                 parameter.kind = Parameter::Kind::File;
+            } else if (kind == "model") {
+                parameter.kind = Parameter::Kind::Model;
+                parameter.model_type = text(p, "model_type", true);
+                if (!supported_model_type(parameter.model_type)) {
+                    invalid("model_type must be NPN, PNP, D, NMOS or PMOS");
+                }
             } else if (!kind.empty() && kind != "number" && kind != "choice") {
-                invalid("parameter kind must be number, choice or file");
+                invalid("parameter kind must be number, choice, file or model");
             } else if (!parameter.choices.empty()) {
                 parameter.kind = Parameter::Kind::Choice;
             }
             parameter.min = bound(p, "min", parameter.unit);
             parameter.max = bound(p, "max", parameter.unit);
-            if (parameter.kind == Parameter::Kind::File) {
-                // any text, including empty
+            if (parameter.kind == Parameter::Kind::File || parameter.kind == Parameter::Kind::Model) {
+                // any text; a model name is checked against the models when the netlist is made
             } else if (parameter.choices.empty()) {
                 if (!model::parse_engineering(parameter.default_value, parameter.unit)) {
                     invalid("default of \"" + parameter.name + "\" is not a number");
@@ -500,7 +506,7 @@ std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem:
     std::vector<std::filesystem::path> files;
     for (auto it = std::filesystem::recursive_directory_iterator(directory, ec);
          !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec)) {
-        if (it->is_regular_file(ec) && it->path().extension() == ".json") {
+        if (it->is_regular_file(ec) && (it->path().extension() == ".json" || it->path().extension() == ".lib")) {
             files.push_back(it->path());
         }
     }
@@ -509,11 +515,45 @@ std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem:
         std::ifstream input(file, std::ios::binary);
         std::ostringstream content;
         content << input.rdbuf();
-        if (auto error = add_from_json(content.str(), file)) {
+        if (file.extension() == ".lib") {
+            int skipped = 0;
+            add_models(parse_spice_models(content.str(), &skipped));
+            if (skipped > 0) {
+                messages.push_back({file, std::to_string(skipped) + " statement(s) are not supported models"});
+            }
+        } else if (auto error = add_from_json(content.str(), file)) {
             messages.push_back({file, *error});
         }
     }
+    // Every model parameter's default must be a built-in model of its type.
+    for (const auto& d : definitions_) {
+        for (const auto& p : d.parameters) {
+            if (p.kind == Parameter::Kind::Model && !model(p.model_type, p.default_value)) {
+                messages.push_back({d.source, "default model \"" + p.default_value + "\" (" + p.model_type
+                        + ") of \"" + p.name + "\" is not a built-in model"});
+            }
+        }
+    }
     return messages;
+}
+
+const SpiceModel* ComponentLibrary::model(const std::string& type, const std::string& name) const
+{
+    for (const auto& m : models_) {
+        if (m.type == type && m.name == name) {
+            return &m;
+        }
+    }
+    return nullptr;
+}
+
+void ComponentLibrary::add_models(const std::vector<SpiceModel>& models)
+{
+    for (const auto& m : models) {
+        if (!model(m.type, m.name)) {
+            models_.push_back(m);
+        }
+    }
 }
 
 const ComponentDefinition* ComponentLibrary::find(const std::string& type) const

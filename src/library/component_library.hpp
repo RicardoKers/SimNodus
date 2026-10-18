@@ -10,6 +10,7 @@
 
 #include "model/geometry.hpp"
 #include "model/schematic.hpp"
+#include "spice_model.hpp"
 
 #include <cstdint>
 #include <filesystem>
@@ -42,9 +43,10 @@ struct Graphic {
 };
 
 struct Parameter {
-    // Number (engineering notation), Choice (one of `choices`) or File (a path,
-    // stored relative to the project when possible; `filter` like "*.elf").
-    enum class Kind { Number, Choice, File };
+    // Number (engineering notation), Choice (one of `choices`), File (a path,
+    // stored relative to the project when possible; `filter` like "*.elf") or
+    // Model (the name of a SPICE model of type `model_type`, PRJ-07).
+    enum class Kind { Number, Choice, File, Model };
     Kind kind = Kind::Number;
     std::string name;
     std::string label;
@@ -55,6 +57,7 @@ struct Parameter {
     std::vector<std::string> choices; // non-empty: the value is one of these words
     std::string description;
     std::string filter;
+    std::string model_type; // Model: "NPN", "PNP", "D", "NMOS" or "PMOS"
 };
 
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
@@ -153,8 +156,9 @@ struct LoadMessage {
 
 class ComponentLibrary {
 public:
-    // Loads every *.json below `directory`. Invalid files are reported and
-    // skipped; the rest of the library stays usable.
+    // Loads every *.json below `directory` and the SPICE models of every *.lib
+    // file there. Invalid files are reported and skipped; the rest of the
+    // library stays usable.
     std::vector<LoadMessage> load_directory(const std::filesystem::path& directory);
     // Parses one definition; returns an error message on failure.
     std::optional<std::string> add_from_json(const std::string& text, const std::filesystem::path& source = {});
@@ -165,8 +169,14 @@ public:
     std::vector<std::string> categories() const;
     bool empty() const { return definitions_.empty(); }
 
+    // Built-in SPICE models (PRJ-07), in file order.
+    const std::vector<SpiceModel>& models() const { return models_; }
+    const SpiceModel* model(const std::string& type, const std::string& name) const;
+    void add_models(const std::vector<SpiceModel>& models);
+
 private:
     std::vector<ComponentDefinition> definitions_;
+    std::vector<SpiceModel> models_;
 };
 
 // Schematic position of a pin of a placed component.

@@ -4,6 +4,7 @@
 
 #include "document.hpp"
 #include "theme.hpp"
+#include "user_models.hpp"
 
 #include "editing/operations.hpp"
 #include "library/component_library.hpp"
@@ -11,6 +12,7 @@
 
 #include <QApplication>
 #include <QComboBox>
+#include <QCompleter>
 #include <QDateTime>
 #include <QDir>
 #include <QFileDialog>
@@ -296,6 +298,8 @@ void PropertiesPanel::rebuild()
         QWidget* editor = nullptr;
         if (p.kind == library::Parameter::Kind::File) {
             editor = file_editor(p, common ? value : QString());
+        } else if (p.kind == library::Parameter::Kind::Model) {
+            editor = model_editor(p, *components.front(), common ? value : QString());
         } else if (!p.choices.empty()) {
             auto* box = new QComboBox;
             for (const auto& choice : p.choices) {
@@ -334,6 +338,70 @@ void PropertiesPanel::rebuild()
         }
     }
     rebuilding_ = false;
+}
+
+QWidget* PropertiesPanel::model_editor(
+    const library::Parameter& p, const model::Component& first, const QString& value)
+{
+    // Built-in models of the type, then the user's (PRJ-07); each item keeps the
+    // name and, for a model that is not built in, its statement.
+    auto* box = new QComboBox;
+    box->setEditable(true); // type to search a long list
+    box->setInsertPolicy(QComboBox::NoInsert);
+    auto add = [box](const library::SpiceModel& m, const QString& where, const QString& statement) {
+        box->addItem(QString::fromStdString(m.name), QStringList{QString::fromStdString(m.name), statement});
+        QString tip = QString::fromStdString(m.description);
+        tip += (tip.isEmpty() ? QString() : QStringLiteral("\n")) + where;
+        box->setItemData(box->count() - 1, tip, Qt::ToolTipRole);
+    };
+    for (const auto& m : document_->library().models()) {
+        if (m.type == p.model_type) {
+            add(m, tr("Built in (SimNodus approximation)"), QString());
+        }
+    }
+    for (const auto& u : user_models()) {
+        if (u.model.type == p.model_type && box->findText(QString::fromStdString(u.model.name)) < 0) {
+            add(u.model, tr("Models folder: %1").arg(u.file), QString::fromStdString(u.model.card()));
+        }
+    }
+    // A model kept in the project but missing here (made on another computer).
+    if (const auto kept = first.models.find(p.name); kept != first.models.end() && !value.isEmpty()) {
+        if (const auto m = library::parse_spice_model(kept->second); m && box->findText(value) < 0) {
+            add(*m, tr("Kept in the project"), QString::fromStdString(kept->second));
+        }
+    }
+    auto* completer = new QCompleter(box->model(), box);
+    completer->setFilterMode(Qt::MatchContains);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    box->setCompleter(completer);
+    box->setCurrentIndex(box->findText(value));
+    if (box->currentIndex() < 0) {
+        box->setEditText(value);
+    }
+    box->setToolTip(translated(p.description));
+    const std::string name = p.name;
+    connect(box, &QComboBox::activated, this, [this, box, name](int index) {
+        const QStringList data = box->itemData(index).toStringList();
+        if (data.size() == 2) {
+            commit_model(name, data[0].toStdString(), data[1].toStdString());
+        }
+    });
+    return box;
+}
+
+void PropertiesPanel::commit_model(const std::string& parameter, const std::string& name, const std::string& statement)
+{
+    if (!document_) {
+        return;
+    }
+    const auto& s = document_->schematic();
+    model::Schematic work = s;
+    for (model::Id id : selection_) {
+        if (work.component(id)) {
+            editing::set_model(work, id, parameter, name, statement).apply(work);
+        }
+    }
+    document_->apply(model::make_edit(s, work, "Set model " + name));
 }
 
 QString PropertiesPanel::project_dir() const

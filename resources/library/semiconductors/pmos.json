@@ -142,9 +142,17 @@
     1
   ],
   "spice": [
-    "M_{ref} {node:D} {node:G} {node:S} {node:S} PMOS_SN"
+    "M_{ref} {node:D} {node:G} {node:S} {node:S} {model}"
   ],
-  "models": [
-    ".model PMOS_SN PMOS(LEVEL=1 VTO=-2.0 KP=0.05 LAMBDA=0.02 CGSO=20n CGDO=5n)"
+  "value_parameter": "model",
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "model_type": "PMOS",
+      "default": "Generic",
+      "description": "SPICE model: a built-in part or one from your models folder (Tools > Open Models Folder)"
+    }
   ]
 }

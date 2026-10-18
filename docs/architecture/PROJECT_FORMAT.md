@@ -28,6 +28,10 @@ partially.
 }
 ```
 
+- **Models** (PRJ-07): a component may carry `"models": {"model": ".model MY-NPN NPN(BF=50)"}`,
+  the statement of a model that is not built in (chosen from the user's models
+  folder), so the project opens the same on another computer
+  ([ADR 0095](../decisions/0095-model-variants.md)).
 - **Notes** (UI-17) are free text, top-left corner at `at`, lines separated by
   `\n`; they are presentation only and never reach the netlist. Files without
   `notes` load as before.

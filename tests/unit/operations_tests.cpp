@@ -191,6 +191,23 @@ TEST_CASE("text notes are placed, edited, moved, pasted and deleted")
     (void)changed;
 }
 
+TEST_CASE("choosing a model keeps a user model in the component and undoes")
+{
+    const auto lib = test_library();
+    Schematic s;
+    Id q = 0;
+    applied(s, editing::add_component(s, *lib.find("npn"), {0, 0}, {}, &q));
+    CHECK(s.component(q)->parameters.at("model") == "Generic");
+    const auto user = applied(s, editing::set_model(s, q, "model", "MY1", ".model MY1 NPN(BF=50)"));
+    CHECK(s.component(q)->parameters.at("model") == "MY1");
+    CHECK(s.component(q)->models.at("model") == ".model MY1 NPN(BF=50)");
+    applied(s, editing::set_model(s, q, "model", "2N3904", ""));
+    CHECK(s.component(q)->models.empty()); // built in: nothing kept
+    user.revert(s);
+    CHECK(s.component(q)->parameters.at("model") == "Generic");
+    CHECK(s.component(q)->models.empty());
+}
+
 TEST_CASE("copy and paste create new ids and designators")
 {
     const auto lib = test_library();
