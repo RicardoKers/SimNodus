@@ -1,12 +1,15 @@
 # Current state
 
-Updated: 2026-10-16. Keep this file short: present state, last results, next
+Updated: 2026-10-18. Keep this file short: present state, last results, next
 steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md).
 
 ## Where we are
 
-- **Release 0.1.0 published on 2026-10-14** (due 2026-10-30): tag `v0.1.0`,
+- **Release 0.2.0 published on 2026-10-18** (due 2026-11-13): tag `v0.2.0`,
+  GitHub release with `SimNodus-0.2.0-windows-x64.zip`. The owner tested the
+  package on a clean VM, including the scope 0 V marker fix (PR #146).
+- Release 0.1.0 published on 2026-10-14 (due 2026-10-30): tag `v0.1.0`,
   GitHub release with `SimNodus-0.1.0-windows-x64.zip`. Phase 1 (SN-110..SN-123)
   is done; the owner's retest of the build passed.
 - Everything is merged in `main`: phase 0 (PR #97), phase 1 (#98–#100),
@@ -208,12 +211,7 @@ steps. History of the first development line (2026-08-31 → 2026-10-06) is in
 
 ## Next steps
 
-1. **Release 0.2 (due 2026-11-13):** version 0.2.0 and the package README are
-   ready; the owner tests the package (ideally on a clean classroom PC) and
-   gives the go-ahead, then: configure with `-DSIMNODUS_VERSION_SUFFIX=`,
-   package, tag `v0.2.0`, attach the zip to a GitHub release, date the
-   CHANGELOG summary.
-2. Then: classroom feedback; logic gates when a lesson needs them; RX sampled
+1. Classroom feedback on 0.2; logic gates when a lesson needs them; RX sampled
    from the circuit for slow baud rates if wanted.
 
 Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
@@ -244,7 +242,7 @@ STM32CubeF1 1.8.7 package in `~/STM32Cube/Repository` for `hal_clock`).
 
 ## Resuming in a new session
 
-- **Waiting for:** the owner's test of the phase 2 features, then continue with "Next steps". Release builds:
+- **Waiting for:** classroom feedback on 0.2; then continue with "Next steps". Release builds:
   configure a separate tree with `-DSIMNODUS_VERSION_SUFFIX=` (empty; `main`
   stays `dev`), package it, tag `vX.Y.Z`, attach the zip to a GitHub release.
 - **Local folder:** `D:\03_Projects\01_Actives\SimNodus_project` is a Git
