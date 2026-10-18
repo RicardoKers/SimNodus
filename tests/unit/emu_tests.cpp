@@ -1413,6 +1413,26 @@ TEST_CASE("GDB server: attach halts, breakpoints, registers, memory, step, reset
     CHECK(target.time_ns > detached_at);
 }
 
+TEST_CASE("GDB server: after a load into flash the next step starts from reset, as with an ST-LINK")
+{
+    DebugTarget target;
+    REQUIRE(target.start("blink"));
+    GdbSocket client;
+    std::string error;
+    REQUIRE(client.connect_client(target.server->port(), error));
+    REQUIRE(ask(client, "?") == "S05");
+    const auto reset_handler = function_address("blink", "Reset_Handler");
+    CHECK(ask(client, "Pf=00010008") == "OK"); // gdb's load sets some PC; the vectors decide
+    // Rewrite the first vector word with its own value, as `load` writes the image.
+    const std::string sp = ask(client, "m8000000,4");
+    CHECK(ask(client, "M8000000,4:" + sp) == "OK");
+    CHECK(ask(client, "s") == "S05");
+    const auto pc = le_word(ask(client, "pf"));
+    CHECK(pc > reset_handler);
+    CHECK(pc <= reset_handler + 4); // one instruction of the reset handler
+    CHECK(ask(client, "D") == "OK");
+}
+
 TEST_CASE("GDB server: BKPT halts with a debugger and faults without one")
 {
     ElfImage image;

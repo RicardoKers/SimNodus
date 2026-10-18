@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-18, SN-180, owner's test)
+
+- **The debugger loads the firmware, as with an ST-LINK:** with Simulate > Debug Firmware with GDB, a board may start without a firmware file, and the debugger's `load` (STM32CubeIDE's *Download*) writes the image; the first run or step after a download resets the chip so it starts from the new vector table. Checked with arm-none-eabi-gdb loading `hal_clock.elf` over a running blink firmware.
+- The owner debugged a firmware from STM32CubeIDE 2.1.1 (gate G4 test); the guide's STM32CubeIDE steps now keep *Download* on.
+
 ### Added (2026-10-16, SN-180 part 2)
 
 - **Simulate > Debug Firmware with GDB (port 3333)**: the next run gives each board on the own emulator a GDB server (3333, 3334, ...); the firmware waits at its reset handler for STM32CubeIDE or arm-none-eabi-gdb. While a debugger halts the firmware, the circuit stands still; the status bar shows *Waiting for the debugger* or *Halted by the debugger*, and after a resume the run continues at its pace instead of catching up. User guide: MICROCONTROLLER.md, "Debugging with STM32CubeIDE or GDB".

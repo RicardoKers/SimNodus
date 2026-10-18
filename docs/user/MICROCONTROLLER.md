@@ -114,18 +114,16 @@ still too**; when it runs again, both continue from the same instant.
    start the run (F5). The status bar shows *Waiting for the debugger (GDB
    port 3333)*: the firmware waits at its reset handler and the circuit at
    0 s. A second board uses port 3334, and so on.
-2. The ELF in the board's properties must be the one the debugger uses
-   (STM32CubeIDE: `Debug/<project>.elf`); after rebuilding, click
-   **Reload**.
+2. The debugger loads the firmware, as with an ST-LINK: the board's
+   firmware field may stay empty, and if it holds an ELF, the debugger's
+   download replaces it. After a download the chip starts from reset.
 3. **STM32CubeIDE:** Run > Debug Configurations…, select the project's
    *STM32 C/C++ Application* configuration. On the **Debugger** tab choose
-   *Connect to remote GDB server*, host `localhost`, port `3333`. On the
-   **Startup** tab, in *Load Image and Symbols*, edit the entry and clear
-   *Download* (SimNodus has already loaded the firmware; keep *Load
-   symbols*). Click **Debug**. Then use breakpoints, Step Over/Into,
-   Resume, Suspend and the Variables, Registers and Expressions views as
-   with a board. *(These steps were written for STM32CubeIDE 2.1.1 and are
-   being confirmed in the owner's test; the GDB route below is verified.)*
+   *Connect to remote GDB server*, host `localhost`, port `3333`, and click
+   **Debug** (keep *Download* checked on the **Startup** tab). Then use
+   breakpoints, Step Over/Into, Resume, Suspend and the Variables, Registers
+   and Expressions views as with a board. The owner debugged this way from
+   STM32CubeIDE 2.1.1 on 2026-10-18.
 4. **arm-none-eabi-gdb** (it comes with STM32CubeIDE, in the GNU Tools for
    STM32 folder): `arm-none-eabi-gdb Debug/project.elf`, then
    `target extended-remote :3333`, `break main`, `continue`, `next`,

@@ -397,11 +397,15 @@ void NativeMcuRunner::work()
 {
     const auto begin = std::chrono::steady_clock::now();
     std::string error;
-    const auto image = emu::read_elf(options_.machine.firmware, error);
     auto machine = std::make_unique<emu::Stm32F103>();
-    if (!image || !machine->load(*image, error)) {
-        fail(error);
-        return;
+    // Without a firmware file (debugging only) the flash stays empty until the
+    // debugger's `load` writes it.
+    if (!options_.machine.firmware.empty() || options_.gdb_port < 0) {
+        const auto image = emu::read_elf(options_.machine.firmware, error);
+        if (!image || !machine->load(*image, error)) {
+            fail(error);
+            return;
+        }
     }
     std::map<std::pair<int, int>, std::size_t> watched;
     for (std::size_t i = 0; i < ports_.size(); ++i) {
