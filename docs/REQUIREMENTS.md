@@ -72,6 +72,9 @@ an optional bottom message panel and a compact toolbar.
 | UI-14 | Keyboard shortcuts for frequent actions (table in [DESKTOP_UX](architecture/DESKTOP_UX.md#keyboard-shortcuts)); all actions also reachable by menu | 1 | done |
 | UI-15 | Examples menu opens bundled example projects as untitled copies | 1 | done |
 | UI-16 | All user-visible strings go through Qt translation. English is the base language; a Brazilian Portuguese translation is delivered before classroom use | 1 / 4 | in progress |
+| UI-17 | Free text notes on the schematic (instructions for the simulation, explanations); they are presentation only and do not change the netlist | later | planned (SN-193, owner's request 2026-10-18) |
+| UI-18 | The potentiometer shows its wiper position on the symbol (a visual mark and a percentage), while editing and while the simulation runs | later | planned (SN-195, owner's request 2026-10-18) |
+| UI-19 | Buses: a thick line that stands for several wires, with splitters (as in hneemann's *Digital*) that take single wires in and out by name or index; presentation only, the netlist is the same as with the individual wires | later | planned (SN-196, owner's request 2026-10-18) |
 
 ## 3. Interaction while the simulation runs
 
@@ -111,7 +114,7 @@ A separate top-level window that can be placed on another monitor.
 | SIM-04 | Analog engine: ngspice as a shared library loaded at run time, never during project opening | 1 | done |
 | SIM-05 | Pre-run checks with clickable diagnostics: missing ground, floating nets, unconnected pins, voltage-source/inductor loops, shorted sources, invalid values. Convergence failures are reported in plain language with the involved nets/components | 1 | done |
 | SIM-06 | Initial component set A: resistor, capacitor, inductor, potentiometer, DC voltage source, DC current source, battery, pulse/square generator, sine generator, ground, SPST switch, SPDT switch, push button (NO/NC), diode, LED (several colors), NPN transistor, N-channel MOSFET, voltmeter, ammeter | 1 | done |
-| SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | done except logic gates (when a lesson needs them) |
+| SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | done (logic gates: SN-191) |
 | SIM-08 | The engine runs isolated from the editor so that an engine crash cannot crash the editor or lose the document | 4 | planned |
 | SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | done |
 
@@ -128,7 +131,7 @@ A separate top-level window that can be placed on another monitor.
 | MCU-07 | Timers with PWM outputs on the pins (in SimNodus's own emulator, ADR 0090) | 3 | done |
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
 | MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
-| MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | planned |
+| MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | in progress (TX frames and board links done; RX sampled from the circuit: SN-192) |
 | MCU-11 | SimNodus's own STM32 emulator runs the firmware in-process with exact pin timestamps; the engine is selectable per board while Renode remains available ([ADR 0089](decisions/0089-own-stm32-emulator.md)) | 2–4 | planned |
 
 ## 7. Projects and library
@@ -141,6 +144,7 @@ A separate top-level window that can be placed on another monitor.
 | PRJ-04 | Component definitions (symbol graphics, pins, parameters, SPICE model template) are data files in a library folder, not hard-coded, so that a symbol editor can be added later | 1 | done |
 | PRJ-05 | Symbol editor: separate window for creating and editing symbols and pin layouts, writing the same library format | 5+ | planned |
 | PRJ-06 | Reusable subcircuits with explicit ports | after classroom | planned |
+| PRJ-07 | Model variants for basic components (diodes, transistors, MOSFETs; not integrated circuits): the properties panel offers a list of SPICE models (for example 2N2222, BC547, 1N4148) and the user can add more by editing a data file next to the component definition, without rebuilding; sources such as the KiCad-Spice-Library are imported only under compatible license terms | later | planned (SN-194, owner's request 2026-10-18) |
 
 ## 8. Nonfunctional requirements
 

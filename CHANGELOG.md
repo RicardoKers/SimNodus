@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18)
+
+- Logic gates (SN-191, rest of component set B): NOT, AND, NAND, OR, NOR and XOR in a new *Logic gates* category. They are behavioral models like a 74HC gate on a hidden supply VDD (parameter, 5 V by default; 3.3 V next to a Blue Pill): inputs switch at VDD/2, the output goes to 0 or VDD through 50 Ω after about 10 ns, and no supply current is drawn. Engine tests check every truth table at 5 V and 3.3 V and a three-inverter ring oscillator; example 17 is a half adder with switches and LEDs.
+- Backlog entries for the owner's requests of 2026-10-18 (not urgent): text notes on the schematic (SN-193, UI-17), model variants for basic components with user-added models (SN-194, PRJ-07), the potentiometer's wiper position on its symbol (SN-195, UI-18), buses with splitters (SN-196, UI-19). Next in order: logic gates (done), then USART RX sampled from the circuit (SN-192).
+
 ### Added (2026-10-18, owner's request)
 
 - Signal Analyzer, Logic tab: *Export VCD...* writes the checked lanes (microcontroller pins and probe lanes) to an IEEE 1364 Value Change Dump with a 1 ns timescale, for PulseView or GTKWave (SN-190, AN-10). It covers the retained history from the point where every chosen lane has data (probe lanes are limited by the sample buffer); the initial levels go in `$dumpvars`, then only the value changes. Lane names become VCD identifiers (`U1.PA0` → `U1_PA0`, `V(OUT)` → `V_OUT`). The writer is a Qt-free module (`src/sim/vcd.*`) with a unit test; a live GUI test exports the blinking pins of example 07.

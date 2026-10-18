@@ -12,15 +12,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #147 (release docs). Open: PR #148 (this
-  document, SN-190 VCD export).
-- **Since 0.2 (for 0.3):** SN-190 done: *Export VCD...* in the Logic tab
-  writes the checked lanes as an IEEE 1364 VCD (1 ns timescale). The owner
-  still has to open an exported file in PulseView.
+- `main` has everything up to #148 (SN-190 VCD export). Branch
+  `logic-gates`: logic gates (SN-191) and the owner's new backlog entries.
+- **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
+  the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
+  to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,
+  XOR gates (behavioral, hidden supply VDD), example 17 (half adder).
 - **What 0.2 contains:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
-    Zener, op-amp, lamp, relay, DC motor, transformer; logic gates still
-    missing), undo/redo, `.snx` files, examples 01–16, continuous interactive
+    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–16, continuous interactive
     simulation with ngspice (ADR 0080), transient mode.
   - Signal Analyzer: scope with probes, roll/trigger, cursors, measurements,
     per-channel vertical scale, 0 V markers and offsets (SN-189), CSV/PNG
@@ -44,10 +44,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 1. Classroom feedback on 0.2 is postponed (depends on the academic
    calendar); fix what the owner reports when it arrives.
-2. Backlog candidates, none urgent: logic gates when a lesson needs them; RX
-   sampled from the circuit for slow baud rates if wanted; phase 4 items
-   (installer SN-152, pt-BR SN-153, user guide SN-154, engine in a child
-   process SN-151). Ask the owner which block comes next.
+2. Owner's order (2026-10-18): logic gates (done, SN-191), then USART RX
+   sampled from the circuit (SN-192). Installer, pt-BR and dark theme wait;
+   a zip is enough for the tests. New, not urgent: text notes (SN-193),
+   model variants (SN-194), potentiometer position (SN-195), buses (SN-196).
 3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
 
 ## Known constraints
