@@ -93,8 +93,10 @@ public:
     // System reset of the microcontroller (the board's reset button).
     virtual void request_reset() = 0;
     // Logic level the circuit applies to watched pin `pin` (index in
-    // pin_names()) since circuit time `time_ns` (MCU-04).
-    virtual void set_input(std::size_t pin, bool level, std::uint64_t time_ns) = 0;
+    // pin_names()) since circuit time `time_ns` (MCU-04), the accepted point that
+    // showed it. `changed_ns` (not after time_ns) estimates when the voltage
+    // crossed the threshold, for serial receivers that decode edge times (SN-192).
+    virtual void set_input(std::size_t pin, bool level, std::uint64_t time_ns, std::uint64_t changed_ns) = 0;
     // Voltages of the watched pins (pin_names() order; NaN for a pin without a
     // node) at an accepted circuit point, for the ADC (MCU-06). Engines without
     // an ADC model ignore them.

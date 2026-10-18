@@ -215,7 +215,7 @@ bool RenodeMcuRunner::wait_time_ns(std::uint64_t time_ns, const std::atomic<bool
     return status_.time_ns >= time_ns;
 }
 
-void RenodeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_ns)
+void RenodeMcuRunner::set_input(std::size_t pin, bool level, std::uint64_t time_ns, std::uint64_t /*changed_ns*/)
 {
     const std::uint64_t time_us = time_ns / 1000;
     std::lock_guard lock(mutex_);

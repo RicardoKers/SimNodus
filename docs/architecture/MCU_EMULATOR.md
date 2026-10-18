@@ -245,10 +245,19 @@ and the run is labeled approximate. The code is quantized once, as in E-04.
 
 **Serial frames.** The USART model drives TX bit by bit at the baud rate set
 by BRR and the bus clock (start bit, 8 or 9 data bits, parity, stop bits) and
-samples RX from the input level at the bit centers (16x or 8x oversampling
-reduced to the center sample, with noise and framing flags). The terminal
-keeps receiving bytes; the scope and logic lanes see the waveform. Two boards
-can talk through wires.
+samples RX at the bit centers (16x or 8x oversampling reduced to the center
+sample, with framing and parity flags). The terminal keeps receiving bytes;
+the scope and logic lanes see the waveform. Two boards can talk through wires.
+
+As built (SN-192): input changes carry the time the pin voltage crossed the
+threshold (the step's start when it began at a firmware edge breakpoint,
+otherwise interpolated between accepted points) besides the accepted point
+that applies them. The USART keeps its RX pin's edges with those times and
+decides a frame `uart_rx_lag_ns` after its stop bit's center (the ADC's lag
+plus two windows), so every edge of the frame has arrived: the result does
+not depend on thread timing. Bits shorter than four circuit steps are not
+decoded without exact edges (a diagnostic says so). A RX pin on the same net
+as another board's TX keeps the byte link and is not decoded twice.
 
 ## 8. Peripheral fidelity policy
 

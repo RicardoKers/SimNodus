@@ -131,7 +131,7 @@ A separate top-level window that can be placed on another monitor.
 | MCU-07 | Timers with PWM outputs on the pins (in SimNodus's own emulator, ADR 0090) | 3 | done |
 | MCU-08 | STM32CubeIDE/GDB debugging: breakpoint, step, continue and reset pause the whole simulation consistently | 4 | planned |
 | MCU-09 | Supported peripherals and known limitations are listed in the user guide | 2–4 | in progress |
-| MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | in progress (TX frames and board links done; RX sampled from the circuit: SN-192) |
+| MCU-10 | Serial ports drive and read their pins at the configured baud rate: frames visible on the scope and logic lanes, boards can talk through wires | 3 (emulator) | done (SN-175 TX frames and board links, SN-192 RX decoded from the pin) |
 | MCU-11 | SimNodus's own STM32 emulator runs the firmware in-process with exact pin timestamps; the engine is selectable per board while Renode remains available ([ADR 0089](decisions/0089-own-stm32-emulator.md)) | 2–4 | planned |
 
 ## 7. Projects and library

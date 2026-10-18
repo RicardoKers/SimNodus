@@ -6,6 +6,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-18)
 
+- USART RX from the circuit (SN-192, own emulator): the receiver decodes frames on its RX pin from the times the pin voltage crossed the input thresholds, sampling at the bit centers like the chip; a low stop bit sets FE, a wrong parity PE (PEIE raises the interrupt). Any source works, for example another board's TX through a resistor or gates. The circuit must resolve the bits: with *Exact microcontroller edges* any baud rate, otherwise bits of at least four time steps; faster frames are not decoded and the Messages panel says why. A frame is decided after a fixed lag (about 0.4 ms) so that every edge has arrived; boards on one net keep the byte link. Tests: emulator cases (in time, late, FE, PE, glitch, disabled) and a session where one board's output reaches the other through 1 kΩ at 115200 baud.
+
+### Fixed (2026-10-18)
+
+- *Exact microcontroller edges* with two or more boards stopped at once ("did not converge ... time step too small"): the boards' edge breakpoints were queued unsorted, so a past edge of the second board made a negative step. They are kept in time order now.
+
+### Added (2026-10-18)
+
 - Logic gates (SN-191, rest of component set B): NOT, AND, NAND, OR, NOR and XOR in a new *Logic gates* category. They are behavioral models like a 74HC gate on a hidden supply VDD (parameter, 5 V by default; 3.3 V next to a Blue Pill): inputs switch at VDD/2, the output goes to 0 or VDD through 50 Ω after about 10 ns, and no supply current is drawn. Engine tests check every truth table at 5 V and 3.3 V and a three-inverter ring oscillator; example 17 is a half adder with switches and LEDs.
 - Backlog entries for the owner's requests of 2026-10-18 (not urgent): text notes on the schematic (SN-193, UI-17), model variants for basic components with user-added models (SN-194, PRJ-07), the potentiometer's wiper position on its symbol (SN-195, UI-18), buses with splitters (SN-196, UI-19). Next in order: logic gates (done), then USART RX sampled from the circuit (SN-192).
 

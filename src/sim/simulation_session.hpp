@@ -215,6 +215,8 @@ private:
         mcu::PinModel model;
         bool level = false;
         bool sent = false;
+        double volts = 0.0; // at the last accepted point
+        double time = 0.0;
     };
     std::vector<InputWatch> input_watches_; // updated in the engine thread under mutex_
     std::map<mcu::McuBackend*, std::vector<double>> analog_points_; // engine thread: pin voltages per board
@@ -229,6 +231,7 @@ private:
         std::uint64_t sent = 0; // bytes of `from` passed on so far
     };
     std::vector<SerialLink> serial_links_; // engine thread only after start()
+    double last_edge_point_ = -1.0; // engine thread: global time of the last firmware-edge breakpoint
     void pass_serial_bytes();
 
     // Pacing and speed measurement (engine thread only).

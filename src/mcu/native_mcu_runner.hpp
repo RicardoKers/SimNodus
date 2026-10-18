@@ -43,7 +43,7 @@ public:
     void set_limit_ns(std::uint64_t limit) override;
     bool wait_time_ns(std::uint64_t time_ns, const std::atomic<bool>& cancel) override;
     void request_reset() override;
-    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override;
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns, std::uint64_t changed_ns) override;
     void set_analog(std::uint64_t time_ns, const std::vector<double>& volts) override;
     void uart_send(const std::string& uart, const std::string& bytes) override;
     std::uint64_t uart_received(const std::string& uart, std::uint64_t from, std::string& bytes,
@@ -86,6 +86,7 @@ private:
         std::size_t pin = 0;
         bool level = false;
         std::uint64_t time_ns = 0;  // circuit time
+        std::uint64_t changed_ns = 0; // when the voltage crossed the threshold
         std::uint64_t apply_ns = 0; // the window boundary at which the firmware sees it
     };
     std::vector<InputChange> input_queue_;

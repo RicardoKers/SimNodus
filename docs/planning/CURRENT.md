@@ -12,12 +12,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
   The owner tested the package on a clean VM. Release 0.1.0 was published on
   2026-10-14 (due 2026-10-30).
-- `main` has everything up to #148 (SN-190 VCD export). Branch
-  `logic-gates`: logic gates (SN-191) and the owner's new backlog entries.
+- `main` has everything up to #149 (SN-191 logic gates). Branch
+  `rx-from-pin`: SN-192 and the exact-edges fix for two boards.
 - **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
   the checked lanes as an IEEE 1364 VCD (1 ns timescale); the owner still has
   to open an exported file in PulseView. SN-191: NOT, AND, NAND, OR, NOR,
   XOR gates (behavioral, hidden supply VDD), example 17 (half adder).
+  SN-192: USART RX decoded from the pin (exact edges, or bits of four
+  steps); exact edges work with two boards again.
 - **What 0.2 contains:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
     Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–16, continuous interactive
@@ -44,8 +46,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 1. Classroom feedback on 0.2 is postponed (depends on the academic
    calendar); fix what the owner reports when it arrives.
-2. Owner's order (2026-10-18): logic gates (done, SN-191), then USART RX
-   sampled from the circuit (SN-192). Installer, pt-BR and dark theme wait;
+2. Owner's order (2026-10-18): logic gates (SN-191) and USART RX from the
+   circuit (SN-192) done. Ask the owner about removing Renode (SN-183, D4:
+   simpler code, faster tests, smaller package). Installer, pt-BR and dark theme wait;
    a zip is enough for the tests. New, not urgent: text notes (SN-193),
    model variants (SN-194), potentiometer position (SN-195), buses (SN-196).
 3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
@@ -58,8 +61,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - Windows sleep granularity gives up to ~25 ms pacing lag.
 - Exact microcontroller edges cost speed (0.8x–2.9x real time at 100 µs;
   0.2x at 10 µs with 10 kHz PWM).
-- Board-to-board serial is byte level (bytes one frame apart), not sampled
-  from the circuit.
+- USART RX from the pin needs exact edges or bits of four circuit steps;
+  bytes reach DR about 0.4 ms after their stop bit.
 - Renode (legacy engine) deviations are listed in ADRs 0083, 0085 and 0088.
 
 ## Resuming in a new session
