@@ -134,6 +134,9 @@ private:
     void rebuild_examples_menu();
     void ask_label_name(int x, int y);
     void ask_note_text(model::Point at, model::Id note);
+    void ask_bus_name(std::vector<model::Point> points);
+    void ask_splitter(model::Point at);
+    QString bus_name_at(const model::Point& point) const;
     void report_diagnostics();
 
     QSettings& settings_;
@@ -167,6 +170,7 @@ private:
     std::array<bool, 3> before_focus_{true, true, false};
     bool auto_discard_ = false;
     QString last_label_;
+    QString last_bus_ = QStringLiteral("D");
     QTimer* recovery_timer_ = nullptr;
 
     QLabel* state_label_ = nullptr;

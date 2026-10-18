@@ -64,6 +64,12 @@ void Schematic::set_next_id(Id next)
     for (const auto& n : notes_) {
         highest = std::max(highest, n.id);
     }
+    for (const auto& b : buses_) {
+        highest = std::max(highest, b.id);
+    }
+    for (const auto& s : splitters_) {
+        highest = std::max(highest, s.id);
+    }
     next_id_ = std::max({next, highest + 1, next_id_});
 }
 
@@ -90,6 +96,30 @@ const Probe* Schematic::probe(Id id) const
 const TextNote* Schematic::note(Id id) const
 {
     return find(notes_, id);
+}
+
+const Bus* Schematic::bus(Id id) const
+{
+    return find(buses_, id);
+}
+
+const Splitter* Schematic::splitter(Id id) const
+{
+    return find(splitters_, id);
+}
+
+std::vector<Point> splitter_pins(const Splitter& splitter)
+{
+    std::vector<Point> pins;
+    for (int k = 0; k < splitter.count; ++k) {
+        pins.push_back(transform(Point{2, 2 * k}, splitter.position, splitter.orientation));
+    }
+    return pins;
+}
+
+std::string splitter_net(const Splitter& splitter, int k)
+{
+    return splitter.bus + std::to_string(splitter.first + k);
 }
 
 const Component* Schematic::component_by_designator(const std::string& designator) const
@@ -119,6 +149,12 @@ std::optional<Element> Schematic::get(Id id) const
     if (const auto* n = note(id)) {
         return *n;
     }
+    if (const auto* b = bus(id)) {
+        return *b;
+    }
+    if (const auto* s = splitter(id)) {
+        return *s;
+    }
     return std::nullopt;
 }
 
@@ -144,6 +180,12 @@ void Schematic::put(const Element& element)
             if constexpr (!std::is_same_v<T, TextNote>) {
                 erase_id(notes_, id);
             }
+            if constexpr (!std::is_same_v<T, Bus>) {
+                erase_id(buses_, id);
+            }
+            if constexpr (!std::is_same_v<T, Splitter>) {
+                erase_id(splitters_, id);
+            }
             if constexpr (std::is_same_v<T, Component>) {
                 put_sorted(components_, e);
             } else if constexpr (std::is_same_v<T, Wire>) {
@@ -152,8 +194,12 @@ void Schematic::put(const Element& element)
                 put_sorted(labels_, e);
             } else if constexpr (std::is_same_v<T, Probe>) {
                 put_sorted(probes_, e);
-            } else {
+            } else if constexpr (std::is_same_v<T, TextNote>) {
                 put_sorted(notes_, e);
+            } else if constexpr (std::is_same_v<T, Bus>) {
+                put_sorted(buses_, e);
+            } else {
+                put_sorted(splitters_, e);
             }
         },
         element);
@@ -165,12 +211,13 @@ void Schematic::put(const Element& element)
 void Schematic::erase(Id id)
 {
     erase_id(components_, id) || erase_id(wires_, id) || erase_id(labels_, id) || erase_id(probes_, id)
-        || erase_id(notes_, id);
+        || erase_id(notes_, id) || erase_id(buses_, id) || erase_id(splitters_, id);
 }
 
 bool Schematic::empty() const
 {
-    return components_.empty() && wires_.empty() && labels_.empty() && probes_.empty() && notes_.empty();
+    return components_.empty() && wires_.empty() && labels_.empty() && probes_.empty() && notes_.empty()
+        && buses_.empty() && splitters_.empty();
 }
 
 std::string next_designator(const Schematic& schematic, const std::string& prefix)

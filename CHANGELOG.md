@@ -6,6 +6,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-18)
 
+- Buses with splitters (SN-196, UI-19, ADR 0096), like hneemann's *Digital*: *Place > Bus* (`B`) draws a thick named line (`D`); *Place > Splitter* (`S`) puts a splitter on it with a first bit and a number of bits, and each numbered bit pin acts as the net label `D0`, `D1`, ...; splitters of the same bus join equal bits. Renaming a bus in Properties renames the splitters on it; splitters rotate and mirror, and wires on their pins stay attached. The netlist is the same as with single wires. Example 18 (four switches to four LEDs over a 4-bit bus). Tests: connectivity and net names, rename, rotation, paste, file round trip, Properties.
+
+### Added (2026-10-18)
+
 - The potentiometer shows where its wiper is (SN-195, UI-18): the arrow moves along the body with the position (0 % at pin 1) and the percentage is written next to it, from the Position property while editing and from the control while running. The tree's preview shows the arrow too. Library: `interactive.wiper` with the arrow's track and pin.
 
 ### Added (2026-10-18)

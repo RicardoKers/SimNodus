@@ -109,6 +109,13 @@ std::vector<Point> selection_points(const Schematic& s, const library::Component
             result.push_back(l->position);
         } else if (const auto* n = s.note(id)) {
             result.push_back(n->position);
+        } else if (const auto* b = s.bus(id)) {
+            result.insert(result.end(), b->points.begin(), b->points.end());
+        } else if (const auto* sp = s.splitter(id)) {
+            result.push_back(sp->position);
+            for (const auto& p : splitter_pins(*sp)) {
+                result.push_back(p);
+            }
         }
     }
     return result;
@@ -160,6 +167,23 @@ Edit transform_items(const Schematic& schematic, const library::ComponentLibrary
         } else if (const auto* n = schematic.note(id)) {
             TextNote updated = *n;
             updated.position = map_point(n->position);
+            work.put(updated);
+        } else if (const auto* b = schematic.bus(id)) {
+            Bus updated = *b;
+            for (auto& p : updated.points) {
+                p = map_point(p);
+            }
+            work.put(updated);
+        } else if (const auto* sp = schematic.splitter(id)) {
+            Splitter updated = *sp;
+            updated.position = map_point(sp->position);
+            updated.orientation = map_orientation(sp->orientation);
+            // Wires on its bit pins stay attached, as on a component's pins.
+            const auto before = splitter_pins(*sp);
+            const auto after = splitter_pins(updated);
+            for (std::size_t i = 0; i < before.size(); ++i) {
+                moved.emplace(before[i], after[i]);
+            }
             work.put(updated);
         }
     }
@@ -275,6 +299,77 @@ Edit set_note_text(const Schematic& schematic, Id note, const std::string& text)
     updated.text = text;
     work.put(updated);
     return make_edit(schematic, work, "Edit text note");
+}
+
+Edit add_bus(Schematic& schematic, std::vector<Point> points, const std::string& name, Id* created)
+{
+    points = normalize_polyline(std::move(points));
+    if (points.size() < 2 || !is_orthogonal(points) || name.empty()) {
+        return {};
+    }
+    Schematic work = schematic;
+    Bus b{schematic.allocate_id(), points, name};
+    work.put(b);
+    if (created) {
+        *created = b.id;
+    }
+    return make_edit(schematic, work, "Draw bus " + name);
+}
+
+Edit add_splitter(Schematic& schematic, Point position, const std::string& bus, int first, int count, Id* created)
+{
+    if (bus.empty() || first < 0 || count < 1 || count > 64) {
+        return {};
+    }
+    Schematic work = schematic;
+    Splitter s{schematic.allocate_id(), position, {}, bus, first, count};
+    work.put(s);
+    if (created) {
+        *created = s.id;
+    }
+    return make_edit(schematic, work, "Place splitter " + bus);
+}
+
+Edit rename_bus(const Schematic& schematic, Id bus, const std::string& name)
+{
+    const auto* b = schematic.bus(bus);
+    if (!b || name.empty() || b->name == name) {
+        return {};
+    }
+    Schematic work = schematic;
+    for (const auto& s : schematic.splitters()) {
+        bool on_bus = false;
+        for (std::size_t i = 0; i + 1 < b->points.size() && !on_bus; ++i) {
+            on_bus = model::on_segment(s.position, b->points[i], b->points[i + 1]);
+        }
+        if (on_bus && s.bus == b->name) {
+            Splitter updated = s;
+            updated.bus = name;
+            work.put(updated);
+        }
+    }
+    Bus renamed = *b;
+    renamed.name = name;
+    work.put(renamed);
+    return make_edit(schematic, work, "Rename bus " + b->name + " to " + name);
+}
+
+Edit set_splitter(const Schematic& schematic, Id splitter, const std::string& bus, int first, int count)
+{
+    const auto* s = schematic.splitter(splitter);
+    if (!s || bus.empty() || first < 0 || count < 1 || count > 64) {
+        return {};
+    }
+    Schematic work = schematic;
+    Splitter updated = *s;
+    updated.bus = bus;
+    updated.first = first;
+    updated.count = count;
+    if (updated == *s) {
+        return {};
+    }
+    work.put(updated);
+    return make_edit(schematic, work, "Change splitter " + bus);
 }
 
 Edit add_probe(Schematic& schematic, const Probe& probe, Id* created)
@@ -457,8 +552,13 @@ Edit paste_items(Schematic& schematic, const library::ComponentLibrary& library,
                     for (auto& p : item.points) {
                         p = p + offset;
                     }
-                } else if constexpr (std::is_same_v<T, NetLabel> || std::is_same_v<T, TextNote>) {
+                } else if constexpr (std::is_same_v<T, NetLabel> || std::is_same_v<T, TextNote>
+                    || std::is_same_v<T, Splitter>) {
                     item.position = item.position + offset;
+                } else if constexpr (std::is_same_v<T, Bus>) {
+                    for (auto& p : item.points) {
+                        p = p + offset;
+                    }
                 } else {
                     // Probes follow their pasted targets; others keep pointing at the original.
                     auto remap = [&](Anchor& a) {

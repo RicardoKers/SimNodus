@@ -18,6 +18,7 @@ inline const QColor grid_major{0xa9, 0xad, 0xb3};
 inline const QColor ink{0x22, 0x24, 0x28};
 inline const QColor selection{0x1f, 0x6f, 0xd1};
 inline const QColor muted_text{0x6b, 0x70, 0x78};
+inline const QColor bus{0x2b, 0x4f, 0x7e}; // buses and splitters (UI-19)
 // Microcontroller pin levels on the board symbol (INT-06).
 inline const QColor pin_high{0xe0, 0x3a, 0x2f};
 inline const QColor pin_low{0x2f, 0x5f, 0xd0};

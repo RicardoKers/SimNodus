@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0096: Buses are drawings; splitters join their bits by name](0096-buses-and-splitters.md):
+  SN-196; bit k of bus D is the net Dk, the netlist stays as with single wires.
 - [0095: Model variants of basic parts, built in and from the user's folder](0095-model-variants.md):
   SN-194; SimNodus's own approximations built in, user models copied into the project.
 - [0094: Remove Renode; the own emulator is the only microcontroller engine](0094-remove-renode.md):

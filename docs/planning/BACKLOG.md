@@ -89,6 +89,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-193 | Text notes on the schematic: Place > Text Note (`T`), multi-line text, edit by double-click or in Properties, move, copy, undo; `notes` in `.snx`; not part of the netlist. Owner's request 2026-10-18 | UI-17 | done 2026-10-18 (example 17 has a note) |
 | SN-194 | Model variants of basic parts: `model` parameter (NPN, PNP, NMOS, PMOS, diode), built-in approximations in `basic_models.lib`, user models folder (Tools > Open Models Folder), chosen user models copied into the project; KiCad-Spice-Library not bundled (per-file vendor terms). Owner's request 2026-10-18 | PRJ-07 | done 2026-10-18 (ADR 0095) |
 | SN-195 | Potentiometer wiper position on the symbol: the arrow moves along the body with the position (parameter, or the live control while running) and the percentage is shown next to it; `interactive.wiper` in the library. Owner's request 2026-10-18 | UI-18 | done 2026-10-18 |
+| SN-196 | Buses with splitters like hneemann's *Digital*: Bus (`B`) and Splitter (`S`) tools; bit pins are labels named after the bus (`D0`...); renaming a bus renames its splitters; presentation only, same netlist; example 18. Owner's request 2026-10-18 | UI-19 | done 2026-10-18 (ADR 0096) |
 
 ## Phase 4 — Debugging and packaging, release 0.4 (until 2026-12-11)
 
@@ -109,4 +110,3 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-162 | Dark theme, ANSI symbol variant |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
 | SN-164 | Linux package |
-| SN-196 | Buses with splitters like hneemann's *Digital*; presentation only, same netlist (UI-19, owner's request 2026-10-18) |

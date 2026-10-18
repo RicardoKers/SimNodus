@@ -28,7 +28,7 @@ namespace simnodus::ui {
 
 class SchematicScene;
 
-enum class Tool { Select, Place, Wire, Label, Probe, Note };
+enum class Tool { Select, Place, Wire, Label, Probe, Note, Bus, Splitter };
 
 class SchematicView : public QGraphicsView {
     Q_OBJECT
@@ -89,6 +89,9 @@ signals:
     void label_name_needed(model::Point at);
     // Text of a new note at `at` (note = no_id) or of an existing note (UI-17).
     void note_text_needed(model::Point at, model::Id note);
+    // A bus was drawn through `points` and needs a name; a splitter goes at `at` (UI-19).
+    void bus_name_needed(std::vector<model::Point> points);
+    void splitter_needed(model::Point at);
 
 protected:
     void drawBackground(QPainter* painter, const QRectF& rect) override;
@@ -113,6 +116,7 @@ private:
     void update_wire_preview(const model::Point& cursor);
     std::vector<model::Point> route(const model::Point& from, const model::Point& to) const;
     void finish_wire();
+    bool drawing_line() const { return tool_ == Tool::Wire || tool_ == Tool::Bus; }
     void cancel_wire();
     void place_at(const model::Point& at);
     void add_probe_at(const model::Point& at, bool force_voltage);

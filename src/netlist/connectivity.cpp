@@ -105,6 +105,19 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
     for (std::size_t i = 0; i < s.labels().size(); ++i) {
         label_node.push_back(uf.add());
     }
+    // Splitter bit pins (UI-19): labels named after the bus and bit.
+    struct Tap {
+        Point at;
+        std::string name;
+        int node = 0;
+    };
+    std::vector<Tap> taps;
+    for (const auto& sp : s.splitters()) {
+        const auto points = model::splitter_pins(sp);
+        for (int k = 0; k < sp.count; ++k) {
+            taps.push_back({points[static_cast<std::size_t>(k)], model::splitter_net(sp, k), uf.add()});
+        }
+    }
     std::map<std::string, int> named; // net name -> node (labels, tied nets)
     auto named_node = [&](const std::string& name) {
         const std::string key = is_ground_name(name) ? std::string("0") : name;
@@ -163,6 +176,20 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         }
     }
 
+    for (const auto& tap : taps) {
+        uf.unite(tap.node, named_node(tap.name));
+        for (std::size_t w = 0; w < s.wires().size(); ++w) {
+            if (on_wire(tap.at, s.wires()[w])) {
+                uf.unite(tap.node, wire_node[w]);
+            }
+        }
+        for (std::size_t i = 0; i < pins.size(); ++i) {
+            if (pins[i].at == tap.at) {
+                uf.unite(tap.node, pin_node[i]);
+            }
+        }
+    }
+
     // Build nets in a deterministic order: by first pin, then wire, then label.
     std::map<int, int> root_net;
     auto net_for = [&](int node) {
@@ -190,6 +217,11 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         net.labels.push_back(s.labels()[l].id);
         net.label_names.push_back(s.labels()[l].name);
         result.label_net[s.labels()[l].id] = n;
+    }
+    for (const auto& tap : taps) {
+        const int n = net_for(tap.node);
+        result.nets[static_cast<std::size_t>(n)].taps += 1;
+        result.tap_net[tap.at] = n;
     }
     if (const auto ground = named.find("0"); ground != named.end()) {
         if (const auto it = root_net.find(uf.find(ground->second)); it != root_net.end()) {
@@ -278,6 +310,9 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
     for (const auto& l : s.labels()) {
         label_points.insert(l.position);
     }
+    for (const auto& tap : taps) {
+        label_points.insert(tap.at); // a wire ending on a bit pin is connected
+    }
     for (const auto& w : s.wires()) {
         if (w.points.size() < 2) {
             continue;
@@ -293,7 +328,7 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         const auto* c = s.component(p.pin.first);
         const auto* d = c ? library.find(c->type) : nullptr;
         const bool tied = d && !d->ties_net.empty();
-        if (!tied && net.pins.size() == 1 && net.wires.empty() && net.labels.empty()) {
+        if (!tied && net.pins.size() == 1 && net.wires.empty() && net.labels.empty() && net.taps == 0) {
             result.unconnected_pins.push_back(p.pin);
         }
     }
@@ -316,6 +351,9 @@ std::optional<int> Connectivity::net_at(const Schematic& s, const library::Compo
         if (l.position == point) {
             return label_net.at(l.id);
         }
+    }
+    if (const auto tap = tap_net.find(point); tap != tap_net.end()) {
+        return tap->second;
     }
     return std::nullopt;
 }

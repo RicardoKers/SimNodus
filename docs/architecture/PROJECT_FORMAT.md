@@ -32,6 +32,11 @@ partially.
   the statement of a model that is not built in (chosen from the user's models
   folder), so the project opens the same on another computer
   ([ADR 0095](../decisions/0095-model-variants.md)).
+- **Buses and splitters** (UI-19, [ADR 0096](../decisions/0096-buses-and-splitters.md)):
+  `"buses": [{"id", "points", "name": "D"}]` are drawings only;
+  `"splitters": [{"id", "at", "rotation", "mirrored", "bus": "D", "first": 0, "count": 8}]`
+  have their bus point at `at` and bit pins at local (2, 0), (2, 2), ...; each
+  bit pin is a net label `D0`, `D1`, ...
 - **Notes** (UI-17) are free text, top-left corner at `at`, lines separated by
   `\n`; they are presentation only and never reach the netlist. Files without
   `notes` load as before.

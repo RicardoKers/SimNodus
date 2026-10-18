@@ -114,6 +114,51 @@ TEST_CASE("model parameters choose a built-in model or one kept in the component
     CHECK(has(netlist::generate_netlist(b.schematic, lib), "unknown-model"));
 }
 
+TEST_CASE("splitter bit pins join nets by bus name; buses connect nothing by themselves")
+{
+    const auto lib = load();
+    Schematic s;
+    // R1 from VCC to the first splitter's bit 0; R2 from the second splitter's
+    // bit 0 to ground; R3 on bit 1 of the first splitter only.
+    Id r1 = 0, r2 = 0, r3 = 0;
+    editing::add_component(s, *lib.find("resistor"), {0, 0}, {}, &r1).apply(s);  // pins (0,-3), (0,3)
+    editing::add_component(s, *lib.find("resistor"), {20, 0}, {}, &r2).apply(s); // pins (20,-3), (20,3)
+    editing::add_component(s, *lib.find("resistor"), {4, 8}, {}, &r3).apply(s);  // pins (4,5), (4,11)
+    editing::add_label(s, {0, -3}, "VCC").apply(s);
+    editing::add_label(s, {20, 3}, "0").apply(s);
+    editing::add_label(s, {4, 11}, "0").apply(s);
+    Id a = 0, b = 0;
+    editing::add_splitter(s, {-2, 3}, "D", 0, 4, &a).apply(s);    // bits at (0,3), (0,5), (0,7), (0,9)
+    editing::add_splitter(s, {18, -3}, "D", 0, 2, &b).apply(s);   // bits at (20,-3), (20,-1)
+    editing::add_wire(s, {{0, 5}, {4, 5}}).apply(s);              // bit 1 of the first to R3
+    editing::add_bus(s, {{-2, 3}, {-2, -10}, {18, -10}, {18, -3}}, "D").apply(s);
+    CHECK((model::splitter_pins(*s.splitter(a)) == std::vector<Point>{{0, 3}, {0, 5}, {0, 7}, {0, 9}}));
+    const auto conn = netlist::build_connectivity(s, lib);
+    const auto& d0 = conn.nets[static_cast<std::size_t>(conn.pin_net.at({r1, "2"}))];
+    CHECK(d0.name == "D0");
+    CHECK(conn.pin_net.at({r1, "2"}) == conn.pin_net.at({r2, "1"})); // D0 on both splitters
+    CHECK(conn.nets[static_cast<std::size_t>(conn.pin_net.at({r3, "1"}))].name == "D1");
+    CHECK(conn.pin_net.at({r3, "1"}) != conn.pin_net.at({r1, "2"}));
+    // A wire ending on a bit pin is not an open end; a pin on a bit pin is connected.
+    CHECK(std::find(conn.dangling_ends.begin(), conn.dangling_ends.end(), Point{0, 5}) == conn.dangling_ends.end());
+    CHECK(std::find(conn.unconnected_pins.begin(), conn.unconnected_pins.end(), netlist::PinRef{r2, "1"})
+        == conn.unconnected_pins.end());
+    CHECK(conn.net_at(s, lib, {0, 7}).has_value()); // hover name of an unused bit
+    // Renaming the bus renames the splitters on it: the bits stay joined, as "E0".
+    for (const auto& bus : s.buses()) {
+        editing::rename_bus(s, bus.id, "E").apply(s);
+    }
+    CHECK(s.splitter(a)->bus == "E");
+    CHECK(s.splitter(b)->bus == "E");
+    const auto renamed = netlist::build_connectivity(s, lib);
+    CHECK(renamed.nets[static_cast<std::size_t>(renamed.pin_net.at({r1, "2"}))].name == "E0");
+    const auto n = netlist::generate_netlist(s, lib);
+    if (!n.ok()) {
+        dump(n);
+    }
+    CHECK(n.ok());
+}
+
 TEST_CASE("an RC circuit gives the expected netlist")
 {
     const auto lib = load();

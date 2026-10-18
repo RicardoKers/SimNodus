@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Graphics scene of the schematic (ADR 0081): one item per component, wire,
-// net label, probe and text note, kept in sync with the document by ID. Junction dots
+// net label, probe, text note, bus and splitter, kept in sync with the document by ID. Junction dots
 // and open-end markers come from the connectivity (UI-06). While a run is
 // active the scene also shows live state (INT-03).
 #pragma once
@@ -29,6 +29,8 @@ class WireItem;
 class LabelItem;
 class ProbeItem;
 class NoteItem;
+class BusItem;
+class SplitterItem;
 class DecorationItem;
 
 // Grid unit in scene coordinates (same as SchematicView::grid).
@@ -116,6 +118,8 @@ private:
     std::map<model::Id, LabelItem*> labels_;
     std::map<model::Id, ProbeItem*> probes_;
     std::map<model::Id, NoteItem*> notes_;
+    std::map<model::Id, BusItem*> buses_;
+    std::map<model::Id, SplitterItem*> splitters_;
     DecorationItem* decorations_ = nullptr;
     ComponentItem* ghost_ = nullptr;
     WireItem* wire_preview_ = nullptr;

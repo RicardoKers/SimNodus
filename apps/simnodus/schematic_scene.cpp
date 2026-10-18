@@ -558,6 +558,151 @@ private:
     model::NetLabel label_;
 };
 
+// Bus (UI-19): a thick line with its name at the start; it connects nothing.
+class BusItem : public QGraphicsItem {
+public:
+    BusItem()
+    {
+        setFlag(ItemIsSelectable, true);
+        setZValue(1);
+    }
+
+    void set(const model::Bus& bus)
+    {
+        if (bus == bus_) {
+            return;
+        }
+        prepareGeometryChange();
+        bus_ = bus;
+        setData(key_id, QVariant::fromValue<qulonglong>(bus.id));
+        path_ = QPainterPath();
+        for (std::size_t i = 0; i < bus.points.size(); ++i) {
+            if (i == 0) {
+                path_.moveTo(to_scene(bus.points[i]));
+            } else {
+                path_.lineTo(to_scene(bus.points[i]));
+            }
+        }
+        update();
+    }
+
+    QRectF name_rect() const
+    {
+        if (bus_.points.size() < 2) {
+            return {};
+        }
+        const QFontMetricsF metrics(schematic_font(true));
+        const QString name = QString::fromStdString(bus_.name);
+        const QPointF a = to_scene(bus_.points[0]);
+        const QPointF b = to_scene(bus_.points[1]);
+        const QSizeF size(metrics.horizontalAdvance(name) + 2, metrics.height());
+        // Beside the first segment, next to its start.
+        if (a.y() == b.y()) {
+            const double x = b.x() > a.x() ? a.x() + 6 : a.x() - 6 - size.width();
+            return QRectF(QPointF(x, a.y() - size.height() - 2), size);
+        }
+        const double y = b.y() > a.y() ? a.y() + 4 : a.y() - 4 - size.height();
+        return QRectF(QPointF(a.x() + 6, y), size);
+    }
+
+    QRectF boundingRect() const override { return path_.boundingRect().adjusted(-5, -5, 5, 5).united(name_rect()); }
+
+    QPainterPath shape() const override
+    {
+        QPainterPathStroker stroker;
+        stroker.setWidth(9);
+        QPainterPath shape = stroker.createStroke(path_);
+        shape.addRect(name_rect());
+        return shape;
+    }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
+    {
+        const QColor color = isSelected() ? theme::selection : theme::bus;
+        painter->setPen(QPen(color, 4.0, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawPath(path_);
+        painter->setFont(schematic_font(true));
+        painter->drawText(name_rect(), Qt::AlignCenter, QString::fromStdString(bus_.name));
+    }
+
+private:
+    model::Bus bus_;
+    QPainterPath path_;
+};
+
+// Splitter (UI-19): the bus side, a bar and one stub per bit with its number.
+class SplitterItem : public QGraphicsItem {
+public:
+    SplitterItem()
+    {
+        setFlag(ItemIsSelectable, true);
+        setZValue(3);
+    }
+
+    void set(const model::Splitter& splitter)
+    {
+        if (splitter == splitter_) {
+            return;
+        }
+        prepareGeometryChange();
+        splitter_ = splitter;
+        setData(key_id, QVariant::fromValue<qulonglong>(splitter.id));
+        update();
+    }
+
+    // Local splitter point (grid units) -> item coordinates (the item sits at scene 0,0).
+    QPointF map(double x, double y) const
+    {
+        const auto p = model::transform(model::PointF{x, y}, splitter_.position, splitter_.orientation);
+        return {p.x * scene_grid, p.y * scene_grid};
+    }
+
+    QRectF bit_rect(int k) const
+    {
+        const QFontMetricsF metrics(schematic_font());
+        const QString text = QString::number(splitter_.first + k);
+        const QSizeF size(metrics.horizontalAdvance(text) + 2, metrics.height());
+        const QPointF anchor = map(1.5, 2.0 * k - 0.55);
+        return QRectF(anchor - QPointF(size.width() / 2, size.height() / 2), size);
+    }
+
+    QRectF boundingRect() const override
+    {
+        QRectF r = QRectF(map(-0.3, -1), map(2.3, 2.0 * (splitter_.count - 1) + 1)).normalized();
+        for (int k = 0; k < splitter_.count; ++k) {
+            r = r.united(bit_rect(k));
+        }
+        return r.adjusted(-4, -4, 4, 4);
+    }
+
+    QPainterPath shape() const override
+    {
+        QPainterPath path;
+        path.addRect(QRectF(map(-0.2, -0.8), map(2.0, 2.0 * (splitter_.count - 1) + 0.8)).normalized());
+        return path;
+    }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
+    {
+        const QColor color = isSelected() ? theme::selection : theme::bus;
+        const double last = 2.0 * (splitter_.count - 1);
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(QPen(color, 4.0, Qt::SolidLine, Qt::FlatCap));
+        painter->drawLine(map(0, 0), map(1, 0));
+        painter->drawLine(map(1, -0.6), map(1, last + 0.6));
+        painter->setPen(QPen(isSelected() ? theme::selection : theme::ink, line_width, Qt::SolidLine, Qt::RoundCap));
+        painter->setFont(schematic_font());
+        for (int k = 0; k < splitter_.count; ++k) {
+            painter->drawLine(map(1, 2.0 * k), map(2, 2.0 * k));
+            painter->drawText(bit_rect(k), Qt::AlignCenter, QString::number(splitter_.first + k));
+        }
+    }
+
+private:
+    model::Splitter splitter_;
+};
+
 // Text note (UI-17): the text as typed, line by line, from its top-left corner.
 class NoteItem : public QGraphicsItem {
 public:
@@ -739,6 +884,8 @@ void SchematicScene::rebuild(const model::Schematic& s)
     prune(labels_, [&s](model::Id id) { return s.label(id) != nullptr; });
     prune(probes_, [&s](model::Id id) { return s.probe(id) != nullptr; });
     prune(notes_, [&s](model::Id id) { return s.note(id) != nullptr; });
+    prune(buses_, [&s](model::Id id) { return s.bus(id) != nullptr; });
+    prune(splitters_, [&s](model::Id id) { return s.splitter(id) != nullptr; });
     for (const auto& c : s.components()) {
         auto& item = components_[c.id];
         if (!item) {
@@ -762,6 +909,22 @@ void SchematicScene::rebuild(const model::Schematic& s)
             addItem(item);
         }
         item->set(l);
+    }
+    for (const auto& b : s.buses()) {
+        auto& item = buses_[b.id];
+        if (!item) {
+            item = new BusItem;
+            addItem(item);
+        }
+        item->set(b);
+    }
+    for (const auto& sp : s.splitters()) {
+        auto& item = splitters_[sp.id];
+        if (!item) {
+            item = new SplitterItem;
+            addItem(item);
+        }
+        item->set(sp);
     }
     for (const auto& n : s.notes()) {
         auto& item = notes_[n.id];
@@ -846,6 +1009,12 @@ QGraphicsItem* SchematicScene::item_of(model::Id id) const
         return it->second;
     }
     if (auto it = notes_.find(id); it != notes_.end()) {
+        return it->second;
+    }
+    if (auto it = buses_.find(id); it != buses_.end()) {
+        return it->second;
+    }
+    if (auto it = splitters_.find(id); it != splitters_.end()) {
         return it->second;
     }
     return nullptr;
