@@ -45,6 +45,7 @@ enum class RunState { Idle, Running, Paused, Finished, Stopped, Failed };
 // A microcontroller of the circuit (SN-131): its firmware runs in Renode,
 // started before the analog run and kept within `mcu_lead_us` of its time.
 struct McuRequest {
+    std::map<std::string, std::pair<std::string, std::string>> uart_pins; // UART -> TX pin, RX pin
     model::Id component = model::no_id;
     std::string engine = "native"; // "native" or "renode" (legacy; SN-172, ADR 0090)
     mcu::McuRunOptions options;
@@ -217,6 +218,18 @@ private:
     };
     std::vector<InputWatch> input_watches_; // updated in the engine thread under mutex_
     std::map<mcu::McuBackend*, std::vector<double>> analog_points_; // engine thread: pin voltages per board
+    // Serial links (SN-175): a board's UART TX pin on the same net as another
+    // board's RX pin passes its bytes on at the byte level (frames of 8.7 us at
+    // 115200 baud are far shorter than the 100 us coupling window).
+    struct SerialLink {
+        model::Id from = model::no_id;
+        std::string from_uart;
+        model::Id to = model::no_id;
+        std::string to_uart;
+        std::uint64_t sent = 0; // bytes of `from` passed on so far
+    };
+    std::vector<SerialLink> serial_links_; // engine thread only after start()
+    void pass_serial_bytes();
 
     // Pacing and speed measurement (engine thread only).
     std::chrono::steady_clock::time_point wall_origin_;
