@@ -13,7 +13,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   (27 MB). The owner tried the preview package on 2026-10-18: all examples
   run, and a USART capture exported as VCD decodes in PulseView. Releases
   0.1.0 and 0.2.0 were published on 2026-10-14 and 2026-10-18.
-- Everything is merged in `main`; no open branches or PRs.
+- Since 0.3.0: imported models are checked parameter by parameter, with
+  reports (branch `model-validation`). Next: subcircuits (PRJ-06), the
+  owner's priority (2026-10-18).
 - **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
   ADR 0096), examples 17 and 18; text notes (SN-193); model variants with
   the user's models folder (SN-194, ADR 0095); potentiometer position

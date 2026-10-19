@@ -410,7 +410,9 @@ QWidget* PropertiesPanel::model_editor(
             add(m, tr("Built in (SimNodus approximation)"), QString());
         }
     }
-    for (const auto& u : user_models()) {
+    const auto& folder_models = user_models();
+    emit models_read();
+    for (const auto& u : folder_models) {
         if (u.model.type == p.model_type && box->findText(QString::fromStdString(u.model.name)) < 0) {
             add(u.model, tr("Models folder: %1").arg(u.file), QString::fromStdString(u.model.card()));
         }

@@ -347,6 +347,13 @@ TEST_CASE("library: component set B behaves like its parts")
         CHECK(silicon > 0.6 && silicon < 0.8);
         CHECK(schottky > 0.15 && schottky < silicon - 0.2);
         CHECK(user > 0.1 && user < 0.25);
+        // A value that is not a number used to stop ngspice for the rest of the
+        // session; it is now left out, and the next circuits still run.
+        const double broken = forward("BADD", ".model BADD D(IS=abc N=1.8 mfg=Test)");
+        const double after = forward("1N4148", "");
+        std::printf("  model with IS=abc: %.3f V; next circuit: %.3f V\n", broken, after);
+        CHECK(broken > 1.1 && broken < 1.4); // the default IS with N=1.8
+        CHECK(std::abs(after - silicon) < 1e-6);
         // MOSFETs switched on with 10 V at the gate: on-resistance near the datasheet's.
         auto on_resistance = [&](const char* model, const char* load, double amps) {
             test::CircuitBuilder b(components());

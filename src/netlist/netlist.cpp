@@ -192,6 +192,11 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                     if (chosen && chosen->name != text) {
                         chosen.reset();
                     }
+                    // Parameters ngspice could not use stay out of the netlist; say so.
+                    for (const auto& left_out : chosen ? chosen->dropped : std::vector<std::string>{}) {
+                        report(Severity::Warning, "model-parameter",
+                            c.designator + ": model " + text + " left out " + left_out + ".", {c.id}, c.position);
+                    }
                 }
                 std::string as_name;
                 if (chosen) {

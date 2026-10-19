@@ -180,6 +180,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(properties_, &PropertiesPanel::message, this, [this](const QString& text) {
         statusBar()->showMessage(text, 6000);
     });
+    connect(properties_, &PropertiesPanel::models_read, this, &MainWindow::report_model_issues);
     connect(document_, &Document::file_changed, this, &MainWindow::update_title);
     connect(document_, &Document::changed, this, [this] {
         setWindowModified(document_->modified());
@@ -225,6 +226,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     sync_panel_actions();
     rebuild_recent_menu();
     rebuild_examples_menu();
+    QTimer::singleShot(0, this, &MainWindow::report_model_issues);
     update_title();
     update_run_state();
     recovery_timer_ = new QTimer(this);
@@ -404,6 +406,7 @@ void MainWindow::build_actions_and_menus()
             QMessageBox::warning(this, tr("Models folder"), tr("The folder %1 could not be created.").arg(user_models_folder()));
             return;
         }
+        report_model_issues();
         QDesktopServices::openUrl(QUrl::fromLocalFile(user_models_folder()));
     });
     models->setStatusTip(tr("SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties"));
@@ -780,6 +783,20 @@ void MainWindow::ask_note_text(model::Point at, model::Id note)
         document_->apply(editing::add_note(document_->id_source(), at, value, &created));
         scene_->select_ids({created});
         view_->set_tool(Tool::Select);
+    }
+}
+
+void MainWindow::report_model_issues()
+{
+    const int generation = user_models_generation();
+    if (generation == reported_models_generation_) {
+        return;
+    }
+    reported_models_generation_ = generation;
+    const QString source = tr("Models");
+    messages_->clear_source(source);
+    for (const auto& issue : user_model_issues()) {
+        messages_->add(Severity::Warning, tr("Models folder: %1").arg(issue), source);
     }
 }
 

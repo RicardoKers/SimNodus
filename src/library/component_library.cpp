@@ -528,10 +528,10 @@ std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem:
         std::ostringstream content;
         content << input.rdbuf();
         if (file.extension() == ".lib") {
-            int skipped = 0;
-            add_models(parse_spice_models(content.str(), &skipped));
-            if (skipped > 0) {
-                messages.push_back({file, std::to_string(skipped) + " statement(s) are not supported models"});
+            std::vector<ModelIssue> issues;
+            add_models(parse_spice_models(content.str(), &issues));
+            for (const auto& issue : issues) {
+                messages.push_back({file, "line " + std::to_string(issue.line) + ", " + issue.model + ": " + issue.text});
             }
         } else if (auto error = add_from_json(content.str(), file)) {
             messages.push_back({file, *error});

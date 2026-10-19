@@ -7,6 +7,7 @@
 #include "app_settings.hpp"
 #include "document.hpp"
 #include "logic_widget.hpp"
+#include "user_models.hpp"
 #include "main_window.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
@@ -259,7 +260,8 @@ private slots:
         QVERIFY(QDir().mkpath(folder));
         QFile file(folder + QStringLiteral("/mine.lib"));
         QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write("* MY-NPN: a test transistor\n.model MY-NPN NPN(BF=50)\nR1 1 2 1k\n");
+        file.write("* MY-NPN: a test transistor\n.model MY-NPN NPN(BF=50)\nR1 1 2 1k\n"
+                   ".model ODD NPN(BF=80 FOO=2)\n.subckt AMP 1 2\n.ends\n");
         file.close();
         qputenv("SIMNODUS_MODELS_DIR", folder.toUtf8());
         const model::Id q = place("npn", {0, 0});
@@ -272,6 +274,13 @@ private slots:
         const int mine = box->findText(QStringLiteral("MY-NPN"));
         QVERIFY(mine >= 0);
         QVERIFY(box->itemData(mine, Qt::ToolTipRole).toString().contains(QStringLiteral("mine.lib")));
+        QVERIFY(box->findText(QStringLiteral("ODD")) >= 0); // kept, without FOO
+        // What was left out or skipped is in the Messages panel, once per read.
+        QCOMPARE(window_->messages()->warning_count(), 2);
+        const auto& issues = user_model_issues();
+        QCOMPARE(static_cast<int>(issues.size()), 2);
+        QCOMPARE(issues[0], QStringLiteral("mine.lib, line 4, ODD: left out FOO=2 (not a NPN parameter)"));
+        QVERIFY(issues[1].contains(QStringLiteral("AMP")) && issues[1].contains(QStringLiteral("subcircuits")));
         emit box->activated(mine);
         const auto* c = doc().schematic().component(q);
         QCOMPARE(c->parameters.at("model"), std::string("MY-NPN"));

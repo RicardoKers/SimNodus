@@ -137,6 +137,8 @@ private:
     void ask_bus_name(std::vector<model::Point> points);
     void ask_splitter(model::Point at);
     QString bus_name_at(const model::Point& point) const;
+    // Problems of the user's models folder in Messages, once per read (PRJ-07).
+    void report_model_issues();
     void report_diagnostics();
 
     QSettings& settings_;
@@ -171,6 +173,7 @@ private:
     bool auto_discard_ = false;
     QString last_label_;
     QString last_bus_ = QStringLiteral("D");
+    int reported_models_generation_ = -1;
     QTimer* recovery_timer_ = nullptr;
 
     QLabel* state_label_ = nullptr;

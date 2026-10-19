@@ -33,9 +33,19 @@ classroom PC, and opening a project never executes code.
   (`models` in the project file). The project then needs neither the folder nor
   the same library on another PC; a built-in choice keeps nothing.
 - Model text is data. Only `.model` statements of the five types are taken;
-  subcircuits, other dot commands, parameter expressions (`{}`), quotes and
-  unusual names are refused. Netlists use SimNodus's own model names
-  (`BM_<type>_<name>`, `UM_<part>_<parameter>`), so user names never clash.
+  subcircuits, other dot commands and unusual names are refused. Netlists use
+  SimNodus's own model names (`BM_<type>_<name>`, `UM_<part>_<parameter>`), so
+  user names never clash.
+- **Every parameter is checked before it reaches ngspice** (added 2026-10-18
+  after the owner's question): a value that is not a number (`IS=abc`,
+  `{expr}`) stopped ngspice for the rest of the session, measured, and a name
+  that is not a parameter of the type (`FOO=1`) was ignored by ngspice without
+  a word. Both are now left out of the model with a report: in the Messages
+  panel when the models folder is read (file, line, model, reason), and as a
+  pre-run warning for a part whose kept model has such a parameter. Vendor
+  fields that only describe the part (`mfg`, `Vceo`, `Iave`, `type`...) are
+  left out silently. Names are checked against ngspice's diode, Gummel-Poon and
+  MOSFET level 1-3 parameters; for MOSFET levels above 3 only values are checked.
 
 ## Alternatives
 

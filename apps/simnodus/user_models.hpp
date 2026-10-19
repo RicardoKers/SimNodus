@@ -27,5 +27,9 @@ QString user_models_folder();
 bool ensure_user_models_folder();
 // Models of every file in the folder, read again when a file changed.
 const std::vector<UserModel>& user_models();
+// What the last read skipped or changed, "file, line N, MODEL: text", and a
+// number that grows with every read (to report each read once).
+const std::vector<QString>& user_model_issues();
+int user_models_generation();
 
 } // namespace simnodus::ui
