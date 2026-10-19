@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(SimNodus
-    VERSION 0.2.0
+    VERSION 0.3.0
     DESCRIPTION "Interactive circuit and STM32 simulator for teaching"
     HOMEPAGE_URL "https://github.com/RicardoKers/SimNodus"
     LANGUAGES CXX)

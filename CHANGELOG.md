@@ -4,6 +4,18 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.3.0 — 2026-10-18
+
+### Summary
+
+- Logic gates (NOT, AND, NAND, OR, NOR, XOR) and buses with splitters, like hneemann's *Digital*; examples 17 (half adder) and 18 (4-bit bus).
+- Text notes on the schematic, for instructions to students.
+- Model variants of transistors, MOSFETs and diodes (2N2222A, BC547B, 1N4007, 1N5819, IRF540N...), and the user's own `.model` files from a models folder; a chosen model is saved in the project.
+- The potentiometer shows its wiper position (arrow and percentage); dragging follows the mouse whatever the part's rotation.
+- USART RX decoded from the circuit (any source on the RX pin, with exact edges or slow baud rates); *Exact microcontroller edges* works with two boards.
+- *Export VCD...* in the Logic tab for PulseView and GTKWave.
+- Renode removed: the own emulator is the only microcontroller engine; the package is 27 MB instead of 145 MB.
+
 ### Fixed (2026-10-18, owner's test of the 0.3 preview)
 
 - Boards seemed dead (no pin colors, flat waveforms) after a debugging session: *Simulate > Debug Firmware with GDB* was remembered between sessions, so every later run waited for a debugger, with only a short status-bar hint. The option now always starts off, and a run in debug mode also says so in the Messages panel.
