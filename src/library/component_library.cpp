@@ -304,6 +304,22 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("parameter kind must be number, choice, file, model or text");
             } else if (!parameter.choices.empty()) {
                 parameter.kind = Parameter::Kind::Choice;
+                if (p.contains("orientations")) {
+                    if (!p["orientations"].is_object()) {
+                        invalid("orientations must map choices to {\"rotation\", \"mirrored\"}");
+                    }
+                    for (const auto& [choice, o] : p["orientations"].items()) {
+                        if (std::find(parameter.choices.begin(), parameter.choices.end(), choice)
+                            == parameter.choices.end()) {
+                            invalid("orientation for \"" + choice + "\", which is not a choice");
+                        }
+                        const int rotation = o.value("rotation", 0);
+                        if (rotation % 90 != 0) {
+                            invalid("orientation rotation must be a multiple of 90 degrees");
+                        }
+                        parameter.orientations[choice] = {model::normalized_rotation(rotation), o.value("mirrored", false)};
+                    }
+                }
             }
             parameter.min = bound(p, "min", parameter.unit);
             parameter.max = bound(p, "max", parameter.unit);
@@ -394,6 +410,10 @@ ComponentDefinition parse_definition(const json& j)
                 if (!readout.glows()) {
                     invalid("readout.glow needs full or full_parameter");
                 }
+            }
+            if (r.contains("switch")) {
+                readout.switch_on = text(r["switch"], "on", true);
+                readout.switch_off = text(r["switch"], "off", true);
             }
         } else if (kind == "node") {
             readout.kind = Readout::Kind::Node;

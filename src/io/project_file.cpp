@@ -99,7 +99,11 @@ json element_json(const Element& element)
                 }
                 return json{{"id", e.id}, {"points", points}};
             } else if constexpr (std::is_same_v<T, NetLabel>) {
-                return json{{"id", e.id}, {"at", point_json(e.position)}, {"name", e.name}};
+                json j{{"id", e.id}, {"at", point_json(e.position)}, {"name", e.name}};
+                if (e.mirrored) {
+                    j["mirrored"] = true;
+                }
+                return j;
             } else if constexpr (std::is_same_v<T, TextNote>) {
                 return json{{"id", e.id}, {"at", point_json(e.position)}, {"text", e.text}};
             } else if constexpr (std::is_same_v<T, Bus>) {
@@ -189,6 +193,7 @@ NetLabel label_from(const json& j)
     if (l.name.empty()) {
         throw std::runtime_error("a net label needs a name");
     }
+    l.mirrored = j.value("mirrored", false);
     return l;
 }
 

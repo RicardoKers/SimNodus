@@ -34,7 +34,7 @@ clockwise in 90° steps.
 | `pins[].optional` | — | `true`: the pin may stay unconnected without a warning (Q̅, clear inputs) |
 | `ties_net_parameter` | — | All pins belong to the net named by this text parameter: the *Block port* part ([ADR 0098](../decisions/0098-user-blocks.md)) |
 | `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running. A potentiometer may add `"wiper": {"track": [x0, y0, x1, y1], "pin": "W"}`: the arrow's tip moves from (x0, y0) at 0 % to (x1, y1) at 100 %, joined to the wiper pin, and the percentage is shown next to it (UI-18) |
-| `readout` | — | Live value: `{"kind": "voltage", "pins": ["+", "-"]}`, `{"kind": "current", "element": "V_{ref}"}` or `{"kind": "node", "element": "w_{ref}", "scale": 9.549, "unit": "rpm"}` (an internal node, scaled). A current readout may glow instead of showing text: `"glow": {"full": "10m", "color_parameter": "color"}` or `{"full_parameter": "I", "color": "#ffd27a"}` (full brightness at that current) |
+| `readout` | — | Live value: `{"kind": "voltage", "pins": ["+", "-"]}`, `{"kind": "current", "element": "V_{ref}"}` or `{"kind": "node", "element": "w_{ref}", "scale": 9.549, "unit": "rpm"}` (an internal node, scaled). A current readout may glow instead of showing text: `"glow": {"full": "10m", "color_parameter": "color"}` or `{"full_parameter": "I", "color": "#ffd27a"}` (full brightness at that current), or switch the symbol's state graphics: `"switch": {"on": "0.42 * 0.36 / Vcoil", "off": "0.32 * 0.36 / Vcoil"}` draws state `1` from the `on` current until it falls below `off` (the relay's contact; expressions of the parameters) |
 | `mcu` | — | Microcontroller board (below) |
 
 Parameter values are text in [engineering notation](../../src/model/engineering.hpp)
@@ -54,7 +54,9 @@ part's own template. `"model_kinds": ["schottky"]` limits the offered models
 to those whose file says `type=schottky` (LTspice diode libraries classify
 models this way; `""` stands for models without `type=`). A parameter's
 `"symbol"` is shown before its value on the schematic (`"β"` gives `β=100`).
-`"kind": "text"` takes any words (a block port's name).
+`"kind": "text"` takes any words (a block port's name). A choice may turn the part:
+`"orientations": {"right": {"rotation": 0, "mirrored": true}}` sets the orientation when that value
+is chosen in Properties (a block port's side).
 
 Blocks drawn by the user (PRJ-06) are not files of the library: a project's
 blocks become definitions of type `block:<name>` with a rectangle and pins

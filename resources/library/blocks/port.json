@@ -11,13 +11,13 @@
         "polygon": [
           0,
           0,
+          -0.8,
+          -0.8,
+          -2.6,
+          -0.8,
+          -2.6,
           0.8,
           -0.8,
-          2.6,
-          -0.8,
-          2.6,
-          0.8,
-          0.8,
           0.8
         ]
       }
@@ -34,7 +34,7 @@
     ]
   },
   "value_offset": [
-    3,
+    -3,
     0
   ],
   "value_parameter": "name",
@@ -56,7 +56,25 @@
         "bottom"
       ],
       "default": "left",
-      "description": "Side of the block's symbol where this pin goes; pins on a side follow the ports' order on the schematic"
+      "description": "Side of the block's symbol where this pin goes; the port points that way, as the pin will on the block, with its wire coming from the circuit. Pins on a side follow the ports' order on the schematic",
+      "orientations": {
+        "left": {
+          "rotation": 0,
+          "mirrored": false
+        },
+        "right": {
+          "rotation": 0,
+          "mirrored": true
+        },
+        "top": {
+          "rotation": 90,
+          "mirrored": false
+        },
+        "bottom": {
+          "rotation": 270,
+          "mirrored": false
+        }
+      }
     }
   ],
   "ties_net_parameter": "name"

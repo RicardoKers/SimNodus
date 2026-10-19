@@ -57,6 +57,7 @@ struct LiveState {
     };
     std::map<model::Id, Glow> glow;
     std::map<model::Id, QString> readouts;  // meter/instrument text on the symbol
+    std::map<model::Id, QString> states;    // state graphics chosen by a current (relay contact)
     std::map<std::string, double> nets;     // net name (lower case) -> volts
     // Microcontroller boards: GPIO pin name -> level and mode (INT-06).
     std::map<model::Id, std::map<std::string, mcu::PinState>> mcu_pins;

@@ -56,14 +56,6 @@
       },
       {
         "line": [
-          3,
-          0,
-          1.2,
-          -1.4
-        ]
-      },
-      {
-        "line": [
           5,
           -2,
           1,
@@ -92,14 +84,6 @@
           2,
           1,
           1.2
-        ]
-      },
-      {
-        "line": [
-          -1,
-          0,
-          2,
-          -0.7
         ]
       },
       {
@@ -152,7 +136,29 @@
         ],
         "dir": "right"
       }
-    ]
+    ],
+    "states": {
+      "0": [
+        {
+          "line": [
+            3,
+            0,
+            1.2,
+            -1.4
+          ]
+        }
+      ],
+      "1": [
+        {
+          "line": [
+            3,
+            0,
+            1.2,
+            1.4
+          ]
+        }
+      ]
+    }
   },
   "designator_offset": [
     -3,
@@ -182,5 +188,13 @@
     "W_{ref}_nc {node:COM} {node:NC} V_sense_{ref} RLY_{ref}_OFF",
     ".model RLY_{ref}_ON CSW(IT={= 0.42 * 0.36 / Vcoil} IH={= 0.32 * 0.36 / Vcoil} RON=0.05 ROFF=1e9)",
     ".model RLY_{ref}_OFF CSW(IT={= 0.42 * 0.36 / Vcoil} IH={= 0.32 * 0.36 / Vcoil} RON=1e9 ROFF=0.05)"
-  ]
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_sense_{ref}",
+    "switch": {
+      "on": "0.42 * 0.36 / Vcoil",
+      "off": "0.32 * 0.36 / Vcoil"
+    }
+  }
 }

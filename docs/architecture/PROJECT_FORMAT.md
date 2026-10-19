@@ -47,6 +47,7 @@ partially.
   file's path relative to the project's folder. Components use a block with
   `"type": "block:RC_lowpass"`. A project with blocks is written as version 2;
   without them as version 1, which SimNodus 0.3 also reads.
+- **Net labels** may carry `"mirrored": true`: the name is drawn left of the point.
 - **Notes** (UI-17) are free text, top-left corner at `at`, lines separated by
   `\n`; they are presentation only and never reach the netlist. Files without
   `notes` load as before.

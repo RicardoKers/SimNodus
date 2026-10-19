@@ -8,6 +8,7 @@
 #include <QPainterPath>
 
 #include <algorithm>
+#include <cmath>
 
 namespace simnodus::ui {
 namespace {
@@ -63,8 +64,13 @@ void paint_graphic(QPainter& painter, const Graphic& g, const SymbolStyle& style
         font.setPixelSize(100); // scaled below; avoids tiny font sizes in grid units
         font.setBold(true);
         painter.save();
-        const double scale = g.text_size / 100.0;
-        painter.translate(to_q(g.points[0]));
+        // Text stays upright and readable however the part is rotated or mirrored:
+        // keep only the position and the size of the current transform.
+        const QTransform world = painter.worldTransform();
+        const QPointF at = world.map(to_q(g.points[0]));
+        const double unit = std::sqrt(std::abs(world.determinant()));
+        painter.setWorldTransform(QTransform::fromTranslate(at.x(), at.y()));
+        const double scale = unit * g.text_size / 100.0;
         painter.scale(scale, scale);
         painter.setFont(font);
         painter.setPen(style.ink);

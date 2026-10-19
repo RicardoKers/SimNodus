@@ -163,6 +163,7 @@ Edit transform_items(const Schematic& schematic, const library::ComponentLibrary
         } else if (const auto* l = schematic.label(id)) {
             NetLabel updated = *l;
             updated.position = map_point(l->position);
+            updated.mirrored = map_orientation(Orientation{0, l->mirrored}).mirrored;
             work.put(updated);
         } else if (const auto* n = schematic.note(id)) {
             TextNote updated = *n;
