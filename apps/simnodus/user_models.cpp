@@ -38,10 +38,11 @@ bool ensure_user_models_folder()
                      "The comment line just above a statement is shown as its description.\n"
                      "Parameters that are not numbers or not known for the model type are\n"
                      "left out; the Messages panel lists them with the file and line.\n"
-                     "Subcircuits (.subckt) are not used yet. The models appear in the\n"
-                     "Model list of transistors, MOSFETs and diodes in the Properties\n"
-                     "panel; a chosen model is saved inside the project. Check the\n"
-                     "license of the files you copy here.\n");
+                     "Subcircuits (.subckt) of op-amps, transistors, MOSFETs and diodes\n"
+                     "work too: Properties > Pins sets which port is which pin.\n"
+                     "The models appear in the Model list of those parts in the\n"
+                     "Properties panel; a chosen model is saved inside the project.\n"
+                     "Check the license of the files you copy here.\n");
     }
     return true;
 }
@@ -49,6 +50,7 @@ bool ensure_user_models_folder()
 namespace {
 
 std::vector<QString> issues;
+std::vector<UserSubcircuit> subcircuits;
 int generation = 0;
 
 } // namespace
@@ -57,6 +59,12 @@ const std::vector<QString>& user_model_issues()
 {
     user_models();
     return issues;
+}
+
+const std::vector<UserSubcircuit>& user_subcircuits()
+{
+    user_models();
+    return subcircuits;
 }
 
 int user_models_generation()
@@ -85,6 +93,7 @@ const std::vector<UserModel>& user_models()
     signature = now;
     models.clear();
     issues.clear();
+    subcircuits.clear();
     ++generation;
     for (const auto& file : files) {
         QFile input(file.absoluteFilePath());
@@ -93,9 +102,13 @@ const std::vector<UserModel>& user_models()
         }
         const QByteArray text = input.readAll();
         std::vector<library::ModelIssue> found;
-        for (auto& m : library::parse_spice_models(
-                 std::string_view(text.constData(), static_cast<std::size_t>(text.size())), &found)) {
+        auto parsed = library::parse_spice_library(
+            std::string_view(text.constData(), static_cast<std::size_t>(text.size())), &found);
+        for (auto& m : parsed.models) {
             models.push_back({std::move(m), file.fileName()});
+        }
+        for (auto& s : parsed.subcircuits) {
+            subcircuits.push_back({std::move(s), file.fileName()});
         }
         for (const auto& issue : found) {
             issues.push_back(QStringLiteral("%1, line %2, %3: %4")

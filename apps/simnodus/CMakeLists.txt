@@ -79,6 +79,7 @@ if(WIN32)
             "${SIMNODUS_NGSPICE_RUNTIME_DIR}/libomp140.x86_64.dll"
             "${SIMNODUS_NGSPICE_RUNTIME_DIR}/sndfile.dll"
             "${SIMNODUS_NGSPICE_RUNTIME_DIR}/samplerate.dll"
+            "${SIMNODUS_NGSPICE_RUNTIME_DIR}/spice2poly.cm"
             "${SIMNODUS_NGSPICE_RUNTIME_DIR}/COPYING"
             DESTINATION ngspice)
         # Same layout next to the build-tree executable, for running during development.

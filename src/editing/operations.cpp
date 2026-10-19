@@ -472,8 +472,34 @@ Edit set_model(const Schematic& schematic, Id component, const std::string& para
     } else {
         updated.models[parameter] = statement;
     }
+    updated.models.erase(parameter + ".pins"); // a pin assignment belongs to one model
     work.put(updated);
     return make_edit(schematic, work, "Set " + c->designator + " model " + name);
+}
+
+Edit set_model_pins(const Schematic& schematic, Id component, const std::string& parameter,
+    const std::vector<std::string>& pins)
+{
+    const auto* c = schematic.component(component);
+    if (!c) {
+        return {};
+    }
+    Schematic work = schematic;
+    Component updated = *c;
+    std::string list;
+    for (const auto& pin : pins) {
+        list += (list.empty() ? "" : ",") + pin;
+    }
+    if (list.empty()) {
+        updated.models.erase(parameter + ".pins");
+    } else {
+        updated.models[parameter + ".pins"] = list;
+    }
+    if (updated == *c) {
+        return {};
+    }
+    work.put(updated);
+    return make_edit(schematic, work, "Set " + c->designator + " model pins");
 }
 
 Edit set_designator(const Schematic& schematic, Id component, const std::string& designator)

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, owner's priority)
+
+- Vendor subcircuits as part models (PRJ-06 first part, ADR 0097): the models folder now gives `.subckt` blocks too, each with the models and helper blocks of its file that it uses. Op-amps (IN+, IN-, V+, V-, OUT), NPN/PNP (C, B, E), MOSFETs (D, G, S) and diodes (A, K) offer the subcircuits with one port per pin in Properties > Model; *Pins...* assigns ports to pins with the file's comments in view. The text is kept in the project. Blocks with `.include`, `.lib`, `.control` or other commands are skipped and reported. The package ships ngspice's `spice2poly.cm` code model, loaded at start, so `POLY` sources of vendor models work. Checked with real files: LM358, TL072, OP07 (gain-2 amplifier within 0.2 %), TIP120 and AO3400; tests use SimNodus's own subcircuits.
+
 ### Fixed (2026-10-18)
 
 - After an error ngspice cannot recover from (for example a malformed model or subcircuit), every later run failed until SimNodus was restarted. ngspice asks to be detached in that case (its ControlledExit callback); SimNodus now unloads the library and loads a fresh copy before the next run. Engine test: a broken model, then 39 more engine cases on the reloaded engine.

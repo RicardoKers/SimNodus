@@ -22,11 +22,18 @@ struct UserModel {
     QString file; // file name in the folder
 };
 
+struct UserSubcircuit {
+    library::SpiceSubcircuit subcircuit;
+    QString file;
+};
+
 QString user_models_folder();
 // Creates the folder with a short README.txt when it does not exist.
 bool ensure_user_models_folder();
 // Models of every file in the folder, read again when a file changed.
 const std::vector<UserModel>& user_models();
+// Vendor subcircuits of the same files (ADR 0097).
+const std::vector<UserSubcircuit>& user_subcircuits();
 // What the last read skipped or changed, "file, line N, MODEL: text", and a
 // number that grows with every read (to report each read once).
 const std::vector<QString>& user_model_issues();

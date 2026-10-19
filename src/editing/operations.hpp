@@ -69,6 +69,10 @@ Edit set_parameter(const model::Schematic& schematic, Id component, const std::s
 // that is not built in, kept in the component; empty for a built-in model.
 Edit set_model(const model::Schematic& schematic, Id component, const std::string& parameter, const std::string& name,
     const std::string& statement);
+// Part pin of each port of the component's vendor subcircuit (ADR 0097), in port
+// order; empty for the usual order of the part.
+Edit set_model_pins(const model::Schematic& schematic, Id component, const std::string& parameter,
+    const std::vector<std::string>& pins);
 Edit set_designator(const model::Schematic& schematic, Id component, const std::string& designator);
 // Moves a component's designator or value text (UI-11); `value` selects which.
 Edit move_text(const model::Schematic& schematic, Id component, bool value, Point offset);

@@ -92,6 +92,8 @@ public:
     // recover from, for example a malformed model): every later command fails
     // until the library is loaded again. EngineHost then reloads it.
     bool needs_reload() const { return needs_reload_; }
+    // spice2poly.cm was loaded: POLY sources of vendor subcircuits work.
+    bool has_code_models() const { return code_models_; }
 
 private:
     NgspiceSession() = default;
@@ -109,6 +111,7 @@ private:
     std::optional<int> version_;
     void* library_ = nullptr; // freed by the destructor, so that a new session starts clean
     std::atomic<bool> needs_reload_{false};
+    bool code_models_ = false;
 
     mutable std::mutex mutex_;
     std::condition_variable bg_changed_;

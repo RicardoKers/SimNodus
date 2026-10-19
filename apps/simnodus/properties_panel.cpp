@@ -24,6 +24,8 @@
 #include <QCoreApplication>
 #include <QFormLayout>
 #include <QLabel>
+#include <QDialogButtonBox>
+#include <QDialog>
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QScrollArea>
@@ -31,6 +33,7 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <sstream>
 
 namespace simnodus::ui {
 namespace {
@@ -399,12 +402,31 @@ QWidget* PropertiesPanel::model_editor(
     auto* box = new QComboBox;
     box->setEditable(true); // type to search a long list
     box->setInsertPolicy(QComboBox::NoInsert);
-    auto add = [box](const library::SpiceModel& m, const QString& where, const QString& statement) {
-        box->addItem(QString::fromStdString(m.name), QStringList{QString::fromStdString(m.name), statement});
-        QString tip = QString::fromStdString(m.description);
-        tip += (tip.isEmpty() ? QString() : QStringLiteral("\n")) + where;
+    auto add_item = [box](const std::string& name, const QString& statement, const QString& tip) {
+        box->addItem(QString::fromStdString(name), QStringList{QString::fromStdString(name), statement});
         box->setItemData(box->count() - 1, tip, Qt::ToolTipRole);
     };
+    auto add = [&add_item](const library::SpiceModel& m, const QString& where, const QString& statement) {
+        const QString description = QString::fromStdString(m.description);
+        add_item(m.name, statement, description + (description.isEmpty() ? QString() : QStringLiteral("\n")) + where);
+    };
+    // Vendor subcircuits (ADR 0097) fit when they have one port per pin of the part.
+    auto add_subcircuit = [&add_item, &p](const library::SpiceSubcircuit& s, const QString& where) {
+        if (s.ports.size() != p.subcircuit.size()) {
+            return;
+        }
+        QString ports;
+        for (const auto& port : s.ports) {
+            ports += QString::fromStdString(port) + QLatin1Char(' ');
+        }
+        const QString description = QString::fromStdString(s.description);
+        add_item(s.name, QString::fromStdString(s.text),
+            description + (description.isEmpty() ? QString() : QStringLiteral("\n"))
+                + QObject::tr("Subcircuit, ports %1\n%2").arg(ports.trimmed(), where));
+    };
+    if (p.model_type.empty()) {
+        add_item(p.default_value, QString(), tr("SimNodus's built-in model of this part"));
+    }
     for (const auto& m : document_->library().models()) {
         if (m.type == p.model_type) {
             add(m, tr("Built in (SimNodus approximation)"), QString());
@@ -417,10 +439,20 @@ QWidget* PropertiesPanel::model_editor(
             add(u.model, tr("Models folder: %1").arg(u.file), QString::fromStdString(u.model.card()));
         }
     }
+    if (!p.subcircuit.empty()) {
+        for (const auto& u : user_subcircuits()) {
+            if (box->findText(QString::fromStdString(u.subcircuit.name)) < 0) {
+                add_subcircuit(u.subcircuit, tr("Models folder: %1").arg(u.file));
+            }
+        }
+    }
     // A model kept in the project but missing here (made on another computer).
-    if (const auto kept = first.models.find(p.name); kept != first.models.end() && !value.isEmpty()) {
-        if (const auto m = library::parse_spice_model(kept->second); m && box->findText(value) < 0) {
+    if (const auto kept = first.models.find(p.name); kept != first.models.end() && !value.isEmpty()
+        && box->findText(value) < 0) {
+        if (const auto m = library::parse_spice_model(kept->second)) {
             add(*m, tr("Kept in the project"), QString::fromStdString(kept->second));
+        } else if (const auto s = library::parse_subcircuit_text(kept->second)) {
+            add_subcircuit(*s, tr("Kept in the project"));
         }
     }
     auto* completer = new QCompleter(box->model(), box);
@@ -439,7 +471,94 @@ QWidget* PropertiesPanel::model_editor(
             commit_model(name, data[0].toStdString(), data[1].toStdString());
         }
     });
-    return box;
+    // A vendor subcircuit: which of its ports is which pin of the part.
+    const auto kept = first.models.find(p.name);
+    const auto sub = kept == first.models.end() ? std::nullopt : library::parse_subcircuit_text(kept->second);
+    if (!sub || selection_.size() != 1) {
+        return box;
+    }
+    auto* row = new QWidget;
+    auto* layout = new QHBoxLayout(row);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(box, 1);
+    auto* pins = new QPushButton(tr("Pins..."));
+    pins->setObjectName(QStringLiteral("modelPins"));
+    pins->setToolTip(tr("Which port of the subcircuit is which pin of the part"));
+    layout->addWidget(pins);
+    const model::Id id = first.id;
+    const library::Parameter parameter = p;
+    const library::SpiceSubcircuit subcircuit = *sub;
+    connect(pins, &QPushButton::clicked, this, [this, id, parameter, subcircuit] { edit_model_pins(id, parameter, subcircuit); });
+    return row;
+}
+
+std::vector<std::string> PropertiesPanel::model_pins(model::Id component, const library::Parameter& p) const
+{
+    const auto* c = document_ ? document_->schematic().component(component) : nullptr;
+    if (!c) {
+        return p.subcircuit;
+    }
+    const auto it = c->models.find(p.name + ".pins");
+    if (it == c->models.end()) {
+        return p.subcircuit;
+    }
+    std::vector<std::string> pins;
+    std::stringstream list(it->second);
+    for (std::string pin; std::getline(list, pin, ',');) {
+        pins.push_back(pin);
+    }
+    return pins.size() == p.subcircuit.size() ? pins : p.subcircuit;
+}
+
+void PropertiesPanel::edit_model_pins(model::Id component, const library::Parameter& p, const library::SpiceSubcircuit& s)
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Pins of %1").arg(QString::fromStdString(s.name)));
+    auto* layout = new QVBoxLayout(&dialog);
+    if (!s.description.empty()) {
+        auto* notes = new QLabel(QString::fromStdString(s.description));
+        notes->setWordWrap(true);
+        notes->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        layout->addWidget(notes);
+    }
+    auto* form = new QFormLayout;
+    layout->addLayout(form);
+    const auto current = model_pins(component, p);
+    std::vector<QComboBox*> boxes;
+    for (std::size_t k = 0; k < s.ports.size(); ++k) {
+        auto* box = new QComboBox;
+        box->setObjectName(QStringLiteral("port_%1").arg(k));
+        for (const auto& pin : p.subcircuit) {
+            box->addItem(QString::fromStdString(pin));
+        }
+        box->setCurrentText(QString::fromStdString(current[k]));
+        form->addRow(tr("Port %1 (%2)").arg(k + 1).arg(QString::fromStdString(s.ports[k])), box);
+        boxes.push_back(box);
+    }
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::RestoreDefaults);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    connect(buttons->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, &dialog, [&boxes, &p] {
+        for (std::size_t k = 0; k < boxes.size(); ++k) {
+            boxes[k]->setCurrentText(QString::fromStdString(p.subcircuit[k]));
+        }
+    });
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    std::vector<std::string> chosen;
+    for (auto* box : boxes) {
+        chosen.push_back(box->currentText().toStdString());
+    }
+    auto sorted = chosen;
+    std::sort(sorted.begin(), sorted.end());
+    if (std::adjacent_find(sorted.begin(), sorted.end()) != sorted.end()) {
+        emit message(tr("Each pin of the part must be used once."));
+        return;
+    }
+    document_->apply(editing::set_model_pins(
+        document_->schematic(), component, p.name, chosen == p.subcircuit ? std::vector<std::string>{} : chosen));
 }
 
 void PropertiesPanel::commit_model(const std::string& parameter, const std::string& name, const std::string& statement)

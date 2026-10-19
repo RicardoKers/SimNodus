@@ -54,6 +54,9 @@ private:
     QWidget* file_editor(const library::Parameter& parameter, const QString& value);
     QWidget* model_editor(const library::Parameter& parameter, const model::Component& first, const QString& value);
     void commit_model(const std::string& parameter, const std::string& name, const std::string& statement);
+    // Vendor subcircuits (ADR 0097): the part pin of each port, and the dialog that sets them.
+    std::vector<std::string> model_pins(model::Id component, const library::Parameter& parameter) const;
+    void edit_model_pins(model::Id component, const library::Parameter& parameter, const library::SpiceSubcircuit& subcircuit);
     QString project_dir() const;
     void commit_designator(const QString& text);
     void commit_label(const QString& text);

@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0097: Vendor subcircuits as part models](0097-vendor-subcircuits.md):
+  `.subckt` from the models folder on op-amps, transistors, MOSFETs and diodes; wrapped, with spice2poly.
 - [0096: Buses are drawings; splitters join their bits by name](0096-buses-and-splitters.md):
   SN-196; bit k of bus D is the net Dk, the netlist stays as with single wires.
 - [0095: Model variants of basic parts, built in and from the user's folder](0095-model-variants.md):

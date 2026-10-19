@@ -134,5 +134,22 @@
     "R_{ref}_gp {node:IN+} 0 1G",
     "R_{ref}_vp {node:V+} 0 1G",
     "R_{ref}_vn {node:V-} 0 1G"
-  ]
+  ],
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "subcircuit": [
+        "IN+",
+        "IN-",
+        "V+",
+        "V-",
+        "OUT"
+      ],
+      "default": "Behavioral",
+      "description": "Behavioral (SimNodus's own model, see the description), or a vendor .subckt from your models folder (Tools > Open Models Folder), for example an LM358 or TL072"
+    }
+  ],
+  "value_parameter": "model"
 }

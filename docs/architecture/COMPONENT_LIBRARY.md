@@ -44,6 +44,11 @@ used by the SPICE template. `"kind": "model"` with `"model_type"` (`NPN`,
 `PNP`, `D`, `NMOS`, `PMOS`) names a SPICE model ([ADR 0095](../decisions/0095-model-variants.md));
 the template uses it like any parameter (`Q_{ref} {node:C} {node:B} {node:E} {model}`)
 and the netlist adds the chosen `.model` statement under a SimNodus name.
+`"subcircuit": ["C", "B", "E"]` lists the part's pins in the usual port order
+of vendor subcircuits; then a `.subckt` with as many ports may be chosen and
+replaces the template ([ADR 0097](../decisions/0097-vendor-subcircuits.md)).
+Without `model_type` (the op-amp) only subcircuits fit, and the default is the
+part's own template.
 
 ### SPICE models
 

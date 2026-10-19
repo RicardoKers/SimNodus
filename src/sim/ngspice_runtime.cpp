@@ -166,6 +166,22 @@ std::unique_ptr<NgspiceSession> NgspiceSession::open(const NgspiceLocation& loca
     if (api.init_sync(&on_vsrc, nullptr, &on_sync, &ident, session.get()) != 0) {
         return fail("ngSpice_Init_Sync failed.");
     }
+    // Vendor subcircuits use POLY sources, which ngspice turns into the XSPICE
+    // code model of spice2poly.cm (ADR 0097). Look next to the library and in
+    // the usual system folders.
+    const auto library_dir = std::filesystem::absolute(location.library).parent_path();
+    for (const auto& folder : {library_dir, library_dir / "ngspice", location.scripts_dir,
+             std::filesystem::path("/usr/lib/ngspice"), std::filesystem::path("/usr/lib/x86_64-linux-gnu/ngspice"),
+             std::filesystem::path("/usr/local/lib/ngspice")}) {
+        std::error_code ec;
+        const auto file = folder / "spice2poly.cm";
+        if (std::filesystem::is_regular_file(file, ec)) {
+            std::string path = file.generic_string();
+            session->command("codemodel " + path);
+            session->code_models_ = true;
+            break;
+        }
+    }
     session->command("version -s");
     std::string all;
     for (const auto& line : session->take_output()) {
