@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, owner's choice)
+
+- Windows installer (SN-152, ADR 0100): `SimNodus-<version>-windows-x64-setup.exe`, built with Inno Setup by `tools/package_windows.py --installer` from the same files as the zip. Installs for the current user without administrator rights, or for all users when an administrator chooses so; Start menu entry, optional desktop icon, `.snx` files open with a double-click, uninstaller, English and Portuguese dialogs. Each build installs the setup silently into a temporary folder, runs the installed program's engine check and smoke test, and uninstalls it.
+
 ### Added (2026-10-19, owner's request)
 
 - Brazilian Portuguese interface (SN-153, UI-16): menus, panels, messages, the Signal Analyzer and the component library (names, categories, descriptions, parameters and choices), 650 texts in all. SimNodus follows the system language; *Tools > Language* chooses English or Português (Brasil) explicitly, at the next start. Translators run `tools/update_translations.py`; the repository check fails on untranslated entries or mismatched placeholders. The About box no longer mentions release 0.1, and descriptions point to *Tools > Model Folders*.

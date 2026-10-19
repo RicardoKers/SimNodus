@@ -103,7 +103,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 |---|---|---|---|
 | SN-150 | CubeIDE/GDB debugging with the cancellable Renode build | MCU-08 | dropped: debugging runs on the own emulator (SN-180); Renode removed (ADR 0094) |
 | SN-151 | Engine in a child process | SIM-08 | todo |
-| SN-152 | Windows installer and clean-PC test | NF-02 | todo |
+| SN-152 | Windows installer (Inno Setup, ADR 0100): per user or all users, Start menu, `.snx` association, uninstaller, pt-BR dialogs; `package_windows.py --installer` checks a silent install. Clean-PC test by the owner pending | NF-02 | done 2026-10-19 (clean-PC test pending) |
 | SN-153 | pt-BR translation: 650 texts of the interface and the component library, Tools > Language (system, English, Português), `tools/update_translations.py`, repository check for untranslated entries | UI-16 | done 2026-10-19 |
 | SN-154 | User guide and known limitations | MCU-09 | todo |
 
