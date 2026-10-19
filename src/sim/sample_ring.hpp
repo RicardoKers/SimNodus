@@ -7,6 +7,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <mutex>
 #include <utility>
@@ -49,33 +50,29 @@ public:
     }
 
     // Samples with time >= `from`, oldest first (plus the one just before,
-    // so that a plot can draw into the window's left edge). With `max_points`,
-    // a longer stretch is thinned for display: the time span is cut into
-    // max_points / 4 buckets, each keeping its first, lowest, highest and last
-    // sample in time order, so peaks, edges and levels stay visible.
-    std::vector<Sample> since(double from, std::size_t max_points = 0) const
+    // so that a plot can draw into the window's left edge). With `bucket`
+    // (seconds), they are thinned for display: per bucket of time the first,
+    // lowest, highest and last sample, in time order. Buckets are fixed in
+    // absolute time (k * bucket), so a scrolling plot groups the same samples
+    // in every frame and does not flicker.
+    std::vector<Sample> since(double from, double bucket = 0.0) const
     {
         std::lock_guard lock(mutex_);
         const std::size_t first = first_since(from);
         std::vector<Sample> result;
-        const std::size_t count = size_ - first;
-        if (max_points < 8 || count <= max_points) {
-            result.reserve(count);
+        if (bucket <= 0.0) {
+            result.reserve(size_ - first);
             for (std::size_t i = first; i < size_; ++i) {
                 result.push_back(at(i));
             }
             return result;
         }
-        const std::size_t buckets = max_points / 4;
-        const double t0 = at(first).time;
-        const double span = std::max(at(size_ - 1).time - t0, 1e-300);
-        result.reserve(max_points + 4);
         std::size_t i = first;
-        for (std::size_t b = 0; b < buckets && i < size_; ++b) {
-            const double end = t0 + span * static_cast<double>(b + 1) / static_cast<double>(buckets);
+        while (i < size_) {
+            const double key = std::floor(at(i).time / bucket);
             const std::size_t begin = i;
             std::size_t lo = i, hi = i;
-            while (i < size_ && (at(i).time <= end || b + 1 == buckets)) {
+            while (i < size_ && std::floor(at(i).time / bucket) == key) {
                 if (at(i).value < at(lo).value) {
                     lo = i;
                 }
@@ -84,13 +81,9 @@ public:
                 }
                 ++i;
             }
-            if (i == begin) {
-                continue; // an empty bucket
-            }
             const std::size_t last = i - 1;
-            std::size_t keep[] = {begin, std::min(lo, hi), std::max(lo, hi), last};
             std::size_t previous = static_cast<std::size_t>(-1);
-            for (const std::size_t k : keep) {
+            for (const std::size_t k : {begin, std::min(lo, hi), std::max(lo, hi), last}) {
                 if (k != previous) {
                     result.push_back(at(k));
                     previous = k;

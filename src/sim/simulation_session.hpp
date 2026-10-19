@@ -117,7 +117,7 @@ public:
 
     std::vector<Sample> samples(const std::string& vector) const;
     // Only the samples at or after `from` (cheap for a scrolling display).
-    std::vector<Sample> samples_since(const std::string& vector, double from, std::size_t max_points = 0) const;
+    std::vector<Sample> samples_since(const std::string& vector, double from, double bucket = 0.0) const;
     // Level changes of a vector since `from` (logic lanes of probes), without copying its samples.
     std::vector<std::pair<double, bool>> transitions_since(const std::string& vector, double from, double threshold,
         bool& initial) const;

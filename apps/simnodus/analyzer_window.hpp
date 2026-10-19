@@ -76,9 +76,10 @@ private:
     void refresh_logic();
     void update_transitions();
     void rebuild_channel_list();
-    // Channels within [from, to]; with `max_points`, thinned for display.
-    std::vector<ScopeTrace> collect(double from, double to, std::size_t max_points = 0) const;
-    std::size_t display_points() const;
+    // Channels within [from, to]; with `bucket` (seconds), thinned for display.
+    std::vector<ScopeTrace> collect(double from, double to, double bucket = 0.0) const;
+    // Seconds per pixel column of the plot for a window of `span` seconds.
+    double pixel_time(double span) const;
     void update_measurements();
     void export_csv_dialog();
     void export_vcd_dialog();

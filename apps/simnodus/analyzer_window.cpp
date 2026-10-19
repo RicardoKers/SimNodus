@@ -300,13 +300,12 @@ void AnalyzerWindow::reload()
     }
 }
 
-std::size_t AnalyzerWindow::display_points() const
+double AnalyzerWindow::pixel_time(double span) const
 {
-    // Four samples per pixel column: the plot thins further, keeping peaks.
-    return static_cast<std::size_t>(std::max(400.0, 4 * scope_->plot_rect().width()));
+    return span / std::max(100.0, scope_->plot_rect().width());
 }
 
-std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to, std::size_t max_points) const
+std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to, double bucket) const
 {
     std::vector<ScopeTrace> traces;
     if (!controller_) {
@@ -340,10 +339,10 @@ std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to, std::siz
                     const double ref = r != record.vectors.end() && k < r->second.size() ? r->second[k] : 0.0;
                     part.push_back({record.time[k], v->second[k] - ref});
                 }
-                t.samples = max_points > 0 ? sim::thin(part, from, to, max_points) : std::move(part);
+                t.samples = bucket > 0 ? sim::thin(part, from, to, bucket) : std::move(part);
             }
         } else {
-            t.samples = controller_->samples(ch, from, max_points);
+            t.samples = controller_->samples(ch, from, bucket);
             while (!t.samples.empty() && t.samples.back().time > to + 1e-12 && t.samples.size() > 1) {
                 t.samples.pop_back();
             }
@@ -495,7 +494,8 @@ void AnalyzerWindow::refresh_scope()
         const std::pair<double, double> window{scope_->window_start(), scope_->window_end()};
         if (last_window_ != window || scope_->traces().empty()) {
             last_window_ = window;
-            scope_->set_traces(collect(window.first, window.second, display_points()));
+            // Two buckets per pixel column: the plot keeps each column's lowest and highest value.
+            scope_->set_traces(collect(window.first, window.second, pixel_time(window.second - window.first) / 2));
             measurements_due_ = true;
         } else {
             // Scales, offsets and visibility may have changed: keep the samples.
@@ -519,8 +519,11 @@ void AnalyzerWindow::refresh_scope()
     const double span = div * ScopeWidget::horizontal_divisions;
     // Roll mode needs one window; the trigger search looks further back.
     const bool triggered = mode_->currentIndex() == 1;
-    auto traces = collect(now - (triggered ? 2.5 : 1.05) * span, now, display_points());
-    double start = std::max(0.0, now - span);
+    const double pixel = pixel_time(span);
+    auto traces = collect(now - (triggered ? 2.5 : 1.05) * span, now, pixel / 2);
+    // Whole pixels: a window that scrolls by fractions of a pixel regroups the
+    // samples of every column in each frame, and edges tremble.
+    double start = std::max(0.0, std::floor((now - span) / pixel) * pixel);
     bool show = true;
     if (mode_->currentIndex() == 1 && !traces.empty()) {
         // Triggered: newest crossing that still has the full post-trigger part.

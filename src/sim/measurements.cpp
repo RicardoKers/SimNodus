@@ -113,7 +113,7 @@ std::optional<double> find_trigger(const std::vector<Sample>& samples, double le
     return found;
 }
 
-std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double to, std::size_t max_points)
+std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double to, double bucket)
 {
     auto first = std::lower_bound(samples.begin(), samples.end(), from,
         [](const Sample& s, double t) { return s.time < t; });
@@ -125,21 +125,16 @@ std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double
     if (last != samples.end()) {
         ++last;
     }
-    const auto count = static_cast<std::size_t>(std::distance(first, last));
-    if (max_points < 8 || count <= max_points) {
+    if (bucket <= 0.0) {
         return {first, last};
     }
     std::vector<Sample> result;
-    result.reserve(max_points + 4);
-    const std::size_t buckets = max_points / 4;
-    const double t0 = first->time;
-    const double span = std::max((last - 1)->time - t0, 1e-300);
     auto it = first;
-    for (std::size_t b = 0; b < buckets && it != last; ++b) {
-        const double end = t0 + span * static_cast<double>(b + 1) / static_cast<double>(buckets);
+    while (it != last) {
+        const double key = std::floor(it->time / bucket);
         const auto begin = it;
         auto lo = it, hi = it;
-        while (it != last && (it->time <= end || b + 1 == buckets)) {
+        while (it != last && std::floor(it->time / bucket) == key) {
             if (it->value < lo->value) {
                 lo = it;
             }
@@ -148,15 +143,12 @@ std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double
             }
             ++it;
         }
-        if (it == begin) {
-            continue;
-        }
         const auto end_sample = it - 1;
-        const auto a = std::min(lo, hi);
-        const auto z = std::max(lo, hi);
-        for (const auto& k : {begin, a, z, end_sample}) {
-            if (result.empty() || result.back().time != k->time || result.back().value != k->value) {
+        auto previous = last;
+        for (const auto& k : {begin, std::min(lo, hi), std::max(lo, hi), end_sample}) {
+            if (k != previous) {
                 result.push_back(*k);
+                previous = k;
             }
         }
     }

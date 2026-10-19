@@ -378,11 +378,11 @@ std::vector<Sample> SimulationSession::samples(const std::string& vector) const
     return it == rings_.end() ? std::vector<Sample>{} : it->second->snapshot();
 }
 
-std::vector<Sample> SimulationSession::samples_since(const std::string& vector, double from, std::size_t max_points) const
+std::vector<Sample> SimulationSession::samples_since(const std::string& vector, double from, double bucket) const
 {
     std::lock_guard lock(mutex_);
     const auto it = rings_.find(lower(vector));
-    return it == rings_.end() ? std::vector<Sample>{} : it->second->since(from, max_points);
+    return it == rings_.end() ? std::vector<Sample>{} : it->second->since(from, bucket);
 }
 
 std::vector<std::pair<double, bool>> SimulationSession::transitions_since(const std::string& vector, double from,

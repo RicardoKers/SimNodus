@@ -8,6 +8,7 @@
 #include "sim/sample_ring.hpp"
 #include "sim/vcd.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace simnodus::sim;
@@ -214,9 +215,15 @@ TEST_CASE("thinning keeps peaks, edges and the time order")
         }
         ring.push(t, v);
     }
-    const auto thin = ring.since(0.0, 4000);
+    const auto thin = ring.since(0.0, 0.01); // 10 s in 1000 buckets
     CHECK(thin.size() <= 4004);
     CHECK(thin.size() > 1000);
+    // The same buckets in a later window: the shared part is thinned the same way.
+    const auto later = ring.since(2.0, 0.01);
+    const auto shared = std::find_if(thin.begin(), thin.end(), [&](const Sample& s) { return s.time >= later[1].time; });
+    REQUIRE(shared != thin.end());
+    CHECK(shared->time == later[1].time);
+    CHECK(shared->value == later[1].value);
     bool spike = false;
     for (std::size_t i = 1; i < thin.size(); ++i) {
         CHECK(thin[i].time >= thin[i - 1].time);
