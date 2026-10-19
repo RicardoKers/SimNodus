@@ -3,14 +3,14 @@
   "name": "BCD to 7-segment decoder (7447)",
   "category": "Displays",
   "prefix": "U",
-  "description": "BCD to 7-segment decoder like the 7447: outputs low light the segments of a common-anode display; inputs D C B A (A least significant) show 0-9, codes 10-15 are blank; behavioral, on a hidden supply VDD like the logic gates (no lamp test, blanking or latch inputs)",
+  "description": "TTL BCD to 7-segment decoder/driver like the 7447 for a common-anode display: open-collector outputs a-g sink the segment current (low = on, one resistor per segment to the display); LT low lights every segment, BI/RBO low blanks them, RBI low blanks a zero and pulls RBO low (leading-zero blanking over several digits); codes 10-15 give the chip's symbols, 15 blank; unconnected inputs float high as in TTL; supply 5 V on VCC and GND, about 40 mA",
   "symbol": {
     "graphics": [
       {
         "rect": [
-          -3,
+          -4,
           -8,
-          6,
+          8,
           16
         ]
       },
@@ -18,273 +18,401 @@
         "text": "7447",
         "at": [
           0,
-          -8.8
+          -6.8
         ],
         "size": 0.8
       },
       {
         "line": [
-          -5,
-          -3,
-          -3,
-          -3
+          -6,
+          -6,
+          -4,
+          -6
         ]
       },
       {
         "text": "A",
         "at": [
-          -2.4,
-          -3
+          -2.8,
+          -6
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "line": [
-          -5,
-          -1,
-          -3,
-          -1
+          -6,
+          -4,
+          -4,
+          -4
         ]
       },
       {
         "text": "B",
         "at": [
-          -2.4,
-          -1
+          -2.8,
+          -4
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "line": [
-          -5,
-          1,
-          -3,
-          1
+          -6,
+          -2,
+          -4,
+          -2
         ]
       },
       {
         "text": "C",
         "at": [
-          -2.4,
-          1
+          -2.8,
+          -2
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "line": [
-          -5,
-          3,
-          -3,
-          3
+          -6,
+          0,
+          -4,
+          0
         ]
       },
       {
         "text": "D",
         "at": [
-          -2.4,
-          3
+          -2.8,
+          0
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "line": [
-          3,
           -6,
-          5,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "LT",
+        "at": [
+          -2.8,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -4,
+          4
+        ]
+      },
+      {
+        "text": "RBI",
+        "at": [
+          -2.8,
+          4
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          4,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -6,
+          6,
+          -4,
+          6
+        ]
+      },
+      {
+        "text": "BI/RBO",
+        "at": [
+          -2.8,
+          6
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          6,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -6,
+          4,
           -6
         ]
       },
       {
         "text": "a",
         "at": [
-          2.4,
+          3.0,
           -6
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           -6,
           0.3
         ]
       },
       {
         "line": [
-          3,
+          6,
           -4,
-          5,
+          4,
           -4
         ]
       },
       {
         "text": "b",
         "at": [
-          2.4,
+          3.0,
           -4
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           -4,
           0.3
         ]
       },
       {
         "line": [
-          3,
+          6,
           -2,
-          5,
+          4,
           -2
         ]
       },
       {
         "text": "c",
         "at": [
-          2.4,
+          3.0,
           -2
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           -2,
           0.3
         ]
       },
       {
         "line": [
-          3,
+          6,
           0,
-          5,
+          4,
           0
         ]
       },
       {
         "text": "d",
         "at": [
-          2.4,
+          3.0,
           0
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           0,
           0.3
         ]
       },
       {
         "line": [
-          3,
+          6,
           2,
-          5,
+          4,
           2
         ]
       },
       {
         "text": "e",
         "at": [
-          2.4,
+          3.0,
           2
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           2,
           0.3
         ]
       },
       {
         "line": [
-          3,
+          6,
           4,
-          5,
+          4,
           4
         ]
       },
       {
         "text": "f",
         "at": [
-          2.4,
+          3.0,
           4
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           4,
           0.3
         ]
       },
       {
         "line": [
-          3,
           6,
-          5,
+          6,
+          4,
           6
         ]
       },
       {
         "text": "g",
         "at": [
-          2.4,
+          3.0,
           6
         ],
-        "size": 0.7
+        "size": 0.6
       },
       {
         "circle": [
-          3.35,
+          4.3,
           6,
           0.3
         ]
+      },
+      {
+        "line": [
+          0,
+          -10,
+          0,
+          -8
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -7.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          8,
+          0,
+          10
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          7.5
+        ],
+        "size": 0.55
       }
     ],
     "pins": [
       {
         "name": "A",
         "at": [
-          -5,
-          -3
+          -6,
+          -6
         ],
         "dir": "left"
       },
       {
         "name": "B",
         "at": [
-          -5,
-          -1
+          -6,
+          -4
         ],
         "dir": "left"
       },
       {
         "name": "C",
         "at": [
-          -5,
-          1
+          -6,
+          -2
         ],
         "dir": "left"
       },
       {
         "name": "D",
         "at": [
-          -5,
-          3
+          -6,
+          0
         ],
         "dir": "left"
       },
       {
+        "name": "LT",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "RBI",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "BI/RBO",
+        "at": [
+          -6,
+          6
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
         "name": "a",
         "at": [
-          5,
+          6,
           -6
         ],
         "dir": "right"
@@ -292,7 +420,7 @@
       {
         "name": "b",
         "at": [
-          5,
+          6,
           -4
         ],
         "dir": "right"
@@ -300,7 +428,7 @@
       {
         "name": "c",
         "at": [
-          5,
+          6,
           -2
         ],
         "dir": "right"
@@ -308,7 +436,7 @@
       {
         "name": "d",
         "at": [
-          5,
+          6,
           0
         ],
         "dir": "right"
@@ -316,7 +444,7 @@
       {
         "name": "e",
         "at": [
-          5,
+          6,
           2
         ],
         "dir": "right"
@@ -324,7 +452,7 @@
       {
         "name": "f",
         "at": [
-          5,
+          6,
           4
         ],
         "dir": "right"
@@ -332,38 +460,42 @@
       {
         "name": "g",
         "at": [
-          5,
+          6,
           6
         ],
         "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -10
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          10
+        ],
+        "dir": "down"
       }
     ]
   },
   "designator_offset": [
-    -3,
-    -10
+    5,
+    -9
   ],
   "value_offset": [
-    -3,
+    5,
     9
   ],
-  "value_parameter": "VDD",
-  "parameters": [
-    {
-      "name": "VDD",
-      "label": "Supply",
-      "unit": "V",
-      "default": "5",
-      "description": "Logic supply: output high level and input threshold (VDD/2)",
-      "min": "1.5",
-      "max": "15"
-    }
-  ],
   "spice": [
-    "B_{ref}_l0 l0_{ref} 0 V=0.5*(1+tanh({= 40 / VDD}*(V({node:A})-{= VDD / 2})))",
-    "B_{ref}_l1 l1_{ref} 0 V=0.5*(1+tanh({= 40 / VDD}*(V({node:B})-{= VDD / 2})))",
-    "B_{ref}_l2 l2_{ref} 0 V=0.5*(1+tanh({= 40 / VDD}*(V({node:C})-{= VDD / 2})))",
-    "B_{ref}_l3 l3_{ref} 0 V=0.5*(1+tanh({= 40 / VDD}*(V({node:D})-{= VDD / 2})))",
+    "B_{ref}_l0 l0_{ref} 0 V=0.5*(1+tanh(10*(V({node:A},{node:GND})-1.4)))",
+    "B_{ref}_l1 l1_{ref} 0 V=0.5*(1+tanh(10*(V({node:B},{node:GND})-1.4)))",
+    "B_{ref}_l2 l2_{ref} 0 V=0.5*(1+tanh(10*(V({node:C},{node:GND})-1.4)))",
+    "B_{ref}_l3 l3_{ref} 0 V=0.5*(1+tanh(10*(V({node:D},{node:GND})-1.4)))",
     "B_{ref}_m0 m0_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
     "B_{ref}_m1 m1_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
     "B_{ref}_m2 m2_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
@@ -374,44 +506,48 @@
     "B_{ref}_m7 m7_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*V(l2_{ref})*(1-V(l3_{ref}))",
     "B_{ref}_m8 m8_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*(1-V(l2_{ref}))*V(l3_{ref})",
     "B_{ref}_m9 m9_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*(1-V(l2_{ref}))*V(l3_{ref})",
-    "B_{ref}_xa xa_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m6_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_m10 m10_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m11 m11_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m12 m12_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m13 m13_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m14 m14_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m15 m15_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_xa xa_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m13_{ref}),1))",
     "R_{ref}_da xa_{ref} ya_{ref} 1k",
     "C_{ref}_da ya_{ref} 0 10p",
-    "B_{ref}_oa za_{ref} 0 V=V(ya_{ref})",
-    "R_{ref}_oa za_{ref} {node:a} 50",
-    "B_{ref}_xb xb_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m1_{ref})+V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_wa {node:a} {node:GND} I=V(ya_{ref})*max(V({node:a},{node:GND}),0)/20+V({node:a},{node:GND})*1e-9",
+    "B_{ref}_xb xb_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m1_{ref})+V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m12_{ref}),1))",
     "R_{ref}_db xb_{ref} yb_{ref} 1k",
     "C_{ref}_db yb_{ref} 0 10p",
-    "B_{ref}_ob zb_{ref} 0 V=V(yb_{ref})",
-    "R_{ref}_ob zb_{ref} {node:b} 50",
-    "B_{ref}_xc xc_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m1_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_wb {node:b} {node:GND} I=V(yb_{ref})*max(V({node:b},{node:GND}),0)/20+V({node:b},{node:GND})*1e-9",
+    "B_{ref}_xc xc_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m1_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m11_{ref}),1))",
     "R_{ref}_dc xc_{ref} yc_{ref} 1k",
     "C_{ref}_dc yc_{ref} 0 10p",
-    "B_{ref}_oc zc_{ref} 0 V=V(yc_{ref})",
-    "R_{ref}_oc zc_{ref} {node:c} 50",
-    "B_{ref}_xd xd_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_wc {node:c} {node:GND} I=V(yc_{ref})*max(V({node:c},{node:GND}),0)/20+V({node:c},{node:GND})*1e-9",
+    "B_{ref}_xd xd_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m10_{ref})+V(m11_{ref})+V(m13_{ref})+V(m14_{ref}),1))",
     "R_{ref}_dd xd_{ref} yd_{ref} 1k",
     "C_{ref}_dd yd_{ref} 0 10p",
-    "B_{ref}_od zd_{ref} 0 V=V(yd_{ref})",
-    "R_{ref}_od zd_{ref} {node:d} 50",
-    "B_{ref}_xe xe_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m2_{ref})+V(m6_{ref})+V(m8_{ref}),1))",
+    "B_{ref}_wd {node:d} {node:GND} I=V(yd_{ref})*max(V({node:d},{node:GND}),0)/20+V({node:d},{node:GND})*1e-9",
+    "B_{ref}_xe xe_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m2_{ref})+V(m6_{ref})+V(m8_{ref})+V(m10_{ref})+V(m14_{ref}),1))",
     "R_{ref}_de xe_{ref} ye_{ref} 1k",
     "C_{ref}_de ye_{ref} 0 10p",
-    "B_{ref}_oe ze_{ref} 0 V=V(ye_{ref})",
-    "R_{ref}_oe ze_{ref} {node:e} 50",
-    "B_{ref}_xf xf_{ref} 0 V={VDD}*(1-min(V(m0_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_we {node:e} {node:GND} I=V(ye_{ref})*max(V({node:e},{node:GND}),0)/20+V({node:e},{node:GND})*1e-9",
+    "B_{ref}_xf xf_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m0_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref})+V(m12_{ref})+V(m13_{ref})+V(m14_{ref}),1))",
     "R_{ref}_df xf_{ref} yf_{ref} 1k",
     "C_{ref}_df yf_{ref} 0 10p",
-    "B_{ref}_of zf_{ref} 0 V=V(yf_{ref})",
-    "R_{ref}_of zf_{ref} {node:f} 50",
-    "B_{ref}_xg xg_{ref} 0 V={VDD}*(1-min(V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref}),1))",
+    "B_{ref}_wf {node:f} {node:GND} I=V(yf_{ref})*max(V({node:f},{node:GND}),0)/20+V({node:f},{node:GND})*1e-9",
+    "B_{ref}_xg xg_{ref} 0 V=(1-(1-0.5*(1+tanh(10*(V({node:BI/RBO},{node:GND})-1.4)))))*((1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4))))+(1-(1-0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))))*min(V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m11_{ref})+V(m12_{ref})+V(m13_{ref})+V(m14_{ref}),1))",
     "R_{ref}_dg xg_{ref} yg_{ref} 1k",
     "C_{ref}_dg yg_{ref} 0 10p",
-    "B_{ref}_og zg_{ref} 0 V=V(yg_{ref})",
-    "R_{ref}_og zg_{ref} {node:g} 50",
-    "R_{ref}_i0 {node:A} 0 1G",
-    "R_{ref}_i1 {node:B} 0 1G",
-    "R_{ref}_i2 {node:C} 0 1G",
-    "R_{ref}_i3 {node:D} 0 1G"
+    "B_{ref}_wg {node:g} {node:GND} I=V(yg_{ref})*max(V({node:g},{node:GND}),0)/20+V({node:g},{node:GND})*1e-9",
+    "B_{ref}_rbo {node:BI/RBO} {node:GND} I=(1-0.5*(1+tanh(10*(V({node:RBI},{node:GND})-1.4))))*0.5*(1+tanh(10*(V({node:LT},{node:GND})-1.4)))*V(m0_{ref})*max(V({node:BI/RBO},{node:GND}),0)/100",
+    "R_{ref}_p0 {node:A} {node:VCC} 4k",
+    "R_{ref}_p1 {node:B} {node:VCC} 4k",
+    "R_{ref}_p2 {node:C} {node:VCC} 4k",
+    "R_{ref}_p3 {node:D} {node:VCC} 4k",
+    "R_{ref}_p4 {node:LT} {node:VCC} 4k",
+    "R_{ref}_p5 {node:RBI} {node:VCC} 4k",
+    "R_{ref}_p6 {node:BI/RBO} {node:VCC} 4k",
+    "R_{ref}_q {node:VCC} {node:GND} 125"
   ]
 }

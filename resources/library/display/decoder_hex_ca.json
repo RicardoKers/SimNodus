@@ -1,0 +1,460 @@
+{
+  "type": "decoder_hex_ca",
+  "name": "Hex to 7-segment decoder (common anode)",
+  "category": "Displays",
+  "prefix": "U",
+  "description": "Generic 4-bit decoder for a common anode display: shows 0-9 and A, b, C, d, E, F; push-pull outputs low = segment on through about 50 ohm from the supply (one resistor per segment); inputs switch at half the supply on VCC and GND",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "text": "HEX",
+        "at": [
+          0,
+          -6.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          -2.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "B",
+        "at": [
+          -2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "C",
+        "at": [
+          -2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "D",
+        "at": [
+          -2.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -6,
+          4,
+          -6
+        ]
+      },
+      {
+        "text": "a",
+        "at": [
+          3.0,
+          -6
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          -6,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -4,
+          4,
+          -4
+        ]
+      },
+      {
+        "text": "b",
+        "at": [
+          3.0,
+          -4
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          -4,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "c",
+        "at": [
+          3.0,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          -2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "d",
+        "at": [
+          3.0,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          0,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "e",
+        "at": [
+          3.0,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          4,
+          4,
+          4
+        ]
+      },
+      {
+        "text": "f",
+        "at": [
+          3.0,
+          4
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          4,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "text": "g",
+        "at": [
+          3.0,
+          6
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          6,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          0,
+          -10,
+          0,
+          -8
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -7.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          8,
+          0,
+          10
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          7.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "a",
+        "at": [
+          6,
+          -6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "b",
+        "at": [
+          6,
+          -4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "c",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "d",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "e",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "f",
+        "at": [
+          6,
+          4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "g",
+        "at": [
+          6,
+          6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -10
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          10
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -9
+  ],
+  "value_offset": [
+    5,
+    9
+  ],
+  "spice": [
+    "B_{ref}_l0 l0_{ref} 0 V=0.5*(1+tanh(20*(V({node:A},{node:GND})/max(V({node:VCC},{node:GND}),0.5)-0.5)))",
+    "B_{ref}_l1 l1_{ref} 0 V=0.5*(1+tanh(20*(V({node:B},{node:GND})/max(V({node:VCC},{node:GND}),0.5)-0.5)))",
+    "B_{ref}_l2 l2_{ref} 0 V=0.5*(1+tanh(20*(V({node:C},{node:GND})/max(V({node:VCC},{node:GND}),0.5)-0.5)))",
+    "B_{ref}_l3 l3_{ref} 0 V=0.5*(1+tanh(20*(V({node:D},{node:GND})/max(V({node:VCC},{node:GND}),0.5)-0.5)))",
+    "B_{ref}_m0 m0_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
+    "B_{ref}_m1 m1_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
+    "B_{ref}_m2 m2_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
+    "B_{ref}_m3 m3_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*(1-V(l2_{ref}))*(1-V(l3_{ref}))",
+    "B_{ref}_m4 m4_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*V(l2_{ref})*(1-V(l3_{ref}))",
+    "B_{ref}_m5 m5_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*V(l2_{ref})*(1-V(l3_{ref}))",
+    "B_{ref}_m6 m6_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*V(l2_{ref})*(1-V(l3_{ref}))",
+    "B_{ref}_m7 m7_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*V(l2_{ref})*(1-V(l3_{ref}))",
+    "B_{ref}_m8 m8_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m9 m9_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m10 m10_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m11 m11_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*(1-V(l2_{ref}))*V(l3_{ref})",
+    "B_{ref}_m12 m12_{ref} 0 V=(1-V(l0_{ref}))*(1-V(l1_{ref}))*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m13 m13_{ref} 0 V=V(l0_{ref})*(1-V(l1_{ref}))*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m14 m14_{ref} 0 V=(1-V(l0_{ref}))*V(l1_{ref})*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_m15 m15_{ref} 0 V=V(l0_{ref})*V(l1_{ref})*V(l2_{ref})*V(l3_{ref})",
+    "B_{ref}_xa xa_{ref} 0 V=min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m6_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m12_{ref})+V(m14_{ref})+V(m15_{ref}),1)",
+    "R_{ref}_da xa_{ref} ya_{ref} 1k",
+    "C_{ref}_da ya_{ref} 0 10p",
+    "B_{ref}_ua {node:VCC} {node:a} I=(1-V(ya_{ref}))*V({node:VCC},{node:a})/50",
+    "B_{ref}_wa {node:a} {node:GND} I=V(ya_{ref})*V({node:a},{node:GND})/50",
+    "B_{ref}_xb xb_{ref} 0 V=min(V(m0_{ref})+V(m1_{ref})+V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m13_{ref}),1)",
+    "R_{ref}_db xb_{ref} yb_{ref} 1k",
+    "C_{ref}_db yb_{ref} 0 10p",
+    "B_{ref}_ub {node:VCC} {node:b} I=(1-V(yb_{ref}))*V({node:VCC},{node:b})/50",
+    "B_{ref}_wb {node:b} {node:GND} I=V(yb_{ref})*V({node:b},{node:GND})/50",
+    "B_{ref}_xc xc_{ref} 0 V=min(V(m0_{ref})+V(m1_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m7_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m11_{ref})+V(m13_{ref}),1)",
+    "R_{ref}_dc xc_{ref} yc_{ref} 1k",
+    "C_{ref}_dc yc_{ref} 0 10p",
+    "B_{ref}_uc {node:VCC} {node:c} I=(1-V(yc_{ref}))*V({node:VCC},{node:c})/50",
+    "B_{ref}_wc {node:c} {node:GND} I=V(yc_{ref})*V({node:c},{node:GND})/50",
+    "B_{ref}_xd xd_{ref} 0 V=min(V(m0_{ref})+V(m2_{ref})+V(m3_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref})+V(m11_{ref})+V(m12_{ref})+V(m13_{ref})+V(m14_{ref}),1)",
+    "R_{ref}_dd xd_{ref} yd_{ref} 1k",
+    "C_{ref}_dd yd_{ref} 0 10p",
+    "B_{ref}_ud {node:VCC} {node:d} I=(1-V(yd_{ref}))*V({node:VCC},{node:d})/50",
+    "B_{ref}_wd {node:d} {node:GND} I=V(yd_{ref})*V({node:d},{node:GND})/50",
+    "B_{ref}_xe xe_{ref} 0 V=min(V(m0_{ref})+V(m2_{ref})+V(m6_{ref})+V(m8_{ref})+V(m10_{ref})+V(m11_{ref})+V(m12_{ref})+V(m13_{ref})+V(m14_{ref})+V(m15_{ref}),1)",
+    "R_{ref}_de xe_{ref} ye_{ref} 1k",
+    "C_{ref}_de ye_{ref} 0 10p",
+    "B_{ref}_ue {node:VCC} {node:e} I=(1-V(ye_{ref}))*V({node:VCC},{node:e})/50",
+    "B_{ref}_we {node:e} {node:GND} I=V(ye_{ref})*V({node:e},{node:GND})/50",
+    "B_{ref}_xf xf_{ref} 0 V=min(V(m0_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m11_{ref})+V(m12_{ref})+V(m14_{ref})+V(m15_{ref}),1)",
+    "R_{ref}_df xf_{ref} yf_{ref} 1k",
+    "C_{ref}_df yf_{ref} 0 10p",
+    "B_{ref}_uf {node:VCC} {node:f} I=(1-V(yf_{ref}))*V({node:VCC},{node:f})/50",
+    "B_{ref}_wf {node:f} {node:GND} I=V(yf_{ref})*V({node:f},{node:GND})/50",
+    "B_{ref}_xg xg_{ref} 0 V=min(V(m2_{ref})+V(m3_{ref})+V(m4_{ref})+V(m5_{ref})+V(m6_{ref})+V(m8_{ref})+V(m9_{ref})+V(m10_{ref})+V(m11_{ref})+V(m13_{ref})+V(m14_{ref})+V(m15_{ref}),1)",
+    "R_{ref}_dg xg_{ref} yg_{ref} 1k",
+    "C_{ref}_dg yg_{ref} 0 10p",
+    "B_{ref}_ug {node:VCC} {node:g} I=(1-V(yg_{ref}))*V({node:VCC},{node:g})/50",
+    "B_{ref}_wg {node:g} {node:GND} I=V(yg_{ref})*V({node:g},{node:GND})/50",
+    "R_{ref}_iA {node:A} {node:GND} 1G",
+    "R_{ref}_iB {node:B} {node:GND} 1G",
+    "R_{ref}_iC {node:C} {node:GND} 1G",
+    "R_{ref}_iD {node:D} {node:GND} 1G",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ]
+}

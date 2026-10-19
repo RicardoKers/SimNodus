@@ -412,3 +412,24 @@ TEST_CASE("a 7-segment display lights each segment with its own current")
     CHECK(library.find("decoder_7447") != nullptr);
     CHECK(library.find("counter10") != nullptr);
 }
+
+TEST_CASE("decoders have the real parts' pins; displays have theirs on top and bottom")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* cmos = library.find("decoder_4511");
+    for (const char* pin : {"A", "B", "C", "D", "LT", "BI", "LE", "a", "g", "VDD", "VSS"}) {
+        CHECK(cmos->pin(pin) != nullptr);
+    }
+    const auto* ttl = library.find("decoder_7447");
+    for (const char* pin : {"LT", "RBI", "BI/RBO", "VCC", "GND"}) {
+        CHECK(ttl->pin(pin) != nullptr);
+    }
+    CHECK(ttl->pin("RBI")->optional); // TTL inputs float high
+    CHECK(!cmos->pin("LT")->optional); // CMOS inputs must be tied
+    CHECK((library.find("decoder_hex_cc") && library.find("decoder_hex_ca")));
+    const auto* display = library.find("seven_segment_cc");
+    for (const auto& pin : display->pins) {
+        CHECK((pin.direction == library::PinDirection::Up || pin.direction == library::PinDirection::Down));
+    }
+}

@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 47,
+  "next_id": 55,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -13,6 +13,32 @@
   "components": [
     {
       "id": 1,
+      "type": "vdc",
+      "designator": "V2",
+      "at": [
+        -10,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 3,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        -10,
+        3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 4,
       "type": "vpulse",
       "designator": "V1",
       "at": [
@@ -30,7 +56,7 @@
       }
     },
     {
-      "id": 2,
+      "id": 5,
       "type": "ground",
       "designator": "GND1",
       "at": [
@@ -42,7 +68,7 @@
       "parameters": {}
     },
     {
-      "id": 5,
+      "id": 8,
       "type": "counter10",
       "designator": "U1",
       "at": [
@@ -54,45 +80,23 @@
       "parameters": {}
     },
     {
-      "id": 10,
+      "id": 13,
       "type": "decoder_4511",
       "designator": "U2",
       "at": [
-        32,
-        -2
+        36,
+        0
       ],
       "rotation": 0,
       "mirrored": false,
       "parameters": {}
     },
     {
-      "id": 16,
+      "id": 24,
       "type": "resistor",
       "designator": "R1",
       "at": [
-        41,
-        -8
-      ],
-      "rotation": 90,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      },
-      "designator_offset": [
-        -3,
-        -1
-      ],
-      "value_offset": [
-        0,
-        -1
-      ]
-    },
-    {
-      "id": 19,
-      "type": "resistor",
-      "designator": "R2",
-      "at": [
-        41,
+        46,
         -6
       ],
       "rotation": 90,
@@ -110,11 +114,11 @@
       ]
     },
     {
-      "id": 22,
+      "id": 27,
       "type": "resistor",
-      "designator": "R3",
+      "designator": "R2",
       "at": [
-        41,
+        46,
         -4
       ],
       "rotation": 90,
@@ -132,11 +136,11 @@
       ]
     },
     {
-      "id": 25,
+      "id": 30,
       "type": "resistor",
-      "designator": "R4",
+      "designator": "R3",
       "at": [
-        41,
+        46,
         -2
       ],
       "rotation": 90,
@@ -154,56 +158,12 @@
       ]
     },
     {
-      "id": 28,
+      "id": 33,
       "type": "resistor",
-      "designator": "R5",
+      "designator": "R4",
       "at": [
-        41,
+        46,
         0
-      ],
-      "rotation": 90,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      },
-      "designator_offset": [
-        -3,
-        -1
-      ],
-      "value_offset": [
-        0,
-        -1
-      ]
-    },
-    {
-      "id": 31,
-      "type": "resistor",
-      "designator": "R6",
-      "at": [
-        41,
-        2
-      ],
-      "rotation": 90,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      },
-      "designator_offset": [
-        -3,
-        -1
-      ],
-      "value_offset": [
-        0,
-        -1
-      ]
-    },
-    {
-      "id": 34,
-      "type": "resistor",
-      "designator": "R7",
-      "at": [
-        41,
-        4
       ],
       "rotation": 90,
       "mirrored": false,
@@ -221,10 +181,76 @@
     },
     {
       "id": 36,
+      "type": "resistor",
+      "designator": "R5",
+      "at": [
+        46,
+        2
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 39,
+      "type": "resistor",
+      "designator": "R6",
+      "at": [
+        46,
+        4
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 42,
+      "type": "resistor",
+      "designator": "R7",
+      "at": [
+        46,
+        6
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 44,
       "type": "seven_segment_cc",
       "designator": "DS1",
       "at": [
-        60,
+        62,
         0
       ],
       "rotation": 0,
@@ -234,12 +260,12 @@
       }
     },
     {
-      "id": 44,
+      "id": 52,
       "type": "ground",
       "designator": "GND2",
       "at": [
-        60,
-        7
+        62,
+        8
       ],
       "rotation": 0,
       "mirrored": false,
@@ -248,7 +274,7 @@
   ],
   "wires": [
     {
-      "id": 3,
+      "id": 6,
       "points": [
         [
           0,
@@ -261,7 +287,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": 7,
       "points": [
         [
           0,
@@ -278,100 +304,108 @@
       ]
     },
     {
-      "id": 15,
+      "id": 23,
       "points": [
         [
-          37,
-          -8
-        ],
-        [
-          38,
-          -8
-        ]
-      ]
-    },
-    {
-      "id": 18,
-      "points": [
-        [
-          37,
+          42,
           -6
         ],
         [
-          38,
+          43,
           -6
         ]
       ]
     },
     {
-      "id": 21,
+      "id": 26,
       "points": [
         [
-          37,
+          42,
           -4
         ],
         [
-          38,
+          43,
           -4
         ]
       ]
     },
     {
-      "id": 24,
+      "id": 29,
       "points": [
         [
-          37,
+          42,
           -2
         ],
         [
-          38,
+          43,
           -2
         ]
       ]
     },
     {
-      "id": 27,
+      "id": 32,
       "points": [
         [
-          37,
+          42,
           0
         ],
         [
-          38,
+          43,
           0
         ]
       ]
     },
     {
-      "id": 30,
+      "id": 35,
       "points": [
         [
-          37,
+          42,
           2
         ],
         [
-          38,
+          43,
           2
         ]
       ]
     },
     {
-      "id": 33,
+      "id": 38,
       "points": [
         [
-          37,
+          42,
           4
         ],
         [
-          38,
+          43,
           4
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "points": [
+        [
+          42,
+          6
+        ],
+        [
+          43,
+          6
         ]
       ]
     }
   ],
   "labels": [
     {
-      "id": 6,
+      "id": 2,
+      "at": [
+        -10,
+        -3
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 9,
       "at": [
         21,
         -8
@@ -379,7 +413,7 @@
       "name": "Q0"
     },
     {
-      "id": 7,
+      "id": 10,
       "at": [
         21,
         -6
@@ -387,7 +421,7 @@
       "name": "Q1"
     },
     {
-      "id": 8,
+      "id": 11,
       "at": [
         21,
         -4
@@ -395,7 +429,7 @@
       "name": "Q2"
     },
     {
-      "id": 9,
+      "id": 12,
       "at": [
         21,
         -2
@@ -403,164 +437,206 @@
       "name": "Q3"
     },
     {
-      "id": 11,
+      "id": 14,
       "at": [
-        27,
-        -5
+        30,
+        -6
       ],
       "name": "Q0",
       "mirrored": true
     },
     {
-      "id": 12,
+      "id": 15,
       "at": [
-        27,
-        -3
+        30,
+        -4
       ],
       "name": "Q1",
       "mirrored": true
     },
     {
-      "id": 13,
+      "id": 16,
       "at": [
-        27,
-        -1
+        30,
+        -2
       ],
       "name": "Q2",
       "mirrored": true
     },
     {
-      "id": 14,
+      "id": 17,
       "at": [
-        27,
-        1
+        30,
+        0
       ],
       "name": "Q3",
       "mirrored": true
     },
     {
-      "id": 17,
+      "id": 18,
       "at": [
-        44,
-        -8
+        30,
+        2
       ],
-      "name": "Sa"
+      "name": "VCC",
+      "mirrored": true
+    },
+    {
+      "id": 19,
+      "at": [
+        30,
+        4
+      ],
+      "name": "VCC",
+      "mirrored": true
     },
     {
       "id": 20,
       "at": [
-        44,
+        30,
+        6
+      ],
+      "name": "GND",
+      "mirrored": true
+    },
+    {
+      "id": 21,
+      "at": [
+        36,
+        -10
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 22,
+      "at": [
+        36,
+        10
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 25,
+      "at": [
+        49,
         -6
       ],
-      "name": "Sb"
+      "name": "a"
     },
     {
-      "id": 23,
+      "id": 28,
       "at": [
-        44,
+        49,
         -4
       ],
-      "name": "Sc"
+      "name": "b"
     },
     {
-      "id": 26,
+      "id": 31,
       "at": [
-        44,
+        49,
         -2
       ],
-      "name": "Sd"
+      "name": "c"
     },
     {
-      "id": 29,
+      "id": 34,
       "at": [
-        44,
+        49,
         0
       ],
-      "name": "Se"
-    },
-    {
-      "id": 32,
-      "at": [
-        44,
-        2
-      ],
-      "name": "Sf"
-    },
-    {
-      "id": 35,
-      "at": [
-        44,
-        4
-      ],
-      "name": "Sg"
+      "name": "d"
     },
     {
       "id": 37,
       "at": [
-        55,
-        -3
+        49,
+        2
       ],
-      "name": "Sa",
-      "mirrored": true
-    },
-    {
-      "id": 38,
-      "at": [
-        55,
-        -1
-      ],
-      "name": "Sb",
-      "mirrored": true
-    },
-    {
-      "id": 39,
-      "at": [
-        55,
-        1
-      ],
-      "name": "Sc",
-      "mirrored": true
+      "name": "e"
     },
     {
       "id": 40,
       "at": [
-        55,
-        3
+        49,
+        4
       ],
-      "name": "Sd",
-      "mirrored": true
-    },
-    {
-      "id": 41,
-      "at": [
-        65,
-        -3
-      ],
-      "name": "Se"
-    },
-    {
-      "id": 42,
-      "at": [
-        65,
-        -1
-      ],
-      "name": "Sf"
+      "name": "f"
     },
     {
       "id": 43,
       "at": [
-        65,
-        1
+        49,
+        6
       ],
-      "name": "Sg"
+      "name": "g"
+    },
+    {
+      "id": 45,
+      "at": [
+        58,
+        -8
+      ],
+      "name": "g"
+    },
+    {
+      "id": 46,
+      "at": [
+        60,
+        -8
+      ],
+      "name": "f"
+    },
+    {
+      "id": 47,
+      "at": [
+        64,
+        -8
+      ],
+      "name": "a"
+    },
+    {
+      "id": 48,
+      "at": [
+        66,
+        -8
+      ],
+      "name": "b"
+    },
+    {
+      "id": 49,
+      "at": [
+        58,
+        8
+      ],
+      "name": "e",
+      "mirrored": true
+    },
+    {
+      "id": 50,
+      "at": [
+        60,
+        8
+      ],
+      "name": "d",
+      "mirrored": true
+    },
+    {
+      "id": 51,
+      "at": [
+        64,
+        8
+      ],
+      "name": "c",
+      "mirrored": true
     }
   ],
   "probes": [
     {
-      "id": 45,
+      "id": 53,
       "kind": "voltage",
       "target": {
-        "item": 4,
+        "item": 7,
         "at": [
           6,
           -6
@@ -571,12 +647,12 @@
   ],
   "notes": [
     {
-      "id": 46,
+      "id": 54,
       "at": [
-        -2,
-        -18
+        -12,
+        -20
       ],
-      "text": "A 2 Hz clock drives a decade counter (0-9); a 4511 decoder turns the BCD code into segments of a\ncommon-cathode display, one 330 ohm resistor per segment. Run (F5) at real time and watch it count.\nLabels Q0..Q3 and Sa..Sg join the parts. For a common-anode display use the 7447 decoder."
+      "text": "A 2 Hz clock drives a decade counter (0-9); a CD4511 turns the BCD code into the segments of a\ncommon-cathode display, one 330 ohm resistor per segment. LT and BI go to VCC, LE to ground, and the\n4511 needs its supply on VDD and VSS. Run (F5) at real time and watch it count. Labels join the parts."
     }
   ]
 }

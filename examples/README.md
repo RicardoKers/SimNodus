@@ -28,7 +28,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `20_Blocks_two_RC_stages.snx` | A 10 Hz square wave through two copies of the block `blocks/RC_lowpass.snx` (10 kΩ, 1 µF, ports IN and OUT) | Run and watch the three probes; double-click a block to open its file |
 | `21_Counter_with_push_button.snx` | A push button clocks a 4-bit counter; four LEDs show the count in binary | Run, click SW1 several times; then turn on Bounce in SW1's properties |
 | `22_Regulators_and_reference.snx` | From 15 V: a 7805 with a 100 Ω load, an LM317 set by a rheostat and a TL431 as a 2.5 V reference | Run, drag RV1 and watch VM2; lower V1 below 7 V to see the 7805 drop out |
-| `23_Seven_segment_counter.snx` | A 2 Hz clock, a decade counter, a 4511 decoder and a common-cathode 7-segment display | Run at real time and watch it count 0-9 |
+| `23_Seven_segment_counter.snx` | A 2 Hz clock, a decade counter, a CD4511 (LT and BI high, LE low, VDD and VSS wired) and a common-cathode 7-segment display | Run at real time and watch it count 0-9 |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the
