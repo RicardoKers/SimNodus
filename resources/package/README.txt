@@ -25,7 +25,8 @@ diodes and transistors; vendor .subckt models from your model folders
 (Tools > Model Folders); splitters that split and join buses; a faster
 Signal Analyzer with a marked trigger point.
 
-Guides in this folder: QUICK-START.md and MICROCONTROLLER.md (also on
+Guides in this folder (also Help > User Guide): QUICK-START.md,
+USER-GUIDE.md with the known limitations, and MICROCONTROLLER.md (also on
 https://github.com/RicardoKers/SimNodus/tree/main/docs/user). Lessons 1-3
 are in examples/lessons; examples 17-23 show gates, buses, diode kinds,
 blocks, a counter, regulators and a 7-segment display.

@@ -772,6 +772,10 @@ Pinos: %2</translation>
             <translation>&amp;Atalhos de teclado</translation>
         </message>
         <message>
+            <source>&amp;User Guide</source>
+            <translation>&amp;Guia do usuário</translation>
+        </message>
+        <message>
             <source>&amp;About SimNodus</source>
             <translation>&amp;Sobre o SimNodus</translation>
         </message>
@@ -1004,6 +1008,14 @@ Pinos: %2</translation>
         <message>
             <source>The analog engine is not available.</source>
             <translation>O motor analógico não está disponível.</translation>
+        </message>
+        <message>
+            <source>Could not open the user guide: %1</source>
+            <translation>Não foi possível abrir o guia do usuário: %1</translation>
+        </message>
+        <message>
+            <source>Help</source>
+            <translation>Ajuda</translation>
         </message>
         <message>
             <source>About SimNodus</source>

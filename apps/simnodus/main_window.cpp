@@ -489,6 +489,7 @@ void MainWindow::build_actions_and_menus()
 
     auto* help = menuBar()->addMenu(tr("&Help"));
     help->addAction(tr("&Keyboard Shortcuts"), this, &MainWindow::show_shortcuts)->setShortcut(QKeySequence::HelpContents);
+    help->addAction(tr("&User Guide"), this, &MainWindow::show_user_guide);
     help->addSeparator();
     help->addAction(tr("&About SimNodus"), this, &MainWindow::show_about);
     help->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
@@ -1044,6 +1045,18 @@ void MainWindow::check_engine()
     });
     connect(engine_thread_, &QThread::finished, engine_thread_, &QObject::deleteLater);
     engine_thread_->start();
+}
+
+void MainWindow::show_user_guide()
+{
+    // The packages put the guide next to the executable; a build tree reads it on GitHub.
+    const QString local = QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("USER-GUIDE.md"));
+    const QUrl url = QFileInfo::exists(local)
+        ? QUrl::fromLocalFile(local)
+        : QUrl(QStringLiteral("https://github.com/RicardoKers/SimNodus/blob/main/docs/user/USER_GUIDE.md"));
+    if (!QDesktopServices::openUrl(url)) {
+        messages_->add(Severity::Warning, tr("Could not open the user guide: %1").arg(url.toDisplayString()), tr("Help"));
+    }
 }
 
 void MainWindow::show_about()

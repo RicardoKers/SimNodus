@@ -3,6 +3,12 @@
 Revision 2026-10-14: product rebuild ([ADR 0079](decisions/0079-product-rebuild-and-lightweight-process.md)).
 Planning documents of the first development line are in [archive/2026-10-legacy](archive/2026-10-legacy/CURRENT.md).
 
+## For users
+
+- [Quick start](user/QUICK_START.md): a running circuit in five minutes.
+- [User guide](user/USER_GUIDE.md): every feature, troubleshooting and the known limitations.
+- [Microcontroller](user/MICROCONTROLLER.md): what the simulated STM32F103C8 supports, GDB debugging.
+
 ## Product and architecture
 
 - [Vision](VISION.md): audience, value, and boundaries.

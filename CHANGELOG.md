@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-154)
+
+- User guide `docs/user/USER_GUIDE.md`: installing, the window, drawing, every component category, device models and model folders, buses, blocks, running and simulation settings, the Signal Analyzer, the microcontroller, files and examples, preferences, command line, troubleshooting and the known limitations (circuit, microcontroller, application). *Help > User Guide* opens it (packaged next to `simnodus.exe` as `USER-GUIDE.md`; a build tree opens the GitHub page). The quick start is now a five-minute walk-through, and its stale "known limits of 0.1" are replaced by the guide's chapter.
+
 ### Changed (2026-10-19, owner's test)
 
 - Shorter component descriptions (33 parts) so the preview box beside the parts tree keeps its size; details belong in the user guide. The part generators read them from `tools/part_descriptions.json`.

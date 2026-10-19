@@ -13,7 +13,7 @@ circuits from 20 component types, run them continuously while clicking
 switches, holding push buttons and turning potentiometers, and watch the
 signals in the Signal Analyzer. Download the Windows installer or the portable zip from the
 [releases](https://github.com/RicardoKers/SimNodus/releases) and see the
-[quick start](docs/user/QUICK_START.md). Release 0.2.0 (2026-10-18) adds the
+[quick start](docs/user/QUICK_START.md) and the [user guide](docs/user/USER_GUIDE.md). Release 0.2.0 (2026-10-18) adds the
 STM32/Blue Pill microcontroller; see the [roadmap](docs/planning/ROADMAP.md). Build instructions:
 [getting started](docs/development/GETTING_STARTED.md).
 
