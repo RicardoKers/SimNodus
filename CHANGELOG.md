@@ -4,6 +4,18 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.4.0 — 2026-10-19
+
+### Summary
+
+- Blocks drawn by the user: a project with *Block port* parts is placed into other projects as a block (Place > Block); the project keeps a copy; double-click opens its file (example 20).
+- Vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes, from any number of model folders (Tools > Model Folders); invalid models and parameters are reported.
+- Latches, flip-flops, decade and 4-bit counters and a shift register (example 21); 7-segment displays with the real pinout, the 4511 and 7447 decoders with all their pins and power, generic hex decoders (example 23).
+- Regulators and references: 78xx, LDO, LM317, TL431 (example 22); teaching models (fixed-drop diode, simple transistors with beta); Schottky and germanium diodes (example 19).
+- Splitters split and join buses like hneemann's *Digital*; mirrored net labels; the relay's contact moves; meter values beside vertical meters; upright text in symbols.
+- Signal Analyzer: responsive with long timebases (about 16 ms per refresh instead of 130 ms at 1 s/div), no trembling while scrolling, trigger point marked and Auto sweep running free without triggers, logic cursors with period and frequency.
+- Projects with blocks are written as format version 2, which 0.3 does not open; other projects stay readable by 0.3.
+
 ### Fixed (2026-10-19, owner's report)
 
 - Triggered scope: the trigger point is marked (a T flag on the top edge and a dotted line) and the display says "Triggered at ...", "Waiting for trigger" or "Auto: no trigger, running free". In Auto sweep the display stays triggered while new crossings arrive and runs free (rolls) after a whole window without one; before, it stood on an old frame for up to one and a half windows and looked frozen with long timebases.
