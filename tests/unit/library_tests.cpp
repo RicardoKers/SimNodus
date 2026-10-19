@@ -200,12 +200,12 @@ TEST_CASE("SPICE model files: .model statements are read, the rest is skipped")
                              ".model INNER NPN(BF=50)\n"
                              ".ends OPAMP\n"
                              ".model JF1 NJF(VTO=-2)\n"
-                             ".model BAD NPN(BF={beta})\n"
+                             ".model BAD NPN(BF={beta} IS=1f)\n"
                              "R1 1 2 1k\n"
                              ".control\n";
-    int skipped = 0;
-    const auto models = library::parse_spice_models(text, &skipped);
-    REQUIRE(models.size() == 2);
+    std::vector<library::ModelIssue> issues;
+    const auto models = library::parse_spice_models(text, &issues);
+    REQUIRE(models.size() == 3);
     CHECK(models[0].name == "2N2222A");
     CHECK(models[0].type == "NPN");
     CHECK(models[0].parameters == "IS=14.34f BF=255.9 VAF=74.03 IKF=.2847");
@@ -214,10 +214,43 @@ TEST_CASE("SPICE model files: .model statements are read, the rest is skipped")
     CHECK(models[1].name == "D1N4148");
     CHECK(models[1].parameters == "IS=2.52n RS=.568");
     CHECK(models[1].description.empty());
-    CHECK(skipped == 3); // the subcircuit, the JFET type and the expression
+    // The subcircuit and the JFET are skipped; BAD keeps IS but not the expression.
+    CHECK(models[2].name == "BAD");
+    CHECK(models[2].parameters == "IS=1f");
+    REQUIRE(issues.size() == 3);
+    CHECK(issues[0].line == 7);
+    CHECK(issues[0].model == "OPAMP");
+    CHECK(issues[0].text.find("subcircuits") != std::string::npos);
+    CHECK(issues[1].model == "JF1");
+    CHECK(issues[1].text.find("NJF is not supported") != std::string::npos);
+    CHECK(issues[2].line == 11);
+    CHECK(issues[2].text == "left out BF={beta} (not a number)");
     // Only the statement itself is kept: text after the parameters is dropped.
     CHECK(library::parse_spice_model(".model X NPN(BF=100) .control")->card() == ".model X NPN(BF=100)");
     CHECK(!library::parse_spice_model(".model X$Y NPN(BF=100)").has_value());
+}
+
+TEST_CASE("SPICE models: parameters ngspice cannot use are left out and reported")
+{
+    // As in vendor and LTspice files: descriptive fields, a wrong value, an unknown name.
+    const auto m = library::parse_spice_model(
+        ".model Q1 NPN(IS=1E-14 Bf=300 mfg=NXP Vceo=40 Icrating=200m FOO=3 Rb=abc VAF = 100 Iave=\"1 A\")");
+    REQUIRE(m.has_value());
+    CHECK(m->parameters == "IS=1E-14 Bf=300 VAF=100");
+    CHECK((m->dropped == std::vector<std::string>{"FOO=3 (not a NPN parameter)", "Rb=abc (not a number)"}));
+    // A diode with LTspice fields keeps what ngspice knows.
+    const auto d = library::parse_spice_model(".model 1N4007 D(Is=7n Rs=.04 N=1.8 Cjo=15p Iave=1 Vpk=1000 mfg=Diodes type=silicon)");
+    REQUIRE(d.has_value());
+    CHECK(d->parameters == "Is=7n Rs=.04 N=1.8 Cjo=15p");
+    CHECK(d->dropped.empty());
+    // MOSFET levels above 3 have too many parameters to list: only values are checked.
+    const auto bsim = library::parse_spice_model(".model M1 NMOS(LEVEL=49 VERSION=3.3 K1=0.5 TOXM=x)");
+    REQUIRE(bsim.has_value());
+    CHECK(bsim->parameters == "LEVEL=49 VERSION=3.3 K1=0.5");
+    CHECK((bsim->dropped == std::vector<std::string>{"TOXM=x (not a number)"}));
+    std::string why;
+    CHECK(!library::parse_spice_model(".model X NPN(BF=100", &why).has_value());
+    CHECK(why == "a parenthesis is not closed");
 }
 
 TEST_CASE("the built-in models cover the semiconductor parts")

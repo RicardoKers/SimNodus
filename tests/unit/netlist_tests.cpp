@@ -106,6 +106,12 @@ TEST_CASE("model parameters choose a built-in model or one kept in the component
     REQUIRE(n.ok());
     CHECK(std::find(n.lines.begin(), n.lines.end(), "Q_Q2 VCC B 0 UM_Q2_model") != n.lines.end());
     CHECK(std::find(n.models.begin(), n.models.end(), ".model UM_Q2_model NPN(BF=50)") != n.models.end());
+    // Parameters ngspice cannot use are left out of the deck, with a warning for the part.
+    editing::set_model(b.schematic, q2, "model", "MY-NPN", ".model MY-NPN NPN(BF=50 IS=abc FOO=1)").apply(b.schematic);
+    n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(n.ok());
+    CHECK(has(n, "model-parameter"));
+    CHECK(std::find(n.models.begin(), n.models.end(), ".model UM_Q2_model NPN(BF=50)") != n.models.end());
     // An unknown model, or one of the wrong type, is an error that names the part.
     editing::set_parameter(b.schematic, q1, "model", "NOPE").apply(b.schematic);
     n = netlist::generate_netlist(b.schematic, lib);

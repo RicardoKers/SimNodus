@@ -41,6 +41,8 @@ public:
 
 signals:
     void message(const QString& text);
+    // The user's models folder was read for a model list (PRJ-07).
+    void models_read();
     // Reload of a microcontroller's firmware (restarts a running simulation).
     void firmware_reload_requested();
 

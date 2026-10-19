@@ -54,8 +54,10 @@ must be one of them. The user's models folder (Documents/SimNodus/models, or
 `SIMNODUS_MODELS_DIR`) is read the same way by the application; a model chosen
 from it is copied into the component (`models` in the project file), so the
 project does not need the folder. Only `.model` statements of the five types
-are taken; subcircuits, other statements, `{}` expressions and quotes are
-skipped.
+are taken; subcircuits and other statements are skipped. Each parameter must
+be a number and a parameter of its type, otherwise it is left out and reported
+([ADR 0095](../decisions/0095-model-variants.md)); the built-in files load
+without any report.
 
 ## Microcontroller boards
 
