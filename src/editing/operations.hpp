@@ -77,6 +77,9 @@ Edit set_designator(const model::Schematic& schematic, Id component, const std::
 // Moves a component's designator or value text (UI-11); `value` selects which.
 Edit move_text(const model::Schematic& schematic, Id component, bool value, Point offset);
 Edit set_settings(const model::Schematic& schematic, const model::SimulationSettings& settings);
+// Adds a block to the project, or replaces the copy of the same name (PRJ-06);
+// every component of the block's type then uses the new copy.
+Edit set_blocks(const model::Schematic& schematic, const std::vector<model::Block>& blocks, std::string description);
 
 // Clipboard: the selected elements as JSON text, and pasting it back with
 // new IDs, designators renumbered where taken, shifted by `offset`.

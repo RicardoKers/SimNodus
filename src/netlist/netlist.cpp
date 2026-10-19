@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "netlist.hpp"
 
+#include "library/blocks.hpp"
 #include "library/spice_template.hpp"
 #include "model/engineering.hpp"
 
@@ -126,7 +127,228 @@ std::size_t Netlist::count(Severity severity) const
         [severity](const Diagnostic& d) { return d.severity >= severity; }));
 }
 
+namespace {
+
+bool ground_label(const std::string& name)
+{
+    return name == "0" || lower(name) == "gnd";
+}
+
+// A schematic with the circuits of its blocks in their place (PRJ-06, ADR 0098),
+// and for each element that came from a block, the block's component.
+struct Flat {
+    model::Schematic schematic;
+    std::map<Id, Id> origin;
+    std::set<Id> blocks; // block components that were expanded
+};
+
+void include_point(std::optional<std::pair<int, int>>& range, const Point& p)
+{
+    range = range ? std::make_pair(std::min(range->first, p.x), std::max(range->second, p.x)) : std::make_pair(p.x, p.x);
+}
+
+// Leftmost and rightmost x of a schematic's points.
+std::optional<std::pair<int, int>> x_range(const model::Schematic& s)
+{
+    std::optional<std::pair<int, int>> range;
+    for (const auto& c : s.components()) {
+        include_point(range, c.position);
+    }
+    for (const auto& w : s.wires()) {
+        for (const auto& p : w.points) {
+            include_point(range, p);
+        }
+    }
+    for (const auto& l : s.labels()) {
+        include_point(range, l.position);
+    }
+    for (const auto& sp : s.splitters()) {
+        include_point(range, sp.position);
+    }
+    return range;
+}
+
+Flat flatten(const model::Schematic& schematic, const library::ComponentLibrary& library)
+{
+    Flat flat{schematic, {}, {}};
+    auto& out = flat.schematic;
+    for (const auto& c : schematic.components()) {
+        const auto* d = library.find(c.type);
+        if (!d || !d->block) {
+            continue;
+        }
+        flat.blocks.insert(c.id);
+        // The block's circuit, its own blocks already in place.
+        const auto inner_library = library::with_blocks(library, *d->block);
+        const Flat inner = flatten(*d->block, inner_library);
+        const auto inner_nets = build_connectivity(inner.schematic, inner_library);
+        const std::string prefix = c.designator;
+
+        // Every net of the circuit gets a name of its own, so that its N001 is not
+        // taken from the schematic around it. Nets reaching a port join the net on
+        // the block's pin through hidden labels; ground stays ground.
+        std::map<int, std::string> net_name;
+        std::map<std::string, std::string> pin_label; // port name -> label at the block's pin
+        for (const auto& port : inner.schematic.components()) {
+            const auto* pd = inner_library.find(port.type);
+            if (!pd || pd->ties_net_parameter.empty() || pd->pins.empty()) {
+                continue;
+            }
+            const auto net = inner_nets.pin_net.find({port.id, pd->pins.front().name});
+            if (net == inner_nets.pin_net.end()) {
+                continue;
+            }
+            const auto& n = inner_nets.nets[static_cast<std::size_t>(net->second)];
+            const std::string name = n.ground ? std::string("0")
+                                              : std::string(1, hidden_label_mark) + prefix + "/#" + std::to_string(net->second);
+            net_name[net->second] = name;
+            const auto param = port.parameters.find(pd->ties_net_parameter);
+            const auto* p = pd->parameter(pd->ties_net_parameter);
+            pin_label.emplace(param != port.parameters.end() ? param->second : p ? p->default_value : "", name);
+        }
+        auto rename = [&](int net, const std::string& name) {
+            if (const auto it = net_name.find(net); it != net_name.end()) {
+                return it->second;
+            }
+            if (inner_nets.nets[static_cast<std::size_t>(net)].ground || ground_label(name)) {
+                return std::string("0");
+            }
+            if (!name.empty() && name.front() == hidden_label_mark) {
+                return std::string(1, hidden_label_mark) + prefix + "/" + name.substr(1);
+            }
+            return prefix + "/" + name;
+        };
+
+        // Beside everything placed so far, so that no point of the circuit meets another.
+        const auto placed = x_range(out);
+        const auto own = x_range(inner.schematic);
+        const Point shift{placed && own ? placed->second - own->first + 100 : 0, 0};
+
+        std::set<int> labelled;
+        auto add_label = [&](const Point& at, const std::string& name) {
+            const Id id = out.allocate_id();
+            out.put(model::NetLabel{id, at, name});
+            flat.origin[id] = c.id;
+        };
+        for (const auto& l : inner.schematic.labels()) {
+            const int net = inner_nets.label_net.at(l.id);
+            labelled.insert(net);
+            add_label(l.position + shift, rename(net, l.name));
+        }
+        for (const auto& ic : inner.schematic.components()) {
+            const auto* id = inner_library.find(ic.type);
+            if (id && !id->ties_net_parameter.empty()) {
+                // A port: its point joins the block's pin.
+                for (const auto& pin : id->pins) {
+                    const auto net = inner_nets.pin_net.find({ic.id, pin.name});
+                    if (net != inner_nets.pin_net.end()) {
+                        add_label(library::pin_position(*id, pin, ic) + shift, rename(net->second, ""));
+                    }
+                }
+                continue;
+            }
+            if (inner.blocks.count(ic.id)) {
+                continue; // its circuit is already in the inner schematic
+            }
+            if (id) {
+                for (const auto& pin : id->pins) {
+                    const auto net = inner_nets.pin_net.find({ic.id, pin.name});
+                    if (net != inner_nets.pin_net.end() && !labelled.count(net->second)) {
+                        // A net without a label gets one named after it ("U1/N002").
+                        labelled.insert(net->second);
+                        const auto& n = inner_nets.nets[static_cast<std::size_t>(net->second)];
+                        add_label(library::pin_position(*id, pin, ic) + shift, rename(net->second, n.name));
+                    }
+                }
+            }
+            model::Component copy = ic;
+            copy.id = out.allocate_id();
+            copy.designator = prefix + "." + ic.designator;
+            copy.position = copy.position + shift;
+            out.put(copy);
+            flat.origin[copy.id] = c.id;
+        }
+        for (const auto& w : inner.schematic.wires()) {
+            model::Wire copy = w;
+            copy.id = out.allocate_id();
+            for (auto& p : copy.points) {
+                p = p + shift;
+            }
+            out.put(copy);
+            flat.origin[copy.id] = c.id;
+        }
+        for (const auto& sp : inner.schematic.splitters()) {
+            model::Splitter copy = sp;
+            copy.id = out.allocate_id();
+            copy.position = copy.position + shift;
+            copy.bus = prefix + "/" + sp.bus;
+            out.put(copy);
+            flat.origin[copy.id] = c.id;
+        }
+        // The block's pins meet the circuit through hidden labels.
+        for (const auto& pin : d->pins) {
+            if (const auto it = pin_label.find(pin.name); it != pin_label.end()) {
+                add_label(library::pin_position(*d, pin, c), it->second);
+            }
+        }
+    }
+    return flat;
+}
+
+Netlist generate_circuit(const model::Schematic& schematic, const library::ComponentLibrary& library,
+    const NetlistOptions& options);
+
+} // namespace
+
 Netlist generate_netlist(const model::Schematic& schematic, const library::ComponentLibrary& library,
+    const NetlistOptions& options)
+{
+    const bool has_blocks = std::any_of(schematic.components().begin(), schematic.components().end(),
+        [&](const Component& c) {
+            const auto* d = library.find(c.type);
+            return d && d->block;
+        });
+    if (!has_blocks) {
+        return generate_circuit(schematic, library, options);
+    }
+    const Flat flat = flatten(schematic, library);
+    Netlist out = generate_circuit(flat.schematic, library, options);
+    // Findings inside a block point at the block; its parts are named "U1.R1".
+    for (auto& diagnostic : out.diagnostics) {
+        std::vector<Id> items;
+        const model::Component* block = nullptr;
+        for (Id id : diagnostic.items) {
+            const auto it = flat.origin.find(id);
+            if (it != flat.origin.end()) {
+                block = schematic.component(it->second);
+                id = it->second;
+            }
+            if (std::find(items.begin(), items.end(), id) == items.end()) {
+                items.push_back(id);
+            }
+        }
+        if (block) {
+            diagnostic.message = "In block " + block->designator + ": " + diagnostic.message;
+            diagnostic.at = block->position;
+        }
+        diagnostic.items = std::move(items);
+    }
+    std::set<Id> fixed;
+    for (const auto& control : out.controls) {
+        if (const auto it = flat.origin.find(control.component); it != flat.origin.end() && fixed.insert(it->second).second) {
+            const auto* block = schematic.component(it->second);
+            out.diagnostics.push_back({Severity::Info, "block-control",
+                (block ? block->designator : std::string("A block")) + ": switches and potentiometers inside a block "
+                    "keep the position saved in the block's file.",
+                {it->second}, block ? std::optional<Point>(block->position) : std::nullopt});
+        }
+    }
+    return out;
+}
+
+namespace {
+
+Netlist generate_circuit(const model::Schematic& schematic, const library::ComponentLibrary& library,
     const NetlistOptions& options)
 {
     Netlist out;
@@ -144,8 +366,8 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
     std::map<std::string, Id> refs;
     for (const auto& c : schematic.components()) {
         const auto* d = library.find(c.type);
-        if (d && !d->ties_net.empty()) {
-            continue; // ground symbols produce no element
+        if (d && (!d->ties_net.empty() || !d->ties_net_parameter.empty())) {
+            continue; // ground symbols and block ports produce no element
         }
         const std::string key = lower(sanitize_name(c.designator));
         if (auto [it, inserted] = refs.emplace(key, c.id); !inserted) {
@@ -581,6 +803,8 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
     }
     return out;
 }
+
+} // namespace
 
 std::vector<std::string> build_deck(const Netlist& netlist, const std::string& title,
     const std::vector<std::string>& extra)

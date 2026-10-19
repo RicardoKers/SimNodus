@@ -20,7 +20,7 @@ using nlohmann::json;
 
 const std::vector<std::string> category_order{
     "Passive", "Sources", "Switches & Controls", "Semiconductors", "Simplified models", "Integrated circuits",
-    "Electromechanical", "Instruments", "Microcontrollers", "Logic"};
+    "Electromechanical", "Instruments", "Microcontrollers", "Logic", "Blocks"};
 
 [[noreturn]] void invalid(const std::string& message)
 {
@@ -223,6 +223,7 @@ ComponentDefinition parse_definition(const json& j)
     d.description = text(j, "description");
     d.value_parameter = text(j, "value_parameter");
     d.ties_net = text(j, "ties_net");
+    d.ties_net_parameter = text(j, "ties_net_parameter");
     d.show_designator = j.value("show_designator", true);
     if (j.contains("designator_offset")) {
         d.designator_offset = grid_point(j["designator_offset"], "designator_offset");
@@ -285,6 +286,8 @@ ComponentDefinition parse_definition(const json& j)
             const std::string kind = text(p, "kind");
             if (kind == "file") {
                 parameter.kind = Parameter::Kind::File;
+            } else if (kind == "text") {
+                parameter.kind = Parameter::Kind::Text;
             } else if (kind == "model") {
                 parameter.kind = Parameter::Kind::Model;
                 parameter.model_type = text(p, "model_type");
@@ -297,13 +300,14 @@ ComponentDefinition parse_definition(const json& j)
                     invalid("a model parameter needs model_type or subcircuit");
                 }
             } else if (!kind.empty() && kind != "number" && kind != "choice") {
-                invalid("parameter kind must be number, choice, file or model");
+                invalid("parameter kind must be number, choice, file, model or text");
             } else if (!parameter.choices.empty()) {
                 parameter.kind = Parameter::Kind::Choice;
             }
             parameter.min = bound(p, "min", parameter.unit);
             parameter.max = bound(p, "max", parameter.unit);
-            if (parameter.kind == Parameter::Kind::File || parameter.kind == Parameter::Kind::Model) {
+            if (parameter.kind == Parameter::Kind::File || parameter.kind == Parameter::Kind::Model
+                || parameter.kind == Parameter::Kind::Text) {
                 // any text; a model name is checked against the models when the netlist is made
             } else if (parameter.choices.empty()) {
                 if (!model::parse_engineering(parameter.default_value, parameter.unit)) {
@@ -467,8 +471,14 @@ ComponentDefinition parse_definition(const json& j)
 
     d.spice = strings(j, "spice");
     d.models = strings(j, "models");
-    if (d.spice.empty() && d.ties_net.empty()) {
-        invalid("a component needs a spice template or ties_net");
+    if (d.spice.empty() && d.ties_net.empty() && d.ties_net_parameter.empty()) {
+        invalid("a component needs a spice template, ties_net or ties_net_parameter");
+    }
+    if (!d.ties_net_parameter.empty()) {
+        const auto* p = d.parameter(d.ties_net_parameter);
+        if (!p || p->kind != Parameter::Kind::Text) {
+            invalid("ties_net_parameter must name a text parameter");
+        }
     }
     validate_templates(d);
     return d;
@@ -518,6 +528,17 @@ std::optional<std::string> ComponentLibrary::add_from_json(const std::string& te
     } catch (const std::exception& error) {
         return std::string(error.what());
     }
+}
+
+void ComponentLibrary::add_definition(ComponentDefinition definition)
+{
+    for (auto& d : definitions_) {
+        if (d.type == definition.type) {
+            d = std::move(definition);
+            return;
+        }
+    }
+    definitions_.push_back(std::move(definition));
 }
 
 std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem::path& directory)

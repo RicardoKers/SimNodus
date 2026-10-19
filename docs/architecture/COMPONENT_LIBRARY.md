@@ -28,9 +28,10 @@ clockwise in 90° steps.
 | `show_designator` | — | `false` hides the designator (ground) |
 | `value_parameter` | — | Parameter shown next to the symbol |
 | `parameters` | — | `{"name", "label", "unit", "default", "min", "max", "choices", "description", "kind", "filter"}` |
-| `spice` | unless `ties_net` | SPICE template lines (below) |
+| `spice` | unless `ties_net` or `ties_net_parameter` | SPICE template lines (below) |
 | `models` | — | `.model` lines, emitted once per netlist |
 | `ties_net` | — | All pins belong to this net; `"0"` makes the ground symbol |
+| `ties_net_parameter` | — | All pins belong to the net named by this text parameter: the *Block port* part ([ADR 0098](../decisions/0098-user-blocks.md)) |
 | `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running. A potentiometer may add `"wiper": {"track": [x0, y0, x1, y1], "pin": "W"}`: the arrow's tip moves from (x0, y0) at 0 % to (x1, y1) at 100 %, joined to the wiper pin, and the percentage is shown next to it (UI-18) |
 | `readout` | — | Live value: `{"kind": "voltage", "pins": ["+", "-"]}`, `{"kind": "current", "element": "V_{ref}"}` or `{"kind": "node", "element": "w_{ref}", "scale": 9.549, "unit": "rpm"}` (an internal node, scaled). A current readout may glow instead of showing text: `"glow": {"full": "10m", "color_parameter": "color"}` or `{"full_parameter": "I", "color": "#ffd27a"}` (full brightness at that current) |
 | `mcu` | — | Microcontroller board (below) |
@@ -52,6 +53,12 @@ part's own template. `"model_kinds": ["schottky"]` limits the offered models
 to those whose file says `type=schottky` (LTspice diode libraries classify
 models this way; `""` stands for models without `type=`). A parameter's
 `"symbol"` is shown before its value on the schematic (`"β"` gives `β=100`).
+`"kind": "text"` takes any words (a block port's name).
+
+Blocks drawn by the user (PRJ-06) are not files of the library: a project's
+blocks become definitions of type `block:<name>` with a rectangle and pins
+made from the block's ports, in the category *Blocks*
+([ADR 0098](../decisions/0098-user-blocks.md)).
 
 ### SPICE models
 

@@ -9,13 +9,15 @@
 #include "model/schematic.hpp"
 
 #include <filesystem>
+#include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace simnodus::io {
 
-constexpr int project_format_version = 1;
+// Format 2 adds the user's blocks (ADR 0098); projects without blocks are written as format 1.
+constexpr int project_format_version = 2;
 
 struct LoadResult {
     std::optional<model::Schematic> schematic; // empty on error
@@ -26,9 +28,11 @@ struct LoadResult {
 std::string to_json_text(const model::Schematic& schematic);
 LoadResult from_json_text(const std::string& text);
 
-// Selected elements only (clipboard); IDs are kept and remapped on paste.
-std::string elements_to_json_text(const std::vector<model::Element>& elements);
-std::optional<std::vector<model::Element>> elements_from_json_text(const std::string& text, std::string& error);
+// Selected elements only (clipboard), with the blocks they use; IDs are kept and remapped on paste.
+std::string elements_to_json_text(const std::vector<model::Element>& elements,
+    const std::map<std::string, model::Block>& blocks = {});
+std::optional<std::vector<model::Element>> elements_from_json_text(const std::string& text, std::string& error,
+    std::map<std::string, model::Block>* blocks = nullptr);
 
 LoadResult load_project(const std::filesystem::path& file);
 

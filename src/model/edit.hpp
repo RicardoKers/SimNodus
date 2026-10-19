@@ -28,19 +28,22 @@ public:
 
     const std::string& description() const { return description_; }
     const std::vector<Change>& changes() const { return changes_; }
-    bool empty() const { return changes_.empty() && !settings_; }
+    bool empty() const { return changes_.empty() && !settings_ && !blocks_; }
 
     void apply(Schematic& schematic) const;
     void revert(Schematic& schematic) const;
 
     // Settings changes are recorded alongside element changes.
     void set_settings(const SimulationSettings& before, const SimulationSettings& after);
+    // So are changes to the project's blocks.
+    void set_blocks(const std::map<std::string, Block>& before, const std::map<std::string, Block>& after);
 
 private:
     friend Edit make_edit(const Schematic&, const Schematic&, std::string);
     std::string description_;
     std::vector<Change> changes_;
     std::optional<std::pair<SimulationSettings, SimulationSettings>> settings_;
+    std::optional<std::pair<std::map<std::string, Block>, std::map<std::string, Block>>> blocks_;
 };
 
 // Difference between two states of a document: every element that was added,

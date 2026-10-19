@@ -146,8 +146,8 @@ A separate top-level window that can be placed on another monitor.
 | PRJ-03 | Opening a project never executes code, loads native libraries or downloads anything | 1 | done |
 | PRJ-04 | Component definitions (symbol graphics, pins, parameters, SPICE model template) are data files in a library folder, not hard-coded, so that a symbol editor can be added later | 1 | done |
 | PRJ-05 | Symbol editor: separate window for creating and editing symbols and pin layouts, writing the same library format | 5+ | planned |
-| PRJ-06 | Reusable subcircuits with explicit ports | after classroom | planned |
-| PRJ-07 | Model variants for basic components (diodes, transistors, MOSFETs; not integrated circuits): the properties panel offers a list of SPICE models (for example 2N2222, BC547, 1N4148) and the user can add more by editing a data file next to the component definition, without rebuilding; sources such as the KiCad-Spice-Library are imported only under compatible license terms | later | done (SN-194, 2026-10-18; ADR 0095; subcircuit models wait for PRJ-06) |
+| PRJ-06 | Reusable subcircuits with explicit ports: vendor `.subckt` models on existing parts, and blocks drawn by the user (a project with port parts placed into other projects as a rectangle with those pins; the project keeps a copy) | after classroom | done (vendor subcircuits #161, ADR 0097; user blocks SN-200, ADR 0098, owner's priority 2026-10-18) |
+| PRJ-07 | Model variants for basic components (diodes, transistors, MOSFETs; not integrated circuits): the properties panel offers a list of SPICE models (for example 2N2222, BC547, 1N4148) and the user can add more by editing a data file next to the component definition, without rebuilding; sources such as the KiCad-Spice-Library are imported only under compatible license terms | later | done (SN-194, 2026-10-18; ADR 0095; subcircuit models since #161, ADR 0097) |
 
 ## 8. Nonfunctional requirements
 

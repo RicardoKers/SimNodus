@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, owner's priority)
+
+- Blocks drawn by the user (SN-200, PRJ-06, ADR 0098): a project with *Block port* parts (name and side, category *Blocks*) can be placed into other projects with *Place > Block...*; it appears as a rectangle with the ports as pins, in the order they have on the block's schematic, and in the parts tree. The project keeps a copy of the block file (`"blocks"`, format version 2; projects without blocks stay at version 1). The netlist puts the block's circuit in its place: parts are named `U1.R1`, nets around the block keep the names the editor shows, capacitors inside keep their charge across interactive segments (engine test: 4.7511 V at 300 ms against 4.7511 V expected), findings inside point at the block. A double-click opens the block's file, *Update* in Properties reads it again, and opening a project offers to update blocks whose files changed. Copy and paste carry the blocks of the copied parts; blocks may hold blocks. Example 20: a square wave through two RC low-pass blocks.
+
 ### Added (2026-10-18, owner's requests)
 
 - Teaching models in a new *Simplified models* category (SN-197): *Diode (fixed drop)* conducts above an adjustable forward voltage (0.7 V by default, 0.3 V for germanium lessons); *NPN/PNP transistor (simple)* have a fixed Vbe, an adjustable beta shown on the symbol (β=100) and a saturation voltage (0.2 V). Engine tests: Vbe 0.700 V, Vc 7.70 V in the active region and 0.185 V saturated.

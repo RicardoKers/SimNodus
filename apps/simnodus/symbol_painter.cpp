@@ -68,7 +68,7 @@ void paint_graphic(QPainter& painter, const Graphic& g, const SymbolStyle& style
         painter.scale(scale, scale);
         painter.setFont(font);
         painter.setPen(style.ink);
-        painter.drawText(QRectF(-200, -100, 400, 200), Qt::AlignCenter, QString::fromStdString(g.text));
+        painter.drawText(QRectF(-200, -100, 400, 200), Qt::AlignCenter | Qt::TextDontClip, QString::fromStdString(g.text));
         painter.restore();
         break;
     }

@@ -1,6 +1,6 @@
 # Project file format (.snx)
 
-Revision 2 — 2026-10-14 (SN-110, SN-115; PRJ-01..PRJ-03). Implementation:
+Revision 3 — 2026-10-19 (SN-110, SN-115; PRJ-01..PRJ-03; blocks PRJ-06). Implementation:
 [project_file](../../src/io/project_file.hpp). The project-directory format of
 the first development line is archived in
 [archive/2026-10-legacy/PROJECT_FORMAT.md](../archive/2026-10-legacy/PROJECT_FORMAT.md).
@@ -40,6 +40,13 @@ partially.
   `"splitters": [{"id", "at", "rotation", "mirrored", "bus": "D", "first": 0, "count": 8}]`
   have their bus point at `at` and bit pins at local (2, 0), (2, 2), ...; each
   bit pin is a net label `D0`, `D1`, ...
+- **Blocks** (PRJ-06, [ADR 0098](../decisions/0098-user-blocks.md)):
+  `"blocks": [{"name": "RC_lowpass", "source": "blocks/RC_lowpass.snx", "project": {...}}]`
+  keeps a copy of each block file the project uses (`project` is the whole
+  file, which may have blocks of its own, up to eight levels); `source` is the
+  file's path relative to the project's folder. Components use a block with
+  `"type": "block:RC_lowpass"`. A project with blocks is written as version 2;
+  without them as version 1, which SimNodus 0.3 also reads.
 - **Notes** (UI-17) are free text, top-left corner at `at`, lines separated by
   `\n`; they are presentation only and never reach the netlist. Files without
   `notes` load as before.
@@ -65,4 +72,5 @@ the project. A failure at any step leaves the previous project intact.
 
 Copy/paste uses the same element objects under `"format":
 "simnodus-clipboard"`; pasting assigns new IDs, renumbers designators that are
-taken and moves probes along with pasted targets.
+taken and moves probes along with pasted targets. The clipboard carries the
+blocks the copied parts use; pasting adds those the project does not have.

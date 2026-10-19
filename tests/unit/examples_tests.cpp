@@ -6,6 +6,7 @@
 #include "test_support.hpp"
 
 #include "io/project_file.hpp"
+#include "library/blocks.hpp"
 #include "netlist/netlist.hpp"
 
 #include <filesystem>
@@ -28,7 +29,8 @@ TEST_CASE("example projects open and pass the pre-run checks")
         }
         REQUIRE(loaded.schematic.has_value());
         CHECK(loaded.warnings.empty());
-        const auto n = netlist::generate_netlist(*loaded.schematic, library);
+        // A project's blocks (PRJ-06) come with it.
+        const auto n = netlist::generate_netlist(*loaded.schematic, library::with_blocks(library, *loaded.schematic));
         for (const auto& d : n.diagnostics) {
             std::printf("  %s: [%s] %s\n", entry.path().filename().string().c_str(), d.code.c_str(), d.message.c_str());
         }

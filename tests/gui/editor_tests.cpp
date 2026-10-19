@@ -8,6 +8,7 @@
 #include "document.hpp"
 #include "logic_widget.hpp"
 #include "user_models.hpp"
+#include "component_panel.hpp"
 #include "main_window.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
@@ -42,6 +43,8 @@
 #include <QSpinBox>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTreeWidget>
+#include <QTreeWidgetItemIterator>
 #include <QUndoStack>
 
 #include <cmath>
@@ -416,6 +419,65 @@ private slots:
         QVERIFY(doc().schematic() == saved);
         QVERIFY(!window_->open_file(dir_.filePath(QStringLiteral("missing.snx"))));
         QVERIFY(window_->messages()->error_count() > 0);
+    }
+
+    void blocks_are_placed_from_files_opened_and_updated()
+    {
+        // A block file: IN -R1- OUT, with two ports (PRJ-06).
+        model::Schematic circuit;
+        model::Id r = model::no_id;
+        model::Id in = model::no_id;
+        model::Id out = model::no_id;
+        editing::add_component(circuit, *window_->library().find("resistor"), {0, 0}, {}, &r).apply(circuit);
+        editing::add_component(circuit, *window_->library().find("port"), {-10, 0}, {}, &in).apply(circuit);
+        editing::add_component(circuit, *window_->library().find("port"), {10, 0}, {}, &out).apply(circuit);
+        editing::set_parameter(circuit, out, "name", "OUT").apply(circuit);
+        editing::set_parameter(circuit, out, "side", "right").apply(circuit);
+        const QString block_file = dir_.filePath(QStringLiteral("Stage.snx"));
+        QVERIFY(io::save_project(circuit, block_file.toStdWString()).ok);
+        const QString project = dir_.filePath(QStringLiteral("uses_block.snx"));
+        QVERIFY(window_->save_to(project));
+
+        QString error;
+        QCOMPARE(window_->add_block_file(block_file, error), QStringLiteral("block:Stage"));
+        const auto* d = doc().library().find("block:Stage");
+        QVERIFY(d);
+        QCOMPARE(d->pins.size(), std::size_t{2});
+        QCOMPARE(doc().schematic().block("Stage")->source, std::string("Stage.snx"));
+        // The parts tree lists the project's block.
+        bool listed = false;
+        for (QTreeWidgetItemIterator it(window_->components()->tree()); *it; ++it) {
+            listed = listed || (*it)->data(0, Qt::UserRole).toString() == QStringLiteral("block:Stage");
+        }
+        QVERIFY(listed);
+        // A project cannot hold itself.
+        QVERIFY(window_->add_block_file(project, error).isEmpty());
+        QVERIFY(!error.isEmpty());
+
+        model::Id u1 = model::no_id;
+        doc().apply(editing::add_component(doc().id_source(), *d, {20, 20}, {}, &u1));
+        QCOMPARE(doc().schematic().component(u1)->designator, std::string("U1"));
+        window_->scene()->select_ids({u1});
+        QTRY_VERIFY(window_->properties()->findChild<QPushButton*>(QStringLiteral("updateBlock")));
+
+        // The file changes: Update copies it into the project, and undo takes it back.
+        editing::set_parameter(circuit, r, "R", "2k2").apply(circuit);
+        QVERIFY(io::save_project(circuit, block_file.toStdWString()).ok);
+        QCOMPARE(window_->changed_block_files(), QStringList{QStringLiteral("Stage")});
+        window_->properties()->findChild<QPushButton*>(QStringLiteral("updateBlock"))->click();
+        QVERIFY(window_->changed_block_files().isEmpty());
+        QCOMPARE(doc().schematic().block("Stage")->schematic->component(r)->parameters.at("R"), std::string("2k2"));
+        doc().undo_stack()->undo();
+        QCOMPARE(window_->changed_block_files(), QStringList{QStringLiteral("Stage")});
+        doc().undo_stack()->redo();
+
+        // Saved and opened again, the block is still there; then a double-click opens its file.
+        QVERIFY(window_->save_to(project));
+        QVERIFY(window_->open_file(project));
+        QVERIFY(doc().library().find("block:Stage"));
+        QVERIFY(netlist::build_connectivity(doc().schematic(), doc().library()).pin_net.count({u1, "OUT"}));
+        QTest::mouseDClick(view()->viewport(), Qt::LeftButton, {}, at({20, 20}));
+        QCOMPARE(QFileInfo(doc().file_path()), QFileInfo(block_file));
     }
 
     void unsaved_work_is_recovered_after_a_crash()

@@ -54,6 +54,7 @@ canvas* action (`F11`) hides all panels temporarily and restores them.
 | Labels | Net label tool (`N`); same name means same net; ground symbol is net `0` |
 | Buses | Bus tool (`B`): draw like a wire, double-click or right-click to finish, then name it (`D`); Splitter tool (`S`): click the bus, choose the first bit and the number of bits; its bit pins are labels `D0`, `D1`, ... (wires end on them); renaming a bus renames the splitters on it; presentation only, the netlist is the same as with single wires (UI-19) |
 | Text notes | Text note tool (`T`): click where the text starts and type it (several lines); double-click a note or use Properties to edit it; an empty text deletes it; notes move, copy and undo like other elements and never change the circuit (UI-17) |
+| Blocks | *Place > Block...* chooses a project file whose *Block port* parts become pins; the block is placed like a part (a rectangle with the ports as pins) and listed under *Blocks* in the parts tree. Double-click a block (or *Open* in Properties) to edit its file; *Update* reads the file again; opening a project offers to update blocks whose files changed (PRJ-06, ADR 0098) |
 | Edit value | Double-click a component opens its value field in Properties; double-click its value text edits it in place |
 | Zoom/pan | Wheel at cursor; middle-drag or Space+drag; `F` or Home fits the circuit |
 | Probe | `P` or toolbar; click net = voltage probe, click component terminal = current probe; Alt+click second net = differential voltage |

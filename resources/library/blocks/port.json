@@ -1,0 +1,63 @@
+{
+  "type": "port",
+  "name": "Block port",
+  "category": "Blocks",
+  "prefix": "P",
+  "description": "A pin of this circuit when another project uses it as a block (Place > Block). Ports with the same name are connected, like net labels; the side says where the pin goes on the block's symbol",
+  "show_designator": false,
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          0,
+          0,
+          0.8,
+          -0.8,
+          2.6,
+          -0.8,
+          2.6,
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "P",
+        "at": [
+          0,
+          0
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "value_offset": [
+    3,
+    0
+  ],
+  "value_parameter": "name",
+  "parameters": [
+    {
+      "name": "name",
+      "label": "Port name",
+      "kind": "text",
+      "default": "IN",
+      "description": "Name of the block's pin (IN, OUT, VCC...); ports with the same name are connected"
+    },
+    {
+      "name": "side",
+      "label": "Side",
+      "choices": [
+        "left",
+        "right",
+        "top",
+        "bottom"
+      ],
+      "default": "left",
+      "description": "Side of the block's symbol where this pin goes; pins on a side follow the ports' order on the schematic"
+    }
+  ],
+  "ties_net_parameter": "name"
+}

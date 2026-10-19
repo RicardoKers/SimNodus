@@ -6,11 +6,13 @@
 
 #include "circuit_builder.hpp"
 #include "engine_fixture.hpp"
+#include "library/blocks.hpp"
 #include "sim/simulation_session.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <memory>
 #include <thread>
 
 using namespace simnodus;
@@ -217,6 +219,47 @@ TEST_CASE("session: periodic sources keep their phase across segments")
     std::printf("  %d samples checked, %d mismatches\n", checked, mismatches);
     CHECK(checked > 1000);
     CHECK(mismatches == 0);
+}
+
+TEST_CASE("session: a capacitor inside a block keeps its charge across segments")
+{
+    // PRJ-06, ADR 0098: block "Filter" = IN -10k- OUT, 10 uF to ground (tau = 100 ms).
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder inner(components());
+    inner.add("port", {{"P", "IN"}}, {{"name", "IN"}});
+    inner.add("port", {{"P", "OUT"}}, {{"name", "OUT"}, {"side", "right"}});
+    inner.add("resistor", {{"1", "IN"}, {"2", "OUT"}}, {{"R", "10k"}});
+    inner.add("capacitor", {{"1", "OUT"}, {"2", "0"}}, {{"C", "10u"}});
+    model::Schematic project;
+    project.set_blocks({{"Filter", {"Filter", "Filter.snx", std::make_shared<const model::Schematic>(inner.schematic)}}});
+    const auto library = library::with_blocks(components(), project);
+    test::CircuitBuilder b(library);
+    b.schematic = project;
+    b.add("vdc", {{"+", "VS"}, {"-", "0"}}, {{"V", "5"}});
+    b.add("block:Filter", {{"IN", "VS"}, {"OUT", "SLOW"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0;
+    settings.segment = 0.05; // the charge crosses six segment boundaries
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &library;
+    request.vectors = {"SLOW"};
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    REQUIRE(wait_for_time(session, 0.35));
+    session.stop();
+    double at_300ms = -1;
+    for (const auto& s : session.samples("SLOW")) {
+        if (s.time >= 0.3) {
+            at_300ms = s.value;
+            break;
+        }
+    }
+    const double expected = 5.0 * (1.0 - std::exp(-3.0));
+    std::printf("  block RC at 300 ms: %.4f V (expected %.4f V)\n", at_300ms, expected);
+    CHECK(std::abs(at_300ms - expected) < 0.02);
 }
 
 TEST_CASE("session: paced run follows real time and pauses")

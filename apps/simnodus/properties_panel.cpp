@@ -49,6 +49,9 @@ QString validate(const library::Parameter& p, const QString& text)
     if (!p.choices.empty() || p.kind == library::Parameter::Kind::File) {
         return {};
     }
+    if (p.kind == library::Parameter::Kind::Text) {
+        return text.trimmed().isEmpty() ? QCoreApplication::translate("PropertiesPanel", "Enter a name.") : QString();
+    }
     const auto value = model::parse_engineering(text.toStdString(), p.unit);
     if (!value) {
         return QCoreApplication::translate("PropertiesPanel", "Not a number. Examples: 4k7, 100n, 2.2u, 1meg.");
@@ -390,6 +393,30 @@ void PropertiesPanel::rebuild()
         if (!value_editor_ || p.name == d->value_parameter) {
             value_editor_ = editor;
         }
+    }
+    if (d->block && components.size() == 1) {
+        // A block (PRJ-06): the project keeps a copy of its file.
+        const model::Id id = components.front()->id;
+        const auto* block = document_->schematic().block(model::block_name(type));
+        auto* file = new QLabel(block && !block->source.empty() ? QString::fromStdString(block->source)
+                                                                 : tr("(no file)"));
+        file->setWordWrap(true);
+        file->setToolTip(tr("The project keeps a copy of this file; Update reads the file again."));
+        form_->addRow(tr("Block file"), file);
+        auto* buttons = new QWidget;
+        auto* row = new QHBoxLayout(buttons);
+        row->setContentsMargins(0, 0, 0, 0);
+        auto* open = new QPushButton(tr("Open"));
+        open->setObjectName(QStringLiteral("openBlock"));
+        open->setToolTip(tr("Open the block's file to change it (also with a double-click on the block)"));
+        auto* update = new QPushButton(tr("Update"));
+        update->setObjectName(QStringLiteral("updateBlock"));
+        update->setToolTip(tr("Read the block's file again; every block of this kind in the project changes"));
+        row->addWidget(open);
+        row->addWidget(update);
+        connect(open, &QPushButton::clicked, this, [this, id] { emit block_open_requested(id); });
+        connect(update, &QPushButton::clicked, this, [this, id] { emit block_update_requested(id); });
+        form_->addRow(QString(), buttons);
     }
     rebuilding_ = false;
 }

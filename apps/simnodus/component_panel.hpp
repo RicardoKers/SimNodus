@@ -31,6 +31,8 @@ public:
     // Number of component entries that match the current filter.
     int visible_component_count() const;
     QString selected_type() const;
+    // Shows another library (the project's blocks changed); keeps the filter and selection.
+    void set_library(const library::ComponentLibrary& library);
 
 signals:
     void placement_requested(const QString& type);
@@ -43,7 +45,7 @@ private:
     void apply_filter(const QString& text);
     void update_preview();
 
-    const library::ComponentLibrary& library_;
+    const library::ComponentLibrary* library_;
     QLineEdit* search_ = nullptr;
     QTreeWidget* tree_ = nullptr;
     SymbolPreview* preview_symbol_ = nullptr;

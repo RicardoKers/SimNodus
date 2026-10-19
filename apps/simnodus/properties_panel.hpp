@@ -45,6 +45,9 @@ signals:
     void models_read();
     // Reload of a microcontroller's firmware (restarts a running simulation).
     void firmware_reload_requested();
+    // A block's file (PRJ-06): open it for editing, or read it again into the project.
+    void block_open_requested(model::Id component);
+    void block_update_requested(model::Id component);
 
 private:
     void rebuild();

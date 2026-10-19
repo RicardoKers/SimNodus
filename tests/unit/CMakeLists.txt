@@ -16,7 +16,7 @@ else()
     message(STATUS "engine-ngspice test skipped: SIMNODUS_NGSPICE_LIBRARY is not set")
 endif()
 
-add_executable(model_tests model_tests.cpp library_tests.cpp io_tests.cpp operations_tests.cpp netlist_tests.cpp
+add_executable(model_tests model_tests.cpp library_tests.cpp io_tests.cpp operations_tests.cpp netlist_tests.cpp block_tests.cpp
     examples_tests.cpp
     test_main.cpp)
 target_include_directories(model_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

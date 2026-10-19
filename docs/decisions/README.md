@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0098: Blocks drawn by the user are projects placed into projects](0098-user-blocks.md):
+  PRJ-06; port parts make the symbol, the project keeps a copy, the netlist puts the circuit in place.
 - [0097: Vendor subcircuits as part models](0097-vendor-subcircuits.md):
   `.subckt` from the models folder on op-amps, transistors, MOSFETs and diodes; wrapped, with spice2poly.
 - [0096: Buses are drawings; splitters join their bits by name](0096-buses-and-splitters.md):

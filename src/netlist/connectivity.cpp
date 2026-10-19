@@ -145,6 +145,14 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         if (d && !d->ties_net.empty()) {
             uf.unite(pin_node[i], named_node(d->ties_net));
         }
+        if (d && !d->ties_net_parameter.empty()) {
+            const auto it = c->parameters.find(d->ties_net_parameter);
+            const auto* p = d->parameter(d->ties_net_parameter);
+            const std::string name = it != c->parameters.end() ? it->second : p ? p->default_value : std::string();
+            if (!name.empty()) {
+                uf.unite(pin_node[i], named_node(name));
+            }
+        }
     }
     // Wires: a vertex or end of one on the other.
     for (std::size_t a = 0; a < s.wires().size(); ++a) {
@@ -255,7 +263,12 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
             net.name = "0";
             continue;
         }
-        std::vector<std::string> names = net.label_names;
+        std::vector<std::string> names;
+        for (const auto& n : net.label_names) {
+            if (n.empty() || n.front() != hidden_label_mark) {
+                names.push_back(n);
+            }
+        }
         std::sort(names.begin(), names.end());
         std::string chosen;
         for (const auto& n : names) {
@@ -327,7 +340,7 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         const auto& net = result.nets[static_cast<std::size_t>(result.pin_net[p.pin])];
         const auto* c = s.component(p.pin.first);
         const auto* d = c ? library.find(c->type) : nullptr;
-        const bool tied = d && !d->ties_net.empty();
+        const bool tied = d && (!d->ties_net.empty() || !d->ties_net_parameter.empty());
         if (!tied && net.pins.size() == 1 && net.wires.empty() && net.labels.empty() && net.taps == 0) {
             result.unconnected_pins.push_back(p.pin);
         }
