@@ -77,24 +77,40 @@ struct Bus {
     friend bool operator==(const Bus&, const Bus&) = default;
 };
 
-// Splitter (UI-19): joins a bus to single wires, like hneemann's Digital. Its
-// bus point is at `position`; bit pins `first` .. `first + count - 1` follow at
-// local (2, 0), (2, 2), ... and each one acts as a net label "<bus><bit>".
+// Splitter (UI-19): splits and joins buses and wires like hneemann's Digital.
+// Pins of the given widths sit on the left (local x 0, y 0, 2, 4, ...) and on
+// the right (local x 2); bit k of the left side is bit k of the right side,
+// counting the pins from the top. A pin of width 1 is a wire; a wider pin sits
+// on a bus, whose name gives its bits: bit i of a pin on bus "D" is the net
+// "D<i>" (on the left, "D<first + i>").
+//   1,1,1,1 -> 4 joins four wires into a bus; 4 -> 2,2 splits a bus in two.
 struct Splitter {
     Id id = no_id;
-    Point position;
+    Point position; // the first left pin
     Orientation orientation;
-    std::string bus; // bus name, "D"
-    int first = 0;
-    int count = 8;
+    std::string bus; // name for left pins that sit on no bus (files before 0.4 named the bus here)
+    int first = 0;   // first bus bit of the left side's bus pins
+    std::vector<int> inputs{8};
+    std::vector<int> outputs = std::vector<int>(8, 1);
 
     friend bool operator==(const Splitter&, const Splitter&) = default;
 };
 
-// Schematic points of a splitter's bit pins, in bit order.
+struct SplitterPin {
+    Point at;          // schematic point
+    int width = 1;
+    bool left = true;
+    int bit = 0;       // the pin's first bit in its side's bit sequence
+};
+
+// Pins of a splitter: the left side from the top, then the right side.
+std::vector<SplitterPin> splitter_layout(const Splitter& splitter);
+// Schematic points of all its pins (wires on them follow when it moves).
 std::vector<Point> splitter_pins(const Splitter& splitter);
-// Net name of bit pin `k` (0 = the first pin): "D0", "D1", ...
-std::string splitter_net(const Splitter& splitter, int k);
+// "1,1,1,1", "4", "3,1" or "8*1" -> widths; nullopt if not valid (1..64 bits in all).
+std::optional<std::vector<int>> parse_widths(const std::string& text);
+// Widths as text: "1,1,1,1" is written "4*1".
+std::string widths_text(const std::vector<int>& widths);
 
 // A connection point of the schematic: a component pin, or a point on a wire.
 struct Anchor {

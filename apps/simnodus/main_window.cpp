@@ -921,26 +921,38 @@ void MainWindow::ask_splitter(model::Point at)
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Splitter"));
     auto* form = new QFormLayout(&dialog);
-    auto* name = new QLineEdit(bus_name_at(at).isEmpty() ? last_bus_ : bus_name_at(at));
-    name->setObjectName(QStringLiteral("splitterBus"));
+    // Like hneemann's Digital: widths on each side; bit k on the left is bit k on the right.
+    auto* help = new QLabel(tr("Pins on the left and on the right, from the top: 1 is a wire, a larger width "
+                               "a bus. 8 / 8*1 splits a bus into wires; 1,1,1,1 / 4 joins wires; 4 / 2,2 splits "
+                               "a bus in two."));
+    help->setWordWrap(true);
+    form->addRow(help);
+    const bool on_bus = !bus_name_at(at).isEmpty();
+    auto* inputs = new QLineEdit(on_bus ? QStringLiteral("8") : QStringLiteral("8*1"));
+    inputs->setObjectName(QStringLiteral("splitterInputs"));
+    auto* outputs = new QLineEdit(on_bus ? QStringLiteral("8*1") : QStringLiteral("8"));
+    outputs->setObjectName(QStringLiteral("splitterOutputs"));
     auto* first = new QSpinBox;
     first->setRange(0, 63);
-    auto* count = new QSpinBox;
-    count->setRange(1, 64);
-    count->setValue(8);
-    form->addRow(tr("Bus name"), name);
+    first->setToolTip(tr("Bus bit of the first left bit: 4 takes D4, D5, ... from bus D"));
+    form->addRow(tr("Left widths"), inputs);
+    form->addRow(tr("Right widths"), outputs);
     form->addRow(tr("First bit"), first);
-    form->addRow(tr("Number of bits"), count);
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     form->addRow(buttons);
-    if (dialog.exec() != QDialog::Accepted || name->text().trimmed().isEmpty() || !allow_structure_edit()) {
+    if (dialog.exec() != QDialog::Accepted || !allow_structure_edit()) {
         return;
     }
-    last_bus_ = name->text().trimmed();
+    const auto in = model::parse_widths(inputs->text().toStdString());
+    const auto out = model::parse_widths(outputs->text().toStdString());
+    if (!in || !out) {
+        statusBar()->showMessage(tr("Widths such as 8, 8*1, 1,1,1,1 or 2,2 (64 bits at most)."), 6000);
+        return;
+    }
     document_->apply(editing::add_splitter(
-        document_->id_source(), at, last_bus_.toStdString(), first->value(), count->value()));
+        document_->id_source(), at, bus_name_at(at).toStdString(), first->value(), *in, *out));
 }
 
 bool MainWindow::engine_check_running() const

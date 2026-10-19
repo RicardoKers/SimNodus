@@ -317,18 +317,35 @@ Edit add_bus(Schematic& schematic, std::vector<Point> points, const std::string&
     return make_edit(schematic, work, "Draw bus " + name);
 }
 
-Edit add_splitter(Schematic& schematic, Point position, const std::string& bus, int first, int count, Id* created)
+namespace {
+
+bool valid_widths(const std::vector<int>& widths)
 {
-    if (bus.empty() || first < 0 || count < 1 || count > 64) {
+    int total = 0;
+    for (const int w : widths) {
+        if (w < 1) {
+            return false;
+        }
+        total += w;
+    }
+    return !widths.empty() && total <= 64;
+}
+
+} // namespace
+
+Edit add_splitter(Schematic& schematic, Point position, const std::string& bus, int first, std::vector<int> inputs,
+    std::vector<int> outputs, Id* created)
+{
+    if (first < 0 || first > 63 || !valid_widths(inputs) || !valid_widths(outputs)) {
         return {};
     }
     Schematic work = schematic;
-    Splitter s{schematic.allocate_id(), position, {}, bus, first, count};
+    Splitter s{schematic.allocate_id(), position, {}, bus, first, std::move(inputs), std::move(outputs)};
     work.put(s);
     if (created) {
         *created = s.id;
     }
-    return make_edit(schematic, work, "Place splitter " + bus);
+    return make_edit(schematic, work, "Place splitter");
 }
 
 Edit rename_bus(const Schematic& schematic, Id bus, const std::string& name)
@@ -355,22 +372,24 @@ Edit rename_bus(const Schematic& schematic, Id bus, const std::string& name)
     return make_edit(schematic, work, "Rename bus " + b->name + " to " + name);
 }
 
-Edit set_splitter(const Schematic& schematic, Id splitter, const std::string& bus, int first, int count)
+Edit set_splitter(const Schematic& schematic, Id splitter, const std::string& bus, int first, std::vector<int> inputs,
+    std::vector<int> outputs)
 {
     const auto* s = schematic.splitter(splitter);
-    if (!s || bus.empty() || first < 0 || count < 1 || count > 64) {
+    if (!s || first < 0 || first > 63 || !valid_widths(inputs) || !valid_widths(outputs)) {
         return {};
     }
     Schematic work = schematic;
     Splitter updated = *s;
     updated.bus = bus;
     updated.first = first;
-    updated.count = count;
+    updated.inputs = std::move(inputs);
+    updated.outputs = std::move(outputs);
     if (updated == *s) {
         return {};
     }
     work.put(updated);
-    return make_edit(schematic, work, "Change splitter " + bus);
+    return make_edit(schematic, work, "Change splitter");
 }
 
 Edit add_probe(Schematic& schematic, const Probe& probe, Id* created)

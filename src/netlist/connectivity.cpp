@@ -105,18 +105,51 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
     for (std::size_t i = 0; i < s.labels().size(); ++i) {
         label_node.push_back(uf.add());
     }
-    // Splitter bit pins (UI-19): labels named after the bus and bit.
+    // Splitters (UI-19): bit k of the left side is bit k of the right side. A
+    // wire pin connects at its point like a component pin; the bits of a pin on
+    // a bus are nets named after that bus ("D0", "D1", ...).
     struct Tap {
         Point at;
-        std::string name;
         int node = 0;
     };
     std::vector<Tap> taps;
-    for (const auto& sp : s.splitters()) {
-        const auto points = model::splitter_pins(sp);
-        for (int k = 0; k < sp.count; ++k) {
-            taps.push_back({points[static_cast<std::size_t>(k)], model::splitter_net(sp, k), uf.add()});
+    struct Bit {
+        int node = -1;    // a wire pin's node
+        std::string name; // or the named net of a bus bit
+    };
+    std::vector<std::pair<std::vector<Bit>, std::vector<Bit>>> splitter_bits;
+    auto bus_at = [&s](const Point& p) {
+        for (const auto& b : s.buses()) {
+            for (std::size_t i = 0; i + 1 < b.points.size(); ++i) {
+                if (model::on_segment(p, b.points[i], b.points[i + 1])) {
+                    return b.name;
+                }
+            }
         }
+        return std::string();
+    };
+    for (const auto& sp : s.splitters()) {
+        std::vector<Bit> left, right;
+        for (const auto& pin : model::splitter_layout(sp)) {
+            auto& side = pin.left ? left : right;
+            std::string bus = bus_at(pin.at);
+            if (pin.width == 1 && bus.empty()) {
+                taps.push_back({pin.at, uf.add()});
+                side.push_back({taps.back().node, {}});
+                continue;
+            }
+            if (bus.empty() && pin.left) {
+                bus = sp.bus; // files before 0.4 named the bus in the splitter
+            }
+            for (int i = 0; i < pin.width; ++i) {
+                if (bus.empty()) {
+                    side.push_back({uf.add(), {}}); // a bus pin on no bus connects nothing
+                } else {
+                    side.push_back({-1, bus + std::to_string((pin.left ? sp.first : 0) + i)});
+                }
+            }
+        }
+        splitter_bits.emplace_back(std::move(left), std::move(right));
     }
     std::map<std::string, int> named; // net name -> node (labels, tied nets)
     auto named_node = [&](const std::string& name) {
@@ -184,11 +217,21 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         }
     }
 
+    for (const auto& [left, right] : splitter_bits) {
+        auto node = [&](const Bit& bit) { return bit.node >= 0 ? bit.node : named_node(bit.name); };
+        for (std::size_t k = 0; k < std::min(left.size(), right.size()); ++k) {
+            uf.unite(node(left[k]), node(right[k]));
+        }
+    }
     for (const auto& tap : taps) {
-        uf.unite(tap.node, named_node(tap.name));
         for (std::size_t w = 0; w < s.wires().size(); ++w) {
             if (on_wire(tap.at, s.wires()[w])) {
                 uf.unite(tap.node, wire_node[w]);
+            }
+        }
+        for (std::size_t l = 0; l < s.labels().size(); ++l) {
+            if (s.labels()[l].position == tap.at) {
+                uf.unite(tap.node, label_node[l]);
             }
         }
         for (std::size_t i = 0; i < pins.size(); ++i) {

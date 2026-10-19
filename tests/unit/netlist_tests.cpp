@@ -134,11 +134,11 @@ TEST_CASE("splitter bit pins join nets by bus name; buses connect nothing by the
     editing::add_label(s, {20, 3}, "0").apply(s);
     editing::add_label(s, {4, 11}, "0").apply(s);
     Id a = 0, b = 0;
-    editing::add_splitter(s, {-2, 3}, "D", 0, 4, &a).apply(s);    // bits at (0,3), (0,5), (0,7), (0,9)
-    editing::add_splitter(s, {18, -3}, "D", 0, 2, &b).apply(s);   // bits at (20,-3), (20,-1)
+    editing::add_splitter(s, {-2, 3}, "D", 0, {4}, {1, 1, 1, 1}, &a).apply(s); // bits at (0,3), (0,5), (0,7), (0,9)
+    editing::add_splitter(s, {18, -3}, "D", 0, {2}, {1, 1}, &b).apply(s);      // bits at (20,-3), (20,-1)
     editing::add_wire(s, {{0, 5}, {4, 5}}).apply(s);              // bit 1 of the first to R3
     editing::add_bus(s, {{-2, 3}, {-2, -10}, {18, -10}, {18, -3}}, "D").apply(s);
-    CHECK((model::splitter_pins(*s.splitter(a)) == std::vector<Point>{{0, 3}, {0, 5}, {0, 7}, {0, 9}}));
+    CHECK((model::splitter_pins(*s.splitter(a)) == std::vector<Point>{{-2, 3}, {0, 3}, {0, 5}, {0, 7}, {0, 9}}));
     const auto conn = netlist::build_connectivity(s, lib);
     const auto& d0 = conn.nets[static_cast<std::size_t>(conn.pin_net.at({r1, "2"}))];
     CHECK(d0.name == "D0");
@@ -438,4 +438,54 @@ TEST_CASE("optional pins may stay unconnected without a warning")
     }
     REQUIRE(open.size() == 1);
     CHECK(open[0].find("pin Q ") != std::string::npos);
+}
+
+TEST_CASE("splitters join wires into buses and split buses like hneemann's Digital")
+{
+    const auto lib = load();
+    // Four wires A0..A3 join into bus Q (1,1,1,1 -> 4); a second splitter splits
+    // Q into buses L and H (4 -> 2,2); a third takes L and a wire into bus M (2,1 -> 3).
+    Schematic s;
+    Id join = 0, split = 0;
+    editing::add_splitter(s, {0, 0}, "", 0, {1, 1, 1, 1}, {4}, &join).apply(s); // left pins (0,0)..(0,6), right (2,0)
+    for (int k = 0; k < 4; ++k) {
+        editing::add_label(s, {0, 2 * k}, "A" + std::to_string(k)).apply(s);
+    }
+    editing::add_bus(s, {{2, 0}, {20, 0}}, "Q").apply(s);
+    editing::add_splitter(s, {20, 0}, "", 0, {4}, {2, 2}, &split).apply(s); // right (22,0) and (22,2)
+    editing::add_bus(s, {{22, 0}, {40, 0}}, "L").apply(s);
+    editing::add_bus(s, {{22, 2}, {30, 2}, {30, 20}}, "H").apply(s);
+    editing::add_splitter(s, {40, 0}, "", 0, {2, 1}, {3}).apply(s); // left (40,0) bus L, (40,2) a wire
+    editing::add_label(s, {40, 2}, "W").apply(s);
+    editing::add_bus(s, {{42, 0}, {50, 0}}, "M").apply(s);
+    const auto c = netlist::build_connectivity(s, lib);
+    auto same = [&](const std::string& a, const std::string& b) {
+        int na = -1, nb = -1;
+        for (std::size_t i = 0; i < c.nets.size(); ++i) {
+            const auto& names = c.nets[i].label_names;
+            if (std::find(names.begin(), names.end(), a) != names.end()) {
+                na = static_cast<int>(i);
+            }
+            if (std::find(names.begin(), names.end(), b) != names.end()) {
+                nb = static_cast<int>(i);
+            }
+        }
+        return na >= 0 && na == nb;
+    };
+    CHECK(same("A0", "Q0"));
+    CHECK(same("A3", "Q3"));
+    CHECK(same("Q1", "L1"));
+    CHECK(same("Q2", "H0")); // bits 2 and 3 of Q are bus H's 0 and 1
+    CHECK(same("Q3", "H1"));
+    CHECK(same("A1", "M1"));
+    CHECK(same("W", "M2"));
+    CHECK(!same("A0", "A1"));
+    CHECK((model::parse_widths("1,1,1,1") == std::vector<int>{1, 1, 1, 1}));
+    CHECK((model::parse_widths(" 8*1 ") == std::vector<int>(8, 1)));
+    CHECK((model::parse_widths("3,1") == std::vector<int>{3, 1}));
+    CHECK(!model::parse_widths("0"));
+    CHECK(!model::parse_widths("65"));
+    CHECK(!model::parse_widths("4,,4"));
+    CHECK(model::widths_text({1, 1, 1, 1}) == "4*1");
+    CHECK(model::widths_text({3, 1}) == "3,1");
 }

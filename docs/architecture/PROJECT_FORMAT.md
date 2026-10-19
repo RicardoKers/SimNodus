@@ -37,9 +37,13 @@ partially.
   ([ADR 0097](../decisions/0097-vendor-subcircuits.md)).
 - **Buses and splitters** (UI-19, [ADR 0096](../decisions/0096-buses-and-splitters.md)):
   `"buses": [{"id", "points", "name": "D"}]` are drawings only;
-  `"splitters": [{"id", "at", "rotation", "mirrored", "bus": "D", "first": 0, "count": 8}]`
-  have their bus point at `at` and bit pins at local (2, 0), (2, 2), ...; each
-  bit pin is a net label `D0`, `D1`, ...
+  `"splitters": [{"id", "at", "rotation", "mirrored", "bus": "D", "first": 0, "inputs": [4], "outputs": [2, 2]}]`
+  have pins of those widths on the left (local x 0, y 0, 2, ...) and on the
+  right (local x 2); bit k of the left side is bit k of the right side; a wider
+  pin takes its bits from the bus drawn through it (`Q0`, `Q1`, ...; on the left
+  from `Q<first>`). `bus` names the left pins that sit on no bus. Files before
+  0.4 have `"count": 8` instead of inputs and outputs (one bus pin, eight wires),
+  which is still written for that case.
 - **Blocks** (PRJ-06, [ADR 0098](../decisions/0098-user-blocks.md)):
   `"blocks": [{"name": "RC_lowpass", "source": "blocks/RC_lowpass.snx", "project": {...}}]`
   keeps a copy of each block file the project uses (`project` is the whole

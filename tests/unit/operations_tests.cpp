@@ -213,22 +213,24 @@ TEST_CASE("splitters rotate with their wires; buses and splitters paste")
     const auto lib = test_library();
     Schematic s;
     Id sp = 0, w = 0, b = 0;
-    applied(s, editing::add_splitter(s, {0, 0}, "D", 0, 2, &sp));
+    applied(s, editing::add_splitter(s, {0, 0}, "D", 0, {2}, {1, 1}, &sp));
     applied(s, editing::add_wire(s, {{2, 2}, {6, 2}}, &w)); // on bit 1
     applied(s, editing::add_bus(s, {{0, 0}, {0, -6}}, "D", &b));
     CHECK(editing::add_bus(s, {{0, 0}, {3, 4}}, "X").empty()); // not orthogonal
-    CHECK(editing::add_splitter(s, {0, 0}, "", 0, 2).empty());
+    CHECK(editing::add_splitter(s, {0, 0}, "", 0, {2}, {}).empty());    // no right pins
+    CHECK(editing::add_splitter(s, {0, 0}, "", 0, {65}, {65}).empty()); // more than 64 bits
     applied(s, editing::rotate_items(s, lib, {sp}));
     const auto pins = model::splitter_pins(*s.splitter(sp));
-    CHECK(s.wire(w)->points.front() == pins[1]); // the wire followed bit 1
+    CHECK(s.wire(w)->points.front() == pins[2]); // the wire followed bit 1 (pins: left bus, right bits)
     CHECK(editing::is_orthogonal(s.wire(w)->points));
     std::set<Id> created;
     applied(s, editing::paste_items(s, lib, editing::copy_items(s, {sp, b}), {10, 0}, &created));
     CHECK(created.size() == 2);
     CHECK(s.buses().size() == 2);
     CHECK((s.buses().back().points.front() == Point{10, 0}));
-    applied(s, editing::set_splitter(s, sp, "ADDR", 8, 4));
-    CHECK(model::splitter_net(*s.splitter(sp), 3) == "ADDR11");
+    applied(s, editing::set_splitter(s, sp, "ADDR", 8, {4}, {2, 2}));
+    CHECK((s.splitter(sp)->outputs == std::vector<int>{2, 2}));
+    CHECK(s.splitter(sp)->first == 8);
 }
 
 TEST_CASE("copy and paste create new ids and designators")

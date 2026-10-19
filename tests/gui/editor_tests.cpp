@@ -205,7 +205,7 @@ private slots:
         model::Id bus = model::no_id;
         model::Id splitter = model::no_id;
         doc().apply(editing::add_bus(doc().id_source(), {{0, 0}, {20, 0}}, "D", &bus));
-        doc().apply(editing::add_splitter(doc().id_source(), {20, 0}, "D", 0, 4, &splitter));
+        doc().apply(editing::add_splitter(doc().id_source(), {20, 0}, "D", 0, {4}, {1, 1, 1, 1}, &splitter));
         QVERIFY(window_->scene()->item_of(bus));
         QVERIFY(window_->scene()->item_of(splitter));
         QCOMPARE(window_->scene()->element_at(view()->mapToScene(at({10, 0}))), bus);
@@ -219,13 +219,14 @@ private slots:
         QCOMPARE(doc().schematic().bus(bus)->name, std::string("DATA"));
         QCOMPARE(doc().schematic().splitter(splitter)->bus, std::string("DATA")); // follows the bus
         window_->scene()->select_ids({splitter});
-        auto* count = window_->properties()->findChild<QSpinBox*>(QStringLiteral("splitterCount"));
-        QVERIFY(count);
-        count->setValue(2);
-        emit count->editingFinished();
-        QCOMPARE(doc().schematic().splitter(splitter)->count, 2);
+        auto* outputs = window_->properties()->findChild<QLineEdit*>(QStringLiteral("splitterOutputs"));
+        QVERIFY(outputs);
+        QCOMPARE(outputs->text(), QStringLiteral("4*1"));
+        outputs->setText(QStringLiteral("2,2"));
+        emit outputs->editingFinished();
+        QCOMPARE(doc().schematic().splitter(splitter)->outputs, (std::vector<int>{2, 2}));
         doc().undo_stack()->undo();
-        QCOMPARE(doc().schematic().splitter(splitter)->count, 4);
+        QCOMPARE(doc().schematic().splitter(splitter)->outputs, (std::vector<int>{1, 1, 1, 1}));
     }
 
     void dragging_a_potentiometer_moves_the_wiper_with_the_mouse()

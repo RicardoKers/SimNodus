@@ -676,20 +676,61 @@ public:
         return {p.x * scene_grid, p.y * scene_grid};
     }
 
-    QRectF bit_rect(int k) const
+    int rows() const
+    {
+        return static_cast<int>(std::max(splitter_.inputs.size(), splitter_.outputs.size()));
+    }
+
+    // Bit range of a pin, counted along the splitter ("0-3", "5").
+    static QString range(int from, int width)
+    {
+        return width == 1 ? QString::number(from) : QStringLiteral("%1-%2").arg(from).arg(from + width - 1);
+    }
+
+    // Above the pin's line, starting at the bar and growing outward (over the wire, not across the bar).
+    QRectF label_rect(bool left, int row, const QString& text) const
     {
         const QFontMetricsF metrics(schematic_font());
-        const QString text = QString::number(splitter_.first + k);
         const QSizeF size(metrics.horizontalAdvance(text) + 2, metrics.height());
-        const QPointF anchor = map(1.5, 2.0 * k - 0.55);
-        return QRectF(anchor - QPointF(size.width() / 2, size.height() / 2), size);
+        const QPointF bar = map(1, 2.0 * row - 0.6);
+        const QPointF outward = map(left ? 0 : 2, 2.0 * row - 0.6);
+        const bool grows_left = outward.x() < bar.x() - 0.5;
+        const bool grows_right = outward.x() > bar.x() + 0.5;
+        QPointF top_left = bar - QPointF(size.width() / 2, size.height() / 2); // vertical part: centred
+        if (grows_left) {
+            top_left = QPointF(bar.x() - 2 - size.width(), bar.y() - size.height() / 2);
+        } else if (grows_right) {
+            top_left = QPointF(bar.x() + 2, bar.y() - size.height() / 2);
+        }
+        return QRectF(top_left, size);
+    }
+
+    // Every pin: its side, row, width and label.
+    struct PinView {
+        bool left;
+        int row;
+        int width;
+        QString label;
+    };
+    std::vector<PinView> pin_views() const
+    {
+        std::vector<PinView> views;
+        for (const bool left : {true, false}) {
+            int bit = splitter_.first;
+            int row = 0;
+            for (const int width : left ? splitter_.inputs : splitter_.outputs) {
+                views.push_back({left, row++, width, range(bit, width)});
+                bit += width;
+            }
+        }
+        return views;
     }
 
     QRectF boundingRect() const override
     {
-        QRectF r = QRectF(map(-0.3, -1), map(2.3, 2.0 * (splitter_.count - 1) + 1)).normalized();
-        for (int k = 0; k < splitter_.count; ++k) {
-            r = r.united(bit_rect(k));
+        QRectF r = QRectF(map(-0.3, -1), map(2.3, 2.0 * (rows() - 1) + 1)).normalized();
+        for (const auto& pin : pin_views()) {
+            r = r.united(label_rect(pin.left, pin.row, pin.label));
         }
         return r.adjusted(-4, -4, 4, 4);
     }
@@ -697,23 +738,25 @@ public:
     QPainterPath shape() const override
     {
         QPainterPath path;
-        path.addRect(QRectF(map(-0.2, -0.8), map(2.0, 2.0 * (splitter_.count - 1) + 0.8)).normalized());
+        path.addRect(QRectF(map(-0.2, -0.8), map(2.0, 2.0 * (rows() - 1) + 0.8)).normalized());
         return path;
     }
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
     {
-        const QColor color = isSelected() ? theme::selection : theme::bus;
-        const double last = 2.0 * (splitter_.count - 1);
+        const QColor bus = isSelected() ? theme::selection : theme::bus;
+        const QColor ink = isSelected() ? theme::selection : theme::ink;
         painter->setRenderHint(QPainter::Antialiasing);
-        painter->setPen(QPen(color, 4.0, Qt::SolidLine, Qt::FlatCap));
-        painter->drawLine(map(0, 0), map(1, 0));
-        painter->drawLine(map(1, -0.6), map(1, last + 0.6));
-        painter->setPen(QPen(isSelected() ? theme::selection : theme::ink, line_width, Qt::SolidLine, Qt::RoundCap));
+        painter->setPen(QPen(bus, 4.0, Qt::SolidLine, Qt::FlatCap));
+        painter->drawLine(map(1, -0.6), map(1, 2.0 * (rows() - 1) + 0.6));
         painter->setFont(schematic_font());
-        for (int k = 0; k < splitter_.count; ++k) {
-            painter->drawLine(map(1, 2.0 * k), map(2, 2.0 * k));
-            painter->drawText(bit_rect(k), Qt::AlignCenter, QString::number(splitter_.first + k));
+        for (const auto& pin : pin_views()) {
+            // Wider pins are buses, drawn thick; single bits are wires.
+            painter->setPen(pin.width > 1 ? QPen(bus, 4.0, Qt::SolidLine, Qt::FlatCap)
+                                          : QPen(ink, line_width, Qt::SolidLine, Qt::RoundCap));
+            painter->drawLine(map(pin.left ? 0 : 1, 2.0 * pin.row), map(pin.left ? 1 : 2, 2.0 * pin.row));
+            painter->setPen(ink);
+            painter->drawText(label_rect(pin.left, pin.row, pin.label), Qt::AlignCenter, pin.label);
         }
     }
 
