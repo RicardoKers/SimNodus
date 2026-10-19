@@ -50,6 +50,11 @@ void LogicWidget::set_window(double start, double end)
     if (end <= start) {
         end = start + 1e-6;
     }
+    // Whole pixels, as on the scope: edges do not tremble while the window scrolls.
+    const double pixel = (end - start) / std::max(10.0, plot_rect().width());
+    const double snapped = std::floor(start / pixel) * pixel;
+    end += snapped - start;
+    start = snapped;
     start_ = start;
     end_ = end;
     update();

@@ -49,6 +49,7 @@
 #include <QUndoStack>
 
 #include <cmath>
+#include <map>
 #include <memory>
 
 using namespace simnodus;
@@ -885,6 +886,68 @@ private slots:
             qInfo("analyzer refresh at 1 s/div, %s tab: %.1f ms", tab == 0 ? "Scope" : "Logic", each);
             QVERIFY(each < 80.0); // 16 ms on the owner's laptop, 130 ms before the fix
         }
+        window_->stop();
+#endif
+    }
+
+    void scrolling_traces_do_not_tremble()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        // Owner's report of 2026-10-19: example 03 at 1 s/div, the potentiometer moving.
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Potentiometer_and_meters.snx"), errors, warnings));
+        model::Id pot = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            if (c.type == "potentiometer") {
+                pot = c.id;
+            }
+        }
+        window_->show_analyzer();
+        AnalyzerWindow* analyzer = window_->analyzer();
+        analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(1.0));
+        window_->run();
+        QElapsedTimer wall;
+        wall.start();
+        int k = 0;
+        // Past 10 s the window scrolls.
+        while (window_->run_controller()->status().sim_time < 11.5 && wall.elapsed() < 60000) {
+            QTest::qWait(40);
+            window_->run_controller()->set_control(pot, 0.5 + 0.4 * std::sin(k++ * 0.2));
+        }
+        analyzer->refresh();
+        const auto first = analyzer->scope()->traces();
+        const double first_start = analyzer->scope()->window_start();
+        QTest::qWait(300);
+        analyzer->refresh();
+        const auto second = analyzer->scope()->traces();
+        const double start = analyzer->scope()->window_start();
+        const double end = analyzer->scope()->window_end();
+        QVERIFY(start > first_start); // it scrolled
+        // The window starts on a pixel boundary of the plot.
+        const double pixel = (end - start) / analyzer->scope()->plot_rect().width();
+        QVERIFY(std::abs(start / pixel - std::round(start / pixel)) < 1e-6);
+        // The stretch both frames show was thinned the same way.
+        QVERIFY(!first.empty() && !second.empty());
+        std::map<double, double> before;
+        for (const auto& s : first[0].samples) {
+            before[s.time] = s.value;
+        }
+        int compared = 0;
+        int different = 0;
+        for (const auto& s : second[0].samples) {
+            if (s.time < start + 0.1 || s.time > first[0].samples.back().time - 0.1) {
+                continue;
+            }
+            ++compared;
+            const auto it = before.find(s.time);
+            different += it == before.end() || it->second != s.value;
+        }
+        qInfo("%d samples compared, %d different", compared, different);
+        QVERIFY(compared > 100);
+        QCOMPARE(different, 0);
         window_->stop();
 #endif
     }

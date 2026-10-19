@@ -28,10 +28,10 @@ struct Measurements {
 // Measurements of the samples within [from, to]; nullopt with fewer than two samples.
 std::optional<Measurements> measure(const std::vector<Sample>& samples, double from, double to);
 
-// The samples within [from, to] (plus one on each side), thinned to about
-// `max_points` for display like SampleRing::since: per bucket of time the
-// first, lowest, highest and last sample.
-std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double to, std::size_t max_points);
+// The samples within [from, to] (plus one on each side), thinned for display
+// like SampleRing::since: per bucket of `bucket` seconds, fixed in absolute
+// time, the first, lowest, highest and last sample.
+std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double to, double bucket);
 
 // Linear interpolation; nullopt outside the sampled range.
 std::optional<double> value_at(const std::vector<Sample>& samples, double time);

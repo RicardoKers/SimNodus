@@ -215,13 +215,13 @@ void RunController::set_control(model::Id component, double value)
     refresh(); // immediate visual feedback
 }
 
-std::vector<sim::Sample> RunController::samples(const Channel& channel, double from, std::size_t max_points) const
+std::vector<sim::Sample> RunController::samples(const Channel& channel, double from, double bucket) const
 {
     if (!channel.valid) {
         return {};
     }
     const bool differential = !channel.reference.empty() && channel.reference != "0";
-    auto values = session_->samples_since(channel.vector, from, differential ? 0 : max_points);
+    auto values = session_->samples_since(channel.vector, from, differential ? 0.0 : bucket);
     if (differential) {
         const auto reference = session_->samples_since(channel.reference, from);
         // Both vectors come from the same accepted time points.

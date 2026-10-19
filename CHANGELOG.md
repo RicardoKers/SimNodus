@@ -6,6 +6,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Fixed (2026-10-19, owner's report)
 
+- Scrolling traces no longer tremble (example 03 at 1 s/div while the potentiometer moves, and logic lanes): the window scrolled by fractions of a pixel, so each frame grouped the samples of every pixel column differently and edges jumped back and forth. The window now moves in whole pixels and samples are thinned in buckets fixed in absolute time; a GUI test checks that two frames show the shared stretch identically.
 - The Signal Analyzer stays responsive with long timebases: at 1 s/div with 10 s of history a refresh took about 130 ms (the whole window slowed down); now about 16 ms on the Scope tab and 5 ms on the Logic tab. Traces are drawn as segments (Qt stroked the dense polyline very slowly), samples are thinned for display while they are copied, roll mode copies one window, the logic lanes find their edges without copying and are refreshed only while their tab is shown, measurements of the selected channel run on the full data a few times a second, and the refresh rate slows down when a refresh is expensive.
 - The Logic tab shows only the cursors under the lanes: positions of A and B, their distance (a period) and its inverse (a frequency); lanes are no longer selected or measured (owner's choice; more can come later).
 
