@@ -100,8 +100,7 @@ is still selectable for inspection, and structural editing asks to stop first.
   time base, trigger and acquisition settings.
 - Tabs: **Scope** (analog), **Logic** (digital lanes, phase 2), **UART**
   (terminal, phase 2). Scope and Logic share the time axis and cursors; the cursors are dragged on either
-  tab, and the Logic tab measures the selected lane (period, frequency, pulse widths, duty cycle, level at
-  each cursor, edges between them).
+  tab; the Logic tab shows the cursor positions, their distance (period) and its inverse (frequency).
 - Interactive runs default to roll mode; with a trigger the display behaves like
   a bench oscilloscope (auto/normal/single). Transient results open as a
   complete record with zoom and pan.

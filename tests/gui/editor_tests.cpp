@@ -919,14 +919,13 @@ private slots:
         QVERIFY(lane_index(QStringLiteral("U1.PB12")) < 0); // unused pins stay hidden
         const int pc13 = lane_index(QStringLiteral("U1.PC13"));
         QTRY_VERIFY_WITH_TIMEOUT(analyzer->logic()->visible_transitions(pc13).size() >= 2, 60000);
-        analyzer->logic()->set_selected(pc13);
-        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("U1.PC13")));
-        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));
-        // Timing of the lane and, with cursors, their values (PC13 blinks at 1 Hz).
-        QTRY_VERIFY_WITH_TIMEOUT(analyzer->transitions()->text().contains(QStringLiteral("duty")), 30000);
+        // Below the lanes: only the cursors, their distance (period) and its inverse (frequency).
+        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("Cursors")));
         analyzer->scope()->set_cursors_enabled(true);
-        QTRY_VERIFY(analyzer->transitions()->text().contains(QStringLiteral("Δt")));
-        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("at A:")));
+        analyzer->scope()->set_cursor(0, 1.0);
+        analyzer->scope()->set_cursor(1, 1.5);
+        QTRY_VERIFY(analyzer->transitions()->text().contains(QStringLiteral("period")));
+        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("(frequency) 2Hz")));
         // Only the checked lanes go to the VCD file (AN-10).
         const QString vcd = dir_.filePath(QStringLiteral("lanes.vcd"));
         QString error;

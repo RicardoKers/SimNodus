@@ -396,7 +396,6 @@ QWidget* AnalyzerWindow::build_logic_page()
         lane_choice_[item->text()] = item->checkState() == Qt::Checked;
         QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may rebuild this list
     });
-    connect(logic_, &LogicWidget::lane_selected, this, [this](int) { update_transitions(); });
     // The logic lanes share the scope's cursors: dragging one here moves it there too.
     connect(logic_, &LogicWidget::cursor_moved, this, [this](int index, double time) {
         scope_->set_cursor(index, time);
@@ -462,71 +461,26 @@ void AnalyzerWindow::refresh_logic()
         }
         views.push_back({lane.title, lane.color, lane_data.initial, std::move(lane_data.changes)});
     }
-    const bool any = !views.empty();
     logic_->set_lanes(std::move(views));
     logic_->set_window(scope_->window_start(), scope_->window_end());
     logic_->set_cursors(scope_->cursors_enabled(), scope_->cursor(0), scope_->cursor(1));
-    if (any && logic_->selected() < 0) {
-        logic_->set_selected(0); // measure the first lane until the user picks another
-    }
     update_transitions();
 }
 
 void AnalyzerWindow::update_transitions()
 {
-    const int lane = logic_->selected();
-    if (lane < 0) {
-        transitions_->setText(scope_->cursors_enabled()
-                ? tr("Click a lane to measure it; drag the cursors A and B.")
-                : tr("Click a lane to list its transitions and measure it."));
+    // The logic lanes show only the cursors: positions, their distance (a
+    // period) and its inverse (a frequency).
+    if (!scope_->cursors_enabled()) {
+        transitions_->setText(tr("Turn on Cursors in the toolbar and drag A and B to measure times."));
         return;
     }
-    const auto changes = logic_->visible_transitions(lane);
-    QStringList parts;
-    const std::size_t first = changes.size() > 12 ? changes.size() - 12 : 0;
-    for (std::size_t i = first; i < changes.size(); ++i) {
-        parts << QStringLiteral("%1 %2s").arg(QChar(changes[i].second ? 0x2191 : 0x2193), // up / down arrow
-            QString::fromStdString(model::format_engineering(changes[i].first, 7)));
-    }
-    const auto& view = logic_->lanes()[static_cast<std::size_t>(lane)];
-    QString text = tr("%1: %2 transition(s) in the window%3")
-                       .arg(view.title)
-                       .arg(changes.size())
-                       .arg(parts.isEmpty() ? QString() : QStringLiteral(": ") + parts.join(QStringLiteral("  ")));
-    // Timing in the window: period, frequency, pulse widths and duty cycle.
-    const auto m = sim::measure_logic(view.initial, view.changes, scope_->window_start(), scope_->window_end());
-    QStringList timing;
-    if (m.period) {
-        timing << tr("period %1").arg(format_seconds(*m.period))
-               << tr("f %1").arg(quantity(*m.frequency, QStringLiteral("Hz")));
-    }
-    if (m.high_time) {
-        timing << tr("high %1").arg(format_seconds(*m.high_time));
-    }
-    if (m.low_time) {
-        timing << tr("low %1").arg(format_seconds(*m.low_time));
-    }
-    if (m.duty) {
-        timing << tr("duty %1 %").arg(QString::number(*m.duty * 100, 'f', 1));
-    }
-    if (!timing.isEmpty()) {
-        text += QStringLiteral("\n") + timing.join(QStringLiteral("   "));
-    }
-    if (scope_->cursors_enabled()) {
-        const double ta = scope_->cursor(0);
-        const double tb = scope_->cursor(1);
-        const double dt = tb - ta;
-        QString cursor = tr("A %1  B %2  Δt %3").arg(format_seconds(ta), format_seconds(tb), format_seconds(dt));
-        if (std::abs(dt) > 0) {
-            cursor += tr("  1/Δt %1").arg(quantity(1.0 / std::abs(dt), QStringLiteral("Hz")));
-        }
-        cursor += tr("  %1 at A: %2, at B: %3")
-                      .arg(view.title)
-                      .arg(sim::logic_level_at(view.initial, view.changes, ta) ? 1 : 0)
-                      .arg(sim::logic_level_at(view.initial, view.changes, tb) ? 1 : 0);
-        const auto between = sim::measure_logic(view.initial, view.changes, std::min(ta, tb), std::max(ta, tb));
-        cursor += tr(", %1 rising and %2 falling edges between").arg(between.rising).arg(between.falling);
-        text += QStringLiteral("\n") + cursor;
+    const double ta = scope_->cursor(0);
+    const double tb = scope_->cursor(1);
+    const double dt = std::abs(tb - ta);
+    QString text = tr("A %1   B %2   Δt (period) %3").arg(format_seconds(ta), format_seconds(tb), format_seconds(dt));
+    if (dt > 0) {
+        text += tr("   1/Δt (frequency) %1").arg(quantity(1.0 / dt, QStringLiteral("Hz")));
     }
     transitions_->setText(text);
 }

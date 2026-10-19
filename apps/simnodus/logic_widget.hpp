@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Logic analyzer lanes (AN-07): one row per digital signal, drawn in the same
-// time window as the oscilloscope, with the scope's cursors. Hovering a lane
-// shows the time of the nearest transition; clicking selects the lane.
+// time window as the oscilloscope, with the scope's cursors (dragged here too).
+// Hovering a lane shows the time of the nearest transition.
 #pragma once
 
 #include <QColor>
@@ -32,15 +32,12 @@ public:
     const std::vector<LogicLaneView>& lanes() const { return lanes_; }
     void set_window(double start, double end);
     void set_cursors(bool enabled, double a, double b);
-    int selected() const { return selected_; }
-    void set_selected(int lane);
     // Transitions of a lane inside the window (for the list under the lanes).
     std::vector<std::pair<double, bool>> visible_transitions(int lane) const;
 
     QSize minimumSizeHint() const override { return {320, 120}; }
 
 signals:
-    void lane_selected(int lane);
     // A cursor was dragged (0 = A, 1 = B), like on the scope; the cursors are shared.
     void cursor_moved(int index, double time);
 
@@ -64,7 +61,6 @@ private:
     bool cursors_ = false;
     double cursor_a_ = 0.0;
     double cursor_b_ = 0.0;
-    int selected_ = -1;
     int dragging_cursor_ = -1;
 };
 
