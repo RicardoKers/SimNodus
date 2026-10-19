@@ -8,24 +8,23 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.3.0 published on 2026-10-18** (due 2026-11-27, so 40 days
-  early): tag `v0.3.0`, GitHub release with `SimNodus-0.3.0-windows-x64.zip`
-  (27 MB). The owner tried the preview package on 2026-10-18: all examples
-  run, and a USART capture exported as VCD decodes in PulseView. Releases
-  0.1.0 and 0.2.0 were published on 2026-10-14 and 2026-10-18.
-- Since 0.3.0: imported models are checked parameter by parameter (#159);
-  the engine is reloaded after an error ngspice cannot recover from (#160);
-  vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes (#161,
-  ADR 0097); teaching models and diode kinds (#162); blocks drawn by the user
-  (#163, ADR 0098), which completes PRJ-06; latches, flip-flops, a counter
-  and a shift register (#164, ADR 0099); regulators and references (#165); owner's ergonomics requests (#166-#168);
-  7-segment displays and decoders (SN-202, branch `seven-segment`). Next: the
-  owner's next choice (installer, pt-BR, dark theme, user guide).
-- **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
-  ADR 0096), examples 17 and 18; text notes (SN-193); model variants with
-  the user's models folder (SN-194, ADR 0095); potentiometer position
-  (SN-195); USART RX decoded from the pin (SN-192); Export VCD (SN-190);
-  Renode removed (SN-183, ADR 0094); fixes from the owner's preview test.
+- **Release 0.4.0 published on 2026-10-19** (planned for 2026-12-11; the
+  owner chose to release the finished work now and move installer and pt-BR
+  translation to the next releases): tag `v0.4.0`, GitHub release with
+  `SimNodus-0.4.0-windows-x64.zip`. The owner tested the previews of
+  2026-10-19 and confirmed the analyzer fixes. Releases 0.1.0, 0.2.0 and
+  0.3.0 were published on 2026-10-14 and 2026-10-18.
+- **New in 0.4:** blocks drawn by the user (#163, ADR 0098, PRJ-06 complete
+  with vendor subcircuits #161, ADR 0097); latches, flip-flops, counters and
+  a shift register (#164, ADR 0099); regulators and references (#165);
+  7-segment displays and decoders with real pinouts (#169, #171); teaching
+  models and diode kinds (#162); Digital-style splitters (#168); model folders
+  (#167); symbol ergonomics (#166); Signal Analyzer speed, stable scrolling
+  and trigger marker (#170, #172-#174); examples 19-23.
+- **New in 0.3:** logic gates and buses with splitters (ADR 0096), text
+  notes, model variants with the user's model folders (ADR 0095),
+  potentiometer position, USART RX from the pin, Export VCD, Renode removed
+  (ADR 0094).
 - **Carried over from 0.2:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
     Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–23, continuous interactive
@@ -50,12 +49,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Classroom feedback (postponed: academic calendar); fix what the owner
+1. In the owner's order (2026-10-19): pt-BR translation of the interface
+   (SN-153), then the Windows installer (SN-152) or the dark theme (SN-162).
+2. Classroom feedback (postponed: academic calendar); fix what the owner
    reports when it arrives.
-2. Backlog candidates, none urgent; ask the owner which block comes next:
-   installer (SN-152), pt-BR translation (SN-153), dark theme (SN-162), user
-   guide (SN-154), engine in a child process (SN-151).
-3. Release 0.4 is due 2026-12-11.
+3. Other backlog candidates: user guide (SN-154), engine in a child process
+   (SN-151).
 
 ## Known constraints
 
