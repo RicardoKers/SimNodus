@@ -334,6 +334,18 @@ public:
                 glow.setAlphaF(std::clamp(it->second.level, 0.0, 1.0) * 0.9);
                 style.glow = glow;
             }
+            if (const auto it = live.lights.find(component_.id); it != live.lights.end() && definition_->lights) {
+                const std::string& name = it->second.color;
+                const QColor base = !name.empty() && name[0] == '#' ? QColor(QString::fromStdString(name)) : led_color(name);
+                const auto& lights = definition_->lights->lights;
+                for (std::size_t i = 0; i < lights.size() && i < it->second.levels.size(); ++i) {
+                    QColor c = base;
+                    c.setAlphaF(std::clamp(it->second.levels[i], 0.0, 1.0));
+                    if (c.alphaF() > 0.02) {
+                        style.fills[lights[i].graphic] = c;
+                    }
+                }
+            }
         }
         painter->save();
         painter->scale(scene_grid, scene_grid);

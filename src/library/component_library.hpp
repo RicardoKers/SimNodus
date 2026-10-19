@@ -147,6 +147,20 @@ struct Readout {
     bool switches() const { return !switch_on.empty(); }
 };
 
+// Shapes of the symbol that light with their own current (SN-202: the segments
+// of a 7-segment display). Each graphic, by its index in `graphics`, is filled
+// with the color at the brightness of the current through `element`.
+struct Lights {
+    struct Light {
+        std::string element; // measuring source, "V_{ref}_sa"
+        int graphic = 0;
+    };
+    std::vector<Light> lights;
+    double full = 0.01;          // amperes for full brightness
+    std::string color;           // "#rrggbb" or an LED color name
+    std::string color_parameter; // or the value of this parameter
+};
+
 struct ComponentDefinition {
     std::string type;
     std::string name;
@@ -168,6 +182,7 @@ struct ComponentDefinition {
     std::string ties_net_parameter;  // non-empty: all pins belong to the net named by this parameter (block ports)
     std::optional<Interactive> interactive;
     std::optional<Readout> readout;
+    std::optional<Lights> lights;
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::filesystem::path source; // file it was loaded from
     // A user block (PRJ-06): the circuit behind the symbol, whose port parts are

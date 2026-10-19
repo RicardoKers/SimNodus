@@ -546,6 +546,58 @@ TEST_CASE("library: component set B behaves like its parts")
             CHECK(close_to(sr("5", "5"), 0.0, 0.01)); // reset wins
         }
     }
+    { // SN-202: BCD decoders for 7-segment displays, the display's segment currents, a decade counter
+        const std::map<int, std::string> lit{{0, "abcdef"}, {1, "bc"}, {2, "abdeg"}, {3, "abcdg"}, {4, "bcfg"},
+            {5, "acdfg"}, {6, "acdefg"}, {7, "abc"}, {8, "abcdefg"}, {9, "abcdfg"}};
+        int wrong = 0;
+        for (const bool low : {false, true}) {
+            for (int code = 0; code < 16; ++code) {
+                test::CircuitBuilder b(components());
+                const char* bits[] = {"A", "B", "C", "D"};
+                for (int i = 0; i < 4; ++i) {
+                    supply(b, bits[i], ((code >> i) & 1) ? "5" : "0");
+                }
+                std::map<std::string, std::string> pins{{"A", "A"}, {"B", "B"}, {"C", "C"}, {"D", "D"}};
+                for (const char s : std::string("abcdefg")) {
+                    pins[std::string(1, s)] = std::string("S") + s;
+                    b.add("resistor", {{"1", std::string("S") + s}, {"2", "0"}}, {{"R", "10k"}});
+                }
+                b.add(low ? "decoder_7447" : "decoder_4511", pins);
+                const auto on = lit.count(code) ? lit.at(code) : std::string();
+                for (const char s : std::string("abcdefg")) {
+                    const double v = op(b, std::string("s") + s);
+                    const bool segment_on = (v > 2.5) != low;
+                    wrong += segment_on != (on.find(s) != std::string::npos);
+                }
+            }
+        }
+        CHECK(wrong == 0);
+        test::CircuitBuilder d(components());
+        supply(d, "VS", "5");
+        d.add("resistor", {{"1", "VS"}, {"2", "SA"}}, {{"R", "330"}});
+        d.add("seven_segment_cc", {{"a", "SA"}, {"COM", "0"}}); // other segments open
+        const auto r = simulate(d, ".op", {"v_ds1_sa#branch"});
+        REQUIRE(r.count("v_ds1_sa#branch"));
+        const double current = r.at("v_ds1_sa#branch").front();
+        std::printf("  7-segment display, segment a from 5 V through 330 ohm: %.2f mA\n", current * 1e3);
+        CHECK(current > 8e-3 && current < 10.5e-3);
+
+        test::CircuitBuilder c(components());
+        c.add("vpulse", {{"+", "CLK"}, {"-", "0"}}, {{"Vlow", "5"}, {"Vhigh", "0"}, {"f", "1k"}, {"rise", "1u"}});
+        c.add("counter10", {{"CLK", "CLK"}, {"Q0", "C0"}, {"Q1", "C1"}, {"Q2", "C2"}, {"Q3", "C3"}});
+        const auto t = simulate(c, ".tran 1u 12.2m 0 1u uic", {"time", "c0", "c1", "c2", "c3"});
+        REQUIRE(t.count("time"));
+        int count_errors = 0;
+        for (int n = 1; n <= 12; ++n) {
+            std::size_t i = 0;
+            while (i < t.at("time").size() && t.at("time")[i] < n * 1e-3) {
+                ++i;
+            }
+            auto bit = [&](const char* v) { return t.at(v)[i] > 2.5 ? 1 : 0; };
+            count_errors += bit("c0") + 2 * bit("c1") + 4 * bit("c2") + 8 * bit("c3") != n % 10;
+        }
+        CHECK(count_errors == 0);
+    }
     { // SN-201: regulators and references
         auto regulator = [&](const char* type, const char* vin, const char* load) {
             test::CircuitBuilder b(components());

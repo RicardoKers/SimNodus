@@ -389,3 +389,26 @@ TEST_CASE("a block port's side turns it; a relay's contact follows its coil curr
                .value_or("")
                .empty()); // an orientation for a value that is not a choice
 }
+
+TEST_CASE("a 7-segment display lights each segment with its own current")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    for (const char* type : {"seven_segment_cc", "seven_segment_ca"}) {
+        const auto* d = library.find(type);
+        REQUIRE(d);
+        REQUIRE(d->lights);
+        CHECK(d->lights->lights.size() == 8); // a-g and the decimal point
+        CHECK(d->lights->color_parameter == "color");
+        for (const auto& light : d->lights->lights) {
+            CHECK(light.graphic > 0);
+            CHECK(light.graphic < static_cast<int>(d->graphics.size()));
+        }
+        CHECK(d->pin("dp")->optional);
+    }
+    const auto* decoder = library.find("decoder_4511");
+    REQUIRE(decoder);
+    CHECK((decoder->pin("A") && decoder->pin("a"))); // BCD input A and segment output a
+    CHECK(library.find("decoder_7447") != nullptr);
+    CHECK(library.find("counter10") != nullptr);
+}

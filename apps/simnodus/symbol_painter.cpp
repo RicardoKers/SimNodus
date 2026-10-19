@@ -20,11 +20,15 @@ QPointF to_q(const model::PointF& p)
     return {p.x, p.y};
 }
 
-void paint_graphic(QPainter& painter, const Graphic& g, const SymbolStyle& style, bool glow_target)
+void paint_graphic(QPainter& painter, const Graphic& g, const SymbolStyle& style, bool glow_target,
+    const QColor& lit = QColor())
 {
     QPen pen(style.ink, style.line_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
-    const QBrush fill = g.filled ? QBrush(style.ink) : (glow_target ? QBrush(style.glow) : QBrush(Qt::NoBrush));
+    QBrush fill = g.filled ? QBrush(style.ink) : (glow_target ? QBrush(style.glow) : QBrush(Qt::NoBrush));
+    if (lit.isValid()) {
+        fill = QBrush(lit);
+    }
     painter.setBrush(fill);
     switch (g.kind) {
     case Graphic::Kind::Line:
@@ -96,10 +100,12 @@ void paint_symbol(QPainter& painter, const library::ComponentDefinition& definit
     painter.setRenderHint(QPainter::Antialiasing, true);
     // The first closed shape (body) receives the LED glow.
     bool glow_used = !style.glow.isValid() || style.glow.alpha() == 0;
+    int index = 0;
     for (const auto& g : definition.graphics) {
         const bool target = !glow_used && g.kind == Graphic::Kind::Polygon && !g.filled;
         glow_used = glow_used || target;
-        paint_graphic(painter, g, style, target);
+        const auto lit = style.fills.find(index++);
+        paint_graphic(painter, g, style, target, lit == style.fills.end() ? QColor() : lit->second);
     }
     if (!style.state.isEmpty()) {
         const auto it = definition.state_graphics.find(style.state.toStdString());
