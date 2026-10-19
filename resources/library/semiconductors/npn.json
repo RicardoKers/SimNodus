@@ -112,7 +112,7 @@
       "kind": "model",
       "model_type": "NPN",
       "default": "Generic",
-      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Open Models Folder)",
+      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Model Folders)",
       "subcircuit": [
         "C",
         "B",

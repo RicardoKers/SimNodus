@@ -45,20 +45,33 @@ void attach_console()
 #endif
 }
 
-void install_translations(QApplication& application)
+// The interface language (UI-16): the setting "language" ("en", "pt_BR"), or
+// the system's language when it is empty.
+void install_translations(QApplication& application, const QString& language)
 {
-    const QLocale locale;
+    if (language == QStringLiteral("en")) {
+        return;
+    }
+    const QLocale locale = language.isEmpty() ? QLocale() : QLocale(language);
+    QLocale::setDefault(locale);
+    const QString app_dir = QCoreApplication::applicationDirPath();
+    const QStringList folders{app_dir + QStringLiteral("/translations"),
+        app_dir + QStringLiteral("/../share/simnodus/translations")};
     auto* qt = new QTranslator(&application);
-    if (qt->load(locale, QStringLiteral("qtbase"), QStringLiteral("_"),
-            QLibraryInfo::path(QLibraryInfo::TranslationsPath))
-        || qt->load(locale, QStringLiteral("qtbase"), QStringLiteral("_"),
-            QCoreApplication::applicationDirPath() + QStringLiteral("/translations"))) {
+    bool qt_loaded = qt->load(locale, QStringLiteral("qtbase"), QStringLiteral("_"),
+        QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    for (const auto& folder : folders) {
+        qt_loaded = qt_loaded || qt->load(locale, QStringLiteral("qtbase"), QStringLiteral("_"), folder);
+    }
+    if (qt_loaded) {
         application.installTranslator(qt);
     }
     auto* own = new QTranslator(&application);
-    if (own->load(locale, QStringLiteral("simnodus"), QStringLiteral("_"),
-            QCoreApplication::applicationDirPath() + QStringLiteral("/translations"))) {
-        application.installTranslator(own);
+    for (const auto& folder : folders) {
+        if (own->load(locale, QStringLiteral("simnodus"), QStringLiteral("_"), folder)) {
+            application.installTranslator(own);
+            break;
+        }
     }
 }
 
@@ -178,8 +191,6 @@ int main(int argc, char** argv)
         }
         QApplication::setWindowIcon(icon);
     }
-    install_translations(application);
-
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::translate("main", "Interactive circuit and STM32 simulator"));
     parser.addHelpOption();
@@ -218,6 +229,7 @@ int main(int argc, char** argv)
 
     simnodus::ui::theme::apply(application);
     const auto settings = simnodus::ui::open_settings(parser.value(settings_option));
+    install_translations(application, settings->value(QStringLiteral("language")).toString());
     simnodus::ui::MainWindow window(*settings);
     if (parser.isSet(smoke_option)) {
         attach_console();

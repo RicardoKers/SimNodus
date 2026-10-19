@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -101,8 +102,34 @@ def check_markdown(path: Path, content: str, errors: list[str]) -> None:
         errors.append(f"{relative}: unclosed Markdown fence")
 
 
+def check_translations(errors: list[str]) -> None:
+    """Every text of resources/translations/*.ts is translated, with the same placeholders."""
+    placeholder = re.compile(r"%(?:\d|n)")
+    for path in sorted((ROOT / "resources" / "translations").glob("*.ts")):
+        relative = path.relative_to(ROOT).as_posix()
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError as error:
+            errors.append(f"{relative}: invalid XML: {error}")
+            continue
+        for context in root.iter("context"):
+            for message in context.iter("message"):
+                source = message.findtext("source") or ""
+                translation = message.find("translation")
+                forms = [] if translation is None else (
+                    [f.text or "" for f in translation.iter("numerusform")] or [translation.text or ""])
+                label = f"{relative}: {context.findtext('name')}: {source[:50]!r}"
+                if translation is None or translation.get("type") in ("unfinished", "obsolete", "vanished")                         or not all(forms):
+                    errors.append(f"{label}: not translated")
+                    continue
+                for form in forms:
+                    if sorted(set(placeholder.findall(form))) != sorted(set(placeholder.findall(source))):
+                        errors.append(f"{label}: placeholders differ in the translation")
+
+
 def main() -> int:
     errors: list[str] = []
+    check_translations(errors)
     for required in sorted(REQUIRED):
         if not (ROOT / required).is_file():
             errors.append(f"Missing required file: {required}")

@@ -147,6 +147,10 @@ preference. The future Symbol Editor edits these files directly.
 ## Language
 
 The UI base language is English; all strings use `tr()` and a pt-BR translation
-is shipped for the classroom release. Component names in the library are
-translatable metadata; reference designators stay international (R, C, L, D, Q,
-U, SW, LED).
+ships since 0.5 (`resources/translations/simnodus_pt_BR.ts`, built into
+`translations/simnodus_pt_BR.qm`). *Tools > Language* chooses the system
+language (the default), English or Português (Brasil); the choice takes effect
+at the next start. Component names, categories, descriptions, parameter labels
+and choice words of the library are translated under the context
+`ComponentLibrary`; reference designators and pin names stay international (R,
+C, L, D, Q, U, SW, LED). Example projects and their notes stay in English.

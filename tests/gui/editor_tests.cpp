@@ -25,6 +25,7 @@
 #include "sim/engine_host.hpp"
 #endif
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -45,6 +46,7 @@
 #include <QSpinBox>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTranslator>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QUndoStack>
@@ -1004,6 +1006,35 @@ private slots:
         window_->analyzer()->refresh();
         QVERIFY(scope->window_end() > end);
         window_->stop();
+#endif
+    }
+
+    void language_choice_is_saved_and_the_translation_is_complete()
+    {
+        // Tools > Language keeps the choice for the next start (UI-16).
+        QAction* portuguese = nullptr;
+        QAction* system = nullptr;
+        for (auto* action : window_->findChildren<QAction*>()) {
+            if (action->isCheckable() && action->data().toString() == QStringLiteral("pt_BR")) {
+                portuguese = action;
+            }
+            if (action->isCheckable() && action->data().isValid() && action->data().toString().isEmpty()
+                && action->text().contains(QStringLiteral("System"))) {
+                system = action;
+            }
+        }
+        QVERIFY(portuguese && system);
+        portuguese->trigger();
+        QCOMPARE(settings_->value(QStringLiteral("language")).toString(), QStringLiteral("pt_BR"));
+        system->trigger();
+        QVERIFY(!settings_->contains(QStringLiteral("language")));
+#ifdef SIMNODUS_TEST_TRANSLATIONS_DIR
+        // The built translation loads and translates the interface and the library.
+        QTranslator translator;
+        QVERIFY(translator.load(QStringLiteral(SIMNODUS_TEST_TRANSLATIONS_DIR "/simnodus_pt_BR.qm")));
+        QCOMPARE(translator.translate("MainWindow", "&File"), QStringLiteral("&Arquivo"));
+        QCOMPARE(translator.translate("ComponentLibrary", "Resistor"), QStringLiteral("Resistor"));
+        QCOMPARE(translator.translate("ComponentLibrary", "Potentiometer"), QStringLiteral("Potenciômetro"));
 #endif
     }
 

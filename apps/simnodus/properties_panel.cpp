@@ -107,7 +107,7 @@ PropertiesPanel::PropertiesPanel(Document* document, QWidget* parent) : QWidget(
     layout->addWidget(scroll, 2);
 
     layout->addWidget(theme::make_caption(tr("Live values")));
-    live_ = new QLabel(tr("Not running."));
+    live_ = new QLabel(tr("While the simulation runs, the values of the selected parts appear here."));
     live_->setContentsMargins(6, 2, 6, 6);
     live_->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     live_->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -166,7 +166,7 @@ QString PropertiesPanel::header_text() const
 
 void PropertiesPanel::set_live_text(const QString& text)
 {
-    live_->setText(text.isEmpty() ? tr("Not running.") : text);
+    live_->setText(text.isEmpty() ? tr("While the simulation runs, the values of the selected parts appear here.") : text);
 }
 
 void PropertiesPanel::focus_value()

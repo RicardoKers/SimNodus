@@ -23,6 +23,7 @@
 #include "simnodus/version.hpp"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -421,6 +422,29 @@ void MainWindow::build_actions_and_menus()
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
     engine_action_->setStatusTip(tr("Load the analog engine and solve a reference circuit"));
     auto* models = tools->addAction(tr("&Model Folders..."), this, &MainWindow::edit_model_folders);
+    // Interface language (UI-16); it takes effect at the next start.
+    auto* language = tools->addMenu(tr("&Language"));
+    auto* languages = new QActionGroup(language);
+    const QString chosen = settings_.value(QStringLiteral("language")).toString();
+    for (const auto& [code, name] : std::vector<std::pair<QString, QString>>{
+             {QString(), tr("System language")}, {QStringLiteral("en"), QStringLiteral("English")},
+             {QStringLiteral("pt_BR"), QStringLiteral("Português (Brasil)")}}) {
+        auto* action = language->addAction(name);
+        action->setCheckable(true);
+        action->setChecked(code == chosen);
+        action->setData(code);
+        languages->addAction(action);
+        connect(action, &QAction::triggered, this, [this, code] {
+            if (code.isEmpty()) {
+                settings_.remove(QStringLiteral("language"));
+            } else {
+                settings_.setValue(QStringLiteral("language"), code);
+            }
+            const QString note = tr("The language changes when SimNodus starts again.");
+            statusBar()->showMessage(note, 8000);
+            messages_->add(Severity::Info, note, tr("Language"));
+        });
+    }
     models->setStatusTip(tr("SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties"));
 
     auto* window = menuBar()->addMenu(tr("&Window"));
@@ -998,8 +1022,6 @@ void MainWindow::show_about()
     QMessageBox::about(this, tr("About SimNodus"),
         tr("<h3>SimNodus %1</h3>"
            "<p>Interactive circuit and STM32 simulator for teaching.</p>"
-           "<p>Release 0.1: analog circuits with continuous interactive simulation and the Signal "
-           "Analyzer. The microcontroller arrives in release 0.2.</p>"
            "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
            "Qt %2 (LGPL-3.0).</p>")
             .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));
