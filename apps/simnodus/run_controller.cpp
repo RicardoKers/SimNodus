@@ -6,6 +6,7 @@
 #include "schematic_scene.hpp"
 
 #include "library/component_library.hpp"
+#include "library/spice_template.hpp"
 #include "model/engineering.hpp"
 
 #include <QCoreApplication>
@@ -77,6 +78,7 @@ bool RunController::start(QString& error)
         }
     }
     readout_vectors_.clear();
+    switch_states_.clear();
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
         if (d && d->readout && d->readout->kind != library::Readout::Kind::Voltage) {
@@ -352,7 +354,28 @@ void RunController::refresh()
             if (it == latest.end()) {
                 continue;
             }
-            if (d->readout->glows()) {
+            if (d->readout->switches()) {
+                // A relay's contact follows its coil current, with hysteresis like the part.
+                const library::ValueLookup lookup = [&](std::string_view name) -> std::optional<double> {
+                    const auto* p = d->parameter(std::string(name));
+                    if (!p) {
+                        return std::nullopt;
+                    }
+                    const auto v = c.parameters.find(p->name);
+                    return model::parse_engineering(v == c.parameters.end() ? p->default_value : v->second, p->unit);
+                };
+                std::string error;
+                const auto on = library::evaluate_expression(d->readout->switch_on, lookup, error);
+                const auto off = library::evaluate_expression(d->readout->switch_off, lookup, error);
+                bool& closed = switch_states_[c.id];
+                const double current = std::abs(it->second);
+                if (on && current >= *on) {
+                    closed = true;
+                } else if (off && current < *off) {
+                    closed = false;
+                }
+                live.states[c.id] = closed ? QStringLiteral("1") : QStringLiteral("0");
+            } else if (d->readout->glows()) {
                 const auto& r = *d->readout;
                 auto parameter = [&c](const std::string& name) {
                     const auto p = c.parameters.find(name);

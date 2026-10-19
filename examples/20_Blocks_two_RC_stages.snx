@@ -263,7 +263,7 @@
               6
             ],
             "rotation": 0,
-            "mirrored": false,
+            "mirrored": true,
             "parameters": {
               "name": "OUT",
               "side": "right"

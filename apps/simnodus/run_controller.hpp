@@ -124,6 +124,7 @@ private:
     model::SimulationMode mode_ = model::SimulationMode::Interactive;
     std::vector<Channel> channels_;
     std::map<model::Id, std::string> readout_vectors_; // component -> current vector
+    std::map<model::Id, bool> switch_states_;           // relay contacts: closed after pull-in
     sim::RunState last_state_ = sim::RunState::Idle;
     int gdb_port_ = -1;
 };

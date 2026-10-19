@@ -68,6 +68,9 @@ struct Parameter {
     // Model: the "type=" values of the models this part offers ("schottky"); an
     // empty string stands for models without one. Empty list: any model of the type.
     std::vector<std::string> model_kinds;
+    // Choice: the part's orientation for some values (a block port's side turns
+    // the port so that its wire attaches on that side).
+    std::map<std::string, model::Orientation> orientations;
 };
 
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
@@ -136,6 +139,12 @@ struct Readout {
     std::string glow_color;
     std::string glow_color_parameter;
     bool glows() const { return glow_full > 0 || !glow_full_parameter.empty(); }
+    // Current readouts may switch the symbol's state graphics instead (a relay's
+    // contact): state "1" above `switch_on` amperes, back to "0" below
+    // `switch_off`; both are expressions of the parameters ("0.42 * 0.36 / Vcoil").
+    std::string switch_on;
+    std::string switch_off;
+    bool switches() const { return !switch_on.empty(); }
 };
 
 struct ComponentDefinition {

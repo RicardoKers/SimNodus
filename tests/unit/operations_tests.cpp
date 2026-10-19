@@ -256,3 +256,20 @@ TEST_CASE("copy and paste create new ids and designators")
     CHECK(s.probes().back().target.item == copy.id); // probe follows the copy
     CHECK(editing::paste_items(s, lib, "not a clipboard", {}).empty());
 }
+
+TEST_CASE("a net label mirrors so that its name sits left of the point")
+{
+    const auto lib = test_library();
+    Schematic s;
+    Id l = 0;
+    applied(s, editing::add_label(s, {4, 2}, "OUT", &l));
+    CHECK(!s.label(l)->mirrored);
+    const auto edit = applied(s, editing::mirror_items(s, lib, {l}));
+    CHECK(s.label(l)->mirrored);
+    CHECK((s.label(l)->position == Point{4, 2})); // the connection point stays
+    applied(s, editing::rotate_items(s, lib, {l}));
+    CHECK(s.label(l)->mirrored); // rotating keeps the side
+    applied(s, editing::mirror_items(s, lib, {l}));
+    CHECK(!s.label(l)->mirrored);
+    edit.revert(s);
+}

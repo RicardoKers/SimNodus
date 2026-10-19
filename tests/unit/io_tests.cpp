@@ -27,7 +27,7 @@ Schematic sample()
     r.models = {{"model", ".model MY-R R(TC1=0)"}};
     s.put(r);
     s.put(Wire{s.allocate_id(), {{13, -4}, {20, -4}, {20, 3}}});
-    s.put(NetLabel{s.allocate_id(), {20, 3}, "OUT"});
+    s.put(NetLabel{s.allocate_id(), {20, 3}, "OUT", true}); // mirrored: written only when set
     s.put(Bus{s.allocate_id(), {{0, 20}, {10, 20}}, "D"});
     s.put(Splitter{s.allocate_id(), {0, 20}, {90, true}, "D", 4, 3});
     s.put(TextNote{s.allocate_id(), {0, -10}, "Close SW1, then watch V(OUT).\nSecond line: \"quoted\" text"});

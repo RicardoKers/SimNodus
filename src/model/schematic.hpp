@@ -52,6 +52,7 @@ struct NetLabel {
     Id id = no_id;
     Point position;
     std::string name;
+    bool mirrored = false; // the name sits left of the point instead of right
 
     friend bool operator==(const NetLabel&, const NetLabel&) = default;
 };

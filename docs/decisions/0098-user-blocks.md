@@ -26,7 +26,8 @@ Two facts of the engine shaped how a block reaches the netlist:
 ## Decision
 
 - **Ports.** A *Block port* part (category *Blocks*) has a text parameter
-  `name` and a choice `side` (left, right, top, bottom). Its pin belongs to the
+  `name` and a choice `side` (left, right, top, bottom); choosing a side turns
+  the port to point that way, as the pin will on the block (added 2026-10-19). Its pin belongs to the
   net named by `name` (`ties_net_parameter`), so a block file simulates on its
   own like any project. Ports with the same name are one pin; a port cannot be
   named GND or 0 (ground is shared anyway); a block cannot hold a

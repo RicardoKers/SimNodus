@@ -670,6 +670,16 @@ void PropertiesPanel::commit_parameter(const std::string& name, const QString& t
                 continue;
             }
             editing::set_parameter(work, id, name, text.toStdString()).apply(work);
+            // Some choices turn the part (a block port's side).
+            const auto* d = document_->library().find(c->type);
+            const auto* p = d ? d->parameter(name) : nullptr;
+            if (p) {
+                if (const auto o = p->orientations.find(text.toStdString()); o != p->orientations.end()) {
+                    model::Component turned = *work.component(id);
+                    turned.orientation = o->second;
+                    work.put(turned);
+                }
+            }
         }
     }
     const std::string what = selection_.size() == 1 && s.component(*selection_.begin())

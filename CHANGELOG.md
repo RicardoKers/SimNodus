@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-19, owner's ergonomics requests)
+
+- Live values of vertical parts (a voltmeter or ammeter standing upright) appear on the right of the symbol; of horizontal parts, below it as before. Texts inside symbols (the V and A of the meters, gate and IC pin names) stay upright and unmirrored whatever the part's rotation.
+- Net labels can be mirrored (Ctrl+E): the name then sits left of the connection point, for wires that arrive from the right. Saved as `"mirrored": true`.
+- The relay's contact moves: it rests on NC and switches to NO while the coil current is above pull-in (released below drop-out, as the part's switches do); the line from the coil to the contacts is gone.
+- A *Block port*'s side turns the port: it points left, right, up or down as the pin will on the block, with its wire coming from the circuit. A choice parameter may set the part's orientation (`"orientations"`).
+
 ### Added (2026-10-19, owner's request)
 
 - Regulators and references (SN-201) in *Integrated circuits*: *Voltage regulator (78xx)* with output voltage, dropout, current limit and quiescent current; *Low-dropout regulator (LDO)* (3.3 V, like the 1117); *Adjustable regulator (LM317)* (1.25 V between OUT and ADJ, 50 µA out of ADJ); *Shunt reference (TL431)*. Behavioral; the input current is the load current plus the quiescent current. Engine tests: 7805 4.9995 V at 50 mA, 4.000 V from 6 V (dropout), 1.000 V into 1 Ω (1 A limit), LDO 3.299 V, LM317 5.036 V with 240 Ω/720 Ω, TL431 2.495 V and 4.99 V with a 1:1 divider. Example 22. A new engine test runs every analog example in an interactive session: the first version of the regulators passed the DC checks but could not start a run from 0 V, so each regulator now has an error amplifier with a 1 µs dominant pole.

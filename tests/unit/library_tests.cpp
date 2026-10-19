@@ -369,3 +369,23 @@ TEST_CASE("vendor subcircuits are read with the models and blocks they use")
     CHECK(!library::parse_subcircuit_text(".SUBCKT S 1 2\n.control\nshell rm x\n.endc\n.ENDS\n", &why).has_value());
     CHECK(why.find(".CONTROL") != std::string::npos);
 }
+
+TEST_CASE("a block port's side turns it; a relay's contact follows its coil current")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* side = library.find("port")->parameter("side");
+    REQUIRE(side);
+    REQUIRE(side->orientations.size() == 4);
+    CHECK(side->orientations.at("right").mirrored);
+    CHECK(side->orientations.at("top").rotation == 90);
+    const auto* relay = library.find("relay");
+    REQUIRE((relay->readout && relay->readout->switches()));
+    CHECK(relay->state_graphics.count("0") == 1);
+    CHECK(relay->state_graphics.count("1") == 1);
+    CHECK(!library.add_from_json(R"({"type": "x", "name": "X", "category": "C", "prefix": "X",
+        "symbol": {"pins": [{"name": "1", "at": [0, 0], "dir": "up"}]}, "spice": ["R_{ref} {node:1} 0 1"],
+        "parameters": [{"name": "s", "default": "a", "choices": ["a"], "orientations": {"b": {"rotation": 90}}}]})")
+               .value_or("")
+               .empty()); // an orientation for a value that is not a choice
+}

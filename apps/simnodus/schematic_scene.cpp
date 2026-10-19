@@ -219,6 +219,10 @@ public:
         const QFontMetricsF metrics(font);
         const QRectF symbol = symbol_rect();
         const QSizeF size(metrics.horizontalAdvance(it->second) + 8, metrics.height() + 4);
+        if (symbol.height() > symbol.width()) {
+            // Beside a vertical part, under its name: the wires leave at the top and bottom.
+            return QRectF(QPointF(symbol.right() + 4, symbol.center().y() + 2), size);
+        }
         return QRectF(QPointF(symbol.center().x() - size.width() / 2, symbol.bottom() + 3), size);
     }
 
@@ -279,10 +283,18 @@ public:
 
     QString state_key() const
     {
-        if (!definition_ || !definition_->interactive) {
+        if (!definition_) {
             return {};
         }
         const auto& live = scene_.live();
+        if (!definition_->interactive) {
+            // State graphics driven by a current (a relay's contact): at rest when not running.
+            if (definition_->state_graphics.empty()) {
+                return {};
+            }
+            const auto it = live.states.find(component_.id);
+            return live.running && it != live.states.end() ? it->second : QStringLiteral("0");
+        }
         if (live.running) {
             const auto it = live.controls.find(component_.id);
             if (it != live.controls.end()) {
@@ -537,7 +549,9 @@ public:
     {
         const QFontMetricsF metrics(schematic_font(true));
         const QString text = QString::fromStdString(label_.name);
-        return QRectF(4, -metrics.height() - 4, metrics.horizontalAdvance(text) + 8, metrics.height() + 2);
+        const double width = metrics.horizontalAdvance(text) + 8;
+        // Mirrored, the name sits left of the point so that a wire can come from the right.
+        return QRectF(label_.mirrored ? -4 - width : 4, -metrics.height() - 4, width, metrics.height() + 2);
     }
 
     QRectF boundingRect() const override { return text_box().united(QRectF(-3, -3, 6, 6)).adjusted(-2, -2, 2, 2); }
@@ -549,7 +563,7 @@ public:
         painter->setPen(QPen(color, 1.0));
         painter->setBrush(Qt::NoBrush);
         const QRectF box = text_box();
-        painter->drawLine(QPointF(0, 0), box.bottomLeft());
+        painter->drawLine(QPointF(0, 0), label_.mirrored ? box.bottomRight() : box.bottomLeft());
         painter->setBrush(QColor(0xff, 0xff, 0xff, 230));
         painter->drawRoundedRect(box, 2, 2);
         painter->setFont(schematic_font(true));
