@@ -112,6 +112,7 @@ PropertiesPanel::PropertiesPanel(Document* document, QWidget* parent) : QWidget(
     live_->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     live_->setTextInteractionFlags(Qt::TextSelectableByMouse);
     live_->setObjectName(QStringLiteral("liveValues"));
+    live_->setWordWrap(true);
     QFont mono = live_->font();
     mono.setFamily(QStringLiteral("Consolas"));
     mono.setStyleHint(QFont::Monospace);

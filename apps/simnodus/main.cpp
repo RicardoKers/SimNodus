@@ -227,8 +227,9 @@ int main(int argc, char** argv)
         return check_mcu_engine();
     }
 
-    simnodus::ui::theme::apply(application);
     const auto settings = simnodus::ui::open_settings(parser.value(settings_option));
+    simnodus::ui::theme::apply(application,
+        simnodus::ui::theme::scheme_from(settings->value(QStringLiteral("theme")).toString()));
     install_translations(application, settings->value(QStringLiteral("language")).toString());
     simnodus::ui::MainWindow window(*settings);
     if (parser.isSet(smoke_option)) {

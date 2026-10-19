@@ -736,6 +736,22 @@ Pinos: %2</translation>
             <translation>O idioma muda quando o SimNodus for aberto de novo.</translation>
         </message>
         <message>
+            <source>&amp;Theme</source>
+            <translation>&amp;Tema</translation>
+        </message>
+        <message>
+            <source>System</source>
+            <translation>Sistema</translation>
+        </message>
+        <message>
+            <source>Light</source>
+            <translation>Claro</translation>
+        </message>
+        <message>
+            <source>Dark</source>
+            <translation>Escuro</translation>
+        </message>
+        <message>
             <source>SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties</source>
             <translation>Arquivos de modelos SPICE (*.lib) de transistores, MOSFETs e diodos; seus modelos aparecem em Propriedades</translation>
         </message>

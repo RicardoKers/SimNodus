@@ -7,6 +7,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 ### Added (2026-10-19, owner's choice)
 
 - Windows installer (SN-152, ADR 0100): `SimNodus-<version>-windows-x64-setup.exe`, built with Inno Setup by `tools/package_windows.py --installer` from the same files as the zip. Installs for the current user without administrator rights, or for all users when an administrator chooses so; Start menu entry, optional desktop icon, `.snx` files open with a double-click, uninstaller, English and Portuguese dialogs. Each build installs the setup silently into a temporary folder, runs the installed program's engine check and smoke test, and uninstalls it.
+- Dark theme (SN-162): *View > Theme* chooses System (follows the Windows light or dark setting, the default), Light or Dark. The schematic, symbols, panels and the Signal Analyzer change at once; the choice is kept for the next start. The live-values hint now wraps.
 
 ### Added (2026-10-19, owner's request)
 

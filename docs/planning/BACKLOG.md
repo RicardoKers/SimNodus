@@ -113,6 +113,6 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 |---|---|
 | SN-160 | Symbol Editor window (PRJ-05) |
 | SN-161 | Subcircuits (PRJ-06): done — vendor `.subckt` models (#161, ADR 0097) and user blocks (SN-200, ADR 0098) |
-| SN-162 | Dark theme, ANSI symbol variant |
+| SN-162 | Dark theme (done 2026-10-19: View > Theme, system/light/dark, applied at once); ANSI symbol variant still open |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
 | SN-164 | Linux package |
