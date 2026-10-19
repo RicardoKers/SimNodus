@@ -391,7 +391,14 @@ TEST_CASE("library: component set B behaves like its parts")
         const double out = op(b, "out");
         std::printf("  subcircuit op-amp, gain 2 at 1 V: %.4f V (code models %s)\n", out,
             test::engine()->has_code_models() ? "loaded" : "missing");
-        CHECK(close_to(out, 2.0, 0.01));
+        // POLY sources need spice2poly.cm: packaged on Windows, from the ngspice
+        // package on Linux. Without it the run must fail, never give a value.
+        if (test::engine()->has_code_models()) {
+            CHECK(close_to(out, 2.0, 0.01));
+        } else {
+            std::printf("  skipped the POLY check: spice2poly.cm not found\n");
+            CHECK(std::isnan(out));
+        }
         test::CircuitBuilder d(components());
         supply(d, "VCC", "12");
         supply(d, "G", "5");
