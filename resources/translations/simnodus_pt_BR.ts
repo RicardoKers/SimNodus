@@ -407,6 +407,29 @@ Pinos: %2</translation>
         </message>
     </context>
     <context>
+        <name>simnodus::ui::EngineProcess</name>
+        <message>
+            <source>The simulation engine could not be started (%1): %2</source>
+            <translation>Não foi possível iniciar o motor de simulação (%1): %2</translation>
+        </message>
+        <message>
+            <source>The simulation engine sent damaged data and was stopped.</source>
+            <translation>O motor de simulação enviou dados corrompidos e foi encerrado.</translation>
+        </message>
+        <message>
+            <source>The simulation engine stopped unexpectedly (exit code 0x%1). Your project is not affected; press F5 to run again.</source>
+            <translation>O motor de simulação parou inesperadamente (código de saída 0x%1). Seu projeto não foi afetado; pressione F5 para simular de novo.</translation>
+        </message>
+        <message>
+            <source>The simulation engine ended. Press F5 to run again.</source>
+            <translation>O motor de simulação terminou. Pressione F5 para simular de novo.</translation>
+        </message>
+        <message>
+            <source>Its last message: %1</source>
+            <translation>Última mensagem dele: %1</translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::LogicWidget</name>
         <message>
             <source>Run a circuit with a microcontroller or voltage probes; choose the signals on the left.</source>

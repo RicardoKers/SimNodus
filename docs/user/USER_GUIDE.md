@@ -350,7 +350,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 | The firmware does nothing | Check that a G pin is grounded, that the ELF was built for the STM32F103C8, and the Messages panel for unsupported peripherals |
 | The board waits forever | *Debug Firmware with GDB* is checked: connect a debugger or uncheck it |
 | A model from my folder is missing | Check Tools > Model Folders and the Messages panel; the model must match the part kind (a diode model on a diode) |
-| The engine cannot be found | Tools > Check Simulation Engine; reinstall if the `ngspice` folder next to `simnodus.exe` is missing |
+| The engine cannot be found or "stopped unexpectedly" | Tools > Check Simulation Engine; reinstall if `simnodus-engine.exe` or the `ngspice` folder next to `simnodus.exe` is missing. If one circuit stops the engine every time, please report it with the project file |
 
 ## Known limitations
 
@@ -400,8 +400,9 @@ results are read correctly.
 
 - Windows only for now; a Linux package is planned (the code builds on
   Linux).
-- The circuit engine runs inside the application: a failure in it can
-  close SimNodus. The recovery file keeps your unsaved changes.
+- The simulation runs in a separate program (`simnodus-engine`): if it
+  fails, the run stops with a message and SimNodus and your project stay
+  open; press F5 to run again.
 - Resistors use the IEC rectangle; an ANSI zigzag variant and a symbol
   editor are not available yet.
 - The interface is in English and Brazilian Portuguese; this guide is in

@@ -411,6 +411,23 @@ std::map<std::string, double> SimulationSession::latest_all() const
     return latest_;
 }
 
+std::vector<Sample> SimulationSession::take_new_samples(const std::string& vector, std::size_t& count) const
+{
+    std::lock_guard lock(mutex_);
+    const auto it = rings_.find(lower(vector));
+    return it == rings_.end() ? std::vector<Sample>{} : it->second->take_new(count);
+}
+
+std::vector<std::string> SimulationSession::acquired_vectors() const
+{
+    std::lock_guard lock(mutex_);
+    std::vector<std::string> names;
+    for (const auto& [name, ring] : rings_) {
+        names.push_back(name);
+    }
+    return names;
+}
+
 TransientResult SimulationSession::transient_result() const
 {
     std::lock_guard lock(mutex_);

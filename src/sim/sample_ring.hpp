@@ -117,6 +117,25 @@ public:
         return changes;
     }
 
+    // Samples pushed since the first `count` pushes (oldest first; overwritten ones
+    // are skipped); `count` becomes the number of pushes so far. The engine
+    // process sends a ring's new samples this way (SN-151).
+    std::vector<Sample> take_new(std::size_t& count) const
+    {
+        std::lock_guard lock(mutex_);
+        const std::size_t total = dropped_ + size_;
+        const std::size_t first = std::max(count, dropped_);
+        std::vector<Sample> result;
+        if (first < total) {
+            result.reserve(total - first);
+            for (std::size_t i = first - dropped_; i < size_; ++i) {
+                result.push_back(at(i));
+            }
+        }
+        count = total;
+        return result;
+    }
+
     void clear()
     {
         std::lock_guard lock(mutex_);

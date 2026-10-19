@@ -26,6 +26,7 @@
 namespace simnodus::ui {
 
 class Document;
+class EngineProcess;
 class SchematicScene;
 
 struct Channel {
@@ -53,6 +54,9 @@ public:
     sim::RunState state() const { return session_->status().state; }
     sim::RunStatus status() const { return session_->status(); }
     const std::vector<netlist::Diagnostic>& diagnostics() const { return session_->diagnostics(); }
+
+    // The engine process's ID, 0 without one (in-process runs, before the first run).
+    qint64 engine_process_id() const;
 
     void set_speed(double speed);
     void set_gdb_port(int port) { gdb_port_ = port; } // -1: no debugging
@@ -119,7 +123,8 @@ private:
 
     Document& document_;
     SchematicScene& scene_;
-    std::unique_ptr<sim::SimulationSession> session_;
+    std::unique_ptr<EngineProcess> engine_; // before session_, which uses it
+    std::unique_ptr<sim::Session> session_;
     QTimer timer_;
     model::Schematic snapshot_;
     model::SimulationMode mode_ = model::SimulationMode::Interactive;

@@ -20,6 +20,8 @@ add_library(simnodus_ui STATIC
     component_panel.hpp
     document.cpp
     document.hpp
+    engine_process.cpp
+    engine_process.hpp
     main_window.cpp
     main_window.hpp
     messages_panel.cpp
@@ -49,7 +51,7 @@ add_library(simnodus_ui STATIC
 target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets simnodus::session simnodus::editing simnodus::io
+target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets simnodus::session simnodus::engine_link simnodus::editing simnodus::io
     simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
 # Last-resort examples location for running from a build tree.
 target_compile_definitions(simnodus_ui PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
@@ -64,6 +66,9 @@ endif()
 add_executable(simnodus main.cpp ${_simnodus_icon_sources})
 set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON AUTORCC ON)
 target_link_libraries(simnodus PRIVATE simnodus_ui simnodus::warnings)
+target_compile_definitions(simnodus PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
+# The engine process (SN-151) sits next to the application.
+add_dependencies(simnodus simnodus-engine)
 
 # Translations (UI-16): resources/translations/*.ts become .qm files in
 # translations/ next to the executable. Without Qt's LinguistTools the
@@ -86,7 +91,7 @@ endif()
 #   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine
 #   Linux:   bin/simnodus, share/simnodus/ngspice; system libngspice
 if(WIN32)
-    install(TARGETS simnodus RUNTIME DESTINATION .)
+    install(TARGETS simnodus simnodus-engine RUNTIME DESTINATION .)
     if(SIMNODUS_QM_FILES)
         install(FILES ${SIMNODUS_QM_FILES} DESTINATION translations)
     endif()
@@ -126,7 +131,7 @@ if(WIN32)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
     include(InstallRequiredSystemLibraries)
 else()
-    install(TARGETS simnodus RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    install(TARGETS simnodus simnodus-engine RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
     if(SIMNODUS_QM_FILES)
         install(FILES ${SIMNODUS_QM_FILES} DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/translations")
     endif()

@@ -3,11 +3,14 @@
 #include "run_controller.hpp"
 
 #include "document.hpp"
+#include "engine_process.hpp"
 #include "schematic_scene.hpp"
 
 #include "library/component_library.hpp"
 #include "library/spice_template.hpp"
 #include "model/engineering.hpp"
+#include "sim/engine_host.hpp"
+#include "sim/remote_session.hpp"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -49,8 +52,27 @@ std::string element_name(const std::string& pattern, const std::string& designat
 } // namespace
 
 RunController::RunController(Document& document, SchematicScene& scene, QObject* parent)
-    : QObject(parent), document_(document), scene_(scene), session_(std::make_unique<sim::SimulationSession>())
+    : QObject(parent), document_(document), scene_(scene)
 {
+    // Runs happen in the engine process (SN-151, ADR 0101), so that a crash of
+    // ngspice or of the emulator cannot close the editor. SIMNODUS_ENGINE=inprocess
+    // runs them in this process instead (debugging).
+    if (qEnvironmentVariable("SIMNODUS_ENGINE") == QStringLiteral("inprocess")) {
+        session_ = std::make_unique<sim::SimulationSession>();
+    } else {
+        sim::protocol::EngineSetup setup;
+        setup.application_dir = QCoreApplication::applicationDirPath().toStdWString();
+        for (const auto& folder : library::library_candidates(setup.application_dir)) {
+            std::error_code ec;
+            if (std::filesystem::is_directory(folder, ec)) {
+                setup.library_dir = folder;
+                break;
+            }
+        }
+        setup.ngspice = sim::EngineHost::instance().location();
+        engine_ = std::make_unique<EngineProcess>();
+        session_ = std::make_unique<sim::RemoteSession>(*engine_, setup);
+    }
     timer_.setInterval(50); // live display at 20 Hz (INT-03)
     connect(&timer_, &QTimer::timeout, this, &RunController::refresh);
 }
@@ -197,6 +219,11 @@ void RunController::stop()
         last_state_ = session_->status().state;
         emit state_changed();
     }
+}
+
+qint64 RunController::engine_process_id() const
+{
+    return engine_ ? engine_->process_id() : 0;
 }
 
 bool RunController::active() const

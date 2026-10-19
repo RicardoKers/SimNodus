@@ -102,7 +102,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | ID | Task | Requirements | Status |
 |---|---|---|---|
 | SN-150 | CubeIDE/GDB debugging with the cancellable Renode build | MCU-08 | dropped: debugging runs on the own emulator (SN-180); Renode removed (ADR 0094) |
-| SN-151 | Engine in a child process | SIM-08 | todo |
+| SN-151 | Engine in a child process: `simnodus-engine`, state mirrored by `RemoteSession`, crash test (ADR 0101) | SIM-08 | done 2026-10-19 |
 | SN-152 | Windows installer (Inno Setup, ADR 0100): per user or all users, Start menu, `.snx` association, uninstaller, pt-BR dialogs; `package_windows.py --installer` checks a silent install. Tested by the owner in a clean VM | NF-02 | done 2026-10-19 |
 | SN-153 | pt-BR translation: 650 texts of the interface and the component library, Tools > Language (system, English, Português), `tools/update_translations.py`, repository check for untranslated entries | UI-16 | done 2026-10-19 |
 | SN-154 | User guide (`docs/user/USER_GUIDE.md`, Help > User Guide, packaged as USER-GUIDE.md) with known limitations; shorter quick start | MCU-09 | done 2026-10-19 |

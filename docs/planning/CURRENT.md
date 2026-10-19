@@ -18,8 +18,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Tools > Language), Windows installer (#177, ADR 0100; the owner tested it in
   a clean VM), dark theme (#178, View > Theme), polish from the owner's
   test (#179: short part descriptions, scrolling live values, pressed Pause
-  button), and the user guide (SN-154). Latest preview:
-  `dist/SimNodus-0.5-preview-2026-10-19b-*` (local, not published).
+  button), the user guide (SN-154), and simulations in a separate engine
+  process (SN-151, ADR 0101: `simnodus-engine`; an engine crash ends only the
+  run). Latest preview: `dist/SimNodus-0.5-preview-2026-10-19b-*` (local, not
+  published; it predates SN-151 and SN-154).
 - **New in 0.4:** blocks drawn by the user (#163, ADR 0098, PRJ-06 complete
   with vendor subcircuits #161, ADR 0097); latches, flip-flops, counters and
   a shift register (#164, ADR 0099); regulators and references (#165);
@@ -57,10 +59,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 1. Done on 2026-10-19: release 0.4.0, pt-BR translation, Windows installer
    (SN-152, ADR 0100), dark theme (SN-162), polish from the owner's test,
-   and the user guide (SN-154: `docs/user/USER_GUIDE.md`, Help > User Guide,
-   known limitations; the quick start is now a five-minute walk-through).
-2. Next: ask the owner whether to release 0.5 now (installer, pt-BR, dark
-   theme, guide) or continue with the engine in a child process (SN-151).
+   the user guide (SN-154), and the engine process (SN-151, ADR 0101). Phase 4
+   has no open task left.
+2. Next: a 0.5 preview package for the owner to try the engine process on a
+   clean PC (Windows Defender, a crash, GDB debugging from the engine); then
+   ask about releasing 0.5.
 3. Classroom feedback (postponed: academic calendar). Open question: a pt-BR
    version of the user guide.
 

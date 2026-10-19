@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <mutex>
+#include <optional>
 #include <string>
 
 namespace simnodus::sim {
@@ -21,6 +22,7 @@ public:
     // Where to look for the engine; call before the first acquire().
     void set_application_dir(const std::filesystem::path& application_dir);
     void set_location(const NgspiceLocation& location); // explicit location (tests)
+    std::optional<NgspiceLocation> location() const;    // the explicit one, if set
 
     // Loads the engine on the first call, and again after ngspice asked to be
     // detached (NgspiceSession::needs_reload). Returns nullptr and a message if

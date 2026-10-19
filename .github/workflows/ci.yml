@@ -94,6 +94,7 @@ jobs:
         if: failure()
         env:
           QT_QPA_PLATFORM: offscreen
+          SIMNODUS_ENGINE: build/ci/apps/simnodus/Release/simnodus-engine.exe
         run: |
           build/ci/tests/gui/Release/editor_tests.exe -o editor-log.txt,txt -o -,txt
           Write-Host "exit code $LASTEXITCODE"

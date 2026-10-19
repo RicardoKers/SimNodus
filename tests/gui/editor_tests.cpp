@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGraphicsItem>
+#include <QProcess>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -596,6 +597,45 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().glow.at(led).level < 1e-4, 5000);
         const auto status = window_->run_controller()->status();
         QVERIFY(status.sim_time > 0.2);
+        window_->stop();
+        QVERIFY(!window_->run_controller()->active());
+    }
+
+    void engine_crash_fails_the_run_and_the_editor_keeps_working()
+    {
+        // SIM-08 (SN-151): the run happens in the engine process; when that process
+        // dies, the run fails with a message and the editor and its document stay.
+        if (!engine_available()) {
+            QSKIP("No ngspice library configured for this build.");
+        }
+        const model::Id v = place("vdc", {0, 0});
+        label(v, "+", "VCC");
+        label(v, "-", "0");
+        const model::Id r = place("resistor", {20, 0});
+        label(r, "1", "VCC");
+        label(r, "2", "0");
+        const model::Schematic before = doc().schematic();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        const qint64 pid = window_->run_controller()->engine_process_id();
+        QVERIFY(pid > 0);
+        QVERIFY(pid != QCoreApplication::applicationPid());
+        const int errors = window_->messages()->error_count();
+#ifdef Q_OS_WIN
+        QProcess::execute(QStringLiteral("taskkill"), {QStringLiteral("/F"), QStringLiteral("/PID"), QString::number(pid)});
+#else
+        QProcess::execute(QStringLiteral("kill"), {QStringLiteral("-9"), QString::number(pid)});
+#endif
+        QTRY_COMPARE_WITH_TIMEOUT(window_->run_controller()->state(), sim::RunState::Failed, 5000);
+        // The message follows at the next live refresh.
+        QTRY_VERIFY_WITH_TIMEOUT(window_->messages()->error_count() > errors, 2000);
+        QVERIFY(QString::fromStdString(window_->run_controller()->status().message).contains(QStringLiteral("engine")));
+        QCOMPARE(doc().schematic().components(), before.components());
+        // The next run starts a new engine.
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QVERIFY(window_->run_controller()->engine_process_id() > 0);
+        QVERIFY(window_->run_controller()->engine_process_id() != pid);
         window_->stop();
         QVERIFY(!window_->run_controller()->active());
     }

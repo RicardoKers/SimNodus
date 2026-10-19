@@ -22,6 +22,12 @@ void EngineHost::set_location(const NgspiceLocation& location)
     explicit_ = location;
 }
 
+std::optional<NgspiceLocation> EngineHost::location() const
+{
+    std::lock_guard lock(state_);
+    return explicit_;
+}
+
 NgspiceSession* EngineHost::acquire(std::string& error)
 {
     std::lock_guard lock(state_);

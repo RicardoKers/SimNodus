@@ -12,7 +12,7 @@ Revision 2 — 2026-10-14. Previous register: [archive](../archive/2026-10-legac
 | R-105 | Windows packaging (Qt runtime, ngspice DLL) | Classroom install friction | CI-built packages from release 0.1; clean-PC test in phase 4 |
 | R-106 | Two-week phases too tight | Slips | Reduce phase scope, keep release dates; debugging is first to postpone |
 | R-107 | Development environment cannot run Windows | Windows-only defects found late | Windows CI on every change; owner tests each Friday build |
-| R-108 | Engine crash inside the app process (phases 1–3) | Loss of unsaved work | Autosave/backup; process isolation in SN-151 |
+| R-108 | Engine crash inside the app process (phases 1–3) | Loss of unsaved work | Closed 2026-10-19: the engine runs in its own process (SN-151, ADR 0101); autosave stays |
 | R-110 | Own emulator: subtle instruction or exception bugs | Wrong firmware behavior that students blame on their code | Instruction tests from the ARMv7-M pseudocode, differential tests against Renode in E-07 (removed with Renode, ADR 0094), firmware corpus, real board (plan N0–N5) |
 | R-111 | Interpreter too slow on lab PCs | Runs below real time in class | Gate G0a.3 asks 2x real time at 72 MHz on the owner's laptop; WFI fast path; measured speed shown |
 | R-112 | Peripheral scope grows beyond the calendar | Releases slip | Tiers in the design, gates per milestone, roadmap scope protection |

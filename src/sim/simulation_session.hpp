@@ -90,53 +90,98 @@ struct TransientResult {
     bool truncated = false;
 };
 
-class SimulationSession {
+// What the GUI may ask of a simulation (SN-151): implemented in process by
+// SimulationSession and across a process boundary by RemoteSession.
+class Session {
+public:
+    virtual ~Session() = default;
+
+    // Checks and starts a run. Returns false if the netlist has errors (see
+    // diagnostics()) or the engine is unavailable.
+    virtual bool start(RunRequest request, std::string& error) = 0;
+    virtual void pause() = 0;
+    virtual void resume() = 0;
+    // Ends the run and waits for it (bounded by the engine halt).
+    virtual void stop() = 0;
+    virtual bool active() const = 0; // running or paused
+
+    virtual void set_speed(double speed) = 0;
+    virtual void set_control(model::Id component, double value) = 0;
+    virtual std::optional<double> control(model::Id component) const = 0;
+
+    virtual RunStatus status() const = 0;
+    virtual const std::vector<netlist::Diagnostic>& diagnostics() const = 0;
+    // Netlist of the current run (node names, controls); valid after start().
+    virtual const netlist::Netlist& netlist() const = 0;
+
+    virtual std::vector<Sample> samples(const std::string& vector) const = 0;
+    // Only the samples at or after `from` (cheap for a scrolling display).
+    virtual std::vector<Sample> samples_since(const std::string& vector, double from, double bucket = 0.0) const = 0;
+    // Level changes of a vector since `from` (logic lanes of probes), without copying its samples.
+    virtual std::vector<std::pair<double, bool>> transitions_since(const std::string& vector, double from,
+        double threshold, bool& initial) const = 0;
+    virtual std::optional<double> latest(const std::string& vector) const = 0;
+    virtual std::map<std::string, double> latest_all() const = 0;
+    virtual TransientResult transient_result() const = 0;
+
+    // Microcontrollers of the current or last run.
+    virtual std::optional<mcu::McuStatus> mcu_status(model::Id component) const = 0;
+    // Messages of the boards' engines since the last call (faults, unsimulated features).
+    virtual std::vector<std::pair<model::Id, std::string>> take_mcu_diagnostics() = 0;
+    virtual std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const = 0;
+    virtual void mcu_reset(model::Id component) = 0;
+    // Level changes of a board pin for the logic lanes (empty for unknown pins).
+    virtual mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const = 0;
+    // Serial terminal of a board's UART (see McuBackend::uart_send / uart_received; times in ns).
+    virtual void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes) = 0;
+    virtual std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
+        std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const = 0;
+};
+
+class SimulationSession : public Session {
 public:
     SimulationSession();
-    ~SimulationSession();
+    ~SimulationSession() override;
     SimulationSession(const SimulationSession&) = delete;
     SimulationSession& operator=(const SimulationSession&) = delete;
 
-    // Checks and starts a run in a worker thread. Returns false if the
-    // netlist has errors (see diagnostics()) or the engine is unavailable.
-    bool start(RunRequest request, std::string& error);
-    void pause();
-    void resume();
-    // Ends the run and waits for the worker (bounded by the engine halt).
-    void stop();
-    bool active() const; // running or paused
+    bool start(RunRequest request, std::string& error) override;
+    void pause() override;
+    void resume() override;
+    void stop() override;
+    bool active() const override;
 
-    void set_speed(double speed);
-    void set_control(model::Id component, double value);
-    std::optional<double> control(model::Id component) const;
+    void set_speed(double speed) override;
+    void set_control(model::Id component, double value) override;
+    std::optional<double> control(model::Id component) const override;
 
-    RunStatus status() const;
-    const std::vector<netlist::Diagnostic>& diagnostics() const { return diagnostics_; }
-    // Netlist of the current run (node names, controls); valid after start().
-    const netlist::Netlist& netlist() const { return netlist_; }
+    RunStatus status() const override;
+    const std::vector<netlist::Diagnostic>& diagnostics() const override { return diagnostics_; }
+    const netlist::Netlist& netlist() const override { return netlist_; }
 
-    std::vector<Sample> samples(const std::string& vector) const;
-    // Only the samples at or after `from` (cheap for a scrolling display).
-    std::vector<Sample> samples_since(const std::string& vector, double from, double bucket = 0.0) const;
-    // Level changes of a vector since `from` (logic lanes of probes), without copying its samples.
+    std::vector<Sample> samples(const std::string& vector) const override;
+    std::vector<Sample> samples_since(const std::string& vector, double from, double bucket = 0.0) const override;
     std::vector<std::pair<double, bool>> transitions_since(const std::string& vector, double from, double threshold,
-        bool& initial) const;
-    std::optional<double> latest(const std::string& vector) const;
-    std::map<std::string, double> latest_all() const;
-    TransientResult transient_result() const;
+        bool& initial) const override;
+    std::optional<double> latest(const std::string& vector) const override;
+    std::map<std::string, double> latest_all() const override;
+    TransientResult transient_result() const override;
+    // New samples of a vector since `count` pushes (see SampleRing::take_new);
+    // the engine process forwards them (SN-151).
+    std::vector<Sample> take_new_samples(const std::string& vector, std::size_t& count) const;
+    // Lower-case names of the acquired vectors of the current run.
+    std::vector<std::string> acquired_vectors() const;
+    // Board components and their requests of the current run.
+    const std::vector<McuRequest>& mcu_requests() const { return request_.mcus; }
 
-    // Microcontrollers of the current or last run.
-    std::optional<mcu::McuStatus> mcu_status(model::Id component) const;
-    // Messages of the boards' engines since the last call (faults, unsimulated features).
-    std::vector<std::pair<model::Id, std::string>> take_mcu_diagnostics();
-    std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const;
-    void mcu_reset(model::Id component);
-    // Level changes of a board pin for the logic lanes (empty for unknown pins).
-    mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const;
-    // Serial terminal of a board's UART (see McuBackend::uart_send / uart_received; times in ns).
-    void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes);
+    std::optional<mcu::McuStatus> mcu_status(model::Id component) const override;
+    std::vector<std::pair<model::Id, std::string>> take_mcu_diagnostics() override;
+    std::map<std::string, mcu::PinState> mcu_pins(model::Id component) const override;
+    void mcu_reset(model::Id component) override;
+    mcu::PinLog mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const override;
+    void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes) override;
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
-        std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const;
+        std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
 
 private:
     bool start_mcus();
