@@ -41,9 +41,6 @@ LogicWidget::LogicWidget(QWidget* parent) : QWidget(parent)
 void LogicWidget::set_lanes(std::vector<LogicLaneView> lanes)
 {
     lanes_ = std::move(lanes);
-    if (selected_ >= static_cast<int>(lanes_.size())) {
-        selected_ = -1;
-    }
     setMinimumHeight(static_cast<int>(axis_height + lane_height * static_cast<double>(std::max<std::size_t>(lanes_.size(), 1)) + 8));
     update();
 }
@@ -64,13 +61,6 @@ void LogicWidget::set_cursors(bool enabled, double a, double b)
     cursor_a_ = a;
     cursor_b_ = b;
     update();
-}
-
-void LogicWidget::set_selected(int lane)
-{
-    selected_ = lane;
-    update();
-    emit lane_selected(lane);
 }
 
 std::vector<std::pair<double, bool>> LogicWidget::visible_transitions(int lane) const
@@ -130,10 +120,6 @@ void LogicWidget::paintEvent(QPaintEvent*)
     for (std::size_t i = 0; i < lanes_.size(); ++i) {
         const auto& lane = lanes_[i];
         const double top = plot.top() + lane_height * static_cast<double>(i);
-        const QRectF row(0, top, width(), lane_height);
-        if (static_cast<int>(i) == selected_) {
-            painter.fillRect(row, QColor(0xee, 0xf4, 0xff));
-        }
         painter.setPen(theme::ink);
         painter.drawText(QRectF(4, top, label_width - 8, lane_height), Qt::AlignVCenter | Qt::AlignLeft, lane.title);
         painter.setPen(QPen(theme::plot_grid, 1));
@@ -198,9 +184,6 @@ int LogicWidget::cursor_near(double x) const
 void LogicWidget::mousePressEvent(QMouseEvent* event)
 {
     dragging_cursor_ = event->button() == Qt::LeftButton ? cursor_near(event->position().x()) : -1;
-    if (dragging_cursor_ < 0) {
-        set_selected(lane_at(event->position().y()));
-    }
     QWidget::mousePressEvent(event);
 }
 

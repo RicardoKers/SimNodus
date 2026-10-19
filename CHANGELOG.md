@@ -7,7 +7,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 ### Fixed (2026-10-19, owner's report)
 
 - The Signal Analyzer stays responsive with long timebases: at 1 s/div with 10 s of history a refresh took about 130 ms (the whole window slowed down); now about 16 ms on the Scope tab and 5 ms on the Logic tab. Traces are drawn as segments (Qt stroked the dense polyline very slowly), samples are thinned for display while they are copied, roll mode copies one window, the logic lanes find their edges without copying and are refreshed only while their tab is shown, measurements of the selected channel run on the full data a few times a second, and the refresh rate slows down when a refresh is expensive.
-- Logic analyzer measurements appear without clicking a lane: the first lane is measured until another one is chosen.
+- The Logic tab shows only the cursors under the lanes: positions of A and B, their distance (a period) and its inverse (a frequency); lanes are no longer selected or measured (owner's choice; more can come later).
 
 ### Changed (2026-10-19, owner's review)
 
@@ -24,7 +24,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 - Net labels can be mirrored (Ctrl+E): the name then sits left of the connection point, for wires that arrive from the right. Saved as `"mirrored": true`.
 - The relay's contact moves: it rests on NC and switches to NO while the coil current is above pull-in (released below drop-out, as the part's switches do); the line from the coil to the contacts is gone.
 - A *Block port*'s side turns the port: it points left, right, up or down as the pin will on the block, with its wire coming from the circuit. A choice parameter may set the part's orientation (`"orientations"`).
-- Logic analyzer cursors work like the scope's: drag A and B on the lanes (they are shared with the scope). For the selected lane the analyzer shows its timing in the window — period, frequency, mean high and low pulse width, duty cycle — and with cursors on, A, B, Δt, 1/Δt, the lane's level at A and B and the edges between them.
+- Logic analyzer cursors work like the scope's: drag A and B on the lanes (they are shared with the scope).
 - Model folders are the user's choice: *Tools > Model Folders...* lists any number of folders (add, remove, open, back to the default Documents/SimNodus/models); all of them are read for the Model lists. The list is kept in the settings.
 
 ### Changed (2026-10-19, owner's request)
