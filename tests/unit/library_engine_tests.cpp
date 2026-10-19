@@ -547,31 +547,81 @@ TEST_CASE("library: component set B behaves like its parts")
         }
     }
     { // SN-202: BCD decoders for 7-segment displays, the display's segment currents, a decade counter
-        const std::map<int, std::string> lit{{0, "abcdef"}, {1, "bc"}, {2, "abdeg"}, {3, "abcdg"}, {4, "bcfg"},
-            {5, "acdfg"}, {6, "acdefg"}, {7, "abc"}, {8, "abcdefg"}, {9, "abcdfg"}};
+        // The chips draw 6 and 9 without tails; the 7447 has symbols for 10-14; the hex decoders show A-F.
+        const std::map<int, std::string> chip{{0, "abcdef"}, {1, "bc"}, {2, "abdeg"}, {3, "abcdg"}, {4, "bcfg"},
+            {5, "acdfg"}, {6, "cdefg"}, {7, "abc"}, {8, "abcdefg"}, {9, "abcfg"}};
+        auto ttl = chip;
+        ttl.insert({{10, "deg"}, {11, "cdg"}, {12, "bfg"}, {13, "adfg"}, {14, "defg"}});
+        const std::map<int, std::string> hex{{0, "abcdef"}, {1, "bc"}, {2, "abdeg"}, {3, "abcdg"}, {4, "bcfg"},
+            {5, "acdfg"}, {6, "acdefg"}, {7, "abc"}, {8, "abcdefg"}, {9, "abcdfg"}, {10, "abcefg"}, {11, "cdefg"},
+            {12, "adef"}, {13, "bcdeg"}, {14, "adefg"}, {15, "aefg"}};
+        // Segments lit for one input code; `controls` sets other inputs ("LT" -> "0").
+        auto segments = [&](const char* type, int code, const std::map<std::string, std::string>& controls) {
+            test::CircuitBuilder b(components());
+            const bool cmos = std::string(type) == "decoder_4511";
+            const bool ttl_part = std::string(type) == "decoder_7447";
+            const bool low = ttl_part || std::string(type) == "decoder_hex_ca";
+            supply(b, "VP", "5");
+            std::map<std::string, std::string> pins{{"A", "A"}, {"B", "B"}, {"C", "C"}, {"D", "D"},
+                {cmos ? "VDD" : "VCC", "VP"}, {cmos ? "VSS" : "GND", "0"}};
+            const char* bits[] = {"A", "B", "C", "D"};
+            for (int i = 0; i < 4; ++i) {
+                supply(b, bits[i], ((code >> i) & 1) ? "5" : "0");
+            }
+            if (cmos) { // LT and BI high, LE low unless the test says otherwise
+                for (const auto& [pin, level] : std::map<std::string, std::string>{{"LT", "5"}, {"BI", "5"}, {"LE", "0"}}) {
+                    const auto c = controls.find(pin);
+                    supply(b, pin.c_str(), c == controls.end() ? level.c_str() : c->second.c_str());
+                    pins[pin] = pin;
+                }
+            } else {
+                for (const auto& [pin, level] : controls) {
+                    supply(b, pin.c_str(), level.c_str());
+                    pins[pin] = pin;
+                }
+            }
+            std::vector<std::string> vectors;
+            for (const char s : std::string("abcdefg")) {
+                pins[std::string(1, s)] = std::string("S") + s;
+                // Active-low outputs get a pull-up (the 7447 only sinks), the others a load to ground.
+                b.add("resistor", {{"1", std::string("S") + s}, {"2", low ? "VP" : "0"}}, {{"R", "1k"}});
+                vectors.push_back(std::string("s") + s);
+            }
+            b.add(type, pins);
+            const auto r = simulate(b, ".op", vectors);
+            std::string on;
+            for (const char s : std::string("abcdefg")) {
+                const auto it = r.find(std::string("s") + s);
+                const double v = it == r.end() || it->second.empty() ? -1 : it->second.front();
+                if ((v > 2.5) != low && v >= 0) {
+                    on += s;
+                }
+            }
+            return on;
+        };
         int wrong = 0;
-        for (const bool low : {false, true}) {
-            for (int code = 0; code < 16; ++code) {
-                test::CircuitBuilder b(components());
-                const char* bits[] = {"A", "B", "C", "D"};
-                for (int i = 0; i < 4; ++i) {
-                    supply(b, bits[i], ((code >> i) & 1) ? "5" : "0");
-                }
-                std::map<std::string, std::string> pins{{"A", "A"}, {"B", "B"}, {"C", "C"}, {"D", "D"}};
-                for (const char s : std::string("abcdefg")) {
-                    pins[std::string(1, s)] = std::string("S") + s;
-                    b.add("resistor", {{"1", std::string("S") + s}, {"2", "0"}}, {{"R", "10k"}});
-                }
-                b.add(low ? "decoder_7447" : "decoder_4511", pins);
-                const auto on = lit.count(code) ? lit.at(code) : std::string();
-                for (const char s : std::string("abcdefg")) {
-                    const double v = op(b, std::string("s") + s);
-                    const bool segment_on = (v > 2.5) != low;
-                    wrong += segment_on != (on.find(s) != std::string::npos);
+        for (int code = 0; code < 16; ++code) {
+            const auto expect = [code](const std::map<int, std::string>& table) {
+                return table.count(code) ? table.at(code) : std::string();
+            };
+            for (const auto& [type, table] : std::vector<std::pair<const char*, const std::map<int, std::string>*>>{
+                     {"decoder_4511", &chip}, {"decoder_7447", &ttl}, {"decoder_hex_cc", &hex}, {"decoder_hex_ca", &hex}}) {
+                const auto got = segments(type, code, {});
+                if (got != expect(*table)) {
+                    std::printf("  %s, code %d: segments %s, expected %s\n", type, code, got.c_str(), expect(*table).c_str());
+                    ++wrong;
                 }
             }
         }
         CHECK(wrong == 0);
+        // Lamp test lights everything, blanking turns everything off (4511 and 7447).
+        CHECK(segments("decoder_4511", 1, {{"LT", "0"}}) == "abcdefg");
+        CHECK(segments("decoder_4511", 8, {{"BI", "0"}}).empty());
+        CHECK(segments("decoder_7447", 1, {{"LT", "0"}}) == "abcdefg");
+        CHECK(segments("decoder_7447", 8, {{"BI/RBO", "0"}}).empty());
+        // RBI low blanks a zero (leading-zero blanking) but not other digits.
+        CHECK(segments("decoder_7447", 0, {{"RBI", "0"}}).empty());
+        CHECK(segments("decoder_7447", 3, {{"RBI", "0"}}) == "abcdg");
         test::CircuitBuilder d(components());
         supply(d, "VS", "5");
         d.add("resistor", {{"1", "VS"}, {"2", "SA"}}, {{"R", "330"}});
