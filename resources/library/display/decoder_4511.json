@@ -3,7 +3,7 @@
   "name": "BCD to 7-segment decoder (4511)",
   "category": "Displays",
   "prefix": "U",
-  "description": "CMOS BCD to 7-segment latch/decoder/driver like the CD4511 for a common-cathode display: outputs a-g source current from VDD (high = segment on, one resistor per segment); LT low lights every segment, BI low blanks them, LE high holds the last code; codes 10-15 are blank; tie LT and BI high and LE low for normal use; supply 3-15 V on VDD and VSS",
+  "description": "CMOS BCD to 7-segment decoder (CD4511) for common cathode; tie LT and BI high, LE low",
   "symbol": {
     "graphics": [
       {

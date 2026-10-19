@@ -3,7 +3,7 @@
   "name": "JK flip-flop",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "JK flip-flop, rising edge: J=1 K=0 sets Q, J=0 K=1 resets it, J=K=1 toggles it, J=K=0 keeps it; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "JK flip-flop at rising edges of CLK: set, reset, toggle or hold",
   "symbol": {
     "graphics": [
       {

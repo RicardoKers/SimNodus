@@ -3,7 +3,7 @@
   "name": "Adjustable regulator (LM317)",
   "category": "Integrated circuits",
   "prefix": "U",
-  "description": "Adjustable positive regulator like the LM317: keeps OUT 1.25 V above ADJ (Vout = 1.25 V x (1 + R2/R1) with R1 from OUT to ADJ and R2 from ADJ to ground), 50 uA flow out of ADJ; behavioral: no minimum load, no thermal shutdown",
+  "description": "Adjustable positive regulator (LM317): OUT stays 1.25 V above ADJ",
   "symbol": {
     "graphics": [
       {

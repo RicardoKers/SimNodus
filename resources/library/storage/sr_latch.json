@@ -3,7 +3,7 @@
   "name": "SR latch",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "SR latch: a high S sets Q, a high R resets it (R wins when both are high); with both low Q keeps its value; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "SR latch: S sets Q, R resets it (R wins); holds while both are low",
   "symbol": {
     "graphics": [
       {

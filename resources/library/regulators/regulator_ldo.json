@@ -3,7 +3,7 @@
   "name": "Low-dropout regulator (LDO)",
   "category": "Integrated circuits",
   "prefix": "U",
-  "description": "Fixed low-dropout regulator like the LM1117-3.3 or AMS1117: 3.3 V from 5 V or from a USB supply; regulates down to about 1.1 V of headroom; behavioral: no thermal shutdown, no ripple rejection limit, no capacitors needed for stability",
+  "description": "Low-dropout 3.3 V regulator (LM1117, AMS1117)",
   "symbol": {
     "graphics": [
       {

@@ -3,7 +3,7 @@
   "name": "Decade counter",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "Synchronous decade counter (like a 74HC160 without load and enable): counts 0..9 in binary at the rising edges of CLK and starts again; a high CLR resets it to 0 at once; drives a BCD to 7-segment decoder; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "Decade counter 0-9 (74HC160-like) at rising edges of CLK; CLR resets",
   "symbol": {
     "graphics": [
       {

@@ -42,6 +42,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QPointer>
+#include <QScrollArea>
 #include <QSettings>
 #include <QSpinBox>
 #include <QTemporaryDir>
@@ -1006,6 +1007,34 @@ private slots:
         window_->analyzer()->refresh();
         QVERIFY(scope->window_end() > end);
         window_->stop();
+#endif
+    }
+
+    void pause_button_shows_the_pause_and_live_values_scroll()
+    {
+        // Live values of a board (many pins) scroll inside the panel.
+        auto* live = window_->properties()->findChild<QScrollArea*>(QStringLiteral("liveValuesScroll"));
+        QVERIFY(live);
+        QVERIFY(live->widget() && live->widget()->objectName() == QStringLiteral("liveValues"));
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/03_Potentiometer_and_meters.snx"), errors, warnings));
+        auto* pause = window_->findChild<QAction*>(QStringLiteral("pauseAction"));
+        QVERIFY(pause && pause->isCheckable());
+        window_->run();
+        QTRY_VERIFY(window_->run_controller()->state() == sim::RunState::Running);
+        QVERIFY(!pause->isChecked());
+        pause->trigger();
+        QTRY_VERIFY(window_->run_controller()->state() == sim::RunState::Paused);
+        QTRY_VERIFY(pause->isChecked()); // pressed while paused
+        pause->trigger();
+        QTRY_VERIFY(window_->run_controller()->state() == sim::RunState::Running);
+        QTRY_VERIFY(!pause->isChecked());
+        window_->stop();
+        QVERIFY(!pause->isChecked());
 #endif
     }
 

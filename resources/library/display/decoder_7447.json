@@ -3,7 +3,7 @@
   "name": "BCD to 7-segment decoder (7447)",
   "category": "Displays",
   "prefix": "U",
-  "description": "TTL BCD to 7-segment decoder/driver like the 7447 for a common-anode display: open-collector outputs a-g sink the segment current (low = on, one resistor per segment to the display); LT low lights every segment, BI/RBO low blanks them, RBI low blanks a zero and pulls RBO low (leading-zero blanking over several digits); codes 10-15 give the chip's symbols, 15 blank; unconnected inputs float high as in TTL; supply 5 V on VCC and GND, about 40 mA",
+  "description": "TTL BCD to 7-segment decoder (7447) for common anode; open-collector outputs",
   "symbol": {
     "graphics": [
       {

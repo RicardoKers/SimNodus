@@ -3,7 +3,7 @@
   "name": "Voltage regulator (78xx)",
   "category": "Integrated circuits",
   "prefix": "U",
-  "description": "Fixed positive regulator like the 7805 (set Vout for 7809, 7812...): OUT stays at Vout above GND while IN is at least Vdo higher; the input current is the load current plus about 5 mA; behavioral: no thermal shutdown, no ripple rejection limit, no capacitors needed for stability",
+  "description": "Fixed positive regulator (7805, 7812...): set the output voltage",
   "symbol": {
     "graphics": [
       {

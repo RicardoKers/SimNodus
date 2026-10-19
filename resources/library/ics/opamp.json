@@ -3,7 +3,7 @@
   "name": "Op-amp",
   "category": "Integrated circuits",
   "prefix": "U",
-  "description": "Behavioral operational amplifier: gain 100 000, 1 MHz gain-bandwidth, output within 0.1 V of its supply pins, 50 ohm output; draws no supply current",
+  "description": "Operational amplifier (behavioral or a vendor model), powered by V+ and V-",
   "symbol": {
     "graphics": [
       {

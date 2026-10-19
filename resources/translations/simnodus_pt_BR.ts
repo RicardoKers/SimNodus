@@ -1796,8 +1796,8 @@ Pinos: %2</translation>
             <translation>Blocos</translation>
         </message>
         <message>
-            <source>A pin of this circuit when another project uses it as a block (Place &gt; Block). Ports with the same name are connected, like net labels; the side says where the pin goes on the block's symbol</source>
-            <translation>Um pino deste circuito quando outro projeto o usa como bloco (Inserir &gt; Bloco). Portas com o mesmo nome ficam ligadas, como rótulos de rede; o lado diz onde o pino fica no símbolo do bloco</translation>
+            <source>Pin of this circuit when it is placed as a block (Place &gt; Block); side: where the pin goes</source>
+            <translation>Pino deste circuito quando ele é inserido como bloco (Inserir &gt; Bloco); lado: onde o pino fica</translation>
         </message>
         <message>
             <source>Port name</source>
@@ -1840,40 +1840,40 @@ Pinos: %2</translation>
             <translation>Displays</translation>
         </message>
         <message>
-            <source>CMOS BCD to 7-segment latch/decoder/driver like the CD4511 for a common-cathode display: outputs a-g source current from VDD (high = segment on, one resistor per segment); LT low lights every segment, BI low blanks them, LE high holds the last code; codes 10-15 are blank; tie LT and BI high and LE low for normal use; supply 3-15 V on VDD and VSS</source>
-            <translation>Latch/decodificador/driver CMOS de BCD para 7 segmentos como o CD4511, para display de catodo comum: as saídas a-g fornecem corrente do VDD (alto = segmento aceso, um resistor por segmento); LT em nível baixo acende todos os segmentos, BI em nível baixo apaga todos, LE em nível alto mantém o último código; os códigos 10-15 ficam apagados; para uso normal ligue LT e BI em nível alto e LE em nível baixo; alimentação de 3-15 V em VDD e VSS</translation>
+            <source>CMOS BCD to 7-segment decoder (CD4511) for common cathode; tie LT and BI high, LE low</source>
+            <translation>Decodificador CMOS BCD para 7 segmentos (CD4511), catodo comum; LT e BI em alto, LE em baixo</translation>
         </message>
         <message>
             <source>BCD to 7-segment decoder (7447)</source>
             <translation>Decodificador BCD para 7 segmentos (7447)</translation>
         </message>
         <message>
-            <source>TTL BCD to 7-segment decoder/driver like the 7447 for a common-anode display: open-collector outputs a-g sink the segment current (low = on, one resistor per segment to the display); LT low lights every segment, BI/RBO low blanks them, RBI low blanks a zero and pulls RBO low (leading-zero blanking over several digits); codes 10-15 give the chip's symbols, 15 blank; unconnected inputs float high as in TTL; supply 5 V on VCC and GND, about 40 mA</source>
-            <translation>Decodificador/driver TTL de BCD para 7 segmentos como o 7447, para display de anodo comum: as saídas a-g em coletor aberto absorvem a corrente dos segmentos (baixo = aceso, um resistor por segmento até o display); LT em nível baixo acende todos os segmentos, BI/RBO em nível baixo apaga todos, RBI em nível baixo apaga um zero e leva RBO a nível baixo (apagamento de zeros à esquerda em vários dígitos); os códigos 10-15 mostram os símbolos do chip, o 15 apagado; entradas desligadas ficam em nível alto como no TTL; alimentação de 5 V em VCC e GND, cerca de 40 mA</translation>
+            <source>TTL BCD to 7-segment decoder (7447) for common anode; open-collector outputs</source>
+            <translation>Decodificador TTL BCD para 7 segmentos (7447), anodo comum; saídas em coletor aberto</translation>
         </message>
         <message>
             <source>Hex to 7-segment decoder (common anode)</source>
             <translation>Decodificador hexadecimal para 7 segmentos (anodo comum)</translation>
         </message>
         <message>
-            <source>Generic 4-bit decoder for a common anode display: shows 0-9 and A, b, C, d, E, F; push-pull outputs low = segment on through about 50 ohm from the supply (one resistor per segment); inputs switch at half the supply on VCC and GND</source>
-            <translation>Decodificador genérico de 4 bits para display de anodo comum: mostra 0-9 e A, b, C, d, E, F; saídas push-pull, baixo = segmento aceso, com cerca de 50 ohm da alimentação (um resistor por segmento); as entradas comutam na metade da alimentação em VCC e GND</translation>
+            <source>4-bit decoder showing 0-9 and A-F on a common-anode display</source>
+            <translation>Decodificador de 4 bits que mostra 0-9 e A-F num display de anodo comum</translation>
         </message>
         <message>
             <source>Hex to 7-segment decoder (common cathode)</source>
             <translation>Decodificador hexadecimal para 7 segmentos (catodo comum)</translation>
         </message>
         <message>
-            <source>Generic 4-bit decoder for a common cathode display: shows 0-9 and A, b, C, d, E, F; push-pull outputs high = segment on through about 50 ohm from the supply (one resistor per segment); inputs switch at half the supply on VCC and GND</source>
-            <translation>Decodificador genérico de 4 bits para display de catodo comum: mostra 0-9 e A, b, C, d, E, F; saídas push-pull, alto = segmento aceso, com cerca de 50 ohm da alimentação (um resistor por segmento); as entradas comutam na metade da alimentação em VCC e GND</translation>
+            <source>4-bit decoder showing 0-9 and A-F on a common-cathode display</source>
+            <translation>Decodificador de 4 bits que mostra 0-9 e A-F num display de catodo comum</translation>
         </message>
         <message>
             <source>7-segment display (common anode)</source>
             <translation>Display de 7 segmentos (anodo comum)</translation>
         </message>
         <message>
-            <source>7-segment LED display, common anode, pins on top (g f COM a b) and below (e d COM c dp) as on a real display, so several stand side by side; COM goes to the supply and a low segment pin lights the segment (a 7447 drives it); each segment lights with its own current, fully at 10 mA; use a resistor per segment</source>
-            <translation>Display de LEDs de 7 segmentos, anodo comum, pinos em cima (g f COM a b) e embaixo (e d COM c dp) como num display real, para vários ficarem lado a lado; COM vai à alimentação e um pino de segmento em nível baixo acende o segmento (um 7447 o aciona); cada segmento acende com a própria corrente, totalmente a 10 mA; use um resistor por segmento</translation>
+            <source>7-segment LED display, common anode, real pinout; one resistor per segment</source>
+            <translation>Display de LEDs de 7 segmentos, anodo comum, pinagem real; um resistor por segmento</translation>
         </message>
         <message>
             <source>Color</source>
@@ -1908,8 +1908,8 @@ Pinos: %2</translation>
             <translation>Display de 7 segmentos (catodo comum)</translation>
         </message>
         <message>
-            <source>7-segment LED display, common cathode, pins on top (g f COM a b) and below (e d COM c dp) as on a real display, so several stand side by side; COM goes to ground and a high segment pin lights the segment (a 4511 drives it); each segment lights with its own current, fully at 10 mA; use a resistor per segment</source>
-            <translation>Display de LEDs de 7 segmentos, catodo comum, pinos em cima (g f COM a b) e embaixo (e d COM c dp) como num display real, para vários ficarem lado a lado; COM vai ao terra e um pino de segmento em nível alto acende o segmento (um 4511 o aciona); cada segmento acende com a própria corrente, totalmente a 10 mA; use um resistor por segmento</translation>
+            <source>7-segment LED display, common cathode, real pinout; one resistor per segment</source>
+            <translation>Display de LEDs de 7 segmentos, catodo comum, pinagem real; um resistor por segmento</translation>
         </message>
         <message>
             <source>DC motor</source>
@@ -1920,8 +1920,8 @@ Pinos: %2</translation>
             <translation>Eletromecânicos</translation>
         </message>
         <message>
-            <source>Small permanent-magnet DC motor without load: winding resistance and inductance, back-EMF, inertia (50 ms mechanical time constant) and friction; shows its speed</source>
-            <translation>Pequeno motor CC de ímã permanente sem carga: resistência e indutância do enrolamento, força contraeletromotriz, inércia (constante de tempo mecânica de 50 ms) e atrito; mostra a velocidade</translation>
+            <source>Small permanent-magnet DC motor without load; shows its speed</source>
+            <translation>Pequeno motor CC de ímã permanente sem carga; mostra a velocidade</translation>
         </message>
         <message>
             <source>Rated voltage</source>
@@ -1980,8 +1980,8 @@ Pinos: %2</translation>
             <translation>Relé</translation>
         </message>
         <message>
-            <source>Relay with a coil (0.36 W, with inductance: add a flyback diode) and a changeover contact; closes NO above 74 % of the coil current, falls back below 10 %</source>
-            <translation>Relé com bobina (0,36 W, com indutância: coloque um diodo de roda livre) e um contato reversível; fecha NA acima de 74 % da corrente da bobina e volta abaixo de 10 %</translation>
+            <source>Relay with a coil and a changeover contact; add a flyback diode across the coil</source>
+            <translation>Relé com bobina e contato reversível; coloque um diodo de roda livre na bobina</translation>
         </message>
         <message>
             <source>Coil voltage</source>
@@ -2000,8 +2000,8 @@ Pinos: %2</translation>
             <translation>Circuitos integrados</translation>
         </message>
         <message>
-            <source>Behavioral operational amplifier: gain 100 000, 1 MHz gain-bandwidth, output within 0.1 V of its supply pins, 50 ohm output; draws no supply current</source>
-            <translation>Amplificador operacional comportamental: ganho 100 000, produto ganho-banda de 1 MHz, saída a até 0,1 V dos pinos de alimentação, saída de 50 ohm; não consome corrente da alimentação</translation>
+            <source>Operational amplifier (behavioral or a vendor model), powered by V+ and V-</source>
+            <translation>Amplificador operacional (comportamental ou modelo de fabricante), alimentado por V+ e V-</translation>
         </message>
         <message>
             <source>Model</source>
@@ -2040,8 +2040,8 @@ Pinos: %2</translation>
             <translation>Portas lógicas</translation>
         </message>
         <message>
-            <source>Behavioral AND gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta AND comportamental (duas entradas) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Two-input AND gate (74HC-like, hidden supply VDD)</source>
+            <translation>Porta AND de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>Supply</source>
@@ -2056,40 +2056,40 @@ Pinos: %2</translation>
             <translation>Porta NAND</translation>
         </message>
         <message>
-            <source>Behavioral NAND gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta NAND comportamental (duas entradas) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Two-input NAND gate (74HC-like, hidden supply VDD)</source>
+            <translation>Porta NAND de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>NOR gate</source>
             <translation>Porta NOR</translation>
         </message>
         <message>
-            <source>Behavioral NOR gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta NOR comportamental (duas entradas) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Two-input NOR gate (74HC-like, hidden supply VDD)</source>
+            <translation>Porta NOR de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>NOT gate</source>
             <translation>Porta NOT</translation>
         </message>
         <message>
-            <source>Behavioral NOT gate (one input) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta NOT comportamental (uma entrada) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Inverter (74HC-like, hidden supply VDD)</source>
+            <translation>Inversor (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>OR gate</source>
             <translation>Porta OR</translation>
         </message>
         <message>
-            <source>Behavioral OR gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta OR comportamental (duas entradas) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Two-input OR gate (74HC-like, hidden supply VDD)</source>
+            <translation>Porta OR de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>XOR gate</source>
             <translation>Porta XOR</translation>
         </message>
         <message>
-            <source>Behavioral XOR gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current</source>
-            <translation>Porta XOR comportamental (duas entradas) como uma porta 74HC com uma alimentação VDD oculta: as entradas comutam em VDD/2, a saída vai a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; não consome corrente da alimentação</translation>
+            <source>Two-input XOR gate (74HC-like, hidden supply VDD)</source>
+            <translation>Porta XOR de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
             <source>Blue Pill (STM32F103C8)</source>
@@ -2100,8 +2100,8 @@ Pinos: %2</translation>
             <translation>Microcontroladores</translation>
         </message>
         <message>
-            <source>STM32F103C8 board running your firmware (ELF) in the SimNodus STM32 emulator; GPIO outputs drive the circuit (40 ohm, 3.3 V); on-board 3.3 V regulator, LED on PC13, reset button</source>
-            <translation>Placa STM32F103C8 executando o seu firmware (ELF) no emulador de STM32 do SimNodus; as saídas GPIO acionam o circuito (40 ohm, 3,3 V); regulador de 3,3 V na placa, LED no PC13, botão de reset</translation>
+            <source>STM32F103C8 board running your firmware (ELF) in the SimNodus emulator</source>
+            <translation>Placa STM32F103C8 executando o seu firmware (ELF) no emulador do SimNodus</translation>
         </message>
         <message>
             <source>Firmware</source>
@@ -2176,8 +2176,8 @@ Pinos: %2</translation>
             <translation>Transformador</translation>
         </message>
         <message>
-            <source>Two windings on one core (coupling 0.999, 1 ohm primary resistance); primary P1-P2, secondary S1-S2 with the turns ratio; the dots are at P1 and S1</source>
-            <translation>Dois enrolamentos num núcleo (acoplamento 0,999, resistência do primário de 1 ohm); primário P1-P2, secundário S1-S2 com a relação de espiras; os pontos ficam em P1 e S1</translation>
+            <source>Two windings on one core: primary P1-P2, secondary S1-S2</source>
+            <translation>Dois enrolamentos num núcleo: primário P1-P2, secundário S1-S2</translation>
         </message>
         <message>
             <source>Turns ratio</source>
@@ -2200,8 +2200,8 @@ Pinos: %2</translation>
             <translation>Regulador ajustável (LM317)</translation>
         </message>
         <message>
-            <source>Adjustable positive regulator like the LM317: keeps OUT 1.25 V above ADJ (Vout = 1.25 V x (1 + R2/R1) with R1 from OUT to ADJ and R2 from ADJ to ground), 50 uA flow out of ADJ; behavioral: no minimum load, no thermal shutdown</source>
-            <translation>Regulador positivo ajustável como o LM317: mantém OUT 1,25 V acima de ADJ (Vout = 1,25 V x (1 + R2/R1) com R1 de OUT para ADJ e R2 de ADJ ao terra), 50 uA saem por ADJ; comportamental: sem carga mínima, sem desligamento térmico</translation>
+            <source>Adjustable positive regulator (LM317): OUT stays 1.25 V above ADJ</source>
+            <translation>Regulador positivo ajustável (LM317): OUT fica 1,25 V acima de ADJ</translation>
         </message>
         <message>
             <source>Reference voltage</source>
@@ -2232,8 +2232,8 @@ Pinos: %2</translation>
             <translation>Regulador de tensão (78xx)</translation>
         </message>
         <message>
-            <source>Fixed positive regulator like the 7805 (set Vout for 7809, 7812...): OUT stays at Vout above GND while IN is at least Vdo higher; the input current is the load current plus about 5 mA; behavioral: no thermal shutdown, no ripple rejection limit, no capacitors needed for stability</source>
-            <translation>Regulador positivo fixo como o 7805 (ajuste Vout para 7809, 7812...): OUT fica em Vout acima de GND enquanto IN estiver pelo menos Vdo acima; a corrente de entrada é a corrente da carga mais cerca de 5 mA; comportamental: sem desligamento térmico, sem limite de rejeição de ripple, sem capacitores necessários para estabilidade</translation>
+            <source>Fixed positive regulator (7805, 7812...): set the output voltage</source>
+            <translation>Regulador positivo fixo (7805, 7812...): ajuste a tensão de saída</translation>
         </message>
         <message>
             <source>Output voltage</source>
@@ -2256,16 +2256,16 @@ Pinos: %2</translation>
             <translation>Regulador de baixo dropout (LDO)</translation>
         </message>
         <message>
-            <source>Fixed low-dropout regulator like the LM1117-3.3 or AMS1117: 3.3 V from 5 V or from a USB supply; regulates down to about 1.1 V of headroom; behavioral: no thermal shutdown, no ripple rejection limit, no capacitors needed for stability</source>
-            <translation>Regulador fixo de baixo dropout como o LM1117-3.3 ou AMS1117: 3,3 V a partir de 5 V ou de uma fonte USB; regula com até cerca de 1,1 V de folga; comportamental: sem desligamento térmico, sem limite de rejeição de ripple, sem capacitores necessários para estabilidade</translation>
+            <source>Low-dropout 3.3 V regulator (LM1117, AMS1117)</source>
+            <translation>Regulador de 3,3 V de baixo dropout (LM1117, AMS1117)</translation>
         </message>
         <message>
             <source>Shunt reference (TL431)</source>
             <translation>Referência shunt (TL431)</translation>
         </message>
         <message>
-            <source>Adjustable shunt reference like the TL431: sinks current from K to A until REF is Vref above A (2.495 V; with REF on K it is a 2.5 V reference, with a divider Vk = Vref x (1 + R1/R2)); feed it through a resistor; behavioral: no minimum cathode current</source>
-            <translation>Referência shunt ajustável como o TL431: absorve corrente de K para A até REF ficar Vref acima de A (2,495 V; com REF em K é uma referência de 2,5 V, com divisor Vk = Vref x (1 + R1/R2)); alimente-a por um resistor; comportamental: sem corrente mínima de catodo</translation>
+            <source>Adjustable shunt reference (TL431): 2.495 V between REF and A</source>
+            <translation>Referência shunt ajustável (TL431): 2,495 V entre REF e A</translation>
         </message>
         <message>
             <source>REF voltage the part regulates to, against A</source>
@@ -2372,8 +2372,8 @@ Pinos: %2</translation>
             <translation>Modelos simplificados</translation>
         </message>
         <message>
-            <source>Teaching model: no current below the forward voltage Vf, then conducts with 0.1 ohm; no reverse breakdown, no charge storage</source>
-            <translation>Modelo didático: sem corrente abaixo da tensão direta Vf, depois conduz com 0,1 ohm; sem ruptura reversa, sem armazenamento de carga</translation>
+            <source>Teaching model: conducts above a fixed forward voltage Vf</source>
+            <translation>Modelo didático: conduz acima de uma tensão direta fixa Vf</translation>
         </message>
         <message>
             <source>Forward voltage</source>
@@ -2388,8 +2388,8 @@ Pinos: %2</translation>
             <translation>Transistor NPN (simples)</translation>
         </message>
         <message>
-            <source>Teaching model: the base-emitter junction conducts above Vbe; the collector carries beta times the base current until the transistor saturates near Vce(sat); no capacitances</source>
-            <translation>Modelo didático: a junção base-emissor conduz acima de Vbe; o coletor conduz beta vezes a corrente de base até o transistor saturar perto de Vce(sat); sem capacitâncias</translation>
+            <source>Teaching model: fixed Vbe, collector current = beta x base current</source>
+            <translation>Modelo didático: Vbe fixo, corrente de coletor = beta x corrente de base</translation>
         </message>
         <message>
             <source>Current gain</source>
@@ -2572,64 +2572,64 @@ Pinos: %2</translation>
             <translation>Flip-flops e contadores</translation>
         </message>
         <message>
-            <source>Synchronous decade counter (like a 74HC160 without load and enable): counts 0..9 in binary at the rising edges of CLK and starts again; a high CLR resets it to 0 at once; drives a BCD to 7-segment decoder; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Contador de décadas síncrono (como um 74HC160 sem carga e habilitação): conta 0..9 em binário nas bordas de subida de CLK e recomeça; CLR em nível alto zera na hora; aciona um decodificador BCD para 7 segmentos; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>Decade counter 0-9 (74HC160-like) at rising edges of CLK; CLR resets</source>
+            <translation>Contador de décadas 0-9 (tipo 74HC160) nas bordas de subida de CLK; CLR zera</translation>
         </message>
         <message>
             <source>4-bit counter</source>
             <translation>Contador de 4 bits</translation>
         </message>
         <message>
-            <source>Synchronous 4-bit binary up-counter (like a 74HC161 without load and enable): counts 0..15 at the rising edges of CLK and starts again; a high CLR resets it to 0 at once; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Contador binário crescente síncrono de 4 bits (como um 74HC161 sem carga e habilitação): conta 0..15 nas bordas de subida de CLK e recomeça; CLR em nível alto zera na hora; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>4-bit binary counter 0-15 (74HC161-like) at rising edges of CLK; CLR resets</source>
+            <translation>Contador binário de 4 bits 0-15 (tipo 74HC161) nas bordas de subida de CLK; CLR zera</translation>
         </message>
         <message>
             <source>D flip-flop</source>
             <translation>Flip-flop D</translation>
         </message>
         <message>
-            <source>D flip-flop (like one half of a 74HC74 without preset and clear): Q takes the value of D at each rising edge of CLK; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Flip-flop D (como metade de um 74HC74 sem preset e clear): Q recebe o valor de D a cada borda de subida de CLK; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>D flip-flop: Q takes D at each rising edge of CLK</source>
+            <translation>Flip-flop D: Q recebe D a cada borda de subida de CLK</translation>
         </message>
         <message>
             <source>D latch</source>
             <translation>Latch D</translation>
         </message>
         <message>
-            <source>D latch (like one bit of a 74HC75): Q follows D while EN is high and keeps its value while EN is low; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Latch D (como um bit de um 74HC75): Q segue D enquanto EN está em nível alto e mantém o valor enquanto EN está em nível baixo; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>D latch: Q follows D while EN is high, holds while EN is low</source>
+            <translation>Latch D: Q segue D enquanto EN está alto e mantém enquanto EN está baixo</translation>
         </message>
         <message>
             <source>JK flip-flop</source>
             <translation>Flip-flop JK</translation>
         </message>
         <message>
-            <source>JK flip-flop, rising edge: J=1 K=0 sets Q, J=0 K=1 resets it, J=K=1 toggles it, J=K=0 keeps it; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Flip-flop JK, borda de subida: J=1 K=0 liga Q, J=0 K=1 desliga, J=K=1 inverte, J=K=0 mantém; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>JK flip-flop at rising edges of CLK: set, reset, toggle or hold</source>
+            <translation>Flip-flop JK nas bordas de subida de CLK: liga, desliga, inverte ou mantém</translation>
         </message>
         <message>
             <source>4-bit shift register</source>
             <translation>Registrador de deslocamento de 4 bits</translation>
         </message>
         <message>
-            <source>4-bit shift register, serial in and parallel out (like a 74HC164): at each rising edge of CLK, Q0 takes D and each other output takes the one before it; a high CLR resets all outputs; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Registrador de deslocamento de 4 bits, entrada serial e saída paralela (como um 74HC164): a cada borda de subida de CLK, Q0 recebe D e cada outra saída recebe a anterior; CLR em nível alto zera todas as saídas; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>4-bit shift register, serial in, parallel out (74HC164-like); CLR resets</source>
+            <translation>Registrador de deslocamento de 4 bits, entrada serial, saída paralela (tipo 74HC164); CLR zera</translation>
         </message>
         <message>
             <source>SR latch</source>
             <translation>Latch SR</translation>
         </message>
         <message>
-            <source>SR latch: a high S sets Q, a high R resets it (R wins when both are high); with both low Q keeps its value; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Latch SR: S em nível alto liga Q, R em nível alto desliga (R prevalece quando os dois estão altos); com os dois baixos Q mantém o valor; comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>SR latch: S sets Q, R resets it (R wins); holds while both are low</source>
+            <translation>Latch SR: S liga Q, R desliga (R prevalece); mantém com os dois em baixo</translation>
         </message>
         <message>
             <source>T flip-flop</source>
             <translation>Flip-flop T</translation>
         </message>
         <message>
-            <source>T flip-flop: Q changes at each rising edge of CLK while T is high (a frequency divider by two with T high); behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low</source>
-            <translation>Flip-flop T: Q muda a cada borda de subida de CLK enquanto T está em nível alto (um divisor de frequência por dois com T alto); comportamental, com uma alimentação VDD oculta como as portas lógicas: as entradas comutam em VDD/2, as saídas vão a 0 ou VDD através de 50 ohm com cerca de 10 ns de atraso; começa com todas as saídas Q em nível baixo</translation>
+            <source>T flip-flop: Q toggles at each rising edge of CLK while T is high</source>
+            <translation>Flip-flop T: Q inverte a cada borda de subida de CLK enquanto T está alto</translation>
         </message>
         <message>
             <source>Push button (NC)</source>

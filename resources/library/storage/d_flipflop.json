@@ -3,7 +3,7 @@
   "name": "D flip-flop",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "D flip-flop (like one half of a 74HC74 without preset and clear): Q takes the value of D at each rising edge of CLK; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "D flip-flop: Q takes D at each rising edge of CLK",
   "symbol": {
     "graphics": [
       {

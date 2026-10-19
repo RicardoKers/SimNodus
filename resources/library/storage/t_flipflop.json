@@ -3,7 +3,7 @@
   "name": "T flip-flop",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "T flip-flop: Q changes at each rising edge of CLK while T is high (a frequency divider by two with T high); behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "T flip-flop: Q toggles at each rising edge of CLK while T is high",
   "symbol": {
     "graphics": [
       {

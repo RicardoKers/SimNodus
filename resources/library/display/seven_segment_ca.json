@@ -3,7 +3,7 @@
   "name": "7-segment display (common anode)",
   "category": "Displays",
   "prefix": "DS",
-  "description": "7-segment LED display, common anode, pins on top (g f COM a b) and below (e d COM c dp) as on a real display, so several stand side by side; COM goes to the supply and a low segment pin lights the segment (a 7447 drives it); each segment lights with its own current, fully at 10 mA; use a resistor per segment",
+  "description": "7-segment LED display, common anode, real pinout; one resistor per segment",
   "symbol": {
     "graphics": [
       {

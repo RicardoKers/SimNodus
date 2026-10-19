@@ -3,7 +3,7 @@
   "name": "Shunt reference (TL431)",
   "category": "Integrated circuits",
   "prefix": "U",
-  "description": "Adjustable shunt reference like the TL431: sinks current from K to A until REF is Vref above A (2.495 V; with REF on K it is a 2.5 V reference, with a divider Vk = Vref x (1 + R1/R2)); feed it through a resistor; behavioral: no minimum cathode current",
+  "description": "Adjustable shunt reference (TL431): 2.495 V between REF and A",
   "symbol": {
     "graphics": [
       {

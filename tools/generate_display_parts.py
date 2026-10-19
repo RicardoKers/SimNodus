@@ -302,7 +302,11 @@ def decoder_hex(common_anode):
 
 def main():
     os.makedirs(FOLDER, exist_ok=True)
+    # Short descriptions for the parts tree (details belong in the user guide).
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
+        short = json.load(fh)
     for p in [display(False), display(True), decoder_4511(), decoder_7447(), decoder_hex(False), decoder_hex(True)]:
+        p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")
 
