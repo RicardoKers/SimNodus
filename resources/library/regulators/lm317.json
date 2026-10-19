@@ -1,0 +1,146 @@
+{
+  "type": "lm317",
+  "name": "Adjustable regulator (LM317)",
+  "category": "Integrated circuits",
+  "prefix": "U",
+  "description": "Adjustable positive regulator like the LM317: keeps OUT 1.25 V above ADJ (Vout = 1.25 V x (1 + R2/R1) with R1 from OUT to ADJ and R2 from ADJ to ground), 50 uA flow out of ADJ; behavioral: no minimum load, no thermal shutdown",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -2,
+          6,
+          4
+        ]
+      },
+      {
+        "line": [
+          -5,
+          0,
+          -3,
+          0
+        ]
+      },
+      {
+        "line": [
+          3,
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "IN",
+        "at": [
+          -2,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "OUT",
+        "at": [
+          1.8,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "ADJ",
+        "at": [
+          0,
+          1.3
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "LM317",
+        "at": [
+          0,
+          -1.1
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN",
+        "at": [
+          -5,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          5,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "ADJ",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -4
+  ],
+  "value_offset": [
+    3,
+    3
+  ],
+  "parameters": [
+    {
+      "name": "Vref",
+      "label": "Reference voltage",
+      "unit": "V",
+      "default": "1.25",
+      "description": "Voltage between OUT and ADJ",
+      "min": "1",
+      "max": "1.5"
+    },
+    {
+      "name": "Vdo",
+      "label": "Dropout voltage",
+      "unit": "V",
+      "default": "2",
+      "description": "Smallest IN-OUT difference that still regulates",
+      "min": "0.05",
+      "max": "5"
+    },
+    {
+      "name": "Ilim",
+      "label": "Current limit",
+      "unit": "A",
+      "default": "1.5",
+      "description": "Largest output current",
+      "min": "0.001",
+      "max": "10"
+    }
+  ],
+  "spice": [
+    "B_{ref}_c 0 c_{ref} I=1m*(min(max(min(100*({Vref}-V({node:OUT},{node:ADJ})),100*(V({node:IN},{node:OUT})-{Vdo})),0),{Ilim})-V(c_{ref}))",
+    "C_{ref}_c c_{ref} 0 1n",
+    "B_{ref}_p {node:IN} {node:OUT} I=max(V(c_{ref}),0)",
+    "B_{ref}_a {node:IN} {node:ADJ} I=50u*tanh(max(V({node:IN},{node:OUT}),0))",
+    "R_{ref}_o {node:OUT} {node:ADJ} 10meg",
+    "C_{ref}_o {node:OUT} {node:ADJ} 100n"
+  ]
+}

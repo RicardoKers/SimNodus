@@ -1,0 +1,156 @@
+{
+  "type": "regulator_78xx",
+  "name": "Voltage regulator (78xx)",
+  "category": "Integrated circuits",
+  "prefix": "U",
+  "description": "Fixed positive regulator like the 7805 (set Vout for 7809, 7812...): OUT stays at Vout above GND while IN is at least Vdo higher; the input current is the load current plus about 5 mA; behavioral: no thermal shutdown, no ripple rejection limit, no capacitors needed for stability",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -2,
+          6,
+          4
+        ]
+      },
+      {
+        "line": [
+          -5,
+          0,
+          -3,
+          0
+        ]
+      },
+      {
+        "line": [
+          3,
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "IN",
+        "at": [
+          -2,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "OUT",
+        "at": [
+          1.8,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          1.3
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "78xx",
+        "at": [
+          0,
+          -1.1
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN",
+        "at": [
+          -5,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          5,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -4
+  ],
+  "value_offset": [
+    3,
+    3
+  ],
+  "value_parameter": "Vout",
+  "parameters": [
+    {
+      "name": "Vout",
+      "label": "Output voltage",
+      "unit": "V",
+      "default": "5",
+      "description": "Regulated output voltage (5 for a 7805, 12 for a 7812)",
+      "min": "0.5",
+      "max": "40"
+    },
+    {
+      "name": "Vdo",
+      "label": "Dropout voltage",
+      "unit": "V",
+      "default": "2",
+      "description": "Smallest IN-OUT difference that still regulates",
+      "min": "0.05",
+      "max": "5"
+    },
+    {
+      "name": "Ilim",
+      "label": "Current limit",
+      "unit": "A",
+      "default": "1",
+      "description": "Largest output current",
+      "min": "0.001",
+      "max": "10"
+    },
+    {
+      "name": "Iq",
+      "label": "Quiescent current",
+      "unit": "A",
+      "default": "5m",
+      "description": "Current from IN to GND for the regulator itself",
+      "min": "0",
+      "max": "0.1"
+    }
+  ],
+  "spice": [
+    "B_{ref}_c 0 c_{ref} I=1m*(min(max(min(100*({Vout}-V({node:OUT},{node:GND})),100*(V({node:IN},{node:OUT})-{Vdo})),0),{Ilim})-V(c_{ref}))",
+    "C_{ref}_c c_{ref} 0 1n",
+    "B_{ref}_p {node:IN} {node:OUT} I=max(V(c_{ref}),0)",
+    "B_{ref}_q {node:IN} {node:GND} I={Iq}*tanh(max(V({node:IN},{node:GND}),0))",
+    "R_{ref}_o {node:OUT} {node:GND} 1meg",
+    "C_{ref}_o {node:OUT} {node:GND} 100n"
+  ]
+}

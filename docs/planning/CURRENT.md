@@ -18,8 +18,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes (#161,
   ADR 0097); teaching models and diode kinds (#162); blocks drawn by the user
   (#163, ADR 0098), which completes PRJ-06; latches, flip-flops, a counter
-  and a shift register (SN-199, ADR 0099, branch `digital-storage`). Next:
-  symbols for regulators and references.
+  and a shift register (#164, ADR 0099); regulators and references (SN-201,
+  branch `regulators`). Next: 7-segment display (SN-202).
 - **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
   ADR 0096), examples 17 and 18; text notes (SN-193); model variants with
   the user's models folder (SN-194, ADR 0095); potentiometer position
@@ -27,7 +27,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Renode removed (SN-183, ADR 0094); fixes from the owner's preview test.
 - **Carried over from 0.2:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
-    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–21, continuous interactive
+    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–22, continuous interactive
     simulation with ngspice (ADR 0080), transient mode.
   - Signal Analyzer: scope with probes, roll/trigger, cursors, measurements,
     per-channel vertical scale, 0 V markers and offsets (SN-189), CSV/PNG

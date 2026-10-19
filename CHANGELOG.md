@@ -6,6 +6,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-19, owner's request)
 
+- Regulators and references (SN-201) in *Integrated circuits*: *Voltage regulator (78xx)* with output voltage, dropout, current limit and quiescent current; *Low-dropout regulator (LDO)* (3.3 V, like the 1117); *Adjustable regulator (LM317)* (1.25 V between OUT and ADJ, 50 µA out of ADJ); *Shunt reference (TL431)*. Behavioral; the input current is the load current plus the quiescent current. Engine tests: 7805 4.9995 V at 50 mA, 4.000 V from 6 V (dropout), 1.000 V into 1 Ω (1 A limit), LDO 3.299 V, LM317 5.036 V with 240 Ω/720 Ω, TL431 2.495 V and 4.99 V with a 1:1 divider. Example 22. A new engine test runs every analog example in an interactive session: the first version of the regulators passed the DC checks but could not start a run from 0 V, so each regulator now has an error amplifier with a 1 µs dominant pole.
+
+### Added (2026-10-19, owner's request)
+
 - Latches, flip-flops and counters (SN-199, SIM-12, ADR 0099) in a new *Flip-flops & counters* category: D latch, SR latch, D, JK and T flip-flops (rising edge), a synchronous 4-bit counter and a 4-bit shift register with asynchronous clear, on a hidden supply like the logic gates. They are behavioral master-slave parts whose state is in capacitors, so it survives interactive segments: measured, ngspice's XSPICE `d_dff` sees a false edge when a segment starts with the clock high. Engine tests: all parts in an 18 ms transient; a counter over 17 segments with no wrong count in 6257 samples. Pins may be marked optional (Q̅, CLR stay unconnected without a warning). Example 21: a push button clocks the counter, LEDs show the count.
 
 ### Added (2026-10-19, owner's priority)

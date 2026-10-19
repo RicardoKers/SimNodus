@@ -1,0 +1,123 @@
+{
+  "type": "tl431",
+  "name": "Shunt reference (TL431)",
+  "category": "Integrated circuits",
+  "prefix": "U",
+  "description": "Adjustable shunt reference like the TL431: sinks current from K to A until REF is Vref above A (2.495 V; with REF on K it is a 2.5 V reference, with a divider Vk = Vref x (1 + R1/R2)); feed it through a resistor; behavioral: no minimum cathode current",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          0.8,
+          1,
+          0.8,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          -0.8,
+          1,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          -0.8,
+          -1.4,
+          -0.4
+        ]
+      },
+      {
+        "line": [
+          1,
+          -0.8,
+          1.4,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -3,
+          0,
+          -0.5,
+          0
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "K",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "A",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "REF",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    2,
+    -2
+  ],
+  "value_offset": [
+    2,
+    2
+  ],
+  "value_parameter": "Vref",
+  "parameters": [
+    {
+      "name": "Vref",
+      "label": "Reference voltage",
+      "unit": "V",
+      "default": "2.495",
+      "description": "REF voltage the part regulates to, against A",
+      "min": "1",
+      "max": "5"
+    }
+  ],
+  "spice": [
+    "B_{ref}_c 0 c_{ref} I=1m*(max(10*(V({node:REF},{node:A})-{Vref}),0)*tanh(max(V({node:K},{node:A}),0)/0.5)-V(c_{ref}))",
+    "C_{ref}_c c_{ref} 0 1n",
+    "B_{ref} {node:K} {node:A} I=max(V(c_{ref}),0)",
+    "R_{ref}_r {node:REF} {node:A} 100meg",
+    "R_{ref}_k {node:K} {node:A} 100meg",
+    "C_{ref}_k {node:K} {node:A} 10n"
+  ]
+}
