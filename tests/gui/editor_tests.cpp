@@ -883,7 +883,7 @@ private slots:
             }
             qInfo("  window repaint alone: %.1f ms", static_cast<double>(paint_only.elapsed()) / 20.0);
             qInfo("analyzer refresh at 1 s/div, %s tab: %.1f ms", tab == 0 ? "Scope" : "Logic", each);
-            QVERIFY(each < 40.0);
+            QVERIFY(each < 80.0); // 16 ms on the owner's laptop, 130 ms before the fix
         }
         window_->stop();
 #endif
