@@ -49,9 +49,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. In the owner's order (2026-10-19): pt-BR translation (SN-153, branch
-   `translation-pt-br`, for 0.5), then the Windows installer (SN-152) or the
-   dark theme (SN-162).
+1. In the owner's order (2026-10-19): pt-BR translation (#176) and the
+   Windows installer (SN-152, ADR 0100) are done; next the dark theme
+   (SN-162). The owner's clean-PC test of the installer is pending.
 2. Classroom feedback (postponed: academic calendar); fix what the owner
    reports when it arrives.
 3. Other backlog candidates: user guide (SN-154), engine in a child process
@@ -96,8 +96,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   and runs the packaged `--check-engine` and `--smoke-test`.
 - **Release:** `build/release` is configured with `-DSIMNODUS_VERSION_SUFFIX=`
   (empty; `main` stays `dev`); bump the version in CMake first, build,
-  `package_windows.py --build-dir build/release`, date the CHANGELOG section,
-  tag `vX.Y.Z`, `gh release create` with the zip.
+  `package_windows.py --build-dir build/release --installer` (Inno Setup 6,
+  `winget install JRSoftware.InnoSetup`), date the CHANGELOG section, tag
+  `vX.Y.Z`, `gh release create` with the zip and the setup.exe.
 - **Pitfalls met so far:** Qt 6.4's moc (Linux CI) cannot parse C++20
   standard headers, so Q_OBJECT headers include project headers only under
   `#ifndef Q_MOC_RUN`; GCC treats missing aggregate initializers and implicit

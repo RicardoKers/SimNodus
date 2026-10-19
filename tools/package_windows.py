@@ -1,14 +1,19 @@
-"""Build the portable Windows package (zip) from a configured build tree.
+"""Build the portable Windows package (zip) and the installer from a configured build tree.
 
 Steps: install the build into a staging folder, deploy the Qt runtime with
 windeployqt, check that the bundled ngspice runtime is present, run the
 packaged executable's --check-engine and --smoke-test (it opens windows
 briefly), and write
 dist/SimNodus-<version>-windows-x64.zip with a top-level SimNodus-<version>/
-folder.
+folder. With --installer, Inno Setup 6 also builds
+dist/SimNodus-<version>-windows-x64-setup.exe from the same files
+(resources/package/simnodus.iss); the setup is installed silently into a
+temporary folder for the current user (no file association), the installed
+program runs its checks, and the uninstaller removes it again.
 
 usage: package_windows.py --build-dir build/release [--config Release]
                           [--windeployqt PATH] [--output dist]
+                          [--installer] [--iscc PATH]
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 from pathlib import Path
 
@@ -64,6 +70,58 @@ def version(build_dir: Path) -> str:
     return match.group(1)
 
 
+def find_iscc(explicit: str | None) -> str:
+    if explicit:
+        return explicit
+    candidates = [shutil.which("ISCC")]
+    for base in (os.environ.get("LOCALAPPDATA", ""), os.environ.get("ProgramFiles(x86)", ""),
+                 os.environ.get("ProgramFiles", "")):
+        if base:
+            candidates.append(str(Path(base) / ("Programs" if base == os.environ.get("LOCALAPPDATA") else "")
+                                  / "Inno Setup 6" / "ISCC.exe"))
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return candidate
+    raise SystemExit("Inno Setup 6 (ISCC.exe) not found; install it (winget install JRSoftware.InnoSetup) "
+                     "or pass --iscc")
+
+
+def build_installer(iscc: str, staging: Path, output: Path, full_version: str, checks: bool) -> Path:
+    numeric = re.match(r"\d+\.\d+\.\d+", full_version).group(0)
+    base = f"SimNodus-{full_version}-windows-x64-setup"
+    run([iscc, "/Q", f"/DAppVersion={full_version}", f"/DNumericVersion={numeric}", f"/DSourceDir={staging}",
+         f"/DOutputDir={output}", f"/DOutputBaseName={base}", str(ROOT / "resources" / "package" / "simnodus.iss")])
+    setup = output / f"{base}.exe"
+    if checks:
+        with tempfile.TemporaryDirectory() as temp:
+            target = Path(temp) / "SimNodus"
+            run([str(setup), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER",
+                 f"/DIR={target}", "/MERGETASKS=!associate,!desktopicon", f"/LOG={Path(temp) / 'setup.log'}"],
+                timeout=300)
+            missing = [item for item in REQUIRED if not (target / item).exists()]
+            if missing:
+                raise SystemExit(f"The installer left out: {', '.join(missing)}")
+            env = {k: v for k, v in os.environ.items() if k.upper() not in {"PATH", "QT_PLUGIN_PATH"}}
+            env["PATH"] = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32")
+            engine = run([str(target / "simnodus.exe"), "--check-engine"], env=env, capture_output=True, text=True,
+                         timeout=120)
+            print("installed: " + engine.stdout.strip())
+            smoke = run([str(target / "simnodus.exe"), "--smoke-test", "--settings", str(Path(temp) / "s.ini")],
+                        env=env, capture_output=True, text=True, timeout=120)
+            print("installed: " + smoke.stdout.strip().splitlines()[-1])
+            uninstaller = target / "unins000.exe"
+            run([str(uninstaller), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"], timeout=300)
+            # The uninstaller removes itself shortly after it returns.
+            for _ in range(50):
+                if not (target / "simnodus.exe").exists():
+                    break
+                time.sleep(0.2)
+            if (target / "simnodus.exe").exists():
+                raise SystemExit("The uninstaller did not remove the program")
+            print("installer checked: silent install, engine and smoke test, uninstall")
+    return setup
+
+
 def find_windeployqt(build_dir: Path, explicit: str | None) -> str:
     if explicit:
         return explicit
@@ -86,6 +144,8 @@ def main() -> int:
     parser.add_argument("--windeployqt")
     parser.add_argument("--output", type=Path, default=ROOT / "dist")
     parser.add_argument("--skip-checks", action="store_true", help="do not run the packaged executable")
+    parser.add_argument("--installer", action="store_true", help="also build the Inno Setup installer")
+    parser.add_argument("--iscc", help="path of Inno Setup's ISCC.exe")
     args = parser.parse_args()
     build_dir = args.build_dir.resolve()
     full_version = version(build_dir)
@@ -128,6 +188,10 @@ def main() -> int:
                 output.write(path, path.relative_to(staging_root).as_posix())
     size = archive.stat().st_size / (1024 * 1024)
     print(f"Wrote {archive} ({size:.1f} MB)")
+    if args.installer:
+        setup = build_installer(find_iscc(args.iscc), staging, args.output.resolve(), full_version,
+                                not args.skip_checks)
+        print(f"Wrote {setup} ({setup.stat().st_size / (1024 * 1024):.1f} MB)")
     return 0
 
 

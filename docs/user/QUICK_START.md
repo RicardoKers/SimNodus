@@ -1,7 +1,8 @@
 # SimNodus quick start
 
-For release 0.1 (analog circuits). Windows: unzip the package and run
-`simnodus.exe`; nothing needs to be installed.
+Windows: run `SimNodus-<version>-windows-x64-setup.exe` (for you alone without
+administrator rights, or for all users), or unzip the portable package and run
+`simnodus.exe`; both work offline.
 
 ## The window
 

@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0100: Windows installer with Inno Setup, per user by default](0100-windows-installer.md):
+  SN-152; setup.exe beside the portable zip, all users on request, .snx association, checked by a silent install.
 - [0099: Latches, flip-flops and counters are behavioral, with their state in capacitors](0099-behavioral-storage-parts.md):
   SN-199; XSPICE `d_dff` misreads a segment starting with the clock high; master-slave parts on capacitors instead.
 - [0098: Blocks drawn by the user are projects placed into projects](0098-user-blocks.md):

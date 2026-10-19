@@ -4,6 +4,8 @@ SimNodus - interactive circuit and STM32 simulator for teaching
 Release 0.4 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
+The setup.exe of the same release installs SimNodus with a Start menu entry
+and opens .snx files with a double-click.
 
 Start with File > Examples, press F5 to run, and click switches, hold push
 buttons or drag potentiometers while the simulation runs. Window > Signal
