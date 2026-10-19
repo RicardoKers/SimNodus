@@ -109,6 +109,7 @@ public slots:
     void check_engine();
     void show_about();
     void show_shortcuts();
+    void show_user_guide();
     void new_file();
     void open_dialog();
     bool save();

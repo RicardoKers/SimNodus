@@ -2,7 +2,8 @@
 
 SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in its own STM32
 emulator next to the circuit. This page lists what the simulated chip supports and
-where it differs from a real board (MCU-09). Release 0.2.
+where it differs from a real board (MCU-09); the [user guide](USER_GUIDE.md)
+covers the rest of SimNodus.
 
 ## Engine
 
