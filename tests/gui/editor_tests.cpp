@@ -627,7 +627,8 @@ private slots:
         QProcess::execute(QStringLiteral("kill"), {QStringLiteral("-9"), QString::number(pid)});
 #endif
         QTRY_COMPARE_WITH_TIMEOUT(window_->run_controller()->state(), sim::RunState::Failed, 5000);
-        QVERIFY(window_->messages()->error_count() > errors);
+        // The message follows at the next live refresh.
+        QTRY_VERIFY_WITH_TIMEOUT(window_->messages()->error_count() > errors, 2000);
         QVERIFY(QString::fromStdString(window_->run_controller()->status().message).contains(QStringLiteral("engine")));
         QCOMPARE(doc().schematic().components(), before.components());
         // The next run starts a new engine.
