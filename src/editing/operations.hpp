@@ -41,12 +41,13 @@ Edit set_note_text(const model::Schematic& schematic, Id note, const std::string
 // Bus (UI-19): an orthogonal polyline with a name; empty Edit for a degenerate one.
 Edit add_bus(model::Schematic& schematic, std::vector<Point> points, const std::string& name, Id* created = nullptr);
 // Splitter at `position` with bits `first` .. `first + count - 1` of bus `bus`.
-Edit add_splitter(model::Schematic& schematic, Point position, const std::string& bus, int first, int count,
-    Id* created = nullptr);
+Edit add_splitter(model::Schematic& schematic, Point position, const std::string& bus, int first,
+    std::vector<int> inputs, std::vector<int> outputs, Id* created = nullptr);
 // Renames a bus; splitters whose bus point is on it and that carried the old
 // name follow, so their bit nets keep matching the bus.
 Edit rename_bus(const model::Schematic& schematic, Id bus, const std::string& name);
-Edit set_splitter(const model::Schematic& schematic, Id splitter, const std::string& bus, int first, int count);
+Edit set_splitter(const model::Schematic& schematic, Id splitter, const std::string& bus, int first,
+    std::vector<int> inputs, std::vector<int> outputs);
 
 // Deletes the elements. Probes pointing at deleted items stay and become
 // invalid (they are reported, never silently rebound).

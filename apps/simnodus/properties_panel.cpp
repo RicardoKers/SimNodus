@@ -251,33 +251,51 @@ void PropertiesPanel::rebuild()
         }
         if (const auto* sp = s->splitter(id)) {
             title_->setText(tr("Splitter"));
-            subtitle_->setText(tr("Its bit pins act as net labels: %1%2 ... %1%3.")
-                                   .arg(QString::fromStdString(sp->bus))
-                                   .arg(sp->first)
-                                   .arg(sp->first + sp->count - 1));
-            auto* bus = new QLineEdit(QString::fromStdString(sp->bus));
-            bus->setObjectName(QStringLiteral("splitterBus"));
+            subtitle_->setText(tr("Bit k on the left is bit k on the right. Widths like 1,1,1,1 (or 4*1) and 4 join "
+                                  "four wires into a bus; 4 and 2,2 split a bus in two."));
+            auto* inputs = new QLineEdit(QString::fromStdString(model::widths_text(sp->inputs)));
+            inputs->setObjectName(QStringLiteral("splitterInputs"));
+            auto* outputs = new QLineEdit(QString::fromStdString(model::widths_text(sp->outputs)));
+            outputs->setObjectName(QStringLiteral("splitterOutputs"));
             auto* first = new QSpinBox;
             first->setObjectName(QStringLiteral("splitterFirst"));
             first->setRange(0, 63);
             first->setValue(sp->first);
-            auto* count = new QSpinBox;
-            count->setObjectName(QStringLiteral("splitterCount"));
-            count->setRange(1, 64);
-            count->setValue(sp->count);
-            auto commit = [this, id, bus, first, count] {
-                if (document_ && !rebuilding_ && !bus->text().trimmed().isEmpty()) {
+            first->setToolTip(tr("Bus bit of the first left bit: 4 takes D4, D5, ... from bus D"));
+            auto commit = [this, id, inputs, outputs, first] {
+                if (!document_ || rebuilding_) {
+                    return;
+                }
+                const auto in = model::parse_widths(inputs->text().toStdString());
+                const auto out = model::parse_widths(outputs->text().toStdString());
+                mark(inputs, in ? QString() : tr("Widths such as 1,1,1,1 or 4*1 or 3,1 (64 bits at most)."));
+                mark(outputs, out ? QString() : tr("Widths such as 4 or 2,2 (64 bits at most)."));
+                if (in && out) {
+                    const auto* current = document_->schematic().splitter(id);
                     document_->apply(editing::set_splitter(
-                        document_->schematic(), id, bus->text().trimmed().toStdString(), first->value(), count->value()));
+                        document_->schematic(), id, current ? current->bus : std::string(), first->value(), *in, *out));
                 }
             };
-            connect(bus, &QLineEdit::editingFinished, this, commit);
+            connect(inputs, &QLineEdit::editingFinished, this, commit);
+            connect(outputs, &QLineEdit::editingFinished, this, commit);
             connect(first, &QSpinBox::editingFinished, this, commit);
-            connect(count, &QSpinBox::editingFinished, this, commit);
-            form_->addRow(tr("Bus name"), bus);
+            form_->addRow(tr("Left widths"), inputs);
+            form_->addRow(tr("Right widths"), outputs);
             form_->addRow(tr("First bit"), first);
-            form_->addRow(tr("Number of bits"), count);
-            value_editor_ = bus;
+            int left = 0, right = 0;
+            for (const int w : sp->inputs) {
+                left += w;
+            }
+            for (const int w : sp->outputs) {
+                right += w;
+            }
+            if (left != right) {
+                auto* warning = new QLabel(tr("The left side has %1 bits, the right side %2.").arg(left).arg(right));
+                warning->setStyleSheet(QStringLiteral("color: #c0392b;"));
+                warning->setWordWrap(true);
+                form_->addRow(QString(), warning);
+            }
+            value_editor_ = inputs;
             rebuilding_ = false;
             return;
         }

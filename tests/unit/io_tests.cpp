@@ -29,7 +29,8 @@ Schematic sample()
     s.put(Wire{s.allocate_id(), {{13, -4}, {20, -4}, {20, 3}}});
     s.put(NetLabel{s.allocate_id(), {20, 3}, "OUT", true}); // mirrored: written only when set
     s.put(Bus{s.allocate_id(), {{0, 20}, {10, 20}}, "D"});
-    s.put(Splitter{s.allocate_id(), {0, 20}, {90, true}, "D", 4, 3});
+    s.put(Splitter{s.allocate_id(), {0, 20}, {90, true}, "D", 4, {3}, {1, 1, 1}});
+    s.put(Splitter{s.allocate_id(), {10, 20}, {}, "", 0, {3, 1}, {4}});
     s.put(TextNote{s.allocate_id(), {0, -10}, "Close SW1, then watch V(OUT).\nSecond line: \"quoted\" text"});
     Probe p;
     p.id = s.allocate_id();
@@ -189,4 +190,17 @@ TEST_CASE("the microcontroller quantum is saved and checked")
     REQUIRE(out_of_range.schematic.has_value());
     CHECK(out_of_range.schematic->settings().mcu_quantum == SimulationSettings{}.mcu_quantum);
     CHECK(!out_of_range.warnings.empty());
+}
+
+TEST_CASE("splitters of files before 0.4 load as a bus split into wires")
+{
+    const auto r = io::from_json_text(R"({"format": "simnodus-project", "version": 1, "next_id": 3,
+        "splitters": [{"id": 1, "at": [0, 0], "rotation": 0, "mirrored": false, "bus": "D", "first": 4, "count": 3}]})");
+    REQUIRE(r.schematic.has_value());
+    const auto& sp = r.schematic->splitters().front();
+    CHECK((sp.inputs == std::vector<int>{3}));
+    CHECK((sp.outputs == std::vector<int>{1, 1, 1}));
+    CHECK(sp.first == 4);
+    // Written again, it keeps "count" so that 0.3 still reads it.
+    CHECK(io::to_json_text(*r.schematic).find("\"count\": 3") != std::string::npos);
 }

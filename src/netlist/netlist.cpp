@@ -729,6 +729,41 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
         report(Severity::Warning, "open-wire-end", "A wire ends without a connection.", {wire}, end);
     }
 
+    // Splitters (UI-19): both sides carry the same bits; a bus pin needs a bus.
+    for (const auto& sp : schematic.splitters()) {
+        int left = 0, right = 0;
+        for (const int w : sp.inputs) {
+            left += w;
+        }
+        for (const int w : sp.outputs) {
+            right += w;
+        }
+        if (left != right) {
+            report(Severity::Warning, "splitter-width",
+                "A splitter has " + std::to_string(left) + " bits on the left and " + std::to_string(right)
+                    + " on the right; the extra bits connect nothing.",
+                {sp.id}, sp.position);
+        }
+        for (const auto& pin : model::splitter_layout(sp)) {
+            if (pin.width == 1 || (pin.left && !sp.bus.empty())) {
+                continue;
+            }
+            const bool on_bus = std::any_of(schematic.buses().begin(), schematic.buses().end(), [&](const model::Bus& b) {
+                for (std::size_t i = 0; i + 1 < b.points.size(); ++i) {
+                    if (model::on_segment(pin.at, b.points[i], b.points[i + 1])) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            if (!on_bus) {
+                report(Severity::Warning, "splitter-bus",
+                    "A splitter pin of " + std::to_string(pin.width) + " bits is not on a bus; draw a bus to it.",
+                    {sp.id}, pin.at);
+            }
+        }
+    }
+
     // Voltage sources and inductors in a loop (or a shorted source).
     UnionFind vl;
     for (const auto& e : out.elements) {

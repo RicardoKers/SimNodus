@@ -113,8 +113,14 @@ json element_json(const Element& element)
                 }
                 return json{{"id", e.id}, {"points", points}, {"name", e.name}};
             } else if constexpr (std::is_same_v<T, Splitter>) {
-                return json{{"id", e.id}, {"at", point_json(e.position)}, {"rotation", e.orientation.rotation},
-                    {"mirrored", e.orientation.mirrored}, {"bus", e.bus}, {"first", e.first}, {"count", e.count}};
+                json j{{"id", e.id}, {"at", point_json(e.position)}, {"rotation", e.orientation.rotation},
+                    {"mirrored", e.orientation.mirrored}, {"bus", e.bus}, {"first", e.first},
+                    {"inputs", e.inputs}, {"outputs", e.outputs}};
+                // A bus split into single wires is also written the way SimNodus 0.3 reads it.
+                if (e.inputs.size() == 1 && e.outputs == std::vector<int>(static_cast<std::size_t>(e.inputs[0]), 1)) {
+                    j["count"] = e.inputs[0];
+                }
+                return j;
             } else {
                 json j{{"id", e.id}, {"kind", e.kind == ProbeKind::Voltage ? "voltage" : "current"},
                     {"target", anchor_json(e.target)}, {"color", e.color}};
@@ -224,9 +230,39 @@ Splitter splitter_from(const json& j)
     s.orientation = {normalized_rotation(rotation), j.value("mirrored", false)};
     s.bus = string_from(j, "bus");
     s.first = j.value("first", 0);
-    s.count = j.value("count", 8);
-    if (s.first < 0 || s.count < 1 || s.count > 64) {
-        throw std::runtime_error("a splitter needs 1 to 64 bits from bit 0 on");
+    if (s.first < 0 || s.first > 63) {
+        throw std::runtime_error("a splitter's first bit must be 0 to 63");
+    }
+    auto widths = [&](const char* key) {
+        const auto list = j.value(key, json());
+        std::vector<int> result;
+        int total = 0;
+        if (!list.is_array() || list.empty()) {
+            throw std::runtime_error(std::string("a splitter needs a list of ") + key);
+        }
+        for (const auto& w : list) {
+            if (!w.is_number_integer() || w.get<int>() < 1) {
+                throw std::runtime_error("splitter widths must be positive integers");
+            }
+            result.push_back(w.get<int>());
+            total += result.back();
+        }
+        if (total > 64) {
+            throw std::runtime_error("a splitter has at most 64 bits");
+        }
+        return result;
+    };
+    if (j.contains("inputs") || j.contains("outputs")) {
+        s.inputs = widths("inputs");
+        s.outputs = widths("outputs");
+    } else {
+        // Before 0.4: a bus point and `count` single bits.
+        const int count = j.value("count", 8);
+        if (count < 1 || count > 64) {
+            throw std::runtime_error("a splitter needs 1 to 64 bits");
+        }
+        s.inputs = {count};
+        s.outputs = std::vector<int>(static_cast<std::size_t>(count), 1);
     }
     return s;
 }

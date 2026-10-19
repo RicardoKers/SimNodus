@@ -24,6 +24,15 @@ stay the same as with individual wires.
   (bus name, first bit, number of bits).
 - Netlists, nets and simulation are unchanged: the splitter's bit pins add
   names to nets, nothing else.
+- **Revised 2026-10-19 (owner's request): splitters split and join like
+  Digital's.** A splitter has a list of pin widths on each side (`1,1,1,1` and
+  `4` join four wires into a bus; `4` and `2,2` split a bus in two; `3,1` and
+  `4` add a wire to a 3-bit bus). Bit k of the left side is bit k of the right
+  side. A pin of width 1 is a wire and connects at its point; a wider pin takes
+  its bits from the bus drawn through it (bit i of bus `Q` is the net `Qi`; on
+  the left, `first` shifts this to `Q<first + i>`). The old form (one bus pin,
+  `count` single bits) is the case `N` / `N*1` and is still written with `count`
+  so that 0.3 reads it. Unequal widths and a bus pin on no bus are warned.
 
 ## Alternatives
 

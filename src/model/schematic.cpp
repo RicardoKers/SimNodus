@@ -108,18 +108,91 @@ const Splitter* Schematic::splitter(Id id) const
     return find(splitters_, id);
 }
 
-std::vector<Point> splitter_pins(const Splitter& splitter)
+std::vector<SplitterPin> splitter_layout(const Splitter& splitter)
 {
-    std::vector<Point> pins;
-    for (int k = 0; k < splitter.count; ++k) {
-        pins.push_back(transform(Point{2, 2 * k}, splitter.position, splitter.orientation));
+    std::vector<SplitterPin> pins;
+    for (const bool left : {true, false}) {
+        int bit = 0;
+        int row = 0;
+        for (const int width : left ? splitter.inputs : splitter.outputs) {
+            pins.push_back({transform(Point{left ? 0 : 2, 2 * row}, splitter.position, splitter.orientation), width,
+                left, bit});
+            bit += width;
+            ++row;
+        }
     }
     return pins;
 }
 
-std::string splitter_net(const Splitter& splitter, int k)
+std::vector<Point> splitter_pins(const Splitter& splitter)
 {
-    return splitter.bus + std::to_string(splitter.first + k);
+    std::vector<Point> points;
+    for (const auto& pin : splitter_layout(splitter)) {
+        points.push_back(pin.at);
+    }
+    return points;
+}
+
+std::optional<std::vector<int>> parse_widths(const std::string& text)
+{
+    std::vector<int> widths;
+    int total = 0;
+    std::string item;
+    auto take = [&](std::string part) {
+        part.erase(std::remove_if(part.begin(), part.end(), [](unsigned char c) { return std::isspace(c); }), part.end());
+        if (part.empty()) {
+            return false;
+        }
+        int repeat = 1;
+        if (const auto star = part.find('*'); star != std::string::npos) {
+            const std::string n = part.substr(0, star);
+            if (n.empty() || n.size() > 2 || !std::all_of(n.begin(), n.end(), [](unsigned char c) { return std::isdigit(c); })) {
+                return false;
+            }
+            repeat = std::stoi(n);
+            part = part.substr(star + 1);
+        }
+        if (part.empty() || part.size() > 2
+            || !std::all_of(part.begin(), part.end(), [](unsigned char c) { return std::isdigit(c); })) {
+            return false;
+        }
+        const int width = std::stoi(part);
+        if (width < 1 || repeat < 1) {
+            return false;
+        }
+        for (int i = 0; i < repeat; ++i) {
+            widths.push_back(width);
+            total += width;
+            if (total > 64) {
+                return false;
+            }
+        }
+        return true;
+    };
+    std::size_t start = 0;
+    while (true) {
+        const auto comma = text.find(',', start);
+        if (!take(text.substr(start, comma == std::string::npos ? std::string::npos : comma - start))) {
+            return std::nullopt;
+        }
+        if (comma == std::string::npos) {
+            break;
+        }
+        start = comma + 1;
+    }
+    return widths;
+}
+
+std::string widths_text(const std::vector<int>& widths)
+{
+    if (widths.size() > 1 && std::all_of(widths.begin(), widths.end(), [&](int w) { return w == widths.front(); })) {
+        return std::to_string(widths.size()) + "*" + std::to_string(widths.front());
+    }
+    std::string text;
+    for (const int w : widths) {
+        text += (text.empty() ? "" : ",") + std::to_string(w);
+    }
+    return text;
 }
 
 const Component* Schematic::component_by_designator(const std::string& designator) const

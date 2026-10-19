@@ -13,6 +13,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 - Logic analyzer cursors work like the scope's: drag A and B on the lanes (they are shared with the scope). For the selected lane the analyzer shows its timing in the window — period, frequency, mean high and low pulse width, duty cycle — and with cursors on, A, B, Δt, 1/Δt, the lane's level at A and B and the edges between them.
 - Model folders are the user's choice: *Tools > Model Folders...* lists any number of folders (add, remove, open, back to the default Documents/SimNodus/models); all of them are read for the Model lists. The list is kept in the settings.
 
+### Changed (2026-10-19, owner's request)
+
+- Splitters split and join buses like hneemann's Digital: each side has a list of pin widths (`1,1,1,1` → `4` joins four wires into a bus, `4` → `2,2` splits a bus in two, `3,1` → `4` adds a wire). Bit k of the left side is bit k of the right side; a wider pin takes the bits of the bus drawn through it. Bit ranges are shown at each pin; unequal widths and a bus pin on no bus are warned. Projects from 0.3 open unchanged and are still written so that 0.3 reads their splitters (ADR 0096, revised).
+
 ### Added (2026-10-19, owner's request)
 
 - Regulators and references (SN-201) in *Integrated circuits*: *Voltage regulator (78xx)* with output voltage, dropout, current limit and quiescent current; *Low-dropout regulator (LDO)* (3.3 V, like the 1117); *Adjustable regulator (LM317)* (1.25 V between OUT and ADJ, 50 µA out of ADJ); *Shunt reference (TL431)*. Behavioral; the input current is the load current plus the quiescent current. Engine tests: 7805 4.9995 V at 50 mA, 4.000 V from 6 V (dropout), 1.000 V into 1 Ω (1 A limit), LDO 3.299 V, LM317 5.036 V with 240 Ω/720 Ω, TL431 2.495 V and 4.99 V with a 1:1 divider. Example 22. A new engine test runs every analog example in an interactive session: the first version of the regulators passed the DC checks but could not start a run from 0 V, so each regulator now has an error amplifier with a 1 µs dominant pole.
