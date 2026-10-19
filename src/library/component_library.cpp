@@ -20,7 +20,7 @@ using nlohmann::json;
 
 const std::vector<std::string> category_order{
     "Passive", "Sources", "Switches & Controls", "Semiconductors", "Simplified models", "Integrated circuits",
-    "Electromechanical", "Instruments", "Microcontrollers", "Logic", "Blocks"};
+    "Electromechanical", "Instruments", "Microcontrollers", "Logic gates", "Flip-flops & counters", "Blocks"};
 
 [[noreturn]] void invalid(const std::string& message)
 {
@@ -257,6 +257,7 @@ ComponentDefinition parse_definition(const json& j)
         pin.name = text(p, "name", true);
         pin.at = grid_point(p.value("at", json()), "pin.at");
         pin.direction = parse_direction(text(p, "dir", true));
+        pin.optional = p.value("optional", false);
         if (!pin_names.insert(pin.name).second) {
             invalid("duplicate pin \"" + pin.name + "\"");
         }

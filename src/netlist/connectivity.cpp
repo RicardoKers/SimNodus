@@ -340,7 +340,9 @@ Connectivity build_connectivity(const Schematic& s, const library::ComponentLibr
         const auto& net = result.nets[static_cast<std::size_t>(result.pin_net[p.pin])];
         const auto* c = s.component(p.pin.first);
         const auto* d = c ? library.find(c->type) : nullptr;
-        const bool tied = d && (!d->ties_net.empty() || !d->ties_net_parameter.empty());
+        const auto* pin_definition = d ? d->pin(p.pin.second) : nullptr;
+        const bool tied = d && (!d->ties_net.empty() || !d->ties_net_parameter.empty()
+                                   || (pin_definition && pin_definition->optional));
         if (!tied && net.pins.size() == 1 && net.wires.empty() && net.labels.empty() && net.taps == 0) {
             result.unconnected_pins.push_back(p.pin);
         }

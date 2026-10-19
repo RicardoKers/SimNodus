@@ -1,0 +1,244 @@
+{
+  "type": "counter4",
+  "name": "4-bit counter",
+  "category": "Flip-flops & counters",
+  "prefix": "U",
+  "description": "Synchronous 4-bit binary up-counter (like a 74HC161 without load and enable): counts 0..15 at the rising edges of CLK and starts again; a high CLR resets it to 0 at once; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -5,
+          6,
+          10
+        ]
+      },
+      {
+        "text": "CTR4",
+        "at": [
+          0,
+          -5.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          -1,
+          -3,
+          -1
+        ]
+      },
+      {
+        "polyline": [
+          -3,
+          -1.6,
+          -2.2,
+          -1,
+          -3,
+          -0.4
+        ]
+      },
+      {
+        "text": "CLK",
+        "at": [
+          -1.5,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          1,
+          -3,
+          1
+        ]
+      },
+      {
+        "text": "CLR",
+        "at": [
+          -2.1,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          -3,
+          3,
+          -3
+        ]
+      },
+      {
+        "text": "Q0",
+        "at": [
+          2.1,
+          -3
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          -1,
+          3,
+          -1
+        ]
+      },
+      {
+        "text": "Q1",
+        "at": [
+          2.1,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          1,
+          3,
+          1
+        ]
+      },
+      {
+        "text": "Q2",
+        "at": [
+          2.1,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          3,
+          3,
+          3
+        ]
+      },
+      {
+        "text": "Q3",
+        "at": [
+          2.1,
+          3
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "CLK",
+        "at": [
+          -5,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "CLR",
+        "at": [
+          -5,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q0",
+        "at": [
+          5,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q1",
+        "at": [
+          5,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q2",
+        "at": [
+          5,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "Q3",
+        "at": [
+          5,
+          3
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -7
+  ],
+  "value_offset": [
+    -3,
+    6
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref}_m0 0 m0_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*(1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.4 * VDD}))))*({VDD}*(1+0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))-2*1*0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2}))))-V(m0_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(m0_{ref}))",
+    "C_{ref}_m0 m0_{ref} 0 1p",
+    "B_{ref}_s0 0 s0_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.6 * VDD})))*(V(m0_{ref})-V(s0_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(s0_{ref}))",
+    "C_{ref}_s0 s0_{ref} 0 1p",
+    "B_{ref}_m1 0 m1_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*(1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.4 * VDD}))))*({VDD}*(0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))+0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))-2*0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2}))))-V(m1_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(m1_{ref}))",
+    "C_{ref}_m1 m1_{ref} 0 1p",
+    "B_{ref}_s1 0 s1_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.6 * VDD})))*(V(m1_{ref})-V(s1_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(s1_{ref}))",
+    "C_{ref}_s1 s1_{ref} 0 1p",
+    "B_{ref}_m2 0 m2_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*(1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.4 * VDD}))))*({VDD}*(0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))+0.5*(1+tanh({= 40 / VDD}*(V(s2_{ref})-{= VDD / 2})))-2*0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s2_{ref})-{= VDD / 2}))))-V(m2_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(m2_{ref}))",
+    "C_{ref}_m2 m2_{ref} 0 1p",
+    "B_{ref}_s2 0 s2_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.6 * VDD})))*(V(m2_{ref})-V(s2_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(s2_{ref}))",
+    "C_{ref}_s2 s2_{ref} 0 1p",
+    "B_{ref}_m3 0 m3_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*(1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.4 * VDD}))))*({VDD}*(0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s2_{ref})-{= VDD / 2})))+0.5*(1+tanh({= 40 / VDD}*(V(s3_{ref})-{= VDD / 2})))-2*0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s2_{ref})-{= VDD / 2})))*0.5*(1+tanh({= 40 / VDD}*(V(s3_{ref})-{= VDD / 2}))))-V(m3_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(m3_{ref}))",
+    "C_{ref}_m3 m3_{ref} 0 1p",
+    "B_{ref}_s3 0 s3_{ref} I=1m*((1-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2}))))*0.5*(1+tanh({= 40 / VDD}*(V({node:CLK})-{= 0.6 * VDD})))*(V(m3_{ref})-V(s3_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:CLR})-{= VDD / 2})))*V(s3_{ref}))",
+    "C_{ref}_s3 s3_{ref} 0 1p",
+    "B_{ref}_xq0 xq0_{ref} 0 V={VDD}*0.5*(1+tanh({= 40 / VDD}*(V(s0_{ref})-{= VDD / 2})))",
+    "R_{ref}_dq0 xq0_{ref} yq0_{ref} 1k",
+    "C_{ref}_dq0 yq0_{ref} 0 10p",
+    "B_{ref}_oq0 zq0_{ref} 0 V=V(yq0_{ref})",
+    "R_{ref}_oq0 zq0_{ref} {node:Q0} 50",
+    "B_{ref}_xq1 xq1_{ref} 0 V={VDD}*0.5*(1+tanh({= 40 / VDD}*(V(s1_{ref})-{= VDD / 2})))",
+    "R_{ref}_dq1 xq1_{ref} yq1_{ref} 1k",
+    "C_{ref}_dq1 yq1_{ref} 0 10p",
+    "B_{ref}_oq1 zq1_{ref} 0 V=V(yq1_{ref})",
+    "R_{ref}_oq1 zq1_{ref} {node:Q1} 50",
+    "B_{ref}_xq2 xq2_{ref} 0 V={VDD}*0.5*(1+tanh({= 40 / VDD}*(V(s2_{ref})-{= VDD / 2})))",
+    "R_{ref}_dq2 xq2_{ref} yq2_{ref} 1k",
+    "C_{ref}_dq2 yq2_{ref} 0 10p",
+    "B_{ref}_oq2 zq2_{ref} 0 V=V(yq2_{ref})",
+    "R_{ref}_oq2 zq2_{ref} {node:Q2} 50",
+    "B_{ref}_xq3 xq3_{ref} 0 V={VDD}*0.5*(1+tanh({= 40 / VDD}*(V(s3_{ref})-{= VDD / 2})))",
+    "R_{ref}_dq3 xq3_{ref} yq3_{ref} 1k",
+    "C_{ref}_dq3 yq3_{ref} 0 10p",
+    "B_{ref}_oq3 zq3_{ref} 0 V=V(yq3_{ref})",
+    "R_{ref}_oq3 zq3_{ref} {node:Q3} 50",
+    "R_{ref}_iclk {node:CLK} 0 1G",
+    "R_{ref}_iclr {node:CLR} 0 1G"
+  ]
+}

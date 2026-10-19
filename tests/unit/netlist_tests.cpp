@@ -418,3 +418,24 @@ TEST_CASE("a Blue Pill gives its regulator and high-impedance pins, without unco
     }
     CHECK(high_impedance == 32);
 }
+
+TEST_CASE("optional pins may stay unconnected without a warning")
+{
+    library::ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    REQUIRE(library.find("d_flipflop")->pin("QN")->optional);
+    REQUIRE(!library.find("d_flipflop")->pin("Q")->optional);
+    test::CircuitBuilder b(library);
+    b.add("vdc", {{"+", "D"}, {"-", "0"}});
+    b.add("vpulse", {{"+", "CLK"}, {"-", "0"}});
+    b.add("d_flipflop", {{"D", "D"}, {"CLK", "CLK"}}); // Q and QN open
+    const auto n = netlist::generate_netlist(b.schematic, library);
+    std::vector<std::string> open;
+    for (const auto& d : n.diagnostics) {
+        if (d.code == "unconnected-pin") {
+            open.push_back(d.message);
+        }
+    }
+    REQUIRE(open.size() == 1);
+    CHECK(open[0].find("pin Q ") != std::string::npos);
+}

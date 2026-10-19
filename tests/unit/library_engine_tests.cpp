@@ -481,6 +481,71 @@ TEST_CASE("library: component set B behaves like its parts")
         }
         CHECK(edges > 10); // about 15 MHz from 3 x 10 ns stages
     }
+    { // SN-199: latches, flip-flops, counter and shift register (behavioral, ADR 0099)
+        // The clock starts high and rises at 0.5 ms, 1.5 ms, ...: after edge n, sample at n ms.
+        auto clocked = [&](test::CircuitBuilder& b) {
+            b.add("vpulse", {{"+", "CLK"}, {"-", "0"}}, {{"Vlow", "5"}, {"Vhigh", "0"}, {"f", "1k"}, {"rise", "1u"}});
+        };
+        auto at = [](const std::map<std::string, std::vector<double>>& r, const char* v, double t) {
+            const auto& time = r.at("time");
+            for (std::size_t i = 0; i < time.size(); ++i) {
+                if (time[i] >= t) {
+                    return r.at(v)[i];
+                }
+            }
+            return std::nan("");
+        };
+        auto bit = [](double volts) { return volts > 2.5 ? 1 : 0; };
+        {
+            test::CircuitBuilder b(components());
+            clocked(b);
+            supply(b, "HIGH", "5");
+            b.add("t_flipflop", {{"T", "HIGH"}, {"CLK", "CLK"}, {"Q", "T"}, {"QN", "TN"}});
+            b.add("d_flipflop", {{"D", "HIGH"}, {"CLK", "CLK"}, {"Q", "D"}});
+            b.add("jk_flipflop", {{"J", "HIGH"}, {"K", "HIGH"}, {"CLK", "CLK"}, {"Q", "JK"}});
+            supply(b, "LOW", "0");
+            b.add("d_latch", {{"D", "HIGH"}, {"EN", "CLK"}, {"Q", "L"}});
+            b.add("d_latch", {{"D", "HIGH"}, {"EN", "LOW"}, {"Q", "L0"}});
+            b.add("counter4", {{"CLK", "CLK"}, {"Q0", "C0"}, {"Q1", "C1"}, {"Q2", "C2"}, {"Q3", "C3"}});
+            b.add("shift4", {{"D", "HIGH"}, {"CLK", "CLK"}, {"Q0", "S0"}, {"Q1", "S1"}, {"Q2", "S2"}, {"Q3", "S3"}});
+            const auto r = simulate(b, ".tran 1u 18.2m 0 1u uic",
+                {"time", "t", "tn", "d", "jk", "l", "l0", "c0", "c1", "c2", "c3", "s0", "s1", "s2", "s3"});
+            REQUIRE(r.count("time") && r.count("c3"));
+            CHECK(bit(at(r, "t", 0.25e-3)) == 0); // no edge yet: everything starts low
+            CHECK(bit(at(r, "d", 0.25e-3)) == 0);
+            CHECK(bit(at(r, "l", 0.75e-3)) == 1);  // a latch follows D while EN is high
+            CHECK(bit(at(r, "l0", 18e-3)) == 0); // and keeps its value while EN is low
+            CHECK(bit(at(r, "d", 1e-3)) == 1);
+            int counter_errors = 0;
+            int toggle_errors = 0;
+            for (int n = 1; n <= 18; ++n) {
+                const double t = n * 1e-3;
+                toggle_errors += bit(at(r, "t", t)) != n % 2 || bit(at(r, "tn", t)) != 1 - n % 2;
+                toggle_errors += bit(at(r, "jk", t)) != n % 2;
+                const int count = bit(at(r, "c0", t)) + 2 * bit(at(r, "c1", t)) + 4 * bit(at(r, "c2", t))
+                    + 8 * bit(at(r, "c3", t));
+                counter_errors += count != n % 16;
+            }
+            CHECK(toggle_errors == 0);
+            CHECK(counter_errors == 0);
+            const int shifted[] = {bit(at(r, "s0", 2e-3)), bit(at(r, "s1", 2e-3)), bit(at(r, "s2", 2e-3)),
+                bit(at(r, "s3", 2e-3))};
+            CHECK((shifted[0] == 1 && shifted[1] == 1 && shifted[2] == 0 && shifted[3] == 0)); // two edges
+            CHECK(bit(at(r, "s3", 4e-3)) == 1);
+        }
+        {
+            auto sr = [&](const char* s, const char* r) {
+                test::CircuitBuilder b(components());
+                supply(b, "S", s);
+                supply(b, "R", r);
+                b.add("sr_latch", {{"S", "S"}, {"R", "R"}, {"Q", "Q"}, {"QN", "QN"}});
+                return op(b, "q");
+            };
+            CHECK(close_to(sr("5", "0"), 5.0, 0.01));
+            CHECK(close_to(sr("0", "5"), 0.0, 0.01));
+            CHECK(close_to(sr("5", "5"), 0.0, 0.01)); // reset wins
+        }
+    }
     { // transformer 10:1 with a 10 V, 50 Hz primary: about 1 V on the secondary
         test::CircuitBuilder b(components());
         b.add("vsine", {{"+", "P"}, {"-", "0"}}, {{"amplitude", "10"}, {"f", "50"}});

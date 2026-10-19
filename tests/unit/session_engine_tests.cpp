@@ -262,6 +262,54 @@ TEST_CASE("session: a capacitor inside a block keeps its charge across segments"
     CHECK(std::abs(at_300ms - expected) < 0.02);
 }
 
+TEST_CASE("session: a counter keeps its count across segments")
+{
+    // SN-199, ADR 0099: the state is in capacitors, carried at each segment boundary,
+    // also when a segment starts with the clock high.
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    // Clock high at first, rising at 12.5 ms, 37.5 ms, ... (40 Hz).
+    b.add("vpulse", {{"+", "CLK"}, {"-", "0"}}, {{"Vlow", "5"}, {"Vhigh", "0"}, {"f", "40"}, {"rise", "10u"}});
+    b.add("counter4", {{"CLK", "CLK"}, {"Q0", "Q0"}, {"Q1", "Q1"}, {"Q2", "Q2"}, {"Q3", "Q3"}});
+    auto settings = b.schematic.settings();
+    settings.speed = 0;
+    settings.segment = 0.0375; // boundaries fall in both clock phases
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &components();
+    request.vectors = {"Q0", "Q1", "Q2", "Q3"};
+    request.ring_capacity = 50000;
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    REQUIRE(wait_for_time(session, 0.6));
+    session.stop();
+    const auto q0 = session.samples("Q0");
+    const auto q1 = session.samples("Q1");
+    const auto q2 = session.samples("Q2");
+    const auto q3 = session.samples("Q3");
+    REQUIRE((q0.size() == q1.size() && q1.size() == q2.size() && q2.size() == q3.size() && q0.size() > 1000));
+    int checked = 0;
+    int wrong = 0;
+    for (std::size_t i = 0; i < q0.size(); ++i) {
+        const double t = q0[i].time;
+        const double since = std::fmod(t + 0.0125, 0.025); // time since the last rising edge
+        if (t < 0.015 || since < 0.002 || since > 0.023) {
+            continue;
+        }
+        const int expected = static_cast<int>(std::floor((t - 0.0125) / 0.025) + 1) % 16;
+        const int count = (q0[i].value > 2.5) + 2 * (q1[i].value > 2.5) + 4 * (q2[i].value > 2.5)
+            + 8 * (q3[i].value > 2.5);
+        ++checked;
+        wrong += count != expected;
+    }
+    std::printf("  counter: %d samples checked, %d wrong, %d segments\n", checked, wrong, session.status().segments);
+    CHECK(checked > 1000);
+    CHECK(wrong == 0);
+    CHECK(session.status().segments >= 15);
+}
+
 TEST_CASE("session: paced run follows real time and pauses")
 {
     REQUIRE(test::engine() != nullptr);
