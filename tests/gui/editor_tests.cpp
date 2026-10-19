@@ -29,6 +29,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
 #include <QGraphicsItem>
@@ -682,7 +683,9 @@ private slots:
         window_->analyzer()->refresh();
         const auto& traces = window_->analyzer()->scope()->traces();
         QCOMPARE(traces.size(), std::size_t{1});
-        QVERIFY(traces[0].samples.size() > 1000);
+        // The plot holds a thinned copy (a few points per pixel); the record keeps every step.
+        QVERIFY(traces[0].samples.size() > 100);
+        QVERIFY(window_->run_controller()->transient_result().time.size() > 1000);
         QVERIFY(std::abs(traces[0].samples.back().value - 5.0 * (1 - std::exp(-5.0))) < 0.05);
         QVERIFY(window_->analyzer()->measurement_row()->text().contains(QStringLiteral("max")));
         const QString csv = dir_.filePath(QStringLiteral("out.csv"));
@@ -837,6 +840,55 @@ private slots:
 #endif
     }
 
+    void analyzer_stays_responsive_with_a_long_timebase()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        // 1 s/div shows 10 s: up to 100 000 samples per channel at the 100 us step.
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/02_RC_filter_with_pulse.snx"), errors, warnings));
+        auto settings = doc().schematic().settings();
+        settings.speed = 0; // as fast as possible
+        doc().apply(editing::set_settings(doc().schematic(), settings));
+        window_->show_analyzer();
+        AnalyzerWindow* analyzer = window_->analyzer();
+        analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(1.0));
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->status().sim_time > 12.0, 120000);
+        const auto& channels = window_->run_controller()->channels();
+        QVERIFY(!channels.empty());
+        const auto held = window_->run_controller()->samples(channels.front(), 0.0).size();
+        qInfo("%.1f s simulated, %zu samples held per channel", window_->run_controller()->status().sim_time, held);
+        QVERIFY(held > 90000);
+        for (const int tab : {0, 1}) {
+            analyzer->tabs()->setCurrentIndex(tab);
+            QElapsedTimer timer;
+            timer.start();
+            for (int i = 0; i < 20; ++i) {
+                analyzer->refresh();
+                analyzer->repaint(); // drawing included
+            }
+            const double each = static_cast<double>(timer.elapsed()) / 20.0;
+            QElapsedTimer paint_only;
+            paint_only.start();
+            for (int i = 0; i < 20; ++i) {
+                analyzer->scope()->repaint();
+            }
+            qInfo("  scope repaint alone: %.1f ms", static_cast<double>(paint_only.elapsed()) / 20.0);
+            paint_only.restart();
+            for (int i = 0; i < 20; ++i) {
+                analyzer->repaint();
+            }
+            qInfo("  window repaint alone: %.1f ms", static_cast<double>(paint_only.elapsed()) / 20.0);
+            qInfo("analyzer refresh at 1 s/div, %s tab: %.1f ms", tab == 0 ? "Scope" : "Logic", each);
+            QVERIFY(each < 80.0); // 16 ms on the owner's laptop, 130 ms before the fix
+        }
+        window_->stop();
+#endif
+    }
+
     void logic_lanes_show_the_pins_that_change()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
@@ -848,6 +900,7 @@ private slots:
         window_->show_analyzer();
         AnalyzerWindow* analyzer = window_->analyzer();
         analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(0.5)); // 500 ms/div
+        analyzer->tabs()->setCurrentIndex(1); // the lanes are read while the Logic tab is shown
         window_->run();
         // 32 pin lanes plus V(PA0); the blinking pins appear without being chosen.
         QTRY_VERIFY_WITH_TIMEOUT(analyzer->lane_list()->count() == 33, 150000);
@@ -869,6 +922,11 @@ private slots:
         analyzer->logic()->set_selected(pc13);
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("U1.PC13")));
         QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("transition")));
+        // Timing of the lane and, with cursors, their values (PC13 blinks at 1 Hz).
+        QTRY_VERIFY_WITH_TIMEOUT(analyzer->transitions()->text().contains(QStringLiteral("duty")), 30000);
+        analyzer->scope()->set_cursors_enabled(true);
+        QTRY_VERIFY(analyzer->transitions()->text().contains(QStringLiteral("Δt")));
+        QVERIFY(analyzer->transitions()->text().contains(QStringLiteral("at A:")));
         // Only the checked lanes go to the VCD file (AN-10).
         const QString vcd = dir_.filePath(QStringLiteral("lanes.vcd"));
         QString error;

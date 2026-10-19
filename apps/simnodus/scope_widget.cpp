@@ -256,41 +256,63 @@ void ScopeWidget::paint_trace(QPainter& painter, const ScopeTrace& trace, const 
     if (first != s.begin()) {
         --first;
     }
-    QPolygonF line;
     const int columns = static_cast<int>(plot.width());
     const auto count = static_cast<std::ptrdiff_t>(std::distance(first, s.end()));
-    if (count > 2 * columns) {
-        // Min/max per pixel column keeps narrow spikes visible.
+    painter.setPen(QPen(trace.color, 1.4));
+    if (count > columns) {
+        // Dense: per pixel column a vertical line from its lowest to its highest
+        // sample (narrow spikes stay visible) and a join to the next column.
+        QVector<QLineF> lines;
+        lines.reserve(2 * columns + 4);
         int column = -1;
-        double lo = 0, hi = 0, last = 0;
+        double lo = 0, hi = 0, first_value = 0, last = 0;
+        std::optional<QPointF> previous;
+        auto flush = [&] {
+            const double x = plot.left() + column;
+            if (previous) {
+                lines << QLineF(*previous, QPointF(x, y_at(first_value)));
+            }
+            lines << QLineF(QPointF(x, y_at(lo)), QPointF(x, y_at(hi)));
+            previous = QPointF(x, y_at(last));
+        };
         for (auto it = first; it != s.end() && it->time <= end_; ++it) {
             const int c = static_cast<int>(x_at(it->time) - plot.left());
             if (c != column) {
                 if (column >= 0) {
-                    const double x = plot.left() + column;
-                    line << QPointF(x, y_at(lo)) << QPointF(x, y_at(hi)) << QPointF(x, y_at(last));
+                    flush();
                 }
                 column = c;
-                lo = hi = it->value;
+                lo = hi = first_value = it->value;
             }
             lo = std::min(lo, it->value);
             hi = std::max(hi, it->value);
             last = it->value;
         }
         if (column >= 0) {
-            const double x = plot.left() + column;
-            line << QPointF(x, y_at(lo)) << QPointF(x, y_at(hi));
+            flush();
         }
-    } else {
-        for (auto it = first; it != s.end(); ++it) {
-            line << QPointF(x_at(it->time), y_at(it->value));
-            if (it->time > end_) {
-                break;
-            }
+        painter.setRenderHint(QPainter::Antialiasing, false); // axis-aligned lines need none
+        painter.drawLines(lines);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        return;
+    }
+    // Separate segments, not one polyline: Qt strokes a polyline as a single
+    // path, which is very slow when it turns back on itself within a pixel
+    // (96 ms for 1 239 points of an RC square wave at 1 s/div).
+    QVector<QLineF> segments;
+    segments.reserve(static_cast<int>(count));
+    std::optional<QPointF> previous;
+    for (auto it = first; it != s.end(); ++it) {
+        const QPointF p(x_at(it->time), y_at(it->value));
+        if (previous) {
+            segments << QLineF(*previous, p);
+        }
+        previous = p;
+        if (it->time > end_) {
+            break;
         }
     }
-    painter.setPen(QPen(trace.color, 1.4));
-    painter.drawPolyline(line);
+    painter.drawLines(segments);
 }
 
 void ScopeWidget::paintEvent(QPaintEvent*)

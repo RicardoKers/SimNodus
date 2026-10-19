@@ -202,3 +202,29 @@ TEST_CASE("logic lane timing: period, pulse widths and duty cycle")
     CHECK(!part.period);
     CHECK(std::abs(*part.duty - 0.5) < 1e-12);
 }
+
+TEST_CASE("thinning keeps peaks, edges and the time order")
+{
+    SampleRing ring(100000);
+    for (int i = 0; i < 100000; ++i) {
+        const double t = i * 1e-4;
+        double v = (i / 500) % 2 ? 5.0 : 0.0; // 10 Hz square wave
+        if (i == 33333) {
+            v = 9.0; // a single-sample spike
+        }
+        ring.push(t, v);
+    }
+    const auto thin = ring.since(0.0, 4000);
+    CHECK(thin.size() <= 4004);
+    CHECK(thin.size() > 1000);
+    bool spike = false;
+    for (std::size_t i = 1; i < thin.size(); ++i) {
+        CHECK(thin[i].time >= thin[i - 1].time);
+        spike = spike || thin[i].value == 9.0;
+    }
+    CHECK(spike);
+    bool initial = true;
+    const auto edges = ring.transitions(0.0, 2.5, initial);
+    CHECK(!initial);
+    CHECK(edges.size() == 199 + 2); // 199 square-wave edges; the spike rises from 0 V and falls back
+}

@@ -215,13 +215,14 @@ void RunController::set_control(model::Id component, double value)
     refresh(); // immediate visual feedback
 }
 
-std::vector<sim::Sample> RunController::samples(const Channel& channel, double from) const
+std::vector<sim::Sample> RunController::samples(const Channel& channel, double from, std::size_t max_points) const
 {
     if (!channel.valid) {
         return {};
     }
-    auto values = session_->samples_since(channel.vector, from);
-    if (!channel.reference.empty() && channel.reference != "0") {
+    const bool differential = !channel.reference.empty() && channel.reference != "0";
+    auto values = session_->samples_since(channel.vector, from, differential ? 0 : max_points);
+    if (differential) {
         const auto reference = session_->samples_since(channel.reference, from);
         // Both vectors come from the same accepted time points.
         const std::size_t n = std::min(values.size(), reference.size());
@@ -306,7 +307,13 @@ RunController::LaneData RunController::lane_data(const LogicLane& lane, double f
     if (lane.channel >= static_cast<int>(channels_.size())) {
         return data;
     }
-    const auto samples_in = samples(channels_[static_cast<std::size_t>(lane.channel)], from);
+    const auto& channel = channels_[static_cast<std::size_t>(lane.channel)];
+    if (channel.valid && (channel.reference.empty() || channel.reference == "0")) {
+        // The ring finds the edges itself: no copy of the whole window.
+        data.changes = session_->transitions_since(channel.vector, from, threshold, data.initial);
+        return data;
+    }
+    const auto samples_in = samples(channel, from);
     if (samples_in.empty()) {
         return data;
     }

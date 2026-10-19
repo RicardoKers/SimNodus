@@ -113,6 +113,56 @@ std::optional<double> find_trigger(const std::vector<Sample>& samples, double le
     return found;
 }
 
+std::vector<Sample> thin(const std::vector<Sample>& samples, double from, double to, std::size_t max_points)
+{
+    auto first = std::lower_bound(samples.begin(), samples.end(), from,
+        [](const Sample& s, double t) { return s.time < t; });
+    if (first != samples.begin()) {
+        --first;
+    }
+    auto last = std::upper_bound(samples.begin(), samples.end(), to,
+        [](double t, const Sample& s) { return t < s.time; });
+    if (last != samples.end()) {
+        ++last;
+    }
+    const auto count = static_cast<std::size_t>(std::distance(first, last));
+    if (max_points < 8 || count <= max_points) {
+        return {first, last};
+    }
+    std::vector<Sample> result;
+    result.reserve(max_points + 4);
+    const std::size_t buckets = max_points / 4;
+    const double t0 = first->time;
+    const double span = std::max((last - 1)->time - t0, 1e-300);
+    auto it = first;
+    for (std::size_t b = 0; b < buckets && it != last; ++b) {
+        const double end = t0 + span * static_cast<double>(b + 1) / static_cast<double>(buckets);
+        const auto begin = it;
+        auto lo = it, hi = it;
+        while (it != last && (it->time <= end || b + 1 == buckets)) {
+            if (it->value < lo->value) {
+                lo = it;
+            }
+            if (it->value > hi->value) {
+                hi = it;
+            }
+            ++it;
+        }
+        if (it == begin) {
+            continue;
+        }
+        const auto end_sample = it - 1;
+        const auto a = std::min(lo, hi);
+        const auto z = std::max(lo, hi);
+        for (const auto& k : {begin, a, z, end_sample}) {
+            if (result.empty() || result.back().time != k->time || result.back().value != k->value) {
+                result.push_back(*k);
+            }
+        }
+    }
+    return result;
+}
+
 bool logic_level_at(bool initial, const std::vector<std::pair<double, bool>>& changes, double time)
 {
     bool level = initial;
