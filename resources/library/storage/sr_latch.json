@@ -1,0 +1,170 @@
+{
+  "type": "sr_latch",
+  "name": "SR latch",
+  "category": "Flip-flops & counters",
+  "prefix": "U",
+  "description": "SR latch: a high S sets Q, a high R resets it (R wins when both are high); with both low Q keeps its value; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -3,
+          6,
+          6
+        ]
+      },
+      {
+        "text": "SR latch",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          -1,
+          -3,
+          -1
+        ]
+      },
+      {
+        "text": "S",
+        "at": [
+          -2.1,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          1,
+          -3,
+          1
+        ]
+      },
+      {
+        "text": "R",
+        "at": [
+          -2.1,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          -1,
+          3,
+          -1
+        ]
+      },
+      {
+        "text": "Q",
+        "at": [
+          2.1,
+          -1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          1,
+          3,
+          1
+        ]
+      },
+      {
+        "text": "Q",
+        "at": [
+          2.1,
+          1
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          1.75,
+          0.4,
+          2.45,
+          0.4
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "S",
+        "at": [
+          -5,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "R",
+        "at": [
+          -5,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Q",
+        "at": [
+          5,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "QN",
+        "at": [
+          5,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -5
+  ],
+  "value_offset": [
+    -3,
+    4
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref}_s 0 s_{ref} I=1m*(0.5*(1+tanh({= 40 / VDD}*(V({node:S})-{= VDD / 2})))*(1-0.5*(1+tanh({= 40 / VDD}*(V({node:R})-{= VDD / 2}))))*({VDD}-V(s_{ref}))-0.5*(1+tanh({= 40 / VDD}*(V({node:R})-{= VDD / 2})))*V(s_{ref}))",
+    "C_{ref}_s s_{ref} 0 1p",
+    "B_{ref}_xq xq_{ref} 0 V={VDD}*0.5*(1+tanh({= 40 / VDD}*(V(s_{ref})-{= VDD / 2})))",
+    "R_{ref}_dq xq_{ref} yq_{ref} 1k",
+    "C_{ref}_dq yq_{ref} 0 10p",
+    "B_{ref}_oq zq_{ref} 0 V=V(yq_{ref})",
+    "R_{ref}_oq zq_{ref} {node:Q} 50",
+    "B_{ref}_xqn xqn_{ref} 0 V={VDD}*(1-0.5*(1+tanh({= 40 / VDD}*(V(s_{ref})-{= VDD / 2}))))",
+    "R_{ref}_dqn xqn_{ref} yqn_{ref} 1k",
+    "C_{ref}_dqn yqn_{ref} 0 10p",
+    "B_{ref}_oqn zqn_{ref} 0 V=V(yqn_{ref})",
+    "R_{ref}_oqn zqn_{ref} {node:QN} 50",
+    "R_{ref}_is {node:S} 0 1G",
+    "R_{ref}_ir {node:R} 0 1G"
+  ]
+}

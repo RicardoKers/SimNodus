@@ -29,6 +29,7 @@ struct Pin {
     std::string name;
     model::Point at; // grid units, relative to the symbol origin
     PinDirection direction = PinDirection::Up;
+    bool optional = false; // may stay unconnected without a warning (an unused Q-bar or clear input)
 };
 
 struct Graphic {

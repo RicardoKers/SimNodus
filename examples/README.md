@@ -26,6 +26,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `18_Bus_with_splitters.snx` | Four SPDT switches put VCC or ground on D0..D3 through a splitter; bus D carries them to a second splitter that drives four LEDs through 330 Ω | Click the switches: each LED follows its bit; the probes show V(D0)..V(D3) on the scope or the Logic tab |
 | `19_Diode_types.snx` | Four diodes from 5 V through 4.7 kΩ: silicon 1N4148, Schottky 1N5819, germanium 1N34A and the fixed-drop teaching model | Run and compare the voltmeters (about 0.58 V, 0.18 V, 0.27 V and 0.70 V) |
 | `20_Blocks_two_RC_stages.snx` | A 10 Hz square wave through two copies of the block `blocks/RC_lowpass.snx` (10 kΩ, 1 µF, ports IN and OUT) | Run and watch the three probes; double-click a block to open its file |
+| `21_Counter_with_push_button.snx` | A push button clocks a 4-bit counter; four LEDs show the count in binary | Run, click SW1 several times; then turn on Bounce in SW1's properties |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the

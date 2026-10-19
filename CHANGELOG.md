@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, owner's request)
+
+- Latches, flip-flops and counters (SN-199, SIM-12, ADR 0099) in a new *Flip-flops & counters* category: D latch, SR latch, D, JK and T flip-flops (rising edge), a synchronous 4-bit counter and a 4-bit shift register with asynchronous clear, on a hidden supply like the logic gates. They are behavioral master-slave parts whose state is in capacitors, so it survives interactive segments: measured, ngspice's XSPICE `d_dff` sees a false edge when a segment starts with the clock high. Engine tests: all parts in an 18 ms transient; a counter over 17 segments with no wrong count in 6257 samples. Pins may be marked optional (Q̅, CLR stay unconnected without a warning). Example 21: a push button clocks the counter, LEDs show the count.
+
 ### Added (2026-10-19, owner's priority)
 
 - Blocks drawn by the user (SN-200, PRJ-06, ADR 0098): a project with *Block port* parts (name and side, category *Blocks*) can be placed into other projects with *Place > Block...*; it appears as a rectangle with the ports as pins, in the order they have on the block's schematic, and in the parts tree. The project keeps a copy of the block file (`"blocks"`, format version 2; projects without blocks stay at version 1). The netlist puts the block's circuit in its place: parts are named `U1.R1`, nets around the block keep the names the editor shows, capacitors inside keep their charge across interactive segments (engine test: 4.7511 V at 300 ms against 4.7511 V expected), findings inside point at the block. A double-click opens the block's file, *Update* in Properties reads it again, and opening a project offers to update blocks whose files changed. Copy and paste carry the blocks of the copied parts; blocks may hold blocks. Example 20: a square wave through two RC low-pass blocks.

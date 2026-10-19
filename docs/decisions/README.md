@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0099: Latches, flip-flops and counters are behavioral, with their state in capacitors](0099-behavioral-storage-parts.md):
+  SN-199; XSPICE `d_dff` misreads a segment starting with the clock high; master-slave parts on capacitors instead.
 - [0098: Blocks drawn by the user are projects placed into projects](0098-user-blocks.md):
   PRJ-06; port parts make the symbol, the project keeps a copy, the netlist puts the circuit in place.
 - [0097: Vendor subcircuits as part models](0097-vendor-subcircuits.md):

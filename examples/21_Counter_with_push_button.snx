@@ -1,0 +1,567 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 42,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 4,
+      "type": "button_no",
+      "designator": "SW1",
+      "at": [
+        6,
+        -6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 7,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        12,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 9,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        12,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "counter4",
+      "designator": "U1",
+      "at": [
+        20,
+        -5
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 15,
+      "type": "led",
+      "designator": "D4",
+      "at": [
+        30,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 16,
+      "type": "resistor",
+      "designator": "R5",
+      "at": [
+        30,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 17,
+      "type": "ground",
+      "designator": "GND6",
+      "at": [
+        30,
+        18
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 22,
+      "type": "led",
+      "designator": "D3",
+      "at": [
+        36,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 23,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        36,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 24,
+      "type": "ground",
+      "designator": "GND5",
+      "at": [
+        36,
+        18
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 29,
+      "type": "led",
+      "designator": "D2",
+      "at": [
+        42,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 30,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        42,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 31,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        42,
+        18
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 36,
+      "type": "led",
+      "designator": "D1",
+      "at": [
+        48,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 37,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        48,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 38,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        48,
+        18
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -6
+        ],
+        [
+          3,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          9,
+          -6
+        ],
+        [
+          15,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          12,
+          -6
+        ],
+        [
+          12,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          12,
+          3
+        ],
+        [
+          12,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          25,
+          -2
+        ],
+        [
+          30,
+          -2
+        ],
+        [
+          30,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          30,
+          7
+        ],
+        [
+          30,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "points": [
+        [
+          30,
+          15
+        ],
+        [
+          30,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          25,
+          -4
+        ],
+        [
+          36,
+          -4
+        ],
+        [
+          36,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          36,
+          7
+        ],
+        [
+          36,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "points": [
+        [
+          36,
+          15
+        ],
+        [
+          36,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
+          25,
+          -6
+        ],
+        [
+          42,
+          -6
+        ],
+        [
+          42,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "points": [
+        [
+          42,
+          7
+        ],
+        [
+          42,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 33,
+      "points": [
+        [
+          42,
+          15
+        ],
+        [
+          42,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 34,
+      "points": [
+        [
+          25,
+          -8
+        ],
+        [
+          48,
+          -8
+        ],
+        [
+          48,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 39,
+      "points": [
+        [
+          48,
+          7
+        ],
+        [
+          48,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 40,
+      "points": [
+        [
+          48,
+          15
+        ],
+        [
+          48,
+          18
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 12,
+      "kind": "voltage",
+      "target": {
+        "item": 6,
+        "at": [
+          10,
+          -6
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 14,
+      "kind": "voltage",
+      "target": {
+        "item": 13,
+        "at": [
+          30,
+          0
+        ]
+      },
+      "color": "#9467bd"
+    },
+    {
+      "id": 21,
+      "kind": "voltage",
+      "target": {
+        "item": 20,
+        "at": [
+          36,
+          0
+        ]
+      },
+      "color": "#d62728"
+    },
+    {
+      "id": 28,
+      "kind": "voltage",
+      "target": {
+        "item": 27,
+        "at": [
+          42,
+          0
+        ]
+      },
+      "color": "#2ca02c"
+    },
+    {
+      "id": 35,
+      "kind": "voltage",
+      "target": {
+        "item": 34,
+        "at": [
+          48,
+          0
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 41,
+      "at": [
+        -2,
+        -18
+      ],
+      "text": "Run (F5) and click SW1: each press is a rising edge on CLK and the 4-bit counter adds one.\nThe LEDs show the count in binary (Q3 Q2 Q1 Q0, left to right). Turn on Bounce in SW1's\nproperties and see a single press count several times: why real buttons need debouncing."
+    }
+  ]
+}
