@@ -15,9 +15,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   0.1.0 and 0.2.0 were published on 2026-10-14 and 2026-10-18.
 - Since 0.3.0: imported models are checked parameter by parameter (#159);
   the engine is reloaded after an error ngspice cannot recover from (#160);
-  vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes (branch
-  `vendor-subckt`, ADR 0097). Next, in the owner's order: blocks drawn by the
-  user (PRJ-06 second part); symbols for regulators and references.
+  vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes (#161,
+  ADR 0097); teaching models and diode kinds (SN-197, SN-198, branch
+  `simple-models`). Next: blocks drawn by the user (PRJ-06 second part), then
+  digital storage parts (SN-199, needs a measurement first); symbols for
+  regulators and references.
 - **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
   ADR 0096), examples 17 and 18; text notes (SN-193); model variants with
   the user's models folder (SN-194, ADR 0095); potentiometer position

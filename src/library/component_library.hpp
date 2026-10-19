@@ -57,10 +57,14 @@ struct Parameter {
     std::vector<std::string> choices; // non-empty: the value is one of these words
     std::string description;
     std::string filter;
+    std::string symbol;     // shown before the value on the schematic ("β" gives "β=100"); empty: the value alone
     std::string model_type; // Model: "NPN", "PNP", "D", "NMOS" or "PMOS"; empty: subcircuits only
     // Model: the part's pins in the usual port order of vendor subcircuits
     // ("IN+", "IN-", "V+", "V-", "OUT"); empty: no subcircuits (ADR 0097).
     std::vector<std::string> subcircuit;
+    // Model: the "type=" values of the models this part offers ("schottky"); an
+    // empty string stands for models without one. Empty list: any model of the type.
+    std::vector<std::string> model_kinds;
 };
 
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
@@ -159,6 +163,9 @@ struct ComponentDefinition {
     // Parameter values of a new instance.
     std::map<std::string, std::string> default_parameters() const;
 };
+
+// Whether a model fits a model parameter's kinds (see Parameter::model_kinds).
+bool model_fits(const Parameter& parameter, const SpiceModel& model);
 
 struct LoadMessage {
     std::filesystem::path file;

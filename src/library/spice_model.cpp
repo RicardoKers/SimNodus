@@ -182,6 +182,15 @@ std::optional<SpiceModel> parse_spice_model(std::string_view statement, std::str
     std::string accepted;
     for (const auto& [name, value] : pairs) {
         const std::string key = upper(name);
+        if (key == "TYPE") {
+            // LTspice libraries classify diodes this way (silicon, schottky, germanium, zener, led...).
+            std::string kind = value;
+            kind.erase(std::remove(kind.begin(), kind.end(), '"'), kind.end());
+            for (auto& ch : kind) {
+                ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+            }
+            model.kind = kind;
+        }
         if (informational(key) && !known->count(key)) {
             continue; // describes the part; not a simulation parameter
         }

@@ -47,6 +47,10 @@ classroom PC, and opening a project never executes code.
   left out silently. Names are checked against ngspice's diode, Gummel-Poon and
   MOSFET level 1-3 parameters; for MOSFET levels above 3 only values are checked.
 
+- **Kinds of diodes** (added 2026-10-18): a model's `type=` (as in LTspice
+  libraries: silicon, schottky, germanium, zener, led, varactor...) is kept, and
+  each diode part offers the models of its kinds (`model_kinds`).
+
 ## Alternatives
 
 - **Bundle the KiCad-Spice-Library or vendor models:** the largest choice, but

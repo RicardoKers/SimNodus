@@ -117,6 +117,9 @@ A separate top-level window that can be placed on another monitor.
 | SIM-07 | Component set B: PNP, P-channel MOSFET, Zener, op-amp (behavioral), lamp, relay, small DC motor (simplified), transformer, logic gates/74HC subset as needed by lessons | 3 | done (logic gates: SN-191) |
 | SIM-08 | The engine runs isolated from the editor so that an engine crash cannot crash the editor or lose the document | 4 | planned |
 | SIM-09 | Fidelity limits are visible: approximate modes are labeled in the status bar and in exported data | 1 | done |
+| SIM-10 | Teaching models: a diode with a fixed forward voltage (0.7 V, 0.3 V) and NPN/PNP transistors with a fixed Vbe, an adjustable beta and a saturation voltage, for simplified classroom examples; the beta is shown on the symbol | later | done (SN-197, owner's request 2026-10-18) |
+| SIM-11 | Diode kinds look different on the schematic (Schottky, germanium next to the plain diode, Zener and LED) and each offers the models of its kind; vendor files classify their models with `type=` | later | done (SN-198, owner's request 2026-10-18) |
+| SIM-12 | Digital storage parts (latches, flip-flops, counters, registers, memories) from ngspice's XSPICE digital models or SimNodus's own behavioral models, chosen after a measurement of how their state survives the interactive segments | later | planned (SN-199, owner's request 2026-10-18) |
 
 ## 6. Microcontroller (STM32F103C8 / Blue Pill)
 

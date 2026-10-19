@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-18, owner's requests)
+
+- Teaching models in a new *Simplified models* category (SN-197): *Diode (fixed drop)* conducts above an adjustable forward voltage (0.7 V by default, 0.3 V for germanium lessons); *NPN/PNP transistor (simple)* have a fixed Vbe, an adjustable beta shown on the symbol (β=100) and a saturation voltage (0.2 V). Engine tests: Vbe 0.700 V, Vc 7.70 V in the active region and 0.185 V saturated.
+- Diode kinds (SN-198): *Schottky diode* (hooked bar) with 1N5819, BAT54, 1N5822 and *Germanium diode* (marked Ge) with 1N34A, 1N60; the plain diode lists silicon models. A model file's `type=` (as in LTspice's diode library: silicon, schottky, germanium, zener, led...) decides which part lists it. A named default model now shows on the symbol. Example 19 compares the four kinds (0.58, 0.18, 0.27 and 0.70 V at about 1 mA).
+
 ### Added (2026-10-18, owner's priority)
 
 - Vendor subcircuits as part models (PRJ-06 first part, ADR 0097): the models folder now gives `.subckt` blocks too, each with the models and helper blocks of its file that it uses. Op-amps (IN+, IN-, V+, V-, OUT), NPN/PNP (C, B, E), MOSFETs (D, G, S) and diodes (A, K) offer the subcircuits with one port per pin in Properties > Model; *Pins...* assigns ports to pins with the file's comments in view. The text is kept in the project. Blocks with `.include`, `.lib`, `.control` or other commands are skipped and reported. The package ships ngspice's `spice2poly.cm` code model, loaded at start, so `POLY` sources of vendor models work. Checked with real files: LM358, TL072, OP07 (gain-2 amplifier within 0.2 %), TIP120 and AO3400; tests use SimNodus's own subcircuits.

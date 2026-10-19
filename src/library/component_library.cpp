@@ -19,8 +19,8 @@ namespace {
 using nlohmann::json;
 
 const std::vector<std::string> category_order{
-    "Passive", "Sources", "Switches & Controls", "Semiconductors", "Integrated circuits", "Electromechanical",
-    "Instruments", "Microcontrollers", "Logic"};
+    "Passive", "Sources", "Switches & Controls", "Semiconductors", "Simplified models", "Integrated circuits",
+    "Electromechanical", "Instruments", "Microcontrollers", "Logic"};
 
 [[noreturn]] void invalid(const std::string& message)
 {
@@ -281,6 +281,7 @@ ComponentDefinition parse_definition(const json& j)
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");
             parameter.filter = text(p, "filter");
+            parameter.symbol = text(p, "symbol");
             const std::string kind = text(p, "kind");
             if (kind == "file") {
                 parameter.kind = Parameter::Kind::File;
@@ -288,6 +289,7 @@ ComponentDefinition parse_definition(const json& j)
                 parameter.kind = Parameter::Kind::Model;
                 parameter.model_type = text(p, "model_type");
                 parameter.subcircuit = strings(p, "subcircuit");
+                parameter.model_kinds = strings(p, "model_kinds");
                 if (!parameter.model_type.empty() && !supported_model_type(parameter.model_type)) {
                     invalid("model_type must be NPN, PNP, D, NMOS or PMOS");
                 }
@@ -559,6 +561,15 @@ std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem:
         }
     }
     return messages;
+}
+
+bool model_fits(const Parameter& parameter, const SpiceModel& model)
+{
+    if (model.type != parameter.model_type) {
+        return false;
+    }
+    return parameter.model_kinds.empty()
+        || std::find(parameter.model_kinds.begin(), parameter.model_kinds.end(), model.kind) != parameter.model_kinds.end();
 }
 
 const SpiceModel* ComponentLibrary::model(const std::string& type, const std::string& name) const

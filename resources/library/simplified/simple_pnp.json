@@ -1,0 +1,139 @@
+{
+  "type": "simple_pnp",
+  "name": "PNP transistor (simple)",
+  "category": "Simplified models",
+  "prefix": "Q",
+  "description": "Teaching model: the base-emitter junction conducts above Vbe; the collector carries beta times the base current until the transistor saturates near Vce(sat); no capacitances",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -0.6,
+          0
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -1.4,
+          -0.6,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -0.6,
+          2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          2,
+          -2,
+          2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          0.6,
+          2,
+          2
+        ]
+      },
+      {
+        "line": [
+          2,
+          2,
+          2,
+          3
+        ]
+      },
+      {
+        "polygon": [
+          -0.2,
+          -0.8,
+          0.7,
+          -0.75,
+          0.35,
+          -1.45
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "B",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "E",
+        "at": [
+          2,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "C",
+        "at": [
+          2,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "beta",
+  "parameters": [
+    {
+      "name": "beta",
+      "label": "Current gain",
+      "symbol": "β",
+      "unit": "",
+      "default": "100",
+      "description": "Collector current divided by base current (hFE)",
+      "min": "1",
+      "max": "10000"
+    },
+    {
+      "name": "Vbe",
+      "label": "Base-emitter voltage",
+      "unit": "V",
+      "default": "0.7",
+      "description": "Base-emitter voltage while conducting (magnitude)",
+      "min": "0",
+      "max": "2"
+    },
+    {
+      "name": "Vcesat",
+      "label": "Saturation voltage",
+      "unit": "V",
+      "default": "0.2",
+      "description": "Collector-emitter voltage of a saturated transistor (magnitude)",
+      "min": "0.01",
+      "max": "2"
+    }
+  ],
+  "spice": [
+    "B_{ref}_b {node:E} {node:B} I=max(V({node:E},{node:B})-{Vbe},0)/1+V({node:E},{node:B})*1e-9",
+    "B_{ref}_c {node:E} {node:C} I={beta}*max(V({node:E},{node:B})-{Vbe},0)/1*min(max((V({node:E},{node:C})-{Vcesat})/0.02+1,0),1)+V({node:E},{node:C})*1e-9"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "type": "schottky",
+  "name": "Schottky diode",
+  "category": "Semiconductors",
+  "prefix": "D",
+  "description": "Schottky diode: low forward voltage (about 0.2-0.45 V), fast; anode at the top",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          -0.8,
+          1,
+          -0.8,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0.8,
+          1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      },
+      {
+        "polyline": [
+          -1,
+          0.8,
+          -1,
+          1.2,
+          -0.6,
+          1.2
+        ]
+      },
+      {
+        "polyline": [
+          1,
+          0.8,
+          1,
+          0.4,
+          0.6,
+          0.4
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "K",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "spice": [
+    "D_{ref} {node:A} {node:K} {model}"
+  ],
+  "value_parameter": "model",
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "kind": "model",
+      "model_type": "D",
+      "default": "1N5819",
+      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Open Models Folder)",
+      "subcircuit": [
+        "A",
+        "K"
+      ],
+      "model_kinds": [
+        "schottky"
+      ]
+    }
+  ]
+}
