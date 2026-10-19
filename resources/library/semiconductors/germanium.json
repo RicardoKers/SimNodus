@@ -79,7 +79,7 @@
       "kind": "model",
       "model_type": "D",
       "default": "1N34A",
-      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Open Models Folder)",
+      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Model Folders)",
       "subcircuit": [
         "A",
         "K"

@@ -71,7 +71,7 @@ an optional bottom message panel and a compact toolbar.
 | UI-13 | Status bar shows simulation state, simulated time, achieved real-time factor, mode and warning count | 1 | done |
 | UI-14 | Keyboard shortcuts for frequent actions (table in [DESKTOP_UX](architecture/DESKTOP_UX.md#keyboard-shortcuts)); all actions also reachable by menu | 1 | done |
 | UI-15 | Examples menu opens bundled example projects as untitled copies | 1 | done |
-| UI-16 | All user-visible strings go through Qt translation. English is the base language; a Brazilian Portuguese translation is delivered before classroom use | 1 / 4 | in progress |
+| UI-16 | All user-visible strings go through Qt translation. English is the base language; a Brazilian Portuguese translation is delivered before classroom use | 1 / 4 | done (SN-153, 2026-10-19: interface and component library; Tools > Language) |
 | UI-17 | Free text notes on the schematic (instructions for the simulation, explanations); they are presentation only and do not change the netlist | later | done (SN-193, 2026-10-18) |
 | UI-18 | The potentiometer shows its wiper position on the symbol (a visual mark and a percentage), while editing and while the simulation runs | later | done (SN-195, 2026-10-18) |
 | UI-19 | Buses: a thick line that stands for several wires, with splitters (as in hneemann's *Digital*) that take single wires in and out by name or index; presentation only, the netlist is the same as with the individual wires | later | done (SN-196, 2026-10-18; ADR 0096) |

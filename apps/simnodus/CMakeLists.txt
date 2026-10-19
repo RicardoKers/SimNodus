@@ -65,11 +65,31 @@ add_executable(simnodus main.cpp ${_simnodus_icon_sources})
 set_target_properties(simnodus PROPERTIES WIN32_EXECUTABLE ON AUTORCC ON)
 target_link_libraries(simnodus PRIVATE simnodus_ui simnodus::warnings)
 
+# Translations (UI-16): resources/translations/*.ts become .qm files in
+# translations/ next to the executable. Without Qt's LinguistTools the
+# application runs in English.
+find_package(Qt6 6.4 QUIET COMPONENTS LinguistTools)
+if(Qt6LinguistTools_FOUND)
+    file(GLOB _simnodus_ts_files "${PROJECT_SOURCE_DIR}/resources/translations/*.ts")
+    set_source_files_properties(${_simnodus_ts_files} PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/translations")
+    qt_add_lrelease(simnodus TS_FILES ${_simnodus_ts_files} QM_FILES_OUTPUT_VARIABLE SIMNODUS_QM_FILES)
+    add_custom_command(TARGET simnodus POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:simnodus>/translations"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${SIMNODUS_QM_FILES} "$<TARGET_FILE_DIR:simnodus>/translations"
+        VERBATIM)
+    set(SIMNODUS_TRANSLATIONS_DIR "${CMAKE_CURRENT_BINARY_DIR}/translations" PARENT_SCOPE)
+else()
+    message(STATUS "Qt LinguistTools not found: the application is built without translations")
+endif()
+
 # Layout of an installed (or packaged) application:
 #   Windows: simnodus.exe, Qt runtime (windeployqt), ngspice/ with the engine
 #   Linux:   bin/simnodus, share/simnodus/ngspice; system libngspice
 if(WIN32)
     install(TARGETS simnodus RUNTIME DESTINATION .)
+    if(SIMNODUS_QM_FILES)
+        install(FILES ${SIMNODUS_QM_FILES} DESTINATION translations)
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit" DESTINATION ngspice)
     set(SIMNODUS_NGSPICE_RUNTIME_DIR "${PROJECT_SOURCE_DIR}/build/deps/ngspice-runtime" CACHE PATH
         "Staged ngspice runtime to bundle (tools/fetch_backends.py)")
@@ -106,6 +126,9 @@ if(WIN32)
     include(InstallRequiredSystemLibraries)
 else()
     install(TARGETS simnodus RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    if(SIMNODUS_QM_FILES)
+        install(FILES ${SIMNODUS_QM_FILES} DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/translations")
+    endif()
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/ngspice")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")

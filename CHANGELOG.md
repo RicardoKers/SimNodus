@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, owner's request)
+
+- Brazilian Portuguese interface (SN-153, UI-16): menus, panels, messages, the Signal Analyzer and the component library (names, categories, descriptions, parameters and choices), 650 texts in all. SimNodus follows the system language; *Tools > Language* chooses English or Português (Brasil) explicitly, at the next start. Translators run `tools/update_translations.py`; the repository check fails on untranslated entries or mismatched placeholders. The About box no longer mentions release 0.1, and descriptions point to *Tools > Model Folders*.
+
 ## 0.4.0 — 2026-10-19
 
 ### Summary

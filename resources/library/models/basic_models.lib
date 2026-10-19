@@ -6,7 +6,7 @@
 * capacitances), rounded. They are not vendor models and are not measured
 * fits; use them to learn how parts differ, not for design margins.
 * The comment line above each statement is shown as its description.
-* Models of the user go in the models folder (Tools > Open Models Folder).
+* Models of the user go in the models folder (Tools > Model Folders).
 
 * Generic small-signal NPN (SimNodus default)
 .model Generic NPN(IS=14f BF=200 VAF=74 IKF=0.28 BR=6 RB=10 RC=1 CJE=22p CJC=7p TF=0.4n TR=46n)

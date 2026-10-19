@@ -152,7 +152,7 @@
       "kind": "model",
       "model_type": "PMOS",
       "default": "Generic",
-      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Open Models Folder)",
+      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Model Folders)",
       "subcircuit": [
         "D",
         "G",

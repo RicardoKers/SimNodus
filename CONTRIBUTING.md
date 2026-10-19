@@ -11,6 +11,11 @@ SimNodus is at the architecture/scaffolding stage. Start with [current work](doc
 5. Explain the problem, change, evidence, and limitations in the pull request.
 6. Update affected requirements, reports, task status, and current-state notes.
 
+Translations: after changing user-visible text (in the code or in the component library), run
+`python tools/update_translations.py` and translate the new entries of `resources/translations/*.ts`
+(Qt Linguist or a text editor). `tools/check_repository.py` fails while an entry is untranslated or its
+placeholders (`%1`, `%n`) differ from the English text.
+
 Use descriptive branch names such as `docs/project-format` or `experiment/emu-gpio`. Commit messages should be concise English statements; optional prefixes include `docs:`, `build:`, `feat:`, `fix:`, and `test:`. Never commit credentials, personal paths, private student material, or generated firmware/build output.
 
 ## Evidence standards

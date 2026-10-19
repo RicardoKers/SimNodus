@@ -49,8 +49,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. In the owner's order (2026-10-19): pt-BR translation of the interface
-   (SN-153), then the Windows installer (SN-152) or the dark theme (SN-162).
+1. In the owner's order (2026-10-19): pt-BR translation (SN-153, branch
+   `translation-pt-br`, for 0.5), then the Windows installer (SN-152) or the
+   dark theme (SN-162).
 2. Classroom feedback (postponed: academic calendar); fix what the owner
    reports when it arrives.
 3. Other backlog candidates: user guide (SN-154), engine in a child process

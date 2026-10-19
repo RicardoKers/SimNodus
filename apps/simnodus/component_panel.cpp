@@ -123,6 +123,7 @@ ComponentPanel::ComponentPanel(const library::ComponentLibrary& library, QWidget
     QFont bold = preview_name_->font();
     bold.setBold(true);
     preview_name_->setFont(bold);
+    preview_name_->setWordWrap(true);
     preview_details_ = new QLabel;
     preview_details_->setWordWrap(true);
     preview_details_->setAlignment(Qt::AlignTop | Qt::AlignLeft);
