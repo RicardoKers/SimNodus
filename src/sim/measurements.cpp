@@ -113,4 +113,71 @@ std::optional<double> find_trigger(const std::vector<Sample>& samples, double le
     return found;
 }
 
+bool logic_level_at(bool initial, const std::vector<std::pair<double, bool>>& changes, double time)
+{
+    bool level = initial;
+    for (const auto& [t, next] : changes) {
+        if (t > time) {
+            break;
+        }
+        level = next;
+    }
+    return level;
+}
+
+LogicMeasurements measure_logic(bool initial, const std::vector<std::pair<double, bool>>& changes, double from,
+    double to)
+{
+    LogicMeasurements m;
+    if (to <= from) {
+        return m;
+    }
+    bool level = logic_level_at(initial, changes, from);
+    double since = from;      // start of the current level inside the window
+    bool complete = false;    // the current level began at a transition inside the window
+    double high = 0;
+    std::vector<double> rises;
+    double high_sum = 0, low_sum = 0;
+    int highs = 0, lows = 0;
+    for (const auto& [t, next] : changes) {
+        if (t <= from || next == level) {
+            continue;
+        }
+        if (t > to) {
+            break;
+        }
+        if (level) {
+            high += t - since;
+        }
+        if (complete) {
+            (level ? high_sum : low_sum) += t - since;
+            ++(level ? highs : lows);
+        }
+        if (next) {
+            ++m.rising;
+            rises.push_back(t);
+        } else {
+            ++m.falling;
+        }
+        level = next;
+        since = t;
+        complete = true;
+    }
+    if (level) {
+        high += to - since;
+    }
+    m.duty = high / (to - from);
+    if (rises.size() >= 2) {
+        m.period = (rises.back() - rises.front()) / static_cast<double>(rises.size() - 1);
+        m.frequency = 1.0 / *m.period;
+    }
+    if (highs > 0) {
+        m.high_time = high_sum / highs;
+    }
+    if (lows > 0) {
+        m.low_time = low_sum / lows;
+    }
+    return m;
+}
+
 } // namespace simnodus::sim

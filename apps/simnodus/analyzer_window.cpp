@@ -111,6 +111,12 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     });
     connect(cursors_, &QAction::toggled, scope_, &ScopeWidget::set_cursors_enabled);
     connect(scope_, &ScopeWidget::cursors_changed, this, &AnalyzerWindow::update_measurements);
+    connect(scope_, &ScopeWidget::cursors_changed, this, [this] {
+        if (logic_) {
+            logic_->set_cursors(scope_->cursors_enabled(), scope_->cursor(0), scope_->cursor(1));
+            update_transitions();
+        }
+    });
     connect(scope_, &ScopeWidget::window_changed, this, [this] { update_measurements(); });
     // The scope's left margin: clicking a channel's 0 V marker selects it, dragging moves it (SN-189).
     // Connected here, not in build_controls(): the scope does not exist yet when the controls are built.
@@ -369,6 +375,11 @@ QWidget* AnalyzerWindow::build_logic_page()
         QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may rebuild this list
     });
     connect(logic_, &LogicWidget::lane_selected, this, [this](int) { update_transitions(); });
+    // The logic lanes share the scope's cursors: dragging one here moves it there too.
+    connect(logic_, &LogicWidget::cursor_moved, this, [this](int index, double time) {
+        scope_->set_cursor(index, time);
+        update_transitions();
+    });
     return page;
 }
 
@@ -429,7 +440,9 @@ void AnalyzerWindow::update_transitions()
 {
     const int lane = logic_->selected();
     if (lane < 0) {
-        transitions_->setText(tr("Click a lane to list its transitions in the window."));
+        transitions_->setText(scope_->cursors_enabled()
+                ? tr("Click a lane to measure it; drag the cursors A and B.")
+                : tr("Click a lane to list its transitions and measure it."));
         return;
     }
     const auto changes = logic_->visible_transitions(lane);
@@ -439,10 +452,47 @@ void AnalyzerWindow::update_transitions()
         parts << QStringLiteral("%1 %2s").arg(QChar(changes[i].second ? 0x2191 : 0x2193), // up / down arrow
             QString::fromStdString(model::format_engineering(changes[i].first, 7)));
     }
-    transitions_->setText(tr("%1: %2 transition(s) in the window%3")
-                              .arg(logic_->lanes()[static_cast<std::size_t>(lane)].title)
-                              .arg(changes.size())
-                              .arg(parts.isEmpty() ? QString() : QStringLiteral(": ") + parts.join(QStringLiteral("  "))));
+    const auto& view = logic_->lanes()[static_cast<std::size_t>(lane)];
+    QString text = tr("%1: %2 transition(s) in the window%3")
+                       .arg(view.title)
+                       .arg(changes.size())
+                       .arg(parts.isEmpty() ? QString() : QStringLiteral(": ") + parts.join(QStringLiteral("  ")));
+    // Timing in the window: period, frequency, pulse widths and duty cycle.
+    const auto m = sim::measure_logic(view.initial, view.changes, scope_->window_start(), scope_->window_end());
+    QStringList timing;
+    if (m.period) {
+        timing << tr("period %1").arg(format_seconds(*m.period))
+               << tr("f %1").arg(quantity(*m.frequency, QStringLiteral("Hz")));
+    }
+    if (m.high_time) {
+        timing << tr("high %1").arg(format_seconds(*m.high_time));
+    }
+    if (m.low_time) {
+        timing << tr("low %1").arg(format_seconds(*m.low_time));
+    }
+    if (m.duty) {
+        timing << tr("duty %1 %").arg(QString::number(*m.duty * 100, 'f', 1));
+    }
+    if (!timing.isEmpty()) {
+        text += QStringLiteral("\n") + timing.join(QStringLiteral("   "));
+    }
+    if (scope_->cursors_enabled()) {
+        const double ta = scope_->cursor(0);
+        const double tb = scope_->cursor(1);
+        const double dt = tb - ta;
+        QString cursor = tr("A %1  B %2  Δt %3").arg(format_seconds(ta), format_seconds(tb), format_seconds(dt));
+        if (std::abs(dt) > 0) {
+            cursor += tr("  1/Δt %1").arg(quantity(1.0 / std::abs(dt), QStringLiteral("Hz")));
+        }
+        cursor += tr("  %1 at A: %2, at B: %3")
+                      .arg(view.title)
+                      .arg(sim::logic_level_at(view.initial, view.changes, ta) ? 1 : 0)
+                      .arg(sim::logic_level_at(view.initial, view.changes, tb) ? 1 : 0);
+        const auto between = sim::measure_logic(view.initial, view.changes, std::min(ta, tb), std::max(ta, tb));
+        cursor += tr(", %1 rising and %2 falling edges between").arg(between.rising).arg(between.falling);
+        text += QStringLiteral("\n") + cursor;
+    }
+    transitions_->setText(text);
 }
 
 void AnalyzerWindow::refresh_scope()

@@ -311,7 +311,7 @@ private slots:
         QCOMPARE(window_->messages()->warning_count(), 1);
         const auto& issues = user_model_issues();
         QCOMPARE(static_cast<int>(issues.size()), 1);
-        QCOMPARE(issues[0], QStringLiteral("mine.lib, line 4, ODD: left out FOO=2 (not a NPN parameter)"));
+        QCOMPARE(issues[0], QStringLiteral("models/mine.lib, line 4, ODD: left out FOO=2 (not a NPN parameter)"));
         QVERIFY(box->findText(QStringLiteral("AMP")) < 0); // a two-pin subcircuit does not fit an NPN
         emit box->activated(mine);
         const auto* c = doc().schematic().component(q);
@@ -419,6 +419,56 @@ private slots:
         QVERIFY(doc().schematic() == saved);
         QVERIFY(!window_->open_file(dir_.filePath(QStringLiteral("missing.snx"))));
         QVERIFY(window_->messages()->error_count() > 0);
+    }
+
+    void logic_cursors_are_dragged_like_the_scope_cursors()
+    {
+        LogicWidget logic;
+        logic.resize(600, 120);
+        logic.set_lanes({{QStringLiteral("CLK"), Qt::blue, false, {{0.2, true}, {0.4, false}, {0.6, true}}}});
+        logic.set_window(0.0, 1.0);
+        logic.set_cursors(true, 0.3, 0.7);
+        logic.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&logic));
+        std::vector<std::pair<int, double>> moved;
+        connect(&logic, &LogicWidget::cursor_moved, this, [&moved](int i, double t) { moved.push_back({i, t}); });
+        // The plot starts after the 96-pixel lane names and ends 8 pixels before the edge.
+        const double width = 600 - 96 - 8;
+        const QPoint a(static_cast<int>(96 + 0.3 * width), 40);
+        const QPoint target(static_cast<int>(96 + 0.5 * width), 40);
+        QTest::mousePress(&logic, Qt::LeftButton, {}, a);
+        QMouseEvent move(QEvent::MouseMove, QPointF(target), logic.mapToGlobal(QPointF(target)), Qt::NoButton,
+            Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(&logic, &move);
+        QTest::mouseRelease(&logic, Qt::LeftButton, {}, target);
+        QVERIFY(!moved.empty());
+        QCOMPARE(moved.back().first, 0);
+        QVERIFY(std::abs(moved.back().second - 0.5) < 0.01);
+    }
+
+    void model_folders_are_chosen_and_all_read()
+    {
+        QTemporaryDir one;
+        QTemporaryDir two;
+        auto write = [](const QString& path, const char* text) {
+            QFile f(path);
+            QVERIFY(f.open(QIODevice::WriteOnly));
+            f.write(text);
+        };
+        write(one.filePath(QStringLiteral("a.lib")), ".model FOLDER-ONE NPN(BF=50)\n");
+        write(two.filePath(QStringLiteral("b.lib")), ".model FOLDER-TWO NPN(BF=80)\n");
+        window_->set_model_folders({one.path(), two.path()});
+        QCOMPARE(user_models_folders(), (QStringList{one.path(), two.path()}));
+        QCOMPARE(settings_->value(QStringLiteral("models/folders")).toStringList(), (QStringList{one.path(), two.path()}));
+        QStringList names;
+        for (const auto& m : user_models()) {
+            names << QString::fromStdString(m.model.name);
+        }
+        QVERIFY(names.contains(QStringLiteral("FOLDER-ONE")));
+        QVERIFY(names.contains(QStringLiteral("FOLDER-TWO")));
+        window_->set_model_folders({});
+        QCOMPARE(user_models_folders(), QStringList{default_models_folder()});
+        QVERIFY(!settings_->contains(QStringLiteral("models/folders")));
     }
 
     void blocks_are_placed_from_files_opened_and_updated()

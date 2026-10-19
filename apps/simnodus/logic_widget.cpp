@@ -169,19 +169,60 @@ void LogicWidget::paintEvent(QPaintEvent*)
             QString::fromStdString(model::format_engineering(t, 4)) + QStringLiteral("s"));
     }
     if (cursors_) {
+        int index = 0;
         for (const double c : {cursor_a_, cursor_b_}) {
             if (c >= start_ && c <= end_) {
                 painter.setPen(QPen(theme::selection, 1, Qt::DashLine));
                 painter.drawLine(QPointF(x_at(c), plot.top()), QPointF(x_at(c), plot.bottom()));
+                painter.setPen(theme::selection);
+                painter.drawText(QPointF(x_at(c) + 3, plot.top() + 11), index == 0 ? QStringLiteral("A") : QStringLiteral("B"));
             }
+            ++index;
         }
     }
 }
 
+int LogicWidget::cursor_near(double x) const
+{
+    if (!cursors_) {
+        return -1;
+    }
+    const double a = std::abs(x_at(cursor_a_) - x);
+    const double b = std::abs(x_at(cursor_b_) - x);
+    if (std::min(a, b) > 5) {
+        return -1;
+    }
+    return a <= b ? 0 : 1;
+}
+
 void LogicWidget::mousePressEvent(QMouseEvent* event)
 {
-    set_selected(lane_at(event->position().y()));
+    dragging_cursor_ = event->button() == Qt::LeftButton ? cursor_near(event->position().x()) : -1;
+    if (dragging_cursor_ < 0) {
+        set_selected(lane_at(event->position().y()));
+    }
     QWidget::mousePressEvent(event);
+}
+
+void LogicWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    const double x = event->position().x();
+    if (dragging_cursor_ >= 0) {
+        const QRectF plot = plot_rect();
+        const double t = time_at(std::clamp(x, plot.left(), plot.right()));
+        (dragging_cursor_ == 0 ? cursor_a_ : cursor_b_) = t;
+        update();
+        emit cursor_moved(dragging_cursor_, t);
+    } else {
+        setCursor(cursor_near(x) >= 0 ? Qt::SizeHorCursor : Qt::ArrowCursor);
+    }
+    QWidget::mouseMoveEvent(event);
+}
+
+void LogicWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    dragging_cursor_ = -1;
+    QWidget::mouseReleaseEvent(event);
 }
 
 bool LogicWidget::event(QEvent* event)

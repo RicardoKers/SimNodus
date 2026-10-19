@@ -41,10 +41,14 @@ public:
 
 signals:
     void lane_selected(int lane);
+    // A cursor was dragged (0 = A, 1 = B), like on the scope; the cursors are shared.
+    void cursor_moved(int index, double time);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
     bool event(QEvent* event) override; // tooltips
 
 private:
@@ -52,6 +56,7 @@ private:
     double x_at(double time) const;
     double time_at(double x) const;
     int lane_at(double y) const;
+    int cursor_near(double x) const; // -1, 0 (A) or 1 (B)
 
     std::vector<LogicLaneView> lanes_;
     double start_ = 0.0;
@@ -60,6 +65,7 @@ private:
     double cursor_a_ = 0.0;
     double cursor_b_ = 0.0;
     int selected_ = -1;
+    int dragging_cursor_ = -1;
 };
 
 } // namespace simnodus::ui

@@ -38,6 +38,8 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QFormLayout>
 #include <QMenu>
@@ -104,6 +106,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
 
     messages_ = new MessagesPanel;
     load_library();
+    set_user_models_folders(settings_.value(QStringLiteral("models/folders")).toStringList());
     document_ = new Document(library_, this);
     scene_ = new SchematicScene(*document_, this);
     run_ = new RunController(*document_, *scene_, this);
@@ -417,14 +420,7 @@ void MainWindow::build_actions_and_menus()
     auto* tools = menuBar()->addMenu(tr("&Tools"));
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
     engine_action_->setStatusTip(tr("Load the analog engine and solve a reference circuit"));
-    auto* models = tools->addAction(tr("Open &Models Folder"), this, [this] {
-        if (!ensure_user_models_folder()) {
-            QMessageBox::warning(this, tr("Models folder"), tr("The folder %1 could not be created.").arg(user_models_folder()));
-            return;
-        }
-        report_model_issues();
-        QDesktopServices::openUrl(QUrl::fromLocalFile(user_models_folder()));
-    });
+    auto* models = tools->addAction(tr("&Model Folders..."), this, &MainWindow::edit_model_folders);
     models->setStatusTip(tr("SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties"));
 
     auto* window = menuBar()->addMenu(tr("&Window"));
@@ -800,6 +796,80 @@ void MainWindow::ask_note_text(model::Point at, model::Id note)
         scene_->select_ids({created});
         view_->set_tool(Tool::Select);
     }
+}
+
+void MainWindow::edit_model_folders()
+{
+    // The folders SPICE model files are read from (PRJ-07): any number, anywhere.
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Model folders"));
+    auto* layout = new QVBoxLayout(&dialog);
+    auto* intro = new QLabel(tr("SimNodus reads the .lib and .mod files of these folders for the Model lists in "
+                                "Properties. A chosen model is saved inside the project, so a folder is only "
+                                "needed while choosing."));
+    intro->setWordWrap(true);
+    layout->addWidget(intro);
+    auto* list = new QListWidget;
+    list->setObjectName(QStringLiteral("modelFolders"));
+    list->addItems(user_models_folders());
+    layout->addWidget(list, 1);
+    auto* buttons_row = new QHBoxLayout;
+    auto* add = new QPushButton(tr("Add..."));
+    auto* remove = new QPushButton(tr("Remove"));
+    auto* open = new QPushButton(tr("Open"));
+    auto* defaults = new QPushButton(tr("Default"));
+    open->setToolTip(tr("Show the selected folder in the file manager (it is created if missing)"));
+    defaults->setToolTip(tr("Only %1").arg(default_models_folder()));
+    for (auto* b : {add, remove, open, defaults}) {
+        buttons_row->addWidget(b);
+    }
+    buttons_row->addStretch(1);
+    layout->addLayout(buttons_row);
+    connect(add, &QPushButton::clicked, &dialog, [this, list] {
+        const QString folder = QFileDialog::getExistingDirectory(this, tr("Add model folder"),
+            list->currentItem() ? list->currentItem()->text() : default_models_folder());
+        if (!folder.isEmpty() && list->findItems(folder, Qt::MatchExactly).isEmpty()) {
+            list->addItem(folder);
+        }
+    });
+    connect(remove, &QPushButton::clicked, &dialog, [list] { delete list->currentItem(); });
+    connect(defaults, &QPushButton::clicked, &dialog, [list] {
+        list->clear();
+        list->addItem(default_models_folder());
+    });
+    connect(open, &QPushButton::clicked, &dialog, [this, list] {
+        const QString folder = list->currentItem() ? list->currentItem()->text() : default_models_folder();
+        if (!ensure_models_folder(folder)) {
+            QMessageBox::warning(this, tr("Model folders"), tr("The folder %1 could not be created.").arg(folder));
+            return;
+        }
+        QDesktopServices::openUrl(QUrl::fromLocalFile(folder));
+    });
+    auto* box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(box, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(box, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(box);
+    dialog.resize(560, 320);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    QStringList folders;
+    for (int i = 0; i < list->count(); ++i) {
+        folders << list->item(i)->text();
+    }
+    set_model_folders(folders);
+}
+
+void MainWindow::set_model_folders(const QStringList& folders)
+{
+    const bool only_default = folders.isEmpty() || folders == QStringList{default_models_folder()};
+    if (only_default) {
+        settings_.remove(QStringLiteral("models/folders"));
+    } else {
+        settings_.setValue(QStringLiteral("models/folders"), folders);
+    }
+    set_user_models_folders(only_default ? QStringList{} : folders);
+    statusBar()->showMessage(tr("Model folders: %1").arg(user_models_folders().join(QStringLiteral("; "))), 6000);
 }
 
 void MainWindow::report_model_issues()
