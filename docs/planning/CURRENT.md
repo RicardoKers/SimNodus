@@ -14,6 +14,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   `SimNodus-0.4.0-windows-x64.zip`. The owner tested the previews of
   2026-10-19 and confirmed the analyzer fixes. Releases 0.1.0, 0.2.0 and
   0.3.0 were published on 2026-10-14 and 2026-10-18.
+- **On `main` after 0.4 (for 0.5):** Brazilian Portuguese interface (#176,
+  Tools > Language), Windows installer (#177, ADR 0100; the owner tested it in
+  a clean VM), dark theme (#178, View > Theme), and polish from the owner's
+  test (#179: short part descriptions, scrolling live values, pressed Pause
+  button). Latest preview: `dist/SimNodus-0.5-preview-2026-10-19b-*` (local,
+  not published).
 - **New in 0.4:** blocks drawn by the user (#163, ADR 0098, PRJ-06 complete
   with vendor subcircuits #161, ADR 0097); latches, flip-flops, counters and
   a shift register (#164, ADR 0099); regulators and references (#165);
