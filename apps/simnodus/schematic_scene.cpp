@@ -140,8 +140,9 @@ public:
         const auto* p = definition_->parameter(definition_->value_parameter);
         const auto it = component_.parameters.find(definition_->value_parameter);
         QString text = QString::fromStdString(it == component_.parameters.end() ? p->default_value : it->second);
-        if (p && p->kind == library::Parameter::Kind::Model && text == QString::fromStdString(p->default_value)) {
-            return {}; // the generic model needs no text on the symbol
+        if (p && p->kind == library::Parameter::Kind::Model && text == QString::fromStdString(p->default_value)
+            && (p->default_value == "Generic" || p->model_type.empty())) {
+            return {}; // the generic or behavioral model needs no text; a named part (1N5819) does
         }
         if (p && p->kind == library::Parameter::Kind::File) {
             // Only the file name; an empty value asks for a file.
@@ -149,6 +150,9 @@ public:
         }
         if (p && p->choices.empty() && !p->unit.empty() && p->unit != "Ohm" && p->unit != "%" && p->unit != "deg") {
             text += QString::fromStdString(p->unit);
+        }
+        if (p && !p->symbol.empty()) {
+            text = QString::fromStdString(p->symbol) + QLatin1Char('=') + text;
         }
         return text;
     }

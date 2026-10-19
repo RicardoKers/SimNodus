@@ -75,6 +75,10 @@
       "subcircuit": [
         "A",
         "K"
+      ],
+      "model_kinds": [
+        "",
+        "silicon"
       ]
     }
   ]

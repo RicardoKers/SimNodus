@@ -26,6 +26,7 @@ struct SpiceModel {
     std::string type;        // upper case: NPN, PNP, D, NMOS, PMOS
     std::string parameters;  // the accepted parameters, "NAME=VALUE" separated by blanks
     std::string description; // the comment line just before the statement, if any
+    std::string kind;        // the file's "type=" in lower case ("schottky", "germanium"), empty when absent
     std::vector<std::string> dropped; // parameters left out, with the reason: "FOO=1 (not a D parameter)"
 
     // The statement with another name, as emitted in a netlist.

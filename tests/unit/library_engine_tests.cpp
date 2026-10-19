@@ -417,6 +417,52 @@ TEST_CASE("library: component set B behaves like its parts")
         std::printf("  Darlington subcircuit at 1 A: Vce %.3f V\n", vce);
         CHECK(vce > 0.6 && vce < 1.5); // a Darlington does not saturate below one diode drop
     }
+    { // teaching models: a fixed diode drop, simple transistors with beta and Vbe
+        auto drop = [&](const char* vf) {
+            test::CircuitBuilder b(components());
+            supply(b, "VCC", "5");
+            b.add("resistor", {{"1", "VCC"}, {"2", "A"}}, {{"R", "1k"}});
+            b.add("ideal_diode", {{"A", "A"}, {"K", "0"}}, {{"Vf", vf}});
+            return op(b, "a");
+        };
+        CHECK(close_to(drop("0.7"), 0.7, 0.002));
+        CHECK(close_to(drop("0.3"), 0.3, 0.002));
+        auto npn = [&](const char* rb) {
+            test::CircuitBuilder b(components());
+            supply(b, "VCC", "12");
+            supply(b, "IN", "5");
+            b.add("resistor", {{"1", "IN"}, {"2", "B"}}, {{"R", rb}});
+            b.add("resistor", {{"1", "VCC"}, {"2", "C"}}, {{"R", "1k"}});
+            b.add("simple_npn", {{"C", "C"}, {"B", "B"}, {"E", "0"}}, {{"beta", "100"}});
+            return std::make_pair(op(b, "b"), op(b, "c"));
+        };
+        const auto active = npn("100k"); // Ib = 43 uA, Ic = 4.3 mA
+        const auto saturated = npn("10k"); // beta x Ib would be 43 mA, the load allows 12 mA
+        std::printf("  simple NPN: Vbe %.3f V, Vc %.3f V active; Vc %.3f V saturated\n", active.first, active.second,
+            saturated.second);
+        CHECK(close_to(active.first, 0.7, 0.002));
+        CHECK(close_to(active.second, 12.0 - 4.3, 0.05));
+        CHECK(saturated.second > 0.17 && saturated.second < 0.2); // at Vce(sat)
+        test::CircuitBuilder p(components());
+        supply(p, "VCC", "12");
+        p.add("resistor", {{"1", "B"}, {"2", "0"}}, {{"R", "100k"}}); // Ib = 113 uA
+        p.add("resistor", {{"1", "C"}, {"2", "0"}}, {{"R", "470"}});
+        p.add("simple_pnp", {{"C", "C"}, {"B", "B"}, {"E", "VCC"}}, {{"beta", "100"}});
+        CHECK(close_to(op(p, "c"), 0.0113 * 470, 0.05));
+        // Schottky and germanium parts use their own kinds of models by default.
+        auto forward = [&](const char* type) {
+            test::CircuitBuilder b(components());
+            supply(b, "VCC", "5");
+            b.add("resistor", {{"1", "VCC"}, {"2", "A"}}, {{"R", "4.7k"}}); // about 1 mA
+            b.add(type, {{"A", "A"}, {"K", "0"}});
+            return op(b, "a");
+        };
+        const double schottky = forward("schottky");
+        const double germanium = forward("germanium");
+        std::printf("  at 1 mA: Schottky (1N5819) %.3f V, germanium (1N34A) %.3f V\n", schottky, germanium);
+        CHECK(schottky > 0.1 && schottky < 0.3);
+        CHECK(germanium > 0.2 && germanium < 0.35);
+    }
     { // three inverters in a ring oscillate through the gate delay
         test::CircuitBuilder b(components());
         b.add("not_gate", {{"A", "N1"}, {"Y", "N2"}});

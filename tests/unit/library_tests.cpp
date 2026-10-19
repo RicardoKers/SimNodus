@@ -6,6 +6,7 @@
 #include "library/spice_model.hpp"
 #include "library/spice_template.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace simnodus;
@@ -248,6 +249,37 @@ TEST_CASE("SPICE models: parameters ngspice cannot use are left out and reported
     std::string why;
     CHECK(!library::parse_spice_model(".model X NPN(BF=100", &why).has_value());
     CHECK(why == "a parenthesis is not closed");
+}
+
+TEST_CASE("diode parts offer the models of their kind")
+{
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    auto offered = [&library](const char* type) {
+        std::vector<std::string> names;
+        const auto* p = library.find(type)->parameter("model");
+        for (const auto& m : library.models()) {
+            if (library::model_fits(*p, m)) {
+                names.push_back(m.name);
+            }
+        }
+        return names;
+    };
+    const auto diode = offered("diode");
+    const auto schottky = offered("schottky");
+    const auto germanium = offered("germanium");
+    CHECK(std::find(diode.begin(), diode.end(), "1N4007") != diode.end());
+    CHECK(std::find(diode.begin(), diode.end(), "1N5819") == diode.end());
+    CHECK((schottky == std::vector<std::string>{"1N5819", "BAT54", "1N5822"}));
+    CHECK((germanium == std::vector<std::string>{"1N34A", "1N60"}));
+    // A vendor model's "type=" decides where it appears; one without it is a plain diode.
+    const auto ss = library::parse_spice_model(".model SS24 D(Is=.4mA N=2.1 mfg=Fairchild type=Schottky)");
+    REQUIRE(ss.has_value());
+    CHECK(ss->kind == "schottky");
+    CHECK(library::model_fits(*library.find("schottky")->parameter("model"), *ss));
+    CHECK(!library::model_fits(*library.find("diode")->parameter("model"), *ss));
+    const auto plain = library::parse_spice_model(".model D1 D(IS=1n)");
+    CHECK(library::model_fits(*library.find("diode")->parameter("model"), *plain));
 }
 
 TEST_CASE("the built-in models cover the semiconductor parts")

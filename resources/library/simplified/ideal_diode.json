@@ -1,0 +1,86 @@
+{
+  "type": "ideal_diode",
+  "name": "Diode (fixed drop)",
+  "category": "Simplified models",
+  "prefix": "D",
+  "description": "Teaching model: no current below the forward voltage Vf, then conducts with 0.1 ohm; no reverse breakdown, no charge storage",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          -0.8,
+          1,
+          -0.8,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0.8,
+          1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "K",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -1
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "Vf",
+  "parameters": [
+    {
+      "name": "Vf",
+      "label": "Forward voltage",
+      "unit": "V",
+      "default": "0.7",
+      "description": "Voltage at which the diode starts to conduct (0.7 V silicon, 0.3 V germanium)",
+      "min": "0",
+      "max": "5"
+    }
+  ],
+  "spice": [
+    "B_{ref} {node:A} {node:K} I=max(V({node:A},{node:K})-{Vf},0)/0.1+V({node:A},{node:K})*1e-9"
+  ]
+}

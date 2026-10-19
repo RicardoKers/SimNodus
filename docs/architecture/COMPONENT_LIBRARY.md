@@ -48,7 +48,10 @@ and the netlist adds the chosen `.model` statement under a SimNodus name.
 of vendor subcircuits; then a `.subckt` with as many ports may be chosen and
 replaces the template ([ADR 0097](../decisions/0097-vendor-subcircuits.md)).
 Without `model_type` (the op-amp) only subcircuits fit, and the default is the
-part's own template.
+part's own template. `"model_kinds": ["schottky"]` limits the offered models
+to those whose file says `type=schottky` (LTspice diode libraries classify
+models this way; `""` stands for models without `type=`). A parameter's
+`"symbol"` is shown before its value on the schematic (`"β"` gives `β=100`).
 
 ### SPICE models
 

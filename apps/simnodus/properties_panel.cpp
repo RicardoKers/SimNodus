@@ -428,14 +428,14 @@ QWidget* PropertiesPanel::model_editor(
         add_item(p.default_value, QString(), tr("SimNodus's built-in model of this part"));
     }
     for (const auto& m : document_->library().models()) {
-        if (m.type == p.model_type) {
+        if (library::model_fits(p, m)) {
             add(m, tr("Built in (SimNodus approximation)"), QString());
         }
     }
     const auto& folder_models = user_models();
     emit models_read();
     for (const auto& u : folder_models) {
-        if (u.model.type == p.model_type && box->findText(QString::fromStdString(u.model.name)) < 0) {
+        if (library::model_fits(p, u.model) && box->findText(QString::fromStdString(u.model.name)) < 0) {
             add(u.model, tr("Models folder: %1").arg(u.file), QString::fromStdString(u.model.card()));
         }
     }
