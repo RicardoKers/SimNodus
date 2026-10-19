@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.4 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.5 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -18,12 +18,14 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
 
+New in 0.5: simulations run in their own program (simnodus-engine.exe), so
+an engine crash ends only the run and SimNodus stays open; the installer
+(setup.exe); the interface in Brazilian Portuguese (Tools > Language); a dark
+theme (View > Theme); the user guide (Help > User Guide).
+
 New in 0.4: blocks you draw yourself (Place > Block); latches, flip-flops,
-counters and a shift register; 7-segment displays with 4511, 7447 and hex
-decoders; regulators (78xx, LDO, LM317) and the TL431; teaching models of
-diodes and transistors; vendor .subckt models from your model folders
-(Tools > Model Folders); splitters that split and join buses; a faster
-Signal Analyzer with a marked trigger point.
+counters and a shift register; 7-segment displays and decoders; regulators
+and the TL431; vendor .subckt models from your model folders.
 
 Guides in this folder (also Help > User Guide): QUICK-START.md,
 USER-GUIDE.md with the known limitations, and MICROCONTROLLER.md (also on

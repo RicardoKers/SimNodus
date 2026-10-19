@@ -4,6 +4,17 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.5.0 — 2026-10-19
+
+### Summary
+
+- Simulations run in a separate engine process (SN-151, ADR 0101): a crash of ngspice or of the emulator ends only the run; SimNodus and the open project stay open, and F5 starts a new engine.
+- Windows installer (SN-152, ADR 0100) beside the portable zip: for the current user without administrator rights, or for all users; Start menu, `.snx` association, uninstaller.
+- Brazilian Portuguese interface (SN-153): Tools > Language; the system's language by default.
+- Dark theme (SN-162): View > Theme (System, Light, Dark).
+- User guide with known limitations (SN-154): Help > User Guide; shorter quick start.
+- Polish from the owner's test: short part descriptions, scrolling live values, a pressed Pause button.
+
 ### Changed (2026-10-19, SN-151)
 
 - Simulations run in a separate program, `simnodus-engine` (SIM-08, ADR 0101): a crash of ngspice or of the microcontroller emulator now ends only the run, with the message "The simulation engine stopped unexpectedly"; SimNodus and the open project stay, and the next F5 starts a new engine. The editor mirrors the run's state (values, samples, boards, serial bytes, pin changes, transient result), so the canvas and the Signal Analyzer behave as before; the heaviest case measured (40 vectors, exact edges at 10 µs) runs at the same speed. `--check-engine` also runs example 01 in the engine process, so the package and installer checks cover it. Tests: protocol, mirrored interactive and transient runs, a lost engine, a Blue Pill's pins and serial output, and a GUI test that kills the engine during a run.

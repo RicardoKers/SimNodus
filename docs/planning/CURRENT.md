@@ -8,20 +8,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.4.0 published on 2026-10-19** (planned for 2026-12-11; the
-  owner chose to release the finished work now and move installer and pt-BR
-  translation to the next releases): tag `v0.4.0`, GitHub release with
-  `SimNodus-0.4.0-windows-x64.zip`. The owner tested the previews of
-  2026-10-19 and confirmed the analyzer fixes. Releases 0.1.0, 0.2.0 and
-  0.3.0 were published on 2026-10-14 and 2026-10-18.
-- **On `main` after 0.4 (for 0.5):** Brazilian Portuguese interface (#176,
-  Tools > Language), Windows installer (#177, ADR 0100; the owner tested it in
-  a clean VM), dark theme (#178, View > Theme), polish from the owner's
-  test (#179: short part descriptions, scrolling live values, pressed Pause
-  button), the user guide (SN-154), and simulations in a separate engine
-  process (SN-151, ADR 0101: `simnodus-engine`; an engine crash ends only the
-  run). Latest preview: `dist/SimNodus-0.5-preview-2026-10-19b-*` (local, not
-  published; it predates SN-151 and SN-154).
+- **Release 0.5.0 published on 2026-10-19** (the owner tested the preview
+  of 2026-10-19c on a clean PC, GDB debugging included, and asked for the
+  release): tag `v0.5.0`, GitHub release with
+  `SimNodus-0.5.0-windows-x64.zip` and `SimNodus-0.5.0-windows-x64-setup.exe`.
+  Releases 0.1.0-0.4.0 were published on 2026-10-14, 10-18 and 10-19.
+- **New in 0.5:** simulations in a separate engine process (#182, ADR 0101:
+  `simnodus-engine`; an engine crash ends only the run), Windows installer
+  (#177, ADR 0100), Brazilian Portuguese interface (#176), dark theme (#178),
+  user guide with known limitations (#181), polish from the owner's test
+  (#179).
 - **New in 0.4:** blocks drawn by the user (#163, ADR 0098, PRJ-06 complete
   with vendor subcircuits #161, ADR 0097); latches, flip-flops, counters and
   a shift register (#164, ADR 0099); regulators and references (#165);
@@ -57,15 +53,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Done on 2026-10-19: release 0.4.0, pt-BR translation, Windows installer
-   (SN-152, ADR 0100), dark theme (SN-162), polish from the owner's test,
-   the user guide (SN-154), and the engine process (SN-151, ADR 0101). Phase 4
-   has no open task left.
-2. Next: a 0.5 preview package for the owner to try the engine process on a
-   clean PC (Windows Defender, a crash, GDB debugging from the engine); then
-   ask about releasing 0.5.
-3. Classroom feedback (postponed: academic calendar). Open question: a pt-BR
-   version of the user guide.
+1. Phase 4 has no open task left; the release plan's 0.5 scope is done.
+2. Ask the owner what comes next: classroom feedback is postponed (academic
+   calendar); candidates from the backlog are watchdogs/CRC/RTC (SN-187), a
+   Linux package (SN-164), a headless CLI (SN-163), the Symbol Editor
+   (SN-160), and a pt-BR version of the user guide.
 
 ## Known constraints
 

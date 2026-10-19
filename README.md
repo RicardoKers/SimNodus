@@ -8,13 +8,16 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
 microcontroller, ngspice for the circuit and a Qt 6 interface.
 
-**Status (2026-10-14): release 0.1.0 — analog interactive editor.** Draw
-circuits from 20 component types, run them continuously while clicking
-switches, holding push buttons and turning potentiometers, and watch the
-signals in the Signal Analyzer. Download the Windows installer or the portable zip from the
+**Status (2026-10-19): release 0.5.0.** Draw analog and digital circuits
+(59 component types, buses, your own blocks), run them continuously
+while clicking switches, holding push buttons and turning potentiometers, and
+watch the signals in the Signal Analyzer. A Blue Pill (STM32F103C8) runs your
+firmware in SimNodus's own emulator and can be debugged from STM32CubeIDE.
+English and Brazilian Portuguese interface; simulations run in a separate
+engine process. Download the Windows installer or the portable zip from the
 [releases](https://github.com/RicardoKers/SimNodus/releases) and see the
-[quick start](docs/user/QUICK_START.md) and the [user guide](docs/user/USER_GUIDE.md). Release 0.2.0 (2026-10-18) adds the
-STM32/Blue Pill microcontroller; see the [roadmap](docs/planning/ROADMAP.md). Build instructions:
+[quick start](docs/user/QUICK_START.md) and the [user guide](docs/user/USER_GUIDE.md);
+plans in the [roadmap](docs/planning/ROADMAP.md). Build instructions:
 [getting started](docs/development/GETTING_STARTED.md).
 
 ## Start here
