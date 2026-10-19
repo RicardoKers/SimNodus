@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0101: Simulations run in a separate engine process](0101-engine-process.md):
+  SN-151, SIM-08; Qt-free simnodus-engine over standard streams, state mirrored in the editor, a crash costs only the run.
 - [0100: Windows installer with Inno Setup, per user by default](0100-windows-installer.md):
   SN-152; setup.exe beside the portable zip, all users on request, .snx association, checked by a silent install.
 - [0099: Latches, flip-flops and counters are behavioral, with their state in capacitors](0099-behavioral-storage-parts.md):

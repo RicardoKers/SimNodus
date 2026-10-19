@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-19, SN-151)
+
+- Simulations run in a separate program, `simnodus-engine` (SIM-08, ADR 0101): a crash of ngspice or of the microcontroller emulator now ends only the run, with the message "The simulation engine stopped unexpectedly"; SimNodus and the open project stay, and the next F5 starts a new engine. The editor mirrors the run's state (values, samples, boards, serial bytes, pin changes, transient result), so the canvas and the Signal Analyzer behave as before; the heaviest case measured (40 vectors, exact edges at 10 µs) runs at the same speed. `--check-engine` also runs example 01 in the engine process, so the package and installer checks cover it. Tests: protocol, mirrored interactive and transient runs, a lost engine, a Blue Pill's pins and serial output, and a GUI test that kills the engine during a run.
+
 ### Added (2026-10-19, SN-154)
 
 - User guide `docs/user/USER_GUIDE.md`: installing, the window, drawing, every component category, device models and model folders, buses, blocks, running and simulation settings, the Signal Analyzer, the microcontroller, files and examples, preferences, command line, troubleshooting and the known limitations (circuit, microcontroller, application). *Help > User Guide* opens it (packaged next to `simnodus.exe` as `USER-GUIDE.md`; a build tree opens the GitHub page). The quick start is now a five-minute walk-through, and its stale "known limits of 0.1" are replaced by the guide's chapter.

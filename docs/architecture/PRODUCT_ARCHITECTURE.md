@@ -130,9 +130,11 @@ results with analytical references (RC, RL, divider, diode clamp).
 ## Threads and processes
 
 - Phase 1–3: engine runs in a worker thread of the application process.
-- Phase 4 (SIM-08): engine moves to a child process (`simnodus-engine`) with the
-  same `SimulationSession` API over a local socket, so a crash in a backend does
-  not affect the editor (ADR 0078's containment goal).
+- Since SN-151 (SIM-08, [ADR 0101](../decisions/0101-engine-process.md)): the
+  engine runs in a child process (`simnodus-engine`) behind the same
+  `sim::Session` interface; `RemoteSession` mirrors its state in the editor
+  over the child's standard streams, so a crash in a backend does not affect
+  the editor (ADR 0078's containment goal).
 
 ## Repository layout
 

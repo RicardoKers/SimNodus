@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: MIT
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
+#include "engine_process.hpp"
 #include "main_window.hpp"
 #include "theme.hpp"
 
 #include "emu/elf.hpp"
 #include "emu/stm32f103.hpp"
+#include "io/project_file.hpp"
+#include "library/blocks.hpp"
+#include "library/component_library.hpp"
+#include "sim/remote_session.hpp"
 #include "sim/engine_check.hpp"
 #include "simnodus/version.hpp"
 
@@ -25,6 +30,8 @@
 #include <chrono>
 #include <cstdio>
 #include <filesystem>
+#include <optional>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -75,6 +82,64 @@ void install_translations(QApplication& application, const QString& language)
     }
 }
 
+// Runs example 01 for 0.1 s of simulated time in the engine process (SN-151),
+// as the editor does.
+int check_engine_process(const std::filesystem::path& app_dir)
+{
+    simnodus::sim::protocol::EngineSetup setup;
+    setup.application_dir = app_dir;
+    simnodus::library::ComponentLibrary library;
+    for (const auto& folder : simnodus::library::library_candidates(app_dir)) {
+        std::error_code ec;
+        if (std::filesystem::is_directory(folder, ec)) {
+            library.load_directory(folder);
+            setup.library_dir = folder;
+            break;
+        }
+    }
+    std::optional<simnodus::model::Schematic> circuit;
+    std::vector<std::filesystem::path> folders{app_dir / "examples", app_dir / ".." / "share" / "simnodus" / "examples"};
+#ifdef SIMNODUS_SOURCE_EXAMPLES_DIR
+    folders.emplace_back(SIMNODUS_SOURCE_EXAMPLES_DIR); // a build tree
+#endif
+    for (const auto& examples : folders) {
+        if (auto loaded = simnodus::io::load_project(examples / "01_LED_and_push_button.snx"); loaded.schematic) {
+            circuit = std::move(loaded.schematic);
+            break;
+        }
+    }
+    if (!circuit || library.empty()) {
+        std::printf("FAIL: the library or examples/01_LED_and_push_button.snx was not found next to the application\n");
+        return 1;
+    }
+    simnodus::ui::EngineProcess engine;
+    simnodus::sim::RemoteSession session(engine, setup);
+    simnodus::sim::RunRequest request;
+    request.schematic = *circuit;
+    const auto library_with_blocks = simnodus::library::with_blocks(library, request.schematic);
+    request.library = &library_with_blocks;
+    std::string error;
+    const auto begin = std::chrono::steady_clock::now();
+    if (!session.start(request, error)) {
+        std::printf("FAIL: engine process %s: %s\n", simnodus::ui::EngineProcess::program().toLocal8Bit().constData(),
+            error.c_str());
+        return 1;
+    }
+    while (session.active() && session.status().sim_time < 0.1
+        && std::chrono::steady_clock::now() - begin < std::chrono::seconds(30)) {
+        engine.pump(50);
+    }
+    const auto status = session.status();
+    session.stop();
+    if (status.sim_time < 0.1) {
+        std::printf("FAIL: the engine process reached %.3f s of simulated time: %s\n", status.sim_time,
+            status.message.c_str());
+        return 1;
+    }
+    std::printf("PASS: engine process ran example 01 for %.2f s of simulated time\n", status.sim_time);
+    return 0;
+}
+
 int check_engine()
 {
     const std::filesystem::path app_dir = QCoreApplication::applicationDirPath().toStdWString();
@@ -82,13 +147,13 @@ int check_engine()
     for (const auto& line : result.messages) {
         std::printf("%s\n", line.c_str());
     }
-    if (result.ok) {
-        std::printf("PASS: ngspice-%d loaded from %s; divider V(out) = %.6f V\n", result.version.value_or(0),
-            result.library.string().c_str(), result.divider_volts);
-        return 0;
+    if (!result.ok) {
+        std::printf("FAIL: analog engine not available\n");
+        return 1;
     }
-    std::printf("FAIL: analog engine not available\n");
-    return 1;
+    std::printf("PASS: ngspice-%d loaded from %s; divider V(out) = %.6f V\n", result.version.value_or(0),
+        result.library.string().c_str(), result.divider_volts);
+    return check_engine_process(app_dir);
 }
 
 // Runs the blink example's firmware for 1.1 s of virtual time in the
