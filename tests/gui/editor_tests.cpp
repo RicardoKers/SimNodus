@@ -29,6 +29,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
+#include <QDoubleSpinBox>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
@@ -948,6 +949,60 @@ private slots:
         qInfo("%d samples compared, %d different", compared, different);
         QVERIFY(compared > 100);
         QCOMPARE(different, 0);
+        window_->stop();
+#endif
+    }
+
+    void trigger_point_is_marked_and_auto_runs_free_without_trigger()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        // Owner's report of 2026-10-19: with long timebases the triggered display
+        // stood still on an old frame and showed no trigger point.
+        auto run_triggered = [&](const char* example, double level) {
+            QStringList errors;
+            QStringList warnings;
+            QVERIFY(doc().open_copy(QString::fromUtf8(SIMNODUS_TEST_EXAMPLES_DIR) + QLatin1Char('/') + QLatin1String(example),
+                errors, warnings));
+            auto settings = doc().schematic().settings();
+            settings.speed = 0;
+            doc().apply(editing::set_settings(doc().schematic(), settings));
+            window_->show_analyzer();
+            AnalyzerWindow* analyzer = window_->analyzer();
+            analyzer->timebase()->setCurrentIndex(analyzer->timebase()->findData(0.1)); // 100 ms/div
+            analyzer->findChild<QComboBox*>(QStringLiteral("scopeMode"))->setCurrentIndex(1);
+            const auto level_box = analyzer->findChildren<QDoubleSpinBox*>();
+            for (auto* box : level_box) {
+                if (box->value() == 1.0 && box->decimals() == 4) {
+                    box->setValue(level);
+                }
+            }
+            window_->run();
+            QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->status().sim_time > 4.0, 60000);
+            analyzer->refresh();
+        };
+        // A 2 Hz pulse crosses 2.5 V twice a period: triggered frames with the T marker.
+        run_triggered("02_RC_filter_with_pulse.snx", 2.5);
+        auto* scope = window_->analyzer()->scope();
+        QVERIFY(scope->trigger_point().has_value());
+        QVERIFY(*scope->trigger_point() >= scope->window_start() && *scope->trigger_point() <= scope->window_end());
+        QVERIFY(scope->trigger_state().startsWith(QStringLiteral("Triggered at")));
+        // It stays triggered: new crossings keep arriving (no alternation with free running).
+        for (int i = 0; i < 10; ++i) {
+            QTest::qWait(200);
+            window_->analyzer()->refresh();
+            QVERIFY2(scope->trigger_state().startsWith(QStringLiteral("Triggered at")), qPrintable(scope->trigger_state()));
+        }
+        window_->stop();
+        // Steady voltages never cross 100 V: Auto runs free instead of standing still.
+        run_triggered("03_Potentiometer_and_meters.snx", 100.0);
+        QVERIFY(!scope->trigger_point().has_value());
+        QVERIFY(scope->trigger_state().contains(QStringLiteral("running free")));
+        const double end = scope->window_end();
+        QTest::qWait(300);
+        window_->analyzer()->refresh();
+        QVERIFY(scope->window_end() > end);
         window_->stop();
 #endif
     }

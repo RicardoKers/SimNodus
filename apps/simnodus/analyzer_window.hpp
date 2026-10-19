@@ -116,6 +116,8 @@ private:
     bool single_done_ = false;
     bool autoscale_pending_ = true; // fit scales once the first data arrives
     std::optional<std::pair<double, double>> last_window_;
+    std::optional<double> last_trigger_; // newest trigger crossing found
+    double trigger_seen_at_ = 0.0;       // simulated time when it was found
     sim::TransientResult record_;  // the complete transient record, read once per reload
     QElapsedTimer measured_;       // measurements of full data run a few times a second
     bool measurements_due_ = true;

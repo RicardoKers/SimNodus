@@ -60,6 +60,12 @@ public:
     void set_cursor(int index, double time);
 
     void set_trigger_marker(std::optional<double> level, QColor color);
+    // Triggered mode: the time the trace crossed the trigger level, marked on
+    // the top edge, and a short state text ("Triggered", "Waiting for trigger").
+    void set_trigger_point(std::optional<double> time);
+    std::optional<double> trigger_point() const { return trigger_time_; }
+    void set_trigger_state(const QString& text);
+    QString trigger_state() const { return trigger_state_; }
     // Channel whose scale the left margin shows (index in traces()), -1 for none.
     void set_selected_trace(int index);
     int selected_trace() const { return selected_; }
@@ -106,6 +112,8 @@ private:
     std::optional<double> trigger_level_;
     QColor trigger_color_;
     QString message_;
+    std::optional<double> trigger_time_;
+    QString trigger_state_;
     int selected_ = -1;
     int dragging_marker_ = -1;
     double drag_origin_y_ = 0.0;
