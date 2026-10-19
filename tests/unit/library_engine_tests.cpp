@@ -546,6 +546,45 @@ TEST_CASE("library: component set B behaves like its parts")
             CHECK(close_to(sr("5", "5"), 0.0, 0.01)); // reset wins
         }
     }
+    { // SN-201: regulators and references
+        auto regulator = [&](const char* type, const char* vin, const char* load) {
+            test::CircuitBuilder b(components());
+            supply(b, "IN", vin);
+            b.add(type, {{"IN", "IN"}, {"GND", "0"}, {"OUT", "OUT"}});
+            b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", load}});
+            return op(b, "out");
+        };
+        const double v5 = regulator("regulator_78xx", "12", "100");
+        const double dropout = regulator("regulator_78xx", "6", "100");
+        const double limited = regulator("regulator_78xx", "12", "1");
+        const double ldo = regulator("regulator_ldo", "5", "33");
+        std::printf("  7805: %.4f V at 50 mA, %.3f V from 6 V, %.3f V into 1 ohm; LDO %.4f V\n", v5, dropout, limited, ldo);
+        CHECK(close_to(v5, 5.0, 0.01));
+        CHECK(close_to(dropout, 4.0, 0.02));    // 6 V - 2 V dropout
+        CHECK(close_to(limited, 1.0, 0.02));    // 1 A current limit
+        CHECK(close_to(ldo, 3.3, 0.01));
+        test::CircuitBuilder adj(components());
+        supply(adj, "IN", "12");
+        adj.add("lm317", {{"IN", "IN"}, {"ADJ", "ADJ"}, {"OUT", "OUT"}});
+        adj.add("resistor", {{"1", "OUT"}, {"2", "ADJ"}}, {{"R", "240"}});
+        adj.add("resistor", {{"1", "ADJ"}, {"2", "0"}}, {{"R", "720"}});
+        CHECK(close_to(op(adj, "out"), 1.25 * (1 + 720.0 / 240.0) + 50e-6 * 720, 0.01)); // 5.036 V
+        auto shunt = [&](bool divider) {
+            test::CircuitBuilder b(components());
+            supply(b, "VS", "12");
+            b.add("resistor", {{"1", "VS"}, {"2", "K"}}, {{"R", "1k"}});
+            if (divider) { // Vk = 2.495 V x (1 + 10k/10k)
+                b.add("resistor", {{"1", "K"}, {"2", "REF"}}, {{"R", "10k"}});
+                b.add("resistor", {{"1", "REF"}, {"2", "0"}}, {{"R", "10k"}});
+                b.add("tl431", {{"K", "K"}, {"A", "0"}, {"REF", "REF"}});
+            } else {
+                b.add("tl431", {{"K", "K"}, {"A", "0"}, {"REF", "K"}});
+            }
+            return op(b, "k");
+        };
+        CHECK(close_to(shunt(false), 2.495, 0.005));
+        CHECK(close_to(shunt(true), 4.99, 0.01));
+    }
     { // transformer 10:1 with a 10 V, 50 Hz primary: about 1 V on the secondary
         test::CircuitBuilder b(components());
         b.add("vsine", {{"+", "P"}, {"-", "0"}}, {{"amplitude", "10"}, {"f", "50"}});

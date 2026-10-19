@@ -6,12 +6,14 @@
 
 #include "circuit_builder.hpp"
 #include "engine_fixture.hpp"
+#include "io/project_file.hpp"
 #include "library/blocks.hpp"
 #include "sim/simulation_session.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <filesystem>
 #include <memory>
 #include <thread>
 
@@ -308,6 +310,59 @@ TEST_CASE("session: a counter keeps its count across segments")
     CHECK(checked > 1000);
     CHECK(wrong == 0);
     CHECK(session.status().segments >= 15);
+}
+
+TEST_CASE("session: every analog example runs in an interactive session")
+{
+    // A circuit can pass the pre-run checks and still fail at the first step of a
+    // run that starts from 0 V (found with the regulators, SN-201).
+    REQUIRE(test::engine() != nullptr);
+    int ran = 0;
+    for (const auto& entry : std::filesystem::directory_iterator(SIMNODUS_TEST_EXAMPLES_DIR)) {
+        if (entry.path().extension() != ".snx") {
+            continue;
+        }
+        auto loaded = io::load_project(entry.path());
+        REQUIRE(loaded.schematic.has_value());
+        const auto library = library::with_blocks(components(), *loaded.schematic);
+        const auto& parts = loaded.schematic->components();
+        if (std::any_of(parts.begin(), parts.end(), [&](const model::Component& c) {
+                const auto* d = library.find(c.type);
+                return d && d->mcu;
+            })) {
+            continue; // boards need their firmware engine: session_mcu_tests
+        }
+        auto schematic = *loaded.schematic;
+        auto settings = schematic.settings();
+        settings.mode = model::SimulationMode::Interactive;
+        settings.speed = 0;
+        schematic.set_settings(settings);
+        sim::RunRequest request;
+        request.schematic = schematic;
+        request.library = &library;
+        request.vectors = {"N001", "N002", "N004"};
+        sim::SimulationSession session;
+        std::string error;
+        REQUIRE(session.start(request, error));
+        const bool reached = wait_for_time(session, 0.2);
+        const auto status = session.status();
+        if (!reached) {
+            std::printf("  %s: %s\n", entry.path().filename().string().c_str(), status.message.c_str());
+        }
+        CHECK(reached);
+        if (entry.path().filename() == "22_Regulators_and_reference.snx") {
+            // 7805 into 100 ohm; LM317 with 240 ohm and 1 k: 1.25 V x (1 + 1k/240) + 50 uA x 1k; TL431.
+            std::printf("  example 22: %.4f V, %.4f V, %.4f V\n", session.latest("n001").value_or(0),
+                session.latest("n002").value_or(0), session.latest("n004").value_or(0));
+            CHECK(std::abs(session.latest("n001").value_or(0) - 5.0) < 0.01);
+            CHECK(std::abs(session.latest("n002").value_or(0) - (1.25 * (1 + 1000.0 / 240.0) + 0.05)) < 0.02);
+            CHECK(std::abs(session.latest("n004").value_or(0) - 2.495) < 0.005);
+        }
+        session.stop();
+        ++ran;
+    }
+    std::printf("  %d analog examples ran\n", ran);
+    CHECK(ran >= 12);
 }
 
 TEST_CASE("session: paced run follows real time and pauses")
