@@ -683,7 +683,9 @@ private slots:
         window_->analyzer()->refresh();
         const auto& traces = window_->analyzer()->scope()->traces();
         QCOMPARE(traces.size(), std::size_t{1});
-        QVERIFY(traces[0].samples.size() > 1000);
+        // The plot holds a thinned copy (a few points per pixel); the record keeps every step.
+        QVERIFY(traces[0].samples.size() > 100);
+        QVERIFY(window_->run_controller()->transient_result().time.size() > 1000);
         QVERIFY(std::abs(traces[0].samples.back().value - 5.0 * (1 - std::exp(-5.0))) < 0.05);
         QVERIFY(window_->analyzer()->measurement_row()->text().contains(QStringLiteral("max")));
         const QString csv = dir_.filePath(QStringLiteral("out.csv"));
