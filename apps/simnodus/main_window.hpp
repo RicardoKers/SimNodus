@@ -9,6 +9,8 @@
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
+
+#include <optional>
 #endif
 
 #include <QMainWindow>
@@ -82,6 +84,11 @@ public:
     // File operations; return false if cancelled or failed.
     bool open_file(const QString& path);
     bool save_to(const QString& path);
+    // Blocks (PRJ-06): copies the block file into the project (replacing a copy
+    // of the same name) and returns the block's type, or empty with `error`.
+    QString add_block_file(const QString& path, QString& error);
+    // The block files that differ from the project's copies, by block name.
+    QStringList changed_block_files() const;
     // For tests: the unsaved-changes prompt answers "discard" automatically.
     void set_confirm_discard(bool automatic) { auto_discard_ = automatic; }
 
@@ -140,6 +147,13 @@ private:
     // Problems of the user's models folder in Messages, once per read (PRJ-07).
     void report_model_issues();
     void report_diagnostics();
+    void place_block();
+    void open_block(model::Id component);
+    void update_block(model::Id component);
+    void offer_block_updates();
+    // A block's file on disk: its source resolved against the project's folder.
+    QString block_path(const model::Block& block) const;
+    std::optional<model::Block> read_block(const QString& path, QString& error) const;
 
     QSettings& settings_;
     library::ComponentLibrary library_;

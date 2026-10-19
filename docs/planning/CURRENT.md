@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-18. Keep this file short: present state, last results, next
+Updated: 2026-10-19. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -16,8 +16,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - Since 0.3.0: imported models are checked parameter by parameter (#159);
   the engine is reloaded after an error ngspice cannot recover from (#160);
   vendor `.subckt` models on op-amps, transistors, MOSFETs and diodes (#161,
-  ADR 0097); teaching models and diode kinds (SN-197, SN-198, branch
-  `simple-models`). Next: blocks drawn by the user (PRJ-06 second part), then
+  ADR 0097); teaching models and diode kinds (#162); blocks drawn by the user
+  (SN-200, ADR 0098, branch `user-blocks`), which completes PRJ-06. Next:
   digital storage parts (SN-199, needs a measurement first); symbols for
   regulators and references.
 - **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
@@ -27,7 +27,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Renode removed (SN-183, ADR 0094); fixes from the owner's preview test.
 - **Carried over from 0.2:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
-    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–18, continuous interactive
+    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–20, continuous interactive
     simulation with ngspice (ADR 0080), transient mode.
   - Signal Analyzer: scope with probes, roll/trigger, cursors, measurements,
     per-channel vertical scale, 0 V markers and offsets (SN-189), CSV/PNG
@@ -53,8 +53,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    reports when it arrives.
 2. Backlog candidates, none urgent; ask the owner which block comes next:
    installer (SN-152), pt-BR translation (SN-153), dark theme (SN-162), user
-   guide (SN-154), subcircuits (PRJ-06, also for `.subckt` part models),
-   engine in a child process (SN-151).
+   guide (SN-154), engine in a child process (SN-151).
 3. Release 0.4 is due 2026-12-11.
 
 ## Known constraints

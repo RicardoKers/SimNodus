@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
@@ -44,9 +45,10 @@ struct Graphic {
 
 struct Parameter {
     // Number (engineering notation), Choice (one of `choices`), File (a path,
-    // stored relative to the project when possible; `filter` like "*.elf") or
-    // Model (the name of a SPICE model of type `model_type`, PRJ-07).
-    enum class Kind { Number, Choice, File, Model };
+    // stored relative to the project when possible; `filter` like "*.elf"),
+    // Model (the name of a SPICE model of type `model_type`, PRJ-07) or Text
+    // (any words, a block port's name).
+    enum class Kind { Number, Choice, File, Model, Text };
     Kind kind = Kind::Number;
     std::string name;
     std::string label;
@@ -153,10 +155,14 @@ struct ComponentDefinition {
     std::vector<std::string> spice;  // template lines
     std::vector<std::string> models; // .model lines, emitted once per netlist
     std::string ties_net;            // non-empty: all pins belong to this net ("0" for ground)
+    std::string ties_net_parameter;  // non-empty: all pins belong to the net named by this parameter (block ports)
     std::optional<Interactive> interactive;
     std::optional<Readout> readout;
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::filesystem::path source; // file it was loaded from
+    // A user block (PRJ-06): the circuit behind the symbol, whose port parts are
+    // the pins. It has no template; the netlist puts the circuit in its place.
+    std::shared_ptr<const model::Schematic> block;
 
     const Pin* pin(const std::string& pin_name) const;
     const Parameter* parameter(const std::string& parameter_name) const;
@@ -180,6 +186,8 @@ public:
     std::vector<LoadMessage> load_directory(const std::filesystem::path& directory);
     // Parses one definition; returns an error message on failure.
     std::optional<std::string> add_from_json(const std::string& text, const std::filesystem::path& source = {});
+    // Adds a definition made in code (a block's), replacing one of the same type.
+    void add_definition(ComponentDefinition definition);
 
     const ComponentDefinition* find(const std::string& type) const;
     const std::vector<ComponentDefinition>& definitions() const { return definitions_; }

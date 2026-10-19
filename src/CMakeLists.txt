@@ -15,6 +15,7 @@ target_include_directories(simnodus_model PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(simnodus_model PRIVATE simnodus::warnings)
 
 add_library(simnodus_library STATIC
+    library/blocks.cpp
     library/component_library.cpp
     library/spice_model.cpp
     library/spice_template.cpp)

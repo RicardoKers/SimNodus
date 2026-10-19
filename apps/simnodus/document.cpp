@@ -4,6 +4,7 @@
 
 #include "editing/operations.hpp"
 #include "io/project_file.hpp"
+#include "library/blocks.hpp"
 
 #include <QDir>
 #include <QFileInfo>
@@ -22,12 +23,14 @@ public:
     void redo() override
     {
         edit_.apply(document_.schematic_);
+        document_.refresh_library();
         emit document_.changed();
     }
 
     void undo() override
     {
         edit_.revert(document_.schematic_);
+        document_.refresh_library();
         emit document_.changed();
     }
 
@@ -37,7 +40,8 @@ private:
 };
 
 Document::Document(const library::ComponentLibrary& library, QObject* parent)
-    : QObject(parent), library_(library), undo_(new QUndoStack(this))
+    : QObject(parent), base_(library), library_(std::make_shared<library::ComponentLibrary>(library)),
+      undo_(new QUndoStack(this))
 {
     connect(undo_, &QUndoStack::cleanChanged, this, &Document::file_changed);
 }
@@ -58,8 +62,25 @@ void Document::replace(model::Schematic schematic, const QString& path)
     path_ = path;
     origin_dir_.clear();
     undo_->setClean();
+    refresh_library();
     emit changed();
     emit file_changed();
+}
+
+void Document::refresh_library()
+{
+    if (schematic_.blocks() == built_) {
+        return;
+    }
+    std::vector<std::string> problems;
+    retired_.push_back(library_);
+    library_ = std::make_shared<library::ComponentLibrary>(library::with_blocks(base_, schematic_, &problems));
+    built_ = schematic_.blocks();
+    block_problems_.clear();
+    for (const auto& p : problems) {
+        block_problems_ << QString::fromStdString(p);
+    }
+    emit library_changed();
 }
 
 void Document::new_document()
@@ -108,7 +129,7 @@ bool Document::save(const QString& path, QString& error)
     if (!old_base.isEmpty() && QDir(old_base) != QDir(new_base)) {
         model::Schematic work = schematic_;
         for (const auto& c : schematic_.components()) {
-            const auto* d = library_.find(c.type);
+            const auto* d = library().find(c.type);
             if (!d) {
                 continue;
             }

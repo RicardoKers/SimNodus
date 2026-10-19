@@ -18,6 +18,9 @@ void Edit::apply(Schematic& schematic) const
     if (settings_) {
         schematic.set_settings(settings_->second);
     }
+    if (blocks_) {
+        schematic.set_blocks(blocks_->second);
+    }
 }
 
 void Edit::revert(Schematic& schematic) const
@@ -32,6 +35,9 @@ void Edit::revert(Schematic& schematic) const
     if (settings_) {
         schematic.set_settings(settings_->first);
     }
+    if (blocks_) {
+        schematic.set_blocks(blocks_->first);
+    }
 }
 
 void Edit::set_settings(const SimulationSettings& before, const SimulationSettings& after)
@@ -40,6 +46,15 @@ void Edit::set_settings(const SimulationSettings& before, const SimulationSettin
         settings_.reset();
     } else {
         settings_ = std::make_pair(before, after);
+    }
+}
+
+void Edit::set_blocks(const std::map<std::string, Block>& before, const std::map<std::string, Block>& after)
+{
+    if (before == after) {
+        blocks_.reset();
+    } else {
+        blocks_ = std::make_pair(before, after);
     }
 }
 
@@ -82,6 +97,7 @@ Edit make_edit(const Schematic& before, const Schematic& after, std::string desc
         }
     }
     edit.set_settings(before.settings(), after.settings());
+    edit.set_blocks(before.blocks(), after.blocks());
     return edit;
 }
 

@@ -16,6 +16,7 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QTreeWidget>
+#include <QTreeWidgetItemIterator>
 #include <QVBoxLayout>
 
 namespace simnodus::ui {
@@ -86,7 +87,7 @@ private:
 };
 
 ComponentPanel::ComponentPanel(const library::ComponentLibrary& library, QWidget* parent)
-    : QWidget(parent), library_(library)
+    : QWidget(parent), library_(&library)
 {
     setObjectName(QStringLiteral("componentPanel"));
     auto* layout = new QVBoxLayout(this);
@@ -146,10 +147,10 @@ ComponentPanel::ComponentPanel(const library::ComponentLibrary& library, QWidget
 
 void ComponentPanel::populate()
 {
-    for (const auto& category : library_.categories()) {
+    for (const auto& category : library_->categories()) {
         auto* parent = new QTreeWidgetItem(tree_, {translated(category)});
         parent->setFlags(Qt::ItemIsEnabled);
-        for (const auto& d : library_.definitions()) {
+        for (const auto& d : library_->definitions()) {
             if (d.category != category) {
                 continue;
             }
@@ -162,6 +163,22 @@ void ComponentPanel::populate()
     }
 }
 
+void ComponentPanel::set_library(const library::ComponentLibrary& library)
+{
+    const QString current = selected_type();
+    library_ = &library;
+    tree_->clear();
+    populate();
+    apply_filter(search_->text());
+    for (QTreeWidgetItemIterator it(tree_); *it; ++it) {
+        if (!current.isEmpty() && (*it)->data(0, TypeRole).toString() == current) {
+            tree_->setCurrentItem(*it);
+            break;
+        }
+    }
+    update_preview();
+}
+
 void ComponentPanel::apply_filter(const QString& text)
 {
     const QString needle = text.trimmed();
@@ -171,7 +188,7 @@ void ComponentPanel::apply_filter(const QString& text)
         int visible = 0;
         for (int i = 0; i < category->childCount(); ++i) {
             auto* item = category->child(i);
-            const auto* d = library_.find(item->data(0, TypeRole).toString().toStdString());
+            const auto* d = library_->find(item->data(0, TypeRole).toString().toStdString());
             const bool match = needle.isEmpty() || item->text(0).contains(needle, Qt::CaseInsensitive)
                 || (d && QString::fromStdString(d->description).contains(needle, Qt::CaseInsensitive))
                 || (d && QString::fromStdString(d->type).contains(needle, Qt::CaseInsensitive))
@@ -215,7 +232,7 @@ QString ComponentPanel::selected_type() const
 void ComponentPanel::update_preview()
 {
     const auto* item = tree_->currentItem();
-    const auto* d = item ? library_.find(item->data(0, TypeRole).toString().toStdString()) : nullptr;
+    const auto* d = item ? library_->find(item->data(0, TypeRole).toString().toStdString()) : nullptr;
     preview_symbol_->set_definition(d);
     if (!d) {
         preview_name_->setText(tr("No component selected"));

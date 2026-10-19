@@ -220,6 +220,33 @@ bool Schematic::empty() const
         && buses_.empty() && splitters_.empty();
 }
 
+bool operator==(const Block& a, const Block& b)
+{
+    if (a.name != b.name || a.source != b.source) {
+        return false;
+    }
+    if (a.schematic == b.schematic) {
+        return true;
+    }
+    return a.schematic && b.schematic && *a.schematic == *b.schematic;
+}
+
+std::string block_type(const std::string& name)
+{
+    return "block:" + name;
+}
+
+std::string block_name(const std::string& type)
+{
+    return type.rfind("block:", 0) == 0 ? type.substr(6) : std::string();
+}
+
+const Block* Schematic::block(const std::string& name) const
+{
+    const auto it = blocks_.find(name);
+    return it == blocks_.end() ? nullptr : &it->second;
+}
+
 std::string next_designator(const Schematic& schematic, const std::string& prefix)
 {
     std::set<long long> used;

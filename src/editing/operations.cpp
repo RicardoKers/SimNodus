@@ -535,26 +535,48 @@ Edit set_settings(const Schematic& schematic, const SimulationSettings& settings
     return make_edit(schematic, work, "Change simulation settings");
 }
 
+Edit set_blocks(const Schematic& schematic, const std::vector<Block>& blocks, std::string description)
+{
+    Schematic work = schematic;
+    auto all = work.blocks();
+    for (const auto& b : blocks) {
+        all[b.name] = b;
+    }
+    work.set_blocks(std::move(all));
+    return make_edit(schematic, work, std::move(description));
+}
+
 std::string copy_items(const Schematic& schematic, const std::set<Id>& ids)
 {
     std::vector<Element> elements;
+    std::map<std::string, Block> blocks; // the blocks the copied parts use travel with them
     for (Id id : ids) {
         if (auto e = schematic.get(id)) {
             elements.push_back(*e);
+            if (const auto* c = std::get_if<Component>(&*e)) {
+                if (const auto* b = schematic.block(model::block_name(c->type))) {
+                    blocks.emplace(b->name, *b);
+                }
+            }
         }
     }
-    return io::elements_to_json_text(elements);
+    return io::elements_to_json_text(elements, blocks);
 }
 
 Edit paste_items(Schematic& schematic, const library::ComponentLibrary& library, const std::string& clipboard,
     Point offset, std::set<Id>* created)
 {
     std::string error;
-    const auto elements = io::elements_from_json_text(clipboard, error);
+    std::map<std::string, Block> blocks;
+    const auto elements = io::elements_from_json_text(clipboard, error, &blocks);
     if (!elements || elements->empty()) {
         return {};
     }
     Schematic work = schematic;
+    // Blocks the project does not have yet come along; a block of the same name stays as it is.
+    auto merged = work.blocks();
+    merged.insert(blocks.begin(), blocks.end());
+    work.set_blocks(std::move(merged));
     std::map<Id, Id> renamed;
     for (const auto& e : *elements) {
         renamed[element_id(e)] = schematic.allocate_id();

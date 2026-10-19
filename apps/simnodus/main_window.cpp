@@ -16,6 +16,7 @@
 
 #include "editing/operations.hpp"
 #include "io/project_file.hpp"
+#include "library/blocks.hpp"
 #include "model/engineering.hpp"
 #include "sim/engine_check.hpp"
 #include "sim/engine_host.hpp"
@@ -144,7 +145,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     build_status_bar();
 
     connect(components_, &ComponentPanel::placement_requested, this, [this](const QString& type) {
-        view_->begin_place(library_.find(type.toStdString()));
+        view_->begin_place(document_->library().find(type.toStdString()));
         view_->setFocus();
     });
     connect(view_, &SchematicView::cursor_moved, this, [this](QPointF p) {
@@ -154,6 +155,11 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
         [this](double zoom) { zoom_label_->setText(tr("%1 %").arg(qRound(zoom * 100))); });
     connect(view_, &SchematicView::status_message, this, [this](const QString& text) { statusBar()->showMessage(text, 6000); });
     connect(view_, &SchematicView::edit_value_requested, this, [this](model::Id id) {
+        // A double-click on a block opens the block's file (PRJ-06).
+        if (const auto* c = document_->schematic().component(id); c && !model::block_name(c->type).empty()) {
+            open_block(id);
+            return;
+        }
         scene_->select_ids({id});
         set_panel_visible(Panel::Properties, true);
         properties_->focus_value();
@@ -181,6 +187,14 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
         statusBar()->showMessage(text, 6000);
     });
     connect(properties_, &PropertiesPanel::models_read, this, &MainWindow::report_model_issues);
+    connect(properties_, &PropertiesPanel::block_open_requested, this, &MainWindow::open_block);
+    connect(properties_, &PropertiesPanel::block_update_requested, this, &MainWindow::update_block);
+    connect(document_, &Document::library_changed, this, [this] {
+        components_->set_library(document_->library());
+        for (const auto& problem : document_->block_problems()) {
+            messages_->add(Severity::Warning, problem, tr("Blocks"));
+        }
+    });
     connect(document_, &Document::file_changed, this, &MainWindow::update_title);
     connect(document_, &Document::changed, this, [this] {
         setWindowModified(document_->modified());
@@ -367,6 +381,8 @@ void MainWindow::build_actions_and_menus()
     splitter->setStatusTip(tr("Joins a bus to single wires: its bit pins act as labels D0, D1, ..."));
     auto* probe = placement->addAction(tr("P&robe"), this, [this] { view_->set_tool(Tool::Probe); });
     probe->setShortcut(QKeySequence(Qt::Key_P));
+    auto* block = placement->addAction(tr("B&lock..."), this, &MainWindow::place_block);
+    block->setStatusTip(tr("Place another project as a block; its Block port parts become the block's pins"));
     placement->addSeparator();
     placement->addAction(tr("Resistor"), this, place("resistor"))->setShortcut(QKeySequence(Qt::Key_R));
     placement->addAction(tr("Capacitor"), this, place("capacitor"))->setShortcut(QKeySequence(Qt::Key_C));
@@ -713,7 +729,7 @@ void MainWindow::run()
     analyzer_->reload();
     const auto& components = document_->schematic().components();
     const bool board = std::any_of(components.begin(), components.end(), [this](const model::Component& c) {
-        const auto* d = library_.find(c.type);
+        const auto* d = document_->library().find(c.type);
         return d && d->mcu;
     });
     if (board && debug_action_->isChecked()) {
@@ -1048,7 +1064,237 @@ bool MainWindow::open_file(const QString& path)
     speed_->setCurrentIndex(std::max(0, speed_->findData(document_->schematic().settings().speed)));
     view_->fit_content();
     update_run_state();
+    for (const auto& problem : document_->block_problems()) {
+        messages_->add(Severity::Warning, problem, tr("Blocks"));
+    }
+    offer_block_updates();
     return true;
+}
+
+// ---- Blocks (PRJ-06, ADR 0098) -----------------------------------------------
+
+QString MainWindow::block_path(const model::Block& block) const
+{
+    const QString source = QString::fromStdString(block.source);
+    if (source.isEmpty() || QDir::isAbsolutePath(source)) {
+        return source;
+    }
+    const QString base = document_->base_dir();
+    return base.isEmpty() ? QString() : QDir(base).absoluteFilePath(source);
+}
+
+std::optional<model::Block> MainWindow::read_block(const QString& path, QString& error) const
+{
+    const QFileInfo info(path);
+    if (!document_->file_path().isEmpty() && info == QFileInfo(document_->file_path())) {
+        error = tr("A project cannot be a block of itself.");
+        return std::nullopt;
+    }
+    // Reading only parses JSON: no code runs and nothing is loaded (PRJ-03).
+    auto loaded = io::load_project(path.toStdWString());
+    if (!loaded.schematic) {
+        error = loaded.errors.empty() ? tr("The file cannot be read.") : QString::fromStdString(loaded.errors.front());
+        return std::nullopt;
+    }
+    model::Block block;
+    block.name = info.completeBaseName().toStdString();
+    // Relative to the project's folder when it has one, so that both can move together.
+    const QString base = document_->base_dir();
+    QString source = base.isEmpty() ? info.absoluteFilePath() : QDir(base).relativeFilePath(info.absoluteFilePath());
+    if (QDir::isAbsolutePath(source) || source.startsWith(QStringLiteral("../../.."))) {
+        source = info.absoluteFilePath();
+    }
+    block.source = source.toStdString();
+    block.schematic = std::make_shared<const model::Schematic>(std::move(*loaded.schematic));
+    std::vector<std::string> problems;
+    if (!library::block_definition(block, document_->library(), problems)) {
+        QStringList text;
+        for (const auto& p : problems) {
+            text << QString::fromStdString(p);
+        }
+        error = tr("%1 cannot be a block: %2.").arg(info.fileName(), text.join(QStringLiteral("; ")));
+        return std::nullopt;
+    }
+    return block;
+}
+
+QString MainWindow::add_block_file(const QString& path, QString& error)
+{
+    const auto block = read_block(path, error);
+    if (!block) {
+        return {};
+    }
+    if (const auto* existing = document_->schematic().block(block->name); existing && !(*existing == *block)) {
+        const bool used = std::any_of(document_->schematic().components().begin(),
+            document_->schematic().components().end(),
+            [&](const model::Component& c) { return model::block_name(c.type) == block->name; });
+        if (used && !auto_discard_
+            && QMessageBox::question(this, tr("Replace block"),
+                   tr("The project already has a block named %1. Replace it with this file? Every %1 in the "
+                      "project changes.")
+                       .arg(QString::fromStdString(block->name)))
+                != QMessageBox::Yes) {
+            error.clear();
+            return {};
+        }
+    }
+    document_->apply(editing::set_blocks(document_->schematic(), {*block}, "Add block " + block->name));
+    return QString::fromStdString(model::block_type(block->name));
+}
+
+void MainWindow::place_block()
+{
+    const QString start = document_->base_dir().isEmpty()
+        ? QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+        : document_->base_dir();
+    const QString path = QFileDialog::getOpenFileName(this, tr("Place block"), start, project_filter);
+    if (path.isEmpty()) {
+        return;
+    }
+    QString error;
+    const QString type = add_block_file(path, error);
+    if (type.isEmpty()) {
+        if (!error.isEmpty()) {
+            messages_->add(Severity::Error, error, tr("Blocks"));
+        }
+        return;
+    }
+    view_->begin_place(document_->library().find(type.toStdString()));
+    view_->setFocus();
+}
+
+void MainWindow::open_block(model::Id component)
+{
+    const auto* c = document_->schematic().component(component);
+    const auto* block = c ? document_->schematic().block(model::block_name(c->type)) : nullptr;
+    if (!block) {
+        return;
+    }
+    QString path = block_path(*block);
+    if (path.isEmpty() || !QFileInfo::exists(path)) {
+        // The project's copy is all there is: write it to a file to edit it.
+        const auto answer = QMessageBox::question(this, tr("Block file not found"),
+            tr("The file of block %1 (%2) was not found. Save the project's copy as a file to edit it?")
+                .arg(QString::fromStdString(block->name), QString::fromStdString(block->source)));
+        if (answer != QMessageBox::Yes) {
+            return;
+        }
+        const QString start = QDir(document_->base_dir().isEmpty()
+                                       ? QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+                                       : document_->base_dir())
+                                  .filePath(QString::fromStdString(block->name) + QStringLiteral(".snx"));
+        path = QFileDialog::getSaveFileName(this, tr("Save block"), start, project_filter);
+        if (path.isEmpty()) {
+            return;
+        }
+        const auto saved = io::save_project(*block->schematic, path.toStdWString());
+        if (!saved.ok) {
+            messages_->add(Severity::Error, QString::fromStdString(saved.error), tr("Blocks"));
+            return;
+        }
+        QString error;
+        if (const auto updated = read_block(path, error)) {
+            model::Block moved = *block;
+            moved.source = updated->source;
+            document_->apply(editing::set_blocks(document_->schematic(), {moved}, "Save block " + block->name));
+        }
+    }
+    const QString project = document_->file_path();
+    if (!open_file(path)) {
+        return;
+    }
+    const QString text = project.isEmpty()
+        ? tr("Editing block %1. Save it; placed blocks use it after Update.").arg(QFileInfo(path).fileName())
+        : tr("Editing block %1. Save it, then open %2 again (File > Recent) to update the project's copy.")
+              .arg(QFileInfo(path).fileName(), QFileInfo(project).fileName());
+    messages_->add(Severity::Info, text, tr("Blocks"));
+    statusBar()->showMessage(text, 10000);
+}
+
+void MainWindow::update_block(model::Id component)
+{
+    const auto* c = document_->schematic().component(component);
+    const auto* block = c ? document_->schematic().block(model::block_name(c->type)) : nullptr;
+    if (!block) {
+        return;
+    }
+    const QString path = block_path(*block);
+    if (path.isEmpty() || !QFileInfo::exists(path)) {
+        messages_->add(Severity::Error,
+            tr("The file of block %1 (%2) was not found; the project keeps its copy.")
+                .arg(QString::fromStdString(block->name), QString::fromStdString(block->source)),
+            tr("Blocks"));
+        return;
+    }
+    QString error;
+    auto updated = read_block(path, error);
+    if (!updated) {
+        messages_->add(Severity::Error, error, tr("Blocks"));
+        return;
+    }
+    updated->name = block->name; // the file may have been renamed
+    updated->source = block->source;
+    if (*updated == *block) {
+        statusBar()->showMessage(tr("Block %1 is up to date.").arg(QString::fromStdString(block->name)), 4000);
+        return;
+    }
+    const QString name = QString::fromStdString(block->name); // the edit replaces *block
+    document_->apply(editing::set_blocks(document_->schematic(), {*updated}, "Update block " + updated->name));
+    statusBar()->showMessage(tr("Block %1 updated from its file.").arg(name), 4000);
+}
+
+QStringList MainWindow::changed_block_files() const
+{
+    QStringList names;
+    for (const auto& [name, block] : document_->schematic().blocks()) {
+        const QString path = block_path(block);
+        if (path.isEmpty() || !QFileInfo::exists(path)) {
+            continue;
+        }
+        const auto loaded = io::load_project(path.toStdWString());
+        if (loaded.schematic && !(*loaded.schematic == *block.schematic)) {
+            names << QString::fromStdString(name);
+        }
+    }
+    return names;
+}
+
+void MainWindow::offer_block_updates()
+{
+    const QStringList names = changed_block_files();
+    if (names.isEmpty()) {
+        return;
+    }
+    const QString list = names.join(QStringLiteral(", "));
+    if (auto_discard_
+        || QMessageBox::question(this, tr("Blocks changed"),
+               tr("The files of these blocks changed since the project copied them: %1. Update the project's "
+                  "copies?")
+                   .arg(list))
+            != QMessageBox::Yes) {
+        messages_->add(Severity::Info,
+            tr("Block files changed: %1. Select a block and choose Update in Properties to use the new version.")
+                .arg(list),
+            tr("Blocks"));
+        return;
+    }
+    std::vector<model::Block> updated;
+    for (const auto& name : names) {
+        const auto* block = document_->schematic().block(name.toStdString());
+        QString error;
+        auto fresh = read_block(block_path(*block), error);
+        if (!fresh) {
+            messages_->add(Severity::Error, error, tr("Blocks"));
+            continue;
+        }
+        fresh->name = block->name;
+        fresh->source = block->source;
+        updated.push_back(*fresh);
+    }
+    if (!updated.empty()) {
+        document_->apply(editing::set_blocks(document_->schematic(), updated, "Update blocks"));
+        messages_->add(Severity::Info, tr("Blocks updated from their files: %1.").arg(list), tr("Blocks"));
+    }
 }
 
 bool MainWindow::save()

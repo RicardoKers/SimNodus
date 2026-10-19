@@ -72,4 +72,5 @@ the decision:
 ## Revisit criteria
 
 - Classroom files need dot commands outside the allowed set.
-- Blocks drawn by the user (PRJ-06, second part) reuse this wrapper.
+- Blocks drawn by the user (PRJ-06, second part): they do not reuse this wrapper;
+  their circuit is put in place of the block ([ADR 0098](0098-user-blocks.md)).

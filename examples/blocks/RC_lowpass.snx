@@ -1,0 +1,159 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 11,
+  "settings": {
+    "mode": "interactive",
+    "speed": 0.25,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.2,
+    "transient_max_step": 1e-05
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "port",
+      "designator": "P1",
+      "at": [
+        -8,
+        -6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "name": "IN",
+        "side": "left"
+      }
+    },
+    {
+      "id": 2,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 3,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        8,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "1u"
+      }
+    },
+    {
+      "id": 4,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        8,
+        16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "port",
+      "designator": "P2",
+      "at": [
+        16,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "name": "OUT",
+        "side": "right"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": 6,
+      "points": [
+        [
+          -8,
+          -6
+        ],
+        [
+          0,
+          -6
+        ],
+        [
+          0,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          16,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          8,
+          6
+        ],
+        [
+          8,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          8,
+          13
+        ],
+        [
+          8,
+          16
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [],
+  "notes": [
+    {
+      "id": 10,
+      "at": [
+        -8,
+        -14
+      ],
+      "text": "RC low-pass block: 10 kOhm and 1 uF (time constant 10 ms).\nThe Block port parts IN and OUT are the pins of the block."
+    }
+  ]
+}

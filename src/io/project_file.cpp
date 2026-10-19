@@ -387,14 +387,81 @@ std::vector<Element> all_elements(const Schematic& s)
     return result;
 }
 
+json blocks_json(const std::map<std::string, Block>& blocks);
+
+json project_json(const Schematic& schematic)
+{
+    // Format 2 only adds blocks; a project without them stays readable by 0.3.
+    json root{{"format", format_name}, {"version", schematic.blocks().empty() ? 1 : project_format_version},
+        {"next_id", schematic.next_id()}, {"settings", settings_json(schematic.settings())}};
+    root = write_elements(root, all_elements(schematic));
+    if (!schematic.blocks().empty()) {
+        root["blocks"] = blocks_json(schematic.blocks());
+    }
+    return root;
+}
+
+json blocks_json(const std::map<std::string, Block>& blocks)
+{
+    json list = json::array();
+    for (const auto& [name, block] : blocks) {
+        list.push_back(json{{"name", name}, {"source", block.source}, {"project", project_json(*block.schematic)}});
+    }
+    return list;
+}
+
+// Blocks inside blocks are read to this depth; deeper files are refused.
+constexpr int max_block_depth = 8;
+
+Schematic schematic_from(const json& root, std::vector<std::string>& warnings, int depth);
+
+std::map<std::string, Block> blocks_from(const json& root, std::vector<std::string>& warnings, int depth)
+{
+    std::map<std::string, Block> blocks;
+    each(root, "blocks", [&](const json& j) {
+        if (depth >= max_block_depth) {
+            throw std::runtime_error("blocks are nested more than " + std::to_string(max_block_depth) + " levels deep");
+        }
+        Block b;
+        b.name = string_from(j, "name");
+        if (b.name.empty()) {
+            throw std::runtime_error("a block needs a name");
+        }
+        b.source = string_from(j, "source", false);
+        const auto project = j.value("project", json());
+        if (!project.is_object()) {
+            throw std::runtime_error("block " + b.name + " has no project");
+        }
+        b.schematic = std::make_shared<const Schematic>(schematic_from(project, warnings, depth + 1));
+        if (!blocks.emplace(b.name, b).second) {
+            throw std::runtime_error("two blocks are named " + b.name);
+        }
+    });
+    return blocks;
+}
+
+Schematic schematic_from(const json& root, std::vector<std::string>& warnings, int depth)
+{
+    Schematic schematic;
+    std::set<Id> ids;
+    for (const auto& e : read_elements(root)) {
+        if (!ids.insert(element_id(e)).second) {
+            throw std::runtime_error("duplicate element ID " + std::to_string(element_id(e)));
+        }
+        schematic.put(e);
+    }
+    schematic.set_settings(settings_from(root.value("settings", json::object()), warnings));
+    schematic.set_blocks(blocks_from(root, warnings, depth));
+    const auto next = root.value("next_id", json(1));
+    schematic.set_next_id(next.is_number_unsigned() ? next.get<Id>() : 1);
+    return schematic;
+}
+
 } // namespace
 
 std::string to_json_text(const Schematic& schematic)
 {
-    json root{{"format", format_name}, {"version", project_format_version}, {"next_id", schematic.next_id()},
-        {"settings", settings_json(schematic.settings())}};
-    root = write_elements(root, all_elements(schematic));
-    return root.dump(2) + "\n";
+    return project_json(schematic).dump(2) + "\n";
 }
 
 LoadResult from_json_text(const std::string& text)
@@ -422,36 +489,34 @@ LoadResult from_json_text(const std::string& text)
         return result;
     }
     try {
-        Schematic schematic;
-        std::set<Id> ids;
-        for (const auto& e : read_elements(root)) {
-            if (!ids.insert(element_id(e)).second) {
-                throw std::runtime_error("duplicate element ID " + std::to_string(element_id(e)));
-            }
-            schematic.put(e);
-        }
-        schematic.set_settings(settings_from(root.value("settings", json::object()), result.warnings));
-        const auto next = root.value("next_id", json(1));
-        schematic.set_next_id(next.is_number_unsigned() ? next.get<Id>() : 1);
-        result.schematic = std::move(schematic);
+        result.schematic = schematic_from(root, result.warnings, 0);
     } catch (const std::exception& error) {
         result.errors.push_back(error.what());
     }
     return result;
 }
 
-std::string elements_to_json_text(const std::vector<Element>& elements)
+std::string elements_to_json_text(const std::vector<Element>& elements, const std::map<std::string, Block>& blocks)
 {
-    return write_elements(json{{"format", clipboard_name}, {"version", project_format_version}}, elements).dump();
+    json root = write_elements(json{{"format", clipboard_name}, {"version", project_format_version}}, elements);
+    if (!blocks.empty()) {
+        root["blocks"] = blocks_json(blocks);
+    }
+    return root.dump();
 }
 
-std::optional<std::vector<Element>> elements_from_json_text(const std::string& text, std::string& error)
+std::optional<std::vector<Element>> elements_from_json_text(const std::string& text, std::string& error,
+    std::map<std::string, Block>* blocks)
 {
     try {
         const json root = json::parse(text);
         if (!root.is_object() || root.value("format", std::string()) != clipboard_name) {
             error = "the clipboard does not contain SimNodus elements";
             return std::nullopt;
+        }
+        if (blocks) {
+            std::vector<std::string> ignored;
+            *blocks = blocks_from(root, ignored, 0);
         }
         return read_elements(root);
     } catch (const std::exception& e) {

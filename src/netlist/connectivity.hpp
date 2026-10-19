@@ -9,7 +9,8 @@
 // - net labels with the same name connect; a ground symbol, or a label named
 //   0 or GND, is the reference net "0";
 // - a splitter's bit pin is a label named after its bus and bit ("D3", UI-19);
-//   buses themselves are drawings and connect nothing.
+//   buses themselves are drawings and connect nothing;
+// - a block port is a label named by its "name" parameter (ties_net_parameter).
 #pragma once
 
 #include "library/component_library.hpp"
@@ -27,6 +28,11 @@ using model::Id;
 using model::Point;
 
 using PinRef = std::pair<Id, std::string>; // component ID, pin name
+
+// Labels whose name starts with this mark connect like any label but never
+// name a net. The netlist adds them where it puts a block's circuit (ADR 0098),
+// so that the nets of the schematic keep the names the editor shows.
+inline constexpr char hidden_label_mark = '\x1f';
 
 struct Net {
     std::string name;       // SPICE node: "0", a sanitized label name, or N001...

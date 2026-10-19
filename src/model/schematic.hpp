@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Schematic document (PRJ-01): components, wires, net labels, probes, text
-// notes, buses, splitters and simulation settings. Every element has a stable 64-bit ID that survives
+// notes, buses, splitters, simulation settings and the user's blocks it uses. Every element has a stable 64-bit ID that survives
 // save/load, rename and undo; IDs are never reused within a document.
 // Labels such as designators are presentation, not identity.
 #pragma once
@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <variant>
@@ -135,6 +136,23 @@ struct SimulationSettings {
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };
 
+class Schematic;
+
+// A block drawn by the user (PRJ-06, ADR 0098): a schematic of its own whose
+// port parts become the pins of a rectangular symbol. The project keeps a copy,
+// so it opens the same on another computer; `source` is the file it came from.
+// Components use it with the type "block:<name>".
+struct Block {
+    std::string name;   // the block file's name without extension, "Amplifier"
+    std::string source; // the block's .snx, relative to the project folder when possible
+    std::shared_ptr<const Schematic> schematic; // never null; shared between undo states
+};
+bool operator==(const Block& a, const Block& b);
+
+// Component type of a block: "block:Amplifier"; and back (empty if not a block).
+std::string block_type(const std::string& name);
+std::string block_name(const std::string& type);
+
 using Element = std::variant<Component, Wire, NetLabel, Probe, TextNote, Bus, Splitter>;
 
 Id element_id(const Element& element);
@@ -156,6 +174,10 @@ public:
     const std::vector<Splitter>& splitters() const { return splitters_; }
     const SimulationSettings& settings() const { return settings_; }
     void set_settings(const SimulationSettings& settings) { settings_ = settings; }
+    // Blocks by name (PRJ-06).
+    const std::map<std::string, Block>& blocks() const { return blocks_; }
+    const Block* block(const std::string& name) const;
+    void set_blocks(std::map<std::string, Block> blocks) { blocks_ = std::move(blocks); }
 
     const Component* component(Id id) const;
     const Wire* wire(Id id) const;
@@ -185,6 +207,7 @@ private:
     std::vector<Bus> buses_;
     std::vector<Splitter> splitters_;
     SimulationSettings settings_;
+    std::map<std::string, Block> blocks_;
 };
 
 // Next free designator for a prefix: "R" -> "R3" when R1 and R2 exist.
