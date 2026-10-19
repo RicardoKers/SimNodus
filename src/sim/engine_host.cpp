@@ -25,6 +25,9 @@ void EngineHost::set_location(const NgspiceLocation& location)
 NgspiceSession* EngineHost::acquire(std::string& error)
 {
     std::lock_guard lock(state_);
+    if (engine_ && engine_->needs_reload()) {
+        engine_.reset(); // unloads the library; loaded again below
+    }
     if (engine_) {
         return engine_.get();
     }

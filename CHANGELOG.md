@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-18)
+
+- After an error ngspice cannot recover from (for example a malformed model or subcircuit), every later run failed until SimNodus was restarted. ngspice asks to be detached in that case (its ControlledExit callback); SimNodus now unloads the library and loads a fresh copy before the next run. Engine test: a broken model, then 39 more engine cases on the reloaded engine.
+
 ### Fixed (2026-10-18, owner's question about invalid models)
 
 - Imported SPICE models are checked parameter by parameter (ADR 0095): a value that is not a number (for example `IS=abc`) stopped ngspice until SimNodus was restarted, and a name unknown to the model type was ignored without a word; both are now left out of the model and reported. The Messages panel lists every skipped statement and left-out parameter of the models folder with file and line; a part whose kept model has such a parameter gets a pre-run warning. Descriptive vendor fields (`mfg`, `Vceo`, `Iave`...) are left out silently. If ngspice still stops after an error, the message says that SimNodus must be restarted.

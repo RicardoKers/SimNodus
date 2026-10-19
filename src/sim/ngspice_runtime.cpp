@@ -42,6 +42,11 @@ void* find_symbol(void* library, const char* name)
     return result;
 }
 
+void free_library(void* library)
+{
+    FreeLibrary(static_cast<HMODULE>(library));
+}
+
 bool set_scripts_variable(const std::filesystem::path& directory)
 {
     // Set before loading the DLL so that its C runtime inherits the value.
@@ -61,6 +66,11 @@ void* load_library(const std::filesystem::path& file, std::string& error)
 void* find_symbol(void* library, const char* name)
 {
     return dlsym(library, name);
+}
+
+void free_library(void* library)
+{
+    dlclose(library);
 }
 
 bool set_scripts_variable(const std::filesystem::path& directory)
@@ -135,6 +145,7 @@ std::unique_ptr<NgspiceSession> NgspiceSession::open(const NgspiceLocation& loca
     if (!library) {
         return fail(error);
     }
+    session->library_ = library;
     auto& api = session->api_;
     if (!bind(library, "ngSpice_Init", api.init, error) || !bind(library, "ngSpice_Init_Sync", api.init_sync, error)
         || !bind(library, "ngSpice_Command", api.command, error)
@@ -166,8 +177,11 @@ std::unique_ptr<NgspiceSession> NgspiceSession::open(const NgspiceLocation& loca
 
 NgspiceSession::~NgspiceSession()
 {
-    if (api_.command) {
+    if (api_.command && !needs_reload_) {
         halt_background(std::chrono::seconds(5));
+    }
+    if (library_) {
+        free_library(library_); // the next session loads a fresh copy
     }
     session_open = false;
 }
@@ -305,8 +319,10 @@ int NgspiceSession::on_stat(char*, int, void*)
     return 0;
 }
 
-int NgspiceSession::on_exit(int, ngspice_abi::NgBool, ngspice_abi::NgBool, int, void*)
+int NgspiceSession::on_exit(int, ngspice_abi::NgBool, ngspice_abi::NgBool, int, void* user)
 {
+    // "cannot recover and awaits to be reset or detached": reload before the next use.
+    static_cast<NgspiceSession*>(user)->needs_reload_ = true;
     return 0;
 }
 

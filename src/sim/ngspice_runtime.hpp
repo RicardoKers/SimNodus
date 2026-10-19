@@ -9,6 +9,7 @@
 #include "ngspice_abi.hpp"
 
 #include <chrono>
+#include <atomic>
 #include <condition_variable>
 #include <filesystem>
 #include <functional>
@@ -87,6 +88,10 @@ public:
     // Engine text output since the last call (stdout and stderr lines).
     std::vector<std::string> take_output();
     std::size_t error_line_count() const;
+    // ngspice asked to be detached (ControlledExit after an error it cannot
+    // recover from, for example a malformed model): every later command fails
+    // until the library is loaded again. EngineHost then reloads it.
+    bool needs_reload() const { return needs_reload_; }
 
 private:
     NgspiceSession() = default;
@@ -102,6 +107,8 @@ private:
 
     ngspice_abi::Api api_;
     std::optional<int> version_;
+    void* library_ = nullptr; // freed by the destructor, so that a new session starts clean
+    std::atomic<bool> needs_reload_{false};
 
     mutable std::mutex mutex_;
     std::condition_variable bg_changed_;

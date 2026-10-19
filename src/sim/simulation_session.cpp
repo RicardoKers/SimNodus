@@ -425,8 +425,8 @@ void SimulationSession::fail(const std::string& message, NgspiceSession* engine)
                 status_.engine_output.push_back(line.substr(7));
                 // ngspice refuses every later circuit until the library is loaded again.
                 if (line.find("cannot recover") != std::string::npos) {
-                    status_.message += " The analog engine stopped after this error and works again only after "
-                                       "SimNodus is restarted: save your work and restart it.";
+                    status_.message += " The analog engine stopped after this error; it is loaded again for "
+                                       "the next run.";
                 }
             }
         }
