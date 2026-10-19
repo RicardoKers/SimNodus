@@ -275,6 +275,8 @@ void AnalyzerWindow::reload()
     record_mode_ = false;
     record_ = {};
     last_window_.reset();
+    last_trigger_.reset();
+    trigger_seen_at_ = 0.0;
     measurements_due_ = true;
     single_done_ = false;
     scope_->set_navigation_enabled(false);
@@ -531,8 +533,19 @@ void AnalyzerWindow::refresh_scope()
         const auto found = sim::find_trigger(traces[static_cast<std::size_t>(source)].samples, trigger_level_->value(),
             trigger_slope_->currentIndex() == 0, now - 2.4 * span, now - 0.9 * span);
         const int sweep = trigger_sweep_->currentIndex();
-        if (found) {
+        // Auto sweep: while new crossings arrive the display shows each triggered
+        // frame; after a whole window without a new one it runs free (rolls), as an
+        // oscilloscope does after its auto timeout, instead of standing still.
+        if (found && found != last_trigger_) {
+            last_trigger_ = found;
+            trigger_seen_at_ = now;
+        }
+        const bool stale = found && sweep == 0 && now - trigger_seen_at_ > span;
+        if (found && !stale) {
             start = *found - div;
+            scope_->set_trigger_point(*found);
+            scope_->set_trigger_state(
+                tr("Triggered at %1s").arg(QString::fromStdString(model::format_engineering(*found, 6))));
             if (sweep == 2) {
                 if (single_done_) {
                     show = false;
@@ -543,6 +556,10 @@ void AnalyzerWindow::refresh_scope()
             }
         } else if (sweep != 0) {
             show = false; // normal/single: keep the last triggered frame
+            scope_->set_trigger_state(sweep == 2 && single_done_ ? tr("Single: stopped") : tr("Waiting for trigger"));
+        } else {
+            scope_->set_trigger_point(std::nullopt);
+            scope_->set_trigger_state(tr("Auto: no trigger, running free"));
         }
         const double units_per_pixel = scales_.empty()
             ? 1.0
@@ -552,6 +569,8 @@ void AnalyzerWindow::refresh_scope()
             controller_->channels()[static_cast<std::size_t>(source)].color);
     } else {
         scope_->set_trigger_marker(std::nullopt, {});
+        scope_->set_trigger_point(std::nullopt);
+        scope_->set_trigger_state({});
     }
     if (show) {
         scope_->set_window(start, start + span);

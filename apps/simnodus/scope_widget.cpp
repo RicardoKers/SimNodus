@@ -315,6 +315,22 @@ void ScopeWidget::paint_trace(QPainter& painter, const ScopeTrace& trace, const 
     painter.drawLines(segments);
 }
 
+void ScopeWidget::set_trigger_point(std::optional<double> time)
+{
+    if (time != trigger_time_) {
+        trigger_time_ = time;
+        update();
+    }
+}
+
+void ScopeWidget::set_trigger_state(const QString& text)
+{
+    if (text != trigger_state_) {
+        trigger_state_ = text;
+        update();
+    }
+}
+
 void ScopeWidget::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
@@ -369,6 +385,23 @@ void ScopeWidget::paintEvent(QPaintEvent*)
         painter.setPen(QPen(trigger_color_, 1.5));
         painter.drawLine(QPointF(plot.right() - 14, *trigger_level_), QPointF(plot.right(), *trigger_level_));
     }
+    if (trigger_time_ && *trigger_time_ >= start_ && *trigger_time_ <= end_) {
+        // Trigger point: a "T" flag on the top edge and a dotted line down the plot.
+        const double x = x_at(*trigger_time_);
+        QPen dotted(trigger_color_.isValid() ? trigger_color_ : theme::ink, 1, Qt::DotLine);
+        painter.setPen(dotted);
+        painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()));
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(trigger_color_.isValid() ? trigger_color_ : theme::ink);
+        painter.drawPolygon(QPolygonF{QPointF(x - 7, plot.top()), QPointF(x + 7, plot.top()), QPointF(x, plot.top() + 11)});
+        painter.setPen(Qt::white);
+        QFont bold = painter.font();
+        bold.setBold(true);
+        bold.setPixelSize(8);
+        painter.setFont(bold);
+        painter.drawText(QRectF(x - 7, plot.top() - 1, 14, 9), Qt::AlignCenter, QStringLiteral("T"));
+        painter.setFont(font());
+    }
     if (cursors_) {
         for (int i = 0; i < 2; ++i) {
             const double x = x_at(i == 0 ? cursor_a_ : cursor_b_);
@@ -402,6 +435,9 @@ void ScopeWidget::paintEvent(QPaintEvent*)
     if (!display_running_) {
         painter.setPen(theme::muted_text);
         painter.drawText(plot.adjusted(8, 6, -8, 0), Qt::AlignTop | Qt::AlignRight, tr("Display stopped"));
+    } else if (!trigger_state_.isEmpty()) {
+        painter.setPen(theme::muted_text);
+        painter.drawText(plot.adjusted(8, 6, -8, 0), Qt::AlignTop | Qt::AlignRight, trigger_state_);
     }
 }
 
