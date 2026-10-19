@@ -3,7 +3,7 @@
   "name": "4-bit counter",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "Synchronous 4-bit binary up-counter (like a 74HC161 without load and enable): counts 0..15 at the rising edges of CLK and starts again; a high CLR resets it to 0 at once; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "4-bit binary counter 0-15 (74HC161-like) at rising edges of CLK; CLR resets",
   "symbol": {
     "graphics": [
       {

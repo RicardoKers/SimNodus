@@ -3,7 +3,7 @@
   "name": "NOR gate",
   "category": "Logic gates",
   "prefix": "U",
-  "description": "Behavioral NOR gate (two inputs) like a 74HC gate on a hidden supply VDD: inputs switch at VDD/2, the output goes to 0 or VDD through 50 ohm with about 10 ns of delay; draws no supply current",
+  "description": "Two-input NOR gate (74HC-like, hidden supply VDD)",
   "symbol": {
     "graphics": [
       {

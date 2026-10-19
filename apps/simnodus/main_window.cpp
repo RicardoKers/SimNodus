@@ -425,6 +425,9 @@ void MainWindow::build_actions_and_menus()
     pause_action_ =
         simulate->addAction(style->standardIcon(QStyle::SP_MediaPause), tr("&Pause / Resume"), this, &MainWindow::pause_resume);
     pause_action_->setShortcut(QKeySequence(Qt::Key_F6));
+    // Pressed (and highlighted in the toolbar) while the simulation is paused.
+    pause_action_->setCheckable(true);
+    pause_action_->setObjectName(QStringLiteral("pauseAction"));
     stop_action_ = simulate->addAction(style->standardIcon(QStyle::SP_MediaStop), tr("&Stop"), this, &MainWindow::stop);
     stop_action_->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F5));
     reset_action_ = simulate->addAction(tr("R&eset"), this, &MainWindow::reset);
@@ -712,6 +715,7 @@ void MainWindow::update_run_state()
     const bool active = state == sim::RunState::Running || state == sim::RunState::Paused;
     run_action_->setEnabled(!active);
     pause_action_->setEnabled(active && document_->schematic().settings().mode == model::SimulationMode::Interactive);
+    pause_action_->setChecked(state == sim::RunState::Paused);
     stop_action_->setEnabled(active);
     reset_action_->setEnabled(active);
     engine_action_->setEnabled(!active && !engine_check_running());

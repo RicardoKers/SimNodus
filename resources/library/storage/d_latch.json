@@ -3,7 +3,7 @@
   "name": "D latch",
   "category": "Flip-flops & counters",
   "prefix": "U",
-  "description": "D latch (like one bit of a 74HC75): Q follows D while EN is high and keeps its value while EN is low; behavioral, on a hidden supply VDD like the logic gates: inputs switch at VDD/2, outputs go to 0 or VDD through 50 ohm with about 10 ns of delay; starts with all outputs Q low",
+  "description": "D latch: Q follows D while EN is high, holds while EN is low",
   "symbol": {
     "graphics": [
       {

@@ -3,7 +3,7 @@
   "name": "DC motor",
   "category": "Electromechanical",
   "prefix": "M",
-  "description": "Small permanent-magnet DC motor without load: winding resistance and inductance, back-EMF, inertia (50 ms mechanical time constant) and friction; shows its speed",
+  "description": "Small permanent-magnet DC motor without load; shows its speed",
   "symbol": {
     "graphics": [
       {

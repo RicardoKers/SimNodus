@@ -3,7 +3,7 @@
   "name": "PNP transistor (simple)",
   "category": "Simplified models",
   "prefix": "Q",
-  "description": "Teaching model: the base-emitter junction conducts above Vbe; the collector carries beta times the base current until the transistor saturates near Vce(sat); no capacitances",
+  "description": "Teaching model: fixed Vbe, collector current = beta x base current",
   "symbol": {
     "graphics": [
       {

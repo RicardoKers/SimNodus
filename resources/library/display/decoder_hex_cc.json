@@ -3,7 +3,7 @@
   "name": "Hex to 7-segment decoder (common cathode)",
   "category": "Displays",
   "prefix": "U",
-  "description": "Generic 4-bit decoder for a common cathode display: shows 0-9 and A, b, C, d, E, F; push-pull outputs high = segment on through about 50 ohm from the supply (one resistor per segment); inputs switch at half the supply on VCC and GND",
+  "description": "4-bit decoder showing 0-9 and A-F on a common-cathode display",
   "symbol": {
     "graphics": [
       {

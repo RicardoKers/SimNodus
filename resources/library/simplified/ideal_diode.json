@@ -3,7 +3,7 @@
   "name": "Diode (fixed drop)",
   "category": "Simplified models",
   "prefix": "D",
-  "description": "Teaching model: no current below the forward voltage Vf, then conducts with 0.1 ohm; no reverse breakdown, no charge storage",
+  "description": "Teaching model: conducts above a fixed forward voltage Vf",
   "symbol": {
     "graphics": [
       {

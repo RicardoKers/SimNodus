@@ -49,13 +49,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. The owner's list of 2026-10-19 is done: release 0.4.0, pt-BR translation
-   (#176), Windows installer (SN-152, ADR 0100, clean-PC test by the owner
-   pending), dark theme (SN-162, branch `dark-theme`). Next: ask the owner.
-2. Classroom feedback (postponed: academic calendar); fix what the owner
-   reports when it arrives.
-3. Other backlog candidates: user guide (SN-154), engine in a child process
-   (SN-151).
+1. The owner's list of 2026-10-19 is done: release 0.4.0, pt-BR translation,
+   Windows installer (SN-152, ADR 0100; the owner tested it in a clean VM),
+   dark theme (SN-162), and the polish from the owner's test (short
+   descriptions, scrolling live values, pressed Pause button).
+2. Next, as the owner said: the user guide (SN-154).
+3. Classroom feedback (postponed: academic calendar); engine in a child
+   process (SN-151).
 
 ## Known constraints
 

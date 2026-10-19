@@ -3,7 +3,7 @@
   "name": "Block port",
   "category": "Blocks",
   "prefix": "P",
-  "description": "A pin of this circuit when another project uses it as a block (Place > Block). Ports with the same name are connected, like net labels; the side says where the pin goes on the block's symbol",
+  "description": "Pin of this circuit when it is placed as a block (Place > Block); side: where the pin goes",
   "show_designator": false,
   "symbol": {
     "graphics": [

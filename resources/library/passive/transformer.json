@@ -3,7 +3,7 @@
   "name": "Transformer",
   "category": "Passive",
   "prefix": "T",
-  "description": "Two windings on one core (coupling 0.999, 1 ohm primary resistance); primary P1-P2, secondary S1-S2 with the turns ratio; the dots are at P1 and S1",
+  "description": "Two windings on one core: primary P1-P2, secondary S1-S2",
   "symbol": {
     "graphics": [
       {

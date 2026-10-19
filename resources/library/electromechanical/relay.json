@@ -3,7 +3,7 @@
   "name": "Relay",
   "category": "Electromechanical",
   "prefix": "K",
-  "description": "Relay with a coil (0.36 W, with inductance: add a flyback diode) and a changeover contact; closes NO above 74 % of the coil current, falls back below 10 %",
+  "description": "Relay with a coil and a changeover contact; add a flyback diode across the coil",
   "symbol": {
     "graphics": [
       {

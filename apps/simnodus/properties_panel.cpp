@@ -117,7 +117,14 @@ PropertiesPanel::PropertiesPanel(Document* document, QWidget* parent) : QWidget(
     mono.setFamily(QStringLiteral("Consolas"));
     mono.setStyleHint(QFont::Monospace);
     live_->setFont(mono);
-    layout->addWidget(live_, 1);
+    // A board lists dozens of pins: the values scroll instead of growing the window.
+    auto* live_scroll = new QScrollArea;
+    live_scroll->setObjectName(QStringLiteral("liveValuesScroll"));
+    live_scroll->setWidgetResizable(true);
+    live_scroll->setFrameShape(QFrame::NoFrame);
+    live_scroll->setWidget(live_);
+    live_scroll->setMinimumHeight(60);
+    layout->addWidget(live_scroll, 1);
 
     if (document_) {
         // A change is often applied from inside an editor's own signal or
