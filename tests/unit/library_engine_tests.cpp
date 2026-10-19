@@ -369,6 +369,47 @@ TEST_CASE("library: component set B behaves like its parts")
         CHECK(irf540n > 0.02 && irf540n < 0.08);
         CHECK(n2n7000 > 1.0 && n2n7000 < 3.0);
     }
+    { // vendor subcircuits: an op-amp macro model with POLY, a Darlington as an NPN
+        const std::string opamp = "* SNOPAMP: op-amp macro model written for the tests (MIT)\n"
+    ".SUBCKT SN/OPAMP 1 2 3 4 5\n"
+    "* connections: in+ in- v+ v- out\n"
+    "RIN 1 2 1MEG\n"
+    "RS 3 4 1MEG\n"
+    "EGAIN 6 0 POLY(1) 1 2 0 1E5\n"
+    "RP 6 7 1K\n"
+    "CP 7 0 1.59U\n"
+    "EBUF 8 0 7 0 1\n"
+    "RO 8 5 50\n"
+    ".ENDS\n";
+        test::CircuitBuilder b(components());
+        supply(b, "VCC", "5");
+        supply(b, "IN", "1");
+        const auto u = b.add("opamp", {{"IN+", "IN"}, {"IN-", "FB"}, {"OUT", "OUT"}, {"V+", "VCC"}, {"V-", "0"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "FB"}}, {{"R", "10k"}});
+        b.add("resistor", {{"1", "FB"}, {"2", "0"}}, {{"R", "10k"}});
+        editing::set_model(b.schematic, u, "model", "SN/OPAMP", opamp).apply(b.schematic);
+        const double out = op(b, "out");
+        std::printf("  subcircuit op-amp, gain 2 at 1 V: %.4f V (code models %s)\n", out,
+            test::engine()->has_code_models() ? "loaded" : "missing");
+        CHECK(close_to(out, 2.0, 0.01));
+        test::CircuitBuilder d(components());
+        supply(d, "VCC", "12");
+        supply(d, "G", "5");
+        d.add("resistor", {{"1", "VCC"}, {"2", "C"}}, {{"R", "12"}});
+        d.add("resistor", {{"1", "G"}, {"2", "B"}}, {{"R", "1k"}});
+        const auto q = d.add("npn", {{"C", "C"}, {"B", "B"}, {"E", "0"}});
+        editing::set_model(d.schematic, q, "model", "SNDARL", ".SUBCKT SNDARL 1 2 3\n"
+    "* TERMINALS: C B E\n"
+    "Q1 1 2 4 QD\n"
+    "Q2 1 4 3 QD\n"
+    "R1 2 4 10K\n"
+    "R2 4 3 150\n"
+    ".ENDS\n"
+    ".MODEL QD NPN(BF=100 IS=1E-14)\n").apply(d.schematic);
+        const double vce = op(d, "c");
+        std::printf("  Darlington subcircuit at 1 A: Vce %.3f V\n", vce);
+        CHECK(vce > 0.6 && vce < 1.5); // a Darlington does not saturate below one diode drop
+    }
     { // three inverters in a ring oscillate through the gate delay
         test::CircuitBuilder b(components());
         b.add("not_gate", {{"A", "N1"}, {"Y", "N2"}});

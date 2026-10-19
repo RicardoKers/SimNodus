@@ -286,9 +286,13 @@ ComponentDefinition parse_definition(const json& j)
                 parameter.kind = Parameter::Kind::File;
             } else if (kind == "model") {
                 parameter.kind = Parameter::Kind::Model;
-                parameter.model_type = text(p, "model_type", true);
-                if (!supported_model_type(parameter.model_type)) {
+                parameter.model_type = text(p, "model_type");
+                parameter.subcircuit = strings(p, "subcircuit");
+                if (!parameter.model_type.empty() && !supported_model_type(parameter.model_type)) {
                     invalid("model_type must be NPN, PNP, D, NMOS or PMOS");
+                }
+                if (parameter.model_type.empty() && parameter.subcircuit.empty()) {
+                    invalid("a model parameter needs model_type or subcircuit");
                 }
             } else if (!kind.empty() && kind != "number" && kind != "choice") {
                 invalid("parameter kind must be number, choice, file or model");
@@ -311,6 +315,13 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("duplicate parameter \"" + parameter.name + "\"");
             }
             d.parameters.push_back(parameter);
+        }
+    }
+    for (const auto& parameter : d.parameters) {
+        for (const auto& pin : parameter.subcircuit) {
+            if (!d.pin(pin)) {
+                invalid("subcircuit pin \"" + pin + "\" of \"" + parameter.name + "\" is not a pin");
+            }
         }
     }
     if (!d.value_parameter.empty() && !d.parameter(d.value_parameter)) {
@@ -540,7 +551,8 @@ std::vector<LoadMessage> ComponentLibrary::load_directory(const std::filesystem:
     // Every model parameter's default must be a built-in model of its type.
     for (const auto& d : definitions_) {
         for (const auto& p : d.parameters) {
-            if (p.kind == Parameter::Kind::Model && !model(p.model_type, p.default_value)) {
+            // Without a model type the default is the part's own template (an op-amp's behavioral model).
+            if (p.kind == Parameter::Kind::Model && !p.model_type.empty() && !model(p.model_type, p.default_value)) {
                 messages.push_back({d.source, "default model \"" + p.default_value + "\" (" + p.model_type
                         + ") of \"" + p.name + "\" is not a built-in model"});
             }

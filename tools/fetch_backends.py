@@ -5,7 +5,7 @@ before extraction and stages the ngspice runtime in the layout the
 application package uses:
 
   build/deps/ngspice-runtime/
-    ngspice.dll, libomp140.x86_64.dll, sndfile.dll, samplerate.dll,
+    ngspice.dll, libomp140.x86_64.dll, sndfile.dll, samplerate.dll, spice2poly.cm,
     spinit (owned, resources/ngspice/spinit), COPYING (ngspice license)
 
 On Linux ngspice is not downloaded: install the distribution library
@@ -103,6 +103,9 @@ def main() -> int:
         "ngspice/Spice64_dll/dll-vs/libomp140.x86_64.dll": "libomp140.x86_64.dll",
         "ngspice-console/Spice64/bin/sndfile.dll": "sndfile.dll",
         "ngspice-console/Spice64/bin/samplerate.dll": "samplerate.dll",
+        # XSPICE code model that turns POLY sources of vendor subcircuits into
+        # ngspice elements (loaded with "codemodel" when the engine starts).
+        "ngspice/Spice64_dll/lib/ngspice/spice2poly.cm": "spice2poly.cm",
     }
     for source, name in staged.items():
         path = deps / source

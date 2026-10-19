@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <map>
 #include <regex>
 #include <set>
 
@@ -196,86 +197,304 @@ std::optional<SpiceModel> parse_spice_model(std::string_view statement, std::str
     return model;
 }
 
-std::vector<SpiceModel> parse_spice_models(std::string_view text, std::vector<ModelIssue>* issues)
+namespace {
+
+// One statement of a model file: its first line and its `+` continuations.
+struct Statement {
+    int line = 0;                   // first line, 1-based
+    std::vector<std::string> lines; // as written (continuations included)
+    std::string joined;             // continuations joined, end-of-line comments removed
+    std::string comment;            // the comment line just before it
+};
+
+std::vector<Statement> statements_of(std::string_view text)
 {
-    std::vector<SpiceModel> models;
-    std::string statement;
-    int statement_line = 0;
-    std::string comment;   // last comment line seen
-    std::string described; // comment that belongs to the current statement
-    int subcircuit_line = 0;
-    std::string subcircuit;
-    auto report = [issues](int line, std::string model, std::string text) {
-        if (issues) {
-            issues->push_back({line, std::move(model), std::move(text)});
-        }
-    };
-    auto finish = [&] {
-        if (statement.empty()) {
-            return;
-        }
-        std::string why;
-        if (auto model = parse_spice_model(statement, &why)) {
-            model->description = described;
-            for (const auto& d : model->dropped) {
-                report(statement_line, model->name, "left out " + d);
-            }
-            models.push_back(std::move(*model));
-        } else {
-            const std::string words = collapse(statement);
-            const auto name_start = words.find(' ');
-            const auto name_end = words.find(' ', name_start + 1);
-            const std::string name =
-                name_start == std::string::npos ? std::string() : words.substr(name_start + 1, name_end - name_start - 1);
-            report(statement_line, name, "skipped: " + why);
-        }
-        statement.clear();
-    };
+    std::vector<Statement> result;
+    std::string comment;
     std::size_t start = 0;
     int line_number = 0;
     while (start <= text.size()) {
         const auto end = text.find('\n', start);
-        std::string line(text.substr(start, end == std::string_view::npos ? std::string_view::npos : end - start));
+        std::string raw(text.substr(start, end == std::string_view::npos ? std::string_view::npos : end - start));
         start = end == std::string_view::npos ? text.size() + 1 : end + 1;
         ++line_number;
-        if (const auto semicolon = line.find(';'); semicolon != std::string::npos) {
-            line.erase(semicolon); // end-of-line comment
+        if (!raw.empty() && raw.back() == '\r') {
+            raw.pop_back();
         }
-        const std::string trimmed = trim(line);
+        std::string code = raw;
+        if (const auto semicolon = code.find(';'); semicolon != std::string::npos) {
+            code.erase(semicolon); // end-of-line comment
+        }
+        const std::string trimmed = trim(code);
         if (trimmed.empty()) {
             continue;
         }
         if (trimmed.front() == '*') {
-            finish();
             comment = trim(std::string_view(trimmed).substr(1));
+            if (!result.empty() && result.back().lines.size() == 1
+                && starts_with_word(result.back().joined, ".SUBCKT")) {
+                result.back().lines.push_back(raw); // comments right after a header stay with the block
+            }
+            Statement c;
+            c.line = line_number;
+            c.lines = {raw};
+            c.joined = "*" + comment;
+            result.push_back(std::move(c));
             continue;
         }
-        if (trimmed.front() == '+') {
-            if (!statement.empty()) {
-                statement += ' ' + trimmed.substr(1);
-            }
+        if (trimmed.front() == '+' && !result.empty() && result.back().joined.front() != '*') {
+            result.back().lines.push_back(raw);
+            result.back().joined += ' ' + trimmed.substr(1);
             continue;
         }
-        finish();
-        if (starts_with_word(trimmed, ".SUBCKT")) {
-            const std::string words = collapse(trimmed);
-            const auto name_end = words.find(' ', 8);
-            subcircuit = words.size() > 8 ? words.substr(8, name_end == std::string::npos ? std::string::npos : name_end - 8) : "";
-            subcircuit_line = line_number;
-        } else if (starts_with_word(trimmed, ".ENDS")) {
-            if (subcircuit_line > 0) {
-                report(subcircuit_line, subcircuit, "skipped: subcircuits (.subckt) are not supported yet");
-            }
-            subcircuit_line = 0;
-        } else if (subcircuit_line == 0 && starts_with_word(trimmed, ".MODEL")) {
-            statement = trimmed;
-            statement_line = line_number;
-            described = comment;
-        }
+        Statement s;
+        s.line = line_number;
+        s.lines = {raw};
+        s.joined = trimmed;
+        s.comment = comment;
         comment.clear();
+        result.push_back(std::move(s));
     }
-    finish();
-    return models;
+    return result;
+}
+
+std::string first_word_upper(const std::string& statement)
+{
+    return upper(statement.substr(0, statement.find(' ')));
+}
+
+std::vector<std::string> words_of(const std::string& text)
+{
+    std::vector<std::string> words;
+    std::string word;
+    for (const char c : text) {
+        if (c == ' ' || c == '\t' || c == ',' || c == '(' || c == ')') {
+            if (!word.empty()) {
+                words.push_back(word);
+                word.clear();
+            }
+        } else {
+            word += c;
+        }
+    }
+    if (!word.empty()) {
+        words.push_back(word);
+    }
+    return words;
+}
+
+// A .subckt block of a file, with what it refers to.
+struct Block {
+    std::string name;
+    std::vector<std::string> ports;
+    std::vector<std::string> lines;
+    std::string description;
+    std::string refusal;            // why it cannot be used, empty when it can
+    std::set<std::string> words;    // upper-case words of its element lines
+    int line = 0;
+};
+
+// Dot commands an imported subcircuit may use; anything else could read files
+// or run commands (.include, .lib, .control) or changes the whole simulation.
+bool allowed_command(const std::string& word)
+{
+    return word == ".MODEL" || word == ".PARAM" || word == ".FUNC" || word == ".ENDS" || word == ".SUBCKT";
+}
+
+} // namespace
+
+SpiceLibrary parse_spice_library(std::string_view text, std::vector<ModelIssue>* issues)
+{
+    SpiceLibrary library;
+    auto report = [issues](int line, std::string model, std::string what) {
+        if (issues) {
+            issues->push_back({line, std::move(model), std::move(what)});
+        }
+    };
+    const auto statements = statements_of(text);
+    // File-level models (any type, for subcircuits) and the blocks.
+    std::map<std::string, std::vector<std::string>> file_models; // upper-case name -> lines
+    std::vector<std::string> model_order;
+    std::map<std::string, std::pair<int, std::string>> unsupported; // name -> line, reason (until a block uses it)
+    std::vector<Block> blocks;
+    int depth = 0;
+    for (const auto& s : statements) {
+        if (s.joined.front() == '*') {
+            if (depth > 0) {
+                blocks.back().lines.insert(blocks.back().lines.end(), s.lines.begin(), s.lines.end());
+            }
+            continue;
+        }
+        const std::string word = first_word_upper(s.joined);
+        if (word == ".SUBCKT") {
+            if (depth == 0) {
+                Block b;
+                b.line = s.line;
+                const auto words = words_of(collapse(s.joined));
+                b.name = words.size() > 1 ? words[1] : "";
+                for (std::size_t i = 2; i < words.size(); ++i) {
+                    if (upper(words[i]) == "PARAMS:" || words[i].find('=') != std::string::npos) {
+                        break;
+                    }
+                    b.ports.push_back(words[i]);
+                }
+                std::string description = s.comment;
+                for (std::size_t i = 1; i < s.lines.size(); ++i) {
+                    const std::string t = trim(s.lines[i]);
+                    if (!t.empty() && t.front() == '*') {
+                        const std::string c = trim(std::string_view(t).substr(1));
+                        if (!c.empty() && c.find_first_not_of("*/=-_ ") != std::string::npos) {
+                            description += (description.empty() ? "" : "\n") + c;
+                        }
+                    }
+                }
+                b.description = description;
+                blocks.push_back(std::move(b));
+            }
+            ++depth;
+            blocks.back().lines.insert(blocks.back().lines.end(), s.lines.begin(), s.lines.end());
+            continue;
+        }
+        if (depth > 0) {
+            Block& b = blocks.back();
+            b.lines.insert(b.lines.end(), s.lines.begin(), s.lines.end());
+            if (word.front() == '.') {
+                if (!allowed_command(word) && b.refusal.empty()) {
+                    b.refusal = "uses " + word + ", which imported models may not use";
+                }
+            } else if (!std::isalpha(static_cast<unsigned char>(word.front())) && b.refusal.empty()) {
+                b.refusal = "line " + std::to_string(s.line) + " is not a SPICE element";
+            } else {
+                for (const auto& w : words_of(s.joined)) {
+                    b.words.insert(upper(w));
+                }
+            }
+            if (word == ".ENDS") {
+                --depth;
+            }
+            continue;
+        }
+        if (word == ".MODEL") {
+            const auto words = words_of(collapse(s.joined));
+            if (words.size() > 1) {
+                const std::string key = upper(words[1]);
+                if (!file_models.count(key)) {
+                    model_order.push_back(key);
+                }
+                file_models[key] = s.lines;
+            }
+            std::string why;
+            if (auto model = parse_spice_model(s.joined, &why)) {
+                model->description = s.comment;
+                for (const auto& d : model->dropped) {
+                    report(s.line, model->name, "left out " + d);
+                }
+                library.models.push_back(std::move(*model));
+            } else if (why.find("is not supported") == std::string::npos) {
+                report(s.line, words.size() > 1 ? words[1] : "", "skipped: " + why);
+            } else if (words.size() > 1) {
+                // Other types (NJF, RES, SW...) serve subcircuits; reported only if none uses them.
+                unsupported[upper(words[1])] = {s.line, words[1] + "|skipped: " + why};
+            }
+        }
+    }
+    if (depth > 0 && !blocks.empty() && blocks.back().refusal.empty()) {
+        blocks.back().refusal = ".ends is missing";
+    }
+    // Each usable block with the file's models and blocks it uses, transitively.
+    std::map<std::string, std::size_t> block_index;
+    for (std::size_t i = 0; i < blocks.size(); ++i) {
+        block_index[upper(blocks[i].name)] = i;
+        for (const auto& w : blocks[i].words) {
+            unsupported.erase(w);
+        }
+    }
+    for (const auto& [key, entry] : unsupported) {
+        const auto bar = entry.second.find('|');
+        report(entry.first, entry.second.substr(0, bar), entry.second.substr(bar + 1));
+    }
+    for (std::size_t i = 0; i < blocks.size(); ++i) {
+        const Block& b = blocks[i];
+        if (!b.refusal.empty()) {
+            report(b.line, b.name, "skipped: " + b.refusal);
+            continue;
+        }
+        std::set<std::size_t> needed_blocks;
+        std::set<std::string> needed_models;
+        std::vector<std::size_t> pending{i};
+        std::string refusal;
+        while (!pending.empty()) {
+            const std::size_t k = pending.back();
+            pending.pop_back();
+            for (const auto& w : blocks[k].words) {
+                if (file_models.count(w)) {
+                    needed_models.insert(w);
+                }
+                if (const auto it = block_index.find(w); it != block_index.end() && it->second != k
+                    && !needed_blocks.count(it->second)) {
+                    if (!blocks[it->second].refusal.empty()) {
+                        refusal = "uses " + blocks[it->second].name + ", which is skipped";
+                    }
+                    needed_blocks.insert(it->second);
+                    pending.push_back(it->second);
+                }
+            }
+        }
+        needed_blocks.erase(i);
+        if (!refusal.empty()) {
+            report(b.line, b.name, "skipped: " + refusal);
+            continue;
+        }
+        SpiceSubcircuit sub;
+        sub.name = b.name;
+        sub.ports = b.ports;
+        sub.description = b.description;
+        for (const auto& key : model_order) {
+            if (needed_models.count(key)) {
+                for (const auto& l : file_models[key]) {
+                    sub.text += l + "\n";
+                }
+            }
+        }
+        for (const std::size_t k : needed_blocks) {
+            for (const auto& l : blocks[k].lines) {
+                sub.text += l + "\n";
+            }
+        }
+        for (const auto& l : b.lines) {
+            sub.text += l + "\n";
+        }
+        library.subcircuits.push_back(std::move(sub));
+    }
+    return library;
+}
+
+std::vector<SpiceModel> parse_spice_models(std::string_view text, std::vector<ModelIssue>* issues)
+{
+    return parse_spice_library(text, issues).models;
+}
+
+std::optional<SpiceSubcircuit> parse_subcircuit_text(std::string_view text, std::string* why)
+{
+    std::vector<ModelIssue> issues;
+    auto library = parse_spice_library(text, &issues);
+    for (const auto& issue : issues) {
+        if (issue.text.rfind("skipped", 0) == 0) {
+            if (why) {
+                *why = issue.model + ": " + issue.text;
+            }
+            return std::nullopt;
+        }
+    }
+    if (library.subcircuits.empty()) {
+        if (why) {
+            *why = "no .subckt block";
+        }
+        return std::nullopt;
+    }
+    SpiceSubcircuit top = library.subcircuits.back();
+    top.text = std::string(text);
+    return top;
 }
 
 } // namespace simnodus::library

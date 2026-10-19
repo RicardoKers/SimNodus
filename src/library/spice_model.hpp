@@ -40,6 +40,30 @@ struct ModelIssue {
     std::string text;  // what happened
 };
 
+// A vendor subcircuit (`.subckt NAME PORTS ... .ends`, ADR 0097) used as the
+// model of a part. `text` is self-contained: the file's `.model` statements
+// and `.subckt` blocks it uses come first, its own block last. Commands that
+// could read files or run commands (.include, .lib, .control...) are refused.
+struct SpiceSubcircuit {
+    std::string name;
+    std::vector<std::string> ports; // as written: "1", "2", "99" ... or "IN+", "OUT"
+    std::string description;        // the comments just before and after the header, one line each
+    std::string text;
+};
+
+struct SpiceLibrary {
+    std::vector<SpiceModel> models;
+    std::vector<SpiceSubcircuit> subcircuits;
+};
+
+// Every supported `.model` statement and `.subckt` block of a model file;
+// `issues` receives what was skipped or changed (see parse_spice_models).
+SpiceLibrary parse_spice_library(std::string_view text, std::vector<ModelIssue>* issues = nullptr);
+
+// The subcircuit a part keeps (the last block of `text`, which has its
+// dependencies before it); nullopt when the text is not an acceptable one.
+std::optional<SpiceSubcircuit> parse_subcircuit_text(std::string_view text, std::string* why = nullptr);
+
 // Model types SimNodus accepts.
 bool supported_model_type(std::string_view type);
 

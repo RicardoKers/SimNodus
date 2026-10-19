@@ -165,6 +165,59 @@ TEST_CASE("splitter bit pins join nets by bus name; buses connect nothing by the
     CHECK(n.ok());
 }
 
+TEST_CASE("a vendor subcircuit replaces the part's template, wrapped and with its pins in port order")
+{
+    const auto lib = load();
+    const std::string opamp = "* SNOPAMP: op-amp macro model written for the tests (MIT)\n"
+    ".SUBCKT SN/OPAMP 1 2 3 4 5\n"
+    "* connections: in+ in- v+ v- out\n"
+    "RIN 1 2 1MEG\n"
+    "RS 3 4 1MEG\n"
+    "EGAIN 6 0 POLY(1) 1 2 0 1E5\n"
+    "RP 6 7 1K\n"
+    "CP 7 0 1.59U\n"
+    "EBUF 8 0 7 0 1\n"
+    "RO 8 5 50\n"
+    ".ENDS\n";
+    test::CircuitBuilder b(lib);
+    b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "1"}});
+    const Id u = b.add("opamp", {{"IN+", "IN"}, {"IN-", "FB"}, {"OUT", "OUT"}, {"V+", "VCC"}, {"V-", "0"}});
+    b.add("resistor", {{"1", "OUT"}, {"2", "FB"}}, {{"R", "10k"}});
+    b.add("resistor", {{"1", "FB"}, {"2", "0"}}, {{"R", "10k"}});
+    auto n = netlist::generate_netlist(b.schematic, lib);
+    REQUIRE(n.ok()); // the behavioral default: no subcircuit
+    CHECK(std::none_of(n.lines.begin(), n.lines.end(), [](const std::string& l) { return l.rfind("X_", 0) == 0; }));
+    editing::set_model(b.schematic, u, "model", "SN/OPAMP", opamp).apply(b.schematic);
+    n = netlist::generate_netlist(b.schematic, lib);
+    if (!n.ok()) {
+        dump(n);
+    }
+    REQUIRE(n.ok());
+    // Port order of op-amp subcircuits: in+ in- v+ v- out.
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "X_U1 IN FB VCC 0 OUT UX_U1_model") != n.lines.end());
+    CHECK(std::none_of(n.lines.begin(), n.lines.end(), [](const std::string& l) { return l.rfind("E_U1", 0) == 0; }));
+    REQUIRE(n.models.size() >= 4);
+    CHECK(n.models.front() == ".subckt UX_U1_model p1 p2 p3 p4 p5");
+    CHECK(std::find(n.models.begin(), n.models.end(), ".SUBCKT SNX 1 2 3 4 5") != n.models.end()); // the vendor's name is local
+    CHECK(std::find(n.models.begin(), n.models.end(), "X1 p1 p2 p3 p4 p5 SNX") != n.models.end());
+    CHECK(n.models.back() == ".ends UX_U1_model");
+    // Another assignment of the ports (for a file with another order).
+    editing::set_model_pins(b.schematic, u, "model", {"IN-", "IN+", "V+", "V-", "OUT"}).apply(b.schematic);
+    n = netlist::generate_netlist(b.schematic, lib);
+    CHECK(std::find(n.lines.begin(), n.lines.end(), "X_U1 FB IN VCC 0 OUT UX_U1_model") != n.lines.end());
+    // A subcircuit with the wrong number of ports is an error for the part.
+    editing::set_model(b.schematic, u, "model", "SNDARL", ".SUBCKT SNDARL 1 2 3\n"
+    "* TERMINALS: C B E\n"
+    "Q1 1 2 4 QD\n"
+    "Q2 1 4 3 QD\n"
+    "R1 2 4 10K\n"
+    "R2 4 3 150\n"
+    ".ENDS\n"
+    ".MODEL QD NPN(BF=100 IS=1E-14)\n").apply(b.schematic);
+    CHECK(has(netlist::generate_netlist(b.schematic, lib), "unknown-model"));
+}
+
 TEST_CASE("an RC circuit gives the expected netlist")
 {
     const auto lib = load();

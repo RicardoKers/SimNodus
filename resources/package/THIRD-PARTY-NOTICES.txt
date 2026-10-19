@@ -15,7 +15,7 @@ Qt 6 (Qt Core, Gui, Widgets, Svg, Network and their plugins)
   compatible build of the same Qt version. Source: https://download.qt.io/
   Copyright (C) The Qt Company Ltd. and other contributors.
 
-ngspice 47 (ngspice/ngspice.dll)
+ngspice 47 (ngspice/ngspice.dll and its code model ngspice/spice2poly.cm)
   License: Modified BSD license, with the exceptions listed in
   ngspice/COPYING. Source: https://ngspice.sourceforge.io/
   Copyright (c) the ngspice team and the Regents of the University of

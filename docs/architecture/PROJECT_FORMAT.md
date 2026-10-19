@@ -31,7 +31,10 @@ partially.
 - **Models** (PRJ-07): a component may carry `"models": {"model": ".model MY-NPN NPN(BF=50)"}`,
   the statement of a model that is not built in (chosen from the user's models
   folder), so the project opens the same on another computer
-  ([ADR 0095](../decisions/0095-model-variants.md)).
+  ([ADR 0095](../decisions/0095-model-variants.md)). For a vendor subcircuit
+  the value is the self-contained `.subckt` text, and `"model.pins": "IN-,IN+,V+,V-,OUT"`
+  may give the part pin of each port when it differs from the usual order
+  ([ADR 0097](../decisions/0097-vendor-subcircuits.md)).
 - **Buses and splitters** (UI-19, [ADR 0096](../decisions/0096-buses-and-splitters.md)):
   `"buses": [{"id", "points", "name": "D"}]` are drawings only;
   `"splitters": [{"id", "at", "rotation", "mirrored", "bus": "D", "first": 0, "count": 8}]`

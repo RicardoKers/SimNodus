@@ -112,7 +112,12 @@
       "kind": "model",
       "model_type": "PNP",
       "default": "Generic",
-      "description": "SPICE model: a built-in part or one from your models folder (Tools > Open Models Folder)"
+      "description": "SPICE model: a built-in part, or a .model or .subckt from your models folder (Tools > Open Models Folder)",
+      "subcircuit": [
+        "C",
+        "B",
+        "E"
+      ]
     }
   ]
 }

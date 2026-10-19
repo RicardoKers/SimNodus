@@ -174,6 +174,8 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
         // Parameter values: numbers for the template, or chosen words.
         std::map<std::string, double> numbers;
         std::map<std::string, std::string> words;
+        std::vector<std::string> subcircuit_pins; // a vendor subcircuit replaces the template (ADR 0097)
+        std::string subcircuit_name;
         bool values_ok = true;
         for (const auto& p : d->parameters) {
             const auto found = c.parameters.find(p.name);
@@ -183,6 +185,80 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 continue;
             }
             if (p.kind == library::Parameter::Kind::Model) {
+                // ADR 0097: a vendor subcircuit kept in the component replaces the
+                // part's template with an instance of it, wrapped in a subcircuit
+                // of SimNodus's own name so that its models and blocks stay local.
+                if (const auto kept = c.models.find(p.name); kept != c.models.end() && !p.subcircuit.empty()) {
+                    std::string why;
+                    if (const auto sub = library::parse_subcircuit_text(kept->second, &why); sub && sub->name == text) {
+                        if (sub->ports.size() != p.subcircuit.size()) {
+                            report(Severity::Error, "unknown-model",
+                                c.designator + ": the subcircuit " + text + " has " + std::to_string(sub->ports.size())
+                                    + " pins; this part needs " + std::to_string(p.subcircuit.size()) + ".",
+                                {c.id}, c.position);
+                            values_ok = false;
+                            continue;
+                        }
+                        // Part pin of each subcircuit port: the kept assignment, else the usual order.
+                        std::vector<std::string> pins = p.subcircuit;
+                        if (const auto map = c.models.find(p.name + ".pins"); map != c.models.end()) {
+                            std::vector<std::string> chosen_pins;
+                            std::stringstream list(map->second);
+                            for (std::string pin; std::getline(list, pin, ',');) {
+                                chosen_pins.push_back(pin);
+                            }
+                            auto sorted_a = chosen_pins;
+                            auto sorted_b = p.subcircuit;
+                            std::sort(sorted_a.begin(), sorted_a.end());
+                            std::sort(sorted_b.begin(), sorted_b.end());
+                            if (sorted_a == sorted_b) {
+                                pins = chosen_pins;
+                            } else {
+                                report(Severity::Warning, "model-pins",
+                                    c.designator + ": the pin assignment of " + text
+                                        + " is not valid; the usual order is used.",
+                                    {c.id}, c.position);
+                            }
+                        }
+                        const std::string wrapper = "UX_" + sanitize_name(c.designator) + "_" + sanitize_name(p.name);
+                        std::string header = ".subckt " + wrapper;
+                        std::string call = "X1";
+                        for (std::size_t k = 0; k < pins.size(); ++k) {
+                            header += " p" + std::to_string(k + 1);
+                            call += " p" + std::to_string(k + 1);
+                        }
+                        out.models.push_back(header);
+                        // The vendor's own name may hold characters ngspice treats specially
+                        // ("LM358/NS"): the last block, the one the part uses, becomes SNX.
+                        std::vector<std::string> lines;
+                        std::stringstream body(kept->second);
+                        for (std::string line; std::getline(body, line);) {
+                            if (!line.empty() && line.back() == '\r') {
+                                line.pop_back();
+                            }
+                            lines.push_back(line);
+                        }
+                        for (auto it = lines.rbegin(); it != lines.rend(); ++it) {
+                            const auto words_of_line = split(*it);
+                            if (!words_of_line.empty() && lower(words_of_line[0]) == ".subckt" && words_of_line.size() > 1) {
+                                const auto at = it->find(words_of_line[1]);
+                                it->replace(at, words_of_line[1].size(), "SNX");
+                                break;
+                            }
+                        }
+                        out.models.insert(out.models.end(), lines.begin(), lines.end());
+                        out.models.push_back(call + " SNX");
+                        out.models.push_back(".ends " + wrapper);
+                        subcircuit_pins = pins;
+                        subcircuit_name = wrapper;
+                        continue;
+                    } else if (!sub && why.find("no .subckt") == std::string::npos) {
+                        report(Severity::Error, "unknown-model",
+                            c.designator + ": the subcircuit " + text + " cannot be used: " + why + ".", {c.id}, c.position);
+                        values_ok = false;
+                        continue;
+                    }
+                }
                 // PRJ-07: a model kept in the component (not built in), else a
                 // built-in one. Netlist names are SimNodus's own, so any model
                 // name works and two parts never clash.
@@ -204,6 +280,9 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 } else if (const auto* built_in = library.model(p.model_type, text)) {
                     chosen = *built_in;
                     as_name = "BM_" + sanitize_name(p.model_type) + "_" + sanitize_name(text);
+                }
+                if (!chosen && p.model_type.empty() && text == p.default_value) {
+                    continue; // the part's own template (an op-amp's behavioral model)
                 }
                 if (!chosen || chosen->type != p.model_type) {
                     report(Severity::Error, "unknown-model",
@@ -292,7 +371,26 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
             const auto it = numbers.find(std::string(name));
             return it == numbers.end() ? std::nullopt : std::optional<double>(it->second);
         };
-        for (const auto& line_template : d->spice) {
+        if (!subcircuit_name.empty()) {
+            Element e;
+            e.component = c.id;
+            e.name = "X_" + ref;
+            e.letter = 'X';
+            std::string line = e.name;
+            for (const auto& pin : subcircuit_pins) {
+                const PinRef pin_ref{c.id, pin};
+                const auto probe = probe_nodes.find(pin_ref);
+                const std::string node = probe == probe_nodes.end() ? out.pin_node.at(pin_ref) : probe->second;
+                line += " " + node;
+                e.nodes.push_back(node);
+            }
+            line += " " + subcircuit_name;
+            e.value_text = subcircuit_name;
+            out.lines.push_back(line);
+            out.elements.push_back(e);
+        }
+        static const std::vector<std::string> no_template;
+        for (const auto& line_template : subcircuit_name.empty() ? d->spice : no_template) {
             std::string error;
             const auto tokens = library::tokenize_template(line_template, error);
             std::string line;
@@ -441,6 +539,10 @@ Netlist generate_netlist(const model::Schematic& schematic, const library::Compo
                 if (a < e.nodes.size() && b < e.nodes.size()) {
                     dc.unite(e.nodes[a], e.nodes[b]);
                 }
+            }
+            // A subcircuit's inside is not known here: assume its pins are joined.
+            for (std::size_t k = 1; e.letter == 'X' && k < e.nodes.size(); ++k) {
+                dc.unite(e.nodes[0], e.nodes[k]);
             }
         }
         dc.id("0");

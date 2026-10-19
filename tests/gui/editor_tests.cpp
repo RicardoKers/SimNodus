@@ -253,6 +253,35 @@ private slots:
         QVERIFY(at_full.bottom() >= at_half.bottom());
     }
 
+    void op_amp_offers_vendor_subcircuits_from_the_models_folder()
+    {
+        const QString folder = dir_.filePath(QStringLiteral("subckt-models"));
+        QVERIFY(QDir().mkpath(folder));
+        QFile file(folder + QStringLiteral("/amps.lib"));
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("* MYAMP: a test op-amp\n.SUBCKT MYAMP 1 2 3 4 5\nE1 5 0 1 2 1E5\nR1 3 4 1MEG\n.ENDS\n"
+                   ".SUBCKT TWO 1 2\nR1 1 2 1k\n.ENDS\n");
+        file.close();
+        qputenv("SIMNODUS_MODELS_DIR", folder.toUtf8());
+        const model::Id u = place("opamp", {0, 0});
+        window_->scene()->select_ids({u});
+        auto* box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_model"));
+        QVERIFY(box);
+        QCOMPARE(box->currentText(), QStringLiteral("Behavioral"));
+        QVERIFY(window_->properties()->findChild<QPushButton*>(QStringLiteral("modelPins")) == nullptr);
+        const int amp = box->findText(QStringLiteral("MYAMP"));
+        QVERIFY(amp >= 0);
+        QVERIFY(box->findText(QStringLiteral("TWO")) < 0); // two ports do not fit an op-amp
+        QVERIFY(box->itemData(amp, Qt::ToolTipRole).toString().contains(QStringLiteral("ports 1 2 3 4 5")));
+        emit box->activated(amp);
+        const auto* c = doc().schematic().component(u);
+        QCOMPARE(c->parameters.at("model"), std::string("MYAMP"));
+        QVERIFY(c->models.at("model").find(".SUBCKT MYAMP") != std::string::npos);
+        // Now a subcircuit: its pins can be assigned.
+        QTRY_VERIFY(window_->properties()->findChild<QPushButton*>(QStringLiteral("modelPins")) != nullptr);
+        qunsetenv("SIMNODUS_MODELS_DIR");
+    }
+
     void model_list_offers_built_in_and_folder_models()
     {
         // A models folder with a user's NPN (and a line that is not a model).
@@ -276,11 +305,11 @@ private slots:
         QVERIFY(box->itemData(mine, Qt::ToolTipRole).toString().contains(QStringLiteral("mine.lib")));
         QVERIFY(box->findText(QStringLiteral("ODD")) >= 0); // kept, without FOO
         // What was left out or skipped is in the Messages panel, once per read.
-        QCOMPARE(window_->messages()->warning_count(), 2);
+        QCOMPARE(window_->messages()->warning_count(), 1);
         const auto& issues = user_model_issues();
-        QCOMPARE(static_cast<int>(issues.size()), 2);
+        QCOMPARE(static_cast<int>(issues.size()), 1);
         QCOMPARE(issues[0], QStringLiteral("mine.lib, line 4, ODD: left out FOO=2 (not a NPN parameter)"));
-        QVERIFY(issues[1].contains(QStringLiteral("AMP")) && issues[1].contains(QStringLiteral("subcircuits")));
+        QVERIFY(box->findText(QStringLiteral("AMP")) < 0); // a two-pin subcircuit does not fit an NPN
         emit box->activated(mine);
         const auto* c = doc().schematic().component(q);
         QCOMPARE(c->parameters.at("model"), std::string("MY-NPN"));

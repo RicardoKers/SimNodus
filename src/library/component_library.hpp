@@ -57,7 +57,10 @@ struct Parameter {
     std::vector<std::string> choices; // non-empty: the value is one of these words
     std::string description;
     std::string filter;
-    std::string model_type; // Model: "NPN", "PNP", "D", "NMOS" or "PMOS"
+    std::string model_type; // Model: "NPN", "PNP", "D", "NMOS" or "PMOS"; empty: subcircuits only
+    // Model: the part's pins in the usual port order of vendor subcircuits
+    // ("IN+", "IN-", "V+", "V-", "OUT"); empty: no subcircuits (ADR 0097).
+    std::vector<std::string> subcircuit;
 };
 
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own

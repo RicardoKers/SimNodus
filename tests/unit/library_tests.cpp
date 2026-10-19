@@ -214,17 +214,14 @@ TEST_CASE("SPICE model files: .model statements are read, the rest is skipped")
     CHECK(models[1].name == "D1N4148");
     CHECK(models[1].parameters == "IS=2.52n RS=.568");
     CHECK(models[1].description.empty());
-    // The subcircuit and the JFET are skipped; BAD keeps IS but not the expression.
+    // The JFET is skipped (no subcircuit uses it); BAD keeps IS but not the expression.
     CHECK(models[2].name == "BAD");
     CHECK(models[2].parameters == "IS=1f");
-    REQUIRE(issues.size() == 3);
-    CHECK(issues[0].line == 7);
-    CHECK(issues[0].model == "OPAMP");
-    CHECK(issues[0].text.find("subcircuits") != std::string::npos);
+    REQUIRE(issues.size() == 2);
+    CHECK(issues[0].line == 11);
+    CHECK(issues[0].text == "left out BF={beta} (not a number)");
     CHECK(issues[1].model == "JF1");
     CHECK(issues[1].text.find("NJF is not supported") != std::string::npos);
-    CHECK(issues[2].line == 11);
-    CHECK(issues[2].text == "left out BF={beta} (not a number)");
     // Only the statement itself is kept: text after the parameters is dropped.
     CHECK(library::parse_spice_model(".model X NPN(BF=100) .control")->card() == ".model X NPN(BF=100)");
     CHECK(!library::parse_spice_model(".model X$Y NPN(BF=100)").has_value());
@@ -282,4 +279,61 @@ TEST_CASE("the potentiometer's wiper moves along its track")
     CHECK(w.pin == "W");
     CHECK(w.start.y < w.end.y); // 0 % at pin 1 (top), 100 % at pin 2
     CHECK(d->pin("1")->at.y < d->pin("2")->at.y);
+}
+
+TEST_CASE("vendor subcircuits are read with the models and blocks they use")
+{
+    const std::string text = "* Op-amp macro model\n"
+                             ".SUBCKT AMP/X 1 2 99 50 28 PARAMS: GAIN=1e5\n"
+                             "* connections: in+ in- v+ v- out\n"
+                             "Q1 5 2 4 QX\n"
+                             "E1 28 0 POLY(1) 1 2 0 {GAIN}\n"
+                             "XB 28 50 BUF\n"
+                             ".MODEL INNER D(IS=1f)\n"
+                             ".ENDS\n"
+                             ".SUBCKT BUF 1 2\n"
+                             "R1 1 2 1k\n"
+                             "D1 1 2 DLIM\n"
+                             ".ENDS BUF\n"
+                             ".SUBCKT BAD 1 2\n"
+                             ".include secrets.lib\n"
+                             "R1 1 2 1k\n"
+                             ".ENDS\n"
+                             ".SUBCKT USESBAD 1 2\n"
+                             "X1 1 2 BAD\n"
+                             ".ENDS\n"
+                             ".MODEL QX PNP(BF=200)\n"
+                             ".MODEL DLIM D(IS=1e-15)\n"
+                             ".MODEL UNUSED D(IS=1n)\n"
+                             ".MODEL RT RES(TC1=1m)\n";
+    std::vector<library::ModelIssue> issues;
+    const auto lib = library::parse_spice_library(text, &issues);
+    REQUIRE(lib.subcircuits.size() == 2); // AMP/X and BUF; BAD and USESBAD are skipped
+    const auto& amp = lib.subcircuits[0];
+    CHECK(amp.name == "AMP/X");
+    CHECK((amp.ports == std::vector<std::string>{"1", "2", "99", "50", "28"}));
+    CHECK(amp.description == "Op-amp macro model\nconnections: in+ in- v+ v- out");
+    // Self-contained: the models and the block it uses, then its own block last.
+    CHECK(amp.text.find(".MODEL QX PNP(BF=200)") != std::string::npos);
+    CHECK(amp.text.find(".MODEL DLIM D(IS=1e-15)") != std::string::npos);
+    CHECK(amp.text.find(".SUBCKT BUF 1 2") < amp.text.find(".SUBCKT AMP/X"));
+    CHECK(amp.text.find("UNUSED") == std::string::npos);
+    CHECK(amp.text.find(".include") == std::string::npos);
+    CHECK(lib.subcircuits[1].name == "BUF");
+    // The kept text reads back as the same subcircuit.
+    const auto kept = library::parse_subcircuit_text(amp.text);
+    REQUIRE(kept.has_value());
+    CHECK(kept->name == "AMP/X");
+    CHECK(kept->ports.size() == 5);
+    bool include_reported = false;
+    bool uses_bad_reported = false;
+    for (const auto& issue : issues) {
+        include_reported = include_reported || (issue.model == "BAD" && issue.text.find(".INCLUDE") != std::string::npos);
+        uses_bad_reported = uses_bad_reported || (issue.model == "USESBAD" && issue.text.find("BAD") != std::string::npos);
+    }
+    CHECK(include_reported);
+    CHECK(uses_bad_reported);
+    std::string why;
+    CHECK(!library::parse_subcircuit_text(".SUBCKT S 1 2\n.control\nshell rm x\n.endc\n.ENDS\n", &why).has_value());
+    CHECK(why.find(".CONTROL") != std::string::npos);
 }

@@ -46,6 +46,10 @@
     {
       "path": "ngspice-console/Spice64/bin/samplerate.dll",
       "sha256": "2e24802f94b584173de7358a5f26d3147226f417dcebeb69bee98994022483ce"
+    },
+    {
+      "path": "ngspice/Spice64_dll/lib/ngspice/spice2poly.cm",
+      "sha256": "d12ab0f4cc011357564a5b4a24ddd10e373b0973c03e245fe41149ed7ae7e5ac"
     }
   ]
 }
