@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-19, owner's report)
+
+- The Signal Analyzer stays responsive with long timebases: at 1 s/div with 10 s of history a refresh took about 130 ms (the whole window slowed down); now about 16 ms on the Scope tab and 5 ms on the Logic tab. Traces are drawn as segments (Qt stroked the dense polyline very slowly), samples are thinned for display while they are copied, roll mode copies one window, the logic lanes find their edges without copying and are refreshed only while their tab is shown, measurements of the selected channel run on the full data a few times a second, and the refresh rate slows down when a refresh is expensive.
+- Logic analyzer measurements appear without clicking a lane: the first lane is measured until another one is chosen.
+
 ### Added (2026-10-19, owner's request)
 
 - 7-segment displays and decoders (SN-202) in a new *Displays* category: *7-segment display* with a common cathode or a common anode (segments a-g and the decimal point as LEDs; each drawn segment lights with its own current, fully at 10 mA, in the chosen color), *BCD to 7-segment decoder (4511)* with active-high outputs and *(7447)* with active-low outputs (0-9 shown, 10-15 blank), and a *Decade counter* (0-9). Parts may light several drawn shapes with their own currents (`"lights"`). Engine tests: every input code of both decoders, 9.28 mA through a segment from 5 V and 330 ohm, the decade counter wrapping from 9 to 0. Example 23: a 2 Hz clock counting on a display.

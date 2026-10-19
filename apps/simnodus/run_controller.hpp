@@ -93,7 +93,8 @@ public:
 
     // Analyzer data.
     const std::vector<Channel>& channels() const { return channels_; }
-    std::vector<sim::Sample> samples(const Channel& channel, double from) const;
+    // With `max_points`, thinned for display (see SampleRing::since).
+    std::vector<sim::Sample> samples(const Channel& channel, double from, std::size_t max_points = 0) const;
     sim::TransientResult transient_result() const { return session_->transient_result(); }
     bool transient_mode() const { return mode_ == model::SimulationMode::Transient; }
 

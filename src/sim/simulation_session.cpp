@@ -378,11 +378,20 @@ std::vector<Sample> SimulationSession::samples(const std::string& vector) const
     return it == rings_.end() ? std::vector<Sample>{} : it->second->snapshot();
 }
 
-std::vector<Sample> SimulationSession::samples_since(const std::string& vector, double from) const
+std::vector<Sample> SimulationSession::samples_since(const std::string& vector, double from, std::size_t max_points) const
 {
     std::lock_guard lock(mutex_);
     const auto it = rings_.find(lower(vector));
-    return it == rings_.end() ? std::vector<Sample>{} : it->second->since(from);
+    return it == rings_.end() ? std::vector<Sample>{} : it->second->since(from, max_points);
+}
+
+std::vector<std::pair<double, bool>> SimulationSession::transitions_since(const std::string& vector, double from,
+    double threshold, bool& initial) const
+{
+    std::lock_guard lock(mutex_);
+    initial = false;
+    const auto it = rings_.find(lower(vector));
+    return it == rings_.end() ? std::vector<std::pair<double, bool>>{} : it->second->transitions(from, threshold, initial);
 }
 
 std::optional<double> SimulationSession::latest(const std::string& vector) const

@@ -11,6 +11,7 @@
 #include "run_controller.hpp"
 #include "scope_widget.hpp"
 
+#include <QElapsedTimer>
 #include <QMainWindow>
 #include <QTimer>
 
@@ -75,7 +76,9 @@ private:
     void refresh_logic();
     void update_transitions();
     void rebuild_channel_list();
-    std::vector<ScopeTrace> collect(double from, double to) const;
+    // Channels within [from, to]; with `max_points`, thinned for display.
+    std::vector<ScopeTrace> collect(double from, double to, std::size_t max_points = 0) const;
+    std::size_t display_points() const;
     void update_measurements();
     void export_csv_dialog();
     void export_vcd_dialog();
@@ -112,6 +115,9 @@ private:
     bool single_done_ = false;
     bool autoscale_pending_ = true; // fit scales once the first data arrives
     std::optional<std::pair<double, double>> last_window_;
+    sim::TransientResult record_;  // the complete transient record, read once per reload
+    QElapsedTimer measured_;       // measurements of full data run a few times a second
+    bool measurements_due_ = true;
 };
 
 } // namespace simnodus::ui

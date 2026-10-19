@@ -110,14 +110,20 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
         }
     });
     connect(cursors_, &QAction::toggled, scope_, &ScopeWidget::set_cursors_enabled);
-    connect(scope_, &ScopeWidget::cursors_changed, this, &AnalyzerWindow::update_measurements);
+    connect(scope_, &ScopeWidget::cursors_changed, this, [this] {
+        measurements_due_ = true;
+        update_measurements();
+    });
     connect(scope_, &ScopeWidget::cursors_changed, this, [this] {
         if (logic_) {
             logic_->set_cursors(scope_->cursors_enabled(), scope_->cursor(0), scope_->cursor(1));
             update_transitions();
         }
     });
-    connect(scope_, &ScopeWidget::window_changed, this, [this] { update_measurements(); });
+    connect(scope_, &ScopeWidget::window_changed, this, [this] {
+        measurements_due_ = true;
+        update_measurements();
+    });
     // The scope's left margin: clicking a channel's 0 V marker selects it, dragging moves it (SN-189).
     // Connected here, not in build_controls(): the scope does not exist yet when the controls are built.
     connect(scope_, &ScopeWidget::trace_selected, this, [this](int index) {
@@ -161,6 +167,7 @@ QWidget* AnalyzerWindow::build_controls()
         }
     });
     connect(channels_, &QTreeWidget::currentItemChanged, this, [this] {
+        measurements_due_ = true;
         scope_->set_selected_trace(channels_->indexOfTopLevelItem(channels_->currentItem()));
         update_measurements();
     });
@@ -266,6 +273,9 @@ void AnalyzerWindow::reload()
     terminal_->reload();
     rebuild_channel_list();
     record_mode_ = false;
+    record_ = {};
+    last_window_.reset();
+    measurements_due_ = true;
     single_done_ = false;
     scope_->set_navigation_enabled(false);
     if (!controller_) {
@@ -280,9 +290,9 @@ void AnalyzerWindow::reload()
         // Complete record with zoom and pan (AN-06).
         record_mode_ = true;
         scope_->set_navigation_enabled(true);
-        const auto result = controller_->transient_result();
-        if (!result.time.empty()) {
-            scope_->set_window(0.0, result.time.back());
+        record_ = controller_->transient_result();
+        if (!record_.time.empty()) {
+            scope_->set_window(0.0, record_.time.back());
         }
         autoscale_pending_ = false;
         refresh();
@@ -290,17 +300,20 @@ void AnalyzerWindow::reload()
     }
 }
 
-std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to) const
+std::size_t AnalyzerWindow::display_points() const
+{
+    // Four samples per pixel column: the plot thins further, keeping peaks.
+    return static_cast<std::size_t>(std::max(400.0, 4 * scope_->plot_rect().width()));
+}
+
+std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to, std::size_t max_points) const
 {
     std::vector<ScopeTrace> traces;
     if (!controller_) {
         return traces;
     }
     const auto& channels = controller_->channels();
-    sim::TransientResult record;
-    if (record_mode_) {
-        record = controller_->transient_result();
-    }
+    const sim::TransientResult& record = record_;
     for (std::size_t i = 0; i < channels.size(); ++i) {
         const auto& ch = channels[i];
         ScopeTrace t;
@@ -314,14 +327,23 @@ std::vector<ScopeTrace> AnalyzerWindow::collect(double from, double to) const
             const auto v = record.vectors.find(ch.vector);
             const auto r = record.vectors.find(ch.reference);
             if (v != record.vectors.end()) {
-                t.samples.reserve(record.time.size());
-                for (std::size_t k = 0; k < record.time.size() && k < v->second.size(); ++k) {
+                // Only the part in the window (plus one sample each side), then thinned.
+                const auto first = std::lower_bound(record.time.begin(), record.time.end(), from);
+                const auto last = std::upper_bound(record.time.begin(), record.time.end(), to);
+                std::size_t k0 = static_cast<std::size_t>(std::distance(record.time.begin(), first));
+                std::size_t k1 = static_cast<std::size_t>(std::distance(record.time.begin(), last));
+                k0 = k0 > 0 ? k0 - 1 : 0;
+                k1 = std::min(k1 + 1, std::min(record.time.size(), v->second.size()));
+                std::vector<sim::Sample> part;
+                part.reserve(k1 > k0 ? k1 - k0 : 0);
+                for (std::size_t k = k0; k < k1; ++k) {
                     const double ref = r != record.vectors.end() && k < r->second.size() ? r->second[k] : 0.0;
-                    t.samples.push_back({record.time[k], v->second[k] - ref});
+                    part.push_back({record.time[k], v->second[k] - ref});
                 }
+                t.samples = max_points > 0 ? sim::thin(part, from, to, max_points) : std::move(part);
             }
         } else {
-            t.samples = controller_->samples(ch, from);
+            t.samples = controller_->samples(ch, from, max_points);
             while (!t.samples.empty() && t.samples.back().time > to + 1e-12 && t.samples.size() > 1) {
                 t.samples.pop_back();
             }
@@ -388,9 +410,19 @@ void AnalyzerWindow::refresh()
     if (!controller_ || !isVisible()) {
         return;
     }
+    QElapsedTimer spent;
+    spent.start();
     terminal_->refresh();
-    refresh_scope();
-    refresh_logic();
+    refresh_scope(); // also moves the time window the logic lanes share
+    if (tabs_->currentIndex() == 1) {
+        refresh_logic(); // only while the Logic tab is shown
+    }
+    // A long window costs more per refresh: refresh less often instead of
+    // keeping the computer busy (at least 30 % of the time stays idle).
+    const int interval = std::clamp(static_cast<int>(spent.elapsed()) * 3, 33, 300);
+    if (interval != timer_.interval()) {
+        timer_.setInterval(interval);
+    }
 }
 
 void AnalyzerWindow::refresh_logic()
@@ -430,9 +462,13 @@ void AnalyzerWindow::refresh_logic()
         }
         views.push_back({lane.title, lane.color, lane_data.initial, std::move(lane_data.changes)});
     }
+    const bool any = !views.empty();
     logic_->set_lanes(std::move(views));
     logic_->set_window(scope_->window_start(), scope_->window_end());
     logic_->set_cursors(scope_->cursors_enabled(), scope_->cursor(0), scope_->cursor(1));
+    if (any && logic_->selected() < 0) {
+        logic_->set_selected(0); // measure the first lane until the user picks another
+    }
     update_transitions();
 }
 
@@ -501,7 +537,22 @@ void AnalyzerWindow::refresh_scope()
         rebuild_channel_list();
     }
     if (record_mode_) {
-        scope_->set_traces(collect(scope_->window_start(), scope_->window_end()));
+        // The record does not change: redraw only when the window moved.
+        const std::pair<double, double> window{scope_->window_start(), scope_->window_end()};
+        if (last_window_ != window || scope_->traces().empty()) {
+            last_window_ = window;
+            scope_->set_traces(collect(window.first, window.second, display_points()));
+            measurements_due_ = true;
+        } else {
+            // Scales, offsets and visibility may have changed: keep the samples.
+            auto traces = scope_->traces();
+            for (std::size_t i = 0; i < traces.size(); ++i) {
+                traces[i].per_division = i < scales_.size() ? scales_[i] : traces[i].per_division;
+                traces[i].offset = i < offsets_.size() ? offsets_[i] : traces[i].offset;
+                traces[i].visible = i < visible_.size() ? visible_[i] : traces[i].visible;
+            }
+            scope_->set_traces(std::move(traces));
+        }
         update_measurements();
         return;
     }
@@ -512,7 +563,9 @@ void AnalyzerWindow::refresh_scope()
     const double now = status.sim_time;
     const double div = timebase_->currentData().toDouble();
     const double span = div * ScopeWidget::horizontal_divisions;
-    auto traces = collect(now - 2.5 * span, now);
+    // Roll mode needs one window; the trigger search looks further back.
+    const bool triggered = mode_->currentIndex() == 1;
+    auto traces = collect(now - (triggered ? 2.5 : 1.05) * span, now, display_points());
     double start = std::max(0.0, now - span);
     bool show = true;
     if (mode_->currentIndex() == 1 && !traces.empty()) {
@@ -585,9 +638,21 @@ void AnalyzerWindow::update_measurements()
                 : tr("Add a probe on the schematic and run the simulation."));
         return;
     }
+    // Full data of the selected channel (the plot's are thinned), a few times a second.
+    if (!measurements_due_ && measured_.isValid() && measured_.elapsed() < 250) {
+        return;
+    }
+    measurements_due_ = false;
+    measured_.restart();
     const int index = std::max(0, channels_->indexOfTopLevelItem(channels_->currentItem()));
-    const auto& traces = scope_->traces();
-    const auto& t = traces[std::min(static_cast<std::size_t>(index), traces.size() - 1)];
+    const auto& shown = scope_->traces();
+    const std::size_t selected = std::min(static_cast<std::size_t>(index), shown.size() - 1);
+    ScopeTrace t = shown[selected];
+    if (record_mode_) {
+        t.samples = collect(scope_->window_start(), scope_->window_end())[selected].samples;
+    } else if (selected < controller_->channels().size()) {
+        t.samples = controller_->samples(controller_->channels()[selected], scope_->window_start());
+    }
     QStringList parts;
     if (const auto m = sim::measure(t.samples, scope_->window_start(), scope_->window_end())) {
         parts << QStringLiteral("<b>%1</b>").arg(t.name.toHtmlEscaped())
@@ -623,7 +688,11 @@ void AnalyzerWindow::update_measurements()
 
 bool AnalyzerWindow::export_csv(const QString& path, QString& error) const
 {
-    const auto& traces = scope_->traces();
+    // Every sample of the window, not the thinned ones on the screen.
+    auto traces = collect(scope_->window_start(), scope_->window_end());
+    for (std::size_t i = 0; i < traces.size() && i < scope_->traces().size(); ++i) {
+        traces[i].visible = scope_->traces()[i].visible;
+    }
     std::vector<const ScopeTrace*> visible;
     for (const auto& t : traces) {
         if (t.visible && !t.samples.empty()) {
