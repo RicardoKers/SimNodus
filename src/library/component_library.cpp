@@ -20,7 +20,7 @@ using nlohmann::json;
 
 const std::vector<std::string> category_order{
     "Passive", "Sources", "Switches & Controls", "Semiconductors", "Simplified models", "Integrated circuits",
-    "Electromechanical", "Instruments", "Microcontrollers", "Logic gates", "Flip-flops & counters", "Blocks"};
+    "Electromechanical", "Instruments", "Microcontrollers", "Logic gates", "Flip-flops & counters", "Displays", "Blocks"};
 
 [[noreturn]] void invalid(const std::string& message)
 {
@@ -381,6 +381,32 @@ ComponentDefinition parse_definition(const json& j)
             interactive.wiper = wiper;
         }
         d.interactive = interactive;
+    }
+    if (j.contains("lights")) {
+        const auto& l = j["lights"];
+        Lights lights;
+        if (l.contains("full")) {
+            const auto full = model::parse_engineering(text(l, "full"), "A");
+            if (!full || *full <= 0) {
+                invalid("lights.full must be a positive current");
+            }
+            lights.full = *full;
+        }
+        lights.color = text(l, "color");
+        lights.color_parameter = text(l, "color_parameter");
+        if (!l.contains("segments") || !l["segments"].is_array()) {
+            invalid("lights needs a list of segments");
+        }
+        for (const auto& s : l["segments"]) {
+            Lights::Light light;
+            light.element = text(s, "element", true);
+            light.graphic = s.value("graphic", -1);
+            if (light.graphic < 0 || light.graphic >= static_cast<int>(d.graphics.size())) {
+                invalid("lights segment graphic must be the index of a symbol graphic");
+            }
+            lights.lights.push_back(light);
+        }
+        d.lights = lights;
     }
     if (j.contains("readout") && !j["readout"].is_null()) {
         const auto& r = j["readout"];

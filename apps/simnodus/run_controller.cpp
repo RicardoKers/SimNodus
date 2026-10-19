@@ -79,8 +79,17 @@ bool RunController::start(QString& error)
     }
     readout_vectors_.clear();
     switch_states_.clear();
+    light_vectors_.clear();
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
+        if (d && d->lights) {
+            // Display segments (SN-202): the current of each one's measuring source.
+            auto& vectors = light_vectors_[c.id];
+            for (const auto& light : d->lights->lights) {
+                vectors.push_back(lower(element_name(light.element, c.designator)) + "#branch");
+                request.vectors.push_back(vectors.back());
+            }
+        }
         if (d && d->readout && d->readout->kind != library::Readout::Kind::Voltage) {
             // Current: the branch of a measuring source; node: an internal node (motor speed).
             const bool current = d->readout->kind == library::Readout::Kind::Current;
@@ -335,6 +344,25 @@ void RunController::refresh()
         if (const auto v = session_->control(control.component)) {
             live.controls[control.component] = *v;
         }
+    }
+    for (const auto& [id, vectors] : light_vectors_) {
+        const auto* c = snapshot_.component(id);
+        const auto* d = c ? library.find(c->type) : nullptr;
+        if (!d || !d->lights) {
+            continue;
+        }
+        LiveState::Lights lit;
+        lit.color = d->lights->color;
+        if (!d->lights->color_parameter.empty()) {
+            const auto p = c->parameters.find(d->lights->color_parameter);
+            const auto* definition = d->parameter(d->lights->color_parameter);
+            lit.color = p != c->parameters.end() ? p->second : definition ? definition->default_value : lit.color;
+        }
+        for (const auto& vector : vectors) {
+            const auto it = latest.find(vector);
+            lit.levels.push_back(it == latest.end() ? 0.0 : std::abs(it->second) / d->lights->full);
+        }
+        live.lights[id] = std::move(lit);
     }
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);

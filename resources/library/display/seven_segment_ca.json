@@ -1,0 +1,445 @@
+{
+  "type": "seven_segment_ca",
+  "name": "7-segment display (common anode)",
+  "category": "Displays",
+  "prefix": "DS",
+  "description": "7-segment LED display, common anode: segments a-g and the decimal point are LEDs from COM to each segment pin (a low segment pin lights it, like the 7447 drives); each segment lights with its own current, fully at 10 mA; use a resistor per segment",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -5,
+          6,
+          10
+        ]
+      },
+      {
+        "polygon": [
+          -1.2,
+          -3.4,
+          -0.95,
+          -3.65,
+          0.95,
+          -3.65,
+          1.2,
+          -3.4,
+          0.95,
+          -3.15,
+          -0.95,
+          -3.15
+        ]
+      },
+      {
+        "polygon": [
+          1.45,
+          -3.15,
+          1.7,
+          -2.9,
+          1.7,
+          -0.5,
+          1.45,
+          -0.25,
+          1.2,
+          -0.5,
+          1.2,
+          -2.9
+        ]
+      },
+      {
+        "polygon": [
+          1.45,
+          0.25,
+          1.7,
+          0.5,
+          1.7,
+          2.9,
+          1.45,
+          3.15,
+          1.2,
+          2.9,
+          1.2,
+          0.5
+        ]
+      },
+      {
+        "polygon": [
+          -1.2,
+          3.4,
+          -0.95,
+          3.15,
+          0.95,
+          3.15,
+          1.2,
+          3.4,
+          0.95,
+          3.65,
+          -0.95,
+          3.65
+        ]
+      },
+      {
+        "polygon": [
+          -1.45,
+          0.25,
+          -1.2,
+          0.5,
+          -1.2,
+          2.9,
+          -1.45,
+          3.15,
+          -1.7,
+          2.9,
+          -1.7,
+          0.5
+        ]
+      },
+      {
+        "polygon": [
+          -1.45,
+          -3.15,
+          -1.2,
+          -2.9,
+          -1.2,
+          -0.5,
+          -1.45,
+          -0.25,
+          -1.7,
+          -0.5,
+          -1.7,
+          -2.9
+        ]
+      },
+      {
+        "polygon": [
+          -1.2,
+          0,
+          -0.95,
+          -0.25,
+          0.95,
+          -0.25,
+          1.2,
+          0,
+          0.95,
+          0.25,
+          -0.95,
+          0.25
+        ]
+      },
+      {
+        "circle": [
+          2.1,
+          3.4,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -5,
+          -3,
+          -3,
+          -3
+        ]
+      },
+      {
+        "text": "a",
+        "at": [
+          -2.5,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -5,
+          -1,
+          -3,
+          -1
+        ]
+      },
+      {
+        "text": "b",
+        "at": [
+          -2.5,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -5,
+          1,
+          -3,
+          1
+        ]
+      },
+      {
+        "text": "c",
+        "at": [
+          -2.5,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -5,
+          3,
+          -3,
+          3
+        ]
+      },
+      {
+        "text": "d",
+        "at": [
+          -2.5,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          3,
+          -3,
+          5,
+          -3
+        ]
+      },
+      {
+        "text": "e",
+        "at": [
+          2.5,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          3,
+          -1,
+          5,
+          -1
+        ]
+      },
+      {
+        "text": "f",
+        "at": [
+          2.5,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          3,
+          1,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "g",
+        "at": [
+          2.5,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          3,
+          3,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "dp",
+        "at": [
+          2.5,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "CA",
+        "at": [
+          0,
+          4.4
+        ],
+        "size": 0.6
+      }
+    ],
+    "pins": [
+      {
+        "name": "a",
+        "at": [
+          -5,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "b",
+        "at": [
+          -5,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "c",
+        "at": [
+          -5,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "d",
+        "at": [
+          -5,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "e",
+        "at": [
+          5,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "f",
+        "at": [
+          5,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "g",
+        "at": [
+          5,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "dp",
+        "at": [
+          5,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "COM",
+        "at": [
+          0,
+          7
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -6
+  ],
+  "value_offset": [
+    3,
+    6
+  ],
+  "value_parameter": "color",
+  "parameters": [
+    {
+      "name": "color",
+      "label": "Color",
+      "unit": "",
+      "default": "red",
+      "description": "Segment color; sets the forward voltage (red about 1.9 V at 10 mA)",
+      "choices": [
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "white"
+      ]
+    }
+  ],
+  "lights": {
+    "full": "10m",
+    "color_parameter": "color",
+    "segments": [
+      {
+        "element": "V_{ref}_sa",
+        "graphic": 1
+      },
+      {
+        "element": "V_{ref}_sb",
+        "graphic": 2
+      },
+      {
+        "element": "V_{ref}_sc",
+        "graphic": 3
+      },
+      {
+        "element": "V_{ref}_sd",
+        "graphic": 4
+      },
+      {
+        "element": "V_{ref}_se",
+        "graphic": 5
+      },
+      {
+        "element": "V_{ref}_sf",
+        "graphic": 6
+      },
+      {
+        "element": "V_{ref}_sg",
+        "graphic": 7
+      },
+      {
+        "element": "V_{ref}_sdp",
+        "graphic": 8
+      }
+    ]
+  },
+  "spice": [
+    "V_{ref}_sa {node:COM} sa_{ref} DC 0",
+    "D_{ref}_a sa_{ref} {node:a} LED_{color}",
+    "V_{ref}_sb {node:COM} sb_{ref} DC 0",
+    "D_{ref}_b sb_{ref} {node:b} LED_{color}",
+    "V_{ref}_sc {node:COM} sc_{ref} DC 0",
+    "D_{ref}_c sc_{ref} {node:c} LED_{color}",
+    "V_{ref}_sd {node:COM} sd_{ref} DC 0",
+    "D_{ref}_d sd_{ref} {node:d} LED_{color}",
+    "V_{ref}_se {node:COM} se_{ref} DC 0",
+    "D_{ref}_e se_{ref} {node:e} LED_{color}",
+    "V_{ref}_sf {node:COM} sf_{ref} DC 0",
+    "D_{ref}_f sf_{ref} {node:f} LED_{color}",
+    "V_{ref}_sg {node:COM} sg_{ref} DC 0",
+    "D_{ref}_g sg_{ref} {node:g} LED_{color}",
+    "V_{ref}_sdp {node:COM} sdp_{ref} DC 0",
+    "D_{ref}_dp sdp_{ref} {node:dp} LED_{color}"
+  ],
+  "models": [
+    ".model LED_red D(IS=1.2e-18 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_yellow D(IS=1.7e-19 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_green D(IS=2.5e-20 N=2 RS=5 BV=5 IBV=10u)",
+    ".model LED_blue D(IS=6.7e-28 N=2 RS=8 BV=5 IBV=10u)",
+    ".model LED_white D(IS=6.7e-28 N=2 RS=8 BV=5 IBV=10u)"
+  ]
+}

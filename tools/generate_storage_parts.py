@@ -195,6 +195,21 @@ def build():
                       "resets it to 0 at once", ["CLK", "CLR"], ["Q0", "Q1", "Q2", "Q3"], spice, clock="CLK",
                       optional=("CLR",), title="CTR4"))
 
+    # Decade counter: 0..9, then 0 again (from 9 = 1001 the next state is 0000).
+    spice = []
+    carry = "1"
+    nine = f"({level('s0_{ref}')}*{level('s3_{ref}')})"
+    for bit in range(4):
+        qb = level(f"s{bit}_{{ref}}")
+        spice += master_slave(bit, f"(1-{nine})*({carry}+{qb}-2*{carry}*{qb})", clock, clear)
+        carry = qb if bit == 0 else f"{carry}*{qb}"
+    for bit in range(4):
+        spice += output(f"s{bit}_{{ref}}", f"Q{bit}")
+    parts.append(part("counter10", "Decade counter", "Synchronous decade counter (like a 74HC160 without load and "
+                      "enable): counts 0..9 in binary at the rising edges of CLK and starts again; a high CLR resets "
+                      "it to 0 at once; drives a BCD to 7-segment decoder", ["CLK", "CLR"], ["Q0", "Q1", "Q2", "Q3"],
+                      spice, clock="CLK", optional=("CLR",), title="CTR10"))
+
     # 4-bit shift register, serial in, parallel out, with asynchronous clear.
     spice = []
     for bit in range(4):

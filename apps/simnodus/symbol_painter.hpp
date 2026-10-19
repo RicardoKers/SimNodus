@@ -10,6 +10,8 @@
 #include <QRectF>
 #include <QString>
 
+#include <map>
+
 class QPainter;
 
 namespace simnodus::library {
@@ -25,6 +27,7 @@ struct SymbolStyle {
     QColor glow;               // LED glow (transparent = off)
     bool draw_pins = false;    // small pin markers (preview, placement)
     double wiper = 0.5;        // potentiometer position, 0..1 (UI-18)
+    std::map<int, QColor> fills; // graphic index -> fill (lit segments, SN-202)
 };
 
 // Tip of a potentiometer's wiper arrow at `position` (0..1), in grid units; the

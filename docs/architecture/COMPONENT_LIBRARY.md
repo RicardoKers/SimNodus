@@ -31,6 +31,7 @@ clockwise in 90° steps.
 | `spice` | unless `ties_net` or `ties_net_parameter` | SPICE template lines (below) |
 | `models` | — | `.model` lines, emitted once per netlist |
 | `ties_net` | — | All pins belong to this net; `"0"` makes the ground symbol |
+| `lights` | — | Shapes that light with their own currents (display segments): `{"full": "10m", "color_parameter": "color", "segments": [{"element": "V_{ref}_sa", "graphic": 1}, ...]}`; each graphic (index in the symbol's graphics) is filled with the color at the brightness of the current through its measuring source |
 | `pins[].optional` | — | `true`: the pin may stay unconnected without a warning (Q̅, clear inputs) |
 | `ties_net_parameter` | — | All pins belong to the net named by this text parameter: the *Block port* part ([ADR 0098](../decisions/0098-user-blocks.md)) |
 | `interactive` | — | `{"kind": "toggle|button|potentiometer", "parameter"}`: control operated while running. A potentiometer may add `"wiper": {"track": [x0, y0, x1, y1], "pin": "W"}`: the arrow's tip moves from (x0, y0) at 0 % to (x1, y1) at 100 %, joined to the wiper pin, and the percentage is shown next to it (UI-18) |

@@ -1,0 +1,582 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 47,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vpulse",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "Vlow": "0",
+        "Vhigh": "5",
+        "f": "2",
+        "duty": "50",
+        "rise": "1u"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "counter10",
+      "designator": "U1",
+      "at": [
+        16,
+        -5
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 10,
+      "type": "decoder_4511",
+      "designator": "U2",
+      "at": [
+        32,
+        -2
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 16,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        41,
+        -8
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 19,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        41,
+        -6
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 22,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        41,
+        -4
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 25,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        41,
+        -2
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 28,
+      "type": "resistor",
+      "designator": "R5",
+      "at": [
+        41,
+        0
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "resistor",
+      "designator": "R6",
+      "at": [
+        41,
+        2
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 34,
+      "type": "resistor",
+      "designator": "R7",
+      "at": [
+        41,
+        4
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -3,
+        -1
+      ],
+      "value_offset": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": 36,
+      "type": "seven_segment_cc",
+      "designator": "DS1",
+      "at": [
+        60,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 44,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        60,
+        7
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -6
+        ],
+        [
+          11,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          37,
+          -8
+        ],
+        [
+          38,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          37,
+          -6
+        ],
+        [
+          38,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "points": [
+        [
+          37,
+          -4
+        ],
+        [
+          38,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          37,
+          -2
+        ],
+        [
+          38,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
+          37,
+          0
+        ],
+        [
+          38,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "points": [
+        [
+          37,
+          2
+        ],
+        [
+          38,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 33,
+      "points": [
+        [
+          37,
+          4
+        ],
+        [
+          38,
+          4
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 6,
+      "at": [
+        21,
+        -8
+      ],
+      "name": "Q0"
+    },
+    {
+      "id": 7,
+      "at": [
+        21,
+        -6
+      ],
+      "name": "Q1"
+    },
+    {
+      "id": 8,
+      "at": [
+        21,
+        -4
+      ],
+      "name": "Q2"
+    },
+    {
+      "id": 9,
+      "at": [
+        21,
+        -2
+      ],
+      "name": "Q3"
+    },
+    {
+      "id": 11,
+      "at": [
+        27,
+        -5
+      ],
+      "name": "Q0",
+      "mirrored": true
+    },
+    {
+      "id": 12,
+      "at": [
+        27,
+        -3
+      ],
+      "name": "Q1",
+      "mirrored": true
+    },
+    {
+      "id": 13,
+      "at": [
+        27,
+        -1
+      ],
+      "name": "Q2",
+      "mirrored": true
+    },
+    {
+      "id": 14,
+      "at": [
+        27,
+        1
+      ],
+      "name": "Q3",
+      "mirrored": true
+    },
+    {
+      "id": 17,
+      "at": [
+        44,
+        -8
+      ],
+      "name": "Sa"
+    },
+    {
+      "id": 20,
+      "at": [
+        44,
+        -6
+      ],
+      "name": "Sb"
+    },
+    {
+      "id": 23,
+      "at": [
+        44,
+        -4
+      ],
+      "name": "Sc"
+    },
+    {
+      "id": 26,
+      "at": [
+        44,
+        -2
+      ],
+      "name": "Sd"
+    },
+    {
+      "id": 29,
+      "at": [
+        44,
+        0
+      ],
+      "name": "Se"
+    },
+    {
+      "id": 32,
+      "at": [
+        44,
+        2
+      ],
+      "name": "Sf"
+    },
+    {
+      "id": 35,
+      "at": [
+        44,
+        4
+      ],
+      "name": "Sg"
+    },
+    {
+      "id": 37,
+      "at": [
+        55,
+        -3
+      ],
+      "name": "Sa",
+      "mirrored": true
+    },
+    {
+      "id": 38,
+      "at": [
+        55,
+        -1
+      ],
+      "name": "Sb",
+      "mirrored": true
+    },
+    {
+      "id": 39,
+      "at": [
+        55,
+        1
+      ],
+      "name": "Sc",
+      "mirrored": true
+    },
+    {
+      "id": 40,
+      "at": [
+        55,
+        3
+      ],
+      "name": "Sd",
+      "mirrored": true
+    },
+    {
+      "id": 41,
+      "at": [
+        65,
+        -3
+      ],
+      "name": "Se"
+    },
+    {
+      "id": 42,
+      "at": [
+        65,
+        -1
+      ],
+      "name": "Sf"
+    },
+    {
+      "id": 43,
+      "at": [
+        65,
+        1
+      ],
+      "name": "Sg"
+    }
+  ],
+  "probes": [
+    {
+      "id": 45,
+      "kind": "voltage",
+      "target": {
+        "item": 4,
+        "at": [
+          6,
+          -6
+        ]
+      },
+      "color": "#1f77b4"
+    }
+  ],
+  "notes": [
+    {
+      "id": 46,
+      "at": [
+        -2,
+        -18
+      ],
+      "text": "A 2 Hz clock drives a decade counter (0-9); a 4511 decoder turns the BCD code into segments of a\ncommon-cathode display, one 330 ohm resistor per segment. Run (F5) at real time and watch it count.\nLabels Q0..Q3 and Sa..Sg join the parts. For a common-anode display use the 7447 decoder."
+    }
+  ]
+}

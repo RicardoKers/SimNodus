@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, owner's request)
+
+- 7-segment displays and decoders (SN-202) in a new *Displays* category: *7-segment display* with a common cathode or a common anode (segments a-g and the decimal point as LEDs; each drawn segment lights with its own current, fully at 10 mA, in the chosen color), *BCD to 7-segment decoder (4511)* with active-high outputs and *(7447)* with active-low outputs (0-9 shown, 10-15 blank), and a *Decade counter* (0-9). Parts may light several drawn shapes with their own currents (`"lights"`). Engine tests: every input code of both decoders, 9.28 mA through a segment from 5 V and 330 ohm, the decade counter wrapping from 9 to 0. Example 23: a 2 Hz clock counting on a display.
+
 ### Changed (2026-10-19, owner's ergonomics requests)
 
 - Live values of vertical parts (a voltmeter or ammeter standing upright) appear on the right of the symbol; of horizontal parts, below it as before. Texts inside symbols (the V and A of the meters, gate and IC pin names) stay upright and unmirrored whatever the part's rotation.
