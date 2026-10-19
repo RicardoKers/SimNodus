@@ -313,7 +313,8 @@ public:
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override
     {
-        const QColor ink = ghost_ ? QColor(0x6b, 0x70, 0x78, 170) : isSelected() ? theme::selection : theme::ink;
+        const QColor ghost(theme::muted_text.red(), theme::muted_text.green(), theme::muted_text.blue(), 170);
+        const QColor ink = ghost_ ? ghost : isSelected() ? theme::selection : theme::ink;
         if (!definition_) {
             painter->setPen(QPen(QColor(0xb4, 0x23, 0x18), line_width, Qt::DashLine));
             painter->drawRect(symbol_rect());
@@ -393,7 +394,7 @@ public:
         const QRectF readout = readout_rect();
         if (!readout.isNull()) {
             painter->setPen(QPen(theme::selection, 0.8));
-            painter->setBrush(QColor(0xee, 0xf4, 0xff));
+            painter->setBrush(theme::readout_background);
             painter->drawRoundedRect(readout, 3, 3);
             painter->setFont(schematic_font(true));
             painter->setPen(theme::selection);
@@ -576,7 +577,7 @@ public:
         painter->setBrush(Qt::NoBrush);
         const QRectF box = text_box();
         painter->drawLine(QPointF(0, 0), label_.mirrored ? box.bottomRight() : box.bottomLeft());
-        painter->setBrush(QColor(0xff, 0xff, 0xff, 230));
+        painter->setBrush(theme::label_background);
         painter->drawRoundedRect(box, 2, 2);
         painter->setFont(schematic_font(true));
         painter->drawText(box, Qt::AlignCenter, QString::fromStdString(label_.name));

@@ -1009,6 +1009,31 @@ private slots:
 #endif
     }
 
+    void dark_theme_applies_at_once_and_is_remembered()
+    {
+        // View > Theme (SN-162): the colors change while the window is open.
+        auto* dark = window_->findChild<QAction*>(QStringLiteral("theme_dark"));
+        auto* light = window_->findChild<QAction*>(QStringLiteral("theme_light"));
+        auto* system = window_->findChild<QAction*>(QStringLiteral("theme_system"));
+        QVERIFY(dark && light && system);
+        dark->trigger();
+        QVERIFY(theme::dark());
+        QCOMPARE(settings_->value(QStringLiteral("theme")).toString(), QStringLiteral("dark"));
+        QVERIFY(theme::canvas_background.lightness() < 60);
+        QVERIFY(theme::ink.lightness() > 180);
+        QVERIFY(qApp->palette().color(QPalette::Window).lightness() < 80);
+        // Drawing still works with the dark colors.
+        place("resistor", {0, 0});
+        QVERIFY(!view()->grab().isNull());
+        light->trigger();
+        QVERIFY(!theme::dark());
+        QVERIFY(theme::canvas_background.lightness() > 200);
+        QCOMPARE(settings_->value(QStringLiteral("theme")).toString(), QStringLiteral("light"));
+        system->trigger();
+        QVERIFY(!settings_->contains(QStringLiteral("theme")));
+        theme::apply(*qApp); // the other tests expect the light colors
+    }
+
     void language_choice_is_saved_and_the_translation_is_complete()
     {
         // Tools > Language keeps the choice for the next start (UI-16).

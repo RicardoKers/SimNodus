@@ -12,6 +12,7 @@
 #include "schematic_scene.hpp"
 #include "schematic_view.hpp"
 #include "settings_dialog.hpp"
+#include "theme.hpp"
 #include "user_models.hpp"
 
 #include "editing/operations.hpp"
@@ -364,6 +365,30 @@ void MainWindow::build_actions_and_menus()
     view->addAction(tr("&Fit Circuit"), view_, &SchematicView::fit_content)
         ->setShortcuts({QKeySequence(Qt::Key_F), QKeySequence(Qt::Key_Home)});
     view->addSeparator();
+    // Light or dark colors (SN-162), applied at once and kept for the next start.
+    auto* theme_menu = view->addMenu(tr("&Theme"));
+    auto* themes = new QActionGroup(theme_menu);
+    const auto current = theme::scheme_from(settings_.value(QStringLiteral("theme")).toString());
+    for (const auto& [scheme, name] : std::vector<std::pair<theme::Scheme, QString>>{
+             {theme::Scheme::System, tr("System")}, {theme::Scheme::Light, tr("Light")},
+             {theme::Scheme::Dark, tr("Dark")}}) {
+        auto* action = theme_menu->addAction(name);
+        action->setCheckable(true);
+        action->setChecked(scheme == current);
+        action->setData(theme::scheme_setting(scheme));
+        action->setObjectName(QStringLiteral("theme_%1").arg(scheme == theme::Scheme::System ? QStringLiteral("system")
+                                                                 : theme::scheme_setting(scheme)));
+        themes->addAction(action);
+        connect(action, &QAction::triggered, this, [this, scheme] {
+            if (scheme == theme::Scheme::System) {
+                settings_.remove(QStringLiteral("theme"));
+            } else {
+                settings_.setValue(QStringLiteral("theme"), theme::scheme_setting(scheme));
+            }
+            theme::apply(*qApp, scheme);
+            scene_->update();
+        });
+    }
     auto* voltages = view->addAction(tr("Show &Voltages"));
     voltages->setCheckable(true);
     voltages->setStatusTip(tr("Color wires by their voltage while the simulation runs"));

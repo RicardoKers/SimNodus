@@ -30,7 +30,9 @@ monitor. Closing the analyzer only hides the view; acquisition continues.
 - **Center — Schematic canvas.** Near-white background, dot grid (major grid
   every 10 minor points, minor points only drawn when zoomed in enough). Symbols
   in dark gray/black with uniform line weight; selected items in blue; probes in
-  their trace color. No decorative gradients or shadows.
+  their trace color. No decorative gradients or shadows. *View > Theme* switches
+  to a dark variant (dark grey canvas, light lines, brighter accents) at once, or
+  follows the system setting (the default); the choice is kept (SN-162).
 - **Right — Properties.** Header with designator and component type; editable
   parameter grid (name, value, unit); while running, a **Live values** section
   below it.
