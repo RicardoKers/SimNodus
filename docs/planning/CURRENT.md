@@ -8,30 +8,20 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.2.0 published on 2026-10-18** (due 2026-11-13, so 26 days
-  early): tag `v0.2.0`, GitHub release with `SimNodus-0.2.0-windows-x64.zip`.
-  The owner tested the package on a clean VM. Release 0.1.0 was published on
-  2026-10-14 (due 2026-10-30).
-- Everything is merged in `main` (last: #156, fixes from the owner's test of
-  the 0.3 preview zip: debug mode no longer remembered, potentiometer drag
-  direction). The owner tried the preview zip on 2026-10-18: all examples
-  run, and a USART capture exported as VCD decodes correctly in PulseView.
-- **Since 0.2 (for 0.3):** SN-190: *Export VCD...* in the Logic tab writes
-  the checked lanes as an IEEE 1364 VCD (1 ns timescale); checked by the owner
-  in PulseView (serial text decoded). SN-191: NOT, AND, NAND, OR, NOR,
-  XOR gates (behavioral, hidden supply VDD), example 17 (half adder).
-  SN-192: USART RX decoded from the pin (exact edges, or bits of four
-  steps); exact edges work with two boards again. SN-183: Renode removed
-  (owner's decision 2026-10-18, ADR 0094): one microcontroller engine, the
-  test suite runs in about 20 s instead of about 3 min, no Renode in the
-  package. SN-193: text notes on the schematic (`T`). SN-194: model
-  variants of transistors, MOSFETs and diodes (built in and from the user's
-  models folder, ADR 0095). SN-195: the potentiometer shows its wiper
-  position (arrow and percentage). SN-196: buses with splitters (example
-  18, ADR 0096).
-- **What 0.2 contains:**
+- **Release 0.3.0 published on 2026-10-18** (due 2026-11-27, so 40 days
+  early): tag `v0.3.0`, GitHub release with `SimNodus-0.3.0-windows-x64.zip`
+  (27 MB). The owner tried the preview package on 2026-10-18: all examples
+  run, and a USART capture exported as VCD decodes in PulseView. Releases
+  0.1.0 and 0.2.0 were published on 2026-10-14 and 2026-10-18.
+- Everything is merged in `main`; no open branches or PRs.
+- **New in 0.3:** logic gates (SN-191) and buses with splitters (SN-196,
+  ADR 0096), examples 17 and 18; text notes (SN-193); model variants with
+  the user's models folder (SN-194, ADR 0095); potentiometer position
+  (SN-195); USART RX decoded from the pin (SN-192); Export VCD (SN-190);
+  Renode removed (SN-183, ADR 0094); fixes from the owner's preview test.
+- **Carried over from 0.2:**
   - Analog interactive editor (phase 1): component sets A and B (B: PNP, PMOS,
-    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–16, continuous interactive
+    Zener, op-amp, lamp, relay, DC motor, transformer), undo/redo, `.snx` files, examples 01–18, continuous interactive
     simulation with ngspice (ADR 0080), transient mode.
   - Signal Analyzer: scope with probes, roll/trigger, cursors, measurements,
     per-channel vertical scale, 0 V markers and offsets (SN-189), CSV/PNG
@@ -53,14 +43,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Classroom feedback on 0.2 is postponed (depends on the academic
-   calendar); fix what the owner reports when it arrives.
-2. Owner's order (2026-10-18): logic gates (SN-191), USART RX from the
-   circuit (SN-192), Renode's removal (SN-183), text notes (SN-193), model
-   variants (SN-194), potentiometer position (SN-195) and buses (SN-196) done.
-   Ask the owner what comes next (release 0.3 is due 2026-11-27). Installer, pt-BR and dark theme wait; a zip is
-   enough for the tests.
-3. Release 0.3 is due 2026-11-27 (every two weeks after 0.2).
+1. Classroom feedback (postponed: academic calendar); fix what the owner
+   reports when it arrives.
+2. Backlog candidates, none urgent; ask the owner which block comes next:
+   installer (SN-152), pt-BR translation (SN-153), dark theme (SN-162), user
+   guide (SN-154), subcircuits (PRJ-06, also for `.subckt` part models),
+   engine in a child process (SN-151).
+3. Release 0.4 is due 2026-12-11.
 
 ## Known constraints
 
