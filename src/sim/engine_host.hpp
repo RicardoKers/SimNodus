@@ -22,7 +22,8 @@ public:
     void set_application_dir(const std::filesystem::path& application_dir);
     void set_location(const NgspiceLocation& location); // explicit location (tests)
 
-    // Loads the engine on the first call. Returns nullptr and a message if
+    // Loads the engine on the first call, and again after ngspice asked to be
+    // detached (NgspiceSession::needs_reload). Returns nullptr and a message if
     // no candidate works. The caller must hold lock() while using it.
     NgspiceSession* acquire(std::string& error);
     std::filesystem::path library_path() const;

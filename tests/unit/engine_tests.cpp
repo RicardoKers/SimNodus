@@ -102,6 +102,28 @@ TEST_CASE("external source drives a background run")
     session->command("remcirc");
 }
 
+TEST_CASE("after an error ngspice cannot recover from, the engine is loaded again")
+{
+    REQUIRE(simnodus::test::engine() != nullptr);
+    // A model value that is not a number puts ngspice into "cannot recover":
+    // every later circuit failed until the program was restarted.
+    CHECK(!session->load_circuit({"* broken model", "V1 a 0 DC 5", "R1 a k 1k", "D1 k 0 DX", ".model DX D(IS=abc)",
+        ".op", ".end"}));
+    CHECK(session->needs_reload());
+    session->take_output();
+    REQUIRE(simnodus::test::engine() != nullptr); // the host reloads it
+    CHECK(!session->needs_reload());
+    REQUIRE(session->load_circuit({"* good model", "V1 a 0 DC 5", "R1 a k 1k", "D1 k 0 DX", ".model DX D(IS=1n)",
+        ".op", ".end"}));
+    REQUIRE(session->command("run"));
+    const auto k = session->vector("k");
+    REQUIRE(!k.empty());
+    CHECK(k.front() > 0.3 && k.front() < 0.8);
+    session->command("destroy all");
+    session->command("remcirc");
+    session->take_output();
+}
+
 TEST_CASE("an invalid netlist is reported")
 {
     REQUIRE(simnodus::test::engine() != nullptr);
@@ -112,16 +134,18 @@ TEST_CASE("an invalid netlist is reported")
 
 // The application's engine host loads ngspice on first use; test files
 // register in any order, and the simulation session shares the same engine.
+// The host loads it again after ngspice asked to be detached, so every call asks it.
 simnodus::sim::NgspiceSession* simnodus::test::engine()
 {
-    static bool attempted = false;
-    if (!session && !attempted) {
-        attempted = true;
-        std::string error;
-        session = simnodus::sim::EngineHost::instance().acquire(error);
-        if (!session) {
-            std::printf("  cannot open ngspice: %s\n", error.c_str());
-        }
+    static bool failed = false;
+    if (failed) {
+        return nullptr;
+    }
+    std::string error;
+    session = simnodus::sim::EngineHost::instance().acquire(error);
+    if (!session) {
+        failed = true;
+        std::printf("  cannot open ngspice: %s\n", error.c_str());
     }
     return session;
 }
