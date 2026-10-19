@@ -68,8 +68,9 @@ made from the block's ports, in the category *Blocks*
 `*.lib` files of the library folder hold the built-in models as `.model`
 statements; the comment line just above each one is its description
 (`resources/library/models/basic_models.lib`). A model parameter's default
-must be one of them. The user's models folder (Documents/SimNodus/models, or
-`SIMNODUS_MODELS_DIR`) is read the same way by the application; a model chosen
+must be one of them. The user's model folders (Tools > Model Folders: any
+number of folders, Documents/SimNodus/models by default; `SIMNODUS_MODELS_DIR`
+for tests) are read the same way by the application; a model chosen
 from it is copied into the component (`models` in the project file), so the
 project does not need the folder. Only `.model` statements of the five types
 are taken; subcircuits and other statements are skipped. Each parameter must

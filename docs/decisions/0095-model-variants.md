@@ -26,7 +26,7 @@ classroom PC, and opening a project never executes code.
   SimNodus's own approximations from typical datasheet values, under MIT,
   labeled as such: not vendor models and not measured fits.
 - **The user's models** are `.model` statements in `*.lib` / `*.mod` files of a
-  folder (Documents/SimNodus/models; Tools > Open Models Folder creates it with
+  folder (Documents/SimNodus/models; since 2026-10-19 any list of folders, Tools > Model Folders; it creates the default one with
   a README). The user may paste lines from manufacturer files or the
   KiCad-Spice-Library there; the license of what they copy is theirs to check.
 - Choosing a model from the folder **copies its statement into the component**

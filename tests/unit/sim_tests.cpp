@@ -176,3 +176,29 @@ int main(int argc, char** argv)
 {
     return simnodus::test::run_all(argc > 1 ? argv[1] : "");
 }
+
+TEST_CASE("logic lane timing: period, pulse widths and duty cycle")
+{
+    // Low at first; high from 1 to 2 ms, 3 to 4 ms, 5 to 6 ms, 7 to 8 ms.
+    std::vector<std::pair<double, bool>> changes;
+    for (int k = 0; k < 4; ++k) {
+        changes.push_back({(1 + 2 * k) * 1e-3, true});
+        changes.push_back({(2 + 2 * k) * 1e-3, false});
+    }
+    const auto m = measure_logic(false, changes, 0, 10e-3);
+    CHECK(m.rising == 4);
+    CHECK(m.falling == 4);
+    REQUIRE((m.period && m.frequency && m.high_time && m.low_time && m.duty));
+    CHECK(std::abs(*m.period - 2e-3) < 1e-12);
+    CHECK(std::abs(*m.frequency - 500.0) < 1e-6);
+    CHECK(std::abs(*m.high_time - 1e-3) < 1e-12);
+    CHECK(std::abs(*m.low_time - 1e-3) < 1e-12); // complete low pulses only (2..3, 4..5, 6..7 ms)
+    CHECK(std::abs(*m.duty - 0.4) < 1e-12);
+    CHECK(logic_level_at(false, changes, 1.5e-3));
+    CHECK(!logic_level_at(false, changes, 2.5e-3));
+    const auto part = measure_logic(false, changes, 1.5e-3, 3.5e-3); // starts high
+    CHECK(part.rising == 1);
+    CHECK(part.falling == 1);
+    CHECK(!part.period);
+    CHECK(std::abs(*part.duty - 0.5) < 1e-12);
+}

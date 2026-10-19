@@ -89,6 +89,8 @@ public:
     QString add_block_file(const QString& path, QString& error);
     // The block files that differ from the project's copies, by block name.
     QStringList changed_block_files() const;
+    // Model folders (PRJ-07): saved in the settings and used from now on.
+    void set_model_folders(const QStringList& folders);
     // For tests: the unsaved-changes prompt answers "discard" automatically.
     void set_confirm_discard(bool automatic) { auto_discard_ = automatic; }
 
@@ -146,6 +148,7 @@ private:
     QString bus_name_at(const model::Point& point) const;
     // Problems of the user's models folder in Messages, once per read (PRJ-07).
     void report_model_issues();
+    void edit_model_folders();
     void report_diagnostics();
     void place_block();
     void open_block(model::Id component);

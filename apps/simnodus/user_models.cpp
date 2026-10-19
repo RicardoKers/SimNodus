@@ -10,17 +10,38 @@
 
 namespace simnodus::ui {
 
-QString user_models_folder()
+namespace {
+
+QStringList configured; // empty: the default folder
+
+} // namespace
+
+QString default_models_folder()
 {
-    if (const QString forced = qEnvironmentVariable("SIMNODUS_MODELS_DIR"); !forced.isEmpty()) {
-        return forced;
-    }
     return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/SimNodus/models");
 }
 
-bool ensure_user_models_folder()
+QStringList user_models_folders()
 {
-    const QString folder = user_models_folder();
+    QStringList folders = configured.isEmpty() ? QStringList{default_models_folder()} : configured;
+    if (const QString forced = qEnvironmentVariable("SIMNODUS_MODELS_DIR"); !forced.isEmpty()) {
+        folders = QStringList{forced}; // tests
+    }
+    return folders;
+}
+
+void set_user_models_folders(const QStringList& folders)
+{
+    configured.clear();
+    for (const auto& f : folders) {
+        if (!f.trimmed().isEmpty() && !configured.contains(f)) {
+            configured << f;
+        }
+    }
+}
+
+bool ensure_models_folder(const QString& folder)
+{
     if (!QDir().mkpath(folder)) {
         return false;
     }
@@ -76,16 +97,20 @@ int user_models_generation()
 const std::vector<UserModel>& user_models()
 {
     static std::vector<UserModel> models;
-    static QString signature; // file names, sizes and times of the last read
-    const QDir folder(user_models_folder());
-    const QFileInfoList files =
-        folder.entryInfoList({QStringLiteral("*.lib"), QStringLiteral("*.mod")}, QDir::Files, QDir::Name);
-    QString now = folder.absolutePath();
-    for (const auto& file : files) {
-        now += QStringLiteral("|%1:%2:%3")
-                   .arg(file.fileName())
-                   .arg(file.size())
-                   .arg(file.lastModified().toMSecsSinceEpoch());
+    static QString signature; // folders, file names, sizes and times of the last read
+    QFileInfoList files;
+    QString now;
+    for (const auto& path : user_models_folders()) {
+        const QDir folder(path);
+        now += QStringLiteral("#") + folder.absolutePath();
+        for (const auto& file :
+            folder.entryInfoList({QStringLiteral("*.lib"), QStringLiteral("*.mod")}, QDir::Files, QDir::Name)) {
+            files << file;
+            now += QStringLiteral("|%1:%2:%3")
+                       .arg(file.fileName())
+                       .arg(file.size())
+                       .arg(file.lastModified().toMSecsSinceEpoch());
+        }
     }
     if (now == signature) {
         return models;
@@ -104,15 +129,16 @@ const std::vector<UserModel>& user_models()
         std::vector<library::ModelIssue> found;
         auto parsed = library::parse_spice_library(
             std::string_view(text.constData(), static_cast<std::size_t>(text.size())), &found);
+        const QString name = file.dir().dirName() + QLatin1Char('/') + file.fileName();
         for (auto& m : parsed.models) {
-            models.push_back({std::move(m), file.fileName()});
+            models.push_back({std::move(m), name});
         }
         for (auto& s : parsed.subcircuits) {
-            subcircuits.push_back({std::move(s), file.fileName()});
+            subcircuits.push_back({std::move(s), name});
         }
         for (const auto& issue : found) {
             issues.push_back(QStringLiteral("%1, line %2, %3: %4")
-                                 .arg(file.fileName())
+                                 .arg(name)
                                  .arg(issue.line)
                                  .arg(QString::fromStdString(issue.model), QString::fromStdString(issue.text)));
         }

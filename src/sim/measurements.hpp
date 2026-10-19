@@ -9,6 +9,7 @@
 #include "sample_ring.hpp"
 
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace simnodus::sim {
@@ -29,6 +30,22 @@ std::optional<Measurements> measure(const std::vector<Sample>& samples, double f
 
 // Linear interpolation; nullopt outside the sampled range.
 std::optional<double> value_at(const std::vector<Sample>& samples, double time);
+
+// Timing of a digital signal (logic analyzer lane) within [from, to], from its
+// transitions (time, new level) and its level at `from`.
+struct LogicMeasurements {
+    int rising = 0;                   // rising edges in the window
+    int falling = 0;
+    std::optional<double> period;     // mean time between rising edges
+    std::optional<double> frequency;  // 1 / period
+    std::optional<double> high_time;  // mean length of complete high pulses
+    std::optional<double> low_time;
+    std::optional<double> duty;       // fraction of the window spent high
+};
+LogicMeasurements measure_logic(bool initial, const std::vector<std::pair<double, bool>>& changes, double from,
+    double to);
+// Level of a digital signal at `time`.
+bool logic_level_at(bool initial, const std::vector<std::pair<double, bool>>& changes, double time);
 
 // Time of the last crossing of `level` (rising or falling) within [from, to].
 std::optional<double> find_trigger(const std::vector<Sample>& samples, double level, bool rising, double from, double to);

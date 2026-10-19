@@ -10,6 +10,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 - Net labels can be mirrored (Ctrl+E): the name then sits left of the connection point, for wires that arrive from the right. Saved as `"mirrored": true`.
 - The relay's contact moves: it rests on NC and switches to NO while the coil current is above pull-in (released below drop-out, as the part's switches do); the line from the coil to the contacts is gone.
 - A *Block port*'s side turns the port: it points left, right, up or down as the pin will on the block, with its wire coming from the circuit. A choice parameter may set the part's orientation (`"orientations"`).
+- Logic analyzer cursors work like the scope's: drag A and B on the lanes (they are shared with the scope). For the selected lane the analyzer shows its timing in the window — period, frequency, mean high and low pulse width, duty cycle — and with cursors on, A, B, Δt, 1/Δt, the lane's level at A and B and the edges between them.
+- Model folders are the user's choice: *Tools > Model Folders...* lists any number of folders (add, remove, open, back to the default Documents/SimNodus/models); all of them are read for the Model lists. The list is kept in the settings.
 
 ### Added (2026-10-19, owner's request)
 
