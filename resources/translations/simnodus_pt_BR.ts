@@ -1867,16 +1867,40 @@ Pinos: %2</translation>
             <translation>baixo</translation>
         </message>
         <message>
-            <source>Shift register 74HC595</source>
-            <translation>Registrador de deslocamento 74HC595</translation>
+            <source>EEPROM 24C02 (I2C)</source>
+            <translation>EEPROM 24C02 (I2C)</translation>
         </message>
         <message>
             <source>Chips for microcontrollers</source>
             <translation>Chips para microcontroladores</translation>
         </message>
         <message>
+            <source>256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board</source>
+            <translation>EEPROM I2C de 256 bytes; precisa de pull-ups em SCL e SDA; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Shift register 74HC595</source>
+            <translation>Registrador de deslocamento 74HC595</translation>
+        </message>
+        <message>
             <source>8-bit shift register with output latches; works with a microcontroller board</source>
             <translation>Registrador de deslocamento de 8 bits com latches de saída; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Temperature sensor LM75 (I2C)</source>
+            <translation>Sensor de temperatura LM75 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C temperature sensor; set the temperature in Properties; works with a microcontroller board</source>
+            <translation>Sensor de temperatura I2C; ajuste a temperatura em Propriedades; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Temperature</source>
+            <translation>Temperatura</translation>
+        </message>
+        <message>
+            <source>Temperature the sensor measures during the run</source>
+            <translation>Temperatura que o sensor mede durante a simulação</translation>
         </message>
         <message>
             <source>LED display driver MAX7219</source>
@@ -1885,6 +1909,30 @@ Pinos: %2</translation>
         <message>
             <source>8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board</source>
             <translation>Driver de display de LED de 8 dígitos (dígitos ou uma matriz 8x8); funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>I/O expander PCF8574 (I2C)</source>
+            <translation>Expansor de E/S PCF8574 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board</source>
+            <translation>Expansor de E/S I2C de 8 bits (saídas e entradas); funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Variant</source>
+            <translation>Variante</translation>
+        </message>
+        <message>
+            <source>PCF8574 answers at 0x20-0x27, PCF8574A at 0x38-0x3F</source>
+            <translation>O PCF8574 responde em 0x20-0x27, o PCF8574A em 0x38-0x3F</translation>
+        </message>
+        <message>
+            <source>PCF8574</source>
+            <translation>PCF8574</translation>
+        </message>
+        <message>
+            <source>PCF8574A</source>
+            <translation>PCF8574A</translation>
         </message>
         <message>
             <source>BCD to 7-segment decoder (4511)</source>

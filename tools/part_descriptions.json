@@ -35,5 +35,8 @@
   "74hc595": "8-bit shift register with output latches; works with a microcontroller board",
   "max7219": "8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board",
   "seven_segment_4digit_cc": "Four 7-segment digits, common cathode per digit, for multiplexing",
-  "led_matrix_8x8": "64 LEDs in rows (cathodes) and columns (anodes), for multiplexing"
+  "led_matrix_8x8": "64 LEDs in rows (cathodes) and columns (anodes), for multiplexing",
+  "24c02": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board",
+  "lm75": "I2C temperature sensor; set the temperature in Properties; works with a microcontroller board",
+  "pcf8574": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board"
 }

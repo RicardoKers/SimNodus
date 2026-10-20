@@ -26,7 +26,30 @@ struct Output {
     bool driven = false;     // false: high impedance (an input, or a released open-drain output)
     bool high = false;       // level while driven
     bool open_drain = false; // can only pull low (released means not driven)
+    bool pull_up = false;    // not driven: a weak pull-up (a PCF8574's quasi-bidirectional pin)
 };
+
+// A push-pull output at `high`; an open-drain output pulling low; a weak pull-up.
+inline Output push_pull(bool high)
+{
+    Output o;
+    o.driven = true;
+    o.high = high;
+    return o;
+}
+inline Output open_drain_low()
+{
+    Output o;
+    o.driven = true;
+    o.open_drain = true;
+    return o;
+}
+inline Output weak_high()
+{
+    Output o;
+    o.pull_up = true;
+    return o;
+}
 
 class Device {
 public:

@@ -15,7 +15,8 @@ constexpr int max_rounds = 10000;
 
 bool same(const devices::Output& a, const devices::Output& b)
 {
-    return a.driven == b.driven && (!a.driven || (a.high == b.high && a.open_drain == b.open_drain));
+    return a.driven == b.driven && (!a.driven || (a.high == b.high && a.open_drain == b.open_drain))
+        && (a.driven || a.pull_up == b.pull_up);
 }
 
 } // namespace
@@ -51,6 +52,7 @@ bool DeviceBus::init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& 
         Net net;
         net.name = n.name;
         net.pull = n.pull;
+        net.circuit = n.circuit;
         for (const auto& board_pin : n.board_pins) {
             if (const auto gpio = gpio_pin(board_pin)) {
                 net.board.emplace_back(gpio->port - 'A', gpio->number);
@@ -109,6 +111,20 @@ void DeviceBus::start(std::uint64_t time_ns)
         collect_outputs(d, time_ns);
     }
     settle(time_ns);
+}
+
+void DeviceBus::set_circuit_level(std::size_t device, std::size_t pin, bool level, std::uint64_t time_ns)
+{
+    if (device >= pin_net_.size() || pin >= pin_net_[device].size() || pin_net_[device][pin] < 0) {
+        return;
+    }
+    const auto net = static_cast<std::size_t>(pin_net_[device][pin]);
+    nets_[net].circuit_known = true;
+    nets_[net].circuit_level = level;
+    mark(net);
+    if (!busy_) {
+        settle(time_ns);
+    }
 }
 
 void DeviceBus::board_pin_changed(int port, int pin, std::uint64_t time_ns)
@@ -174,6 +190,7 @@ void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)
     for (const auto& p : net.pins) {
         const auto& out = outputs_[p.device][p.pin];
         if (!out.driven) {
+            weak_high = weak_high || out.pull_up;
             continue;
         }
         if (!out.high) {
@@ -192,6 +209,8 @@ void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)
         level = false;
     } else if (strong_high) {
         level = true;
+    } else if (net.circuit && net.circuit_known) {
+        level = net.circuit_level; // a button or a resistor in the circuit
     } else if (weak_high != weak_low) {
         level = weak_high;
     } else if (net.pull != 0) {

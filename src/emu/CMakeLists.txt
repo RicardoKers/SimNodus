@@ -9,6 +9,7 @@ add_library(simnodus_emu STATIC
     stm32f103.cpp
     stm32f1_adc.cpp
     stm32f1_dma.cpp
+    stm32f1_i2c.cpp
     stm32f1_spi.cpp
     stm32f1_system.cpp
     stm32f1_timer.cpp)

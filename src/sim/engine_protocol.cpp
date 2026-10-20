@@ -104,6 +104,7 @@ void write_mcu_request(Writer& w, const McuRequest& m)
             w.str(pin);
         }
         w.i32(n.pull);
+        w.boolean(n.circuit);
     }
     w.str(m.ground_pin);
 }
@@ -157,6 +158,7 @@ McuRequest read_mcu_request(Reader& r)
             net.device_pins.emplace_back(device, r.str());
         }
         net.pull = r.i32();
+        net.circuit = r.boolean();
         o.nets.push_back(std::move(net));
     }
     m.ground_pin = r.str();

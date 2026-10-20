@@ -1,0 +1,484 @@
+{
+  "type": "pcf8574",
+  "name": "I/O expander PCF8574 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -9,
+          8,
+          18
+        ]
+      },
+      {
+        "text": "PCF8574",
+        "at": [
+          0,
+          -7.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "INT",
+        "at": [
+          -2.7,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          5,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "P0",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "P1",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "P2",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "P3",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "P4",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "P5",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "P6",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "P7",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -11,
+          0,
+          -9
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -8.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          9,
+          0,
+          11
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          8.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A0",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A1",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A2",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "INT",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "P0",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P1",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P2",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P3",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P4",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P5",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P6",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "P7",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -11
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          11
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -10
+  ],
+  "value_offset": [
+    5,
+    10
+  ],
+  "device": {
+    "kind": "pcf8574",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_ha0 {node:A0} {node:GND} 100Meg",
+    "R_{ref}_ha1 {node:A1} {node:GND} 100Meg",
+    "R_{ref}_ha2 {node:A2} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "R_{ref}_hint {node:INT} {node:GND} 100Meg",
+    "R_{ref}_hp0 {node:P0} {node:GND} 100Meg",
+    "R_{ref}_hp1 {node:P1} {node:GND} 100Meg",
+    "R_{ref}_hp2 {node:P2} {node:GND} 100Meg",
+    "R_{ref}_hp3 {node:P3} {node:GND} 100Meg",
+    "R_{ref}_hp4 {node:P4} {node:GND} 100Meg",
+    "R_{ref}_hp5 {node:P5} {node:GND} 100Meg",
+    "R_{ref}_hp6 {node:P6} {node:GND} 100Meg",
+    "R_{ref}_hp7 {node:P7} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "B_{ref}_int {node:GND} {node:INT} I=V({ext:int_i})-V({ext:int_g})*(V({node:INT})-V({node:GND}))",
+    "B_{ref}_p0 {node:GND} {node:P0} I=V({ext:p0_i})-V({ext:p0_g})*(V({node:P0})-V({node:GND}))",
+    "B_{ref}_p1 {node:GND} {node:P1} I=V({ext:p1_i})-V({ext:p1_g})*(V({node:P1})-V({node:GND}))",
+    "B_{ref}_p2 {node:GND} {node:P2} I=V({ext:p2_i})-V({ext:p2_g})*(V({node:P2})-V({node:GND}))",
+    "B_{ref}_p3 {node:GND} {node:P3} I=V({ext:p3_i})-V({ext:p3_g})*(V({node:P3})-V({node:GND}))",
+    "B_{ref}_p4 {node:GND} {node:P4} I=V({ext:p4_i})-V({ext:p4_g})*(V({node:P4})-V({node:GND}))",
+    "B_{ref}_p5 {node:GND} {node:P5} I=V({ext:p5_i})-V({ext:p5_g})*(V({node:P5})-V({node:GND}))",
+    "B_{ref}_p6 {node:GND} {node:P6} I=V({ext:p6_i})-V({ext:p6_g})*(V({node:P6})-V({node:GND}))",
+    "B_{ref}_p7 {node:GND} {node:P7} I=V({ext:p7_i})-V({ext:p7_g})*(V({node:P7})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "variant",
+      "label": "Variant",
+      "unit": "",
+      "default": "PCF8574",
+      "choices": [
+        "PCF8574",
+        "PCF8574A"
+      ],
+      "description": "PCF8574 answers at 0x20-0x27, PCF8574A at 0x38-0x3F"
+    }
+  ],
+  "value_parameter": "variant"
+}

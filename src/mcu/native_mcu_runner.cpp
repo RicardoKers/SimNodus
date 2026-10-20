@@ -78,6 +78,7 @@ NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(opt
     for (const auto& device : options_.devices) {
         auto& indexes = device_pins_.emplace_back();
         for (const auto& pin : device.pins) {
+            device_of_pin_[options_.pins.size()] = {device_pins_.size() - 1, indexes.size()};
             indexes.push_back(options_.pins.size());
             options_.pins.push_back(device.designator + "." + pin);
             pin_models_.push_back(device.pin_model);
@@ -530,6 +531,7 @@ void NativeMcuRunner::work()
             state.mode = change.output.driven ? PinMode::Output : PinMode::Input;
             state.open_drain = change.output.open_drain;
             state.level = change.output.driven && change.output.high;
+            state.pull = !change.output.driven && change.output.pull_up ? Pull::Up : Pull::None;
             auto& history = history_[i];
             history.push_back({std::max(change.time_ns, history.back().first), state});
             trim_history(history, history_keep_ns);
@@ -624,6 +626,8 @@ void NativeMcuRunner::work()
                 // A pin on a device net takes its level from the bus, not from the circuit.
                 if (port >= 0 && !bus.owns_board_pin(port, pin)) {
                     machine->set_pin_input(port, pin, change.level, change.changed_ns);
+                } else if (const auto device = device_of_pin_.find(change.pin); device != device_of_pin_.end()) {
+                    bus.set_circuit_level(device->second.first, device->second.second, change.level, now);
                 }
                 {
                     std::lock_guard lock(mutex_);

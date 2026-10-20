@@ -1237,6 +1237,12 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         spi_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1Spi>(static_cast<SpiHost&>(*this), n);
         timed_.push_back(spi_[static_cast<std::size_t>(n - 1)].get());
     }
+    for (int n = 1; n <= 2; ++n) {
+        i2c_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1I2c>(static_cast<I2cHost&>(*this), n);
+        timed_.push_back(i2c_[static_cast<std::size_t>(n - 1)].get());
+    }
+    bus_.add_device(0x40005400u, 0x400, i2c_[0].get());
+    bus_.add_device(0x40005800u, 0x400, i2c_[1].get());
     bus_.add_device(0x40013000u, 0x400, spi_[0].get());
     bus_.add_device(0x40003800u, 0x400, spi_[1].get());
     crc_ = std::make_unique<Stm32F1Crc>();
@@ -1258,8 +1264,7 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         const char* name;
     };
     static const StubBlock blocks[] = {
-        {0x40005400u, "I2C1"},
-        {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
+        {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
     };
     for (const auto& block : blocks) {
         stubs_.push_back(std::make_unique<Stub>(*this, block.name));
@@ -1511,6 +1516,11 @@ void Stm32F103::pin_input_changed(int port, int pin, bool level)
             timer->pin_changed(port, pin, level);
         }
     }
+    for (const auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->pin_changed(port, pin, level);
+        }
+    }
     const std::uint64_t now = cpu_.cycles();
     const std::uint64_t at = input_changed_ns_ ? std::min(cycles_at_ns(*input_changed_ns_), now) : now;
     for (const auto& usart : usart_) {
@@ -1621,6 +1631,11 @@ void Stm32F103::dma_channel_enabled(int channel)
             spi->dma_enabled();
         }
     }
+    for (auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->dma_enabled();
+        }
+    }
     (void)channel;
 }
 
@@ -1717,6 +1732,11 @@ void Stm32F103::remap_changed()
     for (const auto& spi : spi_) {
         if (spi) {
             spi->remap_changed();
+        }
+    }
+    for (const auto& i2c : i2c_) {
+        if (i2c) {
+            i2c->remap_changed();
         }
     }
     for (auto& usart : usart_) {

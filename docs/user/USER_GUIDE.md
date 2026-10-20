@@ -108,7 +108,7 @@ invalid value is outlined in red and not applied.
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
-| **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver; these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
+| **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
 
 Notes on some parts:
@@ -291,7 +291,7 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
 - Outputs drive the circuit like real pins: push-pull 3.3 V or 0 V behind
   about 40 Ω; open-drain only pulls low; pull-ups and pull-downs are 40 kΩ.
 - Inputs read 1 above 1.83 V and 0 below 1.16 V (Schmitt trigger).
-- Supported: GPIO, EXTI, USART1-3, SPI1/2 (master), TIM1-TIM4 (PWM, output
+- Supported: GPIO, EXTI, USART1-3, SPI1/2 and I2C1/2 (master), TIM1-TIM4 (PWM, output
   compare, input capture), ADC1/2, DMA1, SysTick, the clock tree up to 72 MHz, the
   independent and window watchdogs, the RTC with its backup registers, and
   CRC. Two boards can talk over their serial pins.
@@ -314,8 +314,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   says what each one shows and what to try: basic analog circuits (01-06),
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
-  (23), the RTC with a watchdog (24), a 74HC595 shift register (25) and an 8x8
-  LED matrix on a MAX7219 over SPI (26).
+  (23), the RTC with a watchdog (24), a 74HC595 shift register (25), an 8x8
+  LED matrix on a MAX7219 over SPI (26) and three I2C chips (27).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -383,8 +383,7 @@ results are read correctly.
 ### Microcontroller
 
 - Only the Blue Pill (STM32F103C8) is available.
-- Not simulated yet: I2C (planned with devices for the library), SPI slave
-  mode, CAN, USB; timer encoder and
+- Not simulated yet: SPI and I2C slave modes, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when
   the firmware uses one of the partly supported features.
@@ -400,9 +399,9 @@ results are read correctly.
   long (2400 baud or slower at 100 µs); a received byte reaches the firmware
   about 0.4 ms after its stop bit.
 - Transient mode does not run microcontrollers: use interactive mode.
-- Chips for microcontrollers (74HC595) work only together with a board and
-  read levels digitally; their inputs on nets without a board pin read only
-  constant ties (ground, a supply, open = low).
+- Chips for microcontrollers work only together with a board and read levels
+  digitally (a 5 V chip accepts 3.3 V highs); their pins on nets without a
+  board pin read the circuit up to 0.1 ms late.
 
 ### Application
 

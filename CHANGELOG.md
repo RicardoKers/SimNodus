@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-205)
+
+- I2C1 and I2C2 in master mode (`src/emu/stm32f1_i2c.*`): open-drain SCL and SDA at the configured standard or fast-mode timing, clock stretching (and a message when SCL stays low without a pull-up resistor), START, repeated START, STOP, 7-bit addressing, acknowledge and AF, TXE/RXNE/BTF with ACK and POS exactly as STM32CubeF1's HAL sequences need them, interrupts, DMA requests, I2C1 remap; slave mode, 10-bit addresses, SMBus and PEC are reported.
+- I2C chips for microcontrollers: 24C02 EEPROM (page writes, 5 ms write cycle without acknowledge, sequential and random reads, WP), LM75 temperature sensor (temperature from its properties, THYST/TOS, OS output) and PCF8574 I/O expander (quasi-bidirectional pins with weak pull-ups, INT, PCF8574A variant).
+- Chip pins on nets without a board pin are read from the circuit (a push button on a PCF8574 input) when no output drives the net.
+- Example 27: an STM32CubeIDE-style HAL project writes and reads the EEPROM with acknowledge polling, reports the temperature and mirrors four push buttons on four LEDs through the PCF8574. Tests: the HAL project against the three chips, a missing pull-up, and example 27 as a whole run.
+
 ### Added (2026-10-19, SN-204)
 
 - SPI1 and SPI2 in master mode (`src/emu/stm32f1_spi.*`): 8/16-bit frames, MSB or LSB first, all four clock modes, PCLK / 2..256 with exact SCK edges, MOSI and MISO on the pins (chips on the board's nets answer within the frame), back-to-back frames, TXE/RXNE/BSY/OVR, interrupts, DMA requests, NSS output, SPI1 remap; slave, bidirectional and CRC modes are reported.

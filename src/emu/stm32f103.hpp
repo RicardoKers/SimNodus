@@ -16,6 +16,7 @@
 #include "elf.hpp"
 #include "stm32f1_adc.hpp"
 #include "stm32f1_dma.hpp"
+#include "stm32f1_i2c.hpp"
 #include "stm32f1_spi.hpp"
 #include "stm32f1_system.hpp"
 #include "stm32f1_timer.hpp"
@@ -83,7 +84,8 @@ struct MachineOptions {
     std::uint64_t uart_rx_min_bit_ns = 0;
 };
 
-class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost, private SpiHost {
+class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost, private SpiHost,
+                  private I2cHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -197,6 +199,18 @@ private:
     void dma_channel_enabled(int channel) override;
     void exti_selection_changed();
 
+    // I2cHost (SN-205)
+    std::uint64_t i2c_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_pclk1() const override { return hclk_per_pclk(false); }
+    void i2c_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void i2c_output(int port, int pin, int source, bool level, std::uint64_t cycle) override
+    {
+        spi_output(port, pin, source, level, cycle);
+    }
+    bool i2c_dma(int channel) override { return dma_->request(channel); }
+    void i2c_schedule_changed() override { cpu_.request_stop(); }
+    void i2c_diagnostic(const std::string& text) override { diagnostic(text); }
+
     // SpiHost (SN-204)
     std::uint64_t spi_now_cycles() const override { return cpu_.cycles(); }
     std::uint32_t hclk_per_pclk(bool apb2) const override;
@@ -239,6 +253,7 @@ private:
     std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
     std::unique_ptr<Stm32F1Dma> dma_;                     // DMA1
     std::array<std::unique_ptr<Stm32F1Spi>, 2> spi_;       // SPI1, SPI2
+    std::array<std::unique_ptr<Stm32F1I2c>, 2> i2c_;       // I2C1, I2C2
     std::unique_ptr<Stm32F1Crc> crc_;
     std::unique_ptr<Stm32F1Iwdg> iwdg_;
     std::unique_ptr<Stm32F1Wwdg> wwdg_;

@@ -1,0 +1,245 @@
+{
+  "type": "24c02",
+  "name": "EEPROM 24C02 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -6,
+          8,
+          12
+        ]
+      },
+      {
+        "text": "24C02",
+        "at": [
+          0,
+          -4.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -4,
+          -4,
+          -4
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -2.7,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -2.7,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -4,
+          4
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -2.7,
+          4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "WP",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -8,
+          0,
+          -6
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -5.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          6,
+          0,
+          8
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          5.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A0",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A1",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A2",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "WP",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          8
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -7
+  ],
+  "value_offset": [
+    5,
+    7
+  ],
+  "device": {
+    "kind": "24c02",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_ha0 {node:A0} {node:GND} 100Meg",
+    "R_{ref}_ha1 {node:A1} {node:GND} 100Meg",
+    "R_{ref}_ha2 {node:A2} {node:GND} 100Meg",
+    "R_{ref}_hwp {node:WP} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ]
+}
