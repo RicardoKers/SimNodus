@@ -8,20 +8,18 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.5.0 published on 2026-10-19** (the owner tested the preview
-  of 2026-10-19c on a clean PC, GDB debugging included, and asked for the
-  release): tag `v0.5.0`, GitHub release with
-  `SimNodus-0.5.0-windows-x64.zip` and `SimNodus-0.5.0-windows-x64-setup.exe`.
-  Releases 0.1.0-0.4.0 were published on 2026-10-14, 10-18 and 10-19.
-- **On `main` after 0.5:** CRC, IWDG, WWDG, RTC/BKP (SN-187, example 24);
-  chips for microcontrollers with hybrid coupling (SN-203, ADR 0102: 74HC595,
-  example 25); SPI1/2 master, MAX7219, 8x8 matrix and 4-digit display, glow
-  averaged over 20 ms (SN-204, example 26); I2C1/2 master with 24C02, LM75 and
-  PCF8574 (SN-205, example 27); HD44780 character LCD with its text on the
-  schematic (SN-206, example 28); fixes from the owner's test of the 0.6
-  preview: brighter LEDs, halo repaint, full MAX7219 picture, LM75
-  temperature changed while running (SN-207); Memory Viewer to see, load and
-  save the 24C02's contents (SN-208).
+- **Release 0.6.0 published on 2026-10-20** (the owner tested the preview
+  of 2026-10-20c and asked for the release): tag `v0.6.0`, GitHub release
+  with `SimNodus-0.6.0-windows-x64.zip` and
+  `SimNodus-0.6.0-windows-x64-setup.exe`. Releases 0.1.0-0.5.0 were
+  published on 2026-10-14, 10-18 and 10-19.
+- **New in 0.6:** CRC, IWDG, WWDG, RTC/BKP (SN-187, example 24); chips for
+  microcontrollers with hybrid coupling (SN-203, ADR 0102: 74HC595, example
+  25); SPI1/2 master, MAX7219, 8x8 matrix and 4-digit display, glow averaged
+  over 20 ms (SN-204, example 26); I2C1/2 master with 24C02, LM75 and PCF8574
+  (SN-205, example 27); HD44780 character LCD with its text on the schematic
+  (SN-206, example 28); fixes from the owner's test and live chip parameters
+  (SN-207); Memory Viewer for the 24C02 (SN-208).
 - **New in 0.5:** simulations in a separate engine process (#182, ADR 0101:
   `simnodus-engine`; an engine crash ends only the run), Windows installer
   (#177, ADR 0100), Brazilian Portuguese interface (#176), dark theme (#178),
@@ -62,17 +60,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. After 0.5, the owner chose more microcontroller peripherals (2026-10-19).
-   Done: CRC, IWDG, WWDG, RTC/BKP (SN-187); chips for microcontrollers with
-   hybrid coupling (SN-203, ADR 0102; the owner rejected pure pin level after
-   hearing that reads arrive up to 0.1 ms late), first chip 74HC595; SPI with
-   the MAX7219 and multiplexed displays (SN-204); I2C with the 24C02, LM75 and
-   PCF8574 (SN-205); the HD44780 LCD (SN-206). The owner's list is complete.
-2. The owner tested the 0.6 preview on 2026-10-20 (I2C waveforms decoded by
-   PulseView); fixes and the memory viewer followed (SN-207, SN-208). Next:
-   a new 0.6 preview for the owner, then ask whether to release 0.6. Parallel
-   RAM and ROM chips can reuse the memory viewer later.
-3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
+1. The owner's list of microcontroller peripherals (2026-10-19) is complete
+   and released in 0.6. Ask the owner what comes next; candidates in the
+   backlog, and parallel RAM and ROM chips that can reuse the Memory Viewer.
+2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
 ## Known constraints

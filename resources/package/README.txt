@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.5 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.6 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -14,24 +14,27 @@ microcontroller pins and the serial terminal.
 
 Microcontrollers: a Blue Pill runs your firmware (an ELF file, for example
 from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
-(also receiving from the circuit), timers and PWM, ADC, DMA. Simulate >
+(also receiving from the circuit), timers and PWM, ADC, DMA, SPI, I2C, RTC,
+watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.6: chips for microcontrollers (74HC595, MAX7219 with an LED
+matrix, 24C02 EEPROM, LM75 sensor, PCF8574 expander, HD44780 character LCD);
+SPI and I2C; Window > Memory Viewer shows, loads and saves the EEPROM's
+contents; brighter LEDs.
 
 New in 0.5: simulations run in their own program (simnodus-engine.exe), so
 an engine crash ends only the run and SimNodus stays open; the installer
 (setup.exe); the interface in Brazilian Portuguese (Tools > Language); a dark
 theme (View > Theme); the user guide (Help > User Guide).
 
-New in 0.4: blocks you draw yourself (Place > Block); latches, flip-flops,
-counters and a shift register; 7-segment displays and decoders; regulators
-and the TL431; vendor .subckt models from your model folders.
-
 Guides in this folder (also Help > User Guide): QUICK-START.md,
 USER-GUIDE.md with the known limitations, and MICROCONTROLLER.md (also on
 https://github.com/RicardoKers/SimNodus/tree/main/docs/user). Lessons 1-3
 are in examples/lessons; examples 17-23 show gates, buses, diode kinds,
-blocks, a counter, regulators and a 7-segment display.
+blocks, a counter, regulators and a 7-segment display; examples 24-28 the
+RTC and watchdogs, SPI and I2C chips and a character LCD.
 
 Command line
   simnodus.exe FILE.snx         open a project

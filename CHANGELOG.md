@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.6.0 — 2026-10-20
+
+### Summary
+
+- More STM32F103 peripherals: SPI1/2 and I2C1/2 in master mode, CRC, the independent and window watchdogs, and the RTC with its backup registers (SN-187, SN-204, SN-205).
+- Chips for microcontrollers that run in step with the firmware (SN-203, ADR 0102): 74HC595 shift register, MAX7219 display driver with an 8x8 LED matrix and a 4-digit 7-segment display, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, and an HD44780 character LCD with its text on the schematic (SN-206).
+- Memory Viewer (SN-208): see, load and save the EEPROM's contents (`.bin`, Intel `.hex`), live while running.
+- The LM75's temperature can be changed while running (SN-207); brighter LEDs, lamps and display dots.
+- Examples 24-28: RTC and watchdogs, 74HC595, MAX7219 matrix, three I2C chips, 16x2 LCD on an I2C backpack.
+
 ### Added (2026-10-20, SN-208)
 
 - Memory Viewer (**Window > Memory Viewer**, Ctrl+Shift+M, or **View...** in the 24C02's properties): the chip's bytes as a hex and text table, live while running with the bytes that just changed marked, and the last run's contents afterwards. **Load...** puts a `.bin` or Intel `.hex` file into the running chip, or makes it the chip's contents file when nothing runs; **Save as...** writes `.bin` or `.hex`. The 24C02 gets a *Contents file* property it starts each run with (erased without one; an unreadable file is a warning). Memory parts declare `memory_size` and `contents_parameter`, ready for parallel RAM and ROM. Engine protocol version 6 carries the contents (only when they change) and new contents for a running chip.
