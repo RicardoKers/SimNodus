@@ -1491,6 +1491,9 @@ void Stm32F103::pin_output_changed(int port, int pin, bool level)
         at = std::max(at, pin_events_.back().time_ns); // a timer event can be found an instruction late
     }
     pin_events_.push_back({at, port, pin, level, c.mode, c.cnf, c.drive_high, c.pull_up});
+    if (pin_hook_) {
+        pin_hook_(port, pin, at);
+    }
 }
 
 void Stm32F103::pin_input_changed(int port, int pin, bool level)

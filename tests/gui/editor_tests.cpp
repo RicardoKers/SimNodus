@@ -743,6 +743,44 @@ private slots:
         QVERIFY(exported.readLine().startsWith("time_s,V(OUT)_V"));
     }
 
+    void shift_register_example_lights_its_leds_in_turn()
+    {
+        // SN-203: a 74HC595 on the board's pins, run in the engine process.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/25_Shift_register_74HC595.snx"), errors, warnings));
+        std::map<std::string, model::Id> leds;
+        for (const auto& c : doc().schematic().components()) {
+            if (c.type == "led") {
+                leds[c.designator] = c.id;
+            }
+        }
+        QCOMPARE(leds.size(), std::size_t{8});
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto glow = [&](const char* designator) {
+            const auto& live = window_->scene()->live().glow;
+            const auto it = live.find(leds.at(designator));
+            return it == live.end() ? 0.0 : it->second.level;
+        };
+        // The light runs from Q0 (LED1) to Q1 (LED2), 100 ms per step.
+        QTRY_VERIFY_WITH_TIMEOUT(glow("LED1") > 0.1 && glow("LED2") < 0.01, 10000);
+        QTRY_VERIFY_WITH_TIMEOUT(glow("LED2") > 0.1 && glow("LED1") < 0.01, 10000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        bool lane = false;
+        for (const auto& l : window_->run_controller()->logic_lanes()) {
+            lane = lane || l.title == QStringLiteral("U2.Q0");
+        }
+        QVERIFY(lane);
+        window_->stop();
+#endif
+    }
+
     void blue_pill_example_runs_its_firmware_and_resets()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

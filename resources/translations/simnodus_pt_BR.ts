@@ -1867,6 +1867,18 @@ Pinos: %2</translation>
             <translation>baixo</translation>
         </message>
         <message>
+            <source>Shift register 74HC595</source>
+            <translation>Registrador de deslocamento 74HC595</translation>
+        </message>
+        <message>
+            <source>Chips for microcontrollers</source>
+            <translation>Chips para microcontroladores</translation>
+        </message>
+        <message>
+            <source>8-bit shift register with output latches; works with a microcontroller board</source>
+            <translation>Registrador de deslocamento de 8 bits com latches de saída; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
             <source>BCD to 7-segment decoder (4511)</source>
             <translation>Decodificador BCD para 7 segmentos (4511)</translation>
         </message>

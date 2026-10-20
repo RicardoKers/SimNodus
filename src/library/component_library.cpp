@@ -515,6 +515,27 @@ ComponentDefinition parse_definition(const json& j)
         }
         d.mcu = board;
     }
+    if (j.contains("device") && !j["device"].is_null()) {
+        const auto& m = j["device"];
+        DigitalDevice device;
+        device.kind = text(m, "kind", true);
+        if (m.contains("supply_pin")) {
+            device.supply_pin = text(m, "supply_pin", true);
+        }
+        if (m.contains("ground_pin")) {
+            device.ground_pin = text(m, "ground_pin", true);
+        }
+        if (m.contains("output_resistance")) {
+            device.output_resistance = number(m["output_resistance"], "device.output_resistance");
+        }
+        if (!d.pin(device.supply_pin) || !d.pin(device.ground_pin)) {
+            invalid("device.supply_pin and device.ground_pin must be pins of the part");
+        }
+        if (device.output_resistance <= 0) {
+            invalid("device.output_resistance must be positive");
+        }
+        d.device = device;
+    }
 
     d.spice = strings(j, "spice");
     d.models = strings(j, "models");

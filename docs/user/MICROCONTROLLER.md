@@ -34,6 +34,28 @@ the same circuit give the same firmware timing.
 | RTC and backup registers | yes | Prescaler and 32-bit counter at LSE (32.768 kHz), LSI (40 kHz) or HSE / 128; alarm, second and overflow flags and interrupts, the alarm on EXTI line 17; BKP_DR1–DR10. The backup domain keeps the time and the registers through resets, is cleared at power-on and by BDRST, and needs PWR_CR.DBP for writes, as on the chip. `HAL_RTC_*` and `HAL_RTCEx_BKUP*` work unchanged. Example 24 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
 
+## Chips for microcontrollers
+
+Parts in the *Chips for microcontrollers* category (so far the 74HC595 shift
+register) work together with a board (ADR 0102): their logic runs in step
+with the firmware, so the nets between the board and the chip follow every
+edge at once, and the chip's outputs drive the circuit like the board's pins
+(LEDs light, the scope and the Logic tab show them, as `U2.Q0` lanes).
+
+- Wire the chip's supply pin (VCC) to a DC source or the board's 3V3 and its
+  GND to ground; without them it does nothing and the Messages panel says so.
+- A chip must share a net with a board pin, directly or through another chip;
+  one on no board pin does nothing.
+- Inputs tied to ground or to the supply are read as constants; an open input
+  reads low (a message names it).
+- On a net, a driven low wins, then a driven high, then a pull-up or
+  pull-down: the board pin's internal one or a resistor to a supply or ground.
+  Two outputs driving opposite levels are reported as a short circuit.
+- Levels are digital: a 5 V chip accepts the board's 3.3 V highs, which a
+  real chip may not.
+
+Example 25 shifts a byte out bit by bit into a 74HC595 that drives eight LEDs.
+
 ## Not yet simulated
 
 | Part | Planned |

@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0102: Digital devices run in step with the firmware (hybrid coupling)](0102-digital-devices-hybrid-coupling.md):
+  SN-203; device logic in the board's runner, board-device nets resolved at once, device outputs drive the circuit.
 - [0101: Simulations run in a separate engine process](0101-engine-process.md):
   SN-151, SIM-08; Qt-free simnodus-engine over standard streams, state mirrored in the editor, a crash costs only the run.
 - [0100: Windows installer with Inno Setup, per user by default](0100-windows-installer.md):

@@ -106,6 +106,16 @@ struct McuBoard {
     std::vector<Uart> uarts; // serial ports for the terminal (MCU-05)
 };
 
+// A digital device on a microcontroller's nets (SN-203, ADR 0102): its logic
+// runs in the microcontroller runner (src/devices); its template only gives
+// each output pin a driver ({ext:<pin>_g}, {ext:<pin>_i}) like a board pin.
+struct DigitalDevice {
+    std::string kind;              // "74hc595"
+    std::string supply_pin = "VCC";
+    std::string ground_pin = "GND";
+    double output_resistance = 50.0; // Ohm, of driven outputs
+};
+
 // Interactive control (INT-02). The netlist generator creates an external
 // voltage source on node "{control}" whose value is the control state:
 // 0/1 for toggle and button, 0..1 for a potentiometer position.
@@ -184,6 +194,7 @@ struct ComponentDefinition {
     std::optional<Readout> readout;
     std::optional<Lights> lights;
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
+    std::optional<DigitalDevice> device;
     std::filesystem::path source; // file it was loaded from
     // A user block (PRJ-06): the circuit behind the symbol, whose port parts are
     // the pins. It has no template; the netlist puts the circuit in its place.

@@ -1,0 +1,476 @@
+{
+  "type": "74hc595",
+  "name": "Shift register 74HC595",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "8-bit shift register with output latches; works with a microcontroller board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -10,
+          8,
+          20
+        ]
+      },
+      {
+        "text": "74HC595",
+        "at": [
+          0,
+          -8.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -4,
+          -4,
+          -4
+        ]
+      },
+      {
+        "text": "DS",
+        "at": [
+          -2.7,
+          -4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "SHCP",
+        "at": [
+          -2.7,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "STCP",
+        "at": [
+          -2.7,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "MR",
+        "at": [
+          -2.7,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -4,
+          4
+        ]
+      },
+      {
+        "text": "OE",
+        "at": [
+          -2.7,
+          4
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          4,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -8,
+          4,
+          -8
+        ]
+      },
+      {
+        "text": "Q0",
+        "at": [
+          2.8,
+          -8
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -6,
+          4,
+          -6
+        ]
+      },
+      {
+        "text": "Q1",
+        "at": [
+          2.8,
+          -6
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -4,
+          4,
+          -4
+        ]
+      },
+      {
+        "text": "Q2",
+        "at": [
+          2.8,
+          -4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "Q3",
+        "at": [
+          2.8,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "Q4",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "Q5",
+        "at": [
+          2.8,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          4,
+          4,
+          4
+        ]
+      },
+      {
+        "text": "Q6",
+        "at": [
+          2.8,
+          4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "text": "Q7",
+        "at": [
+          2.8,
+          6
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          8,
+          4,
+          8
+        ]
+      },
+      {
+        "text": "Q7S",
+        "at": [
+          2.8,
+          8
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -12,
+          0,
+          -10
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -9.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          10,
+          0,
+          12
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          9.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "DS",
+        "at": [
+          -6,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SHCP",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "STCP",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "MR",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OE",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Q0",
+        "at": [
+          6,
+          -8
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q1",
+        "at": [
+          6,
+          -6
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q2",
+        "at": [
+          6,
+          -4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q3",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q4",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q5",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q6",
+        "at": [
+          6,
+          4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q7",
+        "at": [
+          6,
+          6
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q7S",
+        "at": [
+          6,
+          8
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -12
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          12
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -11
+  ],
+  "value_offset": [
+    5,
+    11
+  ],
+  "device": {
+    "kind": "74hc595",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hds {node:DS} {node:GND} 100Meg",
+    "R_{ref}_hshcp {node:SHCP} {node:GND} 100Meg",
+    "R_{ref}_hstcp {node:STCP} {node:GND} 100Meg",
+    "R_{ref}_hmr {node:MR} {node:GND} 100Meg",
+    "R_{ref}_hoe {node:OE} {node:GND} 100Meg",
+    "R_{ref}_hq0 {node:Q0} {node:GND} 100Meg",
+    "R_{ref}_hq1 {node:Q1} {node:GND} 100Meg",
+    "R_{ref}_hq2 {node:Q2} {node:GND} 100Meg",
+    "R_{ref}_hq3 {node:Q3} {node:GND} 100Meg",
+    "R_{ref}_hq4 {node:Q4} {node:GND} 100Meg",
+    "R_{ref}_hq5 {node:Q5} {node:GND} 100Meg",
+    "R_{ref}_hq6 {node:Q6} {node:GND} 100Meg",
+    "R_{ref}_hq7 {node:Q7} {node:GND} 100Meg",
+    "R_{ref}_hq7s {node:Q7S} {node:GND} 100Meg",
+    "B_{ref}_q0 {node:GND} {node:Q0} I=V({ext:q0_i})-V({ext:q0_g})*(V({node:Q0})-V({node:GND}))",
+    "B_{ref}_q1 {node:GND} {node:Q1} I=V({ext:q1_i})-V({ext:q1_g})*(V({node:Q1})-V({node:GND}))",
+    "B_{ref}_q2 {node:GND} {node:Q2} I=V({ext:q2_i})-V({ext:q2_g})*(V({node:Q2})-V({node:GND}))",
+    "B_{ref}_q3 {node:GND} {node:Q3} I=V({ext:q3_i})-V({ext:q3_g})*(V({node:Q3})-V({node:GND}))",
+    "B_{ref}_q4 {node:GND} {node:Q4} I=V({ext:q4_i})-V({ext:q4_g})*(V({node:Q4})-V({node:GND}))",
+    "B_{ref}_q5 {node:GND} {node:Q5} I=V({ext:q5_i})-V({ext:q5_g})*(V({node:Q5})-V({node:GND}))",
+    "B_{ref}_q6 {node:GND} {node:Q6} I=V({ext:q6_i})-V({ext:q6_g})*(V({node:Q6})-V({node:GND}))",
+    "B_{ref}_q7 {node:GND} {node:Q7} I=V({ext:q7_i})-V({ext:q7_g})*(V({node:Q7})-V({node:GND}))",
+    "B_{ref}_q7s {node:GND} {node:Q7S} I=V({ext:q7s_i})-V({ext:q7s_g})*(V({node:Q7S})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ]
+}

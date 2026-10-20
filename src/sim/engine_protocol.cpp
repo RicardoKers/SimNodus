@@ -36,6 +36,26 @@ std::vector<std::string> read_strings(Reader& r)
     return list;
 }
 
+void write_pin_model(Writer& w, const mcu::PinModel& p)
+{
+    w.f64(p.supply);
+    w.f64(p.output_resistance);
+    w.f64(p.pull_resistance);
+    w.f64(p.input_high);
+    w.f64(p.input_low);
+}
+
+mcu::PinModel read_pin_model(Reader& r)
+{
+    mcu::PinModel p;
+    p.supply = r.f64();
+    p.output_resistance = r.f64();
+    p.pull_resistance = r.f64();
+    p.input_high = r.f64();
+    p.input_low = r.f64();
+    return p;
+}
+
 void write_mcu_request(Writer& w, const McuRequest& m)
 {
     w.size(m.uart_pins.size());
@@ -49,16 +69,42 @@ void write_mcu_request(Writer& w, const McuRequest& m)
     w.str(utf8(o.firmware));
     write_strings(w, o.pins);
     write_strings(w, o.uarts);
-    w.f64(o.pin_model.supply);
-    w.f64(o.pin_model.output_resistance);
-    w.f64(o.pin_model.pull_resistance);
-    w.f64(o.pin_model.input_high);
-    w.f64(o.pin_model.input_low);
+    write_pin_model(w, o.pin_model);
     w.u64(o.chunk_us);
     w.u64(o.analog_lag_ns);
     write_strings(w, {o.uart_rx_byte_links.begin(), o.uart_rx_byte_links.end()});
     w.u64(o.uart_rx_min_bit_ns);
     w.i32(o.gdb_port);
+    w.size(o.devices.size());
+    for (const auto& d : o.devices) {
+        w.u64(d.component);
+        w.str(d.designator);
+        w.str(d.kind);
+        w.size(d.parameters.size());
+        for (const auto& [name, value] : d.parameters) {
+            w.str(name);
+            w.str(value);
+        }
+        write_strings(w, d.pins);
+        w.f64(d.supply);
+        write_pin_model(w, d.pin_model);
+        w.size(d.tied.size());
+        for (const auto& [pin, level] : d.tied) {
+            w.str(pin);
+            w.boolean(level);
+        }
+    }
+    w.size(o.nets.size());
+    for (const auto& n : o.nets) {
+        w.str(n.name);
+        write_strings(w, n.board_pins);
+        w.size(n.device_pins.size());
+        for (const auto& [device, pin] : n.device_pins) {
+            w.u64(device);
+            w.str(pin);
+        }
+        w.i32(n.pull);
+    }
     w.str(m.ground_pin);
 }
 
@@ -76,11 +122,7 @@ McuRequest read_mcu_request(Reader& r)
     o.firmware = from_utf8(r.str());
     o.pins = read_strings(r);
     o.uarts = read_strings(r);
-    o.pin_model.supply = r.f64();
-    o.pin_model.output_resistance = r.f64();
-    o.pin_model.pull_resistance = r.f64();
-    o.pin_model.input_high = r.f64();
-    o.pin_model.input_low = r.f64();
+    o.pin_model = read_pin_model(r);
     o.chunk_us = r.u64();
     o.analog_lag_ns = r.u64();
     for (auto& s : read_strings(r)) {
@@ -88,6 +130,35 @@ McuRequest read_mcu_request(Reader& r)
     }
     o.uart_rx_min_bit_ns = r.u64();
     o.gdb_port = r.i32();
+    for (std::size_t n = r.size(8); n > 0 && r.ok(); --n) {
+        mcu::DeviceRequest d;
+        d.component = r.u64();
+        d.designator = r.str();
+        d.kind = r.str();
+        for (std::size_t p = r.size(8); p > 0 && r.ok(); --p) {
+            auto name = r.str();
+            d.parameters[name] = r.str();
+        }
+        d.pins = read_strings(r);
+        d.supply = r.f64();
+        d.pin_model = read_pin_model(r);
+        for (std::size_t p = r.size(5); p > 0 && r.ok(); --p) {
+            auto pin = r.str();
+            d.tied[pin] = r.boolean();
+        }
+        o.devices.push_back(std::move(d));
+    }
+    for (std::size_t n = r.size(16); n > 0 && r.ok(); --n) {
+        mcu::DigitalNet net;
+        net.name = r.str();
+        net.board_pins = read_strings(r);
+        for (std::size_t p = r.size(12); p > 0 && r.ok(); --p) {
+            const auto device = static_cast<std::size_t>(r.u64());
+            net.device_pins.emplace_back(device, r.str());
+        }
+        net.pull = r.i32();
+        o.nets.push_back(std::move(net));
+    }
     m.ground_pin = r.str();
     return m;
 }
