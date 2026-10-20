@@ -135,6 +135,50 @@ TEST_CASE("library: potentiometer, switches and buttons")
     CHECK(close_to(switched("spdt", {{"C", "VCC"}, {"A", "OUT"}, {"B", "B"}}, {{"closed", "closed"}}, "b"), 5.0, 1e-3));
 }
 
+TEST_CASE("library: adjustable and controlled sources (SN-209)")
+{
+    REQUIRE(test::engine() != nullptr);
+    {
+        test::CircuitBuilder b(components());
+        b.add("vadj", {{"+", "P"}, {"-", "0"}}, {{"Vmin", "1"}, {"Vmax", "9"}, {"position", "25"}});
+        b.add("resistor", {{"1", "P"}, {"2", "0"}});
+        CHECK(close_to(op(b, "p"), 3.0, 1e-6));
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("iadj", {{"+", "P"}, {"-", "0"}}, {{"Imin", "0"}, {"Imax", "10m"}, {"position", "50"}});
+        b.add("resistor", {{"1", "P"}, {"2", "0"}});
+        CHECK(close_to(op(b, "p"), 5.0, 1e-6)); // 5 mA out of + into 1 kOhm
+    }
+    // Voltage control: 1 V (VCVS) or 2 V (VCCS) between C+ and C-, output into 1 kOhm.
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "C"}, {"-", "0"}}, {{"V", "1"}});
+        b.add("vcvs", {{"C+", "C"}, {"C-", "0"}, {"+", "OUT"}, {"-", "0"}}, {{"gain", "10"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}});
+        CHECK(close_to(op(b, "out"), 10.0, 1e-6));
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "C"}, {"-", "0"}}, {{"V", "2"}});
+        b.add("vccs", {{"C+", "C"}, {"C-", "0"}, {"+", "OUT"}, {"-", "0"}}, {{"gm", "1m"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}});
+        CHECK(close_to(op(b, "out"), 2.0, 1e-6));
+    }
+    // Current control: 1 mA flows from C+ to C- (1 V across 1 kOhm).
+    auto current_controlled = [](const std::string& type, const std::string& gain, const std::string& value,
+                                  const std::string& load) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "A"}, {"-", "0"}}, {{"V", "1"}});
+        b.add(type, {{"C+", "A"}, {"C-", "B"}, {"+", "OUT"}, {"-", "0"}}, {{gain, value}});
+        b.add("resistor", {{"1", "B"}, {"2", "0"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", load}});
+        return op(b, "out");
+    };
+    CHECK(close_to(current_controlled("cccs", "gain", "100", "10"), 1.0, 1e-6)); // 100 mA into 10 Ohm
+    CHECK(close_to(current_controlled("ccvs", "rm", "2k", "1k"), 2.0, 1e-6));
+}
+
 TEST_CASE("library: semiconductors behave like their parts")
 {
     REQUIRE(test::engine() != nullptr);

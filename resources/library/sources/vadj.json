@@ -1,0 +1,134 @@
+{
+  "type": "vadj",
+  "name": "Adjustable voltage source",
+  "category": "Sources",
+  "prefix": "V",
+  "description": "Voltage between a lower and an upper limit, turned while running",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -0.8,
+          0.4,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -1.2,
+          0,
+          -0.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          0.8,
+          0.4,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1.8,
+          1.8,
+          1.6,
+          -1.6
+        ]
+      },
+      {
+        "polygon": [
+          1.9,
+          -1.9,
+          1.0,
+          -1.6,
+          1.6,
+          -1.0
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "name": "Vmin",
+      "label": "Lower limit",
+      "unit": "V",
+      "default": "0",
+      "description": "Voltage at 0 %"
+    },
+    {
+      "name": "Vmax",
+      "label": "Upper limit",
+      "unit": "V",
+      "default": "5",
+      "description": "Voltage at 100 %"
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "unit": "%",
+      "default": "50",
+      "description": "Where the value starts, from the lower (0 %) to the upper limit (100 %); drag the source or use the wheel while running",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "position"
+  },
+  "readout": {
+    "kind": "voltage",
+    "pins": [
+      "+",
+      "-"
+    ]
+  },
+  "spice": [
+    "B_{ref} {node:+} {node:-} V={Vmin}+({Vmax}-{Vmin})*V({control})"
+  ]
+}

@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-20, SN-209)
+
+- Adjustable voltage and current sources: turned while running like a potentiometer (drag or mouse wheel) between a lower and an upper limit set in Properties; the symbol shows the present value.
+- Controlled sources: voltage-controlled voltage source (gain), voltage-controlled current source (transconductance), current-controlled current source (gain) and current-controlled voltage source (transresistance), ngspice's linear E, G, F and H elements; a current-controlled source senses the current from C+ to C- through its control pins. Parts from `tools/generate_source_parts.py`.
+- Example 29: both adjustable sources, a VCVS and a CCCS with meters and an LED.
+
 ## 0.6.0 — 2026-10-20
 
 ### Summary

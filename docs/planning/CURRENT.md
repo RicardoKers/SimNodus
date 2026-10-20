@@ -60,9 +60,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. The owner's list of microcontroller peripherals (2026-10-19) is complete
-   and released in 0.6. Ask the owner what comes next; candidates in the
-   backlog, and parallel RAM and ROM chips that can reuse the Memory Viewer.
+1. After 0.6 the owner asked (2026-10-20) for parts of our own instead of
+   ngspice's XSPICE models: adjustable and controlled sources (SN-209, done,
+   example 29), a 4x4 matrix keypad (SN-210), A/D and D/A converters with
+   selectable bits (SN-211), parallel ROM and RAM of several sizes with the
+   Memory Viewer (SN-212). Work through them in this order.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

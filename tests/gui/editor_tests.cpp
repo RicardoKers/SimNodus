@@ -897,6 +897,41 @@ private slots:
 #endif
     }
 
+    void adjustable_sources_turn_while_running()
+    {
+        // SN-209: example 29; V1 and I1 are turned like potentiometers, E1 and F1 follow.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/29_Adjustable_and_controlled_sources.snx"), errors, warnings));
+        std::map<std::string, model::Id> ids;
+        for (const auto& c : doc().schematic().components()) {
+            ids[c.designator] = c.id;
+        }
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto readout = [&](const char* designator) {
+            const auto& r = window_->scene()->live().readouts;
+            const auto it = r.find(ids[designator]);
+            return it == r.end() ? QString() : it->second;
+        };
+        // 40 % of 0-5 V is 2 V; E1 doubles it. I1 at 50 % of 20 mA, F1 x5.
+        QTRY_COMPARE_WITH_TIMEOUT(readout("VM1"), QStringLiteral("4V"), 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(readout("AM1"), QStringLiteral("50mA"), 10000);
+        QVERIFY(window_->scene()->live().glow.count(ids["LED1"]));
+        window_->run_controller()->set_control(ids["V1"], 1.0);
+        window_->run_controller()->set_control(ids["I1"], 0.1);
+        QTRY_COMPARE_WITH_TIMEOUT(readout("VM1"), QStringLiteral("10V"), 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(readout("AM1"), QStringLiteral("10mA"), 10000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.
@@ -1333,7 +1368,7 @@ private slots:
         QVERIFY(translator.load(QStringLiteral(SIMNODUS_TEST_TRANSLATIONS_DIR "/simnodus_pt_BR.qm")));
         QCOMPARE(translator.translate("MainWindow", "&File"), QStringLiteral("&Arquivo"));
         QCOMPARE(translator.translate("ComponentLibrary", "Resistor"), QStringLiteral("Resistor"));
-        QCOMPARE(translator.translate("ComponentLibrary", "Potentiometer"), QStringLiteral("Potenciômetro"));
+        QCOMPARE(translator.translate("ComponentLibrary", "Potentiometer"), QStringLiteral("PotenciÃ´metro"));
 #endif
     }
 
