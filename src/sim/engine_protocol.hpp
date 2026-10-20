@@ -24,7 +24,7 @@
 
 namespace simnodus::sim::protocol {
 
-inline constexpr std::uint32_t version = 4; // 2: devices (SN-203), 3: circuit nets (SN-205), 4: display texts (SN-206)
+inline constexpr std::uint32_t version = 5; // 2: devices (SN-203), 3: circuit nets (SN-205), 4: display texts (SN-206), 5: live parameters (SN-207)
 // Largest accepted frame; a transient result of many vectors fits.
 inline constexpr std::uint32_t max_frame = 1u << 30;
 
@@ -39,6 +39,7 @@ enum class Type : std::uint8_t {
     McuReset,
     UartSend,
     Quit,
+    DeviceParameter, // a chip's live parameter (SN-207)
     // Engine -> editor.
     Started = 64, // reply to Start: ok, error text, status, vector names
     Update,       // new state of the run (see EngineServer::publish)

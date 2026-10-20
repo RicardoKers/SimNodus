@@ -57,7 +57,7 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
 - I2C chips answer at their address with A0-A2 as the low bits; the 24C02
   stores a written page at STOP and then does not acknowledge for its 5 ms
   write cycle (poll it with `HAL_I2C_IsDeviceReady`); the LM75 reports the
-  temperature set in its properties; the PCF8574's pins are outputs and inputs
+  temperature set in its properties, which can be changed while running; the PCF8574's pins are outputs and inputs
   at once (a 1 is a weak pull-up).
 - The character LCD (HD44780) takes RS, RW, E and D0-D7 or D4-D7 from the
   board's pins or from a PCF8574 (as on the I2C backpacks); its rows and

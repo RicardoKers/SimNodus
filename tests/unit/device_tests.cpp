@@ -332,19 +332,18 @@ TEST_CASE("devices: the MAX7219 stores words at LOAD and scans its digits with C
     CHECK(state.first == 0);
     CHECK(state.second == 0x4F); // A, B, C, D, G
     const std::uint64_t slot = 156250;
-    const std::uint64_t lit_until = d->next_event_ns();
-    CHECK(lit_until - t == slot * 15 / 32);
-    d->advance(lit_until);
-    CHECK(scan_state(*d).second == 0); // the dark part of the slot
+    // Intensity 7 lights a segment for 15/32 of the slot: here as 15/32 of the drive for the whole slot.
+    CHECK(d->output(12).strength == 15.0 / 32.0);
+    CHECK(d->next_event_ns() - t == slot);
     d->advance(d->next_event_ns());
     state = scan_state(*d);
     CHECK(state.first == 1);
     CHECK(state.second == 0xC0); // G and DP
     d->advance(d->next_event_ns());
-    d->advance(d->next_event_ns());
     CHECK(scan_state(*d).first == 0); // back to digit 0 (scan limit 1)
-    word(0x0F01);                     // display test: every segment of eight digits
+    word(0x0F01);                     // display test: every segment of eight digits, full drive
     CHECK(scan_state(*d).second == 0xFF);
+    CHECK(d->output(12).strength == 1.0);
     CHECK(d->output(3).driven); // DOUT
 }
 

@@ -374,6 +374,15 @@ PinLog NativeMcuRunner::pin_log(std::size_t pin, std::uint64_t from_ns) const
     return result;
 }
 
+void NativeMcuRunner::set_device_parameter(std::uint64_t component, const std::string& name, const std::string& value)
+{
+    {
+        std::lock_guard lock(mutex_);
+        parameter_changes_.push_back({component, name, value});
+    }
+    changed_.notify_all();
+}
+
 std::map<std::uint64_t, std::string> NativeMcuRunner::device_texts() const
 {
     std::lock_guard lock(mutex_);
@@ -538,6 +547,7 @@ void NativeMcuRunner::work()
             state.open_drain = change.output.open_drain;
             state.level = change.output.driven && change.output.high;
             state.pull = !change.output.driven && change.output.pull_up ? Pull::Up : Pull::None;
+            state.strength = change.output.strength;
             auto& history = history_[i];
             history.push_back({std::max(change.time_ns, history.back().first), state});
             trim_history(history, history_keep_ns);
@@ -598,8 +608,16 @@ void NativeMcuRunner::work()
                 for (const auto& [name, log] : uarts_) {
                     sending = sending || !log.pending.empty();
                 }
-                return stop_ || reset_ || boundary_below(limit_ns_) > now || !input_queue_.empty() || sending;
+                return stop_ || reset_ || boundary_below(limit_ns_) > now || !input_queue_.empty() || sending
+                    || !parameter_changes_.empty();
             });
+            for (const auto& change : std::exchange(parameter_changes_, {})) {
+                for (std::size_t d = 0; d < options_.devices.size(); ++d) {
+                    if (options_.devices[d].component == change.component) {
+                        bus.set_parameter(d, change.name, change.value, now);
+                    }
+                }
+            }
             limit = boundary_below(limit_ns_);
             for (auto change : input_queue_) {
                 change.apply_ns = boundary_above(change.time_ns);

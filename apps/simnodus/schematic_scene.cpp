@@ -82,6 +82,10 @@ QColor probe_color(int index)
 
 // ---- Items --------------------------------------------------------------
 
+// Radius of the glow around a lit LED or lamp, in grid units (it must stay
+// inside the item's bounding rectangle).
+constexpr double halo_radius = 3.4;
+
 class ComponentItem : public QGraphicsItem {
 public:
     ComponentItem(SchematicScene& scene, bool ghost) : scene_(scene), ghost_(ghost)
@@ -184,6 +188,12 @@ public:
     QRectF boundingRect() const override
     {
         QRectF r = symbol_rect();
+        if (definition_ && definition_->readout && definition_->readout->glows()) {
+            // The halo of a lit LED or lamp reaches beyond the symbol: without it here,
+            // the scene neither repaints nor clears that part (a cut-off, stale glow).
+            const double h = halo_radius * scene_grid;
+            r = r.united(QRectF(-h, -h, 2 * h, 2 * h));
+        }
         if (!ghost_) {
             if (show_designator()) {
                 r = r.united(text_rect(QString::fromStdString(component_.designator), text_offset(false)));
@@ -358,7 +368,7 @@ public:
         }
         if (style.glow.isValid() && style.glow.alpha() > 0) {
             // Halo around a lit LED or lamp.
-            constexpr double radius = 3.4;
+            constexpr double radius = halo_radius;
             QRadialGradient halo(QPointF(0, 0), radius);
             QColor inner = style.glow;
             inner.setAlphaF(style.glow.alphaF() * 0.85);

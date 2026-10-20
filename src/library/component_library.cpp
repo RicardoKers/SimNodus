@@ -279,6 +279,7 @@ ComponentDefinition parse_definition(const json& j)
                 parameter.label = parameter.name;
             }
             parameter.unit = text(p, "unit");
+            parameter.live = p.value("live", false);
             parameter.default_value = text(p, "default", true);
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");

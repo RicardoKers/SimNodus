@@ -62,6 +62,9 @@ struct Parameter {
     std::string filter;
     std::string symbol;     // shown before the value on the schematic ("β" gives "β=100"); empty: the value alone
     std::string model_type; // Model: "NPN", "PNP", "D", "NMOS" or "PMOS"; empty: subcircuits only
+    // A chip's parameter that may change while running (an LM75's temperature):
+    // the editor sends a new value to the running chip.
+    bool live = false;
     // Model: the part's pins in the usual port order of vendor subcircuits
     // ("IN+", "IN-", "V+", "V-", "OUT"); empty: no subcircuits (ADR 0097).
     std::vector<std::string> subcircuit;

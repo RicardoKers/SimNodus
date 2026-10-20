@@ -759,6 +759,10 @@ Pinos: %2</translation>
             <translation>O idioma muda quando o SimNodus for aberto de novo.</translation>
         </message>
         <message>
+            <source>The running simulation took the new value.</source>
+            <translation>A simulação em andamento recebeu o novo valor.</translation>
+        </message>
+        <message>
             <source>&amp;Theme</source>
             <translation>&amp;Tema</translation>
         </message>
@@ -1955,8 +1959,8 @@ Pinos: %2</translation>
             <translation>Temperatura</translation>
         </message>
         <message>
-            <source>Temperature the sensor measures during the run</source>
-            <translation>Temperatura que o sensor mede durante a simulação</translation>
+            <source>Temperature the sensor measures; change it while running to test the circuit</source>
+            <translation>Temperatura que o sensor mede; altere durante a simulação para testar o circuito</translation>
         </message>
         <message>
             <source>LED display driver MAX7219</source>

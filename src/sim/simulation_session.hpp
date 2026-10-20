@@ -138,6 +138,8 @@ public:
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const = 0;
     // What the display chips of every board show (component -> UTF-8 text, SN-206).
     virtual std::map<model::Id, std::string> device_texts() const = 0;
+    // A live parameter of a chip changed while running (an LM75's temperature, SN-207).
+    virtual void set_device_parameter(model::Id component, const std::string& name, const std::string& value) = 0;
 };
 
 class SimulationSession : public Session {
@@ -185,6 +187,7 @@ public:
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
     std::map<model::Id, std::string> device_texts() const override;
+    void set_device_parameter(model::Id component, const std::string& name, const std::string& value) override;
 
 private:
     bool start_mcus();

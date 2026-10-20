@@ -78,6 +78,7 @@ public:
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
     std::map<model::Id, std::string> device_texts() const override { return texts_; }
+    void set_device_parameter(model::Id component, const std::string& name, const std::string& value) override;
 
     // How long start() and stop() wait for the engine's answer.
     void set_timeouts(int start_ms, int stop_ms)

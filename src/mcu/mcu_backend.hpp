@@ -24,6 +24,9 @@ struct PinState {
     PinMode mode = PinMode::Unknown;
     bool open_drain = false; // outputs: CNF bit 2
     Pull pull = Pull::None;  // inputs: CNF 10 with the ODR bit choosing up or down
+    // Driven outputs of chips: a fraction of the full drive (a MAX7219's
+    // intensity, SN-204); board pins always drive fully.
+    double strength = 1.0;
 
     bool same_config(const PinState& other) const
     {
@@ -144,6 +147,13 @@ public:
     virtual PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const = 0;
     // Messages for the user since the last call (faults, unsimulated features).
     virtual std::vector<std::string> take_diagnostics() { return {}; }
+    // A live parameter of one of the board's chips changed (SN-207).
+    virtual void set_device_parameter(std::uint64_t component, const std::string& name, const std::string& value)
+    {
+        (void)component;
+        (void)name;
+        (void)value;
+    }
     // What the board's display chips show (component -> UTF-8 text, SN-206).
     virtual std::map<std::uint64_t, std::string> device_texts() const { return {}; }
 };

@@ -60,6 +60,15 @@ void EngineServer::handle(const std::string& payload)
         }
         break;
     }
+    case Type::DeviceParameter: {
+        const model::Id id = r.u64();
+        auto name = r.str();
+        auto value = r.str();
+        if (r.ok()) {
+            session_.set_device_parameter(id, name, value);
+        }
+        break;
+    }
     case Type::Quit:
         session_.stop();
         quit_ = true;
