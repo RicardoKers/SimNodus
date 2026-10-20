@@ -163,6 +163,50 @@
         "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
       ]
     },
+    "hal_rtc_watchdog": {
+      "sources": [
+        "examples/firmware/hal_rtc_watchdog/main.c"
+      ],
+      "elf": "examples/firmware/hal_rtc_watchdog/hal_rtc_watchdog.elf",
+      "sha256": "77f86b84b7671c09b5012aa58d89d64f3ffea0efded962207846911765c49ca3",
+      "size": 149408,
+      "flags": [
+        "-mcpu=cortex-m3",
+        "-mthumb",
+        "-std=gnu11",
+        "-Os",
+        "-g",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wall",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-Wl,--build-id=none",
+        "-Wl,--gc-sections",
+        "-Wl,--no-warn-rwx-segments",
+        "-ffile-prefix-map={root}=.",
+        "-ffile-prefix-map={package}={package_name}",
+        "-DUSE_HAL_DRIVER",
+        "-DSTM32F103xB",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_iwdg.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
+      ]
+    },
     "lesson1_gpio": {
       "sources": [
         "examples/firmware/lesson1_gpio/lesson1_gpio.c"

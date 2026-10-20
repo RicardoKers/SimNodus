@@ -291,7 +291,7 @@ as another board's TX keeps the byte link and is not decoded twice.
 |---|---|---|
 | 1 (parity with Renode) | RCC, FLASH interface (ACR), PWR, GPIOA–D, AFIO (EXTICR, remaps), EXTI, USART1–3, DBGMCU IDCODE, flash size and unique ID registers | E-07, N1 |
 | 2 (lessons) | TIM1–4 (PWM, output compare, input capture, one-pulse; encoder later; done in SN-177, `src/emu/stm32f1_timer.*`), ADC1–2 (single, continuous, scan, sample times, injected; done in SN-178, `src/emu/stm32f1_adc.*`), DMA1 as HAL needs it (done in SN-179, `src/emu/stm32f1_dma.*`) | N3 |
-| 2b (after the freeze) | IWDG, WWDG, RTC/BKP, CRC | SN-187 |
+| 2b (after the freeze) | IWDG, WWDG, RTC/BKP, CRC (done in SN-187, `src/emu/stm32f1_system.*`) | SN-187 |
 | 3 (later) | SPI1–2, I2C1–2 (with digital parts in the library), CAN, USB | after the classroom release |
 
 ## 9. Validation

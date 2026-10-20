@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-187)
+
+- Microcontroller: CRC, independent watchdog (IWDG), window watchdog (WWDG), real-time clock (RTC) and backup registers (BKP) in the STM32F103 emulator (`src/emu/stm32f1_system.*`). Watchdog resets set IWDGRSTF or WWDGRSTF in RCC_CSR and are reported once in the Messages panel; the WWDG resets on a refresh above the window or with T6 cleared and raises its early wakeup interrupt at 0x40. The RTC counts at LSE, LSI or HSE / 128 with its alarm (also on EXTI line 17), second and overflow interrupts. The backup domain keeps the time and BKP_DR1–DR10 through resets, is cleared at power-on and by BDRST, and ignores writes without PWR_CR.DBP (with a message). Example 24 (an STM32CubeIDE-style HAL project) keeps its clock and start count through a watchdog reset caused by holding a button. Tests: every register behavior, exact timeouts, and the HAL project.
+
 ## 0.5.0 — 2026-10-19
 
 ### Summary

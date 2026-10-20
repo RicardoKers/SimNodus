@@ -9,6 +9,7 @@ add_library(simnodus_emu STATIC
     stm32f103.cpp
     stm32f1_adc.cpp
     stm32f1_dma.cpp
+    stm32f1_system.cpp
     stm32f1_timer.cpp)
 add_library(simnodus::emu ALIAS simnodus_emu)
 target_include_directories(simnodus_emu PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")

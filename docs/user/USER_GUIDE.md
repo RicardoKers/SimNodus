@@ -290,8 +290,9 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
   about 40 Ω; open-drain only pulls low; pull-ups and pull-downs are 40 kΩ.
 - Inputs read 1 above 1.83 V and 0 below 1.16 V (Schmitt trigger).
 - Supported: GPIO, EXTI, USART1-3, TIM1-TIM4 (PWM, output compare, input
-  capture), ADC1/2, DMA1, SysTick, the clock tree up to 72 MHz. Two boards
-  can talk over their serial pins.
+  capture), ADC1/2, DMA1, SysTick, the clock tree up to 72 MHz, the
+  independent and window watchdogs, the RTC with its backup registers, and
+  CRC. Two boards can talk over their serial pins.
 - **Debugging:** check **Simulate > Debug Firmware with GDB (port 3333)**,
   press F5 and connect STM32CubeIDE or arm-none-eabi-gdb to `localhost:3333`.
   While the firmware is halted at a breakpoint, the circuit stands still.
@@ -310,8 +311,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   originals stay unchanged. The [examples list](../../examples/README.md)
   says what each one shows and what to try: basic analog circuits (01-06),
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
-  (19), blocks (20), a counter (21), regulators (22) and a 7-segment counter
-  (23).
+  (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
+  (23) and the RTC with a watchdog (24).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -379,7 +380,8 @@ results are read correctly.
 ### Microcontroller
 
 - Only the Blue Pill (STM32F103C8) is available.
-- Not simulated: SPI, I2C, CAN, USB, RTC, watchdogs; timer encoder and
+- Not simulated yet: SPI and I2C (planned with devices for the library), CAN,
+  USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when
   the firmware uses one of the partly supported features.
