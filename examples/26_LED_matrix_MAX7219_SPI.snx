@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 57,
+  "next_id": 65,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -158,6 +158,110 @@
         [
           24,
           33
+        ]
+      ]
+    },
+    {
+      "id": 48,
+      "points": [
+        [
+          68,
+          11
+        ],
+        [
+          68,
+          13
+        ]
+      ]
+    },
+    {
+      "id": 50,
+      "points": [
+        [
+          70,
+          11
+        ],
+        [
+          70,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 52,
+      "points": [
+        [
+          72,
+          11
+        ],
+        [
+          72,
+          19
+        ]
+      ]
+    },
+    {
+      "id": 54,
+      "points": [
+        [
+          74,
+          11
+        ],
+        [
+          74,
+          13
+        ]
+      ]
+    },
+    {
+      "id": 56,
+      "points": [
+        [
+          76,
+          11
+        ],
+        [
+          76,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 58,
+      "points": [
+        [
+          78,
+          11
+        ],
+        [
+          78,
+          19
+        ]
+      ]
+    },
+    {
+      "id": 60,
+      "points": [
+        [
+          80,
+          11
+        ],
+        [
+          80,
+          13
+        ]
+      ]
+    },
+    {
+      "id": 62,
+      "points": [
+        [
+          82,
+          11
+        ],
+        [
+          82,
+          16
         ]
       ]
     }
@@ -428,66 +532,66 @@
       "name": "ROW8"
     },
     {
-      "id": 48,
+      "id": 49,
       "at": [
         68,
-        11
+        13
       ],
       "name": "COL1"
     },
     {
-      "id": 49,
+      "id": 51,
       "at": [
         70,
-        11
+        16
       ],
       "name": "COL2"
     },
     {
-      "id": 50,
+      "id": 53,
       "at": [
         72,
-        11
+        19
       ],
       "name": "COL3"
     },
     {
-      "id": 51,
+      "id": 55,
       "at": [
         74,
-        11
+        13
       ],
       "name": "COL4"
     },
     {
-      "id": 52,
+      "id": 57,
       "at": [
         76,
-        11
+        16
       ],
       "name": "COL5"
     },
     {
-      "id": 53,
+      "id": 59,
       "at": [
         78,
-        11
+        19
       ],
       "name": "COL6"
     },
     {
-      "id": 54,
+      "id": 61,
       "at": [
         80,
-        11
+        13
       ],
       "name": "COL7"
     },
     {
-      "id": 55,
+      "id": 63,
       "at": [
         82,
-        11
+        16
       ],
       "name": "COL8"
     }
@@ -532,10 +636,10 @@
   ],
   "notes": [
     {
-      "id": 56,
+      "id": 64,
       "at": [
         -12,
-        -28
+        -34
       ],
       "text": "SPI1 of the Blue Pill (an STM32CubeIDE-style HAL project) sends words to a MAX7219, which scans an 8x8\nLED matrix 800 times a second: DIG0-DIG7 sink the rows, DP and A-G drive the columns. PA4 is the\nchip select (LOAD). The MAX7219 needs 5 V on VCC. Run (F5): a heart and a smiley take turns, brighter\neach time. Analyzer > Logic shows the SPI clock and data and the chip's DIG lanes (U2.DIG0...)."
     }

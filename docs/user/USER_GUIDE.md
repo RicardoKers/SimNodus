@@ -192,7 +192,8 @@ While running:
 - Click a **switch** to toggle it; hold the mouse on a **push button**; drag
   or use the wheel on a **potentiometer**.
 - LEDs, lamps and display segments glow with their current, averaged over
-  the last 20 ms as the eye sees a multiplexed display; meters show
+  the last 20 ms as the eye sees a multiplexed display, and as bright as the
+  eye would see them (an LED at a few milliamperes looks clearly lit); meters show
   their reading; the relay contact moves; the motor shows its speed.
 - Hover a wire for its voltage. **View > Show Voltages** colors the wires.
 - Select a part to see its live voltages, current and power in Properties.

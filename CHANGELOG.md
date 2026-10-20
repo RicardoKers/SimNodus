@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-20, owner's test)
+
+- LEDs, lamps, display segments and matrix dots are much brighter on the schematic: brightness now follows the eye instead of the current (40 % as soon as a tenth of a milliampere flows through a 10 mA LED, growing with the square root of the current to full), the halo is larger and stronger, a lamp's bulb fills with its light, and lit segments get more color. A multiplexed matrix at the MAX7219's lowest intensity is clearly visible; before, its dots were almost invisible and LEDs at a few milliamperes looked off.
+- Examples 25 and 26: tidier layouts (notes above the circuit, labels apart).
+
 ### Added (2026-10-19, SN-206)
 
 - Character LCD (HD44780) under *Displays*: 1, 2 or 4 rows of 8 to 40 characters (properties), 8- and 4-bit interfaces with the usual start-up sequence, the instruction set with display and cursor shift, entry modes, CGRAM, reads of the busy flag and data; instructions take 37 µs (clear and home 1.52 ms) and a byte written while busy is ignored with a message, as on the chip. Its text appears on the schematic while running (part definitions get a `screen` area; the engine sends the display texts to the editor, protocol version 4). A and K are the backlight LED.

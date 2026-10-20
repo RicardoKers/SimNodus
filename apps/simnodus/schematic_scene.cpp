@@ -333,7 +333,7 @@ public:
             if (const auto it = live.glow.find(component_.id); it != live.glow.end()) {
                 const std::string& name = it->second.color;
                 QColor glow = !name.empty() && name[0] == '#' ? QColor(QString::fromStdString(name)) : led_color(name);
-                glow.setAlphaF(std::clamp(it->second.level, 0.0, 1.0) * 0.9);
+                glow.setAlphaF(std::clamp(it->second.level, 0.0, 1.0));
                 style.glow = glow;
             }
             if (const auto it = live.lights.find(component_.id); it != live.lights.end() && definition_->lights) {
@@ -342,7 +342,8 @@ public:
                 const auto& lights = definition_->lights->lights;
                 for (std::size_t i = 0; i < lights.size() && i < it->second.levels.size(); ++i) {
                     QColor c = base;
-                    c.setAlphaF(std::clamp(it->second.levels[i], 0.0, 1.0));
+                    // A small lit shape needs more color than a halo to read as lit.
+                    c.setAlphaF(std::clamp(it->second.levels[i] * 1.4, 0.0, 1.0));
                     if (c.alphaF() > 0.02) {
                         style.fills[lights[i].graphic] = c;
                     }
@@ -356,17 +357,21 @@ public:
             painter->scale(-1, 1);
         }
         if (style.glow.isValid() && style.glow.alpha() > 0) {
-            // Halo around a lit LED.
-            QRadialGradient halo(QPointF(0, 0), 2.6);
+            // Halo around a lit LED or lamp.
+            constexpr double radius = 3.4;
+            QRadialGradient halo(QPointF(0, 0), radius);
             QColor inner = style.glow;
-            inner.setAlphaF(style.glow.alphaF() * 0.6);
+            inner.setAlphaF(style.glow.alphaF() * 0.85);
+            QColor middle = style.glow;
+            middle.setAlphaF(style.glow.alphaF() * 0.45);
             QColor outer = style.glow;
             outer.setAlpha(0);
             halo.setColorAt(0, inner);
+            halo.setColorAt(0.45, middle);
             halo.setColorAt(1, outer);
             painter->setPen(Qt::NoPen);
             painter->setBrush(halo);
-            painter->drawEllipse(QPointF(0, 0), 2.6, 2.6);
+            painter->drawEllipse(QPointF(0, 0), radius, radius);
         }
         paint_symbol(*painter, *definition_, style);
         if (definition_->mcu && live.running && !ghost_) {
