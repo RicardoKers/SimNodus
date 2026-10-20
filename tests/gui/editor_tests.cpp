@@ -1408,10 +1408,9 @@ private slots:
         run_triggered("03_Potentiometer_and_meters.snx", 100.0);
         QVERIFY(!scope->trigger_point().has_value());
         QVERIFY(scope->trigger_state().contains(QStringLiteral("running free")));
+        // It moves on (a slow CI runner may need more than one display refresh).
         const double end = scope->window_end();
-        QTest::qWait(300);
-        window_->analyzer()->refresh();
-        QVERIFY(scope->window_end() > end);
+        QTRY_VERIFY_WITH_TIMEOUT((window_->analyzer()->refresh(), scope->window_end() > end), 5000);
         window_->stop();
 #endif
     }
