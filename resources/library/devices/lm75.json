@@ -3,7 +3,7 @@
   "name": "Temperature sensor LM75 (I2C)",
   "category": "Chips for microcontrollers",
   "prefix": "U",
-  "description": "I2C temperature sensor; set the temperature in Properties; works with a microcontroller board",
+  "description": "I2C temperature sensor; set the temperature in Properties",
   "symbol": {
     "graphics": [
       {

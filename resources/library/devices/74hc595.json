@@ -3,7 +3,7 @@
   "name": "Shift register 74HC595",
   "category": "Chips for microcontrollers",
   "prefix": "U",
-  "description": "8-bit shift register with output latches; works with a microcontroller board",
+  "description": "8-bit shift register with output latches",
   "symbol": {
     "graphics": [
       {

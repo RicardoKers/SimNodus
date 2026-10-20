@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <deque>
 
 namespace simnodus::mcu {
@@ -459,7 +460,23 @@ void NativeMcuRunner::work()
     auto machine = std::make_unique<emu::Stm32F103>(machine_options);
     // Without a firmware file (debugging only) the flash stays empty until the
     // debugger's `load` writes it.
-    if (!options_.firmware.empty() || options_.gdb_port < 0) {
+    if (options_.chips_only) {
+        // Chips without a board (SN-212): a core that sleeps (WFI) until the devices' next event.
+        emu::ElfImage image;
+        std::vector<std::uint8_t> bytes(0x24, 0);
+        const std::uint32_t vectors[2] = {0x20005000u, 0x08000021u}; // stack, reset handler
+        std::memcpy(bytes.data(), vectors, sizeof vectors);
+        bytes[0x20] = 0x30; // wfi
+        bytes[0x21] = 0xBF;
+        bytes[0x22] = 0xFD; // b wfi
+        bytes[0x23] = 0xE7;
+        image.entry = 0x08000021;
+        image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
+        if (!machine->load(image, error)) {
+            fail(error);
+            return;
+        }
+    } else if (!options_.firmware.empty() || options_.gdb_port < 0) {
         const auto image = emu::read_elf(options_.firmware, error);
         if (!image || !machine->load(*image, error)) {
             fail(error);

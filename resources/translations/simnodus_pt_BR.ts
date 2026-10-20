@@ -1342,8 +1342,8 @@ Pinos: %2</translation>
             <translation>O arquivo de conteúdo %1 não pode ser lido: %2</translation>
         </message>
         <message>
-            <source>Erased (0xFF): the chip starts each run like this; Load... chooses a contents file.</source>
-            <translation>Apagada (0xFF): o chip inicia cada simulação assim; Carregar... escolhe um arquivo de conteúdo.</translation>
+            <source>Every byte 0x%1: the chip starts each run like this; Load... chooses a contents file.</source>
+            <translation>Todos os bytes 0x%1: o chip inicia cada simulação assim; Carregar... escolhe um arquivo de conteúdo.</translation>
         </message>
         <message>
             <source>The circuit has no memory chip (a 24C02 EEPROM, for example).</source>
@@ -2062,8 +2062,8 @@ Pinos: %2</translation>
             <translation>Chips para microcontroladores</translation>
         </message>
         <message>
-            <source>256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board</source>
-            <translation>EEPROM I2C de 256 bytes; precisa de pull-ups em SCL e SDA; funciona com uma placa de microcontrolador</translation>
+            <source>256-byte I2C EEPROM; needs pull-ups on SCL and SDA</source>
+            <translation>EEPROM I2C de 256 bytes; precisa de pull-ups em SCL e SDA</translation>
         </message>
         <message>
             <source>Contents file</source>
@@ -2078,8 +2078,8 @@ Pinos: %2</translation>
             <translation>Registrador de deslocamento 74HC595</translation>
         </message>
         <message>
-            <source>8-bit shift register with output latches; works with a microcontroller board</source>
-            <translation>Registrador de deslocamento de 8 bits com latches de saída; funciona com uma placa de microcontrolador</translation>
+            <source>8-bit shift register with output latches</source>
+            <translation>Registrador de deslocamento de 8 bits com latches de saída</translation>
         </message>
         <message>
             <source>Character LCD (HD44780)</source>
@@ -2090,8 +2090,8 @@ Pinos: %2</translation>
             <translation>Displays</translation>
         </message>
         <message>
-            <source>Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board</source>
-            <translation>LCD de caracteres (HD44780), linhas e colunas em Propriedades; funciona com uma placa de microcontrolador</translation>
+            <source>Character LCD (HD44780), rows and columns in Properties</source>
+            <translation>LCD de caracteres (HD44780), linhas e colunas em Propriedades</translation>
         </message>
         <message>
             <source>Rows</source>
@@ -2142,8 +2142,8 @@ Pinos: %2</translation>
             <translation>Sensor de temperatura LM75 (I2C)</translation>
         </message>
         <message>
-            <source>I2C temperature sensor; set the temperature in Properties; works with a microcontroller board</source>
-            <translation>Sensor de temperatura I2C; ajuste a temperatura em Propriedades; funciona com uma placa de microcontrolador</translation>
+            <source>I2C temperature sensor; set the temperature in Properties</source>
+            <translation>Sensor de temperatura I2C; ajuste a temperatura em Propriedades</translation>
         </message>
         <message>
             <source>Temperature</source>
@@ -2158,16 +2158,16 @@ Pinos: %2</translation>
             <translation>Driver de display de LED MAX7219</translation>
         </message>
         <message>
-            <source>8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board</source>
-            <translation>Driver de display de LED de 8 dígitos (dígitos ou uma matriz 8x8); funciona com uma placa de microcontrolador</translation>
+            <source>8-digit LED display driver (digits or an 8x8 matrix)</source>
+            <translation>Driver de display de LEDs de 8 dígitos (dígitos ou matriz 8x8)</translation>
         </message>
         <message>
             <source>I/O expander PCF8574 (I2C)</source>
             <translation>Expansor de E/S PCF8574 (I2C)</translation>
         </message>
         <message>
-            <source>I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board</source>
-            <translation>Expansor de E/S I2C de 8 bits (saídas e entradas); funciona com uma placa de microcontrolador</translation>
+            <source>I2C 8-bit I/O expander (outputs and inputs)</source>
+            <translation>Expansor de E/S I2C de 8 bits (saídas e entradas)</translation>
         </message>
         <message>
             <source>Variant</source>
@@ -2184,6 +2184,86 @@ Pinos: %2</translation>
         <message>
             <source>PCF8574A</source>
             <translation>PCF8574A</translation>
+        </message>
+        <message>
+            <source>RAM (parallel)</source>
+            <translation>RAM (paralela)</translation>
+        </message>
+        <message>
+            <source>Memories</source>
+            <translation>Memórias</translation>
+        </message>
+        <message>
+            <source>Parallel static RAM, 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE)</source>
+            <translation>RAM estática paralela, de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE)</translation>
+        </message>
+        <message>
+            <source>Size (bytes)</source>
+            <translation>Tamanho (bytes)</translation>
+        </message>
+        <message>
+            <source>Number of 8-bit words; A0 up to the address pins the size needs are used</source>
+            <translation>Número de palavras de 8 bits; são usados A0 até os pinos de endereço que o tamanho exige</translation>
+        </message>
+        <message>
+            <source>32</source>
+            <translation>32</translation>
+        </message>
+        <message>
+            <source>64</source>
+            <translation>64</translation>
+        </message>
+        <message>
+            <source>128</source>
+            <translation>128</translation>
+        </message>
+        <message>
+            <source>256</source>
+            <translation>256</translation>
+        </message>
+        <message>
+            <source>512</source>
+            <translation>512</translation>
+        </message>
+        <message>
+            <source>1K</source>
+            <translation>1K</translation>
+        </message>
+        <message>
+            <source>2K</source>
+            <translation>2K</translation>
+        </message>
+        <message>
+            <source>4K</source>
+            <translation>4K</translation>
+        </message>
+        <message>
+            <source>8K</source>
+            <translation>8K</translation>
+        </message>
+        <message>
+            <source>16K</source>
+            <translation>16K</translation>
+        </message>
+        <message>
+            <source>32K</source>
+            <translation>32K</translation>
+        </message>
+        <message>
+            <source>64K</source>
+            <translation>64K</translation>
+        </message>
+        <message>
+            <source>Contents the memory starts each run with (.bin or Intel .hex, stored relative to the project)</source>
+            <translation>Conteúdo com que a memória inicia cada simulação (.bin ou Intel .hex, guardado relativo ao projeto)</translation>
+        </message>
+        <message>
+            <source>ROM (parallel)</source>
+            <translation>ROM (paralela)</translation>
+        </message>
+        <message>
+            <source>Parallel ROM, 16 bytes to 64 KB; contents from a .bin or .hex file</source>
+            <translation>ROM paralela, de 16 bytes a 64 KB; conteúdo de um arquivo .bin ou .hex</translation>
         </message>
         <message>
             <source>BCD to 7-segment decoder (4511)</source>

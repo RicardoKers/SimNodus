@@ -1,0 +1,825 @@
+{
+  "type": "rom",
+  "name": "ROM (parallel)",
+  "category": "Memories",
+  "prefix": "U",
+  "description": "Parallel ROM, 16 bytes to 64 KB; contents from a .bin or .hex file",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -17,
+          8,
+          34
+        ]
+      },
+      {
+        "text": "ROM",
+        "at": [
+          0,
+          -15.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -15,
+          -4,
+          -15
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -2.7,
+          -15
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -13,
+          -4,
+          -13
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -2.7,
+          -13
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -11,
+          -4,
+          -11
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -2.7,
+          -11
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -9,
+          -4,
+          -9
+        ]
+      },
+      {
+        "text": "A3",
+        "at": [
+          -2.7,
+          -9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "A4",
+        "at": [
+          -2.7,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "A5",
+        "at": [
+          -2.7,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "A6",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "A7",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "A8",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "A9",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "A10",
+        "at": [
+          -2.7,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "A11",
+        "at": [
+          -2.7,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          9,
+          -4,
+          9
+        ]
+      },
+      {
+        "text": "A12",
+        "at": [
+          -2.7,
+          9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          11,
+          -4,
+          11
+        ]
+      },
+      {
+        "text": "A13",
+        "at": [
+          -2.7,
+          11
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          13,
+          -4,
+          13
+        ]
+      },
+      {
+        "text": "A14",
+        "at": [
+          -2.7,
+          13
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          15,
+          -4,
+          15
+        ]
+      },
+      {
+        "text": "A15",
+        "at": [
+          -2.7,
+          15
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -9,
+          4,
+          -9
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          2.8,
+          -9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "D5",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "D6",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "D7",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "CE",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          7,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          9,
+          4,
+          9
+        ]
+      },
+      {
+        "text": "OE",
+        "at": [
+          2.8,
+          9
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          9,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          0,
+          -19,
+          0,
+          -17
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -16.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          17,
+          0,
+          19
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          16.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "A0",
+        "at": [
+          -6,
+          -15
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A1",
+        "at": [
+          -6,
+          -13
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A2",
+        "at": [
+          -6,
+          -11
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A3",
+        "at": [
+          -6,
+          -9
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A4",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A5",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A6",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A7",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A8",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A9",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A10",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A11",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A12",
+        "at": [
+          -6,
+          9
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A13",
+        "at": [
+          -6,
+          11
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A14",
+        "at": [
+          -6,
+          13
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A15",
+        "at": [
+          -6,
+          15
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "D0",
+        "at": [
+          6,
+          -9
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D1",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D2",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D3",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D4",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D5",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D6",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "D7",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "CE",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OE",
+        "at": [
+          6,
+          9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -19
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          19
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -18
+  ],
+  "value_offset": [
+    5,
+    18
+  ],
+  "device": {
+    "kind": "rom",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "memory_size_parameter": "size",
+    "memory_fill": 255,
+    "contents_parameter": "contents"
+  },
+  "spice": [
+    "R_{ref}_ha0 {node:A0} {node:GND} 100Meg",
+    "R_{ref}_ha1 {node:A1} {node:GND} 100Meg",
+    "R_{ref}_ha2 {node:A2} {node:GND} 100Meg",
+    "R_{ref}_ha3 {node:A3} {node:GND} 100Meg",
+    "R_{ref}_ha4 {node:A4} {node:GND} 100Meg",
+    "R_{ref}_ha5 {node:A5} {node:GND} 100Meg",
+    "R_{ref}_ha6 {node:A6} {node:GND} 100Meg",
+    "R_{ref}_ha7 {node:A7} {node:GND} 100Meg",
+    "R_{ref}_ha8 {node:A8} {node:GND} 100Meg",
+    "R_{ref}_ha9 {node:A9} {node:GND} 100Meg",
+    "R_{ref}_ha10 {node:A10} {node:GND} 100Meg",
+    "R_{ref}_ha11 {node:A11} {node:GND} 100Meg",
+    "R_{ref}_ha12 {node:A12} {node:GND} 100Meg",
+    "R_{ref}_ha13 {node:A13} {node:GND} 100Meg",
+    "R_{ref}_ha14 {node:A14} {node:GND} 100Meg",
+    "R_{ref}_ha15 {node:A15} {node:GND} 100Meg",
+    "R_{ref}_hd0 {node:D0} {node:GND} 100Meg",
+    "R_{ref}_hd1 {node:D1} {node:GND} 100Meg",
+    "R_{ref}_hd2 {node:D2} {node:GND} 100Meg",
+    "R_{ref}_hd3 {node:D3} {node:GND} 100Meg",
+    "R_{ref}_hd4 {node:D4} {node:GND} 100Meg",
+    "R_{ref}_hd5 {node:D5} {node:GND} 100Meg",
+    "R_{ref}_hd6 {node:D6} {node:GND} 100Meg",
+    "R_{ref}_hd7 {node:D7} {node:GND} 100Meg",
+    "R_{ref}_hce {node:CE} {node:GND} 100Meg",
+    "R_{ref}_hoe {node:OE} {node:GND} 100Meg",
+    "B_{ref}_d0 {node:GND} {node:D0} I=V({ext:d0_i})-V({ext:d0_g})*(V({node:D0})-V({node:GND}))",
+    "B_{ref}_d1 {node:GND} {node:D1} I=V({ext:d1_i})-V({ext:d1_g})*(V({node:D1})-V({node:GND}))",
+    "B_{ref}_d2 {node:GND} {node:D2} I=V({ext:d2_i})-V({ext:d2_g})*(V({node:D2})-V({node:GND}))",
+    "B_{ref}_d3 {node:GND} {node:D3} I=V({ext:d3_i})-V({ext:d3_g})*(V({node:D3})-V({node:GND}))",
+    "B_{ref}_d4 {node:GND} {node:D4} I=V({ext:d4_i})-V({ext:d4_g})*(V({node:D4})-V({node:GND}))",
+    "B_{ref}_d5 {node:GND} {node:D5} I=V({ext:d5_i})-V({ext:d5_g})*(V({node:D5})-V({node:GND}))",
+    "B_{ref}_d6 {node:GND} {node:D6} I=V({ext:d6_i})-V({ext:d6_g})*(V({node:D6})-V({node:GND}))",
+    "B_{ref}_d7 {node:GND} {node:D7} I=V({ext:d7_i})-V({ext:d7_g})*(V({node:D7})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "size",
+      "label": "Size (bytes)",
+      "choices": [
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1K",
+        "2K",
+        "4K",
+        "8K",
+        "16K",
+        "32K",
+        "64K"
+      ],
+      "default": "256",
+      "description": "Number of 8-bit words; A0 up to the address pins the size needs are used"
+    },
+    {
+      "name": "contents",
+      "label": "Contents file",
+      "kind": "file",
+      "filter": "*.bin *.hex",
+      "default": "",
+      "description": "Contents the memory starts each run with (.bin or Intel .hex, stored relative to the project)"
+    }
+  ],
+  "value_parameter": "size"
+}

@@ -3,7 +3,7 @@
   "name": "EEPROM 24C02 (I2C)",
   "category": "Chips for microcontrollers",
   "prefix": "U",
-  "description": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board",
+  "description": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA",
   "symbol": {
     "graphics": [
       {

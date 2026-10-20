@@ -3,7 +3,7 @@
   "name": "I/O expander PCF8574 (I2C)",
   "category": "Chips for microcontrollers",
   "prefix": "U",
-  "description": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board",
+  "description": "I2C 8-bit I/O expander (outputs and inputs)",
   "symbol": {
     "graphics": [
       {

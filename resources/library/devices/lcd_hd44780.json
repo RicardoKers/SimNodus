@@ -3,7 +3,7 @@
   "name": "Character LCD (HD44780)",
   "category": "Displays",
   "prefix": "U",
-  "description": "Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board",
+  "description": "Character LCD (HD44780), rows and columns in Properties",
   "symbol": {
     "graphics": [
       {

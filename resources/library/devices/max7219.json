@@ -3,7 +3,7 @@
   "name": "LED display driver MAX7219",
   "category": "Chips for microcontrollers",
   "prefix": "U",
-  "description": "8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board",
+  "description": "8-digit LED display driver (digits or an 8x8 matrix)",
   "symbol": {
     "graphics": [
       {

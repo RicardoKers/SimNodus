@@ -1011,6 +1011,53 @@ private slots:
 #endif
     }
 
+    void rom_without_a_board_drives_a_display()
+    {
+        // SN-212: example 32 through the engine process; the Memory Viewer shows the ROM's file.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/32_ROM_lookup_seven_segment.snx"), errors, warnings));
+        model::Id rom = model::no_id;
+        model::Id display = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            rom = c.type == "rom" ? c.id : rom;
+            display = c.type == "seven_segment_cc" ? c.id : display;
+        }
+        QVERIFY(rom != model::no_id && display != model::no_id);
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        // Some segments lit, and the picture changes with the count.
+        auto picture = [&] {
+            const auto& lights = window_->scene()->live().lights;
+            const auto it = lights.find(display);
+            QString lit;
+            if (it != lights.end()) {
+                for (const double level : it->second.levels) {
+                    lit += level > 0.3 ? QLatin1Char('1') : QLatin1Char('0');
+                }
+            }
+            return lit;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(picture().contains(QLatin1Char('1')), 10000);
+        const QString first = picture();
+        QTRY_VERIFY_WITH_TIMEOUT(picture().contains(QLatin1Char('1')) && picture() != first, 10000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->scene()->select_ids({rom});
+        window_->memory_viewer()->show_chip(rom);
+        const auto& bytes = window_->memory_viewer()->bytes();
+        QCOMPARE(bytes.size(), std::size_t{16});
+        QCOMPARE(bytes[0], std::uint8_t{0x3F});
+        QCOMPARE(bytes[15], std::uint8_t{0x71});
+        window_->memory_viewer()->close();
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.

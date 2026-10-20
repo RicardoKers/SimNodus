@@ -54,7 +54,8 @@ circuit", then the hybrid coupling once this was explained.
 ## Consequences
 
 - A device works only together with a board; one on no board pin gets a
-  message and does nothing. A device shared by two boards belongs to the first.
+  message and does nothing. Update (SN-212, ADR 0103): chips on no board pin
+  now run in groups of their own. A device shared by two boards belongs to the first.
 - Levels are digital: a 3.3 V board driving a 5 V chip is accepted even where a
   real chip's input threshold would not be met. Update (SN-205): a net without
   a board pin is also read from the circuit, like a board input (up to 0.1 ms

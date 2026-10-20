@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0103: Chips without a board run in a group with an idle core](0103-chips-without-a-board.md):
+  SN-212; chips on no board pin run in a runner of their own whose core sleeps, inputs read from the circuit.
 - [0102: Digital devices run in step with the firmware (hybrid coupling)](0102-digital-devices-hybrid-coupling.md):
   SN-203; device logic in the board's runner, board-device nets resolved at once, device outputs drive the circuit.
 - [0101: Simulations run in a separate engine process](0101-engine-process.md):

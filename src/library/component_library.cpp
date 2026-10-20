@@ -560,8 +560,24 @@ ComponentDefinition parse_definition(const json& j)
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
         device.driven_pins = strings(m, "driven_pins");
-        if (m.contains("memory_size")) {
-            device.memory_size = static_cast<std::size_t>(number(m["memory_size"], "device.memory_size"));
+        if (m.contains("memory_size_parameter")) {
+            device.memory_size_parameter = text(m, "memory_size_parameter", true);
+            const auto* size = d.parameter(device.memory_size_parameter);
+            if (!size || size->choices.empty()) {
+                invalid("device.memory_size_parameter must name a parameter with choices");
+            }
+            for (const auto& choice : size->choices) {
+                device.memory_size = std::max(device.memory_size, device.memory_bytes({{device.memory_size_parameter, choice}}));
+            }
+            device.memory_default = device.memory_bytes({{device.memory_size_parameter, size->default_value}});
+        }
+        if (m.contains("memory_fill")) {
+            device.memory_fill = static_cast<std::uint8_t>(number(m["memory_fill"], "device.memory_fill"));
+        }
+        if (m.contains("memory_size") || !device.memory_size_parameter.empty()) {
+            if (m.contains("memory_size")) {
+                device.memory_size = static_cast<std::size_t>(number(m["memory_size"], "device.memory_size"));
+            }
             device.contents_parameter = text(m, "contents_parameter");
             const auto* p = d.parameter(device.contents_parameter);
             if (device.memory_size == 0 || (!device.contents_parameter.empty() && (!p || p->kind != Parameter::Kind::File))) {
@@ -723,6 +739,23 @@ void ComponentLibrary::add_models(const std::vector<SpiceModel>& models)
             models_.push_back(m);
         }
     }
+}
+
+std::size_t DigitalDevice::memory_bytes(const std::map<std::string, std::string>& parameters) const
+{
+    if (memory_size_parameter.empty()) {
+        return memory_size;
+    }
+    const auto it = parameters.find(memory_size_parameter);
+    if (it == parameters.end()) {
+        return memory_default;
+    }
+    char* end = nullptr;
+    std::size_t words = std::strtoul(it->second.c_str(), &end, 10);
+    if (end && (*end == 'K' || *end == 'k')) {
+        words *= 1024;
+    }
+    return words;
 }
 
 const ComponentDefinition* ComponentLibrary::find(const std::string& type) const

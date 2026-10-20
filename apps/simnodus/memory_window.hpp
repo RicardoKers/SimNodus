@@ -43,6 +43,7 @@ private:
     void refresh();
     model::Id current() const;
     std::size_t size_of(model::Id component) const;
+    std::uint8_t fill_of(model::Id component) const; // the value of a byte nobody wrote
     // The chip's contents: the running (or last) simulation's, else its contents file, else erased.
     std::vector<std::uint8_t> contents(model::Id component, QString& source) const;
     void load();
