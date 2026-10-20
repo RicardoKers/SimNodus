@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-20, owner's test)
+
+- The glow of a lit LED or lamp was cut by a straight line on one side and sometimes stayed on or off there, depending on the zoom: the halo reached beyond the part's drawing area, so the canvas neither repainted nor cleared that strip. The area now includes the halo.
+- The 8x8 matrix showed only some rows of the first picture (at the MAX7219's lowest intensity): segment pulses of 5 µs were averaged into the circuit's 100 µs steps together with the neighbouring row. The MAX7219 now keeps a segment on for its whole digit slot at the intensity's fraction of the drive, the same average current; the editor test now requires the full heart in the first picture.
+
+### Added (2026-10-20, owner's request)
+
+- Live chip parameters (SN-207): the LM75's temperature can be changed in Properties while the simulation runs, and the sensor reports the new value at once (parameters marked `live` in a part go to the running chip through the engine protocol, version 5).
+
 ### Changed (2026-10-20, owner's test)
 
 - LEDs, lamps, display segments and matrix dots are much brighter on the schematic: brightness now follows the eye instead of the current (40 % as soon as a tenth of a milliampere flows through a 10 mA LED, growing with the square root of the current to full), the halo is larger and stronger, a lamp's bulb fills with its light, and lit segments get more color. A multiplexed matrix at the MAX7219's lowest intensity is clearly visible; before, its dots were almost invisible and LEDs at a few milliamperes looked off.

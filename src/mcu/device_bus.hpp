@@ -56,6 +56,8 @@ public:
     // emu::TimedDevice: the next device event in machine cycles.
     std::uint64_t next_event() const override;
     void on_time(std::uint64_t cycle) override;
+    // A live parameter of a chip (SN-207): the chip takes it now.
+    void set_parameter(std::size_t device, const std::string& name, const std::string& value, std::uint64_t time_ns);
     // The circuit's level on the net of a chip pin (nets without a board pin).
     void set_circuit_level(std::size_t device, std::size_t pin, bool level, std::uint64_t time_ns);
     // The board pin is on a digital net: the bus sets its input, not the circuit.

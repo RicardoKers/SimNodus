@@ -15,7 +15,8 @@ constexpr int max_rounds = 10000;
 
 bool same(const devices::Output& a, const devices::Output& b)
 {
-    return a.driven == b.driven && (!a.driven || (a.high == b.high && a.open_drain == b.open_drain))
+    return a.driven == b.driven
+        && (!a.driven || (a.high == b.high && a.open_drain == b.open_drain && a.strength == b.strength))
         && (a.driven || a.pull_up == b.pull_up);
 }
 
@@ -111,6 +112,19 @@ void DeviceBus::start(std::uint64_t time_ns)
         collect_outputs(d, time_ns);
     }
     settle(time_ns);
+}
+
+void DeviceBus::set_parameter(std::size_t device, const std::string& name, const std::string& value,
+    std::uint64_t time_ns)
+{
+    if (device >= devices_.size() || !devices_[device]) {
+        return;
+    }
+    devices_[device]->set_parameter(name, value);
+    collect_outputs(device, time_ns); // an LM75's OS output may change
+    if (!busy_) {
+        settle(time_ns);
+    }
 }
 
 void DeviceBus::set_circuit_level(std::size_t device, std::size_t pin, bool level, std::uint64_t time_ns)

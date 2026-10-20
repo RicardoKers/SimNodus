@@ -127,8 +127,9 @@ def lm75():
                 + I2C_NOTE + " Supply 2.8-5.5 V. Works together with a microcontroller board.",
                 symbol, upper, "lm75", device_spice(inputs + ["SDA", "OS"], ["SDA", "OS"]),
                 parameters=[{"name": "temperature", "label": "Temperature", "unit": "°C", "default": "25",
-                             "min": "-55", "max": "125",
-                             "description": "Temperature the sensor measures during the run"}])
+                             "min": "-55", "max": "125", "live": True,
+                             "description": "Temperature the sensor measures; change it while running to test the "
+                                            "circuit"}])
 
 
 def pcf8574():

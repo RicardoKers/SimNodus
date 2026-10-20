@@ -204,7 +204,10 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(document_, &Document::changed, this, [this] {
         setWindowModified(document_->modified());
         if (run_->active()) {
-            statusBar()->showMessage(tr("Changes take effect when the simulation is restarted."), 4000);
+            statusBar()->showMessage(run_->apply_live_parameters()
+                    ? tr("The running simulation took the new value.")
+                    : tr("Changes take effect when the simulation is restarted."),
+                4000);
         }
     });
     connect(messages_, &MessagesPanel::counts_changed, this, &MainWindow::update_counts);

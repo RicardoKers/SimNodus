@@ -117,7 +117,11 @@ private:
 // intensity, 11 scan limit, 12 shutdown, 15 display test). While on, the chip
 // scans digits 0 .. scan limit, about 156 us each (800 Hz for eight digits):
 // the active DIG pin sinks (low), the others are high, and SEG A-G and DP are
-// high for the segments that are on, for (2 * intensity + 1) / 32 of the slot.
+// high for the segments that are on. The chip lights a segment for
+// (2 * intensity + 1) / 32 of the slot; here it stays on for the whole slot
+// with that fraction of its drive, the same average current: pulses as short
+// as 5 us would be averaged into the circuit's 100 us steps together with the
+// neighbouring digit and light the wrong rows (owner's test, 2026-10-20).
 // Code B decoding (0-9, -, E, H, L, P, blank) for the digits the decode mode
 // selects. DOUT is the last stage of the shift register, for chaining. It
 // starts in shutdown, as the chip does.
@@ -179,10 +183,11 @@ public:
             // Digit drivers: low (sinking) for the active digit, high for the others.
             return push_pull(!(scanning && role - DIG0 == digit_));
         }
-        if (!scanning || !lit_) {
+        if (!scanning) {
             return push_pull(false);
         }
-        return push_pull(((segments(digit_) >> (role - SEGA)) & 1u) != 0);
+        const bool on = ((segments(digit_) >> (role - SEGA)) & 1u) != 0;
+        return on ? push_pull(true, test_ ? 1.0 : (2.0 * intensity_ + 1.0) / 32.0) : push_pull(false);
     }
 
     std::uint64_t next_event_ns() const override
@@ -193,11 +198,6 @@ public:
     void advance(std::uint64_t time_ns) override
     {
         if (shutdown_ && !test_) {
-            return;
-        }
-        if (lit_ && time_ns < slot_start_ + slot_ns) {
-            lit_ = false; // the intensity's part of the slot is over
-            next_ns_ = slot_start_ + slot_ns;
             return;
         }
         const int last = test_ ? 7 : scan_limit_;
@@ -230,9 +230,7 @@ private:
     void begin_slot(std::uint64_t time_ns)
     {
         slot_start_ = time_ns;
-        lit_ = true;
-        const std::uint64_t on = test_ ? slot_ns : slot_ns * static_cast<std::uint64_t>(2 * intensity_ + 1) / 32;
-        next_ns_ = time_ns + (on < slot_ns ? on : slot_ns);
+        next_ns_ = time_ns + slot_ns;
     }
 
     void store(std::uint8_t address, std::uint8_t data, std::uint64_t time_ns)
@@ -268,7 +266,6 @@ private:
     bool shutdown_ = true;
     bool test_ = false;
     int digit_ = 0;
-    bool lit_ = false;
     std::uint64_t slot_start_ = 0;
     std::uint64_t next_ns_ = no_event;
 };
@@ -555,16 +552,20 @@ public:
         }
         set_bus_pins(index_[0], index_[1]);
         const auto t = parameters.find("temperature");
-        if (t != parameters.end()) {
-            try {
-                celsius_ = std::stod(t->second);
-            } catch (...) {
-                error = "LM75: the temperature \"" + t->second + "\" is not a number";
-                return false;
-            }
+        if (t != parameters.end() && !parse(t->second, celsius_)) {
+            error = "LM75: the temperature \"" + t->second + "\" is not a number";
+            return false;
         }
         update_os();
         return true;
+    }
+
+    // The temperature can change while running (owner's request, 2026-10-20).
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        if (name == "temperature" && parse(value, celsius_)) {
+            update_os();
+        }
     }
 
 protected:
@@ -631,6 +632,17 @@ protected:
     }
 
 private:
+    static bool parse(const std::string& text, double& celsius)
+    {
+        char* end = nullptr;
+        const double value = std::strtod(text.c_str(), &end);
+        if (end == text.c_str()) {
+            return false;
+        }
+        celsius = std::clamp(value, -55.0, 125.0);
+        return true;
+    }
+
     // Half degrees in bits 15..7.
     std::uint16_t temperature() const
     {

@@ -208,6 +208,17 @@ std::map<std::string, mcu::PinState> RemoteSession::mcu_pins(model::Id component
     return it == boards_.end() ? std::map<std::string, mcu::PinState>{} : it->second.pins;
 }
 
+void RemoteSession::set_device_parameter(model::Id component, const std::string& name, const std::string& value)
+{
+    if (active()) {
+        Writer w(Type::DeviceParameter);
+        w.u64(component);
+        w.str(name);
+        w.str(value);
+        link_.send(w.payload());
+    }
+}
+
 void RemoteSession::mcu_reset(model::Id component)
 {
     if (active()) {

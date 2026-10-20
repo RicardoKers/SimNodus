@@ -60,6 +60,7 @@ public:
     PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const override;
     std::vector<std::string> take_diagnostics() override;
     std::map<std::uint64_t, std::string> device_texts() const override;
+    void set_device_parameter(std::uint64_t component, const std::string& name, const std::string& value) override;
 
 private:
     using History = std::vector<std::pair<std::uint64_t, PinState>>; // sorted by time
@@ -105,6 +106,12 @@ private:
     std::map<std::string, UartLog> uarts_;
     std::vector<std::string> diagnostics_;
     std::map<std::uint64_t, std::string> device_texts_; // display chips: component -> text
+    struct ParameterChange {
+        std::uint64_t component = 0;
+        std::string name;
+        std::string value;
+    };
+    std::vector<ParameterChange> parameter_changes_; // for the worker
 };
 
 } // namespace simnodus::mcu

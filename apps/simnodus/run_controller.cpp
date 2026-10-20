@@ -260,6 +260,39 @@ bool RunController::active() const
     return session_->active();
 }
 
+bool RunController::apply_live_parameters()
+{
+    if (!active()) {
+        return false;
+    }
+    bool applied = false;
+    const auto& library = document_.library();
+    for (const auto& original : std::vector<model::Component>(snapshot_.components())) {
+        model::Component c = original;
+        const auto* d = library.find(c.type);
+        const auto* now = document_.schematic().component(c.id);
+        if (!d || !d->device || !now) {
+            continue;
+        }
+        for (const auto& p : d->parameters) {
+            if (!p.live) {
+                continue;
+            }
+            const auto was = c.parameters.find(p.name);
+            const auto is = now->parameters.find(p.name);
+            const std::string old_value = was == c.parameters.end() ? p.default_value : was->second;
+            const std::string new_value = is == now->parameters.end() ? p.default_value : is->second;
+            if (old_value != new_value) {
+                session_->set_device_parameter(c.id, p.name, new_value);
+                c.parameters[p.name] = new_value;
+                snapshot_.put(c);
+                applied = true;
+            }
+        }
+    }
+    return applied;
+}
+
 void RunController::set_speed(double speed)
 {
     session_->set_speed(speed);

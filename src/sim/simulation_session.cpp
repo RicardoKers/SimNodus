@@ -1018,6 +1018,19 @@ std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const st
     return it->second->uart_received(uart, from, bytes, times);
 }
 
+void SimulationSession::set_device_parameter(model::Id component, const std::string& name, const std::string& value)
+{
+    for (const auto& m : request_.mcus) {
+        for (const auto& d : m.options.devices) {
+            if (d.component == component) {
+                if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {
+                    it->second->set_device_parameter(component, name, value);
+                }
+            }
+        }
+    }
+}
+
 std::map<model::Id, std::string> SimulationSession::device_texts() const
 {
     std::map<model::Id, std::string> texts;

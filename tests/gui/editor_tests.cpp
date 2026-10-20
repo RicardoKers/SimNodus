@@ -822,6 +822,8 @@ private slots:
             return dimmest_lit > 0.002 && dimmest_lit > 10 * brightest_dark;
         };
         QTRY_VERIFY_WITH_TIMEOUT(heart_shown(), 40000); // CI runners are slower than real time here
+        // Already in the first picture, at the lowest intensity (rows went missing there before 2026-10-20).
+        QVERIFY(window_->run_controller()->status().sim_time < 1.0);
         QCOMPARE(window_->messages()->warning_count(), before);
         window_->stop();
 #endif
@@ -854,6 +856,40 @@ private slots:
         QCOMPARE(window_->messages()->warning_count(), before);
         window_->scene()->update(); // paints the screen with its text
         QTest::qWait(50);
+        window_->stop();
+#endif
+    }
+
+    void temperature_changes_while_running()
+    {
+        // SN-207: the LM75's temperature is a live parameter; the firmware reports the new value.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+        model::Id sensor = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            sensor = c.type == "lm75" ? c.id : sensor;
+        }
+        QVERIFY(sensor != model::no_id);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto uart_text = [&] {
+            std::string text;
+            for (const auto& port : window_->run_controller()->uart_ports()) {
+                std::string bytes;
+                window_->run_controller()->uart_received(port, 0, bytes);
+                text += bytes;
+            }
+            return text;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(uart_text().find("Temperature: 23.5 C") != std::string::npos, 20000);
+        doc().apply(editing::set_parameter(doc().schematic(), sensor, "temperature", "31"));
+        QTRY_VERIFY_WITH_TIMEOUT(uart_text().find("Temperature: 31.0 C") != std::string::npos, 20000);
+        QVERIFY(window_->run_controller()->active()); // no restart
         window_->stop();
 #endif
     }

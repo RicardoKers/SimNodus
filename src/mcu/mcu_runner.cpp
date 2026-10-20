@@ -45,7 +45,7 @@ PinDrive pin_drive(const PinState& state, const PinModel& model)
         if (state.open_drain) {
             return state.level ? PinDrive{} : PinDrive{out, 0.0};
         }
-        return {out, state.level ? model.supply * out : 0.0};
+        return {out * state.strength, state.level ? model.supply * out * state.strength : 0.0};
     case PinMode::Input:
         if (state.pull == Pull::Up) {
             return {pull, model.supply * pull};
