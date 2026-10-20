@@ -116,6 +116,10 @@ public:
     using AnalogSource = std::function<double(int port, int pin, std::uint64_t time_ns)>;
     void set_analog_source(AnalogSource source) { analog_source_ = std::move(source); }
     void uart_receive(int usart, std::uint8_t value);
+    // Called inside the run whenever a pin's output level or configuration changes,
+    // with the change's time: devices on the board's nets react at once (SN-203).
+    using PinHook = std::function<void(int port, int pin, std::uint64_t time_ns)>;
+    void set_pin_hook(PinHook hook) { pin_hook_ = std::move(hook); }
 
     // Output: pin changes and transmitted bytes since the last call.
     std::vector<PinEvent> take_pin_events();
@@ -225,6 +229,7 @@ private:
     std::unique_ptr<Stm32F1Bkp> bkp_;
     std::vector<TimedDevice*> timed_;                     // timers, ADCs, USARTs, watchdogs, RTC
     AnalogSource analog_source_;
+    PinHook pin_hook_;
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
     std::unique_ptr<Dbgmcu> dbgmcu_;

@@ -136,6 +136,11 @@ results with analytical references (RC, RL, divider, diode clamp).
   over the child's standard streams, so a crash in a backend does not affect
   the editor (ADR 0078's containment goal).
 
+Digital devices (SN-203, [ADR 0102](../decisions/0102-digital-devices-hybrid-coupling.md)):
+chip models in `src/devices` run inside the board's runner; `mcu::DeviceBus`
+resolves the board-device nets on the emulator's pin hook, and the device
+outputs are extra watched pins of the runner that drive the circuit.
+
 ## Repository layout
 
 ```text

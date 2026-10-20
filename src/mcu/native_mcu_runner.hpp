@@ -78,7 +78,9 @@ private:
     std::condition_variable changed_;
     std::uint64_t limit_ns_ = 0;
     McuStatus status_;
-    std::vector<std::pair<int, int>> ports_;       // per watched pin: port, number
+    std::vector<std::pair<int, int>> ports_;       // per watched pin: port, number ({-1, -1}: a device pin)
+    std::vector<PinModel> pin_models_;             // per watched pin: the board's, or its device's
+    std::vector<std::vector<std::size_t>> device_pins_; // device -> signal pin -> watched pin
     std::vector<History> history_;                 // per watched pin
     std::vector<std::vector<std::pair<std::uint64_t, bool>>> levels_; // per pin: level changes
     struct InputChange {

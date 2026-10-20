@@ -2,6 +2,12 @@
 add_library(simnodus_json INTERFACE)
 target_include_directories(simnodus_json SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}/third_party")
 
+# Digital devices on a board's nets (SN-203, ADR 0102).
+add_library(simnodus_devices STATIC devices/devices.cpp)
+add_library(simnodus::devices ALIAS simnodus_devices)
+target_include_directories(simnodus_devices PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(simnodus_devices PRIVATE simnodus::warnings)
+
 add_subdirectory(sim)
 add_subdirectory(mcu)
 add_subdirectory(emu)

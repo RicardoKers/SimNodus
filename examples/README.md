@@ -30,6 +30,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `22_Regulators_and_reference.snx` | From 15 V: a 7805 with a 100 Ω load, an LM317 set by a rheostat and a TL431 as a 2.5 V reference | Run, drag RV1 and watch VM2; lower V1 below 7 V to see the 7805 drop out |
 | `23_Seven_segment_counter.snx` | A 2 Hz clock, a decade counter, a CD4511 (LT and BI high, LE low, VDD and VSS wired) and a common-cathode 7-segment display | Run at real time and watch it count 0-9 |
 | `24_Blue_Pill_RTC_and_watchdog.snx` | Blue Pill running `firmware/hal_rtc_watchdog/hal_rtc_watchdog.elf`, an STM32CubeIDE-style HAL project: RTC on the 32.768 kHz crystal, independent watchdog (1 s), backup registers; push button PA1–G, LED on PA0 | Analyzer > UART: "power-on, start 1", then the time every second; hold SW1 for a second: "reset by the watchdog, start 2" and the clock goes on |
+| `25_Shift_register_74HC595.snx` | Blue Pill running `firmware/shift595/shift595.elf` (registers, no HAL): PA7, PA5 and PA4 shift bytes into a 74HC595 (data, shift clock, latch, the pins of SPI1); eight 330 Ω resistors and LEDs on Q0-Q7 | A light runs across the LEDs, then they count in binary; Analyzer > Logic shows U1.PA5/PA7 and the lanes U2.Q0-Q7 |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the

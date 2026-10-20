@@ -108,6 +108,7 @@ invalid value is outlined in red and not applied.
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
+| **Chips for microcontrollers** | 74HC595 shift register; these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
 
 Notes on some parts:
@@ -312,7 +313,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   says what each one shows and what to try: basic analog circuits (01-06),
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
-  (23) and the RTC with a watchdog (24).
+  (23), the RTC with a watchdog (24) and a 74HC595 shift register (25).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -397,6 +398,9 @@ results are read correctly.
   long (2400 baud or slower at 100 µs); a received byte reaches the firmware
   about 0.4 ms after its stop bit.
 - Transient mode does not run microcontrollers: use interactive mode.
+- Chips for microcontrollers (74HC595) work only together with a board and
+  read levels digitally; their inputs on nets without a board pin read only
+  constant ties (ground, a supply, open = low).
 
 ### Application
 

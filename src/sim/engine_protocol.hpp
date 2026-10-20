@@ -24,7 +24,7 @@
 
 namespace simnodus::sim::protocol {
 
-inline constexpr std::uint32_t version = 1;
+inline constexpr std::uint32_t version = 2; // 2: digital devices (SN-203)
 // Largest accepted frame; a transient result of many vectors fits.
 inline constexpr std::uint32_t max_frame = 1u << 30;
 

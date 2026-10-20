@@ -31,5 +31,6 @@
   "jk_flipflop": "JK flip-flop at rising edges of CLK: set, reset, toggle or hold",
   "shift4": "4-bit shift register, serial in, parallel out (74HC164-like); CLR resets",
   "sr_latch": "SR latch: S sets Q, R resets it (R wins); holds while both are low",
-  "t_flipflop": "T flip-flop: Q toggles at each rising edge of CLK while T is high"
+  "t_flipflop": "T flip-flop: Q toggles at each rising edge of CLK while T is high",
+  "74hc595": "8-bit shift register with output latches; works with a microcontroller board"
 }

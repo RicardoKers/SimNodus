@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-203)
+
+- Chips for microcontrollers (ADR 0102, the owner's hybrid coupling): parts whose logic runs in step with the firmware in the board's runner (`src/devices`). The nets between a board and its chips are resolved at once on every edge (driven low, driven high, internal pull, a resistor to a supply or ground from the circuit), so chips can answer within a bus cycle; their outputs drive the circuit like board pins and have logic lanes (`U2.Q0`). A chip without supply or ground, an open input, a chip on no board pin and two outputs fighting are reported in the Messages panel. First chip: the 74HC595 shift register (new category *Chips for microcontrollers*). Example 25 bit-bangs bytes into it to drive eight LEDs. Tests: the device model, the bus with the emulator, the attachment rules, a whole run, and the example in the editor through the engine process.
+
 ### Added (2026-10-19, SN-187)
 
 - Microcontroller: CRC, independent watchdog (IWDG), window watchdog (WWDG), real-time clock (RTC) and backup registers (BKP) in the STM32F103 emulator (`src/emu/stm32f1_system.*`). Watchdog resets set IWDGRSTF or WWDGRSTF in RCC_CSR and are reported once in the Messages panel; the WWDG resets on a refresh above the window or with T6 cleared and raises its early wakeup interrupt at 0x40. The RTC counts at LSE, LSI or HSE / 128 with its alarm (also on EXTI line 17), second and overflow interrupts. The backup domain keeps the time and BKP_DR1–DR10 through resets, is cleared at power-on and by BDRST, and ignores writes without PWR_CR.DBP (with a message). Example 24 (an STM32CubeIDE-style HAL project) keeps its clock and start count through a watchdog reset caused by holding a button. Tests: every register behavior, exact timeouts, and the HAL project.

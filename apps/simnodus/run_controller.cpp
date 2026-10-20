@@ -131,10 +131,23 @@ bool RunController::start(QString& error)
     const QString base = document_.base_dir();
     environment.project_dir = std::filesystem::path((base.isEmpty() ? QDir::currentPath() : base).toStdWString());
     environment.gdb_port = gdb_port_;
-    if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason)) {
+    std::vector<std::string> warnings;
+    if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason, &warnings)) {
         error = QString::fromStdString(reason);
         emit state_changed();
         return false;
+    }
+    for (const auto& text : warnings) {
+        emit mcu_message(model::no_id, QString::fromStdString(text));
+    }
+    // Digital devices (SN-203) get logic lanes after their board's pins.
+    device_lanes_.clear();
+    for (const auto& m : request.mcus) {
+        for (const auto& d : m.options.devices) {
+            for (const auto& pin : d.pins) {
+                device_lanes_.emplace_back(m.component, d.designator + "." + pin);
+            }
+        }
     }
     if (!session_->start(std::move(request), reason)) {
         error = QString::fromStdString(reason);
@@ -308,6 +321,11 @@ std::vector<RunController::LogicLane> RunController::logic_lanes() const
         std::sort(pins.begin(), pins.end()); // PA0, PA1, ..., PB0, ..., PC13
         for (const auto& [order, name] : pins) {
             lanes.push_back({c.id, name, -1, QString::fromStdString(c.designator + "." + name), QColor(0x2f, 0x5f, 0xd0)});
+        }
+        for (const auto& [board, name] : device_lanes_) {
+            if (board == c.id) {
+                lanes.push_back({c.id, name, -1, QString::fromStdString(name), QColor(0x1a, 0x8a, 0x5a)});
+            }
         }
     }
     for (int i = 0; i < static_cast<int>(channels_.size()); ++i) {

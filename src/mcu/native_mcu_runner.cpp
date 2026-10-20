@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 #include "native_mcu_runner.hpp"
 
+#include "device_bus.hpp"
+
 #include "emu/elf.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
@@ -71,6 +73,16 @@ PinState pin_state(std::uint8_t mode, std::uint8_t cnf, bool drive_high, bool pu
 
 NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(options))
 {
+    // Device pins (SN-203) follow the GPIO pins, named "U2.Q0".
+    pin_models_.assign(options_.pins.size(), options_.pin_model);
+    for (const auto& device : options_.devices) {
+        auto& indexes = device_pins_.emplace_back();
+        for (const auto& pin : device.pins) {
+            indexes.push_back(options_.pins.size());
+            options_.pins.push_back(device.designator + "." + pin);
+            pin_models_.push_back(device.pin_model);
+        }
+    }
     history_.resize(options_.pins.size());
     levels_.assign(options_.pins.size(), {{0, false}});
     input_desired_.assign(options_.pins.size(), false);
@@ -268,7 +280,7 @@ std::vector<PinDrive> NativeMcuRunner::drives_at(std::uint64_t time_ns)
         auto it = std::upper_bound(history.begin(), history.end(), time_ns,
             [](std::uint64_t t, const auto& entry) { return t < entry.first; });
         const auto current = it == history.begin() ? history.begin() : std::prev(it);
-        drives[i] = pin_drive(current->second, options_.pin_model);
+        drives[i] = pin_drive(current->second, pin_models_[i]);
         const std::uint64_t horizon = time_ns > history_keep_ns ? time_ns - history_keep_ns : 0;
         auto keep = std::upper_bound(history.begin(), history.end(), horizon,
             [](std::uint64_t t, const auto& entry) { return t < entry.first; });
@@ -302,7 +314,7 @@ std::vector<PinDrive> NativeMcuRunner::average_drives(std::uint64_t from_ns, std
             const auto next_entry = std::next(current);
             const std::uint64_t until =
                 next_entry != history.end() && next_entry->first < to_ns ? next_entry->first : to_ns;
-            const PinDrive d = pin_drive(current->second, options_.pin_model);
+            const PinDrive d = pin_drive(current->second, pin_models_[i]);
             const double weight = static_cast<double>(until - at);
             sum.conductance += d.conductance * weight;
             sum.current += d.current * weight;
@@ -334,8 +346,8 @@ std::vector<std::uint64_t> NativeMcuRunner::drive_changes(
             if (it == history.begin()) {
                 continue;
             }
-            const PinDrive now = pin_drive(it->second, options_.pin_model);
-            const PinDrive before = pin_drive(std::prev(it)->second, options_.pin_model);
+            const PinDrive now = pin_drive(it->second, pin_models_[pin]);
+            const PinDrive before = pin_drive(std::prev(it)->second, pin_models_[pin]);
             if (now.conductance != before.conductance || now.current != before.current) {
                 times.push_back(it->first);
             }
@@ -420,7 +432,21 @@ void NativeMcuRunner::work()
     }
     std::map<std::pair<int, int>, std::size_t> watched;
     for (std::size_t i = 0; i < ports_.size(); ++i) {
-        watched[ports_[i]] = i;
+        if (ports_[i].first >= 0) {
+            watched[ports_[i]] = i;
+        }
+    }
+    // Digital devices (SN-203): their nets follow the firmware at once.
+    DeviceBus bus;
+    if (!options_.devices.empty()) {
+        if (!bus.init(*machine, options_.devices, options_.nets, error)) {
+            fail(error);
+            return;
+        }
+        machine->set_pin_hook([&bus](int port, int pin, std::uint64_t time_ns) {
+            bus.board_pin_changed(port, pin, time_ns);
+        });
+        bus.start(0);
     }
     // Debugging (SN-180): the GDB server lives on this thread, which owns the machine.
     std::unique_ptr<emu::GdbServer> gdb;
@@ -495,6 +521,29 @@ void NativeMcuRunner::work()
         for (const auto& d : machine->take_diagnostics()) {
             if (diagnostics_.size() < 100) {
                 diagnostics_.push_back(d.text);
+            }
+        }
+        // Device outputs: drives into the circuit and logic lanes, like board pins.
+        for (const auto& change : bus.take_changes()) {
+            const std::size_t i = device_pins_[change.device][change.pin];
+            PinState state;
+            state.mode = change.output.driven ? PinMode::Output : PinMode::Input;
+            state.open_drain = change.output.open_drain;
+            state.level = change.output.driven && change.output.high;
+            auto& history = history_[i];
+            history.push_back({std::max(change.time_ns, history.back().first), state});
+            trim_history(history, history_keep_ns);
+            auto& log = levels_[i];
+            if (change.output.driven && log.back().second != change.output.high) {
+                log.emplace_back(std::max(change.time_ns, log.back().first), change.output.high);
+                if (log.size() > log_keep) {
+                    log.erase(log.begin(), log.begin() + static_cast<std::ptrdiff_t>(log_keep / 10));
+                }
+            }
+        }
+        for (auto& text : bus.take_messages()) {
+            if (diagnostics_.size() < 100) {
+                diagnostics_.push_back(std::move(text));
             }
         }
     };
@@ -572,7 +621,8 @@ void NativeMcuRunner::work()
             while (!pending.empty() && pending.front().apply_ns <= now) {
                 const auto& change = pending.front();
                 const auto [port, pin] = ports_[change.pin];
-                if (port >= 0) {
+                // A pin on a device net takes its level from the bus, not from the circuit.
+                if (port >= 0 && !bus.owns_board_pin(port, pin)) {
                     machine->set_pin_input(port, pin, change.level, change.changed_ns);
                 }
                 {
@@ -597,7 +647,11 @@ void NativeMcuRunner::work()
             if (!pending.empty() && pending.front().apply_ns < target) {
                 target = std::max(pending.front().apply_ns, machine->time_ns() + 1);
             }
+            if (bus.next_event_ns() < target) {
+                target = std::max(bus.next_event_ns(), machine->time_ns() + 1);
+            }
             machine->run_until_ns(target);
+            bus.advance(machine->time_ns());
             if (gdb) {
                 gdb->after_run();
                 if (gdb->halted()) {
@@ -615,6 +669,7 @@ void NativeMcuRunner::work()
         }
         changed_.notify_all();
     }
+    machine->set_pin_hook(nullptr); // the bus goes first
     std::lock_guard lock(mutex_);
     status_.state = McuState::Stopped;
 }

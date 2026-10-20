@@ -231,6 +231,14 @@
       "sha256": "00b809d7f2e3057f3d5792e677a26c8a0cb96f4601813835b07a84019ebf3d8b",
       "size": 10784
     },
+    "shift595": {
+      "sources": [
+        "examples/firmware/shift595/shift595.c"
+      ],
+      "elf": "examples/firmware/shift595/shift595.elf",
+      "sha256": "5ff58e9bd865584be582f0479b855db3178d895a04da4e35f75953f6cb0c8eea",
+      "size": 9412
+    },
     "timer_pwm": {
       "sources": [
         "examples/firmware/timer_pwm/timer_pwm.c"

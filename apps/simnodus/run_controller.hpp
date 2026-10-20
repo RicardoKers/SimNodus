@@ -132,6 +132,7 @@ private:
     std::map<model::Id, std::string> readout_vectors_; // component -> current vector
     std::map<model::Id, bool> switch_states_;           // relay contacts: closed after pull-in
     std::map<model::Id, std::vector<std::string>> light_vectors_; // display segments' currents
+    std::vector<std::pair<model::Id, std::string>> device_lanes_; // board, device pin (U2.Q0)
     sim::RunState last_state_ = sim::RunState::Idle;
     int gdb_port_ = -1;
 };

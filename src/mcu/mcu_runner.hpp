@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -23,6 +24,28 @@ struct GpioPin {
 
 // "PA0" -> {'A', 0}; nullopt for power and control pins.
 std::optional<GpioPin> gpio_pin(const std::string& name);
+
+// A digital device on the board's nets (SN-203, ADR 0102).
+struct DeviceRequest {
+    std::uint64_t component = 0; // model::Id
+    std::string designator;      // "U2"
+    std::string kind;            // "74hc595"
+    std::map<std::string, std::string> parameters;
+    std::vector<std::string> pins; // signal pins (supply and ground excluded)
+    double supply = 0.0;           // volts on its supply pin; 0: unpowered
+    PinModel pin_model;            // drive of its outputs into the circuit
+    // Signal pins on no digital net: their constant level (tied to ground or a
+    // supply, or open and read as low).
+    std::map<std::string, bool> tied;
+};
+
+// A net joining board pins and device pins, resolved by the runner at once.
+struct DigitalNet {
+    std::string name;
+    std::vector<std::string> board_pins;                       // "PA5"
+    std::vector<std::pair<std::size_t, std::string>> device_pins; // index in devices, pin
+    int pull = 0; // +1: a resistor to a supply, -1: to ground, 0: none
+};
 
 struct McuRunOptions {
     std::filesystem::path firmware; // ELF; empty: loaded by the debugger
@@ -45,6 +68,10 @@ struct McuRunOptions {
     // GDB server on 127.0.0.1:gdb_port (SN-180), -1 for none. The firmware then
     // waits halted at its reset handler for the first client.
     int gdb_port = -1;
+    // Digital devices and the nets they share with the board (SN-203). Their
+    // signal pins are watched too, after the GPIO pins, as "U2.Q0".
+    std::vector<DeviceRequest> devices;
+    std::vector<DigitalNet> nets;
 };
 
 } // namespace simnodus::mcu

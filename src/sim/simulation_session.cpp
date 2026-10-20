@@ -6,6 +6,7 @@
 #include "ngspice_runtime.hpp"
 
 #include "model/engineering.hpp"
+#include "netlist/connectivity.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -176,9 +177,22 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         analog_points_[runner.get()].assign(names.size(), std::nan(""));
         mcus_[m.component] = std::move(runner);
     }
+    // Digital devices (SN-203) drive the circuit through their board's runner, as "U2.Q0".
+    std::map<model::Id, std::pair<model::Id, std::string>> device_owner; // device -> board, designator
+    for (const auto& m : request_.mcus) {
+        for (const auto& d : m.options.devices) {
+            device_owner[d.component] = {m.component, d.designator};
+        }
+    }
     // Pin driver sources of the boards: "pa0_g" / "pa0_i" -> pin PA0, conductance / current.
     for (const auto& e : netlist_.externals) {
-        const auto runner = mcus_.find(e.component);
+        model::Id board = e.component;
+        std::string prefix;
+        if (const auto owner = device_owner.find(e.component); owner != device_owner.end()) {
+            board = owner->second.first;
+            prefix = owner->second.second + ".";
+        }
+        const auto runner = mcus_.find(board);
         const auto split = e.name.rfind('_');
         if (runner == mcus_.end() || split == std::string::npos) {
             continue;
@@ -187,15 +201,16 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         for (auto& ch : pin) {
             ch = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
         }
+        pin = prefix + pin;
         const auto& names = runner->second->pin_names();
         const auto index = std::find(names.begin(), names.end(), pin);
         if (index == names.end()) {
             continue;
         }
-        if (!mcu_caches_.count(e.component)) {
-            mcu_caches_[e.component] = {};
+        if (!mcu_caches_.count(board)) {
+            mcu_caches_[board] = {};
         }
-        external_refs_[lower(e.source)] = {e.component, static_cast<std::size_t>(index - names.begin()),
+        external_refs_[lower(e.source)] = {board, static_cast<std::size_t>(index - names.begin()),
             e.name.substr(split + 1) == "g"};
     }
     for (const auto& m : request_.mcus) {
@@ -560,8 +575,192 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
     return complete;
 }
 
+namespace {
+
+// Digital devices (SN-203, ADR 0102): each joins the board one of whose GPIO
+// pins shares a net with it, directly or through another device of that board.
+// Nets on ground or on a supply are constants, never digital nets, so devices
+// do not join through their power pins.
+void attach_devices(const model::Schematic& schematic, const library::ComponentLibrary& library,
+    std::vector<McuRequest>& requests, std::vector<std::string>* warnings)
+{
+    struct Candidate {
+        const model::Component* component;
+        const library::ComponentDefinition* definition;
+        std::vector<std::string> signals; // signal pins
+    };
+    std::vector<Candidate> devices;
+    for (const auto& c : schematic.components()) {
+        const auto* d = library.find(c.type);
+        if (d && d->device) {
+            Candidate candidate{&c, d, {}};
+            for (const auto& pin : d->pins) {
+                if (pin.name != d->device->supply_pin && pin.name != d->device->ground_pin) {
+                    candidate.signals.push_back(pin.name);
+                }
+            }
+            devices.push_back(std::move(candidate));
+        }
+    }
+    if (devices.empty()) {
+        return;
+    }
+    auto warn = [&](const std::string& text) {
+        if (warnings) {
+            warnings->push_back(text);
+        }
+    };
+    const auto connectivity = netlist::build_connectivity(schematic, library);
+    const std::set<netlist::PinRef> open(connectivity.unconnected_pins.begin(), connectivity.unconnected_pins.end());
+    // -1 for a pin connected to nothing (optional pins are not listed as unconnected).
+    auto net_of = [&](model::Id id, const std::string& pin) {
+        const auto it = connectivity.pin_net.find({id, pin});
+        if (it == connectivity.pin_net.end() || open.count({id, pin})) {
+            return -1;
+        }
+        const auto& net = connectivity.nets[static_cast<std::size_t>(it->second)];
+        return net.pins.size() == 1 && net.wires.empty() && net.labels.empty() ? -1 : it->second;
+    };
+    auto is_ground = [&](int net) { return net >= 0 && connectivity.nets[static_cast<std::size_t>(net)].ground; };
+    // Volts on a net from a DC source or battery to ground, or a board's 3.3 V pin; 0 if none.
+    auto supply_of = [&](int net) {
+        if (net < 0 || is_ground(net)) {
+            return 0.0;
+        }
+        for (const auto& [id, pin] : connectivity.nets[static_cast<std::size_t>(net)].pins) {
+            const auto* c = schematic.component(id);
+            const auto* d = c ? library.find(c->type) : nullptr;
+            if (!d) {
+                continue;
+            }
+            if (d->mcu && pin.rfind("3V3", 0) == 0) {
+                return 3.3;
+            }
+            if ((c->type == "vdc" || c->type == "battery") && pin == "+" && is_ground(net_of(id, "-"))) {
+                const auto v = c->parameters.find("V");
+                const auto volts = v == c->parameters.end() ? std::nullopt : model::parse_engineering(v->second);
+                if (volts && *volts > 0) {
+                    return *volts;
+                }
+            }
+        }
+        return 0.0;
+    };
+    auto constant = [&](int net) { return is_ground(net) || supply_of(net) > 0; };
+
+    std::vector<int> owner(devices.size(), -1);
+    for (std::size_t b = 0; b < requests.size(); ++b) {
+        std::set<int> nets;
+        for (const auto& pin : requests[b].options.pins) {
+            const int n = net_of(requests[b].component, pin);
+            if (n >= 0 && !constant(n)) {
+                nets.insert(n);
+            }
+        }
+        for (bool grew = true; grew;) {
+            grew = false;
+            for (std::size_t i = 0; i < devices.size(); ++i) {
+                if (owner[i] >= 0) {
+                    continue;
+                }
+                const bool shares = std::any_of(devices[i].signals.begin(), devices[i].signals.end(),
+                    [&](const std::string& pin) { return nets.count(net_of(devices[i].component->id, pin)) > 0; });
+                if (!shares) {
+                    continue;
+                }
+                owner[i] = static_cast<int>(b);
+                grew = true;
+                for (const auto& pin : devices[i].signals) {
+                    const int n = net_of(devices[i].component->id, pin);
+                    if (n >= 0 && !constant(n)) {
+                        nets.insert(n);
+                    }
+                }
+            }
+        }
+    }
+
+    for (std::size_t i = 0; i < devices.size(); ++i) {
+        if (owner[i] < 0) {
+            warn(devices[i].component->designator + " (" + devices[i].definition->name
+                + ") is not connected to a microcontroller pin; SimNodus simulates such parts only together "
+                  "with a board, so it does nothing.");
+        }
+    }
+    for (std::size_t b = 0; b < requests.size(); ++b) {
+        auto& options = requests[b].options;
+        std::map<int, std::size_t> digital; // net -> index in options.nets
+        for (std::size_t i = 0; i < devices.size(); ++i) {
+            if (owner[i] != static_cast<int>(b)) {
+                continue;
+            }
+            const auto& candidate = devices[i];
+            const auto& device = *candidate.definition->device;
+            mcu::DeviceRequest request;
+            request.component = candidate.component->id;
+            request.designator = candidate.component->designator;
+            request.kind = device.kind;
+            request.parameters = candidate.component->parameters;
+            request.pins = candidate.signals;
+            request.supply = supply_of(net_of(request.component, device.supply_pin));
+            if (request.supply <= 0) {
+                warn(request.designator + " has no supply on " + device.supply_pin
+                    + " (a DC source or the board's 3.3 V); it does nothing.");
+            } else if (!is_ground(net_of(request.component, device.ground_pin))) {
+                warn(request.designator + "." + device.ground_pin + " is not connected to ground; it does nothing.");
+                request.supply = 0;
+            }
+            request.pin_model.supply = request.supply;
+            request.pin_model.output_resistance = device.output_resistance;
+            request.pin_model.input_high = 0.7 * request.supply;
+            request.pin_model.input_low = 0.3 * request.supply;
+            const std::size_t index = options.devices.size();
+            for (const auto& pin : candidate.signals) {
+                const int n = net_of(request.component, pin);
+                if (n < 0 || constant(n)) {
+                    request.tied[pin] = n >= 0 && !is_ground(n);
+                    const auto* definition = candidate.definition->pin(pin);
+                    if (n < 0 && definition && !definition->optional) {
+                        warn(request.designator + "." + pin + " is not connected; SimNodus reads it as low.");
+                    }
+                    continue;
+                }
+                auto [it, added] = digital.try_emplace(n, options.nets.size());
+                if (added) {
+                    mcu::DigitalNet net;
+                    net.name = connectivity.nets[static_cast<std::size_t>(n)].name;
+                    for (const auto& board_pin : options.pins) {
+                        if (net_of(requests[b].component, board_pin) == n) {
+                            net.board_pins.push_back(board_pin);
+                        }
+                    }
+                    // A resistor to a supply or to ground: a pull-up or pull-down.
+                    for (const auto& [id, other_pin] : connectivity.nets[static_cast<std::size_t>(n)].pins) {
+                        const auto* c = schematic.component(id);
+                        if (!c || c->type != "resistor") {
+                            continue;
+                        }
+                        const int far = net_of(id, other_pin == "1" ? "2" : "1");
+                        if (supply_of(far) > 0) {
+                            net.pull = 1;
+                        } else if (is_ground(far) && net.pull == 0) {
+                            net.pull = -1;
+                        }
+                    }
+                    options.nets.push_back(std::move(net));
+                }
+                options.nets[it->second].device_pins.emplace_back(index, pin);
+            }
+            options.devices.push_back(std::move(request));
+        }
+    }
+}
+
+} // namespace
+
 bool build_mcu_requests(const model::Schematic& schematic, const library::ComponentLibrary& library,
-    const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error)
+    const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error,
+    std::vector<std::string>* warnings)
 {
     requests.clear();
     for (const auto& c : schematic.components()) {
@@ -613,6 +812,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         }
         requests.push_back(std::move(request));
     }
+    attach_devices(schematic, library, requests, warnings);
     return true;
 }
 

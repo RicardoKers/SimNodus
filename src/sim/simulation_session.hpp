@@ -305,7 +305,11 @@ struct McuEnvironment {
     // gdb_port, gdb_port + 1, ... in schematic order; -1 for none.
     int gdb_port = -1;
 };
+// Digital devices (SN-203) join the board whose pins share their nets; the
+// problems found on the way (a device without a board or supply, an open input)
+// go to `warnings`.
 bool build_mcu_requests(const model::Schematic& schematic, const library::ComponentLibrary& library,
-    const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error);
+    const McuEnvironment& environment, std::vector<McuRequest>& requests, std::string& error,
+    std::vector<std::string>* warnings = nullptr);
 
 } // namespace simnodus::sim
