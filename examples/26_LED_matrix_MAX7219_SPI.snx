@@ -1,0 +1,543 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 57,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06,
+    "mcu_quantum": 0.001
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/hal_spi_max7219/hal_spi_max7219.elf"
+      }
+    },
+    {
+      "id": 11,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        21
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 13,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        24,
+        28
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 15,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        24,
+        33
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 17,
+      "type": "max7219",
+      "designator": "U2",
+      "at": [
+        40,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 39,
+      "type": "led_matrix_8x8",
+      "designator": "DS1",
+      "at": [
+        75,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          9,
+          -3
+        ],
+        [
+          13,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          9,
+          1
+        ],
+        [
+          13,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          3
+        ],
+        [
+          13,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          24,
+          31
+        ],
+        [
+          24,
+          33
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 3,
+      "at": [
+        13,
+        -3
+      ],
+      "name": "DIN"
+    },
+    {
+      "id": 6,
+      "at": [
+        13,
+        1
+      ],
+      "name": "CLK"
+    },
+    {
+      "id": 9,
+      "at": [
+        13,
+        3
+      ],
+      "name": "LOAD"
+    },
+    {
+      "id": 14,
+      "at": [
+        24,
+        25
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 18,
+      "at": [
+        34,
+        -3
+      ],
+      "name": "DIN"
+    },
+    {
+      "id": 19,
+      "at": [
+        34,
+        -1
+      ],
+      "name": "CLK"
+    },
+    {
+      "id": 20,
+      "at": [
+        34,
+        1
+      ],
+      "name": "LOAD"
+    },
+    {
+      "id": 21,
+      "at": [
+        40,
+        -19
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 22,
+      "at": [
+        40,
+        19
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 23,
+      "at": [
+        46,
+        -15
+      ],
+      "name": "ROW1"
+    },
+    {
+      "id": 24,
+      "at": [
+        46,
+        -13
+      ],
+      "name": "ROW2"
+    },
+    {
+      "id": 25,
+      "at": [
+        46,
+        -11
+      ],
+      "name": "ROW3"
+    },
+    {
+      "id": 26,
+      "at": [
+        46,
+        -9
+      ],
+      "name": "ROW4"
+    },
+    {
+      "id": 27,
+      "at": [
+        46,
+        -7
+      ],
+      "name": "ROW5"
+    },
+    {
+      "id": 28,
+      "at": [
+        46,
+        -5
+      ],
+      "name": "ROW6"
+    },
+    {
+      "id": 29,
+      "at": [
+        46,
+        -3
+      ],
+      "name": "ROW7"
+    },
+    {
+      "id": 30,
+      "at": [
+        46,
+        -1
+      ],
+      "name": "ROW8"
+    },
+    {
+      "id": 31,
+      "at": [
+        46,
+        1
+      ],
+      "name": "COL2"
+    },
+    {
+      "id": 32,
+      "at": [
+        46,
+        3
+      ],
+      "name": "COL3"
+    },
+    {
+      "id": 33,
+      "at": [
+        46,
+        5
+      ],
+      "name": "COL4"
+    },
+    {
+      "id": 34,
+      "at": [
+        46,
+        7
+      ],
+      "name": "COL5"
+    },
+    {
+      "id": 35,
+      "at": [
+        46,
+        9
+      ],
+      "name": "COL6"
+    },
+    {
+      "id": 36,
+      "at": [
+        46,
+        11
+      ],
+      "name": "COL7"
+    },
+    {
+      "id": 37,
+      "at": [
+        46,
+        13
+      ],
+      "name": "COL8"
+    },
+    {
+      "id": 38,
+      "at": [
+        46,
+        15
+      ],
+      "name": "COL1"
+    },
+    {
+      "id": 40,
+      "at": [
+        64,
+        -7
+      ],
+      "name": "ROW1"
+    },
+    {
+      "id": 41,
+      "at": [
+        64,
+        -5
+      ],
+      "name": "ROW2"
+    },
+    {
+      "id": 42,
+      "at": [
+        64,
+        -3
+      ],
+      "name": "ROW3"
+    },
+    {
+      "id": 43,
+      "at": [
+        64,
+        -1
+      ],
+      "name": "ROW4"
+    },
+    {
+      "id": 44,
+      "at": [
+        64,
+        1
+      ],
+      "name": "ROW5"
+    },
+    {
+      "id": 45,
+      "at": [
+        64,
+        3
+      ],
+      "name": "ROW6"
+    },
+    {
+      "id": 46,
+      "at": [
+        64,
+        5
+      ],
+      "name": "ROW7"
+    },
+    {
+      "id": 47,
+      "at": [
+        64,
+        7
+      ],
+      "name": "ROW8"
+    },
+    {
+      "id": 48,
+      "at": [
+        68,
+        11
+      ],
+      "name": "COL1"
+    },
+    {
+      "id": 49,
+      "at": [
+        70,
+        11
+      ],
+      "name": "COL2"
+    },
+    {
+      "id": 50,
+      "at": [
+        72,
+        11
+      ],
+      "name": "COL3"
+    },
+    {
+      "id": 51,
+      "at": [
+        74,
+        11
+      ],
+      "name": "COL4"
+    },
+    {
+      "id": 52,
+      "at": [
+        76,
+        11
+      ],
+      "name": "COL5"
+    },
+    {
+      "id": 53,
+      "at": [
+        78,
+        11
+      ],
+      "name": "COL6"
+    },
+    {
+      "id": 54,
+      "at": [
+        80,
+        11
+      ],
+      "name": "COL7"
+    },
+    {
+      "id": 55,
+      "at": [
+        82,
+        11
+      ],
+      "name": "COL8"
+    }
+  ],
+  "probes": [
+    {
+      "id": 4,
+      "kind": "voltage",
+      "target": {
+        "item": 2,
+        "at": [
+          11,
+          -3
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 7,
+      "kind": "voltage",
+      "target": {
+        "item": 5,
+        "at": [
+          11,
+          1
+        ]
+      },
+      "color": "#ff7f0e"
+    },
+    {
+      "id": 10,
+      "kind": "voltage",
+      "target": {
+        "item": 8,
+        "at": [
+          11,
+          3
+        ]
+      },
+      "color": "#2ca02c"
+    }
+  ],
+  "notes": [
+    {
+      "id": 56,
+      "at": [
+        -12,
+        -28
+      ],
+      "text": "SPI1 of the Blue Pill (an STM32CubeIDE-style HAL project) sends words to a MAX7219, which scans an 8x8\nLED matrix 800 times a second: DIG0-DIG7 sink the rows, DP and A-G drive the columns. PA4 is the\nchip select (LOAD). The MAX7219 needs 5 V on VCC. Run (F5): a heart and a smiley take turns, brighter\neach time. Analyzer > Logic shows the SPI clock and data and the chip's DIG lanes (U2.DIG0...)."
+    }
+  ]
+}

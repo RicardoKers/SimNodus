@@ -781,6 +781,52 @@ private slots:
 #endif
     }
 
+    void led_matrix_example_shows_a_heart_through_spi()
+    {
+        // SN-204: SPI1 and a MAX7219 scanning an 8x8 matrix; the glow is averaged as the eye does.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/26_LED_matrix_MAX7219_SPI.snx"), errors, warnings));
+        model::Id matrix = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            matrix = c.type == "led_matrix_8x8" ? c.id : matrix;
+        }
+        QVERIFY(matrix != model::no_id);
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        const std::uint8_t heart[8] = {0x00, 0x66, 0xFF, 0xFF, 0xFF, 0x7E, 0x3C, 0x18};
+        // The heart shows for the first second; its LEDs glow, the others stay dark.
+        auto heart_shown = [&] {
+            const auto& lights = window_->scene()->live().lights;
+            const auto it = lights.find(matrix);
+            if (it == lights.end() || it->second.levels.size() != 64) {
+                return false;
+            }
+            double dimmest_lit = 1e9;
+            double brightest_dark = 0;
+            for (int r = 0; r < 8; ++r) {
+                for (int c = 0; c < 8; ++c) {
+                    const double level = it->second.levels[static_cast<std::size_t>(r * 8 + c)];
+                    if ((heart[r] >> (7 - c)) & 1u) {
+                        dimmest_lit = std::min(dimmest_lit, level);
+                    } else {
+                        brightest_dark = std::max(brightest_dark, level);
+                    }
+                }
+            }
+            return dimmest_lit > 0.002 && dimmest_lit > 10 * brightest_dark;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(heart_shown(), 10000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
     void blue_pill_example_runs_its_firmware_and_resets()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

@@ -105,10 +105,10 @@ invalid value is outlined in red and not applied.
 | **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A) |
 | **Logic gates** | NOT, AND, OR, NAND, NOR, XOR (74HC-like, with a hidden supply) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
-| **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
+| **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
-| **Chips for microcontrollers** | 74HC595 shift register; these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
+| **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver; these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
 
 Notes on some parts:
@@ -191,7 +191,8 @@ While running:
 
 - Click a **switch** to toggle it; hold the mouse on a **push button**; drag
   or use the wheel on a **potentiometer**.
-- LEDs, lamps and display segments glow with their current; meters show
+- LEDs, lamps and display segments glow with their current, averaged over
+  the last 20 ms as the eye sees a multiplexed display; meters show
   their reading; the relay contact moves; the motor shows its speed.
 - Hover a wire for its voltage. **View > Show Voltages** colors the wires.
 - Select a part to see its live voltages, current and power in Properties.
@@ -290,8 +291,8 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
 - Outputs drive the circuit like real pins: push-pull 3.3 V or 0 V behind
   about 40 Ω; open-drain only pulls low; pull-ups and pull-downs are 40 kΩ.
 - Inputs read 1 above 1.83 V and 0 below 1.16 V (Schmitt trigger).
-- Supported: GPIO, EXTI, USART1-3, TIM1-TIM4 (PWM, output compare, input
-  capture), ADC1/2, DMA1, SysTick, the clock tree up to 72 MHz, the
+- Supported: GPIO, EXTI, USART1-3, SPI1/2 (master), TIM1-TIM4 (PWM, output
+  compare, input capture), ADC1/2, DMA1, SysTick, the clock tree up to 72 MHz, the
   independent and window watchdogs, the RTC with its backup registers, and
   CRC. Two boards can talk over their serial pins.
 - **Debugging:** check **Simulate > Debug Firmware with GDB (port 3333)**,
@@ -313,7 +314,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   says what each one shows and what to try: basic analog circuits (01-06),
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
-  (23), the RTC with a watchdog (24) and a 74HC595 shift register (25).
+  (23), the RTC with a watchdog (24), a 74HC595 shift register (25) and an 8x8
+  LED matrix on a MAX7219 over SPI (26).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -381,8 +383,8 @@ results are read correctly.
 ### Microcontroller
 
 - Only the Blue Pill (STM32F103C8) is available.
-- Not simulated yet: SPI and I2C (planned with devices for the library), CAN,
-  USB; timer encoder and
+- Not simulated yet: I2C (planned with devices for the library), SPI slave
+  mode, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when
   the firmware uses one of the partly supported features.

@@ -1233,6 +1233,12 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     for (const auto& usart : usart_) {
         timed_.push_back(usart.get());
     }
+    for (int n = 1; n <= 2; ++n) {
+        spi_[static_cast<std::size_t>(n - 1)] = std::make_unique<Stm32F1Spi>(static_cast<SpiHost&>(*this), n);
+        timed_.push_back(spi_[static_cast<std::size_t>(n - 1)].get());
+    }
+    bus_.add_device(0x40013000u, 0x400, spi_[0].get());
+    bus_.add_device(0x40003800u, 0x400, spi_[1].get());
     crc_ = std::make_unique<Stm32F1Crc>();
     iwdg_ = std::make_unique<Stm32F1Iwdg>(static_cast<SystemHost&>(*this));
     wwdg_ = std::make_unique<Stm32F1Wwdg>(static_cast<SystemHost&>(*this));
@@ -1252,9 +1258,8 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
         const char* name;
     };
     static const StubBlock blocks[] = {
-        {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
+        {0x40005400u, "I2C1"},
         {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
-        {0x40013000u, "SPI1"},
     };
     for (const auto& block : blocks) {
         stubs_.push_back(std::make_unique<Stub>(*this, block.name));
@@ -1611,6 +1616,11 @@ void Stm32F103::dma_channel_enabled(int channel)
             usart->update(); // a transmitter waiting with DMAT set starts now
         }
     }
+    for (auto& spi : spi_) {
+        if (spi) {
+            spi->dma_enabled();
+        }
+    }
     (void)channel;
 }
 
@@ -1689,8 +1699,26 @@ void Stm32F103::exti_input(int line, bool level)
     exti_->input(line, level);
 }
 
+std::uint32_t Stm32F103::hclk_per_pclk(bool apb2) const
+{
+    return rcc_->apb_divider(apb2);
+}
+
+void Stm32F103::spi_output(int port, int pin, int source, bool level, std::uint64_t cycle)
+{
+    stamping_ = true;
+    stamp_cycles_ = cycle;
+    af_output(port, pin, source, level);
+    stamping_ = false;
+}
+
 void Stm32F103::remap_changed()
 {
+    for (const auto& spi : spi_) {
+        if (spi) {
+            spi->remap_changed();
+        }
+    }
     for (auto& usart : usart_) {
         usart->update();
     }

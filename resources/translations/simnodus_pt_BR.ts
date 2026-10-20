@@ -1879,6 +1879,14 @@ Pinos: %2</translation>
             <translation>Registrador de deslocamento de 8 bits com latches de saída; funciona com uma placa de microcontrolador</translation>
         </message>
         <message>
+            <source>LED display driver MAX7219</source>
+            <translation>Driver de display de LED MAX7219</translation>
+        </message>
+        <message>
+            <source>8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board</source>
+            <translation>Driver de display de LED de 8 dígitos (dígitos ou uma matriz 8x8); funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
             <source>BCD to 7-segment decoder (4511)</source>
             <translation>Decodificador BCD para 7 segmentos (4511)</translation>
         </message>
@@ -1915,20 +1923,20 @@ Pinos: %2</translation>
             <translation>Decodificador de 4 bits que mostra 0-9 e A-F num display de catodo comum</translation>
         </message>
         <message>
-            <source>7-segment display (common anode)</source>
-            <translation>Display de 7 segmentos (anodo comum)</translation>
+            <source>8x8 LED matrix</source>
+            <translation>Matriz de LEDs 8x8</translation>
         </message>
         <message>
-            <source>7-segment LED display, common anode, real pinout; one resistor per segment</source>
-            <translation>Display de LEDs de 7 segmentos, anodo comum, pinagem real; um resistor por segmento</translation>
+            <source>64 LEDs in rows (cathodes) and columns (anodes), for multiplexing</source>
+            <translation>64 LEDs em linhas (catodos) e colunas (anodos), para multiplexação</translation>
         </message>
         <message>
             <source>Color</source>
             <translation>Cor</translation>
         </message>
         <message>
-            <source>Segment color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
-            <translation>Cor dos segmentos; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
+            <source>LED color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
+            <translation>Cor do LED; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
         </message>
         <message>
             <source>red</source>
@@ -1949,6 +1957,26 @@ Pinos: %2</translation>
         <message>
             <source>white</source>
             <translation>branco</translation>
+        </message>
+        <message>
+            <source>4-digit 7-segment display (common cathode)</source>
+            <translation>Display de 7 segmentos com 4 dígitos (catodo comum)</translation>
+        </message>
+        <message>
+            <source>Four 7-segment digits, common cathode per digit, for multiplexing</source>
+            <translation>Quatro dígitos de 7 segmentos, catodo comum por dígito, para multiplexação</translation>
+        </message>
+        <message>
+            <source>Segment color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
+            <translation>Cor dos segmentos; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
+        </message>
+        <message>
+            <source>7-segment display (common anode)</source>
+            <translation>Display de 7 segmentos (anodo comum)</translation>
+        </message>
+        <message>
+            <source>7-segment LED display, common anode, real pinout; one resistor per segment</source>
+            <translation>Display de LEDs de 7 segmentos, anodo comum, pinagem real; um resistor por segmento</translation>
         </message>
         <message>
             <source>7-segment display (common cathode)</source>

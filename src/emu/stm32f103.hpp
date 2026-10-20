@@ -16,6 +16,7 @@
 #include "elf.hpp"
 #include "stm32f1_adc.hpp"
 #include "stm32f1_dma.hpp"
+#include "stm32f1_spi.hpp"
 #include "stm32f1_system.hpp"
 #include "stm32f1_timer.hpp"
 
@@ -82,7 +83,7 @@ struct MachineOptions {
     std::uint64_t uart_rx_min_bit_ns = 0;
 };
 
-class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost {
+class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost, private SpiHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -120,6 +121,12 @@ public:
     // with the change's time: devices on the board's nets react at once (SN-203).
     using PinHook = std::function<void(int port, int pin, std::uint64_t time_ns)>;
     void set_pin_hook(PinHook hook) { pin_hook_ = std::move(hook); }
+    // Events of something outside the chip that must happen at exact times
+    // inside a run, like the chip's own timers (devices on its nets, SN-204).
+    void add_timed(TimedDevice* device) { timed_.push_back(device); }
+    void remove_timed(TimedDevice* device) { std::erase(timed_, device); }
+    std::uint64_t cycles_at(std::uint64_t ns) const { return cycles_at_ns(ns); }
+    std::uint64_t ns_at(std::uint64_t cycles) const { return ns_at_cycles(cycles); }
 
     // Output: pin changes and transmitted bytes since the last call.
     std::vector<PinEvent> take_pin_events();
@@ -190,6 +197,15 @@ private:
     void dma_channel_enabled(int channel) override;
     void exti_selection_changed();
 
+    // SpiHost (SN-204)
+    std::uint64_t spi_now_cycles() const override { return cpu_.cycles(); }
+    std::uint32_t hclk_per_pclk(bool apb2) const override;
+    void spi_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void spi_output(int port, int pin, int source, bool level, std::uint64_t cycle) override;
+    bool spi_dma(int channel) override { return dma_->request(channel); }
+    void spi_schedule_changed() override { cpu_.request_stop(); }
+    void spi_diagnostic(const std::string& text) override { diagnostic(text); }
+
     // SystemHost (SN-187)
     std::uint64_t system_now_ns() const override { return time_ns(); }
     std::uint64_t system_cycles_at(std::uint64_t ns) const override { return cycles_at_ns(ns); }
@@ -222,6 +238,7 @@ private:
     std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
     std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
     std::unique_ptr<Stm32F1Dma> dma_;                     // DMA1
+    std::array<std::unique_ptr<Stm32F1Spi>, 2> spi_;       // SPI1, SPI2
     std::unique_ptr<Stm32F1Crc> crc_;
     std::unique_ptr<Stm32F1Iwdg> iwdg_;
     std::unique_ptr<Stm32F1Wwdg> wwdg_;

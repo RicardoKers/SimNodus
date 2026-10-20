@@ -120,6 +120,8 @@ private:
     void refresh();
     void build_channels();
     std::optional<double> net_voltage(const std::string& net) const;
+    // A light's current as the eye sees it: averaged over the last 20 ms (SN-204).
+    double glow_current(const std::string& vector, double latest, double now) const;
 
     Document& document_;
     SchematicScene& scene_;

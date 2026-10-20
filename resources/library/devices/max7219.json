@@ -1,0 +1,628 @@
+{
+  "type": "max7219",
+  "name": "LED display driver MAX7219",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -17,
+          8,
+          34
+        ]
+      },
+      {
+        "text": "MAX7219",
+        "at": [
+          0,
+          -15.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "DIN",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "CLK",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "LOAD",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "DOUT",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -15,
+          4,
+          -15
+        ]
+      },
+      {
+        "text": "DIG0",
+        "at": [
+          2.8,
+          -15
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -13,
+          4,
+          -13
+        ]
+      },
+      {
+        "text": "DIG1",
+        "at": [
+          2.8,
+          -13
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -11,
+          4,
+          -11
+        ]
+      },
+      {
+        "text": "DIG2",
+        "at": [
+          2.8,
+          -11
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -9,
+          4,
+          -9
+        ]
+      },
+      {
+        "text": "DIG3",
+        "at": [
+          2.8,
+          -9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "DIG4",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "DIG5",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "DIG6",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "DIG7",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "SEGA",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "SEGB",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "SEGC",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "SEGD",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          9,
+          4,
+          9
+        ]
+      },
+      {
+        "text": "SEGE",
+        "at": [
+          2.8,
+          9
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          11,
+          4,
+          11
+        ]
+      },
+      {
+        "text": "SEGF",
+        "at": [
+          2.8,
+          11
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          13,
+          4,
+          13
+        ]
+      },
+      {
+        "text": "SEGG",
+        "at": [
+          2.8,
+          13
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          15,
+          4,
+          15
+        ]
+      },
+      {
+        "text": "SEGDP",
+        "at": [
+          2.8,
+          15
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -19,
+          0,
+          -17
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -16.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          17,
+          0,
+          19
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          16.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "DIN",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "CLK",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "LOAD",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DOUT",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "DIG0",
+        "at": [
+          6,
+          -15
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG1",
+        "at": [
+          6,
+          -13
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG2",
+        "at": [
+          6,
+          -11
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG3",
+        "at": [
+          6,
+          -9
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG4",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG5",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG6",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "DIG7",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGA",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGB",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGC",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGD",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGE",
+        "at": [
+          6,
+          9
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGF",
+        "at": [
+          6,
+          11
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGG",
+        "at": [
+          6,
+          13
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SEGDP",
+        "at": [
+          6,
+          15
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -19
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          19
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -18
+  ],
+  "value_offset": [
+    5,
+    18
+  ],
+  "device": {
+    "kind": "max7219",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 75
+  },
+  "spice": [
+    "R_{ref}_hdin {node:DIN} {node:GND} 100Meg",
+    "R_{ref}_hclk {node:CLK} {node:GND} 100Meg",
+    "R_{ref}_hload {node:LOAD} {node:GND} 100Meg",
+    "R_{ref}_hdout {node:DOUT} {node:GND} 100Meg",
+    "R_{ref}_hdig0 {node:DIG0} {node:GND} 100Meg",
+    "R_{ref}_hdig1 {node:DIG1} {node:GND} 100Meg",
+    "R_{ref}_hdig2 {node:DIG2} {node:GND} 100Meg",
+    "R_{ref}_hdig3 {node:DIG3} {node:GND} 100Meg",
+    "R_{ref}_hdig4 {node:DIG4} {node:GND} 100Meg",
+    "R_{ref}_hdig5 {node:DIG5} {node:GND} 100Meg",
+    "R_{ref}_hdig6 {node:DIG6} {node:GND} 100Meg",
+    "R_{ref}_hdig7 {node:DIG7} {node:GND} 100Meg",
+    "R_{ref}_hsega {node:SEGA} {node:GND} 100Meg",
+    "R_{ref}_hsegb {node:SEGB} {node:GND} 100Meg",
+    "R_{ref}_hsegc {node:SEGC} {node:GND} 100Meg",
+    "R_{ref}_hsegd {node:SEGD} {node:GND} 100Meg",
+    "R_{ref}_hsege {node:SEGE} {node:GND} 100Meg",
+    "R_{ref}_hsegf {node:SEGF} {node:GND} 100Meg",
+    "R_{ref}_hsegg {node:SEGG} {node:GND} 100Meg",
+    "R_{ref}_hsegdp {node:SEGDP} {node:GND} 100Meg",
+    "B_{ref}_dout {node:GND} {node:DOUT} I=V({ext:dout_i})-V({ext:dout_g})*(V({node:DOUT})-V({node:GND}))",
+    "B_{ref}_dig0 {node:GND} {node:DIG0} I=V({ext:dig0_i})-V({ext:dig0_g})*(V({node:DIG0})-V({node:GND}))",
+    "B_{ref}_dig1 {node:GND} {node:DIG1} I=V({ext:dig1_i})-V({ext:dig1_g})*(V({node:DIG1})-V({node:GND}))",
+    "B_{ref}_dig2 {node:GND} {node:DIG2} I=V({ext:dig2_i})-V({ext:dig2_g})*(V({node:DIG2})-V({node:GND}))",
+    "B_{ref}_dig3 {node:GND} {node:DIG3} I=V({ext:dig3_i})-V({ext:dig3_g})*(V({node:DIG3})-V({node:GND}))",
+    "B_{ref}_dig4 {node:GND} {node:DIG4} I=V({ext:dig4_i})-V({ext:dig4_g})*(V({node:DIG4})-V({node:GND}))",
+    "B_{ref}_dig5 {node:GND} {node:DIG5} I=V({ext:dig5_i})-V({ext:dig5_g})*(V({node:DIG5})-V({node:GND}))",
+    "B_{ref}_dig6 {node:GND} {node:DIG6} I=V({ext:dig6_i})-V({ext:dig6_g})*(V({node:DIG6})-V({node:GND}))",
+    "B_{ref}_dig7 {node:GND} {node:DIG7} I=V({ext:dig7_i})-V({ext:dig7_g})*(V({node:DIG7})-V({node:GND}))",
+    "B_{ref}_sega {node:GND} {node:SEGA} I=V({ext:sega_i})-V({ext:sega_g})*(V({node:SEGA})-V({node:GND}))",
+    "B_{ref}_segb {node:GND} {node:SEGB} I=V({ext:segb_i})-V({ext:segb_g})*(V({node:SEGB})-V({node:GND}))",
+    "B_{ref}_segc {node:GND} {node:SEGC} I=V({ext:segc_i})-V({ext:segc_g})*(V({node:SEGC})-V({node:GND}))",
+    "B_{ref}_segd {node:GND} {node:SEGD} I=V({ext:segd_i})-V({ext:segd_g})*(V({node:SEGD})-V({node:GND}))",
+    "B_{ref}_sege {node:GND} {node:SEGE} I=V({ext:sege_i})-V({ext:sege_g})*(V({node:SEGE})-V({node:GND}))",
+    "B_{ref}_segf {node:GND} {node:SEGF} I=V({ext:segf_i})-V({ext:segf_g})*(V({node:SEGF})-V({node:GND}))",
+    "B_{ref}_segg {node:GND} {node:SEGG} I=V({ext:segg_i})-V({ext:segg_g})*(V({node:SEGG})-V({node:GND}))",
+    "B_{ref}_segdp {node:GND} {node:SEGDP} I=V({ext:segdp_i})-V({ext:segdp_g})*(V({node:SEGDP})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ]
+}

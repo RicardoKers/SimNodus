@@ -32,5 +32,8 @@
   "shift4": "4-bit shift register, serial in, parallel out (74HC164-like); CLR resets",
   "sr_latch": "SR latch: S sets Q, R resets it (R wins); holds while both are low",
   "t_flipflop": "T flip-flop: Q toggles at each rising edge of CLK while T is high",
-  "74hc595": "8-bit shift register with output latches; works with a microcontroller board"
+  "74hc595": "8-bit shift register with output latches; works with a microcontroller board",
+  "max7219": "8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board",
+  "seven_segment_4digit_cc": "Four 7-segment digits, common cathode per digit, for multiplexing",
+  "led_matrix_8x8": "64 LEDs in rows (cathodes) and columns (anodes), for multiplexing"
 }

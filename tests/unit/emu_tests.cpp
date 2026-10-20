@@ -1861,6 +1861,116 @@ TEST_CASE("an STM32CubeIDE HAL project keeps RTC time and start count through an
     CHECK(resets == 1);
 }
 
+// ---------------------------------------------------------------------------
+// SPI (SN-204)
+
+namespace {
+
+constexpr std::uint32_t spi1 = 0x40013000;
+
+// MOSI levels at each rising SCK edge, and the times of the SCK edges.
+struct SpiTrace {
+    std::vector<bool> bits;
+    std::vector<std::uint64_t> edges;
+};
+
+SpiTrace spi_trace(const std::vector<PinEvent>& events, bool idle = false)
+{
+    SpiTrace trace;
+    bool mosi = false;
+    bool sck = idle;
+    for (const auto& e : events) {
+        if (e.port == 0 && e.pin == 7) {
+            mosi = e.level;
+        } else if (e.port == 0 && e.pin == 5 && e.level != sck) {
+            trace.edges.push_back(e.time_ns);
+            if (e.level) { // both modes here sample on the rising edge
+                trace.bits.push_back(mosi);
+            }
+            sck = e.level;
+        }
+    }
+    return trace;
+}
+
+} // namespace
+
+TEST_CASE("SPI: a master frame puts every bit on MOSI with exact SCK edges and samples MISO")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, gpioa_crl, 0xB4B44444u); // PA5, PA7 alternate push-pull; PA6 input
+    m->set_pin_input(0, 6, true);     // MISO high
+    // Master, software NSS, PCLK2 / 2 = 4 MHz (one clock is 250 ns), mode 0, 8 bits, MSB first.
+    poke(*m, spi1, (1u << 2) | (1u << 9) | (1u << 8) | (1u << 6));
+    m->take_pin_events();
+    CHECK((read_word(*m, spi1 + 8) & 2u) == 2u); // TXE
+    const std::uint64_t start = m->time_ns();
+    m->bus().write(spi1 + 0x0C, 1, 0xA5); // byte write, as the HAL does for 8-bit frames
+    CHECK((read_word(*m, spi1 + 8) & 0x80u) == 0x80u); // BSY
+    m->run_until_ns(start + 1000);
+    CHECK((read_word(*m, spi1 + 8) & 1u) == 0); // not received yet
+    m->run_until_ns(start + 3000);
+    CHECK((read_word(*m, spi1 + 8) & 0x83u) == 0x03u); // RXNE, TXE, not busy
+    const auto trace = spi_trace(m->take_pin_events());
+    REQUIRE(trace.edges.size() == 16);
+    CHECK(trace.edges[0] - start == 125);
+    for (std::size_t i = 1; i < trace.edges.size(); ++i) {
+        CHECK(trace.edges[i] - trace.edges[i - 1] == 125);
+    }
+    CHECK((trace.bits == std::vector<bool>{true, false, true, false, false, true, false, true}));
+    CHECK(read_word(*m, spi1 + 0x0C) == 0xFFu); // MISO was high for every bit
+    CHECK((read_word(*m, spi1 + 8) & 1u) == 0);  // reading DR cleared RXNE
+
+    // Two frames back to back: the second waits in the transmit buffer.
+    m->set_pin_input(0, 6, false);
+    const std::uint64_t again = m->time_ns();
+    m->bus().write(spi1 + 0x0C, 1, 0x0F);
+    m->bus().write(spi1 + 0x0C, 1, 0xF0);
+    CHECK((read_word(*m, spi1 + 8) & 2u) == 0); // the buffer is full
+    m->run_until_ns(again + 5000);
+    const auto both = spi_trace(m->take_pin_events());
+    REQUIRE(both.edges.size() == 32);
+    CHECK(both.edges[16] - both.edges[15] == 125); // no gap between the frames
+    CHECK((both.bits == std::vector<bool>{false, false, false, false, true, true, true, true, true, true, true, true,
+        false, false, false, false}));
+    CHECK((read_word(*m, spi1 + 8) & 0x40u) == 0x40u); // OVR: the first byte was never read
+    read_word(*m, spi1 + 0x0C);
+    read_word(*m, spi1 + 8); // DR then SR clears OVR
+    CHECK((read_word(*m, spi1 + 8) & 0x40u) == 0);
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("SPI: 16-bit LSB-first frames in mode 3, the prescaler, the NSS output and unsimulated modes")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, gpioa_crl, 0xB4BB4444u); // PA4 (NSS), PA5, PA7 alternate push-pull
+    // Mode 3 (CPOL 1, CPHA 1), PCLK2 / 8 (half clock 4 cycles = 500 ns), 16 bits, LSB first, SSOE.
+    poke(*m, spi1 + 4, 1u << 2);
+    poke(*m, spi1, 3u | (1u << 2) | (2u << 3) | (1u << 6) | (1u << 7) | (1u << 11));
+    CHECK(!m->pin_level(0, 4)); // NSS driven low
+    CHECK(m->pin_level(0, 5));  // SCK idles high
+    m->take_pin_events();
+    const std::uint64_t start = m->time_ns();
+    poke(*m, spi1 + 0x0C, 0x8001u);
+    m->run_until_ns(start + 20000);
+    // CPHA 1: data changes on the leading (falling) edge and is sampled on the trailing (rising) one.
+    const auto trace = spi_trace(m->take_pin_events(), true); // SCK idles high
+    REQUIRE(trace.edges.size() == 32);
+    CHECK(trace.edges[1] - trace.edges[0] == 500);
+    REQUIRE(trace.bits.size() == 16);
+    CHECK(trace.bits.front()); // LSB first: bit 0 of 0x8001
+    CHECK(trace.bits.back());  // bit 15
+    for (std::size_t i = 1; i + 1 < trace.bits.size(); ++i) {
+        CHECK(!trace.bits[i]);
+    }
+    CHECK(m->take_diagnostics().empty());
+    poke(*m, spi1, (1u << 6) | (1u << 13)); // slave mode with CRC
+    const auto d = m->take_diagnostics();
+    CHECK(d.size() == 2);
+}
+
 TEST_CASE("ELF errors are reported in plain words")
 {
     std::string error;

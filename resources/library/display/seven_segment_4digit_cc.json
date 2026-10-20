@@ -1,0 +1,1018 @@
+{
+  "type": "seven_segment_4digit_cc",
+  "name": "4-digit 7-segment display (common cathode)",
+  "category": "Displays",
+  "prefix": "DS",
+  "description": "Four 7-segment digits, common cathode per digit, for multiplexing",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -12,
+          -6,
+          24,
+          12
+        ]
+      },
+      {
+        "polygon": [
+          -10.6,
+          -4.2,
+          -10.3,
+          -4.5,
+          -7.7,
+          -4.5,
+          -7.4,
+          -4.2,
+          -7.7,
+          -3.9000000000000004,
+          -10.3,
+          -3.9000000000000004
+        ]
+      },
+      {
+        "polygon": [
+          -7.1,
+          -3.9,
+          -6.800000000000001,
+          -3.6,
+          -6.800000000000001,
+          -0.6,
+          -7.1,
+          -0.3,
+          -7.4,
+          -0.6,
+          -7.4,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          -7.1,
+          0.3,
+          -6.800000000000001,
+          0.6,
+          -6.800000000000001,
+          3.6,
+          -7.1,
+          3.9,
+          -7.4,
+          3.6,
+          -7.4,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          -10.6,
+          4.2,
+          -10.3,
+          3.9000000000000004,
+          -7.7,
+          3.9000000000000004,
+          -7.4,
+          4.2,
+          -7.7,
+          4.5,
+          -10.3,
+          4.5
+        ]
+      },
+      {
+        "polygon": [
+          -10.9,
+          0.3,
+          -10.6,
+          0.6,
+          -10.6,
+          3.6,
+          -10.9,
+          3.9,
+          -11.2,
+          3.6,
+          -11.2,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          -10.9,
+          -3.9,
+          -10.6,
+          -3.6,
+          -10.6,
+          -0.6,
+          -10.9,
+          -0.3,
+          -11.2,
+          -0.6,
+          -11.2,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          -10.6,
+          0,
+          -10.3,
+          -0.3,
+          -7.7,
+          -0.3,
+          -7.4,
+          0,
+          -7.7,
+          0.3,
+          -10.3,
+          0.3
+        ]
+      },
+      {
+        "circle": [
+          -6.1,
+          4.2,
+          0.35
+        ]
+      },
+      {
+        "polygon": [
+          -4.6,
+          -4.2,
+          -4.3,
+          -4.5,
+          -1.7,
+          -4.5,
+          -1.4,
+          -4.2,
+          -1.7,
+          -3.9000000000000004,
+          -4.3,
+          -3.9000000000000004
+        ]
+      },
+      {
+        "polygon": [
+          -1.1,
+          -3.9,
+          -0.8000000000000003,
+          -3.6,
+          -0.8000000000000003,
+          -0.6,
+          -1.1,
+          -0.3,
+          -1.4000000000000001,
+          -0.6,
+          -1.4000000000000001,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          -1.1,
+          0.3,
+          -0.8000000000000003,
+          0.6,
+          -0.8000000000000003,
+          3.6,
+          -1.1,
+          3.9,
+          -1.4000000000000001,
+          3.6,
+          -1.4000000000000001,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          -4.6,
+          4.2,
+          -4.3,
+          3.9000000000000004,
+          -1.7,
+          3.9000000000000004,
+          -1.4,
+          4.2,
+          -1.7,
+          4.5,
+          -4.3,
+          4.5
+        ]
+      },
+      {
+        "polygon": [
+          -4.9,
+          0.3,
+          -4.6,
+          0.6,
+          -4.6,
+          3.6,
+          -4.9,
+          3.9,
+          -5.199999999999999,
+          3.6,
+          -5.199999999999999,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          -4.9,
+          -3.9,
+          -4.6,
+          -3.6,
+          -4.6,
+          -0.6,
+          -4.9,
+          -0.3,
+          -5.199999999999999,
+          -0.6,
+          -5.199999999999999,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          -4.6,
+          0,
+          -4.3,
+          -0.3,
+          -1.7,
+          -0.3,
+          -1.4,
+          0,
+          -1.7,
+          0.3,
+          -4.3,
+          0.3
+        ]
+      },
+      {
+        "circle": [
+          -0.10000000000000009,
+          4.2,
+          0.35
+        ]
+      },
+      {
+        "polygon": [
+          1.4,
+          -4.2,
+          1.7,
+          -4.5,
+          4.3,
+          -4.5,
+          4.6,
+          -4.2,
+          4.3,
+          -3.9000000000000004,
+          1.7,
+          -3.9000000000000004
+        ]
+      },
+      {
+        "polygon": [
+          4.9,
+          -3.9,
+          5.199999999999999,
+          -3.6,
+          5.199999999999999,
+          -0.6,
+          4.9,
+          -0.3,
+          4.6,
+          -0.6,
+          4.6,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          4.9,
+          0.3,
+          5.199999999999999,
+          0.6,
+          5.199999999999999,
+          3.6,
+          4.9,
+          3.9,
+          4.6,
+          3.6,
+          4.6,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          1.4,
+          4.2,
+          1.7,
+          3.9000000000000004,
+          4.3,
+          3.9000000000000004,
+          4.6,
+          4.2,
+          4.3,
+          4.5,
+          1.7,
+          4.5
+        ]
+      },
+      {
+        "polygon": [
+          1.1,
+          0.3,
+          1.4000000000000001,
+          0.6,
+          1.4000000000000001,
+          3.6,
+          1.1,
+          3.9,
+          0.8000000000000003,
+          3.6,
+          0.8000000000000003,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          1.1,
+          -3.9,
+          1.4000000000000001,
+          -3.6,
+          1.4000000000000001,
+          -0.6,
+          1.1,
+          -0.3,
+          0.8000000000000003,
+          -0.6,
+          0.8000000000000003,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          1.4,
+          0,
+          1.7,
+          -0.3,
+          4.3,
+          -0.3,
+          4.6,
+          0,
+          4.3,
+          0.3,
+          1.7,
+          0.3
+        ]
+      },
+      {
+        "circle": [
+          5.9,
+          4.2,
+          0.35
+        ]
+      },
+      {
+        "polygon": [
+          7.4,
+          -4.2,
+          7.7,
+          -4.5,
+          10.3,
+          -4.5,
+          10.6,
+          -4.2,
+          10.3,
+          -3.9000000000000004,
+          7.7,
+          -3.9000000000000004
+        ]
+      },
+      {
+        "polygon": [
+          10.9,
+          -3.9,
+          11.2,
+          -3.6,
+          11.2,
+          -0.6,
+          10.9,
+          -0.3,
+          10.6,
+          -0.6,
+          10.6,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          10.9,
+          0.3,
+          11.2,
+          0.6,
+          11.2,
+          3.6,
+          10.9,
+          3.9,
+          10.6,
+          3.6,
+          10.6,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          7.4,
+          4.2,
+          7.7,
+          3.9000000000000004,
+          10.3,
+          3.9000000000000004,
+          10.6,
+          4.2,
+          10.3,
+          4.5,
+          7.7,
+          4.5
+        ]
+      },
+      {
+        "polygon": [
+          7.1,
+          0.3,
+          7.4,
+          0.6,
+          7.4,
+          3.6,
+          7.1,
+          3.9,
+          6.800000000000001,
+          3.6,
+          6.800000000000001,
+          0.6
+        ]
+      },
+      {
+        "polygon": [
+          7.1,
+          -3.9,
+          7.4,
+          -3.6,
+          7.4,
+          -0.6,
+          7.1,
+          -0.3,
+          6.800000000000001,
+          -0.6,
+          6.800000000000001,
+          -3.6
+        ]
+      },
+      {
+        "polygon": [
+          7.4,
+          0,
+          7.7,
+          -0.3,
+          10.3,
+          -0.3,
+          10.6,
+          0,
+          10.3,
+          0.3,
+          7.7,
+          0.3
+        ]
+      },
+      {
+        "circle": [
+          11.9,
+          4.2,
+          0.35
+        ]
+      },
+      {
+        "line": [
+          -10,
+          -8,
+          -10,
+          -6
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          -9.1,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          -8,
+          -6,
+          -6
+        ]
+      },
+      {
+        "text": "a",
+        "at": [
+          -5.1,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -2,
+          -8,
+          -2,
+          -6
+        ]
+      },
+      {
+        "text": "f",
+        "at": [
+          -1.1,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          2,
+          -8,
+          2,
+          -6
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          2.9,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          6,
+          -8,
+          6,
+          -6
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          6.9,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          10,
+          -8,
+          10,
+          -6
+        ]
+      },
+      {
+        "text": "b",
+        "at": [
+          10.9,
+          -5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -10,
+          8,
+          -10,
+          6
+        ]
+      },
+      {
+        "text": "e",
+        "at": [
+          -9.1,
+          5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          8,
+          -6,
+          6
+        ]
+      },
+      {
+        "text": "d",
+        "at": [
+          -5.1,
+          5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -2,
+          8,
+          -2,
+          6
+        ]
+      },
+      {
+        "text": "dp",
+        "at": [
+          -1.1,
+          5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          2,
+          8,
+          2,
+          6
+        ]
+      },
+      {
+        "text": "c",
+        "at": [
+          2.9,
+          5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          6,
+          8,
+          6,
+          6
+        ]
+      },
+      {
+        "text": "g",
+        "at": [
+          6.9,
+          5.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          10,
+          8,
+          10,
+          6
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          10.9,
+          5.2
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "D1",
+        "at": [
+          -10,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "a",
+        "at": [
+          -6,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "f",
+        "at": [
+          -2,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D2",
+        "at": [
+          2,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D3",
+        "at": [
+          6,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "b",
+        "at": [
+          10,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "e",
+        "at": [
+          -10,
+          8
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "d",
+        "at": [
+          -6,
+          8
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "dp",
+        "at": [
+          -2,
+          8
+        ],
+        "dir": "down",
+        "optional": true
+      },
+      {
+        "name": "c",
+        "at": [
+          2,
+          8
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "g",
+        "at": [
+          6,
+          8
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "D4",
+        "at": [
+          10,
+          8
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -12,
+    -10
+  ],
+  "value_offset": [
+    -12,
+    10
+  ],
+  "value_parameter": "color",
+  "parameters": [
+    {
+      "name": "color",
+      "label": "Color",
+      "unit": "",
+      "default": "red",
+      "description": "Segment color; sets the forward voltage (red about 1.9 V at 10 mA)",
+      "choices": [
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "white"
+      ]
+    }
+  ],
+  "lights": {
+    "full": "10m",
+    "color_parameter": "color",
+    "segments": [
+      {
+        "element": "V_{ref}_a1",
+        "graphic": 1
+      },
+      {
+        "element": "V_{ref}_b1",
+        "graphic": 2
+      },
+      {
+        "element": "V_{ref}_c1",
+        "graphic": 3
+      },
+      {
+        "element": "V_{ref}_d1",
+        "graphic": 4
+      },
+      {
+        "element": "V_{ref}_e1",
+        "graphic": 5
+      },
+      {
+        "element": "V_{ref}_f1",
+        "graphic": 6
+      },
+      {
+        "element": "V_{ref}_g1",
+        "graphic": 7
+      },
+      {
+        "element": "V_{ref}_dp1",
+        "graphic": 8
+      },
+      {
+        "element": "V_{ref}_a2",
+        "graphic": 9
+      },
+      {
+        "element": "V_{ref}_b2",
+        "graphic": 10
+      },
+      {
+        "element": "V_{ref}_c2",
+        "graphic": 11
+      },
+      {
+        "element": "V_{ref}_d2",
+        "graphic": 12
+      },
+      {
+        "element": "V_{ref}_e2",
+        "graphic": 13
+      },
+      {
+        "element": "V_{ref}_f2",
+        "graphic": 14
+      },
+      {
+        "element": "V_{ref}_g2",
+        "graphic": 15
+      },
+      {
+        "element": "V_{ref}_dp2",
+        "graphic": 16
+      },
+      {
+        "element": "V_{ref}_a3",
+        "graphic": 17
+      },
+      {
+        "element": "V_{ref}_b3",
+        "graphic": 18
+      },
+      {
+        "element": "V_{ref}_c3",
+        "graphic": 19
+      },
+      {
+        "element": "V_{ref}_d3",
+        "graphic": 20
+      },
+      {
+        "element": "V_{ref}_e3",
+        "graphic": 21
+      },
+      {
+        "element": "V_{ref}_f3",
+        "graphic": 22
+      },
+      {
+        "element": "V_{ref}_g3",
+        "graphic": 23
+      },
+      {
+        "element": "V_{ref}_dp3",
+        "graphic": 24
+      },
+      {
+        "element": "V_{ref}_a4",
+        "graphic": 25
+      },
+      {
+        "element": "V_{ref}_b4",
+        "graphic": 26
+      },
+      {
+        "element": "V_{ref}_c4",
+        "graphic": 27
+      },
+      {
+        "element": "V_{ref}_d4",
+        "graphic": 28
+      },
+      {
+        "element": "V_{ref}_e4",
+        "graphic": 29
+      },
+      {
+        "element": "V_{ref}_f4",
+        "graphic": 30
+      },
+      {
+        "element": "V_{ref}_g4",
+        "graphic": 31
+      },
+      {
+        "element": "V_{ref}_dp4",
+        "graphic": 32
+      }
+    ]
+  },
+  "spice": [
+    "V_{ref}_a1 {node:a} a1_{ref} DC 0",
+    "D_{ref}_a1 a1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_b1 {node:b} b1_{ref} DC 0",
+    "D_{ref}_b1 b1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_c1 {node:c} c1_{ref} DC 0",
+    "D_{ref}_c1 c1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_d1 {node:d} d1_{ref} DC 0",
+    "D_{ref}_d1 d1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_e1 {node:e} e1_{ref} DC 0",
+    "D_{ref}_e1 e1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_f1 {node:f} f1_{ref} DC 0",
+    "D_{ref}_f1 f1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_g1 {node:g} g1_{ref} DC 0",
+    "D_{ref}_g1 g1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_dp1 {node:dp} dp1_{ref} DC 0",
+    "D_{ref}_dp1 dp1_{ref} {node:D1} MLED_{color}",
+    "V_{ref}_a2 {node:a} a2_{ref} DC 0",
+    "D_{ref}_a2 a2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_b2 {node:b} b2_{ref} DC 0",
+    "D_{ref}_b2 b2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_c2 {node:c} c2_{ref} DC 0",
+    "D_{ref}_c2 c2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_d2 {node:d} d2_{ref} DC 0",
+    "D_{ref}_d2 d2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_e2 {node:e} e2_{ref} DC 0",
+    "D_{ref}_e2 e2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_f2 {node:f} f2_{ref} DC 0",
+    "D_{ref}_f2 f2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_g2 {node:g} g2_{ref} DC 0",
+    "D_{ref}_g2 g2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_dp2 {node:dp} dp2_{ref} DC 0",
+    "D_{ref}_dp2 dp2_{ref} {node:D2} MLED_{color}",
+    "V_{ref}_a3 {node:a} a3_{ref} DC 0",
+    "D_{ref}_a3 a3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_b3 {node:b} b3_{ref} DC 0",
+    "D_{ref}_b3 b3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_c3 {node:c} c3_{ref} DC 0",
+    "D_{ref}_c3 c3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_d3 {node:d} d3_{ref} DC 0",
+    "D_{ref}_d3 d3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_e3 {node:e} e3_{ref} DC 0",
+    "D_{ref}_e3 e3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_f3 {node:f} f3_{ref} DC 0",
+    "D_{ref}_f3 f3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_g3 {node:g} g3_{ref} DC 0",
+    "D_{ref}_g3 g3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_dp3 {node:dp} dp3_{ref} DC 0",
+    "D_{ref}_dp3 dp3_{ref} {node:D3} MLED_{color}",
+    "V_{ref}_a4 {node:a} a4_{ref} DC 0",
+    "D_{ref}_a4 a4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_b4 {node:b} b4_{ref} DC 0",
+    "D_{ref}_b4 b4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_c4 {node:c} c4_{ref} DC 0",
+    "D_{ref}_c4 c4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_d4 {node:d} d4_{ref} DC 0",
+    "D_{ref}_d4 d4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_e4 {node:e} e4_{ref} DC 0",
+    "D_{ref}_e4 e4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_f4 {node:f} f4_{ref} DC 0",
+    "D_{ref}_f4 f4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_g4 {node:g} g4_{ref} DC 0",
+    "D_{ref}_g4 g4_{ref} {node:D4} MLED_{color}",
+    "V_{ref}_dp4 {node:dp} dp4_{ref} DC 0",
+    "D_{ref}_dp4 dp4_{ref} {node:D4} MLED_{color}"
+  ],
+  "models": [
+    ".model MLED_red D(IS=1.2e-18 N=2 BV=10 IBV=10u)",
+    ".model MLED_yellow D(IS=1.7e-19 N=2 BV=10 IBV=10u)",
+    ".model MLED_green D(IS=2.5e-20 N=2 BV=10 IBV=10u)",
+    ".model MLED_blue D(IS=6.7e-28 N=2 BV=10 IBV=10u)",
+    ".model MLED_white D(IS=6.7e-28 N=2 BV=10 IBV=10u)"
+  ]
+}

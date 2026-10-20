@@ -18,6 +18,7 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <set>
 #include <thread>
 
 using namespace simnodus;
@@ -279,4 +280,149 @@ TEST_CASE("devices: example 25 wires its 74HC595 to the board without warnings")
     CHECK(requests[0].options.devices[0].supply == 3.3);
     CHECK(requests[0].options.devices[0].tied.size() == 3); // MR, OE, and Q7S (open)
     CHECK(requests[0].options.nets.size() == 11);           // SER, SCK, LATCH and Q0..Q7
+}
+
+namespace {
+
+const std::vector<std::string> max7219_pins{"DIN", "CLK", "LOAD", "DOUT", "DIG0", "DIG1", "DIG2", "DIG3", "DIG4",
+    "DIG5", "DIG6", "DIG7", "SEGA", "SEGB", "SEGC", "SEGD", "SEGE", "SEGF", "SEGG", "SEGDP"};
+
+// The active digit (-1 if none) and the segment pins in A..G, DP order.
+std::pair<int, std::uint8_t> scan_state(const devices::Device& d)
+{
+    int digit = -1;
+    for (int i = 0; i < 8; ++i) {
+        if (!d.output(4 + static_cast<std::size_t>(i)).high) {
+            digit = i;
+        }
+    }
+    std::uint8_t segments = 0;
+    for (int s = 0; s < 8; ++s) {
+        segments |= static_cast<std::uint8_t>((d.output(12 + static_cast<std::size_t>(s)).high ? 1u : 0u) << s);
+    }
+    return {digit, segments};
+}
+
+} // namespace
+
+TEST_CASE("devices: the MAX7219 stores words at LOAD and scans its digits with Code B and intensity")
+{
+    std::string error;
+    auto d = devices::make_device("max7219", max7219_pins, {}, error);
+    REQUIRE(d);
+    std::uint64_t t = 0;
+    auto word = [&](std::uint16_t value) {
+        d->set_input(2, false, ++t);
+        for (int bit = 15; bit >= 0; --bit) {
+            d->set_input(0, ((value >> bit) & 1) != 0, ++t);
+            d->set_input(1, true, ++t);
+            d->set_input(1, false, ++t);
+        }
+        d->set_input(2, true, ++t);
+    };
+    CHECK(scan_state(*d).first == -1); // shutdown at power-up: no digit active
+    CHECK(d->next_event_ns() == devices::no_event);
+    word(0x0B01); // scan digits 0 and 1
+    word(0x0901); // Code B for digit 0
+    word(0x0103); // digit 0: "3"
+    word(0x0281); // digit 1: DP and G (no decode: D7 = DP, D0 = G)
+    word(0x0A07); // intensity 7: lit for 15/32 of each slot
+    word(0x0C01); // leave shutdown: the scan starts
+    auto state = scan_state(*d);
+    CHECK(state.first == 0);
+    CHECK(state.second == 0x4F); // A, B, C, D, G
+    const std::uint64_t slot = 156250;
+    const std::uint64_t lit_until = d->next_event_ns();
+    CHECK(lit_until - t == slot * 15 / 32);
+    d->advance(lit_until);
+    CHECK(scan_state(*d).second == 0); // the dark part of the slot
+    d->advance(d->next_event_ns());
+    state = scan_state(*d);
+    CHECK(state.first == 1);
+    CHECK(state.second == 0xC0); // G and DP
+    d->advance(d->next_event_ns());
+    d->advance(d->next_event_ns());
+    CHECK(scan_state(*d).first == 0); // back to digit 0 (scan limit 1)
+    word(0x0F01);                     // display test: every segment of eight digits
+    CHECK(scan_state(*d).second == 0xFF);
+    CHECK(d->output(3).driven); // DOUT
+}
+
+TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over SPI1")
+{
+    std::string error;
+    const auto image = emu::read_elf(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/hal_spi_max7219/hal_spi_max7219.elf", error);
+    REQUIRE(image.has_value());
+    emu::Stm32F103 m;
+    REQUIRE(m.load(*image, error));
+    mcu::DeviceRequest chip;
+    chip.designator = "U2";
+    chip.kind = "max7219";
+    chip.pins = max7219_pins;
+    chip.supply = 5.0;
+    std::vector<mcu::DigitalNet> nets{
+        {"DIN", {"PA7"}, {{0, "DIN"}}, 0},
+        {"CLK", {"PA5"}, {{0, "CLK"}}, 0},
+        {"LOAD", {"PA4"}, {{0, "LOAD"}}, 0},
+    };
+    mcu::DeviceBus bus;
+    REQUIRE(bus.init(m, {chip}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    bus.start(0);
+    auto run_to = [&](std::uint64_t end) {
+        while (m.time_ns() < end) {
+            m.run_until_ns(std::min(end, std::max(bus.next_event_ns(), m.time_ns() + 1)));
+            bus.advance(m.time_ns());
+        }
+    };
+    run_to(500000000); // the heart is up after the first few hundred microseconds
+    const std::uint8_t heart[8] = {0x00, 0x66, 0xFF, 0xFF, 0xFF, 0x7E, 0x3C, 0x18};
+    std::set<int> rows_seen;
+    for (int step = 0; step < 64; ++step) {
+        run_to(std::max(bus.next_event_ns(), m.time_ns() + 1));
+        int digit = -1;
+        std::uint8_t segments = 0;
+        for (int i = 0; i < 8; ++i) {
+            if (!bus.output(0, 4 + static_cast<std::size_t>(i)).high) {
+                digit = i;
+            }
+        }
+        for (int s = 0; s < 8; ++s) {
+            segments |= static_cast<std::uint8_t>((bus.output(0, 12 + static_cast<std::size_t>(s)).high ? 1u : 0u) << s);
+        }
+        if (digit < 0 || segments == 0) {
+            continue; // between slots, or the dark part of a slot
+        }
+        // No decode: D6..D0 are segments A..G, D7 is DP.
+        std::uint8_t expected = 0;
+        for (int s = 0; s < 7; ++s) {
+            expected |= static_cast<std::uint8_t>(((heart[digit] >> (6 - s)) & 1u) << s);
+        }
+        expected |= heart[digit] & 0x80u;
+        CHECK(segments == expected);
+        rows_seen.insert(digit);
+    }
+    CHECK(rows_seen.size() == 7); // every row but the empty first one
+    CHECK(m.take_diagnostics().empty());
+}
+
+TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply without warnings")
+{
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "26_LED_matrix_MAX7219_SPI.snx");
+    REQUIRE(loaded.schematic.has_value());
+    std::vector<sim::McuRequest> requests;
+    std::vector<std::string> warnings;
+    std::string error;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(*loaded.schematic, device_library(), environment, requests, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(requests.size() == 1);
+    REQUIRE(requests[0].options.devices.size() == 1);
+    CHECK(requests[0].options.devices[0].supply == 5.0);
+    CHECK(requests[0].options.nets.size() == 19); // DIN, CLK, LOAD, eight rows, eight columns
 }

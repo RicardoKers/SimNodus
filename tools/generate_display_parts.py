@@ -25,6 +25,15 @@ nothing works without them.
 Logic levels follow the supply pins: CMOS inputs switch at half the supply,
 TTL inputs at 1.4 V. Outputs change with about 10 ns of delay.
 
+Multiplexed displays (SN-204), for the MAX7219 or a microcontroller scanning
+them: a 4-digit 7-segment display with a common cathode per digit (pins as on a
+3641AS: D1 a f D2 D3 b above, e d dp c g D4 below) and an 8x8 LED matrix with
+the cathodes on the rows R1-R8 and the anodes on the columns C1-C8 (a MAX7219
+drives the rows from DIG0-DIG7 and the columns from DP, A-G, so a byte written
+for a row shows with its most significant bit on the left). Each LED
+lights with its own current; the editor averages it over a few milliseconds,
+as the eye does.
+
 Run from the repository root: python tools/generate_display_parts.py
 """
 import json
@@ -300,12 +309,124 @@ def decoder_hex(common_anode):
                         symbol, upper, spice)
 
 
+# ---- Multiplexed displays (SN-204) ------------------------------------------
+
+# A multiplexed LED is reverse biased by up to the full supply while its row is
+# off (a MAX7219 pulls unused digits to V+ and unlit segments to ground): these
+# models break down at 10 V instead of 5 V, as display LEDs are rated. They have
+# no series resistance (a few ohms beside the drivers' resistance), which saves
+# the engine an internal node per LED.
+MUX_LED_MODELS = [m.replace(".model LED_", ".model MLED_").replace("BV=5", "BV=10").replace(" RS=5", "").replace(" RS=8", "")
+                  for m in LED_MODELS]
+
+
+def shifted(shape, dx):
+    key, values = next(iter(shape.items()))
+    return {key: [v + dx if i % 2 == 0 else v for i, v in enumerate(values)]}
+
+
+def four_digit():
+    graphics = [{"rect": [-12, -6, 24, 12]}]
+    shapes = {
+        "a": horizontal(-4.2), "g": horizontal(0), "d": horizontal(4.2),
+        "f": vertical(-1.9, -3.9, -0.3), "b": vertical(1.9, -3.9, -0.3),
+        "e": vertical(-1.9, 0.3, 3.9), "c": vertical(1.9, 0.3, 3.9),
+    }
+    lights = []
+    spice = []
+    for k in range(4):
+        dx = -9 + 6 * k
+        for s in SEGMENTS + ["dp"]:
+            source = f"V_{{ref}}_{s}{k + 1}"
+            node = f"{s}{k + 1}_{{ref}}"
+            spice += [f"{source} {{node:{s}}} {node} DC 0", f"D_{{ref}}_{s}{k + 1} {node} {{node:D{k + 1}}} MLED_{{color}}"]
+            lights.append({"element": source, "graphic": len(graphics)})
+            graphics.append(shifted(shapes[s], dx) if s != "dp" else {"circle": [dx + 2.9, 4.2, 0.35]})
+    top = ["D1", "a", "f", "D2", "D3", "b"]
+    bottom = ["e", "d", "dp", "c", "g", "D4"]
+    pins = []
+    for names, edge, tip, direction in ((top, -6, -8, "up"), (bottom, 6, 8, "down")):
+        for i, name in enumerate(names):
+            x = -10 + 4 * i
+            pin = {"name": name, "at": [x, tip], "dir": direction}
+            if name == "dp":
+                pin["optional"] = True
+            pins.append(pin)
+            graphics.append({"line": [x, tip, x, edge]})
+            graphics.append({"text": name, "at": [x + 0.9, edge + (0.8 if edge < 0 else -0.8)], "size": 0.5})
+    return {
+        "type": "seven_segment_4digit_cc",
+        "name": "4-digit 7-segment display (common cathode)",
+        "category": "Displays",
+        "prefix": "DS",
+        "description": "Four 7-segment digits with shared segment pins a-g, dp and one common cathode per digit (D1-D4), "
+                       "pins as on a 3641AS; light one digit at a time (multiplexing), from a MAX7219 or a "
+                       "microcontroller scanning the digits; each segment lights with its own current, averaged as the "
+                       "eye does",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [-12, -10],
+        "value_offset": [-12, 10],
+        "value_parameter": "color",
+        "parameters": [{"name": "color", "label": "Color", "unit": "", "default": "red",
+                        "description": "Segment color; sets the forward voltage (red about 1.9 V at 10 mA)",
+                        "choices": ["red", "yellow", "green", "blue", "white"]}],
+        "lights": {"full": "10m", "color_parameter": "color", "segments": lights},
+        "spice": spice,
+        "models": MUX_LED_MODELS,
+    }
+
+
+def matrix_8x8():
+    graphics = [{"rect": [-9, -9, 18, 18]}]
+    lights = []
+    spice = []
+    for r in range(8):
+        for c in range(8):
+            source = f"V_{{ref}}_r{r + 1}c{c + 1}"
+            node = f"r{r + 1}c{c + 1}_{{ref}}"
+            spice += [f"{source} {{node:C{c + 1}}} {node} DC 0", f"D_{{ref}}_r{r + 1}c{c + 1} {node} {{node:R{r + 1}}} MLED_{{color}}"]
+            lights.append({"element": source, "graphic": len(graphics)})
+            graphics.append({"circle": [-7 + 2 * c, -7 + 2 * r, 0.75]})
+    pins = []
+    for r in range(8):
+        y = -7 + 2 * r
+        pins.append({"name": f"R{r + 1}", "at": [-11, y], "dir": "left"})
+        graphics.append({"line": [-11, y, -9, y]})
+    for c in range(8):
+        x = -7 + 2 * c
+        pins.append({"name": f"C{c + 1}", "at": [x, 11], "dir": "down"})
+        graphics.append({"line": [x, 11, x, 9]})
+    graphics.append({"text": "R", "at": [-10, -9.2], "size": 0.5})
+    graphics.append({"text": "C", "at": [-9.2, 10], "size": 0.5})
+    return {
+        "type": "led_matrix_8x8",
+        "name": "8x8 LED matrix",
+        "category": "Displays",
+        "prefix": "DS",
+        "description": "64 LEDs in 8 rows and 8 columns: the cathodes of each row are joined (R1-R8), the anodes of each "
+                       "column (C1-C8); light one row at a time (multiplexing), from a MAX7219 (DIG0-DIG7 to R1-R8, "
+                       "DP, A-G to C1-C8) or a microcontroller; each LED lights with its own current, averaged as the "
+                       "eye does",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [-9, -11],
+        "value_offset": [3, -11],
+        "value_parameter": "color",
+        "parameters": [{"name": "color", "label": "Color", "unit": "", "default": "red",
+                        "description": "LED color; sets the forward voltage (red about 1.9 V at 10 mA)",
+                        "choices": ["red", "yellow", "green", "blue", "white"]}],
+        "lights": {"full": "10m", "color_parameter": "color", "segments": lights},
+        "spice": spice,
+        "models": MUX_LED_MODELS,
+    }
+
+
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     # Short descriptions for the parts tree (details belong in the user guide).
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
-    for p in [display(False), display(True), decoder_4511(), decoder_7447(), decoder_hex(False), decoder_hex(True)]:
+    for p in [display(False), display(True), decoder_4511(), decoder_7447(), decoder_hex(False), decoder_hex(True),
+              four_digit(), matrix_8x8()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

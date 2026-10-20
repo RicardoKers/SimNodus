@@ -379,6 +379,32 @@ void RunController::mcu_reset(model::Id component)
     session_->mcu_reset(component);
 }
 
+double RunController::glow_current(const std::string& vector, double latest, double now) const
+{
+    // The eye averages a multiplexed LED over a few milliseconds (SN-204): the
+    // mean magnitude over the last 20 ms, weighted by time; the latest value
+    // when there are not enough samples.
+    constexpr double window = 0.02;
+    if (mode_ != model::SimulationMode::Interactive || now < window) {
+        return std::abs(latest);
+    }
+    const auto samples = session_->samples_since(vector, now - window);
+    if (samples.size() < 2) {
+        return std::abs(latest);
+    }
+    double sum = 0.0;
+    double span = 0.0;
+    for (std::size_t i = 1; i < samples.size(); ++i) {
+        const double from = std::max(samples[i - 1].time, now - window);
+        const double dt = samples[i].time - from;
+        if (dt > 0) {
+            sum += std::abs(samples[i - 1].value) * dt;
+            span += dt;
+        }
+    }
+    return span > 0 ? sum / span : std::abs(latest);
+}
+
 void RunController::refresh()
 {
     for (const auto& [board, text] : session_->take_mcu_diagnostics()) {
@@ -412,7 +438,7 @@ void RunController::refresh()
         }
         for (const auto& vector : vectors) {
             const auto it = latest.find(vector);
-            lit.levels.push_back(it == latest.end() ? 0.0 : std::abs(it->second) / d->lights->full);
+            lit.levels.push_back(it == latest.end() ? 0.0 : glow_current(vector, it->second, status.sim_time) / d->lights->full);
         }
         live.lights[id] = std::move(lit);
     }
@@ -466,7 +492,8 @@ void RunController::refresh()
                     full = model::parse_engineering(parameter(r.glow_full_parameter), "A").value_or(0.0);
                 }
                 const std::string color = r.glow_color_parameter.empty() ? r.glow_color : parameter(r.glow_color_parameter);
-                live.glow[c.id] = {full > 0 ? std::abs(it->second) / full : 0.0, color};
+                const double current = glow_current(readout_vectors_[c.id], it->second, status.sim_time);
+                live.glow[c.id] = {full > 0 ? current / full : 0.0, color};
             } else {
                 live.readouts[c.id] = quantity(it->second, "A");
             }
