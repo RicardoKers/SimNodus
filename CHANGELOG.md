@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.7.0 — 2026-10-20
+
+### Summary
+
+- Adjustable voltage and current sources, turned while running between a lower and an upper limit, and controlled sources (VCVS, VCCS, CCCS, CCVS) (SN-209, example 29).
+- 4x4 matrix keypad, keys held with the mouse while running; a Blue Pill HAL project scans it (SN-210, example 30).
+- Ideal A/D and D/A converters with 4, 8, 10 and 12 bits (SN-211, example 31).
+- Parallel ROM and static RAM of 16 bytes to 64 KB with contents files and the Memory Viewer; chips now also run without a microcontroller (SN-212, ADR 0103, examples 32 and 33).
+
 ### Added (2026-10-20, SN-212)
 
 - Parallel ROM and static RAM (new category *Memories*): 16 bytes to 64 KB (a property), A0-A15, D0-D7, active-low CE, OE and WE; the address pins beyond the size are ignored; the ROM's contents come from a `.bin` or Intel `.hex` file (0xFF without one), the RAM starts with zeros or its file; ideal timing. Both appear in the Memory Viewer, which now follows the size and the starting value of each chip.

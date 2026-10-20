@@ -8,11 +8,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.6.0 published on 2026-10-20** (the owner tested the preview
-  of 2026-10-20c and asked for the release): tag `v0.6.0`, GitHub release
-  with `SimNodus-0.6.0-windows-x64.zip` and
-  `SimNodus-0.6.0-windows-x64-setup.exe`. Releases 0.1.0-0.5.0 were
-  published on 2026-10-14, 10-18 and 10-19.
+- **Release 0.7.0 published on 2026-10-20** (the owner tested the 0.7
+  preview and asked for the release): tag `v0.7.0`, GitHub release with
+  `SimNodus-0.7.0-windows-x64.zip` and `SimNodus-0.7.0-windows-x64-setup.exe`.
+  Releases 0.1.0-0.6.0 were published between 2026-10-14 and 10-20.
+- **New in 0.7:** adjustable and controlled sources (SN-209, example 29), a
+  4x4 matrix keypad (SN-210, example 30), ideal A/D and D/A converters
+  (SN-211, example 31), parallel ROM and RAM and chips without a board
+  (SN-212, ADR 0103, examples 32 and 33).
 - **New in 0.6:** CRC, IWDG, WWDG, RTC/BKP (SN-187, example 24); chips for
   microcontrollers with hybrid coupling (SN-203, ADR 0102: 74HC595, example
   25); SPI1/2 master, MAX7219, 8x8 matrix and 4-digit display, glow averaged
@@ -60,12 +63,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. After 0.6 the owner asked (2026-10-20) for parts of our own instead of
-   ngspice's XSPICE models: adjustable and controlled sources (SN-209, done,
-   example 29), a 4x4 matrix keypad (SN-210, done, example 30), A/D and D/A converters with
-   selectable bits (SN-211, done, example 31), parallel ROM and RAM of several sizes with the
-   Memory Viewer (SN-212, done, ADR 0103: chips also run without a board;
-   examples 32, 33). All four are done; next: a 0.7 preview for the owner.
+1. The owner's list after 0.6 (sources, keypad, converters, memories) is
+   released in 0.7. Ask the owner what comes next; candidates in the backlog.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
