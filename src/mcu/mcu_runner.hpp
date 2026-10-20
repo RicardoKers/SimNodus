@@ -37,6 +37,8 @@ struct DeviceRequest {
     // Signal pins on no digital net: their constant level (tied to ground or a
     // supply, or open and read as low).
     std::map<std::string, bool> tied;
+    // Memory chips (SN-208): the contents they start with; empty: their default (erased).
+    std::vector<std::uint8_t> memory;
 };
 
 // A net joining board pins and device pins, resolved by the runner at once.

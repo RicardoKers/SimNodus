@@ -548,6 +548,14 @@ ComponentDefinition parse_definition(const json& j)
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
         device.driven_pins = strings(m, "driven_pins");
+        if (m.contains("memory_size")) {
+            device.memory_size = static_cast<std::size_t>(number(m["memory_size"], "device.memory_size"));
+            device.contents_parameter = text(m, "contents_parameter");
+            const auto* p = d.parameter(device.contents_parameter);
+            if (device.memory_size == 0 || (!device.contents_parameter.empty() && (!p || p->kind != Parameter::Kind::File))) {
+                invalid("device.memory_size must be positive and device.contents_parameter a file parameter");
+            }
+        }
         for (const auto& pin : device.driven_pins) {
             if (!d.pin(pin)) {
                 invalid("device.driven_pins names a pin the part does not have: " + pin);

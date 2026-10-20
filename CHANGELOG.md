@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-20, SN-208)
+
+- Memory Viewer (**Window > Memory Viewer**, Ctrl+Shift+M, or **View...** in the 24C02's properties): the chip's bytes as a hex and text table, live while running with the bytes that just changed marked, and the last run's contents afterwards. **Load...** puts a `.bin` or Intel `.hex` file into the running chip, or makes it the chip's contents file when nothing runs; **Save as...** writes `.bin` or `.hex`. The 24C02 gets a *Contents file* property it starts each run with (erased without one; an unreadable file is a warning). Memory parts declare `memory_size` and `contents_parameter`, ready for parallel RAM and ROM. Engine protocol version 6 carries the contents (only when they change) and new contents for a running chip.
+
 ### Fixed (2026-10-20, owner's test)
 
 - The glow of a lit LED or lamp was cut by a straight line on one side and sometimes stayed on or off there, depending on the zoom: the halo reached beyond the part's drawing area, so the canvas neither repainted nor cleared that strip. The area now includes the halo.

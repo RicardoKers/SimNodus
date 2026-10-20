@@ -109,12 +109,19 @@ I2C_NOTE = ("SDA is open drain: SCL and SDA need pull-up resistors (4.7 kOhm to 
 def eeprom_24c02():
     inputs = ["SCL", "A0", "A1", "A2", "WP"]
     symbol, upper = ic_symbol("24C02", ["SCL", "SDA", "A0", "A1", "A2"], ["WP"], "VCC", "GND")
-    return part("24c02", "EEPROM 24C02 (I2C)",
-                "2 Kbit (256-byte) serial EEPROM like the AT24C02 at I2C address 0x50 + A2 A1 A0: write a word address "
-                "and up to 8 bytes of one page, stored at STOP in 5 ms (the chip does not acknowledge its address "
-                "meanwhile); reads start at the word address and continue through the memory; WP high protects it. "
-                "Starts erased (0xFF). " + I2C_NOTE + " Supply 1.8-5.5 V. Works together with a microcontroller board.",
-                symbol, upper, "24c02", device_spice(inputs + ["SDA"], ["SDA"]))
+    p = part("24c02", "EEPROM 24C02 (I2C)",
+             "2 Kbit (256-byte) serial EEPROM like the AT24C02 at I2C address 0x50 + A2 A1 A0: write a word address "
+             "and up to 8 bytes of one page, stored at STOP in 5 ms (the chip does not acknowledge its address "
+             "meanwhile); reads start at the word address and continue through the memory; WP high protects it. "
+             "Starts erased (0xFF) or with its contents file. " + I2C_NOTE + " Supply 1.8-5.5 V. Works together with "
+             "a microcontroller board.",
+             symbol, upper, "24c02", device_spice(inputs + ["SDA"], ["SDA"]),
+             parameters=[{"name": "contents", "label": "Contents file", "kind": "file", "filter": "*.bin *.hex",
+                          "default": "", "description": "Contents the EEPROM starts each run with (.bin or Intel "
+                                                        ".hex, stored relative to the project); empty: erased"}])
+    p["device"].update({"memory_size": 256, "contents_parameter": "contents"})
+    del p["value_parameter"]  # the file name would crowd the symbol
+    return p
 
 
 def lm75():

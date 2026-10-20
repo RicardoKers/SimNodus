@@ -93,6 +93,7 @@ void write_mcu_request(Writer& w, const McuRequest& m)
             w.str(pin);
             w.boolean(level);
         }
+        w.str(std::string(d.memory.begin(), d.memory.end()));
     }
     w.size(o.nets.size());
     for (const auto& n : o.nets) {
@@ -147,6 +148,8 @@ McuRequest read_mcu_request(Reader& r)
             auto pin = r.str();
             d.tied[pin] = r.boolean();
         }
+        const auto memory = r.str();
+        d.memory.assign(memory.begin(), memory.end());
         o.devices.push_back(std::move(d));
     }
     for (std::size_t n = r.size(16); n > 0 && r.ok(); --n) {

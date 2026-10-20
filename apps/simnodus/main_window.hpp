@@ -31,6 +31,7 @@ class QTimer;
 namespace simnodus::ui {
 
 class AnalyzerWindow;
+class MemoryWindow;
 class ComponentPanel;
 class Document;
 class MessagesPanel;
@@ -62,6 +63,7 @@ public:
     Document* document() const { return document_; }
     RunController* run_controller() const { return run_; }
     AnalyzerWindow* analyzer() const { return analyzer_.get(); }
+    MemoryWindow* memory_viewer() const { return memory_.get(); }
     const library::ComponentLibrary& library() const { return library_; }
     QSplitter* columns() const { return columns_; }
     QSplitter* rows() const { return rows_; }
@@ -170,6 +172,7 @@ private:
     QSplitter* columns_ = nullptr;
     QSplitter* rows_ = nullptr;
     std::unique_ptr<AnalyzerWindow> analyzer_;
+    std::unique_ptr<MemoryWindow> memory_;
     RunController* run_ = nullptr;
 
     std::array<QAction*, 3> panel_actions_{};

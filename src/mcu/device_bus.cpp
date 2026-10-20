@@ -42,6 +42,9 @@ bool DeviceBus::init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& 
                 error = request.designator + ": " + error;
                 return false;
             }
+            if (!request.memory.empty()) {
+                device->load_memory(request.memory); // its contents file (SN-208)
+            }
         }
         devices_.push_back(std::move(device));
         designators_.push_back(request.designator);

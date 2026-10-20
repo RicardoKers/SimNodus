@@ -509,6 +509,7 @@ protected:
             for (const auto& [where, value] : page_) {
                 memory_[where] = value;
             }
+            ++version_;
             busy_until_ = time_ns + write_cycle_ns;
         }
         page_.clear();
@@ -523,9 +524,20 @@ protected:
         }
     }
 
+public:
+    std::vector<std::uint8_t> memory() const override { return {memory_.begin(), memory_.end()}; }
+    std::uint64_t memory_version() const override { return version_; }
+    void load_memory(const std::vector<std::uint8_t>& bytes) override
+    {
+        memory_.fill(0xFF);
+        std::copy_n(bytes.begin(), std::min(bytes.size(), memory_.size()), memory_.begin());
+        ++version_;
+    }
+
 private:
     std::array<std::size_t, names.size()> index_{};
     std::array<bool, names.size()> levels_{};
+    std::uint64_t version_ = 0;
     std::array<std::uint8_t, 256> memory_{};
     std::vector<std::pair<std::uint8_t, std::uint8_t>> page_;
     std::uint8_t pointer_ = 0;

@@ -129,6 +129,10 @@ struct DigitalDevice {
     // Push-pull outputs that always drive: a net with one of them never needs
     // the circuit's view (SN-206).
     std::vector<std::string> driven_pins;
+    // Memory chips (SN-208): their size in bytes and the File parameter with the
+    // contents they start with (empty: erased).
+    std::size_t memory_size = 0;
+    std::string contents_parameter;
 };
 
 // Interactive control (INT-02). The netlist generator creates an external

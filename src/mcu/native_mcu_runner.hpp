@@ -61,6 +61,8 @@ public:
     std::vector<std::string> take_diagnostics() override;
     std::map<std::uint64_t, std::string> device_texts() const override;
     void set_device_parameter(std::uint64_t component, const std::string& name, const std::string& value) override;
+    bool device_memory(std::uint64_t component, std::vector<std::uint8_t>& bytes) const override;
+    void load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes) override;
 
 private:
     using History = std::vector<std::pair<std::uint64_t, PinState>>; // sorted by time
@@ -112,6 +114,12 @@ private:
         std::string value;
     };
     std::vector<ParameterChange> parameter_changes_; // for the worker
+    struct Memory {
+        std::uint64_t version = 0;
+        std::vector<std::uint8_t> bytes;
+    };
+    std::map<std::uint64_t, Memory> memories_; // memory chips: component -> latest contents
+    std::vector<std::pair<std::uint64_t, std::vector<std::uint8_t>>> memory_loads_; // for the worker
 };
 
 } // namespace simnodus::mcu

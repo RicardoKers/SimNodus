@@ -230,7 +230,9 @@
     "kind": "24c02",
     "supply_pin": "VCC",
     "ground_pin": "GND",
-    "output_resistance": 50
+    "output_resistance": 50,
+    "memory_size": 256,
+    "contents_parameter": "contents"
   },
   "spice": [
     "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
@@ -241,5 +243,15 @@
     "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
     "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
     "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "contents",
+      "label": "Contents file",
+      "kind": "file",
+      "filter": "*.bin *.hex",
+      "default": "",
+      "description": "Contents the EEPROM starts each run with (.bin or Intel .hex, stored relative to the project); empty: erased"
+    }
   ]
 }

@@ -31,7 +31,7 @@ target_link_libraries(simnodus_library PUBLIC simnodus::model PRIVATE simnodus_j
 target_compile_definitions(simnodus_library PRIVATE
     SIMNODUS_SOURCE_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library")
 
-add_library(simnodus_io STATIC io/project_file.cpp)
+add_library(simnodus_io STATIC io/memory_file.cpp io/project_file.cpp)
 add_library(simnodus::io ALIAS simnodus_io)
 target_link_libraries(simnodus_io PUBLIC simnodus::model PRIVATE simnodus_json simnodus::warnings)
 
@@ -47,7 +47,7 @@ target_link_libraries(simnodus_netlist PUBLIC simnodus::model simnodus::library 
 
 add_library(simnodus_session STATIC sim/simulation_session.cpp)
 add_library(simnodus::session ALIAS simnodus_session)
-target_link_libraries(simnodus_session PUBLIC simnodus::sim simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
+target_link_libraries(simnodus_session PUBLIC simnodus::sim simnodus::netlist simnodus::mcu PRIVATE simnodus::io simnodus::warnings)
 
 # The editor/engine process boundary (SN-151, ADR 0101).
 add_library(simnodus_engine_link STATIC

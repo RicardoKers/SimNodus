@@ -69,6 +69,14 @@ void EngineServer::handle(const std::string& payload)
         }
         break;
     }
+    case Type::LoadMemory: {
+        const model::Id id = r.u64();
+        const auto bytes = r.str();
+        if (r.ok()) {
+            session_.load_device_memory(id, {bytes.begin(), bytes.end()});
+        }
+        break;
+    }
     case Type::Quit:
         session_.stop();
         quit_ = true;
@@ -101,6 +109,7 @@ void EngineServer::start(Reader& r)
         ok = session_.start(std::move(request), error);
     }
     vectors_ = ok ? session_.acquired_vectors() : std::vector<std::string>{};
+    sent_memories_.clear();
     cursors_.assign(vectors_.size(), 0);
     boards_.clear();
     transient_sent_ = false;
@@ -227,6 +236,22 @@ void EngineServer::publish(bool force)
     for (const auto& [id, text] : texts) {
         w.u64(id);
         w.str(text);
+    }
+    // Memory chips whose contents changed since the last Update (SN-208).
+    std::vector<std::pair<model::Id, std::vector<std::uint8_t>>> memories;
+    for (const auto& m : session_.mcu_requests()) {
+        for (const auto& d : m.options.devices) {
+            auto bytes = session_.device_memory(d.component);
+            if (bytes && sent_memories_[d.component] != *bytes) {
+                sent_memories_[d.component] = *bytes;
+                memories.emplace_back(d.component, std::move(*bytes));
+            }
+        }
+    }
+    w.size(memories.size());
+    for (const auto& [id, bytes] : memories) {
+        w.u64(id);
+        w.str(std::string(bytes.begin(), bytes.end()));
     }
 
     const bool transient = status.state == RunState::Finished && status.mode == model::SimulationMode::Transient;

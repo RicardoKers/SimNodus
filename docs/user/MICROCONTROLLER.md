@@ -56,7 +56,9 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   board input, whenever no output drives the net.
 - I2C chips answer at their address with A0-A2 as the low bits; the 24C02
   stores a written page at STOP and then does not acknowledge for its 5 ms
-  write cycle (poll it with `HAL_I2C_IsDeviceReady`); the LM75 reports the
+  write cycle (poll it with `HAL_I2C_IsDeviceReady`); its *Contents file*
+  property (`.bin` or Intel `.hex`) sets what it holds at the start of each
+  run, otherwise it starts erased (0xFF); the LM75 reports the
   temperature set in its properties, which can be changed while running; the PCF8574's pins are outputs and inputs
   at once (a 1 is a weak pull-up).
 - The character LCD (HD44780) takes RS, RW, E and D0-D7 or D4-D7 from the
@@ -70,6 +72,16 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   Two outputs driving opposite levels are reported as a short circuit.
 - Levels are digital: a 5 V chip accepts the board's 3.3 V highs, which a
   real chip may not.
+
+### Memory Viewer
+
+**Window > Memory Viewer** (Ctrl+Shift+M), or **View...** next to a memory
+chip's *Contents file*, shows the chip's bytes in hexadecimal and as text.
+While the simulation runs the table follows the chip and marks the bytes that
+just changed; after a run it keeps the last contents. **Load...** puts a `.bin`
+or Intel `.hex` file into the running chip, or, when nothing runs, makes it the
+chip's contents file. **Save as...** writes what the chip holds to a `.bin` or
+`.hex` file, for example to start the next run with what the firmware stored.
 
 Example 25 shifts a byte out bit by bit into a 74HC595 that drives eight LEDs.
 Example 27 uses the three I2C chips with the HAL; example 28 drives a 16x2 LCD

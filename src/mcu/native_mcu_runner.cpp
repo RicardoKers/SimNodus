@@ -383,6 +383,26 @@ void NativeMcuRunner::set_device_parameter(std::uint64_t component, const std::s
     changed_.notify_all();
 }
 
+bool NativeMcuRunner::device_memory(std::uint64_t component, std::vector<std::uint8_t>& bytes) const
+{
+    std::lock_guard lock(mutex_);
+    const auto it = memories_.find(component);
+    if (it == memories_.end()) {
+        return false;
+    }
+    bytes = it->second.bytes;
+    return true;
+}
+
+void NativeMcuRunner::load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes)
+{
+    {
+        std::lock_guard lock(mutex_);
+        memory_loads_.emplace_back(component, bytes);
+    }
+    changed_.notify_all();
+}
+
 std::map<std::uint64_t, std::string> NativeMcuRunner::device_texts() const
 {
     std::lock_guard lock(mutex_);
@@ -569,6 +589,15 @@ void NativeMcuRunner::work()
             if (!text.empty()) {
                 device_texts_[options_.devices[d].component] = std::move(text);
             }
+            // Memory chips: a copy whenever the contents changed.
+            const std::uint64_t version = bus.memory_version(d);
+            const auto known = memories_.find(options_.devices[d].component);
+            if (known == memories_.end() || known->second.version != version) {
+                auto bytes = bus.memory(d);
+                if (!bytes.empty()) {
+                    memories_[options_.devices[d].component] = {version, std::move(bytes)};
+                }
+            }
         }
     };
 
@@ -609,8 +638,15 @@ void NativeMcuRunner::work()
                     sending = sending || !log.pending.empty();
                 }
                 return stop_ || reset_ || boundary_below(limit_ns_) > now || !input_queue_.empty() || sending
-                    || !parameter_changes_.empty();
+                    || !parameter_changes_.empty() || !memory_loads_.empty();
             });
+            for (auto& [component, bytes] : std::exchange(memory_loads_, {})) {
+                for (std::size_t d = 0; d < options_.devices.size(); ++d) {
+                    if (options_.devices[d].component == component) {
+                        bus.load_memory(d, bytes);
+                    }
+                }
+            }
             for (const auto& change : std::exchange(parameter_changes_, {})) {
                 for (std::size_t d = 0; d < options_.devices.size(); ++d) {
                     if (options_.devices[d].component == change.component) {
