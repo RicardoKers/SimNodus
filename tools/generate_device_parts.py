@@ -19,6 +19,10 @@ nothing.
 - HD44780 character LCD (SN-206): the module's 16 pins on top as on a real
   module (VSS VDD V0 RS RW E D0-D7 A K), rows and columns as parameters; the
   editor draws its text in the screen area; A and K are the backlight LED.
+- ROM and RAM (SN-212): generic parallel memories of 16 to 64K bytes (A0-A15,
+  D0-D7, CE, OE and the RAM's WE, active low); the size is a parameter and the
+  address pins beyond it are ignored; contents from a .bin or Intel .hex file.
+  Category *Memories*.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -67,11 +71,12 @@ def device_spice(signals, outputs, supply="VCC", ground="GND"):
     return spice
 
 
-def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None, driven=()):
+def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None, driven=(),
+         category=CATEGORY):
     result = {
         "type": type_,
         "name": name,
-        "category": CATEGORY,
+        "category": category,
         "prefix": "U",
         "description": description,
         "symbol": symbol,
@@ -212,11 +217,44 @@ def max7219():
                 driven=outputs)
 
 
+MEMORY_SIZES = ["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
+
+
+def memory(ram):
+    address = [f"A{i}" for i in range(16)]
+    data = [f"D{i}" for i in range(8)]
+    control = ["CE", "OE"] + (["WE"] if ram else [])
+    title = "RAM" if ram else "ROM"
+    symbol, upper = ic_symbol(title, address, data + control, "VCC", "GND", inverted=tuple(control),
+                              optional=tuple(address + data))
+    what = ("Static RAM: with CE and OE low and WE high it drives D0-D7 with the addressed byte; with CE and WE low "
+            "it takes D0-D7 and stores them when WE (or CE) rises. Starts with every byte 0, or with its contents "
+            "file." if ram else
+            "ROM: with CE and OE low it drives D0-D7 with the addressed byte, otherwise D0-D7 are off (high "
+            "impedance). Its contents come from a .bin or Intel .hex file; without one every byte is 0xFF.")
+    p = part(title.lower(), f"{title} (parallel)",
+             f"Generic parallel {title} of 16 bytes to 64 KB (the size is a property): A0-A15 address a byte, the "
+             "address pins beyond the size are ignored. " + what + " Ideal timing: no access or write time. Works "
+             "with a microcontroller board's pins or on its own in a circuit; Window > Memory Viewer shows its "
+             "contents. Supply on VCC and GND.",
+             symbol, upper, title.lower(), device_spice(address + data + control, data),
+             parameters=[{"name": "size", "label": "Size (bytes)", "choices": MEMORY_SIZES,
+                          "default": "2K" if ram else "256", "description": "Number of 8-bit words; A0 up to the "
+                                                                           "address pins the size needs are used"},
+                         {"name": "contents", "label": "Contents file", "kind": "file", "filter": "*.bin *.hex",
+                          "default": "", "description": "Contents the memory starts each run with (.bin or Intel "
+                                                        ".hex, stored relative to the project)"}],
+             category="Memories")
+    p["device"].update({"memory_size_parameter": "size", "memory_fill": 0 if ram else 255,
+                        "contents_parameter": "contents"})
+    return p
+
+
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
-    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780()]:
+    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True)]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

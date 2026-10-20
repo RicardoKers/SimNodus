@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdlib>
 #include <string>
 
@@ -1072,6 +1073,146 @@ private:
     bool warned_busy_ = false;
 };
 
+// Parallel memories (SN-212), generic asynchronous ROM and static RAM of
+// 16 words to 64 Ki words of 8 bits, like a 27C256 or a 62256: A0-A15 select a
+// word (address pins beyond the size are ignored), D0-D7 carry it. With CE and
+// OE low (and WE high) the memory drives D0-D7 with the addressed word; a RAM
+// stores D0-D7 at the end of a write, the rising edge of WE or CE while the
+// other is low. Ideal: no access or write times.
+class ParallelMemory : public Device {
+public:
+    bool init(bool ram, const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        ram_ = ram;
+        const auto size = parameters.find("size");
+        words_ = memory_words(size == parameters.end() ? std::string() : size->second);
+        if (words_ == 0) {
+            error = "memory size must be a power of two from 16 to 64K words";
+            return false;
+        }
+        while ((std::size_t{1} << address_bits_) < words_) {
+            ++address_bits_;
+        }
+        memory_.assign(words_, static_cast<std::uint8_t>(ram ? 0x00 : 0xFF));
+        role_.assign(pins.size(), -1);
+        for (std::size_t i = 0; i < pins.size(); ++i) {
+            const std::string& name = pins[i];
+            if (name.size() >= 2 && (name[0] == 'A' || name[0] == 'D') && std::isdigit(static_cast<unsigned char>(name[1]))) {
+                const int bit = std::atoi(name.c_str() + 1);
+                role_[i] = (name[0] == 'A' ? A0 : D0) + bit;
+            } else if (name == "CE") {
+                role_[i] = CE;
+            } else if (name == "OE") {
+                role_[i] = OE;
+            } else if (name == "WE") {
+                role_[i] = WE;
+            }
+        }
+        for (const int role : {CE, OE}) {
+            if (std::find(role_.begin(), role_.end(), role) == role_.end()) {
+                error = std::string(ram ? "RAM" : "ROM") + ": pin " + (role == CE ? "CE" : "OE") + " is missing";
+                return false;
+            }
+        }
+        if (ram && std::find(role_.begin(), role_.end(), static_cast<int>(WE)) == role_.end()) {
+            error = "RAM: pin WE is missing";
+            return false;
+        }
+        return true;
+    }
+
+    // "2K" -> 2048; 0 unless a power of two from 16 to 65536.
+    static std::size_t memory_words(const std::string& text)
+    {
+        if (text.empty()) {
+            return 256;
+        }
+        char* end = nullptr;
+        unsigned long value = std::strtoul(text.c_str(), &end, 10);
+        if (end && (*end == 'K' || *end == 'k')) {
+            value *= 1024;
+        }
+        const bool power = value >= 16 && value <= 65536 && (value & (value - 1)) == 0;
+        return power ? static_cast<std::size_t>(value) : 0;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t) override
+    {
+        if (pin >= role_.size() || role_[pin] < 0) {
+            return;
+        }
+        const auto role = static_cast<std::size_t>(role_[pin]);
+        const bool was = inputs_[role];
+        inputs_[role] = level;
+        // A write ends at the rising edge of WE or CE while the other one is low.
+        if (ram_ && level && !was && ((role == WE && !inputs_[CE]) || (role == CE && !inputs_[WE]))) {
+            std::uint8_t value = 0;
+            for (int b = 0; b < 8; ++b) {
+                value = static_cast<std::uint8_t>(value | (inputs_[D0 + static_cast<std::size_t>(b)] ? 1u << b : 0u));
+            }
+            auto& word = memory_[address()];
+            if (word != value) {
+                word = value;
+                ++version_;
+            }
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin < role_.size() && role_[pin] >= 0) {
+            inputs_[static_cast<std::size_t>(role_[pin])] = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin >= role_.size() || role_[pin] < D0 || role_[pin] > D7) {
+            return {};
+        }
+        const bool reading = !inputs_[CE] && !inputs_[OE] && (!ram_ || inputs_[WE]);
+        if (!reading) {
+            return {}; // high impedance: the data pins are inputs
+        }
+        return push_pull(((memory_[address()] >> (role_[pin] - D0)) & 1u) != 0);
+    }
+
+    std::vector<std::uint8_t> memory() const override { return memory_; }
+    std::uint64_t memory_version() const override { return version_; }
+    void load_memory(const std::vector<std::uint8_t>& bytes) override
+    {
+        std::fill(memory_.begin(), memory_.end(), static_cast<std::uint8_t>(ram_ ? 0x00 : 0xFF));
+        std::copy_n(bytes.begin(), std::min(bytes.size(), memory_.size()), memory_.begin());
+        ++version_;
+    }
+
+private:
+    enum : int { A0 = 0, D0 = 16, D7 = D0 + 7, CE = 24, OE, WE, roles };
+
+    std::size_t address() const
+    {
+        std::size_t a = 0;
+        for (std::size_t b = 0; b < address_bits_; ++b) {
+            a |= inputs_[A0 + b] ? std::size_t{1} << b : 0;
+        }
+        return a;
+    }
+
+    bool ram_ = false;
+    std::size_t words_ = 0;
+    std::size_t address_bits_ = 0;
+    std::vector<int> role_;
+    // Control inputs high (deselected) until the run gives the first levels.
+    std::array<bool, roles> inputs_ = [] {
+        std::array<bool, roles> a{};
+        a[CE] = a[OE] = a[WE] = true;
+        return a;
+    }();
+    std::vector<std::uint8_t> memory_;
+    std::uint64_t version_ = 0;
+};
+
 } // namespace
 
 std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<std::string>& pins,
@@ -1106,6 +1247,10 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
             return nullptr;
         }
         return device;
+    }
+    if (kind == "rom" || kind == "ram") {
+        auto device = std::make_unique<ParallelMemory>();
+        return device->init(kind == "ram", pins, parameters, error) ? std::move(device) : nullptr;
     }
     error = "unknown device kind \"" + kind + "\"";
     return nullptr;

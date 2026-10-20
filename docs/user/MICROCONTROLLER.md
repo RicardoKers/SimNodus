@@ -48,8 +48,10 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
 
 - Wire the chip's supply pin (VCC) to a DC source or the board's 3V3 and its
   GND to ground; without them it does nothing and the Messages panel says so.
-- A chip must share a net with a board pin, directly or through another chip;
-  one on no board pin does nothing.
+- A chip that shares a net with a board pin, directly or through another
+  chip, runs with that board. A chip on no board pin runs on its own (a ROM
+  addressed by a counter, a 74HC595 clocked by a push button): its inputs come
+  from the circuit up to 0.1 ms late, so clocks up to a few kHz work.
 - Inputs tied to ground or to the supply are read as constants; an open input
   reads low (a message names it). A chip pin on a net without a board pin (a
   push button or an LED on a PCF8574 pin) is read from the circuit, like a
@@ -61,6 +63,12 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   run, otherwise it starts erased (0xFF); the LM75 reports the
   temperature set in its properties, which can be changed while running; the PCF8574's pins are outputs and inputs
   at once (a 1 is a weak pull-up).
+- The parallel ROM and RAM (*Memories*) have A0-A15, D0-D7 and active-low CE,
+  OE and (RAM) WE; their size, 16 bytes to 64 KB, is a property, and the
+  address pins beyond it are ignored. With CE and OE low they drive D0-D7;
+  the RAM stores D0-D7 when WE rises with CE low. The ROM's contents come
+  from its *Contents file* (`.bin` or Intel `.hex`, else 0xFF); the RAM starts
+  with zeros or its file. Timing is ideal (no access time).
 - The character LCD (HD44780) takes RS, RW, E and D0-D7 or D4-D7 from the
   board's pins or from a PCF8574 (as on the I2C backpacks); its rows and
   columns are properties, and its text appears on the schematic while running.
@@ -76,12 +84,15 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
 ### Memory Viewer
 
 **Window > Memory Viewer** (Ctrl+Shift+M), or **View...** next to a memory
-chip's *Contents file*, shows the chip's bytes in hexadecimal and as text.
+chip's *Contents file* (24C02, ROM, RAM), shows the chip's bytes in hexadecimal and as text.
 While the simulation runs the table follows the chip and marks the bytes that
 just changed; after a run it keeps the last contents. **Load...** puts a `.bin`
 or Intel `.hex` file into the running chip, or, when nothing runs, makes it the
 chip's contents file. **Save as...** writes what the chip holds to a `.bin` or
 `.hex` file, for example to start the next run with what the firmware stored.
+
+Example 32 uses a ROM without a board as the lookup table of a 7-segment
+display; in example 33 a Blue Pill writes and reads a parallel RAM.
 
 Example 25 shifts a byte out bit by bit into a 74HC595 that drives eight LEDs.
 Example 27 uses the three I2C chips with the HAL; example 28 drives a 16x2 LCD

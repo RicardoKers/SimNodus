@@ -107,9 +107,10 @@ invalid value is outlined in red and not applied.
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
+| **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
-| **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
+| **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
 
 Notes on some parts:
@@ -316,7 +317,7 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
   While the firmware is halted at a breakpoint, the circuit stands still.
 
 **Window > Memory Viewer** (Ctrl+Shift+M) shows, loads and saves the contents
-of memory chips such as the 24C02 EEPROM, live while running
+of memory chips (the 24C02 EEPROM, ROM and RAM), live while running
 ([details](MICROCONTROLLER.md#memory-viewer)).
 
 Step-by-step instructions, the full list of peripherals and every difference

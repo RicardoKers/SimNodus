@@ -78,6 +78,9 @@ struct McuRunOptions {
     // signal pins are watched too, after the GPIO pins, as "U2.Q0".
     std::vector<DeviceRequest> devices;
     std::vector<DigitalNet> nets;
+    // Chips on no board pin (SN-212): no firmware; an idle core keeps the time
+    // of the devices, whose inputs all come from the circuit.
+    bool chips_only = false;
 };
 
 } // namespace simnodus::mcu

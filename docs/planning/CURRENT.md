@@ -64,7 +64,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ngspice's XSPICE models: adjustable and controlled sources (SN-209, done,
    example 29), a 4x4 matrix keypad (SN-210, done, example 30), A/D and D/A converters with
    selectable bits (SN-211, done, example 31), parallel ROM and RAM of several sizes with the
-   Memory Viewer (SN-212). Work through them in this order.
+   Memory Viewer (SN-212, done, ADR 0103: chips also run without a board;
+   examples 32, 33). All four are done; next: a 0.7 preview for the owner.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

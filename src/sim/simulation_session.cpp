@@ -665,14 +665,9 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
     auto constant = [&](int net) { return is_ground(net) || supply_of(net) > 0; };
 
     std::vector<int> owner(devices.size(), -1);
-    for (std::size_t b = 0; b < requests.size(); ++b) {
-        std::set<int> nets;
-        for (const auto& pin : requests[b].options.pins) {
-            const int n = net_of(requests[b].component, pin);
-            if (n >= 0 && !constant(n)) {
-                nets.insert(n);
-            }
-        }
+    // Gives board (or group) `b` every device sharing one of `nets`, directly or
+    // through another device it takes.
+    auto take = [&](std::size_t b, std::set<int> nets) {
         for (bool grew = true; grew;) {
             grew = false;
             for (std::size_t i = 0; i < devices.size(); ++i) {
@@ -694,14 +689,39 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                 }
             }
         }
-    }
-
-    for (std::size_t i = 0; i < devices.size(); ++i) {
-        if (owner[i] < 0) {
-            warn(devices[i].component->designator + " (" + devices[i].definition->name
-                + ") is not connected to a microcontroller pin; SimNodus simulates such parts only together "
-                  "with a board, so it does nothing.");
+    };
+    for (std::size_t b = 0; b < requests.size(); ++b) {
+        std::set<int> nets;
+        for (const auto& pin : requests[b].options.pins) {
+            const int n = net_of(requests[b].component, pin);
+            if (n >= 0 && !constant(n)) {
+                nets.insert(n);
+            }
         }
+        take(b, std::move(nets));
+    }
+    // Chips on no board pin (SN-212) run as groups of their own: the chips
+    // joined by nets, with an idle core that only keeps time, their inputs read
+    // from the circuit. The group is named after its first chip.
+    for (std::size_t i = 0; i < devices.size(); ++i) {
+        if (owner[i] >= 0) {
+            continue;
+        }
+        McuRequest group;
+        group.component = devices[i].component->id;
+        group.options.chips_only = true;
+        group.options.chunk_us = native_window_us;
+        requests.push_back(std::move(group));
+        const std::size_t b = requests.size() - 1;
+        owner[i] = static_cast<int>(b);
+        std::set<int> nets;
+        for (const auto& pin : devices[i].signals) {
+            const int n = net_of(devices[i].component->id, pin);
+            if (n >= 0 && !constant(n)) {
+                nets.insert(n);
+            }
+        }
+        take(b, std::move(nets));
     }
     for (std::size_t b = 0; b < requests.size(); ++b) {
         auto& options = requests[b].options;
@@ -727,7 +747,8 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                 request.supply = 0;
             }
             // Memory chips (SN-208): the contents file they start with.
-            if (device.memory_size > 0 && !device.contents_parameter.empty()) {
+            const std::size_t memory_bytes = device.memory_bytes(candidate.component->parameters);
+            if (memory_bytes > 0 && !device.contents_parameter.empty()) {
                 const auto file = candidate.component->parameters.find(device.contents_parameter);
                 if (file != candidate.component->parameters.end() && !file->second.empty()) {
                     std::filesystem::path path(std::u8string(file->second.begin(), file->second.end()));
@@ -735,7 +756,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                         path = project_dir / path;
                     }
                     std::string why;
-                    if (auto bytes = io::read_memory_file(path, device.memory_size, 0xFF, why)) {
+                    if (auto bytes = io::read_memory_file(path, memory_bytes, device.memory_fill, why)) {
                         request.memory = std::move(*bytes);
                     } else {
                         warn(request.designator + ": the contents file " + file->second + " cannot be read (" + why

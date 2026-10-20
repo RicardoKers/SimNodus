@@ -32,12 +32,14 @@
   "shift4": "4-bit shift register, serial in, parallel out (74HC164-like); CLR resets",
   "sr_latch": "SR latch: S sets Q, R resets it (R wins); holds while both are low",
   "t_flipflop": "T flip-flop: Q toggles at each rising edge of CLK while T is high",
-  "74hc595": "8-bit shift register with output latches; works with a microcontroller board",
-  "max7219": "8-digit LED display driver (digits or an 8x8 matrix); works with a microcontroller board",
+  "74hc595": "8-bit shift register with output latches",
+  "max7219": "8-digit LED display driver (digits or an 8x8 matrix)",
   "seven_segment_4digit_cc": "Four 7-segment digits, common cathode per digit, for multiplexing",
   "led_matrix_8x8": "64 LEDs in rows (cathodes) and columns (anodes), for multiplexing",
-  "24c02": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board",
-  "lm75": "I2C temperature sensor; set the temperature in Properties; works with a microcontroller board",
-  "pcf8574": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board",
-  "lcd_hd44780": "Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board"
+  "24c02": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA",
+  "lm75": "I2C temperature sensor; set the temperature in Properties",
+  "pcf8574": "I2C 8-bit I/O expander (outputs and inputs)",
+  "lcd_hd44780": "Character LCD (HD44780), rows and columns in Properties",
+  "rom": "Parallel ROM, 16 bytes to 64 KB; contents from a .bin or .hex file",
+  "ram": "Parallel static RAM, 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE)"
 }

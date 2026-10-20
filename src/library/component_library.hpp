@@ -131,9 +131,16 @@ struct DigitalDevice {
     // the circuit's view (SN-206).
     std::vector<std::string> driven_pins;
     // Memory chips (SN-208): their size in bytes and the File parameter with the
-    // contents they start with (empty: erased).
+    // contents they start with (empty: erased). A parallel memory (SN-212) takes
+    // its size from a parameter ("2K" words of a byte) and starts with `memory_fill`.
     std::size_t memory_size = 0;
+    std::string memory_size_parameter;
+    std::size_t memory_default = 0; // bytes at the size parameter's default
+    std::uint8_t memory_fill = 0xFF;
     std::string contents_parameter;
+
+    // The size of a placed memory with these parameters (0 for other chips).
+    std::size_t memory_bytes(const std::map<std::string, std::string>& parameters) const;
 };
 
 // Interactive control (INT-02). The netlist generator creates an external

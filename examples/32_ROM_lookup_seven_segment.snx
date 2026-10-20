@@ -1,0 +1,950 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 71,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        -12,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 3,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "vpulse",
+      "designator": "V2",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "Vlow": "0",
+        "Vhigh": "5",
+        "f": "2",
+        "duty": "50",
+        "rise": "1u"
+      }
+    },
+    {
+      "id": 8,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 9,
+      "type": "counter4",
+      "designator": "U1",
+      "at": [
+        14,
+        -2
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 15,
+      "type": "rom",
+      "designator": "U2",
+      "at": [
+        32,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "size": "16",
+        "contents": "memories/hex_digits.hex"
+      }
+    },
+    {
+      "id": 19,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        32,
+        26
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 21,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        40,
+        16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 23,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        42,
+        -5
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 27,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        52,
+        -3
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 31,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        42,
+        -1
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 35,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        52,
+        1
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 39,
+      "type": "resistor",
+      "designator": "R5",
+      "at": [
+        42,
+        3
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 43,
+      "type": "resistor",
+      "designator": "R6",
+      "at": [
+        52,
+        5
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 47,
+      "type": "resistor",
+      "designator": "R7",
+      "at": [
+        42,
+        7
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 51,
+      "type": "seven_segment_cc",
+      "designator": "DS1",
+      "at": [
+        72,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 67,
+      "type": "ground",
+      "designator": "GND5",
+      "at": [
+        72,
+        20
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          -12,
+          3
+        ],
+        [
+          -12,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          -12,
+          -3
+        ],
+        [
+          -12,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          9,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "points": [
+        [
+          19,
+          -5
+        ],
+        [
+          22,
+          -5
+        ],
+        [
+          22,
+          -11
+        ],
+        [
+          26,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          19,
+          -3
+        ],
+        [
+          23,
+          -3
+        ],
+        [
+          23,
+          -9
+        ],
+        [
+          26,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          19,
+          -1
+        ],
+        [
+          24,
+          -1
+        ],
+        [
+          24,
+          -7
+        ],
+        [
+          26,
+          -7
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          19,
+          1
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          25,
+          -5
+        ],
+        [
+          26,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          32,
+          -15
+        ],
+        [
+          32,
+          -17
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          32,
+          23
+        ],
+        [
+          32,
+          26
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          38,
+          11
+        ],
+        [
+          40,
+          11
+        ],
+        [
+          40,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          38,
+          13
+        ],
+        [
+          40,
+          13
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          38,
+          -5
+        ],
+        [
+          39,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          45,
+          -5
+        ],
+        [
+          58,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 28,
+      "points": [
+        [
+          38,
+          -3
+        ],
+        [
+          49,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 29,
+      "points": [
+        [
+          55,
+          -3
+        ],
+        [
+          58,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 32,
+      "points": [
+        [
+          38,
+          -1
+        ],
+        [
+          39,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": 33,
+      "points": [
+        [
+          45,
+          -1
+        ],
+        [
+          58,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": 36,
+      "points": [
+        [
+          38,
+          1
+        ],
+        [
+          49,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "points": [
+        [
+          55,
+          1
+        ],
+        [
+          58,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 40,
+      "points": [
+        [
+          38,
+          3
+        ],
+        [
+          39,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "points": [
+        [
+          45,
+          3
+        ],
+        [
+          58,
+          3
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "points": [
+        [
+          38,
+          5
+        ],
+        [
+          49,
+          5
+        ]
+      ]
+    },
+    {
+      "id": 45,
+      "points": [
+        [
+          55,
+          5
+        ],
+        [
+          58,
+          5
+        ]
+      ]
+    },
+    {
+      "id": 48,
+      "points": [
+        [
+          38,
+          7
+        ],
+        [
+          39,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "points": [
+        [
+          45,
+          7
+        ],
+        [
+          58,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 52,
+      "points": [
+        [
+          68,
+          -8
+        ],
+        [
+          68,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 54,
+      "points": [
+        [
+          70,
+          -8
+        ],
+        [
+          70,
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 56,
+      "points": [
+        [
+          74,
+          -8
+        ],
+        [
+          74,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 58,
+      "points": [
+        [
+          76,
+          -8
+        ],
+        [
+          76,
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 60,
+      "points": [
+        [
+          68,
+          8
+        ],
+        [
+          68,
+          14
+        ]
+      ]
+    },
+    {
+      "id": 62,
+      "points": [
+        [
+          70,
+          8
+        ],
+        [
+          70,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 64,
+      "points": [
+        [
+          74,
+          8
+        ],
+        [
+          74,
+          17
+        ]
+      ]
+    },
+    {
+      "id": 66,
+      "points": [
+        [
+          72,
+          8
+        ],
+        [
+          72,
+          20
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 5,
+      "at": [
+        -12,
+        -6
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 17,
+      "at": [
+        32,
+        -17
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 26,
+      "at": [
+        58,
+        -5
+      ],
+      "name": "a"
+    },
+    {
+      "id": 30,
+      "at": [
+        58,
+        -3
+      ],
+      "name": "b"
+    },
+    {
+      "id": 34,
+      "at": [
+        58,
+        -1
+      ],
+      "name": "c"
+    },
+    {
+      "id": 38,
+      "at": [
+        58,
+        1
+      ],
+      "name": "d"
+    },
+    {
+      "id": 42,
+      "at": [
+        58,
+        3
+      ],
+      "name": "e"
+    },
+    {
+      "id": 46,
+      "at": [
+        58,
+        5
+      ],
+      "name": "f"
+    },
+    {
+      "id": 50,
+      "at": [
+        58,
+        7
+      ],
+      "name": "g"
+    },
+    {
+      "id": 53,
+      "at": [
+        68,
+        -11
+      ],
+      "name": "g"
+    },
+    {
+      "id": 55,
+      "at": [
+        70,
+        -14
+      ],
+      "name": "f"
+    },
+    {
+      "id": 57,
+      "at": [
+        74,
+        -11
+      ],
+      "name": "a"
+    },
+    {
+      "id": 59,
+      "at": [
+        76,
+        -14
+      ],
+      "name": "b"
+    },
+    {
+      "id": 61,
+      "at": [
+        68,
+        14
+      ],
+      "name": "e"
+    },
+    {
+      "id": 63,
+      "at": [
+        70,
+        11
+      ],
+      "name": "d"
+    },
+    {
+      "id": 65,
+      "at": [
+        74,
+        17
+      ],
+      "name": "c"
+    }
+  ],
+  "probes": [
+    {
+      "id": 68,
+      "kind": "voltage",
+      "target": {
+        "item": 6,
+        "pin": "+",
+        "at": [
+          0,
+          -3
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 69,
+      "kind": "voltage",
+      "target": {
+        "item": 9,
+        "pin": "Q0",
+        "at": [
+          19,
+          -5
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 70,
+      "at": [
+        -14,
+        -30
+      ],
+      "text": "A ROM as a lookup table, without a microcontroller: a 2 Hz clock steps a 4-bit counter, whose outputs\naddress a 16-byte ROM; each byte holds the segments of a hex digit (bit 0 = a ... bit 6 = g, file\nmemories/hex_digits.hex). Run (F5): the display counts 0-9, A-F. Window > Memory Viewer shows the ROM;\nload another file there to change the symbols."
+    }
+  ]
+}

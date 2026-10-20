@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-20, SN-212)
+
+- Parallel ROM and static RAM (new category *Memories*): 16 bytes to 64 KB (a property), A0-A15, D0-D7, active-low CE, OE and WE; the address pins beyond the size are ignored; the ROM's contents come from a `.bin` or Intel `.hex` file (0xFF without one), the RAM starts with zeros or its file; ideal timing. Both appear in the Memory Viewer, which now follows the size and the starting value of each chip.
+- Chips work without a microcontroller (ADR 0103): chips on no board pin run in groups of their own, with an idle core that keeps time and inputs read from the circuit (up to 0.1 ms late); the message that a chip needs a board is gone. Engine protocol version 7.
+- Example 32: a counter addresses a ROM holding the segments of the hex digits (`examples/memories/hex_digits.hex`), without a board. Example 33: a Blue Pill (HAL project `firmware/hal_parallel_ram`) fills a RAM, checks it, writes a text and counts in it. Tests: the memory model, both examples in a session, example 32 and its ROM in the Memory Viewer through the engine process.
+
 ### Added (2026-10-20, SN-211)
 
 - A/D and D/A converters (new category *Converters*) with 4, 8, 10 and 12 bits: ideal and continuous (the ADC's code is floor(2^N x VIN / VREF), limited to the range; the DAC gives VREF x code / 2^N behind 10 Ω), reference on a pin, logic levels from a hidden supply like the gates. Parts from `tools/generate_converter_parts.py`.

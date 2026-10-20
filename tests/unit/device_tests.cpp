@@ -180,9 +180,14 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
     sim::McuEnvironment environment;
     environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
     REQUIRE(sim::build_mcu_requests(b.schematic, device_library(), environment, requests, error, &warnings));
-    REQUIRE(requests.size() == 1);
+    // The chip on X has no board pin: it runs in a group of its own (SN-212).
+    REQUIRE(requests.size() == 2);
+    CHECK(!requests[0].options.chips_only);
+    CHECK(requests[1].options.chips_only);
+    REQUIRE(requests[1].options.devices.size() == 1);
+    CHECK(requests[1].component == requests[1].options.devices[0].component);
     const auto& options = requests[0].options;
-    REQUIRE(options.devices.size() == 2); // the one on X has no board
+    REQUIRE(options.devices.size() == 2);
     const auto& first = options.devices[0];
     CHECK(first.component == chip);
     CHECK(first.supply == 3.3);
@@ -199,7 +204,7 @@ TEST_CASE("devices: a 74HC595 joins the board it is wired to, with its supply, p
     auto has = [&](const char* text) {
         return std::any_of(warnings.begin(), warnings.end(), [&](const std::string& w) { return w.find(text) != std::string::npos; });
     };
-    CHECK(has("not connected to a microcontroller pin"));
+    CHECK(!has("not connected to a microcontroller pin"));
     CHECK(has("has no supply"));
     CHECK(has(".STCP is not connected")); // the chip without supply leaves STCP open
     (void)board;
@@ -798,6 +803,200 @@ TEST_CASE("devices: example 30 scans a 4x4 keypad held through its control")
         session.mcu_uart_received(board, "usart1", 0, text);
         CHECK(text.find(shown) != std::string::npos);
     }
+    for (const auto& [id, message] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", message.c_str());
+        CHECK(false);
+    }
+    session.stop();
+}
+
+TEST_CASE("devices: parallel RAM and ROM read, write, ignore the unused address pins and float")
+{
+    // SN-212: pins in the order the library gives them.
+    std::vector<std::string> pins;
+    for (int i = 0; i < 16; ++i) {
+        pins.push_back("A" + std::to_string(i));
+    }
+    for (int i = 0; i < 8; ++i) {
+        pins.push_back("D" + std::to_string(i));
+    }
+    pins.insert(pins.end(), {"CE", "OE", "WE"});
+    const std::size_t a0 = 0, d0 = 16, ce = 24, oe = 25, we = 26;
+    std::string error;
+    CHECK(!devices::make_device("ram", pins, {{"size", "100"}}, error));
+    auto ram = devices::make_device("ram", pins, {{"size", "256"}}, error);
+    REQUIRE(ram);
+    for (std::size_t p = 0; p < pins.size(); ++p) {
+        ram->initial_input(p, p >= ce); // address 0, data 0, deselected
+    }
+    std::uint64_t t = 1000;
+    auto set_address = [&](unsigned address) {
+        for (std::size_t b = 0; b < 16; ++b) {
+            ram->set_input(a0 + b, ((address >> b) & 1u) != 0, t);
+        }
+    };
+    auto set_data = [&](unsigned value) {
+        for (std::size_t b = 0; b < 8; ++b) {
+            ram->set_input(d0 + b, ((value >> b) & 1u) != 0, t);
+        }
+    };
+    auto data = [&] {
+        unsigned value = 0;
+        for (std::size_t b = 0; b < 8; ++b) {
+            const auto out = ram->output(d0 + b);
+            if (!out.driven) {
+                return -1;
+            }
+            value |= (out.high ? 1u : 0u) << b;
+        }
+        return static_cast<int>(value);
+    };
+    CHECK(data() == -1); // CE high: off
+    // Write 0xA5 at 0x12: CE low, WE low, data, WE rises.
+    ram->set_input(ce, false, t);
+    set_address(0x12);
+    ram->set_input(we, false, t);
+    set_data(0xA5);
+    CHECK(data() == -1); // writing: the data pins are inputs
+    ram->set_input(we, true, ++t);
+    CHECK(ram->memory()[0x12] == 0xA5);
+    CHECK(ram->memory_version() == 1);
+    // Read it back with OE low; A8 is beyond 256 bytes and ignored.
+    ram->set_input(oe, false, ++t);
+    CHECK(data() == 0xA5);
+    set_address(0x112);
+    CHECK(data() == 0xA5);
+    set_address(0x13);
+    CHECK(data() == 0x00); // a RAM starts with zeros
+
+    auto rom = devices::make_device("rom", {pins.begin(), pins.begin() + 26}, {{"size", "16"}}, error);
+    REQUIRE(rom);
+    CHECK(rom->memory().size() == 16);
+    CHECK(rom->memory()[3] == 0xFF); // erased
+    rom->load_memory({0x3F, 0x06, 0x5B});
+    for (std::size_t p = 0; p < 26; ++p) {
+        rom->initial_input(p, false); // address 0, CE and OE low
+    }
+    rom->set_input(a0 + 1, true, t); // address 2
+    unsigned value = 0;
+    for (std::size_t b = 0; b < 8; ++b) {
+        value |= (rom->output(d0 + b).high ? 1u : 0u) << b;
+    }
+    CHECK(value == 0x5B);
+    rom->set_input(oe, true, t);
+    CHECK(!rom->output(d0).driven);
+}
+
+TEST_CASE("devices: example 32 counts on a display through a ROM without a board")
+{
+    // SN-212: the ROM is on no board pin; it runs in a chip group, its address read from the circuit.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "32_ROM_lookup_seven_segment.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    const std::string segments = "abcdefg";
+    for (const char s : segments) {
+        request.vectors.push_back(std::string(1, s));
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus[0].options.chips_only);
+    REQUIRE(request.mcus[0].options.devices.size() == 1);
+    CHECK(request.mcus[0].options.devices[0].memory.size() == 16); // the contents file
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    const std::vector<int> digits{0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71};
+    std::vector<int> seen;
+    for (double at = 0.25; at < 3.0; at += 0.5) { // the middle of each count
+        while (session.status().sim_time < at) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+        int value = 0;
+        for (std::size_t s = 0; s < segments.size(); ++s) {
+            value |= session.latest(std::string(1, segments[s])).value_or(0) > 1.0 ? 1 << s : 0;
+        }
+        seen.push_back(value);
+    }
+    // Consecutive hex digits on the display.
+    REQUIRE(seen.size() == 6);
+    const auto first = std::find(digits.begin(), digits.end(), seen[0]);
+    REQUIRE(first != digits.end());
+    for (std::size_t k = 1; k < seen.size(); ++k) {
+        CHECK(seen[k] == digits[static_cast<std::size_t>(first - digits.begin() + static_cast<long>(k)) % 16]);
+    }
+    for (const auto& [id, message] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", message.c_str());
+        CHECK(false);
+    }
+    session.stop();
+}
+
+TEST_CASE("devices: example 33 writes and reads a parallel RAM from a Blue Pill")
+{
+    // SN-212: the RAM on the board's pins; its contents reach the Memory Viewer's source.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "33_Parallel_RAM_on_Blue_Pill.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    model::Id board = model::no_id;
+    model::Id ram = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        ram = c.type == "ram" ? c.id : ram;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(!request.mcus[0].options.chips_only);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    wait_for(0.35);
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    CHECK(text.find("RAM test: 256 bytes written and read back") != std::string::npos);
+    CHECK(text.find("Text at 0x00: Hello from the Blue Pill") != std::string::npos);
+    const auto memory = session.device_memory(ram);
+    REQUIRE(memory.has_value());
+    REQUIRE(memory->size() == 256);
+    CHECK(std::string(memory->begin(), memory->begin() + 24) == "Hello from the Blue Pill");
+    CHECK((*memory)[0x40] == (0x40 ^ 0x5A));
+    CHECK((*memory)[0x20] >= 2); // the counter, every 100 ms
     for (const auto& [id, message] : session.take_mcu_diagnostics()) {
         std::printf("  diagnostic: %s\n", message.c_str());
         CHECK(false);

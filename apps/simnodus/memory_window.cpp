@@ -121,10 +121,10 @@ void MemoryWindow::rebuild_list()
     const auto& library = document_.library();
     for (const auto& c : document_.schematic().components()) {
         const auto* d = library.find(c.type);
-        if (d && d->device && d->device->memory_size > 0) {
+        if (d && d->device && d->device->memory_bytes(c.parameters) > 0) {
             chips_->addItem(QStringLiteral("%1 (%2, %3 bytes)")
                                 .arg(QString::fromStdString(c.designator), QString::fromStdString(d->name))
-                                .arg(d->device->memory_size),
+                                .arg(d->device->memory_bytes(c.parameters)),
                 QVariant::fromValue<qulonglong>(c.id));
         }
     }
@@ -141,15 +141,23 @@ std::size_t MemoryWindow::size_of(model::Id component) const
 {
     const auto* c = document_.schematic().component(component);
     const auto* d = c ? document_.library().find(c->type) : nullptr;
-    return d && d->device ? d->device->memory_size : 0;
+    return d && d->device ? d->device->memory_bytes(c->parameters) : 0;
+}
+
+std::uint8_t MemoryWindow::fill_of(model::Id component) const
+{
+    const auto* c = document_.schematic().component(component);
+    const auto* d = c ? document_.library().find(c->type) : nullptr;
+    return d && d->device ? d->device->memory_fill : 0xFF;
 }
 
 std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& source) const
 {
     const std::size_t size = size_of(component);
+    const std::uint8_t fill = fill_of(component);
     if (auto bytes = run_.device_memory(component); bytes && !bytes->empty()) {
         source = run_.active() ? tr("Live contents of the running chip.") : tr("Contents at the end of the last run.");
-        bytes->resize(size, 0xFF);
+        bytes->resize(size, fill);
         return *bytes;
     }
     const auto* c = document_.schematic().component(component);
@@ -160,16 +168,17 @@ std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& s
             const QString name = QString::fromStdString(it->second);
             const QString path = QDir(document_.base_dir()).absoluteFilePath(name);
             std::string error;
-            if (auto bytes = io::read_memory_file(path.toStdWString(), size, 0xFF, error)) {
+            if (auto bytes = io::read_memory_file(path.toStdWString(), size, fill, error)) {
                 source = tr("The contents file %1, which the chip starts each run with.").arg(name);
                 return *bytes;
             }
             source = tr("The contents file %1 cannot be read: %2").arg(name, QString::fromStdString(error));
-            return std::vector<std::uint8_t>(size, 0xFF);
+            return std::vector<std::uint8_t>(size, fill);
         }
     }
-    source = tr("Erased (0xFF): the chip starts each run like this; Load... chooses a contents file.");
-    return std::vector<std::uint8_t>(size, 0xFF);
+    source = tr("Every byte 0x%1: the chip starts each run like this; Load... chooses a contents file.")
+                 .arg(QStringLiteral("%1").arg(fill, 2, 16, QLatin1Char('0')).toUpper());
+    return std::vector<std::uint8_t>(size, fill);
 }
 
 void MemoryWindow::refresh()
@@ -239,7 +248,7 @@ void MemoryWindow::load()
         return;
     }
     std::string error;
-    const auto bytes = io::read_memory_file(chosen.toStdWString(), size_of(id), 0xFF, error);
+    const auto bytes = io::read_memory_file(chosen.toStdWString(), size_of(id), fill_of(id), error);
     if (!bytes) {
         status_->setText(tr("%1 cannot be loaded: %2").arg(QDir::toNativeSeparators(chosen), QString::fromStdString(error)));
         return;
