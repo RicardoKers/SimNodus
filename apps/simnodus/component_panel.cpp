@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
 #include <QMimeData>
 #include <QPainter>
 #include <QTreeWidget>
@@ -183,7 +184,12 @@ void ComponentPanel::set_library(const library::ComponentLibrary& library)
 void ComponentPanel::apply_filter(const QString& text)
 {
     const QString needle = text.trimmed();
+    // The part chosen for Enter: an exact name or type first, then a name with a
+    // word starting with the text ("LED" picks the LED, not "Current-controlled").
     QTreeWidgetItem* first_match = nullptr;
+    int best_rank = 3;
+    const QRegularExpression word_start(QStringLiteral("\\b") +QRegularExpression::escape(needle),
+        QRegularExpression::CaseInsensitiveOption);
     for (int c = 0; c < tree_->topLevelItemCount(); ++c) {
         auto* category = tree_->topLevelItem(c);
         int visible = 0;
@@ -197,7 +203,11 @@ void ComponentPanel::apply_filter(const QString& text)
             item->setHidden(!match);
             if (match) {
                 ++visible;
-                if (!first_match) {
+                const bool exact = item->text(0).compare(needle, Qt::CaseInsensitive) == 0
+                    || (d && QString::fromStdString(d->type).compare(needle, Qt::CaseInsensitive) == 0);
+                const int rank = exact ? 0 : word_start.match(item->text(0)).hasMatch() ? 1 : 2;
+                if (rank < best_rank) {
+                    best_rank = rank;
                     first_match = item;
                 }
             }

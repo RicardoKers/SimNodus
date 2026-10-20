@@ -97,7 +97,7 @@ invalid value is outlined in red and not applied.
 | Category | Parts |
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
-| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), pulse generator, sine generator, ground |
+| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, ground |
 | **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
@@ -116,6 +116,13 @@ Notes on some parts:
 - **Potentiometer:** the arrow on the body shows the wiper and the
   percentage beside it (0 % at pin 1). Set Properties > Position, or while
   running drag the potentiometer or turn the mouse wheel over it.
+- **Adjustable sources:** like a potentiometer, drag them or turn the mouse
+  wheel over them while running; the value goes from the lower limit (0 %)
+  to the upper limit (100 %) and is shown on the symbol.
+- **Controlled sources:** the control pins C+ and C- are on the left. A
+  voltage-controlled source only senses the voltage between them (1 GΩ); a
+  current-controlled source senses the current flowing from C+ to C-, so
+  its control pins are a short circuit, like an ammeter: put them in series.
 - **7-segment displays and decoders:** one resistor per segment; several
   displays side by side make a number (either COM pin may be used). For the
   4511 tie LT and BI high and LE low and wire VDD/VSS; for the 7447 wire VCC

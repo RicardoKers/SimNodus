@@ -1,0 +1,515 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 36,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vadj",
+      "designator": "V1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "Vmin": "0",
+        "Vmax": "5",
+        "position": "40"
+      }
+    },
+    {
+      "id": 3,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        0,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 4,
+      "type": "vcvs",
+      "designator": "E1",
+      "at": [
+        12,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "gain": "2"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        6,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 9,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        14,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 10,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        20,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    },
+    {
+      "id": 13,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        20,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 14,
+      "type": "voltmeter",
+      "designator": "VM1",
+      "at": [
+        26,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 17,
+      "type": "ground",
+      "designator": "GND5",
+      "at": [
+        26,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 18,
+      "type": "iadj",
+      "designator": "I1",
+      "at": [
+        0,
+        20
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "Imin": "0",
+        "Imax": "20m",
+        "position": "50"
+      }
+    },
+    {
+      "id": 20,
+      "type": "ground",
+      "designator": "GND6",
+      "at": [
+        0,
+        26
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 21,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        8,
+        20
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 23,
+      "type": "cccs",
+      "designator": "F1",
+      "at": [
+        14,
+        25
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "gain": "5"
+      }
+    },
+    {
+      "id": 26,
+      "type": "ground",
+      "designator": "GND7",
+      "at": [
+        11,
+        30
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 28,
+      "type": "ground",
+      "designator": "GND8",
+      "at": [
+        16,
+        30
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 29,
+      "type": "ammeter",
+      "designator": "AM1",
+      "at": [
+        26,
+        20
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 32,
+      "type": "ground",
+      "designator": "GND9",
+      "at": [
+        26,
+        30
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          0,
+          -3
+        ],
+        [
+          0,
+          -6
+        ],
+        [
+          6,
+          -6
+        ],
+        [
+          6,
+          -2
+        ],
+        [
+          9,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          9,
+          2
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          14,
+          3
+        ],
+        [
+          14,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "points": [
+        [
+          14,
+          -3
+        ],
+        [
+          14,
+          -6
+        ],
+        [
+          20,
+          -6
+        ],
+        [
+          20,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "points": [
+        [
+          20,
+          3
+        ],
+        [
+          20,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          20,
+          -6
+        ],
+        [
+          26,
+          -6
+        ],
+        [
+          26,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          26,
+          3
+        ],
+        [
+          26,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "points": [
+        [
+          0,
+          23
+        ],
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          0,
+          17
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          8,
+          14
+        ],
+        [
+          8,
+          17
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          8,
+          23
+        ],
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          11,
+          27
+        ],
+        [
+          11,
+          30
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
+          16,
+          28
+        ],
+        [
+          16,
+          30
+        ]
+      ]
+    },
+    {
+      "id": 30,
+      "points": [
+        [
+          16,
+          22
+        ],
+        [
+          16,
+          14
+        ],
+        [
+          26,
+          14
+        ],
+        [
+          26,
+          17
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "points": [
+        [
+          26,
+          23
+        ],
+        [
+          26,
+          30
+        ]
+      ]
+    }
+  ],
+  "labels": [],
+  "probes": [
+    {
+      "id": 33,
+      "kind": "voltage",
+      "target": {
+        "item": 1,
+        "pin": "+",
+        "at": [
+          0,
+          -3
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 34,
+      "kind": "voltage",
+      "target": {
+        "item": 14,
+        "pin": "+",
+        "at": [
+          26,
+          -3
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 35,
+      "at": [
+        -4,
+        -16
+      ],
+      "text": "Adjustable and controlled sources. Run (F5) and drag V1 or I1 up and down (or turn the wheel over\nthem): V1 goes from 0 to 5 V and E1 doubles it (VM1 reads 2 x V1); I1 sends 0 to 20 mA through\nthe LED and F1 copies that current five times into AM1. Limits and gains are in Properties."
+    }
+  ]
+}

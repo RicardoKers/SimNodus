@@ -2742,12 +2742,72 @@ Pinos: %2</translation>
             <translation>Resistência em série</translation>
         </message>
         <message>
+            <source>Current-controlled current source</source>
+            <translation>Fonte de corrente controlada por corrente</translation>
+        </message>
+        <message>
+            <source>Output current = gain x current from C+ to C-</source>
+            <translation>Corrente de saída = ganho x corrente de C+ para C-</translation>
+        </message>
+        <message>
+            <source>Gain</source>
+            <translation>Ganho</translation>
+        </message>
+        <message>
+            <source>Output current per ampere flowing from C+ to C-</source>
+            <translation>Corrente de saída por ampere que flui de C+ para C-</translation>
+        </message>
+        <message>
+            <source>Current-controlled voltage source</source>
+            <translation>Fonte de tensão controlada por corrente</translation>
+        </message>
+        <message>
+            <source>Output voltage = transresistance x current from C+ to C-</source>
+            <translation>Tensão de saída = transresistência x corrente de C+ para C-</translation>
+        </message>
+        <message>
+            <source>Transresistance</source>
+            <translation>Transresistência</translation>
+        </message>
+        <message>
+            <source>Output voltage per ampere flowing from C+ to C-</source>
+            <translation>Tensão de saída por ampere que flui de C+ para C-</translation>
+        </message>
+        <message>
             <source>Ground</source>
             <translation>Terra</translation>
         </message>
         <message>
             <source>Reference node 0</source>
             <translation>Nó de referência 0</translation>
+        </message>
+        <message>
+            <source>Adjustable current source</source>
+            <translation>Fonte de corrente ajustável</translation>
+        </message>
+        <message>
+            <source>Current between a lower and an upper limit, turned while running</source>
+            <translation>Corrente entre um limite inferior e um superior, ajustada durante a simulação</translation>
+        </message>
+        <message>
+            <source>Lower limit</source>
+            <translation>Limite inferior</translation>
+        </message>
+        <message>
+            <source>Current out of + at 0 %</source>
+            <translation>Corrente saindo de + em 0 %</translation>
+        </message>
+        <message>
+            <source>Upper limit</source>
+            <translation>Limite superior</translation>
+        </message>
+        <message>
+            <source>Current out of + at 100 %</source>
+            <translation>Corrente saindo de + em 100 %</translation>
+        </message>
+        <message>
+            <source>Where the value starts, from the lower (0 %) to the upper limit (100 %); drag the source or use the wheel while running</source>
+            <translation>Onde o valor começa, do limite inferior (0 %) ao superior (100 %); arraste a fonte ou use a roda do mouse durante a simulação</translation>
         </message>
         <message>
             <source>DC current source</source>
@@ -2764,6 +2824,50 @@ Pinos: %2</translation>
         <message>
             <source>Current out of the + terminal</source>
             <translation>Corrente que sai pelo terminal +</translation>
+        </message>
+        <message>
+            <source>Adjustable voltage source</source>
+            <translation>Fonte de tensão ajustável</translation>
+        </message>
+        <message>
+            <source>Voltage between a lower and an upper limit, turned while running</source>
+            <translation>Tensão entre um limite inferior e um superior, ajustada durante a simulação</translation>
+        </message>
+        <message>
+            <source>Voltage at 0 %</source>
+            <translation>Tensão em 0 %</translation>
+        </message>
+        <message>
+            <source>Voltage at 100 %</source>
+            <translation>Tensão em 100 %</translation>
+        </message>
+        <message>
+            <source>Voltage-controlled current source</source>
+            <translation>Fonte de corrente controlada por tensão</translation>
+        </message>
+        <message>
+            <source>Output current = transconductance x voltage between C+ and C-</source>
+            <translation>Corrente de saída = transcondutância x tensão entre C+ e C-</translation>
+        </message>
+        <message>
+            <source>Transconductance</source>
+            <translation>Transcondutância</translation>
+        </message>
+        <message>
+            <source>Output current per volt between C+ and C-</source>
+            <translation>Corrente de saída por volt entre C+ e C-</translation>
+        </message>
+        <message>
+            <source>Voltage-controlled voltage source</source>
+            <translation>Fonte de tensão controlada por tensão</translation>
+        </message>
+        <message>
+            <source>Output voltage = gain x voltage between C+ and C-</source>
+            <translation>Tensão de saída = ganho x tensão entre C+ e C-</translation>
+        </message>
+        <message>
+            <source>Output voltage per volt between C+ and C-</source>
+            <translation>Tensão de saída por volt entre C+ e C-</translation>
         </message>
         <message>
             <source>DC voltage source</source>
