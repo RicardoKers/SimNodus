@@ -583,7 +583,26 @@
     "kind": "max7219",
     "supply_pin": "VCC",
     "ground_pin": "GND",
-    "output_resistance": 75
+    "output_resistance": 75,
+    "driven_pins": [
+      "DOUT",
+      "DIG0",
+      "DIG1",
+      "DIG2",
+      "DIG3",
+      "DIG4",
+      "DIG5",
+      "DIG6",
+      "DIG7",
+      "SEGA",
+      "SEGB",
+      "SEGC",
+      "SEGD",
+      "SEGE",
+      "SEGF",
+      "SEGG",
+      "SEGDP"
+    ]
   },
   "spice": [
     "R_{ref}_hdin {node:DIN} {node:GND} 100Meg",

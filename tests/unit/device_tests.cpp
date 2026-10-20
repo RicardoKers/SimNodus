@@ -425,6 +425,9 @@ TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply withou
     REQUIRE(requests[0].options.devices.size() == 1);
     CHECK(requests[0].options.devices[0].supply == 5.0);
     CHECK(requests[0].options.nets.size() == 19); // DIN, CLK, LOAD, eight rows, eight columns
+    for (const auto& net : requests[0].options.nets) {
+        CHECK(!net.circuit); // the MAX7219 always drives its rows and columns
+    }
 }
 
 TEST_CASE("devices: an STM32CubeIDE HAL project uses a 24C02, an LM75 and a PCF8574 on I2C1")

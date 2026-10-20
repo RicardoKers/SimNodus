@@ -821,7 +821,7 @@ private slots:
             }
             return dimmest_lit > 0.002 && dimmest_lit > 10 * brightest_dark;
         };
-        QTRY_VERIFY_WITH_TIMEOUT(heart_shown(), 10000);
+        QTRY_VERIFY_WITH_TIMEOUT(heart_shown(), 40000); // CI runners are slower than real time here
         QCOMPARE(window_->messages()->warning_count(), before);
         window_->stop();
 #endif

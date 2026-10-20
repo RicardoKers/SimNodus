@@ -546,6 +546,12 @@ ComponentDefinition parse_definition(const json& j)
         if (m.contains("output_resistance")) {
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
+        device.driven_pins = strings(m, "driven_pins");
+        for (const auto& pin : device.driven_pins) {
+            if (!d.pin(pin)) {
+                invalid("device.driven_pins names a pin the part does not have: " + pin);
+            }
+        }
         if (!d.pin(device.supply_pin) || !d.pin(device.ground_pin)) {
             invalid("device.supply_pin and device.ground_pin must be pins of the part");
         }

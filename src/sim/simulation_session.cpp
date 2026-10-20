@@ -764,13 +764,23 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                     }
                     // Read from the circuit only when something besides chips is on the net
                     // (a push button, an LED): a net between two chips stays digital.
-                    net.circuit = net.board_pins.empty()
-                        && std::any_of(connectivity.nets[static_cast<std::size_t>(n)].pins.begin(),
-                            connectivity.nets[static_cast<std::size_t>(n)].pins.end(), [&](const netlist::PinRef& p) {
-                                const auto* c = schematic.component(p.first);
-                                const auto* d = c ? library.find(c->type) : nullptr;
-                                return !d || !d->device;
-                            });
+                    // A net with an output that always drives never needs it either.
+                    const auto& net_pins = connectivity.nets[static_cast<std::size_t>(n)].pins;
+                    auto definition_of = [&](const netlist::PinRef& p) {
+                        const auto* c = schematic.component(p.first);
+                        return c ? library.find(c->type) : nullptr;
+                    };
+                    const bool other_parts = std::any_of(net_pins.begin(), net_pins.end(), [&](const netlist::PinRef& p) {
+                        const auto* d = definition_of(p);
+                        return !d || !d->device;
+                    });
+                    const bool always_driven = std::any_of(net_pins.begin(), net_pins.end(), [&](const netlist::PinRef& p) {
+                        const auto* d = definition_of(p);
+                        return d && d->device
+                            && std::find(d->device->driven_pins.begin(), d->device->driven_pins.end(), p.second)
+                                != d->device->driven_pins.end();
+                    });
+                    net.circuit = net.board_pins.empty() && other_parts && !always_driven;
                     options.nets.push_back(std::move(net));
                 }
                 options.nets[it->second].device_pins.emplace_back(index, pin);

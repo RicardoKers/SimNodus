@@ -123,6 +123,9 @@ struct DigitalDevice {
     std::string supply_pin = "VCC";
     std::string ground_pin = "GND";
     double output_resistance = 50.0; // Ohm, of driven outputs
+    // Push-pull outputs that always drive: a net with one of them never needs
+    // the circuit's view (SN-206).
+    std::vector<std::string> driven_pins;
 };
 
 // Interactive control (INT-02). The netlist generator creates an external

@@ -67,7 +67,7 @@ def device_spice(signals, outputs, supply="VCC", ground="GND"):
     return spice
 
 
-def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None):
+def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None, driven=()):
     result = {
         "type": type_,
         "name": name,
@@ -80,6 +80,8 @@ def part(type_, name, description, symbol, upper, kind, spice, output_resistance
         "device": {"kind": kind, "supply_pin": "VCC", "ground_pin": "GND", "output_resistance": output_resistance},
         "spice": spice,
     }
+    if driven:
+        result["device"]["driven_pins"] = list(driven)  # push-pull outputs that always drive
     if parameters:
         result["parameters"] = parameters
         result["value_parameter"] = parameters[0]["name"]
@@ -97,7 +99,7 @@ def hc595():
                 "clears the shift register, OE high turns Q0-Q7 off (high impedance); Q7S, the last stage, feeds the "
                 "DS of a second 74HC595. Tie MR to VCC and OE to GND for normal use; supply 2-6 V on VCC and GND. "
                 "Works together with a microcontroller board.",
-                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs))
+                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs), driven=["Q7S"])
 
 
 I2C_NOTE = ("SDA is open drain: SCL and SDA need pull-up resistors (4.7 kOhm to the supply), as on a real board; "
@@ -198,7 +200,8 @@ def max7219():
                 "8x8 LED matrix (SEG to the anodes, DIG to the cathodes); DOUT feeds the DIN of a second MAX7219. "
                 "Starts in shutdown: write 1 to register 12. Supply 4-5.5 V on VCC and GND. Works together with a "
                 "microcontroller board.",
-                symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75)
+                symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75,
+                driven=outputs)
 
 
 def main():
