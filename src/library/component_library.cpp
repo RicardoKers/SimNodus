@@ -362,8 +362,20 @@ ComponentDefinition parse_definition(const json& j)
             interactive.kind = Interactive::Kind::Button;
         } else if (kind == "potentiometer") {
             interactive.kind = Interactive::Kind::Potentiometer;
+        } else if (kind == "keypad") {
+            interactive.kind = Interactive::Kind::Keypad;
+            if (!i.contains("keys") || !i["keys"].is_array() || i["keys"].empty()) {
+                invalid("interactive.keys must list the keypad's keys");
+            }
+            for (const auto& key : i["keys"]) {
+                const auto r = numbers(key, 4, "interactive.keys");
+                if (r.size() != 4) {
+                    invalid("each of interactive.keys needs four numbers");
+                }
+                interactive.keys.push_back({r[0], r[1], r[2], r[3]});
+            }
         } else {
-            invalid("interactive.kind must be toggle, button or potentiometer");
+            invalid("interactive.kind must be toggle, button, potentiometer or keypad");
         }
         interactive.parameter = text(i, "parameter");
         if (!interactive.parameter.empty() && !d.parameter(interactive.parameter)) {

@@ -932,6 +932,49 @@ private slots:
 #endif
     }
 
+    void keypad_key_clicked_reaches_the_firmware()
+    {
+        // SN-210: example 30; holding the mouse on key "5" of the keypad, the Blue Pill reports it.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/30_Keypad_4x4_scanned_by_Blue_Pill.snx"), errors, warnings));
+        model::Id keypad = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            keypad = c.type == "keypad_4x4" ? c.id : keypad;
+        }
+        QVERIFY(keypad != model::no_id);
+        const auto* definition = doc().library().find("keypad_4x4");
+        QVERIFY(definition && definition->interactive && definition->interactive->keys.size() == 16);
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto uart_text = [&] {
+            std::string text;
+            for (const auto& port : window_->run_controller()->uart_ports()) {
+                std::string bytes;
+                window_->run_controller()->uart_received(port, 0, bytes);
+                text += bytes;
+            }
+            return text;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(uart_text().find("Keypad ready") != std::string::npos, 20000);
+        // The middle of key "5" (the sixth key) on screen.
+        const auto& key = definition->interactive->keys[5];
+        view()->centerOn(window_->scene()->item_of(keypad));
+        const QPointF local((key[0] + key[2] / 2) * scene_grid, (key[1] + key[3] / 2) * scene_grid);
+        const QPoint on_view = view()->mapFromScene(window_->scene()->item_of(keypad)->mapToScene(local));
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, on_view);
+        QTRY_COMPARE(window_->scene()->live().controls.at(keypad), 6.0);
+        QTRY_VERIFY_WITH_TIMEOUT(uart_text().find("Key: 5") != std::string::npos, 20000);
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, on_view);
+        QTRY_COMPARE(window_->scene()->live().controls.at(keypad), 0.0);
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.

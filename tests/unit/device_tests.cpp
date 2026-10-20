@@ -751,3 +751,56 @@ TEST_CASE("devices: examples 27 and 28 wire their chips without warnings")
         }
     }
 }
+
+TEST_CASE("devices: example 30 scans a 4x4 keypad held through its control")
+{
+    // SN-210: the keypad's control is the number of the key held; the firmware reads it through the circuit.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "30_Keypad_4x4_scanned_by_Blue_Pill.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    model::Id board = model::no_id;
+    model::Id keypad = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        keypad = c.type == "keypad_4x4" ? c.id : keypad;
+    }
+    std::string error;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    std::string text;
+    wait_for(0.1);
+    session.mcu_uart_received(board, "usart1", 0, text);
+    CHECK(text.find("Keypad ready") != std::string::npos);
+    CHECK(text.find("Key:") == std::string::npos);
+    // Key 6 is "5" (second row, second column), key 16 is "D".
+    for (const auto& [number, shown] : std::vector<std::pair<double, std::string>>{{6, "Key: 5"}, {16, "Key: D"}}) {
+        session.set_control(keypad, number);
+        wait_for(session.status().sim_time + 0.1);
+        session.set_control(keypad, 0);
+        wait_for(session.status().sim_time + 0.05);
+        session.mcu_uart_received(board, "usart1", 0, text);
+        CHECK(text.find(shown) != std::string::npos);
+    }
+    for (const auto& [id, message] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", message.c_str());
+        CHECK(false);
+    }
+    session.stop();
+}

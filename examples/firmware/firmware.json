@@ -247,6 +247,47 @@
         "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
       ]
     },
+    "hal_keypad": {
+      "sources": [
+        "examples/firmware/hal_keypad/main.c"
+      ],
+      "elf": "examples/firmware/hal_keypad/hal_keypad.elf",
+      "sha256": "103503d6d9cb1b96029f82e2038efd1aa65ec54e22546f98e15c3d1a911f9c00",
+      "size": 106716,
+      "flags": [
+        "-mcpu=cortex-m3",
+        "-mthumb",
+        "-std=gnu11",
+        "-Os",
+        "-g",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wall",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-Wl,--build-id=none",
+        "-Wl,--gc-sections",
+        "-Wl,--no-warn-rwx-segments",
+        "-ffile-prefix-map={root}=.",
+        "-ffile-prefix-map={package}={package_name}",
+        "-DUSE_HAL_DRIVER",
+        "-DSTM32F103xB",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
+      ]
+    },
     "hal_rtc_watchdog": {
       "sources": [
         "examples/firmware/hal_rtc_watchdog/main.c"

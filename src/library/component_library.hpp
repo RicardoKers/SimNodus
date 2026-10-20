@@ -12,6 +12,7 @@
 #include "model/schematic.hpp"
 #include "spice_model.hpp"
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <map>
@@ -137,9 +138,10 @@ struct DigitalDevice {
 
 // Interactive control (INT-02). The netlist generator creates an external
 // voltage source on node "{control}" whose value is the control state:
-// 0/1 for toggle and button, 0..1 for a potentiometer position.
+// 0/1 for toggle and button, 0..1 for a potentiometer position, and for a
+// keypad the number of the key held (1 for the first of `keys`), 0 for none.
 struct Interactive {
-    enum class Kind { Toggle, Button, Potentiometer };
+    enum class Kind { Toggle, Button, Potentiometer, Keypad };
     Kind kind = Kind::Toggle;
     std::string parameter; // parameter holding the initial state ("closed", "position")
     // Potentiometer (UI-18): the wiper arrow's tip moves along this track, from
@@ -150,6 +152,8 @@ struct Interactive {
         std::string pin;
     };
     std::optional<Wiper> wiper;
+    // Keypad (SN-210): the keys' rectangles in symbol coordinates (x, y, width, height).
+    std::vector<std::array<double, 4>> keys;
 };
 
 // Value shown on the symbol while running (INT-03).

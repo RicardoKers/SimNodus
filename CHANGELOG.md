@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-20, SN-210)
+
+- 4x4 matrix keypad (*Switches & Controls*): hold the mouse on a key while running and it joins its row to its column, like the membrane keypad (pins R1-R4, C1-C4); the held key is drawn pushed in. Part definitions get the interactive kind `keypad` with the keys' rectangles. Parts from `tools/generate_keypad_part.py`.
+- Example 30: a Blue Pill running an STM32CubeIDE-style HAL project (`firmware/hal_keypad`) scans the keypad (open-drain rows, columns with pull-ups) and prints each key on USART1. Tests: the keys through the session's control and a mouse click on the canvas through the engine process.
+
 ### Added (2026-10-20, SN-209)
 
 - Adjustable voltage and current sources: turned while running like a potentiometer (drag or mouse wheel) between a lower and an upper limit set in Properties; the symbol shows the present value.
