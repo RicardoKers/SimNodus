@@ -14,8 +14,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   `SimNodus-0.5.0-windows-x64.zip` and `SimNodus-0.5.0-windows-x64-setup.exe`.
   Releases 0.1.0-0.4.0 were published on 2026-10-14, 10-18 and 10-19.
 - **On `main` after 0.5:** CRC, IWDG, WWDG, RTC/BKP (SN-187, example 24);
-  chips for microcontrollers with hybrid coupling (SN-203, ADR 0102: first chip
-  74HC595, example 25).
+  chips for microcontrollers with hybrid coupling (SN-203, ADR 0102: 74HC595,
+  example 25); SPI1/2 master, MAX7219, 8x8 matrix and 4-digit display, glow
+  averaged over 20 ms (SN-204, example 26).
 - **New in 0.5:** simulations in a separate engine process (#182, ADR 0101:
   `simnodus-engine`; an engine crash ends only the run), Windows installer
   (#177, ADR 0100), Brazilian Portuguese interface (#176), dark theme (#178),
@@ -59,9 +60,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 1. After 0.5, the owner chose more microcontroller peripherals (2026-10-19).
    Done: CRC, IWDG, WWDG, RTC/BKP (SN-187); chips for microcontrollers with
    hybrid coupling (SN-203, ADR 0102; the owner rejected pure pin level after
-   hearing that reads arrive up to 0.1 ms late), first chip 74HC595.
-2. Next, in this order: SPI1-2 with the MAX7219 and an 8x8 LED matrix, and LED
-   glow averaged for multiplexed displays (SN-204); I2C1-2 with 24C02, LM75
+   hearing that reads arrive up to 0.1 ms late), first chip 74HC595; SPI with
+   the MAX7219 and multiplexed displays (SN-204).
+2. Next, in this order: I2C1-2 with 24C02, LM75
    and PCF8574, plus circuit inputs for chip pins on nets without a board pin
    (a push button into the PCF8574) (SN-205); an HD44780 LCD with adjustable
    rows and columns, also driven through a PCF8574 (SN-206).

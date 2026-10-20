@@ -647,11 +647,7 @@ void NativeMcuRunner::work()
             if (!pending.empty() && pending.front().apply_ns < target) {
                 target = std::max(pending.front().apply_ns, machine->time_ns() + 1);
             }
-            if (bus.next_event_ns() < target) {
-                target = std::max(bus.next_event_ns(), machine->time_ns() + 1);
-            }
-            machine->run_until_ns(target);
-            bus.advance(machine->time_ns());
+            machine->run_until_ns(target); // device events run inside, at their times
             if (gdb) {
                 gdb->after_run();
                 if (gdb->halted()) {

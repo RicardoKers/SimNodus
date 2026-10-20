@@ -11,6 +11,9 @@ nothing.
 
 - 74HC595: 8-bit shift register with output latches (NXP pin names: DS, SHCP,
   STCP, MR, OE, Q0-Q7, Q7S).
+- MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
+  SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
+  current-setting resistor, so the LEDs need no series resistors.
 
 Run from the repository root: python tools/generate_device_parts.py
 """
@@ -85,11 +88,30 @@ def hc595():
                 symbol, upper, "74hc595", device_spice(inputs + outputs, outputs))
 
 
+def max7219():
+    inputs = ["DIN", "CLK", "LOAD"]
+    digits = [f"DIG{i}" for i in range(8)]
+    segments = [f"SEG{s}" for s in "ABCDEFG"] + ["SEGDP"]
+    outputs = ["DOUT"] + digits + segments
+    symbol, upper = ic_symbol("MAX7219", inputs + ["DOUT"], digits + segments, "VCC", "GND",
+                              optional=tuple(outputs))
+    return part("max7219", "LED display driver MAX7219",
+                "Serially interfaced 8-digit LED display driver (MAX7219): 16-bit words shift in on DIN at rising CLK "
+                "(MSB first: 4 address bits, 8 data bits) and a rising LOAD stores them (registers 1-8 digits, 9 "
+                "decode mode, 10 intensity, 11 scan limit, 12 shutdown, 15 display test). It scans the digits about "
+                "800 times a second: the active DIG pin sinks the digit's current, SEG A-G and DP source the segment "
+                "current (about 40 mA at 5 V, no series resistors needed). Drives eight common-cathode digits or an "
+                "8x8 LED matrix (SEG to the anodes, DIG to the cathodes); DOUT feeds the DIN of a second MAX7219. "
+                "Starts in shutdown: write 1 to register 12. Supply 4-5.5 V on VCC and GND. Works together with a "
+                "microcontroller board.",
+                symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75)
+
+
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
-    for p in [hc595()]:
+    for p in [hc595(), max7219()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

@@ -13,6 +13,7 @@
 #pragma once
 
 #include "devices/device.hpp"
+#include "emu/timed_device.hpp"
 #include "mcu_runner.hpp"
 
 #include <cstdint>
@@ -28,8 +29,11 @@ class Stm32F103;
 
 namespace simnodus::mcu {
 
-class DeviceBus {
+// The devices' own events (scanning, write cycles) run inside the machine's
+// run at their exact times, as a timed device of the machine.
+class DeviceBus : public emu::TimedDevice {
 public:
+    ~DeviceBus() override;
     struct Change {
         std::size_t device = 0;
         std::size_t pin = 0; // index in the device's signal pins
@@ -49,6 +53,9 @@ public:
     // Lets the devices change by themselves up to `time_ns`.
     void advance(std::uint64_t time_ns);
     std::uint64_t next_event_ns() const;
+    // emu::TimedDevice: the next device event in machine cycles.
+    std::uint64_t next_event() const override;
+    void on_time(std::uint64_t cycle) override;
     // The board pin is on a digital net: the bus sets its input, not the circuit.
     bool owns_board_pin(int port, int pin) const { return board_net_.count({port, pin}) > 0; }
 

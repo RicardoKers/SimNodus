@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-204)
+
+- SPI1 and SPI2 in master mode (`src/emu/stm32f1_spi.*`): 8/16-bit frames, MSB or LSB first, all four clock modes, PCLK / 2..256 with exact SCK edges, MOSI and MISO on the pins (chips on the board's nets answer within the frame), back-to-back frames, TXE/RXNE/BSY/OVR, interrupts, DMA requests, NSS output, SPI1 remap; slave, bidirectional and CRC modes are reported.
+- MAX7219 LED display driver (chip for microcontrollers) with Code B decoding, intensity, scan limit, shutdown and display test, scanning its digits about 800 times a second; new displays for multiplexing: a 4-digit 7-segment display (common cathode per digit) and an 8x8 LED matrix (row cathodes, column anodes). Their LED models break down at 10 V, since unused rows are reverse biased by the full supply.
+- LEDs and display segments glow with their current averaged over the last 20 ms, as the eye sees a multiplexed display.
+- Chips' own events (the MAX7219's scan) run inside the emulator at their exact times, like its timers.
+- Example 26: an STM32CubeIDE-style HAL project sends a heart and a smiley over SPI1 to a MAX7219 driving the matrix; its delay sleeps with WFI, which made the run 1.7 times faster than busy waiting. Tests: SPI timing, bits and flags; the MAX7219 model; the HAL project drawing the heart row by row; the example in the editor.
+
 ### Added (2026-10-19, SN-203)
 
 - Chips for microcontrollers (ADR 0102, the owner's hybrid coupling): parts whose logic runs in step with the firmware in the board's runner (`src/devices`). The nets between a board and its chips are resolved at once on every edge (driven low, driven high, internal pull, a resistor to a supply or ground from the circuit), so chips can answer within a bus cycle; their outputs drive the circuit like board pins and have logic lanes (`U2.Q0`). A chip without supply or ground, an open input, a chip on no board pin and two outputs fighting are reported in the Messages panel. First chip: the 74HC595 shift register (new category *Chips for microcontrollers*). Example 25 bit-bangs bytes into it to drive eight LEDs. Tests: the device model, the bus with the emulator, the attachment rules, a whole run, and the example in the editor through the engine process.

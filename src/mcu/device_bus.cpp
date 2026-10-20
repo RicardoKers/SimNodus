@@ -20,10 +20,18 @@ bool same(const devices::Output& a, const devices::Output& b)
 
 } // namespace
 
+DeviceBus::~DeviceBus()
+{
+    if (machine_) {
+        machine_->remove_timed(this);
+    }
+}
+
 bool DeviceBus::init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& devices,
     const std::vector<DigitalNet>& nets, std::string& error)
 {
     machine_ = &machine;
+    machine.add_timed(this);
     for (const auto& request : devices) {
         std::unique_ptr<devices::Device> device;
         if (request.supply > 0) {
@@ -256,6 +264,17 @@ std::uint64_t DeviceBus::next_event_ns() const
         }
     }
     return next;
+}
+
+std::uint64_t DeviceBus::next_event() const
+{
+    const std::uint64_t ns = next_event_ns();
+    return ns == devices::no_event ? emu::no_event : machine_->cycles_at(ns);
+}
+
+void DeviceBus::on_time(std::uint64_t cycle)
+{
+    advance(machine_->ns_at(cycle));
 }
 
 std::vector<std::string> DeviceBus::take_messages()
