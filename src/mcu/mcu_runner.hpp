@@ -45,8 +45,9 @@ struct DigitalNet {
     std::vector<std::string> board_pins;                       // "PA5"
     std::vector<std::pair<std::size_t, std::string>> device_pins; // index in devices, pin
     int pull = 0; // +1: a resistor to a supply, -1: to ground, 0: none
-    // No board pin on the net: its voltage in the circuit (a push button, an LED)
-    // counts when no output drives it, read like a board input (SN-205).
+    // No board pin, and other parts than chips on the net: its voltage in the
+    // circuit (a push button, an LED) counts when no output drives it, read
+    // like a board input (SN-205).
     bool circuit = false;
 };
 

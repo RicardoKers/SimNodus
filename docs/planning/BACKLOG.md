@@ -69,7 +69,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-203 | Digital devices on the board's nets, hybrid coupling (ADR 0102): `src/devices`, `DeviceBus`, device pins into the circuit and the logic lanes; first device 74HC595 (example 25, bit-banged) | after 0.5 | MCU-10 | done 2026-10-19 |
 | SN-204 | SPI1–2 master (`src/emu/stm32f1_spi.*`), MAX7219, 8x8 LED matrix and 4-digit 7-segment display parts, LED glow averaged over 20 ms, device events inside the machine's run (example 26) | after 0.5 | — | done 2026-10-19 |
 | SN-205 | I2C1–2 master (`src/emu/stm32f1_i2c.*`), 24C02, LM75 and PCF8574, chip pins read from the circuit on nets without a board pin (example 27) | after 0.5 | — | done 2026-10-19 |
-| SN-206 | HD44780 character LCD (rows and columns adjustable; parallel, also behind a PCF8574) | after 0.5 | — | todo |
+| SN-206 | HD44780 character LCD (rows and columns as properties, 8- and 4-bit, busy flag), its text on the schematic (`screen` in part definitions), behind a PCF8574 in example 28 | after 0.5 | — | done 2026-10-19 |
 | SN-188 | Revisit the interactive segment length (ADR 0080): ngspice keeps about 0.7 KB (analog example) to 2 KB (Blue Pill circuit) per segment restart; example 07 for one hour grew 7.5 MB with 1 s segments and stayed flat with 10 s segments, which also ran 2.9x instead of 1.8x real time but used 24 MB more | G1 finding | SIM-02 | done 2026-10-16: re-measured, no change (segment length no longer affects speed; 1 s kept) |
 | SN-180 | GDB server and whole-simulation pause | N4 / G4 | MCU-08 | done (owner's STM32CubeIDE test 2026-10-18; load like an ST-LINK; watchpoints) |
 | SN-181 | Cortex-M3 cycle model validated on the owner's board | N5 / G5 | — | todo |

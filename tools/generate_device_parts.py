@@ -16,6 +16,9 @@ nothing.
   parameter.
 - PCF8574: I2C 8-bit quasi-bidirectional I/O expander (SCL, SDA, A0-A2, INT,
   P0-P7); its pins read the circuit (buttons), so they work as inputs too.
+- HD44780 character LCD (SN-206): the module's 16 pins on top as on a real
+  module (VSS VDD V0 RS RW E D0-D7 A K), rows and columns as parameters; the
+  editor draws its text in the screen area; A and K are the backlight LED.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -64,7 +67,7 @@ def device_spice(signals, outputs, supply="VCC", ground="GND"):
     return spice
 
 
-def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None):
+def part(type_, name, description, symbol, upper, kind, spice, output_resistance=50, parameters=None, driven=()):
     result = {
         "type": type_,
         "name": name,
@@ -77,6 +80,8 @@ def part(type_, name, description, symbol, upper, kind, spice, output_resistance
         "device": {"kind": kind, "supply_pin": "VCC", "ground_pin": "GND", "output_resistance": output_resistance},
         "spice": spice,
     }
+    if driven:
+        result["device"]["driven_pins"] = list(driven)  # push-pull outputs that always drive
     if parameters:
         result["parameters"] = parameters
         result["value_parameter"] = parameters[0]["name"]
@@ -94,7 +99,7 @@ def hc595():
                 "clears the shift register, OE high turns Q0-Q7 off (high impedance); Q7S, the last stage, feeds the "
                 "DS of a second 74HC595. Tie MR to VCC and OE to GND for normal use; supply 2-6 V on VCC and GND. "
                 "Works together with a microcontroller board.",
-                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs))
+                symbol, upper, "74hc595", device_spice(inputs + outputs, outputs), driven=["Q7S"])
 
 
 I2C_NOTE = ("SDA is open drain: SCL and SDA need pull-up resistors (4.7 kOhm to the supply), as on a real board; "
@@ -143,6 +148,42 @@ def pcf8574():
                              "description": "PCF8574 answers at 0x20-0x27, PCF8574A at 0x38-0x3F"}])
 
 
+def lcd_hd44780():
+    names = ["VSS", "VDD", "V0", "RS", "RW", "E"] + [f"D{i}" for i in range(8)] + ["A", "K"]
+    graphics = [{"rect": [-17, -3, 34, 14]}]
+    pins = []
+    for i, name in enumerate(names):
+        x = -15 + 2 * i
+        pin = {"name": name, "at": [x, -5], "dir": "up"}
+        if name in ("V0", "A", "K") or name in [f"D{k}" for k in range(4)]:
+            pin["optional"] = True  # contrast, backlight, and D0-D3 in 4-bit mode
+        pins.append(pin)
+        graphics.append({"line": [x, -5, x, -3]})
+        graphics.append({"text": name, "at": [x, -2.2], "size": 0.45})
+    outputs = [f"D{i}" for i in range(8)]
+    spice = device_spice(["V0", "RS", "RW", "E"] + outputs, outputs, supply="VDD", ground="VSS")
+    # Backlight: a white LED with its series resistor between A and K.
+    spice += ["R_{ref}_bl {node:A} bl_{ref} 47", "D_{ref}_bl bl_{ref} {node:K} LCDBL"]
+    p = part("lcd_hd44780", "Character LCD (HD44780)",
+             "Character LCD module with an HD44780 controller, 1, 2 or 4 rows of 8 to 40 characters (set in its "
+             "properties): RS, RW and E with D0-D7 (8-bit) or D4-D7 (4-bit) from a microcontroller, or from a "
+             "PCF8574 as on the common I2C backpacks; supply 5 V or 3.3 V on VDD and VSS; A and K are the backlight. "
+             "The text appears on the schematic while running. Works together with a microcontroller board.",
+             {"graphics": graphics, "pins": pins}, -3, "hd44780", spice,
+             parameters=[{"name": "rows", "label": "Rows", "unit": "", "default": "2", "choices": ["1", "2", "4"],
+                          "description": "Rows of characters"},
+                         {"name": "columns", "label": "Columns", "unit": "", "default": "16",
+                          "choices": ["8", "16", "20", "40"], "description": "Characters per row"}])
+    p["category"] = "Displays"
+    p["device"].update({"supply_pin": "VDD", "ground_pin": "VSS"})
+    p["screen"] = {"rect": [-14, 0, 28, 8], "rows_parameter": "rows", "columns_parameter": "columns"}
+    p["models"] = [".model LCDBL D(IS=6.7e-28 N=2 RS=8)"]
+    p["designator_offset"] = [-17, -8]
+    p["value_offset"] = [10, -8]
+    del p["value_parameter"]  # rows and columns show on the screen itself
+    return p
+
+
 def max7219():
     inputs = ["DIN", "CLK", "LOAD"]
     digits = [f"DIG{i}" for i in range(8)]
@@ -159,14 +200,15 @@ def max7219():
                 "8x8 LED matrix (SEG to the anodes, DIG to the cathodes); DOUT feeds the DIN of a second MAX7219. "
                 "Starts in shutdown: write 1 to register 12. Supply 4-5.5 V on VCC and GND. Works together with a "
                 "microcontroller board.",
-                symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75)
+                symbol, upper, "max7219", device_spice(inputs + outputs, outputs), output_resistance=75,
+                driven=outputs)
 
 
 def main():
     os.makedirs(FOLDER, exist_ok=True)
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
-    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574()]:
+    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

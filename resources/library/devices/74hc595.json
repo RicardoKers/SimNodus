@@ -445,7 +445,10 @@
     "kind": "74hc595",
     "supply_pin": "VCC",
     "ground_pin": "GND",
-    "output_resistance": 50
+    "output_resistance": 50,
+    "driven_pins": [
+      "Q7S"
+    ]
   },
   "spice": [
     "R_{ref}_hds {node:DS} {node:GND} 100Meg",

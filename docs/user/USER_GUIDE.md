@@ -105,7 +105,7 @@ invalid value is outlined in red and not applied.
 | **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A) |
 | **Logic gates** | NOT, AND, OR, NAND, NOR, XOR (74HC-like, with a hidden supply) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
-| **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
+| **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
@@ -315,7 +315,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
   (23), the RTC with a watchdog (24), a 74HC595 shift register (25), an 8x8
-  LED matrix on a MAX7219 over SPI (26) and three I2C chips (27).
+  LED matrix on a MAX7219 over SPI (26), three I2C chips (27) and a 16x2 LCD
+  behind a PCF8574 (28).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.

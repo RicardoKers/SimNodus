@@ -1,0 +1,647 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 62,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06,
+    "mcu_quantum": 0.001
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "bluepill",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/hal_i2c_lcd/hal_i2c_lcd.elf"
+      }
+    },
+    {
+      "id": 8,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -6,
+        23
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        -20,
+        -6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      }
+    },
+    {
+      "id": 14,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        -24,
+        -6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      }
+    },
+    {
+      "id": 17,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        -75,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 19,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        -75,
+        16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 21,
+      "type": "pcf8574",
+      "designator": "U2",
+      "at": [
+        -45,
+        12
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 36,
+      "type": "lcd_hd44780",
+      "designator": "LCD1",
+      "at": [
+        -40,
+        -25
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "rows": "2",
+        "columns": "16"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          -9,
+          7
+        ],
+        [
+          -14,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          -9,
+          9
+        ],
+        [
+          -14,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -6,
+          17
+        ],
+        [
+          -6,
+          23
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          -75,
+          13
+        ],
+        [
+          -75,
+          16
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "points": [
+        [
+          -55,
+          -30
+        ],
+        [
+          -55,
+          -32
+        ]
+      ]
+    },
+    {
+      "id": 39,
+      "points": [
+        [
+          -53,
+          -30
+        ],
+        [
+          -53,
+          -35
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "points": [
+        [
+          -51,
+          -30
+        ],
+        [
+          -51,
+          -38
+        ]
+      ]
+    },
+    {
+      "id": 43,
+      "points": [
+        [
+          -49,
+          -30
+        ],
+        [
+          -49,
+          -32
+        ]
+      ]
+    },
+    {
+      "id": 45,
+      "points": [
+        [
+          -47,
+          -30
+        ],
+        [
+          -47,
+          -35
+        ]
+      ]
+    },
+    {
+      "id": 47,
+      "points": [
+        [
+          -45,
+          -30
+        ],
+        [
+          -45,
+          -38
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "points": [
+        [
+          -35,
+          -30
+        ],
+        [
+          -35,
+          -32
+        ]
+      ]
+    },
+    {
+      "id": 51,
+      "points": [
+        [
+          -33,
+          -30
+        ],
+        [
+          -33,
+          -35
+        ]
+      ]
+    },
+    {
+      "id": 53,
+      "points": [
+        [
+          -31,
+          -30
+        ],
+        [
+          -31,
+          -38
+        ]
+      ]
+    },
+    {
+      "id": 55,
+      "points": [
+        [
+          -29,
+          -30
+        ],
+        [
+          -29,
+          -32
+        ]
+      ]
+    },
+    {
+      "id": 57,
+      "points": [
+        [
+          -27,
+          -30
+        ],
+        [
+          -27,
+          -35
+        ]
+      ]
+    },
+    {
+      "id": 59,
+      "points": [
+        [
+          -25,
+          -30
+        ],
+        [
+          -25,
+          -38
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 3,
+      "at": [
+        -14,
+        7
+      ],
+      "name": "SCL"
+    },
+    {
+      "id": 6,
+      "at": [
+        -14,
+        9
+      ],
+      "name": "SDA"
+    },
+    {
+      "id": 10,
+      "at": [
+        -9,
+        19
+      ],
+      "name": "VDD"
+    },
+    {
+      "id": 12,
+      "at": [
+        -20,
+        -9
+      ],
+      "name": "VDD"
+    },
+    {
+      "id": 13,
+      "at": [
+        -20,
+        -3
+      ],
+      "name": "SCL"
+    },
+    {
+      "id": 15,
+      "at": [
+        -24,
+        -9
+      ],
+      "name": "VDD"
+    },
+    {
+      "id": 16,
+      "at": [
+        -24,
+        -3
+      ],
+      "name": "SDA"
+    },
+    {
+      "id": 18,
+      "at": [
+        -75,
+        7
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 22,
+      "at": [
+        -51,
+        7
+      ],
+      "name": "SCL"
+    },
+    {
+      "id": 23,
+      "at": [
+        -51,
+        9
+      ],
+      "name": "SDA"
+    },
+    {
+      "id": 24,
+      "at": [
+        -51,
+        11
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 25,
+      "at": [
+        -51,
+        13
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 26,
+      "at": [
+        -51,
+        15
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 27,
+      "at": [
+        -45,
+        1
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 28,
+      "at": [
+        -45,
+        23
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 29,
+      "at": [
+        -39,
+        5
+      ],
+      "name": "RS"
+    },
+    {
+      "id": 30,
+      "at": [
+        -39,
+        7
+      ],
+      "name": "RW"
+    },
+    {
+      "id": 31,
+      "at": [
+        -39,
+        9
+      ],
+      "name": "E"
+    },
+    {
+      "id": 32,
+      "at": [
+        -39,
+        13
+      ],
+      "name": "D4"
+    },
+    {
+      "id": 33,
+      "at": [
+        -39,
+        15
+      ],
+      "name": "D5"
+    },
+    {
+      "id": 34,
+      "at": [
+        -39,
+        17
+      ],
+      "name": "D6"
+    },
+    {
+      "id": 35,
+      "at": [
+        -39,
+        19
+      ],
+      "name": "D7"
+    },
+    {
+      "id": 38,
+      "at": [
+        -55,
+        -32
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 40,
+      "at": [
+        -53,
+        -35
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 42,
+      "at": [
+        -51,
+        -38
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 44,
+      "at": [
+        -49,
+        -32
+      ],
+      "name": "RS"
+    },
+    {
+      "id": 46,
+      "at": [
+        -47,
+        -35
+      ],
+      "name": "RW"
+    },
+    {
+      "id": 48,
+      "at": [
+        -45,
+        -38
+      ],
+      "name": "E"
+    },
+    {
+      "id": 50,
+      "at": [
+        -35,
+        -32
+      ],
+      "name": "D4"
+    },
+    {
+      "id": 52,
+      "at": [
+        -33,
+        -35
+      ],
+      "name": "D5"
+    },
+    {
+      "id": 54,
+      "at": [
+        -31,
+        -38
+      ],
+      "name": "D6"
+    },
+    {
+      "id": 56,
+      "at": [
+        -29,
+        -32
+      ],
+      "name": "D7"
+    },
+    {
+      "id": 58,
+      "at": [
+        -27,
+        -35
+      ],
+      "name": "VCC5"
+    },
+    {
+      "id": 60,
+      "at": [
+        -25,
+        -38
+      ],
+      "name": "GND"
+    }
+  ],
+  "probes": [
+    {
+      "id": 4,
+      "kind": "voltage",
+      "target": {
+        "item": 2,
+        "at": [
+          -11,
+          7
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 7,
+      "kind": "voltage",
+      "target": {
+        "item": 5,
+        "at": [
+          -11,
+          9
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 61,
+      "at": [
+        -80,
+        -52
+      ],
+      "text": "A 16x2 character LCD (HD44780) behind a PCF8574 I2C expander at 0x27, wired like the common I2C LCD\nbackpacks: P0 RS, P1 RW, P2 E, P4-P7 D4-D7 (4-bit mode). The Blue Pill's I2C1 (PB6, PB7) with 4.7 kOhm\npull-ups talks to the PCF8574; the module runs on 5 V. Run (F5): the text appears on the LCD, and the\nsecond row counts seconds. Change rows and columns in the LCD's properties for other modules."
+    }
+  ]
+}

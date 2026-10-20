@@ -62,6 +62,8 @@ public:
     bool owns_board_pin(int port, int pin) const { return board_net_.count({port, pin}) > 0; }
 
     devices::Output output(std::size_t device, std::size_t pin) const { return outputs_[device][pin]; }
+    std::size_t device_count() const { return devices_.size(); }
+    std::string text(std::size_t device) const { return devices_[device] ? devices_[device]->text() : std::string(); }
     std::vector<Change> take_changes() { return std::exchange(changes_, {}); }
     std::vector<std::string> take_messages();
 

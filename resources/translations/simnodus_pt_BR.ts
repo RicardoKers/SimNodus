@@ -1887,6 +1887,62 @@ Pinos: %2</translation>
             <translation>Registrador de deslocamento de 8 bits com latches de saída; funciona com uma placa de microcontrolador</translation>
         </message>
         <message>
+            <source>Character LCD (HD44780)</source>
+            <translation>LCD de caracteres (HD44780)</translation>
+        </message>
+        <message>
+            <source>Displays</source>
+            <translation>Displays</translation>
+        </message>
+        <message>
+            <source>Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board</source>
+            <translation>LCD de caracteres (HD44780), linhas e colunas em Propriedades; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Rows</source>
+            <translation>Linhas</translation>
+        </message>
+        <message>
+            <source>Rows of characters</source>
+            <translation>Linhas de caracteres</translation>
+        </message>
+        <message>
+            <source>1</source>
+            <translation>1</translation>
+        </message>
+        <message>
+            <source>2</source>
+            <translation>2</translation>
+        </message>
+        <message>
+            <source>4</source>
+            <translation>4</translation>
+        </message>
+        <message>
+            <source>Columns</source>
+            <translation>Colunas</translation>
+        </message>
+        <message>
+            <source>Characters per row</source>
+            <translation>Caracteres por linha</translation>
+        </message>
+        <message>
+            <source>8</source>
+            <translation>8</translation>
+        </message>
+        <message>
+            <source>16</source>
+            <translation>16</translation>
+        </message>
+        <message>
+            <source>20</source>
+            <translation>20</translation>
+        </message>
+        <message>
+            <source>40</source>
+            <translation>40</translation>
+        </message>
+        <message>
             <source>Temperature sensor LM75 (I2C)</source>
             <translation>Sensor de temperatura LM75 (I2C)</translation>
         </message>
@@ -1937,10 +1993,6 @@ Pinos: %2</translation>
         <message>
             <source>BCD to 7-segment decoder (4511)</source>
             <translation>Decodificador BCD para 7 segmentos (4511)</translation>
-        </message>
-        <message>
-            <source>Displays</source>
-            <translation>Displays</translation>
         </message>
         <message>
             <source>CMOS BCD to 7-segment decoder (CD4511) for common cathode; tie LT and BI high, LE low</source>

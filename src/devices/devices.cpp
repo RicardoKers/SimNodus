@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <string>
 
 namespace simnodus::devices {
@@ -746,6 +747,307 @@ private:
     bool interrupt_ = false;
 };
 
+// HD44780 (Hitachi) character LCD controller with its display, for 1, 2 or 4
+// rows of 8 to 40 characters. Writes are taken at the falling edge of E (RS 0
+// instruction, 1 data); with RW high the chip drives D0-D7 (or D4-D7 twice in
+// 4-bit mode) while E is high: busy flag and address, or data. It starts in
+// 8-bit mode; a function set with DL 0 switches to 4-bit transfers (high
+// nibble first), so the usual 0x3, 0x3, 0x3, 0x2 start works. Instructions take
+// 37 us (clear and home 1.52 ms); one written while the chip is busy is
+// ignored, as on the chip, and reported once. The text shows the display RAM
+// through the display shift: rows start at 0x00, 0x40, then 0x00 + columns and
+// 0x40 + columns, as 20x4 and 16x4 modules map them.
+class Hd44780 : public Device {
+public:
+    static constexpr std::array<const char*, 11> names{"RS", "RW", "E", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7"};
+    enum { RS, RW, E, D0 };
+    static constexpr std::uint64_t short_ns = 37000;
+    static constexpr std::uint64_t long_ns = 1520000;
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "HD44780", error)) {
+            return false;
+        }
+        role_.assign(pins.size(), -1);
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            role_[index_[i]] = static_cast<int>(i);
+        }
+        auto number = [&](const char* name, int fallback) {
+            const auto it = parameters.find(name);
+            return it == parameters.end() ? fallback : std::atoi(it->second.c_str());
+        };
+        rows_ = std::clamp(number("rows", 2), 1, 4);
+        columns_ = std::clamp(number("columns", 16), 1, 40);
+        ddram_.fill(0x20);
+        return true;
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin < role_.size() && role_[pin] >= 0) {
+            inputs_[static_cast<std::size_t>(role_[pin])] = level;
+        }
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin >= role_.size() || role_[pin] < 0) {
+            return;
+        }
+        const auto role = static_cast<std::size_t>(role_[pin]);
+        const bool was = inputs_[role];
+        inputs_[role] = level;
+        if (role != E || was == level) {
+            return;
+        }
+        if (level) {
+            if (inputs_[RW]) {
+                begin_read(time_ns); // the chip drives D while E is high
+            }
+            return;
+        }
+        // E falls.
+        if (reading_) {
+            end_read();
+        } else if (!inputs_[RW]) {
+            latch(time_ns);
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (!reading_ || pin >= role_.size() || role_[pin] < D0) {
+            return {};
+        }
+        const int bit = role_[pin] - D0;
+        if (!eight_bit_ && bit < 4) {
+            return {};
+        }
+        return push_pull(((out_ >> bit) & 1u) != 0);
+    }
+
+    std::string text() const override
+    {
+        std::string result;
+        for (int r = 0; r < rows_; ++r) {
+            if (r > 0) {
+                result += '\n';
+            }
+            const int base = (r % 2 ? 0x40 : 0x00) + (r >= 2 ? columns_ : 0);
+            for (int c = 0; c < columns_; ++c) {
+                if (!display_on_) {
+                    result += ' ';
+                    continue;
+                }
+                const int line_length = two_lines_ ? 40 : 80;
+                const int offset = ((base % 0x40) + c + shift_) % line_length;
+                result += glyph(ddram_[static_cast<std::size_t>((base >= 0x40 ? 40 : 0) + offset)]);
+            }
+        }
+        return result;
+    }
+
+private:
+    // UTF-8 text for a character code of the A00 character ROM.
+    static std::string glyph(std::uint8_t code)
+    {
+        if (code >= 0x20 && code <= 0x7D && code != 0x5C) {
+            return std::string(1, static_cast<char>(code));
+        }
+        switch (code) {
+        case 0x5C: return "\xC2\xA5";     // yen sign
+        case 0x7E: return "\xE2\x86\x92"; // right arrow
+        case 0x7F: return "\xE2\x86\x90"; // left arrow
+        case 0xDF: return "\xC2\xB0";     // degree sign
+        case 0xE4: return "\xC2\xB5";     // micro
+        case 0xF4: return "\xCE\xA9";     // ohm
+        case 0xFF: return "\xE2\x96\x88"; // full block
+        default: break;
+        }
+        if (code < 0x10) {
+            return "\xE2\x96\xAE"; // a custom character (CGRAM): shown as a block
+        }
+        return " ";
+    }
+
+    std::uint8_t bus_nibble(int first) const
+    {
+        std::uint8_t value = 0;
+        for (int b = 0; b < 4; ++b) {
+            value |= static_cast<std::uint8_t>((inputs_[static_cast<std::size_t>(D0 + first + b)] ? 1u : 0u) << b);
+        }
+        return value;
+    }
+
+    void latch(std::uint64_t time_ns)
+    {
+        std::uint8_t value = 0;
+        if (eight_bit_) {
+            value = static_cast<std::uint8_t>(bus_nibble(0) | (bus_nibble(4) << 4));
+        } else if (!low_nibble_next_) {
+            high_ = bus_nibble(4);
+            low_nibble_next_ = true;
+            return;
+        } else {
+            value = static_cast<std::uint8_t>((high_ << 4) | bus_nibble(4));
+            low_nibble_next_ = false;
+        }
+        if (time_ns < busy_until_) {
+            if (!warned_busy_) {
+                warned_busy_ = true;
+                message("a byte was written while the LCD was busy and was ignored; wait 37 us after an "
+                        "instruction and 1.52 ms after clear or home (or poll the busy flag)");
+            }
+            return;
+        }
+        if (inputs_[RS]) {
+            write_data(value);
+            busy_until_ = time_ns + short_ns;
+        } else {
+            busy_until_ = time_ns + instruction(value);
+        }
+    }
+
+    std::uint64_t instruction(std::uint8_t value)
+    {
+        if (value & 0x80u) {
+            address_ = value & 0x7Fu;
+            in_cgram_ = false;
+        } else if (value & 0x40u) {
+            address_ = value & 0x3Fu;
+            in_cgram_ = true;
+        } else if (value & 0x20u) {
+            eight_bit_ = (value & 0x10u) != 0;
+            two_lines_ = (value & 0x08u) != 0;
+            low_nibble_next_ = false;
+        } else if (value & 0x10u) {
+            const bool display = (value & 0x08u) != 0;
+            const bool right = (value & 0x04u) != 0;
+            if (display) {
+                shift_ = (shift_ + (right ? 39 : 1)) % 40; // the text moves the other way
+            } else {
+                step(right);
+            }
+        } else if (value & 0x08u) {
+            display_on_ = (value & 0x04u) != 0;
+        } else if (value & 0x04u) {
+            increment_ = (value & 0x02u) != 0;
+            shift_with_write_ = (value & 0x01u) != 0;
+        } else if (value & 0x02u) {
+            address_ = 0;
+            in_cgram_ = false;
+            shift_ = 0;
+            return long_ns;
+        } else if (value & 0x01u) {
+            ddram_.fill(0x20);
+            address_ = 0;
+            in_cgram_ = false;
+            shift_ = 0;
+            increment_ = true;
+            return long_ns;
+        }
+        return short_ns;
+    }
+
+    // Display RAM index of an address: 0x00-0x27 and 0x40-0x67 in two-line mode, 0x00-0x4F in one-line mode.
+    std::size_t ram_index(std::uint8_t address) const
+    {
+        if (!two_lines_) {
+            return std::min<std::size_t>(address, 79);
+        }
+        return (address >= 0x40 ? 40u : 0u) + std::min<std::size_t>(address & 0x3Fu, 39);
+    }
+
+    void step(bool forward)
+    {
+        if (in_cgram_) {
+            address_ = static_cast<std::uint8_t>((address_ + (forward ? 1 : 63)) & 0x3Fu);
+            return;
+        }
+        int a = address_;
+        if (two_lines_) {
+            // 0x27 is followed by 0x40, 0x67 by 0x00.
+            if (forward) {
+                a = a == 0x27 ? 0x40 : (a == 0x67 ? 0x00 : a + 1);
+            } else {
+                a = a == 0x40 ? 0x27 : (a == 0x00 ? 0x67 : a - 1);
+            }
+        } else {
+            a = forward ? (a + 1) % 80 : (a + 79) % 80;
+        }
+        address_ = static_cast<std::uint8_t>(a);
+    }
+
+    void write_data(std::uint8_t value)
+    {
+        if (in_cgram_) {
+            cgram_[address_ & 0x3Fu] = value;
+        } else {
+            ddram_[ram_index(address_)] = value;
+            if (shift_with_write_) {
+                shift_ = (shift_ + (increment_ ? 1 : 39)) % 40;
+            }
+        }
+        step(increment_);
+    }
+
+    void begin_read(std::uint64_t time_ns)
+    {
+        if (eight_bit_ || !low_nibble_next_) {
+            if (inputs_[RS]) {
+                read_value_ = in_cgram_ ? cgram_[address_ & 0x3Fu] : ddram_[ram_index(address_)];
+            } else {
+                read_value_ = static_cast<std::uint8_t>((time_ns < busy_until_ ? 0x80u : 0u) | (address_ & 0x7Fu));
+            }
+        }
+        if (eight_bit_) {
+            out_ = read_value_;
+        } else {
+            out_ = static_cast<std::uint8_t>(low_nibble_next_ ? (read_value_ << 4) : (read_value_ & 0xF0u));
+        }
+        reading_ = true;
+    }
+
+    void end_read()
+    {
+        reading_ = false;
+        if (!eight_bit_) {
+            low_nibble_next_ = !low_nibble_next_;
+            if (low_nibble_next_) {
+                return; // the second nibble follows
+            }
+        }
+        if (inputs_[RS]) {
+            step(increment_); // reading data moves the address on
+        }
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    std::vector<int> role_;
+    std::array<bool, names.size()> inputs_{};
+    int rows_ = 2;
+    int columns_ = 16;
+    std::array<std::uint8_t, 80> ddram_{};
+    std::array<std::uint8_t, 64> cgram_{};
+    std::uint8_t address_ = 0;
+    bool in_cgram_ = false;
+    bool eight_bit_ = true;
+    bool two_lines_ = false;
+    bool display_on_ = false;
+    bool increment_ = true;
+    bool shift_with_write_ = false;
+    int shift_ = 0;
+    bool low_nibble_next_ = false;
+    std::uint8_t high_ = 0;
+    std::uint64_t busy_until_ = 0;
+    bool reading_ = false;
+    std::uint8_t read_value_ = 0;
+    std::uint8_t out_ = 0;
+    bool warned_busy_ = false;
+};
+
 } // namespace
 
 std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<std::string>& pins,
@@ -768,6 +1070,10 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "pcf8574") {
         auto device = std::make_unique<Pcf8574>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "hd44780") {
+        auto device = std::make_unique<Hd44780>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "max7219") {

@@ -136,6 +136,8 @@ public:
     virtual void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes) = 0;
     virtual std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const = 0;
+    // What the display chips of every board show (component -> UTF-8 text, SN-206).
+    virtual std::map<model::Id, std::string> device_texts() const = 0;
 };
 
 class SimulationSession : public Session {
@@ -182,6 +184,7 @@ public:
     void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes) override;
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
+    std::map<model::Id, std::string> device_texts() const override;
 
 private:
     bool start_mcus();

@@ -425,6 +425,9 @@ TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply withou
     REQUIRE(requests[0].options.devices.size() == 1);
     CHECK(requests[0].options.devices[0].supply == 5.0);
     CHECK(requests[0].options.nets.size() == 19); // DIN, CLK, LOAD, eight rows, eight columns
+    for (const auto& net : requests[0].options.nets) {
+        CHECK(!net.circuit); // the MAX7219 always drives its rows and columns
+    }
 }
 
 TEST_CASE("devices: an STM32CubeIDE HAL project uses a 24C02, an LM75 and a PCF8574 on I2C1")
@@ -586,4 +589,131 @@ TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons th
         CHECK(false);
     }
     session.stop();
+}
+
+TEST_CASE("devices: the HD44780 takes 8-bit writes at E falling, reports busy, and maps 20x4 rows")
+{
+    std::string error;
+    const std::vector<std::string> pins{"RS", "RW", "E", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "V0"};
+    auto d = devices::make_device("hd44780", pins, {{"rows", "4"}, {"columns", "20"}}, error);
+    REQUIRE(d);
+    std::uint64_t t = 1000000;
+    auto put = [&](bool rs, std::uint8_t value) {
+        d->set_input(0, rs, t);
+        d->set_input(1, false, t);
+        for (int b = 0; b < 8; ++b) {
+            d->set_input(3 + static_cast<std::size_t>(b), ((value >> b) & 1u) != 0, t);
+        }
+        d->set_input(2, true, t);
+        d->set_input(2, false, t); // taken now
+        t += 50000;               // longer than an instruction
+    };
+    put(false, 0x38); // 8-bit, two lines
+    put(false, 0x0C); // display on
+    put(false, 0x01); // clear (1.52 ms)
+    t += 2000000;
+    put(false, 0x80 | 0x14); // row 3 of a 20x4 module starts at 0x14
+    put(true, 'A');
+    put(true, 'B');
+    put(false, 0x80 | 0x40); // row 2
+    put(true, 'x');
+    const auto rows = d->text();
+    CHECK(rows.find("AB") != std::string::npos);
+    std::vector<std::string> lines;
+    std::size_t start = 0;
+    for (std::size_t i = 0; i <= rows.size(); ++i) {
+        if (i == rows.size() || rows[i] == '\n') {
+            lines.push_back(rows.substr(start, i - start));
+            start = i + 1;
+        }
+    }
+    REQUIRE(lines.size() == 4);
+    CHECK(lines[0] == std::string(20, ' '));
+    CHECK(lines[1].substr(0, 1) == "x");
+    CHECK(lines[2].substr(0, 2) == "AB");
+    // Busy flag and address: RS 0, RW 1, E high drives D7..D0.
+    put(false, 0x01); // clear: busy for 1.52 ms
+    t -= 50000;
+    d->set_input(0, false, t);
+    d->set_input(1, true, t);
+    d->set_input(2, true, t);
+    CHECK(d->output(10).driven && d->output(10).high); // D7: busy
+    d->set_input(2, false, t);
+    CHECK(!d->output(10).driven);
+    // A write while busy is ignored and reported once.
+    d->set_input(1, false, t);
+    put(true, 'Z');
+    CHECK(d->text().find('Z') == std::string::npos);
+    CHECK(d->take_messages().size() == 1);
+}
+
+TEST_CASE("devices: an STM32CubeIDE HAL project writes a 16x2 LCD through a PCF8574 backpack")
+{
+    std::string error;
+    const auto image = emu::read_elf(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/hal_i2c_lcd/hal_i2c_lcd.elf", error);
+    REQUIRE(image.has_value());
+    emu::Stm32F103 m;
+    REQUIRE(m.load(*image, error));
+    mcu::DeviceRequest pcf;
+    pcf.designator = "U2";
+    pcf.kind = "pcf8574";
+    pcf.pins = {"SCL", "SDA", "A0", "A1", "A2", "INT", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7"};
+    pcf.supply = 5.0;
+    pcf.tied = {{"A0", true}, {"A1", true}, {"A2", true}}; // 0x27
+    mcu::DeviceRequest lcd;
+    lcd.designator = "LCD1";
+    lcd.kind = "hd44780";
+    lcd.pins = {"V0", "RS", "RW", "E", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "A", "K"};
+    lcd.parameters = {{"rows", "2"}, {"columns", "16"}};
+    lcd.supply = 5.0;
+    lcd.tied = {{"D0", false}, {"D1", false}, {"D2", false}, {"D3", false}};
+    std::vector<mcu::DigitalNet> nets{
+        {"SCL", {"PB6"}, {{0, "SCL"}}, 1, false},
+        {"SDA", {"PB7"}, {{0, "SDA"}}, 1, false},
+        {"RS", {}, {{0, "P0"}, {1, "RS"}}, 0, false},
+        {"RW", {}, {{0, "P1"}, {1, "RW"}}, 0, false},
+        {"E", {}, {{0, "P2"}, {1, "E"}}, 0, false},
+    };
+    for (int i = 4; i < 8; ++i) {
+        nets.push_back({"D" + std::to_string(i), {}, {{0, "P" + std::to_string(i)}, {1, "D" + std::to_string(i)}}, 0, false});
+    }
+    mcu::DeviceBus bus;
+    REQUIRE(bus.init(m, {pcf, lcd}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    bus.start(0);
+    m.run_until_ns(2600000000ull);
+    const std::string text = bus.text(1);
+    CHECK(text.substr(0, 16) == "Hello, SimNodus!");
+    CHECK(text.find("Seconds:") != std::string::npos);
+    CHECK(text.find("Seconds:       2") != std::string::npos);
+    for (const auto& message : bus.take_messages()) {
+        std::printf("  message: %s\n", message.c_str());
+        CHECK(false);
+    }
+    m.set_pin_hook(nullptr);
+}
+
+TEST_CASE("devices: examples 27 and 28 wire their chips without warnings")
+{
+    for (const char* file : {"27_I2C_EEPROM_sensor_expander.snx", "28_LCD_16x2_I2C_backpack.snx"}) {
+        const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / file);
+        REQUIRE(loaded.schematic.has_value());
+        std::vector<sim::McuRequest> requests;
+        std::vector<std::string> warnings;
+        std::string error;
+        sim::McuEnvironment environment;
+        environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+        REQUIRE(sim::build_mcu_requests(*loaded.schematic, device_library(), environment, requests, error, &warnings));
+        for (const auto& w : warnings) {
+            std::printf("  %s: %s\n", file, w.c_str());
+        }
+        CHECK(warnings.empty());
+        REQUIRE(requests.size() == 1);
+        for (const auto& net : requests[0].options.nets) {
+            if (net.name == "E" || net.name == "D4") {
+                CHECK(!net.circuit); // a net between two chips stays digital
+            }
+        }
+    }
 }

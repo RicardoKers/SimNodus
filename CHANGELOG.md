@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-19, SN-206)
+
+- Character LCD (HD44780) under *Displays*: 1, 2 or 4 rows of 8 to 40 characters (properties), 8- and 4-bit interfaces with the usual start-up sequence, the instruction set with display and cursor shift, entry modes, CGRAM, reads of the busy flag and data; instructions take 37 µs (clear and home 1.52 ms) and a byte written while busy is ignored with a message, as on the chip. Its text appears on the schematic while running (part definitions get a `screen` area; the engine sends the display texts to the editor, protocol version 4). A and K are the backlight LED.
+- A net between two chips (a PCF8574 driving an LCD) stays purely digital: only nets with other parts on them (buttons, LEDs) are read from the circuit, so a released PCF8574 pin no longer waits for the circuit's late view. Nets with an output that always drives (the MAX7219's rows and columns, listed as `driven_pins` in its part) are not read from the circuit either, which keeps example 26 as fast as before SN-205.
+- Example 28: an STM32CubeIDE-style HAL project drives a 16x2 LCD through a PCF8574 wired like an I2C LCD backpack. Tests: the controller in 8-bit mode with busy flag and 20x4 row mapping, the HAL project through the backpack, and the text on the canvas through the engine process.
+
 ### Added (2026-10-19, SN-205)
 
 - I2C1 and I2C2 in master mode (`src/emu/stm32f1_i2c.*`): open-drain SCL and SDA at the configured standard or fast-mode timing, clock stretching (and a message when SCL stays low without a pull-up resistor), START, repeated START, STOP, 7-bit addressing, acknowledge and AF, TXE/RXNE/BTF with ACK and POS exactly as STM32CubeF1's HAL sequences need them, interrupts, DMA requests, I2C1 remap; slave mode, 10-bit addresses, SMBus and PEC are reported.

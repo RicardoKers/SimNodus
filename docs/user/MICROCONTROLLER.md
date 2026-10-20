@@ -40,7 +40,8 @@ the same circuit give the same firmware timing.
 
 Parts in the *Chips for microcontrollers* category (74HC595 shift register,
 MAX7219 display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O
-expander) work together with a board (ADR 0102): their logic runs in step
+expander) and the character LCD (HD44780, under *Displays*) work together with
+a board (ADR 0102): their logic runs in step
 with the firmware, so the nets between the board and the chip follow every
 edge at once, and the chip's outputs drive the circuit like the board's pins
 (LEDs light, the scope and the Logic tab show them, as `U2.Q0` lanes).
@@ -58,6 +59,12 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   write cycle (poll it with `HAL_I2C_IsDeviceReady`); the LM75 reports the
   temperature set in its properties; the PCF8574's pins are outputs and inputs
   at once (a 1 is a weak pull-up).
+- The character LCD (HD44780) takes RS, RW, E and D0-D7 or D4-D7 from the
+  board's pins or from a PCF8574 (as on the I2C backpacks); its rows and
+  columns are properties, and its text appears on the schematic while running.
+  Instructions take 37 us (clear and home 1.52 ms); a byte written while the
+  LCD is busy is ignored, as on the chip, with a message. Custom characters
+  (CGRAM) show as blocks.
 - On a net, a driven low wins, then a driven high, then a pull-up or
   pull-down: the board pin's internal one or a resistor to a supply or ground.
   Two outputs driving opposite levels are reported as a short circuit.
@@ -65,7 +72,8 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   real chip may not.
 
 Example 25 shifts a byte out bit by bit into a 74HC595 that drives eight LEDs.
-Example 27 uses the three I2C chips with the HAL. Example 26 sends MAX7219 words over SPI1 with the HAL; the chip scans an 8x8
+Example 27 uses the three I2C chips with the HAL; example 28 drives a 16x2 LCD
+through a PCF8574 backpack. Example 26 sends MAX7219 words over SPI1 with the HAL; the chip scans an 8x8
 LED matrix (a 4-digit 7-segment display works the same way). Multiplexed LEDs
 glow with their current averaged over 20 ms, as the eye sees them. With 64
 LEDs the circuit is heavy: example 26 runs at about 0.8x real time on a 2026

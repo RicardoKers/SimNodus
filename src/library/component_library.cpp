@@ -515,6 +515,24 @@ ComponentDefinition parse_definition(const json& j)
         }
         d.mcu = board;
     }
+    if (j.contains("screen") && !j["screen"].is_null()) {
+        const auto& s = j["screen"];
+        const auto r = numbers(s["rect"], 4, "screen.rect");
+        Screen screen;
+        screen.at = {r[0], r[1]};
+        screen.size = {r[2], r[3]};
+        if (s.contains("rows_parameter")) {
+            screen.rows_parameter = text(s, "rows_parameter", true);
+        }
+        if (s.contains("columns_parameter")) {
+            screen.columns_parameter = text(s, "columns_parameter", true);
+        }
+        if (screen.size.x <= 0 || screen.size.y <= 0 || !d.parameter(screen.rows_parameter)
+            || !d.parameter(screen.columns_parameter)) {
+            invalid("screen needs a positive rect and the rows and columns parameters");
+        }
+        d.screen = screen;
+    }
     if (j.contains("device") && !j["device"].is_null()) {
         const auto& m = j["device"];
         DigitalDevice device;
@@ -527,6 +545,12 @@ ComponentDefinition parse_definition(const json& j)
         }
         if (m.contains("output_resistance")) {
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
+        }
+        device.driven_pins = strings(m, "driven_pins");
+        for (const auto& pin : device.driven_pins) {
+            if (!d.pin(pin)) {
+                invalid("device.driven_pins names a pin the part does not have: " + pin);
+            }
         }
         if (!d.pin(device.supply_pin) || !d.pin(device.ground_pin)) {
             invalid("device.supply_pin and device.ground_pin must be pins of the part");

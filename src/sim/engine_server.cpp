@@ -213,6 +213,13 @@ void EngineServer::publish(bool force)
         }
     }
 
+    const auto texts = session_.device_texts();
+    w.size(texts.size());
+    for (const auto& [id, text] : texts) {
+        w.u64(id);
+        w.str(text);
+    }
+
     const bool transient = status.state == RunState::Finished && status.mode == model::SimulationMode::Transient;
     const bool send_transient = transient && !transient_sent_;
     w.boolean(send_transient);
