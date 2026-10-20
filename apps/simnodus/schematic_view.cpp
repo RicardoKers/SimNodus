@@ -568,6 +568,23 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
     if (!d || !d->interactive) {
         return false;
     }
+    if (d->interactive->kind == library::Interactive::Kind::Keypad) {
+        // The key under the mouse, held until the button is released.
+        QPointF local = scene_->item_of(id)->mapFromScene(scene_point) / scene_grid;
+        QTransform orientation;
+        orientation.rotate(c->orientation.rotation);
+        orientation.scale(c->orientation.mirrored ? -1 : 1, 1);
+        local = orientation.inverted().map(local);
+        const auto& keys = d->interactive->keys;
+        for (std::size_t k = 0; k < keys.size(); ++k) {
+            if (QRectF(keys[k][0], keys[k][1], keys[k][2], keys[k][3]).contains(local)) {
+                held_button_ = id;
+                emit control_changed(id, static_cast<double>(k + 1));
+                return true;
+            }
+        }
+        return false;
+    }
     const auto& live = scene_->live();
     const auto current = live.controls.find(id);
     const double value = current == live.controls.end() ? 0.0 : current->second;
@@ -598,6 +615,8 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
         }
         break;
     }
+    case library::Interactive::Kind::Keypad:
+        break; // handled above
     }
     return true;
 }

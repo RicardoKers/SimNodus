@@ -1141,16 +1141,16 @@ Pinos: %2</translation>
             <translation>Clique</translation>
         </message>
         <message>
-            <source>Toggle a switch; hold a push button</source>
-            <translation>Alternar uma chave; segurar um botão</translation>
+            <source>Toggle a switch; hold a push button or a key of a keypad</source>
+            <translation>Alternar uma chave; segurar um botão ou uma tecla de um teclado</translation>
+        </message>
+        <message>
+            <source>Turn a potentiometer or an adjustable source</source>
+            <translation>Girar um potenciômetro ou uma fonte ajustável</translation>
         </message>
         <message>
             <source>Drag or wheel</source>
             <translation>Arrastar ou roda</translation>
-        </message>
-        <message>
-            <source>Turn a potentiometer</source>
-            <translation>Girar um potenciômetro</translation>
         </message>
         <message>
             <source>Keyboard Shortcuts</source>
@@ -3064,6 +3064,14 @@ Pinos: %2</translation>
         <message>
             <source>Closed while pressed; hold the mouse button on it while running</source>
             <translation>Fechado enquanto pressionado; segure o botão do mouse sobre ele durante a execução</translation>
+        </message>
+        <message>
+            <source>Keypad 4x4</source>
+            <translation>Teclado 4x4</translation>
+        </message>
+        <message>
+            <source>Matrix keypad (1-9, 0, A-D, * and #): a key held with the mouse joins its row to its column; pins R1-R4 and C1-C4 as on the membrane keypad</source>
+            <translation>Teclado matricial (1-9, 0, A-D, * e #): uma tecla segurada com o mouse liga sua linha à sua coluna; pinos R1-R4 e C1-C4 como no teclado de membrana</translation>
         </message>
         <message>
             <source>Switch SPDT</source>

@@ -309,6 +309,9 @@ public:
         if (live.running) {
             const auto it = live.controls.find(component_.id);
             if (it != live.controls.end()) {
+                if (definition_->interactive->kind == library::Interactive::Kind::Keypad) {
+                    return QString::number(std::lround(it->second)); // the key held, "0" for none
+                }
                 return it->second >= 0.5 ? QStringLiteral("1") : QStringLiteral("0");
             }
         }

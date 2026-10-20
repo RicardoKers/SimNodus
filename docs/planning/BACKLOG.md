@@ -72,7 +72,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-207 | Owner's test of the 0.6 preview: halo repaint, MAX7219 rows at low intensity, live LM75 temperature | after 0.5 | — | done 2026-10-20 |
 | SN-208 | Memory viewer: see, save and load the contents of memory chips (24C02 now; parallel RAM and ROM later) | after 0.5 | — | done |
 | SN-209 | Adjustable voltage and current sources (lower and upper limit, turned while running) and controlled sources VCVS, VCCS, CCCS, CCVS (example 29) | after 0.6 | — | done 2026-10-20 |
-| SN-210 | 4x4 matrix keypad: keys pressed with the mouse while running, rows and columns connected like the real keypad | after 0.6 | — | todo |
+| SN-210 | 4x4 matrix keypad: keys pressed with the mouse while running, rows and columns connected like the real keypad | after 0.6 | — | done 2026-10-20 (example 30) |
 | SN-211 | A/D and D/A converters with 4, 8, 10 and 12 bits (ideal, behavioral, with a reference input) | after 0.6 | — | todo |
 | SN-212 | Parallel ROM and RAM chips of several sizes in C++, working with or without a board, contents in the Memory Viewer (ROM from a .bin/.hex file) | after 0.6 | — | todo |
 | SN-206 | HD44780 character LCD (rows and columns as properties, 8- and 4-bit, busy flag), its text on the schematic (`screen` in part definitions), behind a PCF8574 in example 28 | after 0.5 | — | done 2026-10-19 |

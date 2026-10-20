@@ -98,7 +98,7 @@ invalid value is outlined in red and not applied.
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
 | **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, ground |
-| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce |
+| **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
@@ -119,6 +119,9 @@ Notes on some parts:
 - **Adjustable sources:** like a potentiometer, drag them or turn the mouse
   wheel over them while running; the value goes from the lower limit (0 %)
   to the upper limit (100 %) and is shown on the symbol.
+- **Keypad 4x4:** while running, hold the mouse on a key: it joins its row
+  (R1-R4) to its column (C1-C4) until you release it. One key at a time.
+  Example 30 scans it with a Blue Pill.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so

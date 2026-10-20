@@ -1121,8 +1121,8 @@ QList<ShortcutRow> MainWindow::shortcut_rows() const
     rows.push_back({canvas, tr("Wheel / middle drag"), tr("Zoom / pan")});
     rows.push_back({canvas, tr("Shift+click"), tr("Probe tool: voltage of a pin instead of its current")});
     rows.push_back({canvas, tr("Alt+click"), tr("Probe tool: measure the last voltage probe relative to this net")});
-    rows.push_back({running, tr("Click"), tr("Toggle a switch; hold a push button")});
-    rows.push_back({running, tr("Drag or wheel"), tr("Turn a potentiometer")});
+    rows.push_back({running, tr("Click"), tr("Toggle a switch; hold a push button or a key of a keypad")});
+    rows.push_back({running, tr("Drag or wheel"), tr("Turn a potentiometer or an adjustable source")});
     return rows;
 }
 
