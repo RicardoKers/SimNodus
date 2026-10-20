@@ -82,10 +82,25 @@ public:
         sws_ = 0;
         previous_ready_ = 4;
         update_clocks();
+        m_.rtc_clock_changed(); // HSE / 128 stops with HSE
     }
 
     // The backup domain (BDCR) survives system resets.
     void reset_backup_domain() { bdcr_ = 0; }
+
+    // RTCCLK (RM0008 7.2.8): RTCEN and a selected clock that is running.
+    std::uint32_t rtc_clock_hz() const
+    {
+        if (!(bdcr_ & 0x8000u)) {
+            return 0;
+        }
+        switch ((bdcr_ >> 8) & 3u) {
+        case 1: return (bdcr_ & 1u) ? 32768u : 0u;                          // LSE
+        case 2: return (csr_ & 1u) ? 40000u : 0u;                           // LSI
+        case 3: return (cr_ & (1u << 16)) ? m_.options_.hse_hz / 128 : 0u; // HSE / 128
+        default: return 0;
+        }
+    }
 
     std::uint32_t sysclk() const
     {
@@ -170,7 +185,16 @@ protected:
         case 0x14: ahbenr_ = merge(ahbenr_, value, mask); break;
         case 0x18: apb2enr_ = merge(apb2enr_, value, mask); break;
         case 0x1C: apb1enr_ = merge(apb1enr_, value, mask); break;
-        case 0x20: bdcr_ = merge(bdcr_, value, mask) & 0x18305u; update_ready(); break;
+        case 0x20: {
+            const std::uint32_t old = bdcr_;
+            bdcr_ = merge(bdcr_, value, mask) & 0x18305u;
+            if ((bdcr_ & 0x10000u) && !(old & 0x10000u)) {
+                bdcr_ = 0x10000u; // BDRST resets the whole backup domain, BDCR included
+                m_.backup_domain_reset();
+            }
+            update_ready();
+            break;
+        }
         case 0x24:
             csr_ = merge(csr_, value, mask) & 1u;
             if (value & mask & (1u << 24)) {
@@ -200,6 +224,7 @@ private:
             | ((cr_ & (1u << 16)) ? 8u : 0u) | ((cr_ & (1u << 24)) ? 16u : 0u);
         cir_flags_ |= now & ~previous_ready_;
         previous_ready_ = now;
+        m_.rtc_clock_changed();
         if (!ready(sws_)) {
             m_.diagnostic("The clock source that drives SYSCLK was switched off; SimNodus falls back to HSI.");
             sws_ = 0;
@@ -300,6 +325,7 @@ class Stm32F103::Pwr : public RegDevice {
 public:
     const char* name() const override { return "PWR"; }
     void reset() override { cr_ = csr_ = 0; }
+    bool dbp() const { return (cr_ & 0x100u) != 0; }
 
 protected:
     bool read32(std::uint32_t offset, std::uint32_t& value) override
@@ -1207,17 +1233,28 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     for (const auto& usart : usart_) {
         timed_.push_back(usart.get());
     }
+    crc_ = std::make_unique<Stm32F1Crc>();
+    iwdg_ = std::make_unique<Stm32F1Iwdg>(static_cast<SystemHost&>(*this));
+    wwdg_ = std::make_unique<Stm32F1Wwdg>(static_cast<SystemHost&>(*this));
+    rtc_ = std::make_unique<Stm32F1Rtc>(static_cast<SystemHost&>(*this));
+    bkp_ = std::make_unique<Stm32F1Bkp>(static_cast<SystemHost&>(*this));
+    bus_.add_device(0x40023000u, 0x400, crc_.get());
+    bus_.add_device(0x40003000u, 0x400, iwdg_.get());
+    bus_.add_device(0x40002C00u, 0x400, wwdg_.get());
+    bus_.add_device(0x40002800u, 0x400, rtc_.get());
+    bus_.add_device(0x40006C00u, 0x400, bkp_.get());
+    timed_.push_back(iwdg_.get());
+    timed_.push_back(wwdg_.get());
+    timed_.push_back(rtc_.get());
 
     struct StubBlock {
         std::uint32_t base;
         const char* name;
     };
     static const StubBlock blocks[] = {
-        {0x40002800u, "RTC"},
-        {0x40002C00u, "WWDG"}, {0x40003000u, "IWDG"}, {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
+        {0x40003800u, "SPI2"}, {0x40005400u, "I2C1"},
         {0x40005800u, "I2C2"}, {0x40005C00u, "USB"}, {0x40006000u, "USB/CAN SRAM"}, {0x40006400u, "CAN"},
-        {0x40006C00u, "BKP"},
-        {0x40013000u, "SPI1"}, {0x40023000u, "CRC"},
+        {0x40013000u, "SPI1"},
     };
     for (const auto& block : blocks) {
         stubs_.push_back(std::make_unique<Stub>(*this, block.name));
@@ -1235,7 +1272,10 @@ Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
     bus_.add_device(0xE0040000u, 0x1000, debug_zero_.get()); // TPIU
     bus_.add_device(0xE00FF000u, 0x1000, debug_zero_.get()); // ROM table
 
-    cpu_.on_system_reset = [this] { reset_requested_ = true; };
+    cpu_.on_system_reset = [this] {
+        reset_requested_ = true;
+        requested_kind_ = ResetKind::Software;
+    };
     cpu_.on_fault = [this](int number, const std::string& why) {
         static const char* const names[] = {"", "", "", "HardFault", "MemManage fault", "BusFault", "UsageFault"};
         diagnostic(std::string(names[number]) + ": " + (why.empty() ? "fault" : why)
@@ -1281,6 +1321,7 @@ void Stm32F103::reset(ResetKind kind)
     case ResetKind::PowerOn:
         reset_flags_ = 0x0C000000u; // PORRSTF | PINRSTF
         rcc_->reset_backup_domain();
+        backup_domain_reset();
         if (std::uint8_t* sram = bus_.memory_at(0x20000000u, options_.sram_size)) {
             std::fill(sram, sram + options_.sram_size, std::uint8_t{0});
         }
@@ -1290,6 +1331,12 @@ void Stm32F103::reset(ResetKind kind)
         break;
     case ResetKind::Software:
         reset_flags_ |= 0x14000000u; // SFTRSTF | PINRSTF (the reset also drives NRST low)
+        break;
+    case ResetKind::IndependentWatchdog:
+        reset_flags_ |= 0x24000000u; // IWDGRSTF | PINRSTF
+        break;
+    case ResetKind::WindowWatchdog:
+        reset_flags_ |= 0x44000000u; // WWDGRSTF | PINRSTF
         break;
     }
     reset_requested_ = false;
@@ -1343,7 +1390,7 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
     bool reported_lockup = false;
     while (time_ns() < target_ns) {
         if (reset_requested_) {
-            reset(ResetKind::Software);
+            reset(requested_kind_);
         }
         // The core stops at the next timer event, which then runs at its cycle.
         const std::uint64_t target = std::max(std::min(cycles_at_ns(target_ns), next_timer_event()), cpu_.cycles() + 1);
@@ -1359,7 +1406,7 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
             }
         }
         if (reset_requested_) {
-            reset(ResetKind::Software);
+            reset(requested_kind_);
         }
     }
 }
@@ -1367,12 +1414,12 @@ void Stm32F103::run_until_ns(std::uint64_t target_ns)
 void Stm32F103::step_instruction()
 {
     if (reset_requested_) {
-        reset(ResetKind::Software);
+        reset(requested_kind_);
     }
     cpu_.step_instruction();
     run_timers();
     if (reset_requested_) {
-        reset(ResetKind::Software);
+        reset(requested_kind_);
     }
 }
 
@@ -1570,8 +1617,58 @@ void Stm32F103::adc_irq_changed()
     cpu_.set_irq_line(18, level); // ADC1_2
 }
 
+std::uint32_t Stm32F103::pclk1_hz() const
+{
+    return hclk_ / rcc_->apb_divider(false);
+}
+
+std::uint32_t Stm32F103::rtc_clock_hz() const
+{
+    return rcc_ ? rcc_->rtc_clock_hz() : 0;
+}
+
+bool Stm32F103::backup_writable() const
+{
+    return pwr_ && pwr_->dbp();
+}
+
+void Stm32F103::watchdog_reset(bool independent)
+{
+    bool& reported = independent ? reported_iwdg_ : reported_wwdg_;
+    if (!reported) {
+        reported = true;
+        diagnostic(independent
+                ? "The independent watchdog (IWDG) reset the chip: the firmware did not reload it in time. "
+                  "Later watchdog resets are not reported."
+                : "The window watchdog (WWDG) reset the chip. Later watchdog resets are not reported.");
+    }
+    reset_requested_ = true;
+    requested_kind_ = independent ? ResetKind::IndependentWatchdog : ResetKind::WindowWatchdog;
+    cpu_.request_stop();
+}
+
+void Stm32F103::backup_domain_reset()
+{
+    if (rtc_) {
+        rtc_->backup_reset();
+    }
+    if (bkp_) {
+        bkp_->backup_reset();
+    }
+}
+
+void Stm32F103::rtc_clock_changed()
+{
+    if (rtc_) {
+        rtc_->clock_changed();
+    }
+}
+
 void Stm32F103::apb_changed()
 {
+    if (wwdg_) {
+        wwdg_->clocks_changed();
+    }
     for (const auto& timer : timers_) {
         if (timer) {
             timer->clocks_changed();

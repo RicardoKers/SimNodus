@@ -15,6 +15,7 @@
 #include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -1620,6 +1621,244 @@ TEST_CASE("USART: frames on the RX pin are decoded from the pin's edge times")
             }
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// System peripherals (SN-187): CRC, IWDG, WWDG, RTC and BKP.
+
+namespace {
+
+constexpr std::uint32_t crc_base = 0x40023000, iwdg = 0x40003000, wwdg = 0x40002C00;
+constexpr std::uint32_t rtc = 0x40002800, bkp = 0x40006C00, pwr_cr = 0x40007000;
+constexpr std::uint32_t rcc_bdcr = 0x40021020, rcc_csr_reg = 0x40021024;
+constexpr std::uint32_t exti_imr = 0x40010400, exti_rtsr = 0x40010408, exti_pr = 0x40010414;
+constexpr std::uint32_t nvic_ispr0 = 0xE000E200, nvic_ispr1 = 0xE000E204;
+
+bool has_diagnostic(const std::vector<Diagnostic>& list, const char* text)
+{
+    return std::any_of(list.begin(), list.end(), [&](const Diagnostic& d) { return d.text.find(text) != std::string::npos; });
+}
+
+} // namespace
+
+TEST_CASE("CRC: CRC-32 over words as the STM32F1 computes it, IDR and RESET")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    CHECK(read_word(*m, crc_base) == 0xFFFFFFFFu);
+    poke(*m, crc_base, 0x12345678u);
+    CHECK(read_word(*m, crc_base) == 0xDF8A8A2Bu); // ST's documented result for this word
+    poke(*m, crc_base, 0x9ABCDEF0u);
+    CHECK(read_word(*m, crc_base) == Stm32F1Crc::step(0xDF8A8A2Bu, 0x9ABCDEF0u));
+    poke(*m, crc_base + 4, 0x1A5u);
+    CHECK(read_word(*m, crc_base + 4) == 0xA5u); // 8 bits
+    poke(*m, crc_base + 8, 1);                   // RESET
+    CHECK(read_word(*m, crc_base) == 0xFFFFFFFFu);
+    CHECK(read_word(*m, crc_base + 4) == 0xA5u); // IDR is not reset by RESET
+    CHECK(m->take_diagnostics().empty());
+}
+
+TEST_CASE("IWDG: a reload keeps the chip running; a missed one resets it with IWDGRSTF")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, rcc_csr_reg, 1u << 24); // RMVF
+    poke(*m, iwdg + 4, 3);           // locked: ignored
+    CHECK(read_word(*m, iwdg + 4) == 0);
+    poke(*m, iwdg, 0x5555);
+    poke(*m, iwdg + 4, 0);  // prescaler / 4
+    poke(*m, iwdg + 8, 99); // 100 counts at 10 kHz: 10 ms
+    CHECK(read_word(*m, iwdg + 8) == 99u);
+    const std::uint64_t start = m->time_ns();
+    poke(*m, iwdg, 0xCCCC);
+    m->run_until_ns(start + 8000000);
+    poke(*m, iwdg, 0xAAAA); // reload at 8 ms: the next timeout is at 18 ms
+    m->run_until_ns(start + 17900000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0);
+    m->run_until_ns(start + 18100000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0x24000000u); // IWDGRSTF | PINRSTF
+    CHECK(m->cpu().pc() == 0x08000020u);              // the firmware starts over
+    CHECK(has_diagnostic(m->take_diagnostics(), "independent watchdog"));
+    // A reset stops the watchdog.
+    m->run_until_ns(start + 60000000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0x24000000u);
+}
+
+TEST_CASE("WWDG: counter, early wakeup at 0x40, reset at 0x3F, refresh above the window and T6 cleared")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, rcc_csr_reg, 1u << 24);
+    // HSI 8 MHz, APB1 / 1: one count every 4096 / 8 MHz = 512 us.
+    poke(*m, wwdg + 4, 0x200u | 0x50u); // EWI, window 0x50
+    const std::uint64_t start = m->time_ns();
+    poke(*m, wwdg, 0x80u | 0x7Fu);      // WDGA, T = 0x7F
+    m->run_until_ns(start + 1100000);
+    CHECK((read_word(*m, wwdg) & 0x7Fu) == 0x7Du); // two counts after 1.1 ms
+    m->run_until_ns(start + 32300000);             // 63 counts (32.256 ms): 0x40
+    CHECK((read_word(*m, wwdg) & 0x7Fu) == 0x40u);
+    CHECK(read_word(*m, wwdg + 8) == 1u);          // EWIF
+    CHECK((read_word(*m, nvic_ispr0) & 1u) == 1u); // WWDG interrupt pending
+    CHECK(read_word(*m, rcc_csr_reg) == 0);
+    m->run_until_ns(start + 32800000);             // 64 counts: T6 clears
+    CHECK(read_word(*m, rcc_csr_reg) == 0x44000000u); // WWDGRSTF | PINRSTF
+    CHECK(has_diagnostic(m->take_diagnostics(), "window watchdog"));
+    CHECK((read_word(*m, wwdg) & 0x80u) == 0);     // the reset cleared WDGA
+
+    // Refreshed above the window: an immediate reset.
+    poke(*m, rcc_csr_reg, 1u << 24);
+    poke(*m, wwdg + 4, 0x50u);
+    poke(*m, wwdg, 0xFFu);
+    poke(*m, wwdg, 0x7Fu); // the counter (0x7F) is above the window (0x50)
+    m->run_until_ns(m->time_ns() + 1000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0x44000000u);
+    CHECK(has_diagnostic(m->take_diagnostics(), "too early"));
+
+    // Inside the window the refresh is accepted.
+    poke(*m, rcc_csr_reg, 1u << 24);
+    poke(*m, wwdg + 4, 0x7Fu);
+    poke(*m, wwdg, 0xFFu);
+    m->run_until_ns(m->time_ns() + 20000000);
+    poke(*m, wwdg, 0x7Fu);
+    m->run_until_ns(m->time_ns() + 20000000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0);
+    poke(*m, wwdg, 0xBFu); // T6 written as 0
+    m->run_until_ns(m->time_ns() + 1000);
+    CHECK(read_word(*m, rcc_csr_reg) == 0x44000000u);
+}
+
+TEST_CASE("RTC and BKP: LSE seconds, alarm on EXTI 17, write protection and the backup domain")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    // Without PWR_CR.DBP the backup domain ignores writes.
+    poke(*m, bkp + 0x04, 0xBEEF);
+    CHECK(read_word(*m, bkp + 0x04) == 0);
+    CHECK(has_diagnostic(m->take_diagnostics(), "PWR_CR.DBP"));
+    poke(*m, pwr_cr, 1u << 8);
+    poke(*m, bkp + 0x04, 0xBEEF);
+    poke(*m, bkp + 0x28, 0x1234);
+    CHECK(read_word(*m, bkp + 0x04) == 0xBEEFu);
+    CHECK(read_word(*m, bkp + 0x28) == 0x1234u); // DR10
+
+    poke(*m, rcc_bdcr, 1);                       // LSEON
+    CHECK((read_word(*m, rcc_bdcr) & 2u) == 2u); // LSERDY
+    poke(*m, rcc_bdcr, 1u | (1u << 8) | (1u << 15)); // RTCSEL = LSE, RTCEN
+    poke(*m, rtc + 0x1C, 5);                     // outside configuration mode: ignored
+    CHECK(has_diagnostic(m->take_diagnostics(), "configuration mode"));
+    poke(*m, rtc + 0x04, 0x10);                  // CNF
+    poke(*m, rtc + 0x0C, 0x7FFF);                // PRL: 32768 cycles per second
+    poke(*m, rtc + 0x1C, 10);                    // CNT
+    poke(*m, rtc + 0x20, 0);                     // ALRH (ALR resets to 0xFFFFFFFF)
+    poke(*m, rtc + 0x24, 12);                    // ALRL
+    poke(*m, rtc + 0x04, 0);                     // leave configuration mode
+    CHECK((read_word(*m, rtc + 0x04) & 0x28u) == 0x28u); // RSF, RTOFF
+    poke(*m, exti_imr, 1u << 17);
+    poke(*m, exti_rtsr, 1u << 17);
+    poke(*m, rtc, 1); // SECIE
+    const std::uint64_t start = m->time_ns();
+    m->run_until_ns(start + 500000000);
+    CHECK(read_word(*m, rtc + 0x1C) == 10u);
+    const std::uint32_t div = read_word(*m, rtc + 0x14);
+    CHECK(div > 0x3F00u && div < 0x4100u); // half a second left
+    m->run_until_ns(start + 1000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 11u);
+    CHECK((read_word(*m, rtc + 0x04) & 1u) == 1u);    // SECF
+    CHECK((read_word(*m, nvic_ispr0) & 8u) == 8u);    // RTC interrupt (3) pending
+    CHECK((read_word(*m, exti_pr) & (1u << 17)) == 0);
+    m->run_until_ns(start + 2000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 12u);
+    CHECK((read_word(*m, rtc + 0x04) & 2u) == 2u);    // ALRF
+    CHECK((read_word(*m, exti_pr) & (1u << 17)) != 0); // the alarm on EXTI 17
+    CHECK((read_word(*m, nvic_ispr1) & (1u << 9)) != 0); // RTCAlarm (41) pending
+    poke(*m, rtc + 0x04, 0);                           // clear the flags (rc_w0)
+    CHECK((read_word(*m, rtc + 0x04) & 7u) == 0);
+
+    // A system reset keeps the backup domain: the RTC counts on, BKP keeps its data.
+    m->reset(ResetKind::Pin);
+    CHECK(read_word(*m, bkp + 0x04) == 0xBEEFu);
+    CHECK(read_word(*m, rtc) == 0); // CRH is reset
+    m->run_until_ns(start + 3000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 13u);
+    CHECK((read_word(*m, rcc_bdcr) & 0x8101u) == 0x8101u);
+
+    // BDRST clears the backup domain.
+    poke(*m, pwr_cr, 1u << 8);
+    poke(*m, rcc_bdcr, 1u << 16);
+    poke(*m, rcc_bdcr, 0);
+    CHECK(read_word(*m, bkp + 0x04) == 0);
+    CHECK(read_word(*m, rcc_bdcr) == 0);
+    CHECK(read_word(*m, rtc + 0x1C) == 0);
+
+    // And a power-on reset too.
+    poke(*m, pwr_cr, 1u << 8);
+    poke(*m, bkp + 0x08, 0x55);
+    m->reset(ResetKind::PowerOn);
+    CHECK(read_word(*m, bkp + 0x08) == 0);
+}
+
+TEST_CASE("RTC: LSI and HSE / 128 clocks and a prescaler change")
+{
+    auto m = idle_machine();
+    REQUIRE(m);
+    poke(*m, pwr_cr, 1u << 8);
+    poke(*m, rcc_csr_reg, 1); // LSION
+    poke(*m, rcc_bdcr, (2u << 8) | (1u << 15)); // LSI, RTCEN
+    poke(*m, rtc + 0x04, 0x10);
+    poke(*m, rtc + 0x0C, 39999); // one second at 40 kHz
+    poke(*m, rtc + 0x04, 0);
+    const std::uint64_t start = m->time_ns();
+    m->run_until_ns(start + 3000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 3u);
+    // HSE / 128 = 62500 Hz with the Blue Pill's 8 MHz crystal; PRL 6249: ten counts a second.
+    poke(*m, 0x40021000, 0x83u | (1u << 16)); // HSEON
+    poke(*m, rcc_bdcr, (1u << 16));           // BDRST to change RTCSEL
+    poke(*m, rcc_bdcr, (3u << 8) | (1u << 15));
+    poke(*m, rtc + 0x04, 0x10);
+    poke(*m, rtc + 0x0C, 6249);
+    poke(*m, rtc + 0x04, 0);
+    const std::uint64_t again = m->time_ns();
+    m->run_until_ns(again + 1000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 10u);
+    // Without RTCEN the counter stands still.
+    poke(*m, rcc_bdcr, 3u << 8);
+    m->run_until_ns(again + 2000100000);
+    CHECK(read_word(*m, rtc + 0x1C) == 10u);
+}
+
+TEST_CASE("an STM32CubeIDE HAL project keeps RTC time and start count through an IWDG reset")
+{
+    auto m = machine_with("hal_rtc_watchdog");
+    REQUIRE(m);
+    m->set_pin_input(0, 1, true); // the button on PA1 is released (pull-up)
+    std::string text;
+    auto run_to = [&](std::uint64_t ns) {
+        m->run_until_ns(ns);
+        for (const auto& b : m->take_uart_bytes()) {
+            text += static_cast<char>(b.value);
+        }
+    };
+    run_to(3500000000ull);
+    CHECK(text.find("power-on, start 1") != std::string::npos);
+    CHECK(text.find("12:00:03") != std::string::npos);
+    CHECK(text.find("watchdog") == std::string::npos); // refreshed every 100 ms
+    // Holding the button stops the refresh: the IWDG resets the chip within a second.
+    m->set_pin_input(0, 1, false);
+    run_to(4700000000ull);
+    m->set_pin_input(0, 1, true);
+    run_to(6500000000ull);
+    CHECK(text.find("reset by the watchdog, start 2") != std::string::npos);
+    // The RTC counted on through the reset and was not set again.
+    const auto after = text.find("start 2");
+    REQUIRE(after != std::string::npos);
+    CHECK(text.find("12:00:06", after) != std::string::npos);
+    CHECK(text.find("12:00:00", after) == std::string::npos);
+    std::size_t resets = 0;
+    for (const auto& d : m->take_diagnostics()) {
+        resets += d.text.find("independent watchdog") != std::string::npos ? 1 : 0;
+        CHECK(d.text.find("not simulated") == std::string::npos);
+    }
+    CHECK(resets == 1);
 }
 
 TEST_CASE("ELF errors are reported in plain words")

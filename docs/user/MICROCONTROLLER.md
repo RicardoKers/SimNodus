@@ -28,6 +28,10 @@ the same circuit give the same firmware timing.
 | DMA1 | yes | Seven channels: peripheral and memory addresses, increments, 8/16/32-bit sizes, circular mode, memory-to-memory, half-transfer, transfer-complete and transfer-error flags and interrupts. Requests from ADC1 (channel 1) and USART1–3 TX/RX, so `HAL_ADC_Start_DMA`, `HAL_UART_Transmit_DMA` and `HAL_UART_Receive_DMA` work. A transfer takes no time. Example 15 |
 | ADC1 and ADC2 | yes | 12 bits over 0–3.3 V on IN0–IN9 (PA0–PA7, PB0, PB1), the temperature sensor (1.43 V, as at 25 °C) and VREFINT (1.20 V); single, continuous and scan conversion, injected channels with offsets, per-channel sample times and the conversion time from PCLK2 and ADCPRE, calibration, left/right alignment, analog watchdog, end-of-conversion interrupt. The pin voltage is read from the circuit 0.1–0.2 ms before the sample instant (see below). Example 14 |
 | Timers TIM1–TIM4 | yes | Counting up and down with prescaler and auto-reload (with preload), one-pulse mode, TIM1 repetition counter; output compare (toggle, active/inactive on match, forced levels), PWM modes 1 and 2 with CCR preload and polarity, TIM1 main output enable and complementary outputs; input capture of rising or falling edges with the capture prescaler; update and capture/compare interrupts; channel pins with the AFIO remaps. Edges are exact to the timer clock. Example 13 |
+| CRC | yes | CRC-32 (polynomial 0x04C11DB7) over 32-bit words as `HAL_CRC_Calculate` uses it; IDR; RESET |
+| Independent watchdog (IWDG) | yes | Key register, prescaler and reload; the chip resets when it is not reloaded in time (RCC_CSR IWDGRSTF, a message in the Messages panel). Counts at LSI = 40 kHz exactly |
+| Window watchdog (WWDG) | yes | 7-bit counter at PCLK1 / 4096 / 2^WDGTB; reset when T6 clears, when refreshed above the window or when T6 is written as 0; early wakeup interrupt at 0x40 |
+| RTC and backup registers | yes | Prescaler and 32-bit counter at LSE (32.768 kHz), LSI (40 kHz) or HSE / 128; alarm, second and overflow flags and interrupts, the alarm on EXTI line 17; BKP_DR1–DR10. The backup domain keeps the time and the registers through resets, is cleared at power-on and by BDRST, and needs PWR_CR.DBP for writes, as on the chip. `HAL_RTC_*` and `HAL_RTCEx_BKUP*` work unchanged. Example 24 |
 | On-board LED (PC13, lit when low) and RESET button | yes | Clickable while running |
 
 ## Not yet simulated
@@ -36,7 +40,8 @@ the same circuit give the same firmware timing.
 |---|---|
 | ADC features: conversions started by a timer or EXTI, discontinuous and dual modes; DMA requests of timers, SPI and I2C | Later; the firmware gets a message in the Messages panel when it uses one |
 | Timer features: center-aligned counting, encoder and other slave modes, input filters, dead time, break input, timer DMA requests | Later; the firmware gets a message in the Messages panel when it uses one |
-| SPI, I2C, CAN, USB, RTC, watchdogs | Not planned yet; the firmware's register accesses have no effect |
+| SPI and I2C | Planned with devices in the library (74HC595, MAX7219, 8x8 LED matrix, 24C02, LM75, PCF8574, HD44780 LCD); until then the registers keep what is written and a message says the peripheral does nothing |
+| CAN, USB, RTC tamper pin and calibration output | Not planned yet |
 | Transient mode with a microcontroller | Not yet: use interactive mode |
 
 ## Differences from the real board
@@ -90,6 +95,12 @@ the same circuit give the same firmware timing.
   apart) at any step.
 - **Pin speed and drive.** Edge speed (MODE 10/2/50 MHz) and current limits
   are not simulated; an LED without a resistor draws an unrealistic current.
+- **Watchdogs and RTC.** LSI runs at exactly 40 kHz (a real chip: 30–60 kHz),
+  so IWDG timeouts and an LSI-clocked RTC are exact here and vary on boards.
+  LSE starts at once (a real crystal needs up to a few seconds). RTC writes
+  in configuration mode take effect at once (RTOFF always reads 1). While the
+  debugger halts the firmware, the watchdogs and the RTC stand still too
+  (time stops), as with DBGMCU's stop bits set.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source
   behind 0.1 Ω); 5 V and VBAT pins are not connected inside.
 

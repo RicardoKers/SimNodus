@@ -16,6 +16,7 @@
 #include "elf.hpp"
 #include "stm32f1_adc.hpp"
 #include "stm32f1_dma.hpp"
+#include "stm32f1_system.hpp"
 #include "stm32f1_timer.hpp"
 
 #include <array>
@@ -63,7 +64,7 @@ struct PinConfig {
 };
 
 // Why the chip resets (RCC_CSR reset flags, RM0008 7.3.10).
-enum class ResetKind { PowerOn, Pin, Software };
+enum class ResetKind { PowerOn, Pin, Software, IndependentWatchdog, WindowWatchdog };
 
 struct MachineOptions {
     std::uint32_t flash_size = 64 * 1024;  // STM32F103C8
@@ -81,7 +82,7 @@ struct MachineOptions {
     std::uint64_t uart_rx_min_bit_ns = 0;
 };
 
-class Stm32F103 : private TimerHost, private AdcHost, private DmaHost {
+class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost {
 public:
     static constexpr int num_ports = 5;
 
@@ -185,6 +186,25 @@ private:
     void dma_channel_enabled(int channel) override;
     void exti_selection_changed();
 
+    // SystemHost (SN-187)
+    std::uint64_t system_now_ns() const override { return time_ns(); }
+    std::uint64_t system_cycles_at(std::uint64_t ns) const override { return cycles_at_ns(ns); }
+    std::uint32_t pclk1_hz() const override;
+    std::uint32_t rtc_clock_hz() const override;
+    bool backup_writable() const override;
+    void system_irq(int irq, bool level) override { cpu_.set_irq_line(irq, level); }
+    void system_exti(int line, bool level) override { exti_input(line, level); }
+    void watchdog_reset(bool independent) override;
+    void system_schedule_changed() override { cpu_.request_stop(); }
+    void system_diagnostic(const std::string& text) override { diagnostic(text); }
+
+public:
+    // Internal: used by RCC.
+    void backup_domain_reset(); // RCC_BDCR.BDRST
+    void rtc_clock_changed();
+
+private:
+
     MachineOptions options_;
     Bus bus_;
     Cpu cpu_;
@@ -198,7 +218,12 @@ private:
     std::array<std::unique_ptr<Stm32F1Timer>, 4> timers_; // TIM1..TIM4
     std::array<std::unique_ptr<Stm32F1Adc>, 2> adcs_;     // ADC1, ADC2
     std::unique_ptr<Stm32F1Dma> dma_;                     // DMA1
-    std::vector<TimedDevice*> timed_;                     // timers and ADCs
+    std::unique_ptr<Stm32F1Crc> crc_;
+    std::unique_ptr<Stm32F1Iwdg> iwdg_;
+    std::unique_ptr<Stm32F1Wwdg> wwdg_;
+    std::unique_ptr<Stm32F1Rtc> rtc_;
+    std::unique_ptr<Stm32F1Bkp> bkp_;
+    std::vector<TimedDevice*> timed_;                     // timers, ADCs, USARTs, watchdogs, RTC
     AnalogSource analog_source_;
     std::vector<std::unique_ptr<Stub>> stubs_;
     std::unique_ptr<Dwt> dwt_;
@@ -210,6 +235,8 @@ private:
     std::uint64_t base_cycles_ = 0;
     std::uint64_t base_ns_ = 0;
     bool reset_requested_ = false;
+    ResetKind requested_kind_ = ResetKind::Software; // of reset_requested_
+    bool reported_iwdg_ = false, reported_wwdg_ = false;
     std::uint32_t reset_flags_ = 0x0C000000u; // RCC_CSR: PORRSTF | PINRSTF
 
     // Alternate-function sources driving each pin high (port * 16 + pin).
