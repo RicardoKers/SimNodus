@@ -144,6 +144,8 @@ public:
     virtual PinLog pin_log(std::size_t pin, std::uint64_t from_ns) const = 0;
     // Messages for the user since the last call (faults, unsimulated features).
     virtual std::vector<std::string> take_diagnostics() { return {}; }
+    // What the board's display chips show (component -> UTF-8 text, SN-206).
+    virtual std::map<std::uint64_t, std::string> device_texts() const { return {}; }
 };
 
 } // namespace simnodus::mcu

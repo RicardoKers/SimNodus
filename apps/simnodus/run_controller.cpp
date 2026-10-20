@@ -416,6 +416,9 @@ void RunController::refresh()
         || (status.state == sim::RunState::Finished && mode_ == model::SimulationMode::Transient);
     const auto latest = session_->latest_all();
     live.nets = latest;
+    for (const auto& [id, text] : session_->device_texts()) {
+        live.texts[id] = QString::fromUtf8(text.data(), static_cast<qsizetype>(text.size()));
+    }
     const auto& n = session_->netlist();
     const auto& library = document_.library();
     for (const auto& control : n.controls) {

@@ -15,6 +15,7 @@
 #include <QStyleOptionGraphicsItem>
 
 #include <algorithm>
+#include <cstdlib>
 #include <cmath>
 
 namespace simnodus::ui {
@@ -371,6 +372,9 @@ public:
         if (definition_->mcu && live.running && !ghost_) {
             paint_mcu(*painter, live);
         }
+        if (definition_->screen && !ghost_) {
+            paint_screen(*painter, live);
+        }
         painter->restore();
         if (ghost_) {
             return;
@@ -403,6 +407,49 @@ public:
     }
 
 private:
+    // A character display (SN-206): the glass, and while running the text of
+    // its chip in a grid of the part's rows and columns, in symbol coordinates.
+    void paint_screen(QPainter& painter, const LiveState& live) const
+    {
+        const auto& screen = *definition_->screen;
+        const QRectF glass(screen.at.x, screen.at.y, screen.size.x, screen.size.y);
+        auto parameter = [&](const std::string& name, int fallback) {
+            const auto it = component_.parameters.find(name);
+            const auto* p = definition_->parameter(name);
+            const std::string value = it != component_.parameters.end() ? it->second : p ? p->default_value : std::string();
+            const int n = std::atoi(value.c_str());
+            return n > 0 ? n : fallback;
+        };
+        const int rows = std::clamp(parameter(screen.rows_parameter, 2), 1, 4);
+        const int columns = std::clamp(parameter(screen.columns_parameter, 16), 1, 40);
+        const bool on = live.running;
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(on ? QColor(0x9a, 0xc8, 0x3c) : QColor(0x6f, 0x8a, 0x3a));
+        painter.drawRect(glass);
+        const double cell_w = glass.width() / columns;
+        const double cell_h = glass.height() / rows;
+        const auto it = live.texts.find(component_.id);
+        const QStringList lines = on && it != live.texts.end() ? it->second.split(QLatin1Char('\n')) : QStringList();
+        QFont font(QStringLiteral("Consolas"));
+        font.setStyleHint(QFont::Monospace);
+        font.setPointSizeF(std::max(0.2, std::min(cell_h * 0.8, cell_w * 1.3)));
+        painter.setFont(font);
+        for (int r = 0; r < rows; ++r) {
+            const QString line = r < lines.size() ? lines[r] : QString();
+            for (int c = 0; c < columns; ++c) {
+                const QRectF cell(glass.left() + c * cell_w, glass.top() + r * cell_h, cell_w, cell_h);
+                // The dot-matrix cells, faint, as on the glass.
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(QColor(0x80, 0xa8, 0x30, on ? 120 : 60));
+                painter.drawRect(cell.adjusted(cell_w * 0.08, cell_h * 0.08, -cell_w * 0.08, -cell_h * 0.08));
+                if (c < line.size() && line[c] != QLatin1Char(' ')) {
+                    painter.setPen(QColor(0x10, 0x20, 0x10));
+                    painter.drawText(cell, Qt::AlignCenter, QString(line[c]));
+                }
+            }
+        }
+    }
+
     // Pin states and the on-board LED of a running microcontroller board, in
     // symbol coordinates (INT-06).
     void paint_mcu(QPainter& painter, const LiveState& live) const

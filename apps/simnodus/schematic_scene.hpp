@@ -64,6 +64,7 @@ struct LiveState {
         std::vector<double> levels;
     };
     std::map<model::Id, Lights> lights;
+    std::map<model::Id, QString> texts;     // character displays (SN-206): rows separated by '\n'
     std::map<std::string, double> nets;     // net name (lower case) -> volts
     // Microcontroller boards: GPIO pin name -> level and mode (INT-06).
     std::map<model::Id, std::map<std::string, mcu::PinState>> mcu_pins;

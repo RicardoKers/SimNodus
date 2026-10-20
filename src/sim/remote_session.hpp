@@ -77,6 +77,7 @@ public:
     void mcu_uart_send(model::Id component, const std::string& uart, const std::string& bytes) override;
     std::uint64_t mcu_uart_received(model::Id component, const std::string& uart, std::uint64_t from,
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
+    std::map<model::Id, std::string> device_texts() const override { return texts_; }
 
     // How long start() and stop() wait for the engine's answer.
     void set_timeouts(int start_ms, int stop_ms)
@@ -120,6 +121,7 @@ private:
     TransientResult transient_;
     std::map<model::Id, Board> boards_;
     std::vector<std::pair<model::Id, std::string>> mcu_diagnostics_;
+    std::map<model::Id, std::string> texts_;
 
     bool engine_run_ = false; // a run was started in the engine and not stopped
     // Replies being waited for.

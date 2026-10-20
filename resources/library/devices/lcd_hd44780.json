@@ -1,0 +1,491 @@
+{
+  "type": "lcd_hd44780",
+  "name": "Character LCD (HD44780)",
+  "category": "Displays",
+  "prefix": "U",
+  "description": "Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -17,
+          -3,
+          34,
+          14
+        ]
+      },
+      {
+        "line": [
+          -15,
+          -5,
+          -15,
+          -3
+        ]
+      },
+      {
+        "text": "VSS",
+        "at": [
+          -15,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -13,
+          -5,
+          -13,
+          -3
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          -13,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -11,
+          -5,
+          -11,
+          -3
+        ]
+      },
+      {
+        "text": "V0",
+        "at": [
+          -11,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -5,
+          -9,
+          -3
+        ]
+      },
+      {
+        "text": "RS",
+        "at": [
+          -9,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -7,
+          -5,
+          -7,
+          -3
+        ]
+      },
+      {
+        "text": "RW",
+        "at": [
+          -7,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -5,
+          -5,
+          -5,
+          -3
+        ]
+      },
+      {
+        "text": "E",
+        "at": [
+          -5,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -3,
+          -5,
+          -3,
+          -3
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          -3,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -1,
+          -5,
+          -1,
+          -3
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          -1,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          1,
+          -5,
+          1,
+          -3
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          1,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          3,
+          -5,
+          3,
+          -3
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          3,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          5,
+          -5,
+          5,
+          -3
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          5,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          7,
+          -5,
+          7,
+          -3
+        ]
+      },
+      {
+        "text": "D5",
+        "at": [
+          7,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -5,
+          9,
+          -3
+        ]
+      },
+      {
+        "text": "D6",
+        "at": [
+          9,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          11,
+          -5,
+          11,
+          -3
+        ]
+      },
+      {
+        "text": "D7",
+        "at": [
+          11,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          13,
+          -5,
+          13,
+          -3
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          13,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          15,
+          -5,
+          15,
+          -3
+        ]
+      },
+      {
+        "text": "K",
+        "at": [
+          15,
+          -2.2
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "VSS",
+        "at": [
+          -15,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "VDD",
+        "at": [
+          -13,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "V0",
+        "at": [
+          -11,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "RS",
+        "at": [
+          -9,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "RW",
+        "at": [
+          -7,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "E",
+        "at": [
+          -5,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D0",
+        "at": [
+          -3,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "D1",
+        "at": [
+          -1,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "D2",
+        "at": [
+          1,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "D3",
+        "at": [
+          3,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "D4",
+        "at": [
+          5,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D5",
+        "at": [
+          7,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D6",
+        "at": [
+          9,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "D7",
+        "at": [
+          11,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "A",
+        "at": [
+          13,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "K",
+        "at": [
+          15,
+          -5
+        ],
+        "dir": "up",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    -17,
+    -8
+  ],
+  "value_offset": [
+    10,
+    -8
+  ],
+  "device": {
+    "kind": "hd44780",
+    "supply_pin": "VDD",
+    "ground_pin": "VSS",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hv0 {node:V0} {node:VSS} 100Meg",
+    "R_{ref}_hrs {node:RS} {node:VSS} 100Meg",
+    "R_{ref}_hrw {node:RW} {node:VSS} 100Meg",
+    "R_{ref}_he {node:E} {node:VSS} 100Meg",
+    "R_{ref}_hd0 {node:D0} {node:VSS} 100Meg",
+    "R_{ref}_hd1 {node:D1} {node:VSS} 100Meg",
+    "R_{ref}_hd2 {node:D2} {node:VSS} 100Meg",
+    "R_{ref}_hd3 {node:D3} {node:VSS} 100Meg",
+    "R_{ref}_hd4 {node:D4} {node:VSS} 100Meg",
+    "R_{ref}_hd5 {node:D5} {node:VSS} 100Meg",
+    "R_{ref}_hd6 {node:D6} {node:VSS} 100Meg",
+    "R_{ref}_hd7 {node:D7} {node:VSS} 100Meg",
+    "B_{ref}_d0 {node:VSS} {node:D0} I=V({ext:d0_i})-V({ext:d0_g})*(V({node:D0})-V({node:VSS}))",
+    "B_{ref}_d1 {node:VSS} {node:D1} I=V({ext:d1_i})-V({ext:d1_g})*(V({node:D1})-V({node:VSS}))",
+    "B_{ref}_d2 {node:VSS} {node:D2} I=V({ext:d2_i})-V({ext:d2_g})*(V({node:D2})-V({node:VSS}))",
+    "B_{ref}_d3 {node:VSS} {node:D3} I=V({ext:d3_i})-V({ext:d3_g})*(V({node:D3})-V({node:VSS}))",
+    "B_{ref}_d4 {node:VSS} {node:D4} I=V({ext:d4_i})-V({ext:d4_g})*(V({node:D4})-V({node:VSS}))",
+    "B_{ref}_d5 {node:VSS} {node:D5} I=V({ext:d5_i})-V({ext:d5_g})*(V({node:D5})-V({node:VSS}))",
+    "B_{ref}_d6 {node:VSS} {node:D6} I=V({ext:d6_i})-V({ext:d6_g})*(V({node:D6})-V({node:VSS}))",
+    "B_{ref}_d7 {node:VSS} {node:D7} I=V({ext:d7_i})-V({ext:d7_g})*(V({node:D7})-V({node:VSS}))",
+    "R_{ref}_q {node:VDD} {node:VSS} 100k",
+    "R_{ref}_bl {node:A} bl_{ref} 47",
+    "D_{ref}_bl bl_{ref} {node:K} LCDBL"
+  ],
+  "parameters": [
+    {
+      "name": "rows",
+      "label": "Rows",
+      "unit": "",
+      "default": "2",
+      "choices": [
+        "1",
+        "2",
+        "4"
+      ],
+      "description": "Rows of characters"
+    },
+    {
+      "name": "columns",
+      "label": "Columns",
+      "unit": "",
+      "default": "16",
+      "choices": [
+        "8",
+        "16",
+        "20",
+        "40"
+      ],
+      "description": "Characters per row"
+    }
+  ],
+  "screen": {
+    "rect": [
+      -14,
+      0,
+      28,
+      8
+    ],
+    "rows_parameter": "rows",
+    "columns_parameter": "columns"
+  },
+  "models": [
+    ".model LCDBL D(IS=6.7e-28 N=2 RS=8)"
+  ]
+}

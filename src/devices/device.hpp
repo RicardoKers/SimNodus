@@ -64,6 +64,8 @@ public:
     // changes by itself, and the call that lets it.
     virtual std::uint64_t next_event_ns() const { return no_event; }
     virtual void advance(std::uint64_t time_ns) { (void)time_ns; }
+    // What a display shows (UTF-8, one row per line); empty for other chips.
+    virtual std::string text() const { return {}; }
     // Messages about the device's use (protocol errors), taken by the runner.
     std::vector<std::string> take_messages() { return std::exchange(messages_, {}); }
 

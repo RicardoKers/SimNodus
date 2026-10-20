@@ -515,6 +515,24 @@ ComponentDefinition parse_definition(const json& j)
         }
         d.mcu = board;
     }
+    if (j.contains("screen") && !j["screen"].is_null()) {
+        const auto& s = j["screen"];
+        const auto r = numbers(s["rect"], 4, "screen.rect");
+        Screen screen;
+        screen.at = {r[0], r[1]};
+        screen.size = {r[2], r[3]};
+        if (s.contains("rows_parameter")) {
+            screen.rows_parameter = text(s, "rows_parameter", true);
+        }
+        if (s.contains("columns_parameter")) {
+            screen.columns_parameter = text(s, "columns_parameter", true);
+        }
+        if (screen.size.x <= 0 || screen.size.y <= 0 || !d.parameter(screen.rows_parameter)
+            || !d.parameter(screen.columns_parameter)) {
+            invalid("screen needs a positive rect and the rows and columns parameters");
+        }
+        d.screen = screen;
+    }
     if (j.contains("device") && !j["device"].is_null()) {
         const auto& m = j["device"];
         DigitalDevice device;

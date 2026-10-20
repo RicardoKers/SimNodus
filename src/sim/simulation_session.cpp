@@ -762,7 +762,15 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                             net.pull = -1;
                         }
                     }
-                    net.circuit = net.board_pins.empty();
+                    // Read from the circuit only when something besides chips is on the net
+                    // (a push button, an LED): a net between two chips stays digital.
+                    net.circuit = net.board_pins.empty()
+                        && std::any_of(connectivity.nets[static_cast<std::size_t>(n)].pins.begin(),
+                            connectivity.nets[static_cast<std::size_t>(n)].pins.end(), [&](const netlist::PinRef& p) {
+                                const auto* c = schematic.component(p.first);
+                                const auto* d = c ? library.find(c->type) : nullptr;
+                                return !d || !d->device;
+                            });
                     options.nets.push_back(std::move(net));
                 }
                 options.nets[it->second].device_pins.emplace_back(index, pin);
@@ -998,6 +1006,17 @@ std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const st
         return 0;
     }
     return it->second->uart_received(uart, from, bytes, times);
+}
+
+std::map<model::Id, std::string> SimulationSession::device_texts() const
+{
+    std::map<model::Id, std::string> texts;
+    for (const auto& [id, runner] : mcus_) {
+        for (auto& [component, text] : runner->device_texts()) {
+            texts[component] = std::move(text);
+        }
+    }
+    return texts;
 }
 
 mcu::PinLog SimulationSession::mcu_pin_log(model::Id component, const std::string& pin, std::uint64_t from_ns) const

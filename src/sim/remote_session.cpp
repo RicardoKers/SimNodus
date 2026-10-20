@@ -71,6 +71,7 @@ bool RemoteSession::start(RunRequest request, std::string& error)
     transient_ = {};
     boards_.clear();
     mcu_diagnostics_.clear();
+    texts_.clear();
     ring_capacity_ = request.ring_capacity;
 
     if (!link_.open(error)) {
@@ -379,6 +380,10 @@ void RemoteSession::apply_update(Reader& r)
                 log.erase(log.begin(), log.begin() + static_cast<std::ptrdiff_t>(log_keep / 10));
             }
         }
+    }
+    for (std::size_t n = r.size(12); n > 0; --n) {
+        const model::Id id = r.u64();
+        texts_[id] = r.str();
     }
     if (r.boolean()) {
         transient_ = protocol::read_transient(r);

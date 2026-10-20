@@ -827,6 +827,37 @@ private slots:
 #endif
     }
 
+    void lcd_example_shows_its_text_on_the_schematic()
+    {
+        // SN-206: an HD44780 behind a PCF8574 on I2C; the text reaches the canvas from the engine process.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/28_LCD_16x2_I2C_backpack.snx"), errors, warnings));
+        model::Id lcd = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            lcd = c.type == "lcd_hd44780" ? c.id : lcd;
+        }
+        QVERIFY(lcd != model::no_id);
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto shown = [&] {
+            const auto& texts = window_->scene()->live().texts;
+            const auto it = texts.find(lcd);
+            return it != texts.end() && it->second.startsWith(QStringLiteral("Hello, SimNodus!\nSeconds:"));
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(shown(), 15000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->scene()->update(); // paints the screen with its text
+        QTest::qWait(50);
+        window_->stop();
+#endif
+    }
+
     void blue_pill_example_runs_its_firmware_and_resets()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

@@ -39,7 +39,7 @@ REQUIRED = [
     "translations/simnodus_pt_BR.qm",
     "vcruntime140.dll", "msvcp140.dll",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
-    "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json",
+    "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json", "library/devices/lcd_hd44780.json",
     "examples/23_Seven_segment_counter.snx",
     "examples/22_Regulators_and_reference.snx",
     "examples/21_Counter_with_push_button.snx", "examples/20_Blocks_two_RC_stages.snx",

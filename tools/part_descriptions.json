@@ -38,5 +38,6 @@
   "led_matrix_8x8": "64 LEDs in rows (cathodes) and columns (anodes), for multiplexing",
   "24c02": "256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board",
   "lm75": "I2C temperature sensor; set the temperature in Properties; works with a microcontroller board",
-  "pcf8574": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board"
+  "pcf8574": "I2C 8-bit I/O expander (outputs and inputs); works with a microcontroller board",
+  "lcd_hd44780": "Character LCD (HD44780), rows and columns in Properties; works with a microcontroller board"
 }

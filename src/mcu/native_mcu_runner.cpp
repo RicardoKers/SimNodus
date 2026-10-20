@@ -374,6 +374,12 @@ PinLog NativeMcuRunner::pin_log(std::size_t pin, std::uint64_t from_ns) const
     return result;
 }
 
+std::map<std::uint64_t, std::string> NativeMcuRunner::device_texts() const
+{
+    std::lock_guard lock(mutex_);
+    return device_texts_;
+}
+
 std::vector<std::string> NativeMcuRunner::take_diagnostics()
 {
     std::lock_guard lock(mutex_);
@@ -546,6 +552,12 @@ void NativeMcuRunner::work()
         for (auto& text : bus.take_messages()) {
             if (diagnostics_.size() < 100) {
                 diagnostics_.push_back(std::move(text));
+            }
+        }
+        for (std::size_t d = 0; d < bus.device_count(); ++d) {
+            auto text = bus.text(d);
+            if (!text.empty()) {
+                device_texts_[options_.devices[d].component] = std::move(text);
             }
         }
     };
