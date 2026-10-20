@@ -107,6 +107,7 @@ invalid value is outlined in red and not applied.
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
+| **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); these chips work together with a board (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
@@ -119,6 +120,10 @@ Notes on some parts:
 - **Adjustable sources:** like a potentiometer, drag them or turn the mouse
   wheel over them while running; the value goes from the lower limit (0 %)
   to the upper limit (100 %) and is shown on the symbol.
+- **A/D and D/A converters:** ideal and continuous: the ADC's code is
+  floor(2^N × VIN / VREF) at every moment (no clock, no sampling time), D0
+  is the least significant bit; the DAC gives OUT = VREF × code / 2^N behind
+  10 Ω. Inputs switch at VDD/2. Example 31 shows the staircase of 4 bits.
 - **Keypad 4x4:** while running, hold the mouse on a key: it joins its row
   (R1-R4) to its column (C1-C4) until you release it. One key at a time.
   Example 30 scans it with a Blue Pill.

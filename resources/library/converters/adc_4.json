@@ -1,0 +1,218 @@
+{
+  "type": "adc_4",
+  "name": "A/D converter 4-bit",
+  "category": "Converters",
+  "prefix": "U",
+  "description": "Ideal 4-bit A/D converter: D0-D3 = 2^4 x VIN / VREF, converting continuously",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -5,
+          6,
+          10
+        ]
+      },
+      {
+        "text": "ADC4",
+        "at": [
+          0,
+          -5.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          -3,
+          -3,
+          -3
+        ]
+      },
+      {
+        "text": "VIN",
+        "at": [
+          -1.7,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -5,
+          -1,
+          -3,
+          -1
+        ]
+      },
+      {
+        "text": "VREF",
+        "at": [
+          -1.7,
+          -1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -3,
+          5,
+          -3
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          1.9,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -1,
+          5,
+          -1
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          1.9,
+          -1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          1,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          1.9,
+          1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          3,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          1.9,
+          3
+        ],
+        "size": 0.7
+      }
+    ],
+    "pins": [
+      {
+        "name": "VIN",
+        "at": [
+          -5,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VREF",
+        "at": [
+          -5,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D0",
+        "at": [
+          5,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D1",
+        "at": [
+          5,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D2",
+        "at": [
+          5,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D3",
+        "at": [
+          5,
+          3
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -7
+  ],
+  "value_offset": [
+    -3,
+    6
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref}_x x_{ref} 0 V=min(max(V({node:VIN})/max(V({node:VREF}),1e-6)*16,0),15)",
+    "B_{ref}_b0 b0_{ref} 0 V={VDD}*(floor(V(x_{ref})/1)-2*floor(V(x_{ref})/2))",
+    "R_{ref}_d0 b0_{ref} y0_{ref} 1k",
+    "C_{ref}_d0 y0_{ref} 0 10p",
+    "B_{ref}_o0 z0_{ref} 0 V=V(y0_{ref})",
+    "R_{ref}_o0 z0_{ref} {node:D0} 50",
+    "B_{ref}_b1 b1_{ref} 0 V={VDD}*(floor(V(x_{ref})/2)-2*floor(V(x_{ref})/4))",
+    "R_{ref}_d1 b1_{ref} y1_{ref} 1k",
+    "C_{ref}_d1 y1_{ref} 0 10p",
+    "B_{ref}_o1 z1_{ref} 0 V=V(y1_{ref})",
+    "R_{ref}_o1 z1_{ref} {node:D1} 50",
+    "B_{ref}_b2 b2_{ref} 0 V={VDD}*(floor(V(x_{ref})/4)-2*floor(V(x_{ref})/8))",
+    "R_{ref}_d2 b2_{ref} y2_{ref} 1k",
+    "C_{ref}_d2 y2_{ref} 0 10p",
+    "B_{ref}_o2 z2_{ref} 0 V=V(y2_{ref})",
+    "R_{ref}_o2 z2_{ref} {node:D2} 50",
+    "B_{ref}_b3 b3_{ref} 0 V={VDD}*(floor(V(x_{ref})/8)-2*floor(V(x_{ref})/16))",
+    "R_{ref}_d3 b3_{ref} y3_{ref} 1k",
+    "C_{ref}_d3 y3_{ref} 0 10p",
+    "B_{ref}_o3 z3_{ref} 0 V=V(y3_{ref})",
+    "R_{ref}_o3 z3_{ref} {node:D3} 50",
+    "R_{ref}_in {node:VIN} 0 1G",
+    "R_{ref}_ref {node:VREF} 0 1G"
+  ]
+}

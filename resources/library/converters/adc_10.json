@@ -1,0 +1,392 @@
+{
+  "type": "adc_10",
+  "name": "A/D converter 10-bit",
+  "category": "Converters",
+  "prefix": "U",
+  "description": "Ideal 10-bit A/D converter: D0-D9 = 2^10 x VIN / VREF, converting continuously",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -11,
+          6,
+          22
+        ]
+      },
+      {
+        "text": "ADC10",
+        "at": [
+          0,
+          -11.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -5,
+          -9,
+          -3,
+          -9
+        ]
+      },
+      {
+        "text": "VIN",
+        "at": [
+          -1.7,
+          -9
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -5,
+          -7,
+          -3,
+          -7
+        ]
+      },
+      {
+        "text": "VREF",
+        "at": [
+          -1.7,
+          -7
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -9,
+          5,
+          -9
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          1.9,
+          -9
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -7,
+          5,
+          -7
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          1.9,
+          -7
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -5,
+          5,
+          -5
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          1.9,
+          -5
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -3,
+          5,
+          -3
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          1.9,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          -1,
+          5,
+          -1
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          1.9,
+          -1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          1,
+          5,
+          1
+        ]
+      },
+      {
+        "text": "D5",
+        "at": [
+          1.9,
+          1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          3,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "D6",
+        "at": [
+          1.9,
+          3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "text": "D7",
+        "at": [
+          1.9,
+          5
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          7,
+          5,
+          7
+        ]
+      },
+      {
+        "text": "D8",
+        "at": [
+          1.9,
+          7
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          3,
+          9,
+          5,
+          9
+        ]
+      },
+      {
+        "text": "D9",
+        "at": [
+          1.9,
+          9
+        ],
+        "size": 0.7
+      }
+    ],
+    "pins": [
+      {
+        "name": "VIN",
+        "at": [
+          -5,
+          -9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VREF",
+        "at": [
+          -5,
+          -7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D0",
+        "at": [
+          5,
+          -9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D1",
+        "at": [
+          5,
+          -7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D2",
+        "at": [
+          5,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D3",
+        "at": [
+          5,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D4",
+        "at": [
+          5,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D5",
+        "at": [
+          5,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D6",
+        "at": [
+          5,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D7",
+        "at": [
+          5,
+          5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D8",
+        "at": [
+          5,
+          7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D9",
+        "at": [
+          5,
+          9
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -13
+  ],
+  "value_offset": [
+    -3,
+    12
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref}_x x_{ref} 0 V=min(max(V({node:VIN})/max(V({node:VREF}),1e-6)*1024,0),1023)",
+    "B_{ref}_b0 b0_{ref} 0 V={VDD}*(floor(V(x_{ref})/1)-2*floor(V(x_{ref})/2))",
+    "R_{ref}_d0 b0_{ref} y0_{ref} 1k",
+    "C_{ref}_d0 y0_{ref} 0 10p",
+    "B_{ref}_o0 z0_{ref} 0 V=V(y0_{ref})",
+    "R_{ref}_o0 z0_{ref} {node:D0} 50",
+    "B_{ref}_b1 b1_{ref} 0 V={VDD}*(floor(V(x_{ref})/2)-2*floor(V(x_{ref})/4))",
+    "R_{ref}_d1 b1_{ref} y1_{ref} 1k",
+    "C_{ref}_d1 y1_{ref} 0 10p",
+    "B_{ref}_o1 z1_{ref} 0 V=V(y1_{ref})",
+    "R_{ref}_o1 z1_{ref} {node:D1} 50",
+    "B_{ref}_b2 b2_{ref} 0 V={VDD}*(floor(V(x_{ref})/4)-2*floor(V(x_{ref})/8))",
+    "R_{ref}_d2 b2_{ref} y2_{ref} 1k",
+    "C_{ref}_d2 y2_{ref} 0 10p",
+    "B_{ref}_o2 z2_{ref} 0 V=V(y2_{ref})",
+    "R_{ref}_o2 z2_{ref} {node:D2} 50",
+    "B_{ref}_b3 b3_{ref} 0 V={VDD}*(floor(V(x_{ref})/8)-2*floor(V(x_{ref})/16))",
+    "R_{ref}_d3 b3_{ref} y3_{ref} 1k",
+    "C_{ref}_d3 y3_{ref} 0 10p",
+    "B_{ref}_o3 z3_{ref} 0 V=V(y3_{ref})",
+    "R_{ref}_o3 z3_{ref} {node:D3} 50",
+    "B_{ref}_b4 b4_{ref} 0 V={VDD}*(floor(V(x_{ref})/16)-2*floor(V(x_{ref})/32))",
+    "R_{ref}_d4 b4_{ref} y4_{ref} 1k",
+    "C_{ref}_d4 y4_{ref} 0 10p",
+    "B_{ref}_o4 z4_{ref} 0 V=V(y4_{ref})",
+    "R_{ref}_o4 z4_{ref} {node:D4} 50",
+    "B_{ref}_b5 b5_{ref} 0 V={VDD}*(floor(V(x_{ref})/32)-2*floor(V(x_{ref})/64))",
+    "R_{ref}_d5 b5_{ref} y5_{ref} 1k",
+    "C_{ref}_d5 y5_{ref} 0 10p",
+    "B_{ref}_o5 z5_{ref} 0 V=V(y5_{ref})",
+    "R_{ref}_o5 z5_{ref} {node:D5} 50",
+    "B_{ref}_b6 b6_{ref} 0 V={VDD}*(floor(V(x_{ref})/64)-2*floor(V(x_{ref})/128))",
+    "R_{ref}_d6 b6_{ref} y6_{ref} 1k",
+    "C_{ref}_d6 y6_{ref} 0 10p",
+    "B_{ref}_o6 z6_{ref} 0 V=V(y6_{ref})",
+    "R_{ref}_o6 z6_{ref} {node:D6} 50",
+    "B_{ref}_b7 b7_{ref} 0 V={VDD}*(floor(V(x_{ref})/128)-2*floor(V(x_{ref})/256))",
+    "R_{ref}_d7 b7_{ref} y7_{ref} 1k",
+    "C_{ref}_d7 y7_{ref} 0 10p",
+    "B_{ref}_o7 z7_{ref} 0 V=V(y7_{ref})",
+    "R_{ref}_o7 z7_{ref} {node:D7} 50",
+    "B_{ref}_b8 b8_{ref} 0 V={VDD}*(floor(V(x_{ref})/256)-2*floor(V(x_{ref})/512))",
+    "R_{ref}_d8 b8_{ref} y8_{ref} 1k",
+    "C_{ref}_d8 y8_{ref} 0 10p",
+    "B_{ref}_o8 z8_{ref} 0 V=V(y8_{ref})",
+    "R_{ref}_o8 z8_{ref} {node:D8} 50",
+    "B_{ref}_b9 b9_{ref} 0 V={VDD}*(floor(V(x_{ref})/512)-2*floor(V(x_{ref})/1024))",
+    "R_{ref}_d9 b9_{ref} y9_{ref} 1k",
+    "C_{ref}_d9 y9_{ref} 0 10p",
+    "B_{ref}_o9 z9_{ref} 0 V=V(y9_{ref})",
+    "R_{ref}_o9 z9_{ref} {node:D9} 50",
+    "R_{ref}_in {node:VIN} 0 1G",
+    "R_{ref}_ref {node:VREF} 0 1G"
+  ]
+}
