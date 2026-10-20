@@ -179,6 +179,46 @@ TEST_CASE("library: adjustable and controlled sources (SN-209)")
     CHECK(close_to(current_controlled("ccvs", "rm", "2k", "1k"), 2.0, 1e-6));
 }
 
+TEST_CASE("library: A/D and D/A converters (SN-211)")
+{
+    REQUIRE(test::engine() != nullptr);
+    // 1.3 V of 5 V in 8 bits: code floor(256 x 0.26) = 66 = 0100 0010.
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "1.3"}});
+        b.add("vdc", {{"+", "REF"}, {"-", "0"}}, {{"V", "5"}});
+        std::map<std::string, std::string> pins{{"VIN", "IN"}, {"VREF", "REF"}};
+        for (int k = 0; k < 8; ++k) {
+            pins["D" + std::to_string(k)] = "D" + std::to_string(k);
+        }
+        b.add("adc_8", pins);
+        const auto r = simulate(b, ".op", {"d0", "d1", "d6", "d7"});
+        REQUIRE(r.size() == 4);
+        CHECK(close_to(r.at("d0").front(), 0.0, 1e-3));
+        CHECK(close_to(r.at("d1").front(), 5.0, 1e-3));
+        CHECK(close_to(r.at("d6").front(), 5.0, 1e-3));
+        CHECK(close_to(r.at("d7").front(), 0.0, 1e-3));
+    }
+    // Round trip at each width: OUT = VREF x code / 2^N, within one step below VIN.
+    for (const int bits : {4, 8, 10, 12}) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "2.2"}});
+        b.add("vdc", {{"+", "REF"}, {"-", "0"}}, {{"V", "3.3"}});
+        std::map<std::string, std::string> adc{{"VIN", "IN"}, {"VREF", "REF"}};
+        std::map<std::string, std::string> dac{{"VREF", "REF"}, {"OUT", "OUT"}};
+        for (int k = 0; k < bits; ++k) {
+            adc["D" + std::to_string(k)] = "B" + std::to_string(k);
+            dac["D" + std::to_string(k)] = "B" + std::to_string(k);
+        }
+        b.add("adc_" + std::to_string(bits), adc, {{"VDD", "3.3"}});
+        b.add("dac_" + std::to_string(bits), dac, {{"VDD", "3.3"}});
+        b.add("voltmeter", {{"+", "OUT"}, {"-", "0"}});
+        const double step = 3.3 / (1 << bits);
+        const double expected = std::floor(2.2 / step) * step;
+        CHECK(close_to(op(b, "out"), expected, 1e-4));
+    }
+}
+
 TEST_CASE("library: semiconductors behave like their parts")
 {
     REQUIRE(test::engine() != nullptr);

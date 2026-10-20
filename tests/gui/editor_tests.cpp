@@ -975,6 +975,42 @@ private slots:
 #endif
     }
 
+    void converters_quantize_while_running()
+    {
+        // SN-211: example 31; the 8-bit ADC and DAC turn V3 into steps of 5 V / 256.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/31_AD_and_DA_converters.snx"), errors, warnings));
+        std::map<std::string, model::Id> ids;
+        for (const auto& c : doc().schematic().components()) {
+            ids[c.designator] = c.id;
+        }
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto net = [&](const char* name) {
+            const auto& nets = window_->scene()->live().nets;
+            const auto it = nets.find(name);
+            return it == nets.end() ? -1.0 : it->second;
+        };
+        // V3 at 50 %: code 128 of 256, 2.5 V; at 30 %: 1.5 V gives code 76, 1.484 V.
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->status().sim_time > 0.05, 10000);
+        window_->run_controller()->set_control(ids["V3"], 0.3);
+        QTRY_VERIFY_WITH_TIMEOUT(window_->scene()->live().readouts.count(ids["VM1"])
+                && window_->scene()->live().readouts.at(ids["VM1"]).startsWith(QStringLiteral("1.48")),
+            10000);
+        // The 4-bit staircase: OUT4 is always a multiple of 5 V / 16 (between the steps' 10 ns edges).
+        QTRY_VERIFY_WITH_TIMEOUT(net("out4") > 0.1, 10000);
+        const double out4 = net("out4") / (5.0 / 16);
+        QVERIFY(std::abs(out4 - std::round(out4)) < 0.01);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.

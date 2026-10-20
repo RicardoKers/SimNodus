@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-20, SN-211)
+
+- A/D and D/A converters (new category *Converters*) with 4, 8, 10 and 12 bits: ideal and continuous (the ADC's code is floor(2^N x VIN / VREF), limited to the range; the DAC gives VREF x code / 2^N behind 10 Ω), reference on a pin, logic levels from a hidden supply like the gates. Parts from `tools/generate_converter_parts.py`.
+- Example 31: a sine through 4-bit converters (the staircase on the scope) and an adjustable voltage through 8 bits; it runs in real time. Tests: codes and round trips at every width in ngspice, the 8-bit steps and the 4-bit staircase while running.
+
 ### Added (2026-10-20, SN-210)
 
 - 4x4 matrix keypad (*Switches & Controls*): hold the mouse on a key while running and it joins its row to its column, like the membrane keypad (pins R1-R4, C1-C4); the held key is drawn pushed in. Part definitions get the interactive kind `keypad` with the keys' rectangles. Parts from `tools/generate_keypad_part.py`.

@@ -1,0 +1,302 @@
+{
+  "type": "dac_8",
+  "name": "D/A converter 8-bit",
+  "category": "Converters",
+  "prefix": "U",
+  "description": "Ideal 8-bit D/A converter: OUT = VREF x code / 2^8 from D0-D7",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -9,
+          6,
+          18
+        ]
+      },
+      {
+        "text": "DAC8",
+        "at": [
+          0,
+          -9.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          5,
+          -7,
+          3,
+          -7
+        ]
+      },
+      {
+        "text": "VREF",
+        "at": [
+          1.7,
+          -7
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          5,
+          -5,
+          3,
+          -5
+        ]
+      },
+      {
+        "text": "OUT",
+        "at": [
+          1.7,
+          -5
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          -7,
+          -5,
+          -7
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          -1.9,
+          -7
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          -5,
+          -5,
+          -5
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          -1.9,
+          -5
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          -3,
+          -5,
+          -3
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          -1.9,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          -1,
+          -5,
+          -1
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          -1.9,
+          -1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          1,
+          -5,
+          1
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          -1.9,
+          1
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          3,
+          -5,
+          3
+        ]
+      },
+      {
+        "text": "D5",
+        "at": [
+          -1.9,
+          3
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          5,
+          -5,
+          5
+        ]
+      },
+      {
+        "text": "D6",
+        "at": [
+          -1.9,
+          5
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -3,
+          7,
+          -5,
+          7
+        ]
+      },
+      {
+        "text": "D7",
+        "at": [
+          -1.9,
+          7
+        ],
+        "size": 0.7
+      }
+    ],
+    "pins": [
+      {
+        "name": "VREF",
+        "at": [
+          5,
+          -7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          5,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D0",
+        "at": [
+          -5,
+          -7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D1",
+        "at": [
+          -5,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D2",
+        "at": [
+          -5,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D3",
+        "at": [
+          -5,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D4",
+        "at": [
+          -5,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D5",
+        "at": [
+          -5,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D6",
+        "at": [
+          -5,
+          5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D7",
+        "at": [
+          -5,
+          7
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -11
+  ],
+  "value_offset": [
+    -3,
+    10
+  ],
+  "value_parameter": "VDD",
+  "parameters": [
+    {
+      "name": "VDD",
+      "label": "Supply",
+      "unit": "V",
+      "default": "5",
+      "description": "Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)",
+      "min": "1.5",
+      "max": "15"
+    }
+  ],
+  "spice": [
+    "B_{ref} o_{ref} 0 V=V({node:VREF})*(1*0.5*(1+tanh({= 40 / VDD}*(V({node:D0})-{= VDD / 2})))+2*0.5*(1+tanh({= 40 / VDD}*(V({node:D1})-{= VDD / 2})))+4*0.5*(1+tanh({= 40 / VDD}*(V({node:D2})-{= VDD / 2})))+8*0.5*(1+tanh({= 40 / VDD}*(V({node:D3})-{= VDD / 2})))+16*0.5*(1+tanh({= 40 / VDD}*(V({node:D4})-{= VDD / 2})))+32*0.5*(1+tanh({= 40 / VDD}*(V({node:D5})-{= VDD / 2})))+64*0.5*(1+tanh({= 40 / VDD}*(V({node:D6})-{= VDD / 2})))+128*0.5*(1+tanh({= 40 / VDD}*(V({node:D7})-{= VDD / 2}))))/256",
+    "R_{ref}_o o_{ref} {node:OUT} 10",
+    "R_{ref}_ref {node:VREF} 0 1G",
+    "R_{ref}_i0 {node:D0} 0 1G",
+    "R_{ref}_i1 {node:D1} 0 1G",
+    "R_{ref}_i2 {node:D2} 0 1G",
+    "R_{ref}_i3 {node:D3} 0 1G",
+    "R_{ref}_i4 {node:D4} 0 1G",
+    "R_{ref}_i5 {node:D5} 0 1G",
+    "R_{ref}_i6 {node:D6} 0 1G",
+    "R_{ref}_i7 {node:D7} 0 1G"
+  ]
+}

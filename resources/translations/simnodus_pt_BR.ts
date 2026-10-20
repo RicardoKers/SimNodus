@@ -1978,6 +1978,82 @@ Pinos: %2</translation>
             <translation>baixo</translation>
         </message>
         <message>
+            <source>A/D converter 10-bit</source>
+            <translation>Conversor A/D de 10 bits</translation>
+        </message>
+        <message>
+            <source>Converters</source>
+            <translation>Conversores</translation>
+        </message>
+        <message>
+            <source>Ideal 10-bit A/D converter: D0-D9 = 2^10 x VIN / VREF, converting continuously</source>
+            <translation>Conversor A/D ideal de 10 bits: D0-D9 = 2^10 x VIN / VREF, convertendo continuamente</translation>
+        </message>
+        <message>
+            <source>Supply</source>
+            <translation>Alimentação</translation>
+        </message>
+        <message>
+            <source>Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)</source>
+            <translation>Alimentação lógica: 5 V para 74HC, 3,3 V junto a uma Blue Pill; nível alto da saída e limiar das entradas (VDD/2)</translation>
+        </message>
+        <message>
+            <source>A/D converter 12-bit</source>
+            <translation>Conversor A/D de 12 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 12-bit A/D converter: D0-D11 = 2^12 x VIN / VREF, converting continuously</source>
+            <translation>Conversor A/D ideal de 12 bits: D0-D11 = 2^12 x VIN / VREF, convertendo continuamente</translation>
+        </message>
+        <message>
+            <source>A/D converter 4-bit</source>
+            <translation>Conversor A/D de 4 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 4-bit A/D converter: D0-D3 = 2^4 x VIN / VREF, converting continuously</source>
+            <translation>Conversor A/D ideal de 4 bits: D0-D3 = 2^4 x VIN / VREF, convertendo continuamente</translation>
+        </message>
+        <message>
+            <source>A/D converter 8-bit</source>
+            <translation>Conversor A/D de 8 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 8-bit A/D converter: D0-D7 = 2^8 x VIN / VREF, converting continuously</source>
+            <translation>Conversor A/D ideal de 8 bits: D0-D7 = 2^8 x VIN / VREF, convertendo continuamente</translation>
+        </message>
+        <message>
+            <source>D/A converter 10-bit</source>
+            <translation>Conversor D/A de 10 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 10-bit D/A converter: OUT = VREF x code / 2^10 from D0-D9</source>
+            <translation>Conversor D/A ideal de 10 bits: OUT = VREF x código / 2^10 a partir de D0-D9</translation>
+        </message>
+        <message>
+            <source>D/A converter 12-bit</source>
+            <translation>Conversor D/A de 12 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 12-bit D/A converter: OUT = VREF x code / 2^12 from D0-D11</source>
+            <translation>Conversor D/A ideal de 12 bits: OUT = VREF x código / 2^12 a partir de D0-D11</translation>
+        </message>
+        <message>
+            <source>D/A converter 4-bit</source>
+            <translation>Conversor D/A de 4 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 4-bit D/A converter: OUT = VREF x code / 2^4 from D0-D3</source>
+            <translation>Conversor D/A ideal de 4 bits: OUT = VREF x código / 2^4 a partir de D0-D3</translation>
+        </message>
+        <message>
+            <source>D/A converter 8-bit</source>
+            <translation>Conversor D/A de 8 bits</translation>
+        </message>
+        <message>
+            <source>Ideal 8-bit D/A converter: OUT = VREF x code / 2^8 from D0-D7</source>
+            <translation>Conversor D/A ideal de 8 bits: OUT = VREF x código / 2^8 a partir de D0-D7</translation>
+        </message>
+        <message>
             <source>EEPROM 24C02 (I2C)</source>
             <translation>EEPROM 24C02 (I2C)</translation>
         </message>
@@ -2336,14 +2412,6 @@ Pinos: %2</translation>
         <message>
             <source>Two-input AND gate (74HC-like, hidden supply VDD)</source>
             <translation>Porta AND de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
-        </message>
-        <message>
-            <source>Supply</source>
-            <translation>Alimentação</translation>
-        </message>
-        <message>
-            <source>Logic supply: 5 V for 74HC, 3.3 V next to a Blue Pill; output high level and input threshold (VDD/2)</source>
-            <translation>Alimentação lógica: 5 V para 74HC, 3,3 V junto a uma Blue Pill; nível alto da saída e limiar das entradas (VDD/2)</translation>
         </message>
         <message>
             <source>NAND gate</source>
