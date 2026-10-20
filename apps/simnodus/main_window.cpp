@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 #include "main_window.hpp"
 
+#include "memory_window.hpp"
+
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
 #include "component_panel.hpp"
@@ -145,6 +147,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
 
     analyzer_ = std::make_unique<AnalyzerWindow>();
     analyzer_->set_controller(run_);
+    memory_ = std::make_unique<MemoryWindow>(*document_, *run_);
 
     build_actions_and_menus();
     build_status_bar();
@@ -187,6 +190,10 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
         } else {
             statusBar()->showMessage(tr("The firmware is read when the simulation starts."), 4000);
         }
+    });
+    connect(properties_, &PropertiesPanel::memory_view_requested, this, [this] {
+        const auto selected = scene_->selected_ids();
+        memory_->show_chip(selected.empty() ? model::no_id : *selected.begin());
     });
     connect(properties_, &PropertiesPanel::message, this, [this](const QString& text) {
         statusBar()->showMessage(text, 6000);
@@ -488,6 +495,14 @@ void MainWindow::build_actions_and_menus()
         } else {
             analyzer_->hide();
         }
+    });
+
+    auto* memory = window->addAction(tr("&Memory Viewer"));
+    memory->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
+    memory->setStatusTip(tr("Contents of the memory chips (a 24C02 EEPROM): view, load and save them"));
+    connect(memory, &QAction::triggered, this, [this] {
+        const auto selected = scene_->selected_ids();
+        memory_->show_chip(selected.empty() ? model::no_id : *selected.begin());
     });
 
     auto* help = menuBar()->addMenu(tr("&Help"));

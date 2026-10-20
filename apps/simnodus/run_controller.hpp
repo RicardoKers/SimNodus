@@ -60,6 +60,15 @@ public:
 
     void set_speed(double speed);
     void set_gdb_port(int port) { gdb_port_ = port; } // -1: no debugging
+    // Memory chips (SN-208): the contents of the current or last run, and new contents for a running chip.
+    std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const
+    {
+        return session_->device_memory(component);
+    }
+    void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes)
+    {
+        session_->load_device_memory(component, bytes);
+    }
     // While running: sends the document's changed live parameters (an LM75's
     // temperature) to their chips; true if one was sent (SN-207).
     bool apply_live_parameters();

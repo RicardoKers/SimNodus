@@ -72,6 +72,7 @@ bool RemoteSession::start(RunRequest request, std::string& error)
     boards_.clear();
     mcu_diagnostics_.clear();
     texts_.clear();
+    memories_.clear();
     ring_capacity_ = request.ring_capacity;
 
     if (!link_.open(error)) {
@@ -215,6 +216,22 @@ void RemoteSession::set_device_parameter(model::Id component, const std::string&
         w.u64(component);
         w.str(name);
         w.str(value);
+        link_.send(w.payload());
+    }
+}
+
+std::optional<std::vector<std::uint8_t>> RemoteSession::device_memory(model::Id component) const
+{
+    const auto it = memories_.find(component);
+    return it == memories_.end() ? std::nullopt : std::optional<std::vector<std::uint8_t>>(it->second);
+}
+
+void RemoteSession::load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes)
+{
+    if (active()) {
+        Writer w(Type::LoadMemory);
+        w.u64(component);
+        w.str(std::string(bytes.begin(), bytes.end()));
         link_.send(w.payload());
     }
 }
@@ -395,6 +412,11 @@ void RemoteSession::apply_update(Reader& r)
     for (std::size_t n = r.size(12); n > 0; --n) {
         const model::Id id = r.u64();
         texts_[id] = r.str();
+    }
+    for (std::size_t n = r.size(12); n > 0; --n) {
+        const model::Id id = r.u64();
+        const auto bytes = r.str();
+        memories_[id].assign(bytes.begin(), bytes.end());
     }
     if (r.boolean()) {
         transient_ = protocol::read_transient(r);

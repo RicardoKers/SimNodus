@@ -59,6 +59,7 @@ private:
     std::vector<std::string> vectors_;
     std::vector<std::size_t> cursors_; // samples sent per vector
     std::map<model::Id, BoardCursor> boards_;
+    std::map<model::Id, std::vector<std::uint8_t>> sent_memories_; // memory chips: contents last sent
     bool transient_sent_ = false;
     bool published_end_ = true; // the run's last state was sent
     bool quit_ = false;

@@ -6,6 +6,7 @@
 #include "ngspice_runtime.hpp"
 
 #include "model/engineering.hpp"
+#include "io/memory_file.hpp"
 #include "netlist/connectivity.hpp"
 
 #include <algorithm>
@@ -597,7 +598,7 @@ namespace {
 // Nets on ground or on a supply are constants, never digital nets, so devices
 // do not join through their power pins.
 void attach_devices(const model::Schematic& schematic, const library::ComponentLibrary& library,
-    std::vector<McuRequest>& requests, std::vector<std::string>* warnings)
+    std::vector<McuRequest>& requests, std::vector<std::string>* warnings, const std::filesystem::path& project_dir)
 {
     struct Candidate {
         const model::Component* component;
@@ -725,6 +726,23 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                 warn(request.designator + "." + device.ground_pin + " is not connected to ground; it does nothing.");
                 request.supply = 0;
             }
+            // Memory chips (SN-208): the contents file they start with.
+            if (device.memory_size > 0 && !device.contents_parameter.empty()) {
+                const auto file = candidate.component->parameters.find(device.contents_parameter);
+                if (file != candidate.component->parameters.end() && !file->second.empty()) {
+                    std::filesystem::path path(std::u8string(file->second.begin(), file->second.end()));
+                    if (path.is_relative()) {
+                        path = project_dir / path;
+                    }
+                    std::string why;
+                    if (auto bytes = io::read_memory_file(path, device.memory_size, 0xFF, why)) {
+                        request.memory = std::move(*bytes);
+                    } else {
+                        warn(request.designator + ": the contents file " + file->second + " cannot be read (" + why
+                            + "); the memory starts erased.");
+                    }
+                }
+            }
             request.pin_model.supply = request.supply;
             request.pin_model.output_resistance = device.output_resistance;
             request.pin_model.input_high = 0.7 * request.supply;
@@ -846,7 +864,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         }
         requests.push_back(std::move(request));
     }
-    attach_devices(schematic, library, requests, warnings);
+    attach_devices(schematic, library, requests, warnings, environment.project_dir);
     return true;
 }
 
@@ -1025,6 +1043,30 @@ void SimulationSession::set_device_parameter(model::Id component, const std::str
             if (d.component == component) {
                 if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {
                     it->second->set_device_parameter(component, name, value);
+                }
+            }
+        }
+    }
+}
+
+std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model::Id component) const
+{
+    std::vector<std::uint8_t> bytes;
+    for (const auto& [id, runner] : mcus_) {
+        if (runner->device_memory(component, bytes)) {
+            return bytes;
+        }
+    }
+    return std::nullopt;
+}
+
+void SimulationSession::load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes)
+{
+    for (const auto& m : request_.mcus) {
+        for (const auto& d : m.options.devices) {
+            if (d.component == component) {
+                if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {
+                    it->second->load_device_memory(component, bytes);
                 }
             }
         }

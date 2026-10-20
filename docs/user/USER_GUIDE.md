@@ -300,6 +300,10 @@ turns red when it reads 1). The PC13 LED lights when PC13 is low; click
   press F5 and connect STM32CubeIDE or arm-none-eabi-gdb to `localhost:3333`.
   While the firmware is halted at a breakpoint, the circuit stands still.
 
+**Window > Memory Viewer** (Ctrl+Shift+M) shows, loads and saves the contents
+of memory chips such as the 24C02 EEPROM, live while running
+([details](MICROCONTROLLER.md#memory-viewer)).
+
 Step-by-step instructions, the full list of peripherals and every difference
 from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 

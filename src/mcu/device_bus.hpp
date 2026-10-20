@@ -66,6 +66,21 @@ public:
     devices::Output output(std::size_t device, std::size_t pin) const { return outputs_[device][pin]; }
     std::size_t device_count() const { return devices_.size(); }
     std::string text(std::size_t device) const { return devices_[device] ? devices_[device]->text() : std::string(); }
+    // Memory chips (SN-208).
+    std::vector<std::uint8_t> memory(std::size_t device) const
+    {
+        return devices_[device] ? devices_[device]->memory() : std::vector<std::uint8_t>{};
+    }
+    std::uint64_t memory_version(std::size_t device) const
+    {
+        return devices_[device] ? devices_[device]->memory_version() : 0;
+    }
+    void load_memory(std::size_t device, const std::vector<std::uint8_t>& bytes)
+    {
+        if (devices_[device]) {
+            devices_[device]->load_memory(bytes);
+        }
+    }
     std::vector<Change> take_changes() { return std::exchange(changes_, {}); }
     std::vector<std::string> take_messages();
 

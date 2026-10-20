@@ -660,11 +660,15 @@ QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString
     });
     auto* browse = new QPushButton(tr("Browse..."));
     browse->setObjectName(QStringLiteral("browse_%1").arg(QString::fromStdString(p.name)));
+    // A board's firmware, or another file (a memory chip's contents, SN-208).
+    const bool firmware = p.filter.find(".elf") != std::string::npos;
+    const QString kind = firmware ? tr("Firmware (%1)") : tr("Files (%1)");
     const QString filter = p.filter.empty() ? tr("All files (*)")
-                                            : tr("Firmware (%1);;All files (*)").arg(QString::fromStdString(p.filter));
-    connect(browse, &QPushButton::clicked, this, [this, name, filter, absolute] {
+                                            : kind.arg(QString::fromStdString(p.filter)) + QStringLiteral(";;") + tr("All files (*)");
+    const QString title = firmware ? tr("Choose the firmware") : tr("Choose a file");
+    connect(browse, &QPushButton::clicked, this, [this, name, filter, absolute, title] {
         const QString start = !absolute.isEmpty() ? QFileInfo(absolute).absolutePath() : project_dir();
-        const QString chosen = QFileDialog::getOpenFileName(this, tr("Choose the firmware"), start, filter);
+        const QString chosen = QFileDialog::getOpenFileName(this, title, start, filter);
         if (chosen.isEmpty()) {
             return;
         }
@@ -672,13 +676,21 @@ QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString
         const QString dir = project_dir();
         commit_parameter(name, dir.isEmpty() ? chosen : QDir(dir).relativeFilePath(chosen));
     });
-    auto* reload = new QPushButton(tr("Reload"));
-    reload->setObjectName(QStringLiteral("reload_%1").arg(QString::fromStdString(p.name)));
-    reload->setToolTip(tr("Use the rebuilt file: restarts a running simulation"));
-    connect(reload, &QPushButton::clicked, this, &PropertiesPanel::firmware_reload_requested);
     row->addWidget(edit, 1);
     row->addWidget(browse);
-    row->addWidget(reload);
+    if (firmware) {
+        auto* reload = new QPushButton(tr("Reload"));
+        reload->setObjectName(QStringLiteral("reload_%1").arg(QString::fromStdString(p.name)));
+        reload->setToolTip(tr("Use the rebuilt file: restarts a running simulation"));
+        connect(reload, &QPushButton::clicked, this, &PropertiesPanel::firmware_reload_requested);
+        row->addWidget(reload);
+    } else {
+        auto* view = new QPushButton(tr("View..."));
+        view->setObjectName(QStringLiteral("view_%1").arg(QString::fromStdString(p.name)));
+        view->setToolTip(tr("Show the memory's contents (Window > Memory Viewer)"));
+        connect(view, &QPushButton::clicked, this, &PropertiesPanel::memory_view_requested);
+        row->addWidget(view);
+    }
     return host;
 }
 

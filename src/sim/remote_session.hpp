@@ -79,6 +79,8 @@ public:
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
     std::map<model::Id, std::string> device_texts() const override { return texts_; }
     void set_device_parameter(model::Id component, const std::string& name, const std::string& value) override;
+    std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const override;
+    void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
 
     // How long start() and stop() wait for the engine's answer.
     void set_timeouts(int start_ms, int stop_ms)
@@ -123,6 +125,7 @@ private:
     std::map<model::Id, Board> boards_;
     std::vector<std::pair<model::Id, std::string>> mcu_diagnostics_;
     std::map<model::Id, std::string> texts_;
+    std::map<model::Id, std::vector<std::uint8_t>> memories_;
 
     bool engine_run_ = false; // a run was started in the engine and not stopped
     // Replies being waited for.

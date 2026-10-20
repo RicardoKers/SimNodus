@@ -18,6 +18,7 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <set>
 #include <thread>
 
@@ -538,10 +539,23 @@ TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons th
     request.vectors = {"p0", "p4"};
     model::Id board = model::no_id;
     model::Id button = model::no_id;
+    model::Id eeprom = model::no_id;
     for (const auto& c : request.schematic.components()) {
         board = c.type == "bluepill" ? c.id : board;
         button = c.designator == "SW1" ? c.id : button;
+        eeprom = c.designator == "U2" ? c.id : eeprom;
     }
+    // The EEPROM starts with a contents file (SN-208): "Hi" at address 0.
+    const auto contents = std::filesystem::temp_directory_path() / ("simnodus-eeprom-" + std::to_string(std::rand()) + ".bin");
+    {
+        std::ofstream out(contents, std::ios::binary);
+        out << "Hi";
+    }
+    auto* chip = request.schematic.component(eeprom);
+    REQUIRE(chip != nullptr);
+    auto changed = *chip;
+    changed.parameters["contents"] = contents.string();
+    request.schematic.put(changed);
     std::string error;
     std::vector<std::string> warnings;
     sim::McuEnvironment environment;
@@ -554,6 +568,13 @@ TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons th
     REQUIRE(request.mcus.size() == 1);
     const auto& options = request.mcus[0].options;
     CHECK(options.devices.size() == 3);
+    std::filesystem::remove(contents);
+    for (const auto& d : options.devices) {
+        if (d.component == eeprom) {
+            REQUIRE(d.memory.size() >= 2);
+            CHECK(d.memory[0] == 'H');
+        }
+    }
     for (const auto& net : options.nets) {
         if (net.name == "SCL" || net.name == "SDA") {
             CHECK(net.pull == 1);   // the 4.7 kOhm resistors
@@ -578,6 +599,20 @@ TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons th
     CHECK(text.find("EEPROM: SimNodus") != std::string::npos);
     CHECK(text.find("Temperature: 23.5 C") != std::string::npos);
     CHECK(session.latest("p0").value_or(0) > 2.0); // LED 1 off: P0 weakly high
+    // The viewer's contents: the file's "Hi", the firmware's "SimNodus" at 0x10, the rest erased.
+    auto memory = session.device_memory(eeprom);
+    REQUIRE(memory.has_value());
+    REQUIRE(memory->size() == 256);
+    CHECK(std::string(memory->begin(), memory->begin() + 2) == "Hi");
+    CHECK(std::string(memory->begin() + 0x10, memory->begin() + 0x18) == "SimNodus");
+    CHECK((*memory)[0x20] == 0xFF);
+    // New contents while running.
+    session.load_device_memory(eeprom, std::vector<std::uint8_t>(256, 0x00));
+    wait_for(session.status().sim_time + 0.05);
+    memory = session.device_memory(eeprom);
+    REQUIRE(memory.has_value());
+    CHECK((*memory)[0] == 0x00);
+    CHECK((*memory)[0x20] == 0x00);
     session.set_control(button, 1.0);
     wait_for(session.status().sim_time + 0.1);
     session.mcu_uart_received(board, "usart1", 0, text);

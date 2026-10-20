@@ -140,6 +140,10 @@ public:
     virtual std::map<model::Id, std::string> device_texts() const = 0;
     // A live parameter of a chip changed while running (an LM75's temperature, SN-207).
     virtual void set_device_parameter(model::Id component, const std::string& name, const std::string& value) = 0;
+    // Memory chips (SN-208): the contents of the current or last run, and new
+    // contents for a running chip.
+    virtual std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const = 0;
+    virtual void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) = 0;
 };
 
 class SimulationSession : public Session {
@@ -188,6 +192,8 @@ public:
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const override;
     std::map<model::Id, std::string> device_texts() const override;
     void set_device_parameter(model::Id component, const std::string& name, const std::string& value) override;
+    std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const override;
+    void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) override;
 
 private:
     bool start_mcus();

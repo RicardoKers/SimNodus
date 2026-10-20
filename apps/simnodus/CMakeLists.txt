@@ -24,6 +24,8 @@ add_library(simnodus_ui STATIC
     engine_process.hpp
     main_window.cpp
     main_window.hpp
+    memory_window.cpp
+    memory_window.hpp
     messages_panel.cpp
     messages_panel.hpp
     properties_panel.cpp

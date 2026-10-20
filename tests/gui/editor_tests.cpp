@@ -10,6 +10,7 @@
 #include "user_models.hpp"
 #include "component_panel.hpp"
 #include "main_window.hpp"
+#include "memory_window.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
 #include "run_controller.hpp"
@@ -42,6 +43,7 @@
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QTableWidget>
 #include <QPointer>
 #include <QScrollArea>
 #include <QSettings>
@@ -53,6 +55,7 @@
 #include <QTreeWidgetItemIterator>
 #include <QUndoStack>
 
+#include <algorithm>
 #include <cmath>
 #include <map>
 #include <memory>
@@ -891,6 +894,57 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(uart_text().find("Temperature: 31.0 C") != std::string::npos, 20000);
         QVERIFY(window_->run_controller()->active()); // no restart
         window_->stop();
+#endif
+    }
+
+    void memory_viewer_shows_the_eeprom_while_running()
+    {
+        // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/27_I2C_EEPROM_sensor_expander.snx"), errors, warnings));
+        model::Id eeprom = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            eeprom = c.type == "24c02" ? c.id : eeprom;
+        }
+        QVERIFY(eeprom != model::no_id);
+        window_->scene()->select_ids({eeprom});
+        QPushButton* view = nullptr;
+        QTRY_VERIFY((view = window_->properties()->findChild<QPushButton*>(QStringLiteral("view_contents"))) != nullptr);
+        view->click();
+        auto* viewer = window_->memory_viewer();
+        QVERIFY(viewer->isVisible());
+        auto* chips = viewer->findChild<QComboBox*>(QStringLiteral("memoryChips"));
+        QCOMPARE(chips->count(), 1);
+        QVERIFY(chips->currentText().startsWith(QStringLiteral("U2 (")));
+        // Not run yet: erased.
+        QCOMPARE(viewer->bytes().size(), std::size_t{256});
+        QCOMPARE(viewer->bytes()[0x10], std::uint8_t{0xFF});
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto written = [&] {
+            const auto& b = viewer->bytes();
+            return b.size() == 256 && std::string(b.begin() + 0x10, b.begin() + 0x18) == "SimNodus";
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(written(), 20000);
+        auto* table = viewer->findChild<QTableWidget*>(QStringLiteral("memoryTable"));
+        QCOMPARE(table->item(1, 0)->text(), QStringLiteral("53")); // 'S'
+        QCOMPARE(table->item(1, 16)->text().left(8), QStringLiteral("SimNodus"));
+        // What Load... does while running, through the engine process.
+        std::vector<std::uint8_t> zeros(256, 0x00);
+        std::copy_n("SimNodus", 8, zeros.begin() + 0x10);
+        window_->run_controller()->load_device_memory(eeprom, zeros);
+        QTRY_VERIFY_WITH_TIMEOUT(viewer->bytes()[0] == 0x00, 5000);
+        QVERIFY(written());
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT(!window_->run_controller()->active(), 5000);
+        QTest::qWait(300);
+        QVERIFY(written()); // the last run's contents stay on display
+        viewer->close();
 #endif
     }
 

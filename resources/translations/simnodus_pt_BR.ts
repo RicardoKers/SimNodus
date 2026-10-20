@@ -791,6 +791,14 @@ Pinos: %2</translation>
             <translation>&amp;Analisador de sinais</translation>
         </message>
         <message>
+            <source>&amp;Memory Viewer</source>
+            <translation>Visualizador de &amp;memória</translation>
+        </message>
+        <message>
+            <source>Contents of the memory chips (a 24C02 EEPROM): view, load and save them</source>
+            <translation>Conteúdo dos chips de memória (uma EEPROM 24C02): ver, carregar e salvar</translation>
+        </message>
+        <message>
             <source>&amp;Help</source>
             <translation>A&amp;juda</translation>
         </message>
@@ -1288,6 +1296,93 @@ Pinos: %2</translation>
         </message>
     </context>
     <context>
+        <name>simnodus::ui::MemoryWindow</name>
+        <message>
+            <source>Memory Viewer - SimNodus</source>
+            <translation>Visualizador de memória - SimNodus</translation>
+        </message>
+        <message>
+            <source>Load...</source>
+            <translation>Carregar...</translation>
+        </message>
+        <message>
+            <source>Put a .bin or Intel .hex file into the running chip; when nothing runs, make it the chip's contents file</source>
+            <translation>Coloca um arquivo .bin ou Intel .hex no chip em execução; sem simulação, torna-o o arquivo de conteúdo do chip</translation>
+        </message>
+        <message>
+            <source>Save as...</source>
+            <translation>Salvar como...</translation>
+        </message>
+        <message>
+            <source>Write what the chip holds to a .bin or Intel .hex file</source>
+            <translation>Grava o conteúdo do chip em um arquivo .bin ou Intel .hex</translation>
+        </message>
+        <message>
+            <source>Memory:</source>
+            <translation>Memória:</translation>
+        </message>
+        <message>
+            <source>Text</source>
+            <translation>Texto</translation>
+        </message>
+        <message>
+            <source>Live contents of the running chip.</source>
+            <translation>Conteúdo ao vivo do chip em execução.</translation>
+        </message>
+        <message>
+            <source>Contents at the end of the last run.</source>
+            <translation>Conteúdo ao final da última simulação.</translation>
+        </message>
+        <message>
+            <source>The contents file %1, which the chip starts each run with.</source>
+            <translation>O arquivo de conteúdo %1, com o qual o chip inicia cada simulação.</translation>
+        </message>
+        <message>
+            <source>The contents file %1 cannot be read: %2</source>
+            <translation>O arquivo de conteúdo %1 não pode ser lido: %2</translation>
+        </message>
+        <message>
+            <source>Erased (0xFF): the chip starts each run like this; Load... chooses a contents file.</source>
+            <translation>Apagada (0xFF): o chip inicia cada simulação assim; Carregar... escolhe um arquivo de conteúdo.</translation>
+        </message>
+        <message>
+            <source>The circuit has no memory chip (a 24C02 EEPROM, for example).</source>
+            <translation>O circuito não tem chip de memória (uma EEPROM 24C02, por exemplo).</translation>
+        </message>
+        <message>
+            <source>Load memory contents</source>
+            <translation>Carregar conteúdo da memória</translation>
+        </message>
+        <message>
+            <source>Memory files (*.bin *.hex);;All files (*)</source>
+            <translation>Arquivos de memória (*.bin *.hex);;Todos os arquivos (*)</translation>
+        </message>
+        <message>
+            <source>%1 cannot be loaded: %2</source>
+            <translation>%1 não pode ser carregado: %2</translation>
+        </message>
+        <message>
+            <source>Loaded into the running chip.</source>
+            <translation>Carregado no chip em execução.</translation>
+        </message>
+        <message>
+            <source>Save memory contents</source>
+            <translation>Salvar conteúdo da memória</translation>
+        </message>
+        <message>
+            <source>Binary (*.bin);;Intel HEX (*.hex)</source>
+            <translation>Binário (*.bin);;Intel HEX (*.hex)</translation>
+        </message>
+        <message>
+            <source>%1 cannot be written: %2</source>
+            <translation>%1 não pode ser gravado: %2</translation>
+        </message>
+        <message>
+            <source>Saved to %1.</source>
+            <translation>Salvo em %1.</translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::MessagesPanel</name>
         <message>
             <source>Messages</source>
@@ -1549,12 +1644,16 @@ Pinos: %2</translation>
             <translation>Procurar...</translation>
         </message>
         <message>
-            <source>All files (*)</source>
-            <translation>Todos os arquivos (*)</translation>
+            <source>Firmware (%1)</source>
+            <translation>Firmware (%1)</translation>
         </message>
         <message>
-            <source>Firmware (%1);;All files (*)</source>
-            <translation>Firmware (%1);;Todos os arquivos (*)</translation>
+            <source>Files (%1)</source>
+            <translation>Arquivos (%1)</translation>
+        </message>
+        <message>
+            <source>All files (*)</source>
+            <translation>Todos os arquivos (*)</translation>
         </message>
         <message>
             <source>Choose the firmware</source>
@@ -1567,6 +1666,14 @@ Pinos: %2</translation>
         <message>
             <source>Use the rebuilt file: restarts a running simulation</source>
             <translation>Usar o arquivo recompilado: reinicia uma simulação em execução</translation>
+        </message>
+        <message>
+            <source>View...</source>
+            <translation>Ver...</translation>
+        </message>
+        <message>
+            <source>Show the memory's contents (Window &gt; Memory Viewer)</source>
+            <translation>Mostra o conteúdo da memória (Janela &gt; Visualizador de memória)</translation>
         </message>
         <message>
             <source>The name %1 is already used.</source>
@@ -1881,6 +1988,14 @@ Pinos: %2</translation>
         <message>
             <source>256-byte I2C EEPROM; needs pull-ups on SCL and SDA; works with a microcontroller board</source>
             <translation>EEPROM I2C de 256 bytes; precisa de pull-ups em SCL e SDA; funciona com uma placa de microcontrolador</translation>
+        </message>
+        <message>
+            <source>Contents file</source>
+            <translation>Arquivo de conteúdo</translation>
+        </message>
+        <message>
+            <source>Contents the EEPROM starts each run with (.bin or Intel .hex, stored relative to the project); empty: erased</source>
+            <translation>Conteúdo com que a EEPROM inicia cada simulação (.bin ou Intel .hex, guardado relativo ao projeto); vazio: apagada</translation>
         </message>
         <message>
             <source>Shift register 74HC595</source>

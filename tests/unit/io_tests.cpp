@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "test_support.hpp"
 
+#include "io/memory_file.hpp"
 #include "io/project_file.hpp"
 
 #include <filesystem>
@@ -203,4 +204,35 @@ TEST_CASE("splitters of files before 0.4 load as a bus split into wires")
     CHECK(sp.first == 4);
     // Written again, it keeps "count" so that 0.3 still reads it.
     CHECK(io::to_json_text(*r.schematic).find("\"count\": 3") != std::string::npos);
+}
+
+TEST_CASE("io: memory contents round-trip through .bin and Intel .hex files")
+{
+    const auto dir = std::filesystem::temp_directory_path() / ("simnodus-memory-test-" + std::to_string(std::rand()));
+    std::filesystem::create_directories(dir);
+    std::vector<std::uint8_t> bytes(256);
+    for (std::size_t i = 0; i < bytes.size(); ++i) {
+        bytes[i] = static_cast<std::uint8_t>(i * 7);
+    }
+    std::string error;
+    for (const char* name : {"eeprom.bin", "eeprom.hex"}) {
+        REQUIRE(io::write_memory_file(dir / name, bytes, error));
+        const auto back = io::read_memory_file(dir / name, 256, 0xFF, error);
+        REQUIRE(back.has_value());
+        CHECK(*back == bytes);
+    }
+    // A shorter file leaves the rest erased; a longer one is refused.
+    const auto erased = io::read_memory_file(dir / "eeprom.bin", 300, 0xFF, error);
+    REQUIRE(erased.has_value());
+    CHECK((*erased)[255] == bytes[255]);
+    CHECK((*erased)[256] == 0xFF);
+    CHECK(!io::read_memory_file(dir / "eeprom.hex", 128, 0xFF, error));
+    CHECK(!error.empty());
+    // Intel HEX records with a known checksum, and a corrupted one.
+    CHECK(io::to_intel_hex({0x53, 0x4E}) == ":02000000534E5D\n:00000001FF\n");
+    std::vector<std::uint8_t> parsed(4, 0xFF);
+    CHECK(io::parse_intel_hex(":02000200534E5B\n:00000001FF\n", parsed, error));
+    CHECK((parsed == std::vector<std::uint8_t>{0xFF, 0xFF, 0x53, 0x4E}));
+    CHECK(!io::parse_intel_hex(":02000200534E00\n:00000001FF\n", parsed, error));
+    std::filesystem::remove_all(dir);
 }

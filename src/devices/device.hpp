@@ -72,6 +72,11 @@ public:
         (void)name;
         (void)value;
     }
+    // Memory chips (SN-208): their contents (empty for other chips), a number that
+    // changes whenever the contents change, and new contents (from a file).
+    virtual std::vector<std::uint8_t> memory() const { return {}; }
+    virtual std::uint64_t memory_version() const { return 0; }
+    virtual void load_memory(const std::vector<std::uint8_t>& bytes) { (void)bytes; }
     // What a display shows (UTF-8, one row per line); empty for other chips.
     virtual std::string text() const { return {}; }
     // Messages about the device's use (protocol errors), taken by the runner.

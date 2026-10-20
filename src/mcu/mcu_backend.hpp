@@ -154,6 +154,18 @@ public:
         (void)name;
         (void)value;
     }
+    // Memory chips of the board (SN-208): the latest contents, and new ones.
+    virtual bool device_memory(std::uint64_t component, std::vector<std::uint8_t>& bytes) const
+    {
+        (void)component;
+        (void)bytes;
+        return false;
+    }
+    virtual void load_device_memory(std::uint64_t component, const std::vector<std::uint8_t>& bytes)
+    {
+        (void)component;
+        (void)bytes;
+    }
     // What the board's display chips show (component -> UTF-8 text, SN-206).
     virtual std::map<std::uint64_t, std::string> device_texts() const { return {}; }
 };
