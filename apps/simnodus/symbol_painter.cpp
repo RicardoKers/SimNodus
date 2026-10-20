@@ -98,11 +98,11 @@ void paint_symbol(QPainter& painter, const library::ComponentDefinition& definit
 {
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
-    // The first closed shape (body) receives the LED glow.
+    // The first closed shape (an LED's triangle, a lamp's bulb) receives the glow.
     bool glow_used = !style.glow.isValid() || style.glow.alpha() == 0;
     int index = 0;
     for (const auto& g : definition.graphics) {
-        const bool target = !glow_used && g.kind == Graphic::Kind::Polygon && !g.filled;
+        const bool target = !glow_used && (g.kind == Graphic::Kind::Polygon || g.kind == Graphic::Kind::Circle) && !g.filled;
         glow_used = glow_used || target;
         const auto lit = style.fills.find(index++);
         paint_graphic(painter, g, style, target, lit == style.fills.end() ? QColor() : lit->second);

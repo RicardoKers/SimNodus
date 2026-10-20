@@ -33,6 +33,22 @@ std::string lower(std::string s)
     return s;
 }
 
+// Brightness 0..1 as the eye sees a current: dark below 1/10000 of the full
+// current, then 40 % at once and the rest growing with the square root
+// (an LED at a tenth of its current still looks clearly lit, and a multiplexed
+// one at a few percent is visible, as on a bench).
+double perceived(double current, double full)
+{
+    if (full <= 0) {
+        return 0.0;
+    }
+    const double ratio = std::abs(current) / full;
+    if (ratio < 1e-4) {
+        return 0.0;
+    }
+    return 0.4 + 0.6 * std::sqrt(std::min(ratio, 1.0));
+}
+
 QString quantity(double value, const char* unit)
 {
     return QString::fromStdString(model::format_engineering(value, 3)) + QString::fromLatin1(unit);
@@ -441,7 +457,8 @@ void RunController::refresh()
         }
         for (const auto& vector : vectors) {
             const auto it = latest.find(vector);
-            lit.levels.push_back(it == latest.end() ? 0.0 : glow_current(vector, it->second, status.sim_time) / d->lights->full);
+            lit.levels.push_back(
+                it == latest.end() ? 0.0 : perceived(glow_current(vector, it->second, status.sim_time), d->lights->full));
         }
         live.lights[id] = std::move(lit);
     }
@@ -496,7 +513,7 @@ void RunController::refresh()
                 }
                 const std::string color = r.glow_color_parameter.empty() ? r.glow_color : parameter(r.glow_color_parameter);
                 const double current = glow_current(readout_vectors_[c.id], it->second, status.sim_time);
-                live.glow[c.id] = {full > 0 ? current / full : 0.0, color};
+                live.glow[c.id] = {perceived(current, full), color};
             } else {
                 live.readouts[c.id] = quantity(it->second, "A");
             }

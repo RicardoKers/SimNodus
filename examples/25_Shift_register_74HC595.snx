@@ -1,7 +1,7 @@
 {
   "format": "simnodus-project",
   "version": 1,
-  "next_id": 80,
+  "next_id": 88,
   "settings": {
     "mode": "interactive",
     "speed": 1,
@@ -56,7 +56,7 @@
       "designator": "R1",
       "at": [
         60,
-        -11
+        -14
       ],
       "rotation": 270,
       "mirrored": false,
@@ -65,12 +65,12 @@
       }
     },
     {
-      "id": 41,
+      "id": 42,
       "type": "led",
       "designator": "LED1",
       "at": [
         68,
-        -11
+        -14
       ],
       "rotation": 270,
       "mirrored": false,
@@ -79,12 +79,12 @@
       }
     },
     {
-      "id": 44,
+      "id": 45,
       "type": "resistor",
       "designator": "R2",
       "at": [
         60,
-        -8
+        -10
       ],
       "rotation": 270,
       "mirrored": false,
@@ -93,12 +93,12 @@
       }
     },
     {
-      "id": 46,
+      "id": 48,
       "type": "led",
       "designator": "LED2",
       "at": [
         68,
-        -8
+        -10
       ],
       "rotation": 270,
       "mirrored": false,
@@ -107,12 +107,12 @@
       }
     },
     {
-      "id": 49,
+      "id": 51,
       "type": "resistor",
       "designator": "R3",
       "at": [
         60,
-        -5
+        -6
       ],
       "rotation": 270,
       "mirrored": false,
@@ -121,12 +121,12 @@
       }
     },
     {
-      "id": 51,
+      "id": 54,
       "type": "led",
       "designator": "LED3",
       "at": [
         68,
-        -5
+        -6
       ],
       "rotation": 270,
       "mirrored": false,
@@ -135,7 +135,7 @@
       }
     },
     {
-      "id": 54,
+      "id": 57,
       "type": "resistor",
       "designator": "R4",
       "at": [
@@ -149,7 +149,7 @@
       }
     },
     {
-      "id": 56,
+      "id": 60,
       "type": "led",
       "designator": "LED4",
       "at": [
@@ -163,40 +163,12 @@
       }
     },
     {
-      "id": 59,
+      "id": 63,
       "type": "resistor",
       "designator": "R5",
       "at": [
         60,
-        1
-      ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "R": "330"
-      }
-    },
-    {
-      "id": 61,
-      "type": "led",
-      "designator": "LED5",
-      "at": [
-        68,
-        1
-      ],
-      "rotation": 270,
-      "mirrored": false,
-      "parameters": {
-        "color": "red"
-      }
-    },
-    {
-      "id": 64,
-      "type": "resistor",
-      "designator": "R6",
-      "at": [
-        60,
-        4
+        2
       ],
       "rotation": 270,
       "mirrored": false,
@@ -207,10 +179,10 @@
     {
       "id": 66,
       "type": "led",
-      "designator": "LED6",
+      "designator": "LED5",
       "at": [
         68,
-        4
+        2
       ],
       "rotation": 270,
       "mirrored": false,
@@ -221,10 +193,10 @@
     {
       "id": 69,
       "type": "resistor",
-      "designator": "R7",
+      "designator": "R6",
       "at": [
         60,
-        7
+        6
       ],
       "rotation": 270,
       "mirrored": false,
@@ -233,12 +205,12 @@
       }
     },
     {
-      "id": 71,
+      "id": 72,
       "type": "led",
-      "designator": "LED7",
+      "designator": "LED6",
       "at": [
         68,
-        7
+        6
       ],
       "rotation": 270,
       "mirrored": false,
@@ -247,9 +219,9 @@
       }
     },
     {
-      "id": 74,
+      "id": 75,
       "type": "resistor",
-      "designator": "R8",
+      "designator": "R7",
       "at": [
         60,
         10
@@ -261,12 +233,40 @@
       }
     },
     {
-      "id": 76,
+      "id": 78,
+      "type": "led",
+      "designator": "LED7",
+      "at": [
+        68,
+        10
+      ],
+      "rotation": 270,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 81,
+      "type": "resistor",
+      "designator": "R8",
+      "at": [
+        60,
+        14
+      ],
+      "rotation": 270,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 84,
       "type": "led",
       "designator": "LED8",
       "at": [
         68,
-        10
+        14
       ],
       "rotation": 270,
       "mirrored": false,
@@ -437,28 +437,54 @@
       ]
     },
     {
-      "id": 42,
+      "id": 40,
       "points": [
         [
-          63,
-          -11
+          57,
+          -14
         ],
         [
-          65,
-          -11
+          54,
+          -14
         ]
       ]
     },
     {
-      "id": 47,
+      "id": 43,
       "points": [
         [
           63,
-          -8
+          -14
         ],
         [
           65,
-          -8
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 46,
+      "points": [
+        [
+          57,
+          -10
+        ],
+        [
+          54,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "points": [
+        [
+          63,
+          -10
+        ],
+        [
+          65,
+          -10
         ]
       ]
     },
@@ -466,17 +492,43 @@
       "id": 52,
       "points": [
         [
-          63,
-          -5
+          57,
+          -6
         ],
         [
-          65,
-          -5
+          54,
+          -6
         ]
       ]
     },
     {
-      "id": 57,
+      "id": 55,
+      "points": [
+        [
+          63,
+          -6
+        ],
+        [
+          65,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 58,
+      "points": [
+        [
+          57,
+          -2
+        ],
+        [
+          54,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 61,
       "points": [
         [
           63,
@@ -489,15 +541,15 @@
       ]
     },
     {
-      "id": 62,
+      "id": 64,
       "points": [
         [
-          63,
-          1
+          57,
+          2
         ],
         [
-          65,
-          1
+          54,
+          2
         ]
       ]
     },
@@ -506,29 +558,55 @@
       "points": [
         [
           63,
-          4
+          2
         ],
         [
           65,
-          4
+          2
         ]
       ]
     },
     {
-      "id": 72,
+      "id": 70,
+      "points": [
+        [
+          57,
+          6
+        ],
+        [
+          54,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 73,
       "points": [
         [
           63,
-          7
+          6
         ],
         [
           65,
-          7
+          6
         ]
       ]
     },
     {
-      "id": 77,
+      "id": 76,
+      "points": [
+        [
+          57,
+          10
+        ],
+        [
+          54,
+          10
+        ]
+      ]
+    },
+    {
+      "id": 79,
       "points": [
         [
           63,
@@ -537,6 +615,32 @@
         [
           65,
           10
+        ]
+      ]
+    },
+    {
+      "id": 82,
+      "points": [
+        [
+          57,
+          14
+        ],
+        [
+          54,
+          14
+        ]
+      ]
+    },
+    {
+      "id": 85,
+      "points": [
+        [
+          63,
+          14
+        ],
+        [
+          65,
+          14
         ]
       ]
     }
@@ -695,130 +799,130 @@
       "name": "Q7"
     },
     {
-      "id": 40,
+      "id": 41,
       "at": [
-        57,
-        -11
+        54,
+        -14
       ],
       "name": "Q0"
     },
     {
-      "id": 43,
+      "id": 44,
       "at": [
         71,
-        -11
+        -14
       ],
       "name": "GND"
     },
     {
-      "id": 45,
+      "id": 47,
       "at": [
-        57,
-        -8
+        54,
+        -10
       ],
       "name": "Q1"
     },
     {
-      "id": 48,
-      "at": [
-        71,
-        -8
-      ],
-      "name": "GND"
-    },
-    {
       "id": 50,
       "at": [
-        57,
-        -5
+        71,
+        -10
       ],
-      "name": "Q2"
+      "name": "GND"
     },
     {
       "id": 53,
       "at": [
+        54,
+        -6
+      ],
+      "name": "Q2"
+    },
+    {
+      "id": 56,
+      "at": [
         71,
-        -5
+        -6
       ],
       "name": "GND"
     },
     {
-      "id": 55,
+      "id": 59,
       "at": [
-        57,
+        54,
         -2
       ],
       "name": "Q3"
     },
     {
-      "id": 58,
+      "id": 62,
       "at": [
         71,
         -2
-      ],
-      "name": "GND"
-    },
-    {
-      "id": 60,
-      "at": [
-        57,
-        1
-      ],
-      "name": "Q4"
-    },
-    {
-      "id": 63,
-      "at": [
-        71,
-        1
       ],
       "name": "GND"
     },
     {
       "id": 65,
       "at": [
-        57,
-        4
+        54,
+        2
       ],
-      "name": "Q5"
+      "name": "Q4"
     },
     {
       "id": 68,
       "at": [
         71,
-        4
+        2
       ],
       "name": "GND"
     },
     {
-      "id": 70,
+      "id": 71,
       "at": [
-        57,
-        7
+        54,
+        6
+      ],
+      "name": "Q5"
+    },
+    {
+      "id": 74,
+      "at": [
+        71,
+        6
+      ],
+      "name": "GND"
+    },
+    {
+      "id": 77,
+      "at": [
+        54,
+        10
       ],
       "name": "Q6"
     },
     {
-      "id": 73,
+      "id": 80,
       "at": [
         71,
-        7
+        10
       ],
       "name": "GND"
     },
     {
-      "id": 75,
+      "id": 83,
       "at": [
-        57,
-        10
+        54,
+        14
       ],
       "name": "Q7"
     },
     {
-      "id": 78,
+      "id": 86,
       "at": [
         71,
-        10
+        14
       ],
       "name": "GND"
     }
@@ -875,10 +979,10 @@
   ],
   "notes": [
     {
-      "id": 79,
+      "id": 87,
       "at": [
         -12,
-        -27
+        -34
       ],
       "text": "A 74HC595 shift register drives eight LEDs. The firmware shifts each byte out bit by bit on PA7 (data),\nPA5 (shift clock) and PA4 (latch), the pins of SPI1. MR goes to VDD and OE to GND, and the chip needs\nits supply on VCC and GND. Run (F5): a light runs across the LEDs, then they count in binary.\nAnalyzer > Logic shows the clock and data lanes of the board and the chip's outputs (U2.Q0...)."
     }
