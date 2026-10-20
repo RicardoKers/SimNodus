@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.6 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.7 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -19,6 +19,10 @@ watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
 
+New in 0.7: adjustable and controlled sources; a 4x4 matrix keypad; A/D and
+D/A converters of 4 to 12 bits; parallel ROM and RAM of 16 bytes to 64 KB,
+also without a microcontroller (Window > Memory Viewer shows them).
+
 New in 0.6: chips for microcontrollers (74HC595, MAX7219 with an LED
 matrix, 24C02 EEPROM, LM75 sensor, PCF8574 expander, HD44780 character LCD);
 SPI and I2C; Window > Memory Viewer shows, loads and saves the EEPROM's
@@ -34,7 +38,8 @@ USER-GUIDE.md with the known limitations, and MICROCONTROLLER.md (also on
 https://github.com/RicardoKers/SimNodus/tree/main/docs/user). Lessons 1-3
 are in examples/lessons; examples 17-23 show gates, buses, diode kinds,
 blocks, a counter, regulators and a 7-segment display; examples 24-28 the
-RTC and watchdogs, SPI and I2C chips and a character LCD.
+RTC and watchdogs, SPI and I2C chips and a character LCD; examples 29-33
+the new sources, the keypad, the converters, a ROM and a RAM.
 
 Command line
   simnodus.exe FILE.snx         open a project
