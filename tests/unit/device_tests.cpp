@@ -122,10 +122,10 @@ TEST_CASE("devices: the bus gives a 74HC595 the board's edges at once and the bo
     hc.supply = 3.3;
     hc.tied = {{"MR", true}, {"OE", false}};
     std::vector<mcu::DigitalNet> nets{
-        {"DS", {"PA7"}, {{0, "DS"}}, 0},
-        {"SHCP", {"PA5"}, {{0, "SHCP"}}, 0},
-        {"STCP", {"PA4"}, {{0, "STCP"}}, 0},
-        {"BACK", {"PA0"}, {{0, "Q7S"}}, 0},
+        {"DS", {"PA7"}, {{0, "DS"}}, 0, false},
+        {"SHCP", {"PA5"}, {{0, "SHCP"}}, 0, false},
+        {"STCP", {"PA4"}, {{0, "STCP"}}, 0, false},
+        {"BACK", {"PA0"}, {{0, "Q7S"}}, 0, false},
     };
     mcu::DeviceBus bus;
     std::string error;
@@ -362,9 +362,9 @@ TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over 
     chip.pins = max7219_pins;
     chip.supply = 5.0;
     std::vector<mcu::DigitalNet> nets{
-        {"DIN", {"PA7"}, {{0, "DIN"}}, 0},
-        {"CLK", {"PA5"}, {{0, "CLK"}}, 0},
-        {"LOAD", {"PA4"}, {{0, "LOAD"}}, 0},
+        {"DIN", {"PA7"}, {{0, "DIN"}}, 0, false},
+        {"CLK", {"PA5"}, {{0, "CLK"}}, 0, false},
+        {"LOAD", {"PA4"}, {{0, "LOAD"}}, 0, false},
     };
     mcu::DeviceBus bus;
     REQUIRE(bus.init(m, {chip}, nets, error));
@@ -425,4 +425,165 @@ TEST_CASE("devices: example 26 wires its MAX7219 to SPI1 and a 5 V supply withou
     REQUIRE(requests[0].options.devices.size() == 1);
     CHECK(requests[0].options.devices[0].supply == 5.0);
     CHECK(requests[0].options.nets.size() == 19); // DIN, CLK, LOAD, eight rows, eight columns
+}
+
+TEST_CASE("devices: an STM32CubeIDE HAL project uses a 24C02, an LM75 and a PCF8574 on I2C1")
+{
+    std::string error;
+    const auto image = emu::read_elf(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/hal_i2c_devices/hal_i2c_devices.elf", error);
+    REQUIRE(image.has_value());
+    emu::Stm32F103 m;
+    REQUIRE(m.load(*image, error));
+    auto chip = [](const char* designator, const char* kind, std::vector<std::string> pins,
+                    std::map<std::string, std::string> parameters = {}) {
+        mcu::DeviceRequest d;
+        d.designator = designator;
+        d.kind = kind;
+        d.pins = std::move(pins);
+        d.parameters = std::move(parameters);
+        d.supply = 3.3;
+        d.tied = {{"A0", false}, {"A1", false}, {"A2", false}, {"WP", false}};
+        return d;
+    };
+    std::vector<mcu::DeviceRequest> chips{
+        chip("U2", "24c02", {"SCL", "SDA", "A0", "A1", "A2", "WP"}),
+        chip("U3", "lm75", {"SCL", "SDA", "A0", "A1", "A2", "OS"}, {{"temperature", "-12.5"}}),
+        chip("U4", "pcf8574", {"SCL", "SDA", "A0", "A1", "A2", "INT", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7"}),
+    };
+    std::vector<mcu::DigitalNet> nets{
+        {"SCL", {"PB6"}, {{0, "SCL"}, {1, "SCL"}, {2, "SCL"}}, 1, false},
+        {"SDA", {"PB7"}, {{0, "SDA"}, {1, "SDA"}, {2, "SDA"}}, 1, false},
+    };
+    for (int i = 0; i < 8; ++i) {
+        nets.push_back({"P" + std::to_string(i), {}, {{2, "P" + std::to_string(i)}}, 0, true});
+    }
+    mcu::DeviceBus bus;
+    REQUIRE(bus.init(m, chips, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    bus.start(0);
+    std::string text;
+    auto run_to = [&](std::uint64_t end) {
+        m.run_until_ns(end);
+        for (const auto& b : m.take_uart_bytes()) {
+            text += static_cast<char>(b.value);
+        }
+    };
+    run_to(300000000);
+    CHECK(text.find("EEPROM: SimNodus") != std::string::npos);
+    CHECK(text.find("Temperature: -12.5 C") != std::string::npos);
+    CHECK(text.find("no answer") == std::string::npos);
+    CHECK(bus.output(2, 6).pull_up);  // P0: LED off (weak high)
+    // Press the button on P4 (the circuit pulls the net low): LED 1 on P0 follows.
+    bus.set_circuit_level(2, 10, false, m.time_ns());
+    run_to(400000000);
+    CHECK(text.find("Buttons: 1---") != std::string::npos);
+    CHECK(bus.output(2, 6).driven && !bus.output(2, 6).high); // P0 pulled low: the LED lights
+    for (const auto& d : m.take_diagnostics()) {
+        std::printf("  diagnostic: %s\n", d.text.c_str());
+        CHECK(false);
+    }
+    m.set_pin_hook(nullptr);
+}
+
+TEST_CASE("devices: without pull-up resistors I2C stalls and the message names the cause")
+{
+    std::string error;
+    const auto image = emu::read_elf(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/hal_i2c_devices/hal_i2c_devices.elf", error);
+    REQUIRE(image.has_value());
+    emu::Stm32F103 m;
+    REQUIRE(m.load(*image, error));
+    mcu::DeviceRequest sensor;
+    sensor.designator = "U3";
+    sensor.kind = "lm75";
+    sensor.pins = {"SCL", "SDA", "A0", "A1", "A2", "OS"};
+    sensor.supply = 3.3;
+    sensor.tied = {{"A0", false}, {"A1", false}, {"A2", false}};
+    std::vector<mcu::DigitalNet> nets{
+        {"SCL", {"PB6"}, {{0, "SCL"}}, 0, false}, // no pull-up
+        {"SDA", {"PB7"}, {{0, "SDA"}}, 0, false},
+    };
+    mcu::DeviceBus bus;
+    REQUIRE(bus.init(m, {sensor}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    bus.start(0);
+    m.run_until_ns(200000000);
+    std::string text;
+    for (const auto& b : m.take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    CHECK(text.find("Temperature") == std::string::npos);
+    bool named = false;
+    for (const auto& d : m.take_diagnostics()) {
+        named = named || d.text.find("pull-up") != std::string::npos;
+    }
+    CHECK(named);
+    m.set_pin_hook(nullptr);
+}
+
+TEST_CASE("devices: example 27 talks to three I2C chips and reads its buttons through the circuit")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "27_I2C_EEPROM_sensor_expander.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"p0", "p4"};
+    model::Id board = model::no_id;
+    model::Id button = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        button = c.designator == "SW1" ? c.id : button;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    const auto& options = request.mcus[0].options;
+    CHECK(options.devices.size() == 3);
+    for (const auto& net : options.nets) {
+        if (net.name == "SCL" || net.name == "SDA") {
+            CHECK(net.pull == 1);   // the 4.7 kOhm resistors
+            CHECK(!net.circuit);
+        } else if (net.name == "P4") {
+            CHECK(net.circuit);     // read through the circuit
+        }
+    }
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    std::string text;
+    wait_for(0.6);
+    session.mcu_uart_received(board, "usart1", 0, text);
+    CHECK(text.find("EEPROM: SimNodus") != std::string::npos);
+    CHECK(text.find("Temperature: 23.5 C") != std::string::npos);
+    CHECK(session.latest("p0").value_or(0) > 2.0); // LED 1 off: P0 weakly high
+    session.set_control(button, 1.0);
+    wait_for(session.status().sim_time + 0.1);
+    session.mcu_uart_received(board, "usart1", 0, text);
+    CHECK(text.find("Buttons: 1---") != std::string::npos);
+    CHECK(session.latest("p0").value_or(5) < 1.0); // P0 pulled low: LED 1 lights
+    for (const auto& [id, message] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", message.c_str());
+        CHECK(false);
+    }
+    session.stop();
 }

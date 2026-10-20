@@ -56,10 +56,10 @@ circuit", then the hybrid coupling once this was explained.
 - A device works only together with a board; one on no board pin gets a
   message and does nothing. A device shared by two boards belongs to the first.
 - Levels are digital: a 3.3 V board driving a 5 V chip is accepted even where a
-  real chip's input threshold would not be met. Device inputs on nets without
-  a board pin or device output read only constant ties (ground, a supply, open
-  = low), not circuit signals such as a push button (planned with the PCF8574,
-  SN-205).
+  real chip's input threshold would not be met. Update (SN-205): a net without
+  a board pin is also read from the circuit, like a board input (up to 0.1 ms
+  late), and that level counts whenever no output drives the net; so push
+  buttons and LEDs on a PCF8574's pins work.
 - The protocol between editor and engine carries devices and nets (version 2).
 - Multiplexed displays (MAX7219) will need glow averaged over a few
   milliseconds on the canvas (SN-204).

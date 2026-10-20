@@ -56,6 +56,8 @@ public:
     // emu::TimedDevice: the next device event in machine cycles.
     std::uint64_t next_event() const override;
     void on_time(std::uint64_t cycle) override;
+    // The circuit's level on the net of a chip pin (nets without a board pin).
+    void set_circuit_level(std::size_t device, std::size_t pin, bool level, std::uint64_t time_ns);
     // The board pin is on a digital net: the bus sets its input, not the circuit.
     bool owns_board_pin(int port, int pin) const { return board_net_.count({port, pin}) > 0; }
 
@@ -73,6 +75,9 @@ private:
         std::vector<std::pair<int, int>> board; // port, pin
         std::vector<DevicePin> pins;
         int pull = 0;
+        bool circuit = false;       // the circuit's level counts when nothing drives the net
+        bool circuit_known = false;
+        bool circuit_level = false;
         bool level = false;
         bool known = false;
         bool warned_short = false;

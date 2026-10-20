@@ -174,6 +174,21 @@ bool SimulationSession::start(RunRequest request, std::string& error)
                     ground == netlist_.pin_node.end() ? std::string("0") : lower(ground->second), m.options.pin_model});
             }
         }
+        // Chip pins on nets without a board pin (SN-205): the net's voltage, read
+        // like a board input, decides when no output drives the net.
+        for (const auto& net : m.options.nets) {
+            if (!net.circuit || net.device_pins.empty()) {
+                continue;
+            }
+            const auto& [index, pin] = net.device_pins.front();
+            const auto& device = m.options.devices[index];
+            const auto node = netlist_.pin_node.find({device.component, pin});
+            const auto name = std::find(names.begin(), names.end(), device.designator + "." + pin);
+            if (node != netlist_.pin_node.end() && name != names.end()) {
+                input_watches_.push_back({runner.get(), static_cast<std::size_t>(name - names.begin()),
+                    lower(node->second), std::string("0"), device.pin_model});
+            }
+        }
         analog_points_[runner.get()].assign(names.size(), std::nan(""));
         mcus_[m.component] = std::move(runner);
     }
@@ -747,6 +762,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                             net.pull = -1;
                         }
                     }
+                    net.circuit = net.board_pins.empty();
                     options.nets.push_back(std::move(net));
                 }
                 options.nets[it->second].device_pins.emplace_back(index, pin);

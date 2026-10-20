@@ -81,6 +81,7 @@ private:
     std::vector<std::pair<int, int>> ports_;       // per watched pin: port, number ({-1, -1}: a device pin)
     std::vector<PinModel> pin_models_;             // per watched pin: the board's, or its device's
     std::vector<std::vector<std::size_t>> device_pins_; // device -> signal pin -> watched pin
+    std::map<std::size_t, std::pair<std::size_t, std::size_t>> device_of_pin_; // watched pin -> device, pin
     std::vector<History> history_;                 // per watched pin
     std::vector<std::vector<std::pair<std::uint64_t, bool>>> levels_; // per pin: level changes
     struct InputChange {
