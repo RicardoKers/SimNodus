@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.7 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.8 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -18,6 +18,13 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.8: AI agents such as Claude Code or Codex build, check and
+simulate circuits through simnodus-cli.exe, also step by step in the open
+window for video tutorials (Tools > Allow External Control), and through
+its MCP server (simnodus-cli mcp); see AUTOMATION.md. External I/O parts
+exchange signals with a virtual plant over TCP (Simulate > External I/O).
+A 555 timer, and any vendor .SUBCKT as a part (Place > Subcircuit).
 
 New in 0.7: adjustable and controlled sources; a 4x4 matrix keypad; A/D and
 D/A converters of 4 to 12 bits; parallel ROM and RAM of 16 bytes to 64 KB,
@@ -39,7 +46,8 @@ https://github.com/RicardoKers/SimNodus/tree/main/docs/user). Lessons 1-3
 are in examples/lessons; examples 17-23 show gates, buses, diode kinds,
 blocks, a counter, regulators and a 7-segment display; examples 24-28 the
 RTC and watchdogs, SPI and I2C chips and a character LCD; examples 29-33
-the new sources, the keypad, the converters, a ROM and a RAM.
+the new sources, the keypad, the converters, a ROM and a RAM; examples
+34-35 a 555 timer and a vendor subcircuit.
 
 Command line
   simnodus.exe FILE.snx         open a project
@@ -48,6 +56,8 @@ Command line
   simnodus.exe --check-mcu-engine  run blink.elf in the microcontroller emulator
   simnodus.exe --smoke-test     open the windows, run built-in checks, exit
   simnodus.exe --settings FILE  use FILE instead of the user's settings
+  simnodus.exe --control        allow external control by AI agents
+  simnodus-cli.exe ...          SimNodus without a window (see AUTOMATION.md)
 
 Settings are stored in %APPDATA%\SimNodus\SimNodus.ini.
 

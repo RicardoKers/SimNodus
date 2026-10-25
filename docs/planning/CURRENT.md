@@ -8,29 +8,27 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.7.0 published on 2026-10-20** (the owner tested the 0.7
-  preview and asked for the release): tag `v0.7.0`, GitHub release with
-  `SimNodus-0.7.0-windows-x64.zip` and `SimNodus-0.7.0-windows-x64-setup.exe`.
-  Releases 0.1.0-0.6.0 were published between 2026-10-14 and 10-20.
-- **Connectivity (owner's priority since 2026-10-25, ADR 0104):** agents
-  first, then the virtual plant. Done: SN-215, the JSON command vocabulary
-  (`src/automation`) and `simnodus-cli` (build, check, inspect, simulate,
-  measure, save; `serve`/`exec` for JSON lines; `Session::pause_at`, engine
-  protocol 8), documented in `docs/user/AUTOMATION.md` and packaged; SN-216,
-  the same commands controlling the window (Tools > Allow External Control or
-  `--control`, `simnodus-cli connect`; edits on the canvas and in the undo
-  history, runs shown live, `view.pace`/`view.caption` for recorded
-  tutorials); SN-217, `simnodus-cli mcp [--window]`, the commands as MCP
-  tools for Claude Code, Codex and other agents; SN-218, external I/O parts
-  (bit and word inputs and outputs with literal addresses) and the TCP link
-  for the virtual plants (Simulate > External I/O, shown only with such
-  parts). The connectivity phase is complete.
-- **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
-  (SN-213, example 34; interactive segments now also carry capacitor node
-  voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
-  Place > Subcircuit (SN-214, ADR 0097 update, example 35). The owner tested
-  the 0.8 preview on 2026-10-25: everything worked, including a vendor 555
-  SPICE model placed as a subcircuit part.
+- **Release 0.8.0 published on 2026-10-25** (the owner tested the
+  connectivity phase and asked for the release): tag `v0.8.0`, GitHub release
+  with `SimNodus-0.8.0-windows-x64.zip` and
+  `SimNodus-0.8.0-windows-x64-setup.exe`. Releases 0.1.0-0.7.0 were published
+  between 2026-10-14 and 10-20.
+- **New in 0.8 — connectivity (ADR 0104):** `simnodus-cli` with the JSON
+  command vocabulary (`src/automation`; build, check, inspect, simulate,
+  measure, save; `Session::pause_at`, engine protocol 8; SN-215); the same
+  commands controlling the window (Tools > Allow External Control or
+  `--control`, `simnodus-cli connect`; edits in the undo history, runs shown
+  live, `view.pace`/`view.caption` for recorded tutorials; SN-216);
+  `simnodus-cli mcp [--window]`, the commands as MCP tools (SN-217); external
+  I/O parts and the TCP link for virtual plants (Simulate > External I/O,
+  shown only with such parts; SN-218). Owner's tests on 2026-10-25: Claude
+  Code built and simulated an LED circuit with captions in the window through
+  MCP (registered with `claude mcp add --scope user`), and the link drove the
+  owner's Godot plant correctly.
+- **Also new in 0.8:** a behavioral 555 timer (SN-213, example 34;
+  interactive segments carry capacitor node voltages with `.ic`) and any
+  vendor `.SUBCKT` as a part of its own via Place > Subcircuit (SN-214, ADR
+  0097 update, example 35).
 - **New in 0.7:** adjustable and controlled sources (SN-209, example 29), a
   4x4 matrix keypad (SN-210, example 30), ideal A/D and D/A converters
   (SN-211, example 31), parallel ROM and RAM and chips without a board
@@ -82,10 +80,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Owner's test of the connectivity phase (an agent through MCP building a
-   circuit in the window; a virtual plant through the external I/O link),
-   then release 0.8.0 when the owner asks.
-3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
+1. Next phase: to be chosen with the owner (backlog, classroom feedback,
+   ideas from using agents for tutorials).
+2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
 ## Known constraints

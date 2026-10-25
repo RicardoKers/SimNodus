@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.8.0 — 2026-10-25
+
+### Summary
+
+- AI agents and scripts control SimNodus (ADR 0104): `simnodus-cli` builds, checks, simulates and measures circuits with JSON commands (SN-215); the same commands drive the open window, so an agent builds a circuit step by step on screen with captions for video tutorials (SN-216); `simnodus-cli mcp` offers them as MCP tools to Claude Code, Codex and other agents (SN-217).
+- External I/O parts and a TCP link exchange signals with a virtual industrial plant (SN-218).
+- A behavioral 555 timer (SN-213, example 34) and any vendor `.SUBCKT` as a part of its own (SN-214, example 35).
+
 ### Added (2026-10-25, SN-218)
 
 - External I/O parts (*External I/O*): bit and word inputs and outputs with a free-text address sent as written (`%IX0.10`), polarity, and a word scale of 0–1000 to 0–3.3 V by default (both ranges are parameters). Inputs can be operated by hand while nothing is connected.
