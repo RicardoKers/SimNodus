@@ -12,6 +12,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   preview and asked for the release): tag `v0.7.0`, GitHub release with
   `SimNodus-0.7.0-windows-x64.zip` and `SimNodus-0.7.0-windows-x64-setup.exe`.
   Releases 0.1.0-0.6.0 were published between 2026-10-14 and 10-20.
+- **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
+  (SN-213, example 34; interactive segments now also carry capacitor node
+  voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
+  Place > Subcircuit (SN-214, ADR 0097 update, example 35). The owner tested
+  the 0.8 preview on 2026-10-25: everything worked, including a vendor 555
+  SPICE model placed as a subcircuit part.
 - **New in 0.7:** adjustable and controlled sources (SN-209, example 29), a
   4x4 matrix keypad (SN-210, example 30), ideal A/D and D/A converters
   (SN-211, example 31), parallel ROM and RAM and chips without a board
@@ -63,9 +69,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. After 0.7 the owner asked for both a 555 timer of our own and a generic
-   part for any vendor subcircuit (2026-10-20): SN-213 done (example 34),
-   SN-214 done (example 35). Next: a 0.8 preview for the owner.
+1. Release 0.8.0 when the owner asks for it (the preview passed the owner's
+   test; ask before cutting the release). Then wait for the owner's next
+   request; the backlog has no open phase task.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
@@ -104,7 +110,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   the console; use `-o file.txt,txt` and `QT_QPA_PLATFORM=offscreen`, with
   `build/deps/ngspice-runtime` on `PATH`.
 - **Test package for the owner:** `python tools/package_windows.py
-  --build-dir build/dev` writes `dist/SimNodus-0.2.0-dev-windows-x64.zip`
+  --build-dir build/dev` writes `dist/SimNodus-<version>-windows-x64.zip`
   and runs the packaged `--check-engine` and `--smoke-test`.
 - **Release:** `build/release` is configured with `-DSIMNODUS_VERSION_SUFFIX=`
   (empty; `main` stays `dev`); bump the version in CMake first, build,
