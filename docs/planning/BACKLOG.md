@@ -129,7 +129,7 @@ Owner's priority 2026-10-25: agents first, the virtual plant afterwards
 | SN-215 | JSON command vocabulary (`src/automation`) and `simnodus-cli` (one-shot commands, `serve`, `exec`); `Session::pause_at` (engine protocol 8); `docs/user/AUTOMATION.md`; packaged | done 2026-10-25 |
 | SN-216 | Control channel in the desktop application: local endpoint off by default, the same commands, edits on the canvas and in the undo history, pacing and highlights for recorded tutorials (an agent builds a circuit step by step on screen); `simnodus-cli connect`, Tools > Allow External Control, `--control`, `view.*` commands | done 2026-10-25 |
 | SN-217 | MCP server over the same commands (`simnodus-cli mcp [--window]`, stdio), for Claude Code, Codex and other agents | done 2026-10-25 |
-| SN-218 | External I/O for the virtual plants: bit and word input/output parts with a literal address (`%IX0.10`), polarity, word scale 0–1000 ↔ 0–3.3 V by default (a parameter); TCP link with one JSON object per line (host, port, 20 ms period), active only in projects with such parts; safe outputs sent on stop and pause | todo |
+| SN-218 | External I/O for the virtual plants: bit and word input/output parts with a literal address (`%IX0.10`), polarity, word scale 0–1000 ↔ 0–3.3 V by default (a parameter); TCP link with one JSON object per line (host, port, 20 ms period), active only in projects with such parts; safe outputs sent on stop and pause | done 2026-10-25 |
 
 ## Later (after freeze or after classroom)
 

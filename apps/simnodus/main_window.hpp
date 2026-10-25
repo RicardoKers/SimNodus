@@ -38,6 +38,7 @@ namespace simnodus::ui {
 class AnalyzerWindow;
 class ControlServer;
 class ControlWorkspace;
+class IoLink;
 class MemoryWindow;
 class ComponentPanel;
 class Document;
@@ -73,6 +74,8 @@ public:
     MemoryWindow* memory_viewer() const { return memory_.get(); }
     // External control by AI agents and scripts (SN-216); off until turned on.
     ControlServer* control() const { return control_; }
+    // External I/O link of the bit and word parts (SN-218).
+    IoLink* io_link() const { return io_; }
     bool set_external_control(bool on, QString* error = nullptr);
     // Starts a run of the document, or of `base` (external control); reports
     // problems in Messages. Run (F5) uses it with no base.
@@ -146,6 +149,8 @@ protected:
 private:
     friend class ControlWorkspace; // opens and saves files as the menus do
     void update_control_status();
+    void update_io_status();
+    void edit_external_io();
     void load_library();
     void build_actions_and_menus();
     void build_status_bar();
@@ -226,6 +231,9 @@ private:
     QLabel* control_label_ = nullptr;
     QAction* control_action_ = nullptr;
     ControlServer* control_ = nullptr;
+    IoLink* io_ = nullptr;
+    QAction* io_action_ = nullptr;
+    QLabel* io_label_ = nullptr;
 
     QPointer<QThread> engine_thread_;
 };

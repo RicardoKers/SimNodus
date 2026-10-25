@@ -112,6 +112,7 @@ invalid value is outlined in red and not applied.
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Blocks** | Block port, to turn a circuit into a block |
+| **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant (see below) |
 
 Notes on some parts:
 
@@ -150,6 +151,23 @@ Notes on some parts:
   needs a series resistor.
 - **Diode kinds** each have their own symbol and list the models of their
   kind.
+- **External I/O:** bit and word inputs and outputs exchange their signals
+  with another program while the simulation runs, for example a virtual
+  industrial plant. Each part has an address, sent exactly as written
+  (`%IX0.10`, `%QW2`). A bit input drives its pin with 0 V or its high level
+  (3.3 V); a word input drives a voltage scaled from its word range (0–1000
+  is 0–3.3 V by default; Properties changes both ranges). A bit output sends
+  whether its pin is above the threshold, and a word output sends its pin's
+  voltage scaled to the word range. Polarity *inverted* swaps true and false.
+  Inputs can be clicked or dragged by hand while nothing is connected. The
+  circuit needs a ground. **Simulate > External I/O** (shown only in projects
+  with these parts) sets the server's host, port (127.0.0.1:8765 by default)
+  and period (20 ms). Each period SimNodus sends one JSON object per line
+  with every output (`{"%QX0.0": true, "%QW1": 512}`) and applies the inputs
+  the server answers with. Pausing or stopping sends false and 0 to every
+  output, because such programs keep the last command. The link runs in real
+  time, so its results are not repeatable; agents' runs without the window
+  do not use it.
 
 ## Device models
 

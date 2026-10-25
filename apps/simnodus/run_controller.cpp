@@ -314,6 +314,13 @@ void RunController::set_control(model::Id component, double value)
     refresh(); // immediate visual feedback
 }
 
+std::optional<double> RunController::pin_voltage(model::Id component, const std::string& pin) const
+{
+    const auto& n = session_->netlist();
+    const auto it = n.pin_node.find({component, pin});
+    return it == n.pin_node.end() ? std::nullopt : net_voltage(lower(it->second));
+}
+
 std::vector<sim::Sample> RunController::samples(const Channel& channel, double from, double bucket) const
 {
     if (!channel.valid) {

@@ -1,0 +1,108 @@
+{
+  "type": "io_bit_in",
+  "name": "Bit input",
+  "category": "External I/O",
+  "prefix": "IO",
+  "description": "A true/false signal from the external program drives the pin; click it to change it by hand",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -1,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "BIT IN",
+        "at": [
+          -3.6,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          0,
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "polygon": [
+          -1.6,
+          -0.5,
+          -0.8,
+          0,
+          -1.6,
+          0.5
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          2,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -2
+  ],
+  "value_offset": [
+    -6,
+    2
+  ],
+  "value_parameter": "address",
+  "parameters": [
+    {
+      "name": "address",
+      "label": "Address",
+      "kind": "text",
+      "default": "%IX0.0",
+      "description": "Name of the signal in the external program, sent exactly as written (%IX0.10, %QW2)"
+    },
+    {
+      "name": "polarity",
+      "label": "Polarity",
+      "choices": [
+        "normal",
+        "inverted"
+      ],
+      "default": "normal",
+      "description": "Inverted: true outside is a low level in the circuit"
+    },
+    {
+      "name": "Vhigh",
+      "label": "High level",
+      "unit": "V",
+      "default": "3.3",
+      "description": "Voltage of a true bit"
+    },
+    {
+      "name": "state",
+      "label": "Initial state",
+      "choices": [
+        "0",
+        "1"
+      ],
+      "default": "0",
+      "description": "Level until the external program sends a value"
+    }
+  ],
+  "interactive": {
+    "kind": "toggle",
+    "parameter": "state"
+  },
+  "spice": [
+    "B_{ref} {node:1} 0 V={Vhigh}*V({control})"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "type": "io_word_in",
+  "name": "Word input",
+  "category": "External I/O",
+  "prefix": "IO",
+  "description": "A number from the external program drives the pin, scaled to a voltage",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -1,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "WORD IN",
+        "at": [
+          -3.6,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          0,
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "polygon": [
+          -1.6,
+          -0.5,
+          -0.8,
+          0,
+          -1.6,
+          0.5
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          2,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -2
+  ],
+  "value_offset": [
+    -6,
+    2
+  ],
+  "value_parameter": "address",
+  "parameters": [
+    {
+      "name": "address",
+      "label": "Address",
+      "kind": "text",
+      "default": "%IW0",
+      "description": "Name of the signal in the external program, sent exactly as written (%IX0.10, %QW2)"
+    },
+    {
+      "name": "Wmin",
+      "label": "Word at the lower voltage",
+      "unit": "",
+      "default": "0",
+      "description": "Number that stands for the lower voltage"
+    },
+    {
+      "name": "Wmax",
+      "label": "Word at the upper voltage",
+      "unit": "",
+      "default": "1000",
+      "description": "Number that stands for the upper voltage"
+    },
+    {
+      "name": "Vmin",
+      "label": "Lower voltage",
+      "unit": "V",
+      "default": "0",
+      "description": "Voltage of the lower word"
+    },
+    {
+      "name": "Vmax",
+      "label": "Upper voltage",
+      "unit": "V",
+      "default": "3.3",
+      "description": "Voltage of the upper word"
+    },
+    {
+      "name": "position",
+      "label": "Initial value",
+      "unit": "%",
+      "default": "0",
+      "description": "Where the value starts, from the lower (0 %) to the upper voltage (100 %); drag it to change it by hand",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "position"
+  },
+  "spice": [
+    "B_{ref} {node:1} 0 V={Vmin}+({Vmax}-{Vmin})*V({control})"
+  ]
+}
