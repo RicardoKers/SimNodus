@@ -133,7 +133,9 @@
     }
   ],
   "spice": [
-    "B_{ref}_b {node:B} {node:E} I=max(V({node:B},{node:E})-{Vbe},0)/1+V({node:B},{node:E})*1e-9",
-    "B_{ref}_c {node:C} {node:E} I={beta}*max(V({node:B},{node:E})-{Vbe},0)/1*min(max((V({node:C},{node:E})-{Vcesat})/0.02+1,0),1)+V({node:C},{node:E})*1e-9"
+    "B_{ref}_b {node:B} {node:E} I=(max(V({node:B},{node:E})-{Vbe},0)+5e-4*ln(1+exp(-abs(V({node:B},{node:E})-{Vbe})/5e-4)))/1+V({node:B},{node:E})*1e-9",
+    "B_{ref}_c {node:C} {node:E} I={beta}*(max(V({node:B},{node:E})-{Vbe},0)+5e-4*ln(1+exp(-abs(V({node:B},{node:E})-{Vbe})/5e-4)))/1*((max((V({node:C},{node:E})-{Vcesat})/0.02+1,0)+0.05*ln(1+exp(-abs((V({node:C},{node:E})-{Vcesat})/0.02+1)/0.05)))-(max((V({node:C},{node:E})-{Vcesat})/0.02,0)+0.05*ln(1+exp(-abs((V({node:C},{node:E})-{Vcesat})/0.02)/0.05))))+V({node:C},{node:E})*1e-9",
+    "C_{ref}_be {node:B} {node:E} 10p",
+    "C_{ref}_bc {node:C} {node:B} 2p"
   ]
 }

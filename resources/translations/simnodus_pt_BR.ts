@@ -1546,6 +1546,14 @@ Pinos: %2</translation>
             <translation>Fonte</translation>
         </message>
         <message>
+            <source>Copy</source>
+            <translation>Copiar</translation>
+        </message>
+        <message>
+            <source>Copy All</source>
+            <translation>Copiar tudo</translation>
+        </message>
+        <message>
             <source>Info</source>
             <translation>Informação</translation>
         </message>
@@ -1573,8 +1581,8 @@ Pinos: %2</translation>
             <translation>Valores ao vivo</translation>
         </message>
         <message>
-            <source>While the simulation runs, the values of the selected parts appear here.</source>
-            <translation>Durante a simulação, os valores dos componentes selecionados aparecem aqui.</translation>
+            <source>While the simulation runs, the values of the selected parts, wires and probes appear here.</source>
+            <translation>Durante a simulação, os valores das peças, fios e pontas de prova selecionados aparecem aqui.</translation>
         </message>
         <message>
             <source>No selection</source>

@@ -30,6 +30,9 @@ public:
     void clear_source(const QString& source);
     void clear();
     int count() const;
+    // The messages as text lines ("12:00:01 Warning: text (source)"), all or
+    // only the selected ones; what Copy puts on the clipboard.
+    QString text(bool selected_only) const;
     int warning_count() const { return warnings_; }
     int error_count() const { return errors_; }
 
@@ -37,6 +40,9 @@ signals:
     void counts_changed(int warnings, int errors);
     void error_added();
     void items_activated(const std::vector<model::Id>& items);
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     QTreeWidget* list_ = nullptr;

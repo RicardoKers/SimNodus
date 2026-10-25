@@ -4,6 +4,17 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-10-25, owner's test)
+
+- Adjustable voltage and current sources: dragging up raises the value, as the mouse wheel does (it lowered it).
+- The simple (teaching) NPN and PNP transistors converge: a run starts from 0 V, and their sharp-cornered equations failed at t = 0 even in a plain circuit. The corners are now smooth and the models have small junction capacitances (10 pF base-emitter, 2 pF base-collector); the DC behavior is the same.
+
+### Added (2026-10-25, owner's test)
+
+- Messages can be copied: select them and press Ctrl+C, or use Copy / Copy All in the context menu.
+- The voltmeter and ammeter show + and - beside their terminals.
+- While running, a selected wire or net label shows its net's voltage, and a selected probe its reading, in the Properties panel.
+
 ### Added (2026-10-25, SN-181)
 
 - Cortex-M3 instruction timing for the STM32F103 emulator: instructions take the core's cycles (loads, divisions, LDM/STM, branch refills, interrupt entry and return) and the flash wait states set in `FLASH_ACR` through the prefetch buffer, so busy loops and code run about as fast as on a real Blue Pill. Calibrated with DWT `CYCCNT` on the owner's board using the new measurement firmware `examples/firmware/cycle_loops`: 29 of 30 values within 5 %. On by default; Simulate > Settings > *Cortex-M3 instruction timing* (and `cortex_m3_timing` in project files and `settings.set`) turns it off for one instruction per cycle. Engine protocol 9.

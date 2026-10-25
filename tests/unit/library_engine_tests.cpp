@@ -49,12 +49,14 @@ std::map<std::string, std::vector<double>> simulate(const test::CircuitBuilder& 
         return result;
     }
     const auto deck = netlist::build_deck(n, "library check", {analysis});
-    const bool ok = session->load_circuit(deck) && session->command("run");
+    bool ok = session->load_circuit(deck) && session->command("run");
     if (ok) {
         for (const auto& v : vectors) {
             result[v] = session->vector(v);
+            ok = ok && !result[v].empty(); // a run that stopped early has no vectors
         }
-    } else {
+    }
+    if (!ok) {
         for (const auto& line : deck) {
             std::printf("  | %s\n", line.c_str());
         }
@@ -657,6 +659,19 @@ TEST_CASE("library: component set B behaves like its parts")
         p.add("resistor", {{"1", "C"}, {"2", "0"}}, {{"R", "470"}});
         p.add("simple_pnp", {{"C", "C"}, {"B", "B"}, {"E", "VCC"}}, {{"beta", "100"}});
         CHECK(close_to(op(p, "c"), 0.0113 * 470, 0.05));
+        // Runs start from 0 V (uic) without an operating point: the models must
+        // converge from there, saturated or not (the owner's 9 V, 10k, 1k circuit).
+        for (const char* rb : {"10k", "100k"}) {
+            test::CircuitBuilder t(components());
+            supply(t, "VCC", "9");
+            t.add("resistor", {{"1", "VCC"}, {"2", "B"}}, {{"R", rb}});
+            t.add("resistor", {{"1", "VCC"}, {"2", "C"}}, {{"R", "1k"}});
+            t.add("simple_npn", {{"C", "C"}, {"B", "B"}, {"E", "0"}}, {{"beta", "100"}});
+            const auto r = simulate(t, ".tran 1u 1m 0 1u uic", {"c"});
+            REQUIRE(r.count("c") && !r.at("c").empty());
+            const double expected = std::string(rb) == "10k" ? 0.19 : 9.0 - 8.3e-5 * 100 * 1000;
+            CHECK(close_to(r.at("c").back(), expected, 0.05));
+        }
         // Schottky and germanium parts use their own kinds of models by default.
         auto forward = [&](const char* type) {
             test::CircuitBuilder b(components());

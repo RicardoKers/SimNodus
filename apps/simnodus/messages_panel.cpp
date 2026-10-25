@@ -4,7 +4,11 @@
 
 #include "theme.hpp"
 
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QDateTime>
+#include <QKeyEvent>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -38,6 +42,16 @@ MessagesPanel::MessagesPanel(QWidget* parent) : QWidget(parent)
     list_->header()->setSectionResizeMode(2, QHeaderView::Stretch);
     list_->header()->setStretchLastSection(false);
     list_->setObjectName(QStringLiteral("messageList"));
+    list_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    // Copy (Ctrl+C or the context menu): the selected messages as text lines.
+    // Ctrl+C is taken here, before Edit > Copy of the window (eventFilter).
+    auto* copy = new QAction(tr("Copy"), list_);
+    list_->installEventFilter(this);
+    connect(copy, &QAction::triggered, this, [this] { QApplication::clipboard()->setText(text(true)); });
+    auto* copy_all = new QAction(tr("Copy All"), list_);
+    connect(copy_all, &QAction::triggered, this, [this] { QApplication::clipboard()->setText(text(false)); });
+    list_->addActions({copy, copy_all});
+    list_->setContextMenuPolicy(Qt::ActionsContextMenu);
     layout->addWidget(list_);
     connect(clear_button, &QToolButton::clicked, this, &MessagesPanel::clear);
     connect(list_, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item) {
@@ -112,9 +126,40 @@ void MessagesPanel::clear_source(const QString& source)
     emit counts_changed(warnings_, errors_);
 }
 
+bool MessagesPanel::eventFilter(QObject* watched, QEvent* event)
+{
+    const bool copy = (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress)
+        && static_cast<QKeyEvent*>(event)->matches(QKeySequence::Copy);
+    if (watched == list_ && copy) {
+        event->accept(); // the override: the list gets the key press instead of the window's shortcut
+        if (event->type() == QEvent::KeyPress) {
+            QApplication::clipboard()->setText(text(true));
+        }
+        return true;
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
 int MessagesPanel::count() const
 {
     return list_->topLevelItemCount();
+}
+
+QString MessagesPanel::text(bool selected_only) const
+{
+    QStringList lines;
+    for (int i = 0; i < list_->topLevelItemCount(); ++i) {
+        const auto* item = list_->topLevelItem(i);
+        if (selected_only && !item->isSelected()) {
+            continue;
+        }
+        QString line = QStringLiteral("%1 %2: %3").arg(item->text(0), item->text(1), item->text(2));
+        if (!item->text(3).isEmpty()) {
+            line += QStringLiteral(" (%1)").arg(item->text(3));
+        }
+        lines << line;
+    }
+    return lines.join(QLatin1Char('\n'));
 }
 
 } // namespace simnodus::ui
