@@ -25,6 +25,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Code built and simulated an LED circuit with captions in the window through
   MCP (registered with `claude mcp add --scope user`), and the link drove the
   owner's Godot plant correctly.
+- **After 0.8 (unreleased):** Cortex-M3 instruction timing with flash wait
+  states, calibrated on the owner's Blue Pill (SN-181, `cycle_loops`
+  firmware, Simulate > Settings).
 - **Also new in 0.8:** a behavioral 555 timer (SN-213, example 34;
   interactive segments carry capacitor node voltages with `.ic`) and any
   vendor `.SUBCKT` as a part of its own via Place > Subcircuit (SN-214, ADR
@@ -80,8 +83,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Next phase: to be chosen with the owner (backlog, classroom feedback,
-   ideas from using agents for tutorials).
+1. Test backlog (owner's choice, 2026-10-25): SN-181 Cortex-M3 timing done
+   (29 of 30 board measurements within 5 %, default on; engine protocol 9);
+   open: the owner's own STM32CubeMX ADC+DMA project in SimNodus against
+   the board.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

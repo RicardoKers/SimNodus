@@ -297,7 +297,8 @@ json settings_json(const SimulationSettings& s)
 {
     return json{{"mode", s.mode == SimulationMode::Interactive ? "interactive" : "transient"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
-        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges}};
+        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges},
+        {"cortex_m3_timing", s.cortex_m3_timing}};
 }
 
 SimulationSettings settings_from(const json& j, std::vector<std::string>& warnings)
@@ -338,6 +339,13 @@ SimulationSettings settings_from(const json& j, std::vector<std::string>& warnin
             s.exact_edges = j["exact_edges"].get<bool>();
         } else {
             warnings.push_back("setting exact_edges is not true or false; default used");
+        }
+    }
+    if (j.contains("cortex_m3_timing")) {
+        if (j["cortex_m3_timing"].is_boolean()) {
+            s.cortex_m3_timing = j["cortex_m3_timing"].get<bool>();
+        } else {
+            warnings.push_back("setting cortex_m3_timing is not true or false; default used");
         }
     }
     return s;

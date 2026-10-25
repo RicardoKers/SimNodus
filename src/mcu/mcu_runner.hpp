@@ -81,6 +81,9 @@ struct McuRunOptions {
     // Chips on no board pin (SN-212): no firmware; an idle core keeps the time
     // of the devices, whose inputs all come from the circuit.
     bool chips_only = false;
+    // Cortex-M3 cycle counts with the flash wait states (SN-181) instead of
+    // one instruction per cycle.
+    bool cortex_m3_timing = true;
 };
 
 } // namespace simnodus::mcu

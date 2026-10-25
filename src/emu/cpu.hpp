@@ -58,6 +58,19 @@ public:
     void request_stop() { attention_ = true; stop_requested_ = true; }
 
     std::uint64_t cycles() const { return cycles_; }
+    // Timing (SN-181, docs/architecture/MCU_EMULATOR.md section 6): one cycle
+    // per instruction, or the Cortex-M3 cycle counts (TRM table 18-1) with the
+    // STM32F1 flash wait states and prefetch buffer, an approximation
+    // calibrated on a Blue Pill with DWT CYCCNT.
+    enum class Timing { OneCyclePerInstruction, CortexM3 };
+    void set_timing(Timing timing) { m3_timing_ = timing == Timing::CortexM3; }
+    Timing timing() const { return m3_timing_ ? Timing::CortexM3 : Timing::OneCyclePerInstruction; }
+    // FLASH_ACR as the flash interface has it (the Cortex-M3 timing uses it).
+    void set_flash_access(unsigned wait_states, bool prefetch)
+    {
+        wait_states_ = wait_states;
+        prefetch_ = prefetch;
+    }
     // Moves time forward while the core sleeps (no instructions execute).
     void advance_idle(std::uint64_t to);
     CoreState state() const { return state_; }
@@ -234,6 +247,24 @@ private:
     std::vector<Watchpoint> watchpoints_;
     WatchHit watch_hit_;
     void check_watch(std::uint32_t address, unsigned size, bool write);
+
+    // Cortex-M3 timing. Code fetches from the flash come in 64-bit lines, each
+    // taking 1 + wait states cycles; the prefetch buffer reads the lines after
+    // a branch target one after another (the "stream").
+    unsigned cycle_cost(const Insn& in) const; // cycles up to a pipeline refill
+    void account(unsigned cost, std::uint32_t pc, std::uint32_t next, bool taken, std::uint8_t op);
+    std::uint64_t refill(std::uint32_t from, std::uint32_t target, std::uint64_t request, std::uint64_t earliest,
+                         bool branch, unsigned late = 0);
+    std::uint64_t line_ready(std::uint32_t line) const;
+    bool m3_timing_ = false;
+    unsigned wait_states_ = 0;
+    bool prefetch_ = true;
+    bool after_access_ = false; // the previous instruction was a single load or store (they pipeline)
+    bool branched_ = false;     // the current instruction wrote the PC
+    bool returned_ = false;     // the current instruction returned from an exception
+    bool tail_chain_ = false;   // ... into a pending one (tail-chaining)
+    std::uint32_t stream_line_ = 0;
+    std::uint64_t stream_ready_ = 0;
 
     // Run state.
     std::uint64_t cycles_ = 0;

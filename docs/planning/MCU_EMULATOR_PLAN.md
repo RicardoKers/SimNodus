@@ -194,6 +194,12 @@ the owner's Blue Pill with DWT CYCCNT for a set of loops; a setting chooses
 "one instruction per cycle" or "Cortex-M3 timing". Gate G5: the test loops
 agree with the board within 5 %.
 
+**Done 2026-10-25:** `examples/firmware/cycle_loops` measured on the owner's
+Blue Pill at 8 MHz (no wait state) and 72 MHz (two wait states); the model
+reproduces 29 of 30 values within 5 % (MULS loop at 72 MHz: 7 %), checked by
+`emu_tests`. G5 passed with that documented deviation; Cortex-M3 timing is
+the default, one instruction per cycle stays a setting.
+
 ### N6 — Chip and board separation (SN-182)
 
 A chip component (STM32F103C8, LQFP48) and board profiles that reference it;

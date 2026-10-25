@@ -1839,6 +1839,14 @@ Pinos: %2</translation>
             <source>averaged over each time step (an edge is spread over one step)</source>
             <translation>com a média de cada passo de tempo (uma borda se espalha por um passo)</translation>
         </message>
+        <message>
+            <source>; firmware instructions take the Cortex-M3 cycles with flash wait states (approximate, within 5 % of a real Blue Pill in measured tests)</source>
+            <translation>; as instruções do firmware levam os ciclos do Cortex-M3 com os tempos de espera da flash (aproximado, dentro de 5 % de um Blue Pill real nos testes medidos)</translation>
+        </message>
+        <message>
+            <source>; firmware instructions take one cycle each (faster than a real chip)</source>
+            <translation>; cada instrução do firmware leva um ciclo (mais rápido que um chip real)</translation>
+        </message>
     </context>
     <context>
         <name>simnodus::ui::SchematicView</name>
@@ -1999,6 +2007,18 @@ Pinos: %2</translation>
         <message>
             <source>Maximum time step (s)</source>
             <translation>Passo de tempo máximo (s)</translation>
+        </message>
+        <message>
+            <source>Microcontrollers</source>
+            <translation>Microcontroladores</translation>
+        </message>
+        <message>
+            <source>Cortex-M3 instruction timing</source>
+            <translation>Tempo de instrução do Cortex-M3</translation>
+        </message>
+        <message>
+            <source>On: each instruction takes the cycles of the STM32F103's Cortex-M3 core, with the flash wait states, so busy loops and code run about as fast as on a real Blue Pill (approximate: within 5 % in measured tests). Off: one instruction per cycle, faster than the real chip.</source>
+            <translation>Ligado: cada instrução leva os ciclos do núcleo Cortex-M3 do STM32F103, com os tempos de espera da flash, então laços de espera e o código rodam quase tão rápido quanto num Blue Pill real (aproximado: dentro de 5 % nos testes medidos). Desligado: uma instrução por ciclo, mais rápido que o chip real.</translation>
         </message>
         <message>
             <source>Both modes start with discharged capacitors and inductors without current.</source>

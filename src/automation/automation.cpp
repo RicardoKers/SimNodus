@@ -1293,7 +1293,8 @@ json settings_json(const model::SimulationSettings& s)
 {
     return {{"mode", s.mode == model::SimulationMode::Transient ? "transient" : "interactive"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
-        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges}};
+        {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges},
+        {"cortex_m3_timing", s.cortex_m3_timing}};
 }
 
 json cmd_circuit_inspect(Context& cx, const json&)
@@ -1682,6 +1683,9 @@ json cmd_settings_set(Context& cx, const json& args)
     if (args.contains("exact_edges")) {
         s.exact_edges = args["exact_edges"].get<bool>();
     }
+    if (args.contains("cortex_m3_timing")) {
+        s.cortex_m3_timing = args["cortex_m3_timing"].get<bool>();
+    }
     cx.apply(editing::set_settings(cx.schematic(), s));
     return settings_json(cx.schematic().settings());
 }
@@ -1927,7 +1931,7 @@ const Command commands[] = {
     {"note.add", "Text note on the schematic.", R"j({"at": "[x, y]", "text": "..."})j", cmd_note_add},
     {"settings.get", "Simulation settings.", "{}", cmd_settings_get},
     {"settings.set", "Changes simulation settings.",
-        R"j({"mode": "interactive or transient", "transient_stop": "20m", "transient_max_step": "1u", "max_step": "100u", "segment": "1", "speed": "1 (0 = maximum)", "mcu_quantum": "1m", "exact_edges": "false"})j",
+        R"j({"mode": "interactive or transient", "transient_stop": "20m", "transient_max_step": "1u", "max_step": "100u", "segment": "1", "speed": "1 (0 = maximum)", "mcu_quantum": "1m", "exact_edges": "false", "cortex_m3_timing": "true (false = one instruction per cycle)"})j",
         cmd_settings_set},
     {"edit.undo", "Undoes the last change.", "{}", cmd_undo},
     {"edit.redo", "Redoes the last undone change.", "{}", cmd_redo},

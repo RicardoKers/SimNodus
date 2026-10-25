@@ -148,6 +148,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         std::unique_ptr<mcu::McuBackend> runner;
         {
             auto options = m.options;
+            options.cortex_m3_timing = settings_.cortex_m3_timing;
             // ADC samples read the circuit at a time it has passed (SN-178).
             options.analog_lag_ns = request_.mcu_lead_us * 1000
                 + static_cast<std::uint64_t>(std::llround(std::max(settings_.max_step, 0.0) * 1e9));

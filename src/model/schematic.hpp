@@ -149,6 +149,9 @@ struct SimulationSettings {
     // of a wired pin (ADR 0093), for square waveforms at a slower run. Off: each
     // step gets the pin's average drive (ADR 0091).
     bool exact_edges = false;
+    // Microcontroller timing (SN-181): Cortex-M3 cycle counts with the flash
+    // wait states, within 5 % of a real Blue Pill; off: one instruction per cycle.
+    bool cortex_m3_timing = true;
 
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };

@@ -72,6 +72,9 @@ struct MachineOptions {
     std::uint32_t flash_size = 64 * 1024;  // STM32F103C8
     std::uint32_t sram_size = 20 * 1024;
     std::uint32_t hse_hz = 8000000;        // Blue Pill crystal
+    // Cycles per instruction from the Cortex-M3 timing (with the flash wait
+    // states) instead of one per instruction (SN-181).
+    bool cortex_m3_timing = false;
     bool uart_frames = true; // false: bytes move at once, without frames on the pins
     // RX from the pin (SN-192): a USART decodes frames from its RX pin's input
     // edges, taken at the times they happened. Edges reach the chip late (at a

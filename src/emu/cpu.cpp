@@ -7,6 +7,7 @@
 #include "cpu.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cstdio>
 #include <limits>
 
@@ -959,6 +960,7 @@ std::uint32_t Cpu::xpsr() const
 void Cpu::branch_write_pc(std::uint32_t address)
 {
     next_pc_ = address & ~1u;
+    branched_ = true;
 }
 
 void Cpu::bx_write_pc(std::uint32_t address)
@@ -969,6 +971,7 @@ void Cpu::bx_write_pc(std::uint32_t address)
     }
     thumb_ = (address & 1u) != 0; // a clear bit 0 faults (INVSTATE) on the next instruction
     next_pc_ = address & ~1u;
+    branched_ = true;
 }
 
 bool Cpu::condition_passed(unsigned cond) const
@@ -1068,6 +1071,9 @@ void Cpu::reset()
     attention_ = true;
     faulted_ = false;
     last_fault_.clear();
+    after_access_ = returned_ = tail_chain_ = false;
+    stream_line_ = 0;
+    stream_ready_ = 0;
     std::fill(flash_cache_.begin(), flash_cache_.end(), Insn{});
     for (int irq = 0; irq < num_irqs; ++irq) {
         if (irq_line_[static_cast<unsigned>(irq)]) {
@@ -1205,6 +1211,8 @@ inline bool Cpu::fast(const Insn& in)
 {
     const std::uint32_t pc = pc_;
     std::uint32_t next = pc + in.size;
+    bool taken = false; // a branch, even to the next instruction, refills the pipeline
+    const unsigned cost = m3_timing_ ? cycle_cost(in) : 1; // from the operands, before the effects
     ++cycles_; // counted before the effects, as in step(): device events see the same time
     switch (in.op) {
     case OP_ADD_I:
@@ -1271,15 +1279,18 @@ inline bool Cpu::fast(const Insn& in)
     }
     case OP_B:
         next = pc + 4 + in.imm;
+        taken = true;
         break;
     case OP_BCOND:
         if (condition_passed(in.alu)) {
             next = pc + 4 + in.imm;
+            taken = true;
         }
         break;
     case OP_BL:
         r_[14] = next | 1u;
         next = pc + 4 + in.imm;
+        taken = true;
         break;
     case OP_BX: {
         const std::uint32_t target = in.rm == 15 ? pc + 4 : r_[in.rm];
@@ -1287,12 +1298,14 @@ inline bool Cpu::fast(const Insn& in)
             { --cycles_; return false; } // interworking fault or exception return: general path
         }
         next = target & ~1u;
+        taken = true;
         break;
     }
     case OP_CBZ:
     case OP_CBNZ:
         if ((r_[in.rn] == 0) == (in.op == OP_CBZ)) {
             next = pc + 4 + in.imm;
+            taken = true;
         }
         break;
     case OP_NOP:
@@ -1427,6 +1440,9 @@ inline bool Cpu::fast(const Insn& in)
     }
     ++instructions_;
     pc_ = next;
+    if (m3_timing_) {
+        account(cost, pc, next, taken, in.op);
+    }
     return true;
 }
 
@@ -1435,6 +1451,134 @@ void Cpu::advance_idle(std::uint64_t to)
     if (to > cycles_) {
         cycles_ = to;
     }
+}
+
+// ---------------------------------------------------------------------------
+// Cortex-M3 timing (SN-181). Cycle counts of the Cortex-M3 TRM (r1p1, table
+// 18-1) for code without wait states; the STM32F1 flash adds its wait states
+// to code fetches through a two-line prefetch buffer (RM0008 3.3.3). The
+// fetch rules below are the simplest that reproduce the measurements of
+// examples/firmware/cycle_loops on a Blue Pill (docs/architecture/MCU_EMULATOR.md,
+// section 6); they are an approximation, not the chip's pipeline.
+
+namespace {
+
+constexpr std::uint32_t flash_code_end = 0x20000000u; // code below SRAM comes from the flash (or its alias)
+
+} // namespace
+
+unsigned Cpu::cycle_cost(const Insn& in) const
+{
+    const auto from_flash = [&](unsigned rn) { return wait_states_ > 0 && (rn == 15 || r_[rn] < flash_code_end); };
+    switch (in.op) {
+    case OP_LDR:
+    case OP_LDR_W:
+    case OP_LDREX:
+        // 2, or 1 right after another single load or store (their address and
+        // data phases pipeline); data from the flash waits for it.
+        if (from_flash(in.rn)) {
+            return 1 + wait_states_;
+        }
+        return after_access_ ? 1 : 2;
+    case OP_LDRD:
+    case OP_STRD:
+        return 3;
+    case OP_LDM:
+    case OP_STM:
+        return 1 + static_cast<unsigned>(std::popcount(in.imm & 0xFFFFu))
+            + (in.op == OP_LDM && from_flash(in.rn) ? wait_states_ : 0);
+    case OP_TBB:
+    case OP_TBH:
+        return 2 + (from_flash(in.rn) ? wait_states_ : 0);
+    case OP_MLA:
+    case OP_MLS:
+        return 2;
+    case OP_SMULL:
+    case OP_UMULL:
+    case OP_SMLAL:
+    case OP_UMLAL: {
+        // 3-5 (4-7 with accumulate), shorter for small operands (early termination).
+        const bool sign = in.op == OP_SMULL || in.op == OP_SMLAL;
+        const auto wide = [&](std::uint32_t v) {
+            const std::uint32_t top = v >> 15;
+            return sign ? (top != 0 && top != 0x1FFFFu) : (v >> 16) != 0;
+        };
+        const unsigned cycles = 3 + (wide(read_reg(in.rn)) ? 1 : 0) + (wide(read_reg(in.rm)) ? 1 : 0);
+        return in.op == OP_SMLAL || in.op == OP_UMLAL ? cycles + 1 : cycles;
+    }
+    case OP_SDIV:
+    case OP_UDIV: {
+        // 2-12: early termination after the quotient's significant bits.
+        std::uint32_t n = read_reg(in.rn);
+        std::uint32_t m = read_reg(in.rm);
+        if (in.op == OP_SDIV) {
+            n = static_cast<std::int32_t>(n) < 0 ? 0u - n : n;
+            m = static_cast<std::int32_t>(m) < 0 ? 0u - m : m;
+        }
+        if (m == 0 || n < m) {
+            return 2;
+        }
+        const unsigned bits = static_cast<unsigned>(std::countl_zero(m) - std::countl_zero(n));
+        return std::min(12u, 4u + (bits + 4u) / 4u);
+    }
+    default:
+        return 1; // stores (a write buffer), data processing, single multiplies, branches before the refill
+    }
+}
+
+std::uint64_t Cpu::line_ready(std::uint32_t line) const
+{
+    // Lines after a refetched branch target arrive one after another; a line
+    // far from that stream is long in the buffer.
+    if (line < stream_line_ || line - stream_line_ > 16) {
+        return 0;
+    }
+    return stream_ready_ + std::uint64_t{line - stream_line_} * (wait_states_ + 1);
+}
+
+std::uint64_t Cpu::refill(std::uint32_t from, std::uint32_t target, std::uint64_t request, std::uint64_t earliest,
+                          bool branch, unsigned late)
+{
+    // `request`: when the core asks for the target; `earliest`: when the next
+    // instruction could execute without wait states (1 cycle of refill).
+    const bool flash = target < flash_code_end;
+    const unsigned ws = flash ? wait_states_ : 0;
+    const std::uint32_t line = target >> 3;
+    const std::uint32_t current = from >> 3;
+    if (branch && ws > 0 && prefetch_ && target > from && line <= current + 1) {
+        // A short forward branch: the target is in the prefetch buffer.
+        return std::max(earliest, std::max(request + 2, line_ready(line)) + 1);
+    }
+    std::uint64_t start = request;
+    if (branch && flash && prefetch_ && from < flash_code_end && line_ready(current + 1) == request + 1) {
+        ++start; // a prefetch about to finish delays the request
+    } else if (ws > 0) {
+        start += late; // a target from a register or memory is known a cycle later
+    }
+    const std::uint64_t ready = start + ws + 1;
+    if (flash) {
+        stream_line_ = line;
+        stream_ready_ = ready;
+    }
+    return std::max(earliest, ready + 1);
+}
+
+void Cpu::account(unsigned cost, std::uint32_t pc, std::uint32_t next, bool taken, std::uint8_t op)
+{
+    const std::uint64_t start = cycles_ - 1; // run() counted the first cycle before the effects
+    std::uint64_t end = start + cost;
+    if (taken) {
+        // A taken branch: the pipeline refills. The target of B, BL, CBZ and
+        // B<cond> is fetched as they execute; a target from a register or
+        // from memory one cycle later (hidden without wait states).
+        const bool immediate = op == OP_B || op == OP_BCOND || op == OP_BL || op == OP_CBZ || op == OP_CBNZ;
+        end = refill(pc, next, end - 1, end + 1, true, immediate ? 0 : 1);
+    } else if ((next >> 3) != (pc >> 3) && next < flash_code_end && wait_states_ > 0) {
+        end = prefetch_ ? std::max(end, line_ready(next >> 3) + 1) : end + wait_states_; // a new flash line
+    }
+    cycles_ = end;
+    after_access_ = op == OP_LDR || op == OP_STR || op == OP_LDR_W || op == OP_STR_W || op == OP_LDREX || op == OP_STREX;
+    tail_chain_ = false;
 }
 
 void Cpu::step()
@@ -1458,6 +1602,7 @@ void Cpu::step()
     }
     const std::uint32_t it_before = itstate_;
     const Insn& in = fetch_decode();
+    const std::uint32_t pc = pc_;
     ++cycles_;
     ++instructions_;
     if (faulted_) {
@@ -1471,6 +1616,9 @@ void Cpu::step()
         it_advance();
         if (!pass) {
             pc_ = next_pc_;
+            if (m3_timing_) {
+                account(1, pc, pc_, false, OP_NOP); // skipped: one cycle
+            }
             return;
         }
         in_it_ = true;
@@ -1480,6 +1628,8 @@ void Cpu::step()
     if (count_ops_) {
         ++op_hits_[in.op];
     }
+    const unsigned cost = m3_timing_ ? cycle_cost(in) : 1;
+    branched_ = false;
     execute(in);
     if (faulted_) {
         faulted_ = false;
@@ -1489,6 +1639,19 @@ void Cpu::step()
         return;
     }
     pc_ = next_pc_;
+    if (!m3_timing_) {
+        return;
+    }
+    if (returned_) {
+        // Exception return: 12 cycles to the instruction after it, or on to
+        // the entry of a pending exception (tail-chaining, take_exception).
+        returned_ = false;
+        const std::uint64_t start = cycles_ - 1;
+        cycles_ = tail_chain_ ? start + cost : refill(pc, pc_, start + cost + 4, start + cost + 9, false);
+        after_access_ = false;
+        return;
+    }
+    account(cost, pc, pc_, branched_, in.op);
 }
 
 void Cpu::execute(const Insn& original)
@@ -2280,6 +2443,16 @@ void Cpu::take_exception(int number, std::uint32_t return_address)
     pc_ = vector & ~1u;
     state_ = CoreState::Running;
     attention_ = true;
+    if (m3_timing_) {
+        // 12 cycles from the instruction that made it pending to the handler's
+        // first instruction, 6 when tail-chained after an exception return; the
+        // handler's code is fetched while the registers are stacked.
+        const std::uint64_t now = cycles_;
+        cycles_ = tail_chain_ ? refill(return_address, pc_, now + 1, now + 5, false)
+                              : refill(return_address, pc_, now + 6, now + 11, false);
+        tail_chain_ = false;
+        after_access_ = false;
+    }
 }
 
 void Cpu::exception_return(std::uint32_t exc_return)
@@ -2340,6 +2513,8 @@ void Cpu::exception_return(std::uint32_t exc_return)
         state_ = CoreState::Sleeping; // SLEEPONEXIT
     }
     attention_ = true;
+    returned_ = true;
+    tail_chain_ = state_ == CoreState::Running && pending_exception() != 0;
 }
 
 // ---------------------------------------------------------------------------

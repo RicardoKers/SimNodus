@@ -76,6 +76,7 @@ void write_mcu_request(Writer& w, const McuRequest& m)
     w.u64(o.uart_rx_min_bit_ns);
     w.i32(o.gdb_port);
     w.boolean(o.chips_only);
+    w.boolean(o.cortex_m3_timing);
     w.size(o.devices.size());
     for (const auto& d : o.devices) {
         w.u64(d.component);
@@ -134,6 +135,7 @@ McuRequest read_mcu_request(Reader& r)
     o.uart_rx_min_bit_ns = r.u64();
     o.gdb_port = r.i32();
     o.chips_only = r.boolean();
+    o.cortex_m3_timing = r.boolean();
     for (std::size_t n = r.size(8); n > 0 && r.ok(); --n) {
         mcu::DeviceRequest d;
         d.component = r.u64();

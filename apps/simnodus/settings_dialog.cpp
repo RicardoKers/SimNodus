@@ -66,6 +66,18 @@ SimulationSettingsDialog::SimulationSettingsDialog(const model::SimulationSettin
     transient_form->addRow(tr("Maximum time step (s)"), transient_step_);
     layout->addWidget(transient_box);
 
+    auto* mcu_box = new QGroupBox(tr("Microcontrollers"));
+    auto* mcu_layout = new QVBoxLayout(mcu_box);
+    cortex_m3_timing_ = new QCheckBox(tr("Cortex-M3 instruction timing"));
+    cortex_m3_timing_->setObjectName(QStringLiteral("cortexM3Timing"));
+    cortex_m3_timing_->setChecked(settings.cortex_m3_timing);
+    cortex_m3_timing_->setToolTip(tr("On: each instruction takes the cycles of the STM32F103's Cortex-M3 core, with "
+                                     "the flash wait states, so busy loops and code run about as fast as on a real "
+                                     "Blue Pill (approximate: within 5 % in measured tests). Off: one instruction "
+                                     "per cycle, faster than the real chip."));
+    mcu_layout->addWidget(cortex_m3_timing_);
+    layout->addWidget(mcu_box);
+
     auto* note = new QLabel(tr("Both modes start with discharged capacitors and inductors without current."));
     note->setWordWrap(true);
     layout->addWidget(note);
@@ -112,6 +124,7 @@ void SimulationSettingsDialog::validate_and_accept()
     result_.max_step = interactive_step_->currentData().toDouble();
     result_.segment = *segment;
     result_.exact_edges = exact_edges_->isChecked();
+    result_.cortex_m3_timing = cortex_m3_timing_->isChecked();
     result_.transient_stop = *stop;
     result_.transient_max_step = *step;
     accept();

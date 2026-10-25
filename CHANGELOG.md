@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-181)
+
+- Cortex-M3 instruction timing for the STM32F103 emulator: instructions take the core's cycles (loads, divisions, LDM/STM, branch refills, interrupt entry and return) and the flash wait states set in `FLASH_ACR` through the prefetch buffer, so busy loops and code run about as fast as on a real Blue Pill. Calibrated with DWT `CYCCNT` on the owner's board using the new measurement firmware `examples/firmware/cycle_loops`: 29 of 30 values within 5 %. On by default; Simulate > Settings > *Cortex-M3 instruction timing* (and `cortex_m3_timing` in project files and `settings.set`) turns it off for one instruction per cycle. Engine protocol 9.
+
 ## 0.8.0 — 2026-10-25
 
 ### Summary
