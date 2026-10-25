@@ -212,6 +212,9 @@ private:
     std::vector<netlist::Diagnostic> diagnostics_;
     std::vector<std::string> save_vectors_;       // lower case
     std::map<std::string, double> carry_;         // element name -> IC value
+    // Node voltages of the carried capacitors: the next segment's starting
+    // point (.ic), so bistable parts (a 555's flip-flop) start in their state.
+    std::map<std::string, double> carry_nodes_;
 
     std::thread worker_;
     std::atomic<bool> stop_requested_{false};

@@ -1058,6 +1058,56 @@ private slots:
 #endif
     }
 
+    void timers_555_blink_and_time_a_pulse()
+    {
+        // SN-213: example 34; the astable keeps blinking across segments, the monostable times SW1.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/34_Timer_555_astable_and_monostable.snx"), errors, warnings));
+        std::map<std::string, model::Id> ids;
+        for (const auto& c : doc().schematic().components()) {
+            ids[c.designator] = c.id;
+        }
+        // In real time (the example's speed): what the canvas shows keeps up with the simulated time.
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto lit = [&](const char* led) {
+            const auto& glow = window_->scene()->live().glow;
+            const auto it = glow.find(ids[led]);
+            return it != glow.end() && it->second.level > 0.3;
+        };
+        // About 1 Hz: count the LED's changes over 3.5 s of simulated time (three segments).
+        int changes = 0;
+        bool last = lit("LED1");
+        QElapsedTimer wall;
+        wall.start();
+        while (window_->run_controller()->status().sim_time < 3.5 && wall.elapsed() < 60000) {
+            QTest::qWait(10);
+            if (lit("LED1") != last) {
+                last = !last;
+                ++changes;
+            }
+        }
+        QVERIFY2(changes >= 5 && changes <= 8, qPrintable(QString::number(changes)));
+        QVERIFY(!lit("LED2"));
+        // A short press on SW1: the green LED lights for about 1.1 s.
+        window_->run_controller()->set_control(ids["SW1"], 1.0);
+        QTRY_VERIFY_WITH_TIMEOUT(lit("LED2"), 10000);
+        const double on = window_->run_controller()->status().sim_time;
+        window_->run_controller()->set_control(ids["SW1"], 0.0);
+        QTRY_VERIFY_WITH_TIMEOUT(!lit("LED2"), 20000);
+        const double length = window_->run_controller()->status().sim_time - on;
+        QVERIFY2(length > 0.8 && length < 1.4, qPrintable(QString::number(length)));
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.

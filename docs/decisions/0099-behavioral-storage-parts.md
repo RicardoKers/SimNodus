@@ -65,6 +65,12 @@ the interactive step of 100 µs.
   the step.
 - Each stored bit adds two capacitors and two behavioral sources (one for a
   latch); a 4-bit counter is about 30 elements.
+- Update (SN-213, the 555 timer): a latch with positive feedback inside an
+  oscillator needs a master-slave pair. With one latch driving the discharge,
+  ngspice's large steps settled on the oscillator's unstable middle point; and
+  a segment starts from 0 V on nodes without a capacitor, so every decision
+  waits for the supply. Segments now also start from the carried capacitor
+  node voltages (`.ic`).
 
 ## Revisit criteria
 

@@ -1,0 +1,323 @@
+{
+  "type": "timer_555",
+  "name": "Timer 555",
+  "category": "Integrated circuits",
+  "prefix": "U",
+  "description": "555 timer (NE555): astable oscillators and monostable pulses with R and C",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -5,
+          8,
+          10
+        ]
+      },
+      {
+        "text": "555",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.9
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "TRIG",
+        "at": [
+          -2.6,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "2",
+        "at": [
+          -4.5,
+          -2.5
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "THR",
+        "at": [
+          -2.8,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "6",
+        "at": [
+          -4.5,
+          -0.5
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "DIS",
+        "at": [
+          -2.9,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "7",
+        "at": [
+          -4.5,
+          1.5
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "OUT",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "3",
+        "at": [
+          4.5,
+          -0.5
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -2,
+          -7,
+          -2,
+          -5
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          -2,
+          -4.2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "8",
+        "at": [
+          -1.5,
+          -5.8
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          2,
+          -7,
+          2,
+          -5
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          2,
+          -4.2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "4",
+        "at": [
+          2.5,
+          -5.8
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -2,
+          7,
+          -2,
+          5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2,
+          4.2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "1",
+        "at": [
+          -1.5,
+          5.8
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          2,
+          7,
+          2,
+          5
+        ]
+      },
+      {
+        "text": "CTRL",
+        "at": [
+          2,
+          4.2
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "5",
+        "at": [
+          2.5,
+          5.8
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "TRIG",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "THR",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DIS",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          -2,
+          -7
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "RESET",
+        "at": [
+          2,
+          -7
+        ],
+        "dir": "up",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -2,
+          7
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "CTRL",
+        "at": [
+          2,
+          7
+        ],
+        "dir": "down",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "parameters": [
+    {
+      "name": "Vdrop",
+      "label": "Output high drop",
+      "unit": "V",
+      "default": "1.7",
+      "description": "OUT high is this far below VCC (1.7 V for the bipolar NE555; 0 for a CMOS 555)",
+      "min": "0",
+      "max": "3"
+    }
+  ],
+  "spice": [
+    "R_{ref}_1 {node:VCC} {node:CTRL} 5k",
+    "R_{ref}_2 {node:CTRL} lo_{ref} 5k",
+    "R_{ref}_3 lo_{ref} {node:GND} 5k",
+    "B_{ref}_m 0 m_{ref} I=1m*(0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*0.5*(1+tanh((V(lo_{ref},{node:GND})-V({node:TRIG},{node:GND}))/0.005))*(1-0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*(1-0.5*(1+tanh((V({node:RESET},{node:GND})-0.7)/0.005))))*(1-V(m_{ref}))-((0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*0.5*(1+tanh((V({node:THR},{node:GND})-V({node:CTRL},{node:GND}))/0.005)))*(1-0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*0.5*(1+tanh((V(lo_{ref},{node:GND})-V({node:TRIG},{node:GND}))/0.005)))+0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*(1-0.5*(1+tanh((V({node:RESET},{node:GND})-0.7)/0.005))))*V(m_{ref})+(1-0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*0.5*(1+tanh((V(lo_{ref},{node:GND})-V({node:TRIG},{node:GND}))/0.005)))*(1-0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*0.5*(1+tanh((V({node:THR},{node:GND})-V({node:CTRL},{node:GND}))/0.005)))*(1-0.5*(1+tanh((V({node:VCC},{node:GND})-3)/0.005))*(1-0.5*(1+tanh((V({node:RESET},{node:GND})-0.7)/0.005))))*(0.5*(1+tanh((V(m_{ref})-0.5)/0.005))-V(m_{ref})))",
+    "C_{ref}_m m_{ref} 0 1p",
+    "B_{ref}_s 0 s_{ref} I=1m*(0.5*(1+tanh((V(m_{ref})-0.9)/0.005))*(1-V(s_{ref}))-0.5*(1+tanh((0.1-V(m_{ref}))/0.005))*V(s_{ref}))",
+    "C_{ref}_s s_{ref} 0 1p",
+    "B_{ref}_o o_{ref} {node:GND} V=0.5*(1+tanh((V(s_{ref})-0.5)/0.005))*max(V({node:VCC},{node:GND})-{Vdrop},0)",
+    "R_{ref}_o o_{ref} {node:OUT} 10",
+    "B_{ref}_d {node:DIS} {node:GND} I=V({node:DIS},{node:GND})*(1-0.5*(1+tanh((V(s_{ref})-0.5)/0.005)))/10",
+    "R_{ref}_r {node:VCC} {node:RESET} 100k",
+    "R_{ref}_q {node:VCC} {node:GND} 2k",
+    "R_{ref}_t {node:TRIG} {node:GND} 1G",
+    "R_{ref}_h {node:THR} {node:GND} 1G",
+    "R_{ref}_x {node:DIS} {node:GND} 1G"
+  ]
+}

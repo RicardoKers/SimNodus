@@ -41,5 +41,6 @@
   "pcf8574": "I2C 8-bit I/O expander (outputs and inputs)",
   "lcd_hd44780": "Character LCD (HD44780), rows and columns in Properties",
   "rom": "Parallel ROM, 16 bytes to 64 KB; contents from a .bin or .hex file",
-  "ram": "Parallel static RAM, 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE)"
+  "ram": "Parallel static RAM, 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE)",
+  "timer_555": "555 timer (NE555): astable oscillators and monostable pulses with R and C"
 }

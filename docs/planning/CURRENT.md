@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-20. Keep this file short: present state, last results, next
+Updated: 2026-10-25. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -63,8 +63,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. The owner's list after 0.6 (sources, keypad, converters, memories) is
-   released in 0.7. Ask the owner what comes next; candidates in the backlog.
+1. After 0.7 the owner asked for both a 555 timer of our own and a generic
+   part for any vendor subcircuit (2026-10-20): SN-213 done (example 34),
+   SN-214 next.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

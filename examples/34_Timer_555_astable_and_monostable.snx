@@ -1,0 +1,843 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 66,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        -26,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "9"
+      }
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -26,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "timer_555",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        -2,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 12,
+      "type": "capacitor",
+      "designator": "C1",
+      "at": [
+        2,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "10n"
+      }
+    },
+    {
+      "id": 13,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        2,
+        13
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 14,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        9,
+        0
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "470"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 15,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        12,
+        3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 17,
+      "type": "ground",
+      "designator": "GND4",
+      "at": [
+        12,
+        9
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 23,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        -18,
+        -4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 29,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        -18,
+        4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "68k"
+      }
+    },
+    {
+      "id": 30,
+      "type": "capacitor",
+      "designator": "C2",
+      "at": [
+        -18,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "10u"
+      }
+    },
+    {
+      "id": 33,
+      "type": "ground",
+      "designator": "GND5",
+      "at": [
+        -18,
+        13
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 34,
+      "type": "timer_555",
+      "designator": "U2",
+      "at": [
+        40,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 39,
+      "type": "ground",
+      "designator": "GND6",
+      "at": [
+        38,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 40,
+      "type": "capacitor",
+      "designator": "C3",
+      "at": [
+        42,
+        10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "10n"
+      }
+    },
+    {
+      "id": 41,
+      "type": "ground",
+      "designator": "GND7",
+      "at": [
+        42,
+        13
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 42,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        49,
+        0
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "470"
+      },
+      "designator_offset": [
+        -2,
+        -1
+      ],
+      "value_offset": [
+        1,
+        -1
+      ]
+    },
+    {
+      "id": 43,
+      "type": "led",
+      "designator": "LED2",
+      "at": [
+        52,
+        3
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 45,
+      "type": "ground",
+      "designator": "GND8",
+      "at": [
+        52,
+        9
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 46,
+      "type": "resistor",
+      "designator": "R5",
+      "at": [
+        26,
+        -6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      }
+    },
+    {
+      "id": 51,
+      "type": "button_no",
+      "designator": "SW1",
+      "at": [
+        26,
+        2
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 53,
+      "type": "ground",
+      "designator": "GND9",
+      "at": [
+        26,
+        8
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 56,
+      "type": "resistor",
+      "designator": "R6",
+      "at": [
+        32,
+        14
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "100k"
+      }
+    },
+    {
+      "id": 59,
+      "type": "capacitor",
+      "designator": "C4",
+      "at": [
+        32,
+        20
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "C": "10u"
+      }
+    },
+    {
+      "id": 62,
+      "type": "ground",
+      "designator": "GND10",
+      "at": [
+        32,
+        23
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          -26,
+          1
+        ],
+        [
+          -26,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          -26,
+          7
+        ],
+        [
+          -26,
+          10
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          -2,
+          -7
+        ],
+        [
+          -2,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          2,
+          -7
+        ],
+        [
+          2,
+          -9
+        ],
+        [
+          -2,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          -2,
+          7
+        ],
+        [
+          -2,
+          10
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          -6,
+          -2
+        ],
+        [
+          -8,
+          -2
+        ],
+        [
+          -8,
+          0
+        ],
+        [
+          -6,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "points": [
+        [
+          -8,
+          0
+        ],
+        [
+          -10,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "points": [
+        [
+          -6,
+          2
+        ],
+        [
+          -10,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          -18,
+          -7
+        ],
+        [
+          -18,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 26,
+      "points": [
+        [
+          -18,
+          -1
+        ],
+        [
+          -18,
+          1
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
+          -18,
+          0
+        ],
+        [
+          -20,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "points": [
+        [
+          -18,
+          7
+        ],
+        [
+          -20,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 35,
+      "points": [
+        [
+          38,
+          -7
+        ],
+        [
+          38,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "points": [
+        [
+          42,
+          -7
+        ],
+        [
+          42,
+          -9
+        ],
+        [
+          38,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 38,
+      "points": [
+        [
+          38,
+          7
+        ],
+        [
+          38,
+          10
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "points": [
+        [
+          52,
+          6
+        ],
+        [
+          52,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 47,
+      "points": [
+        [
+          26,
+          -9
+        ],
+        [
+          26,
+          -11
+        ]
+      ]
+    },
+    {
+      "id": 49,
+      "points": [
+        [
+          26,
+          -3
+        ],
+        [
+          26,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": 50,
+      "points": [
+        [
+          26,
+          -2
+        ],
+        [
+          34,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 52,
+      "points": [
+        [
+          26,
+          5
+        ],
+        [
+          26,
+          8
+        ]
+      ]
+    },
+    {
+      "id": 54,
+      "points": [
+        [
+          34,
+          0
+        ],
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          2
+        ],
+        [
+          34,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 57,
+      "points": [
+        [
+          32,
+          11
+        ],
+        [
+          32,
+          9
+        ]
+      ]
+    },
+    {
+      "id": 60,
+      "points": [
+        [
+          32,
+          17
+        ],
+        [
+          30,
+          17
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 3,
+      "at": [
+        -26,
+        -2
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 8,
+      "at": [
+        -2,
+        -10
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 20,
+      "at": [
+        -10,
+        0
+      ],
+      "name": "TH1"
+    },
+    {
+      "id": 22,
+      "at": [
+        -10,
+        2
+      ],
+      "name": "DIS1"
+    },
+    {
+      "id": 25,
+      "at": [
+        -18,
+        -9
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 28,
+      "at": [
+        -20,
+        0
+      ],
+      "name": "DIS1"
+    },
+    {
+      "id": 32,
+      "at": [
+        -20,
+        7
+      ],
+      "name": "TH1"
+    },
+    {
+      "id": 36,
+      "at": [
+        38,
+        -10
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 48,
+      "at": [
+        26,
+        -11
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 55,
+      "at": [
+        32,
+        1
+      ],
+      "name": "TH2"
+    },
+    {
+      "id": 58,
+      "at": [
+        32,
+        9
+      ],
+      "name": "VCC"
+    },
+    {
+      "id": 61,
+      "at": [
+        30,
+        17
+      ],
+      "name": "TH2"
+    }
+  ],
+  "probes": [
+    {
+      "id": 63,
+      "kind": "voltage",
+      "target": {
+        "item": 6,
+        "pin": "OUT",
+        "at": [
+          6,
+          0
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 64,
+      "kind": "voltage",
+      "target": {
+        "item": 6,
+        "pin": "THR",
+        "at": [
+          -6,
+          0
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 65,
+      "at": [
+        -28,
+        -24
+      ],
+      "text": "Two 555 timers. Left, astable: C charges through 10k + 68k and discharges through 68k between 1/3 and 2/3\nof 9 V, so the red LED blinks at 1.44 / ((RA + 2 RB) C) = about 1 Hz; the scope shows OUT and the capacitor.\nRight, monostable: press SW1 and the green LED stays on for 1.1 R C = 1.1 s, however short the press."
+    }
+  ]
+}

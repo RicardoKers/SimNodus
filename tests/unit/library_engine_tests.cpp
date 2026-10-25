@@ -219,6 +219,74 @@ TEST_CASE("library: A/D and D/A converters (SN-211)")
     }
 }
 
+// Times at which `v` rises through `level`, and the high stretches between them.
+struct Crossings {
+    std::vector<double> rises;
+    std::vector<double> highs; // durations of complete high stretches
+};
+
+static Crossings crossings(const std::vector<double>& time, const std::vector<double>& v, double level)
+{
+    Crossings c;
+    double rose = -1;
+    for (std::size_t i = 1; i < v.size() && i < time.size(); ++i) {
+        if (v[i - 1] < level && v[i] >= level) {
+            rose = time[i];
+            c.rises.push_back(rose);
+        } else if (v[i - 1] >= level && v[i] < level && rose >= 0) {
+            c.highs.push_back(time[i] - rose);
+        }
+    }
+    return c;
+}
+
+TEST_CASE("library: the 555 timer as an astable and as a monostable (SN-213)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const std::map<std::string, std::string> chip{{"VCC", "VCC"}, {"GND", "0"}, {"TRIG", "C"}, {"THR", "C"},
+        {"DIS", "D"}, {"OUT", "OUT"}, {"RESET", "VCC"}};
+    {
+        // RA 1k, RB 10k, C 100n: f = 1.44 / ((RA + 2 RB) C) = 686 Hz, high (RA + RB) / (RA + 2 RB) = 52 %.
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("timer_555", chip);
+        b.add("resistor", {{"1", "VCC"}, {"2", "D"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "D"}, {"2", "C"}}, {{"R", "10k"}});
+        b.add("capacitor", {{"1", "C"}, {"2", "0"}}, {{"C", "100n"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "10k"}});
+        const auto r = simulate(b, ".tran 2u 20m 0 2u uic", {"time", "out", "c"});
+        REQUIRE(r.count("out") && r.at("out").size() > 100);
+        const auto c = crossings(r.at("time"), r.at("out"), 1.6);
+        REQUIRE(c.rises.size() >= 8);
+        const double period = (c.rises.back() - c.rises[2]) / static_cast<double>(c.rises.size() - 3);
+        CHECK(close_to(1 / period, 686, 686 * 0.05));
+        CHECK(close_to(c.highs.back() / period, 11.0 / 21, 0.03));
+        CHECK(close_to(*std::max_element(r.at("out").begin(), r.at("out").end()), 5 - 1.7, 0.05));
+        const auto [cmin, cmax] = std::minmax_element(r.at("c").begin() + static_cast<long>(r.at("c").size() / 2), r.at("c").end());
+        CHECK(close_to(*cmin, 5.0 / 3, 0.05)); // C swings between 1/3 and 2/3 VCC
+        CHECK(close_to(*cmax, 10.0 / 3, 0.05));
+    }
+    {
+        // Monostable: R 100k, C 100n give a pulse of 1.1 R C = 11 ms for each short low pulse on TRIG.
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "9"}});
+        auto pins = chip;
+        pins["TRIG"] = "T";
+        pins["DIS"] = "C";
+        b.add("timer_555", pins, {{"Vdrop", "0"}});
+        b.add("vpulse", {{"+", "T"}, {"-", "0"}}, {{"Vlow", "0"}, {"Vhigh", "9"}, {"f", "40"}, {"duty", "96"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "C"}}, {{"R", "100k"}});
+        b.add("capacitor", {{"1", "C"}, {"2", "0"}}, {{"C", "100n"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "10k"}});
+        const auto r = simulate(b, ".tran 5u 80m 0 5u uic", {"time", "out"});
+        REQUIRE(r.count("out") && r.at("out").size() > 100);
+        const auto c = crossings(r.at("time"), r.at("out"), 4.5);
+        REQUIRE(c.highs.size() >= 2);
+        CHECK(close_to(c.highs.back(), 11e-3, 11e-3 * 0.05));
+        CHECK(close_to(*std::max_element(r.at("out").begin(), r.at("out").end()), 9.0, 0.05));
+    }
+}
+
 TEST_CASE("library: semiconductors behave like their parts")
 {
     REQUIRE(test::engine() != nullptr);
