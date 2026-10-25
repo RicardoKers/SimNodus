@@ -26,6 +26,7 @@ simnodus-cli exec    build_circuit.jsonl     run a file of JSON requests
 simnodus-cli serve                           JSON requests on standard input
 simnodus-cli commands                        every JSON command with its arguments
 simnodus-cli connect [script.jsonl]          send requests to the SimNodus window
+simnodus-cli mcp [--window]                  MCP server for AI agents (see below)
 ```
 
 Add `--pretty` to indent the output. Exit codes: 0 done, 1 a command failed
@@ -34,7 +35,8 @@ Add `--pretty` to indent the output. Exit codes: 0 done, 1 a command failed
 Whatever ngspice or the emulator prints goes to standard error, so standard
 output carries only JSON.
 
-To let an agent use it, tell it where the program is and to start with
+To let an agent use it, register it as an MCP server (see
+[MCP server](#mcp-server)), or tell the agent where the program is and to start with
 `simnodus-cli commands`. For example: *"Use `simnodus-cli.exe` in the SimNodus
 folder to build an RC low-pass filter with a 1 kHz cutoff, check it, simulate it and
 save it as `rc.snx`. Run `simnodus-cli commands` first."*
@@ -186,7 +188,34 @@ A tutorial script might start with `view.pace` 800, give each step a caption,
 place the parts, wire them, add probes, open the analyzer and run with
 `"keep": true` so the last state stays on screen.
 
-## What comes next
+## MCP server
 
-An MCP server for agents (task SN-217) will offer the same commands as MCP
-tools.
+`simnodus-cli mcp` is a Model Context Protocol server on standard input and
+output, so agents that support MCP (Claude Code, Codex and others) see every
+command as a tool, with its description and arguments. Tool names use `_`
+for `.`: `component_add`, `wire_connect`, `sim_run`. A call returns the
+command's JSON result as text, marked as an error when the command failed
+(the text then holds `code` and `message`).
+
+`simnodus-cli mcp` works without a window, like `serve`.
+`simnodus-cli mcp --window` sends the calls to the SimNodus window instead
+(turn on Tools > Allow External Control, or start SimNodus with `--control`),
+and adds the `view_*` tools. The window may be started after the agent: each
+call connects when needed. Relative paths start from the folder the agent
+starts the server in.
+
+Claude Code (use the folder where SimNodus is installed):
+
+```text
+claude mcp add simnodus -- "C:\path\to\SimNodus\simnodus-cli.exe" mcp --window
+```
+
+Codex, in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.simnodus]
+command = "C:\\path\\to\\SimNodus\\simnodus-cli.exe"
+args = ["mcp", "--window"]
+```
+
+Leave out `--window` to simulate without the window.

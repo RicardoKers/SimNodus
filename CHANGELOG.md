@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-217)
+
+- `simnodus-cli mcp`: the automation commands as an MCP server on standard input and output, so Claude Code, Codex and other agents list them as tools (`component_add`, `sim_run`, ...). With `--window` the calls act on the SimNodus window and the `view_*` tools are added. AUTOMATION.md shows how to register it.
+
 ### Added (2026-10-25, SN-216)
 
 - External control of the window (ADR 0104): with Tools > Allow External Control (or `simnodus --control`), AI agents and scripts of the same user send the automation commands to the open window through `simnodus-cli connect` (a named pipe; a local socket on Linux; off at every start). Edits are steps of the undo history and are selected and scrolled into view; runs show live on the canvas and in the Signal Analyzer at the project's speed; unsaved changes are kept unless a request says `discard`. Window commands for recorded tutorials: `view.pace` (a pause after each edit), `view.caption` (a caption on the canvas), `view.show`, `view.fit`, `view.wait`, `view.analyzer`.

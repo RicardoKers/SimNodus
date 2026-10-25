@@ -6,6 +6,7 @@
 #include "test_support.hpp"
 
 #include "automation/automation.hpp"
+#include "automation/mcp.hpp"
 
 #include <filesystem>
 #include <string>
@@ -228,4 +229,46 @@ TEST_CASE("automation: hosts add commands of their own")
     CHECK(automation::Automation::help()["commands"].back()["command"] != "view.ping");
     f.automation.forget_run();
     CHECK(f.error("sim.read") == "not-running");
+}
+
+TEST_CASE("automation: the MCP server lists the commands as tools and calls them")
+{
+    Fixture f;
+    automation::McpServer server([&](const json& request) { return f.automation.execute(request); }, "test");
+    const auto init = server.handle({{"jsonrpc", "2.0"}, {"id", 1}, {"method", "initialize"},
+        {"params", {{"protocolVersion", "2025-03-26"}, {"capabilities", json::object()}}}});
+    REQUIRE(init.has_value());
+    CHECK((*init)["result"]["protocolVersion"] == "2025-03-26");
+    CHECK((*init)["result"]["serverInfo"]["name"] == "simnodus");
+    const auto newer = server.handle({{"jsonrpc", "2.0"}, {"id", 2}, {"method", "initialize"},
+        {"params", {{"protocolVersion", "2099-01-01"}}}});
+    CHECK((*newer)["result"]["protocolVersion"] == automation::McpServer::protocol_versions().front());
+    CHECK(!server.handle({{"jsonrpc", "2.0"}, {"method", "notifications/initialized"}}).has_value());
+
+    const auto list = server.handle({{"jsonrpc", "2.0"}, {"id", 3}, {"method", "tools/list"}});
+    REQUIRE(list.has_value());
+    const auto& tools = (*list)["result"]["tools"];
+    CHECK(tools.size() == automation::Automation::help()["commands"].size());
+    bool found = false;
+    for (const auto& t : tools) {
+        CHECK(t["name"].get<std::string>().find('.') == std::string::npos);
+        CHECK(t["inputSchema"]["type"] == "object");
+        found = found || (t["name"] == "component_add" && t["inputSchema"]["properties"].contains("attach"));
+    }
+    CHECK(found);
+
+    const auto added = server.handle({{"jsonrpc", "2.0"}, {"id", 4}, {"method", "tools/call"},
+        {"params", {{"name", "component_add"}, {"arguments", {{"type", "resistor"}, {"at", {0, 0}}}}}}});
+    REQUIRE(added.has_value());
+    CHECK((*added)["result"]["isError"] == false);
+    CHECK(json::parse((*added)["result"]["content"][0]["text"].get<std::string>())["designator"] == "R1");
+    CHECK(f.workspace.schematic().components().size() == 1);
+    const auto failed = server.handle({{"jsonrpc", "2.0"}, {"id", 5}, {"method", "tools/call"},
+        {"params", {{"name", "component_set"}, {"arguments", {{"component", "R9"}}}}}});
+    CHECK((*failed)["result"]["isError"] == true);
+    CHECK(json::parse((*failed)["result"]["content"][0]["text"].get<std::string>())["code"] == "not-found");
+
+    CHECK((*server.handle_line("not json"))["error"]["code"] == -32700);
+    CHECK((*server.handle({{"jsonrpc", "2.0"}, {"id", 6}, {"method", "resources/list"}}))["error"]["code"] == -32601);
+    CHECK((*server.handle({{"jsonrpc", "2.0"}, {"id", 7}, {"method", "ping"}}))["result"].empty());
 }

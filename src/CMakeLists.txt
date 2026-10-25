@@ -58,7 +58,7 @@ add_library(simnodus::engine_link ALIAS simnodus_engine_link)
 target_link_libraries(simnodus_engine_link PUBLIC simnodus::session simnodus::library PRIVATE simnodus::io simnodus::warnings)
 
 # Automation commands for agents and scripts (SN-215, ADR 0104).
-add_library(simnodus_automation STATIC automation/automation.cpp)
+add_library(simnodus_automation STATIC automation/automation.cpp automation/mcp.cpp)
 add_library(simnodus::automation ALIAS simnodus_automation)
 target_link_libraries(simnodus_automation PUBLIC simnodus::session simnodus::editing simnodus::library simnodus_json
     PRIVATE simnodus::io simnodus::netlist simnodus::warnings)
