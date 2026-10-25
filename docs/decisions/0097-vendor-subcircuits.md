@@ -59,6 +59,16 @@ the decision:
 - **A generic "IC" part with any number of pins:** useful later for parts
   without a symbol; it needs a symbol editor (PRJ-05).
 
+## Update (SN-214, 2026-10-25)
+
+Any subcircuit of the model folders can also be a part of its own (Place >
+Subcircuit): a definition `subckt:<name>` made from the text the component
+keeps, a box with one pin per port in DIP order, and the same `model`
+parameter, so the netlist wraps it exactly as above. The document and the
+engine rebuild such definitions from the project (`with_blocks`), so a
+project needs no model folder. A subcircuit with switches or XSPICE devices
+gets a note: their state may not survive a segment start (ADR 0099, SN-213).
+
 ## Consequences
 
 - Vendor op-amps, comparators, Darlingtons and power MOSFETs work on the

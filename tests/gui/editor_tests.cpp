@@ -1108,6 +1108,49 @@ private slots:
 #endif
     }
 
+    void vendor_subcircuit_is_placed_and_runs()
+    {
+        // SN-214: Place > Subcircuit takes a .subckt from the model folders as a part of its own.
+        qputenv("SIMNODUS_MODELS_DIR", QByteArray(SIMNODUS_TEST_EXAMPLES_DIR "/models"));
+        QVERIFY(window_->begin_subcircuit("DARLINGTON4"));
+        QTest::mouseClick(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({10, 10}));
+        qunsetenv("SIMNODUS_MODELS_DIR");
+        model::Id placed = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            placed = c.type == "subckt:DARLINGTON4" ? c.id : placed;
+        }
+        QVERIFY(placed != model::no_id);
+        const auto* c = doc().schematic().component(placed);
+        QVERIFY(c->models.count("model") && c->models.at("model").find(".subckt DARLINGTON4") != std::string::npos);
+        const auto* d = doc().library().find("subckt:DARLINGTON4");
+        QVERIFY(d && d->pins.size() == 10);
+#if defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        // Example 35 keeps its subcircuit: it runs without the model folder.
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(
+            QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/35_Vendor_subcircuit_Darlington_driver.snx"), errors, warnings));
+        std::map<std::string, model::Id> ids;
+        for (const auto& part : doc().schematic().components()) {
+            ids[part.designator] = part.id;
+        }
+        const int before = window_->messages()->warning_count();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        auto lit = [&](const char* led) {
+            const auto& glow = window_->scene()->live().glow;
+            const auto it = glow.find(ids[led]);
+            return it != glow.end() && it->second.level > 0.3;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(lit("LED1"), 10000); // SW1 closed
+        QVERIFY(!lit("LED2"));
+        window_->run_controller()->set_control(ids["SW2"], 1.0);
+        QTRY_VERIFY_WITH_TIMEOUT(lit("LED2"), 10000);
+        QCOMPARE(window_->messages()->warning_count(), before);
+        window_->stop();
+#endif
+    }
+
     void memory_viewer_shows_the_eeprom_while_running()
     {
         // SN-208: View... on the 24C02 opens the Memory Viewer; the firmware's write appears live.

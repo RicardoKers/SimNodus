@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-214)
+
+- Place > Subcircuit: any `.SUBCKT` of the model folders becomes a part of its own, a box with one pin per port in DIP order (first half down the left side, the rest up the right side), named as in the file; Pins... and the model list work as for op-amps. The text is kept in the project, so it opens without the folder. Interactive runs note subcircuits with switches or XSPICE devices, whose state may not survive a segment start.
+- Example 35 and `examples/models/darlington_array.lib`: a four-channel Darlington driver written in SPICE for the examples, driving LEDs from 12 V.
+
 ### Added (2026-10-25, SN-213)
 
 - 555 timer (*Integrated circuits*), behavioral NE555/LM555 with the chip's pins: comparators at 1/3 and 2/3 VCC (or CTRL), a master-slave flip-flop on capacitors, output 1.7 V below VCC (a property; 0 for a CMOS 555) behind 10 Ω, discharge transistor, RESET. Astable and monostable circuits match the datasheet formulas (686 Hz and 52 % in the test circuit, 1.1 R C pulses). Part from `tools/generate_timer_parts.py`; example 34 (an astable blinking an LED at 1 Hz and a monostable started by a push button).

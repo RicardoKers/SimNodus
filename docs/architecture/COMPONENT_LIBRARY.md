@@ -60,6 +60,11 @@ models this way; `""` stands for models without `type=`). A parameter's
 `"orientations": {"right": {"rotation": 0, "mirrored": true}}` sets the orientation when that value
 is chosen in Properties (a block port's side).
 
+Vendor subcircuits placed with Place > Subcircuit (SN-214) are not files
+either: type `subckt:<name>`, a box with one pin per port in DIP order and a
+`model` parameter whose subcircuit text each component keeps
+([ADR 0097](../decisions/0097-vendor-subcircuits.md)).
+
 Blocks drawn by the user (PRJ-06) are not files of the library: a project's
 blocks become definitions of type `block:<name>` with a rectangle and pins
 made from the block's ports, in the category *Blocks*

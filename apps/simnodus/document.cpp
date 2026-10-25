@@ -69,9 +69,18 @@ void Document::replace(model::Schematic schematic, const QString& path)
 
 void Document::refresh_library()
 {
-    if (schematic_.blocks() == built_) {
+    // Vendor subcircuit parts (SN-214) define their type from the text they keep.
+    std::map<std::string, std::string> subcircuits;
+    for (const auto& c : schematic_.components()) {
+        if (c.type.rfind(library::subcircuit_prefix, 0) == 0 && !subcircuits.count(c.type)) {
+            const auto kept = c.models.find("model");
+            subcircuits[c.type] = kept == c.models.end() ? std::string() : kept->second;
+        }
+    }
+    if (schematic_.blocks() == built_ && subcircuits == built_subcircuits_) {
         return;
     }
+    built_subcircuits_ = std::move(subcircuits);
     std::vector<std::string> problems;
     retired_.push_back(library_);
     library_ = std::make_shared<library::ComponentLibrary>(library::with_blocks(base_, schematic_, &problems));

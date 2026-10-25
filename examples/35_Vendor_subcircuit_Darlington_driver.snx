@@ -1,0 +1,652 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 49,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "vdc",
+      "designator": "V1",
+      "at": [
+        -36,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      }
+    },
+    {
+      "id": 5,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -36,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 6,
+      "type": "vdc",
+      "designator": "V2",
+      "at": [
+        -42,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "V": "12"
+      }
+    },
+    {
+      "id": 10,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        -42,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 11,
+      "type": "subckt:DARLINGTON4",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "model": "DARLINGTON4"
+      },
+      "models": {
+        "model": ".model QDRV NPN(IS=1e-14 BF=150 VAF=100 RB=10)\n.model DFLY D(IS=1e-12 RS=0.5)\n.subckt DARLINGTON4 IN1 IN2 IN3 IN4 GND COM OUT4 OUT3 OUT2 OUT1\nRB1 IN1 B1 2.7k\nRP1 IN1 GND 100k\nQ1A OUT1 B1 E1 QDRV\nQ1B OUT1 E1 GND QDRV\nRE1 E1 GND 5k\nD1 OUT1 COM DFLY\nRB2 IN2 B2 2.7k\nRP2 IN2 GND 100k\nQ2A OUT2 B2 E2 QDRV\nQ2B OUT2 E2 GND QDRV\nRE2 E2 GND 5k\nD2 OUT2 COM DFLY\nRB3 IN3 B3 2.7k\nRP3 IN3 GND 100k\nQ3A OUT3 B3 E3 QDRV\nQ3B OUT3 E3 GND QDRV\nRE3 E3 GND 5k\nD3 OUT3 COM DFLY\nRB4 IN4 B4 2.7k\nRP4 IN4 GND 100k\nQ4A OUT4 B4 E4 QDRV\nQ4B OUT4 E4 GND QDRV\nRE4 E4 GND 5k\nD4 OUT4 COM DFLY\n.ends DARLINGTON4\n"
+      }
+    },
+    {
+      "id": 12,
+      "type": "spst",
+      "designator": "SW1",
+      "at": [
+        -12,
+        -4
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "closed"
+      }
+    },
+    {
+      "id": 15,
+      "type": "spst",
+      "designator": "SW2",
+      "at": [
+        -22,
+        -2
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 18,
+      "type": "spst",
+      "designator": "SW3",
+      "at": [
+        -12,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 21,
+      "type": "spst",
+      "designator": "SW4",
+      "at": [
+        -22,
+        2
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "closed": "open"
+      }
+    },
+    {
+      "id": 28,
+      "type": "ground",
+      "designator": "GND3",
+      "at": [
+        -8,
+        7
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 29,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        10,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 30,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        10,
+        -16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    },
+    {
+      "id": 32,
+      "type": "led",
+      "designator": "LED2",
+      "at": [
+        17,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "yellow"
+      }
+    },
+    {
+      "id": 33,
+      "type": "resistor",
+      "designator": "R2",
+      "at": [
+        17,
+        -16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    },
+    {
+      "id": 35,
+      "type": "led",
+      "designator": "LED3",
+      "at": [
+        24,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "green"
+      }
+    },
+    {
+      "id": 36,
+      "type": "resistor",
+      "designator": "R3",
+      "at": [
+        24,
+        -16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    },
+    {
+      "id": 38,
+      "type": "led",
+      "designator": "LED4",
+      "at": [
+        31,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "blue"
+      }
+    },
+    {
+      "id": 39,
+      "type": "resistor",
+      "designator": "R4",
+      "at": [
+        31,
+        -16
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": 2,
+      "points": [
+        [
+          -36,
+          -3
+        ],
+        [
+          -36,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "points": [
+        [
+          -36,
+          3
+        ],
+        [
+          -36,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          -42,
+          -3
+        ],
+        [
+          -42,
+          -5
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          -42,
+          3
+        ],
+        [
+          -42,
+          6
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          -9,
+          -4
+        ],
+        [
+          -6,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          -15,
+          -4
+        ],
+        [
+          -28,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          -19,
+          -2
+        ],
+        [
+          -6,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          -25,
+          -2
+        ],
+        [
+          -28,
+          -2
+        ]
+      ]
+    },
+    {
+      "id": 19,
+      "points": [
+        [
+          -9,
+          0
+        ],
+        [
+          -6,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 20,
+      "points": [
+        [
+          -15,
+          0
+        ],
+        [
+          -28,
+          0
+        ]
+      ]
+    },
+    {
+      "id": 22,
+      "points": [
+        [
+          -19,
+          2
+        ],
+        [
+          -6,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 23,
+      "points": [
+        [
+          -25,
+          2
+        ],
+        [
+          -28,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 24,
+      "points": [
+        [
+          -28,
+          -4
+        ],
+        [
+          -28,
+          2
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          -28,
+          -4
+        ],
+        [
+          -28,
+          -6
+        ]
+      ]
+    },
+    {
+      "id": 27,
+      "points": [
+        [
+          -6,
+          4
+        ],
+        [
+          -8,
+          4
+        ],
+        [
+          -8,
+          7
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "points": [
+        [
+          6,
+          -4
+        ],
+        [
+          10,
+          -4
+        ],
+        [
+          10,
+          -7
+        ]
+      ]
+    },
+    {
+      "id": 34,
+      "points": [
+        [
+          6,
+          -2
+        ],
+        [
+          17,
+          -2
+        ],
+        [
+          17,
+          -7
+        ]
+      ]
+    },
+    {
+      "id": 37,
+      "points": [
+        [
+          6,
+          0
+        ],
+        [
+          24,
+          0
+        ],
+        [
+          24,
+          -7
+        ]
+      ]
+    },
+    {
+      "id": 40,
+      "points": [
+        [
+          6,
+          2
+        ],
+        [
+          31,
+          2
+        ],
+        [
+          31,
+          -7
+        ]
+      ]
+    },
+    {
+      "id": 41,
+      "points": [
+        [
+          10,
+          -19
+        ],
+        [
+          31,
+          -19
+        ]
+      ]
+    },
+    {
+      "id": 42,
+      "points": [
+        [
+          10,
+          -19
+        ],
+        [
+          10,
+          -21
+        ]
+      ]
+    },
+    {
+      "id": 44,
+      "points": [
+        [
+          6,
+          4
+        ],
+        [
+          9,
+          4
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 3,
+      "at": [
+        -36,
+        -5
+      ],
+      "name": "V5"
+    },
+    {
+      "id": 8,
+      "at": [
+        -42,
+        -5
+      ],
+      "name": "V12"
+    },
+    {
+      "id": 26,
+      "at": [
+        -28,
+        -6
+      ],
+      "name": "V5"
+    },
+    {
+      "id": 43,
+      "at": [
+        10,
+        -21
+      ],
+      "name": "V12"
+    },
+    {
+      "id": 45,
+      "at": [
+        9,
+        4
+      ],
+      "name": "V12"
+    }
+  ],
+  "probes": [
+    {
+      "id": 46,
+      "kind": "voltage",
+      "target": {
+        "item": 11,
+        "pin": "OUT1",
+        "at": [
+          6,
+          -4
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 47,
+      "kind": "voltage",
+      "target": {
+        "item": 11,
+        "pin": "IN1",
+        "at": [
+          -6,
+          -4
+        ]
+      },
+      "color": "#ff7f0e"
+    }
+  ],
+  "notes": [
+    {
+      "id": 48,
+      "at": [
+        -44,
+        -30
+      ],
+      "text": "A vendor-style subcircuit as a part (Place > Subcircuit): DARLINGTON4, a four-channel Darlington driver\nwritten in SPICE in examples/models/darlington_array.lib, kept in this project. Run (F5) and close the\nswitches: each input at 5 V makes its output sink the LED's current from 12 V. Copy the .lib file into a\nmodel folder (Tools > Model Folders) to place DARLINGTON4 in your own circuits."
+    }
+  ]
+}

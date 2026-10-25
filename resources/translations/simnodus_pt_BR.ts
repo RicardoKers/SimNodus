@@ -779,6 +779,14 @@ Pinos: %2</translation>
             <translation>Escuro</translation>
         </message>
         <message>
+            <source>S&amp;ubcircuit...</source>
+            <translation>S&amp;ubcircuito...</translation>
+        </message>
+        <message>
+            <source>Place a vendor subcircuit (.subckt) from the model folders as a part with one pin per port</source>
+            <translation>Insere um subcircuito de fabricante (.subckt) das pastas de modelos como uma peça com um pino por porta</translation>
+        </message>
+        <message>
             <source>SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties</source>
             <translation>Arquivos de modelos SPICE (*.lib) de transistores, MOSFETs e diodos; seus modelos aparecem em Propriedades</translation>
         </message>
@@ -1203,6 +1211,26 @@ Pinos: %2</translation>
         <message>
             <source>The project already has a block named %1. Replace it with this file? Every %1 in the project changes.</source>
             <translation>O projeto já tem um bloco chamado %1. Substituí-lo por este arquivo? Todos os %1 do projeto mudam.</translation>
+        </message>
+        <message>
+            <source>Place subcircuit</source>
+            <translation>Inserir subcircuito</translation>
+        </message>
+        <message>
+            <source>The model folders have no subcircuit (.subckt). Put a vendor model file in one of them (Tools &gt; Model Folders) and try again.</source>
+            <translation>As pastas de modelos não têm subcircuito (.subckt). Coloque um arquivo de modelo do fabricante em uma delas (Ferramentas &gt; Pastas de modelos) e tente de novo.</translation>
+        </message>
+        <message>
+            <source>Search subcircuits</source>
+            <translation>Buscar subcircuitos</translation>
+        </message>
+        <message>
+            <source>%1 (%2 pins) - %3</source>
+            <translation>%1 (%2 pinos) - %3</translation>
+        </message>
+        <message>
+            <source>Subcircuits with switches or digital models may not keep their state across the segments of an interactive run; a transient run is exact.</source>
+            <translation>Subcircuitos com chaves ou modelos digitais podem não manter seu estado entre os trechos de uma simulação interativa; uma simulação transitória é exata.</translation>
         </message>
         <message>
             <source>Place block</source>
@@ -3272,6 +3300,22 @@ Pinos: %2</translation>
         <message>
             <source>State at the start of a run</source>
             <translation>Estado no início de uma execução</translation>
+        </message>
+        <message>
+            <source>Subcircuits</source>
+            <translation>Subcircuitos</translation>
+        </message>
+        <message>
+            <source>Subcircuit</source>
+            <translation>Subcircuito</translation>
+        </message>
+        <message>
+            <source>Vendor subcircuit from the model folders</source>
+            <translation>Subcircuito de fabricante das pastas de modelos</translation>
+        </message>
+        <message>
+            <source>The vendor subcircuit this part runs; Pins... says which port is which pin</source>
+            <translation>O subcircuito de fabricante que esta peça executa; Pinos... diz qual porta é qual pino</translation>
         </message>
     </context>
 </TS>

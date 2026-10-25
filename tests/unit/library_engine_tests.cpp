@@ -8,11 +8,15 @@
 #include "circuit_builder.hpp"
 #include "engine_fixture.hpp"
 #include "editing/operations.hpp"
+#include "library/blocks.hpp"
 #include "netlist/netlist.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 using namespace simnodus;
 
@@ -285,6 +289,58 @@ TEST_CASE("library: the 555 timer as an astable and as a monostable (SN-213)")
         CHECK(close_to(c.highs.back(), 11e-3, 11e-3 * 0.05));
         CHECK(close_to(*std::max_element(r.at("out").begin(), r.at("out").end()), 9.0, 0.05));
     }
+}
+
+TEST_CASE("library: a vendor subcircuit placed as a part of its own simulates (SN-214)")
+{
+    REQUIRE(test::engine() != nullptr);
+    std::ifstream in(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "models" / "darlington_array.lib");
+    std::stringstream text;
+    text << in.rdbuf();
+    const auto read = library::parse_spice_library(text.str());
+    const auto sub = std::find_if(read.subcircuits.begin(), read.subcircuits.end(),
+        [](const library::SpiceSubcircuit& s) { return s.name == "DARLINGTON4"; });
+    REQUIRE(sub != read.subcircuits.end());
+    const auto d = library::subcircuit_definition(*sub);
+    library::ComponentLibrary parts = components();
+    parts.add_definition(d);
+    test::CircuitBuilder b(parts);
+    b.add("vdc", {{"+", "V5"}, {"-", "0"}}, {{"V", "5"}});
+    b.add("vdc", {{"+", "V12"}, {"-", "0"}}, {{"V", "12"}});
+    std::map<std::string, std::string> pins{{"GND", "0"}, {"COM", "V12"}, {"IN1", "V5"}};
+    for (int k = 1; k <= 4; ++k) {
+        pins["OUT" + std::to_string(k)] = "L" + std::to_string(k);
+        b.add("resistor", {{"1", "V12"}, {"2", "L" + std::to_string(k)}}, {{"R", "1k"}});
+    }
+    for (const char* p : {"IN2", "IN3", "IN4"}) {
+        pins[p] = std::string("N") + p; // open: the 100 kOhm inside pulls them low
+    }
+    const model::Id u = b.add("subckt:DARLINGTON4", pins);
+    auto c = *b.schematic.component(u);
+    c.models = d.initial_models;
+    b.schematic.put(c);
+    // The netlist sees the part through the project, as the editor and the engine do.
+    std::map<std::string, std::vector<double>> r;
+    {
+        auto* session = test::engine();
+        const auto with = library::with_blocks(components(), b.schematic);
+        const auto n = netlist::generate_netlist(b.schematic, with, {false, 0.0, {}});
+        for (const auto& diag : n.diagnostics) {
+            std::printf("  %s\n", diag.message.c_str());
+        }
+        REQUIRE(n.ok());
+        const auto deck = netlist::build_deck(n, "subcircuit part", {".op"});
+        REQUIRE((session->load_circuit(deck) && session->command("run")));
+        for (const char* v : {"l1", "l2"}) {
+            r[v] = session->vector(v);
+        }
+        session->command("destroy all");
+        session->command("remcirc");
+        session->take_output();
+    }
+    REQUIRE(!r["l1"].empty());
+    CHECK(r["l1"].front() < 1.2);                    // IN1 high: the Darlington sinks 11 mA
+    CHECK(close_to(r["l2"].front(), 12.0, 0.05));    // IN2 open: off
 }
 
 TEST_CASE("library: semiconductors behave like their parts")

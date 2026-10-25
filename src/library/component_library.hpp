@@ -218,6 +218,9 @@ struct ComponentDefinition {
     std::vector<Parameter> parameters;
     std::vector<std::string> spice;  // template lines
     std::vector<std::string> models; // .model lines, emitted once per netlist
+    // Kept in each placed component (`Component::models`): a vendor
+    // subcircuit part (SN-214) brings its subcircuit text this way.
+    std::map<std::string, std::string> initial_models;
     std::string ties_net;            // non-empty: all pins belong to this net ("0" for ground)
     std::string ties_net_parameter;  // non-empty: all pins belong to the net named by this parameter (block ports)
     std::optional<Interactive> interactive;
