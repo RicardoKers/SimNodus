@@ -127,7 +127,7 @@ if(WIN32)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script) and memory contents.
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
-        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md" PATTERN "*.hex" PATTERN "*.bin")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.md" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
     # MSVC C++ runtime next to the executable (app-local deployment).
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
@@ -141,7 +141,7 @@ else()
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/ngspice")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
-        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin")
+        FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
     foreach(_size 16 24 32 48 64 128 256 512)
         install(FILES "${PROJECT_SOURCE_DIR}/resources/icons/simnodus_${_size}.png"

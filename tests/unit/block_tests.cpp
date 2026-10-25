@@ -14,7 +14,10 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <filesystem>
+#include <fstream>
 #include <memory>
+#include <sstream>
 
 using namespace simnodus;
 
@@ -339,4 +342,92 @@ TEST_CASE("blocks: changing blocks is undoable; copy and paste take them along")
     editing::paste_items(other, library, clipboard, {4, 4}, &created).apply(other);
     CHECK(created.size() == 1);
     CHECK(other.block("Divider") != nullptr);
+}
+
+namespace {
+
+// The examples' four-channel Darlington driver (examples/models/darlington_array.lib).
+library::SpiceSubcircuit darlington()
+{
+    std::ifstream in(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "models" / "darlington_array.lib");
+    std::stringstream text;
+    text << in.rdbuf();
+    const auto read = library::parse_spice_library(text.str());
+    for (const auto& s : read.subcircuits) {
+        if (s.name == "DARLINGTON4") {
+            return s;
+        }
+    }
+    return {};
+}
+
+} // namespace
+
+TEST_CASE("vendor subcircuit parts: a box with one pin per port, in DIP order, kept in the project (SN-214)")
+{
+    const auto sub = darlington();
+    REQUIRE(sub.ports.size() == 10);
+    const auto d = library::subcircuit_definition(sub);
+    CHECK(d.type == "subckt:DARLINGTON4");
+    REQUIRE(d.pins.size() == 10);
+    // IN1 top left, GND bottom left, COM bottom right, OUT1 top right.
+    CHECK(d.pin("IN1")->at.x < 0);
+    CHECK(d.pin("OUT1")->at.x > 0);
+    CHECK(d.pin("IN1")->at.y == d.pin("OUT1")->at.y);
+    CHECK(d.pin("GND")->at.y == d.pin("COM")->at.y);
+    CHECK(d.pin("GND")->at.y > d.pin("IN1")->at.y);
+    REQUIRE(d.initial_models.count("model"));
+
+    // Placed, it brings its text along; the project alone defines the part.
+    auto library = parts();
+    library.add_definition(d);
+    test::CircuitBuilder b(library);
+    std::map<std::string, std::string> pins{{"GND", "0"}, {"COM", "V12"}, {"IN1", "A"}, {"OUT1", "L1"}};
+    for (const char* p : {"IN2", "IN3", "IN4", "OUT2", "OUT3", "OUT4"}) {
+        pins[p] = std::string("N") + p;
+    }
+    const model::Id u = b.add("subckt:DARLINGTON4", pins);
+    auto c = *b.schematic.component(u);
+    c.models = d.initial_models;
+    b.schematic.put(c);
+    std::vector<std::string> problems;
+    const auto with = library::with_blocks(parts(), b.schematic, &problems);
+    CHECK(problems.empty());
+    REQUIRE(with.find("subckt:DARLINGTON4") != nullptr);
+    const auto n = netlist::generate_netlist(b.schematic, with);
+    bool instance = false;
+    for (const auto& line : n.lines) {
+        instance = instance || line.rfind("X_U1 ", 0) == 0;
+    }
+    CHECK(instance);
+    CHECK(std::any_of(n.models.begin(), n.models.end(), [](const std::string& m) { return m.rfind(".subckt UX_U1_model", 0) == 0; }));
+    // A part whose kept text is gone is reported, not silently dropped.
+    c.models.clear();
+    b.schematic.put(c);
+    problems.clear();
+    library::with_blocks(parts(), b.schematic, &problems);
+    CHECK(problems.size() == 1);
+}
+
+TEST_CASE("vendor subcircuit parts: switches inside are pointed out for interactive runs (SN-214)")
+{
+    const auto sub = library::parse_subcircuit_text(".subckt LATCHY IN OUT\nS1 IN OUT IN 0 SWM\n.model SWM SW(VT=1)\n.ends\n");
+    REQUIRE(sub.has_value());
+    const auto d = library::subcircuit_definition(*sub);
+    auto library = parts();
+    library.add_definition(d);
+    test::CircuitBuilder b(library);
+    const model::Id u = b.add(d.type, {{"IN", "A"}, {"OUT", "B"}});
+    b.add("resistor", {{"1", "A"}, {"2", "0"}});
+    b.add("resistor", {{"1", "B"}, {"2", "0"}});
+    auto c = *b.schematic.component(u);
+    c.models = d.initial_models;
+    b.schematic.put(c);
+    const auto with = library::with_blocks(parts(), b.schematic);
+    auto noted = [](const netlist::Netlist& n) {
+        return std::any_of(n.diagnostics.begin(), n.diagnostics.end(),
+            [](const netlist::Diagnostic& diag) { return diag.code == "subcircuit-state"; });
+    };
+    CHECK(noted(netlist::generate_netlist(b.schematic, with, {true, 0.0, {}})));
+    CHECK(!noted(netlist::generate_netlist(b.schematic, with, {false, 0.0, {}})));
 }

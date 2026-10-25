@@ -65,7 +65,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 1. After 0.7 the owner asked for both a 555 timer of our own and a generic
    part for any vendor subcircuit (2026-10-20): SN-213 done (example 34),
-   SN-214 next.
+   SN-214 done (example 35). Next: a 0.8 preview for the owner.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

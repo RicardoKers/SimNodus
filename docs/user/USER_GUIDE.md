@@ -167,6 +167,14 @@ is `Documents/SimNodus/models`; any number of folders can be added.
 - `.SUBCKT` blocks (for example an LM358, TL072 or TIP120 model) appear on
   op-amps, transistors, MOSFETs and diodes. **Pins...** sets which port of
   the subcircuit is which pin; the file's comments usually give the order.
+- **Place > Subcircuit...** places any `.SUBCKT` of the folders as a part
+  of its own (an LM555, a ULN2003, an audio amplifier...): a box with one
+  pin per port, the first half down the left side and the rest up the
+  right side as on the chip, named as in the file. Example 35 uses a
+  four-channel Darlington driver from `examples/models/darlington_array.lib`.
+  Subcircuits with switches or digital (XSPICE) models may not keep their
+  internal state across the 1 s segments of an interactive run; the
+  Messages panel says so, and a transient run is exact.
 - A chosen model is copied into the project, so the project opens on other
   computers without the folder.
 - Lines or parameters SimNodus cannot use are listed in the Messages panel.

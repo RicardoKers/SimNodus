@@ -205,10 +205,90 @@ std::optional<ComponentDefinition> block_definition(const model::Block& block, c
     return d;
 }
 
+ComponentDefinition subcircuit_definition(const SpiceSubcircuit& subcircuit)
+{
+    ComponentDefinition d;
+    d.type = subcircuit_prefix + subcircuit.name;
+    d.name = subcircuit.name;
+    d.category = "Subcircuits";
+    d.prefix = "U";
+    d.description = subcircuit.description.empty() ? "Vendor subcircuit from the model folders" : subcircuit.description;
+    const int count = static_cast<int>(subcircuit.ports.size());
+    const int left = (count + 1) / 2;
+    const int rows = std::max(left, 1);
+    const int height = 2 * rows + 2;
+    const int top = -(height / 2);
+    auto text = [](std::string value, double x, double y, double size) {
+        Graphic g;
+        g.kind = Graphic::Kind::Text;
+        g.text = std::move(value);
+        g.points = {{x, y}};
+        g.text_size = size;
+        return g;
+    };
+    Graphic body;
+    body.kind = Graphic::Kind::Rect;
+    body.points = {{-4, static_cast<double>(top)}, {8, static_cast<double>(height)}};
+    d.graphics.push_back(body);
+    d.graphics.push_back(text(subcircuit.name, 0, top - 0.8, 0.8));
+    for (int i = 0; i < count; ++i) {
+        // DIP order: down the left side, then up the right side.
+        const bool on_left = i < left;
+        const int row = on_left ? i : count - 1 - i;
+        const double y = top + 2 + 2 * row;
+        const double edge = on_left ? -4 : 4;
+        const double tip = on_left ? -6 : 6;
+        Graphic lead;
+        lead.kind = Graphic::Kind::Line;
+        lead.points = {{tip, y}, {edge, y}};
+        d.graphics.push_back(lead);
+        d.graphics.push_back(text(subcircuit.ports[static_cast<std::size_t>(i)], edge + (on_left ? 1.4 : -1.4), y, 0.6));
+        Pin pin;
+        pin.name = subcircuit.ports[static_cast<std::size_t>(i)];
+        pin.at = {static_cast<int>(tip), static_cast<int>(y)};
+        pin.direction = on_left ? PinDirection::Left : PinDirection::Right;
+        d.pins.push_back(pin);
+    }
+    d.designator_offset = {5, top - 1};
+    d.value_offset = {5, -top + 1};
+    Parameter model;
+    model.name = "model";
+    model.label = "Subcircuit";
+    model.kind = Parameter::Kind::Model;
+    model.default_value = subcircuit.name;
+    model.description = "The vendor subcircuit this part runs; Pins... says which port is which pin";
+    model.subcircuit = subcircuit.ports;
+    d.parameters.push_back(model);
+    // The kept subcircuit replaces this template (a comment) in the netlist.
+    d.spice = {"* {ref}: vendor subcircuit"};
+    d.initial_models["model"] = subcircuit.text;
+    return d;
+}
+
 ComponentLibrary with_blocks(const ComponentLibrary& base, const model::Schematic& schematic,
     std::vector<std::string>* problems)
 {
     ComponentLibrary result = base;
+    // Vendor subcircuit parts: one definition per type, from the text its first component keeps.
+    for (const auto& c : schematic.components()) {
+        if (c.type.rfind(subcircuit_prefix, 0) != 0 || result.find(c.type)) {
+            continue;
+        }
+        const auto kept = c.models.find("model");
+        std::string why = "it keeps no subcircuit";
+        std::optional<SpiceSubcircuit> sub;
+        if (kept != c.models.end()) {
+            sub = parse_subcircuit_text(kept->second, &why);
+        }
+        if (sub) {
+            auto d = subcircuit_definition(*sub);
+            d.type = c.type; // the name it was placed with, even if another model was chosen later
+            result.add_definition(std::move(d));
+        } else if (problems) {
+            problems->push_back(c.designator + " (" + c.type.substr(std::string(subcircuit_prefix).size())
+                + ") cannot be used: " + why + ".");
+        }
+    }
     for (const auto& [name, block] : schematic.blocks()) {
         std::vector<std::string> why;
         if (auto d = block_definition(block, base, why)) {

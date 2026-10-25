@@ -69,6 +69,7 @@ private:
     std::shared_ptr<const library::ComponentLibrary> library_;
     std::vector<std::shared_ptr<const library::ComponentLibrary>> retired_;
     std::map<std::string, model::Block> built_; // the blocks library_ was made from
+    std::map<std::string, std::string> built_subcircuits_; // and the subcircuit parts (type -> kept text)
     QStringList block_problems_;
     model::Schematic schematic_;
     QUndoStack* undo_ = nullptr;

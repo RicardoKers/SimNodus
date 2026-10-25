@@ -18,6 +18,7 @@
 #include <QStringList>
 
 #include <array>
+#include <list>
 #include <memory>
 
 class QComboBox;
@@ -64,6 +65,8 @@ public:
     RunController* run_controller() const { return run_; }
     AnalyzerWindow* analyzer() const { return analyzer_.get(); }
     MemoryWindow* memory_viewer() const { return memory_.get(); }
+    // Starts placing the model folders' subcircuit `name` as a part (SN-214); false if there is none.
+    bool begin_subcircuit(const std::string& name);
     const library::ComponentLibrary& library() const { return library_; }
     QSplitter* columns() const { return columns_; }
     QSplitter* rows() const { return rows_; }
@@ -154,6 +157,7 @@ private:
     void edit_model_folders();
     void report_diagnostics();
     void place_block();
+    void place_subcircuit();
     void open_block(model::Id component);
     void update_block(model::Id component);
     void offer_block_updates();
@@ -173,6 +177,7 @@ private:
     QSplitter* rows_ = nullptr;
     std::unique_ptr<AnalyzerWindow> analyzer_;
     std::unique_ptr<MemoryWindow> memory_;
+    std::list<library::ComponentDefinition> subcircuit_parts_; // definitions being placed (SN-214)
     RunController* run_ = nullptr;
 
     std::array<QAction*, 3> panel_actions_{};

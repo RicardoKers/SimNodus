@@ -422,6 +422,8 @@ void MainWindow::build_actions_and_menus()
     probe->setShortcut(QKeySequence(Qt::Key_P));
     auto* block = placement->addAction(tr("B&lock..."), this, &MainWindow::place_block);
     block->setStatusTip(tr("Place another project as a block; its Block port parts become the block's pins"));
+    auto* subcircuit = placement->addAction(tr("S&ubcircuit..."), this, &MainWindow::place_subcircuit);
+    subcircuit->setStatusTip(tr("Place a vendor subcircuit (.subckt) from the model folders as a part with one pin per port"));
     placement->addSeparator();
     placement->addAction(tr("Resistor"), this, place("resistor"))->setShortcut(QKeySequence(Qt::Key_R));
     placement->addAction(tr("Capacitor"), this, place("capacitor"))->setShortcut(QKeySequence(Qt::Key_C));
@@ -1304,6 +1306,69 @@ QString MainWindow::add_block_file(const QString& path, QString& error)
     }
     document_->apply(editing::set_blocks(document_->schematic(), {*block}, "Add block " + block->name));
     return QString::fromStdString(model::block_type(block->name));
+}
+
+bool MainWindow::begin_subcircuit(const std::string& name)
+{
+    for (const auto& u : user_subcircuits()) {
+        if (u.subcircuit.name == name) {
+            // The view keeps a pointer to the definition while placing: keep it alive.
+            subcircuit_parts_.push_back(library::subcircuit_definition(u.subcircuit));
+            view_->begin_place(&subcircuit_parts_.back());
+            view_->setFocus();
+            return true;
+        }
+    }
+    return false;
+}
+
+void MainWindow::place_subcircuit()
+{
+    const auto& all = user_subcircuits();
+    if (all.empty()) {
+        QMessageBox::information(this, tr("Place subcircuit"),
+            tr("The model folders have no subcircuit (.subckt). Put a vendor model file in one of them (Tools > "
+               "Model Folders) and try again."));
+        return;
+    }
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Place subcircuit"));
+    auto* filter = new QLineEdit;
+    filter->setPlaceholderText(tr("Search subcircuits"));
+    auto* list = new QListWidget;
+    list->setObjectName(QStringLiteral("subcircuitList"));
+    for (const auto& u : all) {
+        auto* item = new QListWidgetItem(tr("%1 (%2 pins) - %3")
+                                             .arg(QString::fromStdString(u.subcircuit.name))
+                                             .arg(u.subcircuit.ports.size())
+                                             .arg(u.file));
+        item->setData(Qt::UserRole, QString::fromStdString(u.subcircuit.name));
+        item->setToolTip(QString::fromStdString(u.subcircuit.description));
+        list->addItem(item);
+    }
+    list->setCurrentRow(0);
+    auto* note = new QLabel(tr("Subcircuits with switches or digital models may not keep their state across the "
+                               "segments of an interactive run; a transient run is exact."));
+    note->setWordWrap(true);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->addWidget(filter);
+    layout->addWidget(list, 1);
+    layout->addWidget(note);
+    layout->addWidget(buttons);
+    connect(filter, &QLineEdit::textChanged, &dialog, [list](const QString& text) {
+        for (int i = 0; i < list->count(); ++i) {
+            list->item(i)->setHidden(!list->item(i)->text().contains(text, Qt::CaseInsensitive));
+        }
+    });
+    connect(list, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    dialog.resize(560, 420);
+    if (dialog.exec() != QDialog::Accepted || !list->currentItem()) {
+        return;
+    }
+    begin_subcircuit(list->currentItem()->data(Qt::UserRole).toString().toStdString());
 }
 
 void MainWindow::place_block()

@@ -10,6 +10,7 @@
 
 #include "component_library.hpp"
 #include "model/schematic.hpp"
+#include "spice_model.hpp"
 
 #include <optional>
 #include <string>
@@ -38,8 +39,17 @@ std::vector<BlockPort> block_ports(const model::Schematic& circuit, const Compon
 std::optional<ComponentDefinition> block_definition(const model::Block& block, const ComponentLibrary& library,
     std::vector<std::string>& problems);
 
-// `base` with the definitions of the schematic's blocks added. A block that
-// cannot be used is left out and explained in `problems`.
+// Vendor subcircuits as parts of their own (SN-214): type "subckt:<name>", a
+// box with one pin per port (named as in the file), the first half down the
+// left side and the rest up the right side like a DIP chip. The subcircuit's
+// text is kept in each placed component under the "model" parameter, so the
+// netlist uses it like any part's vendor subcircuit (ADR 0097).
+inline constexpr const char* subcircuit_prefix = "subckt:";
+ComponentDefinition subcircuit_definition(const SpiceSubcircuit& subcircuit);
+
+// `base` with the definitions of the schematic's blocks and vendor subcircuit
+// parts added. A block that cannot be used is left out and explained in
+// `problems`; so is a subcircuit part whose kept text is not usable.
 ComponentLibrary with_blocks(const ComponentLibrary& base, const model::Schematic& schematic,
     std::vector<std::string>* problems = nullptr);
 

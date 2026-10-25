@@ -1,0 +1,35 @@
+* Four-channel Darlington driver, written for the SimNodus examples (MIT).
+* Like one half of a ULN2003: a 2.7 kOhm base resistor per input, open-collector
+* outputs sinking up to 500 mA, flyback diodes from each output to COM.
+* Copy this file into a model folder (Tools > Model Folders) to place
+* DARLINGTON4 with Place > Subcircuit.
+.model QDRV NPN(IS=1e-14 BF=150 VAF=100 RB=10)
+.model DFLY D(IS=1e-12 RS=0.5)
+* Pins: IN1 IN2 IN3 IN4 GND COM OUT4 OUT3 OUT2 OUT1 (inputs down the left side,
+* outputs up the right side, as on the chip)
+.subckt DARLINGTON4 IN1 IN2 IN3 IN4 GND COM OUT4 OUT3 OUT2 OUT1
+RB1 IN1 B1 2.7k
+RP1 IN1 GND 100k
+Q1A OUT1 B1 E1 QDRV
+Q1B OUT1 E1 GND QDRV
+RE1 E1 GND 5k
+D1 OUT1 COM DFLY
+RB2 IN2 B2 2.7k
+RP2 IN2 GND 100k
+Q2A OUT2 B2 E2 QDRV
+Q2B OUT2 E2 GND QDRV
+RE2 E2 GND 5k
+D2 OUT2 COM DFLY
+RB3 IN3 B3 2.7k
+RP3 IN3 GND 100k
+Q3A OUT3 B3 E3 QDRV
+Q3B OUT3 E3 GND QDRV
+RE3 E3 GND 5k
+D3 OUT3 COM DFLY
+RB4 IN4 B4 2.7k
+RP4 IN4 GND 100k
+Q4A OUT4 B4 E4 QDRV
+Q4B OUT4 E4 GND QDRV
+RE4 E4 GND 5k
+D4 OUT4 COM DFLY
+.ends DARLINGTON4

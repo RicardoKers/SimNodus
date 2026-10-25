@@ -471,6 +471,23 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
                         out.models.insert(out.models.end(), lines.begin(), lines.end());
                         out.models.push_back(call + " SNX");
                         out.models.push_back(".ends " + wrapper);
+                        // Switches and XSPICE devices keep state that a segment start can
+                        // lose (ADR 0099, SN-213): say so; a transient run is exact.
+                        const bool stateful = std::any_of(lines.begin(), lines.end(), [](const std::string& line) {
+                            const auto first = line.find_first_not_of(" \t");
+                            if (first == std::string::npos) {
+                                return false;
+                            }
+                            const char kind = static_cast<char>(std::toupper(static_cast<unsigned char>(line[first])));
+                            return kind == 'S' || kind == 'W' || kind == 'A';
+                        });
+                        if (stateful && options.interactive) {
+                            report(Severity::Info, "subcircuit-state",
+                                c.designator + ": the subcircuit " + text
+                                    + " has switches or digital models; in an interactive run their state may not "
+                                      "carry across the 1 s segments. A transient run is exact.",
+                                {c.id}, c.position);
+                        }
                         subcircuit_pins = pins;
                         subcircuit_name = wrapper;
                         continue;

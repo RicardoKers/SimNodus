@@ -235,6 +235,7 @@ Edit add_component(Schematic& schematic, const library::ComponentDefinition& def
     c.position = position;
     c.orientation = {normalized_rotation(orientation.rotation), orientation.mirrored};
     c.parameters = definition.default_parameters();
+    c.models = definition.initial_models;
     work.put(c);
     if (created) {
         *created = c.id;

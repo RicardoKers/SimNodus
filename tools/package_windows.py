@@ -43,6 +43,8 @@ REQUIRED = [
     "examples/23_Seven_segment_counter.snx",
     "examples/32_ROM_lookup_seven_segment.snx", "examples/memories/hex_digits.hex",
     "examples/33_Parallel_RAM_on_Blue_Pill.snx", "examples/firmware/hal_parallel_ram/hal_parallel_ram.elf",
+    "examples/34_Timer_555_astable_and_monostable.snx", "examples/35_Vendor_subcircuit_Darlington_driver.snx",
+    "examples/models/darlington_array.lib",
     "examples/30_Keypad_4x4_scanned_by_Blue_Pill.snx", "examples/firmware/hal_keypad/hal_keypad.elf",
     "examples/22_Regulators_and_reference.snx",
     "examples/21_Counter_with_push_button.snx", "examples/20_Blocks_two_RC_stages.snx",
