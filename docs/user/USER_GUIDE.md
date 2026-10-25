@@ -102,7 +102,7 @@ invalid value is outlined in red and not applied.
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
-| **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A) |
+| **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A); 555 timer |
 | **Logic gates** | NOT, AND, OR, NAND, NOR, XOR (74HC-like, with a hidden supply) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
@@ -137,6 +137,12 @@ Notes on some parts:
   4511 tie LT and BI high and LE low and wire VDD/VSS; for the 7447 wire VCC
   and GND, RBI/RBO blank leading zeros. Each segment lights with its own
   current, fully at 10 mA.
+- **555 timer:** the NE555's pins and behavior: TRIG below 1/3 VCC starts a
+  high output, THR above 2/3 VCC (CTRL) ends it and discharges DIS; wire
+  RESET to VCC (it may stay open) and put 10 nF from CTRL to GND as in the
+  datasheet. Astable and monostable circuits give the datasheet's times
+  (example 34). The output high level is VCC minus 1.7 V (Properties: 0 for
+  a CMOS 555).
 - **Regulators:** the input current is the load current plus a few mA; with
   too little input voltage the output drops (dropout).
 - **Logic gates and flip-flops** run on a hidden supply, so you wire only

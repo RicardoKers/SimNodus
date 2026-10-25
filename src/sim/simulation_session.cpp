@@ -302,6 +302,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         status_.speed = interactive ? settings_.speed : 0.0;
     }
     carry_.clear();
+    carry_nodes_.clear();
     speed_ = interactive ? settings_.speed : 0.0;
     stop_requested_ = false;
     pause_requested_ = false;
@@ -514,6 +515,20 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
         }
         extra.push_back(save);
     }
+    // With uic, ngspice starts the segment from these node voltages instead of
+    // 0 V; a latch with positive feedback would otherwise settle in the state
+    // nearer 0 V whatever its capacitor carried (SN-213).
+    std::string ic;
+    for (const auto& [node, volts] : carry_nodes_) {
+        ic += " v(" + node + ")=" + model::spice_number(volts);
+        if (ic.size() > 200) {
+            extra.push_back(".ic" + ic);
+            ic.clear();
+        }
+    }
+    if (!ic.empty()) {
+        extra.push_back(".ic" + ic);
+    }
     if (interactive) {
         // Gear integration: switches, buttons (with bounce) and GPIO edges change
         // abruptly; the trapezoidal default rings there (a bouncing button over
@@ -580,6 +595,11 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
         for (const auto& e : netlist_.elements) {
             if (e.letter == 'C' && e.nodes.size() == 2) {
                 carry_[lower(e.name)] = value(e.nodes[0]) - value(e.nodes[1]);
+                for (const auto& node : e.nodes) {
+                    if (node != "0") {
+                        carry_nodes_[lower(node)] = value(node);
+                    }
+                }
             } else if (e.letter == 'L') {
                 carry_[lower(e.name)] = value(e.name + "#branch");
             }

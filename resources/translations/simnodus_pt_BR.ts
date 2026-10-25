@@ -2462,6 +2462,22 @@ Pinos: %2</translation>
             <translation>Comportamental (modelo próprio do SimNodus, veja a descrição) ou um .subckt de fabricante das suas pastas de modelos (Ferramentas &gt; Pastas de modelos), por exemplo um LM358 ou TL072</translation>
         </message>
         <message>
+            <source>Timer 555</source>
+            <translation>Temporizador 555</translation>
+        </message>
+        <message>
+            <source>555 timer (NE555): astable oscillators and monostable pulses with R and C</source>
+            <translation>Temporizador 555 (NE555): osciladores astáveis e pulsos monoestáveis com R e C</translation>
+        </message>
+        <message>
+            <source>Output high drop</source>
+            <translation>Queda da saída em nível alto</translation>
+        </message>
+        <message>
+            <source>OUT high is this far below VCC (1.7 V for the bipolar NE555; 0 for a CMOS 555)</source>
+            <translation>OUT em nível alto fica esta tensão abaixo de VCC (1,7 V no NE555 bipolar; 0 num 555 CMOS)</translation>
+        </message>
+        <message>
             <source>Ammeter</source>
             <translation>Amperímetro</translation>
         </message>
