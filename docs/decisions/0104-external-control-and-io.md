@@ -1,7 +1,7 @@
 # ADR 0104: External control through one command vocabulary; external I/O as a discreet built-in link
 
-Date: 2026-10-25. Status: accepted (owner's direction 2026-10-25; SN-215
-implemented, SN-216..SN-218 planned). Makes ADR 0055 concrete.
+Date: 2026-10-25. Status: accepted (owner's direction 2026-10-25; SN-215 and
+SN-216 implemented, SN-217 and SN-218 planned). Makes ADR 0055 concrete.
 
 ## Context
 
@@ -52,6 +52,30 @@ the GUI, with structured results and stable codes, but chose no interface.
   plant keeps the last command. The coupling is in wall-clock time and is
   labeled as not deterministic.
 
+### The window's control channel (SN-216)
+
+- **Transport:** a `QLocalServer` named `simnodus-control-<user>`, a named
+  pipe on Windows and a socket in the temporary folder on Linux, created with
+  user-only access. One JSON request per line, one reply line each, the same
+  as `simnodus-cli serve`. No access token: only the user's own programs can
+  open the endpoint, and a browser cannot reach a pipe or a local socket (a
+  localhost TCP port could be reached by a web page sending a POST).
+  `simnodus-cli connect` bridges standard input or a file to it, so agents
+  use the same program as without a window.
+- **Off by default and not remembered:** Tools > Allow External Control or
+  `--control` for one session; the status bar shows when it is on and when a
+  program is connected. Only one window can own the endpoint.
+- **The workspace is the window:** edits go through the document's undo stack
+  and are selected and scrolled into view; files open and save as the menus
+  do, but unsaved changes are kept unless the request says `discard`; runs go
+  through the run controller (canvas, Signal Analyzer) at the project's
+  speed; a structural edit stops a run as manual editing does. Waiting
+  commands run a nested event loop, so the window keeps drawing; requests
+  arriving meanwhile are queued, and closing the window cancels the wait.
+- **Commands of the window only** (`view.pace`, `view.caption`, `view.show`,
+  `view.fit`, `view.wait`, `view.analyzer`) are added by the host through
+  `Automation::extend`, so the vocabulary stays one list in `help`.
+
 ## Alternatives
 
 - **Driving the GUI through screen automation** ("computer use"): no build
@@ -78,8 +102,8 @@ the GUI, with structured results and stable codes, but chose no interface.
 
 ## Revisit criteria
 
-Revisit the transport of the desktop control channel when SN-216 is built
-(named pipe or localhost socket, and its access token). Revisit the wall-clock
+Revisit the control channel's lack of a token if programs of other users or
+remote machines ever need it (they cannot reach it now). Revisit the wall-clock
 coupling of the plant link if lessons need deterministic co-simulation; that
 would need a stepping protocol on the plant's side. Related: ADR 0055,
 ADR 0080 (interactive runs), ADR 0101 (engine process).

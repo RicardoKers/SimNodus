@@ -5,12 +5,17 @@
 // scripts and CI. Every result is JSON on standard output; whatever the
 // engines print goes to standard error. Exit codes: 0 done, 1 a command
 // failed (or the circuit check found errors), 2 wrong usage, 3 no component
-// library. Commands: docs/user/AUTOMATION.md.
+// library, 4 no window to connect to. Commands: docs/user/AUTOMATION.md.
+// "connect" passes the requests to the desktop window instead (SN-216).
 #include "automation/automation.hpp"
 #include "sim/engine_host.hpp"
 
+#include <cctype>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <iostream>
 #include <optional>
@@ -26,6 +31,8 @@
 #define write _write
 #define fileno _fileno
 #else
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <unistd.h>
 #endif
 
@@ -52,13 +59,16 @@ commands:
               [--event "5m SW1 1"]... [--points N] [--csv FILE]
                            simulate and measure the signals
   commands                 the JSON commands with their arguments
+  connect [SCRIPT]         send the requests (standard input, or a file) to the
+                           SimNodus window, whose external control must be on
+                           (Tools > Allow External Control, or simnodus --control)
 
 options:
   --pretty                 indent the JSON output
   --library DIR            component library (default: next to the program)
   --ngspice LIB            ngspice shared library (default: the bundled one)
   --ngspice-scripts DIR    folder with ngspice's spinit
-  --keep-going             exec: go on after a failed request
+  --keep-going             exec, connect: go on after a failed request
   --version                print the version
 )usage";
 
@@ -116,7 +126,158 @@ bool open_project(simnodus::automation::Automation& automation, const std::strin
     return step(automation, {{"command", "project.open"}, {"args", {{"path", file}}}});
 }
 
-int lines(simnodus::automation::Automation& automation, std::istream& in, bool stop_on_failure)
+// An environment variable as UTF-8; empty if not set.
+std::string environment(const char* name)
+{
+#ifdef _WIN32
+    const std::wstring wide_name(name, name + std::strlen(name));
+    const DWORD size = GetEnvironmentVariableW(wide_name.c_str(), nullptr, 0);
+    if (size == 0) {
+        return {};
+    }
+    std::wstring value(size, L'\0');
+    value.resize(GetEnvironmentVariableW(wide_name.c_str(), value.data(), size));
+    const int bytes = WideCharToMultiByte(CP_UTF8, 0, value.c_str(), static_cast<int>(value.size()), nullptr, 0, nullptr, nullptr);
+    std::string text(static_cast<std::size_t>(bytes), '\0');
+    WideCharToMultiByte(CP_UTF8, 0, value.c_str(), static_cast<int>(value.size()), text.data(), bytes, nullptr, nullptr);
+    return text;
+#else
+    const char* value = std::getenv(name);
+    return value ? value : "";
+#endif
+}
+
+// The window's control endpoint (SN-216): a named pipe on Windows, a local
+// socket elsewhere, named after the user like the window's QLocalServer.
+// SIMNODUS_CONTROL_NAME overrides the name (tests, several windows).
+std::string control_endpoint()
+{
+    std::string name = environment("SIMNODUS_CONTROL_NAME");
+    if (name.empty()) {
+#ifdef _WIN32
+        const std::string user = environment("USERNAME");
+#else
+        const std::string user = environment("USER");
+#endif
+        // As the window builds it: letters, digits, '-' and '_' kept, and one
+        // '_' for every other UTF-16 unit.
+        name = "simnodus-control-";
+        for (std::size_t i = 0; i < user.size(); ++i) {
+            const auto u = static_cast<unsigned char>(user[i]);
+            if (u < 0x80) {
+                name += std::isalnum(u) || u == '-' || u == '_' ? static_cast<char>(u) : '_';
+            } else if (u >= 0xC0) {
+                name += u >= 0xF0 ? "__" : "_"; // a lead byte; four-byte sequences are surrogate pairs
+            }
+        }
+    }
+#ifdef _WIN32
+    return R"(\\.\pipe\)" + name;
+#else
+    if (name.find('/') != std::string::npos) {
+        return name;
+    }
+    std::string dir = environment("TMPDIR");
+    if (dir.empty()) {
+        dir = "/tmp";
+    }
+    while (dir.size() > 1 && dir.back() == '/') {
+        dir.pop_back();
+    }
+    return dir + "/" + name;
+#endif
+}
+
+// A connection to the window: one line of JSON out, one line back.
+class WindowLink {
+public:
+    ~WindowLink()
+    {
+#ifdef _WIN32
+        if (pipe_ != INVALID_HANDLE_VALUE) {
+            CloseHandle(pipe_);
+        }
+#else
+        if (socket_ >= 0) {
+            close(socket_);
+        }
+#endif
+    }
+
+    bool open(const std::string& endpoint)
+    {
+#ifdef _WIN32
+        const int size = MultiByteToWideChar(CP_UTF8, 0, endpoint.c_str(), -1, nullptr, 0);
+        std::wstring wide(static_cast<std::size_t>(size), L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, endpoint.c_str(), -1, wide.data(), size);
+        for (int attempt = 0; attempt < 2; ++attempt) {
+            pipe_ = CreateFileW(wide.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+            if (pipe_ != INVALID_HANDLE_VALUE || GetLastError() != ERROR_PIPE_BUSY || !WaitNamedPipeW(wide.c_str(), 5000)) {
+                break;
+            }
+        }
+        return pipe_ != INVALID_HANDLE_VALUE;
+#else
+        sockaddr_un address{};
+        if (endpoint.size() >= sizeof(address.sun_path)) {
+            return false;
+        }
+        address.sun_family = AF_UNIX;
+        std::memcpy(address.sun_path, endpoint.c_str(), endpoint.size() + 1);
+        socket_ = socket(AF_UNIX, SOCK_STREAM, 0);
+        return socket_ >= 0 && connect(socket_, reinterpret_cast<const sockaddr*>(&address), sizeof(address)) == 0;
+#endif
+    }
+
+    // Sends a request and returns the reply's line; nothing if the window went away.
+    std::optional<std::string> ask(const std::string& line)
+    {
+        const std::string text = line + "\n";
+        std::size_t done = 0;
+        while (done < text.size()) {
+            const auto n = put(text.data() + done, text.size() - done);
+            if (n <= 0) {
+                return std::nullopt;
+            }
+            done += static_cast<std::size_t>(n);
+        }
+        for (;;) {
+            if (const auto end = buffer_.find('\n'); end != std::string::npos) {
+                std::string reply = buffer_.substr(0, end);
+                buffer_.erase(0, end + 1);
+                return reply;
+            }
+            char chunk[4096];
+            const auto n = get(chunk, sizeof(chunk));
+            if (n <= 0) {
+                return std::nullopt;
+            }
+            buffer_.append(chunk, static_cast<std::size_t>(n));
+        }
+    }
+
+private:
+#ifdef _WIN32
+    long long put(const char* data, std::size_t size)
+    {
+        DWORD n = 0;
+        return WriteFile(pipe_, data, static_cast<DWORD>(size), &n, nullptr) ? static_cast<long long>(n) : -1;
+    }
+    long long get(char* data, std::size_t size)
+    {
+        DWORD n = 0;
+        return ReadFile(pipe_, data, static_cast<DWORD>(size), &n, nullptr) ? static_cast<long long>(n) : -1;
+    }
+    HANDLE pipe_ = INVALID_HANDLE_VALUE;
+#else
+    long long put(const char* data, std::size_t size) { return ::write(socket_, data, size); }
+    long long get(char* data, std::size_t size) { return ::read(socket_, data, size); }
+    int socket_ = -1;
+#endif
+    std::string buffer_;
+};
+
+int lines(const std::function<json(const std::string&)>& execute, std::istream& in, bool stop_on_failure)
 {
     bool all_ok = true;
     std::string line;
@@ -127,7 +288,7 @@ int lines(simnodus::automation::Automation& automation, std::istream& in, bool s
         if (line.find_first_not_of(" \t") == std::string::npos || line[line.find_first_not_of(" \t")] == '#') {
             continue;
         }
-        const auto reply = automation.execute_line(line);
+        const auto reply = execute(line);
         emit(reply);
         if (!reply.value("ok", false)) {
             all_ok = false;
@@ -206,6 +367,46 @@ int main(int argc, char** argv)
     }
     const std::string command = positional[0];
 
+    if (command == "connect") {
+        // Nothing runs here: the window does the work, so no library or engine is needed.
+        std::fflush(stdout);
+        out_fd = dup(fileno(stdout));
+        std::ifstream script;
+        if (positional.size() > 1) {
+            script.open(path_from(positional[1]));
+            if (!script) {
+                std::fprintf(stderr, "cannot read %s\n", positional[1].c_str());
+                return 2;
+            }
+        }
+        const auto endpoint = control_endpoint();
+        WindowLink link;
+        if (!link.open(endpoint)) {
+            emit({{"ok", false}, {"error", {{"code", "no-window"},
+                {"message", "No SimNodus window accepts external control at " + endpoint +
+                        ". Start SimNodus with --control, or turn on Tools > Allow External Control."}}}});
+            return 4;
+        }
+        // Relative paths in the requests start from this folder, as they would here.
+        const auto here = std::filesystem::current_path().u8string();
+        link.ask(json{{"command", "hello"}, {"args", {{"directory", std::string(here.begin(), here.end())}}}}.dump());
+        bool lost = false;
+        const auto send = [&](const std::string& line) -> json {
+            const auto reply = lost ? std::nullopt : link.ask(line);
+            if (!reply) {
+                lost = true;
+                return {{"ok", false}, {"error", {{"code", "no-window"}, {"message", "The SimNodus window closed the connection."}}}};
+            }
+            try {
+                return json::parse(*reply);
+            } catch (const json::exception&) {
+                return {{"ok", false}, {"error", {{"code", "internal"}, {"message", "The window sent a reply that is not JSON."}}}};
+            }
+        };
+        const int result = positional.size() > 1 ? lines(send, script, !keep_going) : (lines(send, std::cin, false), 0);
+        return lost ? 4 : result;
+    }
+
 #ifdef _WIN32
     _setmode(fileno(stdout), _O_BINARY);
 #endif
@@ -259,7 +460,7 @@ int main(int argc, char** argv)
         if (positional.size() > 1 && !open_project(automation, positional[1])) {
             return 1;
         }
-        lines(automation, std::cin, false);
+        lines([&](const std::string& line) { return automation.execute_line(line); }, std::cin, false);
         return 0;
     }
     if (command == "exec") {
@@ -272,7 +473,7 @@ int main(int argc, char** argv)
         if (positional.size() > 2 && !open_project(automation, positional[2])) {
             return 1;
         }
-        return lines(automation, script, !keep_going);
+        return lines([&](const std::string& line) { return automation.execute_line(line); }, script, !keep_going);
     }
     if (command == "commands") {
         return step(automation, {{"command", "help"}}) ? 0 : 1;

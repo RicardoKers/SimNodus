@@ -98,14 +98,19 @@ RunController::~RunController()
     session_->stop();
 }
 
-bool RunController::start(QString& error)
+bool RunController::start(QString& error, const sim::RunRequest* base)
 {
     stop();
-    snapshot_ = document_.schematic();
+    snapshot_ = base ? base->schematic : document_.schematic();
     mode_ = snapshot_.settings().mode;
     const auto& library = document_.library();
 
     sim::RunRequest request;
+    if (base) {
+        request.vectors = base->vectors;
+        request.current_probes = base->current_probes;
+        request.ring_capacity = base->ring_capacity;
+    }
     request.schematic = snapshot_;
     request.library = &library;
     // Every net for tooltips and wire colors, plus meter and LED currents.
@@ -137,15 +142,19 @@ bool RunController::start(QString& error)
         }
     }
     for (const auto& p : snapshot_.probes()) {
-        if (p.kind == model::ProbeKind::Current && snapshot_.component(p.target.item)) {
-            request.current_probes.push_back({p.target.item, p.target.pin});
+        const netlist::PinRef ref{p.target.item, p.target.pin};
+        if (p.kind == model::ProbeKind::Current && snapshot_.component(p.target.item) &&
+            std::find(request.current_probes.begin(), request.current_probes.end(), ref) == request.current_probes.end()) {
+            request.current_probes.push_back(ref);
         }
     }
+    std::sort(request.vectors.begin(), request.vectors.end());
+    request.vectors.erase(std::unique(request.vectors.begin(), request.vectors.end()), request.vectors.end());
     std::string reason;
     // Microcontroller boards: firmware relative to the project file.
     sim::McuEnvironment environment;
-    const QString base = document_.base_dir();
-    environment.project_dir = std::filesystem::path((base.isEmpty() ? QDir::currentPath() : base).toStdWString());
+    const QString folder = document_.base_dir();
+    environment.project_dir = std::filesystem::path((folder.isEmpty() ? QDir::currentPath() : folder).toStdWString());
     environment.gdb_port = gdb_port_;
     std::vector<std::string> warnings;
     if (!sim::build_mcu_requests(snapshot_, library, environment, request.mcus, reason, &warnings)) {
@@ -173,6 +182,7 @@ bool RunController::start(QString& error)
     build_channels();
     last_state_ = sim::RunState::Running;
     timer_.start();
+    emit started();
     emit state_changed();
     return true;
 }

@@ -85,6 +85,36 @@ std::filesystem::path HeadlessWorkspace::base_dir() const
     return std::filesystem::absolute(file_).parent_path();
 }
 
+void HeadlessWorkspace::new_project(bool)
+{
+    replace(model::Schematic{}, {});
+}
+
+std::vector<std::string> HeadlessWorkspace::open_project(const std::filesystem::path& file, bool)
+{
+    auto result = io::load_project(file);
+    if (!result.schematic) {
+        std::string why;
+        for (const auto& e : result.errors) {
+            why += (why.empty() ? "" : " ") + e;
+        }
+        const auto text = file.u8string();
+        throw Error{"io-error", "Cannot open " + std::string(text.begin(), text.end()) + ": " + why};
+    }
+    replace(std::move(*result.schematic), file);
+    return result.warnings;
+}
+
+void HeadlessWorkspace::save_project(const std::filesystem::path& file)
+{
+    const auto result = io::save_project(schematic_, file);
+    if (!result.ok) {
+        throw Error{"io-error", result.error};
+    }
+    file_ = file;
+    modified_ = false;
+}
+
 void HeadlessWorkspace::replace(model::Schematic schematic, const std::filesystem::path& file)
 {
     if (session_) {
@@ -96,12 +126,6 @@ void HeadlessWorkspace::replace(model::Schematic schematic, const std::filesyste
     undone_.clear();
     modified_ = false;
     refresh_library();
-}
-
-void HeadlessWorkspace::saved(const std::filesystem::path& file)
-{
-    file_ = file;
-    modified_ = false;
 }
 
 sim::Session& HeadlessWorkspace::session()
@@ -124,10 +148,7 @@ namespace {
 using model::Id;
 using model::Point;
 
-struct Failure {
-    std::string code;
-    std::string message;
-};
+using Failure = Error;
 
 [[noreturn]] void fail(std::string code, std::string message)
 {
@@ -344,6 +365,19 @@ std::string effective(const library::ComponentDefinition& d, const model::Compon
 struct Context {
     Workspace& ws;
     std::unique_ptr<Automation::Run>& run;
+    std::filesystem::path& directory;
+    const std::vector<Automation::Extension>& extensions;
+
+    // A file path from a request, relative to hello's "directory" (or the
+    // current folder), made absolute.
+    std::filesystem::path path(const std::string& utf8) const
+    {
+        auto p = path_from(utf8);
+        if (p.is_relative() && !directory.empty()) {
+            p = directory / p;
+        }
+        return std::filesystem::absolute(p);
+    }
 
     const model::Schematic& schematic() const { return ws.schematic(); }
     const library::ComponentLibrary& library() const { return ws.library(); }
@@ -838,7 +872,7 @@ Automation::Run& active_run(Context& cx)
 void start_run(Context& cx, const json& args)
 {
     auto& session = cx.ws.session();
-    session.stop();
+    cx.ws.stop_run();
     cx.run.reset();
     model::Schematic schematic = cx.schematic();
     auto settings = schematic.settings();
@@ -854,8 +888,9 @@ void start_run(Context& cx, const json& args)
     if (const auto stop = optional_quantity(args, "duration", "s"); stop && settings.mode == model::SimulationMode::Transient) {
         settings.transient_stop = *stop;
     }
-    // Without a window nobody watches: as fast as possible unless asked.
-    settings.speed = optional_quantity(args, "speed", "").value_or(0.0);
+    // Without a window nobody watches: as fast as possible unless asked. In
+    // the window, the project's speed.
+    settings.speed = optional_quantity(args, "speed", "").value_or(cx.ws.watched() ? settings.speed : 0.0);
     schematic.set_settings(settings);
 
     auto run = std::make_unique<Automation::Run>();
@@ -912,7 +947,7 @@ void start_run(Context& cx, const json& args)
         fail("run-failed", reason);
     }
     run->messages = warnings;
-    if (!session.start(std::move(request), reason)) {
+    if (!cx.ws.start_run(std::move(request), reason)) {
         const auto& found = session.diagnostics();
         if (std::any_of(found.begin(), found.end(),
                 [](const netlist::Diagnostic& d) { return d.severity == netlist::Severity::Error; })) {
@@ -952,7 +987,7 @@ double advance_to(Context& cx, double target, double timeout_s)
                         model::format_engineering(timeout_s) + "s of wall time (it is at " +
                         model::format_engineering(st.sim_time) + "s).");
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            cx.ws.wait(std::chrono::milliseconds(1));
         }
     }
     collect_messages(cx);
@@ -965,10 +1000,10 @@ double wait_transient(Context& cx, double timeout_s)
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(timeout_s);
     while (session.active()) {
         if (std::chrono::steady_clock::now() > deadline) {
-            session.stop();
+            cx.ws.stop_run();
             fail("timeout", "The transient analysis did not finish within " + model::format_engineering(timeout_s) + "s.");
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        cx.ws.wait(std::chrono::milliseconds(2));
     }
     return session.status().sim_time;
 }
@@ -1128,9 +1163,16 @@ struct Command {
     Fn fn;
 };
 
-json cmd_hello(Context&, const json&)
+json cmd_hello(Context& cx, const json& args)
 {
-    return {{"application", "SimNodus"}, {"protocol", protocol_version}};
+    if (const auto directory = optional_text(args, "directory")) {
+        cx.directory = std::filesystem::absolute(path_from(*directory));
+    }
+    json out{{"application", "SimNodus"}, {"protocol", protocol_version}, {"window", cx.ws.watched()}};
+    if (!cx.directory.empty()) {
+        out["directory"] = utf8(cx.directory);
+    }
+    return out;
 }
 
 json cmd_parts_list(Context& cx, const json& args)
@@ -1211,45 +1253,32 @@ json cmd_parts_describe(Context& cx, const json& args)
     return out;
 }
 
-json cmd_project_new(Context& cx, const json&)
+json cmd_project_new(Context& cx, const json& args)
 {
+    cx.ws.new_project(args.value("discard", false));
     cx.run.reset();
-    cx.ws.replace(model::Schematic{}, {});
     return {{"file", nullptr}};
 }
 
 json cmd_project_open(Context& cx, const json& args)
 {
-    const std::filesystem::path path = path_from(text(args, "path"));
-    auto result = io::load_project(path);
-    if (!result.schematic) {
-        std::string why;
-        for (const auto& e : result.errors) {
-            why += (why.empty() ? "" : " ") + e;
-        }
-        fail("io-error", "Cannot open " + utf8(path) + ": " + why);
-    }
+    const auto path = cx.path(text(args, "path"));
+    const auto warnings = cx.ws.open_project(path, args.value("discard", false));
     cx.run.reset();
-    cx.ws.replace(std::move(*result.schematic), std::filesystem::absolute(path));
-    return {{"file", utf8(std::filesystem::absolute(path))}, {"warnings", result.warnings},
-        {"components", cx.schematic().components().size()}};
+    return {{"file", utf8(path)}, {"warnings", warnings}, {"components", cx.schematic().components().size()}};
 }
 
 json cmd_project_save(Context& cx, const json& args)
 {
     std::filesystem::path path = cx.ws.file();
     if (const auto p = optional_text(args, "path")) {
-        path = path_from(*p);
+        path = cx.path(*p);
     }
     if (path.empty()) {
         fail("invalid-argument", "A new project needs \"path\" to be saved.");
     }
-    const auto result = io::save_project(cx.schematic(), path);
-    if (!result.ok) {
-        fail("io-error", result.error);
-    }
-    cx.ws.saved(std::filesystem::absolute(path));
-    return {{"file", utf8(std::filesystem::absolute(path))}};
+    cx.ws.save_project(path);
+    return {{"file", utf8(path)}};
 }
 
 json cmd_project_info(Context& cx, const json&)
@@ -1701,7 +1730,7 @@ json run_result(Context& cx, const json& args)
         out["displays"] = displays;
     }
     if (const auto csv = optional_text(args, "csv")) {
-        write_csv(cx, signals, path_from(*csv));
+        write_csv(cx, signals, cx.path(*csv));
         out["csv"] = *csv;
     }
     return out;
@@ -1780,7 +1809,7 @@ json cmd_sim_pause(Context& cx, const json&)
 
 json cmd_sim_stop(Context& cx, const json&)
 {
-    cx.ws.session().stop();
+    cx.ws.stop_run();
     json out{{"status", status_json(cx.ws.session().status())}};
     return out;
 }
@@ -1793,7 +1822,7 @@ json cmd_sim_run(Context& cx, const json& args)
     json applied = json::array();
     if (run.mode == model::SimulationMode::Transient) {
         if (args.contains("events") && !args["events"].empty()) {
-            cx.ws.session().stop();
+            cx.ws.stop_run();
             fail("invalid-argument", "Transient runs keep the controls as they are; use mode \"interactive\" for events.");
         }
         wait_transient(cx, timeout);
@@ -1836,7 +1865,7 @@ json cmd_sim_run(Context& cx, const json& args)
         out["events"] = applied;
     }
     if (!args.value("keep", false)) {
-        cx.ws.session().stop();
+        cx.ws.stop_run();
         out["status"]["state"] = sim::to_string(cx.ws.session().status().state);
     }
     return out;
@@ -1858,14 +1887,17 @@ json cmd_sim_uart(Context& cx, const json& args)
 json cmd_help(Context&, const json&);
 
 const Command commands[] = {
-    {"hello", "Protocol version.", "{}", cmd_hello},
+    {"hello", "Protocol version; whether the desktop window is controlled; sets the folder of relative paths.",
+        R"j({"directory": "folder that relative file paths start from, optional"})j", cmd_hello},
     {"help", "This list.", "{}", cmd_help},
     {"parts.list", "Parts of the library.",
         R"j({"search": "text in type, name, category or description", "category": "exact category"})j", cmd_parts_list},
     {"parts.describe", "Pins (grid points relative to the origin), parameters, bounds of a part.", R"j({"type": "resistor"})j",
         cmd_parts_describe},
-    {"project.new", "Starts an empty project.", "{}", cmd_project_new},
-    {"project.open", "Opens a .snx file.", R"j({"path": "file.snx"})j", cmd_project_open},
+    {"project.new", "Starts an empty project.",
+        R"j({"discard": "true to drop unsaved changes in the window (refused otherwise)"})j", cmd_project_new},
+    {"project.open", "Opens a .snx file.", R"j({"path": "file.snx", "discard": "true to drop unsaved changes in the window"})j",
+        cmd_project_open},
     {"project.save", "Saves the project (keeps the previous version as .snx.bak).",
         R"j({"path": "file.snx; optional once the project has a file"})j", cmd_project_save},
     {"project.info", "File, modified flag, element counts.", "{}", cmd_project_info},
@@ -1918,9 +1950,13 @@ const Command commands[] = {
         R"j({"board": "U1", "uart": "usart1", "send": "text, optional"})j", cmd_sim_uart},
 };
 
-json cmd_help(Context&, const json&)
+json cmd_help(Context& cx, const json&)
 {
-    return Automation::help();
+    auto out = Automation::help();
+    for (const auto& e : cx.extensions) {
+        out["commands"].push_back({{"command", e.name}, {"summary", e.summary}, {"args", e.args}});
+    }
+    return out;
 }
 
 } // namespace
@@ -1970,12 +2006,18 @@ json Automation::execute(const json& request)
         }
         const auto* command = std::find_if(std::begin(commands), std::end(commands),
             [&](const Command& c) { return name == c.name; });
-        if (command == std::end(commands)) {
-            fail("unknown-command", "Unknown command \"" + name + "\"; \"help\" lists them.");
+        Context cx{workspace_, run_, directory_, extensions_};
+        if (command != std::end(commands)) {
+            reply["result"] = command->fn(cx, args);
+        } else {
+            const auto extension = std::find_if(extensions_.begin(), extensions_.end(),
+                [&](const Extension& e) { return name == e.name; });
+            if (extension == extensions_.end()) {
+                fail("unknown-command", "Unknown command \"" + name + "\"; \"help\" lists them.");
+            }
+            reply["result"] = extension->run(args);
         }
-        Context cx{workspace_, run_};
         reply["ok"] = true;
-        reply["result"] = command->fn(cx, args);
     } catch (const Failure& f) {
         reply["ok"] = false;
         reply["error"] = {{"code", f.code}, {"message", f.message}};
@@ -1987,6 +2029,16 @@ json Automation::execute(const json& request)
         reply["error"] = {{"code", "internal"}, {"message", e.what()}};
     }
     return reply;
+}
+
+void Automation::extend(Extension extension)
+{
+    extensions_.push_back(std::move(extension));
+}
+
+void Automation::forget_run()
+{
+    run_.reset();
 }
 
 json Automation::execute_line(const std::string& line)

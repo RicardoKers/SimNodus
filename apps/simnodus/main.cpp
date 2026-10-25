@@ -277,8 +277,10 @@ int main(int argc, char** argv)
         QStringLiteral("ms"));
     const QCommandLineOption run_option(QStringLiteral("run"),
         QCoreApplication::translate("main", "Start the simulation after opening the project."));
-    parser.addOptions(
-        {settings_option, smoke_option, engine_option, mcu_option, screenshot_option, delay_option, run_option});
+    const QCommandLineOption control_option(QStringLiteral("control"),
+        QCoreApplication::translate("main", "Allow external control by AI agents and scripts (simnodus-cli connect)."));
+    parser.addOptions({settings_option, smoke_option, engine_option, mcu_option, screenshot_option, delay_option,
+        run_option, control_option});
     parser.addPositionalArgument(QStringLiteral("project"),
         QCoreApplication::translate("main", "Project file (.snx) to open."), QStringLiteral("[project]"));
     parser.process(application);
@@ -306,6 +308,13 @@ int main(int argc, char** argv)
     }
     if (parser.isSet(run_option)) {
         QTimer::singleShot(0, &window, [&window] { window.run(); });
+    }
+    if (parser.isSet(control_option)) {
+        QString error;
+        if (!window.set_external_control(true, &error)) {
+            attach_console();
+            std::fprintf(stderr, "%s\n", qPrintable(error));
+        }
     }
     if (parser.isSet(screenshot_option)) {
         attach_console();

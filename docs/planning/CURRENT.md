@@ -16,7 +16,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   first, then the virtual plant. Done: SN-215, the JSON command vocabulary
   (`src/automation`) and `simnodus-cli` (build, check, inspect, simulate,
   measure, save; `serve`/`exec` for JSON lines; `Session::pause_at`, engine
-  protocol 8), documented in `docs/user/AUTOMATION.md` and packaged.
+  protocol 8), documented in `docs/user/AUTOMATION.md` and packaged; SN-216,
+  the same commands controlling the window (Tools > Allow External Control or
+  `--control`, `simnodus-cli connect`; edits on the canvas and in the undo
+  history, runs shown live, `view.pace`/`view.caption` for recorded
+  tutorials).
 - **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
   (SN-213, example 34; interactive segments now also carry capacitor node
   voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
@@ -74,11 +78,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. SN-216: control channel in the desktop application (agents build circuits
-   on screen for video tutorials), then SN-217 (MCP server), then SN-218
-   (external I/O parts and the TCP link for the virtual plants).
-2. Release 0.8.0 when the owner asks for it (the preview passed the owner's
-   test; ask before cutting the release).
+1. SN-217 (MCP server over the same commands), then SN-218 (external I/O
+   parts and the TCP link for the virtual plants).
+2. Release 0.8.0 at the end of the connectivity phase (owner, 2026-10-25),
+   after the owner tests it.
 3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

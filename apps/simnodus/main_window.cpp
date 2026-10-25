@@ -7,6 +7,7 @@
 #include "analyzer_window.hpp"
 #include "app_settings.hpp"
 #include "component_panel.hpp"
+#include "control_server.hpp"
 #include "document.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
@@ -114,6 +115,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     document_ = new Document(library_, this);
     scene_ = new SchematicScene(*document_, this);
     run_ = new RunController(*document_, *scene_, this);
+    control_ = new ControlServer(*this);
 
     components_ = new ComponentPanel(library_);
     view_ = new SchematicView;
@@ -462,6 +464,18 @@ void MainWindow::build_actions_and_menus()
     engine_action_ = tools->addAction(tr("Check Simulation &Engine"), this, &MainWindow::check_engine);
     engine_action_->setStatusTip(tr("Load the analog engine and solve a reference circuit"));
     auto* models = tools->addAction(tr("&Model Folders..."), this, &MainWindow::edit_model_folders);
+    // Not remembered between sessions: control stays an explicit choice (ADR 0104).
+    control_action_ = tools->addAction(tr("Allow External &Control"));
+    control_action_->setCheckable(true);
+    control_action_->setObjectName(QStringLiteral("externalControlAction"));
+    control_action_->setStatusTip(tr("AI agents and scripts on this computer may edit and run the circuit "
+                                     "(simnodus-cli connect)"));
+    connect(control_action_, &QAction::triggered, this, [this](bool on) {
+        QString error;
+        if (!set_external_control(on, &error) && !error.isEmpty()) {
+            messages_->add(Severity::Error, error, tr("External control"));
+        }
+    });
     // Interface language (UI-16); it takes effect at the next start.
     auto* language = tools->addMenu(tr("&Language"));
     auto* languages = new QActionGroup(language);
@@ -565,6 +579,11 @@ void MainWindow::build_status_bar()
     for (auto* label : {state_label_, time_label_, speed_label_, mode_label_, warnings_label_}) {
         statusBar()->addWidget(label);
     }
+    control_label_ = new QLabel;
+    control_label_->setObjectName(QStringLiteral("controlStatus"));
+    control_label_->hide();
+    statusBar()->addPermanentWidget(control_label_);
+    connect(control_, &ControlServer::status_changed, this, &MainWindow::update_control_status);
     statusBar()->addPermanentWidget(cursor_label_);
     statusBar()->addPermanentWidget(zoom_label_);
     update_counts(0, 0);
@@ -789,13 +808,18 @@ void MainWindow::run()
         return;
     }
     QString error;
-    const bool started = run_->start(error);
+    start_run(nullptr, error);
+}
+
+bool MainWindow::start_run(const sim::RunRequest* base, QString& error)
+{
+    const bool started = run_->start(error, base);
     report_diagnostics();
     if (!started) {
         messages_->add(Severity::Error, error, tr("Simulation"));
-        return;
+        return false;
     }
-    run_->set_speed(document_->schematic().settings().speed);
+    run_->set_speed(run_->snapshot().settings().speed);
     analyzer_->reload();
     const auto& components = document_->schematic().components();
     const bool board = std::any_of(components.begin(), components.end(), [this](const model::Component& c) {
@@ -809,9 +833,43 @@ void MainWindow::run()
                                  .arg(default_gdb_port);
         statusBar()->showMessage(text, 15000);
         messages_->add(Severity::Info, text, tr("Simulation"));
-        return;
+        return true;
     }
     statusBar()->showMessage(tr("Simulation started. Click switches and buttons to operate them."), 4000);
+    return true;
+}
+
+bool MainWindow::set_external_control(bool on, QString* error)
+{
+    QString why;
+    const bool ok = on ? control_->listen(why) : (control_->close(), true);
+    if (error) {
+        *error = why;
+    }
+    update_control_status();
+    if (ok && on) {
+        messages_->add(Severity::Info,
+            tr("External control is on: AI agents and scripts on this computer can edit and run the circuit with "
+               "simnodus-cli connect (%1).")
+                .arg(control_->endpoint()),
+            tr("External control"));
+    }
+    return ok;
+}
+
+void MainWindow::update_control_status()
+{
+    const bool on = control_->listening();
+    if (control_action_) {
+        control_action_->setChecked(on);
+    }
+    if (!control_label_) {
+        return;
+    }
+    const int clients = control_->clients();
+    control_label_->setVisible(on);
+    control_label_->setText(clients > 0 ? tr("Controlled by an agent") : tr("External control on"));
+    control_label_->setToolTip(control_->endpoint());
 }
 
 void MainWindow::pause_resume()
@@ -1732,11 +1790,19 @@ bool MainWindow::check_recovery(bool automatic)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+    if (control_->busy()) {
+        // An agent's command is waiting inside the event loop: end it first.
+        control_->cancel();
+        event->ignore();
+        QTimer::singleShot(50, this, &QWidget::close);
+        return;
+    }
     if (!confirm_discard()) {
         event->ignore();
         return;
     }
     QFile::remove(recovery_file()); // clean exit
+    control_->close();
     run_->stop();
     save_settings();
     analyzer_->hide();

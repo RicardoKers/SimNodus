@@ -9,6 +9,7 @@
 #include "logic_widget.hpp"
 #include "user_models.hpp"
 #include "component_panel.hpp"
+#include "control_server.hpp"
 #include "main_window.hpp"
 #include "memory_window.hpp"
 #include "messages_panel.hpp"
@@ -20,6 +21,7 @@
 #include "uart_terminal.hpp"
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "automation/automation.hpp"
 #include "editing/operations.hpp"
 #include "io/project_file.hpp"
 #include "netlist/connectivity.hpp"
@@ -40,6 +42,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QLocalSocket>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -48,8 +51,10 @@
 #include <QScrollArea>
 #include <QSettings>
 #include <QSpinBox>
+#include <QStatusBar>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTimer>
 #include <QTranslator>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
@@ -98,6 +103,28 @@ private:
         const auto* c = doc().schematic().component(component);
         const auto* d = window_->library().find(c->type);
         doc().apply(editing::add_label(doc().id_source(), library::pin_position(*d, *d->pin(pin), *c), name));
+    }
+
+    // A request through the window's external control (SN-216); the result, or null on failure.
+    automation::json control(const std::string& command, automation::json args = automation::json::object())
+    {
+        last_reply_ = window_->control()->execute({{"command", command}, {"args", std::move(args)}});
+        return last_reply_.value("ok", false) ? last_reply_["result"] : automation::json(nullptr);
+    }
+    automation::json last_reply_;
+
+    // 100 Hz square wave into an RC low-pass, built through external control.
+    void control_rc()
+    {
+        QVERIFY(control("component.add", {{"type", "vpulse"}, {"at", {0, 0}}, {"parameters", {{"f", "100"}}}}).is_object());
+        QVERIFY(control("component.add",
+            {{"type", "resistor"}, {"at", {6, -6}}, {"rotation", 270}, {"parameters", {{"R", "1k"}}}}).is_object());
+        QVERIFY(control("component.add", {{"type", "capacitor"}, {"at", {12, 0}}, {"parameters", {{"C", "1u"}}}}).is_object());
+        QVERIFY(control("component.add", {{"type", "ground"}, {"attach", {{"to", "V1.-"}}}}).is_object());
+        QVERIFY(control("wire.connect", {{"from", "V1.+"}, {"to", "R1.1"}}).is_object());
+        QVERIFY(control("wire.connect", {{"from", "R1.2"}, {"to", "C1.1"}}).is_object());
+        QVERIFY(control("wire.connect", {{"from", "C1.2"}, {"to", "V1.-"}}).is_object());
+        QVERIFY(control("label.add", {{"name", "OUT"}, {"at", "C1.1"}}).is_object());
     }
 
     static bool engine_available()
@@ -1685,6 +1712,143 @@ private slots:
         drag(current_probe, {10, 3});
         QCOMPARE(doc().schematic().probe(current_probe)->target.pin, std::string("2"));
         QCOMPARE(doc().schematic().probe(current_probe)->kind, model::ProbeKind::Current);
+    }
+
+    void external_control_edits_the_document_with_undo()
+    {
+        const auto hello = control("hello");
+        QVERIFY(hello.is_object());
+        QCOMPARE(hello["window"].get<bool>(), true);
+        control_rc();
+        QCOMPARE(doc().schematic().components().size(), std::size_t{4});
+        QCOMPARE(doc().undo_stack()->count(), 8); // one step per command
+        QVERIFY(window_->isWindowModified());
+        // The last change is selected on the canvas.
+        const auto* r1 = doc().schematic().component_by_designator("R1");
+        QVERIFY(control("component.set", {{"component", "R1"}, {"parameters", {{"R", "2k"}}}}).is_object());
+        QCOMPARE(window_->scene()->selected_ids(), (std::set<model::Id>{r1->id}));
+        QCOMPARE(doc().schematic().component(r1->id)->parameters.at("R"), std::string("2k"));
+        QCOMPARE(control("edit.undo")["undone"].get<bool>(), true);
+        QCOMPARE(doc().schematic().component(r1->id)->parameters.at("R"), std::string("1k"));
+        // Unsaved changes are not dropped unless asked.
+        QVERIFY(control("project.new").is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("blocked"));
+        QCOMPARE(doc().schematic().components().size(), std::size_t{4});
+        const QString file = dir_.filePath(QStringLiteral("controlled.snx"));
+        QVERIFY(control("project.save", {{"path", file.toStdString()}}).is_object());
+        QVERIFY(!window_->isWindowModified());
+        QCOMPARE(doc().file_path(), file);
+        QVERIFY(control("project.new").is_object());
+        QVERIFY(doc().schematic().components().empty());
+        QVERIFY(control("project.open", {{"path", file.toStdString()}}).is_object());
+        QCOMPARE(doc().schematic().components().size(), std::size_t{4});
+        // The window's own commands.
+        QVERIFY(control("view.caption", {{"text", "Step 1: the source"}})["shown"].get<bool>());
+        auto* caption = view()->viewport()->findChild<QLabel*>(QStringLiteral("controlCaption"));
+        QVERIFY(caption && caption->isVisible());
+        QCOMPARE(caption->text(), QStringLiteral("Step 1: the source"));
+        QVERIFY(control("view.caption", {{"text", ""}}).is_object());
+        QVERIFY(!caption->isVisible());
+        QCOMPARE(control("view.pace", {{"ms", 50}})["ms"].get<int>(), 50);
+        QElapsedTimer paced;
+        paced.start();
+        QVERIFY(control("items.move", {{"items", {"C1"}}, {"by", {2, 0}}}).is_object());
+        QVERIFY(paced.elapsed() >= 40);
+        QVERIFY(control("view.show", {{"items", {"V1"}}})["selected"].get<int>() == 1);
+        QVERIFY(control("view.show", {{"items", {"X9"}}}).is_null());
+        const auto help = control("help");
+        QVERIFY(std::any_of(help["commands"].begin(), help["commands"].end(),
+            [](const automation::json& c) { return c["command"] == "view.caption"; }));
+    }
+
+    void external_control_runs_show_in_the_window()
+    {
+        if (!engine_available()) {
+            QSKIP("ngspice not available");
+        }
+        control_rc();
+        const auto run = control("sim.run",
+            {{"mode", "interactive"}, {"duration", "40m"}, {"speed", 0}, {"signals", {"V(OUT)"}}, {"keep", true}});
+        QVERIFY2(run.is_object(), last_reply_.dump().c_str());
+        QVERIFY(std::abs(run["signals"][0]["frequency"].get<double>() - 100.0) < 2.0);
+        // The window's run controller ran it, so the canvas and the analyzer have it.
+        QVERIFY(window_->run_controller()->active());
+        QCOMPARE(window_->run_controller()->state(), sim::RunState::Paused);
+        QVERIFY(window_->run_controller()->status().sim_time >= 0.04);
+        QVERIFY(control("sim.read").is_object());
+        // A run the user starts replaces the agent's.
+        window_->stop();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 5000);
+        QVERIFY(control("sim.read").is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("not-running"));
+        window_->stop();
+        // A change of the circuit's structure stops a run, as in the window.
+        QVERIFY(control("sim.start", {{"signals", {"V(OUT)"}}}).is_object());
+        QVERIFY(window_->run_controller()->active());
+        QVERIFY(control("component.add", {{"type", "resistor"}, {"at", {30, 0}}}).is_object());
+        QVERIFY(!window_->run_controller()->active());
+    }
+
+    void external_control_listens_on_a_local_endpoint()
+    {
+        const QString name = QStringLiteral("simnodus-test-%1").arg(QCoreApplication::applicationPid());
+        QString error;
+        QVERIFY2(window_->control()->listen(error, name), qPrintable(error));
+        QVERIFY(window_->control()->listening());
+        // A second window cannot take the same endpoint.
+        ControlServer other(*window_);
+        QVERIFY(!other.listen(error, name));
+        QVERIFY(!error.isEmpty());
+
+        QLocalSocket socket;
+        socket.connectToServer(name);
+        QVERIFY(socket.waitForConnected(2000));
+        QTRY_COMPARE(window_->control()->clients(), 1);
+        auto* status = window_->statusBar()->findChild<QLabel*>(QStringLiteral("controlStatus"));
+        QVERIFY(status && status->isVisible());
+        socket.write("{\"id\": 7, \"command\": \"component.add\", \"args\": {\"type\": \"resistor\", \"at\": [0, 0]}}\n"
+                     "not json\n");
+        QByteArray received;
+        QTRY_VERIFY_WITH_TIMEOUT((received += socket.readAll()).count('\n') >= 2, 5000);
+        const auto lines = received.split('\n');
+        const auto first = automation::json::parse(lines[0].toStdString());
+        QCOMPARE(first["id"].get<int>(), 7);
+        QVERIFY(first["ok"].get<bool>());
+        QCOMPARE(doc().schematic().components().size(), std::size_t{1});
+        const auto second = automation::json::parse(lines[1].toStdString());
+        QCOMPARE(second["error"]["code"].get<std::string>(), std::string("bad-request"));
+        socket.disconnectFromServer();
+        QTRY_COMPARE(window_->control()->clients(), 0);
+        QVERIFY(window_->set_external_control(false));
+        QVERIFY(!window_->control()->listening());
+        QVERIFY(!status->isVisible());
+    }
+
+    void closing_the_window_cancels_a_waiting_command()
+    {
+        const QString name = QStringLiteral("simnodus-test-close-%1").arg(QCoreApplication::applicationPid());
+        QString error;
+        QVERIFY2(window_->control()->listen(error, name), qPrintable(error));
+        QLocalSocket socket;
+        socket.connectToServer(name);
+        QVERIFY(socket.waitForConnected(2000));
+        socket.write("{\"command\": \"view.wait\", \"args\": {\"ms\": 30000}}\n");
+        // The wait runs in a nested event loop, so the window is closed from inside it.
+        QElapsedTimer elapsed;
+        elapsed.start();
+        bool waiting = false;
+        QTimer::singleShot(300, window_, [this, &waiting] {
+            waiting = window_->control()->busy();
+            window_->close();
+        });
+        QByteArray received;
+        QTRY_VERIFY_WITH_TIMEOUT((received += socket.readAll()).contains('\n'), 5000);
+        QVERIFY(waiting);
+        QVERIFY2(received.contains("\"cancelled\""), received.constData());
+        QTRY_VERIFY(!window_->isVisible());
+        QVERIFY(elapsed.elapsed() < 5000);
+        QVERIFY(!window_->control()->listening());
     }
 
     void alt_click_sets_a_differential_reference()

@@ -6,6 +6,10 @@ circuits, check them, simulate them and read measurements. Every result is
 JSON. It uses the same parts, checks and simulation as the desktop
 application (design decision: ADR 0104 in the source repository).
 
+The same commands can also control the open SimNodus window, so that an agent
+builds a circuit step by step on screen, for example in a recorded video
+tutorial: see [Controlling the window](#controlling-the-window).
+
 It does not open a network port. It reads and writes only the files you name.
 Opening a project never runs firmware: a Blue Pill's firmware runs only when
 a simulation is started.
@@ -21,10 +25,12 @@ simnodus-cli run     examples/01_LED_and_push_button.snx --time 20m --event "10m
 simnodus-cli exec    build_circuit.jsonl     run a file of JSON requests
 simnodus-cli serve                           JSON requests on standard input
 simnodus-cli commands                        every JSON command with its arguments
+simnodus-cli connect [script.jsonl]          send requests to the SimNodus window
 ```
 
 Add `--pretty` to indent the output. Exit codes: 0 done, 1 a command failed
-(or `check` found circuit errors), 2 wrong usage, 3 no component library.
+(or `check` found circuit errors), 2 wrong usage, 3 no component library,
+4 no SimNodus window accepts external control.
 Whatever ngspice or the emulator prints goes to standard error, so standard
 output carries only JSON.
 
@@ -50,7 +56,8 @@ comes back unchanged:
 
 Error codes are stable: `bad-request`, `unknown-command`, `invalid-argument`,
 `not-found`, `blocked`, `io-error`, `circuit-errors`, `not-running`,
-`run-failed`, `timeout`, `internal`. Messages are for people and may change.
+`run-failed`, `timeout`, `cancelled`, `internal`, and `no-window` from
+`connect`. Messages are for people and may change.
 
 `serve` keeps the project and the simulation between requests, so an agent can
 start a run, operate switches and read values step by step. `exec` stops at the
@@ -75,10 +82,10 @@ project, or with the project named after the script.
 
 | Command | What it does |
 |---|---|
-| `hello`, `help` | Protocol version; every command with its arguments |
+| `hello`, `help` | Protocol version and whether the window is controlled (`directory` sets where relative paths start); every command with its arguments |
 | `parts.list` | Parts, filtered by `search` or `category` |
 | `parts.describe` | Pins, parameters (units, limits, choices, built-in models), bounds |
-| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`) |
+| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`; in the window, `new` and `open` refuse to drop unsaved changes unless `"discard": true`) |
 | `circuit.inspect` | Components with pins, points and nets; wires, labels, nets, probes, notes, unconnected pins, settings |
 | `circuit.check` | The pre-run checks of the Messages panel, with codes |
 | `component.add` | Places a part `at` a point, or with a pin `attach`ed to a pin or point (`{"to": "V1.-"}` for a ground) |
@@ -133,8 +140,53 @@ SimNodus to see the circuit.
 - Samples older than `history` (100 000 per net by default) are dropped in long
   interactive runs; a signal then reports `history_from`.
 
+## Controlling the window
+
+The SimNodus window accepts the same commands when its external control is
+on: **Tools > Allow External Control**, or start it with
+`simnodus.exe --control`. It is off by default and not remembered, so every
+session starts without it. The status bar shows *External control on*, and
+*Controlled by an agent* while a program is connected. Only programs of the
+same Windows user on the same computer can connect (a named pipe; a local
+socket on Linux); nothing is opened to the network.
+
+`simnodus-cli connect` passes requests to the window: from a file
+(`connect build.jsonl`, stopping at the first failure unless `--keep-going`)
+or, without a file, from standard input, one line per request and one reply
+line each, as `serve` does. Relative paths start from the folder where
+`connect` runs.
+
+In the window:
+
+- Every edit is one step of **Edit > Undo**, is selected on the canvas and
+  scrolled into view. A change of the circuit's structure stops a running
+  simulation, as it does when you edit by hand; a parameter change goes to
+  the running simulation where the part allows it.
+- Runs are the window's own: the canvas animates, the Signal Analyzer shows
+  the probes, and runs keep the project's speed (real time by default)
+  instead of going as fast as possible. A run you start with Run (F5)
+  replaces the agent's run.
+- `project.new` and `project.open` refuse (`blocked`) to drop unsaved changes
+  unless the request says `"discard": true`.
+- Closing the window or turning external control off ends a waiting command
+  with `cancelled`.
+
+Commands of the window only:
+
+| Command | What it does |
+|---|---|
+| `view.pace` | `{"ms": 600}`: wait after each edit, so that a recording can follow; 0 (default) for none |
+| `view.caption` | `{"text": "Now the capacitor", "seconds": 5}`: a caption at the bottom of the canvas; empty text hides it; without `seconds` it stays until replaced |
+| `view.show` | `{"items": ["R1", 12]}`: select components or elements and scroll them into view |
+| `view.fit` | Zoom to show the whole circuit |
+| `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
+| `view.analyzer` | `{"show": true}`: show or hide the Signal Analyzer |
+
+A tutorial script might start with `view.pace` 800, give each step a caption,
+place the parts, wire them, add probes, open the analyzer and run with
+`"keep": true` so the last state stays on screen.
+
 ## What comes next
 
-Controlling the open desktop window (so that an agent can build a circuit step
-by step on screen, for video tutorials) and an MCP server for agents are
-planned (tasks SN-216 and SN-217) and will use the same commands.
+An MCP server for agents (task SN-217) will offer the same commands as MCP
+tools.
