@@ -313,6 +313,15 @@ TEST_CASE("remote: an interactive run is mirrored and controlled")
 
     session.pause();
     REQUIRE(pump_until(link, [&] { return session.status().state == sim::RunState::Paused; }));
+    // Pause at a time (SN-215): at the first point at or after it. The mirrored
+    // time is exact while paused, so the target is still ahead of the engine.
+    const double target = session.status().sim_time + 0.05;
+    session.pause_at(target);
+    session.resume();
+    REQUIRE(pump_until(link, [&] {
+        return session.status().state == sim::RunState::Paused && session.status().sim_time >= target;
+    }));
+    CHECK(session.status().sim_time < target + 0.01);
     session.resume();
     REQUIRE(pump_until(link, [&] { return session.status().state == sim::RunState::Running; }));
     session.stop();

@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0104: External control through one command vocabulary; external I/O as a discreet built-in link](0104-external-control-and-io.md):
+  SN-215..SN-218; JSON commands for agents (CLI, then the desktop window, then MCP); plant I/O parts with a TCP link.
 - [0103: Chips without a board run in a group with an idle core](0103-chips-without-a-board.md):
   SN-212; chips on no board pin run in a runner of their own whose core sleeps, inputs read from the circuit.
 - [0102: Digital devices run in step with the firmware (hybrid coupling)](0102-digital-devices-hybrid-coupling.md):

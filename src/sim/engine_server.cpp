@@ -43,6 +43,9 @@ void EngineServer::handle(const std::string& payload)
     case Type::Speed:
         session_.set_speed(r.f64());
         break;
+    case Type::PauseAt:
+        session_.pause_at(r.f64());
+        break;
     case Type::Control: {
         const model::Id id = r.u64();
         session_.set_control(id, r.f64());

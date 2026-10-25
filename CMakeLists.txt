@@ -59,6 +59,7 @@ message(STATUS "ngspice for engine tests: ${SIMNODUS_NGSPICE_LIBRARY}")
 add_subdirectory(src)
 add_subdirectory(apps/simnodus-emu)
 add_subdirectory(apps/simnodus-engine)
+add_subdirectory(apps/simnodus-cli)
 
 if(BUILD_TESTING)
     add_subdirectory(tests/unit)
