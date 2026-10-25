@@ -78,15 +78,17 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   - Lessons 1–3 with firmware and notes in `examples/lessons/`.
 - **Owner's tests passed:** CubeMX/CubeIDE TIM1 PWM project, 10 kHz PWM with
   a 10 µs step and exact edges (0.2x real time, acceptable), CubeIDE
-  debugging, the 0.2 package on a clean VM. Not yet tested by the owner: a
-  CubeMX ADC+DMA project.
+  debugging, the 0.2 package on a clean VM, and (2026-10-25) the owner's own
+  CubeMX ADC+DMA project: the same circuit on a Blue Pill and in SimNodus
+  printed coherent voltages on the serial port, matching the voltage at the
+  analog input (differences only from real resistor tolerance).
 
 ## Next steps
 
-1. Test backlog (owner's choice, 2026-10-25): SN-181 Cortex-M3 timing done
-   (29 of 30 board measurements within 5 %, default on; engine protocol 9);
-   open: the owner's own STM32CubeMX ADC+DMA project in SimNodus against
-   the board.
+1. Test backlog (owner's choice, 2026-10-25) closed: SN-181 Cortex-M3
+   timing done (29 of 30 board measurements within 5 %, default on; engine
+   protocol 9) and the owner's ADC+DMA project passed. Next: to be chosen
+   with the owner; the next release needs the owner's go.
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

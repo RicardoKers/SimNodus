@@ -189,7 +189,7 @@ handler then does not run); SCR.SEVONPEND makes pending interrupts wake WFE.
      register or memory is known a cycle later; data loads from the flash
      add the wait states; exception entry and return hide the handler fetch.
      These rules are the simplest that reproduce
-     `examples/firmware/cycle_loops` on the owner's Blue Pill (2026-10-25,
+     `examples/firmware/cycle_loops` on the owner's Blue Pill (an original STM32F103C8T6, 2026-10-25,
      DWT CYCCNT): 29 of 30 values within 5 % (most exact), eight MULS in a
      row at 72 MHz 7 % fast. Not modeled: bus contention with DMA, unaligned
      accesses, the Cortex-M3's own fetch queue. The status bar's assumptions

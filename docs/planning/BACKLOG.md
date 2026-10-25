@@ -64,7 +64,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-176 | Firmware edges into the circuit (PWM averages) | N2 / G2 | MCU-10 | done: step-averaged drive (ADR 0091); breakpoints measured, not taken |
 | SN-177 | TIM1–4 with PWM on the pins | N3 / G3 | MCU-07 | done (example 13) |
 | SN-178 | ADC1–2 with conservative synchronization to the circuit | N3 / G3 | MCU-06 | done (ADR 0092, example 14) |
-| SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | done (example 15, HAL project) |
+| SN-179 | DMA1 as needed by HAL ADC+DMA and UART+DMA | N3 / G3 | MCU-06 | done (example 15, HAL project; owner's own CubeMX ADC+DMA project matched the board on 2026-10-25) |
 | SN-187 | IWDG, WWDG, CRC, RTC/BKP (`src/emu/stm32f1_system.*`, HAL example 24) | after the freeze | — | done 2026-10-19 |
 | SN-203 | Digital devices on the board's nets, hybrid coupling (ADR 0102): `src/devices`, `DeviceBus`, device pins into the circuit and the logic lanes; first device 74HC595 (example 25, bit-banged) | after 0.5 | MCU-10 | done 2026-10-19 |
 | SN-204 | SPI1–2 master (`src/emu/stm32f1_spi.*`), MAX7219, 8x8 LED matrix and 4-digit 7-segment display parts, LED glow averaged over 20 ms, device events inside the machine's run (example 26) | after 0.5 | — | done 2026-10-19 |
