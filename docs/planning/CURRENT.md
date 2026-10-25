@@ -8,11 +8,17 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.8.0 published on 2026-10-25** (the owner tested the
-  connectivity phase and asked for the release): tag `v0.8.0`, GitHub release
-  with `SimNodus-0.8.0-windows-x64.zip` and
-  `SimNodus-0.8.0-windows-x64-setup.exe`. Releases 0.1.0-0.7.0 were published
-  between 2026-10-14 and 10-20.
+- **Release 0.9.0 published on 2026-10-25** (the owner asked for it after
+  the test backlog and the polish from their test): tag `v0.9.0`, GitHub
+  release with `SimNodus-0.9.0-windows-x64.zip` and
+  `SimNodus-0.9.0-windows-x64-setup.exe`. Releases 0.1.0-0.8.0 were published
+  between 2026-10-14 and 10-25.
+- **New in 0.9:** Cortex-M3 instruction timing with flash wait states,
+  calibrated on the owner's Blue Pill (SN-181, `cycle_loops` firmware,
+  Simulate > Settings, engine protocol 9); the owner's CubeMX ADC+DMA project
+  matched the board; polish from the owner's test (adjustable sources drag
+  up to raise, simple transistors converge from 0 V, copying messages,
+  meter polarity marks, live values of selected wires and probes).
 - **New in 0.8 — connectivity (ADR 0104):** `simnodus-cli` with the JSON
   command vocabulary (`src/automation`; build, check, inspect, simulate,
   measure, save; `Session::pause_at`, engine protocol 8; SN-215); the same
@@ -25,9 +31,6 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Code built and simulated an LED circuit with captions in the window through
   MCP (registered with `claude mcp add --scope user`), and the link drove the
   owner's Godot plant correctly.
-- **After 0.8 (unreleased):** Cortex-M3 instruction timing with flash wait
-  states, calibrated on the owner's Blue Pill (SN-181, `cycle_loops`
-  firmware, Simulate > Settings).
 - **Also new in 0.8:** a behavioral 555 timer (SN-213, example 34;
   interactive segments carry capacitor node voltages with `.ic`) and any
   vendor `.SUBCKT` as a part of its own via Place > Subcircuit (SN-214, ADR
@@ -85,10 +88,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Test backlog (owner's choice, 2026-10-25) closed: SN-181 Cortex-M3
-   timing done (29 of 30 board measurements within 5 %, default on; engine
-   protocol 9) and the owner's ADC+DMA project passed. Next: to be chosen
-   with the owner; the next release needs the owner's go.
+1. Next phase: to be chosen with the owner (backlog, classroom feedback).
 2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
