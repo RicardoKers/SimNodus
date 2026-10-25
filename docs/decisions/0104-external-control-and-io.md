@@ -1,7 +1,7 @@
 # ADR 0104: External control through one command vocabulary; external I/O as a discreet built-in link
 
-Date: 2026-10-25. Status: accepted (owner's direction 2026-10-25; SN-215 and
-SN-216 implemented, SN-217 and SN-218 planned). Makes ADR 0055 concrete.
+Date: 2026-10-25. Status: accepted (owner's direction 2026-10-25; SN-215 to
+SN-217 implemented, SN-218 planned). Makes ADR 0055 concrete.
 
 ## Context
 
@@ -75,6 +75,18 @@ the GUI, with structured results and stable codes, but chose no interface.
 - **Commands of the window only** (`view.pace`, `view.caption`, `view.show`,
   `view.fit`, `view.wait`, `view.analyzer`) are added by the host through
   `Automation::extend`, so the vocabulary stays one list in `help`.
+
+### MCP (SN-217)
+
+- `simnodus-cli mcp`, not a separate `simnodus-mcp` program: one executable
+  to package and document. It speaks MCP over stdio (JSON-RPC 2.0, one
+  message per line; revisions 2024-11-05 to 2025-06-18) with tools only.
+- Each command is a tool named with `_` for `.`; its input schema lists the
+  arguments with the descriptions of `help` (no types: the commands check
+  their arguments and answer with stable codes). A result is the command's
+  JSON as text, with `isError` for failed commands. The translation lives in
+  `src/automation/mcp.*` and runs commands through a callback, in process or
+  in the window (`--window`, connecting when a call needs it).
 
 ## Alternatives
 

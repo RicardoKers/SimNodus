@@ -8,6 +8,7 @@
 // library, 4 no window to connect to. Commands: docs/user/AUTOMATION.md.
 // "connect" passes the requests to the desktop window instead (SN-216).
 #include "automation/automation.hpp"
+#include "automation/mcp.hpp"
 #include "sim/engine_host.hpp"
 
 #include <cctype>
@@ -18,6 +19,7 @@
 #include <functional>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -62,6 +64,8 @@ commands:
   connect [SCRIPT]         send the requests (standard input, or a file) to the
                            SimNodus window, whose external control must be on
                            (Tools > Allow External Control, or simnodus --control)
+  mcp [--window]           MCP server on standard input and output, for AI agents;
+                           with --window the commands act on the SimNodus window
 
 options:
   --pretty                 indent the JSON output
@@ -69,6 +73,7 @@ options:
   --ngspice LIB            ngspice shared library (default: the bundled one)
   --ngspice-scripts DIR    folder with ngspice's spinit
   --keep-going             exec, connect: go on after a failed request
+  --window                 mcp: control the SimNodus window
   --version                print the version
 )usage";
 
@@ -277,6 +282,70 @@ private:
     std::string buffer_;
 };
 
+json no_window(const std::string& endpoint)
+{
+    return {{"ok", false}, {"error", {{"code", "no-window"},
+        {"message", "No SimNodus window accepts external control at " + endpoint +
+                ". Start SimNodus with --control, or turn on Tools > Allow External Control."}}}};
+}
+
+// Requests for the window over a connection opened when first needed and
+// opened again if the window was closed and started anew.
+class Window {
+public:
+    json execute(const json& request)
+    {
+        for (int attempt = 0; attempt < 2; ++attempt) {
+            if (!link_) {
+                auto link = std::make_unique<WindowLink>();
+                if (!link->open(endpoint_)) {
+                    break;
+                }
+                // Relative paths in the requests start from this folder, as they would here.
+                const auto here = std::filesystem::current_path().u8string();
+                link->ask(json{{"command", "hello"}, {"args", {{"directory", std::string(here.begin(), here.end())}}}}.dump());
+                link_ = std::move(link);
+            }
+            if (const auto reply = link_->ask(request.dump(-1, ' ', false, json::error_handler_t::replace))) {
+                try {
+                    return json::parse(*reply);
+                } catch (const json::exception&) {
+                    return {{"ok", false}, {"error", {{"code", "internal"}, {"message", "The window sent a reply that is not JSON."}}}};
+                }
+            }
+            link_.reset();
+        }
+        if (request.value("command", "") == "help") {
+            return {{"ok", true}, {"result", simnodus::automation::Automation::help()}}; // tools to list meanwhile
+        }
+        return no_window(endpoint_);
+    }
+
+private:
+    std::string endpoint_ = control_endpoint();
+    std::unique_ptr<WindowLink> link_;
+};
+
+// MCP over standard input and output: one JSON-RPC message per line.
+int mcp(const simnodus::automation::McpServer::Execute& execute)
+{
+    simnodus::automation::McpServer server(execute, SIMNODUS_CLI_VERSION);
+    pretty = false; // one message per line
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        if (line.find_first_not_of(" \t") == std::string::npos) {
+            continue;
+        }
+        if (const auto response = server.handle_line(line)) {
+            emit(*response);
+        }
+    }
+    return 0;
+}
+
 int lines(const std::function<json(const std::string&)>& execute, std::istream& in, bool stop_on_failure)
 {
     bool all_ok = true;
@@ -309,6 +378,7 @@ int main(int argc, char** argv)
     std::optional<std::filesystem::path> ngspice;
     std::optional<std::filesystem::path> ngspice_scripts;
     bool keep_going = false;
+    bool window = false;
     std::vector<std::string> positional;
     // run's options
     std::optional<std::string> mode;
@@ -336,6 +406,8 @@ int main(int argc, char** argv)
             pretty = true;
         } else if (a == "--keep-going") {
             keep_going = true;
+        } else if (a == "--window") {
+            window = true;
         } else if (a == "--library") {
             library_dir = path_from(value());
         } else if (a == "--ngspice") {
@@ -382,9 +454,7 @@ int main(int argc, char** argv)
         const auto endpoint = control_endpoint();
         WindowLink link;
         if (!link.open(endpoint)) {
-            emit({{"ok", false}, {"error", {{"code", "no-window"},
-                {"message", "No SimNodus window accepts external control at " + endpoint +
-                        ". Start SimNodus with --control, or turn on Tools > Allow External Control."}}}});
+            emit(no_window(endpoint));
             return 4;
         }
         // Relative paths in the requests start from this folder, as they would here.
@@ -409,7 +479,15 @@ int main(int argc, char** argv)
 
 #ifdef _WIN32
     _setmode(fileno(stdout), _O_BINARY);
+    _setmode(fileno(stdin), _O_BINARY);
 #endif
+    if (command == "mcp" && window) {
+        std::fflush(stdout);
+        out_fd = dup(fileno(stdout));
+        dup2(fileno(stderr), fileno(stdout));
+        Window target;
+        return mcp([&](const json& request) { return target.execute(request); });
+    }
     // Results get their own handle of standard output; descriptor 1 (printf,
     // ngspice, the emulator) then writes to standard error.
     std::fflush(stdout);
@@ -456,6 +534,9 @@ int main(int argc, char** argv)
         }
     };
 
+    if (command == "mcp") {
+        return mcp([&](const json& request) { return automation.execute(request); });
+    }
     if (command == "serve") {
         if (positional.size() > 1 && !open_project(automation, positional[1])) {
             return 1;

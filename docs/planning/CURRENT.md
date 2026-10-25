@@ -20,7 +20,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   the same commands controlling the window (Tools > Allow External Control or
   `--control`, `simnodus-cli connect`; edits on the canvas and in the undo
   history, runs shown live, `view.pace`/`view.caption` for recorded
-  tutorials).
+  tutorials); SN-217, `simnodus-cli mcp [--window]`, the commands as MCP
+  tools for Claude Code, Codex and other agents.
 - **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
   (SN-213, example 34; interactive segments now also carry capacitor node
   voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
@@ -78,8 +79,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. SN-217 (MCP server over the same commands), then SN-218 (external I/O
-   parts and the TCP link for the virtual plants).
+1. SN-218: external I/O parts and the TCP link for the virtual plants.
 2. Release 0.8.0 at the end of the connectivity phase (owner, 2026-10-25),
    after the owner tests it.
 3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
