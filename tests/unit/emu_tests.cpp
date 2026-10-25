@@ -1989,3 +1989,24 @@ int main(int argc, char** argv)
     examples = argv[1];
     return simnodus::test::run_all(argc > 2 ? argv[2] : "");
 }
+
+TEST_CASE("the cycle measurement firmware reports every test at both clocks")
+{
+    std::string error;
+    const auto image = read_elf(examples / "firmware" / "cycle_loops" / "cycle_loops.elf", error);
+    REQUIRE(image);
+    Stm32F103 m;
+    REQUIRE(m.load(*image, error));
+    m.run_until_ns(500000000ull);
+    std::string text;
+    for (const auto& b : m.take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    const auto from = text.find("cycle_loops v1");
+    REQUIRE(from != std::string::npos);
+    const auto to = text.find("end\r\n", from);
+    REQUIRE(to != std::string::npos);
+    std::printf("%s", text.substr(from, to - from).c_str()); // to compare with a real Blue Pill
+    CHECK(text.find("# 72 MHz, 2 wait states", from) < to);
+    CHECK(m.take_diagnostics().empty());
+}
