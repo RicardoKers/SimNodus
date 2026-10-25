@@ -17,7 +17,7 @@ the same circuit give the same firmware timing.
 | Part | Status | Notes |
 |---|---|---|
 | Cortex-M3 core, 64 KiB flash, 20 KiB SRAM | yes | ELF files built for the STM32F103C8 (STM32CubeIDE, arm-none-eabi-gcc) |
-| Clock (RCC) | yes | Starts on HSI 8 MHz. HSE (the board's 8 MHz crystal), PLL, LSE and LSI report ready as soon as they are switched on, and SYSCLK follows SW, so the `SystemClock_Config()` that STM32CubeIDE generates runs (72 MHz with PLL x9). The CPU runs one instruction per HCLK cycle and SysTick counts at HCLK; RESET returns to 8 MHz. Example 12 uses the HAL at 72 MHz |
+| Clock (RCC) | yes | Starts on HSI 8 MHz. HSE (the board's 8 MHz crystal), PLL, LSE and LSI report ready as soon as they are switched on, and SYSCLK follows SW, so the `SystemClock_Config()` that STM32CubeIDE generates runs (72 MHz with PLL x9). Instructions take the Cortex-M3's cycles at HCLK (see *Instruction timing* below) and SysTick counts at HCLK; RESET returns to 8 MHz. Example 12 uses the HAL at 72 MHz |
 | Flash access control, PWR | registers only | `FLASH_ACR` (wait states) and `PWR_CR` keep what is written, so HAL can check them; flash programming and low-power modes are not simulated |
 | SysTick | yes | Counts at HCLK; a period of RVR + 1 cycles, as on the chip |
 | GPIO ports A, B, C | yes | Modes from CRL/CRH, ODR/BSRR/BRR/IDR; push-pull, open-drain, inputs with pull-up/pull-down |
@@ -121,13 +121,23 @@ laptop.
   less than 0.1 ms late, in order and with their spacing. The status bar
   tooltip states these approximations.
 - **Clock.** Oscillators and the PLL are ready at once (a real HSE takes
-  about 1–2 ms). The CPU executes one instruction per clock cycle: a real
-  Cortex-M3 needs extra cycles for taken branches, loads and flash wait
-  states, so busy-wait loops run faster than on the board (code timed with
-  SysTick or `HAL_Delay()` is right). Peripheral clock enables
+  about 1–2 ms). Peripheral clock enables
   (`RCC_APB2ENR` …) are not checked: a peripheral works even if its clock
   was never switched on, which would fail on the board. The clock security
   system and MCO are not simulated.
+- **Instruction timing.** With *Cortex-M3 instruction timing* on
+  (Simulate > Settings, on by default), each instruction takes the cycles of
+  the STM32F103's core: 2 for a load, 2 to 12 for a division, 1 + the
+  registers for LDM/STM and PUSH/POP, a pipeline refill after a taken branch,
+  12 cycles to enter an interrupt and 10 to return, and the flash wait states
+  set in `FLASH_ACR` (two at 72 MHz) through the prefetch buffer. This is an
+  approximation calibrated on a real Blue Pill with DWT `CYCCNT`: the 30
+  measurements of `examples/firmware/cycle_loops` (15 tests at 8 and 72 MHz)
+  agree within 5 %, except eight multiplies in a row at 72 MHz (7 % fast).
+  Busy-wait loops and computations therefore take about as long as on the
+  board. Off: one instruction per cycle, faster than the chip (as in releases
+  up to 0.8). Code timed with SysTick, timers or `HAL_Delay()` is right
+  either way. DMA and the CPU do not slow each other down.
 - **Speed.** At 72 MHz the emulator executes nine times more instructions
   per simulated second than at 8 MHz; the status bar shows the actual speed.
 - **ADC timing.** The firmware runs up to 0.1 ms ahead of the circuit, so a

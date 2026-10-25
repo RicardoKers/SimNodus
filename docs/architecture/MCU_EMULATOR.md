@@ -174,11 +174,26 @@ handler then does not run); SCR.SEVONPEND makes pending interrupts wake WFE.
 - Cycle model, in two steps:
   1. **One instruction per cycle** (as Renode, ADR 0088). Needed for the
      differential tests against Renode in E-07.
-  2. **Cortex-M3 cycle table** (TRM): taken branches +1..3, loads 2, LDM/STM
-     n + 1, multiply-long 3–5, divide 2–12, exception entry and return 12,
-     plus flash wait states from FLASH_ACR with a simple prefetch
-     approximation. Labeled approximate and validated against the owner's
-     Blue Pill with DWT CYCCNT (plan N5).
+  2. **Cortex-M3 timing** (SN-181, `Cpu::Timing::CortexM3`, the default
+     setting `cortex_m3_timing`): TRM r1p1 table 18-1 without wait states:
+     loads 2 (1 right after another single load or store), stores 1, LDRD/STRD
+     3, LDM/STM n + 1, MLA/MLS 2, long multiplies 3–5 (4–7 with accumulate,
+     shorter for 16-bit operands), divide 2–12 (`4 + (quotient bits + 3) / 4`,
+     at most 12; 2 for a zero quotient), a taken branch 1 + refill, exception
+     entry 12 cycles from the instruction that made it pending, return 10,
+     tail-chaining 6. Flash wait states from FLASH_ACR: code comes in 64-bit
+     lines of `1 + wait states` cycles; after a refetched branch target the
+     prefetch buffer streams the following lines; a short forward branch into
+     the current or next line is a buffer hit (+1 with wait states); a
+     prefetch about to finish delays a refetch by a cycle; a target from a
+     register or memory is known a cycle later; data loads from the flash
+     add the wait states; exception entry and return hide the handler fetch.
+     These rules are the simplest that reproduce
+     `examples/firmware/cycle_loops` on the owner's Blue Pill (2026-10-25,
+     DWT CYCCNT): 29 of 30 values within 5 % (most exact), eight MULS in a
+     row at 72 MHz 7 % fast. Not modeled: bus contention with DMA, unaligned
+     accesses, the Cortex-M3's own fetch queue. The status bar's assumptions
+     say which timing a run uses.
 - Determinism: no host time enters the emulator. Inputs carry the cycle (or
   nanosecond) at which they apply.
 - Clock changes (RCC prescalers, PLL switch) reschedule the events already in

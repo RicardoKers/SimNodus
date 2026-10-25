@@ -286,6 +286,7 @@ public:
         regs_[4] = 0x80;           // CR: LOCK
         regs_[7] = 0x03FFFFFCu;    // OBR
         regs_[8] = 0xFFFFFFFFu;    // WRPR
+        update_cpu();
     }
     std::uint32_t latency() const { return regs_[0] & 7u; }
 
@@ -309,10 +310,15 @@ protected:
         if (index < regs_.size() && index != 7 && index != 8) {
             regs_[index] = merge(regs_[index], value, mask);
         }
+        if (index == 0) {
+            update_cpu();
+        }
         return true;
     }
 
 private:
+    void update_cpu() { m_.cpu_.set_flash_access(latency(), (regs_[0] & 0x10u) != 0); }
+
     Stm32F103& m_;
     std::array<std::uint32_t, 9> regs_{};
     bool warned_ = false;
@@ -1174,6 +1180,7 @@ public:
 
 Stm32F103::Stm32F103(MachineOptions options) : options_(options), cpu_(bus_)
 {
+    cpu_.set_timing(options_.cortex_m3_timing ? Cpu::Timing::CortexM3 : Cpu::Timing::OneCyclePerInstruction);
     bus_.add_memory("SRAM", 0x20000000u, options_.sram_size, true); // first: checked first on every access
     bus_.add_memory("flash", 0x08000000u, options_.flash_size, false);
     bus_.add_alias("flash (boot alias)", 0x00000000u, "flash");

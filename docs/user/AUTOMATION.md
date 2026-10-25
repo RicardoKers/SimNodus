@@ -97,7 +97,7 @@ project, or with the project named after the script.
 | `wire.connect` | Wires two pins or points with an L-shaped route; refuses (`blocked`) a route that would touch another pin or wire; `via` adds corner points |
 | `label.add` | Net label; equal names connect, `GND` or `0` is ground |
 | `probe.add`, `note.add` | Probes for the Signal Analyzer, text notes |
-| `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed |
+| `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed, `exact_edges`, `cortex_m3_timing` |
 | `edit.undo`, `edit.redo` | Undo history of the session |
 | `sim.run` | Start, run, measure, stop: a transient analysis, or an interactive run for `duration` with timed `events` |
 | `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step |

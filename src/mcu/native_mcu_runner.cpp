@@ -452,6 +452,7 @@ void NativeMcuRunner::work()
     // boundary, while the firmware may be a window further on).
     machine_options.uart_rx_lag_ns = options_.analog_lag_ns + 2 * std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
     machine_options.uart_rx_min_bit_ns = options_.uart_rx_min_bit_ns;
+    machine_options.cortex_m3_timing = options_.cortex_m3_timing;
     for (const auto& uart : options_.uart_rx_byte_links) {
         if (!uart.empty() && uart.back() >= '1' && uart.back() <= '3') {
             machine_options.uart_rx_pins &= ~(1u << (uart.back() - '1'));

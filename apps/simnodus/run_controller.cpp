@@ -631,6 +631,10 @@ QString RunController::mode_description() const
                    "0.1-0.2 ms back")
                     .arg(s.exact_edges ? tr("with a time point at every edge (exact edges)")
                                        : tr("averaged over each time step (an edge is spread over one step)"));
+        text += s.cortex_m3_timing
+            ? tr("; firmware instructions take the Cortex-M3 cycles with flash wait states (approximate, within 5 % "
+                 "of a real Blue Pill in measured tests)")
+            : tr("; firmware instructions take one cycle each (faster than a real chip)");
     }
     return text;
 }
