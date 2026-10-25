@@ -29,9 +29,15 @@ class QSplitter;
 class QThread;
 class QTimer;
 
+namespace simnodus::sim {
+struct RunRequest;
+}
+
 namespace simnodus::ui {
 
 class AnalyzerWindow;
+class ControlServer;
+class ControlWorkspace;
 class MemoryWindow;
 class ComponentPanel;
 class Document;
@@ -65,6 +71,12 @@ public:
     RunController* run_controller() const { return run_; }
     AnalyzerWindow* analyzer() const { return analyzer_.get(); }
     MemoryWindow* memory_viewer() const { return memory_.get(); }
+    // External control by AI agents and scripts (SN-216); off until turned on.
+    ControlServer* control() const { return control_; }
+    bool set_external_control(bool on, QString* error = nullptr);
+    // Starts a run of the document, or of `base` (external control); reports
+    // problems in Messages. Run (F5) uses it with no base.
+    bool start_run(const sim::RunRequest* base, QString& error);
     // Starts placing the model folders' subcircuit `name` as a part (SN-214); false if there is none.
     bool begin_subcircuit(const std::string& name);
     const library::ComponentLibrary& library() const { return library_; }
@@ -132,6 +144,8 @@ protected:
     void closeEvent(QCloseEvent* event) override;
 
 private:
+    friend class ControlWorkspace; // opens and saves files as the menus do
+    void update_control_status();
     void load_library();
     void build_actions_and_menus();
     void build_status_bar();
@@ -209,6 +223,9 @@ private:
     QLabel* warnings_label_ = nullptr;
     QLabel* cursor_label_ = nullptr;
     QLabel* zoom_label_ = nullptr;
+    QLabel* control_label_ = nullptr;
+    QAction* control_action_ = nullptr;
+    ControlServer* control_ = nullptr;
 
     QPointer<QThread> engine_thread_;
 };

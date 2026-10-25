@@ -366,6 +366,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 | Tools > Language | System language (default), English or Português (Brasil); takes effect at the next start |
 | Tools > Model Folders... | Folders with your `.lib` model files |
 | Tools > Check Simulation Engine | Loads the analog engine and solves a reference circuit |
+| Tools > Allow External Control | AI agents and scripts on this computer may edit and run the circuit in this window (`simnodus-cli connect`, see AUTOMATION.md); off at every start |
 | View > Components / Properties / Messages | Show or hide the panels (Ctrl+1/2/3); the layout is remembered |
 
 ## Command line
@@ -374,6 +375,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 |---|---|
 | `simnodus.exe FILE.snx` | Open a project |
 | `simnodus.exe FILE.snx --run` | Open and start the simulation |
+| `simnodus.exe --control` | Start with external control on (Tools > Allow External Control) |
 | `simnodus.exe --check-engine` | Load ngspice and solve a reference circuit |
 | `simnodus.exe --check-mcu-engine` | Run `blink.elf` in the microcontroller emulator |
 | `simnodus.exe --smoke-test` | Open the windows, run built-in checks, exit |

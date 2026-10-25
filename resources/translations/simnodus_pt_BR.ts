@@ -75,6 +75,10 @@
             <translation>Iniciar a simulação depois de abrir o projeto.</translation>
         </message>
         <message>
+            <source>Allow external control by AI agents and scripts (simnodus-cli connect).</source>
+            <translation>Permitir o controle externo por agentes de IA e scripts (simnodus-cli connect).</translation>
+        </message>
+        <message>
             <source>Project file (.snx) to open.</source>
             <translation>Arquivo de projeto (.snx) a abrir.</translation>
         </message>
@@ -397,6 +401,17 @@
 Pins: %2</source>
             <translation>%1
 Pinos: %2</translation>
+        </message>
+    </context>
+    <context>
+        <name>simnodus::ui::ControlServer</name>
+        <message>
+            <source>Another SimNodus window already accepts external control.</source>
+            <translation>Outra janela do SimNodus já aceita controle externo.</translation>
+        </message>
+        <message>
+            <source>External control could not start: %1</source>
+            <translation>O controle externo não pôde iniciar: %1</translation>
         </message>
     </context>
     <context>
@@ -787,6 +802,18 @@ Pinos: %2</translation>
             <translation>Insere um subcircuito de fabricante (.subckt) das pastas de modelos como uma peça com um pino por porta</translation>
         </message>
         <message>
+            <source>Allow External &amp;Control</source>
+            <translation>Permitir &amp;controle externo</translation>
+        </message>
+        <message>
+            <source>AI agents and scripts on this computer may edit and run the circuit (simnodus-cli connect)</source>
+            <translation>Agentes de IA e scripts neste computador podem editar e simular o circuito (simnodus-cli connect)</translation>
+        </message>
+        <message>
+            <source>External control</source>
+            <translation>Controle externo</translation>
+        </message>
+        <message>
             <source>SPICE model files (*.lib) for transistors, MOSFETs and diodes; their models appear in Properties</source>
             <translation>Arquivos de modelos SPICE (*.lib) de transistores, MOSFETs e diodos; seus modelos aparecem em Propriedades</translation>
         </message>
@@ -927,6 +954,18 @@ Pinos: %2</translation>
         <message>
             <source>Simulation started. Click switches and buttons to operate them.</source>
             <translation>Simulação iniciada. Clique nas chaves e nos botões para operá-los.</translation>
+        </message>
+        <message>
+            <source>External control is on: AI agents and scripts on this computer can edit and run the circuit with simnodus-cli connect (%1).</source>
+            <translation>O controle externo está ligado: agentes de IA e scripts neste computador podem editar e simular o circuito com simnodus-cli connect (%1).</translation>
+        </message>
+        <message>
+            <source>Controlled by an agent</source>
+            <translation>Controlado por um agente</translation>
+        </message>
+        <message>
+            <source>External control on</source>
+            <translation>Controle externo ligado</translation>
         </message>
         <message>
             <source>Net label</source>

@@ -45,14 +45,19 @@ public:
     RunController(Document& document, SchematicScene& scene, QObject* parent = nullptr);
     ~RunController() override;
 
-    // Starts a run of the current document. On failure `error` explains it
-    // and diagnostics() lists the circuit problems.
-    bool start(QString& error);
+    // Starts a run of the current document, or of `base` (external control,
+    // SN-216: its schematic, vectors and current probes, plus what the canvas
+    // shows). On failure `error` explains it and diagnostics() lists the
+    // circuit problems.
+    bool start(QString& error, const sim::RunRequest* base = nullptr);
     void pause_or_resume();
     void stop();
     bool active() const;
     sim::RunState state() const { return session_->status().state; }
     sim::RunStatus status() const { return session_->status(); }
+    sim::Session& session() { return *session_; }
+    // The schematic of the current or last run.
+    const model::Schematic& snapshot() const { return snapshot_; }
     const std::vector<netlist::Diagnostic>& diagnostics() const { return session_->diagnostics(); }
 
     // The engine process's ID, 0 without one (in-process runs, before the first run).
@@ -122,6 +127,7 @@ public:
     QString live_text(const std::set<model::Id>& selection) const;
 
 signals:
+    void started();
     void state_changed();
     void refreshed();
     void failed(const QString& message, const QStringList& engine_output);

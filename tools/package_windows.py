@@ -31,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
-    "simnodus.exe", "simnodus-engine.exe", "simnodus-cli.exe", "AUTOMATION.md", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "platforms/qwindows.dll",
+    "simnodus.exe", "simnodus-engine.exe", "simnodus-cli.exe", "AUTOMATION.md", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "platforms/qwindows.dll",
     "ngspice/ngspice.dll", "ngspice/sndfile.dll", "ngspice/samplerate.dll", "ngspice/libomp140.x86_64.dll",
     "ngspice/spinit", "ngspice/spice2poly.cm", "ngspice/COPYING", "LICENSE", "README.txt", "THIRD-PARTY-NOTICES.txt",
     "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",

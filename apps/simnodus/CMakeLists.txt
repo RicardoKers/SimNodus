@@ -1,5 +1,5 @@
 # SimNodus desktop application (Qt 6 Widgets, ADR 0081).
-find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Widgets Network)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -18,6 +18,8 @@ add_library(simnodus_ui STATIC
     app_settings.hpp
     component_panel.cpp
     component_panel.hpp
+    control_server.cpp
+    control_server.hpp
     document.cpp
     document.hpp
     engine_process.cpp
@@ -53,7 +55,7 @@ add_library(simnodus_ui STATIC
 target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets simnodus::session simnodus::engine_link simnodus::editing simnodus::io
+target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network simnodus::automation simnodus::session simnodus::engine_link simnodus::editing simnodus::io
     simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
 # Last-resort examples location for running from a build tree.
 target_compile_definitions(simnodus_ui PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")

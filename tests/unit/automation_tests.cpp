@@ -77,6 +77,7 @@ TEST_CASE("automation: hello, help and malformed requests")
 {
     Fixture f;
     CHECK(f.ok("hello")["protocol"] == automation::protocol_version);
+    CHECK(f.ok("hello")["window"] == false);
     const auto help = f.ok("help");
     REQUIRE(help.is_object());
     CHECK(help["commands"].size() > 25);
@@ -194,5 +195,37 @@ TEST_CASE("automation: projects are saved and opened again")
     CHECK(g.ok("settings.get")["transient_stop"] == 0.02);
     CHECK(g.error("project.open", {{"path", path + ".missing"}}) == "io-error");
     CHECK(g.error("sim.read") == "not-running");
+
+    // Relative paths start from hello's "directory" (simnodus-cli connect sends its own).
+    Fixture h;
+    const auto hello = h.ok("hello", {{"directory", path.substr(0, path.size() - 7)}}); // without "/rc.snx"
+    REQUIRE(hello.is_object());
+    CHECK(hello.contains("directory"));
+    const auto relative = h.ok("project.open", {{"path", "rc.snx"}});
+    REQUIRE(relative.is_object());
+    CHECK(relative["components"] == 4);
+    REQUIRE(h.ok("project.save", {{"path", "copy.snx"}}).is_object());
+    CHECK(std::filesystem::exists(folder / "copy.snx"));
     std::filesystem::remove_all(folder);
+}
+
+TEST_CASE("automation: hosts add commands of their own")
+{
+    Fixture f;
+    int calls = 0;
+    f.automation.extend({"view.ping", "Answers.", json{{"n", "a number"}}, [&](const json& args) {
+                             ++calls;
+                             if (!args.contains("n")) {
+                                 throw automation::Error{"invalid-argument", "n is missing"};
+                             }
+                             return json{{"n", args["n"]}};
+                         }});
+    CHECK(f.ok("view.ping", {{"n", 3}})["n"] == 3);
+    CHECK(f.error("view.ping") == "invalid-argument");
+    CHECK(calls == 2);
+    const auto help = f.ok("help");
+    CHECK(help["commands"].back()["command"] == "view.ping");
+    CHECK(automation::Automation::help()["commands"].back()["command"] != "view.ping");
+    f.automation.forget_run();
+    CHECK(f.error("sim.read") == "not-running");
 }

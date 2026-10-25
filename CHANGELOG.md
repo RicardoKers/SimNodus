@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-216)
+
+- External control of the window (ADR 0104): with Tools > Allow External Control (or `simnodus --control`), AI agents and scripts of the same user send the automation commands to the open window through `simnodus-cli connect` (a named pipe; a local socket on Linux; off at every start). Edits are steps of the undo history and are selected and scrolled into view; runs show live on the canvas and in the Signal Analyzer at the project's speed; unsaved changes are kept unless a request says `discard`. Window commands for recorded tutorials: `view.pace` (a pause after each edit), `view.caption` (a caption on the canvas), `view.show`, `view.fit`, `view.wait`, `view.analyzer`.
+- `hello` accepts `directory`, where relative paths start.
+
 ### Added (2026-10-25, SN-215)
 
 - `simnodus-cli`: SimNodus without a window for AI agents (Claude Code, Codex), scripts and CI (ADR 0104). JSON commands list and describe parts, open, build, check, inspect and save projects (`component.add` with a pin attached to another pin, `wire.connect` with an orthogonal route that refuses to touch other pins, labels, probes, undo), and run simulations: transient analyses, interactive runs with timed control changes, step-by-step runs, measurements (min, max, mean, RMS, frequency, duty), evenly spaced points, CSV, serial text of boards. One-shot commands (`run`, `check`, `inspect`, `parts`, `describe`), `serve` (JSON lines on standard input) and `exec` (a file of requests). Packaged next to the application with `AUTOMATION.md`; the packaging script runs it.
