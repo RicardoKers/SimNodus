@@ -1993,7 +1993,7 @@ int main(int argc, char** argv)
 
 namespace {
 
-// Cycles measured with examples/firmware/cycle_loops on a Blue Pill (STM32F103C8,
+// Cycles measured with examples/firmware/cycle_loops on the owner's Blue Pill (an STM32F103C8T6,
 // 2026-10-25): 1000 iterations at 8 MHz with no wait state, then at 72 MHz
 // with two wait states and the prefetch buffer on.
 struct BoardCycles {
