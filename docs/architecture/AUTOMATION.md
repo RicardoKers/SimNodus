@@ -1,6 +1,6 @@
 # Headless operation and automation
 
-Status: accepted architectural direction under [ADR 0055](../decisions/0055-automation-first-headless.md), recorded by SN-045. Product contracts and implementation are pending. All operation names and diagrams below are conceptual, not selected commands, classes, schemas or APIs.
+Status: accepted architectural direction under [ADR 0055](../decisions/0055-automation-first-headless.md), recorded by SN-045. Since 2026-10-25 [ADR 0104](../decisions/0104-external-control-and-io.md) selects the concrete interface: JSON commands in `src/automation`, used by `simnodus-cli` (SN-215), later by the desktop application and an MCP server; the commands are documented in [docs/user/AUTOMATION.md](../user/AUTOMATION.md). The rest of this page is the original direction.
 
 ## Purpose and application boundary
 

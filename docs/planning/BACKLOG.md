@@ -119,6 +119,18 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-153 | pt-BR translation: 650 texts of the interface and the component library, Tools > Language (system, English, Português), `tools/update_translations.py`, repository check for untranslated entries | UI-16 | done 2026-10-19 |
 | SN-154 | User guide (`docs/user/USER_GUIDE.md`, Help > User Guide, packaged as USER-GUIDE.md) with known limitations; shorter quick start | MCU-09 | done 2026-10-19 |
 
+## Connectivity — AI agents and external I/O (from 2026-10-25)
+
+Owner's priority 2026-10-25: agents first, the virtual plant afterwards
+([ADR 0104](../decisions/0104-external-control-and-io.md)).
+
+| ID | Task | Status |
+|---|---|---|
+| SN-215 | JSON command vocabulary (`src/automation`) and `simnodus-cli` (one-shot commands, `serve`, `exec`); `Session::pause_at` (engine protocol 8); `docs/user/AUTOMATION.md`; packaged | done 2026-10-25 |
+| SN-216 | Control channel in the desktop application: local endpoint off by default, the same commands, edits on the canvas and in the undo history, pacing and highlights for recorded tutorials (an agent builds a circuit step by step on screen) | todo |
+| SN-217 | MCP server over the same commands (`simnodus-mcp`, stdio), for Claude Code, Codex and other agents | todo |
+| SN-218 | External I/O for the virtual plants: bit and word input/output parts with a literal address (`%IX0.10`), polarity, word scale 0–1000 ↔ 0–3.3 V by default (a parameter); TCP link with one JSON object per line (host, port, 20 ms period), active only in projects with such parts; safe outputs sent on stop and pause | todo |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |
@@ -126,5 +138,5 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | SN-160 | Symbol Editor window (PRJ-05) |
 | SN-161 | Subcircuits (PRJ-06): done — vendor `.subckt` models (#161, ADR 0097) and user blocks (SN-200, ADR 0098) |
 | SN-162 | Dark theme (done 2026-10-19: View > Theme, system/light/dark, applied at once); ANSI symbol variant still open |
-| SN-163 | Headless CLI over the same session API (ADR 0055 direction) |
+| SN-163 | Headless CLI over the same session API (ADR 0055 direction): done as SN-215 |
 | SN-164 | Linux package |

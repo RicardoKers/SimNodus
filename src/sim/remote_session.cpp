@@ -127,6 +127,15 @@ void RemoteSession::stop()
     }
 }
 
+void RemoteSession::pause_at(double time)
+{
+    if (engine_run_) {
+        Writer w(Type::PauseAt);
+        w.f64(time);
+        link_.send(w.payload());
+    }
+}
+
 bool RemoteSession::active() const
 {
     return status_.state == RunState::Running || status_.state == RunState::Paused;

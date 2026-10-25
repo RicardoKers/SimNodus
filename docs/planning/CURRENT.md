@@ -12,6 +12,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   preview and asked for the release): tag `v0.7.0`, GitHub release with
   `SimNodus-0.7.0-windows-x64.zip` and `SimNodus-0.7.0-windows-x64-setup.exe`.
   Releases 0.1.0-0.6.0 were published between 2026-10-14 and 10-20.
+- **Connectivity (owner's priority since 2026-10-25, ADR 0104):** agents
+  first, then the virtual plant. Done: SN-215, the JSON command vocabulary
+  (`src/automation`) and `simnodus-cli` (build, check, inspect, simulate,
+  measure, save; `serve`/`exec` for JSON lines; `Session::pause_at`, engine
+  protocol 8), documented in `docs/user/AUTOMATION.md` and packaged.
 - **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
   (SN-213, example 34; interactive segments now also carry capacitor node
   voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
@@ -69,10 +74,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Release 0.8.0 when the owner asks for it (the preview passed the owner's
-   test; ask before cutting the release). Then wait for the owner's next
-   request; the backlog has no open phase task.
-2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
+1. SN-216: control channel in the desktop application (agents build circuits
+   on screen for video tutorials), then SN-217 (MCP server), then SN-218
+   (external I/O parts and the TCP link for the virtual plants).
+2. Release 0.8.0 when the owner asks for it (the preview passed the owner's
+   test; ask before cutting the release).
+3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 
 ## Known constraints
@@ -105,7 +112,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - **Build and test:** `python tools/fetch_backends.py` (once), then
   `cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64`, `cmake --build build/dev`,
-  `ctest --test-dir build/dev -j 8` (14 suites, about 3 min),
+  `ctest --test-dir build/dev -j 8` (about 3 min),
   `python tools/check_repository.py`. GUI test executables print nothing to
   the console; use `-o file.txt,txt` and `QT_QPA_PLATFORM=offscreen`, with
   `build/deps/ngspice-runtime` on `PATH`.

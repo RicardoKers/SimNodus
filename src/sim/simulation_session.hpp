@@ -101,6 +101,10 @@ public:
     virtual bool start(RunRequest request, std::string& error) = 0;
     virtual void pause() = 0;
     virtual void resume() = 0;
+    // Pauses an interactive run once its simulated time reaches `time`, at the
+    // first accepted point at or after it (within one time step); a negative
+    // time cancels (SN-215: automation stops at the times it asks for).
+    virtual void pause_at(double time) = 0;
     // Ends the run and waits for it (bounded by the engine halt).
     virtual void stop() = 0;
     virtual bool active() const = 0; // running or paused
@@ -156,6 +160,7 @@ public:
     bool start(RunRequest request, std::string& error) override;
     void pause() override;
     void resume() override;
+    void pause_at(double time) override;
     void stop() override;
     bool active() const override;
 
@@ -219,6 +224,7 @@ private:
     std::thread worker_;
     std::atomic<bool> stop_requested_{false};
     std::atomic<bool> pause_requested_{false};
+    std::atomic<double> pause_at_{-1.0};
     std::atomic<double> speed_{1.0};
 
     mutable std::mutex mutex_;

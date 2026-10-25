@@ -306,6 +306,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     speed_ = interactive ? settings_.speed : 0.0;
     stop_requested_ = false;
     pause_requested_ = false;
+    pause_at_ = -1.0;
     worker_ = std::thread([this, interactive] { interactive ? run_interactive() : run_transient(); });
     return true;
 }
@@ -315,6 +316,11 @@ void SimulationSession::pause()
     if (active()) {
         pause_requested_ = true;
     }
+}
+
+void SimulationSession::pause_at(double time)
+{
+    pause_at_ = time;
 }
 
 void SimulationSession::resume()
@@ -1302,6 +1308,10 @@ void SimulationSession::run_interactive()
         }
         feed_edges(*engine, point.time);
         pass_serial_bytes();
+        if (const double at = pause_at_; at >= 0.0 && global >= at) {
+            pause_at_ = -1.0;
+            pause_requested_ = true;
+        }
         // Pause inside the callback: the engine thread simply waits.
         if (pause_requested_ && !stop_requested_) {
             set_state(RunState::Paused);

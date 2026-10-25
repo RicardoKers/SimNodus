@@ -50,6 +50,7 @@ public:
     bool start(RunRequest request, std::string& error) override;
     void pause() override;
     void resume() override;
+    void pause_at(double time) override;
     void stop() override;
     bool active() const override;
 

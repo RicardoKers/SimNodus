@@ -31,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
-    "simnodus.exe", "simnodus-engine.exe", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "platforms/qwindows.dll",
+    "simnodus.exe", "simnodus-engine.exe", "simnodus-cli.exe", "AUTOMATION.md", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "platforms/qwindows.dll",
     "ngspice/ngspice.dll", "ngspice/sndfile.dll", "ngspice/samplerate.dll", "ngspice/libomp140.x86_64.dll",
     "ngspice/spinit", "ngspice/spice2poly.cm", "ngspice/COPYING", "LICENSE", "README.txt", "THIRD-PARTY-NOTICES.txt",
     "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
@@ -177,6 +177,12 @@ def main() -> int:
         print(engine.stdout.strip())
         mcu = run([exe, "--check-mcu-engine"], env=env, capture_output=True, text=True, timeout=60)
         print(mcu.stdout.strip())
+        # The command line (SN-215) finds the bundled library and ngspice on its own.
+        cli = run([str(staging / "simnodus-cli.exe"), "run", str(staging / "examples" / "01_LED_and_push_button.snx"),
+                   "--time", "20m", "--event", "10m SW1 1"], env=env, capture_output=True, text=True, timeout=120)
+        if '"applied_at"' not in cli.stdout:
+            raise SystemExit(f"simnodus-cli run failed: {cli.stdout}")
+        print("simnodus-cli: example 01 ran with a button press")
         with tempfile.TemporaryDirectory() as temp:
             # The package ships only the native platform plugin, so this opens real windows briefly.
             smoke = run([exe, "--smoke-test", "--settings", str(Path(temp) / "s.ini")],

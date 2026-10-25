@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-215)
+
+- `simnodus-cli`: SimNodus without a window for AI agents (Claude Code, Codex), scripts and CI (ADR 0104). JSON commands list and describe parts, open, build, check, inspect and save projects (`component.add` with a pin attached to another pin, `wire.connect` with an orthogonal route that refuses to touch other pins, labels, probes, undo), and run simulations: transient analyses, interactive runs with timed control changes, step-by-step runs, measurements (min, max, mean, RMS, frequency, duty), evenly spaced points, CSV, serial text of boards. One-shot commands (`run`, `check`, `inspect`, `parts`, `describe`), `serve` (JSON lines on standard input) and `exec` (a file of requests). Packaged next to the application with `AUTOMATION.md`; the packaging script runs it.
+- Interactive runs can pause at a simulated time (`Session::pause_at`, engine protocol 8): automation stops at the asked time within one step.
+
 ### Added (2026-10-25, SN-214)
 
 - Place > Subcircuit: any `.SUBCKT` of the model folders becomes a part of its own, a box with one pin per port in DIP order (first half down the left side, the rest up the right side), named as in the file; Pins... and the model list work as for op-amps. The text is kept in the project, so it opens without the folder. Interactive runs note subcircuits with switches or XSPICE devices, whose state may not survive a segment start.

@@ -378,6 +378,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 | `simnodus.exe --check-mcu-engine` | Run `blink.elf` in the microcontroller emulator |
 | `simnodus.exe --smoke-test` | Open the windows, run built-in checks, exit |
 | `simnodus.exe --settings FILE` | Use FILE instead of the user's settings |
+| `simnodus-cli.exe ...` | SimNodus without a window, for AI agents and scripts: build, check, simulate and measure circuits with JSON commands (see AUTOMATION.md) |
 
 ## Troubleshooting
 
