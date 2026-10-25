@@ -40,8 +40,8 @@ them.
 |---|---|
 | **Components** (left, Ctrl+1) | The parts tree by category with a search box. The preview below shows the selected part's symbol, pins and a short description |
 | **Schematic** (center) | The drawing. Mouse wheel zooms at the cursor, the middle button or Space+drag pans, F fits the circuit |
-| **Properties** (right, Ctrl+2) | Values of the selected part; while running, its live voltages, currents and power |
-| **Messages** (bottom, Ctrl+3) | Circuit checks, engine and firmware messages. Double-click a message to show its part |
+| **Properties** (right, Ctrl+2) | Values of the selected part; while running, its live voltages, currents and power, the voltage of a selected wire or label and the reading of a selected probe |
+| **Messages** (bottom, Ctrl+3) | Circuit checks, engine and firmware messages. Double-click a message to show its part; Ctrl+C or the context menu copies the selected messages (Copy All, every one) |
 | **Toolbar** | New, Open, Save, Undo, Redo, Wire, Probe, Run, Pause, Stop and the speed box |
 | **Status bar** | Run state, simulated time and the actual speed relative to real time; its tooltip lists the approximations of the current run |
 
@@ -119,8 +119,8 @@ Notes on some parts:
 - **Potentiometer:** the arrow on the body shows the wiper and the
   percentage beside it (0 % at pin 1). Set Properties > Position, or while
   running drag the potentiometer or turn the mouse wheel over it.
-- **Adjustable sources:** like a potentiometer, drag them or turn the mouse
-  wheel over them while running; the value goes from the lower limit (0 %)
+- **Adjustable sources:** drag them up (or turn the mouse wheel up) to raise
+  the value, down to lower it, while running; the value goes from the lower limit (0 %)
   to the upper limit (100 %) and is shown on the symbol.
 - **A/D and D/A converters:** ideal and continuous: the ADC's code is
   floor(2^N × VIN / VREF) at every moment (no clock, no sampling time), D0

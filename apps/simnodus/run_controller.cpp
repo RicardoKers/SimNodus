@@ -648,6 +648,32 @@ QString RunController::live_text(const std::set<model::Id>& selection) const
     const auto& library = document_.library();
     QStringList lines;
     for (model::Id id : selection) {
+        // A probe: its reading, as in the Signal Analyzer.
+        if (const auto ch = std::find_if(channels_.begin(), channels_.end(), [id](const Channel& c) { return c.probe == id; });
+            ch != channels_.end()) {
+            if (ch->valid) {
+                auto value = session_->latest(ch->vector);
+                if (value && !ch->reference.empty()) {
+                    const auto reference = net_voltage(ch->reference);
+                    value = reference ? std::optional<double>(*value - *reference) : std::nullopt;
+                }
+                if (value) {
+                    lines << QStringLiteral("%1 = %2").arg(ch->name, quantity(*value, ch->unit == QStringLiteral("A") ? "A" : "V"));
+                }
+            }
+            continue;
+        }
+        // A wire or a net label: the voltage of its net.
+        const auto& wires = n.connectivity.wire_net;
+        const auto& labels = n.connectivity.label_net;
+        const auto net = wires.count(id) ? wires.at(id) : labels.count(id) ? labels.at(id) : -1;
+        if (net >= 0) {
+            const std::string name = n.connectivity.nets[static_cast<std::size_t>(net)].name;
+            if (const auto v = net_voltage(lower(name))) {
+                lines << QStringLiteral("V(%1) = %2").arg(QString::fromStdString(name).toUpper(), quantity(*v, "V"));
+            }
+            continue;
+        }
         const auto* c = snapshot_.component(id);
         const auto* d = c ? library.find(c->type) : nullptr;
         if (!c || !d || !d->ties_net.empty()) {

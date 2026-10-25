@@ -601,8 +601,9 @@ bool SchematicView::handle_control_press(model::Id id, const QPointF& scene_poin
         pot_start_value_ = value;
         pot_start_point_ = mapFromScene(scene_point);
         // Dragging along the wiper's track on screen (0 % towards 100 %) turns it
-        // that way, whatever the symbol's rotation; down for a part without a track.
-        pot_direction_ = QPointF(0, 1);
+        // that way, whatever the symbol's rotation; for a part without a track
+        // (adjustable sources), dragging up raises the value, like the wheel.
+        pot_direction_ = QPointF(0, -1);
         if (const auto& w = d->interactive->wiper) {
             QTransform orientation;
             orientation.rotate(c->orientation.rotation);

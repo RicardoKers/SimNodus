@@ -32,6 +32,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
+#include <QClipboard>
 #include <QComboBox>
 #include <QDir>
 #include <QDoubleSpinBox>
@@ -283,6 +284,41 @@ private slots:
         view()->set_running(false);
         QVERIFY2(last > 0.0, qPrintable(QStringLiteral("value %1").arg(last)));
         (void)rv;
+    }
+
+    void dragging_an_adjustable_source_up_raises_it()
+    {
+        // Owner's report of 2026-10-25: up lowered the value, against the wheel.
+        place("vadj", {0, 0});
+        double last = -1;
+        connect(view(), &SchematicView::control_changed, this, [&last](model::Id, double value) { last = value; });
+        view()->set_running(true);
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, 0}));
+        move_to({0, -4}, Qt::LeftButton);
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({0, -4}));
+        view()->set_running(false);
+        QVERIFY2(last > 0.0, qPrintable(QStringLiteral("value %1").arg(last)));
+    }
+
+    void messages_can_be_copied()
+    {
+        auto* messages = window_->messages();
+        messages->clear();
+        messages->add(Severity::Warning, QStringLiteral("first"), QStringLiteral("check"));
+        messages->add(Severity::Error, QStringLiteral("second"));
+        const QStringList all = messages->text(false).split(QLatin1Char('\n'));
+        QCOMPARE(all.size(), 2);
+        QVERIFY(all[0].endsWith(QStringLiteral(": first (check)")));
+        QVERIFY(all[1].endsWith(QStringLiteral(": second")));
+        QVERIFY(messages->text(true).isEmpty()); // nothing selected
+        auto* list = messages->findChild<QTreeWidget*>(QStringLiteral("messageList"));
+        QVERIFY(list);
+        list->topLevelItem(1)->setSelected(true);
+        QVERIFY(messages->text(true).endsWith(QStringLiteral(": second")));
+        list->setFocus();
+        QTest::keyClick(list, Qt::Key_C, Qt::ControlModifier);
+        QVERIFY(QApplication::clipboard()->text().endsWith(QStringLiteral(": second")));
+        messages->clear();
     }
 
     void potentiometer_shows_its_position()
@@ -957,6 +993,9 @@ private slots:
         window_->run_controller()->set_control(ids["I1"], 0.1);
         QTRY_COMPARE_WITH_TIMEOUT(readout("VM1"), QStringLiteral("10V"), 10000);
         QTRY_COMPARE_WITH_TIMEOUT(readout("AM1"), QStringLiteral("10mA"), 10000);
+        // A selected wire shows its net's voltage among the live values.
+        const model::Id wire = doc().schematic().wires().front().id;
+        QVERIFY(window_->run_controller()->live_text({wire}).startsWith(QStringLiteral("V(")));
         QCOMPARE(window_->messages()->warning_count(), before);
         window_->stop();
 #endif
