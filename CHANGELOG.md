@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25, SN-218)
+
+- External I/O parts (*External I/O*): bit and word inputs and outputs with a free-text address sent as written (`%IX0.10`), polarity, and a word scale of 0–1000 to 0–3.3 V by default (both ranges are parameters). Inputs can be operated by hand while nothing is connected.
+- External I/O link: while a project with these parts runs, SimNodus exchanges their signals with a server such as a virtual industrial plant over TCP, one JSON object per line every period (127.0.0.1:8765 and 20 ms by default, set in Simulate > External I/O, which appears only for such projects). Pausing, stopping and closing send false and 0 to every output. The link runs in real time and is labeled as not repeatable.
+
+### Fixed (2026-10-25, SN-218)
+
+- Text parameters (a block port's name, an external I/O address) no longer fail the circuit check as "not a number".
+
 ### Added (2026-10-25, SN-217)
 
 - `simnodus-cli mcp`: the automation commands as an MCP server on standard input and output, so Claude Code, Codex and other agents list them as tools (`component_add`, `sim_run`, ...). With `--window` the calls act on the SimNodus window and the `view_*` tools are added. AUTOMATION.md shows how to register it.

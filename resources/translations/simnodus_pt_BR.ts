@@ -445,6 +445,28 @@ Pinos: %2</translation>
         </message>
     </context>
     <context>
+        <name>simnodus::ui::IoLink</name>
+        <message>
+            <source>External I/O: %1 has no address and is not exchanged.</source>
+            <translation>E/S externa: %1 não tem endereço e não é trocado.</translation>
+        </message>
+        <message numerus="yes">
+            <source>External I/O: exchanging %n signal(s) with %1:%2 every %3 ms. The link runs in real time, so results are not repeatable.</source>
+            <translation>
+                <numerusform>E/S externa: trocando %n sinal com %1:%2 a cada %3 ms. O link roda em tempo real, então os resultados não são repetíveis.</numerusform>
+                <numerusform>E/S externa: trocando %n sinais com %1:%2 a cada %3 ms. O link roda em tempo real, então os resultados não são repetíveis.</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>External I/O: connected to %1:%2.</source>
+            <translation>E/S externa: conectado a %1:%2.</translation>
+        </message>
+        <message>
+            <source>External I/O: no connection to %1:%2 (%3); trying again while the run goes on.</source>
+            <translation>E/S externa: sem conexão com %1:%2 (%3); tentando de novo enquanto a simulação continua.</translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::LogicWidget</name>
         <message>
             <source>Run a circuit with a microcontroller or voltage probes; choose the signals on the left.</source>
@@ -774,6 +796,10 @@ Pinos: %2</translation>
             <translation>O idioma muda quando o SimNodus for aberto de novo.</translation>
         </message>
         <message>
+            <source>External I/O</source>
+            <translation>E/S externa</translation>
+        </message>
+        <message>
             <source>The running simulation took the new value.</source>
             <translation>A simulação em andamento recebeu o novo valor.</translation>
         </message>
@@ -800,6 +826,14 @@ Pinos: %2</translation>
         <message>
             <source>Place a vendor subcircuit (.subckt) from the model folders as a part with one pin per port</source>
             <translation>Insere um subcircuito de fabricante (.subckt) das pastas de modelos como uma peça com um pino por porta</translation>
+        </message>
+        <message>
+            <source>External &amp;I/O...</source>
+            <translation>E/S &amp;externa...</translation>
+        </message>
+        <message>
+            <source>Server that the bit and word input and output parts exchange their signals with</source>
+            <translation>Servidor com que as peças de entrada e saída de bit e de palavra trocam seus sinais</translation>
         </message>
         <message>
             <source>Allow External &amp;Control</source>
@@ -958,6 +992,42 @@ Pinos: %2</translation>
         <message>
             <source>External control is on: AI agents and scripts on this computer can edit and run the circuit with simnodus-cli connect (%1).</source>
             <translation>O controle externo está ligado: agentes de IA e scripts neste computador podem editar e simular o circuito com simnodus-cli connect (%1).</translation>
+        </message>
+        <message>
+            <source>I/O link connected</source>
+            <translation>Link de E/S conectado</translation>
+        </message>
+        <message>
+            <source>I/O link waiting</source>
+            <translation>Link de E/S aguardando</translation>
+        </message>
+        <message>
+            <source>Bit and word input and output parts exchange their signals with a program on this or another computer, such as a virtual plant: one JSON object per line over TCP, the outputs' addresses and values every period, the inputs in the answers. Stopping or pausing sends false and 0 to every output. The link runs in real time, so its results are not repeatable.</source>
+            <translation>As peças de entrada e saída de bit e de palavra trocam seus sinais com um programa neste ou em outro computador, como uma planta virtual: um objeto JSON por linha via TCP, os endereços e valores das saídas a cada período, as entradas nas respostas. Parar ou pausar envia false e 0 a todas as saídas. O link roda em tempo real, então seus resultados não são repetíveis.</translation>
+        </message>
+        <message>
+            <source>Connect when a simulation starts</source>
+            <translation>Conectar quando uma simulação começar</translation>
+        </message>
+        <message>
+            <source>Host:</source>
+            <translation>Host:</translation>
+        </message>
+        <message>
+            <source>Port:</source>
+            <translation>Porta:</translation>
+        </message>
+        <message>
+            <source> ms</source>
+            <translation> ms</translation>
+        </message>
+        <message>
+            <source>Period:</source>
+            <translation>Período:</translation>
+        </message>
+        <message>
+            <source>External I/O settings take effect at the next run.</source>
+            <translation>As configurações de E/S externa valem a partir da próxima simulação.</translation>
         </message>
         <message>
             <source>Controlled by an agent</source>
@@ -2565,6 +2635,134 @@ Pinos: %2</translation>
             <translation>Mostra a tensão de + em relação a - durante a execução (resistência de entrada de 1 GΩ)</translation>
         </message>
         <message>
+            <source>Bit input</source>
+            <translation>Entrada de bit</translation>
+        </message>
+        <message>
+            <source>External I/O</source>
+            <translation>E/S externa</translation>
+        </message>
+        <message>
+            <source>A true/false signal from the external program drives the pin; click it to change it by hand</source>
+            <translation>Um sinal verdadeiro/falso do programa externo aciona o pino; clique para mudá-lo à mão</translation>
+        </message>
+        <message>
+            <source>Address</source>
+            <translation>Endereço</translation>
+        </message>
+        <message>
+            <source>Name of the signal in the external program, sent exactly as written (%IX0.10, %QW2)</source>
+            <translation>Nome do sinal no programa externo, enviado exatamente como escrito (%IX0.10, %QW2)</translation>
+        </message>
+        <message>
+            <source>Polarity</source>
+            <translation>Polaridade</translation>
+        </message>
+        <message>
+            <source>Inverted: true outside is a low level in the circuit</source>
+            <translation>Invertida: verdadeiro lá fora é nível baixo no circuito</translation>
+        </message>
+        <message>
+            <source>normal</source>
+            <translation>normal</translation>
+        </message>
+        <message>
+            <source>inverted</source>
+            <translation>invertida</translation>
+        </message>
+        <message>
+            <source>High level</source>
+            <translation>Nível alto</translation>
+        </message>
+        <message>
+            <source>Voltage of a true bit</source>
+            <translation>Tensão de um bit verdadeiro</translation>
+        </message>
+        <message>
+            <source>Initial state</source>
+            <translation>Estado inicial</translation>
+        </message>
+        <message>
+            <source>Level until the external program sends a value</source>
+            <translation>Nível até o programa externo enviar um valor</translation>
+        </message>
+        <message>
+            <source>0</source>
+            <translation>0</translation>
+        </message>
+        <message>
+            <source>Bit output</source>
+            <translation>Saída de bit</translation>
+        </message>
+        <message>
+            <source>Sends whether the pin's voltage is above the threshold to the external program</source>
+            <translation>Envia ao programa externo se a tensão do pino está acima do limiar</translation>
+        </message>
+        <message>
+            <source>Threshold</source>
+            <translation>Limiar</translation>
+        </message>
+        <message>
+            <source>A voltage above it is a true bit</source>
+            <translation>Uma tensão acima dele é um bit verdadeiro</translation>
+        </message>
+        <message>
+            <source>Word input</source>
+            <translation>Entrada de palavra</translation>
+        </message>
+        <message>
+            <source>A number from the external program drives the pin, scaled to a voltage</source>
+            <translation>Um número do programa externo aciona o pino, convertido em tensão</translation>
+        </message>
+        <message>
+            <source>Word at the lower voltage</source>
+            <translation>Palavra na tensão inferior</translation>
+        </message>
+        <message>
+            <source>Number that stands for the lower voltage</source>
+            <translation>Número que representa a tensão inferior</translation>
+        </message>
+        <message>
+            <source>Word at the upper voltage</source>
+            <translation>Palavra na tensão superior</translation>
+        </message>
+        <message>
+            <source>Number that stands for the upper voltage</source>
+            <translation>Número que representa a tensão superior</translation>
+        </message>
+        <message>
+            <source>Lower voltage</source>
+            <translation>Tensão inferior</translation>
+        </message>
+        <message>
+            <source>Voltage of the lower word</source>
+            <translation>Tensão da palavra inferior</translation>
+        </message>
+        <message>
+            <source>Upper voltage</source>
+            <translation>Tensão superior</translation>
+        </message>
+        <message>
+            <source>Voltage of the upper word</source>
+            <translation>Tensão da palavra superior</translation>
+        </message>
+        <message>
+            <source>Initial value</source>
+            <translation>Valor inicial</translation>
+        </message>
+        <message>
+            <source>Where the value starts, from the lower (0 %) to the upper voltage (100 %); drag it to change it by hand</source>
+            <translation>Onde o valor começa, da tensão inferior (0 %) à superior (100 %); arraste para mudá-lo à mão</translation>
+        </message>
+        <message>
+            <source>Word output</source>
+            <translation>Saída de palavra</translation>
+        </message>
+        <message>
+            <source>Sends the pin's voltage, scaled to a whole number, to the external program</source>
+            <translation>Envia ao programa externo a tensão do pino, convertida em número inteiro</translation>
+        </message>
+        <message>
             <source>AND gate</source>
             <translation>Porta AND</translation>
         </message>
@@ -3129,10 +3327,6 @@ Pinos: %2</translation>
             <translation>Tensão durante a parte baixa</translation>
         </message>
         <message>
-            <source>High level</source>
-            <translation>Nível alto</translation>
-        </message>
-        <message>
             <source>Voltage during the high part</source>
             <translation>Tensão durante a parte alta</translation>
         </message>
@@ -3311,10 +3505,6 @@ Pinos: %2</translation>
         <message>
             <source>Changeover switch: common to A when released, to B when operated</source>
             <translation>Chave reversível: comum ligado a A quando solta, a B quando acionada</translation>
-        </message>
-        <message>
-            <source>Initial state</source>
-            <translation>Estado inicial</translation>
         </message>
         <message>
             <source>open: common to A; closed: common to B</source>

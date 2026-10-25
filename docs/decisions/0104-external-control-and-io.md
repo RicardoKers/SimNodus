@@ -1,7 +1,7 @@
 # ADR 0104: External control through one command vocabulary; external I/O as a discreet built-in link
 
 Date: 2026-10-25. Status: accepted (owner's direction 2026-10-25; SN-215 to
-SN-217 implemented, SN-218 planned). Makes ADR 0055 concrete.
+SN-218 implemented). Makes ADR 0055 concrete.
 
 ## Context
 
@@ -87,6 +87,25 @@ the GUI, with structured results and stable codes, but chose no interface.
   JSON as text, with `isError` for failed commands. The translation lives in
   `src/automation/mcp.*` and runs commands through a callback, in process or
   in the window (`--window`, connecting when a call needs it).
+
+### External I/O as built (SN-218)
+
+- Four parts in the *External I/O* category (`io_bit_in`, `io_bit_out`,
+  `io_word_in`, `io_word_out`, from `tools/generate_io_parts.py`). Inputs
+  are behavioral sources on an interactive control (a toggle, a
+  potentiometer), so they can be operated by hand without a server and the
+  link only sets the control; outputs sense their pin with 1 GΩ. The address
+  is a text parameter (the netlist keeps text parameters as words). The
+  link applies polarity and scaling, so the netlists stay simple.
+- `IoLink` in the desktop application (Qt Network, no new dependency) starts
+  with a run of a project that has such parts: it connects (and reconnects
+  every second), sends every output each period (`{}` when paused), applies
+  the inputs of the answers, and sends false and 0 to every output on pause,
+  stop and exit. Host, port and period are settings of the computer, not of
+  the project, in Simulate > External I/O, which is shown only for projects
+  with these parts.
+- Runs without the window (`simnodus-cli`, MCP without `--window`) do not
+  use the link.
 
 ## Alternatives
 

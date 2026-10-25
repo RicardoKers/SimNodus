@@ -21,7 +21,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   `--control`, `simnodus-cli connect`; edits on the canvas and in the undo
   history, runs shown live, `view.pace`/`view.caption` for recorded
   tutorials); SN-217, `simnodus-cli mcp [--window]`, the commands as MCP
-  tools for Claude Code, Codex and other agents.
+  tools for Claude Code, Codex and other agents; SN-218, external I/O parts
+  (bit and word inputs and outputs with literal addresses) and the TCP link
+  for the virtual plants (Simulate > External I/O, shown only with such
+  parts). The connectivity phase is complete.
 - **Ready for 0.8 (on `main`, not released yet):** a behavioral 555 timer
   (SN-213, example 34; interactive segments now also carry capacitor node
   voltages with `.ic`) and any vendor `.SUBCKT` as a part of its own via
@@ -79,9 +82,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. SN-218: external I/O parts and the TCP link for the virtual plants.
-2. Release 0.8.0 at the end of the connectivity phase (owner, 2026-10-25),
-   after the owner tests it.
+1. Owner's test of the connectivity phase (an agent through MCP building a
+   circuit in the window; a virtual plant through the external I/O link),
+   then release 0.8.0 when the owner asks.
 3. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
    of the user guide.
 

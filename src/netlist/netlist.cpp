@@ -402,8 +402,8 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
         for (const auto& p : d->parameters) {
             const auto found = c.parameters.find(p.name);
             const std::string text = found == c.parameters.end() ? p.default_value : found->second;
-            if (p.kind == library::Parameter::Kind::File) {
-                words[p.name] = text; // used by the run, not by the template
+            if (p.kind == library::Parameter::Kind::File || p.kind == library::Parameter::Kind::Text) {
+                words[p.name] = text; // used by the run (firmware, an external I/O address), not by the template
                 continue;
             }
             if (p.kind == library::Parameter::Kind::Model) {

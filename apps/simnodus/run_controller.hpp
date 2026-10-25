@@ -78,6 +78,8 @@ public:
     // temperature) to their chips; true if one was sent (SN-207).
     bool apply_live_parameters();
     void set_control(model::Id component, double value);
+    // The latest voltage at a component's pin in the current run.
+    std::optional<double> pin_voltage(model::Id component, const std::string& pin) const;
     // The reset button of a microcontroller board.
     void mcu_reset(model::Id component);
     std::optional<mcu::McuStatus> mcu_status(model::Id component) const { return session_->mcu_status(component); }

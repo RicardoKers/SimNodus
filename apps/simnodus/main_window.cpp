@@ -9,6 +9,7 @@
 #include "component_panel.hpp"
 #include "control_server.hpp"
 #include "document.hpp"
+#include "io_link.hpp"
 #include "messages_panel.hpp"
 #include "properties_panel.hpp"
 #include "run_controller.hpp"
@@ -30,6 +31,7 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
 #include <QDesktopServices>
@@ -116,6 +118,10 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     scene_ = new SchematicScene(*document_, this);
     run_ = new RunController(*document_, *scene_, this);
     control_ = new ControlServer(*this);
+    io_ = new IoLink(*run_, *document_, settings_, this);
+    connect(io_, &IoLink::message, this, [this](bool error, const QString& text) {
+        messages_->add(error ? Severity::Warning : Severity::Info, text, tr("External I/O"));
+    });
 
     components_ = new ComponentPanel(library_);
     view_ = new SchematicView;
@@ -212,6 +218,7 @@ MainWindow::MainWindow(QSettings& settings, QWidget* parent) : QMainWindow(paren
     connect(document_, &Document::file_changed, this, &MainWindow::update_title);
     connect(document_, &Document::changed, this, [this] {
         setWindowModified(document_->modified());
+        io_action_->setVisible(IoLink::has_io(document_->schematic()));
         if (run_->active()) {
             statusBar()->showMessage(run_->apply_live_parameters()
                     ? tr("The running simulation took the new value.")
@@ -448,6 +455,11 @@ void MainWindow::build_actions_and_menus()
     reset_action_->setStatusTip(tr("Restart the simulation from the beginning"));
     simulate->addSeparator();
     simulate->addAction(tr("Simulation &Settings..."), this, &MainWindow::edit_settings);
+    // Only in projects with external I/O parts (ADR 0104: discreet).
+    io_action_ = simulate->addAction(tr("External &I/O..."), this, &MainWindow::edit_external_io);
+    io_action_->setObjectName(QStringLiteral("externalIoAction"));
+    io_action_->setStatusTip(tr("Server that the bit and word input and output parts exchange their signals with"));
+    io_action_->setVisible(false);
     debug_action_ = simulate->addAction(tr("&Debug Firmware with GDB (port %1)").arg(default_gdb_port));
     debug_action_->setCheckable(true);
     debug_action_->setStatusTip(tr("The next run waits for STM32CubeIDE or arm-none-eabi-gdb on 127.0.0.1 port %1 "
@@ -584,6 +596,11 @@ void MainWindow::build_status_bar()
     control_label_->hide();
     statusBar()->addPermanentWidget(control_label_);
     connect(control_, &ControlServer::status_changed, this, &MainWindow::update_control_status);
+    io_label_ = new QLabel;
+    io_label_->setObjectName(QStringLiteral("ioStatus"));
+    io_label_->hide();
+    statusBar()->addPermanentWidget(io_label_);
+    connect(io_, &IoLink::status_changed, this, &MainWindow::update_io_status);
     statusBar()->addPermanentWidget(cursor_label_);
     statusBar()->addPermanentWidget(zoom_label_);
     update_counts(0, 0);
@@ -855,6 +872,59 @@ bool MainWindow::set_external_control(bool on, QString* error)
             tr("External control"));
     }
     return ok;
+}
+
+void MainWindow::update_io_status()
+{
+    if (!io_label_) {
+        return;
+    }
+    io_label_->setVisible(io_->active());
+    const auto options = io_->options();
+    io_label_->setText(io_->connected() ? tr("I/O link connected") : tr("I/O link waiting"));
+    io_label_->setToolTip(QStringLiteral("%1:%2").arg(options.host).arg(options.port));
+}
+
+void MainWindow::edit_external_io()
+{
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("External I/O"));
+    auto* form = new QFormLayout(&dialog);
+    auto options = io_->options();
+    auto* note = new QLabel(tr("Bit and word input and output parts exchange their signals with a program on this "
+                               "or another computer, such as a virtual plant: one JSON object per line over TCP, "
+                               "the outputs' addresses and values every period, the inputs in the answers. "
+                               "Stopping or pausing sends false and 0 to every output. The link runs in real time, "
+                               "so its results are not repeatable."));
+    note->setWordWrap(true);
+    form->addRow(note);
+    auto* enabled = new QCheckBox(tr("Connect when a simulation starts"));
+    enabled->setChecked(options.enabled);
+    form->addRow(enabled);
+    auto* host = new QLineEdit(options.host);
+    form->addRow(tr("Host:"), host);
+    auto* port = new QSpinBox;
+    port->setRange(1, 65535);
+    port->setValue(options.port);
+    form->addRow(tr("Port:"), port);
+    auto* period = new QSpinBox;
+    period->setRange(5, 1000);
+    period->setSuffix(tr(" ms"));
+    period->setValue(options.period_ms);
+    form->addRow(tr("Period:"), period);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    options.enabled = enabled->isChecked();
+    options.host = host->text().trimmed().isEmpty() ? QStringLiteral("127.0.0.1") : host->text().trimmed();
+    options.port = port->value();
+    options.period_ms = period->value();
+    io_->set_options(options);
+    statusBar()->showMessage(tr("External I/O settings take effect at the next run."), 4000);
 }
 
 void MainWindow::update_control_status()

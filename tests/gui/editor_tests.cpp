@@ -10,6 +10,7 @@
 #include "user_models.hpp"
 #include "component_panel.hpp"
 #include "control_server.hpp"
+#include "io_link.hpp"
 #include "main_window.hpp"
 #include "memory_window.hpp"
 #include "messages_panel.hpp"
@@ -43,6 +44,8 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QLocalSocket>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -1849,6 +1852,64 @@ private slots:
         QTRY_VERIFY(!window_->isVisible());
         QVERIFY(elapsed.elapsed() < 5000);
         QVERIFY(!window_->control()->listening());
+    }
+
+    void external_io_link_exchanges_signals_with_a_plant()
+    {
+        if (!engine_available()) {
+            QSKIP("ngspice not available");
+        }
+        // A plant: a server that answers every line with its inputs (sensors).
+        QTcpServer plant;
+        QVERIFY(plant.listen(QHostAddress::LocalHost));
+        auto options = window_->io_link()->options();
+        options.port = plant.serverPort();
+        window_->io_link()->set_options(options);
+
+        auto* action = window_->findChild<QAction*>(QStringLiteral("externalIoAction"));
+        QVERIFY(action && !action->isVisible()); // only in projects with external I/O parts
+        QVERIFY(control("component.add", {{"type", "io_bit_in"}, {"at", {0, 0}}, {"parameters", {{"address", "%IX0.10"}}}}).is_object());
+        QVERIFY(control("component.add", {{"type", "io_bit_out"}, {"at", {10, 0}}, {"mirrored", true},
+            {"parameters", {{"address", "%QX1.0"}}}}).is_object());
+        QVERIFY(control("wire.connect", {{"from", "IO1.1"}, {"to", "IO2.1"}}).is_object());
+        QVERIFY(control("component.add", {{"type", "io_word_in"}, {"at", {0, 10}}, {"parameters", {{"address", "%IW3"}}}}).is_object());
+        QVERIFY(control("component.add", {{"type", "io_word_out"}, {"at", {10, 10}}, {"mirrored", true},
+            {"parameters", {{"address", "%QW4"}}}}).is_object());
+        QVERIFY(control("wire.connect", {{"from", "IO3.1"}, {"to", "IO4.1"}}).is_object());
+        QVERIFY(control("component.add", {{"type", "ground"}, {"at", {0, 20}}}).is_object());
+        QVERIFY(action->isVisible());
+
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(plant.hasPendingConnections(), 5000);
+        QTcpSocket* socket = plant.nextPendingConnection();
+        QByteArray buffer;
+        automation::json last;
+        // Answers each line with the inputs and keeps the last command (not {}) received.
+        auto exchange = [&] {
+            buffer += socket->readAll();
+            for (qsizetype end = buffer.indexOf('\n'); end >= 0; end = buffer.indexOf('\n')) {
+                const auto message = automation::json::parse(buffer.left(end).toStdString());
+                if (!message.empty()) {
+                    last = message; // {} only asks for the inputs (while paused)
+                }
+                buffer.remove(0, end + 1);
+                socket->write("{\"%IX0.10\": true, \"%IW3\": 500, \"%IX9.9\": false}\n");
+            }
+            return last.is_object() && last.value("%QX1.0", false) && last.value("%QW4", -1) == 500;
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(exchange(), 5000);
+        auto* status = window_->statusBar()->findChild<QLabel*>(QStringLiteral("ioStatus"));
+        QVERIFY(status && status->isVisible());
+
+        // Pausing sends the safe values (the plant keeps the last command); resuming sends the circuit's again.
+        auto safe = [&] { return last.value("%QX1.0", true) == false && last.value("%QW4", -1) == 0; };
+        window_->pause_resume();
+        QTRY_VERIFY_WITH_TIMEOUT((exchange(), safe()), 5000);
+        window_->pause_resume();
+        QTRY_VERIFY_WITH_TIMEOUT(exchange(), 5000);
+        window_->stop();
+        QTRY_VERIFY_WITH_TIMEOUT((exchange(), safe()), 5000);
+        QTRY_VERIFY(!status->isVisible());
     }
 
     void alt_click_sets_a_differential_reference()

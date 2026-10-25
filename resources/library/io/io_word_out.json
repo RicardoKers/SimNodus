@@ -1,0 +1,105 @@
+{
+  "type": "io_word_out",
+  "name": "Word output",
+  "category": "External I/O",
+  "prefix": "IO",
+  "description": "Sends the pin's voltage, scaled to a whole number, to the external program",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -1,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "WORD OUT",
+        "at": [
+          -3.6,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          0,
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "polygon": [
+          -0.8,
+          -0.5,
+          -1.6,
+          0,
+          -0.8,
+          0.5
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          2,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -2
+  ],
+  "value_offset": [
+    -6,
+    2
+  ],
+  "value_parameter": "address",
+  "parameters": [
+    {
+      "name": "address",
+      "label": "Address",
+      "kind": "text",
+      "default": "%QW0",
+      "description": "Name of the signal in the external program, sent exactly as written (%IX0.10, %QW2)"
+    },
+    {
+      "name": "Wmin",
+      "label": "Word at the lower voltage",
+      "unit": "",
+      "default": "0",
+      "description": "Number that stands for the lower voltage"
+    },
+    {
+      "name": "Wmax",
+      "label": "Word at the upper voltage",
+      "unit": "",
+      "default": "1000",
+      "description": "Number that stands for the upper voltage"
+    },
+    {
+      "name": "Vmin",
+      "label": "Lower voltage",
+      "unit": "V",
+      "default": "0",
+      "description": "Voltage of the lower word"
+    },
+    {
+      "name": "Vmax",
+      "label": "Upper voltage",
+      "unit": "V",
+      "default": "3.3",
+      "description": "Voltage of the upper word"
+    }
+  ],
+  "spice": [
+    "R_{ref} {node:1} 0 1e9"
+  ]
+}
