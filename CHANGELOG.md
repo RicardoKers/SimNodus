@@ -28,6 +28,12 @@ The version is 0.11.0; a test package went to the owner on 2026-10-26 and the se
 - Buzzers with sound (SN-228): active and passive buzzers heard through the computer's speakers while running (Windows; Simulate > Sound), showing their frequency. Firmware `hal_buzzer` and example 42.
 - Parts for automation lessons (SN-229): inductive proximity sensors NPN and PNP (24 V), a two-wire 4-20 mA transmitter, the HC-SR501 PIR and the IRLZ44N power MOSFET. Example 43.
 
+### Fixed (2026-10-27, the owner's test of the 0.11.0 package)
+
+- Buzzers were silent while running and went on sounding after Stop: each new note restarted the system sound, which takes 0.1-0.3 s to start. The tone now streams from an open audio device, follows a new frequency within about 50 ms and stops with Pause and Stop.
+- Example 38 showed a higher pressure than the BMP280 was set to: its firmware put the calibration words dig_P2-dig_P9 one place off. It also rounds the pressure now; the example's test reads the values on the OLED.
+- The A3144 drew its supply current like a 1 kOhm resistor (24 mA at 24 V) and its output had no limit; it now draws about 4 mA at any supply and its output sinks at most about 25 mA.
+
 ### Fixed (2026-10-26)
 
 - Readouts of a part at rest no longer show numerical dust (a DC motor's "7.9e-14 rpm" is 0).

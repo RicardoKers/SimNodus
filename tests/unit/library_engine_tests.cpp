@@ -1311,3 +1311,24 @@ TEST_CASE("library: buzzers, automation sensors, a 4-20 mA loop and the IRLZ44N 
         CHECK(op(b, "d") < 0.15);
     }
 }
+
+TEST_CASE("library: the A3144 draws about 4 mA at any supply and limits its output current (owner's test)")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto hall = [](const std::string& supply, const std::string& load) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", supply}});
+        b.add("a3144", {{"VCC", "VCC"}, {"OUT", "OUT"}, {"GND", "0"}}, {{"field", "50"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "OUT"}}, {{"R", load}});
+        const auto r = simulate(b, ".op", {"v_v1#branch", "out"});
+        return std::pair<double, double>{-r.at("v_v1#branch")[0], r.at("out")[0]};
+    };
+    // 24 V, 10 kOhm pull-up: 4 mA for the chip plus 2.4 mA through the pull-up.
+    const auto [supply24, out24] = hall("24", "10k");
+    CHECK(close_to(supply24, 0.004 + (24 - out24) / 10e3, 0.0003));
+    CHECK(out24 < 0.1);
+    // An LED's worth of load straight from 5 V (10 ohm): the output holds near 25 mA.
+    const auto [supply5, out5] = hall("5", "10");
+    CHECK(supply5 - 0.004 < 0.026);
+    CHECK(out5 > 4.6);
+}

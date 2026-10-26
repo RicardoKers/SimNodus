@@ -391,7 +391,8 @@ def a3144():
         "category": CATEGORY,
         "prefix": "U",
         "description": "Unipolar Hall-effect switch: the open-collector OUT goes low while a south pole gives more "
-                       "than the operate point, and is released below the release point; needs a pull-up",
+                       "than the operate point, and is released below the release point; needs a pull-up (it sinks up to about 25 mA); "
+                       "supply 4.5-24 V, about 4 mA",
         "symbol": chip_symbol("A3144", right=[("OUT", 0)], top=[("VCC", 0)], bottom=[("GND", 0)]),
         "designator_offset": [5, -5],
         "value_offset": [5, 5],
@@ -412,9 +413,12 @@ def a3144():
             "B_{ref}_st 0 st_{ref} I=1m*(0.5*(1+tanh(4*(V(q_{ref})-{Brp}-({Bop}-{Brp})*(1-V(st_{ref})))))-V(st_{ref}))",
             "C_{ref}_st st_{ref} 0 1n",
             "R_{ref}_st st_{ref} 0 1G",
-            f"B_{{ref}}_out {{node:OUT}} {{node:GND}} I=V(st_{{ref}})*{s}*max(V({{node:OUT}},{{node:GND}}),0)/20",
+            # Open collector: about 0.2 V at 20 mA, limited near 25 mA (the datasheet's maximum).
+            f"B_{{ref}}_out {{node:OUT}} {{node:GND}} I=V(st_{{ref}})*{s}*0.025*tanh(max(V({{node:OUT}},{{node:GND}}),0)/0.2)",
             "R_{ref}_l {node:OUT} {node:GND} 100Meg",
-            "R_{ref}_q {node:VCC} {node:GND} 1k",
+            # About 4 mA from the supply whatever its voltage (4.5-24 V), not a resistor.
+            "B_{ref}_icc {node:VCC} {node:GND} I=0.004*tanh(max(V({node:VCC},{node:GND}),0))",
+            "R_{ref}_icc {node:VCC} {node:GND} 1Meg",
         ],
     }
 
