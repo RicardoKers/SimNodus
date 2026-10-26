@@ -1,11 +1,11 @@
-<!-- source: USER_GUIDE.md sha256 6abe9cd92074c12dd5fdafa80884f173ac1e86f8beed381eb16bd094eb42931e -->
+<!-- source: USER_GUIDE.md sha256 c13b5c67aad600e4bfd2c425eb4f359817f799a336995f4991afacbe9e62fd26 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
 F5 e ele continua rodando enquanto você pressiona botões, gira
 potenciômetros e observa LEDs, medidores e o Analisador de sinais. Uma placa
 Blue Pill (STM32F103C8) pode executar o seu próprio firmware dentro do
-circuito. Este guia descreve a versão 0.9. Para
+circuito. Este guia descreve a versão 0.11. Para
 montar um primeiro circuito em cinco minutos, veja o
 [início rápido](QUICK_START.md); para todos os detalhes do microcontrolador
 simulado, veja [MICROCONTROLLER.md](MICROCONTROLLER.md).
@@ -470,7 +470,13 @@ diferenças em relação a uma placa real estão em
   (19), blocos (20), um contador (21), reguladores (22), um contador de 7
   segmentos (23), o RTC com um watchdog (24), um registrador de deslocamento
   74HC595 (25), uma matriz de LEDs 8x8 num MAX7219 via SPI (26), três chips
-  I2C (27) e um LCD 16x2 atrás de um PCF8574 (28).
+  I2C (27), um LCD 16x2 atrás de um PCF8574 (28), fontes ajustáveis e
+  controladas (29), um teclado (30), conversores A/D e D/A (31), uma ROM
+  (32) e uma RAM (33), um timer 555 (34), um subcircuito de fabricante (35),
+  sensores (36), chips lógicos em encapsulamento DIP (37), um OLED com
+  sensores I2C (38), chips SPI e o HX711 (39), sensores de um fio
+  temporizados e uma fita WS2812B (40), motores (41), buzzers (42) e
+  componentes de automação de 24 V (43).
 - As **aulas** 1-3 (exemplos 10, 11 e 16) vêm com notas em
   `examples/lessons/`: objetivos, passos e as observações esperadas. Os
   fontes dos seus firmwares estão em `examples/firmware/`.
