@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 c25c5f6145e32267a094828bdbf81c1675b2cc9f29403800c733854e03b7300b -->
+<!-- source: MICROCONTROLLER.md sha256 475a36e948dab9702b279673c9e94e6f0ceabb5019df9a3719510e70a6744350 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -41,7 +41,8 @@ duas execuções com o mesmo circuito dão a mesma temporização do firmware.
 
 Os componentes da categoria *Chips para microcontroladores* (Registrador de
 deslocamento 74HC595, Driver de display de LED MAX7219, EEPROM 24C02, Sensor de
-temperatura LM75, Expansor de E/S PCF8574, BMP280, MPU6050, DS3231, TCS34725) e
+temperatura LM75, Expansor de E/S PCF8574, BMP280, MPU6050, DS3231, TCS34725,
+MCP3208, MCP41010, W25Q32, cartão microSD, HX711) e
 o LCD de caracteres e o OLED SSD1306 (em *Displays*) funcionam em conjunto com
 uma placa (ADR 0102): a lógica deles roda
 em sincronia com o firmware, de modo que as redes entre a placa e o chip
@@ -81,6 +82,16 @@ faixas `U2.Q0`).
   em 0x3C ou 0x3D (uma propriedade), cuja imagem aparece no esquemático
   durante a simulação. Os valores medidos são propriedades que podem mudar
   durante a simulação. O exemplo 38 mostra o OLED com um BMP280 e um DS3231.
+- Os chips SPI (SN-224) funcionam nos modos 0 e 3 com seu chip select: o
+  MCP3208 converte a tensão do circuito em CH0-CH7 em relação a VREF (12 bits,
+  simples ou diferencial); o MCP41010 define uma resistência real entre PA0,
+  PW0 e PB0 (10, 50 ou 100 kΩ, 256 passos); o W25Q32 é uma flash de 4 MB com os
+  comandos e tempos de ocupado da folha de dados (seu conteúdo no Visualizador
+  de memória, atualizado no máximo cinco vezes por segundo); o cartão microSD
+  responde aos comandos do modo SPI que os drivers do FatFs usam, com tamanho
+  de 1 a 64 MB e um arquivo de imagem opcional. O amplificador de célula de
+  carga HX711 lê as tensões da ponte pelo seu próprio protocolo de dois fios
+  (10 ou 80 conversões por segundo). O exemplo 39 usa todos, menos o cartão.
 - A ROM e a RAM paralelas (*Memórias*) têm A0-A15, D0-D7 e CE, OE e (na RAM) WE
   ativos em nível baixo; o tamanho, de 16 bytes a 64 KB, é uma propriedade, e os
   pinos de endereço além dele são ignorados. Com CE e OE em nível baixo elas

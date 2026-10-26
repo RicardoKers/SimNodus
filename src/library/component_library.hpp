@@ -135,6 +135,13 @@ struct DigitalDevice {
     // Push-pull outputs that always drive: a net with one of them never needs
     // the circuit's view (SN-206).
     std::vector<std::string> driven_pins;
+    // Pins whose voltage the chip reads (SN-224: an A/D converter's inputs and
+    // reference); they reach the device as volts as well as levels.
+    std::vector<std::string> analog_pins;
+    // Outputs inside the part (SN-224: a digital potentiometer's wiper): device
+    // pins with no pin on the symbol, whose drive the template reads through
+    // {ext:<name>_g}, the output's strength divided by output_resistance.
+    std::vector<std::string> internal_pins;
     // Memory chips (SN-208): their size in bytes and the File parameter with the
     // contents they start with (empty: erased). A parallel memory (SN-212) takes
     // its size from a parameter ("2K" words of a byte) and starts with `memory_fill`.

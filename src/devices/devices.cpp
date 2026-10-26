@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <deque>
 #include <string>
 
 namespace simnodus::devices {
@@ -1629,6 +1630,46 @@ public:
 
     std::string text() const override
     {
+        if (!dirty_) {
+            return text_;
+        }
+        dirty_ = false;
+        text_ = render();
+        return text_;
+    }
+
+protected:
+    std::uint8_t address() const override { return address_; }
+
+    bool select(bool read, std::uint64_t) override
+    {
+        control_next_ = true;
+        return !read; // the I2C interface has no reads
+    }
+
+    bool receive(std::uint8_t byte, std::uint64_t) override
+    {
+        dirty_ = true;
+        if (control_next_) {
+            data_ = (byte & 0x40u) != 0;
+            single_ = (byte & 0x80u) != 0;
+            control_next_ = false;
+            return true;
+        }
+        if (data_) {
+            write_data(byte);
+        } else {
+            command(byte);
+        }
+        control_next_ = single_;
+        return true;
+    }
+
+    std::uint8_t transmit() override { return 0; }
+
+private:
+    std::string render() const
+    {
         const int rows = std::min(height_, multiplex_);
         std::string out = "128x" + std::to_string(rows);
         if (!on_) {
@@ -1654,35 +1695,6 @@ public:
         return out;
     }
 
-protected:
-    std::uint8_t address() const override { return address_; }
-
-    bool select(bool read, std::uint64_t) override
-    {
-        control_next_ = true;
-        return !read; // the I2C interface has no reads
-    }
-
-    bool receive(std::uint8_t byte, std::uint64_t) override
-    {
-        if (control_next_) {
-            data_ = (byte & 0x40u) != 0;
-            single_ = (byte & 0x80u) != 0;
-            control_next_ = false;
-            return true;
-        }
-        if (data_) {
-            write_data(byte);
-        } else {
-            command(byte);
-        }
-        control_next_ = single_;
-        return true;
-    }
-
-    std::uint8_t transmit() override { return 0; }
-
-private:
     void write_data(std::uint8_t byte)
     {
         ram_[static_cast<std::size_t>(page_ * 128 + column_)] = byte;
@@ -1774,6 +1786,805 @@ private:
     int column_start_ = 0, column_end_ = 127, page_start_ = 0, page_end_ = 7;
     int multiplex_ = 64, start_line_ = 0;
     bool remap_ = false, reverse_com_ = false, inverse_ = false, entire_on_ = false, on_ = false;
+    mutable std::string text_;
+    mutable bool dirty_ = true;
+};
+
+// The supply voltage the session gives every chip as the parameter "@supply".
+double supply_of(const std::map<std::string, std::string>& parameters)
+{
+    double volts = 0.0;
+    number_parameter(parameters, "@supply", volts);
+    return volts;
+}
+
+// SPI chips that exchange whole bytes (SN-224), modes 0 and 3: with CS low,
+// MOSI is taken at each rising SCK and MISO changes at each falling SCK (the
+// first bit is out when CS falls). exchange() answers each complete byte with
+// the byte to shift out next; MISO floats while CS is high.
+class SpiByteSlave : public Device {
+public:
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin == cs_) {
+            if (!level && cs_level_) {
+                cs_level_ = false;
+                bits_ = 0;
+                shift_in_ = 0;
+                begin(time_ns);
+                out_ = next_ = first_byte();
+                loaded_ = true;
+                shown_ = (out_ & 0x80u) != 0;
+            } else if (level && !cs_level_) {
+                cs_level_ = true;
+                end(time_ns);
+            }
+        } else if (pin == sck_) {
+            const bool rising = level && !sck_level_;
+            const bool falling = !level && sck_level_;
+            sck_level_ = level;
+            if (cs_level_) {
+                return;
+            }
+            if (rising) {
+                shift_in_ = static_cast<std::uint8_t>((shift_in_ << 1) | (mosi_level_ ? 1u : 0u));
+                if (++bits_ == 8) {
+                    next_ = exchange(shift_in_, time_ns);
+                    bits_ = 0;
+                    loaded_ = false;
+                }
+            } else if (falling) {
+                if (bits_ == 0 && !loaded_) {
+                    out_ = next_;
+                    loaded_ = true;
+                }
+                shown_ = ((out_ >> (7 - bits_)) & 1u) != 0;
+            }
+        } else if (pin == mosi_) {
+            mosi_level_ = level;
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == cs_) {
+            cs_level_ = level;
+        } else if (pin == sck_) {
+            sck_level_ = level;
+        } else if (pin == mosi_) {
+            mosi_level_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin != miso_ || cs_level_) {
+            return {};
+        }
+        return push_pull(shown_);
+    }
+
+protected:
+    void set_spi_pins(std::size_t cs, std::size_t sck, std::size_t mosi, std::size_t miso)
+    {
+        cs_ = cs;
+        sck_ = sck;
+        mosi_ = mosi;
+        miso_ = miso;
+    }
+    virtual std::uint8_t first_byte() { return 0xFF; }
+    virtual std::uint8_t exchange(std::uint8_t in, std::uint64_t time_ns) = 0;
+    virtual void begin(std::uint64_t) {}
+    virtual void end(std::uint64_t) {}
+
+private:
+    std::size_t cs_ = 0, sck_ = 1, mosi_ = 2, miso_ = 3;
+    bool cs_level_ = true, sck_level_ = false, mosi_level_ = false, loaded_ = true, shown_ = true;
+    int bits_ = 0;
+    std::uint8_t shift_in_ = 0, out_ = 0xFF, next_ = 0xFF;
+};
+
+// MCP3208 (Microchip datasheet): 8-channel 12-bit A/D converter on SPI. With
+// CS low, the first 1 on DIN is the start bit, then SGL/DIFF and D2 D1 D0
+// choose the input (single-ended CHn against AGND, or a differential pair);
+// the input is sampled until the falling edge of the fifth clock after the
+// start bit, when DOUT gives a null bit; the 12 result bits follow MSB first
+// at falling CLK edges (then the same bits LSB first). The result is
+// 4096 x VIN / VREF, from the circuit's voltages.
+class Mcp3208 : public Device {
+public:
+    static constexpr std::array<const char*, 12> names{
+        "CS", "CLK", "DIN", "DOUT", "CH0", "CH1", "CH2", "CH3", "CH4", "CH5", "CH6", "CH7"};
+    enum { CS, CLK, DIN, DOUT, CH0 };
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "MCP3208", error)) {
+            return false;
+        }
+        supply_ = supply_of(parameters);
+        const auto vref = std::find(pins.begin(), pins.end(), "VREF");
+        vref_ = vref == pins.end() ? index_[CH0] : static_cast<std::size_t>(vref - pins.begin());
+        has_vref_ = vref != pins.end();
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin == index_[CS]) {
+            cs_ = level;
+            if (level) {
+                state_ = State::Idle;
+            } else {
+                state_ = State::Start;
+                bits_ = 0;
+            }
+        } else if (pin == index_[DIN]) {
+            din_ = level;
+        } else if (pin == index_[CLK]) {
+            const bool rising = level && !clk_;
+            const bool falling = !level && clk_;
+            clk_ = level;
+            if (cs_) {
+                return;
+            }
+            if (rising) {
+                if (state_ == State::Start && din_) {
+                    state_ = State::Config;
+                    bits_ = 0;
+                    config_ = 0;
+                } else if (state_ == State::Config) {
+                    config_ = (config_ << 1) | (din_ ? 1u : 0u);
+                    if (++bits_ == 4) {
+                        state_ = State::Sample; // sampling from this edge to the falling edge of the next clock
+                        sample_edges_ = 0;
+                    }
+                }
+            } else if (falling) {
+                if (state_ == State::Sample && ++sample_edges_ == 2) {
+                    result_ = convert(time_ns);
+                    state_ = State::Out;
+                    position_ = -1; // the null bit
+                } else if (state_ == State::Out) {
+                    ++position_;
+                }
+            }
+        } else {
+            levels_[pin < levels_.size() ? pin : 0] = level;
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[CS]) {
+            cs_ = level;
+        } else if (pin == index_[CLK]) {
+            clk_ = level;
+        } else if (pin == index_[DIN]) {
+            din_ = level;
+        } else if (pin < levels_.size()) {
+            levels_[pin] = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin != index_[DOUT] || cs_ || state_ != State::Out) {
+            return {};
+        }
+        if (position_ < 0) {
+            return push_pull(false);
+        }
+        int bit = 0;
+        if (position_ < 12) {
+            bit = 11 - position_; // MSB first
+        } else if (position_ < 23) {
+            bit = position_ - 11; // then LSB first, B1..B11
+        } else {
+            return push_pull(false);
+        }
+        return push_pull(((result_ >> bit) & 1u) != 0);
+    }
+
+private:
+    enum class State { Idle, Start, Config, Sample, Out };
+
+    double volts(std::size_t pin, std::uint64_t time_ns) const
+    {
+        const bool high = pin < levels_.size() && levels_[pin];
+        return analog(pin, time_ns, high ? supply_ : 0.0);
+    }
+
+    unsigned convert(std::uint64_t time_ns) const
+    {
+        const bool single = (config_ & 8u) != 0;
+        const unsigned channel = config_ & 7u;
+        const double vref = has_vref_ ? volts(vref_, time_ns) : supply_;
+        double vin = 0.0;
+        if (single) {
+            vin = volts(index_[CH0 + channel], time_ns);
+        } else {
+            const unsigned plus = channel & 6u;
+            const unsigned a = (channel & 1u) ? plus + 1 : plus;
+            const unsigned b = (channel & 1u) ? plus : plus + 1;
+            vin = volts(index_[CH0 + a], time_ns) - volts(index_[CH0 + b], time_ns);
+        }
+        if (vref <= 0.0) {
+            return 0;
+        }
+        return static_cast<unsigned>(std::clamp(std::floor(4096.0 * vin / vref), 0.0, 4095.0));
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    std::size_t vref_ = 0;
+    bool has_vref_ = false;
+    std::array<bool, 32> levels_{};
+    bool cs_ = true, clk_ = false, din_ = false;
+    State state_ = State::Idle;
+    int bits_ = 0;
+    unsigned config_ = 0;
+    unsigned result_ = 0;
+    int position_ = 0;
+    int sample_edges_ = 0;
+    double supply_ = 5.0;
+};
+
+// MCP41010 (Microchip datasheet): 10 kOhm digital potentiometer on SPI. A
+// command byte (bits 5:4: 01 write, 10 shutdown; bits 1:0 select pot 0) and a
+// data byte shift in at rising SCK with CS low and act when CS rises after
+// exactly 16 bits: the wiper goes to step D of 256 (PW0 at D/256 from PB0
+// towards PA0). Shutdown opens PA0 and connects the wiper to PB0. The wiper
+// starts at mid-scale (0x80). The internal pin WIPER carries D/256 to the
+// part's template as its output strength.
+class Mcp41010 : public Device {
+public:
+    static constexpr std::array<const char*, 4> names{"CS", "SCK", "SI", "WIPER"};
+
+    bool init(const std::vector<std::string>& pins, std::string& error)
+    {
+        return find_pins(pins, names, index_, "MCP41010", error);
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t) override
+    {
+        if (pin == index_[0]) {
+            if (!level) {
+                bits_ = 0;
+                shift_ = 0;
+            } else if (!cs_ && bits_ == 16) {
+                const unsigned command = (shift_ >> 12) & 3u;
+                if ((shift_ >> 8 & 3u) & 1u) { // pot 0 selected
+                    if (command == 1) {
+                        wiper_ = shift_ & 0xFFu;
+                        shutdown_ = false;
+                    } else if (command == 2) {
+                        shutdown_ = true;
+                    }
+                }
+            }
+            cs_ = level;
+        } else if (pin == index_[1]) {
+            if (level && !sck_ && !cs_ && bits_ < 16) {
+                shift_ = (shift_ << 1) | (si_ ? 1u : 0u);
+                ++bits_;
+            }
+            sck_ = level;
+        } else if (pin == index_[2]) {
+            si_ = level;
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[0]) {
+            cs_ = level;
+        } else if (pin == index_[1]) {
+            sck_ = level;
+        } else if (pin == index_[2]) {
+            si_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin != index_[3]) {
+            return {};
+        }
+        // The fraction of the track from PB0 to the wiper; 0 in shutdown.
+        return push_pull(true, shutdown_ ? 0.0 : wiper_ / 256.0);
+    }
+
+private:
+    std::array<std::size_t, names.size()> index_{};
+    bool cs_ = true, sck_ = false, si_ = false, shutdown_ = false;
+    int bits_ = 0;
+    unsigned shift_ = 0;
+    unsigned wiper_ = 0x80;
+};
+
+// W25Q32 (Winbond datasheet): 32 Mbit (4 MB) SPI NOR flash. Commands: 06/04
+// write enable/disable, 05/35 status registers 1 and 2 (BUSY, WEL), 9F JEDEC ID
+// (EF 40 16), 90 manufacturer/device ID (EF 15), AB release from power-down
+// (device ID 15), 4B unique ID, 03 read, 0B fast read, 02 page program (within
+// a 256-byte page, only clearing bits), 20/52/D8 erase of 4/32/64 KB, C7/60 chip
+// erase, B9 power-down. Program and erase need WEL and keep BUSY for the
+// datasheet's typical times (0.7 ms page, 45 ms sector, 120/150 ms blocks,
+// 10 s chip); meanwhile only the status can be read. Starts erased (0xFF) or
+// with its contents file.
+class W25q32 : public SpiByteSlave {
+public:
+    static constexpr std::array<const char*, 4> names{"CS", "CLK", "DI", "DO"};
+    static constexpr std::size_t size = 4u * 1024u * 1024u;
+
+    bool init(const std::vector<std::string>& pins, std::string& error)
+    {
+        std::array<std::size_t, names.size()> index{};
+        if (!find_pins(pins, names, index, "W25Q32", error)) {
+            return false;
+        }
+        set_spi_pins(index[0], index[1], index[2], index[3]);
+        memory_.assign(size, 0xFF);
+        return true;
+    }
+
+    std::vector<std::uint8_t> memory() const override { return memory_; }
+    std::uint64_t memory_version() const override { return version_; }
+    void load_memory(const std::vector<std::uint8_t>& bytes) override
+    {
+        std::copy_n(bytes.begin(), std::min(bytes.size(), memory_.size()), memory_.begin());
+        ++version_;
+    }
+
+    std::uint64_t next_event_ns() const override { return busy_until_ > 0 ? busy_until_ : no_event; }
+    void advance(std::uint64_t time_ns) override
+    {
+        if (busy_until_ > 0 && time_ns >= busy_until_) {
+            busy_until_ = 0;
+            wel_ = false;
+        }
+    }
+
+protected:
+    void begin(std::uint64_t time_ns) override
+    {
+        advance(time_ns);
+        command_ = -1;
+        count_ = 0;
+        address_ = 0;
+        page_.clear();
+    }
+
+    std::uint8_t exchange(std::uint8_t in, std::uint64_t time_ns) override
+    {
+        advance(time_ns);
+        if (command_ < 0) {
+            command_ = in;
+            if (busy() && in != 0x05 && in != 0x35) {
+                command_ = 0; // ignored while busy
+            } else if (powered_down_ && in != 0xAB) {
+                command_ = 0;
+            } else if (in == 0x06) {
+                wel_ = true;
+            } else if (in == 0x04) {
+                wel_ = false;
+            }
+            return answer();
+        }
+        ++count_;
+        switch (command_) {
+        case 0x03: case 0x0B: case 0x02: case 0x20: case 0x52: case 0xD8: case 0x90: case 0xAB:
+            if (count_ <= 3) {
+                address_ = ((address_ << 8) | in) & (size - 1);
+            } else if (command_ == 0x02) {
+                page_.push_back(in);
+            }
+            break;
+        default: break;
+        }
+        return answer();
+    }
+
+    void end(std::uint64_t time_ns) override
+    {
+        advance(time_ns);
+        if (command_ == 0xB9) {
+            powered_down_ = true;
+        } else if (command_ == 0xAB) {
+            powered_down_ = false;
+        }
+        if (!wel_ || busy()) {
+            return;
+        }
+        std::uint64_t duration = 0;
+        if (command_ == 0x02 && count_ >= 4) {
+            const std::size_t page = address_ & ~std::size_t{0xFF};
+            for (std::size_t i = 0; i < page_.size(); ++i) {
+                const std::size_t a = page | ((address_ + i) & 0xFFu);
+                memory_[a] = static_cast<std::uint8_t>(memory_[a] & page_[i]);
+            }
+            duration = 700000;
+        } else if ((command_ == 0x20 || command_ == 0x52 || command_ == 0xD8) && count_ >= 3) {
+            const std::size_t block = command_ == 0x20 ? 4096 : command_ == 0x52 ? 32768 : 65536;
+            std::fill_n(memory_.begin() + static_cast<std::ptrdiff_t>(address_ & ~(block - 1)), block, std::uint8_t{0xFF});
+            duration = command_ == 0x20 ? 45000000 : command_ == 0x52 ? 120000000 : 150000000;
+        } else if (command_ == 0xC7 || command_ == 0x60) {
+            std::fill(memory_.begin(), memory_.end(), std::uint8_t{0xFF});
+            duration = 10000000000ull;
+        } else {
+            return;
+        }
+        ++version_;
+        busy_until_ = time_ns + duration;
+    }
+
+private:
+    bool busy() const { return busy_until_ > 0; }
+
+    // The byte shifted out during the next byte of the current command.
+    std::uint8_t answer()
+    {
+        switch (command_) {
+        case 0x05: return static_cast<std::uint8_t>((busy() ? 1u : 0u) | (wel_ ? 2u : 0u));
+        case 0x35: return 0x00;
+        case 0x9F: {
+            static constexpr std::array<std::uint8_t, 3> id{0xEF, 0x40, 0x16};
+            return count_ < 3 ? id[static_cast<std::size_t>(count_)] : 0xFF;
+        }
+        case 0x90: return count_ < 3 ? 0xFF : ((count_ - 3) % 2 == 0 ? 0xEF : 0x15);
+        case 0xAB: return count_ < 3 ? 0xFF : 0x15;
+        case 0x4B: {
+            static constexpr std::array<std::uint8_t, 8> unique{0x53, 0x49, 0x4D, 0x4E, 0x4F, 0x44, 0x55, 0x53};
+            return count_ >= 4 && count_ < 12 ? unique[static_cast<std::size_t>(count_ - 4)] : 0xFF;
+        }
+        case 0x03:
+        case 0x0B: {
+            const int data_from = command_ == 0x03 ? 3 : 4; // fast read: a dummy byte first
+            if (count_ < data_from) {
+                return 0xFF;
+            }
+            return memory_[(address_ + static_cast<std::size_t>(count_ - data_from)) & (size - 1)];
+        }
+        default: return 0xFF;
+        }
+    }
+
+    std::vector<std::uint8_t> memory_;
+    std::uint64_t version_ = 1;
+    int command_ = -1;
+    int count_ = 0;
+    std::size_t address_ = 0;
+    std::vector<std::uint8_t> page_;
+    bool wel_ = false, powered_down_ = false;
+    std::uint64_t busy_until_ = 0;
+};
+
+// microSD card in SPI mode (SD Physical Layer Simplified Specification): an
+// SDHC card of the size of its image (block addresses). CMD0 enters SPI mode
+// (idle), CMD8 echoes its check pattern, CMD55 + ACMD41 ends the
+// initialization, CMD58 reports CCS (high capacity), CMD9/CMD10 give CSD and
+// CID, CMD16 is accepted, CMD17/CMD18 read blocks (start token 0xFE, 512 bytes,
+// two CRC bytes) and CMD12 stops a multiple read, CMD24/CMD25 write blocks
+// (tokens 0xFE / 0xFC, 0xFD ends) answered with 0x05 and a short busy time.
+// CRCs are not checked. The contents start from its image file (the Memory
+// Viewer can save them); writes stay in the simulation.
+class SdCard : public SpiByteSlave {
+public:
+    static constexpr std::array<const char*, 4> names{"CS", "SCK", "MOSI", "MISO"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        std::array<std::size_t, names.size()> index{};
+        if (!find_pins(pins, names, index, "microSD", error)) {
+            return false;
+        }
+        set_spi_pins(index[0], index[1], index[2], index[3]);
+        std::size_t bytes = 8u * 1024u * 1024u;
+        if (const auto it = parameters.find("size"); it != parameters.end()) {
+            char* end = nullptr;
+            const double megabytes = std::strtod(it->second.c_str(), &end);
+            if (end != it->second.c_str() && megabytes >= 1 && megabytes <= 64) {
+                bytes = static_cast<std::size_t>(megabytes) * 1024u * 1024u;
+            }
+        }
+        memory_.assign(bytes, 0x00);
+        return true;
+    }
+
+    std::vector<std::uint8_t> memory() const override { return memory_; }
+    std::uint64_t memory_version() const override { return version_; }
+    void load_memory(const std::vector<std::uint8_t>& bytes) override
+    {
+        std::copy_n(bytes.begin(), std::min(bytes.size(), memory_.size()), memory_.begin());
+        ++version_;
+    }
+
+protected:
+    std::uint8_t exchange(std::uint8_t in, std::uint64_t) override
+    {
+        // Data phase of a write: token, 512 bytes, 2 CRC bytes, then the data response.
+        if (write_state_ != Write::None) {
+            return write_byte(in);
+        }
+        // Collecting a command: 0b01xxxxxx, four argument bytes, CRC.
+        if (command_.empty()) {
+            if ((in & 0xC0u) == 0x40u) {
+                command_.push_back(in);
+                return 0xFF;
+            }
+            return next_out();
+        }
+        command_.push_back(in);
+        if (command_.size() < 6) {
+            return 0xFF;
+        }
+        const unsigned index = command_[0] & 0x3Fu;
+        const std::uint32_t argument = static_cast<std::uint32_t>(command_[1]) << 24
+            | static_cast<std::uint32_t>(command_[2]) << 16 | static_cast<std::uint32_t>(command_[3]) << 8 | command_[4];
+        command_.clear();
+        respond(index, argument);
+        return 0xFF; // the response follows after one byte (NCR)
+    }
+
+private:
+    enum class Write { None, Token, Data, Crc, Done };
+
+    std::uint8_t next_out()
+    {
+        if (out_.empty()) {
+            if (reading_) {
+                queue_block(); // CMD18 goes on until CMD12
+            } else {
+                return 0xFF;
+            }
+        }
+        const std::uint8_t b = out_.front();
+        out_.pop_front();
+        return b;
+    }
+
+    void respond(unsigned index, std::uint32_t argument)
+    {
+        const bool acmd = app_;
+        app_ = false;
+        out_.clear();
+        const std::uint8_t r1 = idle_ ? 0x01 : 0x00;
+        if (index == 12) {
+            reading_ = false;
+            out_ = {0xFF, 0x00}; // a stuff byte, then R1
+            return;
+        }
+        if (acmd && index == 41) {
+            idle_ = false;
+            out_ = {0x00};
+            return;
+        }
+        switch (index) {
+        case 0:
+            idle_ = true;
+            out_ = {0x01};
+            break;
+        case 8:
+            out_ = {r1, 0x00, 0x00, static_cast<std::uint8_t>((argument >> 8) & 0x0Fu),
+                static_cast<std::uint8_t>(argument)};
+            break;
+        case 55:
+            app_ = true;
+            out_ = {r1};
+            break;
+        case 58: out_ = {r1, 0xC0, 0xFF, 0x80, 0x00}; break; // powered up, CCS: block addresses
+        case 9: out_ = {r1, 0xFE}; append(csd()); out_.push_back(0xFF); out_.push_back(0xFF); break;
+        case 10: out_ = {r1, 0xFE}; append(cid()); out_.push_back(0xFF); out_.push_back(0xFF); break;
+        case 16: out_ = {r1}; break;
+        case 17:
+        case 18:
+            if (idle_ || static_cast<std::size_t>(argument) * 512u >= memory_.size()) {
+                out_ = {static_cast<std::uint8_t>(r1 | 0x40u)}; // parameter error
+                break;
+            }
+            block_ = argument;
+            out_ = {r1};
+            queue_block();
+            reading_ = index == 18;
+            break;
+        case 24:
+        case 25:
+            if (idle_ || static_cast<std::size_t>(argument) * 512u >= memory_.size()) {
+                out_ = {static_cast<std::uint8_t>(r1 | 0x40u)};
+                break;
+            }
+            block_ = argument;
+            multiple_ = index == 25;
+            write_state_ = Write::Token;
+            out_ = {r1};
+            break;
+        default: out_ = {static_cast<std::uint8_t>(r1 | 0x04u)}; break; // illegal command
+        }
+    }
+
+    void queue_block()
+    {
+        if (static_cast<std::size_t>(block_) * 512u >= memory_.size()) {
+            reading_ = false;
+            return;
+        }
+        out_.push_back(0xFF);
+        out_.push_back(0xFE);
+        const auto first = memory_.begin() + static_cast<std::ptrdiff_t>(block_) * 512;
+        out_.insert(out_.end(), first, first + 512);
+        out_.push_back(0xFF); // CRC, not checked
+        out_.push_back(0xFF);
+        ++block_;
+    }
+
+    std::uint8_t write_byte(std::uint8_t in)
+    {
+        switch (write_state_) {
+        case Write::Token:
+            if (in == 0xFE || (multiple_ && in == 0xFC)) {
+                write_state_ = Write::Data;
+                data_.clear();
+            } else if (multiple_ && in == 0xFD) {
+                write_state_ = Write::None; // stop tran
+                out_ = {0x00, 0xFF};        // a short busy time
+            }
+            return next_out();
+        case Write::Data:
+            data_.push_back(in);
+            if (data_.size() == 512) {
+                write_state_ = Write::Crc;
+                crc_bytes_ = 0;
+            }
+            return 0xFF;
+        case Write::Crc:
+            if (++crc_bytes_ < 2) {
+                return 0xFF;
+            }
+            std::copy(data_.begin(), data_.end(), memory_.begin() + static_cast<std::ptrdiff_t>(block_) * 512);
+            ++block_;
+            ++version_;
+            write_state_ = multiple_ ? Write::Token : Write::None;
+            out_ = {0x00, 0x00, 0xFF}; // busy for two bytes, then ready
+            return 0x05;               // data accepted
+        default: write_state_ = Write::None; return 0xFF;
+        }
+    }
+
+    void append(const std::array<std::uint8_t, 16>& bytes) { out_.insert(out_.end(), bytes.begin(), bytes.end()); }
+
+    std::array<std::uint8_t, 16> csd() const
+    {
+        // CSD version 2.0: C_SIZE = blocks / 1024 - 1.
+        const std::uint32_t c_size = static_cast<std::uint32_t>(memory_.size() / (512u * 1024u)) - 1u;
+        return {0x40, 0x0E, 0x00, 0x32, 0x5B, 0x59, 0x00, static_cast<std::uint8_t>((c_size >> 16) & 0x3Fu),
+            static_cast<std::uint8_t>(c_size >> 8), static_cast<std::uint8_t>(c_size), 0x7F, 0x80, 0x0A, 0x40, 0x00,
+            0x01};
+    }
+
+    static std::array<std::uint8_t, 16> cid()
+    {
+        return {0x53, 'S', 'N', 'S', 'I', 'M', 'S', 'D', 0x10, 0x00, 0x00, 0x00, 0x01, 0x01, 0xA0, 0x01};
+    }
+
+    std::vector<std::uint8_t> memory_;
+    std::uint64_t version_ = 1;
+    std::vector<std::uint8_t> command_;
+    std::deque<std::uint8_t> out_;
+    bool idle_ = false, app_ = false, reading_ = false, multiple_ = false;
+    std::uint32_t block_ = 0;
+    Write write_state_ = Write::None;
+    std::vector<std::uint8_t> data_;
+    int crc_bytes_ = 0;
+};
+
+// HX711 (Avia Semiconductor datasheet): 24-bit A/D converter for bridge
+// sensors. DOUT goes low when a conversion is ready (10 per second); 24 pulses
+// on PD_SCK shift the result out MSB first (DOUT changes after each rising
+// edge), 1 to 3 more pulses choose the next input and gain (25: A x128, 26: B
+// x32, 27: A x64). The code is the differential input (A+ - A-) x gain /
+// (0.5 x AVDD) x 2^23, two's complement, clamped. AVDD is the voltage at E+
+// (the excitation the module gives the bridge). PD_SCK high for over 60 us
+// powers it down; the first conversion after comes 400 ms later... here at
+// the next 100 ms period.
+class Hx711 : public Device {
+public:
+    static constexpr std::array<const char*, 7> names{"SCK", "DT", "E+", "A+", "A-", "B+", "B-"};
+    enum { SCK, DT, EP, AP, AN, BP, BN };
+    static constexpr std::uint64_t period_ns = 100000000; // 10 samples per second
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "HX711", error)) {
+            return false;
+        }
+        supply_ = supply_of(parameters);
+        const auto rate = parameters.find("rate");
+        period_ns_ = rate != parameters.end() && rate->second == "80" ? period_ns / 8 : period_ns;
+        next_ = period_ns_;
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != index_[SCK]) {
+            return;
+        }
+        if (level && !sck_) {
+            high_since_ = time_ns;
+            if (pulses_ < 24 && ready_) {
+                ++pulses_; // the next bit appears after this edge
+            } else if (pulses_ >= 24 && pulses_ < 27) {
+                ++pulses_;
+                gain_pulses_ = pulses_ - 24;
+            }
+        } else if (!level && sck_) {
+            if (time_ns - high_since_ > 60000) {
+                pulses_ = 0; // power-down and reset
+                ready_ = false;
+                next_ = time_ns + period_ns_;
+            } else if (pulses_ >= 25) {
+                ready_ = false; // read: DOUT high until the next conversion
+                gain_ = gain_pulses_ == 2 ? 32 : gain_pulses_ == 3 ? 64 : 128;
+                channel_b_ = gain_pulses_ == 2;
+            }
+        }
+        sck_ = level;
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[SCK]) {
+            sck_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        if (pin != index_[DT]) {
+            return {};
+        }
+        if (!ready_ || pulses_ == 0) {
+            return push_pull(!ready_); // high while converting, low when ready
+        }
+        if (pulses_ <= 24) {
+            return push_pull(((code_ >> (24 - pulses_)) & 1u) != 0);
+        }
+        return push_pull(true);
+    }
+
+    std::uint64_t next_event_ns() const override { return next_; }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        if (time_ns < next_) {
+            return;
+        }
+        next_ = time_ns + period_ns_;
+        if (sck_) {
+            return; // powered down
+        }
+        const double avdd = analog(index_[EP], time_ns, supply_);
+        const double plus = analog(index_[channel_b_ ? BP : AP], time_ns, avdd / 2);
+        const double minus = analog(index_[channel_b_ ? BN : AN], time_ns, avdd / 2);
+        const double full = 0.5 * avdd / gain_;
+        const double scaled = full > 0 ? (plus - minus) / full * 8388608.0 : 0.0;
+        const auto value = static_cast<std::int32_t>(std::clamp(std::lround(scaled), -8388608L, 8388607L));
+        code_ = static_cast<std::uint32_t>(value) & 0xFFFFFFu;
+        ready_ = true;
+        pulses_ = 0;
+    }
+
+private:
+    std::array<std::size_t, names.size()> index_{};
+    double supply_ = 5.0;
+    std::uint64_t period_ns_ = period_ns;
+    std::uint64_t next_ = period_ns;
+    std::uint64_t high_since_ = 0;
+    bool sck_ = false, ready_ = false, channel_b_ = false;
+    int pulses_ = 0, gain_pulses_ = 1, gain_ = 128;
+    std::uint32_t code_ = 0;
 };
 
 // PCF8574 (NXP): 8-bit quasi-bidirectional I/O expander at 0100 A2 A1 A0
@@ -2363,6 +3174,26 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "ssd1306") {
         auto device = std::make_unique<Ssd1306>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "mcp3208") {
+        auto device = std::make_unique<Mcp3208>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "mcp41010") {
+        auto device = std::make_unique<Mcp41010>();
+        return device->init(pins, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "w25q32") {
+        auto device = std::make_unique<W25q32>();
+        return device->init(pins, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "sdcard") {
+        auto device = std::make_unique<SdCard>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "hx711") {
+        auto device = std::make_unique<Hx711>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "pcf8574") {

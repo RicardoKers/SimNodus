@@ -2334,6 +2334,30 @@ Pinos: %2</translation>
             <translation>Temperatura do chip; altere-a durante a simulação para testar o circuito</translation>
         </message>
         <message>
+            <source>Load cell amplifier HX711</source>
+            <translation>Amplificador de célula de carga HX711</translation>
+        </message>
+        <message>
+            <source>24-bit A/D converter for load cells</source>
+            <translation>Conversor A/D de 24 bits para células de carga</translation>
+        </message>
+        <message>
+            <source>Rate</source>
+            <translation>Taxa</translation>
+        </message>
+        <message>
+            <source>Conversions per second (the module's RATE pin)</source>
+            <translation>Conversões por segundo (o pino RATE do módulo)</translation>
+        </message>
+        <message>
+            <source>10</source>
+            <translation>10</translation>
+        </message>
+        <message>
+            <source>80</source>
+            <translation>80</translation>
+        </message>
+        <message>
             <source>Character LCD (HD44780)</source>
             <translation>LCD de caracteres (HD44780)</translation>
         </message>
@@ -2408,6 +2432,42 @@ Pinos: %2</translation>
         <message>
             <source>8-digit LED display driver (digits or an 8x8 matrix)</source>
             <translation>Driver de display de LEDs de 8 dígitos (dígitos ou matriz 8x8)</translation>
+        </message>
+        <message>
+            <source>A/D converter MCP3208 (SPI)</source>
+            <translation>Conversor A/D MCP3208 (SPI)</translation>
+        </message>
+        <message>
+            <source>8-channel 12-bit SPI A/D converter; reads the circuit's voltages</source>
+            <translation>Conversor A/D SPI de 8 canais e 12 bits; lê as tensões do circuito</translation>
+        </message>
+        <message>
+            <source>Digital potentiometer MCP41010 (SPI)</source>
+            <translation>Potenciômetro digital MCP41010 (SPI)</translation>
+        </message>
+        <message>
+            <source>SPI digital potentiometer, 10, 50 or 100 kOhm</source>
+            <translation>Potenciômetro digital SPI de 10, 50 ou 100 kOhm</translation>
+        </message>
+        <message>
+            <source>Resistance</source>
+            <translation>Resistência</translation>
+        </message>
+        <message>
+            <source>Track resistance from PA0 to PB0: MCP41010, MCP41050 or MCP41100</source>
+            <translation>Resistência da pista de PA0 a PB0: MCP41010, MCP41050 ou MCP41100</translation>
+        </message>
+        <message>
+            <source>10k</source>
+            <translation>10k</translation>
+        </message>
+        <message>
+            <source>50k</source>
+            <translation>50k</translation>
+        </message>
+        <message>
+            <source>100k</source>
+            <translation>100k</translation>
         </message>
         <message>
             <source>Accelerometer and gyroscope MPU6050 (I2C)</source>
@@ -2570,6 +2630,54 @@ Pinos: %2</translation>
             <translation>ROM paralela, de 16 bytes a 64 KB; conteúdo de um arquivo .bin ou .hex</translation>
         </message>
         <message>
+            <source>microSD card (SPI)</source>
+            <translation>Cartão microSD (SPI)</translation>
+        </message>
+        <message>
+            <source>microSD card in SPI mode, 1 to 64 MB</source>
+            <translation>Cartão microSD no modo SPI, de 1 a 64 MB</translation>
+        </message>
+        <message>
+            <source>Capacity of the card</source>
+            <translation>Capacidade do cartão</translation>
+        </message>
+        <message>
+            <source>1M</source>
+            <translation>1M</translation>
+        </message>
+        <message>
+            <source>2M</source>
+            <translation>2M</translation>
+        </message>
+        <message>
+            <source>4M</source>
+            <translation>4M</translation>
+        </message>
+        <message>
+            <source>8M</source>
+            <translation>8M</translation>
+        </message>
+        <message>
+            <source>16M</source>
+            <translation>16M</translation>
+        </message>
+        <message>
+            <source>32M</source>
+            <translation>32M</translation>
+        </message>
+        <message>
+            <source>64M</source>
+            <translation>64M</translation>
+        </message>
+        <message>
+            <source>Image file</source>
+            <translation>Arquivo de imagem</translation>
+        </message>
+        <message>
+            <source>Card image the run starts with (raw blocks, stored relative to the project); empty: all zeros</source>
+            <translation>Imagem do cartão no início da simulação (blocos brutos, guardada relativa ao projeto); vazio: tudo zero</translation>
+        </message>
+        <message>
             <source>OLED display SSD1306 (I2C)</source>
             <translation>Display OLED SSD1306 (I2C)</translation>
         </message>
@@ -2660,6 +2768,18 @@ Pinos: %2</translation>
         <message>
             <source>Light on the object; change it while running to test the circuit</source>
             <translation>Luz sobre o objeto; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>SPI flash W25Q32</source>
+            <translation>Flash SPI W25Q32</translation>
+        </message>
+        <message>
+            <source>4 MB SPI flash memory</source>
+            <translation>Memória flash SPI de 4 MB</translation>
+        </message>
+        <message>
+            <source>Contents the flash starts each run with (.bin or Intel .hex, stored relative to the project); empty: erased</source>
+            <translation>Conteúdo com que a flash começa cada simulação (.bin ou Intel .hex, guardado relativo ao projeto); vazio: apagada</translation>
         </message>
         <message>
             <source>BCD to 7-segment decoder (4511)</source>
@@ -3240,10 +3360,6 @@ Pinos: %2</translation>
         <message>
             <source>Adjustable voltage divider; drag the wiper or use the wheel while running</source>
             <translation>Divisor de tensão ajustável; arraste o cursor ou use a roda do mouse durante a execução</translation>
-        </message>
-        <message>
-            <source>Resistance</source>
-            <translation>Resistência</translation>
         </message>
         <message>
             <source>Total resistance between pins 1 and 2</source>

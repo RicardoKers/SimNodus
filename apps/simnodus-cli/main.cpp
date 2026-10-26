@@ -82,7 +82,9 @@ bool pretty = false;
 
 void emit(const json& value)
 {
-    const std::string text = (pretty ? value.dump(2) : value.dump()) + "\n";
+    // Bytes a board sent may not be UTF-8 (0xFF from an erased memory): replaced, not fatal.
+    const auto replace = json::error_handler_t::replace;
+    const std::string text = (pretty ? value.dump(2, ' ', false, replace) : value.dump(-1, ' ', false, replace)) + "\n";
     std::size_t done = 0;
     while (done < text.size()) {
         const auto n = write(out_fd, text.data() + done, static_cast<unsigned>(text.size() - done));

@@ -500,6 +500,19 @@ void NativeMcuRunner::work()
         machine->set_pin_hook([&bus](int port, int pin, std::uint64_t time_ns) {
             bus.board_pin_changed(port, pin, time_ns);
         });
+        bus.set_analog_source([this](std::size_t device, std::size_t pin, std::uint64_t time_ns) {
+            if (device >= device_pins_.size() || pin >= device_pins_[device].size()) {
+                return std::nan("");
+            }
+            const std::size_t watched_pin = device_pins_[device][pin];
+            {
+                std::lock_guard lock(mutex_);
+                if (watched_pin >= analog_.size() || analog_[watched_pin].empty()) {
+                    return std::nan(""); // no voltage from the circuit (a pin tied to a rail)
+                }
+            }
+            return analog_value(watched_pin, time_ns);
+        });
         bus.start(0);
     }
     // Debugging (SN-180): the GDB server lives on this thread, which owns the machine.
@@ -607,13 +620,16 @@ void NativeMcuRunner::work()
             if (!text.empty()) {
                 device_texts_[options_.devices[d].component] = std::move(text);
             }
-            // Memory chips: a copy whenever the contents changed.
+            // Memory chips: a copy whenever the contents changed; a large one (a
+            // 4 MB SPI flash, SN-224) at most every 0.2 s of its time.
             const std::uint64_t version = bus.memory_version(d);
             const auto known = memories_.find(options_.devices[d].component);
-            if (known == memories_.end() || known->second.version != version) {
+            const bool due = known == memories_.end() || known->second.bytes.size() <= 65536
+                || machine->time_ns() >= known->second.copied_ns + 200000000ull;
+            if (known == memories_.end() || (known->second.version != version && due)) {
                 auto bytes = bus.memory(d);
                 if (!bytes.empty()) {
-                    memories_[options_.devices[d].component] = {version, std::move(bytes)};
+                    memories_[options_.devices[d].component] = {version, std::move(bytes), machine->time_ns()};
                 }
             }
         }

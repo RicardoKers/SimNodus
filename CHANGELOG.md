@@ -15,8 +15,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - I2C chips (SN-223): BMP280 pressure sensor (the datasheet's compensation gives the set values), MPU6050 accelerometer and gyroscope, DS3231 real-time clock (runs from `now` or a start date; alarms and the SQW output), TCS34725 color sensor, and the SSD1306 OLED, 128x64 or 128x32, whose picture appears on the schematic (white, blue or yellow-blue). Firmware `hal_i2c_oled` and example 38.
 
+- SPI chips and the load cell amplifier (SN-224): MCP3208 A/D converter reading the circuit's voltages, MCP41010 digital potentiometer setting a resistance in the circuit, W25Q32 4 MB flash with the datasheet's busy times, microSD card in SPI mode with an image file, HX711. Chips can now read analog pins (`device.analog_pins`) and drive a value inside their part (`device.internal_pins`). Firmware `hal_spi_sensors` and example 39.
+
 ### Fixed (2026-10-26)
 
+- `simnodus-cli` no longer stops when a board sends bytes that are not UTF-8 (an erased memory's 0xFF on a serial port): they are replaced in the JSON answer.
 - `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.
 
 ## 0.10.0 — 2026-10-25

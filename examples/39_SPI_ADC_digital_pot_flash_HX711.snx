@@ -1,0 +1,585 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/hal_spi_sensors/hal_spi_sensors.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -9,
+        17
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -40,
+        -20
+      ],
+      "designator": "U2",
+      "id": 12,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "mcp3208"
+    },
+    {
+      "at": [
+        -40,
+        -9
+      ],
+      "designator": "GND2",
+      "id": 21,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -34,
+        -15
+      ],
+      "designator": "GND3",
+      "id": 22,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -40,
+        14
+      ],
+      "designator": "U3",
+      "id": 23,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k"
+      },
+      "rotation": 0,
+      "type": "mcp41010"
+    },
+    {
+      "at": [
+        -40,
+        20
+      ],
+      "designator": "GND4",
+      "id": 30,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -34,
+        16
+      ],
+      "designator": "GND5",
+      "id": 31,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -40,
+        36
+      ],
+      "designator": "U4",
+      "id": 32,
+      "mirrored": false,
+      "parameters": {
+        "contents": ""
+      },
+      "rotation": 0,
+      "type": "w25q32"
+    },
+    {
+      "at": [
+        -40,
+        43
+      ],
+      "designator": "GND6",
+      "id": 38,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -64,
+        -20
+      ],
+      "designator": "RV1",
+      "id": 39,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "30"
+      },
+      "rotation": 0,
+      "type": "potentiometer"
+    },
+    {
+      "at": [
+        -64,
+        -17
+      ],
+      "designator": "GND7",
+      "id": 42,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        40,
+        30
+      ],
+      "designator": "U5",
+      "id": 43,
+      "mirrored": false,
+      "parameters": {
+        "rate": "10"
+      },
+      "rotation": 0,
+      "type": "hx711"
+    },
+    {
+      "at": [
+        40,
+        39
+      ],
+      "designator": "GND8",
+      "id": 47,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        22,
+        30
+      ],
+      "designator": "LC1",
+      "id": 48,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k",
+        "capacity": "5",
+        "load": "40",
+        "sensitivity": "1"
+      },
+      "rotation": 0,
+      "type": "load_cell"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 3,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        9,
+        3
+      ],
+      "id": 4,
+      "name": "CS_ADC"
+    },
+    {
+      "at": [
+        9,
+        1
+      ],
+      "id": 5,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        9,
+        -1
+      ],
+      "id": 6,
+      "name": "MISO"
+    },
+    {
+      "at": [
+        9,
+        -3
+      ],
+      "id": 7,
+      "name": "MOSI"
+    },
+    {
+      "at": [
+        9,
+        -5
+      ],
+      "id": 8,
+      "name": "CS_POT"
+    },
+    {
+      "at": [
+        9,
+        -7
+      ],
+      "id": 9,
+      "name": "CS_FLASH"
+    },
+    {
+      "at": [
+        9,
+        -9
+      ],
+      "id": 10,
+      "name": "HX_SCK"
+    },
+    {
+      "at": [
+        9,
+        -11
+      ],
+      "id": 11,
+      "name": "HX_DT"
+    },
+    {
+      "at": [
+        -40,
+        -31
+      ],
+      "id": 13,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -34,
+        -17
+      ],
+      "id": 14,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -46,
+        -27
+      ],
+      "id": 15,
+      "name": "POT"
+    },
+    {
+      "at": [
+        -46,
+        -25
+      ],
+      "id": 16,
+      "name": "DPOT"
+    },
+    {
+      "at": [
+        -34,
+        -25
+      ],
+      "id": 17,
+      "name": "CS_ADC"
+    },
+    {
+      "at": [
+        -34,
+        -23
+      ],
+      "id": 18,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        -34,
+        -21
+      ],
+      "id": 19,
+      "name": "MOSI"
+    },
+    {
+      "at": [
+        -34,
+        -19
+      ],
+      "id": 20,
+      "name": "MISO"
+    },
+    {
+      "at": [
+        -40,
+        8
+      ],
+      "id": 24,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -34,
+        12
+      ],
+      "id": 25,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -34,
+        14
+      ],
+      "id": 26,
+      "name": "DPOT"
+    },
+    {
+      "at": [
+        -46,
+        12
+      ],
+      "id": 27,
+      "name": "CS_POT"
+    },
+    {
+      "at": [
+        -46,
+        14
+      ],
+      "id": 28,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        -46,
+        16
+      ],
+      "id": 29,
+      "name": "MOSI"
+    },
+    {
+      "at": [
+        -40,
+        29
+      ],
+      "id": 33,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -46,
+        33
+      ],
+      "id": 34,
+      "name": "CS_FLASH"
+    },
+    {
+      "at": [
+        -46,
+        35
+      ],
+      "id": 35,
+      "name": "SCK"
+    },
+    {
+      "at": [
+        -46,
+        37
+      ],
+      "id": 36,
+      "name": "MOSI"
+    },
+    {
+      "at": [
+        -46,
+        39
+      ],
+      "id": 37,
+      "name": "MISO"
+    },
+    {
+      "at": [
+        -64,
+        -23
+      ],
+      "id": 40,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -61,
+        -20
+      ],
+      "id": 41,
+      "name": "POT"
+    },
+    {
+      "at": [
+        40,
+        21
+      ],
+      "id": 44,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        46,
+        31
+      ],
+      "id": 45,
+      "name": "HX_SCK"
+    },
+    {
+      "at": [
+        46,
+        29
+      ],
+      "id": 46,
+      "name": "HX_DT"
+    },
+    {
+      "at": [
+        17,
+        28
+      ],
+      "id": 49,
+      "name": "LC_EP"
+    },
+    {
+      "at": [
+        34,
+        25
+      ],
+      "id": 50,
+      "name": "LC_EP"
+    },
+    {
+      "at": [
+        17,
+        32
+      ],
+      "id": 51,
+      "name": "LC_EN"
+    },
+    {
+      "at": [
+        34,
+        27
+      ],
+      "id": 52,
+      "name": "LC_EN"
+    },
+    {
+      "at": [
+        27,
+        28
+      ],
+      "id": 53,
+      "name": "LC_SP"
+    },
+    {
+      "at": [
+        34,
+        31
+      ],
+      "id": 54,
+      "name": "LC_SP"
+    },
+    {
+      "at": [
+        27,
+        32
+      ],
+      "id": 55,
+      "name": "LC_SN"
+    },
+    {
+      "at": [
+        34,
+        29
+      ],
+      "id": 56,
+      "name": "LC_SN"
+    }
+  ],
+  "next_id": 60,
+  "notes": [
+    {
+      "at": [
+        -70,
+        -40
+      ],
+      "id": 59,
+      "text": "SPI1 of the Blue Pill (PA5 SCK, PA6 MISO, PA7 MOSI) with an MCP3208 A/D converter (CS PA4), an MCP41010 digital\npotentiometer (CS PB0) and a W25Q32 flash (CS PB1); an HX711 with a 5 kg load cell on PB10/PB11. Run and open the UART\nterminal: CH0 follows RV1, the firmware copies it to the MCP41010, and CH1 reads its wiper back; LOAD shows the weight.\nDrag RV1 or the load cell while running."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 57,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -46,
+          -27
+        ],
+        "item": 12,
+        "pin": "CH0"
+      }
+    },
+    {
+      "color": "",
+      "id": 58,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -46,
+          -25
+        ],
+        "item": 12,
+        "pin": "CH1"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": []
+}

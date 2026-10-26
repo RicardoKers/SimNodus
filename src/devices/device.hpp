@@ -9,7 +9,9 @@
 // dependencies.
 #pragma once
 
+#include <cmath>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <map>
 #include <memory>
@@ -79,14 +81,25 @@ public:
     virtual void load_memory(const std::vector<std::uint8_t>& bytes) { (void)bytes; }
     // What a display shows (UTF-8, one row per line); empty for other chips.
     virtual std::string text() const { return {}; }
+    // Voltages of the analog pins (SN-224): the circuit's voltage on signal pin
+    // `pin` at `time_ns`, NaN when the circuit has none (a pin tied to a rail).
+    using AnalogSource = std::function<double(std::size_t pin, std::uint64_t time_ns)>;
+    void set_analog_source(AnalogSource source) { analog_ = std::move(source); }
     // Messages about the device's use (protocol errors), taken by the runner.
     std::vector<std::string> take_messages() { return std::exchange(messages_, {}); }
 
 protected:
     void message(std::string text) { messages_.push_back(std::move(text)); }
+    // The voltage on an analog pin, or `fallback` without one.
+    double analog(std::size_t pin, std::uint64_t time_ns, double fallback) const
+    {
+        const double volts = analog_ ? analog_(pin, time_ns) : std::nan("");
+        return std::isnan(volts) ? fallback : volts;
+    }
 
 private:
     std::vector<std::string> messages_;
+    AnalogSource analog_;
 };
 
 // A device of `kind` ("74hc595", ...) whose signal pins are `pins` (in this
