@@ -2290,6 +2290,50 @@ Pinos: %2</translation>
             <translation>Registrador de deslocamento de 8 bits com latches de saída</translation>
         </message>
         <message>
+            <source>Pressure sensor BMP280 (I2C)</source>
+            <translation>Sensor de pressão BMP280 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C pressure and temperature sensor; set both in Properties</source>
+            <translation>Sensor I2C de pressão e temperatura; defina ambas em Propriedades</translation>
+        </message>
+        <message>
+            <source>Pressure</source>
+            <translation>Pressão</translation>
+        </message>
+        <message>
+            <source>Air pressure (1013.25 hPa at sea level, about 12 hPa less per 100 m up); change it while running to test the circuit</source>
+            <translation>Pressão do ar (1013,25 hPa ao nível do mar, cerca de 12 hPa a menos a cada 100 m de altitude); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Temperature</source>
+            <translation>Temperatura</translation>
+        </message>
+        <message>
+            <source>Temperature of the sensor; change it while running to test the circuit</source>
+            <translation>Temperatura do sensor; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Real-time clock DS3231 (I2C)</source>
+            <translation>Relógio de tempo real DS3231 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C real-time clock with alarms and a square-wave output</source>
+            <translation>Relógio de tempo real I2C com alarmes e saída de onda quadrada</translation>
+        </message>
+        <message>
+            <source>Start time</source>
+            <translation>Hora inicial</translation>
+        </message>
+        <message>
+            <source>Date and time when the run starts: now (the computer's clock) or YYYY-MM-DD HH:MM:SS</source>
+            <translation>Data e hora no início da simulação: now (o relógio do computador) ou AAAA-MM-DD HH:MM:SS</translation>
+        </message>
+        <message>
+            <source>Temperature of the chip; change it while running to test the circuit</source>
+            <translation>Temperatura do chip; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
             <source>Character LCD (HD44780)</source>
             <translation>LCD de caracteres (HD44780)</translation>
         </message>
@@ -2354,10 +2398,6 @@ Pinos: %2</translation>
             <translation>Sensor de temperatura I2C; ajuste a temperatura em Propriedades</translation>
         </message>
         <message>
-            <source>Temperature</source>
-            <translation>Temperatura</translation>
-        </message>
-        <message>
             <source>Temperature the sensor measures; change it while running to test the circuit</source>
             <translation>Temperatura que o sensor mede; altere durante a simulação para testar o circuito</translation>
         </message>
@@ -2368,6 +2408,62 @@ Pinos: %2</translation>
         <message>
             <source>8-digit LED display driver (digits or an 8x8 matrix)</source>
             <translation>Driver de display de LEDs de 8 dígitos (dígitos ou matriz 8x8)</translation>
+        </message>
+        <message>
+            <source>Accelerometer and gyroscope MPU6050 (I2C)</source>
+            <translation>Acelerômetro e giroscópio MPU6050 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C accelerometer and gyroscope; set the motion in Properties</source>
+            <translation>Acelerômetro e giroscópio I2C; defina o movimento em Propriedades</translation>
+        </message>
+        <message>
+            <source>Acceleration X</source>
+            <translation>Aceleração X</translation>
+        </message>
+        <message>
+            <source>Acceleration along X (lying flat: Z = 1 g); change it while running to test the circuit</source>
+            <translation>Aceleração ao longo de X (deitado: Z = 1 g); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Acceleration Y</source>
+            <translation>Aceleração Y</translation>
+        </message>
+        <message>
+            <source>Acceleration along Y (lying flat: Z = 1 g); change it while running to test the circuit</source>
+            <translation>Aceleração ao longo de Y (deitado: Z = 1 g); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Acceleration Z</source>
+            <translation>Aceleração Z</translation>
+        </message>
+        <message>
+            <source>Acceleration along Z (lying flat: Z = 1 g); change it while running to test the circuit</source>
+            <translation>Aceleração ao longo de Z (deitado: Z = 1 g); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Rotation X</source>
+            <translation>Rotação X</translation>
+        </message>
+        <message>
+            <source>Rotation rate about X; change it while running to test the circuit</source>
+            <translation>Velocidade de rotação em torno de X; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Rotation Y</source>
+            <translation>Rotação Y</translation>
+        </message>
+        <message>
+            <source>Rotation rate about Y; change it while running to test the circuit</source>
+            <translation>Velocidade de rotação em torno de Y; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Rotation Z</source>
+            <translation>Rotação Z</translation>
+        </message>
+        <message>
+            <source>Rotation rate about Z; change it while running to test the circuit</source>
+            <translation>Velocidade de rotação em torno de Z; altere-a durante a simulação para testar o circuito</translation>
         </message>
         <message>
             <source>I/O expander PCF8574 (I2C)</source>
@@ -2474,6 +2570,98 @@ Pinos: %2</translation>
             <translation>ROM paralela, de 16 bytes a 64 KB; conteúdo de um arquivo .bin ou .hex</translation>
         </message>
         <message>
+            <source>OLED display SSD1306 (I2C)</source>
+            <translation>Display OLED SSD1306 (I2C)</translation>
+        </message>
+        <message>
+            <source>128x64 or 128x32 I2C OLED display; the picture shows on the schematic</source>
+            <translation>Display OLED I2C de 128x64 ou 128x32; a imagem aparece no esquemático</translation>
+        </message>
+        <message>
+            <source>Height</source>
+            <translation>Altura</translation>
+        </message>
+        <message>
+            <source>Pixel rows: 128x64 (0.96 inch) or 128x32 (0.91 inch)</source>
+            <translation>Linhas de pixels: 128x64 (0,96 polegada) ou 128x32 (0,91 polegada)</translation>
+        </message>
+        <message>
+            <source>I2C address</source>
+            <translation>Endereço I2C</translation>
+        </message>
+        <message>
+            <source>Address set on the module</source>
+            <translation>Endereço configurado no módulo</translation>
+        </message>
+        <message>
+            <source>0x3C</source>
+            <translation>0x3C</translation>
+        </message>
+        <message>
+            <source>0x3D</source>
+            <translation>0x3D</translation>
+        </message>
+        <message>
+            <source>Color</source>
+            <translation>Cor</translation>
+        </message>
+        <message>
+            <source>Color of the pixels (yellow-blue: the top 16 rows yellow)</source>
+            <translation>Cor dos pixels (amarelo-azul: as 16 linhas de cima em amarelo)</translation>
+        </message>
+        <message>
+            <source>white</source>
+            <translation>branco</translation>
+        </message>
+        <message>
+            <source>blue</source>
+            <translation>azul</translation>
+        </message>
+        <message>
+            <source>yellow-blue</source>
+            <translation>amarelo-azul</translation>
+        </message>
+        <message>
+            <source>Color sensor TCS34725 (I2C)</source>
+            <translation>Sensor de cor TCS34725 (I2C)</translation>
+        </message>
+        <message>
+            <source>I2C color sensor; set the color and the light in Properties</source>
+            <translation>Sensor de cor I2C; defina a cor e a luz em Propriedades</translation>
+        </message>
+        <message>
+            <source>Red</source>
+            <translation>Vermelho</translation>
+        </message>
+        <message>
+            <source>Red part of the color in front of the sensor (0-255); change it while running to test the circuit</source>
+            <translation>Componente vermelha da cor diante do sensor (0-255); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Green</source>
+            <translation>Verde</translation>
+        </message>
+        <message>
+            <source>Green part of the color in front of the sensor (0-255); change it while running to test the circuit</source>
+            <translation>Componente verde da cor diante do sensor (0-255); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Blue</source>
+            <translation>Azul</translation>
+        </message>
+        <message>
+            <source>Blue part of the color in front of the sensor (0-255); change it while running to test the circuit</source>
+            <translation>Componente azul da cor diante do sensor (0-255); altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Light</source>
+            <translation>Luz</translation>
+        </message>
+        <message>
+            <source>Light on the object; change it while running to test the circuit</source>
+            <translation>Luz sobre o objeto; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
             <source>BCD to 7-segment decoder (4511)</source>
             <translation>Decodificador BCD para 7 segmentos (4511)</translation>
         </message>
@@ -2514,10 +2702,6 @@ Pinos: %2</translation>
             <translation>64 LEDs em linhas (catodos) e colunas (anodos), para multiplexação</translation>
         </message>
         <message>
-            <source>Color</source>
-            <translation>Cor</translation>
-        </message>
-        <message>
             <source>LED color; sets the forward voltage (red about 1.9 V at 10 mA)</source>
             <translation>Cor do LED; define a tensão direta (vermelho cerca de 1,9 V a 10 mA)</translation>
         </message>
@@ -2532,14 +2716,6 @@ Pinos: %2</translation>
         <message>
             <source>green</source>
             <translation>verde</translation>
-        </message>
-        <message>
-            <source>blue</source>
-            <translation>azul</translation>
-        </message>
-        <message>
-            <source>white</source>
-            <translation>branco</translation>
         </message>
         <message>
             <source>4-digit 7-segment display (common cathode)</source>

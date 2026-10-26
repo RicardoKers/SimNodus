@@ -5,7 +5,10 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cmath>
+#include <cstdint>
 #include <cstdlib>
+#include <ctime>
 #include <string>
 
 namespace simnodus::devices {
@@ -910,6 +913,869 @@ private:
     bool os_active_ = false;
 };
 
+// A number parameter of a sensor chip; false if the text is not a number.
+bool number_parameter(const std::map<std::string, std::string>& parameters, const char* name, double& value)
+{
+    const auto it = parameters.find(name);
+    if (it == parameters.end()) {
+        return true;
+    }
+    char* end = nullptr;
+    const double parsed = std::strtod(it->second.c_str(), &end);
+    if (end == it->second.c_str()) {
+        return false;
+    }
+    value = parsed;
+    return true;
+}
+
+// I2C chips with a register pointer (SN-223): the first byte written after
+// the address sets the pointer, further bytes are written from there, reads
+// start at the pointer; the pointer advances after each byte. Values that
+// change are taken once per read transfer (prepare_read), so the bytes of a
+// burst read belong together, as in the chips' shadow registers.
+class RegisterSlave : public I2cSlave {
+protected:
+    bool select(bool read, std::uint64_t time_ns) override
+    {
+        first_ = !read;
+        if (read) {
+            prepare_read(time_ns);
+        } else {
+            begin_write(time_ns);
+        }
+        return true;
+    }
+
+    bool receive(std::uint8_t byte, std::uint64_t time_ns) override
+    {
+        if (first_) {
+            first_ = false;
+            pointer_ = set_pointer(byte);
+            return true;
+        }
+        write_register(pointer_, byte, time_ns);
+        pointer_ = next(pointer_);
+        return true;
+    }
+
+    std::uint8_t transmit() override
+    {
+        const std::uint8_t value = read_register(pointer_);
+        pointer_ = next(pointer_);
+        return value;
+    }
+
+    virtual std::uint8_t read_register(std::uint8_t reg) = 0;
+    virtual void write_register(std::uint8_t reg, std::uint8_t value, std::uint64_t time_ns) = 0;
+    virtual std::uint8_t set_pointer(std::uint8_t byte) { return byte; }
+    virtual std::uint8_t next(std::uint8_t reg) const { return static_cast<std::uint8_t>(reg + 1); }
+    virtual void prepare_read(std::uint64_t) {}
+    virtual void begin_write(std::uint64_t) {}
+
+    std::uint8_t pointer_ = 0;
+
+private:
+    bool first_ = false;
+};
+
+// BMP280 (Bosch datasheet BST-BMP280-DS001): pressure and temperature sensor
+// at 0x76 + SDO. Chip ID 0x58 at 0xD0; the calibration words at 0x88-0x9F are
+// the datasheet's example; the raw values at 0xF7-0xFC are found by inverting
+// the datasheet's compensation, so a driver computes the set temperature and
+// pressure. A forced measurement (mode 1 or 2 in ctrl_meas) takes the values
+// at once and returns to sleep; normal mode (3) follows them. Data read 0x80000
+// until the first measurement or with oversampling 0 (skipped).
+class Bmp280 : public RegisterSlave {
+public:
+    static constexpr std::array<const char*, 3> names{"SCL", "SDA", "SDO"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "BMP280", error)) {
+            return false;
+        }
+        set_bus_pins(index_[0], index_[1]);
+        if (!number_parameter(parameters, "temperature", celsius_) || !number_parameter(parameters, "pressure", hpa_)) {
+            error = "BMP280: the temperature and the pressure must be numbers";
+            return false;
+        }
+        reset();
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        number_parameter({{name, value}}, "temperature", celsius_);
+        number_parameter({{name, value}}, "pressure", hpa_);
+    }
+
+protected:
+    std::uint8_t address() const override { return sdo_ ? 0x77 : 0x76; }
+
+    void other_input(std::size_t pin, bool level, std::uint64_t, bool) override
+    {
+        if (pin == index_[2]) {
+            sdo_ = level;
+        }
+    }
+
+    void prepare_read(std::uint64_t) override
+    {
+        if ((ctrl_meas_ & 3u) == 3u) {
+            measure();
+        }
+    }
+
+    std::uint8_t read_register(std::uint8_t reg) override
+    {
+        if (reg >= 0x88 && static_cast<std::size_t>(reg) < 0x88 + calibration.size() * 2) {
+            const auto word = static_cast<std::uint16_t>(calibration[(reg - 0x88) / 2]);
+            return (reg & 1u) == 0 ? static_cast<std::uint8_t>(word) : static_cast<std::uint8_t>(word >> 8);
+        }
+        switch (reg) {
+        case 0xD0: return 0x58;
+        case 0xF3: return 0; // never busy: measurements are instantaneous
+        case 0xF4: return ctrl_meas_;
+        case 0xF5: return config_;
+        case 0xF7: return static_cast<std::uint8_t>(adc_p_ >> 12);
+        case 0xF8: return static_cast<std::uint8_t>(adc_p_ >> 4);
+        case 0xF9: return static_cast<std::uint8_t>((adc_p_ & 0xFu) << 4);
+        case 0xFA: return static_cast<std::uint8_t>(adc_t_ >> 12);
+        case 0xFB: return static_cast<std::uint8_t>(adc_t_ >> 4);
+        case 0xFC: return static_cast<std::uint8_t>((adc_t_ & 0xFu) << 4);
+        default: return 0;
+        }
+    }
+
+    void write_register(std::uint8_t reg, std::uint8_t value, std::uint64_t) override
+    {
+        if (reg == 0xE0 && value == 0xB6) {
+            reset();
+        } else if (reg == 0xF4) {
+            ctrl_meas_ = value;
+            if ((value & 3u) != 0) {
+                measure();
+                if ((value & 3u) != 3u) {
+                    ctrl_meas_ = static_cast<std::uint8_t>(value & ~3u); // forced: back to sleep
+                }
+            }
+        } else if (reg == 0xF5) {
+            config_ = value;
+        }
+    }
+
+private:
+    // dig_T1..dig_T3, dig_P1..dig_P9 of the datasheet's example (section 8.2).
+    static constexpr std::array<std::int32_t, 12> calibration{
+        27504, 26435, -1000, 36477, -10685, 3024, 2855, 140, -7, 15500, -14600, 6000};
+
+    void reset()
+    {
+        ctrl_meas_ = 0;
+        config_ = 0;
+        adc_t_ = 0x80000;
+        adc_p_ = 0x80000;
+    }
+
+    static std::int32_t t_fine(std::int32_t adc)
+    {
+        const std::int32_t t1 = calibration[0], t2 = calibration[1], t3 = calibration[2];
+        const std::int32_t var1 = (((adc >> 3) - (t1 << 1)) * t2) >> 11;
+        const std::int32_t var2 = (((((adc >> 4) - t1) * ((adc >> 4) - t1)) >> 12) * t3) >> 14;
+        return var1 + var2;
+    }
+
+    // Pressure in Pa x 256 (datasheet, 64-bit version).
+    static std::int64_t pressure(std::int32_t adc, std::int32_t fine)
+    {
+        const std::int64_t p1 = calibration[3], p2 = calibration[4], p3 = calibration[5], p4 = calibration[6],
+                           p5 = calibration[7], p6 = calibration[8], p7 = calibration[9], p8 = calibration[10],
+                           p9 = calibration[11];
+        std::int64_t var1 = static_cast<std::int64_t>(fine) - 128000;
+        std::int64_t var2 = var1 * var1 * p6;
+        var2 = var2 + ((var1 * p5) * 131072);
+        var2 = var2 + (p4 * 34359738368LL);
+        var1 = ((var1 * var1 * p3) / 256) + ((var1 * p2) * 4096);
+        var1 = ((140737488355328LL + var1) * p1) / 8589934592LL;
+        if (var1 == 0) {
+            return 0;
+        }
+        std::int64_t p = 1048576 - adc;
+        p = (((p * 2147483648LL) - var2) * 3125) / var1;
+        var1 = (p9 * (p / 8192) * (p / 8192)) / 33554432;
+        var2 = (p8 * p) / 524288;
+        return ((p + var1 + var2) / 256) + (p7 * 16);
+    }
+
+    void measure()
+    {
+        const auto target_t = static_cast<std::int32_t>(std::lround(std::clamp(celsius_, -40.0, 85.0) * 100));
+        // Temperature rises with the raw value, pressure falls: binary searches over 20 bits.
+        std::int32_t low = 0, high = 0xFFFFF;
+        while (low < high) {
+            const std::int32_t mid = (low + high) / 2;
+            if ((t_fine(mid) * 5 + 128) / 256 < target_t) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        const std::int32_t adc_t = low;
+        const std::int32_t fine = t_fine(adc_t);
+        const auto target_p = static_cast<std::int64_t>(std::lround(std::clamp(hpa_, 300.0, 1100.0) * 100 * 256));
+        low = 0;
+        high = 0xFFFFF;
+        while (low < high) {
+            const std::int32_t mid = (low + high) / 2;
+            if (pressure(mid, fine) > target_p) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        const bool temperature_on = ((ctrl_meas_ >> 5) & 7u) != 0;
+        const bool pressure_on = ((ctrl_meas_ >> 2) & 7u) != 0;
+        adc_t_ = temperature_on ? static_cast<std::uint32_t>(adc_t) : 0x80000u;
+        adc_p_ = pressure_on ? static_cast<std::uint32_t>(low) : 0x80000u;
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    bool sdo_ = false;
+    double celsius_ = 25.0;
+    double hpa_ = 1013.25;
+    std::uint8_t ctrl_meas_ = 0;
+    std::uint8_t config_ = 0;
+    std::uint32_t adc_t_ = 0x80000;
+    std::uint32_t adc_p_ = 0x80000;
+};
+
+// MPU-6050 (InvenSense register map RM-MPU-6000A): accelerometer and
+// gyroscope at 0x68 + AD0. WHO_AM_I (0x75) is 0x68; it starts asleep
+// (PWR_MGMT_1 0x40): clear SLEEP to measure. Accelerations, rotation rates and
+// the temperature are parameters; the full scales of ACCEL_CONFIG (0x1C) and
+// GYRO_CONFIG (0x1B) scale them; samples are big-endian at 0x3B-0x48 and
+// change between reads, never inside one.
+class Mpu6050 : public RegisterSlave {
+public:
+    static constexpr std::array<const char*, 3> names{"SCL", "SDA", "AD0"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "MPU6050", error)) {
+            return false;
+        }
+        set_bus_pins(index_[0], index_[1]);
+        for (std::size_t i = 0; i < values_.size(); ++i) {
+            if (!number_parameter(parameters, parameter_names[i], values_[i])) {
+                error = std::string("MPU6050: ") + parameter_names[i] + " must be a number";
+                return false;
+            }
+        }
+        reset();
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        for (std::size_t i = 0; i < values_.size(); ++i) {
+            number_parameter({{name, value}}, parameter_names[i], values_[i]);
+        }
+    }
+
+protected:
+    std::uint8_t address() const override { return ad0_ ? 0x69 : 0x68; }
+
+    void other_input(std::size_t pin, bool level, std::uint64_t, bool) override
+    {
+        if (pin == index_[2]) {
+            ad0_ = level;
+        }
+    }
+
+    void prepare_read(std::uint64_t) override
+    {
+        if ((registers_[0x6B] & 0x40u) != 0) {
+            return; // asleep: the samples stay as they are
+        }
+        const double accel_lsb = 16384.0 / static_cast<double>(1 << ((registers_[0x1C] >> 3) & 3u));
+        const double gyro_lsb = 131.0 / static_cast<double>(1 << ((registers_[0x1B] >> 3) & 3u));
+        auto put = [this](std::size_t reg, double value) {
+            const auto raw = static_cast<std::int16_t>(std::clamp(std::lround(value), -32768L, 32767L));
+            registers_[reg] = static_cast<std::uint8_t>(static_cast<std::uint16_t>(raw) >> 8);
+            registers_[reg + 1] = static_cast<std::uint8_t>(raw);
+        };
+        for (std::size_t i = 0; i < 3; ++i) {
+            put(0x3B + 2 * i, values_[i] * accel_lsb);
+            put(0x43 + 2 * i, values_[3 + i] * gyro_lsb);
+        }
+        put(0x41, (values_[6] - 36.53) * 340.0);
+    }
+
+    std::uint8_t read_register(std::uint8_t reg) override
+    {
+        return reg == 0x75 ? 0x68 : registers_[reg & 0x7Fu];
+    }
+
+    void write_register(std::uint8_t reg, std::uint8_t value, std::uint64_t) override
+    {
+        if (reg == 0x6B && (value & 0x80u) != 0) {
+            reset(); // DEVICE_RESET
+        } else if (reg < 0x3B || reg > 0x60) {
+            registers_[reg & 0x7Fu] = value; // the samples are read-only
+        }
+    }
+
+private:
+    static constexpr std::array<const char*, 7> parameter_names{
+        "accel_x", "accel_y", "accel_z", "gyro_x", "gyro_y", "gyro_z", "temperature"};
+
+    void reset()
+    {
+        registers_.fill(0);
+        registers_[0x6B] = 0x40;
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    bool ad0_ = false;
+    std::array<double, 7> values_{0, 0, 1, 0, 0, 0, 25};
+    std::array<std::uint8_t, 128> registers_{};
+};
+
+// Days since 1970-01-01 of a date and back (H. Hinnant's civil calendar algorithms).
+std::int64_t days_from_civil(std::int64_t y, unsigned m, unsigned d)
+{
+    y -= m <= 2 ? 1 : 0;
+    const std::int64_t era = (y >= 0 ? y : y - 399) / 400;
+    const auto yoe = static_cast<unsigned>(y - era * 400);
+    const unsigned doy = (153 * (m > 2 ? m - 3 : m + 9) + 2) / 5 + d - 1;
+    const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    return era * 146097 + static_cast<std::int64_t>(doe) - 719468;
+}
+
+void civil_from_days(std::int64_t z, std::int64_t& y, unsigned& m, unsigned& d)
+{
+    z += 719468;
+    const std::int64_t era = (z >= 0 ? z : z - 146096) / 146097;
+    const auto doe = static_cast<unsigned>(z - era * 146097);
+    const unsigned yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    const unsigned doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    const unsigned mp = (5 * doy + 2) / 153;
+    d = doy - (153 * mp + 2) / 5 + 1;
+    m = mp < 10 ? mp + 3 : mp - 9;
+    y = static_cast<std::int64_t>(yoe) + era * 400 + (m <= 2 ? 1 : 0);
+}
+
+std::uint8_t to_bcd(unsigned v) { return static_cast<std::uint8_t>(((v / 10) << 4) | (v % 10)); }
+unsigned from_bcd(std::uint8_t v) { return (v >> 4) * 10u + (v & 0xFu); }
+
+// DS3231 (Analog Devices/Maxim datasheet): real-time clock at 0x68. Time and
+// date in BCD at 0x00-0x06 (24- or 12-hour mode), two alarms (0x07-0x0D),
+// control (0x0E, starts 0x1C) and status (0x0F, starts 0x88 with OSF set), the
+// temperature at 0x11-0x12. The clock runs with the simulation from the
+// "start" parameter ("now" is the computer's local time when the run starts).
+// SQW (open drain) gives the 1 Hz-8.192 kHz square wave while INTCN is 0, or
+// goes low for an enabled alarm flag while INTCN is 1. 32K is not driven.
+class Ds3231 : public RegisterSlave {
+public:
+    static constexpr std::array<const char*, 3> names{"SCL", "SDA", "SQW"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "DS3231", error)) {
+            return false;
+        }
+        set_bus_pins(index_[0], index_[1]);
+        const auto start = parameters.find("start");
+        if (!set_start(start == parameters.end() ? std::string("now") : start->second)) {
+            error = "DS3231: the start time \"" + start->second + "\" is not \"now\" or YYYY-MM-DD HH:MM:SS";
+            return false;
+        }
+        if (!number_parameter(parameters, "temperature", celsius_)) {
+            error = "DS3231: the temperature must be a number";
+            return false;
+        }
+        registers_[0x0E] = 0x1C;
+        registers_[0x0F] = 0x88;
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        number_parameter({{name, value}}, "temperature", celsius_);
+    }
+
+    std::uint64_t next_event_ns() const override
+    {
+        // The next second for the alarms, or the next half period of the square wave.
+        const std::uint64_t half = square_wave() ? half_period_ns() : 1000000000ull;
+        const std::uint64_t phase = (now_ns_ - std::min(now_ns_, base_ns_)) % half;
+        return now_ns_ + (half - phase);
+    }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        const std::int64_t before = seconds(now_ns_);
+        now_ns_ = time_ns;
+        if (seconds(time_ns) != before) {
+            check_alarms(seconds(time_ns));
+        }
+    }
+
+protected:
+    std::uint8_t address() const override { return 0x68; }
+
+    Output other_output(std::size_t pin) const override
+    {
+        if (pin != index_[2]) {
+            return {};
+        }
+        if (square_wave()) {
+            const bool high = ((now_ns_ - std::min(now_ns_, base_ns_)) / half_period_ns()) % 2 == 0;
+            return high ? Output{} : open_drain_low();
+        }
+        const std::uint8_t control = registers_[0x0E], status = registers_[0x0F];
+        const bool alarm = ((status & 1u) && (control & 1u)) || ((status & 2u) && (control & 2u));
+        return alarm ? open_drain_low() : Output{};
+    }
+
+    void prepare_read(std::uint64_t time_ns) override
+    {
+        now_ns_ = std::max(now_ns_, time_ns);
+        snapshot(seconds(now_ns_));
+        const int quarters = static_cast<int>(std::lround(celsius_ * 4));
+        registers_[0x11] = static_cast<std::uint8_t>(quarters >> 2);
+        registers_[0x12] = static_cast<std::uint8_t>((quarters & 3) << 6);
+    }
+
+    void begin_write(std::uint64_t time_ns) override
+    {
+        now_ns_ = std::max(now_ns_, time_ns);
+        snapshot(seconds(now_ns_));
+        time_written_ = false;
+    }
+
+    void end(std::uint64_t time_ns) override
+    {
+        if (!time_written_) {
+            return;
+        }
+        time_written_ = false;
+        // The written time starts now, at the start of a second.
+        const unsigned hour_reg = registers_[0x02];
+        unsigned hour = (hour_reg & 0x40u) ? from_bcd(hour_reg & 0x1Fu) % 12 + ((hour_reg & 0x20u) ? 12 : 0)
+                                           : from_bcd(hour_reg & 0x3Fu);
+        twelve_hour_ = (hour_reg & 0x40u) != 0;
+        const std::int64_t day = days_from_civil(2000 + from_bcd(registers_[0x06]), from_bcd(registers_[0x05] & 0x1Fu),
+            std::max(1u, from_bcd(registers_[0x04] & 0x3Fu)));
+        const std::int64_t second = day * 86400 + hour * 3600 + from_bcd(registers_[0x01] & 0x7Fu) * 60
+            + from_bcd(registers_[0x00] & 0x7Fu);
+        weekday_offset_ = static_cast<int>(((registers_[0x03] & 7u) + 6 - static_cast<unsigned>((day % 7 + 7) % 7)) % 7);
+        base_seconds_ = second;
+        base_ns_ = time_ns;
+        now_ns_ = std::max(now_ns_, time_ns);
+    }
+
+    std::uint8_t read_register(std::uint8_t reg) override { return reg < registers_.size() ? registers_[reg] : 0; }
+
+    void write_register(std::uint8_t reg, std::uint8_t value, std::uint64_t) override
+    {
+        if (reg >= registers_.size() || reg == 0x11 || reg == 0x12) {
+            return;
+        }
+        if (reg <= 0x06) {
+            time_written_ = true;
+        }
+        if (reg == 0x0F) {
+            value = static_cast<std::uint8_t>((registers_[0x0F] & value & 0x83u) | (value & 0x08u)); // flags clear only
+        }
+        registers_[reg] = value;
+    }
+
+    std::uint8_t next(std::uint8_t reg) const override
+    {
+        return static_cast<std::uint8_t>(static_cast<std::size_t>(reg) + 1 >= registers_.size() ? 0 : reg + 1);
+    }
+
+private:
+    bool set_start(const std::string& text)
+    {
+        std::int64_t y = 0;
+        unsigned mo = 0, d = 0, h = 0, mi = 0, s = 0;
+        if (text.empty() || text == "now") {
+            const std::time_t t = std::time(nullptr);
+            std::tm local{};
+#ifdef _WIN32
+            localtime_s(&local, &t);
+#else
+            localtime_r(&t, &local);
+#endif
+            y = local.tm_year + 1900;
+            mo = static_cast<unsigned>(local.tm_mon + 1);
+            d = static_cast<unsigned>(local.tm_mday);
+            h = static_cast<unsigned>(local.tm_hour);
+            mi = static_cast<unsigned>(local.tm_min);
+            s = static_cast<unsigned>(local.tm_sec);
+        } else {
+            std::array<long, 6> f{}; // year, month, day, hour, minute, second
+            std::size_t n = 0;
+            for (const char* p = text.c_str(); *p != 0 && n < f.size();) {
+                if (std::isdigit(static_cast<unsigned char>(*p))) {
+                    char* end = nullptr;
+                    f[n++] = std::strtol(p, &end, 10);
+                    p = end;
+                } else {
+                    ++p;
+                }
+            }
+            const long year = f[0], month = f[1], day = f[2], hour = f[3], minute = f[4], second = f[5];
+            if (n < 3 || year < 2000 || year > 2099 || month < 1 || month > 12 || day < 1 || day > 31 || hour < 0
+                || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+                return false;
+            }
+            y = year;
+            mo = static_cast<unsigned>(month);
+            d = static_cast<unsigned>(day);
+            h = static_cast<unsigned>(hour);
+            mi = static_cast<unsigned>(minute);
+            s = static_cast<unsigned>(second);
+        }
+        base_seconds_ = days_from_civil(y, mo, d) * 86400 + h * 3600 + mi * 60 + s;
+        return true;
+    }
+
+    std::int64_t seconds(std::uint64_t time_ns) const
+    {
+        return base_seconds_ + static_cast<std::int64_t>((time_ns - std::min(time_ns, base_ns_)) / 1000000000ull);
+    }
+
+    void snapshot(std::int64_t second)
+    {
+        const std::int64_t day = second >= 0 ? second / 86400 : (second - 86399) / 86400;
+        const auto in_day = static_cast<unsigned>(second - day * 86400);
+        std::int64_t y = 0;
+        unsigned m = 0, d = 0;
+        civil_from_days(day, y, m, d);
+        const unsigned hour = in_day / 3600;
+        registers_[0x00] = to_bcd(in_day % 60);
+        registers_[0x01] = to_bcd(in_day / 60 % 60);
+        if (twelve_hour_) {
+            const unsigned h12 = hour % 12 == 0 ? 12 : hour % 12;
+            registers_[0x02] = static_cast<std::uint8_t>(0x40u | (hour >= 12 ? 0x20u : 0u) | to_bcd(h12));
+        } else {
+            registers_[0x02] = to_bcd(hour);
+        }
+        registers_[0x03] = static_cast<std::uint8_t>(((day % 7 + 7) % 7 + static_cast<std::int64_t>(weekday_offset_)) % 7 + 1);
+        registers_[0x04] = to_bcd(d);
+        registers_[0x05] = to_bcd(m);
+        registers_[0x06] = to_bcd(static_cast<unsigned>(std::clamp<std::int64_t>(y - 2000, 0, 99)));
+    }
+
+    void check_alarms(std::int64_t second)
+    {
+        snapshot(second);
+        const auto& r = registers_;
+        auto field = [&](std::uint8_t alarm, std::uint8_t now, std::uint8_t mask) {
+            return (alarm & 0x80u) != 0 || (alarm & mask) == (now & mask);
+        };
+        auto day_matches = [&](std::uint8_t alarm) {
+            if ((alarm & 0x80u) != 0) {
+                return true;
+            }
+            return (alarm & 0x40u) ? (alarm & 0x0Fu) == r[0x03] : (alarm & 0x3Fu) == r[0x04];
+        };
+        if (field(r[0x07], r[0x00], 0x7F) && field(r[0x08], r[0x01], 0x7F) && field(r[0x09], r[0x02], 0x7F)
+            && day_matches(r[0x0A])) {
+            registers_[0x0F] |= 1u; // A1F
+        }
+        if (r[0x00] == 0 && field(r[0x0B], r[0x01], 0x7F) && field(r[0x0C], r[0x02], 0x7F) && day_matches(r[0x0D])) {
+            registers_[0x0F] |= 2u; // A2F
+        }
+    }
+
+    bool square_wave() const { return (registers_[0x0E] & 0x04u) == 0; }
+    std::uint64_t half_period_ns() const
+    {
+        static constexpr std::array<std::uint64_t, 4> halves{500000000ull, 488281ull, 122070ull, 61035ull};
+        return halves[(registers_[0x0E] >> 3) & 3u];
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    std::array<std::uint8_t, 0x13> registers_{};
+    std::int64_t base_seconds_ = 0; // clock seconds since 1970 at simulation time base_ns_
+    std::uint64_t base_ns_ = 0;
+    std::uint64_t now_ns_ = 0;
+    int weekday_offset_ = 4; // day 1 is Sunday (1970-01-01 was a Thursday)
+    bool twelve_hour_ = false;
+    bool time_written_ = false;
+    double celsius_ = 25.0;
+};
+
+// TCS34725 (ams datasheet): RGB color sensor at 0x29. A command byte (bit 7
+// set) selects the register (bits 4:0), auto-incrementing when bits 6:5 are
+// 01. ID 0x44 at 0x12; with PON and AEN set in ENABLE, STATUS shows AVALID and
+// the clear, red, green and blue counts (0x14-0x1B, low byte first) follow the
+// color parameters, the light level, the gain (CONTROL) and the integration
+// time (ATIME): counts = level x light / 300 lux x gain x cycles x 40, at most
+// 1024 per cycle and 65535.
+class Tcs34725 : public RegisterSlave {
+public:
+    static constexpr std::array<const char*, 2> names{"SCL", "SDA"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "TCS34725", error)) {
+            return false;
+        }
+        set_bus_pins(index_[0], index_[1]);
+        for (std::size_t i = 0; i < values_.size(); ++i) {
+            if (!number_parameter(parameters, parameter_names[i], values_[i])) {
+                error = std::string("TCS34725: ") + parameter_names[i] + " must be a number";
+                return false;
+            }
+        }
+        registers_[0x01] = 0xFF;
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        for (std::size_t i = 0; i < values_.size(); ++i) {
+            number_parameter({{name, value}}, parameter_names[i], values_[i]);
+        }
+    }
+
+protected:
+    std::uint8_t address() const override { return 0x29; }
+
+    std::uint8_t set_pointer(std::uint8_t byte) override
+    {
+        increment_ = ((byte >> 5) & 3u) == 1u;
+        return static_cast<std::uint8_t>(byte & 0x1Fu);
+    }
+
+    std::uint8_t next(std::uint8_t reg) const override
+    {
+        return increment_ ? static_cast<std::uint8_t>((reg + 1) & 0x1Fu) : reg;
+    }
+
+    void prepare_read(std::uint64_t) override
+    {
+        const bool on = (registers_[0x00] & 3u) == 3u; // PON and AEN
+        static constexpr std::array<int, 4> gains{1, 4, 16, 60};
+        const int cycles = 256 - registers_[0x01];
+        const double most = std::min(65535.0, 1024.0 * cycles);
+        const double scale = values_[3] / 300.0 * gains[registers_[0x0F] & 3u] * cycles * 40.0;
+        const std::array<double, 4> level{
+            (values_[0] + values_[1] + values_[2]) / 255.0, values_[0] / 255.0, values_[1] / 255.0, values_[2] / 255.0};
+        for (std::size_t i = 0; i < 4; ++i) {
+            const auto count = on ? static_cast<std::uint16_t>(std::min(most, std::max(0.0, level[i] * scale))) : 0;
+            registers_[0x14 + 2 * i] = static_cast<std::uint8_t>(count);
+            registers_[0x15 + 2 * i] = static_cast<std::uint8_t>(count >> 8);
+        }
+        registers_[0x13] = on ? 1 : 0; // AVALID
+    }
+
+    std::uint8_t read_register(std::uint8_t reg) override { return reg == 0x12 ? 0x44 : registers_[reg & 0x1Fu]; }
+
+    void write_register(std::uint8_t reg, std::uint8_t value, std::uint64_t) override
+    {
+        if (reg < 0x12) {
+            registers_[reg] = value;
+        }
+    }
+
+private:
+    static constexpr std::array<const char*, 4> parameter_names{"red", "green", "blue", "light"};
+
+    std::array<std::size_t, names.size()> index_{};
+    std::array<double, 4> values_{255, 255, 255, 300};
+    std::array<std::uint8_t, 32> registers_{};
+    bool increment_ = false;
+};
+
+// SSD1306 (Solomon Systech datasheet): 128x64 or 128x32 monochrome OLED
+// controller at 0x3C or 0x3D. After the address, a control byte says whether
+// commands (0x00) or display data (0x40) follow; with Co (bit 7) set, one byte
+// and then another control byte. The commands that set what is shown work:
+// display on/off, addressing modes and windows, page and column in page mode,
+// start line, segment remap, COM scan direction, inverse and entire display on;
+// the electrical ones (contrast, clock, charge pump, precharge, VCOMH) and the
+// scroll commands are taken with their arguments and ignored. text() gives the
+// screen as "128x64" and one row of 32 hex digits per line ("128x64 off" while
+// the display is off). With the usual initialization (segment remap and COM
+// scan reversed, A1 and C8) RAM column 0 is at the left and page 0 at the top.
+class Ssd1306 : public I2cSlave {
+public:
+    static constexpr std::array<const char*, 2> names{"SCL", "SDA"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "SSD1306", error)) {
+            return false;
+        }
+        set_bus_pins(index_[0], index_[1]);
+        const auto address = parameters.find("address");
+        address_ = address != parameters.end() && address->second == "0x3D" ? 0x3D : 0x3C;
+        const auto height = parameters.find("height");
+        height_ = height != parameters.end() && height->second == "32" ? 32 : 64;
+        return true;
+    }
+
+    std::string text() const override
+    {
+        const int rows = std::min(height_, multiplex_);
+        std::string out = "128x" + std::to_string(rows);
+        if (!on_) {
+            return out + " off";
+        }
+        static const char* hex = "0123456789ABCDEF";
+        for (int y = 0; y < rows; ++y) {
+            out += '\n';
+            const int com = reverse_com_ ? y : rows - 1 - y;
+            const int row = (com + start_line_) & 63;
+            for (int x0 = 0; x0 < 128; x0 += 4) {
+                unsigned nibble = 0;
+                for (int b = 0; b < 4; ++b) {
+                    const int x = x0 + b;
+                    const int column = remap_ ? x : 127 - x;
+                    bool lit = ((ram_[static_cast<std::size_t>((row / 8) * 128 + column)] >> (row % 8)) & 1u) != 0;
+                    lit = entire_on_ || (lit != inverse_);
+                    nibble = (nibble << 1) | (lit ? 1u : 0u);
+                }
+                out += hex[nibble];
+            }
+        }
+        return out;
+    }
+
+protected:
+    std::uint8_t address() const override { return address_; }
+
+    bool select(bool read, std::uint64_t) override
+    {
+        control_next_ = true;
+        return !read; // the I2C interface has no reads
+    }
+
+    bool receive(std::uint8_t byte, std::uint64_t) override
+    {
+        if (control_next_) {
+            data_ = (byte & 0x40u) != 0;
+            single_ = (byte & 0x80u) != 0;
+            control_next_ = false;
+            return true;
+        }
+        if (data_) {
+            write_data(byte);
+        } else {
+            command(byte);
+        }
+        control_next_ = single_;
+        return true;
+    }
+
+    std::uint8_t transmit() override { return 0; }
+
+private:
+    void write_data(std::uint8_t byte)
+    {
+        ram_[static_cast<std::size_t>(page_ * 128 + column_)] = byte;
+        if (mode_ == 1) { // vertical
+            if (++page_ > page_end_) {
+                page_ = page_start_;
+                column_ = column_ >= column_end_ ? column_start_ : column_ + 1;
+            }
+        } else if (mode_ == 0) { // horizontal
+            if (++column_ > column_end_) {
+                column_ = column_start_;
+                page_ = page_ >= page_end_ ? page_start_ : page_ + 1;
+            }
+        } else { // page
+            column_ = column_ >= 127 ? 0 : column_ + 1;
+        }
+    }
+
+    void command(std::uint8_t byte)
+    {
+        if (pending_ > 0) {
+            arguments_[static_cast<std::size_t>(arguments_needed_ - pending_)] = byte;
+            if (--pending_ == 0) {
+                finish(current_);
+            }
+            return;
+        }
+        current_ = byte;
+        int needed = 0;
+        switch (byte) {
+        case 0x20: case 0x81: case 0x8D: case 0xA8: case 0xD3: case 0xD5: case 0xD9: case 0xDA: case 0xDB: needed = 1; break;
+        case 0x21: case 0x22: case 0xA3: needed = 2; break;
+        case 0x29: case 0x2A: needed = 5; break;
+        case 0x26: case 0x27: needed = 6; break;
+        default: break;
+        }
+        if (needed > 0) {
+            pending_ = arguments_needed_ = needed;
+            return;
+        }
+        if (byte <= 0x0F) {
+            column_ = (column_ & 0xF0) | byte;
+        } else if (byte <= 0x1F) {
+            column_ = (column_ & 0x0F) | ((byte & 0x07) << 4);
+        } else if (byte >= 0x40 && byte <= 0x7F) {
+            start_line_ = byte & 0x3F;
+        } else if (byte == 0xA0 || byte == 0xA1) {
+            remap_ = byte == 0xA1;
+        } else if (byte == 0xA4 || byte == 0xA5) {
+            entire_on_ = byte == 0xA5;
+        } else if (byte == 0xA6 || byte == 0xA7) {
+            inverse_ = byte == 0xA7;
+        } else if (byte == 0xAE || byte == 0xAF) {
+            on_ = byte == 0xAF;
+        } else if (byte >= 0xB0 && byte <= 0xB7) {
+            page_ = byte & 7;
+        } else if (byte == 0xC0 || byte == 0xC8) {
+            reverse_com_ = byte == 0xC8;
+        }
+    }
+
+    void finish(std::uint8_t command)
+    {
+        switch (command) {
+        case 0x20: mode_ = arguments_[0] & 3u; break;
+        case 0x21:
+            column_start_ = column_ = arguments_[0] & 0x7F;
+            column_end_ = arguments_[1] & 0x7F;
+            break;
+        case 0x22:
+            page_start_ = page_ = arguments_[0] & 7;
+            page_end_ = arguments_[1] & 7;
+            break;
+        case 0xA8: multiplex_ = (arguments_[0] & 0x3F) + 1; break;
+        default: break;
+        }
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    std::uint8_t address_ = 0x3C;
+    int height_ = 64;
+    std::array<std::uint8_t, 1024> ram_{};
+    bool control_next_ = true, data_ = false, single_ = false;
+    std::uint8_t current_ = 0;
+    std::array<std::uint8_t, 6> arguments_{};
+    int pending_ = 0, arguments_needed_ = 0;
+    unsigned mode_ = 2; // page addressing after reset
+    int column_ = 0, page_ = 0;
+    int column_start_ = 0, column_end_ = 127, page_start_ = 0, page_end_ = 7;
+    int multiplex_ = 64, start_line_ = 0;
+    bool remap_ = false, reverse_com_ = false, inverse_ = false, entire_on_ = false, on_ = false;
+};
+
 // PCF8574 (NXP): 8-bit quasi-bidirectional I/O expander at 0100 A2 A1 A0
 // (0111 A2 A1 A0 for the PCF8574A variant). A written byte sets P0-P7: a 0
 // pulls the pin low, a 1 leaves it high through a weak pull-up (about 100 uA),
@@ -1477,6 +2343,26 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "lm75") {
         auto device = std::make_unique<Lm75>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "bmp280") {
+        auto device = std::make_unique<Bmp280>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "mpu6050") {
+        auto device = std::make_unique<Mpu6050>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "ds3231") {
+        auto device = std::make_unique<Ds3231>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "tcs34725") {
+        auto device = std::make_unique<Tcs34725>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "ssd1306") {
+        auto device = std::make_unique<Ssd1306>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "pcf8574") {

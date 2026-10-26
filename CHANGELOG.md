@@ -13,6 +13,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - Logic chips in DIP packages (SN-222, category Logic chips (DIP), `tools/generate_logic_chip_parts.py`): 74HC00, 02, 04, 08, 14, 32, 86, 74, 138, 157 and 245 as behavioral SPICE with VCC and GND pins (outputs draw their current from VCC; the 74HC14 RC oscillator runs at its real frequency), 74HC161, 74HC193, 74HC165 and CD4017 as digital devices. Example 37 (LED chaser).
 
+- I2C chips (SN-223): BMP280 pressure sensor (the datasheet's compensation gives the set values), MPU6050 accelerometer and gyroscope, DS3231 real-time clock (runs from `now` or a start date; alarms and the SQW output), TCS34725 color sensor, and the SSD1306 OLED, 128x64 or 128x32, whose picture appears on the schematic (white, blue or yellow-blue). Firmware `hal_i2c_oled` and example 38.
+
 ### Fixed (2026-10-26)
 
 - `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.

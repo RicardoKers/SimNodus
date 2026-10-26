@@ -1,0 +1,240 @@
+{
+  "type": "tcs34725",
+  "name": "Color sensor TCS34725 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "I2C color sensor; set the color and the light in Properties",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -5,
+          8,
+          10
+        ]
+      },
+      {
+        "text": "TCS34725",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "INT",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "LED",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -7,
+          0,
+          -5
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -4.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          4.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "INT",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "LED",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -7
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          7
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "device": {
+    "kind": "tcs34725",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "R_{ref}_hint {node:INT} {node:GND} 100Meg",
+    "R_{ref}_hled {node:LED} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "red",
+      "label": "Red",
+      "unit": "",
+      "default": "255",
+      "min": "0",
+      "max": "255",
+      "live": true,
+      "description": "Red part of the color in front of the sensor (0-255); change it while running to test the circuit"
+    },
+    {
+      "name": "green",
+      "label": "Green",
+      "unit": "",
+      "default": "255",
+      "min": "0",
+      "max": "255",
+      "live": true,
+      "description": "Green part of the color in front of the sensor (0-255); change it while running to test the circuit"
+    },
+    {
+      "name": "blue",
+      "label": "Blue",
+      "unit": "",
+      "default": "255",
+      "min": "0",
+      "max": "255",
+      "live": true,
+      "description": "Blue part of the color in front of the sensor (0-255); change it while running to test the circuit"
+    },
+    {
+      "name": "light",
+      "label": "Light",
+      "unit": "lux",
+      "default": "300",
+      "min": "0",
+      "max": "10000",
+      "live": true,
+      "description": "Light on the object; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "light"
+}

@@ -1,0 +1,270 @@
+{
+  "type": "mpu6050",
+  "name": "Accelerometer and gyroscope MPU6050 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "I2C accelerometer and gyroscope; set the motion in Properties",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -5,
+          8,
+          10
+        ]
+      },
+      {
+        "text": "MPU6050",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "AD0",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "INT",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -7,
+          0,
+          -5
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -4.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          4.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "AD0",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "INT",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -7
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          7
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "device": {
+    "kind": "mpu6050",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "R_{ref}_had0 {node:AD0} {node:GND} 100Meg",
+    "R_{ref}_hint {node:INT} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "accel_x",
+      "label": "Acceleration X",
+      "unit": "g",
+      "default": "0",
+      "min": "-16",
+      "max": "16",
+      "live": true,
+      "description": "Acceleration along X (lying flat: Z = 1 g); change it while running to test the circuit"
+    },
+    {
+      "name": "accel_y",
+      "label": "Acceleration Y",
+      "unit": "g",
+      "default": "0",
+      "min": "-16",
+      "max": "16",
+      "live": true,
+      "description": "Acceleration along Y (lying flat: Z = 1 g); change it while running to test the circuit"
+    },
+    {
+      "name": "accel_z",
+      "label": "Acceleration Z",
+      "unit": "g",
+      "default": "1",
+      "min": "-16",
+      "max": "16",
+      "live": true,
+      "description": "Acceleration along Z (lying flat: Z = 1 g); change it while running to test the circuit"
+    },
+    {
+      "name": "gyro_x",
+      "label": "Rotation X",
+      "unit": "°/s",
+      "default": "0",
+      "min": "-2000",
+      "max": "2000",
+      "live": true,
+      "description": "Rotation rate about X; change it while running to test the circuit"
+    },
+    {
+      "name": "gyro_y",
+      "label": "Rotation Y",
+      "unit": "°/s",
+      "default": "0",
+      "min": "-2000",
+      "max": "2000",
+      "live": true,
+      "description": "Rotation rate about Y; change it while running to test the circuit"
+    },
+    {
+      "name": "gyro_z",
+      "label": "Rotation Z",
+      "unit": "°/s",
+      "default": "0",
+      "min": "-2000",
+      "max": "2000",
+      "live": true,
+      "description": "Rotation rate about Z; change it while running to test the circuit"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "85",
+      "live": true,
+      "description": "Temperature of the chip; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "accel_z"
+}

@@ -43,6 +43,7 @@ opens and passes the pre-run checks without errors or warnings.
 | `35_Vendor_subcircuit_Darlington_driver.snx` | A vendor-style subcircuit placed as a part: DARLINGTON4 (`models/darlington_array.lib`, four Darlington channels) with switches from 5 V on its inputs and LEDs from 12 V through 1 kΩ on its outputs | Close SW1-SW4: each LED lights; copy the .lib into a model folder to place DARLINGTON4 with Place > Subcircuit |
 | `36_Sensors_LM35_NTC_LDR_Hall.snx` | Sensors on 5 V: an LM35 into a voltmeter, an NTC and an LDR in 10 kΩ dividers, an A3144 Hall switch lighting a red LED through its open-collector output | Run, then drag each sensor up or down (or turn the wheel over it): the LM35 gives 10 mV/°C, the NTC divider falls as it warms, the LDR divider rises with light; above 20 mT the LED lights and stays lit down to 15 mT |
 | `37_Logic_chips_74HC14_CD4017_chaser.snx` | Logic chips in DIP packages on 5 V: a 74HC14 Schmitt inverter with 470 kΩ and 1 µF oscillating at about 2.4 Hz clocks a CD4017; Q5 drives MR, so five LEDs on Q0-Q4 light in turn | Run in real time; the scope shows the capacitor between the two thresholds and the clock; delete the 5V label on a chip's supply pin: it stops |
+| `38_I2C_OLED_BMP280_DS3231.snx` | A Blue Pill with an SSD1306 OLED (0x3C), a BMP280 (0x76) and a DS3231 clock (0x68) on I2C1 at 400 kHz with 4.7 kΩ pull-ups (firmware `hal_i2c_oled`) | Run: every 0.5 s the OLED shows the time from the computer's clock, the date, the temperature and the pressure; change the BMP280's pressure or temperature in Properties while running |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the
@@ -51,7 +52,7 @@ firmware for the emulator experiment E-07; an example project follows.
 
 Firmware sources are in `firmware/<name>/` and link with
 `firmware/stm32f103c8.ld` without libraries, except `hal_clock`,
-`hal_adc_dma`, `hal_rtc_watchdog`, `hal_spi_max7219`, `hal_i2c_devices` and `hal_i2c_lcd`, which are built like STM32CubeIDE projects from the STM32CubeF1 HAL (`cube.json`
+`hal_adc_dma`, `hal_rtc_watchdog`, `hal_spi_max7219`, `hal_i2c_devices`, `hal_i2c_lcd` and `hal_i2c_oled`, which are built like STM32CubeIDE projects from the STM32CubeF1 HAL (`cube.json`
 names the files; `firmware/stm32f103c8_cube.ld`; notices in the package's
 THIRD-PARTY-NOTICES.txt); the ELF files are committed so
 that the examples run without a compiler. `python tools/build_firmware.py`
