@@ -3,7 +3,7 @@
 SimNodus is a classroom simulator: you draw a circuit, press F5 and it keeps
 running while you press buttons, turn potentiometers and watch LEDs, meters
 and the Signal Analyzer. A Blue Pill board (STM32F103C8) can run your own
-firmware inside the circuit. This guide describes release 0.9. For a first circuit in five minutes, see the
+firmware inside the circuit. This guide describes release 0.11. For a first circuit in five minutes, see the
 [quick start](QUICK_START.md); for every detail of the simulated
 microcontroller, see [MICROCONTROLLER.md](MICROCONTROLLER.md).
 
@@ -431,8 +431,13 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   Blue Pill firmware (07-09, 12-15), logic and buses (17, 18), diode kinds
   (19), blocks (20), a counter (21), regulators (22), a 7-segment counter
   (23), the RTC with a watchdog (24), a 74HC595 shift register (25), an 8x8
-  LED matrix on a MAX7219 over SPI (26), three I2C chips (27) and a 16x2 LCD
-  behind a PCF8574 (28).
+  LED matrix on a MAX7219 over SPI (26), three I2C chips (27), a 16x2 LCD
+  behind a PCF8574 (28), adjustable and controlled sources (29), a keypad
+  (30), A/D and D/A converters (31), a ROM (32) and a RAM (33), a 555 timer
+  (34), a vendor subcircuit (35), sensors (36), logic chips in DIP packages
+  (37), an OLED with I2C sensors (38), SPI chips and the HX711 (39), timed
+  one-wire sensors and a WS2812B strip (40), motors (41), buzzers (42) and
+  24 V automation parts (43).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.

@@ -2,6 +2,12 @@
 
 All entries describe actual repository changes, not promised simulator capabilities.
 
+## Unreleased
+
+### Documentation (2026-10-26)
+
+- The README, the roadmap status, the product architecture (device analog and internal pins, pixel screens, sound) and the user guides (English and pt-BR: release 0.11, examples 29-43) describe release 0.11.
+
 ## 0.11.0 — 2026-10-26
 
 ### Documentation (2026-10-26)

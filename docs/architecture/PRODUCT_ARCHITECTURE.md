@@ -140,13 +140,24 @@ Digital devices (SN-203, [ADR 0102](../decisions/0102-digital-devices-hybrid-cou
 chip models in `src/devices` run inside the board's runner; `mcu::DeviceBus`
 resolves the board-device nets on the emulator's pin hook, and the device
 outputs are extra watched pins of the runner that drive the circuit.
+Since 0.11 a device can also read circuit voltages (`analog_pins`, from the
+runner's analog values), keep outputs inside its part (`internal_pins`, read
+by the part's SPICE template) and show a pixel screen (OLED, WS2812B strip,
+servo dial) through its text. Chips without a board run in groups with an
+idle core (ADR 0103).
+
+Sound (SN-228): a part with a `sound` readout reports a frequency;
+`RunController` sends the highest one to `ToneOutput`, a worker thread that
+streams a continuous tone through the Windows multimedia API (silent on
+other platforms).
 
 ## Repository layout
 
 ```text
 apps/simnodus/        Qt application (editor, analyzer)
 src/model, src/io, src/library, src/netlist, src/sim, src/mcu (runner),
-src/emu (own STM32 emulator)
+src/emu (own STM32 emulator), src/devices (chip models),
+src/automation (simnodus-cli commands), src/editing
 resources/library/    component JSON files
 examples/             example projects (.snx) and firmware
 tests/unit/           C++ unit and simulation tests (ctest)
