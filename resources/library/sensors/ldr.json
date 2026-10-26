@@ -140,6 +140,6 @@
   },
   "spice": [
     "B_{ref}_q q_{ref} 0 V=0.1*exp(13.815510558*V({control}))",
-    "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(V(q_{ref})/10))/{R10}+1/{Rdark})"
+    "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(max(V(q_{ref}),0.01)/10))/{R10}+1/{Rdark})"
   ]
 }

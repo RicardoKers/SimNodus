@@ -266,7 +266,7 @@ def ldr():
         "readout": readout("lux"),
         "spice": [
             logarithmic(0.1, 100000),
-            "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(V(q_{ref})/10))/{R10}+1/{Rdark})",
+            "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(max(V(q_{ref}),0.01)/10))/{R10}+1/{Rdark})",
         ],
     }
 
