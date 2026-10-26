@@ -167,7 +167,7 @@ static char* put_bcd(char* out, uint8_t value)
 
 // BMP280 calibration (dig_T1..dig_T3, dig_P1..dig_P9) and t_fine, as in the datasheet.
 static uint16_t dig_t1, dig_p1;
-static int16_t dig_t2, dig_t3, dig_p[9];
+static int16_t dig_t2, dig_t3, dig_p[10]; // dig_p[1]..dig_p[9]
 static int32_t t_fine;
 
 static int bmp280_init(void)

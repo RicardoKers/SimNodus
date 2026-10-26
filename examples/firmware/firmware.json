@@ -260,7 +260,7 @@
         "examples/firmware/hal_i2c_oled/main.c"
       ],
       "elf": "examples/firmware/hal_i2c_oled/hal_i2c_oled.elf",
-      "sha256": "e6b022b8c9c8fceb84a2323dab2912122f36a111f853bf095ab62ebbf0574d1c",
+      "sha256": "1794d54dd942e776961067d02e342d4085583dd3911f26bdfd95a400e8d47460",
       "size": 125760,
       "flags": [
         "-mcpu=cortex-m3",
