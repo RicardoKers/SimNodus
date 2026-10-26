@@ -1,0 +1,623 @@
+{
+  "type": "74hc161",
+  "name": "74HC161 4-bit binary counter",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "Synchronous 4-bit counter (DIP-16): counts at the rising edge of CP while CEP and CET are high, loads D0-D3 at the edge while PE is low, MR low clears it at once; TC is high at 15 while CET is high; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "74HC161",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "MR",
+        "at": [
+          -2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.1399999999999997,
+          -7.5,
+          -2.46,
+          -7.5
+        ]
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "CP",
+        "at": [
+          -2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "D0",
+        "at": [
+          -2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "D1",
+        "at": [
+          -2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          -2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "D3",
+        "at": [
+          -2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "CEP",
+        "at": [
+          -2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "PE",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          6.5,
+          3.1399999999999997,
+          6.5
+        ]
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "CET",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "Q3",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "Q2",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "Q1",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "Q0",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "TC",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "MRN",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CP",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "D0",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "D1",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "D2",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "D3",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CEP",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PEN",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "CET",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q3",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q2",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q1",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q0",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "TC",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "device": {
+    "kind": "74hc161",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "driven_pins": [
+      "Q0",
+      "Q1",
+      "Q2",
+      "Q3",
+      "TC"
+    ]
+  },
+  "spice": [
+    "R_{ref}_hmrn {node:MRN} {node:GND} 100Meg",
+    "R_{ref}_hcp {node:CP} {node:GND} 100Meg",
+    "R_{ref}_hd0 {node:D0} {node:GND} 100Meg",
+    "R_{ref}_hd1 {node:D1} {node:GND} 100Meg",
+    "R_{ref}_hd2 {node:D2} {node:GND} 100Meg",
+    "R_{ref}_hd3 {node:D3} {node:GND} 100Meg",
+    "R_{ref}_hcep {node:CEP} {node:GND} 100Meg",
+    "R_{ref}_hpen {node:PEN} {node:GND} 100Meg",
+    "R_{ref}_hcet {node:CET} {node:GND} 100Meg",
+    "R_{ref}_hq3 {node:Q3} {node:GND} 100Meg",
+    "R_{ref}_hq2 {node:Q2} {node:GND} 100Meg",
+    "R_{ref}_hq1 {node:Q1} {node:GND} 100Meg",
+    "R_{ref}_hq0 {node:Q0} {node:GND} 100Meg",
+    "R_{ref}_htc {node:TC} {node:GND} 100Meg",
+    "B_{ref}_q0 {node:GND} {node:Q0} I=V({ext:q0_i})-V({ext:q0_g})*(V({node:Q0})-V({node:GND}))",
+    "B_{ref}_q1 {node:GND} {node:Q1} I=V({ext:q1_i})-V({ext:q1_g})*(V({node:Q1})-V({node:GND}))",
+    "B_{ref}_q2 {node:GND} {node:Q2} I=V({ext:q2_i})-V({ext:q2_g})*(V({node:Q2})-V({node:GND}))",
+    "B_{ref}_q3 {node:GND} {node:Q3} I=V({ext:q3_i})-V({ext:q3_g})*(V({node:Q3})-V({node:GND}))",
+    "B_{ref}_tc {node:GND} {node:TC} I=V({ext:tc_i})-V({ext:tc_g})*(V({node:TC})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 1Meg"
+  ]
+}

@@ -1,0 +1,815 @@
+{
+  "type": "74hc245",
+  "name": "74HC245 octal bus transceiver",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "Eight bidirectional buffers (DIP-20): with OE low, DIR high drives B from A and DIR low drives A from B; OE high leaves both sides in high impedance",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -10,
+          8,
+          20
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -10,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "74HC245",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -9,
+          -4,
+          -9
+        ]
+      },
+      {
+        "text": "DIR",
+        "at": [
+          -2.8,
+          -9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -9.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "A3",
+        "at": [
+          -2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "A4",
+        "at": [
+          -2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "A5",
+        "at": [
+          -2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "A6",
+        "at": [
+          -2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "A7",
+        "at": [
+          -2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "A8",
+        "at": [
+          -2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "9",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          9,
+          -4,
+          9
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.8,
+          9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "10",
+        "at": [
+          -5.0,
+          8.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          9,
+          4,
+          9
+        ]
+      },
+      {
+        "text": "B8",
+        "at": [
+          2.8,
+          9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          8.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "B7",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "B6",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "B5",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "B4",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "B3",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "B2",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "17",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "B1",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "18",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "OE",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          -7.5,
+          3.1399999999999997,
+          -7.5
+        ]
+      },
+      {
+        "text": "19",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -9,
+          4,
+          -9
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.8,
+          -9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "20",
+        "at": [
+          5.0,
+          -9.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "DIR",
+        "at": [
+          -6,
+          -9
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A1",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A2",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A3",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A4",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A5",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A6",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A7",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A8",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B8",
+        "at": [
+          6,
+          9
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B7",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B6",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B5",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B4",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B3",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B2",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "B1",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OEN",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -9
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -12
+  ],
+  "value_offset": [
+    -1,
+    12
+  ],
+  "spice": [
+    "B_{ref}_lv0 lv0_{ref} 0 V=0.5*(1+tanh(8*(V({node:OEN},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv1 lv1_{ref} 0 V=0.5*(1+tanh(8*(V({node:DIR},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_xb1 xb1_{ref} 0 V=0.5*(1+tanh(8*(V({node:A1},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db1 xb1_{ref} yb1_{ref} 1k",
+    "C_{ref}_db1 yb1_{ref} 0 10p",
+    "B_{ref}_ub1 {node:VCC} {node:B1} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb1_{ref}),0),1)*V({node:VCC},{node:B1})/50",
+    "B_{ref}_lb1 {node:B1} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb1_{ref}),0),1))*V({node:B1},{node:GND})/50",
+    "B_{ref}_xa1 xa1_{ref} 0 V=0.5*(1+tanh(8*(V({node:B1},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da1 xa1_{ref} ya1_{ref} 1k",
+    "C_{ref}_da1 ya1_{ref} 0 10p",
+    "B_{ref}_ua1 {node:VCC} {node:A1} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya1_{ref}),0),1)*V({node:VCC},{node:A1})/50",
+    "B_{ref}_la1 {node:A1} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya1_{ref}),0),1))*V({node:A1},{node:GND})/50",
+    "B_{ref}_xb2 xb2_{ref} 0 V=0.5*(1+tanh(8*(V({node:A2},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db2 xb2_{ref} yb2_{ref} 1k",
+    "C_{ref}_db2 yb2_{ref} 0 10p",
+    "B_{ref}_ub2 {node:VCC} {node:B2} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb2_{ref}),0),1)*V({node:VCC},{node:B2})/50",
+    "B_{ref}_lb2 {node:B2} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb2_{ref}),0),1))*V({node:B2},{node:GND})/50",
+    "B_{ref}_xa2 xa2_{ref} 0 V=0.5*(1+tanh(8*(V({node:B2},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da2 xa2_{ref} ya2_{ref} 1k",
+    "C_{ref}_da2 ya2_{ref} 0 10p",
+    "B_{ref}_ua2 {node:VCC} {node:A2} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya2_{ref}),0),1)*V({node:VCC},{node:A2})/50",
+    "B_{ref}_la2 {node:A2} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya2_{ref}),0),1))*V({node:A2},{node:GND})/50",
+    "B_{ref}_xb3 xb3_{ref} 0 V=0.5*(1+tanh(8*(V({node:A3},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db3 xb3_{ref} yb3_{ref} 1k",
+    "C_{ref}_db3 yb3_{ref} 0 10p",
+    "B_{ref}_ub3 {node:VCC} {node:B3} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb3_{ref}),0),1)*V({node:VCC},{node:B3})/50",
+    "B_{ref}_lb3 {node:B3} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb3_{ref}),0),1))*V({node:B3},{node:GND})/50",
+    "B_{ref}_xa3 xa3_{ref} 0 V=0.5*(1+tanh(8*(V({node:B3},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da3 xa3_{ref} ya3_{ref} 1k",
+    "C_{ref}_da3 ya3_{ref} 0 10p",
+    "B_{ref}_ua3 {node:VCC} {node:A3} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya3_{ref}),0),1)*V({node:VCC},{node:A3})/50",
+    "B_{ref}_la3 {node:A3} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya3_{ref}),0),1))*V({node:A3},{node:GND})/50",
+    "B_{ref}_xb4 xb4_{ref} 0 V=0.5*(1+tanh(8*(V({node:A4},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db4 xb4_{ref} yb4_{ref} 1k",
+    "C_{ref}_db4 yb4_{ref} 0 10p",
+    "B_{ref}_ub4 {node:VCC} {node:B4} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb4_{ref}),0),1)*V({node:VCC},{node:B4})/50",
+    "B_{ref}_lb4 {node:B4} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb4_{ref}),0),1))*V({node:B4},{node:GND})/50",
+    "B_{ref}_xa4 xa4_{ref} 0 V=0.5*(1+tanh(8*(V({node:B4},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da4 xa4_{ref} ya4_{ref} 1k",
+    "C_{ref}_da4 ya4_{ref} 0 10p",
+    "B_{ref}_ua4 {node:VCC} {node:A4} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya4_{ref}),0),1)*V({node:VCC},{node:A4})/50",
+    "B_{ref}_la4 {node:A4} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya4_{ref}),0),1))*V({node:A4},{node:GND})/50",
+    "B_{ref}_xb5 xb5_{ref} 0 V=0.5*(1+tanh(8*(V({node:A5},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db5 xb5_{ref} yb5_{ref} 1k",
+    "C_{ref}_db5 yb5_{ref} 0 10p",
+    "B_{ref}_ub5 {node:VCC} {node:B5} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb5_{ref}),0),1)*V({node:VCC},{node:B5})/50",
+    "B_{ref}_lb5 {node:B5} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb5_{ref}),0),1))*V({node:B5},{node:GND})/50",
+    "B_{ref}_xa5 xa5_{ref} 0 V=0.5*(1+tanh(8*(V({node:B5},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da5 xa5_{ref} ya5_{ref} 1k",
+    "C_{ref}_da5 ya5_{ref} 0 10p",
+    "B_{ref}_ua5 {node:VCC} {node:A5} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya5_{ref}),0),1)*V({node:VCC},{node:A5})/50",
+    "B_{ref}_la5 {node:A5} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya5_{ref}),0),1))*V({node:A5},{node:GND})/50",
+    "B_{ref}_xb6 xb6_{ref} 0 V=0.5*(1+tanh(8*(V({node:A6},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db6 xb6_{ref} yb6_{ref} 1k",
+    "C_{ref}_db6 yb6_{ref} 0 10p",
+    "B_{ref}_ub6 {node:VCC} {node:B6} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb6_{ref}),0),1)*V({node:VCC},{node:B6})/50",
+    "B_{ref}_lb6 {node:B6} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb6_{ref}),0),1))*V({node:B6},{node:GND})/50",
+    "B_{ref}_xa6 xa6_{ref} 0 V=0.5*(1+tanh(8*(V({node:B6},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da6 xa6_{ref} ya6_{ref} 1k",
+    "C_{ref}_da6 ya6_{ref} 0 10p",
+    "B_{ref}_ua6 {node:VCC} {node:A6} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya6_{ref}),0),1)*V({node:VCC},{node:A6})/50",
+    "B_{ref}_la6 {node:A6} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya6_{ref}),0),1))*V({node:A6},{node:GND})/50",
+    "B_{ref}_xb7 xb7_{ref} 0 V=0.5*(1+tanh(8*(V({node:A7},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db7 xb7_{ref} yb7_{ref} 1k",
+    "C_{ref}_db7 yb7_{ref} 0 10p",
+    "B_{ref}_ub7 {node:VCC} {node:B7} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb7_{ref}),0),1)*V({node:VCC},{node:B7})/50",
+    "B_{ref}_lb7 {node:B7} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb7_{ref}),0),1))*V({node:B7},{node:GND})/50",
+    "B_{ref}_xa7 xa7_{ref} 0 V=0.5*(1+tanh(8*(V({node:B7},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da7 xa7_{ref} ya7_{ref} 1k",
+    "C_{ref}_da7 ya7_{ref} 0 10p",
+    "B_{ref}_ua7 {node:VCC} {node:A7} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya7_{ref}),0),1)*V({node:VCC},{node:A7})/50",
+    "B_{ref}_la7 {node:A7} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya7_{ref}),0),1))*V({node:A7},{node:GND})/50",
+    "B_{ref}_xb8 xb8_{ref} 0 V=0.5*(1+tanh(8*(V({node:A8},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_db8 xb8_{ref} yb8_{ref} 1k",
+    "C_{ref}_db8 yb8_{ref} 0 10p",
+    "B_{ref}_ub8 {node:VCC} {node:B8} I=(1-V(lv0_{ref}))*V(lv1_{ref})*min(max(V(yb8_{ref}),0),1)*V({node:VCC},{node:B8})/50",
+    "B_{ref}_lb8 {node:B8} {node:GND} I=(1-V(lv0_{ref}))*V(lv1_{ref})*(1-min(max(V(yb8_{ref}),0),1))*V({node:B8},{node:GND})/50",
+    "B_{ref}_xa8 xa8_{ref} 0 V=0.5*(1+tanh(8*(V({node:B8},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "R_{ref}_da8 xa8_{ref} ya8_{ref} 1k",
+    "C_{ref}_da8 ya8_{ref} 0 10p",
+    "B_{ref}_ua8 {node:VCC} {node:A8} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*min(max(V(ya8_{ref}),0),1)*V({node:VCC},{node:A8})/50",
+    "B_{ref}_la8 {node:A8} {node:GND} I=(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*(1-min(max(V(ya8_{ref}),0),1))*V({node:A8},{node:GND})/50",
+    "R_{ref}_idir {node:DIR} {node:GND} 1G",
+    "R_{ref}_ia1 {node:A1} {node:GND} 1G",
+    "R_{ref}_ia2 {node:A2} {node:GND} 1G",
+    "R_{ref}_ia3 {node:A3} {node:GND} 1G",
+    "R_{ref}_ia4 {node:A4} {node:GND} 1G",
+    "R_{ref}_ia5 {node:A5} {node:GND} 1G",
+    "R_{ref}_ia6 {node:A6} {node:GND} 1G",
+    "R_{ref}_ia7 {node:A7} {node:GND} 1G",
+    "R_{ref}_ia8 {node:A8} {node:GND} 1G",
+    "R_{ref}_ib8 {node:B8} {node:GND} 1G",
+    "R_{ref}_ib7 {node:B7} {node:GND} 1G",
+    "R_{ref}_ib6 {node:B6} {node:GND} 1G",
+    "R_{ref}_ib5 {node:B5} {node:GND} 1G",
+    "R_{ref}_ib4 {node:B4} {node:GND} 1G",
+    "R_{ref}_ib3 {node:B3} {node:GND} 1G",
+    "R_{ref}_ib2 {node:B2} {node:GND} 1G",
+    "R_{ref}_ib1 {node:B1} {node:GND} 1G",
+    "R_{ref}_ioen {node:OEN} {node:GND} 1G",
+    "R_{ref}_q {node:VCC} {node:GND} 10Meg"
+  ]
+}

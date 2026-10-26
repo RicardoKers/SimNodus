@@ -104,6 +104,7 @@ invalid value is outlined in red and not applied.
 | **Simplified models** | Teaching models: diode with a fixed forward voltage; NPN and PNP with fixed Vbe, a beta shown on the symbol and a saturation voltage |
 | **Integrated circuits** | Op-amp (behavioral or a vendor model, powered by V+ and V-); 78xx regulator (set Vout); 3.3 V low-dropout regulator; LM317 (OUT 1.25 V above ADJ); TL431 shunt reference (2.495 V between REF and A); 555 timer |
 | **Logic gates** | NOT, AND, OR, NAND, NOR, XOR (74HC-like, with a hidden supply) |
+| **Logic chips (DIP)** | Real 74HC and CD4000 chips with every pin in its package position and VCC/GND to wire: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (the 74HC595 is under Chips for microcontrollers) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
@@ -161,6 +162,17 @@ Notes on some parts:
   a CMOS 555).
 - **Regulators:** the input current is the load current plus a few mA; with
   too little input voltage the output drops (dropout).
+- **Logic chips (DIP):** drawn as the package seen from above, pin 1 at the
+  top left beside the notch, so the wiring matches a breadboard. Without VCC
+  and GND the chip does nothing; the outputs' current comes from the VCC pin.
+  Gates, the 74HC138, 74HC157, 74HC245 and 74HC74 are behavioral SPICE
+  (inputs switch at VCC/2, the 74HC14 at about 0.53 and 0.31 VCC, so an RC
+  oscillator runs at its real frequency; 50 Ω outputs). The 74HC161, 74HC193,
+  74HC165 and CD4017 run as digital chips, like the chips for
+  microcontrollers: instant with a board or another chip, but inputs from
+  the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz).
+  Unused gate pins may stay open; their inputs read low. Example 37 is an
+  LED chaser with a 74HC14 and a CD4017.
 - **Logic gates and flip-flops** run on a hidden supply, so you wire only
   their logic pins. Their outputs are real voltages: an LED on an output
   needs a series resistor.

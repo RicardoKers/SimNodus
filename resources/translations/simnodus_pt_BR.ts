@@ -2886,6 +2886,130 @@ Pinos: %2</translation>
             <translation>Porta XOR de duas entradas (tipo 74HC, alimentação VDD oculta)</translation>
         </message>
         <message>
+            <source>74HC00 quad NAND gate</source>
+            <translation>74HC00 quatro portas NAND</translation>
+        </message>
+        <message>
+            <source>Logic chips (DIP)</source>
+            <translation>CIs lógicos (DIP)</translation>
+        </message>
+        <message>
+            <source>Four 2-input NAND gates (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Quatro portas NAND de 2 entradas (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>74HC02 quad NOR gate</source>
+            <translation>74HC02 quatro portas NOR</translation>
+        </message>
+        <message>
+            <source>Four 2-input NOR gates (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Quatro portas NOR de 2 entradas (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>74HC04 hex inverter</source>
+            <translation>74HC04 seis inversores</translation>
+        </message>
+        <message>
+            <source>Six inverters (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Seis inversores (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>74HC08 quad AND gate</source>
+            <translation>74HC08 quatro portas AND</translation>
+        </message>
+        <message>
+            <source>Four 2-input AND gates (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Quatro portas AND de 2 entradas (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>74HC138 3-to-8 decoder</source>
+            <translation>74HC138 decodificador 3 para 8</translation>
+        </message>
+        <message>
+            <source>3-to-8 line decoder (DIP-16): with E1 and E2 low and E3 high, the output numbered by A2 A1 A0 goes low; the others stay high</source>
+            <translation>Decodificador de 3 para 8 linhas (DIP-16): com E1 e E2 em nível baixo e E3 em alto, a saída de número A2 A1 A0 vai a nível baixo; as outras ficam em alto</translation>
+        </message>
+        <message>
+            <source>74HC14 hex Schmitt inverter</source>
+            <translation>74HC14 seis inversores Schmitt</translation>
+        </message>
+        <message>
+            <source>Six inverters with Schmitt-trigger inputs (DIP-14): about 0.53 VCC to switch on rising, 0.31 VCC on falling; one with a resistor and a capacitor makes an RC oscillator</source>
+            <translation>Seis inversores com entradas Schmitt trigger (DIP-14): cerca de 0,53 VCC para comutar na subida, 0,31 VCC na descida; um deles com um resistor e um capacitor forma um oscilador RC</translation>
+        </message>
+        <message>
+            <source>74HC157 quad 2-to-1 multiplexer</source>
+            <translation>74HC157 quatro multiplexadores 2 para 1</translation>
+        </message>
+        <message>
+            <source>Four 2-input multiplexers (DIP-16): with E low each Y follows I0 while S is low and I1 while S is high; E high makes every Y low</source>
+            <translation>Quatro multiplexadores de 2 entradas (DIP-16): com E em nível baixo, cada Y segue I0 enquanto S está baixo e I1 enquanto S está alto; E em alto deixa todos os Y em baixo</translation>
+        </message>
+        <message>
+            <source>74HC161 4-bit binary counter</source>
+            <translation>74HC161 contador binário de 4 bits</translation>
+        </message>
+        <message>
+            <source>Synchronous 4-bit counter (DIP-16): counts at the rising edge of CP while CEP and CET are high, loads D0-D3 at the edge while PE is low, MR low clears it at once; TC is high at 15 while CET is high; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)</source>
+            <translation>Contador síncrono de 4 bits (DIP-16): conta na borda de subida de CP enquanto CEP e CET estão em alto, carrega D0-D3 na borda enquanto PE está em baixo, MR em baixo zera na hora; TC fica em alto em 15 enquanto CET está em alto; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
+        </message>
+        <message>
+            <source>74HC165 8-bit parallel-in shift register</source>
+            <translation>74HC165 registrador de deslocamento de 8 bits com entrada paralela</translation>
+        </message>
+        <message>
+            <source>Parallel-in, serial-out shift register (DIP-16): PL low loads D0-D7; with PL high each rising edge of CP while CE is low shifts toward Q7 and takes DS into the first stage; reads switches into a microcontroller's SPI; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)</source>
+            <translation>Registrador de deslocamento com entrada paralela e saída serial (DIP-16): PL em baixo carrega D0-D7; com PL em alto, cada borda de subida de CP com CE em baixo desloca em direção a Q7 e coloca DS no primeiro estágio; lê chaves pela SPI de um microcontrolador; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
+        </message>
+        <message>
+            <source>74HC193 4-bit up/down counter</source>
+            <translation>74HC193 contador crescente/decrescente de 4 bits</translation>
+        </message>
+        <message>
+            <source>Presettable up/down counter (DIP-16): counts up at the rising edge of CPU while CPD is high and down at the rising edge of CPD while CPU is high; PL low loads D0-D3 and MR high clears it, at once; TCU and TCD go low at 15 (CPU low) and at 0 (CPD low) for cascading; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)</source>
+            <translation>Contador crescente/decrescente com carga (DIP-16): conta para cima na borda de subida de CPU enquanto CPD está em alto e para baixo na borda de subida de CPD enquanto CPU está em alto; PL em baixo carrega D0-D3 e MR em alto zera, na hora; TCU e TCD vão a nível baixo em 15 (CPU em baixo) e em 0 (CPD em baixo) para cascatear; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
+        </message>
+        <message>
+            <source>74HC245 octal bus transceiver</source>
+            <translation>74HC245 transceptor de barramento de 8 bits</translation>
+        </message>
+        <message>
+            <source>Eight bidirectional buffers (DIP-20): with OE low, DIR high drives B from A and DIR low drives A from B; OE high leaves both sides in high impedance</source>
+            <translation>Oito buffers bidirecionais (DIP-20): com OE em baixo, DIR em alto aciona B a partir de A e DIR em baixo aciona A a partir de B; OE em alto deixa os dois lados em alta impedância</translation>
+        </message>
+        <message>
+            <source>74HC32 quad OR gate</source>
+            <translation>74HC32 quatro portas OR</translation>
+        </message>
+        <message>
+            <source>Four 2-input OR gates (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Quatro portas OR de 2 entradas (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>74HC74 dual D flip-flop</source>
+            <translation>74HC74 dois flip-flops D</translation>
+        </message>
+        <message>
+            <source>Two D flip-flops (DIP-14): Q takes D at the rising edge of CLK; PRE low sets Q, CLR low clears it, at once; tie unused PRE and CLR to VCC; both start with Q low</source>
+            <translation>Dois flip-flops D (DIP-14): Q copia D na borda de subida de CLK; PRE em baixo leva Q a 1, CLR em baixo leva a 0, na hora; ligue PRE e CLR não usados a VCC; ambos começam com Q em baixo</translation>
+        </message>
+        <message>
+            <source>74HC86 quad XOR gate</source>
+            <translation>74HC86 quatro portas XOR</translation>
+        </message>
+        <message>
+            <source>Four 2-input XOR gates (DIP-14); wire VCC (2 to 6 V) and GND</source>
+            <translation>Quatro portas XOR de 2 entradas (DIP-14); ligue VCC (2 a 6 V) e GND</translation>
+        </message>
+        <message>
+            <source>CD4017 decade counter with 10 outputs</source>
+            <translation>CD4017 contador de décadas com 10 saídas</translation>
+        </message>
+        <message>
+            <source>Johnson decade counter (DIP-16): one of Q0-Q9 is high, the next at each rising edge of CP0 while CP1 is low (or falling CP1 while CP0 is high); MR high returns to Q0; CO is high for counts 0-4; VDD 3 to 15 V; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)</source>
+            <translation>Contador de décadas Johnson (DIP-16): uma das saídas Q0-Q9 fica em alto, passando à seguinte a cada borda de subida de CP0 enquanto CP1 está em baixo (ou na descida de CP1 com CP0 em alto); MR em alto volta a Q0; CO fica em alto nas contagens 0-4; VDD de 3 a 15 V; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
+        </message>
+        <message>
             <source>Blue Pill (STM32F103C8)</source>
             <translation>Blue Pill (STM32F103C8)</translation>
         </message>

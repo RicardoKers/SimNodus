@@ -1,0 +1,619 @@
+{
+  "type": "cd4017",
+  "name": "CD4017 decade counter with 10 outputs",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "Johnson decade counter (DIP-16): one of Q0-Q9 is high, the next at each rising edge of CP0 while CP1 is low (or falling CP1 while CP0 is high); MR high returns to Q0; CO is high for counts 0-4; VDD 3 to 15 V; runs as a digital chip: with a board or on its own, inputs from the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "CD4017",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "Q5",
+        "at": [
+          -2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "Q1",
+        "at": [
+          -2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "Q0",
+        "at": [
+          -2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "Q2",
+        "at": [
+          -2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "Q6",
+        "at": [
+          -2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "Q7",
+        "at": [
+          -2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "Q3",
+        "at": [
+          -2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "VSS",
+        "at": [
+          -2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "Q8",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "Q4",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "Q9",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "CO",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "CP1",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "CP0",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "MR",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "Q5",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q1",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q0",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q2",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q6",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q7",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Q3",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "VSS",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Q8",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q4",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Q9",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "CO",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "CP1",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "CP0",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "MR",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VDD",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "device": {
+    "kind": "cd4017",
+    "supply_pin": "VDD",
+    "ground_pin": "VSS",
+    "output_resistance": 200,
+    "driven_pins": [
+      "Q0",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q5",
+      "Q6",
+      "Q7",
+      "Q8",
+      "Q9",
+      "CO"
+    ]
+  },
+  "spice": [
+    "R_{ref}_hq5 {node:Q5} {node:VSS} 100Meg",
+    "R_{ref}_hq1 {node:Q1} {node:VSS} 100Meg",
+    "R_{ref}_hq0 {node:Q0} {node:VSS} 100Meg",
+    "R_{ref}_hq2 {node:Q2} {node:VSS} 100Meg",
+    "R_{ref}_hq6 {node:Q6} {node:VSS} 100Meg",
+    "R_{ref}_hq7 {node:Q7} {node:VSS} 100Meg",
+    "R_{ref}_hq3 {node:Q3} {node:VSS} 100Meg",
+    "R_{ref}_hq8 {node:Q8} {node:VSS} 100Meg",
+    "R_{ref}_hq4 {node:Q4} {node:VSS} 100Meg",
+    "R_{ref}_hq9 {node:Q9} {node:VSS} 100Meg",
+    "R_{ref}_hco {node:CO} {node:VSS} 100Meg",
+    "R_{ref}_hcp1 {node:CP1} {node:VSS} 100Meg",
+    "R_{ref}_hcp0 {node:CP0} {node:VSS} 100Meg",
+    "R_{ref}_hmr {node:MR} {node:VSS} 100Meg",
+    "B_{ref}_q0 {node:VSS} {node:Q0} I=V({ext:q0_i})-V({ext:q0_g})*(V({node:Q0})-V({node:VSS}))",
+    "B_{ref}_q1 {node:VSS} {node:Q1} I=V({ext:q1_i})-V({ext:q1_g})*(V({node:Q1})-V({node:VSS}))",
+    "B_{ref}_q2 {node:VSS} {node:Q2} I=V({ext:q2_i})-V({ext:q2_g})*(V({node:Q2})-V({node:VSS}))",
+    "B_{ref}_q3 {node:VSS} {node:Q3} I=V({ext:q3_i})-V({ext:q3_g})*(V({node:Q3})-V({node:VSS}))",
+    "B_{ref}_q4 {node:VSS} {node:Q4} I=V({ext:q4_i})-V({ext:q4_g})*(V({node:Q4})-V({node:VSS}))",
+    "B_{ref}_q5 {node:VSS} {node:Q5} I=V({ext:q5_i})-V({ext:q5_g})*(V({node:Q5})-V({node:VSS}))",
+    "B_{ref}_q6 {node:VSS} {node:Q6} I=V({ext:q6_i})-V({ext:q6_g})*(V({node:Q6})-V({node:VSS}))",
+    "B_{ref}_q7 {node:VSS} {node:Q7} I=V({ext:q7_i})-V({ext:q7_g})*(V({node:Q7})-V({node:VSS}))",
+    "B_{ref}_q8 {node:VSS} {node:Q8} I=V({ext:q8_i})-V({ext:q8_g})*(V({node:Q8})-V({node:VSS}))",
+    "B_{ref}_q9 {node:VSS} {node:Q9} I=V({ext:q9_i})-V({ext:q9_g})*(V({node:Q9})-V({node:VSS}))",
+    "B_{ref}_co {node:VSS} {node:CO} I=V({ext:co_i})-V({ext:co_g})*(V({node:CO})-V({node:VSS}))",
+    "R_{ref}_q {node:VDD} {node:VSS} 1Meg"
+  ]
+}

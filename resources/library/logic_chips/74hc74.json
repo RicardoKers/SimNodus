@@ -1,0 +1,599 @@
+{
+  "type": "74hc74",
+  "name": "74HC74 dual D flip-flop",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "Two D flip-flops (DIP-14): Q takes D at the rising edge of CLK; PRE low sets Q, CLR low clears it, at once; tie unused PRE and CLR to VCC; both start with Q low",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -7,
+          8,
+          14
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -7,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "74HC74",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -6,
+          -4,
+          -6
+        ]
+      },
+      {
+        "text": "1CLR",
+        "at": [
+          -2.8,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.48,
+          -6.5,
+          -2.1199999999999997,
+          -6.5
+        ]
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -4,
+          -4,
+          -4
+        ]
+      },
+      {
+        "text": "1D",
+        "at": [
+          -2.8,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "1CLK",
+        "at": [
+          -2.8,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "1PRE",
+        "at": [
+          -2.8,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.48,
+          -0.5,
+          -2.1199999999999997,
+          -0.5
+        ]
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "1Q",
+        "at": [
+          -2.8,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -4,
+          4
+        ]
+      },
+      {
+        "text": "1Q",
+        "at": [
+          -2.8,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.1399999999999997,
+          3.5,
+          -2.46,
+          3.5
+        ]
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          6,
+          -4,
+          6
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.8,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "text": "2Q",
+        "at": [
+          2.8,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          5.5,
+          3.1399999999999997,
+          5.5
+        ]
+      },
+      {
+        "text": "8",
+        "at": [
+          5.0,
+          5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          4,
+          4,
+          4
+        ]
+      },
+      {
+        "text": "2Q",
+        "at": [
+          2.8,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "2PRE",
+        "at": [
+          2.8,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.1199999999999997,
+          1.5,
+          3.48,
+          1.5
+        ]
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "2CLK",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "2D",
+        "at": [
+          2.8,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -4,
+          4,
+          -4
+        ]
+      },
+      {
+        "text": "2CLR",
+        "at": [
+          2.8,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.1199999999999997,
+          -4.5,
+          3.48,
+          -4.5
+        ]
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -6,
+          4,
+          -6
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.8,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -6.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "1CLRN",
+        "at": [
+          -6,
+          -6
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1D",
+        "at": [
+          -6,
+          -4
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1CLK",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1PREN",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1Q",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1QN",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "2QN",
+        "at": [
+          6,
+          6
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2Q",
+        "at": [
+          6,
+          4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2PREN",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2CLK",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2D",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2CLRN",
+        "at": [
+          6,
+          -4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -6
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -9
+  ],
+  "value_offset": [
+    -1,
+    9
+  ],
+  "spice": [
+    "B_{ref}_lv0 lv0_{ref} 0 V=0.5*(1+tanh(8*(V({node:1PREN},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv1 lv1_{ref} 0 V=0.5*(1+tanh(8*(V({node:1CLRN},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv2 lv2_{ref} 0 V=0.5*(1+tanh(20*(V(s1_{ref})-0.5)))",
+    "B_{ref}_lv3 lv3_{ref} 0 V=0.5*(1+tanh(8*(V({node:2PREN},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv4 lv4_{ref} 0 V=0.5*(1+tanh(8*(V({node:2CLRN},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv5 lv5_{ref} 0 V=0.5*(1+tanh(20*(V(s2_{ref})-0.5)))",
+    "B_{ref}_m1 0 m1_{ref} I=1m*((1-(1-V(lv0_{ref})))*(1-(1-V(lv1_{ref})))*(1-0.5*(1+tanh(8*(V({node:1CLK},{node:GND})-0.4*V({node:VCC},{node:GND})))))*(0.5*(1+tanh(8*(V({node:1D},{node:GND})-0.5*V({node:VCC},{node:GND}))))-V(m1_{ref}))+(1-V(lv0_{ref}))*(1-V(m1_{ref}))-(1-V(lv1_{ref}))*V(m1_{ref}))",
+    "C_{ref}_m1 m1_{ref} 0 1p",
+    "B_{ref}_s1 0 s1_{ref} I=1m*((1-(1-V(lv0_{ref})))*(1-(1-V(lv1_{ref})))*0.5*(1+tanh(8*(V({node:1CLK},{node:GND})-0.6*V({node:VCC},{node:GND}))))*(V(m1_{ref})-V(s1_{ref}))+(1-V(lv0_{ref}))*(1-V(s1_{ref}))-(1-V(lv1_{ref}))*V(s1_{ref}))",
+    "C_{ref}_s1 s1_{ref} 0 1p",
+    "B_{ref}_xq1 xq1_{ref} 0 V=V(lv2_{ref})",
+    "R_{ref}_dq1 xq1_{ref} yq1_{ref} 1k",
+    "C_{ref}_dq1 yq1_{ref} 0 10p",
+    "B_{ref}_uq1 {node:VCC} {node:1Q} I=min(max(V(yq1_{ref}),0),1)*V({node:VCC},{node:1Q})/50",
+    "B_{ref}_lq1 {node:1Q} {node:GND} I=(1-min(max(V(yq1_{ref}),0),1))*V({node:1Q},{node:GND})/50",
+    "B_{ref}_xqn1 xqn1_{ref} 0 V=(1-V(lv2_{ref}))",
+    "R_{ref}_dqn1 xqn1_{ref} yqn1_{ref} 1k",
+    "C_{ref}_dqn1 yqn1_{ref} 0 10p",
+    "B_{ref}_uqn1 {node:VCC} {node:1QN} I=min(max(V(yqn1_{ref}),0),1)*V({node:VCC},{node:1QN})/50",
+    "B_{ref}_lqn1 {node:1QN} {node:GND} I=(1-min(max(V(yqn1_{ref}),0),1))*V({node:1QN},{node:GND})/50",
+    "B_{ref}_m2 0 m2_{ref} I=1m*((1-(1-V(lv3_{ref})))*(1-(1-V(lv4_{ref})))*(1-0.5*(1+tanh(8*(V({node:2CLK},{node:GND})-0.4*V({node:VCC},{node:GND})))))*(0.5*(1+tanh(8*(V({node:2D},{node:GND})-0.5*V({node:VCC},{node:GND}))))-V(m2_{ref}))+(1-V(lv3_{ref}))*(1-V(m2_{ref}))-(1-V(lv4_{ref}))*V(m2_{ref}))",
+    "C_{ref}_m2 m2_{ref} 0 1p",
+    "B_{ref}_s2 0 s2_{ref} I=1m*((1-(1-V(lv3_{ref})))*(1-(1-V(lv4_{ref})))*0.5*(1+tanh(8*(V({node:2CLK},{node:GND})-0.6*V({node:VCC},{node:GND}))))*(V(m2_{ref})-V(s2_{ref}))+(1-V(lv3_{ref}))*(1-V(s2_{ref}))-(1-V(lv4_{ref}))*V(s2_{ref}))",
+    "C_{ref}_s2 s2_{ref} 0 1p",
+    "B_{ref}_xq2 xq2_{ref} 0 V=V(lv5_{ref})",
+    "R_{ref}_dq2 xq2_{ref} yq2_{ref} 1k",
+    "C_{ref}_dq2 yq2_{ref} 0 10p",
+    "B_{ref}_uq2 {node:VCC} {node:2Q} I=min(max(V(yq2_{ref}),0),1)*V({node:VCC},{node:2Q})/50",
+    "B_{ref}_lq2 {node:2Q} {node:GND} I=(1-min(max(V(yq2_{ref}),0),1))*V({node:2Q},{node:GND})/50",
+    "B_{ref}_xqn2 xqn2_{ref} 0 V=(1-V(lv5_{ref}))",
+    "R_{ref}_dqn2 xqn2_{ref} yqn2_{ref} 1k",
+    "C_{ref}_dqn2 yqn2_{ref} 0 10p",
+    "B_{ref}_uqn2 {node:VCC} {node:2QN} I=min(max(V(yqn2_{ref}),0),1)*V({node:VCC},{node:2QN})/50",
+    "B_{ref}_lqn2 {node:2QN} {node:GND} I=(1-min(max(V(yqn2_{ref}),0),1))*V({node:2QN},{node:GND})/50",
+    "R_{ref}_i1clrn {node:1CLRN} {node:GND} 1G",
+    "R_{ref}_i1d {node:1D} {node:GND} 1G",
+    "R_{ref}_i1clk {node:1CLK} {node:GND} 1G",
+    "R_{ref}_i1pren {node:1PREN} {node:GND} 1G",
+    "R_{ref}_i2pren {node:2PREN} {node:GND} 1G",
+    "R_{ref}_i2clk {node:2CLK} {node:GND} 1G",
+    "R_{ref}_i2d {node:2D} {node:GND} 1G",
+    "R_{ref}_i2clrn {node:2CLRN} {node:GND} 1G",
+    "R_{ref}_q {node:VCC} {node:GND} 10Meg"
+  ]
+}

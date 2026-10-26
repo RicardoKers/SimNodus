@@ -1,0 +1,707 @@
+{
+  "type": "74hc138",
+  "name": "74HC138 3-to-8 decoder",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "3-to-8 line decoder (DIP-16): with E1 and E2 low and E3 high, the output numbered by A2 A1 A0 goes low; the others stay high",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "74HC138",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "E1",
+        "at": [
+          -2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.1399999999999997,
+          -1.5,
+          -2.46,
+          -1.5
+        ]
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "E2",
+        "at": [
+          -2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.1399999999999997,
+          0.5,
+          -2.46,
+          0.5
+        ]
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "E3",
+        "at": [
+          -2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "Y7",
+        "at": [
+          -2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -3.1399999999999997,
+          4.5,
+          -2.46,
+          4.5
+        ]
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "Y6",
+        "at": [
+          2.8,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          6.5,
+          3.1399999999999997,
+          6.5
+        ]
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "Y5",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          4.5,
+          3.1399999999999997,
+          4.5
+        ]
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "Y4",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          2.5,
+          3.1399999999999997,
+          2.5
+        ]
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "Y3",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          0.5,
+          3.1399999999999997,
+          0.5
+        ]
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "Y2",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          -1.5,
+          3.1399999999999997,
+          -1.5
+        ]
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "Y1",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          -3.5,
+          3.1399999999999997,
+          -3.5
+        ]
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "Y0",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          2.46,
+          -5.5,
+          3.1399999999999997,
+          -5.5
+        ]
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.8,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "A0",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A1",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "A2",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "E1N",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "E2N",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "E3",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "Y7N",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "Y6N",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y5N",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y4N",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y3N",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y2N",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y1N",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "Y0N",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "spice": [
+    "B_{ref}_lv0 lv0_{ref} 0 V=0.5*(1+tanh(8*(V({node:E1N},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv1 lv1_{ref} 0 V=0.5*(1+tanh(8*(V({node:E2N},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv2 lv2_{ref} 0 V=0.5*(1+tanh(8*(V({node:E3},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv3 lv3_{ref} 0 V=0.5*(1+tanh(8*(V({node:A0},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv4 lv4_{ref} 0 V=0.5*(1+tanh(8*(V({node:A1},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_lv5 lv5_{ref} 0 V=0.5*(1+tanh(8*(V({node:A2},{node:GND})-0.5*V({node:VCC},{node:GND}))))",
+    "B_{ref}_xy0 xy0_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*(1-V(lv3_{ref}))*(1-V(lv4_{ref}))*(1-V(lv5_{ref})))",
+    "R_{ref}_dy0 xy0_{ref} yy0_{ref} 1k",
+    "C_{ref}_dy0 yy0_{ref} 0 10p",
+    "B_{ref}_uy0 {node:VCC} {node:Y0N} I=min(max(V(yy0_{ref}),0),1)*V({node:VCC},{node:Y0N})/50",
+    "B_{ref}_ly0 {node:Y0N} {node:GND} I=(1-min(max(V(yy0_{ref}),0),1))*V({node:Y0N},{node:GND})/50",
+    "B_{ref}_xy1 xy1_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*V(lv3_{ref})*(1-V(lv4_{ref}))*(1-V(lv5_{ref})))",
+    "R_{ref}_dy1 xy1_{ref} yy1_{ref} 1k",
+    "C_{ref}_dy1 yy1_{ref} 0 10p",
+    "B_{ref}_uy1 {node:VCC} {node:Y1N} I=min(max(V(yy1_{ref}),0),1)*V({node:VCC},{node:Y1N})/50",
+    "B_{ref}_ly1 {node:Y1N} {node:GND} I=(1-min(max(V(yy1_{ref}),0),1))*V({node:Y1N},{node:GND})/50",
+    "B_{ref}_xy2 xy2_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*(1-V(lv3_{ref}))*V(lv4_{ref})*(1-V(lv5_{ref})))",
+    "R_{ref}_dy2 xy2_{ref} yy2_{ref} 1k",
+    "C_{ref}_dy2 yy2_{ref} 0 10p",
+    "B_{ref}_uy2 {node:VCC} {node:Y2N} I=min(max(V(yy2_{ref}),0),1)*V({node:VCC},{node:Y2N})/50",
+    "B_{ref}_ly2 {node:Y2N} {node:GND} I=(1-min(max(V(yy2_{ref}),0),1))*V({node:Y2N},{node:GND})/50",
+    "B_{ref}_xy3 xy3_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*V(lv3_{ref})*V(lv4_{ref})*(1-V(lv5_{ref})))",
+    "R_{ref}_dy3 xy3_{ref} yy3_{ref} 1k",
+    "C_{ref}_dy3 yy3_{ref} 0 10p",
+    "B_{ref}_uy3 {node:VCC} {node:Y3N} I=min(max(V(yy3_{ref}),0),1)*V({node:VCC},{node:Y3N})/50",
+    "B_{ref}_ly3 {node:Y3N} {node:GND} I=(1-min(max(V(yy3_{ref}),0),1))*V({node:Y3N},{node:GND})/50",
+    "B_{ref}_xy4 xy4_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*(1-V(lv3_{ref}))*(1-V(lv4_{ref}))*V(lv5_{ref}))",
+    "R_{ref}_dy4 xy4_{ref} yy4_{ref} 1k",
+    "C_{ref}_dy4 yy4_{ref} 0 10p",
+    "B_{ref}_uy4 {node:VCC} {node:Y4N} I=min(max(V(yy4_{ref}),0),1)*V({node:VCC},{node:Y4N})/50",
+    "B_{ref}_ly4 {node:Y4N} {node:GND} I=(1-min(max(V(yy4_{ref}),0),1))*V({node:Y4N},{node:GND})/50",
+    "B_{ref}_xy5 xy5_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*V(lv3_{ref})*(1-V(lv4_{ref}))*V(lv5_{ref}))",
+    "R_{ref}_dy5 xy5_{ref} yy5_{ref} 1k",
+    "C_{ref}_dy5 yy5_{ref} 0 10p",
+    "B_{ref}_uy5 {node:VCC} {node:Y5N} I=min(max(V(yy5_{ref}),0),1)*V({node:VCC},{node:Y5N})/50",
+    "B_{ref}_ly5 {node:Y5N} {node:GND} I=(1-min(max(V(yy5_{ref}),0),1))*V({node:Y5N},{node:GND})/50",
+    "B_{ref}_xy6 xy6_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*(1-V(lv3_{ref}))*V(lv4_{ref})*V(lv5_{ref}))",
+    "R_{ref}_dy6 xy6_{ref} yy6_{ref} 1k",
+    "C_{ref}_dy6 yy6_{ref} 0 10p",
+    "B_{ref}_uy6 {node:VCC} {node:Y6N} I=min(max(V(yy6_{ref}),0),1)*V({node:VCC},{node:Y6N})/50",
+    "B_{ref}_ly6 {node:Y6N} {node:GND} I=(1-min(max(V(yy6_{ref}),0),1))*V({node:Y6N},{node:GND})/50",
+    "B_{ref}_xy7 xy7_{ref} 0 V=(1-(1-V(lv0_{ref}))*(1-V(lv1_{ref}))*V(lv2_{ref})*V(lv3_{ref})*V(lv4_{ref})*V(lv5_{ref}))",
+    "R_{ref}_dy7 xy7_{ref} yy7_{ref} 1k",
+    "C_{ref}_dy7 yy7_{ref} 0 10p",
+    "B_{ref}_uy7 {node:VCC} {node:Y7N} I=min(max(V(yy7_{ref}),0),1)*V({node:VCC},{node:Y7N})/50",
+    "B_{ref}_ly7 {node:Y7N} {node:GND} I=(1-min(max(V(yy7_{ref}),0),1))*V({node:Y7N},{node:GND})/50",
+    "R_{ref}_ia0 {node:A0} {node:GND} 1G",
+    "R_{ref}_ia1 {node:A1} {node:GND} 1G",
+    "R_{ref}_ia2 {node:A2} {node:GND} 1G",
+    "R_{ref}_ie1n {node:E1N} {node:GND} 1G",
+    "R_{ref}_ie2n {node:E2N} {node:GND} 1G",
+    "R_{ref}_ie3 {node:E3} {node:GND} 1G",
+    "R_{ref}_q {node:VCC} {node:GND} 10Meg"
+  ]
+}

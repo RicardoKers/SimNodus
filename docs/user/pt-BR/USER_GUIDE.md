@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 9cc4f43002052b13127df611ed16eaff7705eff3e908b763af654e26ddb11fcc -->
+<!-- source: USER_GUIDE.md sha256 1b3e2cb6c59c1ff7661d605d33884fd367ebd4664734329a4c674344645e44c0 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -108,6 +108,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Modelos simplificados** | Modelos didáticos: diodo com tensão direta fixa; NPN e PNP com Vbe fixo, um beta mostrado no símbolo e uma tensão de saturação |
 | **Circuitos integrados** | Amplificador operacional (comportamental ou modelo de fabricante, alimentado por V+ e V-); regulador 78xx (ajuste Vout); regulador de 3,3 V de baixo dropout; LM317 (OUT 1,25 V acima de ADJ); referência shunt TL431 (2,495 V entre REF e A); temporizador 555 |
 | **Portas lógicas** | NOT, AND, OR, NAND, NOR, XOR (tipo 74HC, com alimentação oculta) |
+| **CIs lógicos (DIP)** | Chips 74HC e CD4000 reais, com cada pino na posição do encapsulamento e VCC/GND para ligar: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (o 74HC595 está em Chips para microcontroladores) |
 | **Flip-flops e contadores** | Latches D e SR; flip-flops D, JK e T (borda de subida); contador de 4 bits, contador de décadas, registrador de deslocamento de 4 bits. Q̅ e CLR podem ficar desligados |
 | **Displays** | Displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação; um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
 | **Eletromecânicos** | Lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
@@ -171,6 +172,18 @@ Observações sobre alguns componentes:
   saída é VCC menos 1,7 V (Propriedades: 0 para um 555 CMOS).
 - **Reguladores:** a corrente de entrada é a corrente da carga mais alguns
   mA; com tensão de entrada insuficiente, a saída cai (dropout).
+- **CIs lógicos (DIP):** desenhados como o encapsulamento visto de cima, com
+  o pino 1 no alto à esquerda, ao lado do chanfro, para que a ligação seja a
+  mesma da protoboard. Sem VCC e GND o chip não faz nada; a corrente das
+  saídas vem do pino VCC. As portas, o 74HC138, o 74HC157, o 74HC245 e o
+  74HC74 são SPICE comportamental (as entradas comutam em VCC/2, o 74HC14 em
+  cerca de 0,53 e 0,31 VCC, então um oscilador RC roda na frequência real;
+  saídas de 50 Ω). O 74HC161, o 74HC193, o 74HC165 e o CD4017 funcionam como
+  chips digitais, como os chips para microcontroladores: instantâneos com uma
+  placa ou outro chip, mas as entradas vindas do resto do circuito chegam até
+  0,1 ms atrasadas (clocks de até alguns kHz). Pinos de portas não usadas
+  podem ficar abertos; suas entradas leem nível baixo. O exemplo 37 é um
+  sequencial de LEDs com um 74HC14 e um CD4017.
 - **Portas lógicas e flip-flops** funcionam com uma alimentação oculta, por
   isso você liga apenas os seus pinos lógicos. As saídas são tensões reais:
   um LED numa saída precisa de um resistor em série.
