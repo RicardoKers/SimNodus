@@ -15,6 +15,7 @@
 #include "mcu/device_bus.hpp"
 #include "sim/simulation_session.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <filesystem>
@@ -1002,4 +1003,126 @@ TEST_CASE("devices: example 33 writes and reads a parallel RAM from a Blue Pill"
         CHECK(false);
     }
     session.stop();
+}
+
+TEST_CASE("devices: DIP counters and shift registers follow their datasheets (SN-222)")
+{
+    std::string error;
+    // Index of a pin in the list given to make_device.
+    auto at = [](const std::vector<std::string>& list, const std::string& name) {
+        return static_cast<std::size_t>(std::find(list.begin(), list.end(), name) - list.begin());
+    };
+    auto high = [](const devices::Device& d, std::size_t pin) {
+        const auto o = d.output(pin);
+        return o.driven && o.high;
+    };
+    std::uint64_t t = 0;
+    auto pulse = [&t](devices::Device& d, std::size_t pin) {
+        d.set_input(pin, true, t += 1000);
+        d.set_input(pin, false, t += 1000);
+    };
+    {
+        const std::vector<std::string> p{"MRN", "CP", "D0", "D1", "D2", "D3", "CEP", "PEN", "CET", "Q3", "Q2", "Q1",
+            "Q0", "TC"};
+        auto d = devices::make_device("74hc161", p, {}, error);
+        REQUIRE(d);
+        for (const auto* name : {"MRN", "CEP", "PEN", "CET"}) {
+            d->initial_input(at(p, name), true);
+        }
+        auto count = [&] {
+            return (high(*d, at(p, "Q0")) ? 1 : 0) | (high(*d, at(p, "Q1")) ? 2 : 0) | (high(*d, at(p, "Q2")) ? 4 : 0)
+                | (high(*d, at(p, "Q3")) ? 8 : 0);
+        };
+        for (int i = 0; i < 15; ++i) {
+            pulse(*d, at(p, "CP"));
+        }
+        CHECK(count() == 15);
+        CHECK(high(*d, at(p, "TC")));
+        pulse(*d, at(p, "CP"));
+        CHECK(count() == 0);
+        d->set_input(at(p, "D1"), true, t += 1000);
+        d->set_input(at(p, "D3"), true, t += 1000);
+        d->set_input(at(p, "PEN"), false, t += 1000);
+        CHECK(count() == 0); // loading waits for the clock
+        pulse(*d, at(p, "CP"));
+        CHECK(count() == 10);
+        d->set_input(at(p, "PEN"), true, t += 1000);
+        d->set_input(at(p, "CEP"), false, t += 1000);
+        pulse(*d, at(p, "CP"));
+        CHECK(count() == 10); // CEP low holds
+        d->set_input(at(p, "MRN"), false, t += 1000);
+        CHECK(count() == 0); // MR clears at once
+        CHECK(!devices::make_device("74hc161", {"CP"}, {}, error));
+    }
+    {
+        const std::vector<std::string> p{"D1", "Q1", "Q0", "CPD", "CPU", "Q2", "Q3", "D3", "D2", "PLN", "TCUN", "TCDN",
+            "MR", "D0"};
+        auto d = devices::make_device("74hc193", p, {}, error);
+        REQUIRE(d);
+        d->initial_input(at(p, "PLN"), true);
+        d->initial_input(at(p, "CPU"), true);
+        d->initial_input(at(p, "CPD"), true);
+        auto count = [&] {
+            return (high(*d, at(p, "Q0")) ? 1 : 0) | (high(*d, at(p, "Q1")) ? 2 : 0) | (high(*d, at(p, "Q2")) ? 4 : 0)
+                | (high(*d, at(p, "Q3")) ? 8 : 0);
+        };
+        // Counting down from 0: borrow (TCD low while CPD is low), then 15.
+        d->set_input(at(p, "CPD"), false, t += 1000);
+        CHECK(!high(*d, at(p, "TCDN")));
+        d->set_input(at(p, "CPD"), true, t += 1000);
+        CHECK(count() == 15);
+        d->set_input(at(p, "CPU"), false, t += 1000);
+        CHECK(!high(*d, at(p, "TCUN"))); // carry at 15 while CPU is low
+        d->set_input(at(p, "CPU"), true, t += 1000);
+        CHECK(count() == 0);
+        d->set_input(at(p, "D0"), true, t += 1000);
+        d->set_input(at(p, "D2"), true, t += 1000);
+        d->set_input(at(p, "PLN"), false, t += 1000);
+        CHECK(count() == 5); // parallel load at once
+        d->set_input(at(p, "PLN"), true, t += 1000);
+        d->set_input(at(p, "MR"), true, t += 1000);
+        CHECK(count() == 0);
+    }
+    {
+        const std::vector<std::string> p{"PLN", "CP", "D4", "D5", "D6", "D7", "Q7N", "Q7", "DS", "D0", "D1", "D2", "D3",
+            "CEN"};
+        auto d = devices::make_device("74hc165", p, {}, error);
+        REQUIRE(d);
+        d->initial_input(at(p, "PLN"), true);
+        // Load 0b10100101 (D7..D0) and read it MSB first, as SPI does.
+        for (int bit : {0, 2, 5, 7}) {
+            d->set_input(at(p, "D" + std::to_string(bit)), true, t += 1000);
+        }
+        d->set_input(at(p, "PLN"), false, t += 1000);
+        d->set_input(at(p, "PLN"), true, t += 1000);
+        int value = 0;
+        for (int i = 0; i < 8; ++i) {
+            value = (value << 1) | (high(*d, at(p, "Q7")) ? 1 : 0);
+            CHECK(high(*d, at(p, "Q7N")) != high(*d, at(p, "Q7")));
+            pulse(*d, at(p, "CP"));
+        }
+        CHECK(value == 0xA5);
+    }
+    {
+        const std::vector<std::string> p{"Q5", "Q1", "Q0", "Q2", "Q6", "Q7", "Q3", "Q8", "Q4", "Q9", "CO", "CP1", "CP0",
+            "MR"};
+        auto d = devices::make_device("cd4017", p, {}, error);
+        REQUIRE(d);
+        CHECK(high(*d, at(p, "Q0")));
+        CHECK(high(*d, at(p, "CO")));
+        for (int i = 0; i < 7; ++i) {
+            pulse(*d, at(p, "CP0"));
+        }
+        CHECK(high(*d, at(p, "Q7")));
+        CHECK(!high(*d, at(p, "Q0")));
+        CHECK(!high(*d, at(p, "CO")));
+        d->set_input(at(p, "CP1"), true, t += 1000);
+        pulse(*d, at(p, "CP0"));
+        CHECK(high(*d, at(p, "Q7"))); // CP1 high inhibits
+        d->set_input(at(p, "CP0"), true, t += 1000);
+        d->set_input(at(p, "CP1"), false, t += 1000); // falling CP1 with CP0 high advances
+        CHECK(high(*d, at(p, "Q8")));
+        d->set_input(at(p, "MR"), true, t += 1000);
+        CHECK(high(*d, at(p, "Q0")));
+    }
 }

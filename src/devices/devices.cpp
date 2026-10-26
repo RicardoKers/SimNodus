@@ -112,6 +112,230 @@ private:
     std::uint8_t storage_ = 0;
 };
 
+// Logic chips in DIP packages (SN-222): pins with fixed roles. Inputs keep
+// their last level; async() applies the level-sensitive inputs (resets,
+// parallel loads) after every change, edge() the clocks.
+template <std::size_t N>
+class LogicChip : public Device {
+public:
+    bool bind(const std::vector<std::string>& pins, const std::array<const char*, N>& names, const char* kind,
+        std::string& error)
+    {
+        std::array<std::size_t, N> index{};
+        if (!find_pins(pins, names, index, kind, error)) {
+            return false;
+        }
+        role_.assign(pins.size(), -1);
+        for (std::size_t i = 0; i < N; ++i) {
+            role_[index[i]] = static_cast<int>(i);
+        }
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t) override
+    {
+        const int r = role(pin);
+        if (r < 0) {
+            return;
+        }
+        const bool was = in_[static_cast<std::size_t>(r)];
+        in_[static_cast<std::size_t>(r)] = level;
+        if (was != level) {
+            edge(r, level);
+        }
+        async();
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (const int r = role(pin); r >= 0) {
+            in_[static_cast<std::size_t>(r)] = level;
+            async();
+        }
+    }
+
+    Output output(std::size_t pin) const override
+    {
+        const int r = role(pin);
+        return r < 0 ? Output{} : out(r);
+    }
+
+protected:
+    virtual void edge(int role, bool level) = 0; // `role` changed to `level`
+    virtual void async() {}
+    virtual Output out(int role) const = 0;
+    bool in(int role) const { return in_[static_cast<std::size_t>(role)]; }
+    unsigned bits(int first, int count) const
+    {
+        unsigned value = 0;
+        for (int i = 0; i < count; ++i) {
+            value |= (in(first + i) ? 1u : 0u) << i;
+        }
+        return value;
+    }
+
+private:
+    int role(std::size_t pin) const { return pin < role_.size() ? role_[pin] : -1; }
+    std::vector<int> role_;
+    std::array<bool, N> in_{};
+};
+
+// 74HC161 (NXP datasheet): synchronous 4-bit binary counter. At a rising CP,
+// PE low loads D0-D3, else CEP and CET high count up; MR low clears at once.
+// TC = CET and a count of 15.
+class Hc161 : public LogicChip<14> {
+public:
+    static constexpr std::array<const char*, 14> names{
+        "MRN", "CP", "D0", "D1", "D2", "D3", "CEP", "PEN", "CET", "Q0", "Q1", "Q2", "Q3", "TC"};
+    enum { MRN, CP, D0, CEP = D0 + 4, PEN, CET, Q0, TC = Q0 + 4 };
+
+protected:
+    void edge(int role, bool level) override
+    {
+        if (role != CP || !level || !in(MRN)) {
+            return;
+        }
+        if (!in(PEN)) {
+            count_ = bits(D0, 4);
+        } else if (in(CEP) && in(CET)) {
+            count_ = (count_ + 1) & 15u;
+        }
+    }
+    void async() override
+    {
+        if (!in(MRN)) {
+            count_ = 0;
+        }
+    }
+    Output out(int role) const override
+    {
+        if (role >= Q0 && role < TC) {
+            return push_pull(((count_ >> (role - Q0)) & 1u) != 0);
+        }
+        return role == TC ? push_pull(in(CET) && count_ == 15) : Output{};
+    }
+
+private:
+    unsigned count_ = 0;
+};
+
+// 74HC193 (NXP datasheet): presettable synchronous 4-bit up/down counter.
+// Rising CPU with CPD high counts up, rising CPD with CPU high counts down;
+// MR high clears and PL low loads D0-D3, at once. TCU low at 15 while CPU is
+// low, TCD low at 0 while CPD is low.
+class Hc193 : public LogicChip<14> {
+public:
+    static constexpr std::array<const char*, 14> names{
+        "D0", "D1", "D2", "D3", "CPU", "CPD", "PLN", "MR", "Q0", "Q1", "Q2", "Q3", "TCUN", "TCDN"};
+    enum { D0, CPU = D0 + 4, CPD, PLN, MR, Q0, TCUN = Q0 + 4, TCDN };
+
+protected:
+    void edge(int role, bool level) override
+    {
+        if (!level || in(MR) || !in(PLN)) {
+            return;
+        }
+        if (role == CPU && in(CPD)) {
+            count_ = (count_ + 1) & 15u;
+        } else if (role == CPD && in(CPU)) {
+            count_ = (count_ + 15) & 15u;
+        }
+    }
+    void async() override
+    {
+        if (in(MR)) {
+            count_ = 0;
+        } else if (!in(PLN)) {
+            count_ = bits(D0, 4);
+        }
+    }
+    Output out(int role) const override
+    {
+        if (role >= Q0 && role < TCUN) {
+            return push_pull(((count_ >> (role - Q0)) & 1u) != 0);
+        }
+        if (role == TCUN) {
+            return push_pull(!(count_ == 15 && !in(CPU)));
+        }
+        return role == TCDN ? push_pull(!(count_ == 0 && !in(CPD))) : Output{};
+    }
+
+private:
+    unsigned count_ = 0;
+};
+
+// 74HC165 (NXP datasheet): 8-bit parallel-in/serial-out shift register. PL
+// low loads D0-D7 at once; with PL high a rising CP while CE is low shifts
+// one stage toward Q7 and takes DS into stage 0.
+class Hc165 : public LogicChip<14> {
+public:
+    static constexpr std::array<const char*, 14> names{
+        "PLN", "CP", "CEN", "DS", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "Q7", "Q7N"};
+    enum { PLN, CP, CEN, DS, D0, Q7 = D0 + 8, Q7N };
+
+protected:
+    void edge(int role, bool level) override
+    {
+        if (role == CP && level && !in(CEN) && in(PLN)) {
+            stages_ = ((stages_ << 1) | (in(DS) ? 1u : 0u)) & 0xFFu;
+        }
+    }
+    void async() override
+    {
+        if (!in(PLN)) {
+            stages_ = bits(D0, 8);
+        }
+    }
+    Output out(int role) const override
+    {
+        const bool q7 = (stages_ & 0x80u) != 0;
+        if (role == Q7) {
+            return push_pull(q7);
+        }
+        return role == Q7N ? push_pull(!q7) : Output{};
+    }
+
+private:
+    unsigned stages_ = 0;
+};
+
+// CD4017B (TI datasheet): decade counter with ten decoded outputs. It
+// advances at a rising CP0 while CP1 is low, or a falling CP1 while CP0 is
+// high; MR high returns to Q0 at once. CO is high for counts 0-4.
+class Cd4017 : public LogicChip<14> {
+public:
+    static constexpr std::array<const char*, 14> names{
+        "CP0", "CP1", "MR", "Q0", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "CO"};
+    enum { CP0, CP1, MR, Q0, CO = Q0 + 10 };
+
+protected:
+    void edge(int role, bool level) override
+    {
+        if (in(MR)) {
+            return;
+        }
+        if ((role == CP0 && level && !in(CP1)) || (role == CP1 && !level && in(CP0))) {
+            count_ = (count_ + 1) % 10u;
+        }
+    }
+    void async() override
+    {
+        if (in(MR)) {
+            count_ = 0;
+        }
+    }
+    Output out(int role) const override
+    {
+        if (role >= Q0 && role < CO) {
+            return push_pull(count_ == static_cast<unsigned>(role - Q0));
+        }
+        return role == CO ? push_pull(count_ < 5) : Output{};
+    }
+
+private:
+    unsigned count_ = 0;
+};
+
 // MAX7219 (Maxim datasheet): serially interfaced 8-digit LED display driver.
 // 16-bit words shift in on rising CLK (MSB first), a rising LOAD stores the
 // word in the register its address names (1-8 digits, 9 decode mode, 10
@@ -1224,6 +1448,28 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
             return nullptr;
         }
         return device;
+    }
+    if (kind == "74hc161" || kind == "74hc193" || kind == "74hc165" || kind == "cd4017") {
+        std::unique_ptr<Device> device;
+        bool ok = false;
+        if (kind == "74hc161") {
+            auto d = std::make_unique<Hc161>();
+            ok = d->bind(pins, Hc161::names, "74HC161", error);
+            device = std::move(d);
+        } else if (kind == "74hc193") {
+            auto d = std::make_unique<Hc193>();
+            ok = d->bind(pins, Hc193::names, "74HC193", error);
+            device = std::move(d);
+        } else if (kind == "74hc165") {
+            auto d = std::make_unique<Hc165>();
+            ok = d->bind(pins, Hc165::names, "74HC165", error);
+            device = std::move(d);
+        } else {
+            auto d = std::make_unique<Cd4017>();
+            ok = d->bind(pins, Cd4017::names, "CD4017", error);
+            device = std::move(d);
+        }
+        return ok ? std::move(device) : nullptr;
     }
     if (kind == "24c02") {
         auto device = std::make_unique<Eeprom24c02>();

@@ -1,0 +1,537 @@
+{
+  "type": "74hc02",
+  "name": "74HC02 quad NOR gate",
+  "category": "Logic chips (DIP)",
+  "prefix": "U",
+  "description": "Four 2-input NOR gates (DIP-14); wire VCC (2 to 6 V) and GND",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -7,
+          8,
+          14
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -7,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "74HC02",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -6,
+          -4,
+          -6
+        ]
+      },
+      {
+        "text": "1Y",
+        "at": [
+          -2.8,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -4,
+          -4,
+          -4
+        ]
+      },
+      {
+        "text": "1A",
+        "at": [
+          -2.8,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "1B",
+        "at": [
+          -2.8,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "2Y",
+        "at": [
+          -2.8,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "2A",
+        "at": [
+          -2.8,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -4,
+          4
+        ]
+      },
+      {
+        "text": "2B",
+        "at": [
+          -2.8,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          6,
+          -4,
+          6
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.8,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          6,
+          4,
+          6
+        ]
+      },
+      {
+        "text": "3A",
+        "at": [
+          2.8,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          5.0,
+          5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          4,
+          4,
+          4
+        ]
+      },
+      {
+        "text": "3B",
+        "at": [
+          2.8,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "3Y",
+        "at": [
+          2.8,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "4A",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "4B",
+        "at": [
+          2.8,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -4,
+          4,
+          -4
+        ]
+      },
+      {
+        "text": "4Y",
+        "at": [
+          2.8,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -6,
+          4,
+          -6
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.8,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -6.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "1Y",
+        "at": [
+          -6,
+          -6
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1A",
+        "at": [
+          -6,
+          -4
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1B",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "2Y",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "2A",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "2B",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "3A",
+        "at": [
+          6,
+          6
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "3B",
+        "at": [
+          6,
+          4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "3Y",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "4A",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "4B",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "4Y",
+        "at": [
+          6,
+          -4
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -6
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -9
+  ],
+  "value_offset": [
+    -1,
+    9
+  ],
+  "spice": [
+    "B_{ref}_x1 x1_{ref} 0 V=(1-0.5*(1+tanh(8*(V({node:1A},{node:GND})-0.5*V({node:VCC},{node:GND})))))*(1-0.5*(1+tanh(8*(V({node:1B},{node:GND})-0.5*V({node:VCC},{node:GND})))))",
+    "R_{ref}_d1 x1_{ref} y1_{ref} 1k",
+    "C_{ref}_d1 y1_{ref} 0 10p",
+    "B_{ref}_u1 {node:VCC} {node:1Y} I=min(max(V(y1_{ref}),0),1)*V({node:VCC},{node:1Y})/50",
+    "B_{ref}_l1 {node:1Y} {node:GND} I=(1-min(max(V(y1_{ref}),0),1))*V({node:1Y},{node:GND})/50",
+    "B_{ref}_x2 x2_{ref} 0 V=(1-0.5*(1+tanh(8*(V({node:2A},{node:GND})-0.5*V({node:VCC},{node:GND})))))*(1-0.5*(1+tanh(8*(V({node:2B},{node:GND})-0.5*V({node:VCC},{node:GND})))))",
+    "R_{ref}_d2 x2_{ref} y2_{ref} 1k",
+    "C_{ref}_d2 y2_{ref} 0 10p",
+    "B_{ref}_u2 {node:VCC} {node:2Y} I=min(max(V(y2_{ref}),0),1)*V({node:VCC},{node:2Y})/50",
+    "B_{ref}_l2 {node:2Y} {node:GND} I=(1-min(max(V(y2_{ref}),0),1))*V({node:2Y},{node:GND})/50",
+    "B_{ref}_x3 x3_{ref} 0 V=(1-0.5*(1+tanh(8*(V({node:3A},{node:GND})-0.5*V({node:VCC},{node:GND})))))*(1-0.5*(1+tanh(8*(V({node:3B},{node:GND})-0.5*V({node:VCC},{node:GND})))))",
+    "R_{ref}_d3 x3_{ref} y3_{ref} 1k",
+    "C_{ref}_d3 y3_{ref} 0 10p",
+    "B_{ref}_u3 {node:VCC} {node:3Y} I=min(max(V(y3_{ref}),0),1)*V({node:VCC},{node:3Y})/50",
+    "B_{ref}_l3 {node:3Y} {node:GND} I=(1-min(max(V(y3_{ref}),0),1))*V({node:3Y},{node:GND})/50",
+    "B_{ref}_x4 x4_{ref} 0 V=(1-0.5*(1+tanh(8*(V({node:4A},{node:GND})-0.5*V({node:VCC},{node:GND})))))*(1-0.5*(1+tanh(8*(V({node:4B},{node:GND})-0.5*V({node:VCC},{node:GND})))))",
+    "R_{ref}_d4 x4_{ref} y4_{ref} 1k",
+    "C_{ref}_d4 y4_{ref} 0 10p",
+    "B_{ref}_u4 {node:VCC} {node:4Y} I=min(max(V(y4_{ref}),0),1)*V({node:VCC},{node:4Y})/50",
+    "B_{ref}_l4 {node:4Y} {node:GND} I=(1-min(max(V(y4_{ref}),0),1))*V({node:4Y},{node:GND})/50",
+    "R_{ref}_i1a {node:1A} {node:GND} 1G",
+    "R_{ref}_i1b {node:1B} {node:GND} 1G",
+    "R_{ref}_i2a {node:2A} {node:GND} 1G",
+    "R_{ref}_i2b {node:2B} {node:GND} 1G",
+    "R_{ref}_i3a {node:3A} {node:GND} 1G",
+    "R_{ref}_i3b {node:3B} {node:GND} 1G",
+    "R_{ref}_i4a {node:4A} {node:GND} 1G",
+    "R_{ref}_i4b {node:4B} {node:GND} 1G",
+    "R_{ref}_q {node:VCC} {node:GND} 10Meg"
+  ]
+}

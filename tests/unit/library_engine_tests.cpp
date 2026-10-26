@@ -1008,3 +1008,91 @@ TEST_CASE("library: sensors and transducers follow their datasheets (SN-221)")
         CHECK(close_to(op(b, "v_sense_l1#branch"), 0.5, 1e-3));
     }
 }
+
+TEST_CASE("library: logic chips in DIP packages need their supply and behave like the datasheet (SN-222)")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto chip = [](const std::string& type, std::map<std::string, std::string> pins, const std::string& supply,
+                    const std::string& measured, const std::string& load = "10k") {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", supply}});
+        b.add("vdc", {{"+", "H"}, {"-", "0"}}, {{"V", "5"}});
+        pins["VCC"] = "VCC";
+        pins["GND"] = "0";
+        b.add(type, pins);
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", load}});
+        return op(b, measured);
+    };
+    CHECK(chip("74hc00", {{"1A", "H"}, {"1B", "H"}, {"1Y", "OUT"}}, "5", "out") < 0.05);
+    CHECK(chip("74hc00", {{"1A", "H"}, {"1B", "0"}, {"1Y", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc00", {{"1A", "H"}, {"1B", "0"}, {"1Y", "OUT"}}, "0", "out") < 0.05); // no supply, no output
+    CHECK(chip("74hc02", {{"4A", "0"}, {"4B", "0"}, {"4Y", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc08", {{"2A", "H"}, {"2B", "H"}, {"2Y", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc32", {{"3A", "0"}, {"3B", "0"}, {"3Y", "OUT"}}, "5", "out") < 0.05);
+    CHECK(chip("74hc86", {{"1A", "H"}, {"1B", "H"}, {"1Y", "OUT"}}, "5", "out") < 0.05);
+    CHECK(close_to(chip("74hc04", {{"6A", "0"}, {"6Y", "OUT"}}, "5", "out", "1k"), 5.0 * 1000 / 1050, 0.01));
+    CHECK(chip("74hc138", {{"A0", "H"}, {"A1", "H"}, {"E3", "H"}, {"E1N", "0"}, {"E2N", "0"}, {"Y3N", "OUT"}}, "5",
+              "out")
+        < 0.05);
+    CHECK(chip("74hc138", {{"A0", "H"}, {"A1", "H"}, {"E3", "H"}, {"E1N", "0"}, {"E2N", "0"}, {"Y2N", "OUT"}}, "5",
+              "out")
+        > 4.9);
+    CHECK(chip("74hc157", {{"S", "H"}, {"EN", "0"}, {"1I1", "H"}, {"1I0", "0"}, {"1Y", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc157", {{"S", "0"}, {"EN", "0"}, {"1I1", "H"}, {"1I0", "0"}, {"1Y", "OUT"}}, "5", "out") < 0.05);
+    CHECK(chip("74hc245", {{"DIR", "H"}, {"OEN", "0"}, {"A1", "H"}, {"B1", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc245", {{"DIR", "0"}, {"OEN", "0"}, {"B1", "H"}, {"A1", "OUT"}}, "5", "out") > 4.9);
+    CHECK(chip("74hc245", {{"DIR", "H"}, {"OEN", "H"}, {"A1", "H"}, {"B1", "OUT"}}, "5", "out") < 0.05); // floats
+    CHECK(chip("74hc74", {{"1PREN", "H"}, {"1CLRN", "0"}, {"1D", "H"}, {"1Q", "OUT"}}, "5", "out") < 0.05);
+    CHECK(chip("74hc74", {{"1PREN", "0"}, {"1CLRN", "H"}, {"1D", "0"}, {"1Q", "OUT"}}, "5", "out") > 4.9);
+    // The load current of an output comes from the VCC pin.
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("74hc04", {{"VCC", "VCC"}, {"GND", "0"}, {"1A", "0"}, {"1Y", "OUT"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "1k"}});
+        CHECK(close_to(-op(b, "v_v1#branch"), 4.76e-3, 0.05e-3));
+    }
+    // A 74HC74 divides its clock by two with QN back to D.
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("vpulse", {{"+", "CLK"}, {"-", "0"}}, {{"f", "1k"}});
+        b.add("74hc74", {{"VCC", "VCC"}, {"GND", "0"}, {"1PREN", "VCC"}, {"1CLRN", "VCC"}, {"1CLK", "CLK"},
+                            {"1D", "QN"}, {"1QN", "QN"}, {"1Q", "Q"}});
+        const auto r = simulate(b, ".tran 10u 10m 0 10u uic", {"time", "q"});
+        REQUIRE(r.count("q"));
+        int rising = 0;
+        for (std::size_t i = 1; i < r.at("q").size(); ++i) {
+            rising += r.at("q")[i - 1] < 2.5 && r.at("q")[i] >= 2.5 ? 1 : 0;
+        }
+        CHECK(rising == 5); // 500 Hz over 10 ms
+    }
+    // A 74HC14 with 10 kOhm and 100 nF oscillates at about 1 / (0.9 RC) (thresholds 0.53 and 0.31 VCC).
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("74hc14", {{"VCC", "VCC"}, {"GND", "0"}, {"1A", "C"}, {"1Y", "Y"}});
+        b.add("resistor", {{"1", "Y"}, {"2", "C"}}, {{"R", "10k"}});
+        b.add("capacitor", {{"1", "C"}, {"2", "0"}}, {{"C", "100n"}});
+        const auto r = simulate(b, ".tran 5u 20m 0 5u uic", {"time", "y", "c"});
+        REQUIRE(r.count("y"));
+        {
+            const auto& c = r.at("c");
+            const auto& y = r.at("y");
+            const auto half = static_cast<std::ptrdiff_t>(c.size() / 2);
+            std::printf("  C %.3f..%.3f V, Y %.3f..%.3f V\n", *std::min_element(c.begin() + half, c.end()),
+                *std::max_element(c.begin() + half, c.end()), *std::min_element(y.begin() + half, y.end()),
+                *std::max_element(y.begin() + half, y.end()));
+        }
+        std::vector<double> edges;
+        for (std::size_t i = 1; i < r.at("y").size(); ++i) {
+            if (r.at("y")[i - 1] < 2.5 && r.at("y")[i] >= 2.5) {
+                edges.push_back(r.at("time")[i]);
+            }
+        }
+        REQUIRE(edges.size() > 4);
+        const double period = (edges.back() - edges[1]) / static_cast<double>(edges.size() - 2);
+        std::printf("  74HC14 RC oscillator: %.0f Hz\n", 1 / period);
+        CHECK(close_to(1 / period, 1117, 40));
+    }
+}

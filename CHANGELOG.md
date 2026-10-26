@@ -11,6 +11,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - Sensors and transducers (SN-221, category Sensors, `tools/generate_sensor_parts.py`): LM35, NTC thermistor, PT100/PT1000, type K thermocouple (NIST tables), LDR, BPW34 photodiode, ACS712 current sensor, load cell, A3144 Hall switch, PC817 optocoupler and solenoid. The measured quantity is dragged or wheeled while running across the sensor's range and shown on the symbol; `sim.control` also takes it with its unit (`"35 °C"`). Example 36.
 
+- Logic chips in DIP packages (SN-222, category Logic chips (DIP), `tools/generate_logic_chip_parts.py`): 74HC00, 02, 04, 08, 14, 32, 86, 74, 138, 157 and 245 as behavioral SPICE with VCC and GND pins (outputs draw their current from VCC; the 74HC14 RC oscillator runs at its real frequency), 74HC161, 74HC193, 74HC165 and CD4017 as digital devices. Example 37 (LED chaser).
+
 ### Fixed (2026-10-26)
 
 - `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.
