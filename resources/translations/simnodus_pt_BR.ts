@@ -3886,8 +3886,8 @@ Pinos: %2</translation>
             <translation>Sensores</translation>
         </message>
         <message>
-            <source>Unipolar Hall-effect switch: the open-collector OUT goes low while a south pole gives more than the operate point, and is released below the release point; needs a pull-up</source>
-            <translation>Chave unipolar de efeito Hall: a saída OUT em coletor aberto vai a nível baixo enquanto um polo sul dá mais que o ponto de operação e é liberada abaixo do ponto de liberação; precisa de pull-up</translation>
+            <source>Unipolar Hall-effect switch: the open-collector OUT goes low while a south pole gives more than the operate point, and is released below the release point; needs a pull-up (it sinks up to about 25 mA); supply 4.5-24 V, about 4 mA</source>
+            <translation>Chave unipolar de efeito Hall: a saída OUT em coletor aberto vai a nível baixo enquanto um polo sul dá mais que o ponto de operação e é liberada abaixo do ponto de liberação; precisa de pull-up (drena até cerca de 25 mA); alimentação de 4,5 a 24 V, cerca de 4 mA</translation>
         </message>
         <message>
             <source>Magnetic field</source>

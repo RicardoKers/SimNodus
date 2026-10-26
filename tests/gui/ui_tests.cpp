@@ -11,6 +11,7 @@
 #include "schematic_view.hpp"
 #include "scope_widget.hpp"
 #include "theme.hpp"
+#include "tone_output.hpp"
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "library/component_library.hpp"
@@ -24,6 +25,7 @@
 #include <QSplitter>
 #include <QTabWidget>
 #include <QTemporaryDir>
+#include <QElapsedTimer>
 #include <QSet>
 #include <QTest>
 #include <QTreeWidget>
@@ -262,6 +264,24 @@ private slots:
             QVERIFY2(!r.keys.isEmpty() && !r.action.isEmpty(), qPrintable(r.group));
             QVERIFY(!r.action.contains(QLatin1Char('&')));
         }
+    }
+
+    void buzzer_tone_changes_and_stops_without_blocking()
+    {
+        // SN-228: the tone follows new frequencies and silence at once; closing does not hang.
+        QElapsedTimer clock;
+        clock.start();
+        {
+            ToneOutput tone;
+            tone.play(523);
+            QTest::qWait(120);
+            tone.play(1047);
+            QTest::qWait(120);
+            tone.play(0);
+            QTest::qWait(50);
+            tone.play(659);
+        }
+        QVERIFY(clock.elapsed() < 2000);
     }
 
     void seconds_are_formatted_for_axes()

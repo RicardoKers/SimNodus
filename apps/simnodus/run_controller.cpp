@@ -244,6 +244,7 @@ void RunController::pause_or_resume()
     const auto s = session_->status().state;
     if (s == sim::RunState::Running) {
         session_->pause();
+        tone_.play(0.0);
     } else if (s == sim::RunState::Paused) {
         session_->resume();
     }
@@ -253,6 +254,7 @@ void RunController::stop()
 {
     session_->stop();
     timer_.stop();
+    tone_.play(0.0); // the refresh that would silence it does not come any more
     scene_.clear_live();
     if (last_state_ != sim::RunState::Idle) {
         last_state_ = session_->status().state;

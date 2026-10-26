@@ -167,7 +167,7 @@ static char* put_bcd(char* out, uint8_t value)
 
 // BMP280 calibration (dig_T1..dig_T3, dig_P1..dig_P9) and t_fine, as in the datasheet.
 static uint16_t dig_t1, dig_p1;
-static int16_t dig_t2, dig_t3, dig_p[10]; // dig_p[1]..dig_p[9]
+static int16_t dig_t2, dig_t3, dig_p[10]; // dig_p[2]..dig_p[9] (dig_P1 is unsigned, apart)
 static int32_t t_fine;
 
 static int bmp280_init(void)
@@ -181,7 +181,7 @@ static int bmp280_init(void)
     dig_t3 = (int16_t)(c[4] | (c[5] << 8));
     dig_p1 = (uint16_t)(c[6] | (c[7] << 8));
     for (int i = 0; i < 8; ++i) {
-        dig_p[i + 1] = (int16_t)(c[8 + 2 * i] | (c[9 + 2 * i] << 8));
+        dig_p[i + 2] = (int16_t)(c[8 + 2 * i] | (c[9 + 2 * i] << 8));
     }
     uint8_t mode[2] = {0xF4, 0x27}; // temperature and pressure x1, normal mode
     return HAL_I2C_Master_Transmit(&hi2c1, BMP280, mode, 2, 50) == HAL_OK;
@@ -250,7 +250,7 @@ static void update(int bmp_ok)
         const int32_t adc_p = (int32_t)((raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4));
         const int32_t adc_t = (int32_t)((raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4));
         const int32_t centi = bmp280_temperature(adc_t);
-        const uint32_t pa = bmp280_pressure(adc_p) / 256u;
+        const uint32_t pa = (bmp280_pressure(adc_p) / 256u + 5u) / 10u; // tenths of hPa, rounded
         char* p = put_text(line, "TEMP ");
         uint32_t magnitude = (uint32_t)(centi < 0 ? -centi : centi);
         if (centi < 0) {
@@ -263,9 +263,9 @@ static void update(int bmp_ok)
         *p = '\0';
         draw_text(0, 42, line, 1);
         p = put_text(line, "PRES ");
-        p = put_number(p, pa / 100u, 1);
+        p = put_number(p, pa / 10u, 1);
         *p++ = '.';
-        p = put_number(p, (pa % 100u) / 10u, 1);
+        p = put_number(p, pa % 10u, 1);
         p = put_text(p, " HPA");
         *p = '\0';
         draw_text(0, 52, line, 1);
