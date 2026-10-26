@@ -88,9 +88,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Next phase: to be chosen with the owner (backlog, classroom feedback).
-2. Classroom feedback (postponed: academic calendar). Open: a pt-BR version
-   of the user guide.
+1. After 0.9 (owner's choice, 2026-10-25): user guides in Brazilian
+   Portuguese done (`docs/user/pt-BR`, Help > User Guide by interface
+   language). Next candidates offered: more ready lessons (needs the owner's
+   course outline), a classroom robustness pass over the examples. SN-186
+   postponed: the owner has no case that needs faster edges.
+2. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
 

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-25)
+
+- The quick start, the user guide and the microcontroller guide in Brazilian Portuguese (`docs/user/pt-BR`, folder `pt-BR` in the packages); Help > User Guide opens the Portuguese guide when the interface is in Portuguese. `check_repository.py` fails when an English guide changes until its translation follows (each translation records its source's SHA-256).
+
 ## 0.9.0 — 2026-10-25
 
 ### Summary

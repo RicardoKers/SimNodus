@@ -1197,11 +1197,15 @@ void MainWindow::check_engine()
 
 void MainWindow::show_user_guide()
 {
-    // The packages put the guide next to the executable; a build tree reads it on GitHub.
-    const QString local = QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("USER-GUIDE.md"));
+    // The packages put the guide next to the executable (the Portuguese one in
+    // pt-BR/); a build tree reads it on GitHub. The guide follows the interface language.
+    const bool portuguese = qApp->property("simnodus_language").toString().startsWith(QStringLiteral("pt"));
+    const QString local = QDir(QCoreApplication::applicationDirPath())
+                              .filePath(portuguese ? QStringLiteral("pt-BR/USER_GUIDE.md") : QStringLiteral("USER-GUIDE.md"));
     const QUrl url = QFileInfo::exists(local)
         ? QUrl::fromLocalFile(local)
-        : QUrl(QStringLiteral("https://github.com/RicardoKers/SimNodus/blob/main/docs/user/USER_GUIDE.md"));
+        : QUrl(portuguese ? QStringLiteral("https://github.com/RicardoKers/SimNodus/blob/main/docs/user/pt-BR/USER_GUIDE.md")
+                          : QStringLiteral("https://github.com/RicardoKers/SimNodus/blob/main/docs/user/USER_GUIDE.md"));
     if (!QDesktopServices::openUrl(url)) {
         messages_->add(Severity::Warning, tr("Could not open the user guide: %1").arg(url.toDisplayString()), tr("Help"));
     }

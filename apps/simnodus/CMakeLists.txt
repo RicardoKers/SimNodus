@@ -128,6 +128,9 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/USER_GUIDE.md" DESTINATION . RENAME USER-GUIDE.md)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/MICROCONTROLLER.md" DESTINATION .)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/AUTOMATION.md" DESTINATION .)
+    # The guides in Brazilian Portuguese keep their names, so their links between each other work.
+    install(FILES "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/QUICK_START.md" "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/USER_GUIDE.md"
+        "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/MICROCONTROLLER.md" DESTINATION pt-BR)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script) and memory contents.

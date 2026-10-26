@@ -55,7 +55,7 @@ design: [MCU_EMULATOR.md](../architecture/MCU_EMULATOR.md); [ADR 0089](../decisi
 | ID | Task | Milestone / gate | Requirements | Status |
 |---|---|---|---|---|
 | SN-170 | Experiment E-07: prototype emulator (`src/emu`, CLI, Thumb-2 core, exceptions, tier-1 devices), differential tests against Renode and QEMU, benchmark | N0 / G0a, G0b (met 10-15, D0) | MCU-11 | done |
-| SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N2 start (was N0; not run before D0) | MCU-10 | todo (PWM part answered by SN-176 / ADR 0091; serial frames remain) |
+| SN-186 | Spike E-07b: fast edges into the analog engine (breakpoints, rise times, logic-only nets) with a synthetic edge stream | N2 start (was N0; not run before D0) | MCU-10 | postponed 2026-10-25 (PWM part answered by SN-176 / ADR 0091; serial frames remain; the owner has no lesson that needs them — revisit for a serial frame on the scope or a serial module on RX) |
 | SN-171 | Extract the `McuBackend` interface in nanoseconds with `analog_at`; current runner becomes `RenodeMcuRunner` | N1 / G1 | MCU-11 | done (analog input as `set_analog`, ADR 0092) |
 | SN-172 | `NativeMcuRunner` and engine selection per board profile, with a settings override | N1 / G1 | MCU-11 | done (runner and diagnostics in Messages; the engine selection went with Renode, SN-183) |
 | SN-173 | MCU tests on both engines plus native-only timing assertions; deterministic window coupling; measured `L` | N1 / G1 | MCU-02 | done |

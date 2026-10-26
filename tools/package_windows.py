@@ -36,6 +36,7 @@ REQUIRED = [
     "ngspice/spinit", "ngspice/spice2poly.cm", "ngspice/COPYING", "LICENSE", "README.txt", "THIRD-PARTY-NOTICES.txt",
     "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
     "library/passive/resistor.json", "examples/01_LED_and_push_button.snx", "QUICK-START.md", "USER-GUIDE.md", "MICROCONTROLLER.md",
+    "pt-BR/USER_GUIDE.md", "pt-BR/QUICK_START.md", "pt-BR/MICROCONTROLLER.md",
     "translations/simnodus_pt_BR.qm",
     "vcruntime140.dll", "msvcp140.dll",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
