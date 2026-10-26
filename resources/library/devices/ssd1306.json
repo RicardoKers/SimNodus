@@ -1,0 +1,191 @@
+{
+  "type": "ssd1306",
+  "name": "OLED display SSD1306 (I2C)",
+  "category": "Displays",
+  "prefix": "U",
+  "description": "128x64 or 128x32 I2C OLED display; the picture shows on the schematic",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -10,
+          -6,
+          20,
+          14
+        ]
+      },
+      {
+        "text": "SSD1306 OLED",
+        "at": [
+          0,
+          6.8
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -8,
+          -6,
+          -6
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -6,
+          -5.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -2,
+          -8,
+          -2,
+          -6
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          -2,
+          -5.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          2,
+          -8,
+          2,
+          -6
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          2,
+          -5.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -8,
+          6,
+          -6
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          6,
+          -5.2
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          -2,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "SCL",
+        "at": [
+          2,
+          -8
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          6,
+          -8
+        ],
+        "dir": "up"
+      }
+    ]
+  },
+  "designator_offset": [
+    -10,
+    -8
+  ],
+  "value_offset": [
+    6,
+    -8
+  ],
+  "device": {
+    "kind": "ssd1306",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "height",
+      "label": "Height",
+      "unit": "",
+      "default": "64",
+      "choices": [
+        "64",
+        "32"
+      ],
+      "description": "Pixel rows: 128x64 (0.96 inch) or 128x32 (0.91 inch)"
+    },
+    {
+      "name": "address",
+      "label": "I2C address",
+      "unit": "",
+      "default": "0x3C",
+      "choices": [
+        "0x3C",
+        "0x3D"
+      ],
+      "description": "Address set on the module"
+    },
+    {
+      "name": "color",
+      "label": "Color",
+      "unit": "",
+      "default": "white",
+      "choices": [
+        "white",
+        "blue",
+        "yellow-blue"
+      ],
+      "description": "Color of the pixels (yellow-blue: the top 16 rows yellow)"
+    }
+  ],
+  "screen": {
+    "rect": [
+      -8,
+      -4,
+      16,
+      8
+    ],
+    "pixels": true,
+    "color_parameter": "color"
+  }
+}

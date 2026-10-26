@@ -117,6 +117,11 @@ struct Screen {
     model::PointF size;
     std::string rows_parameter = "rows";
     std::string columns_parameter = "columns";
+    // A graphic display (SN-223: SSD1306 OLED): the chip's text is "WxH" and one
+    // row of hex digits per line (4 pixels each, the leftmost in the high bit);
+    // the pixels are lit in the color of the parameter `color_parameter`.
+    bool pixels = false;
+    std::string color_parameter;
 };
 
 // A digital device on a microcontroller's nets (SN-203, ADR 0102): its logic

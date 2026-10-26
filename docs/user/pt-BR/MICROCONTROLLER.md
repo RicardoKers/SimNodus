@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 71de893ec6571fe8268535159ebe57b68b9ad1f855ef6bdd1012506fcfea6653 -->
+<!-- source: MICROCONTROLLER.md sha256 c25c5f6145e32267a094828bdbf81c1675b2cc9f29403800c733854e03b7300b -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -41,8 +41,9 @@ duas execuções com o mesmo circuito dão a mesma temporização do firmware.
 
 Os componentes da categoria *Chips para microcontroladores* (Registrador de
 deslocamento 74HC595, Driver de display de LED MAX7219, EEPROM 24C02, Sensor de
-temperatura LM75, Expansor de E/S PCF8574) e o LCD de caracteres (HD44780, em
-*Displays*) funcionam em conjunto com uma placa (ADR 0102): a lógica deles roda
+temperatura LM75, Expansor de E/S PCF8574, BMP280, MPU6050, DS3231, TCS34725) e
+o LCD de caracteres e o OLED SSD1306 (em *Displays*) funcionam em conjunto com
+uma placa (ADR 0102): a lógica deles roda
 em sincronia com o firmware, de modo que as redes entre a placa e o chip
 acompanham cada borda imediatamente, e as saídas do chip acionam o circuito como
 os pinos da placa (LEDs acendem, o osciloscópio e a aba Lógico os mostram, como
@@ -67,6 +68,19 @@ faixas `U2.Q0`).
   começa apagada (0xFF); o LM75 informa a temperatura definida em suas
   propriedades, que pode ser alterada durante a simulação; os pinos do PCF8574 são
   saídas e entradas ao mesmo tempo (um 1 é um pull-up fraco).
+- Os sensores, o relógio e o display I2C (SN-223) respondem em endereços
+  fixos: BMP280 em 0x76 (0x77 com SDO em alto), com suas palavras de
+  calibração e os modos forçado e normal, para que as bibliotecas usuais
+  calculem a pressão e a temperatura definidas em suas propriedades; MPU6050
+  em 0x68 (0x69 com AD0 em alto), dormindo até que PWR_MGMT_1 seja zerado,
+  com acelerações e velocidades de rotação escaladas pelas faixas
+  configuradas; DS3231 em 0x68, um relógio que anda com a simulação a partir
+  da sua *Hora inicial* (`now` ou uma data), dois alarmes e a saída SQW de
+  onda quadrada ou de alarme; TCS34725 em 0x29, contagens a partir da cor e
+  da luz em suas propriedades, do ganho e do tempo de integração; OLED SSD1306
+  em 0x3C ou 0x3D (uma propriedade), cuja imagem aparece no esquemático
+  durante a simulação. Os valores medidos são propriedades que podem mudar
+  durante a simulação. O exemplo 38 mostra o OLED com um BMP280 e um DS3231.
 - A ROM e a RAM paralelas (*Memórias*) têm A0-A15, D0-D7 e CE, OE e (na RAM) WE
   ativos em nível baixo; o tamanho, de 16 bytes a 64 KB, é uma propriedade, e os
   pinos de endereço além dele são ignorados. Com CE e OE em nível baixo elas

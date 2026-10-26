@@ -23,6 +23,9 @@ nothing.
   D0-D7, CE, OE and the RAM's WE, active low); the size is a parameter and the
   address pins beyond it are ignored; contents from a .bin or Intel .hex file.
   Category *Memories*.
+- BMP280, MPU6050, DS3231, TCS34725 and the SSD1306 OLED (SN-223): I2C
+  sensors, clock and display with their registers; measured values are live
+  parameters; the OLED's pixels appear on the schematic.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -217,7 +220,108 @@ def max7219():
                 driven=outputs)
 
 
-MEMORY_SIZES = ["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
+def live(name, label, unit, default, minimum, maximum, description):
+    return {"name": name, "label": label, "unit": unit, "default": default, "min": minimum, "max": maximum,
+            "live": True, "description": description + "; change it while running to test the circuit"}
+
+
+MODULE_NOTE = ("SDA is open drain: SCL and SDA need pull-up resistors (4.7 kOhm to the supply; breakout modules "
+               "usually have them, here they are wired in the circuit). Supply 3.3 or 5 V on VCC and GND (a module "
+               "with its regulator). Works together with a microcontroller board.")
+
+
+def bmp280():
+    symbol, upper = ic_symbol("BMP280", ["SCL", "SDA", "SDO", "CSB"], [], "VCC", "GND", optional=("SDO", "CSB"))
+    return part("bmp280", "Pressure sensor BMP280 (I2C)",
+                "Barometric pressure and temperature sensor (Bosch BMP280) at I2C address 0x76, or 0x77 with SDO high: "
+                "chip ID 0x58, calibration words, forced and normal modes; the raw values give the set temperature "
+                "and pressure through the datasheet's compensation, as the usual libraries compute it. CSB is not "
+                "used (I2C only). " + MODULE_NOTE,
+                symbol, upper, "bmp280", device_spice(["SCL", "SDA", "SDO", "CSB"], ["SDA"]),
+                parameters=[live("pressure", "Pressure", "hPa", "1013.25", "300", "1100",
+                                 "Air pressure (1013.25 hPa at sea level, about 12 hPa less per 100 m up)"),
+                            live("temperature", "Temperature", "°C", "25", "-40", "85", "Temperature of the sensor")])
+
+
+def mpu6050():
+    symbol, upper = ic_symbol("MPU6050", ["SCL", "SDA", "AD0", "INT"], [], "VCC", "GND", optional=("AD0", "INT"))
+    axes = []
+    for axis in "xyz":
+        axes.append(live(f"accel_{axis}", f"Acceleration {axis.upper()}", "g", "1" if axis == "z" else "0", "-16",
+                         "16", f"Acceleration along {axis.upper()} (lying flat: Z = 1 g)"))
+    for axis in "xyz":
+        axes.append(live(f"gyro_{axis}", f"Rotation {axis.upper()}", "°/s", "0", "-2000", "2000",
+                         f"Rotation rate about {axis.upper()}"))
+    axes.append(live("temperature", "Temperature", "°C", "25", "-40", "85", "Temperature of the chip"))
+    p = part("mpu6050", "Accelerometer and gyroscope MPU6050 (I2C)",
+             "6-axis motion sensor (InvenSense MPU-6050) at I2C address 0x68, or 0x69 with AD0 high: WHO_AM_I 0x68, "
+             "starts asleep (clear SLEEP in PWR_MGMT_1), accelerations and rotation rates scaled by the full-scale "
+             "ranges of ACCEL_CONFIG and GYRO_CONFIG, and the temperature. INT, the FIFO and the motion processor "
+             "are not simulated. " + MODULE_NOTE,
+             symbol, upper, "mpu6050", device_spice(["SCL", "SDA", "AD0", "INT"], ["SDA"]), parameters=axes)
+    p["value_parameter"] = "accel_z"
+    return p
+
+
+def ds3231():
+    symbol, upper = ic_symbol("DS3231", ["SCL", "SDA"], ["SQW", "32K"], "VCC", "GND", optional=("SQW", "32K"))
+    return part("ds3231", "Real-time clock DS3231 (I2C)",
+                "Real-time clock (DS3231) at I2C address 0x68: seconds to year in BCD (24- or 12-hour mode), two "
+                "alarms, control and status registers and the temperature. The clock runs with the simulation from "
+                "the start time. SQW (open drain, needs a pull-up) gives a 1 Hz to 8.192 kHz square wave while INTCN "
+                "is 0, or goes low on an enabled alarm while INTCN is 1. 32K is not driven. " + MODULE_NOTE,
+                symbol, upper, "ds3231", device_spice(["SCL", "SDA", "SQW", "32K"], ["SDA", "SQW"]),
+                parameters=[{"name": "start", "label": "Start time", "kind": "text", "default": "now",
+                             "description": "Date and time when the run starts: now (the computer's clock) or "
+                                            "YYYY-MM-DD HH:MM:SS"},
+                            live("temperature", "Temperature", "°C", "25", "-40", "85", "Temperature of the chip")])
+
+
+def tcs34725():
+    symbol, upper = ic_symbol("TCS34725", ["SCL", "SDA", "INT", "LED"], [], "VCC", "GND", optional=("INT", "LED"))
+    color = [live(c, c.capitalize(), "", "255", "0", "255", f"{c.capitalize()} part of the color in front of the "
+                  "sensor (0-255)") for c in ("red", "green", "blue")]
+    color.append(live("light", "Light", "lux", "300", "0", "10000", "Light on the object"))
+    p = part("tcs34725", "Color sensor TCS34725 (I2C)",
+             "RGB color sensor (ams TCS34725) at I2C address 0x29: command byte with auto-increment, ID 0x44, ENABLE "
+             "(PON, AEN), integration time (ATIME) and gain (CONTROL); clear, red, green and blue counts follow the "
+             "color and the light set in its properties. INT and the module's LED are not simulated. " + MODULE_NOTE,
+             symbol, upper, "tcs34725", device_spice(["SCL", "SDA", "INT", "LED"], ["SDA"]), parameters=color)
+    p["value_parameter"] = "light"
+    return p
+
+
+def ssd1306():
+    names = ["GND", "VCC", "SCL", "SDA"]
+    graphics = [{"rect": [-10, -6, 20, 14]}, {"text": "SSD1306 OLED", "at": [0, 6.8], "size": 0.6}]
+    pins = []
+    for i, name in enumerate(names):
+        x = -6 + 4 * i
+        pins.append({"name": name, "at": [x, -8], "dir": "up"})
+        graphics.append({"line": [x, -8, x, -6]})
+        graphics.append({"text": name, "at": [x, -5.2], "size": 0.45})
+    p = part("ssd1306", "OLED display SSD1306 (I2C)",
+             "Monochrome OLED module, 128x64 or 128x32 pixels, with an SSD1306 controller at I2C address 0x3C (or "
+             "0x3D): commands and display data as from the Adafruit or u8g2 libraries (addressing modes, page and "
+             "column windows, segment remap, COM scan, inverse, display on/off). The picture appears on the "
+             "schematic while running. " + MODULE_NOTE,
+             {"graphics": graphics, "pins": pins}, -6, "ssd1306", device_spice(["SCL", "SDA"], ["SDA"]),
+             parameters=[{"name": "height", "label": "Height", "unit": "", "default": "64", "choices": ["64", "32"],
+                          "description": "Pixel rows: 128x64 (0.96 inch) or 128x32 (0.91 inch)"},
+                         {"name": "address", "label": "I2C address", "unit": "", "default": "0x3C",
+                          "choices": ["0x3C", "0x3D"], "description": "Address set on the module"},
+                         {"name": "color", "label": "Color", "unit": "", "default": "white",
+                          "choices": ["white", "blue", "yellow-blue"],
+                          "description": "Color of the pixels (yellow-blue: the top 16 rows yellow)"}])
+    p["category"] = "Displays"
+    p["screen"] = {"rect": [-8, -4, 16, 8], "pixels": True, "color_parameter": "color"}
+    p["designator_offset"] = [-10, -8]
+    p["value_offset"] = [6, -8]
+    del p["value_parameter"]
+    return p
+
+
+MEMORY_SIZES =["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
 
 
 def memory(ram):
@@ -254,7 +358,8 @@ def main():
     os.makedirs(FOLDER, exist_ok=True)
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
-    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True)]:
+    for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
+              bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

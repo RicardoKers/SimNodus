@@ -40,7 +40,8 @@ the same circuit give the same firmware timing.
 
 Parts in the *Chips for microcontrollers* category (74HC595 shift register,
 MAX7219 display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O
-expander) and the character LCD (HD44780, under *Displays*) work together with
+expander, BMP280, MPU6050, DS3231, TCS34725) and the character LCD and SSD1306
+OLED (under *Displays*) work together with
 a board (ADR 0102): their logic runs in step
 with the firmware, so the nets between the board and the chip follow every
 edge at once, and the chip's outputs drive the circuit like the board's pins
@@ -63,6 +64,18 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   run, otherwise it starts erased (0xFF); the LM75 reports the
   temperature set in its properties, which can be changed while running; the PCF8574's pins are outputs and inputs
   at once (a 1 is a weak pull-up).
+- The I2C sensors, clock and display (SN-223) answer at their fixed
+  addresses: BMP280 at 0x76 (0x77 with SDO high) with its calibration words,
+  forced and normal modes, so the usual libraries compute the pressure and
+  temperature set in its properties; MPU6050 at 0x68 (0x69 with AD0 high),
+  asleep until PWR_MGMT_1 is cleared, accelerations and rotation rates scaled
+  by the full-scale settings; DS3231 at 0x68, a clock running with the
+  simulation from its *Start time* (`now` or a date), two alarms and the SQW
+  square wave or alarm output; TCS34725 at 0x29, counts from the color and
+  light in its properties, its gain and integration time; SSD1306 OLED at
+  0x3C or 0x3D (a property), whose picture appears on the schematic while
+  running. The measured values are properties that can change while
+  running. Example 38 shows the OLED with a BMP280 and a DS3231.
 - The parallel ROM and RAM (*Memories*) have A0-A15, D0-D7 and active-low CE,
   OE and (RAM) WE; their size, 16 bytes to 64 KB, is a property, and the
   address pins beyond it are ignored. With CE and OE low they drive D0-D7;

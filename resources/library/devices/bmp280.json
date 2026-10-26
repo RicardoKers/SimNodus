@@ -1,0 +1,220 @@
+{
+  "type": "bmp280",
+  "name": "Pressure sensor BMP280 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "I2C pressure and temperature sensor; set both in Properties",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -5,
+          8,
+          10
+        ]
+      },
+      {
+        "text": "BMP280",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "SDO",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "CSB",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -7,
+          0,
+          -5
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -4.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          4.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDO",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CSB",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -7
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          7
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "device": {
+    "kind": "bmp280",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "R_{ref}_hsdo {node:SDO} {node:GND} 100Meg",
+    "R_{ref}_hcsb {node:CSB} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "pressure",
+      "label": "Pressure",
+      "unit": "hPa",
+      "default": "1013.25",
+      "min": "300",
+      "max": "1100",
+      "live": true,
+      "description": "Air pressure (1013.25 hPa at sea level, about 12 hPa less per 100 m up); change it while running to test the circuit"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "85",
+      "live": true,
+      "description": "Temperature of the sensor; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "pressure"
+}

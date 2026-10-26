@@ -255,6 +255,47 @@
         "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
       ]
     },
+    "hal_i2c_oled": {
+      "sources": [
+        "examples/firmware/hal_i2c_oled/main.c"
+      ],
+      "elf": "examples/firmware/hal_i2c_oled/hal_i2c_oled.elf",
+      "sha256": "e6b022b8c9c8fceb84a2323dab2912122f36a111f853bf095ab62ebbf0574d1c",
+      "size": 125760,
+      "flags": [
+        "-mcpu=cortex-m3",
+        "-mthumb",
+        "-std=gnu11",
+        "-Os",
+        "-g",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wall",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-Wl,--build-id=none",
+        "-Wl,--gc-sections",
+        "-Wl,--no-warn-rwx-segments",
+        "-ffile-prefix-map={root}=.",
+        "-ffile-prefix-map={package}={package_name}",
+        "-DUSE_HAL_DRIVER",
+        "-DSTM32F103xB",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xb.s",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c",
+        "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c"
+      ]
+    },
     "hal_keypad": {
       "sources": [
         "examples/firmware/hal_keypad/main.c"

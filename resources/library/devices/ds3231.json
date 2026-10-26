@@ -1,0 +1,218 @@
+{
+  "type": "ds3231",
+  "name": "Real-time clock DS3231 (I2C)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "I2C real-time clock with alarms and a square-wave output",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -3,
+          8,
+          6
+        ]
+      },
+      {
+        "text": "DS3231",
+        "at": [
+          0,
+          -1.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "SCL",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "SDA",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "SQW",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "32K",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -5,
+          0,
+          -3
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -2.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          3,
+          0,
+          5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          2.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "SCL",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SDA",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SQW",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "32K",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          5
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -4
+  ],
+  "value_offset": [
+    5,
+    4
+  ],
+  "device": {
+    "kind": "ds3231",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hscl {node:SCL} {node:GND} 100Meg",
+    "R_{ref}_hsda {node:SDA} {node:GND} 100Meg",
+    "R_{ref}_hsqw {node:SQW} {node:GND} 100Meg",
+    "R_{ref}_h32k {node:32K} {node:GND} 100Meg",
+    "B_{ref}_sda {node:GND} {node:SDA} I=V({ext:sda_i})-V({ext:sda_g})*(V({node:SDA})-V({node:GND}))",
+    "B_{ref}_sqw {node:GND} {node:SQW} I=V({ext:sqw_i})-V({ext:sqw_g})*(V({node:SQW})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "start",
+      "label": "Start time",
+      "kind": "text",
+      "default": "now",
+      "description": "Date and time when the run starts: now (the computer's clock) or YYYY-MM-DD HH:MM:SS"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "85",
+      "live": true,
+      "description": "Temperature of the chip; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "start"
+}

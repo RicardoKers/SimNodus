@@ -551,8 +551,12 @@ ComponentDefinition parse_definition(const json& j)
         if (s.contains("columns_parameter")) {
             screen.columns_parameter = text(s, "columns_parameter", true);
         }
-        if (screen.size.x <= 0 || screen.size.y <= 0 || !d.parameter(screen.rows_parameter)
-            || !d.parameter(screen.columns_parameter)) {
+        screen.pixels = s.value("pixels", false);
+        if (s.contains("color_parameter")) {
+            screen.color_parameter = text(s, "color_parameter", true);
+        }
+        if (screen.size.x <= 0 || screen.size.y <= 0
+            || (!screen.pixels && (!d.parameter(screen.rows_parameter) || !d.parameter(screen.columns_parameter)))) {
             invalid("screen needs a positive rect and the rows and columns parameters");
         }
         d.screen = screen;

@@ -143,7 +143,7 @@ translation; the order may change with the owner's lessons.
 | SN-220 | Placement shortcuts: V voltage source, I current source, Shift+V voltmeter, Shift+I ammeter | done 2026-10-26 |
 | SN-221 | Sensors and transducers in SPICE, the measured quantity dragged while running: LM35, NTC 10 kΩ, PT100, type K thermocouple, LDR, BPW34, ACS712, load cell (bridge), A3144, PC817, solenoid (current and plunger travel); `tools/generate_sensor_parts.py`, example 36; potentiometers on a quantity (°C, lux, mT; logarithmic for light) | done 2026-10-26 |
 | SN-222 | Logic chips in DIP packages with VCC and GND pins (no supply, no output): 74HC00/02/04/08/14/32/86, 74HC138, 74HC157, 74HC245, 74HC74 (behavioral SPICE); 74HC161, 74HC193, 74HC165, CD4017 (digital devices); the 74HC595 already exists as a chip for microcontrollers; `tools/generate_logic_chip_parts.py`, example 37 | done 2026-10-26 |
-| SN-223 | I2C chips: BMP280, MPU6050, DS3231, TCS34725, SSD1306 OLED (pixels on the schematic) | todo |
+| SN-223 | I2C chips: BMP280, MPU6050, DS3231, TCS34725, SSD1306 OLED (pixels on the schematic: pixel screens in the library, `screen.pixels`); firmware `hal_i2c_oled`, example 38 | done 2026-10-26 |
 | SN-224 | SPI chips: MCP3208 (inputs read from the circuit), MCP41010 (a resistance in the circuit), W25Q32 (Memory Viewer), microSD card (SPI mode, an image file), HX711 with the load cell | todo |
 | SN-225 | Timed one-wire protocols: DS18B20 (1-Wire), DHT22, HC-SR04 (distance set while running), WS2812B strip (colors on the schematic) | todo |
 | SN-226 | Motion: hobby servo (angle from the pulse width), stepper motor with two coils, incremental encoder with push button, L298 dual H-bridge | todo |

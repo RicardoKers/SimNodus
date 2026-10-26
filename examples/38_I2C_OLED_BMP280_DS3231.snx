@@ -1,0 +1,337 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/hal_i2c_oled/hal_i2c_oled.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -9,
+        17
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -20,
+        -8
+      ],
+      "designator": "R1",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -24,
+        -8
+      ],
+      "designator": "R2",
+      "id": 9,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -50,
+        -20
+      ],
+      "designator": "U2",
+      "id": 12,
+      "mirrored": false,
+      "parameters": {
+        "address": "0x3C",
+        "color": "yellow-blue",
+        "height": "64"
+      },
+      "rotation": 0,
+      "type": "ssd1306"
+    },
+    {
+      "at": [
+        -56,
+        -28
+      ],
+      "designator": "GND2",
+      "id": 16,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -50,
+        8
+      ],
+      "designator": "U3",
+      "id": 17,
+      "mirrored": false,
+      "parameters": {
+        "pressure": "1013.25",
+        "temperature": "24.5"
+      },
+      "rotation": 0,
+      "type": "bmp280"
+    },
+    {
+      "at": [
+        -50,
+        15
+      ],
+      "designator": "GND3",
+      "id": 21,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -56,
+        9
+      ],
+      "designator": "GND4",
+      "id": 22,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -50,
+        30
+      ],
+      "designator": "U4",
+      "id": 23,
+      "mirrored": false,
+      "parameters": {
+        "start": "now",
+        "temperature": "25"
+      },
+      "rotation": 0,
+      "type": "ds3231"
+    },
+    {
+      "at": [
+        -50,
+        35
+      ],
+      "designator": "GND5",
+      "id": 27,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -9,
+        7
+      ],
+      "id": 3,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -9,
+        9
+      ],
+      "id": 4,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 5,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -20,
+        -11
+      ],
+      "id": 7,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -20,
+        -5
+      ],
+      "id": 8,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -24,
+        -11
+      ],
+      "id": 10,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -24,
+        -5
+      ],
+      "id": 11,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -52,
+        -28
+      ],
+      "id": 13,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -48,
+        -28
+      ],
+      "id": 14,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -44,
+        -28
+      ],
+      "id": 15,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -50,
+        1
+      ],
+      "id": 18,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -56,
+        5
+      ],
+      "id": 19,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -56,
+        7
+      ],
+      "id": 20,
+      "name": "SDA"
+    },
+    {
+      "at": [
+        -50,
+        25
+      ],
+      "id": 24,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -56,
+        29
+      ],
+      "id": 25,
+      "name": "SCL"
+    },
+    {
+      "at": [
+        -56,
+        31
+      ],
+      "id": 26,
+      "name": "SDA"
+    }
+  ],
+  "next_id": 31,
+  "notes": [
+    {
+      "at": [
+        -70,
+        -36
+      ],
+      "id": 30,
+      "text": "I2C1 of the Blue Pill (PB6 SCL, PB7 SDA, 400 kHz, 4.7 kOhm pull-ups to 3.3 V) with an SSD1306 OLED (0x3C),\na BMP280 (0x76, SDO on GND) and a DS3231 clock (0x68). Run (F5): the OLED shows the time, the date, the\ntemperature and the pressure every 0.5 s. Change the BMP280's pressure or temperature in Properties while running."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 28,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          7
+        ],
+        "item": 1,
+        "pin": "PB6"
+      }
+    },
+    {
+      "color": "",
+      "id": 29,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          9
+        ],
+        "item": 1,
+        "pin": "PB7"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": []
+}

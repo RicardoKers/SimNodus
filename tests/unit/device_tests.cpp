@@ -17,6 +17,8 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -1125,4 +1127,320 @@ TEST_CASE("devices: DIP counters and shift registers follow their datasheets (SN
         d->set_input(at(p, "MR"), true, t += 1000);
         CHECK(high(*d, at(p, "Q0")));
     }
+}
+
+namespace {
+
+bool near(double value, double expected, double tolerance)
+{
+    const bool ok = std::abs(value - expected) <= tolerance;
+    if (!ok) {
+        std::printf("  got %.6g, expected %.6g +- %.3g\n", value, expected, tolerance);
+    }
+    return ok;
+}
+
+// Drives a device's SCL and SDA like an I2C master; SDA is the wired-AND of
+// the master and the device's open drain, given back to the device on change.
+class I2cMaster {
+public:
+    I2cMaster(devices::Device& device, std::size_t scl, std::size_t sda) : d_(device), scl_(scl), sda_(sda)
+    {
+        d_.initial_input(scl_, true);
+        d_.initial_input(sda_, true);
+    }
+    std::uint64_t& time() { return t_; }
+    void start()
+    {
+        sda(true);
+        scl(true);
+        sda(false);
+        scl(false);
+    }
+    void stop()
+    {
+        sda(false);
+        scl(true);
+        sda(true);
+    }
+    bool write(std::uint8_t byte)
+    {
+        for (int i = 7; i >= 0; --i) {
+            sda(((byte >> i) & 1) != 0);
+            scl(true);
+            scl(false);
+        }
+        sda(true);
+        scl(true);
+        const bool ack = !net_;
+        scl(false);
+        return ack;
+    }
+    std::uint8_t read(bool ack)
+    {
+        sda(true);
+        unsigned value = 0;
+        for (int i = 0; i < 8; ++i) {
+            scl(true);
+            value = (value << 1) | (net_ ? 1u : 0u);
+            scl(false);
+        }
+        sda(!ack);
+        scl(true);
+        scl(false);
+        sda(true);
+        return static_cast<std::uint8_t>(value);
+    }
+    bool write_registers(std::uint8_t address, const std::vector<std::uint8_t>& bytes)
+    {
+        start();
+        bool ok = write(static_cast<std::uint8_t>(address << 1));
+        for (const auto b : bytes) {
+            ok = write(b) && ok;
+        }
+        stop();
+        return ok;
+    }
+    std::vector<std::uint8_t> read_registers(std::uint8_t address, std::uint8_t reg, std::size_t count)
+    {
+        start();
+        write(static_cast<std::uint8_t>(address << 1));
+        write(reg);
+        start(); // repeated START
+        std::vector<std::uint8_t> bytes;
+        if (write(static_cast<std::uint8_t>((address << 1) | 1))) {
+            for (std::size_t i = 0; i < count; ++i) {
+                bytes.push_back(read(i + 1 < count));
+            }
+        }
+        stop();
+        return bytes;
+    }
+
+private:
+    void sda(bool level)
+    {
+        master_ = level;
+        settle();
+    }
+    void scl(bool level)
+    {
+        d_.set_input(scl_, level, t_ += 5000);
+        settle();
+    }
+    void settle()
+    {
+        const auto o = d_.output(sda_);
+        const bool net = master_ && !(o.driven && !o.high);
+        if (net != net_) {
+            net_ = net;
+            d_.set_input(sda_, net, t_ += 1000);
+            settle();
+        }
+    }
+    devices::Device& d_;
+    std::size_t scl_, sda_;
+    std::uint64_t t_ = 0;
+    bool master_ = true, net_ = true;
+};
+
+} // namespace
+
+TEST_CASE("devices: I2C sensors, clock and OLED answer like their datasheets (SN-223)")
+{
+    std::string error;
+    { // BMP280: the datasheet's compensation of the raw values gives the set temperature and pressure.
+        auto d = devices::make_device("bmp280", {"SCL", "SDA", "SDO"}, {{"temperature", "21.5"}, {"pressure", "950"}},
+            error);
+        REQUIRE(d);
+        I2cMaster m(*d, 0, 1);
+        CHECK(m.read_registers(0x76, 0xD0, 1) == std::vector<std::uint8_t>{0x58});
+        CHECK(m.read_registers(0x77, 0xD0, 1).empty()); // SDO low: 0x76 only
+        const auto c = m.read_registers(0x76, 0x88, 24);
+        REQUIRE(c.size() == 24);
+        auto u16 = [&](int i) { return static_cast<double>(c[i] | (c[i + 1] << 8)); };
+        auto s16 = [&](int i) { return static_cast<double>(static_cast<std::int16_t>(c[i] | (c[i + 1] << 8))); };
+        CHECK(m.read_registers(0x76, 0xFA, 3) == (std::vector<std::uint8_t>{0x80, 0x00, 0x00}));
+        CHECK(m.write_registers(0x76, {0xF4, 0x25})); // temperature and pressure x1, forced
+        CHECK(m.read_registers(0x76, 0xF4, 1) == std::vector<std::uint8_t>{0x24}); // back to sleep
+        const auto r = m.read_registers(0x76, 0xF7, 6);
+        REQUIRE(r.size() == 6);
+        const double adc_p = (r[0] << 12) | (r[1] << 4) | (r[2] >> 4);
+        const double adc_t = (r[3] << 12) | (r[4] << 4) | (r[5] >> 4);
+        // Floating-point compensation, datasheet section 8.1.
+        double v1 = (adc_t / 16384.0 - u16(0) / 1024.0) * s16(2);
+        double v2 = (adc_t / 131072.0 - u16(0) / 8192.0) * (adc_t / 131072.0 - u16(0) / 8192.0) * s16(4);
+        const double fine = v1 + v2;
+        CHECK(near(fine / 5120.0, 21.5, 0.02));
+        v1 = fine / 2.0 - 64000.0;
+        v2 = v1 * v1 * s16(16) / 32768.0 + v1 * s16(14) * 2.0;
+        v2 = v2 / 4.0 + s16(12) * 65536.0;
+        v1 = (s16(10) * v1 * v1 / 524288.0 + s16(8) * v1) / 524288.0;
+        v1 = (1.0 + v1 / 32768.0) * u16(6);
+        double p = 1048576.0 - adc_p;
+        p = (p - v2 / 4096.0) * 6250.0 / v1;
+        v1 = s16(22) * p * p / 2147483648.0;
+        v2 = p * s16(20) / 32768.0;
+        p = p + (v1 + v2 + s16(18)) / 16.0;
+        CHECK(near(p, 95000.0, 3.0));
+    }
+    { // MPU6050: asleep at reset, then 1 g on Z at +-2 g and +-4 g, a rotation and the temperature.
+        auto d = devices::make_device("mpu6050", {"SCL", "SDA", "AD0"}, {{"gyro_x", "250"}}, error);
+        REQUIRE(d);
+        I2cMaster m(*d, 0, 1);
+        CHECK(m.read_registers(0x68, 0x75, 1) == std::vector<std::uint8_t>{0x68});
+        CHECK(m.read_registers(0x68, 0x3F, 2) == (std::vector<std::uint8_t>{0, 0}));
+        CHECK(m.write_registers(0x68, {0x6B, 0x00}));
+        auto word = [](const std::vector<std::uint8_t>& b, std::size_t i) {
+            return static_cast<std::int16_t>((b[i] << 8) | b[i + 1]);
+        };
+        auto s = m.read_registers(0x68, 0x3B, 14);
+        REQUIRE(s.size() == 14);
+        CHECK(word(s, 4) == 16384);
+        CHECK(word(s, 6) == -3920); // (25 - 36.53) x 340
+        CHECK(word(s, 8) == 32750); // 250 deg/s x 131
+        CHECK(m.write_registers(0x68, {0x1C, 0x08}));
+        s = m.read_registers(0x68, 0x3B, 6);
+        CHECK(word(s, 4) == 8192);
+        d->set_parameter("accel_x", "-0.5");
+        s = m.read_registers(0x68, 0x3B, 2);
+        CHECK(word(s, 0) == -4096);
+    }
+    { // DS3231: time runs with the simulation, a written time, the 1 Hz square wave and an alarm.
+        auto d = devices::make_device("ds3231", {"SCL", "SDA", "SQW"}, {{"start", "2026-10-26 23:59:58"}}, error);
+        REQUIRE(d);
+        I2cMaster m(*d, 0, 1);
+        CHECK(m.read_registers(0x68, 0x00, 7) == (std::vector<std::uint8_t>{0x58, 0x59, 0x23, 0x02, 0x26, 0x10, 0x26}));
+        m.time() = 3000000000ull;
+        CHECK(m.read_registers(0x68, 0x00, 7) == (std::vector<std::uint8_t>{0x01, 0x00, 0x00, 0x03, 0x27, 0x10, 0x26}));
+        CHECK(m.write_registers(0x68, {0x00, 0x30, 0x45, 0x52, 0x05, 0x31, 0x12, 0x30})); // 12-hour 12:45:30 PM
+        m.time() += 1000000000ull;
+        CHECK(m.read_registers(0x68, 0x00, 7) == (std::vector<std::uint8_t>{0x31, 0x45, 0x52, 0x05, 0x31, 0x12, 0x30}));
+        auto low = [&] {
+            const auto o = d->output(2);
+            return o.driven && !o.high;
+        };
+        CHECK(!low()); // INTCN set at reset: no square wave
+        CHECK(m.write_registers(0x68, {0x0E, 0x00})); // INTCN 0, 1 Hz
+        int changes = 0;
+        bool last = low();
+        for (int i = 0; i < 8; ++i) {
+            d->advance(d->next_event_ns());
+            changes += low() != last ? 1 : 0;
+            last = low();
+        }
+        CHECK(changes == 8); // half periods of 0.5 s
+        CHECK(m.write_registers(0x68, {0x07, 0x80, 0x80, 0x80, 0x80})); // alarm 1 every second
+        CHECK(m.write_registers(0x68, {0x0E, 0x05})); // INTCN, A1IE
+        CHECK(!low());
+        d->advance(d->next_event_ns());
+        d->advance(d->next_event_ns());
+        CHECK(low());
+        CHECK(m.write_registers(0x68, {0x0F, 0x00})); // clear A1F
+        CHECK(!low());
+    }
+    { // TCS34725: counts from the color, the light, the gain and the integration time.
+        auto d = devices::make_device("tcs34725", {"SCL", "SDA"}, {{"red", "255"}, {"green", "0"}, {"blue", "0"}}, error);
+        REQUIRE(d);
+        I2cMaster m(*d, 0, 1);
+        CHECK(m.read_registers(0x29, 0x92, 1) == std::vector<std::uint8_t>{0x44});
+        CHECK(m.write_registers(0x29, {0x80, 0x03}));
+        CHECK(m.write_registers(0x29, {0x81, 0xF6})); // 10 cycles
+        CHECK(m.write_registers(0x29, {0x8F, 0x01})); // gain 4
+        const auto r = m.read_registers(0x29, 0xB3, 9); // STATUS, then C, R, G, B with auto-increment
+        REQUIRE(r.size() == 9);
+        CHECK(r[0] == 1); // AVALID
+        CHECK((r[1] | (r[2] << 8)) == 1600);
+        CHECK((r[3] | (r[4] << 8)) == 1600);
+        CHECK((r[5] | (r[6] << 8)) == 0);
+    }
+    { // SSD1306: the usual initialization, a pixel in two corners, inverse, then off.
+        auto d = devices::make_device("ssd1306", {"SCL", "SDA"}, {{"height", "64"}}, error);
+        REQUIRE(d);
+        I2cMaster m(*d, 0, 1);
+        CHECK(d->text() == "128x64 off");
+        CHECK(m.write_registers(0x3C, {0x00, 0xAE, 0xA8, 0x3F, 0xA1, 0xC8, 0x20, 0x00, 0x21, 0x00, 0x7F, 0x22, 0x00, 0x07,
+                                          0x8D, 0x14, 0xAF}));
+        std::vector<std::uint8_t> data(1025, 0);
+        data[0] = 0x40;
+        data[1] = 0x01;    // page 0, column 0, bit 0: the top-left pixel
+        data[1024] = 0x80; // page 7, column 127, bit 7: the bottom-right pixel
+        CHECK(m.write_registers(0x3C, data));
+        const std::string text = d->text();
+        REQUIRE(text.size() == 6 + 64 * 33);
+        CHECK(text.substr(0, 6) == "128x64");
+        CHECK(text.substr(7, 32) == "80000000000000000000000000000000");
+        CHECK(text.substr(7 + 63 * 33, 32) == "00000000000000000000000000000001");
+        CHECK(m.write_registers(0x3C, {0x80, 0xA7})); // Co set: one command, inverse
+        CHECK(d->text().substr(7, 2) == "7F");
+        CHECK(m.write_registers(0x3C, {0x00, 0xAE}));
+        CHECK(d->text() == "128x64 off");
+        CHECK(!m.write_registers(0x3D, {0x00, 0xAF})); // another address: no acknowledge
+    }
+}
+
+TEST_CASE("devices: example 38 shows a DS3231 and a BMP280 on an SSD1306 OLED (SN-223)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "38_I2C_OLED_BMP280_DS3231.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    model::Id oled = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        auto changed = c;
+        if (c.type == "ssd1306") {
+            oled = c.id;
+        } else if (c.type == "ds3231") {
+            changed.parameters["start"] = "2026-10-30 07:59:59"; // the release day of 0.1
+            request.schematic.put(changed);
+        }
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus[0].options.devices.size() == 3);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.2) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(2ms);
+    }
+    const auto texts = session.device_texts();
+    REQUIRE(texts.count(oled));
+    const std::string& screen = texts.at(oled);
+    REQUIRE(screen.rfind("128x64\n", 0) == 0);
+    // Rows 0-6 hold the title in 5x7 glyphs; rows 42-48 "TEMP 24.5 C": something is lit there.
+    std::vector<std::string> rows;
+    std::size_t start = 7;
+    while (start < screen.size()) {
+        const auto end = screen.find('\n', start);
+        rows.push_back(screen.substr(start, end == std::string::npos ? std::string::npos : end - start));
+        start = end == std::string::npos ? screen.size() : end + 1;
+    }
+    REQUIRE(rows.size() == 64);
+    auto lit = [&](int first, int last) {
+        for (int r = first; r <= last; ++r) {
+            if (rows[static_cast<std::size_t>(r)].find_first_not_of('0') != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
+    };
+    CHECK(lit(0, 6));
+    CHECK(lit(12, 25));
+    CHECK(lit(42, 48));
+    CHECK(lit(52, 58));
+    CHECK(!lit(59, 63));
+    session.stop();
 }

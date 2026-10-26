@@ -10,6 +10,7 @@
 
 #include <QFileInfo>
 #include <QGraphicsItem>
+#include <QImage>
 #include <QPainter>
 #include <QPainterPathStroker>
 #include <QStyleOptionGraphicsItem>
@@ -430,6 +431,10 @@ private:
     void paint_screen(QPainter& painter, const LiveState& live) const
     {
         const auto& screen = *definition_->screen;
+        if (screen.pixels) {
+            paint_pixels(painter, live);
+            return;
+        }
         const QRectF glass(screen.at.x, screen.at.y, screen.size.x, screen.size.y);
         auto parameter = [&](const std::string& name, int fallback) {
             const auto it = component_.parameters.find(name);
@@ -466,6 +471,53 @@ private:
                 }
             }
         }
+    }
+
+    // A graphic display (SN-223): black glass, the chip's pixels while it is on.
+    void paint_pixels(QPainter& painter, const LiveState& live) const
+    {
+        const auto& screen = *definition_->screen;
+        const QRectF glass(screen.at.x, screen.at.y, screen.size.x, screen.size.y);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(0x06, 0x08, 0x0c));
+        painter.drawRect(glass);
+        const auto it = live.texts.find(component_.id);
+        if (!live.running || it == live.texts.end()) {
+            return;
+        }
+        const QStringList lines = it->second.split(QLatin1Char('\n'));
+        const QStringList size = lines.value(0).split(QLatin1Char('x'));
+        const int width = size.value(0).toInt();
+        const int height = lines.size() - 1;
+        if (width <= 0 || height <= 0) {
+            return; // "128x64 off"
+        }
+        QString color = QStringLiteral("white");
+        if (const auto p = component_.parameters.find(screen.color_parameter); p != component_.parameters.end()) {
+            color = QString::fromStdString(p->second);
+        }
+        const QColor white(0xe8, 0xf4, 0xff), blue(0x4c, 0xc8, 0xff), yellow(0xff, 0xd8, 0x30);
+        QImage image(width, height, QImage::Format_ARGB32);
+        image.fill(Qt::transparent);
+        for (int y = 0; y < height; ++y) {
+            const QString& row = lines[y + 1];
+            const QColor lit = color == QStringLiteral("blue") ? blue
+                : color == QStringLiteral("yellow-blue")       ? (y < 16 ? yellow : blue)
+                                                               : white;
+            for (int x = 0; x < width && x / 4 < row.size(); ++x) {
+                const int nibble = QString(row[x / 4]).toInt(nullptr, 16);
+                if ((nibble >> (3 - x % 4)) & 1) {
+                    image.setPixelColor(x, y, lit);
+                }
+            }
+        }
+        // The pixels fill the glass's width, centered vertically (a 128x32 panel is half as tall).
+        const double scale = glass.width() / width;
+        const QRectF area(glass.left(), glass.center().y() - height * scale / 2, glass.width(), height * scale);
+        painter.save();
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, false); // crisp pixels
+        painter.drawImage(area, image);
+        painter.restore();
     }
 
     // Pin states and the on-board LED of a running microcontroller board, in
