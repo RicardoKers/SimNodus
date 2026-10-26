@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 5e93f5cfccb0dd2319705037bd739503305f55aa7b69b9ee61c7f28a7cefb42e -->
+<!-- source: USER_GUIDE.md sha256 6abe9cd92074c12dd5fdafa80884f173ac1e86f8beed381eb16bd094eb42931e -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -17,7 +17,8 @@ Conteúdo: [Instalação](#instalação) · [A janela](#a-janela) ·
 [Analisador de sinais](#analisador-de-sinais) · [Microcontrolador](#microcontrolador) ·
 [Arquivos](#arquivos-exemplos-e-aulas) · [Preferências](#preferências) ·
 [Linha de comando](#linha-de-comando) · [Solução de problemas](#solução-de-problemas) ·
-[Limitações conhecidas](#limitações-conhecidas)
+[Limitações conhecidas](#limitações-conhecidas) ·
+[Comunidade e ajuda](#comunidade-e-ajuda)
 
 ## Instalação
 
@@ -581,3 +582,11 @@ declarados para que os resultados sejam lidos corretamente.
   abertos; pressione F5 para executar de novo.
 - Os resistores usam o retângulo IEC; uma variante em zigue-zague ANSI e um
   editor de símbolos ainda não estão disponíveis.
+
+## Comunidade e ajuda
+
+Dúvidas, circuitos para compartilhar, relatos de erros e ideias são
+bem-vindos no [servidor do SimNodus no Discord](https://discord.gg/AsjGNtMnef), em português ou em
+inglês. Erros reproduzíveis também podem ser relatados como
+[issues no GitHub](https://github.com/RicardoKers/SimNodus/issues); anexe o projeto `.snx` (Arquivo > Salvar com
+firmware inclui o firmware) e as mensagens.

@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.10 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.11 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -18,6 +18,18 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.11: about 60 new parts for automation projects: sensors (LM35,
+NTC, PT100, thermocouple, LDR, ACS712, load cell and HX711, Hall, PIR,
+inductive 24 V, 4-20 mA), 74HC logic chips, I2C/SPI/1-Wire chips (BMP280,
+MPU6050, DS3231, SSD1306 OLED, MCP3208, W25Q32, microSD, DS18B20, DHT22,
+HC-SR04, WS2812B), motors and drivers, power and interface chips, and
+buzzers you can hear (Simulate > Sound). File > Save with Firmware;
+examples 36-43.
+
+Community: questions, circuits and bug reports are welcome on the SimNodus
+Discord server, https://discord.gg/AsjGNtMnef (English or Portuguese), and
+on https://github.com/RicardoKers/SimNodus/issues.
 
 New in 0.10: the user guides in Brazilian Portuguese (folder pt-BR; Help >
 User Guide opens them when the interface is in Portuguese). Counters,
