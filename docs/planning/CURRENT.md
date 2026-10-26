@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-25. Keep this file short: present state, last results, next
+Updated: 2026-10-26. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On `main` since 0.10:** File > Save with Firmware (SN-219) and the
+  placement shortcuts V, I, Shift+V, Shift+I (SN-220). The owner asked on
+  2026-10-26 for a much larger part library; the plan is SN-221..SN-229 in
+  the backlog (sensors, 74HC chips in DIP packages, I2C/SPI/1-Wire chips,
+  motion, power, sound).
 - **Release 0.10.0 published on 2026-10-25** (the owner asked for it after
   the robustness pass): tag `v0.10.0`, GitHub release with
   `SimNodus-0.10.0-windows-x64.zip` and `SimNodus-0.10.0-windows-x64-setup.exe`.
@@ -93,12 +98,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Next: to be chosen with the owner. In the backlog: SN-219 (save a
-   project with its firmware, so it runs on another PC). Candidate: more
-   ready lessons (needs the owner's course outline). Still slow on a 2026
-   laptop: example 26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186
-   postponed. Run `tools/examples_pass.py` and `tools/examples_gui_pass.py`
-   before each release.
+1. Component library expansion, in backlog order: SN-221 (sensors and
+   transducers in SPICE), then SN-222 (74HC chips in DIP packages), SN-223..
+   SN-228. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
+   and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
+   `tools/examples_gui_pass.py` before each release.
 2. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints

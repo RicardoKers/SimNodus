@@ -87,7 +87,7 @@ project, or with the project named after the script.
 | `hello`, `help` | Protocol version and whether the window is controlled (`directory` sets where relative paths start); every command with its arguments |
 | `parts.list` | Parts, filtered by `search` or `category` |
 | `parts.describe` | Pins, parameters (units, limits, choices, built-in models), bounds |
-| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`; in the window, `new` and `open` refuse to drop unsaved changes unless `"discard": true`) |
+| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`; with `"with_files": true` it also copies firmware and memory contents files into `<name>_files` next to the project; in the window, `new` and `open` refuse to drop unsaved changes unless `"discard": true`) |
 | `circuit.inspect` | Components with pins, points and nets; wires, labels, nets, probes, notes, unconnected pins, settings |
 | `circuit.check` | The pre-run checks of the Messages panel, with codes |
 | `component.add` | Places a part `at` a point, or with a pin `attach`ed to a pin or point (`{"to": "V1.-"}` for a ground) |

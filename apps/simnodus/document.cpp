@@ -3,6 +3,7 @@
 #include "document.hpp"
 
 #include "editing/operations.hpp"
+#include "editing/project_files.hpp"
 #include "io/project_file.hpp"
 #include "library/blocks.hpp"
 
@@ -134,32 +135,12 @@ bool Document::save(const QString& path, QString& error)
 {
     // Relative file parameters keep pointing at the same files from the new folder.
     const QString old_base = base_dir();
-    const QString new_base = QFileInfo(path).absolutePath();
-    if (!old_base.isEmpty() && QDir(old_base) != QDir(new_base)) {
-        model::Schematic work = schematic_;
-        for (const auto& c : schematic_.components()) {
-            const auto* d = library().find(c.type);
-            if (!d) {
-                continue;
-            }
-            for (const auto& p : d->parameters) {
-                const auto it = c.parameters.find(p.name);
-                if (p.kind != library::Parameter::Kind::File || it == c.parameters.end() || it->second.empty()) {
-                    continue;
-                }
-                const QString value = QString::fromStdString(it->second);
-                if (QDir::isAbsolutePath(value)) {
-                    continue;
-                }
-                const QString absolute = QDir(old_base).absoluteFilePath(value);
-                QString moved = QDir(new_base).relativeFilePath(absolute);
-                if (QDir::isAbsolutePath(moved)) { // another drive
-                    moved = absolute;
-                }
-                editing::set_parameter(work, c.id, p.name, moved.toStdString()).apply(work);
-            }
+    if (!old_base.isEmpty()) {
+        auto moved = editing::rebase_project_files(schematic_, library(), old_base.toStdWString(),
+            QFileInfo(path).absolutePath().toStdWString());
+        if (!(moved == schematic_)) {
+            apply(model::make_edit(schematic_, moved, "Update file paths"));
         }
-        apply(model::make_edit(schematic_, work, "Update file paths"));
     }
     const auto result = io::save_project(schematic_, path.toStdWString());
     if (!result.ok) {

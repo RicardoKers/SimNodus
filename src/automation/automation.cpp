@@ -3,6 +3,7 @@
 #include "automation.hpp"
 
 #include "editing/operations.hpp"
+#include "editing/project_files.hpp"
 #include "io/project_file.hpp"
 #include "library/blocks.hpp"
 #include "model/engineering.hpp"
@@ -107,9 +108,14 @@ std::vector<std::string> HeadlessWorkspace::open_project(const std::filesystem::
 
 void HeadlessWorkspace::save_project(const std::filesystem::path& file)
 {
-    const auto result = io::save_project(schematic_, file);
+    // Relative file parameters keep pointing at the same files from the new folder.
+    auto moved = editing::rebase_project_files(schematic_, library(), base_dir(), std::filesystem::absolute(file).parent_path());
+    const auto result = io::save_project(moved, file);
     if (!result.ok) {
         throw Error{"io-error", result.error};
+    }
+    if (!(moved == schematic_)) {
+        apply(model::make_edit(schematic_, moved, "Update file paths"));
     }
     file_ = file;
     modified_ = false;
@@ -1278,7 +1284,18 @@ json cmd_project_save(Context& cx, const json& args)
         fail("invalid-argument", "A new project needs \"path\" to be saved.");
     }
     cx.ws.save_project(path);
-    return {{"file", utf8(path)}};
+    if (!args.value("with_files", false)) {
+        return {{"file", utf8(path)}};
+    }
+    // SN-219: firmware and memory contents copied into "<name>_files" next to the project.
+    path = std::filesystem::absolute(path);
+    auto result = editing::copy_project_files(cx.schematic(), cx.ws.library(), path.parent_path(), path);
+    if (!result.copied.empty()) {
+        cx.ws.apply(model::make_edit(cx.schematic(), result.schematic, "Copy files into the project"));
+        cx.ws.save_project(path);
+    }
+    return {{"file", utf8(path)}, {"folder", utf8(editing::files_folder(path))}, {"copied", result.copied},
+        {"errors", result.errors}};
 }
 
 json cmd_project_info(Context& cx, const json&)
@@ -1903,7 +1920,7 @@ const Command commands[] = {
     {"project.open", "Opens a .snx file.", R"j({"path": "file.snx", "discard": "true to drop unsaved changes in the window"})j",
         cmd_project_open},
     {"project.save", "Saves the project (keeps the previous version as .snx.bak).",
-        R"j({"path": "file.snx; optional once the project has a file"})j", cmd_project_save},
+        R"j({"path": "file.snx; optional once the project has a file", "with_files": "true: also copy firmware and memory contents files into <name>_files next to it (for another computer)"})j", cmd_project_save},
     {"project.info", "File, modified flag, element counts.", "{}", cmd_project_info},
     {"circuit.inspect", "Components with pins, positions and nets; wires, labels, nets, probes, notes, settings.", "{}",
         cmd_circuit_inspect},

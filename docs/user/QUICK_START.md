@@ -51,5 +51,6 @@ the [microcontroller page](MICROCONTROLLER.md).
 | F5 / F6 / Shift+F5 | Run / pause / stop |
 | W, N, P, T | Wire, net label, probe, text note |
 | R, C, L, D, G | Resistor, capacitor, inductor, diode, ground |
+| V, I, Shift+V, Shift+I | Voltage source, current source, voltmeter, ammeter |
 | Ctrl+R, Ctrl+E | Rotate, mirror |
 | F | Fit the circuit in the window |

@@ -56,7 +56,8 @@ Choose a part in the tree (double-click, Enter, or drag it onto the
 schematic), then click to place it; each click places another copy, Esc
 ends. Ctrl+R rotates and Ctrl+E mirrors, also before placing. Single-key
 shortcuts: **R** resistor, **C** capacitor, **L** inductor, **D** diode,
-**G** ground.
+**G** ground, **V** voltage source, **I** current source, **Shift+V**
+voltmeter, **Shift+I** ammeter.
 
 ### Wires, labels and notes
 
@@ -359,6 +360,11 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 - Projects are `.snx` files: File > Save (Ctrl+S), Save As (Ctrl+Shift+S),
   Open (Ctrl+O), Open Recent. Saving keeps the previous version as
   `.snx.bak`.
+- **File > Save with Firmware...** also copies the files the project names
+  (each board's `.elf`, memory contents files) into a folder
+  `<project>_files` next to the `.snx` and points the parts at the copies.
+  Copy the project together with that folder, and it opens and runs on
+  another computer (a student's project on the teacher's PC).
 - Unsaved changes are written to a **recovery file** every minute. If
   SimNodus closes unexpectedly, the next start offers to restore them.
 - **File > Examples** opens the bundled circuits as untitled copies, so the

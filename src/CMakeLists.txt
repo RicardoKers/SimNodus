@@ -35,7 +35,7 @@ add_library(simnodus_io STATIC io/memory_file.cpp io/project_file.cpp)
 add_library(simnodus::io ALIAS simnodus_io)
 target_link_libraries(simnodus_io PUBLIC simnodus::model PRIVATE simnodus_json simnodus::warnings)
 
-add_library(simnodus_editing STATIC editing/operations.cpp)
+add_library(simnodus_editing STATIC editing/operations.cpp editing/project_files.cpp)
 add_library(simnodus::editing ALIAS simnodus_editing)
 target_link_libraries(simnodus_editing PUBLIC simnodus::model simnodus::library PRIVATE simnodus::io simnodus::warnings)
 

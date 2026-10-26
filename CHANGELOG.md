@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-26)
+
+- File > Save with Firmware copies the files a project names (each board's `.elf`, memory contents files) into `<name>_files` next to the `.snx` and points the parts at the copies, so a student's project opens and runs on another computer (SN-219). `project.save` takes `"with_files": true` for the same in `simnodus-cli` and MCP.
+- Placement shortcuts V (voltage source), I (current source), Shift+V (voltmeter) and Shift+I (ammeter) (SN-220).
+
+### Fixed (2026-10-26)
+
+- `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.
+
 ## 0.10.0 — 2026-10-25
 
 ### Summary

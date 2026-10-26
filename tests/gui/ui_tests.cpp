@@ -24,6 +24,7 @@
 #include <QSplitter>
 #include <QTabWidget>
 #include <QTemporaryDir>
+#include <QSet>
 #include <QTest>
 #include <QTreeWidget>
 
@@ -251,8 +252,13 @@ private slots:
         QVERIFY(has(QKeySequence(Qt::Key_W).toString(QKeySequence::NativeText), QStringLiteral("Wire")));
         QVERIFY(has(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S).toString(QKeySequence::NativeText),
             QStringLiteral("Save As")));
+        QVERIFY(has(QKeySequence(Qt::Key_I).toString(QKeySequence::NativeText), QStringLiteral("Current Source")));
+        QVERIFY(has(QKeySequence(Qt::SHIFT | Qt::Key_V).toString(QKeySequence::NativeText), QStringLiteral("Voltmeter")));
         QVERIFY(std::any_of(rows.begin(), rows.end(), [](const ShortcutRow& r) { return r.keys == QStringLiteral("Esc"); }));
+        QSet<QString> keys; // a key on two actions does nothing in Qt
         for (const ShortcutRow& r : rows) {
+            QVERIFY2(!keys.contains(r.keys) || r.keys == QStringLiteral("Esc"), qPrintable(r.keys));
+            keys.insert(r.keys);
             QVERIFY2(!r.keys.isEmpty() && !r.action.isEmpty(), qPrintable(r.group));
             QVERIFY(!r.action.contains(QLatin1Char('&')));
         }

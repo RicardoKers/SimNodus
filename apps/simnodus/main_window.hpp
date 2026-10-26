@@ -134,6 +134,7 @@ public slots:
     void open_dialog();
     bool save();
     bool save_as();
+    bool save_with_files();
     void run();
     void pause_resume();
     void stop();

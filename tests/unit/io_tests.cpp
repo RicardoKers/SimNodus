@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 #include "test_support.hpp"
 
+#include "editing/operations.hpp"
+#include "editing/project_files.hpp"
 #include "io/memory_file.hpp"
 #include "io/project_file.hpp"
 
@@ -234,5 +236,57 @@ TEST_CASE("io: memory contents round-trip through .bin and Intel .hex files")
     CHECK(io::parse_intel_hex(":02000200534E5B\n:00000001FF\n", parsed, error));
     CHECK((parsed == std::vector<std::uint8_t>{0xFF, 0xFF, 0x53, 0x4E}));
     CHECK(!io::parse_intel_hex(":02000200534E00\n:00000001FF\n", parsed, error));
+    std::filesystem::remove_all(dir);
+}
+
+TEST_CASE("saving with files copies firmware and contents next to the project")
+{
+    library::ComponentLibrary lib;
+    lib.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto dir = temp_dir();
+    std::filesystem::create_directories(dir / "work" / "fw");
+    std::filesystem::create_directories(dir / "other");
+    std::ofstream(dir / "work" / "fw" / "blink.elf", std::ios::binary) << "ELF1";
+    std::ofstream(dir / "other" / "blink.elf", std::ios::binary) << "ELF2";
+    std::ofstream(dir / "work" / "table.bin", std::ios::binary) << "ROM";
+
+    Schematic s;
+    Id u1 = 0, u2 = 0, u3 = 0, u4 = 0;
+    editing::add_component(s, *lib.find("bluepill"), {0, 0}, {}, &u1).apply(s);
+    editing::add_component(s, *lib.find("bluepill"), {40, 0}, {}, &u2).apply(s);
+    editing::add_component(s, *lib.find("bluepill"), {80, 0}, {}, &u3).apply(s);
+    editing::add_component(s, *lib.find("rom"), {0, 40}, {}, &u4).apply(s);
+    editing::set_parameter(s, u1, "firmware", "fw/blink.elf").apply(s);
+    editing::set_parameter(s, u2, "firmware", (dir / "other" / "blink.elf").generic_string()).apply(s);
+    editing::set_parameter(s, u3, "firmware", "fw/missing.elf").apply(s);
+    editing::set_parameter(s, u4, "contents", "table.bin").apply(s);
+    CHECK(editing::project_files(s, lib).size() == 4);
+
+    const auto target = dir / "class" / "lesson.snx";
+    std::filesystem::create_directories(target.parent_path());
+    const auto result = editing::copy_project_files(s, lib, dir / "work", target);
+    CHECK(result.copied.size() == 3);
+    REQUIRE(result.errors.size() == 1);
+    CHECK(result.errors[0].find("missing.elf") != std::string::npos);
+    const auto folder = dir / "class" / "lesson_files";
+    CHECK(read(folder / "blink.elf") == "ELF1");
+    const auto& p2 = result.schematic.component(u2)->parameters.at("firmware");
+    CHECK(p2.rfind("lesson_files/", 0) == 0);
+    CHECK(read(dir / "class" / p2) == "ELF2"); // same name, different file: kept apart
+    CHECK(result.schematic.component(u1)->parameters.at("firmware") == "lesson_files/blink.elf");
+    CHECK(result.schematic.component(u3)->parameters.at("firmware") == "fw/missing.elf");
+    CHECK(result.schematic.component(u4)->parameters.at("contents") == "lesson_files/table.bin");
+
+    // Saving again in the same place copies nothing over itself.
+    const auto again = editing::copy_project_files(result.schematic, lib, dir / "class", target);
+    CHECK(again.copied.size() == 3);
+    CHECK(read(folder / "blink.elf") == "ELF1");
+    CHECK(again.schematic.component(u1)->parameters.at("firmware") == "lesson_files/blink.elf");
+
+    // Saving elsewhere keeps relative paths pointing at the same files.
+    const auto moved = editing::rebase_project_files(s, lib, dir / "work", dir / "class");
+    CHECK(moved.component(u1)->parameters.at("firmware") == "../work/fw/blink.elf");
+    CHECK(moved.component(u2)->parameters.at("firmware") == s.component(u2)->parameters.at("firmware"));
+    CHECK(editing::rebase_project_files(s, lib, dir / "work", dir / "work") == s);
     std::filesystem::remove_all(dir);
 }
