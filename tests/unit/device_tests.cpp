@@ -1976,3 +1976,85 @@ TEST_CASE("devices: example 40 reads a DS18B20, a DHT22 and an HC-SR04 and light
     CHECK(texts.at(strip).substr(8, 6) == "00FF00");
     session.stop();
 }
+
+TEST_CASE("devices: a hobby servo follows the pulse width at its speed (SN-226)")
+{
+    std::string error;
+    auto d = devices::make_device("servo", {"SIG"}, {{"min", "500"}, {"max", "2500"}}, error);
+    REQUIRE(d);
+    CHECK(d->text() == "dial 90.0");
+    std::uint64_t t = 0;
+    auto pulse = [&](std::uint64_t width_us) {
+        d->set_input(0, true, t);
+        d->set_input(0, false, t + width_us * 1000);
+        t += 20000000; // 50 Hz
+        while (d->next_event_ns() <= t) {
+            d->advance(d->next_event_ns());
+        }
+    };
+    pulse(2500);
+    CHECK(d->text() != "dial 90.0"); // on its way: 600 degrees a second
+    for (int i = 0; i < 10; ++i) {
+        pulse(2500);
+    }
+    CHECK(d->text() == "dial 180.0");
+    for (int i = 0; i < 20; ++i) {
+        pulse(1000);
+    }
+    CHECK(d->text() == "dial 45.0");
+    pulse(5000); // not a servo pulse: ignored
+    CHECK(d->text() == "dial 45.0");
+}
+
+TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an encoder (SN-226)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "41_Motion_encoder_servo_stepper_L298.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"ma", "mb"};
+    model::Id board = model::no_id, encoder = model::no_id, servo = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        encoder = c.type == "encoder" ? c.id : encoder;
+        servo = c.type == "servo" ? c.id : servo;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    // Two detents clockwise, a quarter at a time, as a hand turns it (slowly enough that the
+    // run, ahead of this thread by a few milliseconds, never applies two quarters at once).
+    double t = 0.3;
+    for (int k = 1; k <= 8; ++k) {
+        wait_for(t);
+        session.set_control(encoder, (10 + k * 0.25) / 20);
+        t += 0.1;
+    }
+    wait_for(2.4);
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    std::printf("%s", text.c_str());
+    CHECK(text.find("POS 12 SERVO 108") != std::string::npos);
+    CHECK(session.device_texts().at(servo) == "dial 108.0");
+    CHECK(session.latest("ma").value_or(0) - session.latest("mb").value_or(0) > -1.0); // forward or freewheeling
+    session.stop();
+}

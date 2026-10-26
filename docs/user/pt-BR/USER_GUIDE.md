@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 c64f0d07ce80524f59c593a7fa285c9a09062411203fa455c088f95140f07d81 -->
+<!-- source: USER_GUIDE.md sha256 c47c30c198e325d462b81e71672160acc5f6e8eee872d125b6884c1bb11360c6 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -111,6 +111,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **CIs lógicos (DIP)** | Chips 74HC e CD4000 reais, com cada pino na posição do encapsulamento e VCC/GND para ligar: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (o 74HC595 está em Chips para microcontroladores) |
 | **Flip-flops e contadores** | Latches D e SR; flip-flops D, JK e T (borda de subida); contador de 4 bits, contador de décadas, registrador de deslocamento de 4 bits. Q̅ e CLR podem ficar desligados |
 | **Displays** | Displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação; um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; um OLED SSD1306 de 128x64 ou 128x32 (I2C) que mostra sua imagem; uma fita de LEDs RGB WS2812B; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
+| **Motores e movimento** | Ponte H dupla L298, matriz Darlington ULN2003, motor de passo bipolar, motor de passo unipolar 28BYJ-48, encoder rotativo, servo de modelismo (os motores de passo mostram o ângulo do eixo, o servo o seu braço) |
 | **Eletromecânicos** | Lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
 | **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
@@ -184,6 +185,15 @@ Observações sobre alguns componentes:
   0,1 ms atrasadas (clocks de até alguns kHz). Pinos de portas não usadas
   podem ficar abertos; suas entradas leem nível baixo. O exemplo 37 é um
   sequencial de LEDs com um 74HC14 e um CD4017.
+- **Motores e movimento:** as saídas do L298 comutam para VS ou SENS por
+  cerca de 1,3 Ω (2,6 V perdidos a 1 A) e ficam soltas enquanto seu enable
+  está em baixo; como o chip, ele não tem diodos de roda livre, então ponha
+  quatro por motor (exemplo 41). Os motores de passo avançam um passo a cada
+  passo das correntes das bobinas, sem força contraeletromotriz nem inércia
+  (nunca perdem passos). O encoder rotativo é arrastado ou girado com a roda
+  durante a simulação, um detent por passo da roda, 20 detents por volta; sua
+  chave de pressão é um botão separado. O servo segue a largura de pulso em
+  SIG (0,5-2,5 ms por padrão) a 600°/s.
 - **Portas lógicas e flip-flops** funcionam com uma alimentação oculta, por
   isso você liga apenas os seus pinos lógicos. As saídas são tensões reais:
   um LED numa saída precisa de um resistor em série.

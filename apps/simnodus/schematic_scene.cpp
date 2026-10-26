@@ -486,6 +486,23 @@ private:
             return;
         }
         const QStringList lines = it->second.split(QLatin1Char('\n'));
+        if (lines.value(0).startsWith(QStringLiteral("dial "))) {
+            // A servo's horn (SN-226): 0 degrees to the left, 180 to the right, over the top.
+            const double degrees = lines.value(0).mid(5).toDouble();
+            const QPointF hub(glass.center().x(), glass.bottom() - glass.height() * 0.2);
+            const double length = std::min(glass.width() * 0.42, glass.height() * 0.7);
+            const double radians = (180.0 - degrees) * 3.14159265358979 / 180.0;
+            const QPointF tip(hub.x() + length * std::cos(radians), hub.y() - length * std::sin(radians));
+            painter.save();
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            painter.setPen(QPen(QColor(0xf0, 0xf0, 0xf0), length * 0.18, Qt::SolidLine, Qt::RoundCap));
+            painter.drawLine(hub, tip);
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor(0xf0, 0xf0, 0xf0));
+            painter.drawEllipse(hub, length * 0.16, length * 0.16);
+            painter.restore();
+            return;
+        }
         const QStringList size = lines.value(0).split(QLatin1Char('x'));
         const int width = size.value(0).toInt();
         const int height = lines.size() - 1;

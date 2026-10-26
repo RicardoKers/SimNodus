@@ -1,0 +1,439 @@
+{
+  "type": "l298",
+  "name": "Dual H-bridge L298",
+  "category": "Motors & motion",
+  "prefix": "U",
+  "description": "Dual full bridge for motors (L298): with ENA high, OUT1 follows IN1 and OUT2 follows IN2 (high: to VS, low: to SENSA), likewise ENB, IN3, IN4 and OUT3, OUT4; an enable low lets its outputs float (PWM on the enables sets the speed). About 1.3 ohm per switch, 2.6 V lost at 1 A; logic supply 5 V on VSS, motor supply up to 46 V on VS; tie SENSA and SENSB to GND or through sense resistors. No internal flyback diodes: add them, as the datasheet says",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -5.0,
+          -7,
+          10,
+          14
+        ]
+      },
+      {
+        "text": "L298",
+        "at": [
+          0,
+          0.0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -7.0,
+          -5,
+          -5.0,
+          -5
+        ]
+      },
+      {
+        "text": "IN1",
+        "at": [
+          -3.6,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          -3,
+          -5.0,
+          -3
+        ]
+      },
+      {
+        "text": "IN2",
+        "at": [
+          -3.6,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          -1,
+          -5.0,
+          -1
+        ]
+      },
+      {
+        "text": "ENA",
+        "at": [
+          -3.6,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          1,
+          -5.0,
+          1
+        ]
+      },
+      {
+        "text": "IN3",
+        "at": [
+          -3.6,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          3,
+          -5.0,
+          3
+        ]
+      },
+      {
+        "text": "IN4",
+        "at": [
+          -3.6,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          5,
+          -5.0,
+          5
+        ]
+      },
+      {
+        "text": "ENB",
+        "at": [
+          -3.6,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          -5,
+          5.0,
+          -5
+        ]
+      },
+      {
+        "text": "OUT1",
+        "at": [
+          3.6,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          -3,
+          5.0,
+          -3
+        ]
+      },
+      {
+        "text": "OUT2",
+        "at": [
+          3.6,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          -1,
+          5.0,
+          -1
+        ]
+      },
+      {
+        "text": "OUT3",
+        "at": [
+          3.6,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          1,
+          5.0,
+          1
+        ]
+      },
+      {
+        "text": "OUT4",
+        "at": [
+          3.6,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          3,
+          5.0,
+          3
+        ]
+      },
+      {
+        "text": "SENSA",
+        "at": [
+          3.6,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          5,
+          5.0,
+          5
+        ]
+      },
+      {
+        "text": "SENSB",
+        "at": [
+          3.6,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -2,
+          -9,
+          -2,
+          -7
+        ]
+      },
+      {
+        "text": "VSS",
+        "at": [
+          -2,
+          -6.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          2,
+          -9,
+          2,
+          -7
+        ]
+      },
+      {
+        "text": "VS",
+        "at": [
+          2,
+          -6.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          9,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          6.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN1",
+        "at": [
+          -7.0,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN2",
+        "at": [
+          -7.0,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "ENA",
+        "at": [
+          -7.0,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN3",
+        "at": [
+          -7.0,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN4",
+        "at": [
+          -7.0,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "ENB",
+        "at": [
+          -7.0,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "OUT1",
+        "at": [
+          7.0,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT2",
+        "at": [
+          7.0,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT3",
+        "at": [
+          7.0,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT4",
+        "at": [
+          7.0,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SENSA",
+        "at": [
+          7.0,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "SENSB",
+        "at": [
+          7.0,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VSS",
+        "at": [
+          -2,
+          -9
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "VS",
+        "at": [
+          2,
+          -9
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          9
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    6,
+    -9
+  ],
+  "value_offset": [
+    6,
+    9
+  ],
+  "spice": [
+    "B_{ref}_onout1 onout1_{ref} 0 V=0.5*(1+tanh(5*(V({node:VSS},{node:GND})-4)))*0.5*(1+tanh(10*(V({node:ENA},{node:GND})-1.9)))",
+    "B_{ref}_xout1 xout1_{ref} 0 V=0.5*(1+tanh(10*(V({node:IN1},{node:GND})-1.9)))",
+    "B_{ref}_hout1 {node:VS} {node:OUT1} I=V(onout1_{ref})*V(xout1_{ref})*V({node:VS},{node:OUT1})/1.3",
+    "B_{ref}_lout1 {node:OUT1} {node:SENSA} I=V(onout1_{ref})*(1-V(xout1_{ref}))*V({node:OUT1},{node:SENSA})/1.3",
+    "R_{ref}_fout1 {node:OUT1} {node:GND} 10Meg",
+    "B_{ref}_onout2 onout2_{ref} 0 V=0.5*(1+tanh(5*(V({node:VSS},{node:GND})-4)))*0.5*(1+tanh(10*(V({node:ENA},{node:GND})-1.9)))",
+    "B_{ref}_xout2 xout2_{ref} 0 V=0.5*(1+tanh(10*(V({node:IN2},{node:GND})-1.9)))",
+    "B_{ref}_hout2 {node:VS} {node:OUT2} I=V(onout2_{ref})*V(xout2_{ref})*V({node:VS},{node:OUT2})/1.3",
+    "B_{ref}_lout2 {node:OUT2} {node:SENSA} I=V(onout2_{ref})*(1-V(xout2_{ref}))*V({node:OUT2},{node:SENSA})/1.3",
+    "R_{ref}_fout2 {node:OUT2} {node:GND} 10Meg",
+    "B_{ref}_onout3 onout3_{ref} 0 V=0.5*(1+tanh(5*(V({node:VSS},{node:GND})-4)))*0.5*(1+tanh(10*(V({node:ENB},{node:GND})-1.9)))",
+    "B_{ref}_xout3 xout3_{ref} 0 V=0.5*(1+tanh(10*(V({node:IN3},{node:GND})-1.9)))",
+    "B_{ref}_hout3 {node:VS} {node:OUT3} I=V(onout3_{ref})*V(xout3_{ref})*V({node:VS},{node:OUT3})/1.3",
+    "B_{ref}_lout3 {node:OUT3} {node:SENSB} I=V(onout3_{ref})*(1-V(xout3_{ref}))*V({node:OUT3},{node:SENSB})/1.3",
+    "R_{ref}_fout3 {node:OUT3} {node:GND} 10Meg",
+    "B_{ref}_onout4 onout4_{ref} 0 V=0.5*(1+tanh(5*(V({node:VSS},{node:GND})-4)))*0.5*(1+tanh(10*(V({node:ENB},{node:GND})-1.9)))",
+    "B_{ref}_xout4 xout4_{ref} 0 V=0.5*(1+tanh(10*(V({node:IN4},{node:GND})-1.9)))",
+    "B_{ref}_hout4 {node:VS} {node:OUT4} I=V(onout4_{ref})*V(xout4_{ref})*V({node:VS},{node:OUT4})/1.3",
+    "B_{ref}_lout4 {node:OUT4} {node:SENSB} I=V(onout4_{ref})*(1-V(xout4_{ref}))*V({node:OUT4},{node:SENSB})/1.3",
+    "R_{ref}_fout4 {node:OUT4} {node:GND} 10Meg",
+    "R_{ref}_iin1 {node:IN1} {node:GND} 1G",
+    "R_{ref}_iin2 {node:IN2} {node:GND} 1G",
+    "R_{ref}_iena {node:ENA} {node:GND} 1G",
+    "R_{ref}_iin3 {node:IN3} {node:GND} 1G",
+    "R_{ref}_iin4 {node:IN4} {node:GND} 1G",
+    "R_{ref}_ienb {node:ENB} {node:GND} 1G",
+    "R_{ref}_qs {node:VS} {node:GND} 1k",
+    "R_{ref}_ql {node:VSS} {node:GND} 220"
+  ]
+}

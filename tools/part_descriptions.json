@@ -56,5 +56,6 @@
   "ds18b20": "1-Wire temperature sensor; set the temperature in Properties",
   "dht22": "One-wire humidity and temperature sensor (DHT22 or DHT11)",
   "hcsr04": "Ultrasonic distance sensor; set the distance in Properties",
-  "ws2812": "Strip of WS2812B addressable RGB LEDs; colors show on the schematic"
+  "ws2812": "Strip of WS2812B addressable RGB LEDs; colors show on the schematic",
+  "servo": "Hobby servo (SG90): the pulse width sets the angle, drawn on the schematic"
 }

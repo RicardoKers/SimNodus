@@ -1,0 +1,148 @@
+{
+  "type": "servo",
+  "name": "Servo motor (hobby)",
+  "category": "Motors & motion",
+  "prefix": "U",
+  "description": "Hobby servo (SG90): the pulse width sets the angle, drawn on the schematic",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -4,
+          12,
+          9
+        ]
+      },
+      {
+        "text": "SERVO",
+        "at": [
+          0,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -8,
+          -2,
+          -6,
+          -2
+        ]
+      },
+      {
+        "text": "SIG",
+        "at": [
+          -4.9,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -8,
+          0,
+          -6,
+          0
+        ]
+      },
+      {
+        "text": "V+",
+        "at": [
+          -4.9,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -8,
+          2,
+          -6,
+          2
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -4.9,
+          1.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "SIG",
+        "at": [
+          -8,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "V+",
+        "at": [
+          -8,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND",
+        "at": [
+          -8,
+          2
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -6
+  ],
+  "value_offset": [
+    -6,
+    6
+  ],
+  "device": {
+    "kind": "servo",
+    "supply_pin": "V+",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hsig {node:SIG} {node:GND} 100Meg",
+    "R_{ref}_q {node:V+} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "min",
+      "label": "Pulse for 0°",
+      "unit": "us",
+      "default": "500",
+      "min": "300",
+      "max": "1500",
+      "description": "Pulse width for 0 degrees (SG90: 500 us; some servos 1000 us)"
+    },
+    {
+      "name": "max",
+      "label": "Pulse for 180°",
+      "unit": "us",
+      "default": "2500",
+      "min": "1500",
+      "max": "3000",
+      "description": "Pulse width for 180 degrees (SG90: 2500 us; some servos 2000 us)"
+    }
+  ],
+  "screen": {
+    "rect": [
+      -5,
+      -3,
+      10,
+      6
+    ],
+    "pixels": true
+  }
+}

@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <deque>
@@ -3207,6 +3208,88 @@ private:
     mutable std::string text_;
 };
 
+// Hobby servo (SG90, MG90S): the width of each pulse on SIG sets the angle,
+// from the "min" pulse (0 degrees) to the "max" pulse (180 degrees); pulses
+// outside 0.3-3 ms are ignored. The horn turns at 600 degrees a second (0.1 s
+// for 60 degrees) and holds its angle without pulses. text() gives the angle
+// as "dial <degrees>".
+class Servo : public Device {
+public:
+    static constexpr std::array<const char*, 1> names{"SIG"};
+    static constexpr std::uint64_t step_ns = 2000000; // the horn moves in 2 ms steps
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        std::array<std::size_t, 1> index{};
+        if (!find_pins(pins, names, index, "Servo", error)) {
+            return false;
+        }
+        sig_ = index[0];
+        if (!number_parameter(parameters, "min", min_us_) || !number_parameter(parameters, "max", max_us_)
+            || max_us_ <= min_us_) {
+            error = "Servo: the pulse widths must be numbers, the maximum above the minimum";
+            return false;
+        }
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != sig_ || level == sig_level_) {
+            return;
+        }
+        sig_level_ = level;
+        if (level) {
+            rose_ns_ = time_ns;
+            return;
+        }
+        const double us = static_cast<double>(time_ns - rose_ns_) / 1000.0;
+        if (us < 300.0 || us > 3000.0) {
+            return;
+        }
+        target_ = std::clamp((us - min_us_) / (max_us_ - min_us_) * 180.0, 0.0, 180.0);
+        if (next_ns_ == no_event && std::abs(target_ - angle_) > 0.05) {
+            next_ns_ = time_ns + step_ns;
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == sig_) {
+            sig_level_ = level;
+        }
+    }
+
+    Output output(std::size_t) const override { return {}; }
+
+    std::uint64_t next_event_ns() const override { return next_ns_; }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        if (next_ns_ == no_event || time_ns < next_ns_) {
+            return;
+        }
+        const double step = 600.0 * static_cast<double>(step_ns) / 1e9;
+        angle_ = target_ > angle_ ? std::min(target_, angle_ + step) : std::max(target_, angle_ - step);
+        next_ns_ = std::abs(target_ - angle_) > 0.05 ? time_ns + step_ns : no_event;
+    }
+
+    std::string text() const override
+    {
+        char buffer[32];
+        std::snprintf(buffer, sizeof buffer, "dial %.1f", angle_);
+        return buffer;
+    }
+
+private:
+    std::size_t sig_ = 0;
+    double min_us_ = 500.0, max_us_ = 2500.0;
+    bool sig_level_ = false;
+    std::uint64_t rose_ns_ = 0, next_ns_ = no_event;
+    double angle_ = 90.0, target_ = 90.0;
+};
+
 // PCF8574 (NXP): 8-bit quasi-bidirectional I/O expander at 0100 A2 A1 A0
 // (0111 A2 A1 A0 for the PCF8574A variant). A written byte sets P0-P7: a 0
 // pulls the pin low, a 1 leaves it high through a weak pull-up (about 100 uA),
@@ -3830,6 +3913,10 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "ws2812") {
         auto device = std::make_unique<Ws2812>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "servo") {
+        auto device = std::make_unique<Servo>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "pcf8574") {

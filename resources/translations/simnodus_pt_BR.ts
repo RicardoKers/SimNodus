@@ -2746,6 +2746,34 @@ Pinos: %2</translation>
             <translation>Imagem do cartão no início da simulação (blocos brutos, guardada relativa ao projeto); vazio: tudo zero</translation>
         </message>
         <message>
+            <source>Servo motor (hobby)</source>
+            <translation>Servo motor (modelismo)</translation>
+        </message>
+        <message>
+            <source>Motors &amp; motion</source>
+            <translation>Motores e movimento</translation>
+        </message>
+        <message>
+            <source>Hobby servo (SG90): the pulse width sets the angle, drawn on the schematic</source>
+            <translation>Servo de modelismo (SG90): a largura do pulso define o ângulo, desenhado no esquemático</translation>
+        </message>
+        <message>
+            <source>Pulse for 0°</source>
+            <translation>Pulso para 0°</translation>
+        </message>
+        <message>
+            <source>Pulse width for 0 degrees (SG90: 500 us; some servos 1000 us)</source>
+            <translation>Largura do pulso para 0 graus (SG90: 500 us; alguns servos 1000 us)</translation>
+        </message>
+        <message>
+            <source>Pulse for 180°</source>
+            <translation>Pulso para 180°</translation>
+        </message>
+        <message>
+            <source>Pulse width for 180 degrees (SG90: 2500 us; some servos 2000 us)</source>
+            <translation>Largura do pulso para 180 graus (SG90: 2500 us; alguns servos 2000 us)</translation>
+        </message>
+        <message>
             <source>OLED display SSD1306 (I2C)</source>
             <translation>Display OLED SSD1306 (I2C)</translation>
         </message>
@@ -3422,6 +3450,90 @@ Pinos: %2</translation>
             <translation>Arquivo ELF compilado para o STM32F103C8 (por exemplo com o STM32CubeIDE); guardado em relação ao projeto</translation>
         </message>
         <message>
+            <source>Rotary encoder</source>
+            <translation>Encoder rotativo</translation>
+        </message>
+        <message>
+            <source>Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise), both open at rest; 20 detents per turn. Turn it while running by dragging it or with the wheel (one detent per step); pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button</source>
+            <translation>Encoder rotativo incremental como um EC11 ou KY-040: os contatos A e B fecham com C em quadratura, um ciclo por detent (A antes de B no sentido horário), ambos abertos em repouso; 20 detents por volta. Gire-o durante a simulação arrastando ou com a roda (um detent por passo); pull-ups em A e B (ou os da placa) dão os pulsos. Para a chave de pressão, ponha um botão</translation>
+        </message>
+        <message>
+            <source>Position</source>
+            <translation>Posição</translation>
+        </message>
+        <message>
+            <source>Detent the knob starts at (0 to 20, one turn); drag or wheel while running</source>
+            <translation>Detent em que o botão começa (0 a 20, uma volta); arraste ou use a roda durante a simulação</translation>
+        </message>
+        <message>
+            <source>Dual H-bridge L298</source>
+            <translation>Ponte H dupla L298</translation>
+        </message>
+        <message>
+            <source>Dual full bridge for motors (L298): with ENA high, OUT1 follows IN1 and OUT2 follows IN2 (high: to VS, low: to SENSA), likewise ENB, IN3, IN4 and OUT3, OUT4; an enable low lets its outputs float (PWM on the enables sets the speed). About 1.3 ohm per switch, 2.6 V lost at 1 A; logic supply 5 V on VSS, motor supply up to 46 V on VS; tie SENSA and SENSB to GND or through sense resistors. No internal flyback diodes: add them, as the datasheet says</source>
+            <translation>Ponte completa dupla para motores (L298): com ENA em alto, OUT1 segue IN1 e OUT2 segue IN2 (alto: para VS, baixo: para SENSA), igualmente ENB, IN3, IN4 e OUT3, OUT4; um enable em baixo deixa suas saídas soltas (PWM nos enables define a velocidade). Cerca de 1,3 ohm por chave, 2,6 V perdidos a 1 A; alimentação lógica de 5 V em VSS, do motor até 46 V em VS; ligue SENSA e SENSB ao GND ou por resistores de medição. Sem diodos de roda livre internos: acrescente-os, como diz a folha de dados</translation>
+        </message>
+        <message>
+            <source>Stepper motor 28BYJ-48 (unipolar)</source>
+            <translation>Motor de passo 28BYJ-48 (unipolar)</translation>
+        </message>
+        <message>
+            <source>Small unipolar stepper motor with a 64:1 gear (28BYJ-48, 5 V): COM (red wire) to the supply and the coil ends A, B, C, D sunk in turn, usually by a ULN2003; 2048 full steps (4096 half steps) per turn of the shaft, whose angle is shown. Behavioral: no back EMF or inertia</source>
+            <translation>Pequeno motor de passo unipolar com redução 64:1 (28BYJ-48, 5 V): COM (fio vermelho) na alimentação e as pontas das bobinas A, B, C, D aterradas em sequência, normalmente por um ULN2003; 2048 passos completos (4096 meios passos) por volta do eixo, cujo ângulo é mostrado. Comportamental: sem força contraeletromotriz nem inércia</translation>
+        </message>
+        <message>
+            <source>Coil resistance</source>
+            <translation>Resistência da bobina</translation>
+        </message>
+        <message>
+            <source>Resistance of each coil half</source>
+            <translation>Resistência de cada meia bobina</translation>
+        </message>
+        <message>
+            <source>Coil inductance</source>
+            <translation>Indutância da bobina</translation>
+        </message>
+        <message>
+            <source>Inductance of each coil half</source>
+            <translation>Indutância de cada meia bobina</translation>
+        </message>
+        <message>
+            <source>Stepper motor (bipolar)</source>
+            <translation>Motor de passo (bipolar)</translation>
+        </message>
+        <message>
+            <source>Bipolar stepper motor like a NEMA 17: two coils (A+/A-, B+/B-) with their resistance and inductance; the rotor turns one step for each step of the coil currents (full, half or micro steps) and shows the shaft angle. Drive it with an H-bridge (L298) or a stepper driver; behavioral: no back EMF or inertia, so it never loses steps</source>
+            <translation>Motor de passo bipolar como um NEMA 17: duas bobinas (A+/A-, B+/B-) com sua resistência e indutância; o rotor avança um passo a cada passo das correntes das bobinas (passo completo, meio passo ou micropasso) e mostra o ângulo do eixo. Acione-o com uma ponte H (L298) ou um driver de motor de passo; comportamental: sem força contraeletromotriz nem inércia, então nunca perde passos</translation>
+        </message>
+        <message>
+            <source>Resistance of each coil</source>
+            <translation>Resistência de cada bobina</translation>
+        </message>
+        <message>
+            <source>Inductance of each coil</source>
+            <translation>Indutância de cada bobina</translation>
+        </message>
+        <message>
+            <source>Coil current for the full holding torque</source>
+            <translation>Corrente da bobina para o torque de retenção total</translation>
+        </message>
+        <message>
+            <source>Steps per revolution</source>
+            <translation>Passos por volta</translation>
+        </message>
+        <message>
+            <source>Full steps per turn of the shaft</source>
+            <translation>Passos completos por volta do eixo</translation>
+        </message>
+        <message>
+            <source>Darlington array ULN2003</source>
+            <translation>Matriz Darlington ULN2003</translation>
+        </message>
+        <message>
+            <source>Seven Darlington sinks (ULN2003, DIP-16) for relays, lamps and unipolar steppers: an input above about 1.8 V (2.7 kohm inside, so 3.3 V and 5 V logic both work) makes its output sink to GND with about 0.9 V left; COM joins the flyback diodes of every output: tie it to the load's supply</source>
+            <translation>Sete drivers Darlington (ULN2003, DIP-16) para relés, lâmpadas e motores de passo unipolares: uma entrada acima de cerca de 1,8 V (2,7 kohm internos, então lógica de 3,3 V e de 5 V funcionam) faz sua saída drenar para GND com cerca de 0,9 V restantes; COM une os diodos de roda livre de todas as saídas: ligue-o à alimentação da carga</translation>
+        </message>
+        <message>
             <source>Capacitor</source>
             <translation>Capacitor</translation>
         </message>
@@ -3460,10 +3572,6 @@ Pinos: %2</translation>
         <message>
             <source>Total resistance between pins 1 and 2</source>
             <translation>Resistência total entre os pinos 1 e 2</translation>
-        </message>
-        <message>
-            <source>Position</source>
-            <translation>Posição</translation>
         </message>
         <message>
             <source>Wiper position from pin 1 (0 %) to pin 2 (100 %)</source>
@@ -3894,16 +4002,8 @@ Pinos: %2</translation>
             <translation>Tensão para a corrente nominal</translation>
         </message>
         <message>
-            <source>Coil resistance</source>
-            <translation>Resistência da bobina</translation>
-        </message>
-        <message>
             <source>Resistance of the coil (rated current = V / R)</source>
             <translation>Resistência da bobina (corrente nominal = V / R)</translation>
-        </message>
-        <message>
-            <source>Coil inductance</source>
-            <translation>Indutância da bobina</translation>
         </message>
         <message>
             <source>Inductance of the coil</source>

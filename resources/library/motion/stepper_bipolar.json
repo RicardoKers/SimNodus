@@ -1,0 +1,197 @@
+{
+  "type": "stepper_bipolar",
+  "name": "Stepper motor (bipolar)",
+  "category": "Motors & motion",
+  "prefix": "M",
+  "description": "Bipolar stepper motor like a NEMA 17: two coils (A+/A-, B+/B-) with their resistance and inductance; the rotor turns one step for each step of the coil currents (full, half or micro steps) and shows the shaft angle. Drive it with an H-bridge (L298) or a stepper driver; behavioral: no back EMF or inertia, so it never loses steps",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "M",
+        "at": [
+          0,
+          -0.6
+        ],
+        "size": 1.2
+      },
+      {
+        "text": "step",
+        "at": [
+          0,
+          1.2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -2.6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -2.6,
+          2
+        ]
+      },
+      {
+        "line": [
+          5,
+          -2,
+          2.6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          5,
+          2,
+          2.6,
+          2
+        ]
+      },
+      {
+        "text": "A+",
+        "at": [
+          -4,
+          -2.6
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "A-",
+        "at": [
+          -4,
+          2.6
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "B+",
+        "at": [
+          4,
+          -2.6
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "B-",
+        "at": [
+          4,
+          2.6
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "A+",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A-",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B+",
+        "at": [
+          5,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "B-",
+        "at": [
+          5,
+          2
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -5
+  ],
+  "value_offset": [
+    -3,
+    5
+  ],
+  "value_parameter": "steps",
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Coil resistance",
+      "unit": "Ohm",
+      "default": "30",
+      "description": "Resistance of each coil",
+      "min": "0.1",
+      "max": "1k"
+    },
+    {
+      "name": "L",
+      "label": "Coil inductance",
+      "unit": "H",
+      "default": "40m",
+      "description": "Inductance of each coil",
+      "min": "10u",
+      "max": "10"
+    },
+    {
+      "name": "Irated",
+      "label": "Rated current",
+      "unit": "A",
+      "default": "400m",
+      "description": "Coil current for the full holding torque",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "steps",
+      "label": "Steps per revolution",
+      "unit": "",
+      "default": "200",
+      "description": "Full steps per turn of the shaft",
+      "min": "4",
+      "max": "1000"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "ang_{ref}",
+    "scale": 1,
+    "unit": "°"
+  },
+  "spice": [
+    "V_{ref}_a {node:A+} ca_{ref} DC 0",
+    "R_{ref}_ra ca_{ref} la_{ref} {R}",
+    "L_{ref}_a la_{ref} {node:A-} {L}",
+    "V_{ref}_b {node:B+} cb_{ref} DC 0",
+    "R_{ref}_rb cb_{ref} lb_{ref} {R}",
+    "L_{ref}_b lb_{ref} {node:B-} {L}",
+    "B_{ref}_th 0 th_{ref} I={= 2000 / Irated}*(I(V_{ref}_b)*cos(V(th_{ref}))-I(V_{ref}_a)*sin(V(th_{ref})))",
+    "C_{ref}_th th_{ref} 0 1",
+    "R_{ref}_th th_{ref} 0 1G",
+    "B_{ref}_ang ang_{ref} 0 V=floor(V(th_{ref})*5729.578/{= steps / 4}+0.5)/100"
+  ]
+}

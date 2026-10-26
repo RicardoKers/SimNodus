@@ -1,0 +1,142 @@
+{
+  "type": "encoder",
+  "name": "Rotary encoder",
+  "category": "Motors & motion",
+  "prefix": "SW",
+  "description": "Incremental rotary encoder like an EC11 or KY-040: contacts A and B close to C in quadrature, one cycle per detent (A before B turning clockwise), both open at rest; 20 detents per turn. Turn it while running by dragging it or with the wheel (one detent per step); pull-ups on A and B (or the board's) give the pulses. For the push switch place a push button",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          2.4
+        ]
+      },
+      {
+        "circle": [
+          0,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -0.8,
+          0,
+          -2.2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          0,
+          -2.4,
+          0
+        ]
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -2,
+          2
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          -4,
+          -2.6
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "C",
+        "at": [
+          -4,
+          -0.6
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "B",
+        "at": [
+          -4,
+          1.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C",
+        "at": [
+          -5,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -3
+  ],
+  "value_offset": [
+    3,
+    3
+  ],
+  "value_parameter": "position",
+  "parameters": [
+    {
+      "name": "position",
+      "label": "Position",
+      "unit": "",
+      "default": "10",
+      "description": "Detent the knob starts at (0 to 20, one turn); drag or wheel while running",
+      "min": "0",
+      "max": "20"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "position"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "pos_{ref}",
+    "scale": 1,
+    "unit": ""
+  },
+  "spice": [
+    "B_{ref}_pos pos_{ref} 0 V=(20*V({control}))",
+    "B_{ref}_a {node:A} {node:C} I=V({node:A},{node:C})*(u(((20*V({control}))-floor((20*V({control}))))-0.2)*u(0.6-((20*V({control}))-floor((20*V({control})))))*1+1e-9)",
+    "B_{ref}_b {node:B} {node:C} I=V({node:B},{node:C})*(u(((20*V({control}))-floor((20*V({control}))))-0.4)*u(0.8-((20*V({control}))-floor((20*V({control})))))*1+1e-9)"
+  ]
+}
