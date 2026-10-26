@@ -20,6 +20,7 @@
 #include "user_models.hpp"
 
 #include "editing/operations.hpp"
+#include "editing/project_files.hpp"
 #include "io/project_file.hpp"
 #include "library/blocks.hpp"
 #include "model/engineering.hpp"
@@ -335,6 +336,9 @@ void MainWindow::build_actions_and_menus()
     save_action->setShortcut(QKeySequence::Save);
     auto* save_as_action = file->addAction(tr("Save &As..."), this, [this] { save_as(); });
     save_as_action->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
+    auto* save_files = file->addAction(tr("Save &with Firmware..."), this, [this] { save_with_files(); });
+    save_files->setStatusTip(tr("Save the project and copy its firmware and memory contents files into a folder next to it, "
+                                "so it runs on another computer"));
     file->addSeparator();
     auto* quit = file->addAction(tr("E&xit"), this, &QWidget::close);
     // QKeySequence::Quit has no usable key on Windows.
@@ -438,6 +442,10 @@ void MainWindow::build_actions_and_menus()
     placement->addAction(tr("Capacitor"), this, place("capacitor"))->setShortcut(QKeySequence(Qt::Key_C));
     placement->addAction(tr("Inductor"), this, place("inductor"))->setShortcut(QKeySequence(Qt::Key_L));
     placement->addAction(tr("Diode"), this, place("diode"))->setShortcut(QKeySequence(Qt::Key_D));
+    placement->addAction(tr("Voltage Source"), this, place("vdc"))->setShortcut(QKeySequence(Qt::Key_V));
+    placement->addAction(tr("Current Source"), this, place("idc"))->setShortcut(QKeySequence(Qt::Key_I));
+    placement->addAction(tr("Voltmeter"), this, place("voltmeter"))->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_V));
+    placement->addAction(tr("Ammeter"), this, place("ammeter"))->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_I));
     wire->setText(tr("&Wire"));
 
     auto* simulate = menuBar()->addMenu(tr("&Simulate"));
@@ -1680,6 +1688,44 @@ bool MainWindow::save_as()
         path += QStringLiteral(".snx");
     }
     return save_to(path);
+}
+
+bool MainWindow::save_with_files()
+{
+    QString start = document_->file_path();
+    if (start.isEmpty()) {
+        start = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/circuit.snx");
+    }
+    QString path = QFileDialog::getSaveFileName(this, tr("Save project with firmware"), start, project_filter);
+    if (path.isEmpty()) {
+        return false;
+    }
+    if (!path.endsWith(QStringLiteral(".snx"), Qt::CaseInsensitive)) {
+        path += QStringLiteral(".snx");
+    }
+    // Saved first, so relative paths already point from the new folder.
+    if (!save_to(path)) {
+        return false;
+    }
+    const std::filesystem::path target = path.toStdWString();
+    const auto result = editing::copy_project_files(document_->schematic(), library_, target.parent_path(), target);
+    for (const auto& error : result.errors) {
+        messages_->add(Severity::Warning, tr("Not copied: %1").arg(QString::fromStdString(error)), tr("File"));
+    }
+    if (result.copied.empty()) {
+        messages_->add(Severity::Info, tr("The project names no firmware or memory contents files; saved as it is."), tr("File"));
+        return result.errors.empty();
+    }
+    document_->apply(model::make_edit(document_->schematic(), result.schematic, "Copy files into the project"));
+    if (!save_to(path)) {
+        return false;
+    }
+    const QString folder = QString::fromStdWString(editing::files_folder(target).wstring());
+    messages_->add(Severity::Info,
+        tr("Saved with %n file(s) in %1. Copy the project together with this folder.", nullptr, int(result.copied.size()))
+            .arg(QDir::toNativeSeparators(folder)),
+        tr("File"));
+    return result.errors.empty();
 }
 
 bool MainWindow::save_to(const QString& path)

@@ -1,4 +1,4 @@
-<!-- source: QUICK_START.md sha256 529e1607956d905af5d3daa60cff5cffc0dfb9400c23a1f0f67469a8cfea102d -->
+<!-- source: QUICK_START.md sha256 ea1cda6f515037c1227212b212ad2641c36d3bb92a453b1a09576bf0d6570286 -->
 # Início rápido do SimNodus
 
 Cinco minutos da instalação até um circuito funcionando. Todo o resto está no
@@ -54,5 +54,6 @@ e o LED em PA0 piscam. No seu próprio circuito, coloque uma
 | F5 / F6 / Shift+F5 | Executar / pausar / parar |
 | W, N, P, T | Fio, rótulo de rede, ponta de prova, nota de texto |
 | R, C, L, D, G | Resistor, capacitor, indutor, diodo, terra |
+| V, I, Shift+V, Shift+I | Fonte de tensão, fonte de corrente, voltímetro, amperímetro |
 | Ctrl+R, Ctrl+E | Girar, espelhar |
 | F | Enquadrar o circuito na janela |

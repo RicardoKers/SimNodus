@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 d5bb30214db0ac643bbb5b18b54bf438f45733d90c9cfe60c937fd020b418ac3 -->
+<!-- source: USER_GUIDE.md sha256 19fa2b650f2a2954a8eb36b06be01db032f77d624e1a452cb8a7d5ef4ccbc1c1 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -60,7 +60,8 @@ Escolha um componente na árvore (clique duplo, Enter ou arraste-o para o
 esquemático) e clique para colocá-lo; cada clique coloca mais uma cópia, e
 Esc termina. Ctrl+R gira e Ctrl+E espelha, inclusive antes de colocar.
 Atalhos de uma tecla: **R** resistor, **C** capacitor, **L** indutor,
-**D** diodo, **G** terra.
+**D** diodo, **G** terra, **V** fonte de tensão, **I** fonte de corrente,
+**Shift+V** voltímetro, **Shift+I** amperímetro.
 
 ### Fios, rótulos e notas
 
@@ -391,6 +392,11 @@ diferenças em relação a uma placa real estão em
 - Os projetos são arquivos `.snx`: Arquivo > Salvar (Ctrl+S), Salvar como
   (Ctrl+Shift+S), Abrir (Ctrl+O), Abrir recente. Ao salvar, a versão
   anterior é mantida como `.snx.bak`.
+- **Arquivo > Salvar com firmware...** também copia os arquivos que o
+  projeto usa (o `.elf` de cada placa, arquivos de conteúdo de memórias)
+  para uma pasta `<projeto>_files` ao lado do `.snx` e faz as peças
+  apontarem para as cópias. Copie o projeto junto com essa pasta e ele abre
+  e roda em outro computador (o projeto de um aluno no PC do professor).
 - Alterações não salvas são gravadas num **arquivo de recuperação** a cada
   minuto. Se o SimNodus fechar inesperadamente, a próxima abertura oferece
   recuperá-las.

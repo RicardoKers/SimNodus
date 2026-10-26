@@ -804,6 +804,14 @@ Pinos: %2</translation>
             <translation>A simulação em andamento recebeu o novo valor.</translation>
         </message>
         <message>
+            <source>Save &amp;with Firmware...</source>
+            <translation>Salvar com &amp;firmware...</translation>
+        </message>
+        <message>
+            <source>Save the project and copy its firmware and memory contents files into a folder next to it, so it runs on another computer</source>
+            <translation>Salva o projeto e copia os arquivos de firmware e de conteúdo de memórias para uma pasta ao lado dele, para que rode em outro computador</translation>
+        </message>
+        <message>
             <source>&amp;Theme</source>
             <translation>&amp;Tema</translation>
         </message>
@@ -826,6 +834,22 @@ Pinos: %2</translation>
         <message>
             <source>Place a vendor subcircuit (.subckt) from the model folders as a part with one pin per port</source>
             <translation>Insere um subcircuito de fabricante (.subckt) das pastas de modelos como uma peça com um pino por porta</translation>
+        </message>
+        <message>
+            <source>Voltage Source</source>
+            <translation>Fonte de tensão</translation>
+        </message>
+        <message>
+            <source>Current Source</source>
+            <translation>Fonte de corrente</translation>
+        </message>
+        <message>
+            <source>Voltmeter</source>
+            <translation>Voltímetro</translation>
+        </message>
+        <message>
+            <source>Ammeter</source>
+            <translation>Amperímetro</translation>
         </message>
         <message>
             <source>External &amp;I/O...</source>
@@ -1396,6 +1420,25 @@ Pinos: %2</translation>
         <message>
             <source>Save project</source>
             <translation>Salvar projeto</translation>
+        </message>
+        <message>
+            <source>Save project with firmware</source>
+            <translation>Salvar projeto com firmware</translation>
+        </message>
+        <message>
+            <source>Not copied: %1</source>
+            <translation>Não copiado: %1</translation>
+        </message>
+        <message>
+            <source>The project names no firmware or memory contents files; saved as it is.</source>
+            <translation>O projeto não usa arquivos de firmware nem de conteúdo de memórias; salvo como está.</translation>
+        </message>
+        <message numerus="yes">
+            <source>Saved with %n file(s) in %1. Copy the project together with this folder.</source>
+            <translation>
+                <numerusform>Salvo com %n arquivo em %1. Copie o projeto junto com esta pasta.</numerusform>
+                <numerusform>Salvo com %n arquivos em %1. Copie o projeto junto com esta pasta.</numerusform>
+            </translation>
         </message>
         <message>
             <source>Saving failed: %1</source>
