@@ -111,6 +111,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   0.2x at 10 µs with 10 kHz PWM).
 - USART RX from the pin needs exact edges or bits of four circuit steps;
   bytes reach DR about 0.4 ms after their stop bit.
+- Examples close to or below real time on a 2026 laptop: 26 (LED matrix,
+  0.4x), 24 and 15 (about 1x), 23 (1.2x); listed in the user guide.
 
 ## Resuming in a new session
 
@@ -141,8 +143,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - **Release:** `build/release` is configured with `-DSIMNODUS_VERSION_SUFFIX=`
   (empty; `main` stays `dev`); bump the version in CMake first, build,
   `package_windows.py --build-dir build/release --installer` (Inno Setup 6,
-  `winget install JRSoftware.InnoSetup`), date the CHANGELOG section, tag
-  `vX.Y.Z`, `gh release create` with the zip and the setup.exe.
+  `winget install JRSoftware.InnoSetup`), run `tools/examples_pass.py` and
+  `tools/examples_gui_pass.py --qt-bin C:/Qt/6.11.1/msvc2022_64/bin` on
+  `build/release`, date the CHANGELOG section, tag `vX.Y.Z`,
+  `gh release create` with the zip and the setup.exe.
+- **User guides:** `docs/user/pt-BR` translates QUICK_START, USER_GUIDE and
+  MICROCONTROLLER; a change to one of them includes the same change in the
+  translation and its new source hash (`check_repository.py` prints it).
+- **Generated parts:** the library JSON of logic, storage, display, timer,
+  converter, regulator and I/O parts comes from `tools/generate_*_parts.py`;
+  edit the generator and rerun it, not the JSON.
 - **Pitfalls met so far:** Qt 6.4's moc (Linux CI) cannot parse C++20
   standard headers, so Q_OBJECT headers include project headers only under
   `#ifndef Q_MOC_RUN`; GCC treats missing aggregate initializers and implicit

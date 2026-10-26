@@ -22,6 +22,15 @@ Each release is tested hands-on by the owner; feedback adjusts the next phase.
 Weekly cadence inside each phase: a test build every Friday (Windows package
 from CI) with a short list of what to try.
 
+**Status 2026-10-25.** The phases ran far ahead of these dates: releases
+0.1.0 to 0.10.0 were published between 2026-10-14 and 2026-10-25, covering
+phases 1-4 and more (digital parts, SPI/I2C chips, AI agent control,
+external I/O, Cortex-M3 timing, pt-BR guides). The freeze, stabilization and
+the lab rehearsal before the February 2027 classroom keep their dates; until
+then, work follows the owner's choices from the [backlog](BACKLOG.md) and
+[current state](CURRENT.md), and every release runs `tools/examples_pass.py`
+and `tools/examples_gui_pass.py`.
+
 ## Emulator track
 
 From 2026-10-16 an own STM32 emulator is built in parallel
