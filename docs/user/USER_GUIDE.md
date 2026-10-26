@@ -3,8 +3,7 @@
 SimNodus is a classroom simulator: you draw a circuit, press F5 and it keeps
 running while you press buttons, turn potentiometers and watch LEDs, meters
 and the Signal Analyzer. A Blue Pill board (STM32F103C8) can run your own
-firmware inside the circuit. This guide describes release 0.5 (on `main`
-after 0.4.0). For a first circuit in five minutes, see the
+firmware inside the circuit. This guide describes release 0.9. For a first circuit in five minutes, see the
 [quick start](QUICK_START.md); for every detail of the simulated
 microcontroller, see [MICROCONTROLLER.md](MICROCONTROLLER.md).
 
@@ -470,5 +469,3 @@ results are read correctly.
   open; press F5 to run again.
 - Resistors use the IEC rectangle; an ANSI zigzag variant and a symbol
   editor are not available yet.
-- The interface is in English and Brazilian Portuguese; this guide is in
-  English only.

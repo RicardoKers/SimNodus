@@ -127,9 +127,36 @@ def check_translations(errors: list[str]) -> None:
                         errors.append(f"{label}: placeholders differ in the translation")
 
 
+GUIDE_SOURCE = re.compile(r"<!-- source: (\S+) sha256 ([0-9a-f]{64}) -->")
+
+
+def guide_hash(path: Path) -> str:
+    """SHA-256 of a guide's text with LF line ends (the same on every checkout)."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def check_guide_translations(errors: list[str]) -> None:
+    """Each translated user guide names its English source and that source's hash:
+    a change of the English text fails here until the translation follows it."""
+    english = ROOT / "docs" / "user"
+    for path in sorted(english.glob("*/*.md")):
+        relative = path.relative_to(ROOT).as_posix()
+        match = GUIDE_SOURCE.search(path.read_text(encoding="utf-8").split("\n", 1)[0])
+        if not match:
+            errors.append(f"{relative}: first line must be <!-- source: GUIDE.md sha256 HASH -->")
+            continue
+        source = english / match.group(1)
+        if not source.is_file():
+            errors.append(f"{relative}: source {match.group(1)} not found in docs/user")
+        elif guide_hash(source) != match.group(2):
+            errors.append(f"{relative}: docs/user/{match.group(1)} changed; update the translation, then its "
+                          f"first line to <!-- source: {match.group(1)} sha256 {guide_hash(source)} -->")
+
+
 def main() -> int:
     errors: list[str] = []
     check_translations(errors)
+    check_guide_translations(errors)
     for required in sorted(REQUIRED):
         if not (ROOT / required).is_file():
             errors.append(f"Missing required file: {required}")

@@ -21,7 +21,7 @@ the circuit.
 
 New in 0.9: the firmware runs at the speed of the real chip (Cortex-M3
 instruction timing with the flash wait states, within 5 % of a Blue Pill;
-Simulate > Settings can turn it off). Messages can be copied (Ctrl+C);
+Simulate > Simulation Settings can turn it off). Messages can be copied (Ctrl+C);
 selected wires and probes show their values while running; the meters show
 their polarity; fixes for adjustable sources and the simple transistors.
 
@@ -48,7 +48,10 @@ theme (View > Theme); the user guide (Help > User Guide).
 
 Guides in this folder (also Help > User Guide): QUICK-START.md,
 USER-GUIDE.md with the known limitations, and MICROCONTROLLER.md (also on
-https://github.com/RicardoKers/SimNodus/tree/main/docs/user). Lessons 1-3
+https://github.com/RicardoKers/SimNodus/tree/main/docs/user). The same
+guides in Brazilian Portuguese are in pt-BR (Início rápido, Guia do usuário,
+Microcontrolador); Help > User Guide opens them when the interface is in
+Portuguese. Lessons 1-3
 are in examples/lessons; examples 17-23 show gates, buses, diode kinds,
 blocks, a counter, regulators and a 7-segment display; examples 24-28 the
 RTC and watchdogs, SPI and I2C chips and a character LCD; examples 29-33

@@ -15,6 +15,9 @@ Current user instructions take precedence over this file.
 
 - Repository content in English (docs, code, comments). Conversation with the
   owner may be in Portuguese. UI strings in English with a pt-BR translation.
+  The user guides have pt-BR translations in `docs/user/pt-BR`: a change to an
+  English guide includes the same change there (`check_repository.py` fails
+  until the translation's source hash is updated).
 - MIT license for original material; dependencies only under compatible terms
   (no GPL-only libraries linked into the application).
 - Windows is the classroom platform; code must also build and run on Linux.

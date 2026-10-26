@@ -8,6 +8,8 @@ Planning documents of the first development line are in [archive/2026-10-legacy]
 - [Quick start](user/QUICK_START.md): a running circuit in five minutes.
 - [User guide](user/USER_GUIDE.md): every feature, troubleshooting and the known limitations.
 - [Microcontroller](user/MICROCONTROLLER.md): what the simulated STM32F103C8 supports, GDB debugging.
+- In Brazilian Portuguese: [Início rápido](user/pt-BR/QUICK_START.md), [Guia do usuário](user/pt-BR/USER_GUIDE.md),
+  [Microcontrolador](user/pt-BR/MICROCONTROLLER.md).
 
 ## Product and architecture
 

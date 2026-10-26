@@ -126,7 +126,7 @@ laptop.
   was never switched on, which would fail on the board. The clock security
   system and MCO are not simulated.
 - **Instruction timing.** With *Cortex-M3 instruction timing* on
-  (Simulate > Settings, on by default), each instruction takes the cycles of
+  (Simulate > Simulation Settings, on by default), each instruction takes the cycles of
   the STM32F103's core: 2 for a load, 2 to 12 for a division, 1 + the
   registers for LDM/STM and PUSH/POP, a pipeline refill after a taken branch,
   12 cycles to enter an interrupt and 10 to return, and the flash wait states
@@ -202,8 +202,7 @@ still too**; when it runs again, both continue from the same instant.
    *Connect to remote GDB server*, host `localhost`, port `3333`, and click
    **Debug** (keep *Download* checked on the **Startup** tab). Then use
    breakpoints, Step Over/Into, Resume, Suspend and the Variables, Registers
-   and Expressions views as with a board. The owner debugged this way from
-   STM32CubeIDE 2.1.1 on 2026-10-18.
+   and Expressions views as with a board. Tested with STM32CubeIDE 2.1.1.
 4. **arm-none-eabi-gdb** (it comes with STM32CubeIDE, in the GNU Tools for
    STM32 folder): `arm-none-eabi-gdb Debug/project.elf`, then
    `target extended-remote :3333`, `break main`, `continue`, `next`,

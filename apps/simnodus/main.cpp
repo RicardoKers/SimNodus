@@ -77,6 +77,7 @@ void install_translations(QApplication& application, const QString& language)
     for (const auto& folder : folders) {
         if (own->load(locale, QStringLiteral("simnodus"), QStringLiteral("_"), folder)) {
             application.installTranslator(own);
+            application.setProperty("simnodus_language", own->language()); // Help > User Guide in this language
             break;
         }
     }
