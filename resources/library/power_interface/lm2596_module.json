@@ -1,0 +1,188 @@
+{
+  "type": "lm2596_module",
+  "name": "Buck converter module LM2596",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "The common adjustable LM2596 step-down module: input 4.5-40 V on IN+/IN-, output from 1.25 V up to about 1.5 V below the input on OUT+/OUT- (OUT- is IN-), up to 3 A; turn its trimmer while running by dragging it or with the wheel. Averaged: no switching ripple; the input current is the output power over 85 %",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -3,
+          12,
+          6
+        ]
+      },
+      {
+        "text": "LM2596",
+        "at": [
+          0,
+          -0.8
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "DC-DC",
+        "at": [
+          0,
+          1.0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -8,
+          -2,
+          -6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -8,
+          2,
+          -6,
+          2
+        ]
+      },
+      {
+        "line": [
+          8,
+          -2,
+          6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          8,
+          2,
+          6,
+          2
+        ]
+      },
+      {
+        "text": "IN+",
+        "at": [
+          -4.6,
+          -2
+        ],
+        "size": 0.45
+      },
+      {
+        "text": "IN-",
+        "at": [
+          -4.6,
+          2
+        ],
+        "size": 0.45
+      },
+      {
+        "text": "OUT+",
+        "at": [
+          4.3,
+          -2
+        ],
+        "size": 0.45
+      },
+      {
+        "text": "OUT-",
+        "at": [
+          4.3,
+          2
+        ],
+        "size": 0.45
+      },
+      {
+        "circle": [
+          3.5,
+          0.6,
+          0.6
+        ]
+      },
+      {
+        "line": [
+          3.1,
+          1.0,
+          3.9,
+          0.2
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN+",
+        "at": [
+          -8,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "IN-",
+        "at": [
+          -8,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT+",
+        "at": [
+          8,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUT-",
+        "at": [
+          8,
+          2
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -5
+  ],
+  "value_offset": [
+    -6,
+    5
+  ],
+  "value_parameter": "vout",
+  "parameters": [
+    {
+      "name": "vout",
+      "label": "Output voltage",
+      "unit": "V",
+      "default": "5",
+      "description": "Where the trimmer starts; drag the module or use the wheel while running (1.25 to 35 V)",
+      "min": "1.25",
+      "max": "35"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "vout"
+  },
+  "readout": {
+    "kind": "voltage",
+    "pins": [
+      "OUT+",
+      "OUT-"
+    ]
+  },
+  "spice": [
+    "B_{ref}_vs vs_{ref} 0 V=1.25+33.75*V({control})",
+    "R_{ref}_ret {node:OUT-} {node:IN-} 0.01",
+    "B_{ref}_c 0 c_{ref} I=1m*(1*min(max(min(500*(V(vs_{ref})-V({node:OUT+},{node:IN-})),500*(V({node:IN+},{node:OUT+})-1.5)),0),3.5)-V(c_{ref}))",
+    "C_{ref}_c c_{ref} 0 100n",
+    "B_{ref}_o {node:IN-} {node:OUT+} I=max(V(c_{ref}),0)",
+    "B_{ref}_i {node:IN+} {node:IN-} I=max(V(c_{ref}),0)*max(V({node:OUT+},{node:IN-}),0)/(0.85*max(V({node:IN+},{node:IN-}),1))+5m*(1)",
+    "R_{ref}_l {node:OUT+} {node:IN-} 100k"
+  ]
+}

@@ -21,6 +21,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - Motors and motion (SN-226, category Motors & motion, `tools/generate_motion_parts.py`): L298 dual H-bridge, ULN2003, bipolar and 28BYJ-48 stepper motors showing their shaft angle, a rotary encoder turned by dragging or the wheel, and a hobby servo whose horn is drawn on the schematic. Firmware `hal_motion` and example 41.
 
+- Power and interface parts (SN-227, category Power & interface, `tools/generate_interface_parts.py`): LM2596 buck regulator, averaged, as the chip and as the adjustable module (trimmer dragged while running), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers.
+
 ### Fixed (2026-10-26)
 
 - Readouts of a part at rest no longer show numerical dust (a DC motor's "7.9e-14 rpm" is 0).

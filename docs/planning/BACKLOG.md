@@ -147,7 +147,7 @@ translation; the order may change with the owner's lessons.
 | SN-224 | SPI chips: MCP3208 (inputs read from the circuit: `device.analog_pins`), MCP41010 (a resistance in the circuit: `device.internal_pins`), W25Q32 (Memory Viewer, large memories copied at most every 0.2 s), microSD card (SPI mode, an image file), HX711 with the load cell; firmware `hal_spi_sensors`, example 39 | done 2026-10-26 |
 | SN-225 | Timed one-wire protocols: DS18B20 (1-Wire, search ROM), DHT22/DHT11, HC-SR04 (distance set while running), WS2812B strip (colors on the schematic); device events scheduled from an input now stop the core on time; firmware `hal_onewire_sensors`, example 40 | done 2026-10-26 |
 | SN-226 | Motion: hobby servo (angle from the pulse width, horn drawn), bipolar and 28BYJ-48 steppers, ULN2003, rotary encoder (the push switch stays a separate button), L298 dual H-bridge; `tools/generate_motion_parts.py`, firmware `hal_motion`, example 41 | done 2026-10-26 |
-| SN-227 | Power and interface: LM2596 buck regulator (averaged), TL494 PWM controller, MAX485, MAX232 | todo |
+| SN-227 | Power and interface: LM2596 buck regulator (averaged; chip and adjustable module), TL494 PWM controller, MAX485, MAX232; `tools/generate_interface_parts.py` | done 2026-10-26 |
 | SN-228 | Sound: active and passive buzzers heard through the computer's speakers | todo |
 | SN-229 | Candidates for automation lessons (owner to confirm): inductive proximity sensor NPN/PNP 24 V, 4–20 mA transmitter, ULN2003, HC-SR501 PIR, HC-05 Bluetooth serial module, logic-level MOSFET (IRLZ44N) | todo |
 

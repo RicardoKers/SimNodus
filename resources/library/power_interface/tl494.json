@@ -1,0 +1,604 @@
+{
+  "type": "tl494",
+  "name": "PWM controller TL494",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "Pulse-width modulation controller (TL494, DIP-16): the oscillator runs at 1.1 / (RT x CT) with a 0-3 V sawtooth on CT; the output transistors (C1-E1, C2-E2) conduct while the sawtooth is above FEEDBACK (the higher of the two error amplifiers) and above DTC + 0.12 V; OUTPUT CTRL to GND drives both together, to REF (5 V) alternately (push-pull). Supply 7-40 V. Behavioral; its oscillator needs time steps well below its period (transient mode, or a low frequency)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "TL494",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "1IN+",
+        "at": [
+          -2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "1IN-",
+        "at": [
+          -2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "FEEDBACK",
+        "at": [
+          -2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "DTC",
+        "at": [
+          -2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "CT",
+        "at": [
+          -2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "RT",
+        "at": [
+          -2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "C1",
+        "at": [
+          -2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "E1",
+        "at": [
+          2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "E2",
+        "at": [
+          2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "C2",
+        "at": [
+          2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "OUTCTRL",
+        "at": [
+          2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "REF",
+        "at": [
+          2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "2IN-",
+        "at": [
+          2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "2IN+",
+        "at": [
+          2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "1IN+",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "1IN-",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "FEEDBACK",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DTC",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "CT",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "RT",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C1",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "E1",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "E2",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "C2",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUTCTRL",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "REF",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "2IN-",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "2IN+",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "spice": [
+    "B_{ref}_s s_{ref} 0 V=0.5*(1+tanh(5*(V({node:VCC},{node:GND})-6.5)))",
+    "B_{ref}_r r_{ref} {node:GND} V=5*V(s_{ref})",
+    "R_{ref}_r r_{ref} {node:REF} 10",
+    "B_{ref}_rt rt_{ref} {node:GND} V=3.65*V(s_{ref})",
+    "V_{ref}_rt rt_{ref} {node:RT} DC 0",
+    "B_{ref}_st 0 st_{ref} I=1m*(0.5*(1+tanh(50*(V({node:CT},{node:GND})-0.1-2.9*(1-V(dis_{ref})))))-V(st_{ref}))",
+    "C_{ref}_st st_{ref} 0 1n",
+    "B_{ref}_dis dis_{ref} 0 V=0.5*(1+tanh(100*(V(st_{ref})-0.5)))",
+    "B_{ref}_ct {node:GND} {node:CT} I=(1-V(dis_{ref}))*0.904*max(I(V_{ref}_rt),0)-V(dis_{ref})*V({node:CT},{node:GND})/20",
+    "B_{ref}_e1 e1_{ref} 0 V=V(s_{ref})*max(min(2000*(V({node:1IN+},{node:GND})-V({node:1IN-},{node:GND})),3.5),0)",
+    "B_{ref}_e2 e2_{ref} 0 V=V(s_{ref})*max(min(2000*(V({node:2IN+},{node:GND})-V({node:2IN-},{node:GND})),3.5),0)",
+    "B_{ref}_e e_{ref} {node:GND} V=max(V(e1_{ref}),V(e2_{ref}))",
+    "R_{ref}_e e_{ref} {node:FEEDBACK} 1k",
+    "B_{ref}_on on_{ref} 0 V=V(s_{ref})*(1-V(dis_{ref}))*0.5*(1+tanh(50*(V({node:CT},{node:GND})-V({node:FEEDBACK},{node:GND}))))*0.5*(1+tanh(50*(V({node:CT},{node:GND})-V({node:DTC},{node:GND})-0.12)))",
+    "B_{ref}_m 0 m_{ref} I=1m*(V(dis_{ref})*((1-V(t_{ref}))-V(m_{ref})))",
+    "C_{ref}_m m_{ref} 0 1n",
+    "B_{ref}_t 0 t_{ref} I=1m*((1-V(dis_{ref}))*(V(m_{ref})-V(t_{ref})))",
+    "C_{ref}_t t_{ref} 0 1n",
+    "B_{ref}_pp pp_{ref} 0 V=0.5*(1+tanh(50*(V({node:OUTCTRL},{node:GND})-2.5)))",
+    "B_{ref}_o1 o1_{ref} 0 V=V(on_{ref})*(1-V(pp_{ref})+V(pp_{ref})*V(t_{ref}))",
+    "B_{ref}_o2 o2_{ref} 0 V=V(on_{ref})*(1-V(pp_{ref})+V(pp_{ref})*(1-V(t_{ref})))",
+    "B_{ref}_q1 {node:C1} {node:E1} I=V(o1_{ref})*max(V({node:C1},{node:E1}),0)/5",
+    "B_{ref}_q2 {node:C2} {node:E2} I=V(o2_{ref})*max(V({node:C2},{node:E2}),0)/5",
+    "R_{ref}_ctl {node:CT} {node:GND} 100Meg",
+    "R_{ref}_c1 {node:C1} {node:GND} 100Meg",
+    "R_{ref}_e1 {node:E1} {node:GND} 100Meg",
+    "R_{ref}_c2 {node:C2} {node:GND} 100Meg",
+    "R_{ref}_e2 {node:E2} {node:GND} 100Meg",
+    "R_{ref}_q {node:VCC} {node:GND} 1k",
+    "R_{ref}_i0 {node:1IN+} {node:GND} 1G",
+    "R_{ref}_i1 {node:1IN-} {node:GND} 1G",
+    "R_{ref}_i2 {node:2IN+} {node:GND} 1G",
+    "R_{ref}_i3 {node:2IN-} {node:GND} 1G",
+    "R_{ref}_i4 {node:DTC} {node:GND} 1G",
+    "R_{ref}_i5 {node:OUTCTRL} {node:GND} 1G"
+  ]
+}

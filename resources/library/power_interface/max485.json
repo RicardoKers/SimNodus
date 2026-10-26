@@ -1,0 +1,323 @@
+{
+  "type": "max485",
+  "name": "RS-485 transceiver MAX485",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "RS-485 half-duplex transceiver (MAX485, DIP-8): with DE high the driver puts DI on A and its complement on B; with RE low RO is high while A is above B. Tie DE and RE together for a direction pin; terminate long lines with 120 ohm between A and B. Supply 5 V. Behavioral",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -4,
+          8,
+          8
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -4,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "MAX485",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "RO",
+        "at": [
+          -2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "RE",
+        "at": [
+          -2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "DE",
+        "at": [
+          -2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "DI",
+        "at": [
+          -2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "5",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "6",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "B",
+        "at": [
+          2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "7",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "8",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "RO",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "RE",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "DE",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "DI",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "A",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "B",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -6
+  ],
+  "value_offset": [
+    -1,
+    6
+  ],
+  "spice": [
+    "B_{ref}_xa xa_{ref} 0 V=0.5*(1+tanh(10*(V({node:DI},{node:GND})-1.4)))",
+    "B_{ref}_ua {node:VCC} {node:A} I=0.5*(1+tanh(10*(V({node:DE},{node:GND})-1.4)))*V(xa_{ref})*V({node:VCC},{node:A})/30",
+    "B_{ref}_da {node:A} {node:GND} I=0.5*(1+tanh(10*(V({node:DE},{node:GND})-1.4)))*(1-V(xa_{ref}))*V({node:A},{node:GND})/30",
+    "B_{ref}_xb xb_{ref} 0 V=(1-0.5*(1+tanh(10*(V({node:DI},{node:GND})-1.4))))",
+    "B_{ref}_ub {node:VCC} {node:B} I=0.5*(1+tanh(10*(V({node:DE},{node:GND})-1.4)))*V(xb_{ref})*V({node:VCC},{node:B})/30",
+    "B_{ref}_db {node:B} {node:GND} I=0.5*(1+tanh(10*(V({node:DE},{node:GND})-1.4)))*(1-V(xb_{ref}))*V({node:B},{node:GND})/30",
+    "B_{ref}_xro xro_{ref} 0 V=0.5*(1+tanh(50*(V({node:A},{node:B}))))",
+    "B_{ref}_uro {node:VCC} {node:RO} I=(1-0.5*(1+tanh(10*(V({node:RE},{node:GND})-1.4))))*V(xro_{ref})*V({node:VCC},{node:RO})/30",
+    "B_{ref}_dro {node:RO} {node:GND} I=(1-0.5*(1+tanh(10*(V({node:RE},{node:GND})-1.4))))*(1-V(xro_{ref}))*V({node:RO},{node:GND})/30",
+    "R_{ref}_ia {node:A} {node:GND} 12k",
+    "R_{ref}_ib {node:B} {node:GND} 12k",
+    "R_{ref}_q {node:VCC} {node:GND} 10k",
+    "R_{ref}_ire {node:RE} {node:GND} 1G",
+    "R_{ref}_ide {node:DE} {node:GND} 1G",
+    "R_{ref}_idi {node:DI} {node:GND} 1G"
+  ]
+}

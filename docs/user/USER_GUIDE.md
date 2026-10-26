@@ -107,6 +107,7 @@ invalid value is outlined in red and not applied.
 | **Logic chips (DIP)** | Real 74HC and CD4000 chips with every pin in its package position and VCC/GND to wire: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (the 74HC595 is under Chips for microcontrollers) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; a 128x64 or 128x32 SSD1306 OLED (I2C) that shows its picture; a strip of WS2812B RGB LEDs; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
+| **Power & interface** | LM2596 buck regulator (chip and adjustable module), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers |
 | **Motors & motion** | L298 dual H-bridge, ULN2003 Darlington array, bipolar stepper motor, 28BYJ-48 unipolar stepper, rotary encoder, hobby servo (the steppers show their shaft angle, the servo its horn) |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
@@ -182,6 +183,14 @@ Notes on some parts:
   wheeled while running, one detent per wheel step, 20 detents per turn;
   its push switch is a separate push button. The servo follows the pulse
   width on SIG (0.5-2.5 ms by default) at 600°/s.
+- **Power & interface:** the LM2596 models are averaged: the output follows
+  the regulation loop (FB at 1.23 V, or the module's trimmer dragged while
+  running) up to 3 A and 1.5 V below the input, and the input draws the
+  output power over 85 %; the 150 kHz switching and its ripple are left
+  out. The TL494 oscillates at 1.1 / (RT × CT) on its CT pin and needs time
+  steps well below its period: use transient mode or a low frequency. The
+  MAX232's charge pump is not simulated (its ±8.5 V rails are inside), but a
+  real board needs its four capacitors.
 - **Logic gates and flip-flops** run on a hidden supply, so you wire only
   their logic pins. Their outputs are real voltages: an LED on an output
   needs a series resistor.
