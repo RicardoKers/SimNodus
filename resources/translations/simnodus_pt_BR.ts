@@ -3610,6 +3610,58 @@ Pinos: %2</translation>
             <translation>Indutância de magnetização do primário</translation>
         </message>
         <message>
+            <source>Buck regulator LM2596</source>
+            <translation>Regulador buck LM2596</translation>
+        </message>
+        <message>
+            <source>Power &amp; interface</source>
+            <translation>Potência e interface</translation>
+        </message>
+        <message>
+            <source>Step-down switching regulator (LM2596-ADJ), averaged: OUT regulates FB to 1.23 V (a divider sets the output: Vout = 1.23 x (1 + R2/R1)), up to 3 A and about 1.5 V below VIN; the input current is the output power over 85 % efficiency. Wire the datasheet's inductor (33 uH) and Schottky diode, or not: the 150 kHz switching is not simulated. ON low (or GND) turns it on</source>
+            <translation>Regulador chaveado abaixador (LM2596-ADJ), modelo médio: OUT regula FB em 1,23 V (um divisor define a saída: Vout = 1,23 x (1 + R2/R1)), até 3 A e cerca de 1,5 V abaixo de VIN; a corrente de entrada é a potência de saída dividida por 85 % de eficiência. Ligue o indutor (33 uH) e o diodo Schottky da folha de dados, ou não: o chaveamento de 150 kHz não é simulado. ON em baixo (ou GND) o liga</translation>
+        </message>
+        <message>
+            <source>Buck converter module LM2596</source>
+            <translation>Módulo conversor buck LM2596</translation>
+        </message>
+        <message>
+            <source>The common adjustable LM2596 step-down module: input 4.5-40 V on IN+/IN-, output from 1.25 V up to about 1.5 V below the input on OUT+/OUT- (OUT- is IN-), up to 3 A; turn its trimmer while running by dragging it or with the wheel. Averaged: no switching ripple; the input current is the output power over 85 %</source>
+            <translation>O módulo abaixador ajustável LM2596 comum: entrada de 4,5 a 40 V em IN+/IN-, saída de 1,25 V até cerca de 1,5 V abaixo da entrada em OUT+/OUT- (OUT- é IN-), até 3 A; gire seu trimpot durante a simulação arrastando ou com a roda. Modelo médio: sem ondulação de chaveamento; a corrente de entrada é a potência de saída dividida por 85 %</translation>
+        </message>
+        <message>
+            <source>Output voltage</source>
+            <translation>Tensão de saída</translation>
+        </message>
+        <message>
+            <source>Where the trimmer starts; drag the module or use the wheel while running (1.25 to 35 V)</source>
+            <translation>Onde o trimpot começa; arraste o módulo ou use a roda durante a simulação (1,25 a 35 V)</translation>
+        </message>
+        <message>
+            <source>RS-232 transceiver MAX232</source>
+            <translation>Transceptor RS-232 MAX232</translation>
+        </message>
+        <message>
+            <source>RS-232 line driver and receiver (MAX232, DIP-16) on 5 V: T1IN/T2IN (TTL) give inverted levels of about +-8.5 V on T1OUT/T2OUT; R1IN/R2IN (RS-232, 5 kohm) give inverted TTL levels on R1OUT/R2OUT. The charge pump is not simulated (its rails are inside), but a real board needs its four 1 uF capacitors on C1+/C1-, C2+/C2-, V+ and V-. Behavioral</source>
+            <translation>Driver e receptor de linha RS-232 (MAX232, DIP-16) em 5 V: T1IN/T2IN (TTL) dão níveis invertidos de cerca de +-8,5 V em T1OUT/T2OUT; R1IN/R2IN (RS-232, 5 kohm) dão níveis TTL invertidos em R1OUT/R2OUT. A bomba de carga não é simulada (seus trilhos são internos), mas uma placa real precisa dos seus quatro capacitores de 1 uF em C1+/C1-, C2+/C2-, V+ e V-. Comportamental</translation>
+        </message>
+        <message>
+            <source>RS-485 transceiver MAX485</source>
+            <translation>Transceptor RS-485 MAX485</translation>
+        </message>
+        <message>
+            <source>RS-485 half-duplex transceiver (MAX485, DIP-8): with DE high the driver puts DI on A and its complement on B; with RE low RO is high while A is above B. Tie DE and RE together for a direction pin; terminate long lines with 120 ohm between A and B. Supply 5 V. Behavioral</source>
+            <translation>Transceptor RS-485 half-duplex (MAX485, DIP-8): com DE em alto o driver põe DI em A e o seu complemento em B; com RE em baixo RO fica em alto enquanto A está acima de B. Ligue DE e RE juntos para um pino de direção; termine linhas longas com 120 ohm entre A e B. Alimentação de 5 V. Comportamental</translation>
+        </message>
+        <message>
+            <source>PWM controller TL494</source>
+            <translation>Controlador PWM TL494</translation>
+        </message>
+        <message>
+            <source>Pulse-width modulation controller (TL494, DIP-16): the oscillator runs at 1.1 / (RT x CT) with a 0-3 V sawtooth on CT; the output transistors (C1-E1, C2-E2) conduct while the sawtooth is above FEEDBACK (the higher of the two error amplifiers) and above DTC + 0.12 V; OUTPUT CTRL to GND drives both together, to REF (5 V) alternately (push-pull). Supply 7-40 V. Behavioral; its oscillator needs time steps well below its period (transient mode, or a low frequency)</source>
+            <translation>Controlador de modulação por largura de pulso (TL494, DIP-16): o oscilador roda em 1,1 / (RT x CT) com uma dente de serra de 0-3 V em CT; os transistores de saída (C1-E1, C2-E2) conduzem enquanto a dente de serra está acima de FEEDBACK (o maior dos dois amplificadores de erro) e acima de DTC + 0,12 V; OUTPUT CTRL em GND aciona os dois juntos, em REF (5 V) alternadamente (push-pull). Alimentação de 7 a 40 V. Comportamental; seu oscilador precisa de passos de tempo bem menores que o período (modo transitório, ou uma frequência baixa)</translation>
+        </message>
+        <message>
             <source>Adjustable regulator (LM317)</source>
             <translation>Regulador ajustável (LM317)</translation>
         </message>
@@ -3648,10 +3700,6 @@ Pinos: %2</translation>
         <message>
             <source>Fixed positive regulator (7805, 7812...): set the output voltage</source>
             <translation>Regulador positivo fixo (7805, 7812...): ajuste a tensão de saída</translation>
-        </message>
-        <message>
-            <source>Output voltage</source>
-            <translation>Tensão de saída</translation>
         </message>
         <message>
             <source>Regulated output voltage (5 for a 7805, 12 for a 7812)</source>

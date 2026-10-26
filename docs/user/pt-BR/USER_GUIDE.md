@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 c47c30c198e325d462b81e71672160acc5f6e8eee872d125b6884c1bb11360c6 -->
+<!-- source: USER_GUIDE.md sha256 b66c6f1d948c369f5c82e955b2d84cfb9353bc66e6d693fa7612091074f8f7a4 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -111,6 +111,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **CIs lógicos (DIP)** | Chips 74HC e CD4000 reais, com cada pino na posição do encapsulamento e VCC/GND para ligar: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (o 74HC595 está em Chips para microcontroladores) |
 | **Flip-flops e contadores** | Latches D e SR; flip-flops D, JK e T (borda de subida); contador de 4 bits, contador de décadas, registrador de deslocamento de 4 bits. Q̅ e CLR podem ficar desligados |
 | **Displays** | Displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação; um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; um OLED SSD1306 de 128x64 ou 128x32 (I2C) que mostra sua imagem; uma fita de LEDs RGB WS2812B; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
+| **Potência e interface** | Regulador buck LM2596 (chip e módulo ajustável), controlador PWM TL494, transceptores RS-485 MAX485 e RS-232 MAX232 |
 | **Motores e movimento** | Ponte H dupla L298, matriz Darlington ULN2003, motor de passo bipolar, motor de passo unipolar 28BYJ-48, encoder rotativo, servo de modelismo (os motores de passo mostram o ângulo do eixo, o servo o seu braço) |
 | **Eletromecânicos** | Lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
 | **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
@@ -194,6 +195,15 @@ Observações sobre alguns componentes:
   durante a simulação, um detent por passo da roda, 20 detents por volta; sua
   chave de pressão é um botão separado. O servo segue a largura de pulso em
   SIG (0,5-2,5 ms por padrão) a 600°/s.
+- **Potência e interface:** os modelos do LM2596 são médios: a saída segue a
+  malha de regulação (FB em 1,23 V, ou o trimpot do módulo arrastado durante
+  a simulação) até 3 A e 1,5 V abaixo da entrada, e a entrada consome a
+  potência de saída dividida por 85 %; o chaveamento de 150 kHz e sua
+  ondulação ficam de fora. O TL494 oscila em 1,1 / (RT × CT) no pino CT e
+  precisa de passos de tempo bem menores que o seu período: use o modo
+  transitório ou uma frequência baixa. A bomba de carga do MAX232 não é
+  simulada (seus trilhos de ±8,5 V são internos), mas uma placa real precisa
+  dos seus quatro capacitores.
 - **Portas lógicas e flip-flops** funcionam com uma alimentação oculta, por
   isso você liga apenas os seus pinos lógicos. As saídas são tensões reais:
   um LED numa saída precisa de um resistor em série.

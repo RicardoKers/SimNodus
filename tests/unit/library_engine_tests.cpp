@@ -1162,3 +1162,85 @@ TEST_CASE("library: L298, ULN2003, steppers and the rotary encoder (SN-226)")
     CHECK((encoder("10.5") == std::pair<bool, bool>{true, true}));
     CHECK((encoder("10.7") == std::pair<bool, bool>{false, true}));
 }
+
+TEST_CASE("library: LM2596, TL494, MAX485 and MAX232 (SN-227)")
+{
+    REQUIRE(test::engine() != nullptr);
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("lm2596", {{"VIN", "IN"}, {"OUT", "OUT"}, {"FB", "FB"}, {"GND", "0"}, {"ON", "0"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "FB"}}, {{"R", "3.06k"}});
+        b.add("resistor", {{"1", "FB"}, {"2", "0"}}, {{"R", "1k"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "10"}});
+        const auto r = simulate(b, ".op", {"out", "v_v1#branch"});
+        REQUIRE(r.count("out"));
+        CHECK(close_to(r.at("out")[0], 1.23 * 4.06, 0.03));
+        CHECK(close_to(-r.at("v_v1#branch")[0], 4.99 * 0.499 / (0.85 * 12) + 0.005, 0.01)); // 85 % efficient
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("lm2596_module", {{"IN+", "IN"}, {"IN-", "0"}, {"OUT+", "OUT"}, {"OUT-", "0"}}, {{"vout", "3.3"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "10"}});
+        CHECK(close_to(op(b, "out"), 3.3, 0.02));
+    }
+    {
+        // TL494: RT 10 kOhm, CT 10 nF: 11 kHz; DTC at 1.62 V leaves the outputs on for about 42 % of each period.
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("vdc", {{"+", "DT"}, {"-", "0"}}, {{"V", "1.62"}});
+        b.add("tl494", {{"VCC", "VCC"}, {"GND", "0"}, {"RT", "RT"}, {"CT", "CT"}, {"DTC", "DT"}, {"OUTCTRL", "0"},
+                           {"1IN+", "0"}, {"1IN-", "REF"}, {"2IN+", "0"}, {"2IN-", "REF"}, {"REF", "REF"},
+                           {"C1", "C1"}, {"E1", "0"}, {"FEEDBACK", "FB"}});
+        b.add("resistor", {{"1", "RT"}, {"2", "0"}}, {{"R", "10k"}});
+        b.add("capacitor", {{"1", "CT"}, {"2", "0"}}, {{"C", "10n"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "C1"}}, {{"R", "1k"}});
+        const auto r = simulate(b, ".tran 0.2u 2m 0 0.2u uic", {"time", "ct", "c1", "ref"});
+        REQUIRE(r.count("ct"));
+        const auto& t = r.at("time");
+        const auto& ct = r.at("ct");
+        const auto& c1 = r.at("c1");
+        std::vector<double> rises;
+        double low = 0, total = 0;
+        for (std::size_t i = 1; i < t.size(); ++i) {
+            if (ct[i - 1] < 1.5 && ct[i] >= 1.5) {
+                rises.push_back(t[i]);
+            }
+            if (t[i] > 0.5e-3) {
+                total += t[i] - t[i - 1];
+                low += c1[i] < 6 ? t[i] - t[i - 1] : 0;
+            }
+        }
+        REQUIRE(rises.size() > 4);
+        const double f = static_cast<double>(rises.size() - 2) / (rises.back() - rises[1]);
+        std::printf("  TL494: %.0f Hz, outputs on %.0f %%, REF %.2f V\n", f, 100 * low / total, r.at("ref").back());
+        CHECK(close_to(f, 11000, 700));
+        CHECK(close_to(low / total, 0.42, 0.06));
+        CHECK(close_to(r.at("ref").back(), 5.0, 0.05));
+    }
+    auto rs485 = [](const std::string& di) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("vdc", {{"+", "DI"}, {"-", "0"}}, {{"V", di}});
+        b.add("max485", {{"VCC", "VCC"}, {"GND", "0"}, {"DE", "VCC"}, {"RE", "0"}, {"DI", "DI"}, {"A", "A"}, {"B", "B"},
+                            {"RO", "RO"}});
+        b.add("resistor", {{"1", "A"}, {"2", "B"}}, {{"R", "120"}});
+        const auto r = simulate(b, ".op", {"a", "b", "ro"});
+        return std::array<double, 3>{r.at("a")[0], r.at("b")[0], r.at("ro")[0]};
+    };
+    const auto high = rs485("5");
+    CHECK(high[0] - high[1] > 3.0);
+    CHECK(high[2] > 4.9);
+    CHECK(rs485("0")[2] < 0.1);
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("vdc", {{"+", "RX"}, {"-", "0"}}, {{"V", "8"}});
+        b.add("max232", {{"VCC", "VCC"}, {"GND", "0"}, {"T1IN", "0"}, {"T1OUT", "TX"}, {"R1IN", "RX"}, {"R1OUT", "RO"}});
+        b.add("resistor", {{"1", "TX"}, {"2", "0"}}, {{"R", "3k"}});
+        const auto r = simulate(b, ".op", {"tx", "ro"});
+        CHECK(r.at("tx")[0] > 7.0); // a low TTL input: a positive RS-232 level
+        CHECK(r.at("ro")[0] < 0.1); // a positive RS-232 level: a low TTL output
+    }
+}

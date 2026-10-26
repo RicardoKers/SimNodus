@@ -1,0 +1,591 @@
+{
+  "type": "max232",
+  "name": "RS-232 transceiver MAX232",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "RS-232 line driver and receiver (MAX232, DIP-16) on 5 V: T1IN/T2IN (TTL) give inverted levels of about +-8.5 V on T1OUT/T2OUT; R1IN/R2IN (RS-232, 5 kohm) give inverted TTL levels on R1OUT/R2OUT. The charge pump is not simulated (its rails are inside), but a real board needs its four 1 uF capacitors on C1+/C1-, C2+/C2-, V+ and V-. Behavioral",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "MAX232",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "C1+",
+        "at": [
+          -2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "V+",
+        "at": [
+          -2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "C1-",
+        "at": [
+          -2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "C2+",
+        "at": [
+          -2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "C2-",
+        "at": [
+          -2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "V-",
+        "at": [
+          -2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "T2OUT",
+        "at": [
+          -2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "R2IN",
+        "at": [
+          -2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "R2OUT",
+        "at": [
+          2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "T2IN",
+        "at": [
+          2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "T1IN",
+        "at": [
+          2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "R1OUT",
+        "at": [
+          2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "R1IN",
+        "at": [
+          2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "T1OUT",
+        "at": [
+          2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "C1+",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "V+",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "C1-",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "C2+",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "C2-",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "V-",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "T2OUT",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "R2IN",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "R2OUT",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "T2IN",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "T1IN",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "R1OUT",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "R1IN",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "T1OUT",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "spice": [
+    "B_{ref}_vp vp_{ref} {node:GND} V=max(2*V({node:VCC},{node:GND})-1.5,0)",
+    "B_{ref}_vn vn_{ref} {node:GND} V=-max(2*V({node:VCC},{node:GND})-1.5,0)",
+    "R_{ref}_vp vp_{ref} {node:V+} 300",
+    "R_{ref}_vn vn_{ref} {node:V-} 300",
+    "B_{ref}_t1 t1_{ref} {node:GND} V=(1-2*0.5*(1+tanh(10*(V({node:T1IN},{node:GND})-1.4))))*max(2*V({node:VCC},{node:GND})-1.5,0)",
+    "R_{ref}_t1 t1_{ref} {node:T1OUT} 300",
+    "R_{ref}_ti1 {node:T1IN} {node:GND} 1G",
+    "R_{ref}_ri1 {node:R1IN} {node:GND} 5k",
+    "B_{ref}_r1 r1_{ref} {node:GND} V=V({node:VCC},{node:GND})*(1-0.5*(1+tanh(10*(V({node:R1IN},{node:GND})-1.5))))",
+    "R_{ref}_r1 r1_{ref} {node:R1OUT} 50",
+    "B_{ref}_t2 t2_{ref} {node:GND} V=(1-2*0.5*(1+tanh(10*(V({node:T2IN},{node:GND})-1.4))))*max(2*V({node:VCC},{node:GND})-1.5,0)",
+    "R_{ref}_t2 t2_{ref} {node:T2OUT} 300",
+    "R_{ref}_ti2 {node:T2IN} {node:GND} 1G",
+    "R_{ref}_ri2 {node:R2IN} {node:GND} 5k",
+    "B_{ref}_r2 r2_{ref} {node:GND} V=V({node:VCC},{node:GND})*(1-0.5*(1+tanh(10*(V({node:R2IN},{node:GND})-1.5))))",
+    "R_{ref}_r2 r2_{ref} {node:R2OUT} 50",
+    "R_{ref}_q {node:VCC} {node:GND} 1k"
+  ]
+}

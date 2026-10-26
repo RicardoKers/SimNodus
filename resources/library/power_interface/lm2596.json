@@ -1,0 +1,174 @@
+{
+  "type": "lm2596",
+  "name": "Buck regulator LM2596",
+  "category": "Power & interface",
+  "prefix": "U",
+  "description": "Step-down switching regulator (LM2596-ADJ), averaged: OUT regulates FB to 1.23 V (a divider sets the output: Vout = 1.23 x (1 + R2/R1)), up to 3 A and about 1.5 V below VIN; the input current is the output power over 85 % efficiency. Wire the datasheet's inductor (33 uH) and Schottky diode, or not: the 150 kHz switching is not simulated. ON low (or GND) turns it on",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -4,
+          8,
+          8
+        ]
+      },
+      {
+        "text": "LM2596",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "VIN",
+        "at": [
+          -2.8,
+          -2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "ON",
+        "at": [
+          -2.8,
+          2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "OUT",
+        "at": [
+          2.8,
+          -2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "FB",
+        "at": [
+          2.8,
+          2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          6,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          3.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -3.6,
+          1.4,
+          -2.8,
+          1.4
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "VIN",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "ON",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "FB",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          6
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -4,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "spice": [
+    "B_{ref}_c 0 c_{ref} I=1m*((1-0.5*(1+tanh(10*(V({node:ON},{node:GND})-1.3))))*min(max(min(500*(1.23-V({node:FB},{node:GND})),500*(V({node:VIN},{node:OUT})-1.5)),0),3.5)-V(c_{ref}))",
+    "C_{ref}_c c_{ref} 0 100n",
+    "B_{ref}_o {node:GND} {node:OUT} I=max(V(c_{ref}),0)",
+    "B_{ref}_i {node:VIN} {node:GND} I=max(V(c_{ref}),0)*max(V({node:OUT},{node:GND}),0)/(0.85*max(V({node:VIN},{node:GND}),1))+5m*((1-0.5*(1+tanh(10*(V({node:ON},{node:GND})-1.3)))))",
+    "R_{ref}_l {node:OUT} {node:GND} 100k",
+    "R_{ref}_fb {node:FB} {node:GND} 100Meg",
+    "R_{ref}_on {node:ON} {node:GND} 100Meg"
+  ]
+}
