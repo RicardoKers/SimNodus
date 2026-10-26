@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.10.0 — 2026-10-25
+
+### Summary
+
+- The user guides in Brazilian Portuguese; Help > User Guide follows the interface language.
+- Classroom robustness pass: all 35 examples checked from the command line and driven in the window like a student; counters, flip-flops and decoders run 2-3x faster; one message per floating group of nets.
+
 ### Changed (2026-10-25, classroom robustness pass)
 
 - Counters, flip-flops, latches, the shift register and the 4511/7447 decoders compute each input threshold once instead of repeating it in every equation (`tools/spice_levels.py`); results are identical and runs faster: example 21 from 2.2x to 6.0x real time, 23 from 0.54x to 1.2x, 32 from 1.3x to 2.2x. The 555 keeps its model (its self-holding latch flipped at an interactive segment boundary with shared thresholds).

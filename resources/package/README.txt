@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.9 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.10 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -18,6 +18,11 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.10: the user guides in Brazilian Portuguese (folder pt-BR; Help >
+User Guide opens them when the interface is in Portuguese). Counters,
+flip-flops and decoders simulate 2-3x faster; every example was checked as
+a student would use it.
 
 New in 0.9: the firmware runs at the speed of the real chip (Cortex-M3
 instruction timing with the flash wait states, within 5 % of a Blue Pill;

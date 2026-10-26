@@ -140,3 +140,4 @@ Owner's priority 2026-10-25: agents first, the virtual plant afterwards
 | SN-162 | Dark theme (done 2026-10-19: View > Theme, system/light/dark, applied at once); ANSI symbol variant still open |
 | SN-163 | Headless CLI over the same session API (ADR 0055 direction): done as SN-215 |
 | SN-164 | Linux package |
+| SN-219 | Save a project with its firmware: copy each board's `.elf` (and memory contents files) into a folder next to the `.snx` with relative paths, so a student's project opens and runs on the teacher's PC (robustness pass 2026-10-25; requested by the owner) |

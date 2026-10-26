@@ -8,11 +8,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.9.0 published on 2026-10-25** (the owner asked for it after
-  the test backlog and the polish from their test): tag `v0.9.0`, GitHub
-  release with `SimNodus-0.9.0-windows-x64.zip` and
-  `SimNodus-0.9.0-windows-x64-setup.exe`. Releases 0.1.0-0.8.0 were published
-  between 2026-10-14 and 10-25.
+- **Release 0.10.0 published on 2026-10-25** (the owner asked for it after
+  the robustness pass): tag `v0.10.0`, GitHub release with
+  `SimNodus-0.10.0-windows-x64.zip` and `SimNodus-0.10.0-windows-x64-setup.exe`.
+  Releases 0.1.0-0.9.0 were published between 2026-10-14 and 10-25.
+- **New in 0.10:** user guides in Brazilian Portuguese (`docs/user/pt-BR`,
+  Help > User Guide by interface language; `check_repository.py` keeps them
+  in step with the English ones); the classroom robustness pass
+  (`tools/examples_pass.py`, `tools/examples_gui_pass.py`; shared thresholds
+  in the logic parts, `tools/spice_levels.py`; one floating-net message per
+  group).
 - **New in 0.9:** Cortex-M3 instruction timing with flash wait states,
   calibrated on the owner's Blue Pill (SN-181, `cycle_loops` firmware,
   Simulate > Settings, engine protocol 9); the owner's CubeMX ADC+DMA project
@@ -88,17 +93,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. After 0.9 (owner's choice, 2026-10-25): user guides in Brazilian
-   Portuguese done (`docs/user/pt-BR`, Help > User Guide by interface
-   language), and the classroom robustness pass: all 35 examples pass
-   `tools/examples_pass.py` and `tools/examples_gui_pass.py` (run both before
-   a release); shared thresholds in the logic parts made examples 21, 23 and
-   32 about 2-3x faster. Still slow on a 2026 laptop: 26 (LED matrix, 0.4x),
-   24 and 15 (about 1x). Open idea: a project with its own firmware breaks
-   when handed to another PC (the .elf path); bundling the firmware with the
-   project would fix it. Next candidate: more ready lessons (needs the
-   owner's course outline). SN-186 postponed: the owner has no case that
-   needs faster edges.
+1. Next: to be chosen with the owner. In the backlog: SN-219 (save a
+   project with its firmware, so it runs on another PC). Candidate: more
+   ready lessons (needs the owner's course outline). Still slow on a 2026
+   laptop: example 26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186
+   postponed. Run `tools/examples_pass.py` and `tools/examples_gui_pass.py`
+   before each release.
 2. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
