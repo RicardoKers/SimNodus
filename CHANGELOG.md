@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.9.0 — 2026-10-25
+
+### Summary
+
+- The Blue Pill's firmware runs at the speed of the real chip: Cortex-M3 instruction timing with flash wait states, calibrated on the owner's board (29 of 30 measurements within 5 %; SN-181). The owner's own CubeMX ADC+DMA project matched the board.
+- Fixes and polish from the owner's test: adjustable sources drag the right way, the simple transistors converge, messages can be copied, meters show their polarity, and selected wires and probes show their values while running.
+
 ### Fixed (2026-10-25, owner's test)
 
 - Adjustable voltage and current sources: dragging up raises the value, as the mouse wheel does (it lowered it).
