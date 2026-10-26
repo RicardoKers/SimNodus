@@ -1,0 +1,617 @@
+{
+  "type": "uln2003",
+  "name": "Darlington array ULN2003",
+  "category": "Motors & motion",
+  "prefix": "U",
+  "description": "Seven Darlington sinks (ULN2003, DIP-16) for relays, lamps and unipolar steppers: an input above about 1.8 V (2.7 kohm inside, so 3.3 V and 5 V logic both work) makes its output sink to GND with about 0.9 V left; COM joins the flyback diodes of every output: tie it to the load's supply",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -8,
+          8,
+          16
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -8,
+          0.7,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "ULN2003",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "IN1",
+        "at": [
+          -2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "1",
+        "at": [
+          -5.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "IN2",
+        "at": [
+          -2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "2",
+        "at": [
+          -5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "IN3",
+        "at": [
+          -2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "3",
+        "at": [
+          -5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "IN4",
+        "at": [
+          -2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "4",
+        "at": [
+          -5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "IN5",
+        "at": [
+          -2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "5",
+        "at": [
+          -5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "IN6",
+        "at": [
+          -2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "6",
+        "at": [
+          -5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "IN7",
+        "at": [
+          -2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "7",
+        "at": [
+          -5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "8",
+        "at": [
+          -5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          7,
+          4,
+          7
+        ]
+      },
+      {
+        "text": "COM",
+        "at": [
+          2.6,
+          7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "9",
+        "at": [
+          5.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "OUT7",
+        "at": [
+          2.6,
+          5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "10",
+        "at": [
+          5.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "OUT6",
+        "at": [
+          2.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "11",
+        "at": [
+          5.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "OUT5",
+        "at": [
+          2.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "12",
+        "at": [
+          5.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "OUT4",
+        "at": [
+          2.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "13",
+        "at": [
+          5.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "OUT3",
+        "at": [
+          2.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "14",
+        "at": [
+          5.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "OUT2",
+        "at": [
+          2.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "15",
+        "at": [
+          5.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          6,
+          -7,
+          4,
+          -7
+        ]
+      },
+      {
+        "text": "OUT1",
+        "at": [
+          2.6,
+          -7
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "16",
+        "at": [
+          5.0,
+          -7.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN1",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN2",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN3",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN4",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN5",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN6",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "IN7",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "GND",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "COM",
+        "at": [
+          6,
+          7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUT7",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT6",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT5",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT4",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT3",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT2",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "OUT1",
+        "at": [
+          6,
+          -7
+        ],
+        "dir": "right",
+        "optional": true
+      }
+    ]
+  },
+  "designator_offset": [
+    -1,
+    -10
+  ],
+  "value_offset": [
+    -1,
+    10
+  ],
+  "spice": [
+    "B_{ref}_b1 {node:IN1} {node:GND} I=max(V({node:IN1},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i1 {node:IN1} {node:GND} 1G",
+    "B_{ref}_s1 s1_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN1},{node:GND})-1.8)))",
+    "B_{ref}_o1 {node:OUT1} {node:GND} I=V(s1_{ref})*max(V({node:OUT1},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d1 {node:OUT1} {node:COM} DFLY_{ref}",
+    "R_{ref}_l1 {node:OUT1} {node:GND} 100Meg",
+    "B_{ref}_b2 {node:IN2} {node:GND} I=max(V({node:IN2},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i2 {node:IN2} {node:GND} 1G",
+    "B_{ref}_s2 s2_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN2},{node:GND})-1.8)))",
+    "B_{ref}_o2 {node:OUT2} {node:GND} I=V(s2_{ref})*max(V({node:OUT2},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d2 {node:OUT2} {node:COM} DFLY_{ref}",
+    "R_{ref}_l2 {node:OUT2} {node:GND} 100Meg",
+    "B_{ref}_b3 {node:IN3} {node:GND} I=max(V({node:IN3},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i3 {node:IN3} {node:GND} 1G",
+    "B_{ref}_s3 s3_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN3},{node:GND})-1.8)))",
+    "B_{ref}_o3 {node:OUT3} {node:GND} I=V(s3_{ref})*max(V({node:OUT3},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d3 {node:OUT3} {node:COM} DFLY_{ref}",
+    "R_{ref}_l3 {node:OUT3} {node:GND} 100Meg",
+    "B_{ref}_b4 {node:IN4} {node:GND} I=max(V({node:IN4},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i4 {node:IN4} {node:GND} 1G",
+    "B_{ref}_s4 s4_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN4},{node:GND})-1.8)))",
+    "B_{ref}_o4 {node:OUT4} {node:GND} I=V(s4_{ref})*max(V({node:OUT4},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d4 {node:OUT4} {node:COM} DFLY_{ref}",
+    "R_{ref}_l4 {node:OUT4} {node:GND} 100Meg",
+    "B_{ref}_b5 {node:IN5} {node:GND} I=max(V({node:IN5},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i5 {node:IN5} {node:GND} 1G",
+    "B_{ref}_s5 s5_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN5},{node:GND})-1.8)))",
+    "B_{ref}_o5 {node:OUT5} {node:GND} I=V(s5_{ref})*max(V({node:OUT5},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d5 {node:OUT5} {node:COM} DFLY_{ref}",
+    "R_{ref}_l5 {node:OUT5} {node:GND} 100Meg",
+    "B_{ref}_b6 {node:IN6} {node:GND} I=max(V({node:IN6},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i6 {node:IN6} {node:GND} 1G",
+    "B_{ref}_s6 s6_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN6},{node:GND})-1.8)))",
+    "B_{ref}_o6 {node:OUT6} {node:GND} I=V(s6_{ref})*max(V({node:OUT6},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d6 {node:OUT6} {node:COM} DFLY_{ref}",
+    "R_{ref}_l6 {node:OUT6} {node:GND} 100Meg",
+    "B_{ref}_b7 {node:IN7} {node:GND} I=max(V({node:IN7},{node:GND})-1.4,0)/2700",
+    "R_{ref}_i7 {node:IN7} {node:GND} 1G",
+    "B_{ref}_s7 s7_{ref} 0 V=0.5*(1+tanh(8*(V({node:IN7},{node:GND})-1.8)))",
+    "B_{ref}_o7 {node:OUT7} {node:GND} I=V(s7_{ref})*max(V({node:OUT7},{node:GND})-0.8,0)/1.5",
+    "D_{ref}_d7 {node:OUT7} {node:COM} DFLY_{ref}",
+    "R_{ref}_l7 {node:OUT7} {node:GND} 100Meg",
+    ".model DFLY_{ref} D(IS=1e-12 N=1.8 RS=0.5)"
+  ]
+}

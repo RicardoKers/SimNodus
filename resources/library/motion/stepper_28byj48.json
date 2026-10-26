@@ -1,0 +1,208 @@
+{
+  "type": "stepper_28byj48",
+  "name": "Stepper motor 28BYJ-48 (unipolar)",
+  "category": "Motors & motion",
+  "prefix": "M",
+  "description": "Small unipolar stepper motor with a 64:1 gear (28BYJ-48, 5 V): COM (red wire) to the supply and the coil ends A, B, C, D sunk in turn, usually by a ULN2003; 2048 full steps (4096 half steps) per turn of the shaft, whose angle is shown. Behavioral: no back EMF or inertia",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "M",
+        "at": [
+          0,
+          -0.6
+        ],
+        "size": 1.2
+      },
+      {
+        "text": "28BYJ",
+        "at": [
+          0,
+          1.2
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          -4,
+          -2.6,
+          -4
+        ]
+      },
+      {
+        "text": "COM",
+        "at": [
+          -5,
+          -4.6
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -3.4,
+          -2
+        ]
+      },
+      {
+        "text": "A",
+        "at": [
+          -5,
+          -2.6
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -3.4,
+          0
+        ]
+      },
+      {
+        "text": "B",
+        "at": [
+          -5,
+          -0.6
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -3.4,
+          2
+        ]
+      },
+      {
+        "text": "C",
+        "at": [
+          -5,
+          1.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -6,
+          4,
+          -2.6,
+          4
+        ]
+      },
+      {
+        "text": "D",
+        "at": [
+          -5,
+          3.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "COM",
+        "at": [
+          -6,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D",
+        "at": [
+          -6,
+          4
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -6
+  ],
+  "value_offset": [
+    -3,
+    5
+  ],
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Coil resistance",
+      "unit": "Ohm",
+      "default": "50",
+      "description": "Resistance of each coil half",
+      "min": "1",
+      "max": "1k"
+    },
+    {
+      "name": "L",
+      "label": "Coil inductance",
+      "unit": "H",
+      "default": "20m",
+      "description": "Inductance of each coil half",
+      "min": "10u",
+      "max": "10"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "ang_{ref}",
+    "scale": 1,
+    "unit": "°"
+  },
+  "spice": [
+    "V_{ref}_a {node:COM} ca_{ref} DC 0",
+    "R_{ref}_ra ca_{ref} la_{ref} {R}",
+    "L_{ref}_a la_{ref} {node:A} {L}",
+    "V_{ref}_b {node:COM} cb_{ref} DC 0",
+    "R_{ref}_rb cb_{ref} lb_{ref} {R}",
+    "L_{ref}_b lb_{ref} {node:B} {L}",
+    "V_{ref}_c {node:COM} cc_{ref} DC 0",
+    "R_{ref}_rc cc_{ref} lc_{ref} {R}",
+    "L_{ref}_c lc_{ref} {node:C} {L}",
+    "V_{ref}_d {node:COM} cd_{ref} DC 0",
+    "R_{ref}_rd cd_{ref} ld_{ref} {R}",
+    "L_{ref}_d ld_{ref} {node:D} {L}",
+    "B_{ref}_th 0 th_{ref} I=20000*((I(V_{ref}_b)-I(V_{ref}_d))*cos(V(th_{ref}))-(I(V_{ref}_a)-I(V_{ref}_c))*sin(V(th_{ref})))",
+    "C_{ref}_th th_{ref} 0 1",
+    "R_{ref}_th th_{ref} 0 1G",
+    "B_{ref}_ang ang_{ref} 0 V=floor(V(th_{ref})*5729.578/512+0.5)/100"
+  ]
+}

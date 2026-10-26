@@ -107,6 +107,7 @@ invalid value is outlined in red and not applied.
 | **Logic chips (DIP)** | Real 74HC and CD4000 chips with every pin in its package position and VCC/GND to wire: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (the 74HC595 is under Chips for microcontrollers) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; a 128x64 or 128x32 SSD1306 OLED (I2C) that shows its picture; a strip of WS2812B RGB LEDs; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
+| **Motors & motion** | L298 dual H-bridge, ULN2003 Darlington array, bipolar stepper motor, 28BYJ-48 unipolar stepper, rotary encoder, hobby servo (the steppers show their shaft angle, the servo its horn) |
 | **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
@@ -173,6 +174,14 @@ Notes on some parts:
   the rest of the circuit arrive up to 0.1 ms late (clocks up to a few kHz).
   Unused gate pins may stay open; their inputs read low. Example 37 is an
   LED chaser with a 74HC14 and a CD4017.
+- **Motors & motion:** the L298's outputs switch to VS or SENS through about
+  1.3 Ω (2.6 V lost at 1 A) and float while their enable is low; like the
+  chip it has no flyback diodes, so add four per motor (example 41). The
+  steppers turn one step for each step of their coil currents, without back
+  EMF or inertia (they never lose steps). The rotary encoder is dragged or
+  wheeled while running, one detent per wheel step, 20 detents per turn;
+  its push switch is a separate push button. The servo follows the pulse
+  width on SIG (0.5-2.5 ms by default) at 600°/s.
 - **Logic gates and flip-flops** run on a hidden supply, so you wire only
   their logic pins. Their outputs are real voltages: an LED on an output
   needs a series resistor.

@@ -32,6 +32,8 @@ nothing.
   an output inside the part (device.internal_pins).
 - DS18B20, DHT22/DHT11, HC-SR04 and the WS2812B strip (SN-225): sensors
   and LEDs with timed one-wire protocols, decoded from the edge times.
+- Hobby servo (SN-226): its horn follows the pulse width on SIG and is drawn
+  on the schematic.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -515,6 +517,34 @@ def ws2812():
     return p
 
 
+def servo():
+    graphics = [{"rect": [-6, -4, 12, 9]}, {"text": "SERVO", "at": [0, 4], "size": 0.55}]
+    pins = []
+    for i, name in enumerate(["SIG", "V+", "GND"]):
+        y = -2 + 2 * i
+        pins.append({"name": name, "at": [-8, y], "dir": "left"})
+        graphics.append({"line": [-8, y, -6, y]})
+        graphics.append({"text": name, "at": [-4.9, y - 0.5], "size": 0.45})
+    p = part("servo", "Servo motor (hobby)",
+             "Hobby servo like the SG90 or MG90S: the width of the pulses on SIG (usually 50 per second) sets the "
+             "horn's angle, from the minimum pulse (0 degrees) to the maximum (180 degrees); it turns at 600 degrees "
+             "a second and holds its angle without pulses. The horn is drawn on the schematic while running. Supply "
+             "5 V on V+ and GND (the motor's current is not simulated). Works together with a microcontroller board "
+             "(a timer's PWM output).",
+             {"graphics": graphics, "pins": pins}, -4, "servo", device_spice(["SIG"], [], supply="V+"),
+             parameters=[{"name": "min", "label": "Pulse for 0°", "unit": "us", "default": "500", "min": "300",
+                          "max": "1500", "description": "Pulse width for 0 degrees (SG90: 500 us; some servos 1000 us)"},
+                         {"name": "max", "label": "Pulse for 180°", "unit": "us", "default": "2500", "min": "1500",
+                          "max": "3000", "description": "Pulse width for 180 degrees (SG90: 2500 us; some servos 2000 us)"}])
+    p["device"]["supply_pin"] = "V+"
+    p["category"] = "Motors & motion"
+    p["screen"] = {"rect": [-5, -3, 10, 6], "pixels": True}
+    p["designator_offset"] = [-6, -6]
+    p["value_offset"] = [-6, 6]
+    del p["value_parameter"]
+    return p
+
+
 MEMORY_SIZES = ["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
 
 
@@ -554,7 +584,7 @@ def main():
         short = json.load(fh)
     for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
               bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306(), mcp3208(), mcp41010(), w25q32(), sdcard(),
-              hx711(), ds18b20(), dht22(), hcsr04(), ws2812()]:
+              hx711(), ds18b20(), dht22(), hcsr04(), ws2812(), servo()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

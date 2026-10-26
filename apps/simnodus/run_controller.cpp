@@ -520,7 +520,10 @@ void RunController::refresh()
         if (d->readout->kind == library::Readout::Kind::Node) {
             const auto it = latest.find(readout_vectors_[c.id]);
             if (it != latest.end()) {
-                const double value = it->second * d->readout->scale;
+                double value = it->second * d->readout->scale;
+                if (std::abs(value) < 1e-6) {
+                    value = 0.0; // numerical dust of a part at rest (a motor's speed), not a reading
+                }
                 live.readouts[c.id] = QStringLiteral("%1 %2")
                                           .arg(std::abs(value) >= 100 ? QString::number(value, 'f', 0) : QString::number(value, 'g', 3),
                                               QString::fromStdString(d->readout->unit));

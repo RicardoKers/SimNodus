@@ -1096,3 +1096,69 @@ TEST_CASE("library: logic chips in DIP packages need their supply and behave lik
         CHECK(close_to(1 / period, 1117, 40));
     }
 }
+
+TEST_CASE("library: L298, ULN2003, steppers and the rotary encoder (SN-226)")
+{
+    REQUIRE(test::engine() != nullptr);
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VS"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("vdc", {{"+", "VSS"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("l298", {{"VS", "VS"}, {"VSS", "VSS"}, {"GND", "0"}, {"ENA", "VSS"}, {"IN1", "VSS"}, {"IN2", "0"},
+                          {"OUT1", "M1"}, {"OUT2", "M2"}, {"SENSA", "0"}, {"SENSB", "0"}});
+        b.add("resistor", {{"1", "M1"}, {"2", "M2"}}, {{"R", "100"}});
+        const auto r = simulate(b, ".op", {"m1", "m2"});
+        REQUIRE(r.count("m1"));
+        CHECK(close_to(r.at("m1")[0] - r.at("m2")[0], 12.0 * 100 / 102.6, 0.02));
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VS"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("vdc", {{"+", "VSS"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("l298", {{"VS", "VS"}, {"VSS", "VSS"}, {"GND", "0"}, {"ENA", "0"}, {"IN1", "VSS"}, {"IN2", "0"},
+                          {"OUT1", "M1"}, {"OUT2", "M2"}, {"SENSA", "0"}, {"SENSB", "0"}});
+        b.add("resistor", {{"1", "M1"}, {"2", "M2"}}, {{"R", "100"}});
+        const auto r = simulate(b, ".op", {"m1", "m2"});
+        REQUIRE(r.count("m1"));
+        CHECK(std::abs(r.at("m1")[0] - r.at("m2")[0]) < 0.01); // disabled: no drive
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "V5"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "3.3"}});
+        b.add("uln2003", {{"IN1", "IN"}, {"OUT1", "OUT"}, {"GND", "0"}, {"COM", "V5"}});
+        b.add("resistor", {{"1", "V5"}, {"2", "OUT"}}, {{"R", "1k"}});
+        CHECK(close_to(op(b, "out"), 0.806, 0.02));
+    }
+    auto settle = [](const std::string& type, const std::map<std::string, std::string>& pins,
+                      const std::map<std::string, std::string>& supplies) {
+        test::CircuitBuilder b(components());
+        for (const auto& [net, volts] : supplies) {
+            b.add("vdc", {{"+", net}, {"-", "0"}}, {{"V", volts}});
+        }
+        const auto id = b.add(type, pins);
+        const auto ref = b.schematic.component(id)->designator;
+        std::string node = "ang_" + ref;
+        for (auto& ch : node) {
+            ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+        }
+        const auto r = simulate(b, ".tran 1m 300m 0 1m uic", {node});
+        return r.count(node) ? r.at(node).back() : std::nan("");
+    };
+    // One coil on: the rotor turns to that coil's field, one full step (1.8 degrees) for coil B.
+    CHECK(close_to(settle("stepper_bipolar", {{"A+", "0"}, {"A-", "0"}, {"B+", "P"}, {"B-", "0"}}, {{"P", "12"}}), 1.8, 0.01));
+    CHECK(close_to(settle("stepper_28byj48", {{"COM", "P"}, {"B", "0"}}, {{"P", "5"}}), 90.0 / 512, 0.005)); // shown in hundredths
+    auto encoder = [](const std::string& position) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "V5"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("encoder", {{"A", "A"}, {"B", "B"}, {"C", "0"}}, {{"position", position}});
+        b.add("resistor", {{"1", "V5"}, {"2", "A"}}, {{"R", "10k"}});
+        b.add("resistor", {{"1", "V5"}, {"2", "B"}}, {{"R", "10k"}});
+        const auto r = simulate(b, ".op", {"a", "b"});
+        return std::pair<bool, bool>{r.at("a")[0] < 1.0, r.at("b")[0] < 1.0};
+    };
+    CHECK((encoder("10") == std::pair<bool, bool>{false, false}));
+    CHECK((encoder("10.3") == std::pair<bool, bool>{true, false}));
+    CHECK((encoder("10.5") == std::pair<bool, bool>{true, true}));
+    CHECK((encoder("10.7") == std::pair<bool, bool>{false, true}));
+}
