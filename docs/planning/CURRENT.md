@@ -8,21 +8,21 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **On `main` since 0.10:** File > Save with Firmware (SN-219) and the
-  placement shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and
-  transducers (SN-221, example 36); logic chips in DIP packages (SN-222,
-  example 37); I2C chips with an OLED (SN-223, example 38); SPI chips and the
-  HX711 (SN-224, example 39); timed one-wire chips (SN-225, example 40);
-  motors and motion (SN-226, example 41); power and interface parts (SN-227);
-  buzzers with sound on Windows (SN-228, example 42); automation parts
-  (SN-229, example 43). The owner asked on
-  2026-10-26 for a much larger part library; the plan is SN-221..SN-229 in
-  the backlog (sensors, 74HC chips in DIP packages, I2C/SPI/1-Wire chips,
-  motion, power, sound).
-- **Release 0.10.0 published on 2026-10-25** (the owner asked for it after
-  the robustness pass): tag `v0.10.0`, GitHub release with
-  `SimNodus-0.10.0-windows-x64.zip` and `SimNodus-0.10.0-windows-x64-setup.exe`.
-  Releases 0.1.0-0.9.0 were published between 2026-10-14 and 10-25.
+- **Release 0.11.0 published on 2026-10-26** after the owner's test of
+  the package (fixes: streamed buzzer sound, BMP280 calibration in example
+  38's firmware, A3144 currents): tag `v0.11.0`, GitHub release with
+  `SimNodus-0.11.0-windows-x64.zip` and `SimNodus-0.11.0-windows-x64-setup.exe`.
+  Releases 0.1.0-0.10.0 were published between 2026-10-14 and 10-25.
+  Community: Discord server https://discord.gg/AsjGNtMnef (README, user
+  guides, package README) besides GitHub Issues.
+- **New in 0.11:** File > Save with Firmware (SN-219) and the placement
+  shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and transducers
+  (SN-221, example 36); logic chips in DIP packages (SN-222, example 37); I2C
+  chips with an OLED (SN-223, example 38); SPI chips and the HX711 (SN-224,
+  example 39); timed one-wire chips (SN-225, example 40); motors and motion
+  (SN-226, example 41); power and interface parts (SN-227); buzzers with
+  sound on Windows (SN-228, example 42); automation parts (SN-229, example
+  43).
 - **New in 0.10:** user guides in Brazilian Portuguese (`docs/user/pt-BR`,
   Help > User Guide by interface language; `check_repository.py` keeps them
   in step with the English ones); the classroom robustness pass
@@ -104,8 +104,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Test package 0.11.0 for the owner (2026-10-26); publish after the
-   owner's test. Then SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
+1. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
    and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
    `tools/examples_gui_pass.py` before each release.
 2. Classroom feedback (postponed: academic calendar).

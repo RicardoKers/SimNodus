@@ -2,9 +2,11 @@
 
 All entries describe actual repository changes, not promised simulator capabilities.
 
-## Unreleased
+## 0.11.0 — 2026-10-26
 
-The version is 0.11.0; a test package went to the owner on 2026-10-26 and the section gets its date when it is published.
+### Documentation (2026-10-26)
+
+- The README, the user guide (English and pt-BR) and the package README point to the SimNodus Discord server (https://discord.gg/AsjGNtMnef) for questions, shared circuits and bug reports, next to GitHub Issues.
 
 ### Added (2026-10-26)
 

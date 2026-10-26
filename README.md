@@ -64,6 +64,20 @@ plans in the [roadmap](docs/planning/ROADMAP.md). Build instructions:
 
 All repository documentation, code and comments are in English.
 
+## Community & Support
+
+💬 **Join the official SimNodus Discord community!**
+
+Connect with other users, ask questions, share circuit designs, report bugs, suggest new features, and follow the development of SimNodus.
+
+🇬🇧 English and 🇧🇷 Portuguese are welcome!
+
+**[Join the SimNodus Discord Server](https://discord.gg/AsjGNtMnef)**
+
+You can also use [GitHub Issues](https://github.com/RicardoKers/SimNodus/issues) to report reproducible bugs, track technical issues, and contribute to development.
+
+SimNodus is an open-source project, and community feedback and contributions are always welcome!
+
 ## License and publication
 
 Original SimNodus code and associated documentation are licensed under the [MIT License](LICENSE). Third-party software, firmware, models, fonts, and other assets keep their own terms; see the [licensing policy](docs/development/LICENSING.md).

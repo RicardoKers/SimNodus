@@ -14,7 +14,8 @@ Contents: [Installing](#installing) · [The window](#the-window) ·
 [Signal Analyzer](#signal-analyzer) · [Microcontroller](#microcontroller) ·
 [Files](#files-examples-and-lessons) · [Preferences](#preferences) ·
 [Command line](#command-line) · [Troubleshooting](#troubleshooting) ·
-[Known limitations](#known-limitations)
+[Known limitations](#known-limitations) ·
+[Community and help](#community-and-help)
 
 ## Installing
 
@@ -537,3 +538,10 @@ results are read correctly.
   open; press F5 to run again.
 - Resistors use the IEC rectangle; an ANSI zigzag variant and a symbol
   editor are not available yet.
+
+## Community and help
+
+Questions, circuits to share, bug reports and ideas are welcome on the
+[SimNodus Discord server](https://discord.gg/AsjGNtMnef), in English or Portuguese. Reproducible
+bugs can also be reported as [GitHub issues](https://github.com/RicardoKers/SimNodus/issues); attach the `.snx`
+project (File > Save with Firmware includes its firmware) and the messages.
