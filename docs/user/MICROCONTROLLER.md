@@ -40,7 +40,8 @@ the same circuit give the same firmware timing.
 
 Parts in the *Chips for microcontrollers* category (74HC595 shift register,
 MAX7219 display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O
-expander, BMP280, MPU6050, DS3231, TCS34725) and the character LCD and SSD1306
+expander, BMP280, MPU6050, DS3231, TCS34725, MCP3208, MCP41010, W25Q32, microSD
+card, HX711) and the character LCD and SSD1306
 OLED (under *Displays*) work together with
 a board (ADR 0102): their logic runs in step
 with the firmware, so the nets between the board and the chip follow every
@@ -76,6 +77,16 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   0x3C or 0x3D (a property), whose picture appears on the schematic while
   running. The measured values are properties that can change while
   running. Example 38 shows the OLED with a BMP280 and a DS3231.
+- The SPI chips (SN-224) work in modes 0 and 3 with their chip select: the
+  MCP3208 converts the circuit's voltage on CH0-CH7 against VREF (12 bits,
+  single-ended or differential); the MCP41010 sets a real resistance between
+  PA0, PW0 and PB0 (10, 50 or 100 kΩ, 256 steps); the W25Q32 is a 4 MB flash
+  with the datasheet's commands and busy times (its contents in the Memory
+  Viewer, refreshed at most five times a second); the microSD card answers
+  the SPI-mode commands FatFs drivers use, with a size of 1 to 64 MB and an
+  optional image file. The HX711 load-cell amplifier reads the bridge's
+  voltages through its own two-wire protocol (10 or 80 conversions a
+  second). Example 39 uses all but the card.
 - The parallel ROM and RAM (*Memories*) have A0-A15, D0-D7 and active-low CE,
   OE and (RAM) WE; their size, 16 bytes to 64 KB, is a property, and the
   address pins beyond it are ignored. With CE and OE low they drive D0-D7;

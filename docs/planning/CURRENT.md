@@ -11,7 +11,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - **On `main` since 0.10:** File > Save with Firmware (SN-219) and the
   placement shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and
   transducers (SN-221, example 36); logic chips in DIP packages (SN-222,
-  example 37); I2C chips with an OLED (SN-223, example 38). The owner asked on
+  example 37); I2C chips with an OLED (SN-223, example 38); SPI chips and the
+  HX711 (SN-224, example 39). The owner asked on
   2026-10-26 for a much larger part library; the plan is SN-221..SN-229 in
   the backlog (sensors, 74HC chips in DIP packages, I2C/SPI/1-Wire chips,
   motion, power, sound).
@@ -100,8 +101,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Component library expansion, in backlog order: SN-224 (SPI chips), then
-   SN-225..SN-228. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
+1. Component library expansion, in backlog order: SN-225 (one-wire timed
+   protocols), then SN-226..SN-228. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
    and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
    `tools/examples_gui_pass.py` before each release.
 2. Classroom feedback (postponed: academic calendar).

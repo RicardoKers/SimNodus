@@ -1,0 +1,266 @@
+{
+  "type": "w25q32",
+  "name": "SPI flash W25Q32",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "4 MB SPI flash memory",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -5,
+          8,
+          10
+        ]
+      },
+      {
+        "text": "W25Q32",
+        "at": [
+          0,
+          -3.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "CS",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          -3,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "CLK",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "DI",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "DO",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "WP",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "HOLD",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -7,
+          0,
+          -5
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -4.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          7
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          4.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "CS",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "CLK",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DI",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DO",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "WP",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "HOLD",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -7
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          7
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -6
+  ],
+  "value_offset": [
+    5,
+    6
+  ],
+  "device": {
+    "kind": "w25q32",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "memory_size": 4194304,
+    "contents_parameter": "contents"
+  },
+  "spice": [
+    "R_{ref}_hcs {node:CS} {node:GND} 100Meg",
+    "R_{ref}_hclk {node:CLK} {node:GND} 100Meg",
+    "R_{ref}_hdi {node:DI} {node:GND} 100Meg",
+    "R_{ref}_hdo {node:DO} {node:GND} 100Meg",
+    "R_{ref}_hwp {node:WP} {node:GND} 100Meg",
+    "R_{ref}_hhold {node:HOLD} {node:GND} 100Meg",
+    "B_{ref}_do {node:GND} {node:DO} I=V({ext:do_i})-V({ext:do_g})*(V({node:DO})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "contents",
+      "label": "Contents file",
+      "kind": "file",
+      "filter": "*.bin *.hex",
+      "default": "",
+      "description": "Contents the flash starts each run with (.bin or Intel .hex, stored relative to the project); empty: erased"
+    }
+  ]
+}

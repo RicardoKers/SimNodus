@@ -117,6 +117,16 @@ void DeviceBus::start(std::uint64_t time_ns)
     settle(time_ns);
 }
 
+void DeviceBus::set_analog_source(
+    const std::function<double(std::size_t device, std::size_t pin, std::uint64_t time_ns)>& source)
+{
+    for (std::size_t d = 0; d < devices_.size(); ++d) {
+        if (devices_[d]) {
+            devices_[d]->set_analog_source([source, d](std::size_t pin, std::uint64_t time_ns) { return source(d, pin, time_ns); });
+        }
+    }
+}
+
 void DeviceBus::set_parameter(std::size_t device, const std::string& name, const std::string& value,
     std::uint64_t time_ns)
 {

@@ -1,0 +1,268 @@
+{
+  "type": "mcp41010",
+  "name": "Digital potentiometer MCP41010 (SPI)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "SPI digital potentiometer, 10, 50 or 100 kOhm",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -4,
+          8,
+          8
+        ]
+      },
+      {
+        "text": "MCP41010",
+        "at": [
+          0,
+          -2.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -4,
+          -2
+        ]
+      },
+      {
+        "text": "CS",
+        "at": [
+          -2.7,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          -4.3,
+          -2,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "SCK",
+        "at": [
+          -2.7,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -4,
+          2
+        ]
+      },
+      {
+        "text": "SI",
+        "at": [
+          -2.7,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -2,
+          4,
+          -2
+        ]
+      },
+      {
+        "text": "PA0",
+        "at": [
+          2.8,
+          -2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "text": "PW0",
+        "at": [
+          2.8,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          2,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "PB0",
+        "at": [
+          2.8,
+          2
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -6,
+          0,
+          -4
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          0,
+          -3.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          4,
+          0,
+          6
+        ]
+      },
+      {
+        "text": "VSS",
+        "at": [
+          0,
+          3.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "CS",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SCK",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SI",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PA0",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PW0",
+        "at": [
+          6,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB0",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VDD",
+        "at": [
+          0,
+          -6
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "VSS",
+        "at": [
+          0,
+          6
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -5
+  ],
+  "value_offset": [
+    5,
+    5
+  ],
+  "device": {
+    "kind": "mcp41010",
+    "supply_pin": "VDD",
+    "ground_pin": "VSS",
+    "output_resistance": 50,
+    "internal_pins": [
+      "WIPER"
+    ]
+  },
+  "spice": [
+    "R_{ref}_hcs {node:CS} {node:VSS} 100Meg",
+    "R_{ref}_hsck {node:SCK} {node:VSS} 100Meg",
+    "R_{ref}_hsi {node:SI} {node:VSS} 100Meg",
+    "R_{ref}_q {node:VDD} {node:VSS} 100k",
+    "B_{ref}_a {node:PA0} {node:PW0} I=V({node:PA0},{node:PW0})/({R}*max(1-50*V({ext:wiper_g}),0.001)+52)",
+    "B_{ref}_b {node:PW0} {node:PB0} I=V({node:PW0},{node:PB0})/({R}*max(50*V({ext:wiper_g}),0.001)+52)"
+  ],
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Resistance",
+      "unit": "Ohm",
+      "default": "10k",
+      "choices": [
+        "10k",
+        "50k",
+        "100k"
+      ],
+      "description": "Track resistance from PA0 to PB0: MCP41010, MCP41050 or MCP41100"
+    }
+  ],
+  "value_parameter": "R"
+}

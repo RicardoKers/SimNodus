@@ -1,0 +1,239 @@
+{
+  "type": "sdcard",
+  "name": "microSD card (SPI)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "microSD card in SPI mode, 1 to 64 MB",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -6,
+          12,
+          12
+        ]
+      },
+      {
+        "text": "microSD",
+        "at": [
+          0,
+          2
+        ],
+        "size": 0.8
+      },
+      {
+        "polygon": [
+          -3,
+          -3,
+          2,
+          -3,
+          3,
+          -2,
+          3,
+          0,
+          -3,
+          0
+        ]
+      },
+      {
+        "line": [
+          -8,
+          -5,
+          -6,
+          -5
+        ]
+      },
+      {
+        "text": "CS",
+        "at": [
+          -4.6,
+          -5
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -8,
+          -3,
+          -6,
+          -3
+        ]
+      },
+      {
+        "text": "SCK",
+        "at": [
+          -4.6,
+          -3
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -8,
+          -1,
+          -6,
+          -1
+        ]
+      },
+      {
+        "text": "MOSI",
+        "at": [
+          -4.6,
+          -1
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -8,
+          1,
+          -6,
+          1
+        ]
+      },
+      {
+        "text": "MISO",
+        "at": [
+          -4.6,
+          1
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -8,
+          3,
+          -6,
+          3
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          -4.6,
+          3
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -8,
+          5,
+          -6,
+          5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -4.6,
+          5
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "CS",
+        "at": [
+          -8,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "SCK",
+        "at": [
+          -8,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "MOSI",
+        "at": [
+          -8,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "MISO",
+        "at": [
+          -8,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          -8,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND",
+        "at": [
+          -8,
+          5
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    -6,
+    -8
+  ],
+  "value_offset": [
+    -6,
+    7
+  ],
+  "device": {
+    "kind": "sdcard",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "memory_size_parameter": "size",
+    "memory_fill": 0,
+    "contents_parameter": "contents"
+  },
+  "spice": [
+    "R_{ref}_hcs {node:CS} {node:GND} 100Meg",
+    "R_{ref}_hsck {node:SCK} {node:GND} 100Meg",
+    "R_{ref}_hmosi {node:MOSI} {node:GND} 100Meg",
+    "R_{ref}_hmiso {node:MISO} {node:GND} 100Meg",
+    "B_{ref}_miso {node:GND} {node:MISO} I=V({ext:miso_i})-V({ext:miso_g})*(V({node:MISO})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "size",
+      "label": "Size (bytes)",
+      "unit": "",
+      "default": "8M",
+      "choices": [
+        "1M",
+        "2M",
+        "4M",
+        "8M",
+        "16M",
+        "32M",
+        "64M"
+      ],
+      "description": "Capacity of the card"
+    },
+    {
+      "name": "contents",
+      "label": "Image file",
+      "kind": "file",
+      "filter": "*.img *.bin",
+      "default": "",
+      "description": "Card image the run starts with (raw blocks, stored relative to the project); empty: all zeros"
+    }
+  ],
+  "value_parameter": "size"
+}

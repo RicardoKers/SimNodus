@@ -191,6 +191,27 @@ bool SimulationSession::start(RunRequest request, std::string& error)
                     lower(node->second), std::string("0"), device.pin_model});
             }
         }
+        // Analog pins of chips (SN-224): their voltages too, also on nets read only as levels.
+        for (const auto& device : m.options.devices) {
+            const auto* c = request_.schematic.component(device.component);
+            const auto* d = c ? request_.library->find(c->type) : nullptr;
+            if (!d || !d->device) {
+                continue;
+            }
+            for (const auto& pin : d->device->analog_pins) {
+                const auto node = netlist_.pin_node.find({device.component, pin});
+                const auto name = std::find(names.begin(), names.end(), device.designator + "." + pin);
+                if (node == netlist_.pin_node.end() || name == names.end()) {
+                    continue;
+                }
+                const auto index = static_cast<std::size_t>(name - names.begin());
+                const bool watched = std::any_of(input_watches_.begin(), input_watches_.end(),
+                    [&](const InputWatch& w) { return w.runner == runner.get() && w.pin == index; });
+                if (!watched) {
+                    input_watches_.push_back({runner.get(), index, lower(node->second), std::string("0"), device.pin_model});
+                }
+            }
+        }
         analog_points_[runner.get()].assign(names.size(), std::nan(""));
         mcus_[m.component] = std::move(runner);
     }
@@ -642,6 +663,8 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
                     candidate.signals.push_back(pin.name);
                 }
             }
+            // Outputs inside the part (SN-224): device pins on no net.
+            candidate.signals.insert(candidate.signals.end(), d->device->internal_pins.begin(), d->device->internal_pins.end());
             devices.push_back(std::move(candidate));
         }
     }
@@ -766,6 +789,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             request.parameters = candidate.component->parameters;
             request.pins = candidate.signals;
             request.supply = supply_of(net_of(request.component, device.supply_pin));
+            request.parameters["@supply"] = model::spice_number(request.supply); // for chips that measure against it
             if (request.supply <= 0) {
                 warn(request.designator + " has no supply on " + device.supply_pin
                     + " (a DC source or the board's 3.3 V); it does nothing.");

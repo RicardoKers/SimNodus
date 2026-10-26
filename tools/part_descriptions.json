@@ -47,5 +47,10 @@
   "mpu6050": "I2C accelerometer and gyroscope; set the motion in Properties",
   "ds3231": "I2C real-time clock with alarms and a square-wave output",
   "tcs34725": "I2C color sensor; set the color and the light in Properties",
-  "ssd1306": "128x64 or 128x32 I2C OLED display; the picture shows on the schematic"
+  "ssd1306": "128x64 or 128x32 I2C OLED display; the picture shows on the schematic",
+  "mcp3208": "8-channel 12-bit SPI A/D converter; reads the circuit's voltages",
+  "mcp41010": "SPI digital potentiometer, 10, 50 or 100 kOhm",
+  "w25q32": "4 MB SPI flash memory",
+  "sdcard": "microSD card in SPI mode, 1 to 64 MB",
+  "hx711": "24-bit A/D converter for load cells"
 }

@@ -1,0 +1,472 @@
+{
+  "type": "mcp3208",
+  "name": "A/D converter MCP3208 (SPI)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "8-channel 12-bit SPI A/D converter; reads the circuit's voltages",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -9,
+          8,
+          18
+        ]
+      },
+      {
+        "text": "MCP3208",
+        "at": [
+          0,
+          -7.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -7,
+          -4,
+          -7
+        ]
+      },
+      {
+        "text": "CH0",
+        "at": [
+          -2.7,
+          -7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "CH1",
+        "at": [
+          -2.7,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "CH2",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "CH3",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "CH4",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "CH5",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "CH6",
+        "at": [
+          -2.7,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          7,
+          -4,
+          7
+        ]
+      },
+      {
+        "text": "CH7",
+        "at": [
+          -2.7,
+          7
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -5,
+          4,
+          -5
+        ]
+      },
+      {
+        "text": "CS",
+        "at": [
+          2.8,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "circle": [
+          4.3,
+          -5,
+          0.3
+        ]
+      },
+      {
+        "line": [
+          6,
+          -3,
+          4,
+          -3
+        ]
+      },
+      {
+        "text": "CLK",
+        "at": [
+          2.8,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "DIN",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "DOUT",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          3,
+          4,
+          3
+        ]
+      },
+      {
+        "text": "VREF",
+        "at": [
+          2.8,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          5,
+          4,
+          5
+        ]
+      },
+      {
+        "text": "AGND",
+        "at": [
+          2.8,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -11,
+          0,
+          -9
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          0,
+          -8.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          9,
+          0,
+          11
+        ]
+      },
+      {
+        "text": "DGND",
+        "at": [
+          0,
+          8.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "CH0",
+        "at": [
+          -6,
+          -7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH1",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH2",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH3",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH4",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH5",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH6",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CH7",
+        "at": [
+          -6,
+          7
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "CS",
+        "at": [
+          6,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "CLK",
+        "at": [
+          6,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "DIN",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "DOUT",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VREF",
+        "at": [
+          6,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "AGND",
+        "at": [
+          6,
+          5
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VDD",
+        "at": [
+          0,
+          -11
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "DGND",
+        "at": [
+          0,
+          11
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -10
+  ],
+  "value_offset": [
+    5,
+    10
+  ],
+  "device": {
+    "kind": "mcp3208",
+    "supply_pin": "VDD",
+    "ground_pin": "DGND",
+    "output_resistance": 50,
+    "analog_pins": [
+      "CH0",
+      "CH1",
+      "CH2",
+      "CH3",
+      "CH4",
+      "CH5",
+      "CH6",
+      "CH7",
+      "VREF"
+    ]
+  },
+  "spice": [
+    "R_{ref}_hch0 {node:CH0} {node:DGND} 100Meg",
+    "R_{ref}_hch1 {node:CH1} {node:DGND} 100Meg",
+    "R_{ref}_hch2 {node:CH2} {node:DGND} 100Meg",
+    "R_{ref}_hch3 {node:CH3} {node:DGND} 100Meg",
+    "R_{ref}_hch4 {node:CH4} {node:DGND} 100Meg",
+    "R_{ref}_hch5 {node:CH5} {node:DGND} 100Meg",
+    "R_{ref}_hch6 {node:CH6} {node:DGND} 100Meg",
+    "R_{ref}_hch7 {node:CH7} {node:DGND} 100Meg",
+    "R_{ref}_hcs {node:CS} {node:DGND} 100Meg",
+    "R_{ref}_hclk {node:CLK} {node:DGND} 100Meg",
+    "R_{ref}_hdin {node:DIN} {node:DGND} 100Meg",
+    "R_{ref}_hdout {node:DOUT} {node:DGND} 100Meg",
+    "R_{ref}_hvref {node:VREF} {node:DGND} 100Meg",
+    "R_{ref}_hagnd {node:AGND} {node:DGND} 100Meg",
+    "B_{ref}_dout {node:DGND} {node:DOUT} I=V({ext:dout_i})-V({ext:dout_g})*(V({node:DOUT})-V({node:DGND}))",
+    "R_{ref}_q {node:VDD} {node:DGND} 100k"
+  ]
+}

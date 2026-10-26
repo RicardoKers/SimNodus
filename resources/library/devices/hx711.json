@@ -1,0 +1,321 @@
+{
+  "type": "hx711",
+  "name": "Load cell amplifier HX711",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "24-bit A/D converter for load cells",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -7,
+          8,
+          14
+        ]
+      },
+      {
+        "text": "HX711",
+        "at": [
+          0,
+          -5.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -5,
+          -4,
+          -5
+        ]
+      },
+      {
+        "text": "E+",
+        "at": [
+          -2.7,
+          -5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -3,
+          -4,
+          -3
+        ]
+      },
+      {
+        "text": "E-",
+        "at": [
+          -2.7,
+          -3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "A-",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "A+",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          3,
+          -4,
+          3
+        ]
+      },
+      {
+        "text": "B-",
+        "at": [
+          -2.7,
+          3
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          5,
+          -4,
+          5
+        ]
+      },
+      {
+        "text": "B+",
+        "at": [
+          -2.7,
+          5
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          -1,
+          4,
+          -1
+        ]
+      },
+      {
+        "text": "DT",
+        "at": [
+          2.8,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          6,
+          1,
+          4,
+          1
+        ]
+      },
+      {
+        "text": "SCK",
+        "at": [
+          2.8,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -9,
+          0,
+          -7
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -6.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          7,
+          0,
+          9
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          6.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "E+",
+        "at": [
+          -6,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "E-",
+        "at": [
+          -6,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A-",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A+",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "B-",
+        "at": [
+          -6,
+          3
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "B+",
+        "at": [
+          -6,
+          5
+        ],
+        "dir": "left",
+        "optional": true
+      },
+      {
+        "name": "DT",
+        "at": [
+          6,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "SCK",
+        "at": [
+          6,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -9
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          9
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -8
+  ],
+  "value_offset": [
+    5,
+    8
+  ],
+  "device": {
+    "kind": "hx711",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "driven_pins": [
+      "DT"
+    ],
+    "analog_pins": [
+      "E+",
+      "A+",
+      "A-",
+      "B+",
+      "B-"
+    ]
+  },
+  "spice": [
+    "R_{ref}_ha- {node:A-} {node:GND} 100Meg",
+    "R_{ref}_ha+ {node:A+} {node:GND} 100Meg",
+    "R_{ref}_hb- {node:B-} {node:GND} 100Meg",
+    "R_{ref}_hb+ {node:B+} {node:GND} 100Meg",
+    "R_{ref}_hdt {node:DT} {node:GND} 100Meg",
+    "R_{ref}_hsck {node:SCK} {node:GND} 100Meg",
+    "B_{ref}_dt {node:GND} {node:DT} I=V({ext:dt_i})-V({ext:dt_g})*(V({node:DT})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k",
+    "R_{ref}_ep {node:VCC} {node:E+} 2",
+    "R_{ref}_en {node:E-} {node:GND} 1"
+  ],
+  "parameters": [
+    {
+      "name": "rate",
+      "label": "Rate",
+      "unit": "",
+      "default": "10",
+      "choices": [
+        "10",
+        "80"
+      ],
+      "description": "Conversions per second (the module's RATE pin)"
+    }
+  ],
+  "value_parameter": "rate"
+}

@@ -575,6 +575,18 @@ ComponentDefinition parse_definition(const json& j)
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
         device.driven_pins = strings(m, "driven_pins");
+        device.analog_pins = strings(m, "analog_pins");
+        device.internal_pins = strings(m, "internal_pins");
+        for (const auto& pin : device.analog_pins) {
+            if (!d.pin(pin)) {
+                invalid("device.analog_pins names a pin the part does not have: " + pin);
+            }
+        }
+        for (const auto& pin : device.internal_pins) {
+            if (d.pin(pin)) {
+                invalid("device.internal_pins must not be pins of the symbol: " + pin);
+            }
+        }
         if (m.contains("memory_size_parameter")) {
             device.memory_size_parameter = text(m, "memory_size_parameter", true);
             const auto* size = d.parameter(device.memory_size_parameter);
@@ -783,6 +795,8 @@ std::size_t DigitalDevice::memory_bytes(const std::map<std::string, std::string>
     std::size_t words = std::strtoul(it->second.c_str(), &end, 10);
     if (end && (*end == 'K' || *end == 'k')) {
         words *= 1024;
+    } else if (end && *end == 'M') {
+        words *= 1024 * 1024; // a memory card image (SN-224)
     }
     return words;
 }

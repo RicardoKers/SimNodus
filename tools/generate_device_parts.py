@@ -26,6 +26,10 @@ nothing.
 - BMP280, MPU6050, DS3231, TCS34725 and the SSD1306 OLED (SN-223): I2C
   sensors, clock and display with their registers; measured values are live
   parameters; the OLED's pixels appear on the schematic.
+- MCP3208, MCP41010, W25Q32, microSD card and HX711 (SN-224): SPI chips and
+  the load cell amplifier; the converters read the circuit's voltages
+  (device.analog_pins), the digital potentiometer sets a resistance through
+  an output inside the part (device.internal_pins).
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -321,7 +325,114 @@ def ssd1306():
     return p
 
 
-MEMORY_SIZES =["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
+SPI_NOTE = ("SPI modes 0 and 3 (data in at rising SCK, out at falling SCK); the data output floats while CS is high. "
+            "Works together with a microcontroller board.")
+
+
+def mcp3208():
+    channels = [f"CH{i}" for i in range(8)]
+    right = ["CS", "CLK", "DIN", "DOUT", "VREF", "AGND"]
+    symbol, upper = ic_symbol("MCP3208", channels, right, "VDD", "DGND", inverted=("CS",),
+                              optional=tuple(channels) + ("AGND",))
+    p = part("mcp3208", "A/D converter MCP3208 (SPI)",
+             "8-channel 12-bit A/D converter (Microchip MCP3208) on SPI: with CS low, a start bit, SGL/DIFF and three "
+             "channel bits on DIN choose a single-ended input (CHn against AGND) or a differential pair; DOUT then "
+             "gives a null bit and the 12-bit result 4096 x VIN / VREF, MSB first. The inputs and VREF are read from "
+             "the circuit. Supply 2.7-5.5 V on VDD and DGND; AGND belongs to ground. " + SPI_NOTE,
+             symbol, upper, "mcp3208", device_spice(channels + right, ["DOUT"], supply="VDD", ground="DGND"))
+    p["device"].update({"supply_pin": "VDD", "ground_pin": "DGND", "analog_pins": channels + ["VREF"]})
+    return p
+
+
+def mcp41010():
+    symbol, upper = ic_symbol("MCP41010", ["CS", "SCK", "SI"], ["PA0", "PW0", "PB0"], "VDD", "VSS",
+                              inverted=("CS",))
+    wiper = "50*V({ext:wiper_g})"  # the device's output strength / output resistance (50 Ohm)
+    spice = device_spice(["CS", "SCK", "SI"], [], supply="VDD", ground="VSS") + [
+        f"B_{{ref}}_a {{node:PA0}} {{node:PW0}} I=V({{node:PA0}},{{node:PW0}})/({{R}}*max(1-{wiper},0.001)+52)",
+        f"B_{{ref}}_b {{node:PW0}} {{node:PB0}} I=V({{node:PW0}},{{node:PB0}})/({{R}}*max({wiper},0.001)+52)",
+    ]
+    p = part("mcp41010", "Digital potentiometer MCP41010 (SPI)",
+             "Digital potentiometer (Microchip MCP41010/MCP41050/MCP41100) on SPI: a command byte (0x11 writes pot 0, "
+             "0x21 shuts it down) and a data byte D taken when CS rises after 16 clocks put the wiper PW0 at D/256 "
+             "of the track from PB0 towards PA0 (52 ohm wiper resistance). Starts at mid-scale. Supply 2.7-5.5 V on "
+             "VDD and VSS; keep PA0, PW0 and PB0 between VSS and VDD. " + SPI_NOTE,
+             symbol, upper, "mcp41010", spice,
+             parameters=[{"name": "R", "label": "Resistance", "unit": "Ohm", "default": "10k",
+                          "choices": ["10k", "50k", "100k"],
+                          "description": "Track resistance from PA0 to PB0: MCP41010, MCP41050 or MCP41100"}])
+    p["device"].update({"supply_pin": "VDD", "ground_pin": "VSS", "internal_pins": ["WIPER"]})
+    return p
+
+
+def w25q32():
+    symbol, upper = ic_symbol("W25Q32", ["CS", "CLK", "DI", "DO"], ["WP", "HOLD"], "VCC", "GND", inverted=("CS",),
+                              optional=("WP", "HOLD"))
+    p = part("w25q32", "SPI flash W25Q32",
+             "32 Mbit (4 MB) SPI NOR flash (Winbond W25Q32): read (03, 0B), write enable (06), page program (02, up "
+             "to 256 bytes, only clearing bits), erase of 4 KB, 32 KB, 64 KB or the whole chip (20, 52, D8, C7), "
+             "status (05: BUSY, WEL), JEDEC ID (9F: EF 40 16), power-down; programming and erasing keep BUSY for the "
+             "datasheet's typical times (0.7 ms a page, 45 ms a sector, 10 s the chip). Starts erased or with its "
+             "contents file; the Memory Viewer shows it. WP and HOLD are not simulated. Supply 2.7-3.6 V. " + SPI_NOTE,
+             symbol, upper, "w25q32", device_spice(["CS", "CLK", "DI", "DO", "WP", "HOLD"], ["DO"]),
+             parameters=[{"name": "contents", "label": "Contents file", "kind": "file", "filter": "*.bin *.hex",
+                          "default": "", "description": "Contents the flash starts each run with (.bin or Intel "
+                                                        ".hex, stored relative to the project); empty: erased"}])
+    p["device"].update({"memory_size": 4194304, "contents_parameter": "contents"})
+    del p["value_parameter"]
+    return p
+
+
+def sdcard():
+    names = ["CS", "SCK", "MOSI", "MISO", "VCC", "GND"]
+    graphics = [{"rect": [-6, -6, 12, 12]}, {"text": "microSD", "at": [0, 2], "size": 0.8},
+                {"polygon": [-3, -3, 2, -3, 3, -2, 3, 0, -3, 0]}]
+    pins = []
+    for i, name in enumerate(names):
+        y = -5 + 2 * i
+        pins.append({"name": name, "at": [-8, y], "dir": "left"})
+        graphics.append({"line": [-8, y, -6, y]})
+        graphics.append({"text": name, "at": [-4.6, y], "size": 0.5})
+    p = part("sdcard", "microSD card (SPI)",
+             "microSD card in SPI mode, as on the common card modules: CMD0, CMD8, ACMD41, CMD58, CMD9/10, CMD16, "
+             "block reads (CMD17, CMD18 with CMD12) and writes (CMD24, CMD25) of 512 bytes with block addresses "
+             "(SDHC), as the FatFs drivers use them; CRCs are not checked. The card is as large as its size "
+             "property and starts empty or with an image file (format it with FatFs f_mkfs, or load a FAT image); "
+             "writes stay in the simulation, and the Memory Viewer can save them. " + SPI_NOTE,
+             {"graphics": graphics, "pins": pins}, -6, "sdcard", device_spice(["CS", "SCK", "MOSI", "MISO"], ["MISO"]),
+             parameters=[{"name": "size", "label": "Size (bytes)", "unit": "", "default": "8M",
+                          "choices": ["1M", "2M", "4M", "8M", "16M", "32M", "64M"],
+                          "description": "Capacity of the card"},
+                         {"name": "contents", "label": "Image file", "kind": "file", "filter": "*.img *.bin",
+                          "default": "", "description": "Card image the run starts with (raw blocks, stored relative "
+                                                        "to the project); empty: all zeros"}])
+    p["device"].update({"memory_size_parameter": "size", "memory_fill": 0, "contents_parameter": "contents"})
+    p["designator_offset"] = [-6, -8]
+    p["value_offset"] = [-6, 7]
+    return p
+
+
+def hx711():
+    symbol, upper = ic_symbol("HX711", ["E+", "E-", "A-", "A+", "B-", "B+"], ["DT", "SCK"], "VCC", "GND",
+                              optional=("B-", "B+"))
+    spice = device_spice(["A-", "A+", "B-", "B+", "DT", "SCK"], ["DT"]) + [
+        "R_{ref}_ep {node:VCC} {node:E+} 2",  # excitation for the bridge from the supply
+        "R_{ref}_en {node:E-} {node:GND} 1",
+    ]
+    p = part("hx711", "Load cell amplifier HX711",
+             "24-bit A/D converter for load cells (Avia HX711 module): E+ and E- excite the bridge, A+ and A- (gain "
+             "128 or 64) or B+ and B- (gain 32) take its output. DT goes low when a conversion is ready (10 or 80 "
+             "per second); 24 pulses on SCK shift the result out MSB first, 1-3 more choose the next input and "
+             "gain; SCK high for over 60 us powers it down. The code is (A+ - A-) x gain / (E+ / 2) x 2^23. Supply "
+             "2.6-5.5 V. Works together with a microcontroller board.",
+             symbol, upper, "hx711", spice, driven=["DT"],
+             parameters=[{"name": "rate", "label": "Rate", "unit": "", "default": "10", "choices": ["10", "80"],
+                          "description": "Conversions per second (the module's RATE pin)"}])
+    p["device"]["analog_pins"] = ["E+", "A+", "A-", "B+", "B-"]
+    return p
+
+
+MEMORY_SIZES = ["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
 
 
 def memory(ram):
@@ -359,7 +470,8 @@ def main():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "part_descriptions.json"), encoding="utf-8") as fh:
         short = json.load(fh)
     for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
-              bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306()]:
+              bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306(), mcp3208(), mcp41010(), w25q32(), sdcard(),
+              hx711()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

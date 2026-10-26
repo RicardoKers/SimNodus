@@ -1444,3 +1444,249 @@ TEST_CASE("devices: example 38 shows a DS3231 and a BMP280 on an SSD1306 OLED (S
     CHECK(!lit(59, 63));
     session.stop();
 }
+
+namespace {
+
+// Drives a device's CS, SCK and MOSI like an SPI master in mode 0 and reads
+// MISO just before each rising edge.
+class SpiMaster {
+public:
+    SpiMaster(devices::Device& device, std::size_t cs, std::size_t sck, std::size_t mosi, std::size_t miso)
+        : d_(device), cs_(cs), sck_(sck), mosi_(mosi), miso_(miso)
+    {
+        d_.initial_input(cs_, true);
+        d_.initial_input(sck_, false);
+        d_.initial_input(mosi_, false);
+    }
+    std::uint64_t& time() { return t_; }
+    void select() { d_.set_input(cs_, false, t_ += 1000); }
+    void release() { d_.set_input(cs_, true, t_ += 1000); }
+    std::uint8_t byte(std::uint8_t out)
+    {
+        unsigned in = 0;
+        for (int i = 7; i >= 0; --i) {
+            d_.set_input(mosi_, ((out >> i) & 1) != 0, t_ += 250);
+            const auto o = d_.output(miso_);
+            in = (in << 1) | (o.driven && o.high ? 1u : 0u);
+            d_.set_input(sck_, true, t_ += 250);
+            d_.set_input(sck_, false, t_ += 500);
+        }
+        return static_cast<std::uint8_t>(in);
+    }
+    std::vector<std::uint8_t> transfer(const std::vector<std::uint8_t>& bytes)
+    {
+        select();
+        std::vector<std::uint8_t> in;
+        for (const auto b : bytes) {
+            in.push_back(byte(b));
+        }
+        release();
+        return in;
+    }
+
+private:
+    devices::Device& d_;
+    std::size_t cs_, sck_, mosi_, miso_;
+    std::uint64_t t_ = 0;
+};
+
+} // namespace
+
+TEST_CASE("devices: SPI converters, potentiometer, flash, card and the HX711 follow their datasheets (SN-224)")
+{
+    std::string error;
+    { // MCP3208: 1.25 V on CH2 against a 2.5 V reference reads 2048; a tied input reads its rail.
+        const std::vector<std::string> pins{"CH0", "CH1", "CH2", "CH3", "CH4", "CH5", "CH6", "CH7", "CS", "CLK", "DIN",
+            "DOUT", "VREF", "AGND"};
+        auto d = devices::make_device("mcp3208", pins, {{"@supply", "3.3"}}, error);
+        REQUIRE(d);
+        d->set_analog_source([](std::size_t pin, std::uint64_t) {
+            return pin == 2 ? 1.25 : pin == 12 ? 2.5 : pin == 3 ? 3.0 : std::nan("");
+        });
+        d->initial_input(7, true); // CH7 tied to the supply
+        SpiMaster m(*d, 8, 9, 10, 11);
+        auto read = [&](unsigned channel, bool single) {
+            const auto r = m.transfer({static_cast<std::uint8_t>(0x04 | (single ? 2 : 0) | (channel >> 2)),
+                static_cast<std::uint8_t>((channel & 3) << 6), 0x00});
+            return ((r[1] & 0x0F) << 8) | r[2];
+        };
+        CHECK(read(2, true) == 2048);
+        CHECK(read(7, true) == 4095); // 3.3 V over 2.5 V clamps
+        CHECK(read(0, true) == 0);
+        CHECK(read(2, false) == 0);    // CH2+ CH3-: 1.25 - 3.0 V is negative
+        CHECK(read(3, false) == 2867); // CH2- CH3+: 1.75 V
+    }
+    { // MCP41010: write 0x40 (a quarter of the track); shutdown; the wiper as the strength of WIPER.
+        auto d = devices::make_device("mcp41010", {"CS", "SCK", "SI", "WIPER"}, {}, error);
+        REQUIRE(d);
+        SpiMaster m(*d, 0, 1, 2, 3);
+        CHECK(std::abs(d->output(3).strength - 0.5) < 1e-9);
+        m.transfer({0x11, 0x40});
+        CHECK(std::abs(d->output(3).strength - 0.25) < 1e-9);
+        m.transfer({0x11}); // only 8 bits: ignored
+        CHECK(std::abs(d->output(3).strength - 0.25) < 1e-9);
+        m.transfer({0x21, 0x00});
+        CHECK(std::abs(d->output(3).strength - 0.0) < 1e-9);
+    }
+    { // W25Q32: IDs, write enable, page program with wrap, busy, read back, sector erase.
+        auto d = devices::make_device("w25q32", {"CS", "CLK", "DI", "DO", "WP", "HOLD"}, {}, error);
+        REQUIRE(d);
+        SpiMaster m(*d, 0, 1, 2, 3);
+        CHECK(m.transfer({0x9F, 0, 0, 0}) == (std::vector<std::uint8_t>{0xFF, 0xEF, 0x40, 0x16}));
+        CHECK(m.transfer({0x90, 0, 0, 0, 0, 0})[4] == 0xEF);
+        m.transfer({0x02, 0x00, 0x10, 0xFE, 0x12}); // no WEL: ignored
+        CHECK(m.transfer({0x03, 0x00, 0x10, 0xFE, 0})[4] == 0xFF);
+        m.transfer({0x06});
+        CHECK((m.transfer({0x05, 0})[1] & 2) == 2); // WEL
+        m.transfer({0x02, 0x00, 0x10, 0xFE, 0x12, 0x34, 0x56}); // 0x56 wraps to the start of the page
+        CHECK((m.transfer({0x05, 0})[1] & 1) == 1);              // BUSY
+        m.transfer({0x06});                                      // ignored while busy
+        m.time() += 1000000;
+        d->advance(m.time());
+        CHECK(m.transfer({0x05, 0})[1] == 0);
+        CHECK(m.transfer({0x03, 0x00, 0x10, 0xFE, 0, 0}) == (std::vector<std::uint8_t>{0xFF, 0xFF, 0xFF, 0xFF, 0x12, 0x34}));
+        CHECK(m.transfer({0x0B, 0x00, 0x10, 0x00, 0, 0})[5] == 0x56); // fast read: a dummy byte
+        CHECK(d->memory()[0x10FE] == 0x12);
+        m.transfer({0x06});
+        m.transfer({0x20, 0x00, 0x10, 0x00});
+        m.time() += 50000000;
+        d->advance(m.time());
+        CHECK(m.transfer({0x03, 0x00, 0x10, 0xFE, 0})[4] == 0xFF);
+    }
+    { // microSD: initialization, a block written and read back, an illegal command.
+        auto d = devices::make_device("sdcard", {"CS", "SCK", "MOSI", "MISO"}, {{"size", "1M"}}, error);
+        REQUIRE(d);
+        SpiMaster m(*d, 0, 1, 2, 3);
+        auto command = [&](std::uint8_t index, std::uint32_t argument, std::size_t answer) {
+            m.select();
+            for (const auto b : {static_cast<std::uint8_t>(0x40 | index), static_cast<std::uint8_t>(argument >> 24),
+                     static_cast<std::uint8_t>(argument >> 16), static_cast<std::uint8_t>(argument >> 8),
+                     static_cast<std::uint8_t>(argument), std::uint8_t{0x95}}) {
+                m.byte(b);
+            }
+            std::vector<std::uint8_t> r;
+            std::uint8_t b = 0xFF;
+            for (int i = 0; i < 8 && b == 0xFF; ++i) {
+                b = m.byte(0xFF);
+            }
+            r.push_back(b);
+            for (std::size_t i = 1; i < answer; ++i) {
+                r.push_back(m.byte(0xFF));
+            }
+            return r;
+        };
+        CHECK(command(0, 0, 1)[0] == 0x01);
+        m.release();
+        CHECK(command(8, 0x1AA, 5) == (std::vector<std::uint8_t>{0x01, 0x00, 0x00, 0x01, 0xAA}));
+        m.release();
+        CHECK(command(55, 0, 1)[0] == 0x01);
+        m.release();
+        CHECK(command(41, 0x40000000, 1)[0] == 0x00);
+        m.release();
+        CHECK(command(58, 0, 5)[1] == 0xC0);
+        m.release();
+        // Write block 3.
+        CHECK(command(24, 3, 1)[0] == 0x00);
+        m.byte(0xFF);
+        m.byte(0xFE);
+        for (int i = 0; i < 512; ++i) {
+            m.byte(static_cast<std::uint8_t>(i));
+        }
+        m.byte(0xFF);
+        m.byte(0xFF);
+        CHECK((m.byte(0xFF) & 0x1F) == 0x05);
+        while (m.byte(0xFF) != 0xFF) {
+        }
+        m.release();
+        CHECK(d->memory()[3 * 512 + 7] == 7);
+        // Read it back.
+        CHECK(command(17, 3, 1)[0] == 0x00);
+        std::uint8_t token = 0xFF;
+        for (int i = 0; i < 16 && token == 0xFF; ++i) {
+            token = m.byte(0xFF);
+        }
+        CHECK(token == 0xFE);
+        std::vector<std::uint8_t> block;
+        for (int i = 0; i < 512; ++i) {
+            block.push_back(m.byte(0xFF));
+        }
+        m.release();
+        CHECK(block[200] == 200);
+        CHECK((command(5, 0, 1)[0] & 0x04) == 0x04); // CMD5: illegal in SPI mode
+        m.release();
+    }
+    { // HX711: 1 mV on channel A at 5 V excitation and gain 128 is 1e-3 / (2.5 / 128) x 2^23.
+        auto d = devices::make_device("hx711", {"SCK", "DT", "E+", "E-", "A+", "A-", "B+", "B-"}, {{"@supply", "5"}},
+            error);
+        REQUIRE(d);
+        d->set_analog_source([](std::size_t pin, std::uint64_t) {
+            return pin == 2 ? 5.0 : pin == 4 ? 2.5005 : pin == 5 ? 2.4995 : std::nan("");
+        });
+        auto dt = [&] {
+            const auto o = d->output(1);
+            return o.driven && o.high;
+        };
+        CHECK(dt()); // converting
+        d->advance(d->next_event_ns());
+        CHECK(!dt()); // ready
+        std::uint64_t t = d->next_event_ns() - 50000000;
+        std::uint32_t value = 0;
+        for (int i = 0; i < 25; ++i) {
+            d->set_input(0, true, t += 1000);
+            if (i < 24) {
+                value = (value << 1) | (dt() ? 1u : 0u);
+            }
+            d->set_input(0, false, t += 1000);
+        }
+        CHECK(value == 429497); // 0.001 / 0.01953125 x 8388608, rounded
+        CHECK(dt());             // read: high until the next conversion
+    }
+}
+
+TEST_CASE("devices: example 39 reads voltages, sets a digital potentiometer, writes a flash and weighs (SN-224)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "39_SPI_ADC_digital_pot_flash_HX711.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"pot", "dpot"};
+    model::Id board = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    for (const auto& w : warnings) {
+        std::printf("  warning: %s\n", w.c_str());
+    }
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus[0].options.devices.size() == 4);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.2) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(2ms);
+    }
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    std::printf("%s", text.c_str());
+    CHECK(text.find("W25Q32 ID EF4016") != std::string::npos);
+    CHECK(text.find("W25Q32 reads SimNodus") != std::string::npos);
+    // RV1 at 30 %: 2.31 V of 3.3 V is code 2867; the digital potentiometer follows within a step (16 codes).
+    CHECK(text.find("CH0 2867 CH1 28") != std::string::npos);
+    CHECK(text.find("LOAD 19") != std::string::npos); // 40 % of 5 kg, about 2000 g
+    CHECK(std::abs(session.latest("dpot").value_or(0) - session.latest("pot").value_or(0)) < 0.03);
+    session.stop();
+}
