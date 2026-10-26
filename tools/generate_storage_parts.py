@@ -15,6 +15,8 @@ Run from the repository root: python tools/generate_storage_parts.py
 import json
 import os
 
+from spice_levels import share_levels
+
 FOLDER = "resources/library/storage"
 CATEGORY = "Flip-flops & counters"
 
@@ -231,6 +233,7 @@ def main():
         short = json.load(fh)
     for p in build():
         p["description"] = short.get(p["type"], p["description"])
+        p["spice"] = share_levels(p["spice"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")
 

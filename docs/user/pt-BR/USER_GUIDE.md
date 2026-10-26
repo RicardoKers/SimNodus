@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 d10b8c6057587280d502876419979f8eddbc1690a73c137eed18f2d794c61d1c -->
+<!-- source: USER_GUIDE.md sha256 d5bb30214db0ac643bbb5b18b54bf438f45733d90c9cfe60c937fd020b418ac3 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -491,6 +491,12 @@ declarados para que os resultados sejam lidos corretamente.
 - Bordas exatas do microcontrolador custam velocidade (cerca de 0,8x–2,9x o
   tempo real com passo de 100 µs; cerca de 0,2x a 10 µs com um PWM de
   10 kHz, num notebook de 2026).
+- Na velocidade máxima, num notebook de 2026, a maioria dos exemplos roda
+  de 1,5x a 50x o tempo real, mas quatro ficam perto ou abaixo dele: 26
+  (matriz de LEDs, 64 LEDs multiplexados) cerca de 0,4x, 24 (RTC e watchdog)
+  e 15 (ADC + DMA com HAL) cerca de 1x (firmware ocupado a 72 MHz), 23
+  (contador de 7 segmentos) 1,2x. Em PCs mais lentos eles mostram uma
+  velocidade abaixo de 1x: os resultados continuam certos, só mais lentos.
 - A recepção (RX) da USART pelo pino precisa de bordas exatas ou de um bit
   com pelo menos quatro passos de tempo (2400 baud ou menos a 100 µs); um
   byte recebido chega ao firmware cerca de 0,4 ms depois do seu stop bit.

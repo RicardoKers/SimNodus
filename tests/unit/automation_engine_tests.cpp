@@ -89,6 +89,28 @@ TEST_CASE("automation: a transient run measures the RC filter")
     CHECK(std::abs(across["max"].get<double>() - 1000.0 * current["max"].get<double>()) < 0.05);
 }
 
+TEST_CASE("automation: the decade counter of example 23 counts across interactive segments")
+{
+    // The counter's state is in capacitors that every 1 s segment carries over;
+    // its thresholds are shared nodes (tools/spice_levels.py). 2 Hz clock.
+    Fixture f;
+    REQUIRE(f.ok("project.open", {{"path", SIMNODUS_TEST_EXAMPLES_DIR "/23_Seven_segment_counter.snx"}}).is_object());
+    const auto result = f.ok("sim.run", {{"mode", "interactive"}, {"duration", "4"},
+        {"signals", {"V(U1.Q0)", "V(U1.Q1)", "V(U1.Q2)", "V(U1.Q3)"}}, {"points", 17}});
+    REQUIRE(result.is_object());
+    std::vector<int> counts;
+    for (std::size_t k = 0; k < 17; ++k) {
+        int count = 0;
+        for (int bit = 0; bit < 4; ++bit) {
+            const auto& s = signal(result, "V(U1.Q" + std::to_string(bit) + ")");
+            REQUIRE(s.is_object() && s["points"].size() == 17);
+            count |= s["points"][k][1].get<double>() > 2.5 ? 1 << bit : 0;
+        }
+        counts.push_back(count);
+    }
+    CHECK(counts == std::vector<int>({0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8}));
+}
+
 TEST_CASE("automation: interactive runs stop at the asked time and apply timed button presses")
 {
     Fixture f;

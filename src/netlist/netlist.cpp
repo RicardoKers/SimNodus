@@ -820,19 +820,32 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
             }
         }
         dc.id("0");
+        // One message per group of nets joined by DC paths (a resistor between
+        // two floating nets is one problem, not two), in the order of the nets.
+        std::vector<int> groups;
+        std::map<int, std::vector<Id>> group_items;
         for (const auto& net : nets) {
             if (net.ground || !nodes.count(net.name) || dc.connected(net.name, "0")) {
                 continue;
             }
-            std::vector<Id> items;
-            std::string names;
+            const int group = dc.find(dc.id(net.name));
+            if (!group_items.count(group)) {
+                groups.push_back(group);
+            }
+            auto& items = group_items[group];
             for (const auto& pin : net.pins) {
                 if (const auto* c = schematic.component(pin.first)) {
                     if (std::find(items.begin(), items.end(), c->id) == items.end()) {
                         items.push_back(c->id);
-                        names += (names.empty() ? "" : ", ") + c->designator;
                     }
                 }
+            }
+        }
+        for (const int group : groups) {
+            const auto& items = group_items[group];
+            std::string names;
+            for (const Id id : items) {
+                names += (names.empty() ? "" : ", ") + schematic.component(id)->designator;
             }
             report(Severity::Error, "floating-net",
                 "The net connecting " + names

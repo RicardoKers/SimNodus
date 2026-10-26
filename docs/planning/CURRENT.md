@@ -90,9 +90,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 1. After 0.9 (owner's choice, 2026-10-25): user guides in Brazilian
    Portuguese done (`docs/user/pt-BR`, Help > User Guide by interface
-   language). Next candidates offered: more ready lessons (needs the owner's
-   course outline), a classroom robustness pass over the examples. SN-186
-   postponed: the owner has no case that needs faster edges.
+   language), and the classroom robustness pass: all 35 examples pass
+   `tools/examples_pass.py` and `tools/examples_gui_pass.py` (run both before
+   a release); shared thresholds in the logic parts made examples 21, 23 and
+   32 about 2-3x faster. Still slow on a 2026 laptop: 26 (LED matrix, 0.4x),
+   24 and 15 (about 1x). Open idea: a project with its own firmware breaks
+   when handed to another PC (the .elf path); bundling the firmware with the
+   project would fix it. Next candidate: more ready lessons (needs the
+   owner's course outline). SN-186 postponed: the owner has no case that
+   needs faster edges.
 2. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
