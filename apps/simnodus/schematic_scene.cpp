@@ -492,6 +492,32 @@ private:
         if (width <= 0 || height <= 0) {
             return; // "128x64 off"
         }
+        if (lines.value(0).endsWith(QStringLiteral(" rgb"))) {
+            // Addressable LEDs (SN-225): a row of RRGGBB, drawn as round lamps.
+            const QString& row = lines[1];
+            const double pitch = glass.width() / width;
+            painter.save();
+            painter.setRenderHint(QPainter::Antialiasing, true);
+            for (int i = 0; i < width && 6 * i + 6 <= row.size(); ++i) {
+                const QColor color(QStringLiteral("#") + row.mid(6 * i, 6));
+                const bool off = color.red() + color.green() + color.blue() == 0;
+                const QPointF center(glass.left() + pitch * (i + 0.5), glass.center().y());
+                const double r = std::min(pitch, glass.height()) * 0.38;
+                if (!off) {
+                    // Brightness as alpha over the dark glass, at least visible.
+                    const int peak = std::max({color.red(), color.green(), color.blue()});
+                    QColor lit = QColor::fromRgb(color.red() * 255 / peak, color.green() * 255 / peak, color.blue() * 255 / peak);
+                    lit.setAlpha(std::clamp(80 + peak * 175 / 255, 80, 255));
+                    painter.setBrush(lit);
+                } else {
+                    painter.setBrush(QColor(0x30, 0x30, 0x34));
+                }
+                painter.setPen(Qt::NoPen);
+                painter.drawEllipse(center, r, r);
+            }
+            painter.restore();
+            return;
+        }
         QString color = QStringLiteral("white");
         if (const auto p = component_.parameters.find(screen.color_parameter); p != component_.parameters.end()) {
             color = QString::fromStdString(p->second);

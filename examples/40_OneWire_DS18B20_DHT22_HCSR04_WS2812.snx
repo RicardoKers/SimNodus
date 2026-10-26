@@ -1,0 +1,421 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/hal_onewire_sensors/hal_onewire_sensors.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -9,
+        17
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -60,
+        30
+      ],
+      "designator": "V1",
+      "id": 9,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        -60,
+        33
+      ],
+      "designator": "GND2",
+      "id": 10,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -40,
+        -20
+      ],
+      "designator": "U2",
+      "id": 12,
+      "mirrored": false,
+      "parameters": {
+        "serial": "auto",
+        "temperature": "22.5"
+      },
+      "rotation": 0,
+      "type": "ds18b20"
+    },
+    {
+      "at": [
+        -40,
+        -16
+      ],
+      "designator": "GND3",
+      "id": 15,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -50,
+        -24
+      ],
+      "designator": "R1",
+      "id": 16,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -40,
+        4
+      ],
+      "designator": "U3",
+      "id": 19,
+      "mirrored": false,
+      "parameters": {
+        "humidity": "61.5",
+        "model": "DHT22",
+        "temperature": "24"
+      },
+      "rotation": 0,
+      "type": "dht22"
+    },
+    {
+      "at": [
+        -40,
+        8
+      ],
+      "designator": "GND4",
+      "id": 22,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -50,
+        0
+      ],
+      "designator": "R2",
+      "id": 23,
+      "mirrored": false,
+      "parameters": {
+        "R": "4k7"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -40,
+        28
+      ],
+      "designator": "U4",
+      "id": 26,
+      "mirrored": false,
+      "parameters": {
+        "distance": "120"
+      },
+      "rotation": 0,
+      "type": "hcsr04"
+    },
+    {
+      "at": [
+        -40,
+        33
+      ],
+      "designator": "GND5",
+      "id": 30,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        10,
+        -34
+      ],
+      "designator": "U5",
+      "id": 31,
+      "mirrored": false,
+      "parameters": {
+        "count": "8"
+      },
+      "rotation": 0,
+      "type": "ws2812"
+    },
+    {
+      "at": [
+        0,
+        -29
+      ],
+      "designator": "GND6",
+      "id": 34,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -9,
+        19
+      ],
+      "id": 3,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -9,
+        5
+      ],
+      "id": 4,
+      "name": "DQ"
+    },
+    {
+      "at": [
+        -9,
+        3
+      ],
+      "id": 5,
+      "name": "DHT"
+    },
+    {
+      "at": [
+        -9,
+        1
+      ],
+      "id": 6,
+      "name": "TRIG"
+    },
+    {
+      "at": [
+        -9,
+        7
+      ],
+      "id": 7,
+      "name": "ECHO"
+    },
+    {
+      "at": [
+        -9,
+        -11
+      ],
+      "id": 8,
+      "name": "LEDS"
+    },
+    {
+      "at": [
+        -60,
+        27
+      ],
+      "id": 11,
+      "name": "5V"
+    },
+    {
+      "at": [
+        -40,
+        -24
+      ],
+      "id": 13,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -46,
+        -20
+      ],
+      "id": 14,
+      "name": "DQ"
+    },
+    {
+      "at": [
+        -50,
+        -27
+      ],
+      "id": 17,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -50,
+        -21
+      ],
+      "id": 18,
+      "name": "DQ"
+    },
+    {
+      "at": [
+        -40,
+        0
+      ],
+      "id": 20,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -46,
+        4
+      ],
+      "id": 21,
+      "name": "DHT"
+    },
+    {
+      "at": [
+        -50,
+        -3
+      ],
+      "id": 24,
+      "name": "VDD"
+    },
+    {
+      "at": [
+        -50,
+        3
+      ],
+      "id": 25,
+      "name": "DHT"
+    },
+    {
+      "at": [
+        -40,
+        23
+      ],
+      "id": 27,
+      "name": "5V"
+    },
+    {
+      "at": [
+        -46,
+        27
+      ],
+      "id": 28,
+      "name": "TRIG"
+    },
+    {
+      "at": [
+        -46,
+        29
+      ],
+      "id": 29,
+      "name": "ECHO"
+    },
+    {
+      "at": [
+        0,
+        -39
+      ],
+      "id": 32,
+      "name": "5V"
+    },
+    {
+      "at": [
+        -6,
+        -34
+      ],
+      "id": 33,
+      "name": "LEDS"
+    }
+  ],
+  "next_id": 39,
+  "notes": [
+    {
+      "at": [
+        -70,
+        -48
+      ],
+      "id": 38,
+      "text": "Timed one-wire protocols (SN-225) bit-banged by the Blue Pill with the DWT cycle counter: a DS18B20 on PB5 and a DHT22 on PB4\n(open drain, 4.7 kOhm pull-ups), an HC-SR04 on PB3/PB6 and a strip of 8 WS2812B LEDs on PA8. Open the UART terminal: one line\nper second. The strip shows the distance, 25 cm per LED. Change the distance, temperature or humidity in Properties while running;\nthe Logic tab shows the pulses of DQ, DHT and ECHO."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 35,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          5
+        ],
+        "item": 1,
+        "pin": "PB5"
+      }
+    },
+    {
+      "color": "",
+      "id": 36,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          3
+        ],
+        "item": 1,
+        "pin": "PB4"
+      }
+    },
+    {
+      "color": "",
+      "id": 37,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          7
+        ],
+        "item": 1,
+        "pin": "PB6"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": []
+}

@@ -1,0 +1,161 @@
+{
+  "type": "hcsr04",
+  "name": "Ultrasonic sensor HC-SR04",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "Ultrasonic distance sensor; set the distance in Properties",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -3,
+          8,
+          6
+        ]
+      },
+      {
+        "text": "HC-SR04",
+        "at": [
+          0,
+          -1.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          -1,
+          -4,
+          -1
+        ]
+      },
+      {
+        "text": "TRIG",
+        "at": [
+          -2.7,
+          -1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -6,
+          1,
+          -4,
+          1
+        ]
+      },
+      {
+        "text": "ECHO",
+        "at": [
+          -2.7,
+          1
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -5,
+          0,
+          -3
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -2.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          3,
+          0,
+          5
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          2.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "TRIG",
+        "at": [
+          -6,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "ECHO",
+        "at": [
+          -6,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          5
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -4
+  ],
+  "value_offset": [
+    5,
+    4
+  ],
+  "device": {
+    "kind": "hcsr04",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "driven_pins": [
+      "ECHO"
+    ]
+  },
+  "spice": [
+    "R_{ref}_htrig {node:TRIG} {node:GND} 100Meg",
+    "R_{ref}_hecho {node:ECHO} {node:GND} 100Meg",
+    "B_{ref}_echo {node:GND} {node:ECHO} I=V({ext:echo_i})-V({ext:echo_g})*(V({node:ECHO})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "distance",
+      "label": "Distance",
+      "unit": "cm",
+      "default": "100",
+      "min": "2",
+      "max": "450",
+      "live": true,
+      "description": "Distance to the obstacle; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "distance"
+}

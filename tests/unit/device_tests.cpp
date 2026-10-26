@@ -1690,3 +1690,289 @@ TEST_CASE("devices: example 39 reads voltages, sets a digital potentiometer, wri
     CHECK(std::abs(session.latest("dpot").value_or(0) - session.latest("pot").value_or(0)) < 0.03);
     session.stop();
 }
+
+namespace {
+
+// One wire between a master and a device with an open-drain or push-pull
+// output on the same pin; the device's timed events run as time passes.
+class Wire {
+public:
+    Wire(devices::Device& device, std::size_t pin) : d_(device), pin_(pin) { d_.initial_input(pin_, true); }
+    std::uint64_t now() const { return t_; }
+    bool level() const { return net_; }
+    void run_until(std::uint64_t until)
+    {
+        while (d_.next_event_ns() <= until) {
+            t_ = std::max(t_, d_.next_event_ns());
+            d_.advance(t_);
+            settle();
+        }
+        t_ = std::max(t_, until);
+    }
+    void drive(bool level, std::uint64_t after_ns)
+    {
+        run_until(t_ + after_ns);
+        master_ = level;
+        settle();
+    }
+    // Times (ns) at which the wire changed, while running for `span_ns`.
+    std::vector<std::pair<std::uint64_t, bool>> record(std::uint64_t span_ns)
+    {
+        std::vector<std::pair<std::uint64_t, bool>> edges;
+        const std::uint64_t end = t_ + span_ns;
+        bool last = net_;
+        while (d_.next_event_ns() <= end) {
+            t_ = std::max(t_, d_.next_event_ns());
+            d_.advance(t_);
+            settle();
+            if (net_ != last) {
+                edges.emplace_back(t_, net_);
+                last = net_;
+            }
+        }
+        t_ = end;
+        return edges;
+    }
+
+private:
+    void settle()
+    {
+        const auto o = d_.output(pin_);
+        const bool net = master_ && !(o.driven && !o.high);
+        if (net != net_) {
+            net_ = net;
+            d_.set_input(pin_, net, t_);
+            settle();
+        }
+    }
+    devices::Device& d_;
+    std::size_t pin_;
+    std::uint64_t t_ = 0;
+    bool master_ = true, net_ = true;
+};
+
+// 1-Wire master slots (Maxim application note 126 timings).
+bool one_wire_reset(Wire& w)
+{
+    w.drive(false, 1000);
+    w.drive(true, 500000);
+    w.run_until(w.now() + 70000);
+    const bool presence = !w.level();
+    w.run_until(w.now() + 430000);
+    return presence;
+}
+void one_wire_write(Wire& w, std::uint8_t byte)
+{
+    for (int k = 0; k < 8; ++k) {
+        const bool one = ((byte >> k) & 1) != 0;
+        w.drive(false, 2000);
+        w.drive(true, one ? 6000 : 60000);
+        w.run_until(w.now() + (one ? 64000 : 10000));
+    }
+}
+std::uint8_t one_wire_read(Wire& w)
+{
+    unsigned value = 0;
+    for (int k = 0; k < 8; ++k) {
+        w.drive(false, 2000);
+        w.drive(true, 6000);
+        w.run_until(w.now() + 9000);
+        value |= (w.level() ? 1u : 0u) << k;
+        w.run_until(w.now() + 55000);
+    }
+    return static_cast<std::uint8_t>(value);
+}
+
+std::uint8_t maxim_crc8(const std::vector<std::uint8_t>& bytes)
+{
+    std::uint8_t crc = 0;
+    for (auto b : bytes) {
+        for (int k = 0; k < 8; ++k) {
+            const bool mix = ((crc ^ b) & 1) != 0;
+            crc = static_cast<std::uint8_t>(crc >> 1);
+            if (mix) {
+                crc ^= 0x8C;
+            }
+            b = static_cast<std::uint8_t>(b >> 1);
+        }
+    }
+    return crc;
+}
+
+} // namespace
+
+TEST_CASE("devices: DS18B20, DHT22, HC-SR04 and WS2812B keep their protocols' timing (SN-225)")
+{
+    std::string error;
+    { // DS18B20: presence, READ ROM with a valid CRC, +85 C before converting, 23.5 C after 750 ms.
+        auto d = devices::make_device("ds18b20", {"DQ"}, {{"temperature", "23.5"}, {"@designator", "U7"}}, error);
+        REQUIRE(d);
+        Wire w(*d, 0);
+        REQUIRE(one_wire_reset(w));
+        one_wire_write(w, 0x33);
+        std::vector<std::uint8_t> rom;
+        for (int i = 0; i < 8; ++i) {
+            rom.push_back(one_wire_read(w));
+        }
+        CHECK(rom[0] == 0x28);
+        CHECK(maxim_crc8(rom) == 0); // the CRC over all eight bytes
+        auto scratchpad = [&] {
+            REQUIRE(one_wire_reset(w));
+            one_wire_write(w, 0xCC);
+            one_wire_write(w, 0xBE);
+            std::vector<std::uint8_t> s;
+            for (int i = 0; i < 9; ++i) {
+                s.push_back(one_wire_read(w));
+            }
+            return s;
+        };
+        auto s = scratchpad();
+        CHECK(maxim_crc8(s) == 0);
+        CHECK((s[0] | (s[1] << 8)) == 85 * 16);
+        REQUIRE(one_wire_reset(w));
+        one_wire_write(w, 0xCC);
+        one_wire_write(w, 0x44);
+        CHECK(one_wire_read(w) == 0x00); // converting
+        w.run_until(w.now() + 760000000);
+        CHECK(one_wire_read(w) == 0xFF); // done
+        s = scratchpad();
+        CHECK((s[0] | (s[1] << 8)) == 376); // 23.5 x 16
+        // Search ROM with one sensor finds its code: bit, complement, direction.
+        REQUIRE(one_wire_reset(w));
+        one_wire_write(w, 0xF0);
+        std::vector<std::uint8_t> found(8, 0);
+        for (int bit = 0; bit < 64; ++bit) {
+            auto slot = [&] {
+                w.drive(false, 2000);
+                w.drive(true, 6000);
+                w.run_until(w.now() + 9000);
+                const bool level = w.level();
+                w.run_until(w.now() + 55000);
+                return level;
+            };
+            const bool b = slot();
+            const bool complement = slot();
+            CHECK(b != complement);
+            found[static_cast<std::size_t>(bit / 8)] |= static_cast<std::uint8_t>((b ? 1u : 0u) << (bit % 8));
+            w.drive(false, 2000);
+            w.drive(true, b ? 6000 : 60000);
+            w.run_until(w.now() + (b ? 64000 : 10000));
+        }
+        CHECK(found == rom);
+    }
+    { // DHT22: 40 bits after the start signal: 65.3 %RH, -4.2 C.
+        auto d = devices::make_device("dht22", {"DATA"}, {{"temperature", "-4.2"}, {"humidity", "65.3"}}, error);
+        REQUIRE(d);
+        Wire w(*d, 0);
+        w.drive(false, 1000);
+        w.drive(true, 1100000);
+        const auto edges = w.record(10000000);
+        // Highs after the 80 us response: 40 data bits, by their length.
+        std::vector<std::uint64_t> highs;
+        for (std::size_t i = 1; i < edges.size(); ++i) {
+            if (!edges[i].second && edges[i - 1].second) {
+                highs.push_back(edges[i].first - edges[i - 1].first);
+            }
+        }
+        REQUIRE(highs.size() == 41);
+        CHECK(highs[0] == 80000);
+        std::array<std::uint8_t, 5> b{};
+        for (int i = 0; i < 40; ++i) {
+            b[static_cast<std::size_t>(i / 8)] =
+                static_cast<std::uint8_t>((b[static_cast<std::size_t>(i / 8)] << 1) | (highs[static_cast<std::size_t>(i + 1)] > 50000 ? 1 : 0));
+        }
+        CHECK(((b[0] << 8) | b[1]) == 653);
+        CHECK(((b[2] << 8) | b[3]) == (0x8000 | 42));
+        CHECK(b[4] == static_cast<std::uint8_t>(b[0] + b[1] + b[2] + b[3]));
+        CHECK(w.record(5000000).empty()); // one answer per start signal
+    }
+    { // HC-SR04: 100 cm is an echo of 5.83 ms.
+        auto d = devices::make_device("hcsr04", {"TRIG", "ECHO"}, {{"distance", "100"}}, error);
+        REQUIRE(d);
+        d->initial_input(0, false);
+        d->set_input(0, true, 1000000);
+        d->set_input(0, false, 1012000);
+        CHECK(!d->output(1).high);
+        d->advance(d->next_event_ns());
+        CHECK(d->output(1).high);
+        const std::uint64_t rose = d->next_event_ns();
+        d->advance(rose);
+        CHECK(!d->output(1).high);
+        (void)rose;
+    }
+    { // WS2812B: red then blue on the first two LEDs, shown after the reset time.
+        auto d = devices::make_device("ws2812", {"DIN", "DOUT"}, {{"count", "8"}}, error);
+        REQUIRE(d);
+        d->initial_input(0, false);
+        std::uint64_t t = 10000;
+        auto send = [&](std::uint32_t grb) {
+            for (int k = 23; k >= 0; --k) {
+                const bool one = ((grb >> k) & 1u) != 0;
+                d->set_input(0, true, t);
+                d->set_input(0, false, t + (one ? 800 : 400));
+                t += 1250;
+            }
+        };
+        send(0x00FF00); // GRB: red
+        send(0x0000FF); // blue
+        CHECK(d->text().find("000000000000") != std::string::npos); // not shown yet
+        d->advance(d->next_event_ns());
+        CHECK(d->text() == "8x1 rgb\nFF00000000FF000000000000000000000000000000000000");
+    }
+}
+
+TEST_CASE("devices: example 40 reads a DS18B20, a DHT22 and an HC-SR04 and lights a WS2812B strip (SN-225)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "40_OneWire_DS18B20_DHT22_HCSR04_WS2812.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    model::Id board = model::no_id, strip = model::no_id, sensor = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        strip = c.type == "ws2812" ? c.id : strip;
+        sensor = c.type == "ds18b20" ? c.id : sensor;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    wait_for(1.5);
+    // The presence pulse comes 30 us after the reset ends (the device's event, not the next window).
+    const auto log = session.mcu_pin_log(board, "PB5", 0);
+    REQUIRE(log.changes.size() > 4);
+    const auto presence = log.changes[2].first - log.changes[1].first;
+    CHECK(presence >= 29900);
+    CHECK(presence <= 30200); // within the core's cycles of the event
+    session.set_device_parameter(sensor, "temperature", "-10.5");
+    wait_for(3.4);
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    std::printf("%s", text.c_str());
+    CHECK(text.find("DS18B20 22.5 C  DHT22 24.0 C 61.5 %  HC-SR04 120 cm") != std::string::npos);
+    CHECK(text.find("DS18B20 -10.5 C") != std::string::npos);
+    const auto texts = session.device_texts();
+    REQUIRE(texts.count(strip));
+    // 120 cm: five LEDs of the distance bar, green to red; three off.
+    CHECK(texts.at(strip).substr(texts.at(strip).size() - 18) == "000000000000000000");
+    CHECK(texts.at(strip).substr(8, 6) == "00FF00");
+    session.stop();
+}

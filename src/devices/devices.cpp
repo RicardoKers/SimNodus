@@ -2587,6 +2587,626 @@ private:
     std::uint32_t code_ = 0;
 };
 
+// Dallas/Maxim 1-Wire CRC-8 (polynomial x^8 + x^5 + x^4 + 1), LSB first.
+std::uint8_t crc8(const std::uint8_t* bytes, std::size_t count)
+{
+    std::uint8_t crc = 0;
+    for (std::size_t i = 0; i < count; ++i) {
+        std::uint8_t b = bytes[i];
+        for (int k = 0; k < 8; ++k) {
+            const bool mix = ((crc ^ b) & 1u) != 0;
+            crc = static_cast<std::uint8_t>(crc >> 1);
+            if (mix) {
+                crc ^= 0x8C;
+            }
+            b = static_cast<std::uint8_t>(b >> 1);
+        }
+    }
+    return crc;
+}
+
+// DS18B20 (Maxim datasheet): 1-Wire digital thermometer on DQ (open drain,
+// 4.7 kOhm pull-up). A reset pulse (low for at least 480 us) gets a presence
+// pulse; then a ROM command (READ 33, MATCH 55, SKIP CC, SEARCH F0, ALARM
+// SEARCH EC) and a function command (CONVERT 44, READ SCRATCHPAD BE, WRITE
+// SCRATCHPAD 4E, COPY 48, RECALL B8, READ POWER SUPPLY B4). Write slots shorter
+// than 15 us are ones; in read slots the chip holds DQ low for 30 us to send a
+// zero. A conversion takes 94 to 750 ms by resolution (read slots return 0
+// meanwhile); the temperature register holds +85 C until the first one. The
+// ROM code is family 0x28, a serial number from the "serial" parameter (or the
+// part's designator) and its CRC, so several sensors share a bus (search ROM).
+class Ds18b20 : public Device {
+public:
+    static constexpr std::array<const char*, 1> names{"DQ"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        std::array<std::size_t, 1> index{};
+        if (!find_pins(pins, names, index, "DS18B20", error)) {
+            return false;
+        }
+        dq_ = index[0];
+        if (!number_parameter(parameters, "temperature", celsius_)) {
+            error = "DS18B20: the temperature must be a number";
+            return false;
+        }
+        // The serial number: the "serial" parameter in hex, or a hash of the designator.
+        std::uint64_t serial = 0;
+        const auto s = parameters.find("serial");
+        if (s != parameters.end() && !s->second.empty() && s->second != "auto") {
+            serial = std::strtoull(s->second.c_str(), nullptr, 16);
+        } else {
+            const auto d = parameters.find("@designator");
+            const std::string text = d == parameters.end() ? std::string("U1") : d->second;
+            serial = 1469598103934665603ull;
+            for (const char c : text) {
+                serial = (serial ^ static_cast<unsigned char>(c)) * 1099511628211ull;
+            }
+        }
+        rom_[0] = 0x28;
+        for (int i = 0; i < 6; ++i) {
+            rom_[static_cast<std::size_t>(1 + i)] = static_cast<std::uint8_t>(serial >> (8 * i));
+        }
+        rom_[7] = crc8(rom_.data(), 7);
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        number_parameter({{name, value}}, "temperature", celsius_);
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != dq_ || level == line_) {
+            return;
+        }
+        line_ = level;
+        if (!level && low_) {
+            own_ = true; // our own pull (presence pulse)
+            return;
+        }
+        if (level && own_) {
+            own_ = false;
+            reading_ = false;
+            return;
+        }
+        if (!level) {
+            fell_ns_ = time_ns;
+            reading_ = mode_ == Mode::Send;
+            if (reading_) {
+                read_slot(time_ns);
+            }
+            return;
+        }
+        if (reading_) {
+            reading_ = false; // the end of a read slot, even if the next slot is a write
+            if (time_ns - fell_ns_ < 480000) {
+                return;
+            }
+        }
+        const std::uint64_t width = time_ns - fell_ns_;
+        if (width >= 480000) {
+            reset(time_ns);
+        } else if (mode_ == Mode::Receive) {
+            receive_bit(width < 15000, time_ns);
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == dq_) {
+            line_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override { return pin == dq_ && low_ ? open_drain_low() : Output{}; }
+
+    std::uint64_t next_event_ns() const override
+    {
+        std::uint64_t next = no_event;
+        if (release_ns_ > 0) {
+            next = release_ns_;
+        }
+        if (presence_ns_ > 0) {
+            next = std::min(next, presence_ns_);
+        }
+        if (converting_until_ > 0) {
+            next = std::min(next, converting_until_);
+        }
+        return next;
+    }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        if (presence_ns_ > 0 && time_ns >= presence_ns_) {
+            presence_ns_ = 0;
+            low_ = true;
+            release_ns_ = time_ns + 120000; // presence pulse
+        }
+        if (release_ns_ > 0 && time_ns >= release_ns_) {
+            release_ns_ = 0;
+            low_ = false;
+        }
+        if (converting_until_ > 0 && time_ns >= converting_until_) {
+            converting_until_ = 0;
+            const int shift = 3 - ((scratchpad_[4] >> 5) & 3); // 12 bits: 0, 9 bits: 3
+            const int sixteenths = static_cast<int>(std::lround(std::clamp(celsius_, -55.0, 125.0) * 16.0));
+            const auto value = static_cast<std::uint16_t>(static_cast<std::int16_t>((sixteenths >> shift) << shift));
+            scratchpad_[0] = static_cast<std::uint8_t>(value);
+            scratchpad_[1] = static_cast<std::uint8_t>(value >> 8);
+        }
+    }
+
+private:
+    enum class Mode { Idle, Receive, Send };
+    enum class Step { Rom, Match, Search, Function, Scratchpad, Done };
+
+    void reset(std::uint64_t time_ns)
+    {
+        presence_ns_ = time_ns + 30000;
+        mode_ = Mode::Receive;
+        step_ = Step::Rom;
+        bits_ = 0;
+        byte_ = 0;
+        count_ = 0;
+    }
+
+    void receive_bit(bool bit, std::uint64_t time_ns)
+    {
+        if (step_ == Step::Search) {
+            // The master's choice after a bit and its complement: stay only if it is ours.
+            if (bit != rom_bit(search_bit_)) {
+                mode_ = Mode::Idle;
+                return;
+            }
+            if (++search_bit_ == 64) {
+                step_ = Step::Function;
+                bits_ = 0;
+                byte_ = 0;
+                return;
+            }
+            mode_ = Mode::Send;
+            search_phase_ = 0;
+            return;
+        }
+        byte_ = static_cast<std::uint8_t>((byte_ >> 1) | (bit ? 0x80u : 0u));
+        if (++bits_ < 8) {
+            return;
+        }
+        bits_ = 0;
+        received(byte_, time_ns);
+        byte_ = 0;
+    }
+
+    void received(std::uint8_t byte, std::uint64_t time_ns)
+    {
+        switch (step_) {
+        case Step::Rom:
+            if (byte == 0x33) { // READ ROM
+                send(std::vector<std::uint8_t>(rom_.begin(), rom_.end()));
+                step_ = Step::Function;
+            } else if (byte == 0xCC) {
+                step_ = Step::Function;
+            } else if (byte == 0x55) {
+                step_ = Step::Match;
+                count_ = 0;
+            } else if (byte == 0xF0 || (byte == 0xEC && alarm())) {
+                step_ = Step::Search;
+                search_bit_ = 0;
+                search_phase_ = 0;
+                mode_ = Mode::Send;
+            } else {
+                mode_ = Mode::Idle;
+            }
+            break;
+        case Step::Match:
+            if (byte != rom_[static_cast<std::size_t>(count_)]) {
+                mode_ = Mode::Idle;
+            } else if (++count_ == 8) {
+                step_ = Step::Function;
+            }
+            break;
+        case Step::Function:
+            function(byte, time_ns);
+            break;
+        case Step::Scratchpad:
+            scratchpad_[static_cast<std::size_t>(2 + count_)] = byte; // TH, TL, configuration
+            if (++count_ == 3) {
+                scratchpad_[4] = static_cast<std::uint8_t>((scratchpad_[4] & 0x60u) | 0x1Fu);
+                step_ = Step::Done;
+            }
+            break;
+        default: break;
+        }
+    }
+
+    void function(std::uint8_t byte, std::uint64_t time_ns)
+    {
+        switch (byte) {
+        case 0x44: { // CONVERT T: 93.75 ms x 2^(resolution - 9)
+            const int resolution = (scratchpad_[4] >> 5) & 3;
+            converting_until_ = time_ns + (93750000ull << resolution);
+            mode_ = Mode::Send;
+            pending_.clear();
+            busy_reads_ = true;
+            break;
+        }
+        case 0xBE: {
+            std::vector<std::uint8_t> bytes(scratchpad_.begin(), scratchpad_.end());
+            bytes.push_back(crc8(scratchpad_.data(), scratchpad_.size()));
+            send(bytes);
+            break;
+        }
+        case 0x4E:
+            step_ = Step::Scratchpad;
+            count_ = 0;
+            return;
+        case 0x48:
+        case 0xB8:
+        case 0xB4: // copy, recall, power supply: done at once, externally powered
+            send({0xFF});
+            break;
+        default: mode_ = Mode::Idle; break;
+        }
+        step_ = Step::Done;
+    }
+
+    void send(const std::vector<std::uint8_t>& bytes)
+    {
+        pending_.clear();
+        for (const auto b : bytes) {
+            for (int k = 0; k < 8; ++k) {
+                pending_.push_back(((b >> k) & 1u) != 0);
+            }
+        }
+        busy_reads_ = false;
+        mode_ = Mode::Send;
+    }
+
+    // A read slot began: a zero holds DQ low for 30 us.
+    void read_slot(std::uint64_t time_ns)
+    {
+        bool bit = true;
+        if (step_ == Step::Search) {
+            bit = search_phase_ == 0 ? rom_bit(search_bit_) : !rom_bit(search_bit_);
+            if (++search_phase_ == 2) {
+                mode_ = Mode::Receive; // the master's direction comes next
+            }
+        } else if (busy_reads_) {
+            bit = converting_until_ == 0; // 0 while converting
+        } else if (!pending_.empty()) {
+            bit = pending_.front();
+            pending_.pop_front();
+            if (pending_.empty() && step_ == Step::Function) {
+                mode_ = Mode::Receive; // READ ROM sent: the function command comes next
+            }
+        }
+        if (!bit) {
+            low_ = true;
+            own_ = true; // the rising edge that ends this slot is ours
+            release_ns_ = time_ns + 30000;
+        }
+    }
+
+    bool rom_bit(int bit) const { return ((rom_[static_cast<std::size_t>(bit / 8)] >> (bit % 8)) & 1u) != 0; }
+
+    bool alarm() const
+    {
+        const auto t = static_cast<std::int16_t>(scratchpad_[0] | (scratchpad_[1] << 8)) / 16;
+        return t >= static_cast<std::int8_t>(scratchpad_[2]) || t <= static_cast<std::int8_t>(scratchpad_[3]);
+    }
+
+    std::size_t dq_ = 0;
+    double celsius_ = 25.0;
+    std::array<std::uint8_t, 8> rom_{};
+    std::array<std::uint8_t, 8> scratchpad_{0x50, 0x05, 0x4B, 0x46, 0x7F, 0xFF, 0x0C, 0x10}; // +85 C, 12 bits
+    bool line_ = true, low_ = false, own_ = false, reading_ = false, busy_reads_ = false;
+    std::uint64_t fell_ns_ = 0, presence_ns_ = 0, release_ns_ = 0, converting_until_ = 0;
+    Mode mode_ = Mode::Idle;
+    Step step_ = Step::Rom;
+    int bits_ = 0, count_ = 0, search_bit_ = 0, search_phase_ = 0;
+    std::uint8_t byte_ = 0;
+    std::deque<bool> pending_;
+};
+
+// DHT22/AM2302 and DHT11 (Aosong datasheets): humidity and temperature sensors
+// on one wire (DATA, open drain with a pull-up). The microcontroller pulls DATA
+// low for at least 1 ms (18 ms for the DHT11) and releases it; the sensor
+// answers 20-40 us later with 80 us low and 80 us high, then 40 bits, each 50 us
+// low and 26 us (0) or 70 us (1) high: humidity, temperature (DHT22: tenths,
+// the sign in bit 15; DHT11: whole and tenths bytes) and a checksum.
+class Dht22 : public Device {
+public:
+    static constexpr std::array<const char*, 1> names{"DATA"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        std::array<std::size_t, 1> index{};
+        if (!find_pins(pins, names, index, "DHT22", error)) {
+            return false;
+        }
+        data_ = index[0];
+        const auto model = parameters.find("model");
+        dht11_ = model != parameters.end() && model->second == "DHT11";
+        if (!number_parameter(parameters, "temperature", celsius_) || !number_parameter(parameters, "humidity", humidity_)) {
+            error = "DHT22: the temperature and the humidity must be numbers";
+            return false;
+        }
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        number_parameter({{name, value}}, "temperature", celsius_);
+        number_parameter({{name, value}}, "humidity", humidity_);
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != data_ || level == line_) {
+            return;
+        }
+        line_ = level;
+        if (low_ || !events_.empty()) {
+            return; // answering
+        }
+        if (!level) {
+            fell_ns_ = time_ns;
+            armed_ = true;
+        } else if (armed_ && time_ns - fell_ns_ >= (dht11_ ? 18000000ull : 800000ull)) {
+            armed_ = false;
+            answer(time_ns);
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == data_) {
+            line_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override { return pin == data_ && low_ ? open_drain_low() : Output{}; }
+
+    std::uint64_t next_event_ns() const override { return events_.empty() ? no_event : events_.front().first; }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        while (!events_.empty() && events_.front().first <= time_ns) {
+            low_ = events_.front().second;
+            events_.pop_front();
+        }
+    }
+
+private:
+    void answer(std::uint64_t time_ns)
+    {
+        std::array<std::uint8_t, 5> b{};
+        const double rh = std::clamp(humidity_, 0.0, 100.0);
+        const double t = std::clamp(celsius_, dht11_ ? 0.0 : -40.0, dht11_ ? 50.0 : 80.0);
+        if (dht11_) {
+            b[0] = static_cast<std::uint8_t>(rh);
+            b[1] = static_cast<std::uint8_t>(std::lround((rh - b[0]) * 10) % 10);
+            b[2] = static_cast<std::uint8_t>(t);
+            b[3] = static_cast<std::uint8_t>(std::lround((t - b[2]) * 10) % 10);
+        } else {
+            const auto h = static_cast<std::uint16_t>(std::lround(rh * 10));
+            const auto magnitude = static_cast<std::uint16_t>(std::lround(std::abs(t) * 10));
+            const auto tt = static_cast<std::uint16_t>(magnitude | (t < 0 ? 0x8000u : 0u));
+            b = {static_cast<std::uint8_t>(h >> 8), static_cast<std::uint8_t>(h), static_cast<std::uint8_t>(tt >> 8),
+                static_cast<std::uint8_t>(tt), 0};
+        }
+        b[4] = static_cast<std::uint8_t>(b[0] + b[1] + b[2] + b[3]);
+        std::uint64_t at = time_ns + 30000;
+        auto pulse = [&](std::uint64_t low_ns, std::uint64_t high_ns) {
+            events_.push_back({at, true});
+            at += low_ns;
+            events_.push_back({at, false});
+            at += high_ns;
+        };
+        pulse(80000, 80000);
+        for (const auto byte : b) {
+            for (int k = 7; k >= 0; --k) {
+                pulse(50000, ((byte >> k) & 1u) ? 70000 : 26000);
+            }
+        }
+        events_.push_back({at, true}); // the end: 50 us low, then released
+        events_.push_back({at + 50000, false});
+    }
+
+    std::size_t data_ = 0;
+    bool dht11_ = false;
+    double celsius_ = 25.0, humidity_ = 50.0;
+    bool line_ = true, low_ = false, armed_ = false;
+    std::uint64_t fell_ns_ = 0;
+    std::deque<std::pair<std::uint64_t, bool>> events_; // time, DATA held low from then on
+};
+
+// HC-SR04 ultrasonic ranging module: a pulse of at least 10 us on TRIG starts
+// a measurement; about 0.25 ms after its end ECHO goes high for the sound's
+// round trip, 58 us per centimetre of the distance parameter (2 to 400 cm);
+// beyond 400 cm it stays high for 38 ms (no echo). Triggers during a
+// measurement are ignored.
+class HcSr04 : public Device {
+public:
+    static constexpr std::array<const char*, 2> names{"TRIG", "ECHO"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "HC-SR04", error)) {
+            return false;
+        }
+        if (!number_parameter(parameters, "distance", centimetres_)) {
+            error = "HC-SR04: the distance must be a number";
+            return false;
+        }
+        return true;
+    }
+
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        number_parameter({{name, value}}, "distance", centimetres_);
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != index_[0] || level == trig_) {
+            return;
+        }
+        trig_ = level;
+        if (level) {
+            rose_ns_ = time_ns;
+        } else if (time_ns - rose_ns_ >= 10000 && start_ns_ == 0 && end_ns_ == 0) {
+            const double round_trip = centimetres_ > 400 ? 38000000.0 : std::max(centimetres_, 2.0) * 58309.0;
+            start_ns_ = time_ns + 250000;
+            end_ns_ = start_ns_ + static_cast<std::uint64_t>(round_trip);
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[0]) {
+            trig_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override { return pin == index_[1] ? push_pull(echo_) : Output{}; }
+
+    std::uint64_t next_event_ns() const override
+    {
+        return start_ns_ > 0 ? start_ns_ : end_ns_ > 0 ? end_ns_ : no_event;
+    }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        if (start_ns_ > 0 && time_ns >= start_ns_) {
+            start_ns_ = 0;
+            echo_ = true;
+        }
+        if (start_ns_ == 0 && end_ns_ > 0 && time_ns >= end_ns_) {
+            end_ns_ = 0;
+            echo_ = false;
+        }
+    }
+
+private:
+    std::array<std::size_t, names.size()> index_{};
+    double centimetres_ = 100.0;
+    bool trig_ = false, echo_ = false;
+    std::uint64_t rose_ns_ = 0, start_ns_ = 0, end_ns_ = 0;
+};
+
+// WS2812B addressable RGB LEDs (Worldsemi datasheet): DIN carries 24 bits per
+// LED, green, red, blue, MSB first, at about 800 kHz; a high pulse longer than
+// 0.6 us is a 1. The first LED keeps the first 24 bits, the next LED the next
+// ones; bits beyond the strip go out on DOUT. Low for more than 50 us latches
+// the colors and the next bits start again at the first LED. text() gives the
+// strip as "Nx1 rgb" and a row of RRGGBB, one for each LED.
+class Ws2812 : public Device {
+public:
+    static constexpr std::array<const char*, 2> names{"DIN", "DOUT"};
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "WS2812B", error)) {
+            return false;
+        }
+        const auto count = parameters.find("count");
+        const long n = count == parameters.end() ? 8 : std::strtol(count->second.c_str(), nullptr, 10);
+        shown_.assign(static_cast<std::size_t>(std::clamp(n, 1L, 256L)), 0);
+        incoming_ = shown_;
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != index_[0] || level == din_) {
+            return;
+        }
+        din_ = level;
+        if (level) {
+            if (latch_ns_ > 0) {
+                latch_ns_ = 0; // shorter than a reset: the frame goes on
+            }
+            rose_ns_ = time_ns;
+            if (led_ >= incoming_.size()) {
+                dout_ = true; // passed on
+            }
+            return;
+        }
+        latch_ns_ = time_ns + 50000;
+        if (led_ >= incoming_.size()) {
+            dout_ = false;
+            return;
+        }
+        const bool bit = time_ns - rose_ns_ > 600;
+        bits_ = (bits_ << 1) | (bit ? 1u : 0u);
+        if (++count_ == 24) {
+            // GRB on the wire: kept as RGB.
+            incoming_[led_++] = ((bits_ << 8) & 0xFF0000u) | ((bits_ >> 8) & 0x00FF00u) | (bits_ & 0xFFu);
+            bits_ = 0;
+            count_ = 0;
+        }
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[0]) {
+            din_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override { return pin == index_[1] ? push_pull(dout_) : Output{}; }
+
+    std::uint64_t next_event_ns() const override { return latch_ns_ > 0 ? latch_ns_ : no_event; }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        if (latch_ns_ > 0 && time_ns >= latch_ns_) {
+            latch_ns_ = 0;
+            if (led_ > 0) {
+                std::copy(incoming_.begin(), incoming_.begin() + static_cast<std::ptrdiff_t>(led_), shown_.begin());
+                ++version_;
+            }
+            led_ = 0;
+            count_ = 0;
+            bits_ = 0;
+        }
+    }
+
+    std::string text() const override
+    {
+        if (text_version_ != version_ || text_.empty()) {
+            static const char* hex = "0123456789ABCDEF";
+            text_ = std::to_string(shown_.size()) + "x1 rgb\n";
+            for (const auto c : shown_) {
+                for (int k = 20; k >= 0; k -= 4) {
+                    text_ += hex[(c >> k) & 0xFu];
+                }
+            }
+            text_version_ = version_;
+        }
+        return text_;
+    }
+
+private:
+    std::array<std::size_t, names.size()> index_{};
+    std::vector<std::uint32_t> shown_, incoming_;
+    bool din_ = false, dout_ = false;
+    std::uint64_t rose_ns_ = 0, latch_ns_ = 0;
+    std::size_t led_ = 0;
+    unsigned bits_ = 0;
+    int count_ = 0;
+    std::uint64_t version_ = 0;
+    mutable std::uint64_t text_version_ = 0;
+    mutable std::string text_;
+};
+
 // PCF8574 (NXP): 8-bit quasi-bidirectional I/O expander at 0100 A2 A1 A0
 // (0111 A2 A1 A0 for the PCF8574A variant). A written byte sets P0-P7: a 0
 // pulls the pin low, a 1 leaves it high through a weak pull-up (about 100 uA),
@@ -3194,6 +3814,22 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
     }
     if (kind == "hx711") {
         auto device = std::make_unique<Hx711>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "ds18b20") {
+        auto device = std::make_unique<Ds18b20>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "dht22") {
+        auto device = std::make_unique<Dht22>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "hcsr04") {
+        auto device = std::make_unique<HcSr04>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
+    }
+    if (kind == "ws2812") {
+        auto device = std::make_unique<Ws2812>();
         return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "pcf8574") {

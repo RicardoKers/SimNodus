@@ -1,0 +1,140 @@
+{
+  "type": "ds18b20",
+  "name": "Temperature sensor DS18B20 (1-Wire)",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "1-Wire temperature sensor; set the temperature in Properties",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -2,
+          8,
+          4
+        ]
+      },
+      {
+        "text": "DS18B20",
+        "at": [
+          0,
+          -0.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "DQ",
+        "at": [
+          -2.7,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -2
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          0,
+          -1.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          1.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "DQ",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VDD",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -3
+  ],
+  "value_offset": [
+    5,
+    3
+  ],
+  "device": {
+    "kind": "ds18b20",
+    "supply_pin": "VDD",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hdq {node:DQ} {node:GND} 100Meg",
+    "B_{ref}_dq {node:GND} {node:DQ} I=V({ext:dq_i})-V({ext:dq_g})*(V({node:DQ})-V({node:GND}))",
+    "R_{ref}_q {node:VDD} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-55",
+      "max": "125",
+      "live": true,
+      "description": "Temperature of the sensor; change it while running to test the circuit"
+    },
+    {
+      "name": "serial",
+      "label": "Serial number",
+      "kind": "text",
+      "default": "auto",
+      "description": "48-bit serial number in hex (auto: from the designator)"
+    }
+  ],
+  "value_parameter": "temperature"
+}

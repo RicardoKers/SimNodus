@@ -176,6 +176,9 @@ void DeviceBus::mark(std::size_t net)
 
 void DeviceBus::settle(std::uint64_t time_ns)
 {
+    // An input may give a device an earlier event (a 1-Wire presence pulse 30 us
+    // after a reset, SN-225): the machine must stop for it, not at its old target.
+    const std::uint64_t before = next_event_ns();
     busy_ = true;
     int rounds = 0;
     while (!dirty_.empty()) {
@@ -192,6 +195,9 @@ void DeviceBus::settle(std::uint64_t time_ns)
         resolve(net, time_ns);
     }
     busy_ = false;
+    if (machine_ && next_event_ns() < before) {
+        machine_->timed_schedule_changed();
+    }
 }
 
 void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)

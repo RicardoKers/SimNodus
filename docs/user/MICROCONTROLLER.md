@@ -41,8 +41,9 @@ the same circuit give the same firmware timing.
 Parts in the *Chips for microcontrollers* category (74HC595 shift register,
 MAX7219 display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O
 expander, BMP280, MPU6050, DS3231, TCS34725, MCP3208, MCP41010, W25Q32, microSD
-card, HX711) and the character LCD and SSD1306
-OLED (under *Displays*) work together with
+card, HX711, DS18B20, DHT22, HC-SR04) and the character LCD, the SSD1306 OLED and the
+WS2812B strip
+(under *Displays*) work together with
 a board (ADR 0102): their logic runs in step
 with the firmware, so the nets between the board and the chip follow every
 edge at once, and the chip's outputs drive the circuit like the board's pins
@@ -87,6 +88,14 @@ edge at once, and the chip's outputs drive the circuit like the board's pins
   optional image file. The HX711 load-cell amplifier reads the bridge's
   voltages through its own two-wire protocol (10 or 80 conversions a
   second). Example 39 uses all but the card.
+- The timed one-wire chips (SN-225) follow the edge times the firmware makes
+  (microsecond delays, for example with the DWT cycle counter): the DS18B20
+  answers resets, ROM commands (several sensors share a bus, each with its
+  own code) and conversions of 94 to 750 ms, reading +85 °C before the first;
+  the DHT22 or DHT11 sends its 40 bits after the start signal; the HC-SR04
+  holds ECHO high for 58 µs per centimetre; the WS2812B strip decodes 0.4 and
+  0.8 µs pulses and shows its colors on the schematic. Example 40 uses all
+  four.
 - The parallel ROM and RAM (*Memories*) have A0-A15, D0-D7 and active-low CE,
   OE and (RAM) WE; their size, 16 bytes to 64 KB, is a property, and the
   address pins beyond it are ignored. With CE and OE low they drive D0-D7;
