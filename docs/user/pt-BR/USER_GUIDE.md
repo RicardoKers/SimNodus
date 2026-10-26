@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 b66c6f1d948c369f5c82e955b2d84cfb9353bc66e6d693fa7612091074f8f7a4 -->
+<!-- source: USER_GUIDE.md sha256 5e93f5cfccb0dd2319705037bd739503305f55aa7b69b9ee61c7f28a7cefb42e -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -111,14 +111,14 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **CIs lógicos (DIP)** | Chips 74HC e CD4000 reais, com cada pino na posição do encapsulamento e VCC/GND para ligar: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (o 74HC595 está em Chips para microcontroladores) |
 | **Flip-flops e contadores** | Latches D e SR; flip-flops D, JK e T (borda de subida); contador de 4 bits, contador de décadas, registrador de deslocamento de 4 bits. Q̅ e CLR podem ficar desligados |
 | **Displays** | Displays de 7 segmentos (catodo comum, anodo comum) com a pinagem de um display real; um display de 7 segmentos com 4 dígitos e uma matriz de LEDs 8x8 para multiplexação; um LCD de caracteres (HD44780, 1-4 linhas de 8-40 caracteres) que mostra o texto no esquemático e funciona com uma placa; um OLED SSD1306 de 128x64 ou 128x32 (I2C) que mostra sua imagem; uma fita de LEDs RGB WS2812B; decodificadores 4511 (CMOS, catodo comum) e 7447 (TTL, anodo comum, coletor aberto) com todos os pinos do chip; decodificadores hexadecimais genéricos 0-F |
-| **Potência e interface** | Regulador buck LM2596 (chip e módulo ajustável), controlador PWM TL494, transceptores RS-485 MAX485 e RS-232 MAX232 |
+| **Potência e interface** | MOSFET de potência IRLZ44N (nível lógico), regulador buck LM2596 (chip e módulo ajustável), controlador PWM TL494, transceptores RS-485 MAX485 e RS-232 MAX232 |
 | **Motores e movimento** | Ponte H dupla L298, matriz Darlington ULN2003, motor de passo bipolar, motor de passo unipolar 28BYJ-48, encoder rotativo, servo de modelismo (os motores de passo mostram o ângulo do eixo, o servo o seu braço) |
-| **Eletromecânicos** | Lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
+| **Eletromecânicos** | Buzzers ativo e passivo (com som no Windows), lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
 | **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
 | **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF |
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574, sensor de pressão BMP280, acelerômetro e giroscópio MPU6050, relógio de tempo real DS3231, sensor de cor TCS34725 (I2C); conversor A/D MCP3208, potenciômetro digital MCP41010, flash W25Q32, cartão microSD (SPI); amplificador de célula de carga HX711; sensores DS18B20 (1-Wire), DHT22/DHT11 e HC-SR04; funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
-| **Sensores** | Sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
+| **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
 | **E/S externa** | Entradas e saídas de bit e de palavra que trocam sinais com outro programa, como uma planta virtual (veja abaixo) |
 
@@ -195,6 +195,17 @@ Observações sobre alguns componentes:
   durante a simulação, um detent por passo da roda, 20 detents por volta; sua
   chave de pressão é um botão separado. O servo segue a largura de pulso em
   SIG (0,5-2,5 ms por padrão) a 600°/s.
+- **Buzzers:** durante a simulação, os buzzers soam pelos alto-falantes do
+  computador (Windows; Simular > Som desliga) e mostram a frequência em que
+  soam. O ativo tem o próprio tom (2,3 kHz por padrão) quando recebe a tensão
+  nominal; o passivo soa na frequência da onda quadrada aplicada (o PWM de um
+  timer, como com `tone()`), até alguns kHz, medida nas simulações
+  interativas. Com vários buzzers, ouve-se o tom mais alto. Exemplo 42.
+- **Sensores de automação:** os sensores indutivos (BN marrom +24 V, BU azul
+  0 V, BK saída) comutam abaixo da distância sensora, com 10 % de histerese,
+  enquanto você arrasta o alvo; o transmissor 4-20 mA precisa de cerca de 8 V
+  na malha; a saída do PIR fica em alto pelo tempo de atraso depois que você
+  solta o mouse sobre ele. Exemplo 43.
 - **Potência e interface:** os modelos do LM2596 são médios: a saída segue a
   malha de regulação (FB em 1,23 V, ou o trimpot do módulo arrastado durante
   a simulação) até 3 A e 1,5 V abaixo da entrada, e a entrada consome a

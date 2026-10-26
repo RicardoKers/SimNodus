@@ -1,0 +1,124 @@
+{
+  "type": "buzzer_active",
+  "name": "Buzzer (active)",
+  "category": "Electromechanical",
+  "prefix": "BZ",
+  "description": "Active buzzer: a built-in oscillator sounds (about 2.3 kHz) while it has its rated voltage from + to -, about 25 mA; heard through the computer's speakers while running (Windows, Simulate > Sound)",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          2
+        ]
+      },
+      {
+        "circle": [
+          0,
+          0,
+          0.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -2
+        ]
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "+",
+        "at": [
+          0.9,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "arc": [
+          0,
+          0,
+          2.8,
+          -40,
+          80
+        ]
+      },
+      {
+        "arc": [
+          0,
+          0,
+          3.4,
+          -40,
+          80
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -2
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Rated voltage",
+      "unit": "V",
+      "default": "5",
+      "min": "1.5",
+      "max": "24",
+      "description": "Voltage it is made for (about 25 mA)"
+    },
+    {
+      "name": "f",
+      "label": "Tone",
+      "unit": "Hz",
+      "default": "2300",
+      "min": "200",
+      "max": "8000",
+      "description": "Frequency of its built-in oscillator"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "Hz"
+  },
+  "sound": true,
+  "spice": [
+    "R_{ref} {node:+} {node:-} {= V / 0.025}",
+    "B_{ref}_f q_{ref} 0 V={f}*0.5*(1+tanh(10*(V({node:+},{node:-})-{= 0.6 * V})))"
+  ]
+}

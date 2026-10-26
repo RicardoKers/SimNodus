@@ -148,8 +148,9 @@ translation; the order may change with the owner's lessons.
 | SN-225 | Timed one-wire protocols: DS18B20 (1-Wire, search ROM), DHT22/DHT11, HC-SR04 (distance set while running), WS2812B strip (colors on the schematic); device events scheduled from an input now stop the core on time; firmware `hal_onewire_sensors`, example 40 | done 2026-10-26 |
 | SN-226 | Motion: hobby servo (angle from the pulse width, horn drawn), bipolar and 28BYJ-48 steppers, ULN2003, rotary encoder (the push switch stays a separate button), L298 dual H-bridge; `tools/generate_motion_parts.py`, firmware `hal_motion`, example 41 | done 2026-10-26 |
 | SN-227 | Power and interface: LM2596 buck regulator (averaged; chip and adjustable module), TL494 PWM controller, MAX485, MAX232; `tools/generate_interface_parts.py` | done 2026-10-26 |
-| SN-228 | Sound: active and passive buzzers heard through the computer's speakers | todo |
-| SN-229 | Candidates for automation lessons (owner to confirm): inductive proximity sensor NPN/PNP 24 V, 4–20 mA transmitter, ULN2003, HC-SR501 PIR, HC-05 Bluetooth serial module, logic-level MOSFET (IRLZ44N) | todo |
+| SN-228 | Sound: active and passive buzzers heard through the computer's speakers (Windows, winmm; the owner's choice of 2026-10-26: no Qt Multimedia); firmware `hal_buzzer`, example 42 | done 2026-10-26 |
+| SN-229 | Parts for automation lessons chosen by the owner on 2026-10-26: inductive proximity sensors NPN/PNP 24 V, 4–20 mA transmitter, HC-SR501 PIR, IRLZ44N; example 43 (the ULN2003 came with SN-226) | done 2026-10-26 |
+| SN-230 | HC-05 Bluetooth serial module: a device with the AT mode and a port in the UART terminal standing for the phone, then two modules paired (design discussed 2026-10-26; postponed by the owner) | todo |
 
 ## Later (after freeze or after classroom)
 

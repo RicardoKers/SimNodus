@@ -1,0 +1,113 @@
+{
+  "type": "transmitter_420",
+  "name": "Transmitter 4-20 mA (two-wire)",
+  "category": "Sensors",
+  "prefix": "TT",
+  "description": "Loop-powered two-wire transmitter, as for pressure, level or temperature in industry: the loop current from + to - is 4 mA at 0 % of the measurement and 20 mA at 100 %, whatever the loop voltage once it has its 8 V (a 24 V supply and a 250 ohm input give 1-5 V). Drag it or use the wheel while running to change the measurement",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          2
+        ]
+      },
+      {
+        "text": "4-20",
+        "at": [
+          0,
+          -0.4
+        ],
+        "size": 0.6
+      },
+      {
+        "text": "mA",
+        "at": [
+          0,
+          0.7
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -2
+        ]
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "+",
+        "at": [
+          0.8,
+          -3
+        ],
+        "size": 0.7
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -2
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "value_parameter": "measurement",
+  "parameters": [
+    {
+      "name": "measurement",
+      "label": "Measurement",
+      "unit": "%",
+      "default": "50",
+      "description": "Measured value as a share of the range; drag the transmitter or use the wheel while running",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "measurement"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "ma_{ref}",
+    "scale": 1,
+    "unit": "mA"
+  },
+  "spice": [
+    "B_{ref}_x x_{ref} 0 V=0.004+0.016*V({control})",
+    "B_{ref}_c c_{ref} 0 V=0.5*(1+tanh(3*(V({node:+},{node:-})-6.5)))",
+    "B_{ref} {node:+} {node:-} I=V(x_{ref})*V(c_{ref})",
+    "B_{ref}_ma ma_{ref} 0 V=1000*V(x_{ref})*V(c_{ref})",
+    "R_{ref}_l {node:+} {node:-} 10Meg"
+  ]
+}

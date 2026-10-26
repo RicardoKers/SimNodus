@@ -107,14 +107,14 @@ invalid value is outlined in red and not applied.
 | **Logic chips (DIP)** | Real 74HC and CD4000 chips with every pin in its package position and VCC/GND to wire: 74HC00, 74HC02, 74HC04, 74HC08, 74HC14 (Schmitt), 74HC32, 74HC86, 74HC74, 74HC138, 74HC157, 74HC245, 74HC161, 74HC193, 74HC165, CD4017 (the 74HC595 is under Chips for microcontrollers) |
 | **Flip-flops & counters** | D and SR latches; D, JK and T flip-flops (rising edge); 4-bit counter, decade counter, 4-bit shift register. Q̅ and CLR may stay unconnected |
 | **Displays** | 7-segment displays (common cathode, common anode) with the pins of a real display; a 4-digit 7-segment display and an 8x8 LED matrix for multiplexing; a character LCD (HD44780, 1-4 rows of 8-40 characters) that shows its text on the schematic and works with a board; a 128x64 or 128x32 SSD1306 OLED (I2C) that shows its picture; a strip of WS2812B RGB LEDs; 4511 (CMOS, common cathode) and 7447 (TTL, common anode, open-collector) decoders with every pin of the chip; generic hex decoders 0-F |
-| **Power & interface** | LM2596 buck regulator (chip and adjustable module), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers |
+| **Power & interface** | IRLZ44N logic-level power MOSFET, LM2596 buck regulator (chip and adjustable module), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers |
 | **Motors & motion** | L298 dual H-bridge, ULN2003 Darlington array, bipolar stepper motor, 28BYJ-48 unipolar stepper, rotary encoder, hobby servo (the steppers show their shaft angle, the servo its horn) |
-| **Electromechanical** | Lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
+| **Electromechanical** | Active and passive buzzers (heard on Windows), lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, BMP280 pressure sensor, MPU6050 accelerometer and gyroscope, DS3231 real-time clock, TCS34725 color sensor (I2C); MCP3208 A/D converter, MCP41010 digital potentiometer, W25Q32 flash, microSD card (SPI); HX711 load cell amplifier; DS18B20 (1-Wire), DHT22/DHT11 and HC-SR04 sensors; they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
-| **Sensors** | LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
+| **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
 | **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant (see below) |
 
@@ -183,6 +183,18 @@ Notes on some parts:
   wheeled while running, one detent per wheel step, 20 detents per turn;
   its push switch is a separate push button. The servo follows the pulse
   width on SIG (0.5-2.5 ms by default) at 600°/s.
+- **Buzzers:** while running, the buzzers sound through the computer's
+  speakers (Windows; Simulate > Sound turns it off) and show the frequency
+  they sound at. The active one has its own tone (2.3 kHz by default) once
+  it has its rated voltage; the passive one sounds at the frequency of the
+  square wave across it (a timer's PWM, as with `tone()`), up to a few kHz,
+  measured in interactive runs. With several buzzers the highest tone is
+  heard. Example 42.
+- **Automation sensors:** the inductive sensors (BN brown +24 V, BU blue
+  0 V, BK output) switch below their switching distance with 10 % hysteresis
+  while you drag the target; the 4-20 mA transmitter needs about 8 V of its
+  loop; the PIR's output stays high for its delay after you release the
+  mouse on it. Example 43.
 - **Power & interface:** the LM2596 models are averaged: the output follows
   the regulation loop (FB at 1.23 V, or the module's trimmer dragged while
   running) up to 3 A and 1.5 V below the input, and the input draws the

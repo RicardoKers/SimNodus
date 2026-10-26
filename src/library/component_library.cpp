@@ -539,6 +539,10 @@ ComponentDefinition parse_definition(const json& j)
         }
         d.mcu = board;
     }
+    d.sound = j.value("sound", false);
+    if (d.sound && (!d.readout || d.readout->kind != Readout::Kind::Node)) {
+        invalid("a part with sound needs a node readout of its frequency");
+    }
     if (j.contains("screen") && !j["screen"].is_null()) {
         const auto& s = j["screen"];
         const auto r = numbers(s["rect"], 4, "screen.rect");

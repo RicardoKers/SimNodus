@@ -8,6 +8,7 @@
 #pragma once
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "tone_output.hpp"
 #include "model/schematic.hpp"
 #include "netlist/netlist.hpp"
 #include "sim/sample_ring.hpp"
@@ -65,6 +66,8 @@ public:
 
     void set_speed(double speed);
     void set_gdb_port(int port) { gdb_port_ = port; } // -1: no debugging
+    // Buzzers through the computer's speakers (SN-228, Windows).
+    void set_sound(bool on);
     // Memory chips (SN-208): the contents of the current or last run, and new contents for a running chip.
     std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const
     {
@@ -148,6 +151,8 @@ private:
     std::unique_ptr<EngineProcess> engine_; // before session_, which uses it
     std::unique_ptr<sim::Session> session_;
     QTimer timer_;
+    ToneOutput tone_;
+    bool sound_ = true;
     model::Schematic snapshot_;
     model::SimulationMode mode_ = model::SimulationMode::Interactive;
     std::vector<Channel> channels_;

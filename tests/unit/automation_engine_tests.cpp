@@ -164,3 +164,39 @@ TEST_CASE("automation: interactive runs stop at the asked time and apply timed b
     CHECK(std::abs(signal(read, "V(CAP)")["value"].get<double>() - 3.16) < 0.1);
     f.ok("sim.stop");
 }
+
+
+TEST_CASE("automation: the HC-SR501 PIR holds its output for the delay after the movement (SN-229)")
+{
+    Fixture f;
+    f.ok("component.add", {{"type", "vdc"}, {"at", {0, 0}}, {"parameters", {{"V", "5"}}}});
+    f.ok("component.add", {{"type", "ground"}, {"attach", {{"to", "V1.-"}}}});
+    f.ok("label.add", {{"name", "P5"}, {"at", "V1.+"}});
+    f.ok("component.add", {{"type", "pir_hcsr501"}, {"at", {20, 0}}, {"parameters", {{"delay", "1"}}}});
+    f.ok("label.add", {{"name", "P5"}, {"at", "U1.VCC"}});
+    f.ok("label.add", {{"name", "PIR"}, {"at", "U1.OUT"}});
+    f.ok("component.add", {{"type", "ground"}, {"attach", {{"to", "U1.GND"}}}});
+    f.ok("component.add", {{"type", "resistor"}, {"at", {30, 4}}, {"parameters", {{"R", "10k"}}}});
+    f.ok("label.add", {{"name", "PIR"}, {"at", "R1.1"}});
+    f.ok("component.add", {{"type", "ground"}, {"attach", {{"to", "R1.2"}}}});
+    REQUIRE(f.ok("circuit.check")["ok"] == true);
+    const auto result = f.ok("sim.run", {{"mode", "interactive"}, {"duration", "2.5"}, {"signals", {"V(PIR)"}},
+        {"events", {{{"at", "0.2"}, {"component", "U1"}, {"value", "pressed"}},
+                       {{"at", "0.5"}, {"component", "U1"}, {"value", "released"}}}},
+        {"points", 26}});
+    REQUIRE(result.is_object());
+    const auto& points = signal(result, "V(PIR)")["points"];
+    auto at = [&](double t) {
+        double v = 0;
+        for (const auto& p : points) {
+            if (p[0].get<double>() <= t + 1e-6) {
+                v = p[1].get<double>();
+            }
+        }
+        return v;
+    };
+    CHECK(at(0.1) < 0.2);  // nobody yet
+    CHECK(at(0.4) > 3.0);  // moving
+    CHECK(at(1.3) > 3.0);  // within the 1 s delay after 0.5 s
+    CHECK(at(1.8) < 0.2);  // over
+}

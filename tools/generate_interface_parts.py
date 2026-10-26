@@ -14,6 +14,10 @@
   behavioral; the MAX232's charge pump is not simulated (its rails are
   internal), but its capacitors belong on a real board.
 
+SN-228 and SN-229 add the active and passive buzzers (category Electromechanical:
+their node readout is the frequency, played by the window on Windows) and the
+IRLZ44N logic-level power MOSFET.
+
 Run from the repository root: python tools/generate_interface_parts.py
 """
 import json
@@ -274,7 +278,90 @@ def max232():
     }
 
 
-PARTS = [lm2596, lm2596_module, tl494, max485, max232]
+def buzzer(active):
+    graphics = [{"circle": [0, 0, 2]}, {"circle": [0, 0, 0.6]},
+                {"line": [0, -4, 0, -2]}, {"line": [0, 2, 0, 4]}, {"text": "+", "at": [0.9, -3], "size": 0.7},
+                {"arc": [0, 0, 2.8, -40, 80]}, {"arc": [0, 0, 3.4, -40, 80]}]
+    pins = [{"name": "+", "at": [0, -4], "dir": "up"}, {"name": "-", "at": [0, 4], "dir": "down"}]
+    if active:
+        spice = [
+            "R_{ref} {node:+} {node:-} {= V / 0.025}",
+            # Its own oscillator sounds once the supply is there.
+            "B_{ref}_f q_{ref} 0 V={f}*0.5*(1+tanh(10*(V({node:+},{node:-})-{= 0.6 * V})))",
+        ]
+        parameters = [{"name": "V", "label": "Rated voltage", "unit": "V", "default": "5", "min": "1.5", "max": "24",
+                       "description": "Voltage it is made for (about 25 mA)"},
+                      {"name": "f", "label": "Tone", "unit": "Hz", "default": "2300", "min": "200", "max": "8000",
+                       "description": "Frequency of its built-in oscillator"}]
+        description = ("Active buzzer: a built-in oscillator sounds (about 2.3 kHz) while it has its rated voltage "
+                       "from + to -, about 25 mA; heard through the computer's speakers while running (Windows, "
+                       "Simulate > Sound)")
+    else:
+        spice = [
+            # Resistive: its few mH, switched at audio rates, slowed runs threefold for nothing heard.
+            "R_{ref} {node:+} {node:-} {R}",
+            # The tone: half the switchings per second of the voltage across it, averaged over 50 ms.
+            "B_{ref}_lv lv_{ref} 0 V=0.5*(1+tanh(40*(V({node:+},{node:-})-0.08)))",
+            "B_{ref}_f 0 q_{ref} I=0.5*abs(ddt(V(lv_{ref})))",
+            "C_{ref}_f q_{ref} 0 50m",
+            "R_{ref}_f q_{ref} 0 1",
+        ]
+        parameters = [{"name": "R", "label": "Coil resistance", "unit": "Ohm", "default": "16", "min": "1",
+                       "max": "1k", "description": "Resistance of its coil"}]
+        description = ("Passive (magnetic) buzzer: sounds at the frequency of the square wave across it, for example "
+                       "a PWM pin through a transistor (tone()); heard through the computer's speakers while running "
+                       "(Windows, Simulate > Sound). Frequencies up to a few kHz; turn on exact microcontroller edges "
+                       "above 2 kHz")
+    return {
+        "type": "buzzer_active" if active else "buzzer_passive",
+        "name": "Buzzer (active)" if active else "Buzzer (passive)",
+        "category": "Electromechanical",
+        "prefix": "BZ",
+        "description": description,
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [3, -2],
+        "value_offset": [3, 1],
+        "parameters": parameters,
+        "readout": {"kind": "node", "element": "q_{ref}", "scale": 1, "unit": "Hz"},
+        "sound": True,
+        "spice": spice,
+    }
+
+
+def irlz44n():
+    graphics = [{"line": [-3, 0, -0.9, 0]}, {"line": [-0.9, -1.4, -0.9, 1.4]}, {"line": [-0.4, -1.6, -0.4, -0.8]},
+                {"line": [-0.4, -0.4, -0.4, 0.4]}, {"line": [-0.4, 0.8, -0.4, 1.6]}, {"line": [-0.4, -1.2, 2, -1.2]},
+                {"line": [2, -1.2, 2, -3]}, {"line": [-0.4, 1.2, 2, 1.2]}, {"line": [2, 1.2, 2, 3]},
+                {"line": [-0.4, 0, 2, 0]}, {"line": [2, 0, 2, 1.2]},
+                {"polygon": [-0.3, 0, 0.4, -0.35, 0.4, 0.35], "fill": True},
+                # The body diode, from S to D.
+                {"line": [2, -2.2, 3.4, -2.2]}, {"line": [3.4, -2.2, 3.4, 2.2]}, {"line": [3.4, 2.2, 2, 2.2]},
+                {"polygon": [2.8, 0.4, 4.0, 0.4, 3.4, -0.5]}, {"line": [2.8, -0.5, 4.0, -0.5]}]
+    pins = [{"name": "G", "at": [-3, 0], "dir": "left"}, {"name": "D", "at": [2, -3], "dir": "up"},
+            {"name": "S", "at": [2, 3], "dir": "down"}]
+    return {
+        "type": "irlz44n",
+        "name": "Power MOSFET IRLZ44N",
+        "category": CATEGORY,
+        "prefix": "Q",
+        "description": "Logic-level N-channel power MOSFET (IRLZ44N, TO-220): turned fully on by 5 V or a 3.3 V pin "
+                       "(about 22 mohm at 5 V, 1-2 V threshold), 55 V, for motors, lamps and solenoids from a "
+                       "microcontroller; with its body diode from S to D and its gate capacitance. Approximate model",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [4, -2],
+        "value_offset": [4, 1],
+        "spice": [
+            "M_{ref} {node:D} {node:G} {node:S} {node:S} IRLZ44N_PWR",
+            "D_{ref}_body {node:S} {node:D} IRLZ44N_BODY",
+        ],
+        "models": [
+            ".model IRLZ44N_PWR NMOS(LEVEL=1 VTO=1.5 KP=13 LAMBDA=0.005 CGSO=15u CGDO=2u)",
+            ".model IRLZ44N_BODY D(IS=1e-12 N=1.2 RS=0.01 CJO=1n)",
+        ],
+    }
+
+
+PARTS = [lm2596, lm2596_module, tl494, max485, max232, lambda: buzzer(True), lambda: buzzer(False), irlz44n]
 
 
 def main():

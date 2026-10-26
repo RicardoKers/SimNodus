@@ -1,0 +1,141 @@
+{
+  "type": "pir_hcsr501",
+  "name": "Motion sensor PIR HC-SR501",
+  "category": "Sensors",
+  "prefix": "U",
+  "description": "Passive infrared motion module (HC-SR501), supply 4.5-20 V: OUT goes high (3.3 V) while something moves and stays high for the delay after the last movement (repeat trigger). Hold the mouse on the sensor while running to move in front of it",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -1,
+          6,
+          4
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -1,
+          2.4,
+          0,
+          180
+        ]
+      },
+      {
+        "text": "PIR",
+        "at": [
+          0,
+          1.4
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -2,
+          5,
+          -2,
+          3
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          -2,
+          2.4
+        ],
+        "size": 0.4
+      },
+      {
+        "line": [
+          0,
+          5,
+          0,
+          3
+        ]
+      },
+      {
+        "text": "OUT",
+        "at": [
+          0,
+          2.4
+        ],
+        "size": 0.4
+      },
+      {
+        "line": [
+          2,
+          5,
+          2,
+          3
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          2,
+          2.4
+        ],
+        "size": 0.4
+      }
+    ],
+    "pins": [
+      {
+        "name": "VCC",
+        "at": [
+          -2,
+          5
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "OUT",
+        "at": [
+          0,
+          5
+        ],
+        "dir": "down"
+      },
+      {
+        "name": "GND",
+        "at": [
+          2,
+          5
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    4,
+    -3
+  ],
+  "value_offset": [
+    4,
+    0
+  ],
+  "value_parameter": "delay",
+  "parameters": [
+    {
+      "name": "delay",
+      "label": "Delay",
+      "unit": "s",
+      "default": "5",
+      "description": "How long OUT stays high after the last movement (the module's trimmer: 5 to 300 s; shorter here for tests)",
+      "min": "0.5",
+      "max": "300"
+    }
+  ],
+  "interactive": {
+    "kind": "button"
+  },
+  "spice": [
+    "B_{ref}_st 0 st_{ref} I=10*V({control})*(1-V(st_{ref}))-(1-V({control}))*V(st_{ref})*{= 0.6931 / delay}",
+    "C_{ref}_st st_{ref} 0 1",
+    "R_{ref}_st st_{ref} 0 1G",
+    "B_{ref}_o o_{ref} {node:GND} V=3.3*0.5*(1+tanh(5*(V({node:VCC},{node:GND})-4.5)))*0.5*(1+tanh(200*(V(st_{ref})-0.5)))",
+    "R_{ref}_o o_{ref} {node:OUT} 100",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ]
+}

@@ -2058,3 +2058,42 @@ TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an e
     CHECK(session.latest("ma").value_or(0) - session.latest("mb").value_or(0) > -1.0); // forward or freewheeling
     session.stop();
 }
+
+TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beeps the active one (SN-228)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "42_Buzzers_melody_and_beep.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"q_bz1", "q_bz2"};
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    // The third note (E5, 659 Hz) sounds from 0.6 to 0.9 s; the 50 ms average has settled by 0.85 s.
+    wait_for(0.85);
+    std::printf("  passive buzzer at 0.85 s: %.0f Hz\n", session.latest("q_bz1").value_or(0));
+    CHECK(std::abs(session.latest("q_bz1").value_or(0) - 659) < 25);
+    CHECK(session.latest("q_bz2").value_or(1) < 1); // the active buzzer waits for the end of the scale
+    // 15 notes of 0.3 s, then the active buzzer for 0.2 s.
+    wait_for(4.6);
+    CHECK(std::abs(session.latest("q_bz2").value_or(0) - 2300) < 1);
+    session.stop();
+}

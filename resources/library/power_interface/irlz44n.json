@@ -1,0 +1,194 @@
+{
+  "type": "irlz44n",
+  "name": "Power MOSFET IRLZ44N",
+  "category": "Power & interface",
+  "prefix": "Q",
+  "description": "Logic-level N-channel power MOSFET (IRLZ44N, TO-220): turned fully on by 5 V or a 3.3 V pin (about 22 mohm at 5 V, 1-2 V threshold), 55 V, for motors, lamps and solenoids from a microcontroller; with its body diode from S to D and its gate capacitance. Approximate model",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -0.9,
+          0
+        ]
+      },
+      {
+        "line": [
+          -0.9,
+          -1.4,
+          -0.9,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -1.6,
+          -0.4,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -0.4,
+          -0.4,
+          0.4
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          0.8,
+          -0.4,
+          1.6
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          -1.2,
+          2,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          2,
+          -1.2,
+          2,
+          -3
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          1.2,
+          2,
+          1.2
+        ]
+      },
+      {
+        "line": [
+          2,
+          1.2,
+          2,
+          3
+        ]
+      },
+      {
+        "line": [
+          -0.4,
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "line": [
+          2,
+          0,
+          2,
+          1.2
+        ]
+      },
+      {
+        "polygon": [
+          -0.3,
+          0,
+          0.4,
+          -0.35,
+          0.4,
+          0.35
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          2,
+          -2.2,
+          3.4,
+          -2.2
+        ]
+      },
+      {
+        "line": [
+          3.4,
+          -2.2,
+          3.4,
+          2.2
+        ]
+      },
+      {
+        "line": [
+          3.4,
+          2.2,
+          2,
+          2.2
+        ]
+      },
+      {
+        "polygon": [
+          2.8,
+          0.4,
+          4.0,
+          0.4,
+          3.4,
+          -0.5
+        ]
+      },
+      {
+        "line": [
+          2.8,
+          -0.5,
+          4.0,
+          -0.5
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "G",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "D",
+        "at": [
+          2,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "S",
+        "at": [
+          2,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    4,
+    -2
+  ],
+  "value_offset": [
+    4,
+    1
+  ],
+  "spice": [
+    "M_{ref} {node:D} {node:G} {node:S} {node:S} IRLZ44N_PWR",
+    "D_{ref}_body {node:S} {node:D} IRLZ44N_BODY"
+  ],
+  "models": [
+    ".model IRLZ44N_PWR NMOS(LEVEL=1 VTO=1.5 KP=13 LAMBDA=0.005 CGSO=15u CGDO=2u)",
+    ".model IRLZ44N_BODY D(IS=1e-12 N=1.2 RS=0.01 CJO=1n)"
+  ]
+}
