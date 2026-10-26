@@ -16,6 +16,7 @@
 #endif
 
 namespace simnodus::ui {
+#ifdef _WIN32 // the tone is only built where it can be played
 namespace {
 
 template <typename T>
@@ -59,6 +60,7 @@ std::vector<char> tone_wave(double hz)
 }
 
 } // namespace
+#endif
 
 ToneOutput::~ToneOutput()
 {
