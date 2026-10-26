@@ -39,6 +39,8 @@ Run from the repository root: python tools/generate_display_parts.py
 import json
 import os
 
+from spice_levels import share_levels
+
 FOLDER = "resources/library/display"
 SEGMENTS = ["a", "b", "c", "d", "e", "f", "g"]
 # Segments of 0-9 as the 4511 and the 7447 draw them (6 and 9 without tails).
@@ -428,6 +430,7 @@ def main():
     for p in [display(False), display(True), decoder_4511(), decoder_7447(), decoder_hex(False), decoder_hex(True),
               four_digit(), matrix_8x8()]:
         p["description"] = short.get(p["type"], p["description"])
+        p["spice"] = share_levels(p["spice"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")
 

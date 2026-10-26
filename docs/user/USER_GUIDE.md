@@ -452,6 +452,11 @@ results are read correctly.
   0.1-0.2 ms before the sample instant.
 - Exact microcontroller edges cost speed (about 0.8x-2.9x real time at a
   100 µs step; about 0.2x at 10 µs with a 10 kHz PWM, on a 2026 laptop).
+- At maximum speed on a 2026 laptop, most examples run 1.5x to 50x real
+  time, but four are close to or below it: 26 (LED matrix, 64 multiplexed
+  LEDs) about 0.4x, 24 (RTC and watchdog) and 15 (HAL ADC + DMA) about 1x
+  (firmware busy at 72 MHz), 23 (7-segment counter) 1.2x. On slower PCs
+  they show a speed below 1x: the results stay right, only slower.
 - USART RX from the pin needs exact edges or a bit at least four time steps
   long (2400 baud or slower at 100 µs); a received byte reaches the firmware
   about 0.4 ms after its stop bit.

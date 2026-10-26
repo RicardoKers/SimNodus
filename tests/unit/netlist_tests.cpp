@@ -307,6 +307,18 @@ TEST_CASE("pre-run checks find common mistakes")
         CHECK(has(n, "floating-net"));
     }
     {
+        // A resistor between two floating nets is one problem: one message.
+        test::CircuitBuilder b(lib);
+        b.add("vdc", {{"+", "A"}, {"-", "0"}});
+        b.add("capacitor", {{"1", "A"}, {"2", "B"}});
+        b.add("resistor", {{"1", "B"}, {"2", "C"}});
+        b.add("capacitor", {{"1", "C"}, {"2", "0"}});
+        const auto n = netlist::generate_netlist(b.schematic, lib);
+        CHECK(std::count_if(n.diagnostics.begin(), n.diagnostics.end(),
+                  [](const auto& d) { return d.code == "floating-net"; })
+            == 1);
+    }
+    {
         test::CircuitBuilder b(lib);
         b.add("vdc", {{"+", "A"}, {"-", "0"}});
         b.add("vdc", {{"+", "A"}, {"-", "0"}});

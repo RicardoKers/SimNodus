@@ -4,6 +4,18 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-25, classroom robustness pass)
+
+- Counters, flip-flops, latches, the shift register and the 4511/7447 decoders compute each input threshold once instead of repeating it in every equation (`tools/spice_levels.py`); results are identical and runs faster: example 21 from 2.2x to 6.0x real time, 23 from 0.54x to 1.2x, 32 from 1.3x to 2.2x. The 555 keeps its model (its self-holding latch flipped at an interactive segment boundary with shared thresholds).
+
+### Fixed (2026-10-25, classroom robustness pass)
+
+- A group of floating nets joined by resistors is reported once instead of once per net (a resistor between two floating nets gave two identical messages).
+
+### Added (2026-10-25, classroom robustness pass)
+
+- `tools/examples_pass.py` runs every example through `simnodus-cli` (check, run, speed, messages) and `tools/examples_gui_pass.py` drives every example in the real window like a student (run, operate every control, pause, stop, save a copy, reopen and check it). Both passed on all 35 examples; the user guide lists the four examples that run close to or below real time.
+
 ### Added (2026-10-25)
 
 - The quick start, the user guide and the microcontroller guide in Brazilian Portuguese (`docs/user/pt-BR`, folder `pt-BR` in the packages); Help > User Guide opens the Portuguese guide when the interface is in Portuguese. `check_repository.py` fails when an English guide changes until its translation follows (each translation records its source's SHA-256).
