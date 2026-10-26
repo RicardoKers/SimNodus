@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <set>
 #include <sstream>
@@ -381,6 +382,16 @@ ComponentDefinition parse_definition(const json& j)
         if (!interactive.parameter.empty() && !d.parameter(interactive.parameter)) {
             invalid("interactive.parameter is not a parameter");
         }
+        interactive.logarithmic = i.value("scale", std::string()) == "log";
+        if (interactive.kind == Interactive::Kind::Potentiometer && !interactive.parameter.empty()) {
+            const auto* p = d.parameter(interactive.parameter);
+            if (p->unit != "%" && (!p->min || !p->max || *p->max <= *p->min)) {
+                invalid("a potentiometer's parameter needs the unit % or a min and a max");
+            }
+            if (interactive.logarithmic && p->unit != "%" && *p->min <= 0) {
+                invalid("a logarithmic potentiometer's parameter needs a min above 0");
+            }
+        }
         if (i.contains("wiper")) {
             const auto& w = i["wiper"];
             const auto track = numbers(w.value("track", json()), 4, "interactive.wiper.track");
@@ -739,6 +750,20 @@ void ComponentLibrary::add_models(const std::vector<SpiceModel>& models)
             models_.push_back(m);
         }
     }
+}
+
+double potentiometer_control(const Parameter& parameter, bool logarithmic, double value)
+{
+    if (parameter.unit == "%" || !parameter.min || !parameter.max || *parameter.max <= *parameter.min) {
+        return std::clamp(value / 100.0, 0.0, 1.0);
+    }
+    const double low = *parameter.min;
+    const double high = *parameter.max;
+    value = std::clamp(value, low, high);
+    if (logarithmic && low > 0) {
+        return std::log(value / low) / std::log(high / low);
+    }
+    return (value - low) / (high - low);
 }
 
 std::size_t DigitalDevice::memory_bytes(const std::map<std::string, std::string>& parameters) const

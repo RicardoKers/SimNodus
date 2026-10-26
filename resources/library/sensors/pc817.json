@@ -1,0 +1,271 @@
+{
+  "type": "pc817",
+  "name": "Optocoupler PC817",
+  "category": "Sensors",
+  "prefix": "U",
+  "description": "Phototransistor optocoupler: the LED current from A to K lets the transistor pass up to CTR × that current from C to E; input and output are isolated",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -3,
+          8,
+          6
+        ]
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -2,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -2,
+          -2,
+          -2,
+          -0.8
+        ]
+      },
+      {
+        "polygon": [
+          -3,
+          -0.8,
+          -1,
+          -0.8,
+          -2,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -3,
+          0.8,
+          -1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -2,
+          0.8,
+          -2,
+          2
+        ]
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -2,
+          2
+        ]
+      },
+      {
+        "line": [
+          -0.6,
+          -0.6,
+          0.6,
+          0
+        ]
+      },
+      {
+        "polygon": [
+          0.9,
+          0.15,
+          0.3,
+          0.2,
+          0.55,
+          -0.3
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          -0.6,
+          0.4,
+          0.6,
+          1.0
+        ]
+      },
+      {
+        "polygon": [
+          0.9,
+          1.15,
+          0.3,
+          1.2,
+          0.55,
+          0.7
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          1.4,
+          -1,
+          1.4,
+          1
+        ]
+      },
+      {
+        "line": [
+          1.4,
+          -0.4,
+          2.4,
+          -1.4
+        ]
+      },
+      {
+        "line": [
+          2.4,
+          -1.4,
+          2.4,
+          -2
+        ]
+      },
+      {
+        "line": [
+          2.4,
+          -2,
+          6,
+          -2
+        ]
+      },
+      {
+        "line": [
+          1.4,
+          0.4,
+          2.4,
+          1.4
+        ]
+      },
+      {
+        "line": [
+          2.4,
+          1.4,
+          2.4,
+          2
+        ]
+      },
+      {
+        "line": [
+          2.4,
+          2,
+          6,
+          2
+        ]
+      },
+      {
+        "polygon": [
+          2.4,
+          1.4,
+          1.8,
+          1.25,
+          2.25,
+          0.8
+        ],
+        "fill": true
+      },
+      {
+        "text": "A",
+        "at": [
+          -3.4,
+          -2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "K",
+        "at": [
+          -3.4,
+          2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "C",
+        "at": [
+          3.4,
+          -2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "text": "E",
+        "at": [
+          3.4,
+          2.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "K",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "C",
+        "at": [
+          6,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "E",
+        "at": [
+          6,
+          2
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -5
+  ],
+  "value_offset": [
+    5,
+    5
+  ],
+  "value_parameter": "CTR",
+  "parameters": [
+    {
+      "name": "CTR",
+      "label": "Current transfer ratio",
+      "unit": "%",
+      "default": "100",
+      "description": "Collector current / LED current (PC817: 50 to 600 %, by rank A to D)",
+      "min": "10",
+      "max": "600"
+    }
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_{ref}_led"
+  },
+  "spice": [
+    "V_{ref}_led {node:A} a_{ref} DC 0",
+    "D_{ref} a_{ref} {node:K} DIR_{ref}",
+    "B_{ref}_c {node:C} {node:E} I={= CTR / 100}*max(I(V_{ref}_led),0)*tanh(max(V({node:C},{node:E}),0)/0.15)",
+    "R_{ref}_ce {node:C} {node:E} 100Meg",
+    ".model DIR_{ref} D(IS=1e-14 N=1.5 RS=3 CJO=30p BV=6 IBV=10u)"
+  ]
+}

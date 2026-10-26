@@ -9,7 +9,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 ## Where we are
 
 - **On `main` since 0.10:** File > Save with Firmware (SN-219) and the
-  placement shortcuts V, I, Shift+V, Shift+I (SN-220). The owner asked on
+  placement shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and
+  transducers (SN-221, example 36). The owner asked on
   2026-10-26 for a much larger part library; the plan is SN-221..SN-229 in
   the backlog (sensors, 74HC chips in DIP packages, I2C/SPI/1-Wire chips,
   motion, power, sound).
@@ -98,9 +99,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Component library expansion, in backlog order: SN-221 (sensors and
-   transducers in SPICE), then SN-222 (74HC chips in DIP packages), SN-223..
-   SN-228. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
+1. Component library expansion, in backlog order: SN-222 (74HC chips in
+   DIP packages), then SN-223..SN-228. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
    and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
    `tools/examples_gui_pass.py` before each release.
 2. Classroom feedback (postponed: academic calendar).
@@ -155,9 +155,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   MICROCONTROLLER; a change to one of them includes the same change in the
   translation and its new source hash (`check_repository.py` prints it).
 - **Generated parts:** the library JSON of logic, storage, display, timer,
-  converter, regulator and I/O parts comes from `tools/generate_*_parts.py`;
+  converter, regulator, sensor and I/O parts comes from `tools/generate_*_parts.py`;
   edit the generator and rerun it, not the JSON.
-- **Pitfalls met so far:** Qt 6.4's moc (Linux CI) cannot parse C++20
+- **Pitfalls met so far:** ninja kept stale objects in `build/dev`
+  (header changes not seen: 0 recorded dependencies, then heap corruption in
+  the tests) because some objects had been compiled where cl's Portuguese
+  "Observação: incluindo arquivo:" did not match the prefix in
+  `rules.ninja`; build from a cmd shell with vcvars (code page 850), and if
+  `ninja -t deps <obj>` shows `#deps 0`, rebuild with `--clean-first`. Qt 6.4's moc (Linux CI) cannot parse C++20
   standard headers, so Q_OBJECT headers include project headers only under
   `#ifndef Q_MOC_RUN`; GCC treats missing aggregate initializers and implicit
   `[=]` captures as errors (check firmware-side code with

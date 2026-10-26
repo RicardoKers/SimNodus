@@ -1147,6 +1147,22 @@ double control_value(const json& v)
                              "true/false, \"on\"/\"off\" or a percentage.");
 }
 
+// A sensor's quantity may also be given in its unit ("35 °C", "500 lux", "20 mT").
+double control_value(Context& cx, const model::Component& c, const json& v)
+{
+    const auto* d = cx.ws.library().find(c.type);
+    if (v.is_string() && d && d->interactive && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
+        const auto* p = d->parameter(d->interactive->parameter);
+        const auto t = v.get<std::string>();
+        if (p && p->unit != "%" && !p->unit.empty() && t.size() > p->unit.size() && t.ends_with(p->unit)) {
+            if (const auto parsed = model::parse_engineering(t, p->unit)) {
+                return library::potentiometer_control(*p, d->interactive->logarithmic, *parsed);
+            }
+        }
+    }
+    return control_value(v);
+}
+
 const model::Component& control_component(Context& cx, const json& ref)
 {
     const auto& c = cx.component(ref);
@@ -1797,7 +1813,7 @@ json cmd_sim_control(Context& cx, const json& args)
 {
     active_run(cx);
     const auto& c = control_component(cx, required(args, "component"));
-    const double value = control_value(required(args, "value"));
+    const double value = control_value(cx, c, required(args, "value"));
     cx.ws.session().set_control(c.id, value);
     return {{"component", c.designator}, {"value", value}, {"time", cx.ws.session().status().sim_time}};
 }
@@ -1859,7 +1875,7 @@ json cmd_sim_run(Context& cx, const json& args)
         if (args.contains("events")) {
             for (const auto& e : args["events"]) {
                 const auto& c = control_component(cx, required(e, "component"));
-                events.push_back({quantity(required(e, "at"), "at", "s"), c.id, c.designator, control_value(required(e, "value"))});
+                events.push_back({quantity(required(e, "at"), "at", "s"), c.id, c.designator, control_value(cx, c, required(e, "value"))});
             }
         }
         std::stable_sort(events.begin(), events.end(), [](const Event& a, const Event& b) { return a.at < b.at; });
@@ -1960,8 +1976,8 @@ const Command commands[] = {
         cmd_sim_start},
     {"sim.advance", "Lets an interactive run reach a time, then pauses it; waits for a transient analysis.",
         R"j({"to": "10m", "by": "1m instead of to", "timeout": "300"})j", cmd_sim_advance},
-    {"sim.control", "Operates a switch, button, potentiometer, keypad or adjustable source.",
-        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%"})j", cmd_sim_control},
+    {"sim.control", "Operates a switch, button, potentiometer, keypad, adjustable source or sensor.",
+        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%, or a sensor's quantity in its unit (\"35 °C\", \"500 lux\")"})j", cmd_sim_control},
     {"sim.read", "Values and measurements of the signals.",
         R"j({"signals": ["V(OUT)"], "from": "0", "to": "10m", "points": "20", "csv": "file.csv"})j", cmd_sim_read},
     {"sim.status", "State, simulated time, speed, messages.", "{}", cmd_sim_status},

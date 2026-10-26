@@ -141,7 +141,7 @@ translation; the order may change with the owner's lessons.
 |---|---|---|
 | SN-219 | Save a project with its firmware: File > Save with Firmware copies each board's `.elf` and memory contents files into `<name>_files` next to the `.snx` with relative paths, so a student's project runs on the teacher's PC; `project.save` with `"with_files": true`; saving elsewhere keeps relative paths in the CLI too | done 2026-10-26 |
 | SN-220 | Placement shortcuts: V voltage source, I current source, Shift+V voltmeter, Shift+I ammeter | done 2026-10-26 |
-| SN-221 | Sensors and transducers in SPICE, the measured quantity dragged while running: LM35, NTC 10 kΩ, PT100, type K thermocouple, LDR, BPW34, ACS712, load cell (bridge), A3144, PC817, solenoid (current and plunger travel) | todo |
+| SN-221 | Sensors and transducers in SPICE, the measured quantity dragged while running: LM35, NTC 10 kΩ, PT100, type K thermocouple, LDR, BPW34, ACS712, load cell (bridge), A3144, PC817, solenoid (current and plunger travel); `tools/generate_sensor_parts.py`, example 36; potentiometers on a quantity (°C, lux, mT; logarithmic for light) | done 2026-10-26 |
 | SN-222 | Logic chips in DIP packages with VCC and GND pins (no supply, no output): 74HC00/02/04/08/14/32/86, 74HC138, 74HC157, 74HC245, 74HC74, 74HC161, 74HC193, 74HC165, 74HC595, CD4017 | todo |
 | SN-223 | I2C chips: BMP280, MPU6050, DS3231, TCS34725, SSD1306 OLED (pixels on the schematic) | todo |
 | SN-224 | SPI chips: MCP3208 (inputs read from the circuit), MCP41010 (a resistance in the circuit), W25Q32 (Memory Viewer), microSD card (SPI mode, an image file), HX711 with the load cell | todo |

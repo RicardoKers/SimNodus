@@ -1,0 +1,145 @@
+{
+  "type": "ldr",
+  "name": "Light-dependent resistor (LDR)",
+  "category": "Sensors",
+  "prefix": "R",
+  "description": "Photoresistor like the GL5528: about 10 kΩ at 10 lux, falling with more light (gamma 0.7), 1 MΩ in the dark; real LDRs take tens of milliseconds to follow the light",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -0.6,
+          -1.8,
+          1.2,
+          3.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -2.6,
+          -1.8,
+          -1.2,
+          -0.8
+        ]
+      },
+      {
+        "polygon": [
+          -1.0,
+          -0.6,
+          -1.6,
+          -0.8,
+          -1.3,
+          -1.2
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          -2.6,
+          -0.6,
+          -1.2,
+          0.4
+        ]
+      },
+      {
+        "polygon": [
+          -1.0,
+          0.6,
+          -1.6,
+          0.4,
+          -1.3,
+          0.0
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "light",
+  "parameters": [
+    {
+      "name": "R10",
+      "label": "Resistance at 10 lux",
+      "unit": "Ohm",
+      "default": "10k",
+      "description": "Resistance at 10 lux (GL5528: 8 to 20 kΩ)",
+      "min": "100",
+      "max": "10M"
+    },
+    {
+      "name": "gamma",
+      "label": "Gamma",
+      "unit": "",
+      "default": "0.7",
+      "description": "Slope: log(R10/R100), the fall per decade of light",
+      "min": "0.3",
+      "max": "1.2"
+    },
+    {
+      "name": "Rdark",
+      "label": "Dark resistance",
+      "unit": "Ohm",
+      "default": "1M",
+      "description": "Resistance in the dark",
+      "min": "10k",
+      "max": "1G"
+    },
+    {
+      "name": "light",
+      "label": "Illuminance",
+      "unit": "lux",
+      "default": "100",
+      "description": "Light on the sensor (office about 500 lux, daylight 10k lux and more); drag the part or use the wheel while running (0.1 to 100k lux)",
+      "min": "0.1",
+      "max": "100k"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "light",
+    "scale": "log"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "lux"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=0.1*exp(13.815510558*V({control}))",
+    "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(V(q_{ref})/10))/{R10}+1/{Rdark})"
+  ]
+}

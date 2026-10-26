@@ -161,7 +161,14 @@ struct Interactive {
     std::optional<Wiper> wiper;
     // Keypad (SN-210): the keys' rectangles in symbol coordinates (x, y, width, height).
     std::vector<std::array<double, 4>> keys;
+    // Potentiometer on a quantity (SN-221: a sensor's temperature or light): a
+    // parameter with a unit other than % and a min and max goes from min (0) to
+    // max (1), on a logarithmic scale when `logarithmic` (light from 0.1 to 100k lux).
+    bool logarithmic = false;
 };
+
+// The control value (0..1) of a potentiometer whose parameter has `value`.
+double potentiometer_control(const Parameter& parameter, bool logarithmic, double value);
 
 // Value shown on the symbol while running (INT-03).
 struct Readout {

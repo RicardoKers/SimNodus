@@ -3158,6 +3158,278 @@ Pinos: %2</translation>
             <translation>Tensão reversa a 5 mA</translation>
         </message>
         <message>
+            <source>Hall switch A3144</source>
+            <translation>Chave Hall A3144</translation>
+        </message>
+        <message>
+            <source>Sensors</source>
+            <translation>Sensores</translation>
+        </message>
+        <message>
+            <source>Unipolar Hall-effect switch: the open-collector OUT goes low while a south pole gives more than the operate point, and is released below the release point; needs a pull-up</source>
+            <translation>Chave unipolar de efeito Hall: a saída OUT em coletor aberto vai a nível baixo enquanto um polo sul dá mais que o ponto de operação e é liberada abaixo do ponto de liberação; precisa de pull-up</translation>
+        </message>
+        <message>
+            <source>Magnetic field</source>
+            <translation>Campo magnético</translation>
+        </message>
+        <message>
+            <source>Field at the sensor's face, positive for a south pole; drag the part or use the wheel while running (-100 to 100 mT)</source>
+            <translation>Campo na face do sensor, positivo para um polo sul; arraste a peça ou use a roda durante a execução (-100 a 100 mT)</translation>
+        </message>
+        <message>
+            <source>Operate point</source>
+            <translation>Ponto de operação</translation>
+        </message>
+        <message>
+            <source>Field that switches the output on (datasheet: 7 to 35 mT)</source>
+            <translation>Campo que liga a saída (folha de dados: 7 a 35 mT)</translation>
+        </message>
+        <message>
+            <source>Release point</source>
+            <translation>Ponto de liberação</translation>
+        </message>
+        <message>
+            <source>Field that releases the output (below the operate point)</source>
+            <translation>Campo que libera a saída (abaixo do ponto de operação)</translation>
+        </message>
+        <message>
+            <source>Current sensor ACS712</source>
+            <translation>Sensor de corrente ACS712</translation>
+        </message>
+        <message>
+            <source>Hall-effect current sensor: VOUT = VCC/2 + sensitivity × current from IP+ to IP- (ratiometric to a 5 V supply); the current path is 1.2 mΩ and isolated from the outputs</source>
+            <translation>Sensor de corrente de efeito Hall: VOUT = VCC/2 + sensibilidade × corrente de IP+ para IP- (raciométrico a uma alimentação de 5 V); o caminho da corrente tem 1,2 mΩ e é isolado das saídas</translation>
+        </message>
+        <message>
+            <source>Sensitivity</source>
+            <translation>Sensibilidade</translation>
+        </message>
+        <message>
+            <source>185 mV/A for the ACS712-05B (±5 A), 100 mV/A for -20A, 66 mV/A for -30A</source>
+            <translation>185 mV/A para o ACS712-05B (±5 A), 100 mV/A para o -20A, 66 mV/A para o -30A</translation>
+        </message>
+        <message>
+            <source>Photodiode BPW34</source>
+            <translation>Fotodiodo BPW34</translation>
+        </message>
+        <message>
+            <source>Silicon PIN photodiode: about 50 µA per 1000 lux, reverse-biased (photoconductive) or into a transimpedance amplifier; about 0.35 V open-circuit at 1000 lux</source>
+            <translation>Fotodiodo PIN de silício: cerca de 50 µA por 1000 lux, polarizado reversamente (fotocondutivo) ou num amplificador de transimpedância; cerca de 0,35 V em aberto com 1000 lux</translation>
+        </message>
+        <message>
+            <source>Illuminance</source>
+            <translation>Iluminância</translation>
+        </message>
+        <message>
+            <source>Light on the sensor (office about 500 lux, daylight 10k lux and more); drag the part or use the wheel while running (0.1 to 100k lux)</source>
+            <translation>Luz sobre o sensor (escritório cerca de 500 lux, luz do dia 10 mil lux ou mais); arraste a peça ou use a roda durante a execução (0,1 a 100 mil lux)</translation>
+        </message>
+        <message>
+            <source>Light-dependent resistor (LDR)</source>
+            <translation>Resistor dependente de luz (LDR)</translation>
+        </message>
+        <message>
+            <source>Photoresistor like the GL5528: about 10 kΩ at 10 lux, falling with more light (gamma 0.7), 1 MΩ in the dark; real LDRs take tens of milliseconds to follow the light</source>
+            <translation>Fotorresistor como o GL5528: cerca de 10 kΩ com 10 lux, caindo com mais luz (gama 0,7), 1 MΩ no escuro; LDRs reais levam dezenas de milissegundos para acompanhar a luz</translation>
+        </message>
+        <message>
+            <source>Resistance at 10 lux</source>
+            <translation>Resistência com 10 lux</translation>
+        </message>
+        <message>
+            <source>Resistance at 10 lux (GL5528: 8 to 20 kΩ)</source>
+            <translation>Resistência com 10 lux (GL5528: 8 a 20 kΩ)</translation>
+        </message>
+        <message>
+            <source>Gamma</source>
+            <translation>Gama</translation>
+        </message>
+        <message>
+            <source>Slope: log(R10/R100), the fall per decade of light</source>
+            <translation>Inclinação: log(R10/R100), a queda por década de luz</translation>
+        </message>
+        <message>
+            <source>Dark resistance</source>
+            <translation>Resistência no escuro</translation>
+        </message>
+        <message>
+            <source>Resistance in the dark</source>
+            <translation>Resistência no escuro</translation>
+        </message>
+        <message>
+            <source>Temperature sensor LM35</source>
+            <translation>Sensor de temperatura LM35</translation>
+        </message>
+        <message>
+            <source>Analog temperature sensor: 10 mV/°C at VOUT, supply 4 to 30 V; the basic circuit's output stays at 0 V below 0 °C</source>
+            <translation>Sensor de temperatura analógico: 10 mV/°C em VOUT, alimentação de 4 a 30 V; a saída do circuito básico fica em 0 V abaixo de 0 °C</translation>
+        </message>
+        <message>
+            <source>Temperature of the sensor; drag the part or use the wheel while running (-55 to 150 °C)</source>
+            <translation>Temperatura do sensor; arraste a peça ou use a roda durante a execução (-55 a 150 °C)</translation>
+        </message>
+        <message>
+            <source>Load cell</source>
+            <translation>Célula de carga</translation>
+        </message>
+        <message>
+            <source>Strain-gauge bridge: the output S+ − S- is the excitation × sensitivity × load / capacity (1 mV/V: 5 mV at full load with 5 V); amplify it, for example with an HX711</source>
+            <translation>Ponte de extensômetros: a saída S+ − S- é excitação × sensibilidade × carga / capacidade (1 mV/V: 5 mV na carga máxima com 5 V); amplifique-a, por exemplo com um HX711</translation>
+        </message>
+        <message>
+            <source>Capacity</source>
+            <translation>Capacidade</translation>
+        </message>
+        <message>
+            <source>Rated load</source>
+            <translation>Carga nominal</translation>
+        </message>
+        <message>
+            <source>Output at the rated load per volt of excitation</source>
+            <translation>Saída na carga nominal por volt de excitação</translation>
+        </message>
+        <message>
+            <source>Bridge resistance</source>
+            <translation>Resistência da ponte</translation>
+        </message>
+        <message>
+            <source>Resistance of each strain gauge</source>
+            <translation>Resistência de cada extensômetro</translation>
+        </message>
+        <message>
+            <source>Load</source>
+            <translation>Carga</translation>
+        </message>
+        <message>
+            <source>Load as a share of the capacity; drag the part or use the wheel while running (shown in kg)</source>
+            <translation>Carga como fração da capacidade; arraste a peça ou use a roda durante a execução (mostrada em kg)</translation>
+        </message>
+        <message>
+            <source>NTC thermistor</source>
+            <translation>Termistor NTC</translation>
+        </message>
+        <message>
+            <source>Resistance that falls as the temperature rises (beta model); 10 kΩ at 25 °C by default; no self-heating</source>
+            <translation>Resistência que cai quando a temperatura sobe (modelo beta); 10 kΩ a 25 °C por padrão; sem autoaquecimento</translation>
+        </message>
+        <message>
+            <source>Resistance at 25 °C</source>
+            <translation>Resistência a 25 °C</translation>
+        </message>
+        <message>
+            <source>Nominal resistance at 25 °C</source>
+            <translation>Resistência nominal a 25 °C</translation>
+        </message>
+        <message>
+            <source>Beta</source>
+            <translation>Beta</translation>
+        </message>
+        <message>
+            <source>B constant of the datasheet (B25/50 or B25/85)</source>
+            <translation>Constante B da folha de dados (B25/50 ou B25/85)</translation>
+        </message>
+        <message>
+            <source>Temperature of the thermistor; drag the part or use the wheel while running (-40 to 125 °C)</source>
+            <translation>Temperatura do termistor; arraste a peça ou use a roda durante a execução (-40 a 125 °C)</translation>
+        </message>
+        <message>
+            <source>Optocoupler PC817</source>
+            <translation>Optoacoplador PC817</translation>
+        </message>
+        <message>
+            <source>Phototransistor optocoupler: the LED current from A to K lets the transistor pass up to CTR × that current from C to E; input and output are isolated</source>
+            <translation>Optoacoplador com fototransistor: a corrente do LED de A para K deixa o transistor passar até CTR × essa corrente de C para E; entrada e saída são isoladas</translation>
+        </message>
+        <message>
+            <source>Current transfer ratio</source>
+            <translation>Razão de transferência de corrente</translation>
+        </message>
+        <message>
+            <source>Collector current / LED current (PC817: 50 to 600 %, by rank A to D)</source>
+            <translation>Corrente de coletor / corrente do LED (PC817: 50 a 600 %, pela classe A a D)</translation>
+        </message>
+        <message>
+            <source>Platinum RTD PT100</source>
+            <translation>Termorresistência de platina PT100</translation>
+        </message>
+        <message>
+            <source>Platinum resistance thermometer (IEC 60751): 100 Ω at 0 °C, 138.5 Ω at 100 °C; set R0 to 1000 for a PT1000; no self-heating</source>
+            <translation>Termômetro de resistência de platina (IEC 60751): 100 Ω a 0 °C, 138,5 Ω a 100 °C; ajuste R0 para 1000 para um PT1000; sem autoaquecimento</translation>
+        </message>
+        <message>
+            <source>Resistance at 0 °C</source>
+            <translation>Resistência a 0 °C</translation>
+        </message>
+        <message>
+            <source>100 for a PT100, 1000 for a PT1000</source>
+            <translation>100 para um PT100, 1000 para um PT1000</translation>
+        </message>
+        <message>
+            <source>Temperature of the sensor; drag the part or use the wheel while running (-200 to 850 °C)</source>
+            <translation>Temperatura do sensor; arraste a peça ou use a roda durante a execução (-200 a 850 °C)</translation>
+        </message>
+        <message>
+            <source>Solenoid</source>
+            <translation>Solenoide</translation>
+        </message>
+        <message>
+            <source>Linear solenoid: a coil whose plunger is pulled in above 60 % of the rated current and springs out below 25 %; add a flyback diode across the coil</source>
+            <translation>Solenoide linear: uma bobina cujo êmbolo é recolhido acima de 60 % da corrente nominal e solto pela mola abaixo de 25 %; ponha um diodo de roda livre na bobina</translation>
+        </message>
+        <message>
+            <source>Voltage for the rated current</source>
+            <translation>Tensão para a corrente nominal</translation>
+        </message>
+        <message>
+            <source>Coil resistance</source>
+            <translation>Resistência da bobina</translation>
+        </message>
+        <message>
+            <source>Resistance of the coil (rated current = V / R)</source>
+            <translation>Resistência da bobina (corrente nominal = V / R)</translation>
+        </message>
+        <message>
+            <source>Coil inductance</source>
+            <translation>Indutância da bobina</translation>
+        </message>
+        <message>
+            <source>Inductance of the coil</source>
+            <translation>Indutância da bobina</translation>
+        </message>
+        <message>
+            <source>Thermocouple type K</source>
+            <translation>Termopar tipo K</translation>
+        </message>
+        <message>
+            <source>Chromel-alumel thermocouple (NIST ITS-90 tables): about 41 µV/°C between the hot junction and the cold junction at the terminals; amplify it (an op-amp or a MAX6675-style chip)</source>
+            <translation>Termopar cromel-alumel (tabelas NIST ITS-90): cerca de 41 µV/°C entre a junta quente e a junta fria nos terminais; amplifique-o (um amp-op ou um chip como o MAX6675)</translation>
+        </message>
+        <message>
+            <source>Hot junction</source>
+            <translation>Junta quente</translation>
+        </message>
+        <message>
+            <source>Temperature at the measuring tip; drag the part or use the wheel while running (-200 to 1250 °C)</source>
+            <translation>Temperatura na ponta de medição; arraste a peça ou use a roda durante a execução (-200 a 1250 °C)</translation>
+        </message>
+        <message>
+            <source>Cold junction</source>
+            <translation>Junta fria</translation>
+        </message>
+        <message>
+            <source>Temperature of the terminals (the reference junction)</source>
+            <translation>Temperatura dos terminais (a junta de referência)</translation>
+        </message>
+        <message>
+            <source>Wire resistance</source>
+            <translation>Resistência dos fios</translation>
+        </message>
+        <message>
+            <source>Resistance of the thermocouple wires</source>
+            <translation>Resistência dos fios do termopar</translation>
+        </message>
+        <message>
             <source>Diode (fixed drop)</source>
             <translation>Diodo (queda fixa)</translation>
         </message>

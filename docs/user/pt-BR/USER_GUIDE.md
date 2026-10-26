@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 19fa2b650f2a2954a8eb36b06be01db032f77d624e1a452cb8a7d5ef4ccbc1c1 -->
+<!-- source: USER_GUIDE.md sha256 9cc4f43002052b13127df611ed16eaff7705eff3e908b763af654e26ddb11fcc -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -115,6 +115,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
 | **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF |
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574 (I2C); funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
+| **Sensores** | Sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
 | **E/S externa** | Entradas e saídas de bit e de palavra que trocam sinais com outro programa, como uma planta virtual (veja abaixo) |
 
@@ -127,6 +128,22 @@ Observações sobre alguns componentes:
   roda do mouse para cima) para aumentar o valor e para baixo para
   diminuí-lo; o valor vai do limite inferior (0 %) ao limite superior
   (100 %) e aparece no símbolo.
+- **Sensores:** a grandeza que um sensor mede (temperatura, luz, campo
+  magnético, carga) é definida em Propriedades e, durante a execução,
+  alterada arrastando o sensor para cima ou para baixo ou girando a roda
+  sobre ele, dentro da faixa do sensor (luz em escala logarítmica, de
+  0,1 lux a 100 mil lux); o símbolo a mostra. Os modelos usam os valores
+  típicos das folhas de dados: LM35 10 mV/°C (alimentação de 4 a 30 V; 0 V
+  abaixo de 0 °C, como no circuito básico), NTC pelo modelo beta, PT100 pela
+  IEC 60751, tipo K pelas tabelas do NIST com a junta fria nos terminais,
+  LDR como o GL5528 (sem tempo de resposta), BPW34 com cerca de 50 µA por
+  1000 lux, ACS712 com VCC/2 + sensibilidade × corrente, célula de carga com
+  saída = excitação × sensibilidade × carga / capacidade, A3144 com coletor
+  aberto e pontos de operação e liberação (precisa de pull-up), PC817 com
+  razão de transferência de corrente. Autoaquecimento, ruído e tempos de
+  resposta ficam de fora. O êmbolo do solenoide aparece recolhido acima de
+  60 % da corrente nominal e solto abaixo de 25 %; sua corrente é mostrada.
+  O exemplo 36 mostra quatro deles.
 - **Conversores A/D e D/A:** ideais e contínuos: o código do ADC é
   floor(2^N × VIN / VREF) a todo instante (sem clock, sem tempo de
   amostragem), e D0 é o bit menos significativo; o DAC fornece

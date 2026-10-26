@@ -1,0 +1,131 @@
+{
+  "type": "thermocouple_k",
+  "name": "Thermocouple type K",
+  "category": "Sensors",
+  "prefix": "TC",
+  "description": "Chromel-alumel thermocouple (NIST ITS-90 tables): about 41 µV/°C between the hot junction and the cold junction at the terminals; amplify it (an op-amp or a MAX6675-style chip)",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          3,
+          0,
+          1.5
+        ]
+      },
+      {
+        "line": [
+          0,
+          -1.5,
+          1.6,
+          0
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.5,
+          1.6,
+          0
+        ]
+      },
+      {
+        "circle": [
+          1.6,
+          0,
+          0.25
+        ],
+        "fill": true
+      },
+      {
+        "text": "+",
+        "at": [
+          -0.8,
+          -2.2
+        ],
+        "size": 0.7
+      },
+      {
+        "text": "K",
+        "at": [
+          -1.0,
+          0
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "temperature",
+  "parameters": [
+    {
+      "name": "temperature",
+      "label": "Hot junction",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature at the measuring tip; drag the part or use the wheel while running (-200 to 1250 °C)",
+      "min": "-200",
+      "max": "1250"
+    },
+    {
+      "name": "Tcj",
+      "label": "Cold junction",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature of the terminals (the reference junction)",
+      "min": "-50",
+      "max": "100"
+    },
+    {
+      "name": "R",
+      "label": "Wire resistance",
+      "unit": "Ohm",
+      "default": "10",
+      "description": "Resistance of the thermocouple wires",
+      "min": "0.01",
+      "max": "1k"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "°C"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=-200+(1250-(-200))*V({control})",
+    "B_{ref}_c c_{ref} 0 V={Tcj}",
+    "B_{ref}_e e_{ref} {node:-} V=0.001*((u(V(q_{ref}))*((-0.017600413686+V(q_{ref})*(0.038921204975+V(q_{ref})*(1.8558770032e-05+V(q_{ref})*(-9.9457592874e-08+V(q_{ref})*(3.1840945719e-10+V(q_{ref})*(-5.6072844889e-13+V(q_{ref})*(5.6075059059e-16+V(q_{ref})*(-3.2020720003e-19+V(q_{ref})*(9.7151147152e-23+V(q_{ref})*(-1.2104721275e-26))))))))))+0.1185976*exp(-0.0001183432*(V(q_{ref})-126.9686)*(V(q_{ref})-126.9686)))+(1-u(V(q_{ref})))*(0.0+V(q_{ref})*(0.039450128025+V(q_{ref})*(2.3622373598e-05+V(q_{ref})*(-3.2858906784e-07+V(q_{ref})*(-4.9904828777e-09+V(q_{ref})*(-6.7509059173e-11+V(q_{ref})*(-5.7410327428e-13+V(q_{ref})*(-3.1088872894e-15+V(q_{ref})*(-1.0451609365e-17+V(q_{ref})*(-1.9889266878e-20+V(q_{ref})*(-1.6322697486e-23))))))))))))-(u(V(c_{ref}))*((-0.017600413686+V(c_{ref})*(0.038921204975+V(c_{ref})*(1.8558770032e-05+V(c_{ref})*(-9.9457592874e-08+V(c_{ref})*(3.1840945719e-10+V(c_{ref})*(-5.6072844889e-13+V(c_{ref})*(5.6075059059e-16+V(c_{ref})*(-3.2020720003e-19+V(c_{ref})*(9.7151147152e-23+V(c_{ref})*(-1.2104721275e-26))))))))))+0.1185976*exp(-0.0001183432*(V(c_{ref})-126.9686)*(V(c_{ref})-126.9686)))+(1-u(V(c_{ref})))*(0.0+V(c_{ref})*(0.039450128025+V(c_{ref})*(2.3622373598e-05+V(c_{ref})*(-3.2858906784e-07+V(c_{ref})*(-4.9904828777e-09+V(c_{ref})*(-6.7509059173e-11+V(c_{ref})*(-5.7410327428e-13+V(c_{ref})*(-3.1088872894e-15+V(c_{ref})*(-1.0451609365e-17+V(c_{ref})*(-1.9889266878e-20+V(c_{ref})*(-1.6322697486e-23)))))))))))))",
+    "R_{ref}_w e_{ref} {node:+} {R}"
+  ]
+}

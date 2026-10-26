@@ -1,0 +1,131 @@
+{
+  "type": "bpw34",
+  "name": "Photodiode BPW34",
+  "category": "Sensors",
+  "prefix": "D",
+  "description": "Silicon PIN photodiode: about 50 µA per 1000 lux, reverse-biased (photoconductive) or into a transimpedance amplifier; about 0.35 V open-circuit at 1000 lux",
+  "symbol": {
+    "graphics": [
+      {
+        "polygon": [
+          -1,
+          -0.8,
+          1,
+          -0.8,
+          0,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          -1,
+          0.8,
+          1,
+          0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -0.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -2.6,
+          -1.8,
+          -1.2,
+          -0.8
+        ]
+      },
+      {
+        "polygon": [
+          -1.0,
+          -0.6,
+          -1.6,
+          -0.8,
+          -1.3,
+          -1.2
+        ],
+        "fill": true
+      },
+      {
+        "line": [
+          -2.6,
+          -0.6,
+          -1.2,
+          0.4
+        ]
+      },
+      {
+        "polygon": [
+          -1.0,
+          0.6,
+          -1.6,
+          0.4,
+          -1.3,
+          0.0
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "A",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "K",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "light",
+  "parameters": [
+    {
+      "name": "light",
+      "label": "Illuminance",
+      "unit": "lux",
+      "default": "1k",
+      "description": "Light on the sensor (office about 500 lux, daylight 10k lux and more); drag the part or use the wheel while running (0.1 to 100k lux)",
+      "min": "0.1",
+      "max": "100k"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "light",
+    "scale": "log"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "lux"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=0.1*exp(13.815510558*V({control}))",
+    "D_{ref} {node:A} {node:K} DPH_{ref}",
+    "B_{ref}_p {node:K} {node:A} I=5e-8*V(q_{ref})",
+    "R_{ref}_d {node:A} {node:K} 5G",
+    ".model DPH_{ref} D(IS=6.2e-11 N=1 RS=10 CJO=70p M=0.33 BV=60 IBV=10u)"
+  ]
+}

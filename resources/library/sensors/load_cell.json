@@ -1,0 +1,212 @@
+{
+  "type": "load_cell",
+  "name": "Load cell",
+  "category": "Sensors",
+  "prefix": "LC",
+  "description": "Strain-gauge bridge: the output S+ − S- is the excitation × sensitivity × load / capacity (1 mV/V: 5 mV at full load with 5 V); amplify it, for example with an HX711",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -3,
+          6,
+          6
+        ]
+      },
+      {
+        "polygon": [
+          -2,
+          0,
+          0,
+          -2,
+          2,
+          0,
+          0,
+          2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -3,
+          -2
+        ]
+      },
+      {
+        "text": "E+",
+        "at": [
+          -2.1,
+          -2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -3,
+          2
+        ]
+      },
+      {
+        "text": "E-",
+        "at": [
+          -2.1,
+          2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          5,
+          -2,
+          3,
+          -2
+        ]
+      },
+      {
+        "text": "S+",
+        "at": [
+          2.1,
+          -2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          5,
+          2,
+          3,
+          2
+        ]
+      },
+      {
+        "text": "S-",
+        "at": [
+          2.1,
+          2.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          -4.6,
+          0,
+          -3.4
+        ]
+      },
+      {
+        "polygon": [
+          0,
+          -3.1,
+          -0.4,
+          -3.8,
+          0.4,
+          -3.8
+        ],
+        "fill": true
+      }
+    ],
+    "pins": [
+      {
+        "name": "E+",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "E-",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "S+",
+        "at": [
+          5,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "S-",
+        "at": [
+          5,
+          2
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -5
+  ],
+  "value_offset": [
+    5,
+    5
+  ],
+  "value_parameter": "capacity",
+  "parameters": [
+    {
+      "name": "capacity",
+      "label": "Capacity",
+      "unit": "kg",
+      "default": "5",
+      "description": "Rated load",
+      "min": "0.1",
+      "max": "100k"
+    },
+    {
+      "name": "sensitivity",
+      "label": "Sensitivity",
+      "unit": "mV/V",
+      "default": "1",
+      "description": "Output at the rated load per volt of excitation",
+      "min": "0.1",
+      "max": "10"
+    },
+    {
+      "name": "R",
+      "label": "Bridge resistance",
+      "unit": "Ohm",
+      "default": "1k",
+      "description": "Resistance of each strain gauge",
+      "min": "100",
+      "max": "10k"
+    },
+    {
+      "name": "load",
+      "label": "Load",
+      "unit": "%",
+      "default": "0",
+      "description": "Load as a share of the capacity; drag the part or use the wheel while running (shown in kg)",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "load"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "kg"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V={capacity}*V({control})",
+    "B_{ref}_1 {node:E+} {node:S+} I=V({node:E+},{node:S+})/({R}*(1-{= sensitivity / 1000}*V({control})))",
+    "B_{ref}_2 {node:S+} {node:E-} I=V({node:S+},{node:E-})/({R}*(1+{= sensitivity / 1000}*V({control})))",
+    "B_{ref}_3 {node:E+} {node:S-} I=V({node:E+},{node:S-})/({R}*(1+{= sensitivity / 1000}*V({control})))",
+    "B_{ref}_4 {node:S-} {node:E-} I=V({node:S-},{node:E-})/({R}*(1-{= sensitivity / 1000}*V({control})))"
+  ]
+}

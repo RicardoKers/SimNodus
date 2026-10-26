@@ -1,0 +1,180 @@
+{
+  "type": "acs712",
+  "name": "Current sensor ACS712",
+  "category": "Sensors",
+  "prefix": "U",
+  "description": "Hall-effect current sensor: VOUT = VCC/2 + sensitivity × current from IP+ to IP- (ratiometric to a 5 V supply); the current path is 1.2 mΩ and isolated from the outputs",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -5.0,
+          -6.0,
+          10,
+          12
+        ]
+      },
+      {
+        "text": "ACS712",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -7.0,
+          -2,
+          -5.0,
+          -2
+        ]
+      },
+      {
+        "text": "IP+",
+        "at": [
+          -3.9,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -7.0,
+          2,
+          -5.0,
+          2
+        ]
+      },
+      {
+        "text": "IP-",
+        "at": [
+          -3.9,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          7.0,
+          0,
+          5.0,
+          0
+        ]
+      },
+      {
+        "text": "VOUT",
+        "at": [
+          3.9,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          -8.0,
+          0,
+          -6.0
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -5.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          8.0,
+          0,
+          6.0
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          5.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "IP+",
+        "at": [
+          -7.0,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "IP-",
+        "at": [
+          -7.0,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VOUT",
+        "at": [
+          7.0,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -8.0
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          8.0
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    6,
+    -7
+  ],
+  "value_offset": [
+    6,
+    7
+  ],
+  "value_parameter": "sensitivity",
+  "parameters": [
+    {
+      "name": "sensitivity",
+      "label": "Sensitivity",
+      "unit": "V/A",
+      "default": "185m",
+      "description": "185 mV/A for the ACS712-05B (±5 A), 100 mV/A for -20A, 66 mV/A for -30A",
+      "min": "1m",
+      "max": "10"
+    }
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_{ref}_s"
+  },
+  "spice": [
+    "R_{ref}_p {node:IP+} m_{ref} 1.2m",
+    "V_{ref}_s m_{ref} {node:IP-} DC 0",
+    "B_{ref}_o o_{ref} {node:GND} V=0.5*(1+tanh(5*(V({node:VCC},{node:GND})-4)))*min(max(V({node:VCC},{node:GND})*(0.5+{sensitivity}*I(V_{ref}_s)/5),0),V({node:VCC},{node:GND}))",
+    "R_{ref}_o o_{ref} {node:VOUT} 1",
+    "R_{ref}_q {node:VCC} {node:GND} 500"
+  ]
+}

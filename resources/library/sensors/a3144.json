@@ -1,0 +1,158 @@
+{
+  "type": "a3144",
+  "name": "Hall switch A3144",
+  "category": "Sensors",
+  "prefix": "U",
+  "description": "Unipolar Hall-effect switch: the open-collector OUT goes low while a south pole gives more than the operate point, and is released below the release point; needs a pull-up",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4.0,
+          -4.0,
+          8,
+          8
+        ]
+      },
+      {
+        "text": "A3144",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          6.0,
+          0,
+          4.0,
+          0
+        ]
+      },
+      {
+        "text": "OUT",
+        "at": [
+          2.9,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          -6.0,
+          0,
+          -4.0
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -3.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          6.0,
+          0,
+          4.0
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          3.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "OUT",
+        "at": [
+          6.0,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -6.0
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          6.0
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -5
+  ],
+  "value_offset": [
+    5,
+    5
+  ],
+  "value_parameter": "field",
+  "parameters": [
+    {
+      "name": "field",
+      "label": "Magnetic field",
+      "unit": "mT",
+      "default": "0",
+      "description": "Field at the sensor's face, positive for a south pole; drag the part or use the wheel while running (-100 to 100 mT)",
+      "min": "-100",
+      "max": "100"
+    },
+    {
+      "name": "Bop",
+      "label": "Operate point",
+      "unit": "mT",
+      "default": "20",
+      "description": "Field that switches the output on (datasheet: 7 to 35 mT)",
+      "min": "1",
+      "max": "90"
+    },
+    {
+      "name": "Brp",
+      "label": "Release point",
+      "unit": "mT",
+      "default": "15",
+      "description": "Field that releases the output (below the operate point)",
+      "min": "0",
+      "max": "89"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "field"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "mT"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=-100+(100-(-100))*V({control})",
+    "B_{ref}_st 0 st_{ref} I=1m*(0.5*(1+tanh(4*(V(q_{ref})-{Brp}-({Bop}-{Brp})*(1-V(st_{ref})))))-V(st_{ref}))",
+    "C_{ref}_st st_{ref} 0 1n",
+    "R_{ref}_st st_{ref} 0 1G",
+    "B_{ref}_out {node:OUT} {node:GND} I=V(st_{ref})*0.5*(1+tanh(5*(V({node:VCC},{node:GND})-3.8)))*max(V({node:OUT},{node:GND}),0)/20",
+    "R_{ref}_l {node:OUT} {node:GND} 100Meg",
+    "R_{ref}_q {node:VCC} {node:GND} 1k"
+  ]
+}

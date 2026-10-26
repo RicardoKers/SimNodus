@@ -1,0 +1,137 @@
+{
+  "type": "lm35",
+  "name": "Temperature sensor LM35",
+  "category": "Sensors",
+  "prefix": "U",
+  "description": "Analog temperature sensor: 10 mV/°C at VOUT, supply 4 to 30 V; the basic circuit's output stays at 0 V below 0 °C",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4.0,
+          -4.0,
+          8,
+          8
+        ]
+      },
+      {
+        "text": "LM35",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          6.0,
+          0,
+          4.0,
+          0
+        ]
+      },
+      {
+        "text": "VOUT",
+        "at": [
+          2.9,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          -6.0,
+          0,
+          -4.0
+        ]
+      },
+      {
+        "text": "VS",
+        "at": [
+          0,
+          -3.4
+        ],
+        "size": 0.5
+      },
+      {
+        "line": [
+          0,
+          6.0,
+          0,
+          4.0
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          3.4
+        ],
+        "size": 0.5
+      }
+    ],
+    "pins": [
+      {
+        "name": "VOUT",
+        "at": [
+          6.0,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VS",
+        "at": [
+          0,
+          -6.0
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          6.0
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -5
+  ],
+  "value_offset": [
+    5,
+    5
+  ],
+  "value_parameter": "temperature",
+  "parameters": [
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature of the sensor; drag the part or use the wheel while running (-55 to 150 °C)",
+      "min": "-55",
+      "max": "150"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "°C"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=-55+(150-(-55))*V({control})",
+    "B_{ref}_o o_{ref} {node:GND} V=0.5*(1+tanh(5*(V({node:VS},{node:GND})-3.6)))*min(max(0.01*V(q_{ref}),0),max(V({node:VS},{node:GND})-1.5,0))",
+    "R_{ref}_o o_{ref} {node:VOUT} 1",
+    "R_{ref}_s {node:VS} {node:GND} 90k"
+  ]
+}
