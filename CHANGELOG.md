@@ -9,6 +9,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 - File > Save with Firmware copies the files a project names (each board's `.elf`, memory contents files) into `<name>_files` next to the `.snx` and points the parts at the copies, so a student's project opens and runs on another computer (SN-219). `project.save` takes `"with_files": true` for the same in `simnodus-cli` and MCP.
 - Placement shortcuts V (voltage source), I (current source), Shift+V (voltmeter) and Shift+I (ammeter) (SN-220).
 
+- Sensors and transducers (SN-221, category Sensors, `tools/generate_sensor_parts.py`): LM35, NTC thermistor, PT100/PT1000, type K thermocouple (NIST tables), LDR, BPW34 photodiode, ACS712 current sensor, load cell, A3144 Hall switch, PC817 optocoupler and solenoid. The measured quantity is dragged or wheeled while running across the sensor's range and shown on the symbol; `sim.control` also takes it with its unit (`"35 °C"`). Example 36.
+
 ### Fixed (2026-10-26)
 
 - `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.

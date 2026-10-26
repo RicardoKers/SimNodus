@@ -594,6 +594,8 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
                 const auto* p = d->parameter(d->interactive->parameter);
                 if (p && !p->choices.empty()) {
                     control.initial = words[p->name] == p->choices.back() ? 1.0 : 0.0;
+                } else if (p && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
+                    control.initial = library::potentiometer_control(*p, d->interactive->logarithmic, numbers[p->name]);
                 } else if (p) {
                     control.initial = numbers[p->name] / (p->unit == "%" ? 100.0 : 1.0);
                 }

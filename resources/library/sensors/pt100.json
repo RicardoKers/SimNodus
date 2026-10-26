@@ -1,0 +1,113 @@
+{
+  "type": "pt100",
+  "name": "Platinum RTD PT100",
+  "category": "Sensors",
+  "prefix": "RT",
+  "description": "Platinum resistance thermometer (IEC 60751): 100 Ω at 0 °C, 138.5 Ω at 100 °C; set R0 to 1000 for a PT1000; no self-heating",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -0.6,
+          -1.8,
+          1.2,
+          3.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -1.4,
+          1.6,
+          1.0,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          1.0,
+          -1.2,
+          1.6,
+          -1.2
+        ]
+      },
+      {
+        "text": "+t°",
+        "at": [
+          2.1,
+          1.2
+        ],
+        "size": 0.6
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "temperature",
+  "parameters": [
+    {
+      "name": "R0",
+      "label": "Resistance at 0 °C",
+      "unit": "Ohm",
+      "default": "100",
+      "description": "100 for a PT100, 1000 for a PT1000",
+      "min": "10",
+      "max": "10k"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature of the sensor; drag the part or use the wheel while running (-200 to 850 °C)",
+      "min": "-200",
+      "max": "850"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "°C"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=-200+(850-(-200))*V({control})",
+    "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})/({R0}*(1+3.9083e-3*V(q_{ref})-5.775e-7*V(q_{ref})*V(q_{ref})+(1-u(V(q_{ref})))*(-4.183e-12)*(V(q_{ref})-100)*V(q_{ref})*V(q_{ref})*V(q_{ref})))",
+    "R_{ref}_p {node:1} {node:2} 1G"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "type": "ntc",
+  "name": "NTC thermistor",
+  "category": "Sensors",
+  "prefix": "RT",
+  "description": "Resistance that falls as the temperature rises (beta model); 10 kΩ at 25 °C by default; no self-heating",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -0.6,
+          -1.8,
+          1.2,
+          3.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -3,
+          0,
+          -1.8
+        ]
+      },
+      {
+        "line": [
+          0,
+          1.8,
+          0,
+          3
+        ]
+      },
+      {
+        "line": [
+          -1.4,
+          1.6,
+          1.0,
+          -1.2
+        ]
+      },
+      {
+        "line": [
+          1.0,
+          -1.2,
+          1.6,
+          -1.2
+        ]
+      },
+      {
+        "text": "-t°",
+        "at": [
+          2.1,
+          1.2
+        ],
+        "size": 0.6
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          0,
+          -3
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "2",
+        "at": [
+          0,
+          3
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "value_parameter": "temperature",
+  "parameters": [
+    {
+      "name": "R25",
+      "label": "Resistance at 25 °C",
+      "unit": "Ohm",
+      "default": "10k",
+      "description": "Nominal resistance at 25 °C",
+      "min": "1",
+      "max": "10M"
+    },
+    {
+      "name": "B",
+      "label": "Beta",
+      "unit": "K",
+      "default": "3950",
+      "description": "B constant of the datasheet (B25/50 or B25/85)",
+      "min": "1000",
+      "max": "10000"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature of the thermistor; drag the part or use the wheel while running (-40 to 125 °C)",
+      "min": "-40",
+      "max": "125"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "temperature"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "°C"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=-40+(125-(-40))*V({control})",
+    "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})/({R25}*exp({B}*(1/(V(q_{ref})+273.15)-0.0033540164)))",
+    "R_{ref}_p {node:1} {node:2} 1G"
+  ]
+}

@@ -926,3 +926,85 @@ TEST_CASE("library: component set B behaves like its parts")
         CHECK(close_to(peak, 1.0, 0.05));
     }
 }
+
+TEST_CASE("library: sensors and transducers follow their datasheets (SN-221)")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto lm35 = [](const std::string& supply, const std::string& temperature) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VS"}, {"-", "0"}}, {{"V", supply}});
+        b.add("lm35", {{"VS", "VS"}, {"VOUT", "OUT"}, {"GND", "0"}}, {{"temperature", temperature}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "100k"}});
+        return op(b, "out");
+    };
+    CHECK(close_to(lm35("5", "25"), 0.25, 1e-3));
+    CHECK(close_to(lm35("5", "100"), 1.0, 2e-3));
+    CHECK(close_to(lm35("0", "100"), 0.0, 1e-3)); // no supply, no output
+    // Resistances read with 1 mA: volts are kilohms.
+    auto resistance = [](const std::string& type, const std::map<std::string, std::string>& parameters) {
+        test::CircuitBuilder b(components());
+        b.add("idc", {{"+", "P"}, {"-", "0"}}, {{"I", "1m"}});
+        b.add(type, {{"1", "P"}, {"2", "0"}}, parameters);
+        return op(b, "p") * 1000;
+    };
+    CHECK(close_to(resistance("ntc", {{"temperature", "25"}}), 10000, 1));
+    CHECK(close_to(resistance("ntc", {{"temperature", "50"}}), 3588.8, 2));
+    CHECK(close_to(resistance("pt100", {{"temperature", "100"}}), 138.51, 0.01));
+    CHECK(close_to(resistance("pt100", {{"temperature", "-100"}}), 60.26, 0.01));
+    CHECK(close_to(resistance("pt100", {{"temperature", "0"}, {"R0", "1000"}}), 1000, 0.01));
+    CHECK(close_to(resistance("ldr", {{"light", "10"}}), 9901, 2));
+    CHECK(close_to(resistance("ldr", {{"light", "1k"}}), 1000.0 / (std::pow(100.0, 0.7) / 10 + 1e-3), 1));
+    {
+        test::CircuitBuilder b(components());
+        b.add("thermocouple_k", {{"+", "P"}, {"-", "0"}}, {{"temperature", "100"}, {"Tcj", "25"}});
+        b.add("resistor", {{"1", "P"}, {"2", "0"}}, {{"R", "1G"}});
+        CHECK(close_to(op(b, "p"), 3.096e-3, 2e-6)); // NIST: 4.096 mV - 1.000 mV
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("bpw34", {{"K", "VCC"}, {"A", "P"}}, {{"light", "1k"}});
+        b.add("resistor", {{"1", "P"}, {"2", "0"}}, {{"R", "10k"}});
+        CHECK(close_to(op(b, "p"), 0.5, 0.01)); // 50 uA reverse photocurrent
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("idc", {{"+", "IN"}, {"-", "0"}}, {{"I", "1"}});
+        b.add("acs712", {{"IP+", "IN"}, {"IP-", "0"}, {"VCC", "VCC"}, {"VOUT", "OUT"}, {"GND", "0"}});
+        b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "100k"}});
+        CHECK(close_to(op(b, "out"), 2.685, 2e-3));
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "E"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("load_cell", {{"E+", "E"}, {"E-", "0"}, {"S+", "SP"}, {"S-", "SN"}}, {{"load", "50"}});
+        const auto r = simulate(b, ".op", {"sp", "sn"});
+        REQUIRE(r.count("sp") && r.count("sn"));
+        CHECK(close_to(r.at("sp")[0] - r.at("sn")[0], 2.5e-3, 1e-6));
+    }
+    auto hall = [](const std::string& field) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("a3144", {{"VCC", "VCC"}, {"OUT", "OUT"}, {"GND", "0"}}, {{"field", field}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "OUT"}}, {{"R", "10k"}});
+        return op(b, "out");
+    };
+    CHECK(hall("50") < 0.05);
+    CHECK(hall("0") > 4.9);
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "VCC"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "LED"}}, {{"R", "330"}});
+        b.add("pc817", {{"A", "LED"}, {"K", "0"}, {"C", "OUT"}, {"E", "0"}});
+        b.add("resistor", {{"1", "VCC"}, {"2", "OUT"}}, {{"R", "10k"}});
+        CHECK(op(b, "out") < 0.2);
+        CHECK(close_to(op(b, "led"), 1.15, 0.15));
+    }
+    {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "P"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("solenoid", {{"1", "P"}, {"2", "0"}});
+        CHECK(close_to(op(b, "v_sense_l1#branch"), 0.5, 1e-3));
+    }
+}

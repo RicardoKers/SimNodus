@@ -1,0 +1,196 @@
+{
+  "type": "solenoid",
+  "name": "Solenoid",
+  "category": "Sensors",
+  "prefix": "L",
+  "description": "Linear solenoid: a coil whose plunger is pulled in above 60 % of the rated current and springs out below 25 %; add a flyback diode across the coil",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -5,
+          -2,
+          -3,
+          -2
+        ]
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -3,
+          2
+        ]
+      },
+      {
+        "line": [
+          -3,
+          -2,
+          -3,
+          -1.6
+        ]
+      },
+      {
+        "line": [
+          -3,
+          2,
+          -3,
+          1.6
+        ]
+      },
+      {
+        "arc": [
+          -3,
+          -1.2,
+          0.4,
+          90,
+          -180
+        ]
+      },
+      {
+        "arc": [
+          -3,
+          -0.4,
+          0.4,
+          90,
+          -180
+        ]
+      },
+      {
+        "arc": [
+          -3,
+          0.4,
+          0.4,
+          90,
+          -180
+        ]
+      },
+      {
+        "arc": [
+          -3,
+          1.2,
+          0.4,
+          90,
+          -180
+        ]
+      },
+      {
+        "rect": [
+          -2,
+          -1.8,
+          3,
+          3.6
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "2",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      }
+    ],
+    "states": {
+      "0": [
+        {
+          "rect": [
+            0,
+            -0.5,
+            4,
+            1
+          ],
+          "fill": true
+        },
+        {
+          "line": [
+            4,
+            -1,
+            4,
+            1
+          ]
+        }
+      ],
+      "1": [
+        {
+          "rect": [
+            -1.5,
+            -0.5,
+            4,
+            1
+          ],
+          "fill": true
+        },
+        {
+          "line": [
+            2.5,
+            -1,
+            2.5,
+            1
+          ]
+        }
+      ]
+    }
+  },
+  "designator_offset": [
+    -3,
+    -3
+  ],
+  "value_offset": [
+    2,
+    3
+  ],
+  "value_parameter": "V",
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Rated voltage",
+      "unit": "V",
+      "default": "12",
+      "description": "Voltage for the rated current",
+      "min": "1",
+      "max": "240"
+    },
+    {
+      "name": "Rcoil",
+      "label": "Coil resistance",
+      "unit": "Ohm",
+      "default": "24",
+      "description": "Resistance of the coil (rated current = V / R)",
+      "min": "0.1",
+      "max": "10k"
+    },
+    {
+      "name": "L",
+      "label": "Coil inductance",
+      "unit": "H",
+      "default": "30m",
+      "description": "Inductance of the coil",
+      "min": "1u",
+      "max": "10"
+    }
+  ],
+  "readout": {
+    "kind": "current",
+    "element": "V_sense_{ref}",
+    "switch": {
+      "on": "0.6 * V / Rcoil",
+      "off": "0.25 * V / Rcoil"
+    }
+  },
+  "spice": [
+    "V_sense_{ref} {node:1} c1_{ref} DC 0",
+    "R_{ref}_coil c1_{ref} c2_{ref} {Rcoil}",
+    "L_{ref}_coil c2_{ref} {node:2} {L}"
+  ]
+}

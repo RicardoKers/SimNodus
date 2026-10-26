@@ -100,7 +100,7 @@ project, or with the project named after the script.
 | `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed, `exact_edges`, `cortex_m3_timing` |
 | `edit.undo`, `edit.redo` | Undo history of the session |
 | `sim.run` | Start, run, measure, stop: a transient analysis, or an interactive run for `duration` with timed `events` |
-| `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step |
+| `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step (a sensor's control also takes its quantity with the unit: `"35 °C"`, `"500 lux"`) |
 | `sim.uart` | Text a board sent on a serial port; `send` types into it |
 
 `sim.read` and `sim.run` return, for each signal, the last value and the

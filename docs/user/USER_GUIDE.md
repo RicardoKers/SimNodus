@@ -111,6 +111,7 @@ invalid value is outlined in red and not applied.
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
 | **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander (I2C); they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
+| **Sensors** | LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
 | **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant (see below) |
 
@@ -122,6 +123,20 @@ Notes on some parts:
 - **Adjustable sources:** drag them up (or turn the mouse wheel up) to raise
   the value, down to lower it, while running; the value goes from the lower limit (0 %)
   to the upper limit (100 %) and is shown on the symbol.
+- **Sensors:** the quantity a sensor measures (temperature, light,
+  magnetic field, load) is set in Properties and, while running, changed by
+  dragging the sensor up or down or turning the wheel over it, across the
+  sensor's range (light on a logarithmic scale, 0.1 lux to 100k lux); the
+  symbol shows it. The models use the datasheets' typical values: LM35
+  10 mV/°C (supply 4-30 V; 0 V below 0 °C as in the basic circuit), NTC
+  beta model, PT100 by IEC 60751, type K by the NIST tables with the cold
+  junction at the terminals, LDR like the GL5528 (no response time), BPW34
+  about 50 µA per 1000 lux, ACS712 VCC/2 + sensitivity × current, load cell
+  output = excitation × sensitivity × load / capacity, A3144 open collector
+  with operate and release points (needs a pull-up), PC817 with a current
+  transfer ratio. Self-heating, noise and response times are left out. The
+  solenoid's plunger is drawn pulled in above 60 % of its rated current and
+  out below 25 %; its current is shown. Example 36 shows four of them.
 - **A/D and D/A converters:** ideal and continuous: the ADC's code is
   floor(2^N × VIN / VREF) at every moment (no clock, no sampling time), D0
   is the least significant bit; the DAC gives OUT = VREF × code / 2^N behind
