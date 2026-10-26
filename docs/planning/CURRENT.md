@@ -13,8 +13,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   transducers (SN-221, example 36); logic chips in DIP packages (SN-222,
   example 37); I2C chips with an OLED (SN-223, example 38); SPI chips and the
   HX711 (SN-224, example 39); timed one-wire chips (SN-225, example 40);
-  motors and motion (SN-226, example 41); power and interface parts (SN-227).
-  The owner asked on
+  motors and motion (SN-226, example 41); power and interface parts (SN-227);
+  buzzers with sound on Windows (SN-228, example 42); automation parts
+  (SN-229, example 43). The owner asked on
   2026-10-26 for a much larger part library; the plan is SN-221..SN-229 in
   the backlog (sensors, 74HC chips in DIP packages, I2C/SPI/1-Wire chips,
   motion, power, sound).
@@ -103,9 +104,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Component library expansion: SN-228 (buzzers with sound: needs the
-   owner's choice between Qt Multimedia, to be installed in the Qt kit and
-   CI, and Windows-only sound) and the SN-229 candidates. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
+1. Test package 0.11.0 for the owner (2026-10-26); publish after the
+   owner's test. Then SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
    and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
    `tools/examples_gui_pass.py` before each release.
 2. Classroom feedback (postponed: academic calendar).

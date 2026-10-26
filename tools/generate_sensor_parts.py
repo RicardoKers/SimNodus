@@ -6,6 +6,9 @@ lives on an internal node q_<ref> whose voltage is the quantity in its unit,
 shown on the symbol while running. Models follow the datasheets' typical
 values; what they leave out is said in each description and in the user guide.
 
+SN-229 adds parts for automation lessons: inductive proximity sensors NPN and PNP
+(24 V), a two-wire 4-20 mA transmitter and the HC-SR501 PIR module.
+
 Run from the repository root: python tools/generate_sensor_parts.py
 """
 import json
@@ -263,7 +266,7 @@ def ldr():
         "readout": readout("lux"),
         "spice": [
             logarithmic(0.1, 100000),
-            "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(V(q_{ref})/10))/{R10}+1/{Rdark})",
+            "B_{ref} {node:1} {node:2} I=V({node:1},{node:2})*(exp({gamma}*ln(max(V(q_{ref}),0.01)/10))/{R10}+1/{Rdark})",
         ],
     }
 
@@ -507,7 +510,123 @@ def solenoid():
     }
 
 
-PARTS = [lm35, ntc, pt100, thermocouple, ldr, bpw34, acs712, load_cell, a3144, pc817, solenoid]
+def inductive(kind):
+    """Three-wire inductive proximity sensor, 10-30 V: BN (+), BU (0 V), BK (output)."""
+    s = supply_ok("BN", "BU", 9)
+    graphics = [{"rect": [-3, -2, 8, 4]}, {"rect": [5, -1.4, 1.2, 2.8], "fill": True},
+                {"text": kind, "at": [1, 0], "size": 0.7}]
+    pins = []
+    for i, name in enumerate(["BN", "BK", "BU"]):
+        y = -2 + 2 * i
+        pins.append(pin(name, -5, y, "left"))
+        graphics += [{"line": [-5, y, -3, y]}, {"text": name, "at": [-4, y - 0.5], "size": 0.45}]
+    if kind == "NPN":
+        out = f"B_{{ref}}_out {{node:BK}} {{node:BU}} I=V(st_{{ref}})*{s}*max(V({{node:BK}},{{node:BU}})-0.8,0)/5"
+        what = "the output (BK) sinks to 0 V (BU) while a metal target is closer than the switching distance"
+    else:
+        out = f"B_{{ref}}_out {{node:BN}} {{node:BK}} I=V(st_{{ref}})*{s}*max(V({{node:BN}},{{node:BK}})-0.8,0)/5"
+        what = "the output (BK) switches to +V (BN) while a metal target is closer than the switching distance"
+    return {
+        "type": f"inductive_{kind.lower()}",
+        "name": f"Inductive proximity sensor {kind} (24 V)",
+        "category": CATEGORY,
+        "prefix": "B",
+        "description": f"Three-wire inductive sensor for machines and PLCs, supply 10-30 V on BN (brown) and BU "
+                       f"(blue): {what} (normally open, 10 % hysteresis, up to 200 mA). Drag the sensor or use the "
+                       f"wheel while running to move the target",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [-3, -4],
+        "value_offset": [-3, 4],
+        "value_parameter": "distance",
+        "parameters": [
+            number("Sn", "Switching distance", "mm", "4", "Nominal switching distance (M12: 2-4 mm, M18: 5-8 mm)",
+                   "0.5", "40"),
+            quantity("distance", "Target distance", "mm", "10", "0", "50", "Distance of the metal target"),
+        ],
+        "interactive": {"kind": "potentiometer", "parameter": "distance"},
+        "readout": readout("mm"),
+        "spice": [
+            linear(0, 50),
+            # Detecting below Sn, released above 1.1 Sn.
+            "B_{ref}_st 0 st_{ref} I=1m*(0.5*(1+tanh(20*({Sn}*(1+0.1*V(st_{ref}))-V(q_{ref}))))-V(st_{ref}))",
+            "C_{ref}_st st_{ref} 0 1n",
+            out,
+            "R_{ref}_l {node:BK} {node:BU} 100Meg",
+            "R_{ref}_q {node:BN} {node:BU} 2.4k",
+        ],
+    }
+
+
+def transmitter():
+    graphics = [{"circle": [0, 0, 2]}, {"text": "4-20", "at": [0, -0.4], "size": 0.6},
+                {"text": "mA", "at": [0, 0.7], "size": 0.5},
+                {"line": [0, -4, 0, -2]}, {"line": [0, 2, 0, 4]}, {"text": "+", "at": [0.8, -3], "size": 0.7}]
+    return {
+        "type": "transmitter_420",
+        "name": "Transmitter 4-20 mA (two-wire)",
+        "category": CATEGORY,
+        "prefix": "TT",
+        "description": "Loop-powered two-wire transmitter, as for pressure, level or temperature in industry: the loop "
+                       "current from + to - is 4 mA at 0 % of the measurement and 20 mA at 100 %, whatever the loop "
+                       "voltage once it has its 8 V (a 24 V supply and a 250 ohm input give 1-5 V). Drag it or use the "
+                       "wheel while running to change the measurement",
+        "symbol": {"graphics": graphics, "pins": [pin("+", 0, -4, "up"), pin("-", 0, 4, "down")]},
+        "designator_offset": [3, -2],
+        "value_offset": [3, 1],
+        "value_parameter": "measurement",
+        "parameters": [number("measurement", "Measurement", "%", "50", "Measured value as a share of the range; drag "
+                              "the transmitter or use the wheel while running", "0", "100")],
+        "interactive": {"kind": "potentiometer", "parameter": "measurement"},
+        "readout": {"kind": "node", "element": "ma_{ref}", "scale": 1, "unit": "mA"},
+        "spice": [
+            "B_{ref}_x x_{ref} 0 V=0.004+0.016*V({control})",
+            # Full current once the loop gives it 8 V, less below.
+            "B_{ref}_c c_{ref} 0 V=0.5*(1+tanh(3*(V({node:+},{node:-})-6.5)))",
+            "B_{ref} {node:+} {node:-} I=V(x_{ref})*V(c_{ref})",
+            "B_{ref}_ma ma_{ref} 0 V=1000*V(x_{ref})*V(c_{ref})",
+            "R_{ref}_l {node:+} {node:-} 10Meg",
+        ],
+    }
+
+
+def pir():
+    s = supply_ok("VCC", "GND", 4.5)
+    graphics = [{"rect": [-3, -1, 6, 4]}, {"arc": [0, -1, 2.4, 0, 180]},
+                {"text": "PIR", "at": [0, 1.4], "size": 0.6}]
+    pins = []
+    for i, name in enumerate(["VCC", "OUT", "GND"]):
+        x = -2 + 2 * i
+        pins.append(pin(name, x, 5, "down"))
+        graphics += [{"line": [x, 5, x, 3]}, {"text": name, "at": [x, 2.4], "size": 0.4}]
+    return {
+        "type": "pir_hcsr501",
+        "name": "Motion sensor PIR HC-SR501",
+        "category": CATEGORY,
+        "prefix": "U",
+        "description": "Passive infrared motion module (HC-SR501), supply 4.5-20 V: OUT goes high (3.3 V) while "
+                       "something moves and stays high for the delay after the last movement (repeat trigger). Hold the "
+                       "mouse on the sensor while running to move in front of it",
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [4, -3],
+        "value_offset": [4, 0],
+        "value_parameter": "delay",
+        "parameters": [number("delay", "Delay", "s", "5", "How long OUT stays high after the last movement (the "
+                              "module's trimmer: 5 to 300 s; shorter here for tests)", "0.5", "300")],
+        "interactive": {"kind": "button"},
+        "spice": [
+            # A timer: full while moving, then it decays to half in the delay.
+            "B_{ref}_st 0 st_{ref} I=10*V({control})*(1-V(st_{ref}))-(1-V({control}))*V(st_{ref})*{= 0.6931 / delay}",
+            "C_{ref}_st st_{ref} 0 1",
+            "R_{ref}_st st_{ref} 0 1G",
+            f"B_{{ref}}_o o_{{ref}} {{node:GND}} V=3.3*{s}*0.5*(1+tanh(200*(V(st_{{ref}})-0.5)))",
+            "R_{ref}_o o_{ref} {node:OUT} 100",
+            "R_{ref}_q {node:VCC} {node:GND} 100k",
+        ],
+    }
+
+
+PARTS = [lm35, ntc, pt100, thermocouple, ldr, bpw34, acs712, load_cell, a3144, pc817, solenoid,
+         lambda: inductive("NPN"), lambda: inductive("PNP"), transmitter, pir]
 
 
 def main():

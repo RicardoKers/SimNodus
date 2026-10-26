@@ -248,6 +248,8 @@ struct ComponentDefinition {
     std::optional<McuBoard> mcu;  // unconnected pins of a board are not reported
     std::optional<DigitalDevice> device;
     std::optional<Screen> screen;
+    // A buzzer (SN-228): its node readout is the frequency it sounds at (0: silent).
+    bool sound = false;
     std::filesystem::path source; // file it was loaded from
     // A user block (PRJ-06): the circuit behind the symbol, whose port parts are
     // the pins. It has no template; the netlist puts the circuit in its place.

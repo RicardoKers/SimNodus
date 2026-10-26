@@ -53,12 +53,17 @@ add_library(simnodus_ui STATIC
     symbol_painter.cpp
     symbol_painter.hpp
     theme.cpp
-    theme.hpp)
+    theme.hpp
+    tone_output.cpp
+    tone_output.hpp)
 target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network simnodus::automation simnodus::session simnodus::engine_link simnodus::editing simnodus::io
     simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
+if(WIN32)
+    target_link_libraries(simnodus_ui PRIVATE winmm) # buzzer sound (SN-228)
+endif()
 # Last-resort examples location for running from a build tree.
 target_compile_definitions(simnodus_ui PRIVATE SIMNODUS_SOURCE_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
 

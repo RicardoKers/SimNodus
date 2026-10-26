@@ -47,6 +47,8 @@ opens and passes the pre-run checks without errors or warnings.
 | `39_SPI_ADC_digital_pot_flash_HX711.snx` | A Blue Pill on SPI1 with an MCP3208 A/D converter, an MCP41010 digital potentiometer and a W25Q32 flash, and an HX711 with a 5 kg load cell on PB10/PB11 (firmware `hal_spi_sensors`) | Open the UART terminal: the flash ID and "SimNodus" written to it and read back, then every 0.5 s CH0 (RV1), CH1 (the digital potentiometer, which the firmware sets to follow CH0) and the weight; drag RV1 or the load cell while running |
 | `40_OneWire_DS18B20_DHT22_HCSR04_WS2812.snx` | A Blue Pill bit-banging timed one-wire protocols with the DWT cycle counter: a DS18B20 (PB5) and a DHT22 (PB4) with 4.7 kΩ pull-ups, an HC-SR04 (PB3/PB6) and a strip of 8 WS2812B LEDs (PA8) (firmware `hal_onewire_sensors`) | Open the UART terminal: temperatures, humidity and distance every second; the strip shows the distance, 25 cm per LED; change them in Properties while running; the Logic tab shows the pulses |
 | `41_Motion_encoder_servo_stepper_L298.snx` | A rotary encoder on PB6/PB7 sets a position (0-20 detents) that three motors follow: a servo on TIM2 CH1, a 28BYJ-48 stepper through a ULN2003 and a 12 V DC motor through an L298 with four flyback diodes (firmware `hal_motion`) | Run, then drag the encoder or turn the wheel over it: the servo's horn turns 9° per detent, the stepper a tenth of a turn, the DC motor runs forward or backward faster away from the middle; the UART terminal reports them |
+| `42_Buzzers_melody_and_beep.snx` | A Blue Pill plays a C major scale on a passive buzzer from TIM2 CH1 (PA0, through 220 Ω) and beeps an active buzzer through an IRLZ44N (PB0) (firmware `hal_buzzer`) | Run and listen (Windows, Simulate > Sound): the buzzers show their frequency; hold SW1 to mute the scale |
+| `43_Automation_inductive_4_20mA_PIR.snx` | 24 V automation without a microcontroller: inductive PNP and NPN sensors with a lamp and a relay (NO and NC lamps, flyback diode), a 4-20 mA transmitter into 250 Ω, and a PIR switching a 12 V active buzzer through an IRLZ44N | Drag the sensors' targets and the transmitter; hold the mouse on the PIR: the buzzer sounds for 3 s after the movement |
 | `07_Blue_Pill_blink.snx` | Blue Pill running `firmware/blink/blink.elf`, 330 Ω and red LED on PA0 | PC13 LED blinks every 500 ms, PA0..PA3 count, the LED on PA0 blinks at 2 Hz (about 3.8 mA); click RESET |
 
 `firmware/freertos_tasks` (FreeRTOS 10.3.1 under the MIT license, from the
@@ -55,7 +57,7 @@ firmware for the emulator experiment E-07; an example project follows.
 
 Firmware sources are in `firmware/<name>/` and link with
 `firmware/stm32f103c8.ld` without libraries, except `hal_clock`,
-`hal_adc_dma`, `hal_rtc_watchdog`, `hal_spi_max7219`, `hal_i2c_devices`, `hal_i2c_lcd`, `hal_i2c_oled`, `hal_spi_sensors`, `hal_onewire_sensors` and `hal_motion`, which are built like STM32CubeIDE projects from the STM32CubeF1 HAL (`cube.json`
+`hal_adc_dma`, `hal_rtc_watchdog`, `hal_spi_max7219`, `hal_i2c_devices`, `hal_i2c_lcd`, `hal_i2c_oled`, `hal_spi_sensors`, `hal_onewire_sensors`, `hal_motion` and `hal_buzzer`, which are built like STM32CubeIDE projects from the STM32CubeF1 HAL (`cube.json`
 names the files; `firmware/stm32f103c8_cube.ld`; notices in the package's
 THIRD-PARTY-NOTICES.txt); the ELF files are committed so
 that the examples run without a compiler. `python tools/build_firmware.py`

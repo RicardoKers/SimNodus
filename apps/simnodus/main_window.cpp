@@ -463,6 +463,17 @@ void MainWindow::build_actions_and_menus()
     reset_action_->setStatusTip(tr("Restart the simulation from the beginning"));
     simulate->addSeparator();
     simulate->addAction(tr("Simulation &Settings..."), this, &MainWindow::edit_settings);
+    auto* sound = simulate->addAction(tr("S&ound"));
+    sound->setCheckable(true);
+    sound->setChecked(settings_.value(QStringLiteral("simulation/sound"), true).toBool());
+    sound->setEnabled(ToneOutput::available());
+    sound->setStatusTip(ToneOutput::available() ? tr("Buzzers sound through the computer's speakers while running")
+                                                : tr("Buzzer sound needs Windows"));
+    run_->set_sound(sound->isChecked());
+    connect(sound, &QAction::toggled, this, [this](bool on) {
+        settings_.setValue(QStringLiteral("simulation/sound"), on);
+        run_->set_sound(on);
+    });
     // Only in projects with external I/O parts (ADR 0104: discreet).
     io_action_ = simulate->addAction(tr("External &I/O..."), this, &MainWindow::edit_external_io);
     io_action_->setObjectName(QStringLiteral("externalIoAction"));

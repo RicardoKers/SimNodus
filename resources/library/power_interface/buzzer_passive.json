@@ -1,0 +1,118 @@
+{
+  "type": "buzzer_passive",
+  "name": "Buzzer (passive)",
+  "category": "Electromechanical",
+  "prefix": "BZ",
+  "description": "Passive (magnetic) buzzer: sounds at the frequency of the square wave across it, for example a PWM pin through a transistor (tone()); heard through the computer's speakers while running (Windows, Simulate > Sound). Frequencies up to a few kHz; turn on exact microcontroller edges above 2 kHz",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          2
+        ]
+      },
+      {
+        "circle": [
+          0,
+          0,
+          0.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -2
+        ]
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "+",
+        "at": [
+          0.9,
+          -3
+        ],
+        "size": 0.7
+      },
+      {
+        "arc": [
+          0,
+          0,
+          2.8,
+          -40,
+          80
+        ]
+      },
+      {
+        "arc": [
+          0,
+          0,
+          3.4,
+          -40,
+          80
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -2
+  ],
+  "value_offset": [
+    3,
+    1
+  ],
+  "parameters": [
+    {
+      "name": "R",
+      "label": "Coil resistance",
+      "unit": "Ohm",
+      "default": "16",
+      "min": "1",
+      "max": "1k",
+      "description": "Resistance of its coil"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "Hz"
+  },
+  "sound": true,
+  "spice": [
+    "R_{ref} {node:+} {node:-} {R}",
+    "B_{ref}_lv lv_{ref} 0 V=0.5*(1+tanh(40*(V({node:+},{node:-})-0.08)))",
+    "B_{ref}_f 0 q_{ref} I=0.5*abs(ddt(V(lv_{ref})))",
+    "C_{ref}_f q_{ref} 0 50m",
+    "R_{ref}_f q_{ref} 0 1"
+  ]
+}

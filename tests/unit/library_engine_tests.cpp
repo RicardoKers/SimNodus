@@ -35,7 +35,7 @@ library::ComponentLibrary& components()
 // Generates the netlist (non-interactive), runs `analysis` and returns the
 // requested vectors; empty on failure.
 std::map<std::string, std::vector<double>> simulate(const test::CircuitBuilder& circuit, const std::string& analysis,
-    const std::vector<std::string>& vectors)
+    const std::vector<std::string>& vectors, const std::vector<std::string>& options = {})
 {
     std::map<std::string, std::vector<double>> result;
     auto* session = test::engine();
@@ -48,7 +48,9 @@ std::map<std::string, std::vector<double>> simulate(const test::CircuitBuilder& 
     if (!n.ok() || !session) {
         return result;
     }
-    const auto deck = netlist::build_deck(n, "library check", {analysis});
+    std::vector<std::string> extra = options;
+    extra.push_back(analysis);
+    const auto deck = netlist::build_deck(n, "library check", extra);
     bool ok = session->load_circuit(deck) && session->command("run");
     if (ok) {
         for (const auto& v : vectors) {
@@ -1242,5 +1244,70 @@ TEST_CASE("library: LM2596, TL494, MAX485 and MAX232 (SN-227)")
         const auto r = simulate(b, ".op", {"tx", "ro"});
         CHECK(r.at("tx")[0] > 7.0); // a low TTL input: a positive RS-232 level
         CHECK(r.at("ro")[0] < 0.1); // a positive RS-232 level: a low TTL output
+    }
+}
+
+
+TEST_CASE("library: buzzers, automation sensors, a 4-20 mA loop and the IRLZ44N (SN-228, SN-229)")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto inductive = [](const std::string& type, const std::string& distance) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "P24"}, {"-", "0"}}, {{"V", "24"}});
+        b.add(type, {{"BN", "P24"}, {"BU", "0"}, {"BK", "OUT"}}, {{"distance", distance}});
+        // The PLC input: 4.7 kOhm to 0 V for PNP, to +24 V for NPN.
+        b.add("resistor", {{"1", type == "inductive_npn" ? "P24" : "0"}, {"2", "OUT"}}, {{"R", "4.7k"}});
+        return op(b, "out");
+    };
+    CHECK(inductive("inductive_npn", "2") < 1.0);   // target at 2 mm: sinks
+    CHECK(inductive("inductive_npn", "10") > 23.0); // no target: released
+    CHECK(inductive("inductive_pnp", "2") > 22.0);  // sources +24 V
+    CHECK(inductive("inductive_pnp", "10") < 0.1);
+    auto loop = [](const std::string& measurement, const std::string& supply) {
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "P24"}, {"-", "0"}}, {{"V", supply}});
+        b.add("transmitter_420", {{"+", "P24"}, {"-", "AI"}}, {{"measurement", measurement}});
+        b.add("resistor", {{"1", "AI"}, {"2", "0"}}, {{"R", "250"}});
+        return op(b, "ai");
+    };
+    CHECK(close_to(loop("0", "24"), 1.0, 0.01));  // 4 mA x 250 ohm
+    CHECK(close_to(loop("100", "24"), 5.0, 0.02)); // 20 mA
+    CHECK(close_to(loop("50", "24"), 3.0, 0.02));
+    CHECK(loop("100", "6") < 4.0); // without its 8 V the loop current falls
+    {
+        // Active buzzer at 5 V: about 25 mA and its 2.3 kHz tone.
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "P"}, {"-", "0"}}, {{"V", "5"}});
+        b.add("buzzer_active", {{"+", "P"}, {"-", "0"}});
+        const auto r = simulate(b, ".op", {"v_v1#branch", "q_bz1"});
+        REQUIRE(r.count("q_bz1"));
+        CHECK(close_to(-r.at("v_v1#branch")[0], 0.025, 0.001));
+        CHECK(close_to(r.at("q_bz1")[0], 2300, 1));
+    }
+    {
+        // Passive buzzer driven by a 1 kHz wave: it reports 1 kHz. (A microcontroller's PWM reaches the
+        // circuit as step averages; the source's 1 us edges would make ngspice retry steps on them.)
+        test::CircuitBuilder b(components());
+        b.add("vsine", {{"+", "P"}, {"-", "0"}}, {{"f", "1k"}, {"amplitude", "2.5"}, {"offset", "2.5"}});
+        b.add("buzzer_passive", {{"+", "P"}, {"-", "0"}});
+        // Gear integration, as in interactive runs (where the sound is): trapezoidal rings on its ddt().
+        const auto r = simulate(b, ".tran 10u 400m 0 10u uic", {"q_bz1"}, {".options method=gear"});
+        REQUIRE(r.count("q_bz1"));
+        const auto& q = r.at("q_bz1");
+        double sum = 0;
+        const std::size_t from = q.size() * 3 / 4; // after its 50 ms average has settled
+        for (std::size_t i = from; i < q.size(); ++i) {
+            sum += q[i];
+        }
+        CHECK(close_to(sum / static_cast<double>(q.size() - from), 1000, 30));
+    }
+    {
+        // IRLZ44N from a 3.3 V pin switching 2 A: a small drop; the body diode conducts backwards.
+        test::CircuitBuilder b(components());
+        b.add("vdc", {{"+", "P12"}, {"-", "0"}}, {{"V", "12"}});
+        b.add("vdc", {{"+", "G"}, {"-", "0"}}, {{"V", "3.3"}});
+        b.add("irlz44n", {{"G", "G"}, {"D", "D"}, {"S", "0"}});
+        b.add("resistor", {{"1", "P12"}, {"2", "D"}}, {{"R", "6"}});
+        CHECK(op(b, "d") < 0.15);
     }
 }

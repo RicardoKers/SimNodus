@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+The version is 0.11.0; a test package went to the owner on 2026-10-26 and the section gets its date when it is published.
+
 ### Added (2026-10-26)
 
 - File > Save with Firmware copies the files a project names (each board's `.elf`, memory contents files) into `<name>_files` next to the `.snx` and points the parts at the copies, so a student's project opens and runs on another computer (SN-219). `project.save` takes `"with_files": true` for the same in `simnodus-cli` and MCP.
@@ -22,6 +24,9 @@ All entries describe actual repository changes, not promised simulator capabilit
 - Motors and motion (SN-226, category Motors & motion, `tools/generate_motion_parts.py`): L298 dual H-bridge, ULN2003, bipolar and 28BYJ-48 stepper motors showing their shaft angle, a rotary encoder turned by dragging or the wheel, and a hobby servo whose horn is drawn on the schematic. Firmware `hal_motion` and example 41.
 
 - Power and interface parts (SN-227, category Power & interface, `tools/generate_interface_parts.py`): LM2596 buck regulator, averaged, as the chip and as the adjustable module (trimmer dragged while running), TL494 PWM controller, MAX485 RS-485 and MAX232 RS-232 transceivers.
+
+- Buzzers with sound (SN-228): active and passive buzzers heard through the computer's speakers while running (Windows; Simulate > Sound), showing their frequency. Firmware `hal_buzzer` and example 42.
+- Parts for automation lessons (SN-229): inductive proximity sensors NPN and PNP (24 V), a two-wire 4-20 mA transmitter, the HC-SR501 PIR and the IRLZ44N power MOSFET. Example 43.
 
 ### Fixed (2026-10-26)
 

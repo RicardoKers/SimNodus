@@ -303,6 +303,14 @@ bool RunController::apply_live_parameters()
     return applied;
 }
 
+void RunController::set_sound(bool on)
+{
+    sound_ = on;
+    if (!on) {
+        tone_.play(0.0);
+    }
+}
+
 void RunController::set_speed(double speed)
 {
     session_->set_speed(speed);
@@ -512,10 +520,16 @@ void RunController::refresh()
         }
         live.lights[id] = std::move(lit);
     }
+    double tone = 0.0; // the highest buzzer frequency (SN-228)
     for (const auto& c : snapshot_.components()) {
         const auto* d = library.find(c.type);
         if (!d || !d->readout) {
             continue;
+        }
+        if (d->sound) {
+            if (const auto it = latest.find(readout_vectors_[c.id]); it != latest.end()) {
+                tone = std::max(tone, it->second * d->readout->scale);
+            }
         }
         if (d->readout->kind == library::Readout::Kind::Node) {
             const auto it = latest.find(readout_vectors_[c.id]);
@@ -589,6 +603,7 @@ void RunController::refresh()
             live.mcu_pins[c.id] = session_->mcu_pins(c.id);
         }
     }
+    tone_.play(sound_ && status.state == sim::RunState::Running ? tone : 0.0);
     scene_.set_live(std::move(live));
     emit refreshed();
     if (status.state != last_state_) {

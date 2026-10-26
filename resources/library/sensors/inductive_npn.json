@@ -1,0 +1,157 @@
+{
+  "type": "inductive_npn",
+  "name": "Inductive proximity sensor NPN (24 V)",
+  "category": "Sensors",
+  "prefix": "B",
+  "description": "Three-wire inductive sensor for machines and PLCs, supply 10-30 V on BN (brown) and BU (blue): the output (BK) sinks to 0 V (BU) while a metal target is closer than the switching distance (normally open, 10 % hysteresis, up to 200 mA). Drag the sensor or use the wheel while running to move the target",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -2,
+          8,
+          4
+        ]
+      },
+      {
+        "rect": [
+          5,
+          -1.4,
+          1.2,
+          2.8
+        ],
+        "fill": true
+      },
+      {
+        "text": "NPN",
+        "at": [
+          1,
+          0
+        ],
+        "size": 0.7
+      },
+      {
+        "line": [
+          -5,
+          -2,
+          -3,
+          -2
+        ]
+      },
+      {
+        "text": "BN",
+        "at": [
+          -4,
+          -2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -5,
+          0,
+          -3,
+          0
+        ]
+      },
+      {
+        "text": "BK",
+        "at": [
+          -4,
+          -0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -5,
+          2,
+          -3,
+          2
+        ]
+      },
+      {
+        "text": "BU",
+        "at": [
+          -4,
+          1.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "BN",
+        "at": [
+          -5,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "BK",
+        "at": [
+          -5,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "BU",
+        "at": [
+          -5,
+          2
+        ],
+        "dir": "left"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -4
+  ],
+  "value_offset": [
+    -3,
+    4
+  ],
+  "value_parameter": "distance",
+  "parameters": [
+    {
+      "name": "Sn",
+      "label": "Switching distance",
+      "unit": "mm",
+      "default": "4",
+      "description": "Nominal switching distance (M12: 2-4 mm, M18: 5-8 mm)",
+      "min": "0.5",
+      "max": "40"
+    },
+    {
+      "name": "distance",
+      "label": "Target distance",
+      "unit": "mm",
+      "default": "10",
+      "description": "Distance of the metal target; drag the part or use the wheel while running (0 to 50 mm)",
+      "min": "0",
+      "max": "50"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "distance"
+  },
+  "readout": {
+    "kind": "node",
+    "element": "q_{ref}",
+    "scale": 1,
+    "unit": "mm"
+  },
+  "spice": [
+    "B_{ref}_q q_{ref} 0 V=0+(50-(0))*V({control})",
+    "B_{ref}_st 0 st_{ref} I=1m*(0.5*(1+tanh(20*({Sn}*(1+0.1*V(st_{ref}))-V(q_{ref}))))-V(st_{ref}))",
+    "C_{ref}_st st_{ref} 0 1n",
+    "B_{ref}_out {node:BK} {node:BU} I=V(st_{ref})*0.5*(1+tanh(5*(V({node:BN},{node:BU})-9)))*max(V({node:BK},{node:BU})-0.8,0)/5",
+    "R_{ref}_l {node:BK} {node:BU} 100Meg",
+    "R_{ref}_q {node:BN} {node:BU} 2.4k"
+  ]
+}

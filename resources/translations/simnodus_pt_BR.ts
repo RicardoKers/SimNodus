@@ -852,6 +852,18 @@ Pinos: %2</translation>
             <translation>Amperímetro</translation>
         </message>
         <message>
+            <source>S&amp;ound</source>
+            <translation>S&amp;om</translation>
+        </message>
+        <message>
+            <source>Buzzers sound through the computer's speakers while running</source>
+            <translation>Os buzzers soam pelos alto-falantes do computador durante a simulação</translation>
+        </message>
+        <message>
+            <source>Buzzer sound needs Windows</source>
+            <translation>O som dos buzzers precisa do Windows</translation>
+        </message>
+        <message>
             <source>External &amp;I/O...</source>
             <translation>E/S &amp;externa...</translation>
         </message>
@@ -3610,12 +3622,52 @@ Pinos: %2</translation>
             <translation>Indutância de magnetização do primário</translation>
         </message>
         <message>
-            <source>Buck regulator LM2596</source>
-            <translation>Regulador buck LM2596</translation>
+            <source>Buzzer (active)</source>
+            <translation>Buzzer (ativo)</translation>
+        </message>
+        <message>
+            <source>Active buzzer: a built-in oscillator sounds (about 2.3 kHz) while it has its rated voltage from + to -, about 25 mA; heard through the computer's speakers while running (Windows, Simulate &gt; Sound)</source>
+            <translation>Buzzer ativo: um oscilador interno soa (cerca de 2,3 kHz) enquanto ele recebe a tensão nominal de + para -, cerca de 25 mA; ouvido pelos alto-falantes do computador durante a simulação (Windows, Simular &gt; Som)</translation>
+        </message>
+        <message>
+            <source>Voltage it is made for (about 25 mA)</source>
+            <translation>Tensão para a qual foi feito (cerca de 25 mA)</translation>
+        </message>
+        <message>
+            <source>Tone</source>
+            <translation>Tom</translation>
+        </message>
+        <message>
+            <source>Frequency of its built-in oscillator</source>
+            <translation>Frequência do oscilador interno</translation>
+        </message>
+        <message>
+            <source>Buzzer (passive)</source>
+            <translation>Buzzer (passivo)</translation>
+        </message>
+        <message>
+            <source>Passive (magnetic) buzzer: sounds at the frequency of the square wave across it, for example a PWM pin through a transistor (tone()); heard through the computer's speakers while running (Windows, Simulate &gt; Sound). Frequencies up to a few kHz; turn on exact microcontroller edges above 2 kHz</source>
+            <translation>Buzzer passivo (magnético): soa na frequência da onda quadrada aplicada, por exemplo um pino com PWM por um transistor (tone()); ouvido pelos alto-falantes do computador durante a simulação (Windows, Simular &gt; Som). Frequências de até alguns kHz; ligue as bordas exatas do microcontrolador acima de 2 kHz</translation>
+        </message>
+        <message>
+            <source>Resistance of its coil</source>
+            <translation>Resistência da bobina</translation>
+        </message>
+        <message>
+            <source>Power MOSFET IRLZ44N</source>
+            <translation>MOSFET de potência IRLZ44N</translation>
         </message>
         <message>
             <source>Power &amp; interface</source>
             <translation>Potência e interface</translation>
+        </message>
+        <message>
+            <source>Logic-level N-channel power MOSFET (IRLZ44N, TO-220): turned fully on by 5 V or a 3.3 V pin (about 22 mohm at 5 V, 1-2 V threshold), 55 V, for motors, lamps and solenoids from a microcontroller; with its body diode from S to D and its gate capacitance. Approximate model</source>
+            <translation>MOSFET de potência canal N de nível lógico (IRLZ44N, TO-220): conduz totalmente com 5 V ou um pino de 3,3 V (cerca de 22 mohm a 5 V, limiar de 1-2 V), 55 V, para motores, lâmpadas e solenoides a partir de um microcontrolador; com o diodo de corpo de S para D e a capacitância de gate. Modelo aproximado</translation>
+        </message>
+        <message>
+            <source>Buck regulator LM2596</source>
+            <translation>Regulador buck LM2596</translation>
         </message>
         <message>
             <source>Step-down switching regulator (LM2596-ADJ), averaged: OUT regulates FB to 1.23 V (a divider sets the output: Vout = 1.23 x (1 + R2/R1)), up to 3 A and about 1.5 V below VIN; the input current is the output power over 85 % efficiency. Wire the datasheet's inductor (33 uH) and Schottky diode, or not: the 150 kHz switching is not simulated. ON low (or GND) turns it on</source>
@@ -3894,6 +3946,38 @@ Pinos: %2</translation>
             <translation>Luz sobre o sensor (escritório cerca de 500 lux, luz do dia 10 mil lux ou mais); arraste a peça ou use a roda durante a execução (0,1 a 100 mil lux)</translation>
         </message>
         <message>
+            <source>Inductive proximity sensor NPN (24 V)</source>
+            <translation>Sensor indutivo de proximidade NPN (24 V)</translation>
+        </message>
+        <message>
+            <source>Three-wire inductive sensor for machines and PLCs, supply 10-30 V on BN (brown) and BU (blue): the output (BK) sinks to 0 V (BU) while a metal target is closer than the switching distance (normally open, 10 % hysteresis, up to 200 mA). Drag the sensor or use the wheel while running to move the target</source>
+            <translation>Sensor indutivo a três fios para máquinas e CLPs, alimentação de 10 a 30 V em BN (marrom) e BU (azul): a saída (BK) drena para 0 V (BU) enquanto um alvo metálico está mais perto que a distância sensora (normalmente aberto, 10 % de histerese, até 200 mA). Arraste o sensor ou use a roda durante a simulação para mover o alvo</translation>
+        </message>
+        <message>
+            <source>Switching distance</source>
+            <translation>Distância sensora</translation>
+        </message>
+        <message>
+            <source>Nominal switching distance (M12: 2-4 mm, M18: 5-8 mm)</source>
+            <translation>Distância sensora nominal (M12: 2-4 mm, M18: 5-8 mm)</translation>
+        </message>
+        <message>
+            <source>Target distance</source>
+            <translation>Distância do alvo</translation>
+        </message>
+        <message>
+            <source>Distance of the metal target; drag the part or use the wheel while running (0 to 50 mm)</source>
+            <translation>Distância do alvo metálico; arraste a peça ou use a roda durante a simulação (0 a 50 mm)</translation>
+        </message>
+        <message>
+            <source>Inductive proximity sensor PNP (24 V)</source>
+            <translation>Sensor indutivo de proximidade PNP (24 V)</translation>
+        </message>
+        <message>
+            <source>Three-wire inductive sensor for machines and PLCs, supply 10-30 V on BN (brown) and BU (blue): the output (BK) switches to +V (BN) while a metal target is closer than the switching distance (normally open, 10 % hysteresis, up to 200 mA). Drag the sensor or use the wheel while running to move the target</source>
+            <translation>Sensor indutivo a três fios para máquinas e CLPs, alimentação de 10 a 30 V em BN (marrom) e BU (azul): a saída (BK) comuta para +V (BN) enquanto um alvo metálico está mais perto que a distância sensora (normalmente aberto, 10 % de histerese, até 200 mA). Arraste o sensor ou use a roda durante a simulação para mover o alvo</translation>
+        </message>
+        <message>
             <source>Light-dependent resistor (LDR)</source>
             <translation>Resistor dependente de luz (LDR)</translation>
         </message>
@@ -4018,6 +4102,22 @@ Pinos: %2</translation>
             <translation>Corrente de coletor / corrente do LED (PC817: 50 a 600 %, pela classe A a D)</translation>
         </message>
         <message>
+            <source>Motion sensor PIR HC-SR501</source>
+            <translation>Sensor de movimento PIR HC-SR501</translation>
+        </message>
+        <message>
+            <source>Passive infrared motion module (HC-SR501), supply 4.5-20 V: OUT goes high (3.3 V) while something moves and stays high for the delay after the last movement (repeat trigger). Hold the mouse on the sensor while running to move in front of it</source>
+            <translation>Módulo de movimento por infravermelho passivo (HC-SR501), alimentação de 4,5 a 20 V: OUT vai a nível alto (3,3 V) enquanto algo se move e fica em alto pelo tempo de atraso depois do último movimento (redisparo). Mantenha o mouse pressionado sobre o sensor durante a simulação para se mover diante dele</translation>
+        </message>
+        <message>
+            <source>Delay</source>
+            <translation>Atraso</translation>
+        </message>
+        <message>
+            <source>How long OUT stays high after the last movement (the module's trimmer: 5 to 300 s; shorter here for tests)</source>
+            <translation>Quanto tempo OUT fica em alto depois do último movimento (o trimpot do módulo: 5 a 300 s; aqui pode ser menor para testes)</translation>
+        </message>
+        <message>
             <source>Platinum RTD PT100</source>
             <translation>Termorresistência de platina PT100</translation>
         </message>
@@ -4088,6 +4188,22 @@ Pinos: %2</translation>
         <message>
             <source>Resistance of the thermocouple wires</source>
             <translation>Resistência dos fios do termopar</translation>
+        </message>
+        <message>
+            <source>Transmitter 4-20 mA (two-wire)</source>
+            <translation>Transmissor 4-20 mA (dois fios)</translation>
+        </message>
+        <message>
+            <source>Loop-powered two-wire transmitter, as for pressure, level or temperature in industry: the loop current from + to - is 4 mA at 0 % of the measurement and 20 mA at 100 %, whatever the loop voltage once it has its 8 V (a 24 V supply and a 250 ohm input give 1-5 V). Drag it or use the wheel while running to change the measurement</source>
+            <translation>Transmissor a dois fios alimentado pela malha, como os de pressão, nível ou temperatura na indústria: a corrente da malha de + para - é 4 mA em 0 % da medida e 20 mA em 100 %, qualquer que seja a tensão da malha a partir dos seus 8 V (uma fonte de 24 V e uma entrada de 250 ohm dão 1-5 V). Arraste-o ou use a roda durante a simulação para mudar a medida</translation>
+        </message>
+        <message>
+            <source>Measurement</source>
+            <translation>Medida</translation>
+        </message>
+        <message>
+            <source>Measured value as a share of the range; drag the transmitter or use the wheel while running</source>
+            <translation>Valor medido como fração da faixa; arraste o transmissor ou use a roda durante a simulação</translation>
         </message>
         <message>
             <source>Diode (fixed drop)</source>
