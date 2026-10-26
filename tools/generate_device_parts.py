@@ -30,6 +30,8 @@ nothing.
   the load cell amplifier; the converters read the circuit's voltages
   (device.analog_pins), the digital potentiometer sets a resistance through
   an output inside the part (device.internal_pins).
+- DS18B20, DHT22/DHT11, HC-SR04 and the WS2812B strip (SN-225): sensors
+  and LEDs with timed one-wire protocols, decoded from the edge times.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -432,6 +434,87 @@ def hx711():
     return p
 
 
+ONE_WIRE_NOTE = ("The data pin is open drain: it needs a pull-up resistor (4.7 kOhm to the supply). Works together with a "
+                 "microcontroller board, whose firmware makes the timed pulses (microsecond delays).")
+
+
+def ds18b20():
+    symbol, upper = ic_symbol("DS18B20", ["DQ"], [], "VDD", "GND")
+    p = part("ds18b20", "Temperature sensor DS18B20 (1-Wire)",
+             "Digital thermometer on a 1-Wire bus (Maxim DS18B20): reset and presence pulses, the ROM commands "
+             "(read, match, skip, search, alarm search) and the function commands (convert, read and write "
+             "scratchpad, copy, recall, power supply), 9 to 12 bits with conversions of 94 to 750 ms; it reads +85 C "
+             "until the first conversion. Each sensor has its own ROM code (from the serial parameter or its "
+             "designator), so several share a bus. Supply 3-5.5 V on VDD (not parasitic power). " + ONE_WIRE_NOTE,
+             symbol, upper, "ds18b20", device_spice(["DQ"], ["DQ"], supply="VDD"),
+             parameters=[live("temperature", "Temperature", "°C", "25", "-55", "125", "Temperature of the sensor"),
+                         {"name": "serial", "label": "Serial number", "kind": "text", "default": "auto",
+                          "description": "48-bit serial number in hex (auto: from the designator)"}])
+    p["device"].update({"supply_pin": "VDD"})
+    return p
+
+
+def dht22():
+    symbol, upper = ic_symbol("DHT22", ["DATA"], [], "VCC", "GND")
+    return part("dht22", "Humidity sensor DHT22 / DHT11",
+                "Humidity and temperature sensor on one wire (Aosong DHT22/AM2302 or DHT11): the microcontroller pulls "
+                "DATA low for at least 1 ms (18 ms for the DHT11) and releases it; the sensor answers with 80 us low "
+                "and 80 us high, then 40 bits of 50 us low and 26 us (0) or 70 us (1) high: humidity, temperature "
+                "and a checksum. Supply 3.3-5.5 V. " + ONE_WIRE_NOTE,
+                symbol, upper, "dht22", device_spice(["DATA"], ["DATA"]),
+                parameters=[{"name": "model", "label": "Model", "unit": "", "default": "DHT22",
+                             "choices": ["DHT22", "DHT11"],
+                             "description": "DHT22/AM2302 (tenths, -40 to 80 C) or DHT11 (0 to 50 C)"},
+                            live("temperature", "Temperature", "°C", "25", "-40", "80", "Air temperature"),
+                            live("humidity", "Humidity", "%", "50", "0", "100", "Relative humidity of the air")])
+
+
+def hcsr04():
+    symbol, upper = ic_symbol("HC-SR04", ["TRIG", "ECHO"], [], "VCC", "GND")
+    p = part("hcsr04", "Ultrasonic sensor HC-SR04",
+             "Ultrasonic distance module: a pulse of at least 10 us on TRIG starts a measurement; about 0.25 ms later "
+             "ECHO goes high for the round trip of the sound, 58 us per centimetre of the distance set in its "
+             "properties (2 to 400 cm; beyond that 38 ms, no echo). Supply 5 V; ECHO is high at the supply voltage "
+             "(a 5 V-tolerant pin or a divider on a 3.3 V board). Works together with a microcontroller board.",
+             symbol, upper, "hcsr04", device_spice(["TRIG", "ECHO"], ["ECHO"]), driven=["ECHO"],
+             parameters=[live("distance", "Distance", "cm", "100", "2", "450", "Distance to the obstacle")])
+    return p
+
+
+def ws2812():
+    names = ["DIN", "DOUT", "VDD", "GND"]
+    graphics = [{"rect": [-14, -3, 28, 6]}]
+    pins = []
+    for name, x, y, direction in (("DIN", -16, 0, "left"), ("DOUT", 16, 0, "right"), ("VDD", -10, -5, "up"),
+                                  ("GND", -10, 5, "down")):
+        pin = {"name": name, "at": [x, y], "dir": direction}
+        if name == "DOUT":
+            pin["optional"] = True
+        pins.append(pin)
+    graphics += [{"line": [-16, 0, -14, 0]}, {"text": "DIN", "at": [-12.6, -2.2], "size": 0.45},
+                 {"line": [16, 0, 14, 0]}, {"text": "DOUT", "at": [12.4, -2.2], "size": 0.45},
+                 {"line": [-10, -5, -10, -3]}, {"text": "VDD", "at": [-8.4, -2.2], "size": 0.45},
+                 {"line": [-10, 5, -10, 3]}, {"text": "GND", "at": [-8.4, 2.2], "size": 0.45}]
+    del names
+    p = part("ws2812", "RGB LED strip WS2812B",
+             "Strip of WS2812B addressable RGB LEDs (1 to 60): 24 bits per LED on DIN (green, red, blue, MSB first, "
+             "about 800 kHz; a high pulse over 0.6 us is a 1), the first LED takes the first 24 bits; DIN low for "
+             "over 50 us shows the colors and starts again; bits beyond the strip go out on DOUT to the next one. "
+             "The colors appear on the schematic while running. Supply 5 V on VDD and GND (no current drawn by the "
+             "LEDs is simulated). Works together with a microcontroller board, whose firmware makes the 0.4/0.8 us "
+             "pulses.",
+             {"graphics": graphics, "pins": pins}, -3, "ws2812", device_spice(["DIN", "DOUT"], ["DOUT"], supply="VDD"),
+             driven=["DOUT"],
+             parameters=[{"name": "count", "label": "LEDs", "unit": "", "default": "8",
+                          "choices": ["1", "8", "12", "16", "24", "30", "60"], "description": "Number of LEDs"}])
+    p["device"]["supply_pin"] = "VDD"
+    p["category"] = "Displays"
+    p["screen"] = {"rect": [-13, -2, 26, 4], "pixels": True}
+    p["designator_offset"] = [-14, -5]
+    p["value_offset"] = [0, -5]
+    return p
+
+
 MEMORY_SIZES = ["16", "32", "64", "128", "256", "512", "1K", "2K", "4K", "8K", "16K", "32K", "64K"]
 
 
@@ -471,7 +554,7 @@ def main():
         short = json.load(fh)
     for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
               bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306(), mcp3208(), mcp41010(), w25q32(), sdcard(),
-              hx711()]:
+              hx711(), ds18b20(), dht22(), hcsr04(), ws2812()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

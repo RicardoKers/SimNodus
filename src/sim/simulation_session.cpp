@@ -790,6 +790,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             request.pins = candidate.signals;
             request.supply = supply_of(net_of(request.component, device.supply_pin));
             request.parameters["@supply"] = model::spice_number(request.supply); // for chips that measure against it
+            request.parameters["@designator"] = request.designator; // a 1-Wire serial number (SN-225)
             if (request.supply <= 0) {
                 warn(request.designator + " has no supply on " + device.supply_pin
                     + " (a DC source or the board's 3.3 V); it does nothing.");

@@ -52,5 +52,9 @@
   "mcp41010": "SPI digital potentiometer, 10, 50 or 100 kOhm",
   "w25q32": "4 MB SPI flash memory",
   "sdcard": "microSD card in SPI mode, 1 to 64 MB",
-  "hx711": "24-bit A/D converter for load cells"
+  "hx711": "24-bit A/D converter for load cells",
+  "ds18b20": "1-Wire temperature sensor; set the temperature in Properties",
+  "dht22": "One-wire humidity and temperature sensor (DHT22 or DHT11)",
+  "hcsr04": "Ultrasonic distance sensor; set the distance in Properties",
+  "ws2812": "Strip of WS2812B addressable RGB LEDs; colors show on the schematic"
 }

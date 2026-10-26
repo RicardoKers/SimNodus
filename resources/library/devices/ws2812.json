@@ -1,0 +1,169 @@
+{
+  "type": "ws2812",
+  "name": "RGB LED strip WS2812B",
+  "category": "Displays",
+  "prefix": "U",
+  "description": "Strip of WS2812B addressable RGB LEDs; colors show on the schematic",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -14,
+          -3,
+          28,
+          6
+        ]
+      },
+      {
+        "line": [
+          -16,
+          0,
+          -14,
+          0
+        ]
+      },
+      {
+        "text": "DIN",
+        "at": [
+          -12.6,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          16,
+          0,
+          14,
+          0
+        ]
+      },
+      {
+        "text": "DOUT",
+        "at": [
+          12.4,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -10,
+          -5,
+          -10,
+          -3
+        ]
+      },
+      {
+        "text": "VDD",
+        "at": [
+          -8.4,
+          -2.2
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -10,
+          5,
+          -10,
+          3
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -8.4,
+          2.2
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "DIN",
+        "at": [
+          -16,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "DOUT",
+        "at": [
+          16,
+          0
+        ],
+        "dir": "right",
+        "optional": true
+      },
+      {
+        "name": "VDD",
+        "at": [
+          -10,
+          -5
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          -10,
+          5
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    -14,
+    -5
+  ],
+  "value_offset": [
+    0,
+    -5
+  ],
+  "device": {
+    "kind": "ws2812",
+    "supply_pin": "VDD",
+    "ground_pin": "GND",
+    "output_resistance": 50,
+    "driven_pins": [
+      "DOUT"
+    ]
+  },
+  "spice": [
+    "R_{ref}_hdin {node:DIN} {node:GND} 100Meg",
+    "R_{ref}_hdout {node:DOUT} {node:GND} 100Meg",
+    "B_{ref}_dout {node:GND} {node:DOUT} I=V({ext:dout_i})-V({ext:dout_g})*(V({node:DOUT})-V({node:GND}))",
+    "R_{ref}_q {node:VDD} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "count",
+      "label": "LEDs",
+      "unit": "",
+      "default": "8",
+      "choices": [
+        "1",
+        "8",
+        "12",
+        "16",
+        "24",
+        "30",
+        "60"
+      ],
+      "description": "Number of LEDs"
+    }
+  ],
+  "value_parameter": "count",
+  "screen": {
+    "rect": [
+      -13,
+      -2,
+      26,
+      4
+    ],
+    "pixels": true
+  }
+}

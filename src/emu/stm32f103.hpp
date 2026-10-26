@@ -130,6 +130,8 @@ public:
     // inside a run, like the chip's own timers (devices on its nets, SN-204).
     void add_timed(TimedDevice* device) { timed_.push_back(device); }
     void remove_timed(TimedDevice* device) { std::erase(timed_, device); }
+    // A timed device's next event moved earlier while the core runs: the run loop asks again.
+    void timed_schedule_changed() { cpu_.request_stop(); }
     std::uint64_t cycles_at(std::uint64_t ns) const { return cycles_at_ns(ns); }
     std::uint64_t ns_at(std::uint64_t cycles) const { return ns_at_cycles(cycles); }
 

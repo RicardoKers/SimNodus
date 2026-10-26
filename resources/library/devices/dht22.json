@@ -1,0 +1,154 @@
+{
+  "type": "dht22",
+  "name": "Humidity sensor DHT22 / DHT11",
+  "category": "Chips for microcontrollers",
+  "prefix": "U",
+  "description": "One-wire humidity and temperature sensor (DHT22 or DHT11)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -4,
+          -2,
+          8,
+          4
+        ]
+      },
+      {
+        "text": "DHT22",
+        "at": [
+          0,
+          -0.8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -4,
+          0
+        ]
+      },
+      {
+        "text": "DATA",
+        "at": [
+          -2.7,
+          0
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -2
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          0,
+          -1.5
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          1.5
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "DATA",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    5,
+    -3
+  ],
+  "value_offset": [
+    5,
+    3
+  ],
+  "device": {
+    "kind": "dht22",
+    "supply_pin": "VCC",
+    "ground_pin": "GND",
+    "output_resistance": 50
+  },
+  "spice": [
+    "R_{ref}_hdata {node:DATA} {node:GND} 100Meg",
+    "B_{ref}_data {node:GND} {node:DATA} I=V({ext:data_i})-V({ext:data_g})*(V({node:DATA})-V({node:GND}))",
+    "R_{ref}_q {node:VCC} {node:GND} 100k"
+  ],
+  "parameters": [
+    {
+      "name": "model",
+      "label": "Model",
+      "unit": "",
+      "default": "DHT22",
+      "choices": [
+        "DHT22",
+        "DHT11"
+      ],
+      "description": "DHT22/AM2302 (tenths, -40 to 80 C) or DHT11 (0 to 50 C)"
+    },
+    {
+      "name": "temperature",
+      "label": "Temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "80",
+      "live": true,
+      "description": "Air temperature; change it while running to test the circuit"
+    },
+    {
+      "name": "humidity",
+      "label": "Humidity",
+      "unit": "%",
+      "default": "50",
+      "min": "0",
+      "max": "100",
+      "live": true,
+      "description": "Relative humidity of the air; change it while running to test the circuit"
+    }
+  ],
+  "value_parameter": "model"
+}

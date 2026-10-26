@@ -2314,6 +2314,58 @@ Pinos: %2</translation>
             <translation>Temperatura do sensor; altere-a durante a simulação para testar o circuito</translation>
         </message>
         <message>
+            <source>Humidity sensor DHT22 / DHT11</source>
+            <translation>Sensor de umidade DHT22 / DHT11</translation>
+        </message>
+        <message>
+            <source>One-wire humidity and temperature sensor (DHT22 or DHT11)</source>
+            <translation>Sensor de umidade e temperatura de um fio (DHT22 ou DHT11)</translation>
+        </message>
+        <message>
+            <source>Model</source>
+            <translation>Modelo</translation>
+        </message>
+        <message>
+            <source>DHT22/AM2302 (tenths, -40 to 80 C) or DHT11 (0 to 50 C)</source>
+            <translation>DHT22/AM2302 (décimos, -40 a 80 C) ou DHT11 (0 a 50 C)</translation>
+        </message>
+        <message>
+            <source>DHT22</source>
+            <translation>DHT22</translation>
+        </message>
+        <message>
+            <source>DHT11</source>
+            <translation>DHT11</translation>
+        </message>
+        <message>
+            <source>Air temperature; change it while running to test the circuit</source>
+            <translation>Temperatura do ar; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Humidity</source>
+            <translation>Umidade</translation>
+        </message>
+        <message>
+            <source>Relative humidity of the air; change it while running to test the circuit</source>
+            <translation>Umidade relativa do ar; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Temperature sensor DS18B20 (1-Wire)</source>
+            <translation>Sensor de temperatura DS18B20 (1-Wire)</translation>
+        </message>
+        <message>
+            <source>1-Wire temperature sensor; set the temperature in Properties</source>
+            <translation>Sensor de temperatura 1-Wire; defina a temperatura em Propriedades</translation>
+        </message>
+        <message>
+            <source>Serial number</source>
+            <translation>Número de série</translation>
+        </message>
+        <message>
+            <source>48-bit serial number in hex (auto: from the designator)</source>
+            <translation>Número de série de 48 bits em hexadecimal (auto: a partir do designador)</translation>
+        </message>
+        <message>
             <source>Real-time clock DS3231 (I2C)</source>
             <translation>Relógio de tempo real DS3231 (I2C)</translation>
         </message>
@@ -2332,6 +2384,22 @@ Pinos: %2</translation>
         <message>
             <source>Temperature of the chip; change it while running to test the circuit</source>
             <translation>Temperatura do chip; altere-a durante a simulação para testar o circuito</translation>
+        </message>
+        <message>
+            <source>Ultrasonic sensor HC-SR04</source>
+            <translation>Sensor ultrassônico HC-SR04</translation>
+        </message>
+        <message>
+            <source>Ultrasonic distance sensor; set the distance in Properties</source>
+            <translation>Sensor ultrassônico de distância; defina a distância em Propriedades</translation>
+        </message>
+        <message>
+            <source>Distance</source>
+            <translation>Distância</translation>
+        </message>
+        <message>
+            <source>Distance to the obstacle; change it while running to test the circuit</source>
+            <translation>Distância até o obstáculo; altere-a durante a simulação para testar o circuito</translation>
         </message>
         <message>
             <source>Load cell amplifier HX711</source>
@@ -2782,6 +2850,38 @@ Pinos: %2</translation>
             <translation>Conteúdo com que a flash começa cada simulação (.bin ou Intel .hex, guardado relativo ao projeto); vazio: apagada</translation>
         </message>
         <message>
+            <source>RGB LED strip WS2812B</source>
+            <translation>Fita de LEDs RGB WS2812B</translation>
+        </message>
+        <message>
+            <source>Strip of WS2812B addressable RGB LEDs; colors show on the schematic</source>
+            <translation>Fita de LEDs RGB endereçáveis WS2812B; as cores aparecem no esquemático</translation>
+        </message>
+        <message>
+            <source>LEDs</source>
+            <translation>LEDs</translation>
+        </message>
+        <message>
+            <source>Number of LEDs</source>
+            <translation>Número de LEDs</translation>
+        </message>
+        <message>
+            <source>12</source>
+            <translation>12</translation>
+        </message>
+        <message>
+            <source>24</source>
+            <translation>24</translation>
+        </message>
+        <message>
+            <source>30</source>
+            <translation>30</translation>
+        </message>
+        <message>
+            <source>60</source>
+            <translation>60</translation>
+        </message>
+        <message>
             <source>BCD to 7-segment decoder (4511)</source>
             <translation>Decodificador BCD para 7 segmentos (4511)</translation>
         </message>
@@ -2956,10 +3056,6 @@ Pinos: %2</translation>
         <message>
             <source>Operational amplifier (behavioral or a vendor model), powered by V+ and V-</source>
             <translation>Amplificador operacional (comportamental ou modelo de fabricante), alimentado por V+ e V-</translation>
-        </message>
-        <message>
-            <source>Model</source>
-            <translation>Modelo</translation>
         </message>
         <message>
             <source>Behavioral (SimNodus's own model, see the description), or a vendor .subckt from your models folder (Tools &gt; Model Folders), for example an LM358 or TL072</source>

@@ -17,8 +17,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 - SPI chips and the load cell amplifier (SN-224): MCP3208 A/D converter reading the circuit's voltages, MCP41010 digital potentiometer setting a resistance in the circuit, W25Q32 4 MB flash with the datasheet's busy times, microSD card in SPI mode with an image file, HX711. Chips can now read analog pins (`device.analog_pins`) and drive a value inside their part (`device.internal_pins`). Firmware `hal_spi_sensors` and example 39.
 
+- Timed one-wire chips (SN-225): DS18B20 1-Wire thermometer (ROM commands with search, conversions with the datasheet's times), DHT22/DHT11 humidity sensor, HC-SR04 ultrasonic sensor and a strip of WS2812B RGB LEDs whose colors appear on the schematic. Firmware `hal_onewire_sensors` and example 40.
+
 ### Fixed (2026-10-26)
 
+- A chip event scheduled by an input (a 1-Wire presence pulse 30 µs after a reset, an echo after a trigger) happened only at the next 100 µs window; the core now stops for it at its time.
 - `simnodus-cli` no longer stops when a board sends bytes that are not UTF-8 (an erased memory's 0xFF on a serial port): they are replaced in the JSON answer.
 - `project.save` to another folder from `simnodus-cli` now keeps relative firmware and contents paths pointing at the same files, as the window already did.
 

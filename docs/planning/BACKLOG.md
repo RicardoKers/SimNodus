@@ -145,7 +145,7 @@ translation; the order may change with the owner's lessons.
 | SN-222 | Logic chips in DIP packages with VCC and GND pins (no supply, no output): 74HC00/02/04/08/14/32/86, 74HC138, 74HC157, 74HC245, 74HC74 (behavioral SPICE); 74HC161, 74HC193, 74HC165, CD4017 (digital devices); the 74HC595 already exists as a chip for microcontrollers; `tools/generate_logic_chip_parts.py`, example 37 | done 2026-10-26 |
 | SN-223 | I2C chips: BMP280, MPU6050, DS3231, TCS34725, SSD1306 OLED (pixels on the schematic: pixel screens in the library, `screen.pixels`); firmware `hal_i2c_oled`, example 38 | done 2026-10-26 |
 | SN-224 | SPI chips: MCP3208 (inputs read from the circuit: `device.analog_pins`), MCP41010 (a resistance in the circuit: `device.internal_pins`), W25Q32 (Memory Viewer, large memories copied at most every 0.2 s), microSD card (SPI mode, an image file), HX711 with the load cell; firmware `hal_spi_sensors`, example 39 | done 2026-10-26 |
-| SN-225 | Timed one-wire protocols: DS18B20 (1-Wire), DHT22, HC-SR04 (distance set while running), WS2812B strip (colors on the schematic) | todo |
+| SN-225 | Timed one-wire protocols: DS18B20 (1-Wire, search ROM), DHT22/DHT11, HC-SR04 (distance set while running), WS2812B strip (colors on the schematic); device events scheduled from an input now stop the core on time; firmware `hal_onewire_sensors`, example 40 | done 2026-10-26 |
 | SN-226 | Motion: hobby servo (angle from the pulse width), stepper motor with two coils, incremental encoder with push button, L298 dual H-bridge | todo |
 | SN-227 | Power and interface: LM2596 buck regulator (averaged), TL494 PWM controller, MAX485, MAX232 | todo |
 | SN-228 | Sound: active and passive buzzers heard through the computer's speakers | todo |
