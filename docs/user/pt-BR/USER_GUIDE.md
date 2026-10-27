@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 8d709fec958394e4433064beafed45d2b3f4635bbef8bffac8adf97b03fcc220 -->
+<!-- source: USER_GUIDE.md sha256 9200ae5a601b3d6dab1b13a7a9b4fcfa6e8017d7c38306391c017f63f425fefc -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -385,7 +385,12 @@ movimentação.
 - **Vertical:** escala por canal ou **Escala automática**, que põe o 0 V na
   mesma altura para todos os canais da mesma unidade (uma divisão acima da
   base quando os sinais são positivos), para que sejam lidos contra uma só
-  referência. A borda esquerda
+  referência. A escala de um canal começa como **Automático**: ajustada quando
+  chegam dados, e ajustada de novo quando o sinal sai da tela; um canal ainda
+  em 0 V usa a escala dos outros canais da sua unidade. Escolher uma escala ou
+  deslocar o canal à mão a mantém; **Escala automática** torna todos os
+  canais automáticos de novo. Um canal mantém as suas configurações na
+  próxima execução. A borda esquerda
   mostra os volts por divisão do canal selecionado e um triângulo colorido
   no 0 V de cada canal; arraste um triângulo (ou gire a roda sobre a escala)
   para deslocar o canal, e clique duas vezes nele para centralizar o 0 V de
@@ -394,7 +399,10 @@ movimentação.
   gráfico mostra mínimo, máximo, média, RMS, pico a pico, frequência e ciclo
   de trabalho do canal selecionado.
 - **Resultados transitórios** abrem como um registro completo: a roda aplica
-  zoom no eixo do tempo, e arrastar move a vista.
+  zoom no eixo do tempo, e arrastar move a vista. Com uma simulação
+  interativa pausada, ou com a exibição parada, o mesmo vale para o histórico
+  retido, no osciloscópio e nas faixas do Lógico: amplie uma transição para
+  ver o seu detalhe. Executar de novo volta à exibição ao vivo.
 - **Exportar CSV** grava os canais visíveis (a primeira linha diz como os
   dados foram calculados); **Exportar PNG** salva o gráfico.
 

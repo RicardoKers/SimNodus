@@ -136,6 +136,8 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
     connect(scope_, &ScopeWidget::offset_changed, this, [this](int index, double offset) {
         if (index >= 0 && static_cast<std::size_t>(index) < offsets_.size()) {
             offsets_[static_cast<std::size_t>(index)] = offset;
+            automatic_[static_cast<std::size_t>(index)] = false; // placed by hand: Autoscale no longer moves it
+            show_scale(static_cast<std::size_t>(index));
         }
     });
     connect(timebase_, &QComboBox::currentIndexChanged, this, [this](int index) {
@@ -149,6 +151,7 @@ AnalyzerWindow::AnalyzerWindow(QWidget* parent) : QMainWindow(parent)
 QWidget* AnalyzerWindow::build_controls()
 {
     auto* panel = new QWidget;
+    controls_ = panel;
     panel->setObjectName(QStringLiteral("analyzerControls"));
     auto* layout = new QVBoxLayout(panel);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -227,19 +230,38 @@ void AnalyzerWindow::set_controller(RunController* controller)
 
 void AnalyzerWindow::rebuild_channel_list()
 {
+    // A channel of the same name keeps its settings from the run before.
+    std::map<QString, ChannelView> before;
+    for (const auto& view : channel_views()) {
+        before[view.name] = view;
+    }
+    const QString trigger_name = trigger_source_->currentText();
     const QSignalBlocker blocker(channels_);
     channels_->clear();
     trigger_source_->clear();
     const auto& channels = controller_ ? controller_->channels() : std::vector<Channel>{};
     channel_count_ = channels.size();
+    channel_names_.clear();
+    for (const auto& ch : channels) {
+        channel_names_.push_back({ch.name, ch.unit});
+    }
     autoscale_pending_ = true;
     scales_.assign(channels.size(), 1.0);
     offsets_.assign(channels.size(), 0.0);
     visible_.assign(channels.size(), true);
+    automatic_.assign(channels.size(), true);
+    for (std::size_t i = 0; i < channels.size(); ++i) {
+        if (const auto kept = before.find(channels[i].name); kept != before.end()) {
+            visible_[i] = kept->second.visible;
+            automatic_[i] = kept->second.automatic;
+            scales_[i] = kept->second.per_division;
+            offsets_[i] = kept->second.offset;
+        }
+    }
     for (std::size_t i = 0; i < channels.size(); ++i) {
         const auto& ch = channels[i];
         auto* item = new QTreeWidgetItem(channels_, {ch.name, QString()});
-        item->setCheckState(0, Qt::Checked);
+        item->setCheckState(0, visible_[i] ? Qt::Checked : Qt::Unchecked);
         QPixmap swatch(12, 12);
         swatch.fill(ch.color);
         item->setIcon(0, QIcon(swatch));
@@ -248,20 +270,29 @@ void AnalyzerWindow::rebuild_channel_list()
             item->setForeground(0, QColor(0xb4, 0x23, 0x18));
         }
         auto* scale = new QComboBox;
+        scale->addItem(tr("Auto"), 0.0);
         for (double s : scale_steps) {
             scale->addItem(quantity(s, ch.unit) + tr("/div"), s);
         }
-        scale->setCurrentIndex(scale->findData(1.0));
-        scale->setToolTip(tr("Volts or amperes per division; drag the channel's 0 V marker on the left of the "
-                             "scope to move it up or down, double-click it to center 0 V"));
+        scale->setCurrentIndex(0);
+        scale->setToolTip(tr("Volts or amperes per division; Auto fits the signal and follows it when it leaves "
+                             "the screen. Drag the channel's 0 V marker on the left of the scope to move it up "
+                             "or down, double-click it to center 0 V"));
         connect(scale, &QComboBox::activated, this, [this, i, scale](int) {
             if (i < scales_.size()) {
-                scales_[i] = scale->currentData().toDouble();
-                QTimer::singleShot(0, this, &AnalyzerWindow::refresh); // refresh may delete this box
+                const double chosen = scale->currentData().toDouble();
+                // Deferred: refresh may delete this box.
+                QTimer::singleShot(0, this, [this, i, chosen] {
+                    set_channel_scale(static_cast<int>(i), chosen > 0 ? std::optional<double>(chosen) : std::nullopt);
+                });
             }
         });
         channels_->setItemWidget(item, 1, scale);
         trigger_source_->addItem(ch.name);
+        show_scale(i);
+    }
+    if (const int index = trigger_source_->findText(trigger_name); index >= 0) {
+        trigger_source_->setCurrentIndex(index);
     }
     if (channels_->topLevelItemCount() > 0) {
         channels_->setCurrentItem(channels_->topLevelItem(0));
@@ -404,6 +435,8 @@ QWidget* AnalyzerWindow::build_logic_page()
         scope_->set_cursor(index, time);
         update_transitions();
     });
+    // The wheel and dragging on the lanes zoom and pan the shared time window.
+    connect(logic_, &LogicWidget::window_requested, this, &AnalyzerWindow::set_time_window);
     return page;
 }
 
@@ -455,7 +488,7 @@ void AnalyzerWindow::refresh_logic()
         auto lane_data = controller_->lane_data(lane, from, threshold_->value());
         if (item->checkState() != Qt::Checked) {
             // Not chosen by the user yet: board pins appear once they change.
-            if (lane.channel >= 0 || (lane_data.changes.empty() && !auto_shown_.count(lane.title))) {
+            if (lanes_fixed_ || lane.channel >= 0 || (lane_data.changes.empty() && !auto_shown_.count(lane.title))) {
                 continue;
             }
             auto_shown_.insert(lane.title);
@@ -493,8 +526,16 @@ void AnalyzerWindow::refresh_scope()
     if (controller_->channels().size() != channel_count_) {
         rebuild_channel_list();
     }
-    if (record_mode_) {
-        // The record does not change: redraw only when the window moved.
+
+    const bool still = frozen();
+    scope_->set_navigation_enabled(record_mode_ || still);
+    logic_->set_navigation_enabled(record_mode_ || still);
+    if (record_mode_ || still) {
+        // The data in the window does not change (a record) or need not follow
+        // (a paused run, a stopped display): redraw only when the window moved.
+        if (still && !display_run_->isChecked()) {
+            scope_->set_trigger_state(tr("Paused: the wheel zooms the time axis, dragging pans it"));
+        }
         const std::pair<double, double> window{scope_->window_start(), scope_->window_end()};
         if (last_window_ != window || scope_->traces().empty()) {
             last_window_ = window;
@@ -514,9 +555,7 @@ void AnalyzerWindow::refresh_scope()
         update_measurements();
         return;
     }
-    if (display_run_->isChecked()) {
-        return; // display stopped; acquisition continues
-    }
+    last_window_.reset(); // a display that freezes collects its window again
     const auto status = controller_->status();
     const double now = status.sim_time;
     const double div = timebase_->currentData().toDouble();
@@ -580,7 +619,11 @@ void AnalyzerWindow::refresh_scope()
         scope_->set_traces(std::move(traces));
         if (autoscale_pending_ && has_data && now > span * 0.5) {
             autoscale_pending_ = false;
-            autoscale();
+            fit_scales();
+            return;
+        }
+        if (!autoscale_pending_ && automatic_off_screen()) {
+            fit_scales(); // a signal grew beyond the screen: its automatic scale follows
             return;
         }
     }
@@ -589,10 +632,49 @@ void AnalyzerWindow::refresh_scope()
 
 void AnalyzerWindow::autoscale()
 {
+    std::fill(automatic_.begin(), automatic_.end(), true);
+    for (std::size_t i = 0; i < automatic_.size(); ++i) {
+        show_scale(i);
+    }
+    fit_scales();
+}
+
+bool AnalyzerWindow::frozen() const
+{
+    return !record_mode_ && controller_
+        && (display_run_->isChecked() || controller_->state() == sim::RunState::Paused);
+}
+
+bool AnalyzerWindow::automatic_off_screen() const
+{
+    // The thinned traces keep each column's lowest and highest value.
+    const double half = ScopeWidget::vertical_divisions / 2.0;
+    const auto& traces = scope_->traces();
+    for (std::size_t i = 0; i < traces.size() && i < automatic_.size(); ++i) {
+        if (!automatic_[i] || !visible_[i]) {
+            continue;
+        }
+        const double top = offsets_[i] + half * scales_[i];
+        const double bottom = offsets_[i] - half * scales_[i];
+        const double margin = 0.05 * scales_[i];
+        for (const auto& sample : traces[i].samples) {
+            if (sample.time >= scope_->window_start() && sample.time <= scope_->window_end()
+                && (sample.value > top + margin || sample.value < bottom - margin)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void AnalyzerWindow::fit_scales()
+{
     // Channels of one unit put 0 V at the same height (SN-233), so that a
     // signal and its filtered copy read against one reference: one division
     // above the bottom when all are positive, below the top when all are
-    // negative, the center otherwise. Each channel keeps its own scale.
+    // negative, the center otherwise. Each channel keeps its own scale, except
+    // one without range (a logic output still at 0 V): it takes its unit's
+    // range, or 1 V (1 mA) per division when no channel of the unit has one.
     const auto traces = collect(scope_->window_start(), scope_->window_end());
     const auto channels = controller_ ? controller_->channels() : std::vector<Channel>{};
     std::vector<std::optional<sim::Measurements>> measured(traces.size());
@@ -608,29 +690,285 @@ void AnalyzerWindow::autoscale()
     const double half = ScopeWidget::vertical_divisions / 2.0;
     for (std::size_t i = 0; i < traces.size() && i < scales_.size(); ++i) {
         const auto& m = measured[i];
-        if (!m) {
+        if (!m || !automatic_[i]) {
             continue;
         }
-        const auto [lowest, highest] = ranges[unit_of(i)];
-        const double tolerance = 0.02 * std::max(std::abs(lowest), std::abs(highest));
+        const QString unit = unit_of(i);
+        const bool amperes = unit == QStringLiteral("A");
+        const auto [lowest, highest] = ranges[unit];
+        const double widest = std::max(std::abs(lowest), std::abs(highest));
+        const double tolerance = 0.02 * widest;
+        const double nothing = amperes ? 1e-9 : 1e-6;
+        double low = m->min;
+        double high = m->max;
+        if (std::max(std::abs(low), std::abs(high)) <= std::max(nothing, 1e-3 * widest)) {
+            low = lowest; // no range of its own: its unit's
+            high = highest;
+        }
         double zero = 0.0; // divisions of 0 V below the center
-        double extent = std::max({std::abs(m->max), std::abs(m->min), 1e-9});
+        double extent = std::max(std::abs(high), std::abs(low));
         if (lowest >= -tolerance) {
             zero = half - 1.0;
-            extent = std::max(m->max, 1e-9);
+            extent = high;
         } else if (highest <= tolerance) {
             zero = -(half - 1.0);
-            extent = std::max(-m->min, 1e-9);
+            extent = -low;
         }
-        scales_[i] = nice_division(extent / (half + std::abs(zero) - 0.5));
+        scales_[i] = widest <= nothing ? (amperes ? 1e-3 : 1.0)
+                                       : nice_division(std::max(extent, nothing) / (half + std::abs(zero) - 0.5));
         offsets_[i] = zero * scales_[i];
-        if (auto* box = qobject_cast<QComboBox*>(channels_->itemWidget(channels_->topLevelItem(static_cast<int>(i)), 1))) {
-            const int index = box->findData(scales_[i]);
-            if (index >= 0) {
-                box->setCurrentIndex(index);
-            }
+    }
+    refresh();
+}
+
+void AnalyzerWindow::show_scale(std::size_t index)
+{
+    auto* item = channels_->topLevelItem(static_cast<int>(index));
+    auto* box = item ? qobject_cast<QComboBox*>(channels_->itemWidget(item, 1)) : nullptr;
+    if (!box || index >= scales_.size()) {
+        return;
+    }
+    const QSignalBlocker blocker(box);
+    if (automatic_[index]) {
+        box->setCurrentIndex(0);
+        return;
+    }
+    int found = box->findData(scales_[index]);
+    if (found < 0) {
+        // A scale that is not a step of the list (set by a command): an extra item.
+        const auto& channels = controller_->channels();
+        const QString unit = index < channels.size() ? channels[index].unit : QString();
+        box->addItem(quantity(scales_[index], unit) + tr("/div"), scales_[index]);
+        found = box->count() - 1;
+    }
+    box->setCurrentIndex(found);
+}
+
+int AnalyzerWindow::channel_index(const QString& name) const
+{
+    if (!controller_) {
+        return -1;
+    }
+    const auto& channels = controller_->channels();
+    for (std::size_t i = 0; i < channels.size(); ++i) {
+        if (channels[i].name.compare(name, Qt::CaseInsensitive) == 0) {
+            return static_cast<int>(i);
         }
     }
+    return -1;
+}
+
+void AnalyzerWindow::set_tab(int index)
+{
+    tabs_->setCurrentIndex(std::clamp(index, 0, tabs_->count() - 1));
+    refresh();
+}
+
+void AnalyzerWindow::set_timebase(double seconds_per_division)
+{
+    const auto distance = [&](int k) {
+        return std::abs(std::log(timebase_->itemData(k).toDouble() / seconds_per_division));
+    };
+    int best = 0;
+    for (int i = 1; i < timebase_->count(); ++i) {
+        if (distance(i) < distance(best)) {
+            best = i;
+        }
+    }
+    timebase_->setCurrentIndex(best);
+}
+
+double AnalyzerWindow::timebase_value() const
+{
+    return timebase_->currentData().toDouble();
+}
+
+void AnalyzerWindow::set_triggered(bool triggered)
+{
+    mode_->setCurrentIndex(triggered ? 1 : 0);
+}
+
+bool AnalyzerWindow::triggered() const
+{
+    return mode_->currentIndex() == 1;
+}
+
+void AnalyzerWindow::set_trigger(int source, std::optional<double> level, std::optional<bool> rising, int sweep)
+{
+    if (source >= 0 && source < trigger_source_->count()) {
+        trigger_source_->setCurrentIndex(source);
+    }
+    if (level) {
+        trigger_level_->setValue(*level);
+    }
+    if (rising) {
+        trigger_slope_->setCurrentIndex(*rising ? 0 : 1);
+    }
+    if (sweep >= 0 && sweep <= 2) {
+        trigger_sweep_->setCurrentIndex(sweep);
+    }
+}
+
+AnalyzerWindow::TriggerView AnalyzerWindow::trigger() const
+{
+    return {trigger_source_->currentIndex(), trigger_level_->value(), trigger_slope_->currentIndex() == 0,
+        trigger_sweep_->currentIndex()};
+}
+
+void AnalyzerWindow::set_cursor_positions(bool enabled, std::optional<double> a, std::optional<double> b)
+{
+    cursors_->setChecked(enabled); // first: turning on brings cursors into the window
+    if (a) {
+        scope_->set_cursor(0, *a);
+    }
+    if (b) {
+        scope_->set_cursor(1, *b);
+    }
+}
+
+void AnalyzerWindow::select_channel(int index)
+{
+    if (auto* item = channels_->topLevelItem(index)) {
+        channels_->setCurrentItem(item);
+    }
+}
+
+int AnalyzerWindow::selected_channel() const
+{
+    return channels_->indexOfTopLevelItem(channels_->currentItem());
+}
+
+void AnalyzerWindow::set_channel_visible(int index, bool visible)
+{
+    if (auto* item = channels_->topLevelItem(index)) {
+        item->setCheckState(0, visible ? Qt::Checked : Qt::Unchecked); // itemChanged updates visible_
+    }
+}
+
+void AnalyzerWindow::set_channel_scale(int index, std::optional<double> per_division)
+{
+    if (index < 0 || static_cast<std::size_t>(index) >= scales_.size()) {
+        return;
+    }
+    const auto i = static_cast<std::size_t>(index);
+    automatic_[i] = !per_division;
+    if (per_division) {
+        scales_[i] = *per_division;
+    }
+    show_scale(i);
+    per_division ? refresh() : fit_scales();
+}
+
+void AnalyzerWindow::set_channel_offset(int index, double offset)
+{
+    if (index < 0 || static_cast<std::size_t>(index) >= offsets_.size()) {
+        return;
+    }
+    offsets_[static_cast<std::size_t>(index)] = offset;
+    automatic_[static_cast<std::size_t>(index)] = false;
+    show_scale(static_cast<std::size_t>(index));
+    refresh();
+}
+
+std::vector<AnalyzerWindow::ChannelView> AnalyzerWindow::channel_views() const
+{
+    std::vector<ChannelView> views;
+    for (std::size_t i = 0; i < channel_names_.size() && i < scales_.size(); ++i) {
+        views.push_back({channel_names_[i].first, channel_names_[i].second, visible_[i], automatic_[i], scales_[i],
+            offsets_[i]});
+    }
+    return views;
+}
+
+void AnalyzerWindow::set_lanes(const QStringList& titles)
+{
+    // Every lane known so far is unchosen, so that board pins no longer appear by themselves.
+    for (auto& entry : lane_choice_) {
+        entry.second = false;
+    }
+    for (const auto& lane : available_lanes()) {
+        lane_choice_[lane] = false;
+    }
+    for (const auto& title : titles) {
+        lane_choice_[title] = true;
+    }
+    lanes_fixed_ = true;
+    logic_lanes_.clear(); // the list is built again from the choices
+    if (controller_) {
+        refresh_logic();
+    }
+}
+
+void AnalyzerWindow::set_automatic_lanes()
+{
+    lane_choice_.clear();
+    auto_shown_.clear();
+    lanes_fixed_ = false;
+    logic_lanes_.clear();
+    if (controller_) {
+        refresh_logic();
+    }
+}
+
+QStringList AnalyzerWindow::shown_lanes() const
+{
+    QStringList shown;
+    for (const auto& lane : logic_->lanes()) {
+        shown << lane.title;
+    }
+    return shown;
+}
+
+QStringList AnalyzerWindow::available_lanes() const
+{
+    QStringList titles;
+    if (controller_) {
+        for (const auto& lane : controller_->logic_lanes()) {
+            titles << lane.title;
+        }
+    }
+    return titles;
+}
+
+void AnalyzerWindow::set_threshold(double volts)
+{
+    threshold_->setValue(volts);
+}
+
+double AnalyzerWindow::threshold() const
+{
+    return threshold_->value();
+}
+
+void AnalyzerWindow::set_controls_visible(bool visible)
+{
+    controls_->setVisible(visible);
+}
+
+bool AnalyzerWindow::controls_visible() const
+{
+    return !controls_->isHidden();
+}
+
+void AnalyzerWindow::set_display_stopped(bool stopped)
+{
+    display_run_->setChecked(stopped);
+}
+
+bool AnalyzerWindow::display_stopped() const
+{
+    return display_run_->isChecked();
+}
+
+bool AnalyzerWindow::navigable() const
+{
+    return record_mode_ || frozen();
+}
+
+void AnalyzerWindow::set_time_window(double start, double end)
+{
+    scope_->set_window(start, end);
+    measurements_due_ = true;
     refresh();
 }
 

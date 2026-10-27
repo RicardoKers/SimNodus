@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-27)
+
+- `analyzer.set` and `analyzer.autoscale` control the Signal Analyzer from `simnodus-cli connect` and MCP: tab, timebase, roll or triggered mode, trigger source, level, slope and sweep, cursors and their positions, the selected channel, per channel visibility, scale and offset, the Logic tab's lanes (voltage probes included, without ticking them by hand) and threshold, the side panel (hidden, the plot fills the window), a stopped display and the time window; the reply lists every setting (SN-234).
+- While an interactive run is paused or the display is stopped, the mouse wheel zooms the time axis around the pointer and dragging pans it, on the scope and on the Logic lanes, over the retained history (SN-236).
+
+### Changed (2026-10-27)
+
+- A channel's scale starts as Auto: fitted once data arrives and again when its signal leaves the screen. A channel without range (a logic output still at 0 V) takes the scale of the other channels of its unit, or 1 V/div, instead of a tiny one. Choosing a scale or moving the channel by hand keeps it; Autoscale makes every channel Auto again. Channels keep their settings in the next run (SN-235).
+
 ### Changed (2026-10-26)
 
 - A new value of a part simulated by ngspice (a resistor, a capacitor, a source's voltage) applies at once in an interactive run: the run ends its segment there and continues from the present state with the value, as at a segment boundary. Values that change the circuit's elements or nodes, boards and transient runs still apply at the next run (SN-232).

@@ -226,8 +226,8 @@
             <translation>/div</translation>
         </message>
         <message>
-            <source>Volts or amperes per division; drag the channel's 0 V marker on the left of the scope to move it up or down, double-click it to center 0 V</source>
-            <translation>Volts ou ampères por divisão; arraste o marcador de 0 V do canal, à esquerda do osciloscópio, para movê-lo para cima ou para baixo; clique duas vezes nele para centralizar o 0 V</translation>
+            <source>Volts or amperes per division; Auto fits the signal and follows it when it leaves the screen. Drag the channel's 0 V marker on the left of the scope to move it up or down, double-click it to center 0 V</source>
+            <translation>Volts ou ampères por divisão; Auto ajusta o sinal e o acompanha quando ele sai da tela. Arraste o marcador de 0 V do canal, à esquerda do osciloscópio, para movê-lo para cima ou para baixo; clique duas vezes nele para centralizar o 0 V</translation>
         </message>
         <message>
             <source>Retained history: the last 200 000 samples of each channel (about %1 at the current time step).</source>
@@ -264,6 +264,10 @@
         <message>
             <source>   1/Δt (frequency) %1</source>
             <translation>   1/Δt (frequência) %1</translation>
+        </message>
+        <message>
+            <source>Paused: the wheel zooms the time axis, dragging pans it</source>
+            <translation>Pausado: a roda do mouse amplia o eixo do tempo, arrastar o desloca</translation>
         </message>
         <message>
             <source>Triggered at %1s</source>

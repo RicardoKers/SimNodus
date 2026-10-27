@@ -12,6 +12,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QToolTip>
+#include <QWheelEvent>
 
 #include <algorithm>
 #include <cmath>
@@ -189,6 +190,13 @@ int LogicWidget::cursor_near(double x) const
 void LogicWidget::mousePressEvent(QMouseEvent* event)
 {
     dragging_cursor_ = event->button() == Qt::LeftButton ? cursor_near(event->position().x()) : -1;
+    if (dragging_cursor_ < 0 && navigation_ && event->button() == Qt::LeftButton) {
+        panning_ = true;
+        pan_origin_x_ = event->position().x();
+        pan_origin_start_ = start_;
+        pan_span_ = end_ - start_;
+        setCursor(Qt::ClosedHandCursor);
+    }
     QWidget::mousePressEvent(event);
 }
 
@@ -201,8 +209,11 @@ void LogicWidget::mouseMoveEvent(QMouseEvent* event)
         (dragging_cursor_ == 0 ? cursor_a_ : cursor_b_) = t;
         update();
         emit cursor_moved(dragging_cursor_, t);
+    } else if (panning_) {
+        const double start = pan_origin_start_ + (pan_origin_x_ - x) / plot_rect().width() * pan_span_;
+        emit window_requested(start, start + pan_span_);
     } else {
-        setCursor(cursor_near(x) >= 0 ? Qt::SizeHorCursor : Qt::ArrowCursor);
+        setCursor(cursor_near(x) >= 0 ? Qt::SizeHorCursor : (navigation_ ? Qt::OpenHandCursor : Qt::ArrowCursor));
     }
     QWidget::mouseMoveEvent(event);
 }
@@ -210,7 +221,28 @@ void LogicWidget::mouseMoveEvent(QMouseEvent* event)
 void LogicWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     dragging_cursor_ = -1;
+    if (panning_) {
+        panning_ = false;
+        setCursor(Qt::OpenHandCursor);
+    }
     QWidget::mouseReleaseEvent(event);
+}
+
+void LogicWidget::wheelEvent(QWheelEvent* event)
+{
+    if (!navigation_ || event->position().x() < plot_rect().left()) {
+        QWidget::wheelEvent(event);
+        return;
+    }
+    // As on the scope: each step shows 80 % of the window around the pointer.
+    const double factor = std::pow(0.8, event->angleDelta().y() / 120.0);
+    const double at = time_at(event->position().x());
+    const double start = at - (at - start_) * factor;
+    const double end = at + (end_ - at) * factor;
+    if (end - start > 1e-12) {
+        emit window_requested(start, end);
+    }
+    event->accept();
 }
 
 bool LogicWidget::event(QEvent* event)

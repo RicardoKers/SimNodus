@@ -10,6 +10,7 @@
 
 #include "analyzer_window.hpp"
 #include "io/project_file.hpp"
+#include "model/engineering.hpp"
 
 #include <QDir>
 #include <QEvent>
@@ -17,6 +18,7 @@
 #include <QFile>
 #include <QGraphicsItem>
 #include <QLabel>
+#include <QTabWidget>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QStatusBar>
@@ -78,6 +80,35 @@ double number(const json& args, const char* key, double fallback)
         }
     }
     throw Error{"invalid-argument", std::string("Argument \"") + key + "\" must be a number."};
+}
+
+// A quantity from a request: a number, or text with an SI prefix ("2m", "500u").
+double quantity(const json& value, const std::string& key, std::string_view unit)
+{
+    if (value.is_number()) {
+        return value.get<double>();
+    }
+    if (value.is_string()) {
+        if (const auto parsed = model::parse_engineering(value.get<std::string>(), unit)) {
+            return *parsed;
+        }
+    }
+    throw Error{"invalid-argument", "Argument \"" + key + "\" must be a number, or text such as \"2m\"."};
+}
+
+// The position of `text` among `options`.
+int choice(const std::string& text, std::initializer_list<const char*> options, const std::string& key)
+{
+    int index = 0;
+    std::string list;
+    for (const char* option : options) {
+        if (text == option) {
+            return index;
+        }
+        list += (list.empty() ? "" : ", ") + std::string(option);
+        ++index;
+    }
+    throw Error{"invalid-argument", "Argument \"" + key + "\" must be one of: " + list + "."};
 }
 
 // Only component parameters change: a running simulation can take them (SN-207).
@@ -594,7 +625,287 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             }
             return json{{"shown", window_.analyzer()->isVisible()}};
         }});
+    a->extend({"analyzer.set",
+        "Changes the Signal Analyzer's settings (all optional) and answers with all of them: the tab, the timebase, "
+        "roll or triggered mode, the trigger, cursors, the selected channel, per channel visibility, scale and "
+        "offset, the Logic tab's lanes and threshold, the side panel, a stopped display and the time window of a "
+        "paused run.",
+        json{{"tab", "scope | logic | uart"}, {"timebase", "\"1m\" (seconds per division)"},
+            {"mode", "roll | triggered"},
+            {"trigger", "{\"source\": \"V(OUT)\", \"level\": 2.5, \"slope\": \"rising\", \"sweep\": \"auto | normal | single\"}"},
+            {"cursors", "false, true or [a, b] in seconds"}, {"select", "\"V(OUT)\""},
+            {"channels", "{\"V(OUT)\": {\"visible\": true, \"scale\": \"2 or auto\", \"offset\": 0}}"},
+            {"lanes", "[\"U1.PA5\", \"V(OUT)\"] or \"auto\""}, {"threshold", "1.65"}, {"panel", "true"},
+            {"display", "run | stop"}, {"window", "[from, to] seconds, when paused or stopped"}},
+        [this](const json& args) { return analyzer_set(args); }});
+    a->extend({"analyzer.autoscale", "Fits every channel's scale to its signal (the Autoscale button); the scales then "
+                                     "follow a signal that leaves the screen.",
+        json::object(), [this](const json&) {
+            window_.analyzer()->autoscale();
+            return analyzer_state();
+        }});
     return a;
+}
+
+json ControlServer::analyzer_state() const
+{
+    const auto* analyzer = window_.analyzer();
+    static const char* const tabs[] = {"scope", "logic", "uart"};
+    static const char* const sweeps[] = {"auto", "normal", "single"};
+    const auto views = analyzer->channel_views();
+    json channels = json::array();
+    for (const auto& view : views) {
+        channels.push_back({{"name", view.name.toStdString()}, {"unit", view.unit.toStdString()},
+            {"visible", view.visible}, {"scale", view.per_division}, {"auto", view.automatic},
+            {"offset", view.offset}});
+    }
+    const auto trigger = analyzer->trigger();
+    const int selected = analyzer->selected_channel();
+    const auto names = [](const QStringList& list) {
+        json out = json::array();
+        for (const auto& item : list) {
+            out.push_back(item.toStdString());
+        }
+        return out;
+    };
+    const auto* scope = analyzer->scope();
+    return json{{"shown", analyzer->isVisible()}, {"tab", tabs[std::clamp(analyzer->tabs()->currentIndex(), 0, 2)]},
+        {"timebase", analyzer->timebase_value()}, {"mode", analyzer->triggered() ? "triggered" : "roll"},
+        {"trigger",
+            {{"source", trigger.source >= 0 && static_cast<std::size_t>(trigger.source) < views.size()
+                        ? json(views[static_cast<std::size_t>(trigger.source)].name.toStdString())
+                        : json()},
+                {"level", trigger.level}, {"slope", trigger.rising ? "rising" : "falling"},
+                {"sweep", sweeps[std::clamp(trigger.sweep, 0, 2)]}}},
+        {"cursors", {{"on", scope->cursors_enabled()}, {"a", scope->cursor(0)}, {"b", scope->cursor(1)}}},
+        {"select", selected >= 0 && static_cast<std::size_t>(selected) < views.size()
+                ? json(views[static_cast<std::size_t>(selected)].name.toStdString())
+                : json()},
+        {"channels", channels}, {"lanes", names(analyzer->shown_lanes())},
+        {"available_lanes", names(analyzer->available_lanes())}, {"threshold", analyzer->threshold()},
+        {"panel", analyzer->controls_visible()}, {"display", analyzer->display_stopped() ? "stop" : "run"},
+        {"window", {scope->window_start(), scope->window_end()}}, {"navigable", analyzer->navigable()}};
+}
+
+json ControlServer::analyzer_set(const json& args)
+{
+    auto* analyzer = window_.analyzer();
+    // Read every argument first: a wrong one changes nothing.
+    const auto text = [&args](const char* key) -> std::optional<std::string> {
+        const auto it = args.find(key);
+        if (it == args.end() || it->is_null()) {
+            return std::nullopt;
+        }
+        if (!it->is_string()) {
+            throw Error{"invalid-argument", std::string("Argument \"") + key + "\" must be text."};
+        }
+        return it->get<std::string>();
+    };
+    const auto flag = [&args](const char* key) -> std::optional<bool> {
+        const auto it = args.find(key);
+        if (it == args.end() || it->is_null()) {
+            return std::nullopt;
+        }
+        if (!it->is_boolean()) {
+            throw Error{"invalid-argument", std::string("Argument \"") + key + "\" must be true or false."};
+        }
+        return it->get<bool>();
+    };
+    const auto channel = [analyzer](const json& name, const std::string& key) {
+        const int index = name.is_string() ? analyzer->channel_index(QString::fromStdString(name.get<std::string>())) : -1;
+        if (index < 0) {
+            std::string known;
+            for (const auto& view : analyzer->channel_views()) {
+                known += (known.empty() ? "" : ", ") + view.name.toStdString();
+            }
+            throw Error{"not-found", "No channel " + name.dump() + " in \"" + key + "\"; "
+                    + (known.empty() ? "the channels appear when a run with probes starts." : "channels: " + known + ".")};
+        }
+        return index;
+    };
+
+    std::optional<int> tab;
+    if (const auto t = text("tab")) {
+        tab = choice(*t, {"scope", "logic", "uart"}, "tab");
+    }
+    std::optional<double> timebase;
+    if (const auto it = args.find("timebase"); it != args.end() && !it->is_null()) {
+        timebase = quantity(*it, "timebase", "s");
+        if (*timebase <= 0) {
+            throw Error{"invalid-argument", "Argument \"timebase\" must be more than 0."};
+        }
+    }
+    std::optional<bool> triggered;
+    if (const auto m = text("mode")) {
+        triggered = choice(*m, {"roll", "triggered"}, "mode") == 1;
+    }
+    int source = -1;
+    int sweep = -1;
+    std::optional<double> level;
+    std::optional<bool> rising;
+    if (const auto it = args.find("trigger"); it != args.end() && !it->is_null()) {
+        if (!it->is_object()) {
+            throw Error{"invalid-argument", "Argument \"trigger\" must be an object."};
+        }
+        if (it->contains("source")) {
+            source = channel((*it)["source"], "trigger");
+        }
+        if (it->contains("level")) {
+            level = quantity((*it)["level"], "trigger.level", "V");
+        }
+        if (it->contains("slope")) {
+            rising = choice((*it)["slope"].is_string() ? (*it)["slope"].get<std::string>() : std::string(),
+                         {"rising", "falling"}, "trigger.slope")
+                == 0;
+        }
+        if (it->contains("sweep")) {
+            sweep = choice((*it)["sweep"].is_string() ? (*it)["sweep"].get<std::string>() : std::string(),
+                {"auto", "normal", "single"}, "trigger.sweep");
+        }
+    }
+    std::optional<bool> cursors;
+    std::optional<double> cursor_a;
+    std::optional<double> cursor_b;
+    if (const auto it = args.find("cursors"); it != args.end() && !it->is_null()) {
+        if (it->is_boolean()) {
+            cursors = it->get<bool>();
+        } else if (it->is_array() && it->size() == 2) {
+            cursors = true;
+            cursor_a = quantity((*it)[0], "cursors", "s");
+            cursor_b = quantity((*it)[1], "cursors", "s");
+        } else {
+            throw Error{"invalid-argument", "Argument \"cursors\" must be true, false or [a, b] in seconds."};
+        }
+    }
+    std::optional<int> select;
+    if (const auto it = args.find("select"); it != args.end() && !it->is_null()) {
+        select = channel(*it, "select");
+    }
+    struct ChannelChange {
+        int index = -1;
+        std::optional<bool> visible;
+        bool scale_given = false;
+        std::optional<double> scale; // nullopt with scale_given: automatic
+        std::optional<double> offset;
+    };
+    std::vector<ChannelChange> changes;
+    if (const auto it = args.find("channels"); it != args.end() && !it->is_null()) {
+        if (!it->is_object()) {
+            throw Error{"invalid-argument", "Argument \"channels\" must map channel names to settings."};
+        }
+        for (const auto& [name, settings] : it->items()) {
+            ChannelChange change;
+            change.index = channel(json(name), "channels");
+            if (!settings.is_object()) {
+                throw Error{"invalid-argument", "The settings of channel \"" + name + "\" must be an object."};
+            }
+            if (settings.contains("visible")) {
+                if (!settings["visible"].is_boolean()) {
+                    throw Error{"invalid-argument", "\"visible\" of channel \"" + name + "\" must be true or false."};
+                }
+                change.visible = settings["visible"].get<bool>();
+            }
+            if (settings.contains("scale")) {
+                change.scale_given = true;
+                const auto& scale = settings["scale"];
+                if (!(scale.is_string() && scale.get<std::string>() == "auto")) {
+                    change.scale = quantity(scale, "scale", "");
+                    if (*change.scale <= 0) {
+                        throw Error{"invalid-argument", "\"scale\" of channel \"" + name + "\" must be more than 0."};
+                    }
+                }
+            }
+            if (settings.contains("offset")) {
+                change.offset = quantity(settings["offset"], "offset", "");
+            }
+            changes.push_back(change);
+        }
+    }
+    std::optional<QStringList> lanes;
+    bool automatic_lanes = false;
+    if (const auto it = args.find("lanes"); it != args.end() && !it->is_null()) {
+        if (it->is_string() && it->get<std::string>() == "auto") {
+            automatic_lanes = true;
+        } else if (it->is_array() && std::all_of(it->begin(), it->end(), [](const json& v) { return v.is_string(); })) {
+            lanes = QStringList();
+            for (const auto& lane : *it) {
+                lanes->append(QString::fromStdString(lane.get<std::string>()));
+            }
+        } else {
+            throw Error{"invalid-argument", "Argument \"lanes\" must be a list of lane names or \"auto\"."};
+        }
+    }
+    std::optional<double> threshold;
+    if (const auto it = args.find("threshold"); it != args.end() && !it->is_null()) {
+        threshold = quantity(*it, "threshold", "V");
+    }
+    const auto panel = flag("panel");
+    std::optional<bool> stopped;
+    if (const auto d = text("display")) {
+        stopped = choice(*d, {"run", "stop"}, "display") == 1;
+    }
+    const auto window = args.find("window");
+    std::optional<std::pair<double, double>> span;
+    if (window != args.end() && !window->is_null()) {
+        if (!window->is_array() || window->size() != 2) {
+            throw Error{"invalid-argument", "Argument \"window\" must be [from, to] in seconds."};
+        }
+        span = std::make_pair(quantity((*window)[0], "window", "s"), quantity((*window)[1], "window", "s"));
+        if (!(span->second > span->first)) {
+            throw Error{"invalid-argument", "Argument \"window\" must end after it starts."};
+        }
+    }
+
+    if (tab) {
+        analyzer->set_tab(*tab);
+    }
+    if (timebase) {
+        analyzer->set_timebase(*timebase);
+    }
+    if (triggered) {
+        analyzer->set_triggered(*triggered);
+    }
+    analyzer->set_trigger(source, level, rising, sweep);
+    for (const auto& change : changes) {
+        if (change.visible) {
+            analyzer->set_channel_visible(change.index, *change.visible);
+        }
+        if (change.scale_given) {
+            analyzer->set_channel_scale(change.index, change.scale);
+        }
+        if (change.offset) {
+            analyzer->set_channel_offset(change.index, *change.offset);
+        }
+    }
+    if (select) {
+        analyzer->select_channel(*select);
+    }
+    if (threshold) {
+        analyzer->set_threshold(*threshold);
+    }
+    if (automatic_lanes) {
+        analyzer->set_automatic_lanes();
+    } else if (lanes) {
+        analyzer->set_lanes(*lanes);
+    }
+    if (panel) {
+        analyzer->set_controls_visible(*panel);
+    }
+    if (stopped) {
+        analyzer->set_display_stopped(*stopped);
+    }
+    if (span) {
+        if (!analyzer->navigable()) {
+            throw Error{"blocked", "The time window can change only while the run is paused, the display is stopped "
+                                   "or a transient record is shown."};
+        }
+        analyzer->set_time_window(span->first, span->second);
+    }
+    if (cursors) {
+        analyzer->set_cursor_positions(*cursors, cursor_a, cursor_b); // after the window they may lie in
+    }
+    analyzer->refresh();
+    return analyzer_state();
 }
 
 void ControlServer::show_caption(const QString& text, int ms)

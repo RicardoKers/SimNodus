@@ -1843,6 +1843,96 @@ private slots:
         QVERIFY(!window_->run_controller()->active());
     }
 
+    void external_control_sets_the_analyzer()
+    {
+        if (!engine_available()) {
+            QSKIP("ngspice not available");
+        }
+        control_rc();
+        QVERIFY(control("probe.add", {{"at", "C1.1"}}).is_object());
+        QVERIFY(control("probe.add", {{"at", "V1.-"}}).is_object()); // ground: a channel without range
+        QVERIFY(control("view.analyzer", {{"show", true}}).is_object());
+        const auto run = control("sim.run",
+            {{"mode", "interactive"}, {"duration", "40m"}, {"speed", 0}, {"signals", {"V(OUT)"}}, {"keep", true}});
+        QVERIFY2(run.is_object(), last_reply_.dump().c_str());
+        auto* analyzer = window_->analyzer();
+        QTRY_VERIFY(analyzer->isVisible());
+        auto state = control("analyzer.set");
+        QVERIFY2(state.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(state["channels"].size(), std::size_t{2});
+        const std::string out = state["channels"][0]["name"].get<std::string>();
+        const std::string flat = state["channels"][1]["name"].get<std::string>();
+
+        // A channel at 0 V takes its unit's scale instead of a tiny one.
+        state = control("analyzer.autoscale");
+        QVERIFY(state["channels"][1]["auto"].get<bool>());
+        QCOMPARE(state["channels"][1]["scale"].get<double>(), state["channels"][0]["scale"].get<double>());
+
+        state = control("analyzer.set",
+            {{"tab", "logic"}, {"timebase", "2m"}, {"mode", "triggered"},
+                {"trigger", {{"source", out}, {"level", "500m"}, {"slope", "falling"}, {"sweep", "normal"}}},
+                {"channels", {{out, {{"scale", 0.5}, {"offset", 1}}}, {flat, {{"visible", false}}}}},
+                {"select", flat}, {"lanes", {out}}, {"threshold", 0.4}, {"panel", false}});
+        QVERIFY2(state.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(analyzer->tabs()->currentIndex(), 1);
+        QCOMPARE(state["timebase"].get<double>(), 2e-3);
+        QCOMPARE(state["mode"].get<std::string>(), std::string("triggered"));
+        QCOMPARE(state["trigger"]["source"].get<std::string>(), out);
+        QCOMPARE(state["trigger"]["level"].get<double>(), 0.5);
+        QCOMPARE(state["trigger"]["slope"].get<std::string>(), std::string("falling"));
+        QCOMPARE(state["trigger"]["sweep"].get<std::string>(), std::string("normal"));
+        QCOMPARE(state["channels"][0]["scale"].get<double>(), 0.5);
+        QVERIFY(!state["channels"][0]["auto"].get<bool>());
+        QCOMPARE(state["channels"][0]["offset"].get<double>(), 1.0);
+        QVERIFY(!state["channels"][1]["visible"].get<bool>());
+        QCOMPARE(state["select"].get<std::string>(), flat);
+        QVERIFY(state["lanes"] == automation::json::array({out})); // a probe in the Logic tab without a click
+        QCOMPARE(state["threshold"].get<double>(), 0.4);
+        QVERIFY(!state["panel"].get<bool>());
+        QVERIFY(analyzer->findChild<QWidget*>(QStringLiteral("analyzerControls"))->isHidden());
+        // Wrong arguments change nothing.
+        QVERIFY(control("analyzer.set", {{"tab", "scope"}, {"channels", {{"V(NOPE)", {{"visible", true}}}}}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("not-found"));
+        QCOMPARE(analyzer->tabs()->currentIndex(), 1);
+        QVERIFY(control("analyzer.set", {{"mode", "sideways"}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("invalid-argument"));
+
+        // The run is paused: the time axis zooms (a command, the wheel on the scope and on the lanes).
+        QVERIFY(state["navigable"].get<bool>());
+        state = control("analyzer.set", {{"tab", "scope"}, {"window", {0.010, 0.012}}, {"cursors", {0.0105, 0.011}}});
+        QVERIFY2(state.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(state["window"][0].get<double>(), 0.010);
+        QCOMPARE(state["window"][1].get<double>(), 0.012);
+        QVERIFY(state["cursors"]["on"].get<bool>());
+        QCOMPARE(state["cursors"]["a"].get<double>(), 0.0105);
+        auto* scope = analyzer->scope();
+        const QPointF middle = scope->plot_rect().center();
+        QWheelEvent in(middle, scope->mapToGlobal(middle), {}, {0, 120}, Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+        QApplication::sendEvent(scope, &in);
+        QVERIFY(scope->window_end() - scope->window_start() < 0.0019);
+        QVERIFY(scope->window_start() > 0.010 && scope->window_end() < 0.012);
+        analyzer->set_tab(1);
+        auto* lanes = analyzer->logic();
+        const double before = scope->window_end() - scope->window_start();
+        const QPointF lane_point(lanes->width() * 0.6, 20);
+        QWheelEvent out_event(lane_point, lanes->mapToGlobal(lane_point), {}, {0, -120}, Qt::NoButton, Qt::NoModifier,
+            Qt::NoScrollPhase, false);
+        QApplication::sendEvent(lanes, &out_event);
+        QVERIFY(scope->window_end() - scope->window_start() > before * 1.1);
+
+        // Autoscale gives every channel back its automatic scale; the panel and the lanes come back.
+        state = control("analyzer.autoscale");
+        QVERIFY(state["channels"][0]["auto"].get<bool>());
+        state = control("analyzer.set", {{"panel", true}, {"lanes", "auto"}, {"display", "stop"}});
+        QVERIFY(state["panel"].get<bool>());
+        QCOMPARE(state["display"].get<std::string>(), std::string("stop"));
+        window_->stop();
+        analyzer->set_display_stopped(false);
+        QVERIFY(control("analyzer.set", {{"window", {0, 1}}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("blocked"));
+        analyzer->hide();
+    }
+
     void external_control_listens_on_a_local_endpoint()
     {
         const QString name = QStringLiteral("simnodus-test-%1").arg(QCoreApplication::applicationPid());

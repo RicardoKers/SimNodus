@@ -183,6 +183,29 @@ Commands of the window only:
 | `view.fit` | Zoom to show the whole circuit; `{"area": [x1, y1, x2, y2]}` frames a grid area instead (a circuit's place before it is built), `{"region": [0, 0, 0.55, 1]}` uses only part of the canvas (here the left 55%, leaving room for the Signal Analyzer) |
 | `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
 | `view.analyzer` | `{"show": true}`: show or hide the Signal Analyzer |
+| `analyzer.set` | Change the Signal Analyzer's settings (all optional; see below) and answer with all of them |
+| `analyzer.autoscale` | Autoscale: every channel's scale fitted and made Auto again |
+
+`analyzer.set` takes:
+
+| Argument | Values |
+|---|---|
+| `tab` | `scope`, `logic` or `uart` |
+| `timebase` | Seconds per division, `"2m"` or `0.002` (the nearest step) |
+| `mode` | `roll` or `triggered` |
+| `trigger` | `{"source": "V(OUT)", "level": 2.5, "slope": "rising" or "falling", "sweep": "auto", "normal" or "single"}`, any part |
+| `cursors` | `true`, `false`, or `[a, b]` in seconds (turns them on there) |
+| `select` | The channel whose measurements show below the plot |
+| `channels` | `{"V(OUT)": {"visible": true, "scale": 2, "offset": 0}}`: per channel; `scale` in V/div or A/div, or `"auto"`; `offset` is the value at the center line |
+| `lanes` | `["U1.PA5", "V(OUT)"]`: exactly these lanes in the Logic tab, voltage probes too; board pins no longer appear by themselves; `"auto"` goes back to that |
+| `threshold` | The Logic tab's probe threshold in volts |
+| `panel` | `false` hides the side panel (channels, timebase, trigger) so that the plot fills the window |
+| `display` | `stop` freezes the display (Stop display), `run` lets it follow again |
+| `window` | `[from, to]` in seconds: the time window, while the run is paused, the display is stopped or a transient record is shown (`blocked` otherwise) |
+
+Channels are named as in the analyzer (`V(OUT)`, `I(R1.1)`) and exist once a
+run with probes has started; the reply lists them with their scales, the
+lanes shown and the lanes available. A wrong argument changes nothing.
 
 A tutorial script might start with `view.pace` 800, frame the circuit's future
 place with `view.fit` and an `area`, give each step a caption,
