@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 9200ae5a601b3d6dab1b13a7a9b4fcfa6e8017d7c38306391c017f63f425fefc -->
+<!-- source: USER_GUIDE.md sha256 69ec8e9d0105b06d48129aca58e71f055719064fd954ffe0d5cbc0c006d278a2 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -121,7 +121,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574, sensor de pressão BMP280, acelerômetro e giroscópio MPU6050, relógio de tempo real DS3231, sensor de cor TCS34725 (I2C); conversor A/D MCP3208, potenciômetro digital MCP41010, flash W25Q32, cartão microSD (SPI); amplificador de célula de carga HX711; sensores DS18B20 (1-Wire), DHT22/DHT11 e HC-SR04; funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
 | **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
-| **E/S externa** | Entradas e saídas de bit e de palavra que trocam sinais com outro programa, como uma planta virtual (veja abaixo) |
+| **E/S externa** | Entradas e saídas de bit e de palavra que trocam sinais com outro programa, como uma planta virtual; Porta serial, uma porta serial do computador no circuito (veja abaixo) |
 
 Observações sobre alguns componentes:
 
@@ -240,6 +240,24 @@ Observações sobre alguns componentes:
   false e 0 para todas as saídas, porque esses programas mantêm o último
   comando. O link funciona em tempo real, por isso os resultados não são
   repetíveis; execuções de agentes sem a janela não o usam.
+- **Porta serial (computador):** uma porta serial deste computador no
+  circuito, como um adaptador USB-serial em níveis TTL. Ligue o seu TX ao RX
+  da placa, o seu RX ao TX da placa e o seu GND ao terra. Escolha a **Porta**
+  em Propriedades (a lista mostra as portas que o computador tem agora; outro
+  nome pode ser digitado) e a taxa, os bits de dados, a paridade, os bits de
+  parada e o nível (3,3 ou 5 V, TX em repouso alto). A porta abre quando a
+  simulação começa e fecha quando ela para; uma porta ausente ou ocupada é
+  uma mensagem no painel Mensagens e a execução continua sem ela, então um
+  projeto de outro computador ainda abre e roda. Os bytes que o circuito
+  envia ao RX saem pela porta; os bytes que chegam à porta saem no TX, um
+  quadro após o outro. Abra a mesma porta num programa de terminal (PuTTY, o
+  Monitor Serial do Arduino) ou no seu próprio programa. Rode em velocidade
+  de tempo real (o padrão): a porta é lida a cada milissegundo de tempo
+  simulado, então uma execução mais lenta repassa os bytes do computador mais
+  tarde. `loopback` devolve o que recebe, para testar um circuito sem
+  adaptador. Nos pinos de uma placa qualquer taxa funciona sem *Bordas exatas
+  do microcontrolador*; um circuito entre o componente e a placa (um
+  conversor de nível) vê o passo de tempo do circuito. Exemplo 44.
 
 ## Modelos de dispositivos
 

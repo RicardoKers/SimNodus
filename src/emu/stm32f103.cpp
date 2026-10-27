@@ -947,7 +947,9 @@ private:
             }
             const std::uint64_t bit = bit_cycles();
             bool on = (cr1_ & (1u << 13)) && (cr1_ & (1u << 2)) && bit > 0 && m_.options_.uart_frames;
-            if (on && bit * 1000000000u < m_.options_.uart_rx_min_bit_ns * m_.hclk_) {
+            const auto [rx_port, rx_number] = rx_pin();
+            const bool exact = ((m_.options_.exact_input_pins >> (rx_port * 16 + rx_number)) & 1u) != 0;
+            if (on && !exact && bit * 1000000000u < m_.options_.uart_rx_min_bit_ns * m_.hclk_) {
                 on = false;
                 if (!rx_too_fast_reported_) {
                     rx_too_fast_reported_ = true;

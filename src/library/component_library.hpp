@@ -66,6 +66,8 @@ struct Parameter {
     // A chip's parameter that may change while running (an LM75's temperature):
     // the editor sends a new value to the running chip.
     bool live = false;
+    // Text: the name of a serial port of the computer (SN-237); the editor offers the ports it finds.
+    bool serial_port = false;
     // Model: the part's pins in the usual port order of vendor subcircuits
     // ("IN+", "IN-", "V+", "V-", "OUT"); empty: no subcircuits (ADR 0097).
     std::vector<std::string> subcircuit;
@@ -130,6 +132,9 @@ struct Screen {
 struct DigitalDevice {
     std::string kind;              // "74hc595"
     std::string supply_pin = "VCC";
+    // A fixed supply instead of a supply pin (SN-237: a serial port's TTL level):
+    // the volts at the start of this parameter's value ("3.3 V"); supply_pin is empty.
+    std::string supply_parameter;
     std::string ground_pin = "GND";
     double output_resistance = 50.0; // Ohm, of driven outputs
     // Push-pull outputs that always drive: a net with one of them never needs

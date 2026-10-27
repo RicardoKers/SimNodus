@@ -8,6 +8,7 @@
 
 #include "circuit_builder.hpp"
 #include "devices/device.hpp"
+#include "editing/operations.hpp"
 #include "emu/elf.hpp"
 #include "emu/stm32f103.hpp"
 #include "engine_fixture.hpp"
@@ -2135,4 +2136,177 @@ TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beep
     wait_for(4.6);
     CHECK(std::abs(session.latest("q_bz2").value_or(0) - 2300) < 1);
     session.stop();
+}
+
+TEST_CASE("devices: the serial port sends the circuit's frames to the computer and its bytes back (SN-237)")
+{
+    std::string error;
+    // Frames of `byte` on RX from `start`: 8 data bits, even parity, one stop bit.
+    const double bit = 1e9 / 115200;
+    const auto send_frame = [bit](devices::Device& d, std::uint8_t byte, std::uint64_t start, bool stop = true) {
+        std::vector<bool> bits{false};
+        int ones = 0;
+        for (int k = 0; k < 8; ++k) {
+            bits.push_back(((byte >> k) & 1u) != 0);
+            ones += bits.back() ? 1 : 0;
+        }
+        bits.push_back(ones % 2 == 1);
+        bits.push_back(stop);
+        bool level = true;
+        for (std::size_t k = 0; k < bits.size(); ++k) {
+            if (bits[k] != level) {
+                level = bits[k];
+                d.set_input(0, level, start + static_cast<std::uint64_t>(std::llround(k * bit)));
+            }
+        }
+        if (!level) {
+            d.set_input(0, true, start + static_cast<std::uint64_t>(std::llround(bits.size() * bit)));
+        }
+    };
+    // TX levels from the device's own events up to `until`: the times it changed.
+    const auto run = [](devices::Device& d, std::uint64_t until) {
+        std::vector<std::pair<std::uint64_t, bool>> changes;
+        bool level = d.output(1).high;
+        for (std::uint64_t t = d.next_event_ns(); t <= until; t = d.next_event_ns()) {
+            d.advance(t);
+            if (d.output(1).high != level) {
+                level = d.output(1).high;
+                changes.emplace_back(t, level);
+            }
+        }
+        return changes;
+    };
+    // The bytes in TX's changes, read at the middle of each bit.
+    const auto decode = [bit](const std::vector<std::pair<std::uint64_t, bool>>& changes) {
+        const auto level_at = [&changes](double t) {
+            bool level = true;
+            for (const auto& [time, high] : changes) {
+                if (static_cast<double>(time) > t) {
+                    break;
+                }
+                level = high;
+            }
+            return level;
+        };
+        std::string bytes;
+        for (std::size_t i = 0; i < changes.size(); ++i) {
+            if (changes[i].second) {
+                continue;
+            }
+            const double start = static_cast<double>(changes[i].first);
+            std::uint8_t byte = 0;
+            for (int k = 0; k < 8; ++k) {
+                byte |= static_cast<std::uint8_t>((level_at(start + (k + 1.5) * bit) ? 1u : 0u) << k);
+            }
+            CHECK(level_at(start + 10.5 * bit)); // stop bit
+            bytes.push_back(static_cast<char>(byte));
+            while (i + 1 < changes.size() && static_cast<double>(changes[i + 1].first) < start + 10.9 * bit) {
+                ++i; // the rest of this frame
+            }
+        }
+        return bytes;
+    };
+
+    auto d = devices::make_device("serial_port", {"RX", "TX"},
+        {{"port", "loopback"}, {"baud", "115200"}, {"parity", "Even"}, {"data_bits", "8"}, {"stop_bits", "1"}}, error);
+    REQUIRE(d);
+    d->initial_input(0, true);
+    CHECK(d->output(1).driven);
+    CHECK(d->output(1).high); // idle high
+    CHECK(d->take_messages().empty());
+    CHECK(run(*d, 1000000).empty()); // the port is read; nothing comes yet
+    send_frame(*d, 'S', 1000000);
+    send_frame(*d, 'N', 1000000 + static_cast<std::uint64_t>(11 * bit));
+    // The loopback port sends both bytes back on TX, at the next read of the port.
+    const auto changes = run(*d, 5000000);
+    REQUIRE(!changes.empty());
+    CHECK(changes.front().first >= 1000000 + static_cast<std::uint64_t>(21 * bit));
+    CHECK(changes.front().first <= 3000000);
+    CHECK(decode(changes) == "SN");
+    CHECK(d->output(1).high);
+
+    // A frame without its stop bit is dropped, with one message.
+    send_frame(*d, 'X', 6000000, false);
+    CHECK(run(*d, 9000000).empty());
+    const auto messages = d->take_messages();
+    REQUIRE(messages.size() == 1);
+    CHECK(messages[0].find("no stop bit") != std::string::npos);
+
+    // A missing port is a message, not a failed run; TX stays high.
+    auto missing = devices::make_device("serial_port", {"RX", "TX"}, {{"port", "COM_SIMNODUS_NONE"}}, error);
+    REQUIRE(missing);
+    CHECK(missing->output(1).high);
+    const auto why = missing->take_messages();
+    REQUIRE(why.size() == 1);
+    CHECK(why[0].find("COM_SIMNODUS_NONE cannot be opened") != std::string::npos);
+    CHECK(missing->next_event_ns() == devices::no_event);
+    CHECK(!devices::make_device("serial_port", {"RX", "TX"}, {{"baud", "fast"}}, error));
+    CHECK(!devices::make_device("serial_port", {"RX", "TX"}, {{"data_bits", "9"}}, error));
+}
+
+TEST_CASE("devices: a Blue Pill's USART talks through the serial port part (SN-237)")
+{
+    REQUIRE(test::engine() != nullptr);
+    // Example 09's firmware greets, echoes what it receives and switches its LED
+    // with '1' and '0'; a loopback port sends every byte straight back to it.
+    auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "09_Blue_Pill_serial_terminal.snx");
+    REQUIRE(loaded.schematic.has_value());
+    auto schematic = *loaded.schematic;
+    model::Id board = model::no_id;
+    for (const auto& c : schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+    }
+    REQUIRE(board != model::no_id);
+    const auto& library = device_library();
+    const auto* board_part = library.find("bluepill");
+    const auto* port_part = library.find("serial_port");
+    REQUIRE(board_part);
+    REQUIRE(port_part);
+    model::Id j1 = model::no_id;
+    editing::add_component(schematic, *port_part, {-40, 0}, {}, &j1).apply(schematic);
+    // Labels join the pins: J1.RX to PA9 (the board's TX), J1.TX to PA10, J1.GND to ground.
+    const auto label = [&](const library::ComponentDefinition& part, model::Id id, const char* pin, const char* net) {
+        const auto* p = part.pin(pin);
+        REQUIRE(p);
+        editing::add_label(schematic, library::pin_position(part, *p, *schematic.component(id)), net).apply(schematic);
+    };
+    label(*board_part, board, "PA9", "TXD");
+    label(*port_part, j1, "RX", "TXD");
+    label(*board_part, board, "PA10", "RXD");
+    label(*port_part, j1, "TX", "RXD");
+    label(*port_part, j1, "GND", "0");
+
+    sim::RunRequest request;
+    request.schematic = schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &library;
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, library, environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 0.2) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(2ms);
+    }
+    // The firmware's text comes back through the port and the board reads it:
+    // the '1' and '0' in it switch the LED on PA0 (its echoes of the returned
+    // bytes, from the RX interrupt, mix with the text it is still sending).
+    std::string received;
+    session.mcu_uart_received(board, "usart1", 0, received);
+    const auto led = session.mcu_pin_log(board, "PA0", 0);
+    for (const auto& [id, text] : session.take_mcu_diagnostics()) {
+        std::printf("  diagnostic: %s\n", text.c_str());
+        CHECK(text.find("RX pin") == std::string::npos); // device edges are exact at any baud rate
+    }
+    session.stop();
+    CHECK(received.size() > 200); // without the port's bytes: about 80
+    CHECK(!led.changes.empty());
 }

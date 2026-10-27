@@ -2762,6 +2762,146 @@ Pinos: %2</translation>
             <translation>Imagem do cartão no início da simulação (blocos brutos, guardada relativa ao projeto); vazio: tudo zero</translation>
         </message>
         <message>
+            <source>Serial Port (computer)</source>
+            <translation>Porta serial (computador)</translation>
+        </message>
+        <message>
+            <source>External I/O</source>
+            <translation>E/S externa</translation>
+        </message>
+        <message>
+            <source>A serial port of this computer on RX, TX and GND (TTL levels)</source>
+            <translation>Uma porta serial deste computador em RX, TX e GND (níveis TTL)</translation>
+        </message>
+        <message>
+            <source>Port</source>
+            <translation>Porta</translation>
+        </message>
+        <message>
+            <source>The computer's serial port (COM3, /dev/ttyUSB0); loopback sends back what it receives</source>
+            <translation>A porta serial do computador (COM3, /dev/ttyUSB0); loopback devolve o que recebe</translation>
+        </message>
+        <message>
+            <source>Baud rate</source>
+            <translation>Taxa (baud)</translation>
+        </message>
+        <message>
+            <source>Bits per second, the same on the port and on the circuit</source>
+            <translation>Bits por segundo, os mesmos na porta e no circuito</translation>
+        </message>
+        <message>
+            <source>300</source>
+            <translation>300</translation>
+        </message>
+        <message>
+            <source>1200</source>
+            <translation>1200</translation>
+        </message>
+        <message>
+            <source>2400</source>
+            <translation>2400</translation>
+        </message>
+        <message>
+            <source>4800</source>
+            <translation>4800</translation>
+        </message>
+        <message>
+            <source>9600</source>
+            <translation>9600</translation>
+        </message>
+        <message>
+            <source>19200</source>
+            <translation>19200</translation>
+        </message>
+        <message>
+            <source>38400</source>
+            <translation>38400</translation>
+        </message>
+        <message>
+            <source>57600</source>
+            <translation>57600</translation>
+        </message>
+        <message>
+            <source>115200</source>
+            <translation>115200</translation>
+        </message>
+        <message>
+            <source>230400</source>
+            <translation>230400</translation>
+        </message>
+        <message>
+            <source>460800</source>
+            <translation>460800</translation>
+        </message>
+        <message>
+            <source>921600</source>
+            <translation>921600</translation>
+        </message>
+        <message>
+            <source>Data bits</source>
+            <translation>Bits de dados</translation>
+        </message>
+        <message>
+            <source>Data bits per frame</source>
+            <translation>Bits de dados por quadro</translation>
+        </message>
+        <message>
+            <source>5</source>
+            <translation>5</translation>
+        </message>
+        <message>
+            <source>6</source>
+            <translation>6</translation>
+        </message>
+        <message>
+            <source>7</source>
+            <translation>7</translation>
+        </message>
+        <message>
+            <source>Parity</source>
+            <translation>Paridade</translation>
+        </message>
+        <message>
+            <source>Parity bit after the data bits</source>
+            <translation>Bit de paridade depois dos bits de dados</translation>
+        </message>
+        <message>
+            <source>None</source>
+            <translation>Nenhuma</translation>
+        </message>
+        <message>
+            <source>Even</source>
+            <translation>Par</translation>
+        </message>
+        <message>
+            <source>Odd</source>
+            <translation>Ímpar</translation>
+        </message>
+        <message>
+            <source>Stop bits</source>
+            <translation>Bits de parada</translation>
+        </message>
+        <message>
+            <source>Stop bits per frame</source>
+            <translation>Bits de parada por quadro</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>Nível</translation>
+        </message>
+        <message>
+            <source>High level of TX, like the adapter's 3.3 V or 5 V setting</source>
+            <translation>Nível alto do TX, como a chave de 3,3 V ou 5 V do adaptador</translation>
+        </message>
+        <message>
+            <source>3.3 V</source>
+            <translation>3.3 V</translation>
+        </message>
+        <message>
+            <source>5 V</source>
+            <translation>5 V</translation>
+        </message>
+        <message>
             <source>Servo motor (hobby)</source>
             <translation>Servo motor (modelismo)</translation>
         </message>
@@ -3144,10 +3284,6 @@ Pinos: %2</translation>
         <message>
             <source>Bit input</source>
             <translation>Entrada de bit</translation>
-        </message>
-        <message>
-            <source>External I/O</source>
-            <translation>E/S externa</translation>
         </message>
         <message>
             <source>A true/false signal from the external program drives the pin; click it to change it by hand</source>

@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 #include "devices/device.hpp"
+#include "devices/serial_port.hpp"
 
 #include <algorithm>
 #include <array>
@@ -3817,6 +3818,245 @@ private:
     std::uint64_t version_ = 0;
 };
 
+// Serial Port (SN-237): a serial port of the computer on the circuit, like a
+// USB-serial adapter at TTL levels. Frames on RX (a low start bit, the data
+// bits LSB first, an optional parity bit, stop bits high) are read at the
+// middle of each bit and written to the port; bytes from the port go out on
+// TX with the same settings, one after the other. The port is read every
+// millisecond of simulated time. The coupling is in the run's time: at real
+// time both sides keep pace; a slower run sends the computer's bytes later
+// (up to 64 KB wait), a faster one passes the circuit's bytes on sooner.
+class SerialPortDevice : public Device {
+public:
+    static constexpr std::array<const char*, 2> names{"RX", "TX"};
+    static constexpr std::uint64_t poll_ns = 1000000;
+    static constexpr std::size_t waiting_limit = 65536;
+
+    bool init(const std::vector<std::string>& pins, const std::map<std::string, std::string>& parameters,
+        std::string& error)
+    {
+        if (!find_pins(pins, names, index_, "Serial port", error)) {
+            return false;
+        }
+        const auto text = [&parameters](const char* name, const char* fallback) {
+            const auto it = parameters.find(name);
+            return it == parameters.end() ? std::string(fallback) : it->second;
+        };
+        SerialSettings settings;
+        settings.name = text("port", "");
+        while (!settings.name.empty() && std::isspace(static_cast<unsigned char>(settings.name.back()))) {
+            settings.name.pop_back();
+        }
+        while (!settings.name.empty() && std::isspace(static_cast<unsigned char>(settings.name.front()))) {
+            settings.name.erase(settings.name.begin());
+        }
+        double baud = 115200;
+        if (!number_parameter(parameters, "baud", baud) || baud < 50 || baud > 4000000) {
+            error = "Serial port: the baud rate must be a number from 50 to 4000000";
+            return false;
+        }
+        settings.baud = static_cast<unsigned>(std::lround(baud));
+        settings.data_bits = std::atoi(text("data_bits", "8").c_str());
+        settings.stop_bits = std::atoi(text("stop_bits", "1").c_str());
+        const std::string parity = text("parity", "None");
+        settings.parity = parity.empty() ? 'N' : static_cast<char>(std::toupper(static_cast<unsigned char>(parity[0])));
+        if (settings.data_bits < 5 || settings.data_bits > 8 || (settings.stop_bits != 1 && settings.stop_bits != 2)
+            || (settings.parity != 'N' && settings.parity != 'E' && settings.parity != 'O')) {
+            error = "Serial port: data bits 5 to 8, parity None, Even or Odd, 1 or 2 stop bits";
+            return false;
+        }
+        settings_ = settings;
+        bit_ns_ = 1e9 / settings.baud;
+        if (settings.name.empty()) {
+            message("choose the computer's port in its properties; the part only keeps TX high.");
+            return true;
+        }
+        std::string why;
+        port_ = open_serial_port(settings, why);
+        if (!port_) {
+            // The run goes on without the port (a project from another computer).
+            message("the port " + settings.name + " cannot be opened (" + why
+                + "); the part only keeps TX high. Choose another port in its properties.");
+        }
+        return true;
+    }
+
+    void set_input(std::size_t pin, bool level, std::uint64_t time_ns) override
+    {
+        if (pin != index_[0]) {
+            return;
+        }
+        receive_until(time_ns, false); // the bits sampled before this edge saw the old level
+        if (!receiving_ && rx_ && !level) {
+            receiving_ = true; // the start bit's falling edge
+            rx_start_ = time_ns;
+            rx_bit_ = 0;
+            rx_byte_ = 0;
+            rx_ones_ = 0;
+        }
+        rx_ = level;
+    }
+
+    void initial_input(std::size_t pin, bool level) override
+    {
+        if (pin == index_[0]) {
+            rx_ = level;
+        }
+    }
+
+    Output output(std::size_t pin) const override { return pin == index_[1] ? push_pull(tx_) : Output{}; }
+
+    std::uint64_t next_event_ns() const override
+    {
+        std::uint64_t next = port_ ? next_poll_ : no_event;
+        if (receiving_) {
+            next = std::min(next, sample_time());
+        }
+        if (sending_) {
+            next = std::min(next, bit_time(tx_start_, static_cast<double>(tx_index_)));
+        }
+        return next;
+    }
+
+    void advance(std::uint64_t time_ns) override
+    {
+        receive_until(time_ns, true);
+        send_until(time_ns);
+        if (port_ && time_ns >= next_poll_) {
+            next_poll_ = time_ns + poll_ns;
+            std::uint8_t buffer[512];
+            for (std::size_t count = port_->read(buffer, sizeof(buffer)); count > 0;
+                 count = port_ ? port_->read(buffer, sizeof(buffer)) : 0) {
+                if (waiting_.size() + count > waiting_limit) {
+                    if (!overflow_reported_) {
+                        message("the computer sends faster than the simulation passes its bytes on; bytes were "
+                                "dropped (run at real-time speed or slow the sender).");
+                        overflow_reported_ = true;
+                    }
+                    break;
+                }
+                waiting_.insert(waiting_.end(), buffer, buffer + count);
+            }
+            if (!sending_ && !waiting_.empty()) {
+                start_frame(time_ns);
+            }
+        }
+    }
+
+private:
+    std::uint64_t bit_time(std::uint64_t start, double bits) const
+    {
+        return start + static_cast<std::uint64_t>(std::llround(bits * bit_ns_));
+    }
+
+    std::uint64_t sample_time() const { return bit_time(rx_start_, rx_bit_ + 0.5); }
+
+    int parity_bits() const { return settings_.parity == 'N' ? 0 : 1; }
+
+    // Samples the bits whose middle is before `time_ns` (or at it, when `inclusive`).
+    void receive_until(std::uint64_t time_ns, bool inclusive)
+    {
+        while (receiving_ && (sample_time() < time_ns || (inclusive && sample_time() == time_ns))) {
+            sample(rx_);
+        }
+    }
+
+    void sample(bool level)
+    {
+        const int data = settings_.data_bits;
+        if (rx_bit_ == 0) {
+            if (level) {
+                receiving_ = false; // a glitch, not a start bit
+                return;
+            }
+        } else if (rx_bit_ <= data) {
+            if (level) {
+                rx_byte_ |= static_cast<std::uint8_t>(1u << (rx_bit_ - 1));
+                ++rx_ones_;
+            }
+        } else if (rx_bit_ == data + 1 && parity_bits() == 1) {
+            rx_ones_ += level ? 1 : 0;
+        } else {
+            receiving_ = false; // the first stop bit ends the frame
+            const bool parity_ok = parity_bits() == 0 || (rx_ones_ % 2 == (settings_.parity == 'O' ? 1 : 0));
+            if (!level || !parity_ok) {
+                if (!frame_error_reported_) {
+                    message(!level ? "a frame on RX has no stop bit: check that the baud rate and format match the "
+                                     "sender's; such frames are dropped."
+                                   : "a frame on RX has a wrong parity bit: check the parity setting; such frames are "
+                                     "dropped.");
+                    frame_error_reported_ = true;
+                }
+                return;
+            }
+            if (port_ && !port_->write(&rx_byte_, 1)) {
+                message("the port " + settings_.name + " stopped answering (unplugged?); the part only keeps TX high.");
+                port_.reset();
+            }
+            return;
+        }
+        ++rx_bit_;
+    }
+
+    void start_frame(std::uint64_t time_ns)
+    {
+        const std::uint8_t byte = waiting_.front();
+        waiting_.pop_front();
+        tx_bits_.clear();
+        tx_bits_.push_back(false); // start bit
+        int ones = 0;
+        for (int k = 0; k < settings_.data_bits; ++k) {
+            const bool bit = ((byte >> k) & 1u) != 0;
+            tx_bits_.push_back(bit);
+            ones += bit ? 1 : 0;
+        }
+        if (parity_bits() == 1) {
+            tx_bits_.push_back((ones % 2 == 1) != (settings_.parity == 'O'));
+        }
+        tx_bits_.insert(tx_bits_.end(), static_cast<std::size_t>(settings_.stop_bits), true);
+        sending_ = true;
+        tx_start_ = time_ns;
+        tx_ = tx_bits_[0];
+        tx_index_ = 1;
+    }
+
+    void send_until(std::uint64_t time_ns)
+    {
+        while (sending_ && bit_time(tx_start_, static_cast<double>(tx_index_)) <= time_ns) {
+            if (tx_index_ < tx_bits_.size()) {
+                tx_ = tx_bits_[tx_index_++];
+                continue;
+            }
+            sending_ = false; // the last stop bit is over
+            if (!waiting_.empty()) {
+                start_frame(bit_time(tx_start_, static_cast<double>(tx_index_)));
+            }
+        }
+    }
+
+    std::array<std::size_t, names.size()> index_{};
+    SerialSettings settings_;
+    std::unique_ptr<SerialPort> port_;
+    double bit_ns_ = 1e9 / 115200;
+    std::uint64_t next_poll_ = 0;
+    // RX: the circuit's frames.
+    bool rx_ = true;
+    bool receiving_ = false;
+    std::uint64_t rx_start_ = 0;
+    int rx_bit_ = 0;
+    std::uint8_t rx_byte_ = 0;
+    int rx_ones_ = 0;
+    bool frame_error_reported_ = false;
+    // TX: the computer's bytes.
+    std::deque<std::uint8_t> waiting_;
+    std::vector<bool> tx_bits_;
+    std::size_t tx_index_ = 0;
+    std::uint64_t tx_start_ = 0;
+    bool sending_ = false;
+    bool tx_ = true; // idle high
+    bool overflow_reported_ = false;
+};
+
 } // namespace
 
 std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<std::string>& pins,
@@ -3933,6 +4173,10 @@ std::unique_ptr<Device> make_device(const std::string& kind, const std::vector<s
             return nullptr;
         }
         return device;
+    }
+    if (kind == "serial_port") {
+        auto device = std::make_unique<SerialPortDevice>();
+        return device->init(pins, parameters, error) ? std::move(device) : nullptr;
     }
     if (kind == "rom" || kind == "ram") {
         auto device = std::make_unique<ParallelMemory>();

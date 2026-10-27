@@ -34,6 +34,10 @@ nothing.
   and LEDs with timed one-wire protocols, decoded from the edge times.
 - Hobby servo (SN-226): its horn follows the pulse width on SIG and is drawn
   on the schematic.
+- Serial Port (SN-237): a serial port of the computer (a USB-serial adapter)
+  on RX, TX and GND at TTL levels; the level (3.3 or 5 V) is a parameter
+  instead of a supply pin (device.supply_parameter), the port a text the
+  editor offers from the computer's list. Category *External I/O*.
 - MAX7219: 8-digit LED display driver (DIN, CLK, LOAD, DOUT, DIG0-DIG7, SEGA-SEGG,
   SEGDP); its segment outputs source about 40 mA at 5 V like the chip with its
   current-setting resistor, so the LEDs need no series resistors.
@@ -483,6 +487,48 @@ def hcsr04():
     return p
 
 
+def serial_port():
+    graphics = [{"rect": [-4, -3, 8, 6]}, {"text": "SERIAL", "at": [0, -1.9], "size": 0.7},
+                {"text": "PORT", "at": [0, -1.0], "size": 0.7}]
+    pins = []
+    for name, y in (("RX", 0), ("TX", 2)):
+        graphics += [{"line": [-6, y, -4, y]}, {"text": name, "at": [-2.8, y], "size": 0.6}]
+        pins.append({"name": name, "at": [-6, y], "dir": "left"})
+    graphics += [{"line": [0, 3, 0, 5]}, {"text": "GND", "at": [0, 2.5], "size": 0.55}]
+    pins.append({"name": "GND", "at": [0, 5], "dir": "down"})
+    spice = device_spice(["RX", "TX"], ["TX"])[:-1]  # no supply pin, so no quiescent current
+    p = part("serial_port", "Serial Port (computer)",
+             "A serial port of this computer in the circuit, like a USB-serial adapter: bytes the circuit sends to "
+             "RX go out of the port, bytes arriving at the port come out on TX. Connect TX to the board's RX, RX to "
+             "its TX and GND to ground. Choose the port, baud rate and format in its properties; the levels are TTL "
+             "(3.3 or 5 V, idle high). The port opens when the simulation starts; run at real-time speed so that "
+             "the timing matches the other program. 'loopback' sends back what it receives.",
+             {"graphics": graphics, "pins": pins}, -3, "serial_port", spice, driven=["TX"],
+             parameters=[
+                 {"name": "port", "label": "Port", "kind": "text", "serial_port": True, "default": "loopback",
+                  "description": "The computer's serial port (COM3, /dev/ttyUSB0); loopback sends back what it "
+                                 "receives"},
+                 {"name": "baud", "label": "Baud rate", "choices": ["300", "1200", "2400", "4800", "9600", "19200",
+                                                                    "38400", "57600", "115200", "230400", "460800",
+                                                                    "921600"],
+                  "default": "115200", "description": "Bits per second, the same on the port and on the circuit"},
+                 {"name": "data_bits", "label": "Data bits", "choices": ["5", "6", "7", "8"], "default": "8",
+                  "description": "Data bits per frame"},
+                 {"name": "parity", "label": "Parity", "choices": ["None", "Even", "Odd"], "default": "None",
+                  "description": "Parity bit after the data bits"},
+                 {"name": "stop_bits", "label": "Stop bits", "choices": ["1", "2"], "default": "1",
+                  "description": "Stop bits per frame"},
+                 {"name": "level", "label": "Level", "choices": ["3.3 V", "5 V"], "default": "3.3 V",
+                  "description": "High level of TX, like the adapter's 3.3 V or 5 V setting"}],
+             category="External I/O")
+    p["device"].pop("supply_pin")
+    p["device"]["supply_parameter"] = "level"
+    p["prefix"] = "J"
+    p["value_offset"] = [5, 4]
+    p["designator_offset"] = [5, -4]
+    return p
+
+
 def ws2812():
     names = ["DIN", "DOUT", "VDD", "GND"]
     graphics = [{"rect": [-14, -3, 28, 6]}]
@@ -584,7 +630,7 @@ def main():
         short = json.load(fh)
     for p in [hc595(), max7219(), eeprom_24c02(), lm75(), pcf8574(), lcd_hd44780(), memory(False), memory(True),
               bmp280(), mpu6050(), ds3231(), tcs34725(), ssd1306(), mcp3208(), mcp41010(), w25q32(), sdcard(),
-              hx711(), ds18b20(), dht22(), hcsr04(), ws2812(), servo()]:
+              hx711(), ds18b20(), dht22(), hcsr04(), ws2812(), servo(), serial_port()]:
         p["description"] = short.get(p["type"], p["description"])
         with open(os.path.join(FOLDER, p["type"] + ".json"), "w", encoding="utf-8", newline="\n") as fh:
             fh.write(json.dumps(p, indent=2, ensure_ascii=False) + "\n")

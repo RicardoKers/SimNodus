@@ -85,6 +85,10 @@ struct MachineOptions {
     // Bits shorter than this are not decoded (the circuit cannot show them; a
     // diagnostic says so once per USART); 0 decodes any baud rate.
     std::uint64_t uart_rx_min_bit_ns = 0;
+    // Pins whose input edges come from digital devices at their exact times
+    // (bit port * 16 + pin, PA0 = 0): a USART's RX there decodes any baud rate
+    // (SN-237: the Serial Port part on PA10).
+    std::uint64_t exact_input_pins = 0;
 };
 
 class Stm32F103 : private TimerHost, private AdcHost, private DmaHost, private SystemHost, private SpiHost,

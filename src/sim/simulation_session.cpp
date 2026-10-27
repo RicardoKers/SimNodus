@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <limits>
 #include <cctype>
+#include <cstdlib>
 #include <cmath>
 #include <filesystem>
 #include <set>
@@ -805,7 +806,17 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
             request.kind = device.kind;
             request.parameters = candidate.component->parameters;
             request.pins = candidate.signals;
-            request.supply = supply_of(net_of(request.component, device.supply_pin));
+            if (device.supply_parameter.empty()) {
+                request.supply = supply_of(net_of(request.component, device.supply_pin));
+            } else {
+                // A fixed level chosen in the properties ("3.3 V"), not a pin (SN-237).
+                const auto chosen = request.parameters.find(device.supply_parameter);
+                const auto* fallback = candidate.definition->parameter(device.supply_parameter);
+                const std::string level = chosen != request.parameters.end() ? chosen->second
+                    : fallback                                       ? fallback->default_value
+                                                                     : std::string();
+                request.supply = std::strtod(level.c_str(), nullptr);
+            }
             request.parameters["@supply"] = model::spice_number(request.supply); // for chips that measure against it
             request.parameters["@designator"] = request.designator; // a 1-Wire serial number (SN-225)
             if (request.supply <= 0) {

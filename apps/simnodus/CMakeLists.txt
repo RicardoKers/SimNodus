@@ -59,7 +59,7 @@ add_library(simnodus_ui STATIC
 target_include_directories(simnodus_ui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated")
-target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network simnodus::automation simnodus::session simnodus::engine_link simnodus::editing simnodus::io
+target_link_libraries(simnodus_ui PUBLIC Qt6::Widgets Qt6::Network simnodus::automation simnodus::session simnodus::devices simnodus::engine_link simnodus::editing simnodus::io
     simnodus::netlist simnodus::mcu PRIVATE simnodus::warnings)
 if(WIN32)
     target_link_libraries(simnodus_ui PRIVATE winmm) # buzzer sound (SN-228)

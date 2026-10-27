@@ -6,6 +6,7 @@
 #include "theme.hpp"
 #include "user_models.hpp"
 
+#include "devices/serial_port.hpp"
 #include "editing/operations.hpp"
 #include "library/component_library.hpp"
 #include "model/engineering.hpp"
@@ -383,6 +384,27 @@ void PropertiesPanel::rebuild()
             editor = file_editor(p, common ? value : QString());
         } else if (p.kind == library::Parameter::Kind::Model) {
             editor = model_editor(p, *components.front(), common ? value : QString());
+        } else if (p.serial_port) {
+            // The computer's serial ports as found now (SN-237); another name can be typed.
+            auto* box = new QComboBox;
+            box->setEditable(true);
+            box->setInsertPolicy(QComboBox::NoInsert);
+            for (const auto& port : devices::serial_port_names()) {
+                box->addItem(QString::fromStdString(port));
+            }
+            box->addItem(QString::fromLatin1(devices::loopback_port));
+            box->setCurrentText(common ? value : QString());
+            box->setToolTip(translated(p.description));
+            const std::string name = p.name;
+            const auto commit = [this, box, name] {
+                const QString port = box->currentText().trimmed();
+                if (!rebuilding_ && !port.isEmpty()) {
+                    commit_parameter(name, port);
+                }
+            };
+            connect(box, &QComboBox::activated, this, commit);
+            connect(box->lineEdit(), &QLineEdit::editingFinished, this, commit);
+            editor = box;
         } else if (!p.choices.empty()) {
             auto* box = new QComboBox;
             for (const auto& choice : p.choices) {
