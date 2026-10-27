@@ -873,7 +873,7 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             }
             const int ms = duration_ms(args, "ms", 90);
             for (const QChar c : text) {
-                const int key = c.isLetterOrNumber() ? c.toUpper().unicode() : Qt::Key_unknown;
+                const int key = c.isLetterOrNumber() ? static_cast<int>(c.toUpper().unicode()) : static_cast<int>(Qt::Key_unknown);
                 QKeyEvent down(QEvent::KeyPress, key, Qt::NoModifier, QString(c));
                 QApplication::sendEvent(field, &down);
                 QKeyEvent up(QEvent::KeyRelease, key, Qt::NoModifier, QString(c));
@@ -1190,7 +1190,7 @@ void ControlServer::press(const Presenter::Target& target, QEvent::Type type, Qt
     }
     const QPointF local(target.point);
     const QPointF global = target.widget->mapToGlobal(local);
-    const Qt::MouseButtons held = type == QEvent::MouseButtonRelease ? Qt::NoButton : Qt::MouseButtons(button);
+    const Qt::MouseButtons held = type == QEvent::MouseButtonRelease ? Qt::MouseButtons(Qt::NoButton) : Qt::MouseButtons(button);
     QMouseEvent event(type, local, global, button, held, Qt::NoModifier);
     QApplication::sendEvent(target.widget, &event);
 }
