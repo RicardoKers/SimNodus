@@ -1,11 +1,11 @@
-<!-- source: USER_GUIDE.md sha256 defa3585560325e9bf1aa4aac2c58e992f2e2f737ff026a83ffcc6321a5ec422 -->
+<!-- source: USER_GUIDE.md sha256 851bcdf8689cb16189e83bf742071bcc6b690ce2f8f8112e42f4f9de2f7ddf95 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
 F5 e ele continua rodando enquanto você pressiona botões, gira
 potenciômetros e observa LEDs, medidores e o Analisador de sinais. Uma placa
 Blue Pill (STM32F103C8) pode executar o seu próprio firmware dentro do
-circuito. Este guia descreve a versão 0.11. Para
+circuito. Este guia descreve a versão 0.12. Para
 montar um primeiro circuito em cinco minutos, veja o
 [início rápido](QUICK_START.md); para todos os detalhes do microcontrolador
 simulado, veja [MICROCONTROLLER.md](MICROCONTROLLER.md).
@@ -603,7 +603,9 @@ declarados para que os resultados sejam lidos corretamente.
   de 1,5x a 50x o tempo real, mas quatro ficam perto ou abaixo dele: 26
   (matriz de LEDs, 64 LEDs multiplexados) cerca de 0,4x, 24 (RTC e watchdog)
   e 15 (ADC + DMA com HAL) cerca de 1x (firmware ocupado a 72 MHz), 23
-  (contador de 7 segmentos) 1,2x. Em PCs mais lentos eles mostram uma
+  (contador de 7 segmentos) 1,2x; 44 com `loopback` cerca de 0,7x, pois o
+  firmware ecoa o próprio texto sem fim (com um programa de terminal, não).
+  Em PCs mais lentos eles mostram uma
   velocidade abaixo de 1x: os resultados continuam certos, só mais lentos.
 - A recepção (RX) da USART pelo pino precisa de bordas exatas ou de um bit
   com pelo menos quatro passos de tempo (2400 baud ou menos a 100 µs); um
