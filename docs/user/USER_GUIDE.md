@@ -356,7 +356,11 @@ current probe needs a pin). Ctrl+Z undoes the move.
 - **Vertical:** per-channel scale or **Autoscale**, which puts 0 V at the
   same height for all channels of one unit (one division above the bottom
   when the signals are positive), so that they read against one reference.
-  The left edge shows the
+  A channel's scale starts as **Auto**: fitted once data arrives, and fitted
+  again when its signal leaves the screen; a channel still at 0 V takes the
+  scale of the other channels of its unit. Choosing a scale or moving the
+  channel by hand keeps it; **Autoscale** makes every channel Auto again.
+  A channel keeps its settings in the next run. The left edge shows the
   selected channel's volts per division and a colored triangle at each
   channel's 0 V; drag a triangle (or turn the wheel over the scale) to move
   the channel, double-click it to center 0 V again.
@@ -364,7 +368,10 @@ current probe needs a pin). Ctrl+Z undoes the move.
   shows min, max, mean, RMS, peak-to-peak, frequency and duty cycle of the
   selected channel.
 - **Transient results** open as a complete record: the wheel zooms the time
-  axis, dragging pans.
+  axis, dragging pans. While an interactive run is paused, or the display is
+  stopped, the same works on the retained history, on the scope and on the
+  Logic lanes: zoom into a transition to see its detail. Running again
+  returns to the live display.
 - **Export CSV** writes the visible channels (the first line says how the
   data was computed); **Export PNG** saves the plot.
 

@@ -154,6 +154,13 @@ translation; the order may change with the owner's lessons.
 | SN-231 | Recorded videos: `view.fit` with a grid `area` and a canvas `region` (the owner's videos repository frames the circuit left of the Signal Analyzer) | done 2026-10-26 |
 | SN-232 | New values of ngspice parts (a resistor) apply at once in an interactive run: a new segment from the present state when the netlist keeps its topology (`netlist::same_topology`); found in the owner's video test | done 2026-10-26 |
 | SN-233 | Autoscale puts 0 V at the same height for the channels of one unit (owner's request from the video test: more didactic) | done 2026-10-26 |
+| SN-234 | Signal Analyzer under external control (videos request 2026-10-27, item 1): `analyzer.set` (tab, timebase, mode, trigger, cursors, selected channel, per channel visibility/scale/offset, Logic lanes and threshold, side panel, stopped display, time window) and `analyzer.autoscale` | done 2026-10-27 |
+| SN-235 | Automatic scale per channel (videos request, item 2): a channel without range takes its unit's scale (1 V/div by default), Auto scales follow a signal that leaves the screen, channel settings kept in the next run | done 2026-10-27 |
+| SN-236 | Time zoom while paused (owner's request 2026-10-27): the wheel zooms and dragging pans the retained history on the scope and the Logic lanes while a run is paused or the display is stopped | done 2026-10-27 |
+| SN-237 | Serial Port part: a real COM port of the computer on RX, TX and GND of the circuit (TTL 3.3 V or 5 V; baud, data bits, parity and stop bits in the properties; the port's name saved in the project, a message when it is missing) | todo |
+| SN-238 | Tutorials show the hand (videos request, item 3): a drawn pointer, key badges, highlights, captions placed and sized, edits through the real widgets, screen positions of points and widgets | todo |
+| SN-239 | Camera and layout for recordings (videos request, item 4): smooth `view.fit`, `view.panels`, interface scale, read-only dialogs | todo |
+| SN-240 | Conveniences for recordings (videos request, item 5): `sim.control` ramps, a name for an untitled project, sensors through `sim.control` | todo |
 
 ## Later (after freeze or after classroom)
 

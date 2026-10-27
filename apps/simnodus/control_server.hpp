@@ -78,6 +78,9 @@ private:
     std::unique_ptr<automation::Automation> make_automation();
     void forget_runs();
     void show_caption(const QString& text, int ms);
+    // analyzer.set: changes the Signal Analyzer's settings; every setting as JSON.
+    automation::json analyzer_set(const automation::json& args);
+    automation::json analyzer_state() const;
     void place_caption();
     bool eventFilter(QObject* watched, QEvent* event) override;
 
