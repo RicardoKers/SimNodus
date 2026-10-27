@@ -9,6 +9,7 @@
 #include "schematic_view.hpp"
 
 #include "analyzer_window.hpp"
+#include "presenter.hpp"
 #include "io/project_file.hpp"
 #include "model/engineering.hpp"
 
@@ -17,7 +18,14 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QGraphicsItem>
+#include <QAbstractSpinBox>
+#include <QApplication>
+#include <QComboBox>
+#include <QKeyEvent>
 #include <QLabel>
+#include <QLineEdit>
+#include <QMouseEvent>
+#include <QScreen>
 #include <QTabWidget>
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -110,6 +118,53 @@ int choice(const std::string& text, std::initializer_list<const char*> options, 
     }
     throw Error{"invalid-argument", "Argument \"" + key + "\" must be one of: " + list + "."};
 }
+
+// A label of the canvas placed at `position` ("top-left", "bottom", "center"...).
+void place_label(QLabel* label, const std::string& position)
+{
+    const QSize area = label->parentWidget()->size();
+    const int widest = std::max(160, area.width() * 4 / 5);
+    const int text = label->fontMetrics().horizontalAdvance(label->text()) + 2 * label->margin() + 40;
+    label->setFixedWidth(std::min(widest, text));
+    // A label without word wrap has no height for a width: its own height then.
+    const int height = label->wordWrap() ? label->heightForWidth(label->width()) : -1;
+    label->setFixedHeight(height > 0 ? height : label->sizeHint().height());
+    const int gap = 24;
+    const int x_left = gap;
+    const int x_right = area.width() - label->width() - gap;
+    const int x_middle = (area.width() - label->width()) / 2;
+    const int y_top = gap;
+    const int y_bottom = area.height() - label->height() - gap;
+    const int y_middle = (area.height() - label->height()) / 2;
+    int x = x_middle;
+    int y = y_bottom;
+    if (position == "top") {
+        y = y_top;
+    } else if (position == "center") {
+        y = y_middle;
+    } else if (position == "top-left") {
+        x = x_left;
+        y = y_top;
+    } else if (position == "top-right") {
+        x = x_right;
+        y = y_top;
+    } else if (position == "bottom-left") {
+        x = x_left;
+    } else if (position == "bottom-right") {
+        x = x_right;
+    }
+    label->move(x, y);
+}
+
+void check_position(const std::string& position)
+{
+    static const char* const known[] = {"top", "bottom", "center", "top-left", "top-right", "bottom-left", "bottom-right"};
+    if (std::none_of(std::begin(known), std::end(known), [&](const char* k) { return position == k; })) {
+        throw Error{"invalid-argument",
+            "Argument \"position\" must be top, bottom, center, top-left, top-right, bottom-left or bottom-right."};
+    }
+}
+
 
 // Only component parameters change: a running simulation can take them (SN-207).
 bool parameters_only(const model::Edit& edit)
@@ -322,7 +377,8 @@ private:
 };
 
 ControlServer::ControlServer(MainWindow& window)
-    : QObject(&window), window_(window), workspace_(std::make_unique<ControlWorkspace>(*this))
+    : QObject(&window), window_(window), workspace_(std::make_unique<ControlWorkspace>(*this)),
+      presenter_(new Presenter(window))
 {
     // A run the user starts replaces the agents' runs.
     connect(window_.run_controller(), &RunController::started, this, [this] {
@@ -604,8 +660,9 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             workspace_->wait(std::chrono::milliseconds(ms));
             return json{{"ms", ms}};
         }});
-    a->extend({"view.caption", "Shows a caption at the bottom of the canvas; empty text hides it.",
-        json{{"text", "Now we connect the capacitor."}, {"seconds", "0 = until replaced"}},
+    a->extend({"view.caption", "Shows a caption on the canvas (at the bottom unless placed); empty text hides it.",
+        json{{"text", "Now we connect the capacitor."}, {"seconds", "0 = until replaced"},
+            {"position", "bottom | top | center (or a corner: top-left...)"}, {"size", "1 (a factor)"}},
         [this](const json& args) {
             const auto it = args.find("text");
             if (it != args.end() && !it->is_string() && !it->is_null()) {
@@ -613,6 +670,10 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             }
             const QString text = it == args.end() || it->is_null() ? QString() : QString::fromStdString(it->get<std::string>());
             const double seconds = std::clamp(number(args, "seconds", 0.0), 0.0, 3600.0);
+            const std::string position = args.value("position", std::string("bottom"));
+            check_position(position);
+            caption_position_ = position;
+            caption_size_ = std::clamp(number(args, "size", 1.0), 0.3, 5.0);
             show_caption(text, static_cast<int>(seconds * 1000));
             return json{{"shown", !text.isEmpty()}};
         }});
@@ -624,6 +685,211 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
                 window_.analyzer()->hide();
             }
             return json{{"shown", window_.analyzer()->isVisible()}};
+        }});
+    a->extend({"view.keys", "Shows a key badge (\"Ctrl+R\") in a corner of the canvas for a moment, as a keystroke overlay does.",
+        json{{"keys", "Ctrl+R"}, {"seconds", "1.5"}, {"position", "top-left | top-right | bottom-left | bottom-right | top | bottom | center"},
+            {"size", "1 (a factor)"}},
+        [this](const json& args) {
+            const QString keys = QString::fromStdString(args.value("keys", std::string()));
+            show_keys(keys, number(args, "seconds", 1.5), args.value("position", std::string("top-right")),
+                number(args, "size", 1.0));
+            return json{{"shown", !keys.isEmpty()}};
+        }});
+    a->extend({"view.pointer",
+        "Moves a drawn pointer smoothly to a target and can show a click or a double-click; nothing is clicked "
+        "(ui.click clicks). Targets: [x, y] grid point, \"R1.2\" pin, \"R1\" part, {\"widget\": \"search\"}, "
+        "{\"action\": \"Wire\"}, {\"part\": \"Resistor\"}, {\"field\": \"Resistance\"}, {\"menu\": \"Simulate\"}, "
+        "{\"tab\": \"Logic\"}, {\"name\": \"objectName\"}, {\"area\": [x1, y1, x2, y2]}.",
+        json{{"to", "target"}, {"ms", "600"}, {"click", "0, 1 or 2"}, {"hide", "true hides the pointer"}},
+        [this](const json& args) {
+            if (args.value("hide", false)) {
+                presenter_->hide_pointer();
+                return json{{"shown", false}};
+            }
+            const int ms = duration_ms(args, "ms", 600);
+            if (const auto to = args.find("to"); to != args.end()) {
+                presenter_->glide(Presenter::global_point(presenter_->resolve(*to)), ms);
+                workspace_->wait(std::chrono::milliseconds(ms));
+            } else {
+                presenter_->glide(presenter_->pointer_position(), 0);
+            }
+            const int clicks = static_cast<int>(std::clamp(number(args, "click", 0.0), 0.0, 2.0));
+            if (clicks > 0) {
+                presenter_->show_click(clicks);
+                workspace_->wait(std::chrono::milliseconds(300));
+            }
+            return pointer_state();
+        }});
+    a->extend({"view.highlight", "Draws a pulsing outline around a target (a panel, a toolbar button, a part, a grid area) "
+                                 "without selecting it; {\"hide\": true} removes it.",
+        json{{"target", "{\"widget\": \"components\"}, \"R1\", {\"area\": [x1, y1, x2, y2]}..."}, {"seconds", "2 (0: until replaced)"},
+            {"hide", "true"}},
+        [this](const json& args) {
+            if (args.value("hide", false)) {
+                presenter_->hide_highlight();
+                return json{{"shown", false}};
+            }
+            const auto target = args.find("target");
+            if (target == args.end()) {
+                throw Error{"invalid-argument", "Argument \"target\" is required."};
+            }
+            const QRect rect = Presenter::global_rect(presenter_->resolve(*target));
+            presenter_->highlight(rect, static_cast<int>(std::clamp(number(args, "seconds", 2.0), 0.0, 3600.0) * 1000));
+            return json{{"shown", true}, {"rect", {rect.x(), rect.y(), rect.width(), rect.height()}}};
+        }});
+    a->extend({"view.locate",
+        "Screen positions of targets (see view.pointer), in logical pixels and in the screen's physical pixels, "
+        "for a recording tool's own overlays or input.",
+        json{{"targets", "[\"R1.2\", {\"widget\": \"canvas\"}]"}},
+        [this](const json& args) {
+            const auto targets = args.find("targets");
+            if (targets == args.end() || !targets->is_array()) {
+                throw Error{"invalid-argument", "Argument \"targets\" must be a list of targets."};
+            }
+            json found = json::array();
+            for (const auto& target : *targets) {
+                const auto t = presenter_->resolve(target);
+                const QRect rect = Presenter::global_rect(t);
+                const QPoint point = Presenter::global_point(t);
+                const QRect device = Presenter::physical(rect);
+                const QRect device_point = Presenter::physical(QRect(point, QSize(1, 1)));
+                const QScreen* screen = QGuiApplication::screenAt(point);
+                found.push_back({{"target", target}, {"rect", {rect.x(), rect.y(), rect.width(), rect.height()}},
+                    {"point", {point.x(), point.y()}},
+                    {"physical_rect", {device.x(), device.y(), device.width(), device.height()}},
+                    {"physical_point", {device_point.x(), device_point.y()}},
+                    {"scale", screen ? screen->devicePixelRatio() : 1.0}});
+            }
+            return json{{"targets", found}};
+        }});
+    a->extend({"ui.move", "Glides the drawn pointer to a target, moving the real mouse over the widget there (a part "
+                          "being placed follows it on the canvas).",
+        json{{"to", "target"}, {"ms", "600"}},
+        [this](const json& args) {
+            const auto to = args.find("to");
+            if (to == args.end()) {
+                throw Error{"invalid-argument", "Argument \"to\" is required."};
+            }
+            const auto target = presenter_->resolve(*to, true);
+            const int ms = duration_ms(args, "ms", 600);
+            presenter_->glide(Presenter::global_point(target), ms, target.widget);
+            workspace_->wait(std::chrono::milliseconds(ms + 30));
+            return pointer_state();
+        }});
+    a->extend({"ui.click",
+        "Glides the drawn pointer to a target and clicks there through the real widget, as a hand would: a toolbar "
+        "button, a Components entry, a menu, a tab, a field, a point of the canvas (places a part, starts or ends "
+        "a wire).",
+        json{{"target", "target"}, {"ms", "600"}, {"count", "1 or 2"}, {"button", "left | right"}},
+        [this](const json& args) {
+            const auto it = args.find("target");
+            if (it == args.end()) {
+                throw Error{"invalid-argument", "Argument \"target\" is required."};
+            }
+            const auto target = presenter_->resolve(*it, true);
+            const int ms = duration_ms(args, "ms", 600);
+            const int count = static_cast<int>(std::clamp(number(args, "count", 1.0), 1.0, 2.0));
+            const std::string button = args.value("button", std::string("left"));
+            if (button != "left" && button != "right") {
+                throw Error{"invalid-argument", "Argument \"button\" must be left or right."};
+            }
+            presenter_->glide(Presenter::global_point(target), ms, target.widget);
+            workspace_->wait(std::chrono::milliseconds(ms + 30));
+            presenter_->show_click(count);
+            click(target, button == "left" ? Qt::LeftButton : Qt::RightButton, count);
+            workspace_->wait(std::chrono::milliseconds(250));
+            return pointer_state();
+        }});
+    a->extend({"ui.drag", "Presses at one target, glides the pointer to another with the button held, and releases: "
+                          "the real widget sees the drag (a part moved, a wire drawn, a potentiometer turned).",
+        json{{"from", "target"}, {"to", "target"}, {"ms", "900"}},
+        [this](const json& args) {
+            const auto from = args.find("from");
+            const auto to = args.find("to");
+            if (from == args.end() || to == args.end()) {
+                throw Error{"invalid-argument", "Arguments \"from\" and \"to\" are required."};
+            }
+            const auto start = presenter_->resolve(*from, true);
+            presenter_->glide(Presenter::global_point(start), 500, start.widget);
+            workspace_->wait(std::chrono::milliseconds(530));
+            press(start, QEvent::MouseButtonPress, Qt::LeftButton);
+            presenter_->set_pressed(true);
+            const auto end = presenter_->resolve(*to);
+            const int ms = duration_ms(args, "ms", 900);
+            presenter_->glide(Presenter::global_point(end), ms, start.widget, Qt::LeftButton);
+            workspace_->wait(std::chrono::milliseconds(ms + 30));
+            auto release = start;
+            release.point = start.widget ? start.widget->mapFromGlobal(Presenter::global_point(end)) : end.point;
+            press(release, QEvent::MouseButtonRelease, Qt::LeftButton);
+            presenter_->set_pressed(false);
+            workspace_->wait(std::chrono::milliseconds(150));
+            return pointer_state();
+        }});
+    a->extend({"ui.key",
+        "Presses keys as a hand would (\"R\", \"W\", \"Ctrl+R\", \"Escape\", \"F5\"): a menu shortcut runs its "
+        "command, other keys go to the focused widget; a key badge shows them unless \"show\" is false.",
+        json{{"keys", "Ctrl+R"}, {"show", "true"}, {"seconds", "1.5"}, {"position", "top-right"}},
+        [this](const json& args) {
+            const QString text = QString::fromStdString(args.value("keys", std::string()));
+            const QKeySequence keys = QKeySequence::fromString(text, QKeySequence::PortableText);
+            if (text.isEmpty() || keys.isEmpty() || keys[0].key() == Qt::Key_unknown) {
+                throw Error{"invalid-argument", "Argument \"keys\" must name keys, such as \"R\" or \"Ctrl+R\"."};
+            }
+            if (args.value("show", true)) {
+                show_keys(keys.toString(QKeySequence::NativeText), number(args, "seconds", 1.5),
+                    args.value("position", std::string("top-right")), number(args, "size", 1.0));
+            }
+            const QString action = press_keys(keys);
+            workspace_->wait(std::chrono::milliseconds(200));
+            return json{{"keys", keys.toString(QKeySequence::PortableText).toStdString()},
+                {"action", action.isEmpty() ? json() : json(action.toStdString())}};
+        }});
+    a->extend({"ui.type",
+        "Types text letter by letter into a field, as a hand would (the Components search filters as it goes); "
+        "with a target the pointer clicks the field first; \"enter\" presses Enter at the end.",
+        json{{"target", "{\"widget\": \"search\"} or {\"field\": \"Resistance\"}; optional: the focused field"},
+            {"text", "resistor"}, {"ms", "90 per letter"}, {"enter", "false"}, {"clear", "true"}},
+        [this](const json& args) {
+            const QString text = QString::fromStdString(args.value("text", std::string()));
+            QWidget* field = QApplication::focusWidget();
+            if (const auto it = args.find("target"); it != args.end()) {
+                const auto target = presenter_->resolve(*it, true);
+                presenter_->glide(Presenter::global_point(target), 500);
+                workspace_->wait(std::chrono::milliseconds(530));
+                presenter_->show_click(1);
+                field = target.widget;
+            }
+            if (auto* box = qobject_cast<QComboBox*>(field); box && box->isEditable()) {
+                field = box->lineEdit();
+            }
+            if (!field) {
+                throw Error{"blocked", "No field has the focus; give a target."};
+            }
+            field->setFocus(Qt::MouseFocusReason);
+            if (args.value("clear", true)) {
+                if (auto* line = qobject_cast<QLineEdit*>(field)) {
+                    line->selectAll();
+                } else if (auto* spin = qobject_cast<QAbstractSpinBox*>(field)) {
+                    spin->selectAll();
+                }
+            }
+            const int ms = duration_ms(args, "ms", 90);
+            for (const QChar c : text) {
+                const int key = c.isLetterOrNumber() ? static_cast<int>(c.toUpper().unicode()) : static_cast<int>(Qt::Key_unknown);
+                QKeyEvent down(QEvent::KeyPress, key, Qt::NoModifier, QString(c));
+                QApplication::sendEvent(field, &down);
+                QKeyEvent up(QEvent::KeyRelease, key, Qt::NoModifier, QString(c));
+                QApplication::sendEvent(field, &up);
+                workspace_->wait(std::chrono::milliseconds(ms));
+            }
+            if (args.value("enter", false)) {
+                QKeyEvent down(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+                QApplication::sendEvent(field, &down);
+                QKeyEvent up(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier);
+                QApplication::sendEvent(field, &up);
+                workspace_->wait(std::chrono::milliseconds(150));
+            }
+            return json{{"typed", text.toStdString()}};
         }});
     a->extend({"analyzer.set",
         "Changes the Signal Analyzer's settings (all optional) and answers with all of them: the tab, the timebase, "
@@ -908,6 +1174,124 @@ json ControlServer::analyzer_set(const json& args)
     return analyzer_state();
 }
 
+int ControlServer::duration_ms(const json& args, const char* key, int fallback)
+{
+    return static_cast<int>(std::clamp(number(args, key, fallback), 0.0, 60000.0));
+}
+
+json ControlServer::pointer_state() const
+{
+    const QPoint at = presenter_->pointer_position();
+    return json{{"shown", presenter_->pointer_visible()}, {"point", {at.x(), at.y()}}};
+}
+
+void ControlServer::press(const Presenter::Target& target, QEvent::Type type, Qt::MouseButton button)
+{
+    if (!target.widget) {
+        return;
+    }
+    const QPointF local(target.point);
+    const QPointF global = target.widget->mapToGlobal(local);
+    const Qt::MouseButtons held = type == QEvent::MouseButtonRelease ? Qt::MouseButtons(Qt::NoButton) : Qt::MouseButtons(button);
+    QMouseEvent event(type, local, global, button, held, Qt::NoModifier);
+    QApplication::sendEvent(target.widget, &event);
+}
+
+void ControlServer::click(const Presenter::Target& target, Qt::MouseButton button, int count)
+{
+    if (!target.widget) {
+        return;
+    }
+    // Posted, not sent: a click may open a modal dialog, whose own event loop
+    // must not run inside this command.
+    const QPointF local(target.point);
+    const QPointF global = target.widget->mapToGlobal(local);
+    const auto post = [&](QEvent::Type type, Qt::MouseButtons held) {
+        QCoreApplication::postEvent(target.widget, new QMouseEvent(type, local, global, button, held, Qt::NoModifier));
+    };
+    post(QEvent::MouseButtonPress, button);
+    post(QEvent::MouseButtonRelease, Qt::NoButton);
+    if (count == 2) {
+        post(QEvent::MouseButtonDblClick, button);
+        post(QEvent::MouseButtonRelease, Qt::NoButton);
+    }
+}
+
+QString ControlServer::press_keys(const QKeySequence& keys)
+{
+    // A menu's shortcut runs its command (posted events do not reach Qt's
+    // shortcut map); other keys go to the focused widget, or the canvas.
+    QList<QAction*> actions = window_.findChildren<QAction*>();
+    if (window_.analyzer()->isActiveWindow()) {
+        actions = window_.analyzer()->findChildren<QAction*>() + actions;
+    }
+    for (auto* action : actions) {
+        if (!action->isEnabled()) {
+            continue;
+        }
+        for (const auto& shortcut : action->shortcuts()) {
+            if (shortcut.matches(keys) == QKeySequence::ExactMatch) {
+                QTimer::singleShot(0, action, &QAction::trigger); // a dialog may open
+                QString name = action->text();
+                return name.remove(QLatin1Char('&'));
+            }
+        }
+    }
+    QWidget* focus = QApplication::focusWidget();
+    QWidget* receiver = focus ? focus : window_.schematic();
+    for (int i = 0; i < keys.count(); ++i) {
+        const auto combination = keys[i];
+        const bool command = combination.keyboardModifiers().testAnyFlags(
+            Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
+        const QString text = command ? QString() : QKeySequence(combination.key()).toString().left(1).toLower();
+        QCoreApplication::postEvent(receiver,
+            new QKeyEvent(QEvent::KeyPress, combination.key(), combination.keyboardModifiers(),
+                combination.key() < Qt::Key_Escape ? text : QString()));
+        QCoreApplication::postEvent(receiver,
+            new QKeyEvent(QEvent::KeyRelease, combination.key(), combination.keyboardModifiers()));
+    }
+    return {};
+}
+
+
+void ControlServer::show_keys(const QString& text, double seconds, const std::string& position, double size)
+{
+    check_position(position);
+    auto* viewport = window_.schematic()->viewport();
+    if (!keys_) {
+        keys_ = new QLabel(viewport);
+        keys_->setObjectName(QStringLiteral("controlKeys"));
+        keys_->setAlignment(Qt::AlignCenter);
+        keys_->setAttribute(Qt::WA_TransparentForMouseEvents);
+        keys_->setStyleSheet(QStringLiteral(
+            "QLabel { background: rgba(30, 30, 30, 215); color: white; padding: 8px 16px; border-radius: 10px;"
+            " border: 2px solid rgba(255, 255, 255, 120); }"));
+        viewport->installEventFilter(this);
+    }
+    ++keys_serial_;
+    if (text.isEmpty()) {
+        keys_->hide();
+        return;
+    }
+    QFont font = window_.font();
+    font.setBold(true);
+    font.setPointSizeF(font.pointSizeF() * 2.0 * std::clamp(size, 0.3, 5.0));
+    keys_->setFont(font);
+    keys_->setText(text);
+    keys_position_ = position;
+    place_label(keys_, position);
+    keys_->show();
+    keys_->raise();
+    if (seconds > 0) {
+        const int serial = keys_serial_;
+        QTimer::singleShot(static_cast<int>(std::min(seconds, 3600.0) * 1000), keys_, [this, serial] {
+            if (serial == keys_serial_) {
+                keys_->hide();
+            }
+        });
+    }
+}
+
 void ControlServer::show_caption(const QString& text, int ms)
 {
     auto* viewport = window_.schematic()->viewport();
@@ -919,11 +1303,11 @@ void ControlServer::show_caption(const QString& text, int ms)
         caption_->setAttribute(Qt::WA_TransparentForMouseEvents);
         caption_->setStyleSheet(QStringLiteral(
             "QLabel { background: rgba(20, 20, 20, 200); color: white; padding: 10px 18px; border-radius: 8px; }"));
-        QFont font = caption_->font();
-        font.setPointSizeF(font.pointSizeF() * 1.5);
-        caption_->setFont(font);
         viewport->installEventFilter(this);
     }
+    QFont font = window_.font();
+    font.setPointSizeF(font.pointSizeF() * 1.5 * caption_size_);
+    caption_->setFont(font);
     ++caption_serial_;
     if (text.isEmpty()) {
         caption_->hide();
@@ -948,18 +1332,16 @@ void ControlServer::place_caption()
     if (!caption_) {
         return;
     }
-    const QSize area = caption_->parentWidget()->size();
-    const int widest = std::max(160, area.width() * 4 / 5);
-    const int text = caption_->fontMetrics().horizontalAdvance(caption_->text()) + 40; // and the padding
-    caption_->setFixedWidth(std::min(widest, text));
-    caption_->setFixedHeight(caption_->heightForWidth(caption_->width()));
-    caption_->move((area.width() - caption_->width()) / 2, area.height() - caption_->height() - 24);
+    place_label(caption_, caption_position_);
 }
 
 bool ControlServer::eventFilter(QObject* watched, QEvent* event)
 {
     if (caption_ && watched == caption_->parentWidget() && event->type() == QEvent::Resize) {
         place_caption();
+    }
+    if (keys_ && watched == keys_->parentWidget() && event->type() == QEvent::Resize && keys_->isVisible()) {
+        place_label(keys_, keys_position_);
     }
     return QObject::eventFilter(watched, event);
 }
