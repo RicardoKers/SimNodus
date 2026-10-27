@@ -22,6 +22,7 @@
 #include <memory>
 
 class QComboBox;
+class QDialog;
 class QLabel;
 class QMenu;
 class QSettings;
@@ -100,6 +101,10 @@ public:
     // Menu shortcuts (read from the actions, so the list cannot go stale)
     // followed by the canvas keys and mouse gestures.
     QList<ShortcutRow> shortcut_rows() const;
+    // Help > Keyboard Shortcuts and Help > About, not yet shown (deleted on close);
+    // the menus run them modally, external control shows them (view.dialog).
+    QDialog* shortcuts_dialog();
+    QDialog* about_dialog();
 
     // File operations; return false if cancelled or failed.
     bool open_file(const QString& path);

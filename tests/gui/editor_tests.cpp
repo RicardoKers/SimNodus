@@ -34,6 +34,7 @@
 #include <QCheckBox>
 #include <QClipboard>
 #include <QComboBox>
+#include <QDialog>
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QElapsedTimer>
@@ -1903,6 +1904,49 @@ private slots:
         QVERIFY(control("ui.key", {{"keys", ""}}).is_null());
         control("view.pointer", {{"hide", true}});
         control("view.caption", {{"text", ""}, {"position", "bottom"}});
+    }
+
+    void external_control_lays_out_the_window_for_recordings()
+    {
+        // SN-239: a smooth camera, panels, the interface's text size, read-only dialogs.
+        control_rc();
+        QVERIFY(control("view.fit").is_object());
+        const double fitted = view()->zoom();
+        QVERIFY(control("view.fit", {{"area", {40, 40, 60, 50}}}).is_object());
+        const double near = view()->zoom();
+        QElapsedTimer glide;
+        glide.start();
+        const auto fit = control("view.fit", {{"ms", 300}});
+        QVERIFY2(fit.is_object(), last_reply_.dump().c_str());
+        QVERIFY(glide.elapsed() >= 280); // the command waits for the camera
+        QTRY_VERIFY(std::abs(view()->zoom() - fitted) < 1e-6);
+        QVERIFY(std::abs(near - fitted) > 1e-3);
+        QVERIFY(control("view.show", {{"items", {"C1"}}, {"ms", 100}})["selected"].get<int>() == 1);
+
+        auto panels = control("view.panels", {{"components", false}, {"messages", true}});
+        QVERIFY2(panels.is_object(), last_reply_.dump().c_str());
+        QVERIFY(!panels["components"].get<bool>());
+        QVERIFY(!window_->panel_visible(Panel::Components));
+        QVERIFY(window_->panel_visible(Panel::Messages));
+        panels = control("view.panels", {{"focus", true}});
+        QVERIFY(panels["focus"].get<bool>());
+        control("view.panels", {{"focus", false}, {"components", true}, {"messages", false}});
+        QVERIFY(window_->panel_visible(Panel::Components));
+        QVERIFY(control("view.panels", {{"messages", "yes"}}).is_null());
+
+        const double points = QApplication::font().pointSizeF();
+        QVERIFY(std::abs(control("view.font", {{"scale", 1.5}})["points"].get<double>() - points * 1.5) < 0.01);
+        QVERIFY(std::abs(QApplication::font().pointSizeF() - points * 1.5) < 0.01);
+        control("view.font", {{"scale", 1}});
+        QVERIFY(std::abs(QApplication::font().pointSizeF() - points) < 0.01);
+
+        QVERIFY(control("view.dialog", {{"name", "shortcuts"}})["shown"].get<bool>());
+        QPointer<QDialog> dialog = window_->findChild<QDialog*>(QStringLiteral("controlDialog"));
+        QVERIFY(dialog && dialog->isVisible() && dialog->findChild<QTableWidget*>(QStringLiteral("shortcutTable")));
+        QVERIFY(control("view.dialog", {{"name", "about"}}).is_null()); // one at a time
+        QVERIFY(control("view.dialog", {{"show", false}})["closed"].get<bool>());
+        QTRY_VERIFY(!dialog); // deleted on close
+        QVERIFY(control("view.dialog", {{"name", "settings"}}).is_null());
     }
 
     void external_control_runs_show_in_the_window()

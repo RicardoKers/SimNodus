@@ -151,6 +151,38 @@ void SchematicView::fit_area(const QRectF& target, const QRectF& region)
     emit zoom_changed(zoom());
 }
 
+void SchematicView::glide_camera(const std::function<void()>& change, int ms)
+{
+    const auto center = [this] { return mapToScene(viewport()->rect().center()); };
+    const double zoom_from = zoom();
+    const QPointF from = center();
+    change();
+    const double zoom_to = zoom();
+    const QPointF to = center();
+    if (ms <= 0 || (std::abs(zoom_to - zoom_from) < 1e-9 && QLineF(from, to).length() * zoom_to < 1.0)) {
+        return;
+    }
+    if (camera_) {
+        camera_->stop();
+        camera_->deleteLater();
+    }
+    camera_ = new QVariantAnimation(this);
+    camera_->setStartValue(0.0);
+    camera_->setEndValue(1.0);
+    camera_->setDuration(ms);
+    camera_->setEasingCurve(QEasingCurve::InOutCubic);
+    const auto apply = [this, zoom_from, zoom_to, from, to](double t) {
+        // An even zoom: the same ratio per step, as the wheel gives.
+        const double factor = zoom_from * std::pow(zoom_to / zoom_from, t);
+        setTransform(QTransform::fromScale(factor, factor));
+        centerOn(from + (to - from) * t);
+    };
+    connect(camera_, &QVariantAnimation::valueChanged, this, [apply](const QVariant& value) { apply(value.toDouble()); });
+    connect(camera_, &QVariantAnimation::finished, this, [this] { emit zoom_changed(zoom()); });
+    apply(0.0);
+    camera_->start();
+}
+
 void SchematicView::center_on_item(model::Id id)
 {
     if (!scene_) {

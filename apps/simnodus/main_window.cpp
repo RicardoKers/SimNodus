@@ -1232,12 +1232,22 @@ void MainWindow::show_user_guide()
 
 void MainWindow::show_about()
 {
-    QMessageBox::about(this, tr("About SimNodus"),
-        tr("<h3>SimNodus %1</h3>"
-           "<p>Interactive circuit and STM32 simulator for teaching.</p>"
-           "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
-           "Qt %2 (LGPL-3.0).</p>")
-            .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));
+    about_dialog()->exec();
+}
+
+QDialog* MainWindow::about_dialog()
+{
+    auto* box = new QMessageBox(this);
+    box->setAttribute(Qt::WA_DeleteOnClose);
+    box->setWindowTitle(tr("About SimNodus"));
+    box->setText(tr("<h3>SimNodus %1</h3>"
+                    "<p>Interactive circuit and STM32 simulator for teaching.</p>"
+                    "<p>MIT License. Analog engine: ngspice (BSD-3-Clause), loaded at run time. "
+                    "Qt %2 (LGPL-3.0).</p>")
+                     .arg(QStringLiteral(SIMNODUS_VERSION_FULL), QString::fromLatin1(qVersion())));
+    box->setIconPixmap(QApplication::windowIcon().pixmap(64, 64));
+    box->setStandardButtons(QMessageBox::Ok);
+    return box;
 }
 
 QList<ShortcutRow> MainWindow::shortcut_rows() const
@@ -1281,9 +1291,15 @@ QList<ShortcutRow> MainWindow::shortcut_rows() const
 
 void MainWindow::show_shortcuts()
 {
-    QDialog dialog(this);
-    dialog.setWindowTitle(tr("Keyboard Shortcuts"));
-    auto* table = new QTableWidget(0, 2, &dialog);
+    shortcuts_dialog()->exec();
+}
+
+QDialog* MainWindow::shortcuts_dialog()
+{
+    auto* dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("Keyboard Shortcuts"));
+    auto* table = new QTableWidget(0, 2, dialog);
     table->setObjectName(QStringLiteral("shortcutTable"));
     table->setHorizontalHeaderLabels({tr("Keys"), tr("Action")});
     table->verticalHeader()->hide();
@@ -1312,13 +1328,13 @@ void MainWindow::show_shortcuts()
     }
     table->resizeColumnsToContents();
     table->horizontalHeader()->setStretchLastSection(true);
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dialog);
-    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-    auto* layout = new QVBoxLayout(&dialog);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    auto* layout = new QVBoxLayout(dialog);
     layout->addWidget(table);
     layout->addWidget(buttons);
-    dialog.resize(620, 560);
-    dialog.exec();
+    dialog->resize(620, 560);
+    return dialog;
 }
 
 bool MainWindow::confirm_discard()

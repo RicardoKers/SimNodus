@@ -21,6 +21,7 @@
 #include <QAbstractSpinBox>
 #include <QApplication>
 #include <QComboBox>
+#include <QDialog>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
@@ -596,14 +597,17 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
         "Zooms the canvas to show the whole circuit, or a grid area (to frame a circuit before it is built), "
         "optionally in a part of the canvas only (to keep room for the Signal Analyzer in a recording).",
         json{{"area", "[x1, y1, x2, y2] grid points, optional"},
-            {"region", "[left, top, width, height] fractions of the canvas, optional: [0, 0, 0.55, 1] = left 55%"}},
+            {"region", "[left, top, width, height] fractions of the canvas, optional: [0, 0, 0.55, 1] = left 55%"},
+            {"ms", "0; a smooth zoom and pan over this time"}},
         [this](const json& args) {
             const auto area = four_numbers(args, "area");
             const auto region = four_numbers(args, "region");
+            const int ms = duration_ms(args, "ms", 0);
             auto* view = window_.schematic();
             if (!area && !region) {
-                view->fit_content();
-                return json::object();
+                view->glide_camera([view] { view->fit_content(); }, ms);
+                workspace_->wait(std::chrono::milliseconds(ms));
+                return json{{"zoom", view->zoom()}};
             }
             QRectF target = view->content_rect();
             if (area) {
@@ -625,11 +629,12 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
                         "Argument \"region\" must lie inside the canvas: fractions from 0 to 1, at least 0.1 wide and high."};
                 }
             }
-            view->fit_area(target, fraction);
+            view->glide_camera([view, target, fraction] { view->fit_area(target, fraction); }, ms);
+            workspace_->wait(std::chrono::milliseconds(ms));
             return json{{"zoom", view->zoom()}};
         }});
     a->extend({"view.show", "Selects components (by designator) or other elements (by ID) and scrolls them into view.",
-        json{{"items", "[\"R1\", 12]"}}, [this](const json& args) {
+        json{{"items", "[\"R1\", 12]"}, {"ms", "0; a smooth pan over this time"}}, [this](const json& args) {
             const auto it = args.find("items");
             if (it == args.end() || !it->is_array()) {
                 throw Error{"invalid-argument", "Argument \"items\" must be a list of designators or IDs."};
@@ -646,7 +651,9 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
                     throw Error{"not-found", "No element " + ref.dump() + "."};
                 }
             }
-            workspace_->highlight(ids);
+            const int ms = duration_ms(args, "ms", 0);
+            window_.schematic()->glide_camera([this, &ids] { workspace_->highlight(ids); }, ms);
+            workspace_->wait(std::chrono::milliseconds(ms));
             return json{{"selected", ids.size()}};
         }});
     a->extend({"view.pace", "Milliseconds the window waits after each edit, so that a recording can follow; 0 for none.",
@@ -685,6 +692,80 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
                 window_.analyzer()->hide();
             }
             return json{{"shown", window_.analyzer()->isVisible()}};
+        }});
+    a->extend({"view.panels",
+        "Shows or hides the Components, Properties and Messages panels (Ctrl+1/2/3), or the canvas alone (F11).",
+        json{{"components", "true"}, {"properties", "true"}, {"messages", "false"}, {"focus", "false: the canvas alone"}},
+        [this](const json& args) {
+            const auto flag = [&args](const char* key) -> std::optional<bool> {
+                const auto it = args.find(key);
+                if (it == args.end() || it->is_null()) {
+                    return std::nullopt;
+                }
+                if (!it->is_boolean()) {
+                    throw Error{"invalid-argument", std::string("Argument \"") + key + "\" must be true or false."};
+                }
+                return it->get<bool>();
+            };
+            const auto focus = flag("focus");
+            const std::pair<const char*, Panel> panels[] = {
+                {"components", Panel::Components}, {"properties", Panel::Properties}, {"messages", Panel::Messages}};
+            std::vector<std::pair<Panel, bool>> changes;
+            for (const auto& [key, panel] : panels) {
+                if (const auto shown = flag(key)) {
+                    changes.emplace_back(panel, *shown);
+                }
+            }
+            if (focus) {
+                window_.set_focus_canvas(*focus);
+            }
+            for (const auto& [panel, shown] : changes) {
+                window_.set_panel_visible(panel, shown);
+            }
+            QCoreApplication::processEvents(); // the splitters lay out the canvas again
+            return json{{"components", window_.panel_visible(Panel::Components)},
+                {"properties", window_.panel_visible(Panel::Properties)},
+                {"messages", window_.panel_visible(Panel::Messages)}, {"focus", window_.focus_canvas_active()}};
+        }});
+    a->extend({"view.font",
+        "Scales the interface's text for a recording (a phone shows a 1080-pixel-wide picture); 1 is the normal size. "
+        "Icons keep their size; start SimNodus with --scale to scale everything.",
+        json{{"scale", "1.4"}},
+        [this](const json& args) {
+            const double scale = std::clamp(number(args, "scale", 1.0), 0.5, 3.0);
+            if (base_font_size_ <= 0) {
+                base_font_size_ = QApplication::font().pointSizeF();
+            }
+            QFont font = QApplication::font();
+            font.setPointSizeF(base_font_size_ * scale);
+            QApplication::setFont(font);
+            QCoreApplication::processEvents();
+            return json{{"scale", scale}, {"points", font.pointSizeF()}};
+        }});
+    a->extend({"view.dialog", "Opens or closes a read-only dialog for a tour: the Keyboard Shortcuts (F1) or About.",
+        json{{"name", "shortcuts | about"}, {"show", "true; false closes the open dialog"}},
+        [this](const json& args) {
+            if (!args.value("show", true)) {
+                const bool open = dialog_ && dialog_->isVisible();
+                if (open) {
+                    dialog_->reject();
+                }
+                return json{{"closed", open}};
+            }
+            const std::string name = args.value("name", std::string());
+            if (name != "shortcuts" && name != "about") {
+                throw Error{"invalid-argument", "Argument \"name\" must be shortcuts or about."};
+            }
+            if (dialog_ && dialog_->isVisible()) {
+                throw Error{"blocked", "A dialog is already open; close it first with {\"show\": false}."};
+            }
+            // Not modal: a modal dialog's own event loop would hold this command.
+            dialog_ = name == "shortcuts" ? window_.shortcuts_dialog() : window_.about_dialog();
+            dialog_->setObjectName(QStringLiteral("controlDialog"));
+            dialog_->show();
+            dialog_->raise();
+            workspace_->wait(std::chrono::milliseconds(200));
+            return json{{"shown", dialog_ && dialog_->isVisible()}};
         }});
     a->extend({"view.keys", "Shows a key badge (\"Ctrl+R\") in a corner of the canvas for a moment, as a keystroke overlay does.",
         json{{"keys", "Ctrl+R"}, {"seconds", "1.5"}, {"position", "top-left | top-right | bottom-left | bottom-right | top | bottom | center"},
@@ -796,8 +877,8 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
             presenter_->glide(Presenter::global_point(target), ms, target.widget);
             workspace_->wait(std::chrono::milliseconds(ms + 30));
             presenter_->show_click(count);
+            // The click happens after the reply: one that opens a dialog must not hold this command.
             click(target, button == "left" ? Qt::LeftButton : Qt::RightButton, count);
-            workspace_->wait(std::chrono::milliseconds(250));
             return pointer_state();
         }});
     a->extend({"ui.drag", "Presses at one target, glides the pointer to another with the button held, and releases: "
@@ -839,8 +920,7 @@ std::unique_ptr<automation::Automation> ControlServer::make_automation()
                 show_keys(keys.toString(QKeySequence::NativeText), number(args, "seconds", 1.5),
                     args.value("position", std::string("top-right")), number(args, "size", 1.0));
             }
-            const QString action = press_keys(keys);
-            workspace_->wait(std::chrono::milliseconds(200));
+            const QString action = press_keys(keys); // after the reply, like a click
             return json{{"keys", keys.toString(QKeySequence::PortableText).toStdString()},
                 {"action", action.isEmpty() ? json() : json(action.toStdString())}};
         }});

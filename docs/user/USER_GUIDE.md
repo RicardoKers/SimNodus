@@ -493,6 +493,7 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
 | `simnodus.exe FILE.snx` | Open a project |
 | `simnodus.exe FILE.snx --run` | Open and start the simulation |
 | `simnodus.exe --control` | Start with external control on (Tools > Allow External Control) |
+| `simnodus.exe --scale 1.5` | Enlarge the whole interface, icons included (for a recording shown on a phone) |
 | `simnodus-cli.exe mcp [--window]` | MCP server for AI agents such as Claude Code or Codex (see AUTOMATION.md) |
 | `simnodus.exe --check-engine` | Load ngspice and solve a reference circuit |
 | `simnodus.exe --check-mcu-engine` | Run `blink.elf` in the microcontroller emulator |

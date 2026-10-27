@@ -29,6 +29,8 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <optional>
 #include <vector>
@@ -246,6 +248,16 @@ int screenshot(simnodus::ui::MainWindow& window, const QString& file, int delay_
 
 int main(int argc, char** argv)
 {
+    // --scale enlarges the whole interface for a recording (SN-239); Qt reads
+    // its factor before the application starts.
+    for (int i = 1; i + 1 < argc; ++i) {
+        if (std::strcmp(argv[i], "--scale") == 0) {
+            const double factor = std::atof(argv[i + 1]);
+            if (factor >= 0.5 && factor <= 4.0) {
+                qputenv("QT_SCALE_FACTOR", QByteArray::number(factor));
+            }
+        }
+    }
     QApplication application(argc, argv);
     QCoreApplication::setOrganizationName(QStringLiteral("SimNodus"));
     QCoreApplication::setApplicationName(QStringLiteral("SimNodus"));
@@ -280,8 +292,11 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Start the simulation after opening the project."));
     const QCommandLineOption control_option(QStringLiteral("control"),
         QCoreApplication::translate("main", "Allow external control by AI agents and scripts (simnodus-cli connect)."));
+    const QCommandLineOption scale_option(QStringLiteral("scale"),
+        QCoreApplication::translate("main", "Enlarge the whole interface by this factor (1.5) for a recording."),
+        QStringLiteral("factor"));
     parser.addOptions({settings_option, smoke_option, engine_option, mcu_option, screenshot_option, delay_option,
-        run_option, control_option});
+        run_option, control_option, scale_option});
     parser.addPositionalArgument(QStringLiteral("project"),
         QCoreApplication::translate("main", "Project file (.snx) to open."), QStringLiteral("[project]"));
     parser.process(application);

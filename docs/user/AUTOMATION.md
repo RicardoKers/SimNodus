@@ -188,8 +188,11 @@ Commands of the window only:
 | `ui.drag` | `{"from": "R1", "to": [20, 10], "ms": 900}`: press, glide with the button held, release |
 | `ui.key` | `{"keys": "R"}`: keys as a hand presses them, with a key badge (`"show": false` without): a menu shortcut runs its command (R places a resistor, W draws a wire, Ctrl+R rotates), others go to the focused widget (Escape ends a tool) |
 | `ui.type` | `{"target": {"widget": "search"}, "text": "capacitor", "ms": 90, "enter": false}`: the pointer clicks the field and types letter by letter; `{"field": "Resistance"}` with `"enter": true` sets a value in Properties |
-| `view.show` | `{"items": ["R1", 12]}`: select components or elements and scroll them into view |
-| `view.fit` | Zoom to show the whole circuit; `{"area": [x1, y1, x2, y2]}` frames a grid area instead (a circuit's place before it is built), `{"region": [0, 0, 0.55, 1]}` uses only part of the canvas (here the left 55%, leaving room for the Signal Analyzer) |
+| `view.show` | `{"items": ["R1", 12]}`: select components or elements and scroll them into view; `"ms": 800` pans smoothly |
+| `view.fit` | Zoom to show the whole circuit; `{"area": [x1, y1, x2, y2]}` frames a grid area instead (a circuit's place before it is built), `{"region": [0, 0, 0.55, 1]}` uses only part of the canvas (here the left 55%, leaving room for the Signal Analyzer); `"ms": 1200` zooms and pans smoothly over that time instead of jumping |
+| `view.panels` | `{"components": false, "properties": true, "messages": false}` shows or hides the panels (Ctrl+1/2/3); `{"focus": true}` leaves the canvas alone (F11) |
+| `view.font` | `{"scale": 1.4}`: larger interface text for a recording; 1 is the normal size. `simnodus.exe --scale 1.5` enlarges everything, icons included |
+| `view.dialog` | `{"name": "shortcuts"}` (or `about`) opens a read-only dialog for a tour; `{"show": false}` closes it |
 | `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
 | `view.analyzer` | `{"show": true}`: show or hide the Signal Analyzer |
 | `analyzer.set` | Change the Signal Analyzer's settings (all optional; see below) and answer with all of them |
