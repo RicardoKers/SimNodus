@@ -126,7 +126,9 @@ void place_label(QLabel* label, const std::string& position)
     const int widest = std::max(160, area.width() * 4 / 5);
     const int text = label->fontMetrics().horizontalAdvance(label->text()) + 2 * label->margin() + 40;
     label->setFixedWidth(std::min(widest, text));
-    label->setFixedHeight(label->heightForWidth(label->width()));
+    // A label without word wrap has no height for a width: its own height then.
+    const int height = label->wordWrap() ? label->heightForWidth(label->width()) : -1;
+    label->setFixedHeight(height > 0 ? height : label->sizeHint().height());
     const int gap = 24;
     const int x_left = gap;
     const int x_right = area.width() - label->width() - gap;

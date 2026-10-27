@@ -84,7 +84,7 @@ std::string text_of(const json& value, const char* key)
 // for clicks and a dot while the button is held.
 class PointerOverlay : public QWidget {
 public:
-    static constexpr int half = 48;
+    static constexpr int half = 56;
 
     PointerOverlay() : QWidget(nullptr, overlay_flags)
     {
@@ -148,16 +148,16 @@ protected:
             painter.setBrush(QColor(255, 152, 0, 170));
             painter.drawEllipse(tip, 11, 11);
         }
-        // An arrow like the system's, 1.5 times larger, so a phone screen shows it.
+        // An arrow like the system's, twice as large, so a phone screen shows it.
         QPainterPath arrow;
-        const double s = 1.5;
+        const double s = 2.0;
         const QPointF points[] = {{0, 0}, {0, 17}, {4, 13}, {7, 20}, {10, 19}, {7, 12}, {12, 12}};
         arrow.moveTo(tip + points[0] * s);
         for (std::size_t i = 1; i < std::size(points); ++i) {
             arrow.lineTo(tip + points[i] * s);
         }
         arrow.closeSubpath();
-        painter.setPen(QPen(Qt::black, 1.5));
+        painter.setPen(QPen(Qt::black, 2.0));
         painter.setBrush(Qt::white);
         painter.drawPath(arrow);
     }
