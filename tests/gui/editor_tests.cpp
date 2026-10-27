@@ -1835,6 +1835,76 @@ private slots:
             [](const automation::json& c) { return c["command"] == "view.caption"; }));
     }
 
+    void external_control_shows_the_hand()
+    {
+        // SN-238: captions and key badges placed, a drawn pointer, outlines,
+        // screen positions, and edits through the real widgets.
+        control_rc();
+        QVERIFY(control("view.caption", {{"text", "Top"}, {"position", "top"}, {"size", 2}})["shown"].get<bool>());
+        auto* caption = view()->viewport()->findChild<QLabel*>(QStringLiteral("controlCaption"));
+        QVERIFY(caption && caption->y() < view()->viewport()->height() / 3);
+        QVERIFY(control("view.caption", {{"text", "x"}, {"position", "left"}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("invalid-argument"));
+        QVERIFY(control("view.keys", {{"keys", "Ctrl+R"}, {"position", "bottom-right"}})["shown"].get<bool>());
+        auto* keys = view()->viewport()->findChild<QLabel*>(QStringLiteral("controlKeys"));
+        QVERIFY(keys && keys->isVisible());
+        QCOMPARE(keys->text(), QStringLiteral("Ctrl+R"));
+        QVERIFY(keys->x() > view()->viewport()->width() / 2);
+
+        auto state = control("view.pointer", {{"to", "R1.2"}, {"ms", 50}, {"click", 1}});
+        QVERIFY2(state.is_object(), last_reply_.dump().c_str());
+        QVERIFY(state["shown"].get<bool>());
+        const auto located = control("view.locate", {{"targets", {"R1.2", "R1", {{"action", "Wire"}}, {{"part", "Resistor"}},
+                                                                    {{"widget", "components"}}}}});
+        QVERIFY2(located.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(located["targets"].size(), std::size_t{5});
+        QVERIFY(state["point"] == located["targets"][0]["point"]);
+        const auto& wire_button = located["targets"][2];
+        const double scale = wire_button["scale"].get<double>();
+        QVERIFY(std::abs(wire_button["physical_rect"][2].get<double>() - wire_button["rect"][2].get<double>() * scale) <= 1);
+        QVERIFY(control("view.locate", {{"targets", {{{"widget", "nowhere"}}}}}).is_null());
+        QVERIFY(control("view.highlight", {{"target", {{"widget", "components"}}}, {"seconds", 0}})["shown"].get<bool>());
+        QVERIFY(control("view.highlight", {{"hide", true}}).is_object());
+        QVERIFY(!control("view.pointer", {{"hide", true}})["shown"].get<bool>());
+
+        // A resistor placed by hand: the R key, the part follows the pointer, a click drops it.
+        const auto parts = doc().schematic().components().size();
+        auto pressed = control("ui.key", {{"keys", "R"}});
+        QVERIFY2(pressed.is_object(), last_reply_.dump().c_str());
+        QCOMPARE(pressed["action"].get<std::string>(), std::string("Resistor"));
+        QVERIFY(control("ui.move", {{"to", {30, 10}}, {"ms", 60}}).is_object());
+        QVERIFY(control("ui.click", {{"target", {30, 10}}, {"ms", 30}}).is_object());
+        QTRY_COMPARE(doc().schematic().components().size(), parts + 1);
+        QVERIFY(control("ui.key", {{"keys", "Escape"}, {"show", false}}).is_object());
+        // A wire from pin to pin with the Wire button.
+        const auto wires = doc().schematic().wires().size();
+        QVERIFY(control("ui.click", {{"target", {{"action", "Wire"}}}, {"ms", 30}}).is_object());
+        QTRY_COMPARE(view()->tool(), Tool::Wire);
+        const auto& placed = doc().schematic().components().back();
+        QVERIFY(control("ui.click", {{"target", placed.designator + ".2"}, {"ms", 30}}).is_object());
+        QVERIFY(control("ui.click", {{"target", "C1.1"}, {"ms", 30}}).is_object());
+        QTRY_COMPARE(doc().schematic().wires().size(), wires + 1);
+        QVERIFY(control("ui.key", {{"keys", "Escape"}, {"show", false}}).is_object());
+        // Typing into the Components search filters the tree; a double-click on an entry starts placing it.
+        QVERIFY(control("ui.type", {{"target", {{"widget", "search"}}}, {"text", "capac"}, {"ms", 5}}).is_object());
+        QCOMPARE(window_->components()->search_field()->text(), QStringLiteral("capac"));
+        QVERIFY(control("ui.click", {{"target", {{"part", "Capacitor"}}}, {"count", 2}, {"ms", 30}}).is_object());
+        QTRY_VERIFY(view()->tool() != Tool::Select);
+        QVERIFY(control("ui.key", {{"keys", "Escape"}, {"show", false}}).is_object());
+        // A value typed into Properties and Enter.
+        const auto* r1 = doc().schematic().component_by_designator("R1");
+        window_->scene()->select_ids({r1->id});
+        QTRY_VERIFY(window_->properties()->findChild<QLineEdit*>(QStringLiteral("parameter_R")));
+        const auto typed = control("ui.type", {{"target", {{"field", "Resistance"}}}, {"text", "2k2"}, {"ms", 5}, {"enter", true}});
+        QVERIFY2(typed.is_object(), last_reply_.dump().c_str());
+        QTRY_COMPARE(doc().schematic().component(r1->id)->parameters.at("R"), std::string("2k2"));
+        QVERIFY(control("ui.click", {{"target", {{"field", "Nothing"}}}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("not-found"));
+        QVERIFY(control("ui.key", {{"keys", ""}}).is_null());
+        control("view.pointer", {{"hide", true}});
+        control("view.caption", {{"text", ""}, {"position", "bottom"}});
+    }
+
     void external_control_runs_show_in_the_window()
     {
         if (!engine_available()) {

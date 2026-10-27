@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-27, tutorials)
+
+- Recorded tutorials show the hand (SN-238): `view.pointer` (a drawn pointer that glides to a target and shows clicks), `view.keys` (a key badge), `view.highlight` (a pulsing outline around a panel, a button or a part, without selecting it), `view.locate` (screen positions in logical and physical pixels), and `ui.move`, `ui.click`, `ui.drag`, `ui.key` and `ui.type`, which act through the real widgets: the Components search filters as letters are typed, a part follows the pointer before a click drops it, a wire goes from pin to pin, a value is typed into Properties. Targets are grid points, pins, parts, toolbar buttons, Components entries, Properties fields, menus and analyzer tabs. `view.caption` takes a `position` (top, center, bottom, corners) and a `size`.
+
 ### Added (2026-10-27, serial port)
 
 - Serial Port (computer), category External I/O: a serial port of this computer (a USB-serial adapter, a virtual port) on RX, TX and GND of the circuit at TTL levels. Port, baud rate (300 to 921600), data bits, parity, stop bits and level (3.3 or 5 V) in Properties; the Port lists the computer's ports and takes a typed name; `loopback` sends back what it receives. The port opens when a run starts; a missing or busy port is a message and the run goes on. A board's USART receiving from the part decodes any baud rate without exact edges. Example 44; ADR 0105 (SN-237).

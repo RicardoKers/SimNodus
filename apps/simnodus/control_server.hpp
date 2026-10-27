@@ -14,7 +14,11 @@
 #include "automation/automation.hpp"
 #endif
 
+#include "presenter.hpp"
+
 #include <QByteArray>
+#include <QEvent>
+#include <QKeySequence>
 #include <QObject>
 #include <QPointer>
 #include <QString>
@@ -82,6 +86,13 @@ private:
     automation::json analyzer_set(const automation::json& args);
     automation::json analyzer_state() const;
     void place_caption();
+    // Tutorials (SN-238): a key badge, the pointer's state, input through the real widgets.
+    void show_keys(const QString& text, double seconds, const std::string& position, double size);
+    automation::json pointer_state() const;
+    static int duration_ms(const automation::json& args, const char* key, int fallback);
+    void press(const Presenter::Target& target, QEvent::Type type, Qt::MouseButton button);
+    void click(const Presenter::Target& target, Qt::MouseButton button, int count);
+    QString press_keys(const QKeySequence& keys); // the menu command it ran, if any
     bool eventFilter(QObject* watched, QEvent* event) override;
 
     friend class ControlWorkspace;
@@ -91,8 +102,14 @@ private:
     std::vector<std::unique_ptr<Client>> clients_;
     std::deque<std::pair<Client*, QByteArray>> queue_;
     std::unique_ptr<automation::Automation> local_; // execute()
+    Presenter* presenter_ = nullptr;
     QLabel* caption_ = nullptr;
     int caption_serial_ = 0;
+    std::string caption_position_ = "bottom";
+    double caption_size_ = 1.0;
+    QLabel* keys_ = nullptr;
+    int keys_serial_ = 0;
+    std::string keys_position_ = "top-right";
     bool busy_ = false;
     bool starting_ = false; // a command is starting a run
     int pace_ = 0;

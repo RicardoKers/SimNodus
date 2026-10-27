@@ -158,7 +158,7 @@ translation; the order may change with the owner's lessons.
 | SN-235 | Automatic scale per channel (videos request, item 2): a channel without range takes its unit's scale (1 V/div by default), Auto scales follow a signal that leaves the screen, channel settings kept in the next run | done 2026-10-27 |
 | SN-236 | Time zoom while paused (owner's request 2026-10-27): the wheel zooms and dragging pans the retained history on the scope and the Logic lanes while a run is paused or the display is stopped | done 2026-10-27 |
 | SN-237 | Serial Port part: a real COM port of the computer on RX, TX and GND of the circuit (TTL 3.3 V or 5 V; baud, data bits, parity and stop bits in the properties; the port's name saved in the project, a message when it is missing; `loopback`; ADR 0105, example 44) | done 2026-10-27 |
-| SN-238 | Tutorials show the hand (videos request, item 3): a drawn pointer, key badges, highlights, captions placed and sized, edits through the real widgets, screen positions of points and widgets | todo |
+| SN-238 | Tutorials show the hand (videos request, item 3): `view.pointer`, `view.keys`, `view.highlight`, `view.locate`, captions placed and sized, `ui.move`/`ui.click`/`ui.drag`/`ui.key`/`ui.type` acting through the real widgets (targets: grid points, pins, parts, toolbar buttons, Components entries, Properties fields, menus, tabs) | done 2026-10-27 |
 | SN-239 | Camera and layout for recordings (videos request, item 4): smooth `view.fit`, `view.panels`, interface scale, read-only dialogs | todo |
 | SN-240 | Conveniences for recordings (videos request, item 5): `sim.control` ramps, a name for an untitled project, sensors through `sim.control` | todo |
 

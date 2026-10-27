@@ -178,7 +178,16 @@ Commands of the window only:
 | Command | What it does |
 |---|---|
 | `view.pace` | `{"ms": 600}`: wait after each edit, so that a recording can follow; 0 (default) for none |
-| `view.caption` | `{"text": "Now the capacitor", "seconds": 5}`: a caption at the bottom of the canvas; empty text hides it; without `seconds` it stays until replaced |
+| `view.caption` | `{"text": "Now the capacitor", "seconds": 5}`: a caption at the bottom of the canvas; empty text hides it; without `seconds` it stays until replaced; `"position": "top"` (or `center`, `bottom`, a corner such as `top-left`) and `"size": 1.5` place and enlarge it (YouTube covers the bottom of Shorts) |
+| `view.keys` | `{"keys": "Ctrl+R", "seconds": 1.5, "position": "top-right", "size": 1}`: a key badge on the canvas, like a keystroke overlay |
+| `view.pointer` | `{"to": "R1.2", "ms": 600, "click": 1}`: a drawn pointer glides to a target and shows a click (2: a double-click); nothing is clicked; `{"hide": true}` hides it |
+| `view.highlight` | `{"target": {"widget": "components"}, "seconds": 2}`: a pulsing outline around a target, without selecting it (`0`: until replaced); `{"hide": true}` |
+| `view.locate` | `{"targets": ["R1.2", {"widget": "canvas"}]}`: screen rectangles and points of targets in logical pixels and in the screen's physical pixels (`physical_rect`, `physical_point`, `scale`: 1.25 at 125 %) |
+| `ui.move` | `{"to": [30, 10], "ms": 600}`: the pointer glides there and the real mouse moves over the widget (a part being placed follows it) |
+| `ui.click` | `{"target": {"action": "Wire"}, "ms": 600, "count": 1, "button": "left"}`: the pointer glides there and clicks through the real widget: a toolbar button, a Components entry (`"count": 2` starts placing it), a menu or one of its entries, a tab, a point of the canvas (drops a part, starts or ends a wire) |
+| `ui.drag` | `{"from": "R1", "to": [20, 10], "ms": 900}`: press, glide with the button held, release |
+| `ui.key` | `{"keys": "R"}`: keys as a hand presses them, with a key badge (`"show": false` without): a menu shortcut runs its command (R places a resistor, W draws a wire, Ctrl+R rotates), others go to the focused widget (Escape ends a tool) |
+| `ui.type` | `{"target": {"widget": "search"}, "text": "capacitor", "ms": 90, "enter": false}`: the pointer clicks the field and types letter by letter; `{"field": "Resistance"}` with `"enter": true` sets a value in Properties |
 | `view.show` | `{"items": ["R1", 12]}`: select components or elements and scroll them into view |
 | `view.fit` | Zoom to show the whole circuit; `{"area": [x1, y1, x2, y2]}` frames a grid area instead (a circuit's place before it is built), `{"region": [0, 0, 0.55, 1]}` uses only part of the canvas (here the left 55%, leaving room for the Signal Analyzer) |
 | `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
@@ -211,6 +220,37 @@ A tutorial script might start with `view.pace` 800, frame the circuit's future
 place with `view.fit` and an `area`, give each step a caption,
 place the parts, wire them, add probes, open the analyzer and run with
 `"keep": true` so the last state stays on screen.
+
+**Targets** of `view.pointer`, `view.highlight`, `view.locate` and `ui.*`:
+
+| Target | Where |
+|---|---|
+| `[30, 10]` | A grid point of the canvas |
+| `"R1.2"`, `"R1"` | A pin, a part |
+| `{"area": [x1, y1, x2, y2]}` | A grid area of the canvas |
+| `{"widget": "components"}` | `components`, `search`, `tree`, `properties`, `messages`, `canvas`, `toolbar`, `statusbar`, `menubar`, `window`, `analyzer`, `scope`, `logic`, `analyzer-panel` |
+| `{"action": "Wire"}` | A toolbar button by its command's name (the main window's or the analyzer's: `Run`, `Probe`, `Autoscale`) |
+| `{"part": "Resistor"}` | An entry of the Components tree (as shown: a search may hide it) |
+| `{"field": "Resistance"}` | A field of Properties, by its label (select the part first) |
+| `{"menu": "Simulate"}`, `{"menu": "Simulate", "item": "Settings"}` | A menu of the menu bar; an entry of an open menu |
+| `{"tab": "Logic"}` | A tab of the Signal Analyzer |
+| `{"name": "speedFactor"}` | Any widget by its object name |
+
+The pointer and the outline are small windows above every window, so a
+recording of the screen shows them over menus and the Signal Analyzer; a
+recording of one window does not. A hand-drawn tutorial then reads like a
+person using SimNodus:
+
+```text
+{"command": "view.highlight", "args": {"target": {"widget": "components"}, "seconds": 2}}
+{"command": "ui.type", "args": {"target": {"widget": "search"}, "text": "resistor"}}
+{"command": "ui.click", "args": {"target": {"part": "Resistor"}, "count": 2}}
+{"command": "ui.move", "args": {"to": [10, 0]}}
+{"command": "ui.click", "args": {"target": [10, 0]}}
+{"command": "ui.key", "args": {"keys": "W"}}
+{"command": "ui.click", "args": {"target": "R1.2"}}
+{"command": "ui.click", "args": {"target": "C1.1"}}
+```
 
 ## MCP server
 
