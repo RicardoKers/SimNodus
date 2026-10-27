@@ -328,6 +328,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     speed_ = interactive ? settings_.speed : 0.0;
     stop_requested_ = false;
     pause_requested_ = false;
+    resegment_requested_ = false;
     pause_at_ = -1.0;
     worker_ = std::thread([this, interactive] { interactive ? run_interactive() : run_transient(); });
     return true;
@@ -521,9 +522,14 @@ void SimulationSession::fail(const std::string& message, NgspiceSession* engine)
 
 std::vector<std::string> SimulationSession::segment_deck(double t0, double length, bool interactive)
 {
-    // Periodic sources depend on t0, so the netlist is generated per segment.
-    const auto n =
-        netlist::generate_netlist(request_.schematic, *request_.library, {interactive, t0, request_.current_probes});
+    // Periodic sources depend on t0, so the netlist is generated per segment
+    // (from the run's schematic, whose values may change while running).
+    model::Schematic schematic;
+    {
+        std::lock_guard lock(mutex_);
+        schematic = request_.schematic;
+    }
+    const auto n = netlist::generate_netlist(schematic, *request_.library, {interactive, t0, request_.current_probes});
     std::vector<std::string> lines;
     for (const auto& line : n.lines) {
         std::string out = line;
@@ -571,7 +577,7 @@ std::vector<std::string> SimulationSession::segment_deck(double t0, double lengt
 }
 
 bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<std::string>& deck, double t0,
-    double length)
+    double length, bool can_cut)
 {
     segment_t0_ = t0;
     last_time_ = 0.0;
@@ -592,14 +598,25 @@ bool SimulationSession::run_segment(NgspiceSession& engine, const std::vector<st
         engine.command("remcirc");
         return false;
     }
+    bool cut = false;
     while (!engine.wait_background(std::chrono::milliseconds(50))) {
         if (stop_requested_) {
             pause_changed_.notify_all();
             engine.halt_background(std::chrono::seconds(10));
             break;
         }
+        // A new value: end the segment here; the next one starts from this
+        // state with it. A paused run takes it when it resumes (the engine
+        // thread waits inside the callback and cannot be halted).
+        if (can_cut && resegment_requested_ && !pause_requested_) {
+            resegment_requested_ = false;
+            engine.halt_background(std::chrono::seconds(10));
+            cut = !stop_requested_;
+            break;
+        }
     }
-    const bool complete = last_time_ >= length * (1.0 - 1e-9);
+    const bool complete = cut || last_time_ >= length * (1.0 - 1e-9);
+    segment_ran_ = cut ? last_time_ : length;
     if (!complete && !stop_requested_) {
         auto output = engine.take_output();
         fail(explain(output, t0 + last_time_), nullptr);
@@ -1117,8 +1134,20 @@ void SimulationSession::set_device_parameter(model::Id component, const std::str
                 if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {
                     it->second->set_device_parameter(component, name, value);
                 }
+                return;
             }
         }
+    }
+    // A part of the circuit (SN-232): the next segment's netlist has the value.
+    if (!active()) {
+        return;
+    }
+    std::lock_guard lock(mutex_);
+    if (const auto* c = request_.schematic.component(component)) {
+        model::Component changed = *c;
+        changed.parameters[name] = value;
+        request_.schematic.put(changed);
+        resegment_requested_ = true;
     }
 }
 
@@ -1396,10 +1425,10 @@ void SimulationSession::run_interactive()
     double t0 = 0.0;
     while (!stop_requested_) {
         const auto deck = segment_deck(t0, segment, true);
-        if (!run_segment(*engine, deck, t0, segment)) {
+        if (!run_segment(*engine, deck, t0, segment, true)) {
             break;
         }
-        t0 += segment;
+        t0 += segment_ran_;
         {
             std::lock_guard lock(mutex_);
             status_.segments += 1;

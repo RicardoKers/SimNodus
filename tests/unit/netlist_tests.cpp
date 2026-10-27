@@ -501,3 +501,24 @@ TEST_CASE("splitters join wires into buses and split buses like hneemann's Digit
     CHECK(model::widths_text({1, 1, 1, 1}) == "4*1");
     CHECK(model::widths_text({3, 1}) == "3,1");
 }
+
+TEST_CASE("a new value keeps the topology; a new part does not (SN-232)")
+{
+    const auto library = load();
+    test::CircuitBuilder b(library);
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "5"}});
+    const model::Id r = b.add("resistor", {{"1", "IN"}, {"2", "OUT"}}, {{"R", "10k"}});
+    b.add("capacitor", {{"1", "OUT"}, {"2", "0"}}, {{"C", "4.7u"}});
+    const auto before = netlist::generate_netlist(b.schematic, library);
+    REQUIRE(before.ok());
+
+    model::Component changed = *b.schematic.component(r);
+    changed.parameters["R"] = "22k";
+    b.schematic.put(changed);
+    const auto valued = netlist::generate_netlist(b.schematic, library);
+    CHECK(valued.lines != before.lines);
+    CHECK(netlist::same_topology(before, valued));
+
+    b.add("resistor", {{"1", "OUT"}, {"2", "0"}}, {{"R", "100k"}});
+    CHECK(!netlist::same_topology(before, netlist::generate_netlist(b.schematic, library)));
+}

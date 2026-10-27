@@ -127,6 +127,23 @@ std::size_t Netlist::count(Severity severity) const
         [severity](const Diagnostic& d) { return d.severity >= severity; }));
 }
 
+bool same_topology(const Netlist& a, const Netlist& b)
+{
+    const auto same_element = [](const Element& x, const Element& y) {
+        return x.component == y.component && x.name == y.name && x.letter == y.letter && x.nodes == y.nodes;
+    };
+    const auto same_control = [](const ControlSource& x, const ControlSource& y) {
+        return x.component == y.component && x.source == y.source && x.node == y.node;
+    };
+    const auto same_external = [](const ExternalSource& x, const ExternalSource& y) {
+        return x.component == y.component && x.source == y.source && x.node == y.node;
+    };
+    return std::equal(a.elements.begin(), a.elements.end(), b.elements.begin(), b.elements.end(), same_element)
+        && std::equal(a.controls.begin(), a.controls.end(), b.controls.begin(), b.controls.end(), same_control)
+        && std::equal(a.externals.begin(), a.externals.end(), b.externals.begin(), b.externals.end(), same_external)
+        && a.pin_node == b.pin_node && a.pin_current == b.pin_current;
+}
+
 namespace {
 
 bool ground_label(const std::string& name)

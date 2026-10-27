@@ -142,7 +142,11 @@ public:
         std::string& bytes, std::vector<std::uint64_t>* times = nullptr) const = 0;
     // What the display chips of every board show (component -> UTF-8 text, SN-206).
     virtual std::map<model::Id, std::string> device_texts() const = 0;
-    // A live parameter of a chip changed while running (an LM75's temperature, SN-207).
+    // A live parameter of a chip changed while running (an LM75's temperature,
+    // SN-207). For a part simulated by ngspice (a resistor's value, SN-232) the
+    // caller has checked with netlist::same_topology that the circuit keeps its
+    // elements and nodes: an interactive run continues with the new value in a
+    // new segment that starts from the present state.
     virtual void set_device_parameter(model::Id component, const std::string& name, const std::string& value) = 0;
     // Memory chips (SN-208): the contents of the current or last run, and new
     // contents for a running chip.
@@ -206,7 +210,10 @@ private:
     std::optional<std::string> mcu_failure() const;
     void run_interactive();
     void run_transient();
-    bool run_segment(NgspiceSession& engine, const std::vector<std::string>& deck, double t0, double length);
+    // Runs one segment; with can_cut, a new parameter value ends it early
+    // (segment_ran_ tells how far it got).
+    bool run_segment(NgspiceSession& engine, const std::vector<std::string>& deck, double t0, double length,
+        bool can_cut = false);
     std::vector<std::string> segment_deck(double t0, double length, bool interactive);
     void fail(const std::string& message, NgspiceSession* engine);
     void set_state(RunState state);
@@ -224,6 +231,7 @@ private:
     std::thread worker_;
     std::atomic<bool> stop_requested_{false};
     std::atomic<bool> pause_requested_{false};
+    std::atomic<bool> resegment_requested_{false}; // a circuit value changed (SN-232)
     std::atomic<double> pause_at_{-1.0};
     std::atomic<double> speed_{1.0};
 
@@ -309,6 +317,7 @@ private:
     std::vector<int> index_;                          // per callback vector: index in save_vectors_ or -1
     bool index_valid_ = false;
     double segment_t0_ = 0.0;
+    double segment_ran_ = 0.0; // simulated length of the last segment
     double last_time_ = 0.0;
 };
 

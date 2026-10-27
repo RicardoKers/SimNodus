@@ -495,3 +495,33 @@ TEST_CASE("session: a bouncing push button chatters for about 3 ms")
         }
     }
 }
+
+TEST_CASE("session: a new resistor value reaches an interactive run in a new segment (SN-232)")
+{
+    REQUIRE(test::engine() != nullptr);
+    test::CircuitBuilder b(components());
+    b.add("vdc", {{"+", "IN"}, {"-", "0"}}, {{"V", "10"}});
+    const model::Id top = b.add("resistor", {{"1", "IN"}, {"2", "MID"}}, {{"R", "1k"}});
+    b.add("resistor", {{"1", "MID"}, {"2", "0"}}, {{"R", "1k"}});
+    b.add("capacitor", {{"1", "MID"}, {"2", "0"}}, {{"C", "1u"}}); // tau 0.5 ms: settles at once
+    auto settings = b.schematic.settings();
+    settings.speed = 1.0;
+    settings.segment = 60.0; // only a cut can end the first segment within the test
+    settings.max_step = 1e-4;
+    b.schematic.set_settings(settings);
+    sim::RunRequest request;
+    request.schematic = b.schematic;
+    request.library = &components();
+    request.vectors = {"MID"};
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    REQUIRE(wait_for_time(session, 0.1));
+    CHECK(std::abs(session.latest("mid").value_or(-1) - 5.0) < 1e-2);
+    session.set_device_parameter(top, "R", "3k");
+    const double changed_at = session.status().sim_time;
+    REQUIRE(wait_for_time(session, changed_at + 0.1));
+    CHECK(std::abs(session.latest("mid").value_or(-1) - 2.5) < 1e-2);
+    CHECK(session.status().segments >= 1); // the first segment was cut, time went on
+    session.stop();
+}
