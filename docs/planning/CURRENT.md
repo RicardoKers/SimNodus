@@ -122,8 +122,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 1. Owner's test of the Serial Port part with a USB-serial adapter or a
    virtual port pair (example 44 with a terminal program), and of the new
    recording commands in the videos repository (note them in its
-   `CLAUDE.md`). Open decision: may a recording hide "Controlled by an
-   agent" in the status bar (security)?
+   `CLAUDE.md`). "Controlled by an agent" stays in the status bar during
+   recordings (owner's decision, 2026-10-27). Test package
+   `dist/SimNodus-0.11.0-dev-windows-x64.zip` built 2026-10-27.
 2. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
    26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186 postponed. Run
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
