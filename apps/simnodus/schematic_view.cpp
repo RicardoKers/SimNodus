@@ -111,7 +111,7 @@ void SchematicView::zoom_out()
     set_zoom(zoom() / 1.25, viewport()->rect().center());
 }
 
-void SchematicView::fit_content()
+QRectF SchematicView::content_rect() const
 {
     QRectF target;
     if (scene_) {
@@ -121,9 +121,12 @@ void SchematicView::fit_content()
             }
         }
     }
-    if (target.isEmpty()) {
-        target = empty_sheet;
-    }
+    return target.isEmpty() ? empty_sheet : target;
+}
+
+void SchematicView::fit_content()
+{
+    const QRectF target = content_rect();
     fitInView(target.adjusted(-4 * grid, -4 * grid, 4 * grid, 4 * grid), Qt::KeepAspectRatio);
     if (zoom() > 3.0) {
         set_zoom(3.0, viewport()->rect().center()); // a single part should not fill the screen
@@ -131,6 +134,20 @@ void SchematicView::fit_content()
     if (zoom() > max_zoom || zoom() < min_zoom) {
         set_zoom(zoom(), viewport()->rect().center());
     }
+    emit zoom_changed(zoom());
+}
+
+void SchematicView::fit_area(const QRectF& target, const QRectF& region)
+{
+    const QRectF view(viewport()->rect());
+    const QRectF frame(view.left() + region.left() * view.width(), view.top() + region.top() * view.height(),
+        region.width() * view.width(), region.height() * view.height());
+    const QRectF padded = target.adjusted(-4 * grid, -4 * grid, 4 * grid, 4 * grid);
+    double factor = std::min(frame.width() / padded.width(), frame.height() / padded.height());
+    factor = std::clamp(std::min(factor, 3.0), min_zoom, max_zoom);
+    setTransform(QTransform::fromScale(factor, factor));
+    // The target's center goes to the frame's center, not the view's.
+    centerOn(padded.center() + (view.center() - frame.center()) / factor);
     emit zoom_changed(zoom());
 }
 

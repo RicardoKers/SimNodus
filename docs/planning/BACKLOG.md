@@ -151,6 +151,7 @@ translation; the order may change with the owner's lessons.
 | SN-228 | Sound: active and passive buzzers heard through the computer's speakers (Windows, winmm; the owner's choice of 2026-10-26: no Qt Multimedia); firmware `hal_buzzer`, example 42 | done 2026-10-26 |
 | SN-229 | Parts for automation lessons chosen by the owner on 2026-10-26: inductive proximity sensors NPN/PNP 24 V, 4–20 mA transmitter, HC-SR501 PIR, IRLZ44N; example 43 (the ULN2003 came with SN-226) | done 2026-10-26 |
 | SN-230 | HC-05 Bluetooth serial module: a device with the AT mode and a port in the UART terminal standing for the phone, then two modules paired (design discussed 2026-10-26; postponed by the owner) | todo |
+| SN-231 | Recorded videos: `view.fit` with a grid `area` and a canvas `region` (the owner's videos repository frames the circuit left of the Signal Analyzer) | done 2026-10-26 |
 
 ## Later (after freeze or after classroom)
 

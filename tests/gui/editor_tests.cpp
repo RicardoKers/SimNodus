@@ -1798,6 +1798,15 @@ private slots:
         QVERIFY(paced.elapsed() >= 40);
         QVERIFY(control("view.show", {{"items", {"V1"}}})["selected"].get<int>() == 1);
         QVERIFY(control("view.show", {{"items", {"X9"}}}).is_null());
+        // A grid area framed in the left half of the canvas, before anything is placed there.
+        QVERIFY(control("view.fit", {{"area", {40, 40, 60, 50}}, {"region", {0, 0, 0.5, 1}}})["zoom"].get<double>() > 0);
+        const QRect canvas = view()->viewport()->rect();
+        const QPoint middle = view()->mapFromScene(QPointF(50 * SchematicView::grid, 45 * SchematicView::grid));
+        QVERIFY2(std::abs(middle.x() - canvas.width() / 4) <= 2, qPrintable(QString::number(middle.x())));
+        QVERIFY(std::abs(middle.y() - canvas.height() / 2) <= 2);
+        QVERIFY(control("view.fit", {{"region", {0.6, 0, 0.6, 1}}}).is_null());
+        QCOMPARE(last_reply_["error"]["code"].get<std::string>(), std::string("invalid-argument"));
+        QVERIFY(control("view.fit").is_object());
         const auto help = control("help");
         QVERIFY(std::any_of(help["commands"].begin(), help["commands"].end(),
             [](const automation::json& c) { return c["command"] == "view.caption"; }));

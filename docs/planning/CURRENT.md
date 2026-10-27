@@ -15,6 +15,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Releases 0.1.0-0.10.0 were published between 2026-10-14 and 10-25.
   Community: Discord server https://discord.gg/AsjGNtMnef (README, user
   guides, package README) besides GitHub Issues.
+- **On `main` after 0.11:** `view.fit` with a grid `area` and a canvas
+  `region` (SN-231), for the owner's video pipeline in the private repository
+  `RicardoKers/simnodus-videos` (episode files, Kokoro narration, the window
+  driven by `simnodus-cli connect`, ffmpeg capture).
 - **New in 0.11:** File > Save with Firmware (SN-219) and the placement
   shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and transducers
   (SN-221, example 36); logic chips in DIP packages (SN-222, example 37); I2C

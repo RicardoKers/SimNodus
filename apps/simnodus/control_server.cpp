@@ -24,6 +24,8 @@
 #include <QUndoStack>
 
 #include <algorithm>
+#include <array>
+#include <optional>
 #include <set>
 
 namespace simnodus::ui {
@@ -41,6 +43,21 @@ std::filesystem::path to_path(const QString& text)
 QString from_path(const std::filesystem::path& path)
 {
     return QDir::fromNativeSeparators(QString::fromStdWString(path.wstring()));
+}
+
+// Four numbers from a request ([a, b, c, d]), or nothing when the key is absent.
+std::optional<std::array<double, 4>> four_numbers(const json& args, const char* key)
+{
+    const auto it = args.find(key);
+    if (it == args.end() || it->is_null()) {
+        return std::nullopt;
+    }
+    if (!it->is_array() || it->size() != 4
+        || !std::all_of(it->begin(), it->end(), [](const json& v) { return v.is_number(); })) {
+        throw Error{"invalid-argument", std::string("Argument \"") + key + "\" must be four numbers."};
+    }
+    return std::array<double, 4>{(*it)[0].get<double>(), (*it)[1].get<double>(), (*it)[2].get<double>(),
+        (*it)[3].get<double>()};
 }
 
 // A number from a request, given as a number or as text.
@@ -488,10 +505,42 @@ void ControlServer::forget_runs()
 std::unique_ptr<automation::Automation> ControlServer::make_automation()
 {
     auto a = std::make_unique<automation::Automation>(*workspace_);
-    a->extend({"view.fit", "Zooms the canvas to show the whole circuit.", json::object(), [this](const json&) {
-                   window_.schematic()->fit_content();
-                   return json::object();
-               }});
+    a->extend({"view.fit",
+        "Zooms the canvas to show the whole circuit, or a grid area (to frame a circuit before it is built), "
+        "optionally in a part of the canvas only (to keep room for the Signal Analyzer in a recording).",
+        json{{"area", "[x1, y1, x2, y2] grid points, optional"},
+            {"region", "[left, top, width, height] fractions of the canvas, optional: [0, 0, 0.55, 1] = left 55%"}},
+        [this](const json& args) {
+            const auto area = four_numbers(args, "area");
+            const auto region = four_numbers(args, "region");
+            auto* view = window_.schematic();
+            if (!area && !region) {
+                view->fit_content();
+                return json::object();
+            }
+            QRectF target = view->content_rect();
+            if (area) {
+                const auto& [x1, y1, x2, y2] = *area;
+                const double g = SchematicView::grid;
+                target = QRectF(QPointF(std::min(x1, x2) * g, std::min(y1, y2) * g),
+                    QPointF(std::max(x1, x2) * g, std::max(y1, y2) * g));
+                if (target.width() <= 0 || target.height() <= 0) {
+                    throw Error{"invalid-argument", "Argument \"area\" must have a width and a height."};
+                }
+            }
+            QRectF fraction(0.0, 0.0, 1.0, 1.0);
+            if (region) {
+                const auto& [left, top, width, height] = *region;
+                fraction = QRectF(left, top, width, height);
+                if (left < 0 || top < 0 || width < 0.1 || height < 0.1 || left + width > 1.0001
+                    || top + height > 1.0001) {
+                    throw Error{"invalid-argument",
+                        "Argument \"region\" must lie inside the canvas: fractions from 0 to 1, at least 0.1 wide and high."};
+                }
+            }
+            view->fit_area(target, fraction);
+            return json{{"zoom", view->zoom()}};
+        }});
     a->extend({"view.show", "Selects components (by designator) or other elements (by ID) and scrolls them into view.",
         json{{"items", "[\"R1\", 12]"}}, [this](const json& args) {
             const auto it = args.find("items");
