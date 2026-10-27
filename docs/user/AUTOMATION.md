@@ -180,11 +180,12 @@ Commands of the window only:
 | `view.pace` | `{"ms": 600}`: wait after each edit, so that a recording can follow; 0 (default) for none |
 | `view.caption` | `{"text": "Now the capacitor", "seconds": 5}`: a caption at the bottom of the canvas; empty text hides it; without `seconds` it stays until replaced |
 | `view.show` | `{"items": ["R1", 12]}`: select components or elements and scroll them into view |
-| `view.fit` | Zoom to show the whole circuit |
+| `view.fit` | Zoom to show the whole circuit; `{"area": [x1, y1, x2, y2]}` frames a grid area instead (a circuit's place before it is built), `{"region": [0, 0, 0.55, 1]}` uses only part of the canvas (here the left 55%, leaving room for the Signal Analyzer) |
 | `view.wait` | `{"ms": 1500}`: wait while the window stays live (narration) |
 | `view.analyzer` | `{"show": true}`: show or hide the Signal Analyzer |
 
-A tutorial script might start with `view.pace` 800, give each step a caption,
+A tutorial script might start with `view.pace` 800, frame the circuit's future
+place with `view.fit` and an `area`, give each step a caption,
 place the parts, wire them, add probes, open the analyzer and run with
 `"keep": true` so the last state stays on screen.
 

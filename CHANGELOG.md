@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-26)
+
+- `view.fit` takes an `area` of grid points to frame a circuit before it is built and a `region` of the canvas to fit it in, so that a recorded tutorial keeps one zoom from the first part and leaves room for the Signal Analyzer (SN-231).
+
 ### Documentation (2026-10-26)
 
 - The README, the roadmap status, the product architecture (device analog and internal pins, pixel screens, sound) and the user guides (English and pt-BR: release 0.11, examples 29-43) describe release 0.11.
