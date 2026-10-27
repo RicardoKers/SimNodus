@@ -36,6 +36,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <optional>
 
 namespace simnodus::ui {
 namespace {
@@ -587,15 +589,41 @@ void AnalyzerWindow::refresh_scope()
 
 void AnalyzerWindow::autoscale()
 {
+    // Channels of one unit put 0 V at the same height (SN-233), so that a
+    // signal and its filtered copy read against one reference: one division
+    // above the bottom when all are positive, below the top when all are
+    // negative, the center otherwise. Each channel keeps its own scale.
     const auto traces = collect(scope_->window_start(), scope_->window_end());
+    const auto channels = controller_ ? controller_->channels() : std::vector<Channel>{};
+    std::vector<std::optional<sim::Measurements>> measured(traces.size());
+    std::map<QString, std::pair<double, double>> ranges; // unit -> lowest, highest
+    const auto unit_of = [&channels](std::size_t i) { return i < channels.size() ? channels[i].unit : QString(); };
     for (std::size_t i = 0; i < traces.size() && i < scales_.size(); ++i) {
-        const auto m = sim::measure(traces[i].samples, scope_->window_start(), scope_->window_end());
+        measured[i] = sim::measure(traces[i].samples, scope_->window_start(), scope_->window_end());
+        if (measured[i]) {
+            auto [it, added] = ranges.try_emplace(unit_of(i), measured[i]->min, measured[i]->max);
+            it->second = {std::min(it->second.first, measured[i]->min), std::max(it->second.second, measured[i]->max)};
+        }
+    }
+    const double half = ScopeWidget::vertical_divisions / 2.0;
+    for (std::size_t i = 0; i < traces.size() && i < scales_.size(); ++i) {
+        const auto& m = measured[i];
         if (!m) {
             continue;
         }
-        const double range = std::max(m->peak_to_peak, std::max(std::abs(m->max), 1e-6) * 0.2);
-        scales_[i] = nice_division(range / 6.0);
-        offsets_[i] = std::round(0.5 * (m->max + m->min) / scales_[i]) * scales_[i];
+        const auto [lowest, highest] = ranges[unit_of(i)];
+        const double tolerance = 0.02 * std::max(std::abs(lowest), std::abs(highest));
+        double zero = 0.0; // divisions of 0 V below the center
+        double extent = std::max({std::abs(m->max), std::abs(m->min), 1e-9});
+        if (lowest >= -tolerance) {
+            zero = half - 1.0;
+            extent = std::max(m->max, 1e-9);
+        } else if (highest <= tolerance) {
+            zero = -(half - 1.0);
+            extent = std::max(-m->min, 1e-9);
+        }
+        scales_[i] = nice_division(extent / (half + std::abs(zero) - 0.5));
+        offsets_[i] = zero * scales_[i];
         if (auto* box = qobject_cast<QComboBox*>(channels_->itemWidget(channels_->topLevelItem(static_cast<int>(i)), 1))) {
             const int index = box->findData(scales_[i]);
             if (index >= 0) {

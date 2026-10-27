@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 c13b5c67aad600e4bfd2c425eb4f359817f799a336995f4991afacbe9e62fd26 -->
+<!-- source: USER_GUIDE.md sha256 8d709fec958394e4433064beafed45d2b3f4635bbef8bffac8adf97b03fcc220 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -331,8 +331,12 @@ Durante a execução:
 - A **caixa de velocidade** define a velocidade em relação ao tempo real
   (0,001x a 1x, ou Máxima). A barra de status mostra a velocidade
   efetivamente alcançada.
-- Alterar o circuito pede para parar antes; mudanças de valores valem na
-  próxima execução.
+- Alterar o circuito pede para parar antes. Um novo valor de uma peça (um
+  resistor, um capacitor, a tensão de uma fonte) vale na hora numa execução
+  interativa: a simulação continua do estado atual com ele, como na troca de
+  segmento. Um valor que muda a estrutura do circuito (um modelo com outros
+  nós), o firmware de uma placa e as execuções transitórias valem na próxima
+  execução.
 
 ### Configurações da simulação
 
@@ -378,7 +382,10 @@ movimentação.
   disparo é marcado com uma bandeira T e uma linha pontilhada; a tela mostra
   *Disparado em ...*, *Aguardando disparo* ou *Automático: sem disparo,
   correndo livre*.
-- **Vertical:** escala por canal ou **Escala automática**. A borda esquerda
+- **Vertical:** escala por canal ou **Escala automática**, que põe o 0 V na
+  mesma altura para todos os canais da mesma unidade (uma divisão acima da
+  base quando os sinais são positivos), para que sejam lidos contra uma só
+  referência. A borda esquerda
   mostra os volts por divisão do canal selecionado e um triângulo colorido
   no 0 V de cada canal; arraste um triângulo (ou gire a roda sobre a escala)
   para deslocar o canal, e clique duas vezes nele para centralizar o 0 V de

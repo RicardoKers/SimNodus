@@ -305,8 +305,11 @@ While running:
 - Select a part to see its live voltages, current and power in Properties.
 - The **speed box** sets the speed relative to real time (0.001x to 1x, or
   Maximum). The status bar shows the speed actually reached.
-- Changing the circuit asks to stop first; value changes apply at the next
-  run.
+- Changing the circuit asks to stop first. A new value of a part (a
+  resistor, a capacitor, a source's voltage) applies at once in an interactive
+  run: the simulation goes on from the present state with it, as at a segment
+  boundary. A value that changes the circuit's structure (a model with other
+  nodes), a board's firmware and transient runs apply at the next run.
 
 ### Simulation settings
 
@@ -350,7 +353,10 @@ current probe needs a pin). Ctrl+Z undoes the move.
   point is marked with a T flag and a dotted line; the display says
   *Triggered at ...*, *Waiting for trigger* or *Auto: no trigger, running
   free*.
-- **Vertical:** per-channel scale or **Autoscale**. The left edge shows the
+- **Vertical:** per-channel scale or **Autoscale**, which puts 0 V at the
+  same height for all channels of one unit (one division above the bottom
+  when the signals are positive), so that they read against one reference.
+  The left edge shows the
   selected channel's volts per division and a colored triangle at each
   channel's 0 V; drag a triangle (or turn the wheel over the scale) to move
   the channel, double-click it to center 0 V again.

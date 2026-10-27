@@ -9,6 +9,7 @@
 #include "library/component_library.hpp"
 #include "library/spice_template.hpp"
 #include "model/engineering.hpp"
+#include "netlist/netlist.hpp"
 #include "sim/engine_host.hpp"
 #include "sim/remote_session.hpp"
 
@@ -21,6 +22,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
+#include <tuple>
 
 namespace simnodus::ui {
 namespace {
@@ -148,6 +150,7 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
             request.current_probes.push_back(ref);
         }
     }
+    current_probes_ = request.current_probes;
     std::sort(request.vectors.begin(), request.vectors.end());
     request.vectors.erase(std::unique(request.vectors.begin(), request.vectors.end()), request.vectors.end());
     std::string reason;
@@ -302,7 +305,52 @@ bool RunController::apply_live_parameters()
             }
         }
     }
-    return applied;
+    return apply_circuit_values() || applied;
+}
+
+bool RunController::apply_circuit_values()
+{
+    // Parts simulated by ngspice (SN-232): an interactive run takes new values
+    // when the circuit keeps its elements and nodes; the engine continues from
+    // the present state in a new segment. Boards and chips are excluded (a new
+    // firmware needs a new run; chips have their own live parameters).
+    if (mode_ != model::SimulationMode::Interactive) {
+        return false;
+    }
+    const auto& library = document_.library();
+    model::Schematic candidate = snapshot_;
+    std::vector<std::tuple<model::Id, std::string, std::string>> changes;
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        const auto* now = document_.schematic().component(c.id);
+        if (!d || d->device || d->mcu || !now || now->type != c.type || now->parameters == c.parameters) {
+            continue;
+        }
+        model::Component changed = c;
+        for (const auto& p : d->parameters) {
+            const auto was = c.parameters.find(p.name);
+            const auto is = now->parameters.find(p.name);
+            const std::string old_value = was == c.parameters.end() ? p.default_value : was->second;
+            const std::string new_value = is == now->parameters.end() ? p.default_value : is->second;
+            if (old_value != new_value) {
+                changes.emplace_back(c.id, p.name, new_value);
+                changed.parameters[p.name] = new_value;
+            }
+        }
+        candidate.put(changed);
+    }
+    if (changes.empty()) {
+        return false;
+    }
+    const auto next = netlist::generate_netlist(candidate, library, {true, 0.0, current_probes_});
+    if (!next.ok() || !netlist::same_topology(next, session_->netlist())) {
+        return false;
+    }
+    for (const auto& [id, name, value] : changes) {
+        session_->set_device_parameter(id, name, value);
+    }
+    snapshot_ = std::move(candidate);
+    return true;
 }
 
 void RunController::set_sound(bool on)

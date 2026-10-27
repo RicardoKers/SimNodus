@@ -78,7 +78,9 @@ public:
         session_->load_device_memory(component, bytes);
     }
     // While running: sends the document's changed live parameters (an LM75's
-    // temperature) to their chips; true if one was sent (SN-207).
+    // temperature) to their chips (SN-207), and new values of circuit parts
+    // (a resistor) to an interactive run that keeps its topology (SN-232);
+    // true if one was sent.
     bool apply_live_parameters();
     void set_control(model::Id component, double value);
     // The latest voltage at a component's pin in the current run.
@@ -153,7 +155,10 @@ private:
     QTimer timer_;
     ToneOutput tone_;
     bool sound_ = true;
+    bool apply_circuit_values();
+
     model::Schematic snapshot_;
+    std::vector<netlist::PinRef> current_probes_; // of the current run
     model::SimulationMode mode_ = model::SimulationMode::Interactive;
     std::vector<Channel> channels_;
     std::map<model::Id, std::string> readout_vectors_; // component -> current vector

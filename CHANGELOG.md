@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-10-26)
+
+- A new value of a part simulated by ngspice (a resistor, a capacitor, a source's voltage) applies at once in an interactive run: the run ends its segment there and continues from the present state with the value, as at a segment boundary. Values that change the circuit's elements or nodes, boards and transient runs still apply at the next run (SN-232).
+- Autoscale puts 0 V at the same height for all channels of one unit (one division above the bottom when all are positive, below the top when all are negative, the center otherwise); each channel keeps its own scale (SN-233).
+
 ### Added (2026-10-26)
 
 - `view.fit` takes an `area` of grid points to frame a circuit before it is built and a `region` of the canvas to fit it in, so that a recorded tutorial keeps one zoom from the first part and leaves room for the Signal Analyzer (SN-231).

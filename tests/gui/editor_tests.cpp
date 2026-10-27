@@ -742,6 +742,8 @@ private slots:
         const QRectF plot = scope->plot_rect();
         const auto& before = scope->traces();
         QCOMPARE(before.size(), std::size_t{2});
+        // Both voltages have 0 V at the same height after the autoscale (SN-233).
+        QCOMPARE(before[0].offset / before[0].per_division, before[1].offset / before[1].per_division);
         const double upp = before[1].per_division * ScopeWidget::vertical_divisions / plot.height();
         const QPointF marker(plot.left() - 3, std::clamp(plot.center().y() + before[1].offset / upp, plot.top(), plot.bottom()));
         auto send = [scope](QEvent::Type type, QPointF at, Qt::MouseButtons buttons) {

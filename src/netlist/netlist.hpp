@@ -86,6 +86,12 @@ struct Netlist {
 Netlist generate_netlist(const model::Schematic& schematic, const library::ComponentLibrary& library,
     const NetlistOptions& options = {});
 
+// True when two netlists have the same elements on the same nodes, the same
+// control and external sources and the same pin nodes: only values and
+// models differ. A running interactive simulation takes such a change from
+// its next segment on (SN-232).
+bool same_topology(const Netlist& a, const Netlist& b);
+
 // Element and control lines plus models; `extra` lines (analysis, .save)
 // go before .end. ngspice reads the first line as the title.
 std::vector<std::string> build_deck(const Netlist& netlist, const std::string& title,
