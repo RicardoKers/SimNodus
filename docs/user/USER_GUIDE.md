@@ -117,7 +117,7 @@ invalid value is outlined in red and not applied.
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, BMP280 pressure sensor, MPU6050 accelerometer and gyroscope, DS3231 real-time clock, TCS34725 color sensor (I2C); MCP3208 A/D converter, MCP41010 digital potentiometer, W25Q32 flash, microSD card (SPI); HX711 load cell amplifier; DS18B20 (1-Wire), DHT22/DHT11 and HC-SR04 sensors; they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
-| **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant (see below) |
+| **External I/O** | Bit and word inputs and outputs that exchange signals with another program, such as a virtual plant; Serial Port, a serial port of the computer in the circuit (see below) |
 
 Notes on some parts:
 
@@ -226,6 +226,24 @@ Notes on some parts:
   output, because such programs keep the last command. The link runs in real
   time, so its results are not repeatable; agents' runs without the window
   do not use it.
+- **Serial Port (computer):** a serial port of this computer in the circuit,
+  like a USB-serial adapter at TTL levels. Connect its TX to the board's RX,
+  its RX to the board's TX and its GND to ground. Choose the **Port** in
+  Properties (the list shows the ports the computer has now; another name
+  can be typed) and the baud rate, data bits, parity, stop bits and level
+  (3.3 or 5 V, TX idle high). The port opens when the simulation starts and
+  closes when it stops; a missing or busy port is a message in the Messages
+  panel and the run goes on without it, so a project from another computer
+  still opens and runs. Bytes the circuit sends to RX go out of the port;
+  bytes arriving at the port come out on TX, one frame after the other.
+  Open the same port in a terminal program (PuTTY, the Arduino Serial
+  Monitor) or in your own program. Run at real-time speed (the default):
+  the port is read every millisecond of simulated time, so a slower run
+  passes the computer's bytes on later. `loopback` sends back what it
+  receives, to try a circuit without an adapter. On a board's pins any baud
+  rate works without *Exact microcontroller edges*; a circuit between the
+  part and the board (a level shifter) sees the circuit's time step.
+  Example 44.
 
 ## Device models
 

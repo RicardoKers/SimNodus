@@ -1,0 +1,248 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/uart_echo/uart_echo.elf"
+      },
+      "rotation": 0,
+      "type": "bluepill"
+    },
+    {
+      "at": [
+        -12,
+        21
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        14,
+        11
+      ],
+      "designator": "R1",
+      "id": 5,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        26,
+        14
+      ],
+      "designator": "LED1",
+      "id": 6,
+      "mirrored": false,
+      "parameters": {
+        "color": "yellow"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        26,
+        21
+      ],
+      "designator": "GND2",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -28,
+        -9
+      ],
+      "designator": "J1",
+      "id": 14,
+      "mirrored": true,
+      "parameters": {
+        "baud": "115200",
+        "data_bits": "8",
+        "level": "3.3 V",
+        "parity": "None",
+        "port": "loopback",
+        "stop_bits": "1"
+      },
+      "rotation": 0,
+      "type": "serial_port"
+    },
+    {
+      "at": [
+        -28,
+        -4
+      ],
+      "designator": "GND3",
+      "id": 17,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        10,
+        11
+      ],
+      "id": 13,
+      "name": "PA0"
+    }
+  ],
+  "next_id": 19,
+  "notes": [
+    {
+      "at": [
+        -46,
+        2
+      ],
+      "id": 18,
+      "text": "J1 is a serial port of this computer.\nChoose its Port in Properties (a USB-serial\nadapter's COM port, or loopback) and open\nthe same port in a terminal program (PuTTY,\nthe Arduino Serial Monitor) at 115200 baud.\nType 1 or 0 there to switch the LED."
+    }
+  ],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          11
+        ],
+        "item": 8
+      }
+    },
+    {
+      "color": "#d62728",
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "at": [
+          26,
+          11
+        ],
+        "item": 6,
+        "pin": "A"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          17
+        ],
+        [
+          -12,
+          17
+        ],
+        [
+          -12,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          11
+        ],
+        [
+          11,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          17,
+          11
+        ],
+        [
+          26,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          17
+        ],
+        [
+          26,
+          21
+        ]
+      ]
+    },
+    {
+      "id": 15,
+      "points": [
+        [
+          -22,
+          -9
+        ],
+        [
+          -9,
+          -9
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "points": [
+        [
+          -22,
+          -7
+        ],
+        [
+          -9,
+          -7
+        ]
+      ]
+    }
+  ]
+}

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-27, serial port)
+
+- Serial Port (computer), category External I/O: a serial port of this computer (a USB-serial adapter, a virtual port) on RX, TX and GND of the circuit at TTL levels. Port, baud rate (300 to 921600), data bits, parity, stop bits and level (3.3 or 5 V) in Properties; the Port lists the computer's ports and takes a typed name; `loopback` sends back what it receives. The port opens when a run starts; a missing or busy port is a message and the run goes on. A board's USART receiving from the part decodes any baud rate without exact edges. Example 44; ADR 0105 (SN-237).
+
 ### Added (2026-10-27)
 
 - `analyzer.set` and `analyzer.autoscale` control the Signal Analyzer from `simnodus-cli connect` and MCP: tab, timebase, roll or triggered mode, trigger source, level, slope and sweep, cursors and their positions, the selected channel, per channel visibility, scale and offset, the Logic tab's lanes (voltage probes included, without ticking them by hand) and threshold, the side panel (hidden, the plot fills the window), a stopped display and the time window; the reply lists every setting (SN-234).

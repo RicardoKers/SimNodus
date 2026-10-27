@@ -281,6 +281,7 @@ ComponentDefinition parse_definition(const json& j)
             }
             parameter.unit = text(p, "unit");
             parameter.live = p.value("live", false);
+            parameter.serial_port = p.value("serial_port", false);
             parameter.default_value = text(p, "default", true);
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");
@@ -575,6 +576,13 @@ ComponentDefinition parse_definition(const json& j)
         if (m.contains("ground_pin")) {
             device.ground_pin = text(m, "ground_pin", true);
         }
+        if (m.contains("supply_parameter")) {
+            device.supply_parameter = text(m, "supply_parameter", true);
+            device.supply_pin.clear();
+            if (!d.parameter(device.supply_parameter)) {
+                invalid("device.supply_parameter must name a parameter of the part");
+            }
+        }
         if (m.contains("output_resistance")) {
             device.output_resistance = number(m["output_resistance"], "device.output_resistance");
         }
@@ -620,7 +628,7 @@ ComponentDefinition parse_definition(const json& j)
                 invalid("device.driven_pins names a pin the part does not have: " + pin);
             }
         }
-        if (!d.pin(device.supply_pin) || !d.pin(device.ground_pin)) {
+        if ((device.supply_parameter.empty() && !d.pin(device.supply_pin)) || !d.pin(device.ground_pin)) {
             invalid("device.supply_pin and device.ground_pin must be pins of the part");
         }
         if (device.output_resistance <= 0) {

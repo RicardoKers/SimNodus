@@ -241,6 +241,27 @@ private slots:
         QVERIFY(!edit->toolTip().isEmpty());
     }
 
+    void properties_panel_offers_the_computers_serial_ports()
+    {
+        // SN-237: the Port of a Serial Port part lists the computer's ports and
+        // loopback, and takes a typed name too.
+        const model::Id j = place("serial_port", {0, 0});
+        window_->scene()->select_ids({j});
+        auto* box = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_port"));
+        QVERIFY(box);
+        QVERIFY(box->isEditable());
+        QVERIFY(box->findText(QStringLiteral("loopback")) >= 0);
+        QCOMPARE(box->currentText(), QStringLiteral("loopback"));
+        box->lineEdit()->setFocus();
+        box->lineEdit()->selectAll();
+        QTest::keyClicks(box->lineEdit(), QStringLiteral("COM7"));
+        QTest::keyClick(box->lineEdit(), Qt::Key_Return);
+        QCOMPARE(doc().schematic().component(j)->parameters.at("port"), std::string("COM7"));
+        auto* parity = window_->properties()->findChild<QComboBox*>(QStringLiteral("parameter_parity"));
+        QVERIFY(parity);
+        QCOMPARE(parity->currentData().toString(), QStringLiteral("None"));
+    }
+
     void buses_and_splitters_edit_in_the_properties_panel()
     {
         model::Id bus = model::no_id;

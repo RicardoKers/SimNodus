@@ -453,6 +453,20 @@ void NativeMcuRunner::work()
     machine_options.uart_rx_lag_ns = options_.analog_lag_ns + 2 * std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
     machine_options.uart_rx_min_bit_ns = options_.uart_rx_min_bit_ns;
     machine_options.cortex_m3_timing = options_.cortex_m3_timing;
+    // Pins on a net with a device: the device bus gives their edges at once.
+    for (const auto& net : options_.nets) {
+        if (net.device_pins.empty()) {
+            continue;
+        }
+        for (const auto& pin : net.board_pins) {
+            if (pin.size() >= 3 && pin[0] == 'P' && pin[1] >= 'A' && pin[1] <= 'D') {
+                const int number = std::atoi(pin.c_str() + 2);
+                if (number >= 0 && number < 16) {
+                    machine_options.exact_input_pins |= std::uint64_t{1} << ((pin[1] - 'A') * 16 + number);
+                }
+            }
+        }
+    }
     for (const auto& uart : options_.uart_rx_byte_links) {
         if (!uart.empty() && uart.back() >= '1' && uart.back() <= '3') {
             machine_options.uart_rx_pins &= ~(1u << (uart.back() - '1'));
