@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-27, recording layout)
+
+- Camera and layout for recordings (SN-239): `view.fit` and `view.show` take `ms` for a smooth zoom and pan instead of a jump; `view.panels` shows or hides Components, Properties and Messages or leaves the canvas alone; `view.font` scales the interface's text and `simnodus.exe --scale 1.5` the whole interface; `view.dialog` opens and closes the Keyboard Shortcuts and About dialogs without holding the commands that follow. `ui.click` and `ui.key` answer before their click or key is handled, so one that opens a dialog does not hold the command.
+
 ### Added (2026-10-27, tutorials)
 
 - Recorded tutorials show the hand (SN-238): `view.pointer` (a drawn pointer that glides to a target and shows clicks), `view.keys` (a key badge), `view.highlight` (a pulsing outline around a panel, a button or a part, without selecting it), `view.locate` (screen positions in logical and physical pixels), and `ui.move`, `ui.click`, `ui.drag`, `ui.key` and `ui.type`, which act through the real widgets: the Components search filters as letters are typed, a part follows the pointer before a click drops it, a wire goes from pin to pin, a value is typed into Properties. Targets are grid points, pins, parts, toolbar buttons, Components entries, Properties fields, menus and analyzer tabs. `view.caption` takes a `position` (top, center, bottom, corners) and a `size`.

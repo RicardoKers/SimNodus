@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 69ec8e9d0105b06d48129aca58e71f055719064fd954ffe0d5cbc0c006d278a2 -->
+<!-- source: USER_GUIDE.md sha256 defa3585560325e9bf1aa4aac2c58e992f2e2f737ff026a83ffcc6321a5ec422 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -534,6 +534,7 @@ diferenças em relação a uma placa real estão em
 | `simnodus.exe FILE.snx` | Abre um projeto |
 | `simnodus.exe FILE.snx --run` | Abre e inicia a simulação |
 | `simnodus.exe --control` | Inicia com o controle externo ligado (Ferramentas > Permitir controle externo) |
+| `simnodus.exe --scale 1.5` | Amplia toda a interface, ícones incluídos (para uma gravação vista num celular) |
 | `simnodus-cli.exe mcp [--window]` | Servidor MCP para agentes de IA como o Claude Code ou o Codex (veja AUTOMATION.md) |
 | `simnodus.exe --check-engine` | Carrega o ngspice e resolve um circuito de referência |
 | `simnodus.exe --check-mcu-engine` | Executa `blink.elf` no emulador do microcontrolador |

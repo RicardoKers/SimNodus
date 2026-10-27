@@ -79,6 +79,10 @@
             <translation>Permitir o controle externo por agentes de IA e scripts (simnodus-cli connect).</translation>
         </message>
         <message>
+            <source>Enlarge the whole interface by this factor (1.5) for a recording.</source>
+            <translation>Amplia toda a interface por este fator (1,5) para uma gravação.</translation>
+        </message>
+        <message>
             <source>Project file (.snx) to open.</source>
             <translation>Arquivo de projeto (.snx) a abrir.</translation>
         </message>

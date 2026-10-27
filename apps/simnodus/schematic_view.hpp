@@ -14,6 +14,8 @@
 #endif
 
 #include <QGraphicsView>
+#include <QPointer>
+#include <QVariantAnimation>
 
 #include <functional>
 #include <optional>
@@ -78,6 +80,10 @@ public slots:
     // Shows target (scene units, plus Fit's margin) as large as it fits in
     // region, given as fractions of the canvas ([0, 0, 1, 1] is all of it).
     void fit_area(const QRectF& target, const QRectF& region);
+    // Recorded tutorials (SN-239): `change` moves the camera (fit_area,
+    // ensureVisible...); the view then glides there from where it was in `ms`
+    // milliseconds, zooming evenly, instead of jumping.
+    void glide_camera(const std::function<void()>& change, int ms);
     // Bounds of the circuit, or the empty sheet when there is none.
     QRectF content_rect() const;
 
@@ -115,6 +121,7 @@ protected:
     void dropEvent(QDropEvent* event) override;
 
 private:
+    QPointer<QVariantAnimation> camera_; // glide_camera()
     model::Point grid_at(const QPoint& view_point) const;
     bool allowed();
     void update_cursor_shape();

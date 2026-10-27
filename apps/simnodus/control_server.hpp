@@ -27,6 +27,7 @@
 #include <memory>
 #include <vector>
 
+class QDialog;
 class QLabel;
 class QLocalServer;
 class QLocalSocket;
@@ -103,6 +104,8 @@ private:
     std::deque<std::pair<Client*, QByteArray>> queue_;
     std::unique_ptr<automation::Automation> local_; // execute()
     Presenter* presenter_ = nullptr;
+    double base_font_size_ = 0.0; // view.font: the interface's own size
+    QPointer<QDialog> dialog_;    // view.dialog
     QLabel* caption_ = nullptr;
     int caption_serial_ = 0;
     std::string caption_position_ = "bottom";
