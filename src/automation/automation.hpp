@@ -65,6 +65,8 @@ public:
     // Project files (absolute paths). They throw Error: "io-error", or
     // "blocked" when unsaved changes would be lost and `discard` is false.
     virtual void new_project(bool discard) = 0;
+    // The name an untitled project shows (the window's title) until it is saved.
+    virtual void name_project(const std::string& name) { (void)name; }
     virtual std::vector<std::string> open_project(const std::filesystem::path& file, bool discard) = 0; // warnings
     virtual void save_project(const std::filesystem::path& file) = 0;
 

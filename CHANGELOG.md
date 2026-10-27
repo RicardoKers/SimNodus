@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-27, conveniences)
+
+- `sim.control` takes `"over": "2s"` to turn a potentiometer, an adjustable source or a sensor smoothly from where it is, and also sets a chip's value that changes while running (an LM75's temperature, an HC-SR04's distance), so scripts use one command for every knob; `project.new` takes a `"name"` that the window's title shows until the project is saved (SN-240).
+
 ### Added (2026-10-27, recording layout)
 
 - Camera and layout for recordings (SN-239): `view.fit` and `view.show` take `ms` for a smooth zoom and pan instead of a jump; `view.panels` shows or hides Components, Properties and Messages or leaves the canvas alone; `view.font` scales the interface's text and `simnodus.exe --scale 1.5` the whole interface; `view.dialog` opens and closes the Keyboard Shortcuts and About dialogs without holding the commands that follow. `ui.click` and `ui.key` answer before their click or key is handled, so one that opens a dialog does not hold the command.

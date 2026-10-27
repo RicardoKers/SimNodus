@@ -7,6 +7,7 @@
 
 #include "automation/automation.hpp"
 
+#include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <string>
@@ -199,4 +200,43 @@ TEST_CASE("automation: the HC-SR501 PIR holds its output for the delay after the
     CHECK(at(0.4) > 3.0);  // moving
     CHECK(at(1.3) > 3.0);  // within the 1 s delay after 0.5 s
     CHECK(at(1.8) < 0.2);  // over
+}
+
+TEST_CASE("automation: sim.control turns a knob over a time and sets a chip's value; project.new takes a name (SN-240)")
+{
+    Fixture f;
+    REQUIRE(f.ok("project.new", {{"name", "Knob demo"}})["name"] == "Knob demo");
+    // 5 V across a potentiometer; the wiper is OUT.
+    f.ok("component.add", {{"type", "vdc"}, {"at", {0, 0}}, {"parameters", {{"V", "5"}}}});
+    f.ok("component.add", {{"type", "potentiometer"}, {"at", {10, 0}}});
+    f.ok("component.add", {{"type", "ground"}, {"attach", {{"to", "V1.-"}}}});
+    REQUIRE(f.ok("wire.connect", {{"from", "V1.+"}, {"to", "RV1.1"}}).is_object());
+    REQUIRE(f.ok("wire.connect", {{"from", "RV1.2"}, {"to", "V1.-"}}).is_object());
+    f.ok("label.add", {{"name", "OUT"}, {"at", "RV1.W"}});
+    // An HC-SR04 on its own (a chip group without a board), powered from V1.
+    f.ok("component.add", {{"type", "hcsr04"}, {"at", {30, 0}}});
+    REQUIRE(f.ok("wire.connect", {{"from", "U1.VCC"}, {"to", "V1.+"}}).is_object());
+    f.ok("component.add", {{"type", "ground"}, {"attach", {{"to", "U1.GND"}}}});
+
+    REQUIRE(f.ok("sim.start", {{"signals", {"V(OUT)"}}}).is_object());
+    REQUIRE(f.ok("sim.control", {{"component", "RV1"}, {"value", "20%"}}).is_object());
+    const auto begin = std::chrono::steady_clock::now();
+    const auto turned = f.ok("sim.control", {{"component", "RV1"}, {"value", "80%"}, {"over", "300m"}});
+    REQUIRE(turned.is_object());
+    CHECK(std::chrono::steady_clock::now() - begin >= std::chrono::milliseconds(280));
+    CHECK(std::abs(turned["value"].get<double>() - 0.8) < 1e-9);
+
+    // The sensor's distance through sim.control, as a switch would be.
+    const auto set = f.ok("sim.control", {{"component", "U1"}, {"value", "150 cm"}, {"over", "100m"}});
+    REQUIRE(set.is_object());
+    CHECK(set["parameter"] == "distance");
+    CHECK(set["value"] == "150");
+    const auto parts = f.ok("circuit.inspect");
+    for (const auto& c : parts["components"]) {
+        if (c["designator"] == "U1") {
+            CHECK(c["parameters"]["distance"] == "150");
+        }
+    }
+    CHECK(f.ok("sim.control", {{"component", "V1"}, {"value", 1}}).is_null()); // neither a control nor a chip
+    f.ok("sim.stop");
 }
