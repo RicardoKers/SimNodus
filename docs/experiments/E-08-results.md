@@ -141,6 +141,29 @@ Observations:
   on first use, for the 8 MiB flash window) with the last page remembered:
   the busy loop went from 164 to 183-185 MIPS, the mix stayed at 130-137.
 
+## Lesson peripherals (SN-247, started 2026-10-28, ahead of DE1)
+
+The owner has no board for G8b.1 yet and asked to go on with what does not
+need one. Done at the machine level (no integration yet):
+
+- LEDC (PWM): four timers (resolution, 10.8 divider, APB/RC_FAST/XTAL clock),
+  six channels with HPOINT and DUTY (four fraction bits), applied on
+  PARA_UP/DUTY_START, driving GPIO matrix signals 45-50; edges at their exact
+  times on the pad. MicroPython `PWM(Pin(5), freq=1000, duty_u16=16384)`:
+  period 1.000 ms, high 0.250 ms; `duty_u16(49152)` 0.750 ms; `freq(2000)`
+  0.500 ms. Fades go straight to their start duty (not modelled).
+- ADC1/ADC2 one-shot conversions (APB_SARADC ONETIME_SAMPLE): linear, the
+  inverse of the first step of ESP-IDF's calibration with this machine's
+  eFuse, so calibrated readings give the pad's voltage (MicroPython
+  `read_uv`: 1.25 V at 12 dB reads 1.249 V, 0.30 V at 0 dB 0.299 V; 2.4 V reads
+  2.359 V through the calibration's second step); saturation at 819, 1126,
+  1536 and 2805 mV. Labelled approximate (no offset, noise or curve);
+  continuous (DMA) conversions not modelled. `set_pin_voltage()`; CLI
+  `--input GPIO=1.2V@ms`.
+- I2C, SPI and RMT (WS2812) work at the pin level with SimNodus's chips, as on
+  the STM32 (ADR 0102): they need the integration (SN-246), because
+  `DeviceBus` is tied to the STM32 machine today.
+
 ## Next
 
 Every G8b criterion is met except G8b.1's comparison with the board. With the

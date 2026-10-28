@@ -141,7 +141,7 @@ int run_esp32c3(int argc, char** argv)
             }
             typed.push_back({at == std::string::npos ? 0 : static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
                 arg == "--usb" ? 2 : arg == "--uart1" ? 1 : 0, text});
-        } else if (arg == "--input" && i + 1 < argc) { // GPIO=level@ms, the circuit's level on a pad
+        } else if (arg == "--input" && i + 1 < argc) { // GPIO=0|1@ms (a level) or GPIO=1.2V@ms (a voltage for the ADC)
             const std::string value = argv[++i];
             const auto eq = value.find('=');
             const auto at = value.rfind('@');
@@ -150,7 +150,7 @@ int run_esp32c3(int argc, char** argv)
                 return 2;
             }
             typed.push_back({static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
-                -1 - std::atoi(value.c_str()), std::string(1, value[eq + 1])});
+                -1 - std::atoi(value.c_str()), value.substr(eq + 1, at - eq - 1)}); // 0, 1 or a voltage like 1.2V
         } else if (arg == "--flash-out" && i + 1 < argc) {
             flash_out = argv[++i]; // the whole flash at the end (pass it back as the image to continue)
         } else if (arg == "--rom" && i + 1 < argc) {
@@ -221,7 +221,11 @@ int run_esp32c3(int argc, char** argv)
         while (next_typed < typed.size() && typed[next_typed].time_ns <= machine.time_ns()) {
             const Typed& t = typed[next_typed++];
             if (t.port < 0) { // --input: port -1 - GPIO
-                machine.set_pin_input(-1 - t.port, t.text == "1");
+                if (!t.text.empty() && (t.text.back() == 'V' || t.text.back() == 'v')) {
+                    machine.set_pin_voltage(-1 - t.port, std::strtod(t.text.c_str(), nullptr));
+                } else {
+                    machine.set_pin_input(-1 - t.port, t.text == "1");
+                }
             } else {
                 machine.send(t.port, t.text);
             }

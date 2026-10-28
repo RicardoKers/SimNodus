@@ -14,11 +14,13 @@
 #include "emu/esp32c3.hpp"
 #include "emu/esp32c3_rom.hpp"
 
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -388,6 +390,68 @@ TEST_CASE("esp32c3: MicroPython deep sleep wakes by the timer with a reset")
     machine->send(2, "import machine; print('cause', machine.reset_cause(), machine.wake_reason())\r");
     lines = run_lines(*machine, 1'700'000'000ull, 2, partial);
     CHECK(has(lines, "cause 4 4")); // DEEPSLEEP_RESET, TIMER_WAKE
+}
+
+TEST_CASE("esp32c3: MicroPython PWM on LEDC and ADC readings")
+{
+    auto machine = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    run_lines(*machine, 300'000'000ull, 2, partial);
+    // 1 kHz at 25 %, then 75 %, then 2 kHz: the pad's edges show period and duty.
+    struct Step {
+        const char* command;
+        double period_ms;
+        double high_ms;
+    };
+    const Step steps[] = {
+        {"from machine import PWM, ADC, Pin; p=PWM(Pin(5), freq=1000, duty_u16=16384)\r", 1.0, 0.25},
+        {"p.duty_u16(49152)\r", 1.0, 0.75},
+        {"p.freq(2000)\r", 0.5, 0.375},
+    };
+    std::uint64_t t = 300'000'000ull;
+    for (const Step& step : steps) {
+        machine->send(2, step.command);
+        run_lines(*machine, t + 50'000'000ull, 2, partial);
+        machine->take_pin_events();
+        run_lines(*machine, t + 60'000'000ull, 2, partial); // 10 ms of steady PWM
+        std::vector<std::pair<std::uint64_t, bool>> edges;
+        for (const auto& e : machine->take_pin_events()) {
+            if (e.pin == 5 && e.state.output) {
+                edges.emplace_back(e.time_ns, e.state.level);
+            }
+        }
+        REQUIRE(edges.size() >= 6);
+        std::size_t rise = 0;
+        while (rise < edges.size() && !edges[rise].second) {
+            ++rise;
+        }
+        REQUIRE(rise + 2 < edges.size());
+        const double high = static_cast<double>(edges[rise + 1].first - edges[rise].first) / 1e6;
+        const double period = static_cast<double>(edges[rise + 2].first - edges[rise].first) / 1e6;
+        CHECK(std::abs(period - step.period_ms) < step.period_ms * 0.002);
+        CHECK(std::abs(high - step.high_ms) < step.period_ms * 0.002);
+        t += 100'000'000ull;
+    }
+    // ADC1: calibrated readings (read_uv) give the voltage on the pad.
+    machine->set_pin_voltage(2, 1.25);
+    machine->set_pin_voltage(3, 0.30);
+    machine->send(2, "a=ADC(Pin(2), atten=ADC.ATTN_11DB); b=ADC(Pin(3), atten=ADC.ATTN_0DB)\r");
+    run_lines(*machine, t + 50'000'000ull, 2, partial);
+    machine->send(2, "print('uv', a.read_uv(), b.read_uv())\r");
+    const auto lines = run_lines(*machine, t + 100'000'000ull, 2, partial);
+    bool found = false;
+    for (const Line& line : lines) {
+        std::istringstream words(line.text);
+        std::string tag;
+        long a = 0, b = 0;
+        if (words >> tag >> a >> b && tag == "uv") {
+            found = true;
+            CHECK(std::abs(a - 1'250'000L) < 12'500L); // within 1 %
+            CHECK(std::abs(b - 300'000L) < 3'000L);
+        }
+    }
+    CHECK(found);
 }
 
 TEST_CASE("esp32c3: two runs give the same output")
