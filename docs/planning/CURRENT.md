@@ -118,14 +118,17 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. The videos repository adopts the new recording commands (it notes them
+1. With the next release: SN-241, the YouTube channel
+   https://www.youtube.com/@SimNodus in the README (and the package README
+   and the guides' community section, next to Discord).
+2. The videos repository adopts the 0.12 recording commands (it notes them
    in its `CLAUDE.md`). "Controlled by an agent" stays in the status bar
    during recordings (owner's decision, 2026-10-27).
-2. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
+3. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
    26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186 postponed. Run
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
    release.
-3. Classroom feedback (postponed: academic calendar).
+4. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
 
