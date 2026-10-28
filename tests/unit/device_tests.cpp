@@ -24,7 +24,10 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <map>
+#include <memory>
 #include <set>
+#include <string>
 #include <thread>
 
 using namespace simnodus;
@@ -500,6 +503,119 @@ TEST_CASE("devices: an STM32CubeIDE HAL project uses a 24C02, an LM75 and a PCF8
         CHECK(false);
     }
     m.set_pin_hook(nullptr);
+}
+
+namespace {
+
+// The ESP32-C3 machine with the official MicroPython image, its USB console,
+// and SimNodus's chips on `nets` through the bus (SN-247).
+struct C3Board {
+    std::unique_ptr<mcu::McuMachine> machine;
+    mcu::DeviceBus bus;
+    std::string console;
+
+    bool start(const std::vector<mcu::DeviceRequest>& chips, const std::vector<mcu::DigitalNet>& nets)
+    {
+        mcu::McuRunOptions options;
+        options.chip = "esp32c3";
+        options.rom = mcu::find_esp32c3_rom({});
+        options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR)
+            / "../tests/experiments/esp32c3/firmware/ESP32_GENERIC_C3-20260824-v1.29.0.bin";
+        std::string error;
+        machine = mcu::make_machine(options, error);
+        if (!machine || !machine->load(options, error) || !bus.init(*machine, chips, nets, error)) {
+            std::printf("  %s\n", error.c_str());
+            return false;
+        }
+        machine->set_pin_hook([this](int pin, std::uint64_t at) { bus.board_pin_changed(pin, at); });
+        bus.start(0);
+        run(400'000'000);
+        return console.find(">>> ") != std::string::npos;
+    }
+    void run(std::uint64_t until_ns)
+    {
+        machine->run_until_ns(until_ns);
+        for (const auto& b : machine->take_uart_bytes()) {
+            if (b.uart == 2) {
+                console += static_cast<char>(b.value);
+            }
+        }
+    }
+    // Sends a line to the REPL and returns what it printed for it.
+    std::string repl(const std::string& line, std::uint64_t ms = 200)
+    {
+        const std::size_t from = console.size();
+        for (const char c : line + "\r") {
+            machine->uart_receive(2, static_cast<std::uint8_t>(c));
+        }
+        run(machine->time_ns() + ms * 1'000'000);
+        return console.substr(from);
+    }
+    ~C3Board()
+    {
+        if (machine) {
+            machine->set_pin_hook(nullptr);
+        }
+    }
+};
+
+} // namespace
+
+TEST_CASE("devices: MicroPython on the ESP32-C3 talks to an LM75 and a 24C02 over I2C0 (SN-247)")
+{
+    auto chip = [](const char* designator, const char* kind, std::map<std::string, std::string> parameters = {}) {
+        mcu::DeviceRequest d;
+        d.designator = designator;
+        d.kind = kind;
+        d.pins = {"SCL", "SDA", "A0", "A1", "A2", kind == std::string("lm75") ? "OS" : "WP"};
+        d.parameters = std::move(parameters);
+        d.supply = 3.3;
+        d.tied = {{"A0", false}, {"A1", false}, {"A2", false}, {"WP", false}};
+        return d;
+    };
+    const std::vector<mcu::DeviceRequest> chips{chip("U2", "24c02"), chip("U3", "lm75", {{"temperature", "-12.5"}})};
+    const std::vector<mcu::DigitalNet> nets{
+        {"SCL", {"GPIO5"}, {{0, "SCL"}, {1, "SCL"}}, 1, false}, // 4.7 kOhm pull-ups
+        {"SDA", {"GPIO4"}, {{0, "SDA"}, {1, "SDA"}}, 1, false},
+    };
+    C3Board board;
+    REQUIRE(board.start(chips, nets));
+    board.repl("from machine import I2C, Pin; import time");
+    board.repl("i2c = I2C(0, scl=Pin(5), sda=Pin(4), freq=100000)");
+    const std::string scan = board.repl("print(i2c.scan())");
+    std::printf("  scan: %s", scan.c_str());
+    CHECK(scan.find("[72, 80]") != std::string::npos); // 0x48 LM75, 0x50 24C02
+    const std::string temp = board.repl("print(i2c.readfrom_mem(0x48, 0, 2))");
+    CHECK(temp.find("b'\\xf3\\x80'") != std::string::npos); // -12.5 C
+    board.repl("i2c.writeto_mem(0x50, 0, b'SimNodus'); time.sleep_ms(10)");
+    const std::string eeprom = board.repl("print(i2c.readfrom_mem(0x50, 0, 8))");
+    CHECK(eeprom.find("b'SimNodus'") != std::string::npos);
+    const std::string missing = board.repl("i2c.writeto(0x21, b'x')");
+    CHECK(missing.find("ENODEV") != std::string::npos); // no chip answers at 0x21
+    // SCL at 100 kHz: rising edges 10 us apart within a byte.
+    board.machine->take_pin_events();
+    board.repl("print(i2c.readfrom_mem(0x48, 0, 2))");
+    std::vector<std::uint64_t> rises;
+    bool last = true;
+    for (const auto& e : board.machine->take_pin_events()) {
+        if (e.pin == 5) {
+            if (e.state.level && !last) {
+                rises.push_back(e.time_ns);
+            }
+            last = e.state.level;
+        }
+    }
+    REQUIRE(rises.size() >= 36); // address, register, address again, two bytes: 5 x 9 clocks
+    std::uint64_t shortest = ~0ull;
+    for (std::size_t i = 1; i < rises.size(); ++i) {
+        shortest = std::min(shortest, rises[i] - rises[i - 1]);
+    }
+    std::printf("  SCL: %zu rising edges, shortest period %.2f us\n", rises.size(), shortest / 1000.0);
+    CHECK(shortest >= 9'900);
+    CHECK(shortest <= 10'100);
+    for (const auto& d : board.machine->take_diagnostics()) {
+        std::printf("  diagnostic: %s\n", d.c_str());
+    }
 }
 
 TEST_CASE("devices: without pull-up resistors I2C stalls and the message names the cause")

@@ -9,7 +9,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 - **ESP32-C3-DevKitM-1** board in Microcontrollers, **experimental** until it is compared with a real board (decision DE1, ADR 0106; SN-246): it runs a flash image (`.bin` from address 0: ESP-IDF, Arduino or MicroPython) in SimNodus's own emulator next to the circuit, with GPIO0-10 and 18-21 on its headers (33 Ω outputs, 0.825 V / 2.475 V input thresholds), UART0 and USB Serial/JTAG in the terminal, GPIO lanes in the Logic tab, LEDC PWM and one-shot ADC readings of the circuit's voltages. Example 45 runs ESP-IDF's blink. The package contains Espressif's ROM ELF (`roms/`, Apache-2.0). Not yet: I2C, SPI, RMT, Wi-Fi, GDB.
 - The microcontroller runner and the chips' bus (`DeviceBus`) work through an emulator machine interface (`mcu::McuMachine`) instead of the STM32F103 directly; part files name their chip (`mcu.chip`); engine protocol 10. The Simulation settings text gives the board's own pin model.
 
+### Added (2026-10-28, ESP32-C3 I2C)
+
+- The ESP32-C3 board's I2C0 works as a master with SimNodus's I2C chips at the pin level (SN-247): ESP-IDF's I2C master driver, Arduino's `Wire` and MicroPython's `machine.I2C` run unchanged (100 kHz SCL measured at 10.00 µs; clock stretching; a missing chip answers NACK). The GPIO matrix now routes input signals (`FUNCn_IN_SEL_CFG`). Example 46 reads an LM75 and writes a 24C02 with ESP-IDF.
+
 ### Fixed (2026-10-28)
+
+- ESP32-C3: a chip answering at once on a pin's net (an I2C ACK) no longer loses its level to the pad's earlier value.
 
 - `view.pace` waits its full time even when its wait ends early (the `gui-editor` test failed now and then).
 
