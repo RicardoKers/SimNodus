@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 c995881c03772b1ccc5e00e8251fe1d7a7d26571d780929f660da49b0066cab4 -->
+<!-- source: MICROCONTROLLER.md sha256 d5f06dc2be9705ef6067ab9506f6731f1a743cdc2a3430e229001eb5953ea3b9 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -274,9 +274,15 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   `machine.SPI` do MicroPython funcionam sem mudanças. O exemplo 47 lê um
   MCP3208 e grava uma W25Q32. Linhas duplas e quádruplas e o modo escravo não
   são simulados.
-- **Ainda não**: RMT (e portanto as fitas WS2812 com esta placa), ADC
-  contínuo, Wi-Fi e Bluetooth; depuração com GDB (só a Blue Pill); cópia de
-  arquivos do computador para o MicroPython.
+- **RMT**: os dois canais de transmissão em qualquer GPIO, com os símbolos
+  na memória do RMT, reabastecimento circular, repetições e o nível de
+  repouso, de modo que os trens de pulsos saem com o tempo exato: fitas
+  WS2812B acendem pelo driver RMT do ESP-IDF, pelo `rgbLedWrite` do Arduino e
+  pelo `neopixel` do MicroPython. O exemplo 48 percorre uma fita com uma luz.
+  Os canais de recepção e a portadora não são simulados.
+- **Ainda não**: ADC contínuo, o sensor de temperatura, Wi-Fi e Bluetooth;
+  depuração com GDB (só a Blue Pill); cópia de arquivos do computador para o
+  MicroPython.
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas

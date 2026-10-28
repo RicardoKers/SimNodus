@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 7082007e4195ed0eb738724dfaa87069ed19bba8fadec56d011a746e470d5fce -->
+<!-- source: USER_GUIDE.md sha256 6c2157213d6dfa84ee76a642d4368cc9409269feb55cfc917245b7cc358d02c4 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -510,8 +510,8 @@ diferenças em relação a uma placa real estão em
   sensores I2C (38), chips SPI e o HX711 (39), sensores de um fio
   temporizados e uma fita WS2812B (40), motores (41), buzzers (42),
   componentes de automação de 24 V (43), uma Blue Pill na porta serial do
-  computador (44) e a placa ESP32-C3 (45, 46 com chips I2C e 47 com chips
-  SPI; experimental).
+  computador (44) e a placa ESP32-C3 (45, 46 com chips I2C, 47 com chips SPI
+  e 48 com uma fita WS2812B; experimental).
 - As **aulas** 1-3 (exemplos 10, 11 e 16) vêm com notas em
   `examples/lessons/`: objetivos, passos e as observações esperadas. Os
   fontes dos seus firmwares estão em `examples/firmware/`.
@@ -587,7 +587,7 @@ declarados para que os resultados sejam lidos corretamente.
 ### Microcontrolador
 
 - A Blue Pill (STM32F103C8) e, experimental, a ESP32-C3-DevKitM-1 (ainda
-  não comparada com uma placa real; ainda sem RMT, Wi-Fi ou GDB).
+  não comparada com uma placa real; ainda sem Wi-Fi ou GDB).
 - Ainda não simulados: modos escravo de SPI e I2C, CAN, USB; modos encoder
   e alinhado ao centro dos timers, tempo morto e break; conversões do ADC
   disparadas por timer ou EXTI, modos dual e descontínuo. O painel

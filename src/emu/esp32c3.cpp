@@ -2434,6 +2434,198 @@ private:
     std::size_t rx_count_ = 0;
 };
 
+// RMT transmit channels 0 and 1 (TRM chapter "Remote Control Peripheral"):
+// symbols in the RMT RAM at +0x400, 48 words per channel (MEM_SIZE blocks
+// from the channel's own), each word two parts of duration (15 bits, in
+// ticks) and level; a duration of 0 ends the transmission. CHnCONF0.TX_START
+// sends from the start of the channel's memory on signal 51 + n, at the
+// tick of SYS_CONF's clock (1 APB 80 MHz, 2 RC_FAST, 3 XTAL; SCLK_DIV_NUM)
+// divided by DIV_CNT (0: 256). MEM_TX_WRAP_EN wraps at the end of the memory
+// and TX_LIM raises TX_THR_EVENT every so many words, so drivers refill one
+// half while the other goes out; TX_CONTI_MODE repeats, up to TX_LOOP_NUM
+// with TX_LOOP_CNT_EN. Interrupts on source 28. Not modelled: the carrier,
+// receive channels, the APB FIFO access, synchronous starts.
+class Rmt : public Esp32C3::Block, public Esp32C3::Timed {
+public:
+    explicit Rmt(Esp32C3& machine) : Block(machine, "RMT")
+    {
+        claim_signal(51);
+        claim_signal(52);
+    }
+
+    std::uint64_t next_ns() const override { return std::min(tx_[0].next, tx_[1].next); }
+    void on_ns(std::uint64_t now) override
+    {
+        for (std::uint32_t ch = 0; ch < 2; ++ch) {
+            while (tx_[ch].next <= now) {
+                step(ch, tx_[ch].next);
+            }
+        }
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x3C) { // INT_ST
+            return reg(0x38) & reg(0x40);
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        const std::uint64_t now = now_ns();
+        if (offset == 0x10 || offset == 0x14) { // CH0/1CONF0
+            const std::uint32_t ch = (offset - 0x10) / 4;
+            // TX_START (0), MEM_RD_RST (1), APB_MEM_RST (2), TX_STOP (7), AFIFO_RST (23)
+            // and CONF_UPDATE (24) act once.
+            Block::write_word(offset, value & ~((1u << 0) | (1u << 1) | (1u << 2) | (1u << 7) | (1u << 23) | (1u << 24)));
+            if (value & (1u << 1)) {
+                tx_[ch].word = 0;
+                tx_[ch].second = false;
+            }
+            if (value & (1u << 7)) {
+                stop(ch);
+            }
+            if (value & 1u) {
+                start(ch, now);
+            }
+            if (tx_[ch].next == no_event) {
+                drive_signal(51 + static_cast<int>(ch), idle_level(ch, last_[ch]));
+            }
+        } else if (offset == 0x44) { // INT_CLR
+            reg(0x38) &= ~value;
+            update();
+        } else if (offset == 0x40) { // INT_ENA
+            Block::write_word(offset, value);
+            update();
+        } else if (offset == 0x58 || offset == 0x5C) { // CHn_TX_LIM: LOOP_COUNT_RESET (20) acts once
+            Block::write_word(offset, value & ~(1u << 20));
+            if (value & (1u << 20)) {
+                tx_[(offset - 0x58) / 4].loops = 0;
+            }
+        } else {
+            Block::write_word(offset, value);
+        }
+        reschedule();
+    }
+    void on_reset() override
+    {
+        for (std::uint32_t ch = 0; ch < 2; ++ch) {
+            tx_[ch] = Channel{};
+            last_[ch] = false;
+            drive_signal(51 + static_cast<int>(ch), false);
+        }
+        reg(0x68) = (1u << 24) | (1u << 31); // SYS_CONF: APB clock
+    }
+
+private:
+    struct Channel {
+        std::uint64_t next = no_event; // the next part starts
+        std::uint32_t word = 0;        // in the channel's memory
+        bool second = false;           // the word's second part
+        std::uint32_t sent = 0;        // words since the start (TX_THR_EVENT)
+        std::uint32_t loops = 0;
+    };
+
+    double tick_ns(std::uint32_t ch) const
+    {
+        const std::uint32_t sys = reg(0x68);
+        double hz = 80'000'000.0;
+        switch ((sys >> 24) & 3) {
+        case 2: hz = 17'500'000.0; break;
+        case 3: hz = 40'000'000.0; break;
+        default: break;
+        }
+        const std::uint32_t div = (reg(0x10 + 4 * ch) >> 8) & 0xFF;
+        return 1e9 / hz * static_cast<double>(((sys >> 4) & 0xFF) + 1) * static_cast<double>(div ? div : 256);
+    }
+    std::uint32_t memory_words(std::uint32_t ch) const
+    {
+        const std::uint32_t blocks = std::clamp<std::uint32_t>((reg(0x10 + 4 * ch) >> 16) & 7, 1, 4 - ch);
+        return 48 * blocks;
+    }
+    bool idle_level(std::uint32_t ch, bool last) const
+    {
+        const std::uint32_t conf = reg(0x10 + 4 * ch);
+        return (conf & (1u << 6)) ? (conf & (1u << 5)) != 0 : last; // IDLE_OUT_EN, IDLE_OUT_LV
+    }
+    void interrupt(std::uint32_t bits)
+    {
+        reg(0x38) |= bits;
+        update();
+    }
+    void update() { raise(28, (reg(0x38) & reg(0x40)) != 0); } // ETS_RMT_INTR_SOURCE
+
+    void start(std::uint32_t ch, std::uint64_t now)
+    {
+        Channel& c = tx_[ch];
+        c.word = 0;
+        c.second = false;
+        c.sent = 0;
+        c.next = now;
+    }
+    void stop(std::uint32_t ch)
+    {
+        tx_[ch].next = no_event;
+        tx_[ch].word = 0;
+        tx_[ch].second = false;
+        drive_signal(51 + static_cast<int>(ch), idle_level(ch, last_[ch]));
+    }
+    // The part of the symbol that starts at `at`.
+    void step(std::uint32_t ch, std::uint64_t at)
+    {
+        Channel& c = tx_[ch];
+        const std::uint32_t symbol = reg(0x400 + 4 * (48 * ch + c.word));
+        const std::uint32_t duration = c.second ? (symbol >> 16) & 0x7FFF : symbol & 0x7FFF;
+        const bool level = c.second ? (symbol >> 31) != 0 : ((symbol >> 15) & 1) != 0;
+        if (duration == 0) { // the end marker
+            last_[ch] = level;
+            const std::uint32_t lim = reg(0x58 + 4 * ch);
+            if (reg(0x10 + 4 * ch) & (1u << 3)) { // TX_CONTI_MODE
+                ++c.loops;
+                if ((lim & (1u << 19)) && c.loops >= ((lim >> 9) & 0x3FF)) { // TX_LOOP_CNT_EN, TX_LOOP_NUM
+                    interrupt(1u << (12 + ch)); // TX_LOOP
+                    stop(ch);
+                    return;
+                }
+                start(ch, at);
+                if (symbol == 0) { // nothing to send: wait for a new start
+                    stop(ch);
+                }
+                return;
+            }
+            interrupt(1u << ch); // TX_END
+            stop(ch);
+            return;
+        }
+        drive_signal(51 + static_cast<int>(ch), level);
+        last_[ch] = level;
+        c.next = at + std::max<std::uint64_t>(1, static_cast<std::uint64_t>(std::llround(duration * tick_ns(ch))));
+        if (!c.second) {
+            c.second = true;
+            return;
+        }
+        c.second = false;
+        ++c.word;
+        ++c.sent;
+        const std::uint32_t limit = reg(0x58 + 4 * ch) & 0x1FF;
+        if (limit && c.sent % limit == 0) {
+            interrupt(1u << (8 + ch)); // TX_THR_EVENT
+        }
+        if (c.word >= memory_words(ch)) {
+            if (reg(0x10 + 4 * ch) & (1u << 4)) { // MEM_TX_WRAP_EN
+                c.word = 0;
+            } else {
+                interrupt(1u << (4 + ch)); // ERR: past the end of the memory
+                stop(ch);
+            }
+        }
+    }
+
+    Channel tx_[2];
+    bool last_[2] = {false, false};
+};
+
 // APB_SARADC, one-shot conversions (ONETIME_SAMPLE: unit and channel in bits
 // 28:25, attenuation in 24:23, START bit 29): the result is ready at once in
 // SARADC1/2_DATA_STATUS with ADC1/ADC2_DONE in INT_RAW. A linear converter,
@@ -2689,6 +2881,9 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     timed_.push_back(spi2.get());
     attach(0x6003F000u, std::move(gdma));
     attach(0x60024000u, std::move(spi2));
+    auto rmt = std::make_unique<Rmt>(*this);
+    timed_.push_back(rmt.get());
+    attach(0x60016000u, std::move(rmt));
     auto i2c = std::make_unique<I2c>(*this);
     timed_.push_back(i2c.get());
     attach(0x60013000u, std::move(i2c));
@@ -2708,7 +2903,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     static constexpr Plain plain[] = {
         {0x60005000u, "FE2"}, {0x60006000u, "FE"},
         {0x6000E000u, "RTC_I2C"}, {0x60014000u, "UHCI0"},
-        {0x60016000u, "RMT"}, {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
+        {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
         {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"},
         {0x600C1000u, "SENSITIVE"},

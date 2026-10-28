@@ -469,8 +469,8 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   (37), an OLED with I2C sensors (38), SPI chips and the HX711 (39), timed
   one-wire sensors and a WS2812B strip (40), motors (41), buzzers (42),
   24 V automation parts (43), a Blue Pill on the computer's serial port (44)
-  and the ESP32-C3 board (45, 46 with I2C chips and 47 with SPI chips;
-  experimental).
+  and the ESP32-C3 board (45, 46 with I2C chips, 47 with SPI chips and 48
+  with a WS2812B strip; experimental).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -543,7 +543,7 @@ results are read correctly.
 ### Microcontroller
 
 - The Blue Pill (STM32F103C8) and, experimental, the ESP32-C3-DevKitM-1
-  (not yet compared with a real board; no RMT, Wi-Fi or GDB yet).
+  (not yet compared with a real board; no Wi-Fi or GDB yet).
 - Not simulated yet: SPI and I2C slave modes, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when
