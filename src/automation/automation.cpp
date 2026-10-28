@@ -589,7 +589,14 @@ void set_parameters(Context& cx, model::Schematic& work, Id id, const json& para
             fail("not-found", c->designator + " (" + d.type + ") has no parameter \"" + name + "\" (parameters: " +
                     (names.empty() ? std::string("none") : names) + ").");
         }
-        const auto v = checked_value(*c, d, *p, value);
+        auto v = checked_value(*c, d, *p, value);
+        if (p->kind == library::Parameter::Kind::File && !v.empty() && path_from(v).is_relative()) {
+            // Relative to hello's "directory", stored relative to the project's folder.
+            std::error_code ec;
+            const auto relative = std::filesystem::relative(cx.path(v), cx.ws.base_dir(), ec);
+            const auto text = (ec || relative.empty() ? cx.path(v) : relative).generic_u8string();
+            v.assign(text.begin(), text.end());
+        }
         model::Edit edit;
         if (p->kind == library::Parameter::Kind::Model) {
             if (!cx.library().model(p->model_type, v)) {

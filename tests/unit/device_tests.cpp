@@ -618,6 +618,55 @@ TEST_CASE("devices: MicroPython on the ESP32-C3 talks to an LM75 and a 24C02 ove
     }
 }
 
+TEST_CASE("devices: MicroPython on the ESP32-C3 reads and programs a W25Q32 over SPI2 with DMA (SN-247)")
+{
+    mcu::DeviceRequest flash;
+    flash.designator = "U2";
+    flash.kind = "w25q32";
+    flash.pins = {"CS", "CLK", "DI", "DO", "WP", "HOLD"};
+    flash.supply = 3.3;
+    flash.tied = {{"WP", true}, {"HOLD", true}};
+    const std::vector<mcu::DigitalNet> nets{
+        {"CS", {"GPIO10"}, {{0, "CS"}}, 0, false},
+        {"SCK", {"GPIO6"}, {{0, "CLK"}}, 0, false},
+        {"MOSI", {"GPIO7"}, {{0, "DI"}}, 0, false},
+        {"MISO", {"GPIO2"}, {{0, "DO"}}, 0, false},
+    };
+    C3Board board;
+    REQUIRE(board.start({flash}, nets));
+    board.repl("from machine import SPI, Pin; import time");
+    board.repl("spi = SPI(1, baudrate=1000000, sck=Pin(6), mosi=Pin(7), miso=Pin(2)); cs = Pin(10, Pin.OUT, value=1)");
+    const std::string id = board.repl("cs(0); spi.write(b'\\x9f'); print(spi.read(3)); cs(1)");
+    std::printf("  JEDEC ID: %s", id.c_str());
+    CHECK(id.find("b'\\xef@\\x16'") != std::string::npos); // Winbond, W25Q32
+    board.repl("cs(0); spi.write(b'\\x06'); cs(1); cs(0); spi.write(b'\\x02\\x00\\x01\\x00SimNodus'); cs(1)");
+    board.repl("time.sleep_ms(5)");
+    const std::string data = board.repl("cs(0); spi.write(b'\\x03\\x00\\x01\\x00'); print(spi.read(8)); cs(1)");
+    CHECK(data.find("b'SimNodus'") != std::string::npos);
+    // Full duplex: the status register comes back while the command goes out.
+    const std::string status = board.repl("b = bytearray(2); cs(0); spi.write_readinto(b'\\x05\\x00', b); cs(1); print(b)");
+    CHECK(status.find("bytearray(b'\\xff\\x00')") != std::string::npos);
+    // SCK at 1 MHz: rising edges 1 us apart within a byte.
+    board.machine->take_pin_events();
+    board.repl("cs(0); spi.write(b'\\x9f'); spi.read(3); cs(1)");
+    std::vector<std::uint64_t> rises;
+    bool last = false;
+    for (const auto& e : board.machine->take_pin_events()) {
+        if (e.pin == 6) {
+            if (e.state.level && !last) {
+                rises.push_back(e.time_ns);
+            }
+            last = e.state.level;
+        }
+    }
+    REQUIRE(rises.size() == 32);
+    std::printf("  SCK: %zu rising edges, first byte period %.3f us\n", rises.size(), (rises[7] - rises[0]) / 7000.0);
+    CHECK(rises[7] - rises[0] == 7000);
+    for (const auto& d : board.machine->take_diagnostics()) {
+        std::printf("  diagnostic: %s\n", d.c_str());
+    }
+}
+
 TEST_CASE("devices: without pull-up resistors I2C stalls and the message names the cause")
 {
     std::string error;

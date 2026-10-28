@@ -54,8 +54,9 @@ mask ROM from it at run time
 
 Example firmware examples/firmware/esp32c3_blink/blink.bin (ESP-IDF v5.5.2's
 examples/get-started/blink built for the ESP32-C3, a plain GPIO on GPIO8) and
-examples/firmware/esp32c3_i2c/esp32c3_i2c.bin (SimNodus's example 46, MIT,
-built with ESP-IDF v5.5.2).
+examples/firmware/esp32c3_i2c/esp32c3_i2c.bin and
+examples/firmware/esp32c3_spi/esp32c3_spi.bin (SimNodus's examples 46 and 47,
+MIT, built with ESP-IDF v5.5.2).
   License: Apache License 2.0 (ESP-IDF and the example), text in
   licenses/esp-rom-elfs-Apache-2.0.txt; Copyright (c) Espressif Systems
   (Shanghai) Co. Ltd.; it contains newlib (BSD-style) and FreeRTOS (MIT).

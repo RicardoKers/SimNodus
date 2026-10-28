@@ -169,7 +169,17 @@ need one. Done at the machine level (no integration yet):
   measures 10.00 µs; ESP-IDF's `i2c_master` driver (example 46) and
   Arduino-ESP32's `Wire` (write, read back, NACK code 2 for an empty
   address) work unchanged.
-- SPI and RMT (WS2812) at the pin level with SimNodus's chips: next.
+- SPI2 master and GDMA: transactions of CS setup, command, address, dummy
+  and data (full or half duplex) and CS hold in modes 0-3, CS0-CS5 with their
+  polarity, the clock from CLOCK, bit order from CTRL; data from W0-W15 or
+  through GDMA descriptors (three channels, peripheral select, EOF and done
+  interrupts); pins through the matrix or IO_MUX function 2. With a W25Q32
+  on `DeviceBus`, MicroPython's `machine.SPI` (DMA) reads the JEDEC ID
+  `ef 40 16`, programs and reads a page, and gets the status register in
+  full duplex; SCK at 1 MHz measures 1.000 µs. ESP-IDF's SPI master driver
+  with DMA and two hardware CS lines (example 47: the MCP3208 gives 2047 at
+  half of 3.3 V) and Arduino-ESP32's `SPI` (W buffer, no DMA) work unchanged.
+- RMT (WS2812) at the pin level with SimNodus's chips: next.
 
 ## Decision DE1 (2026-10-28, provisional)
 
