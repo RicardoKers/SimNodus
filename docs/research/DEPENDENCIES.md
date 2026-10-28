@@ -74,8 +74,10 @@ Original SimNodus material remains MIT. Development use and selecting an experim
 | ngspice manual / COPYING document | Source declares CC-BY-SA 4.0 for these documents; not copied into SimNodus |
 | CubeIDE / GNU Tools for STM32 | Existing local installation only; GDB reports GPLv3+; toolchain/runtime and ST package terms require review before redistribution. No ST firmware copied; E-02 links no toolchain runtime |
 | Visual Studio / SDK / 7-Zip | External development tools, not shipped as SimNodus artifacts |
-| ESP32-C3 ROM ELF (esp-rom-elfs `20260528`) | Candidate for E-08, not vendored yet (decision DE0): Apache-2.0 including the compiled form (README of espressif/esp-rom-elfs); the ROM is closed source and contains newlib (BSD); ship the Apache licence text and Espressif's notice with the file; hashes in [E-08-plan.md](../experiments/E-08-plan.md) |
+| ESP32-C3 ROM ELF (esp-rom-elfs `20260528`) | Owner's decision DE0 (2026-10-28): vendored with SN-244. Apache-2.0 including the compiled form (README of espressif/esp-rom-elfs); the ROM is closed source and contains newlib (BSD); ship the Apache licence text and Espressif's notice with the file; hashes in [E-08-plan.md](../experiments/E-08-plan.md) |
 | MicroPython ESP32-C3 image v1.29.0 | Test material for E-08 (SHA-256 in the plan), not shipped; MicroPython MIT, ESP-IDF and Espressif's Wi-Fi libraries Apache-2.0 |
-| Espressif QEMU esp-develop-9.2.2-20260417 | GPL; a test-only oracle in a separate process, never linked, copied or shipped |
+| Espressif QEMU esp_develop_9.2.2_20250817 | GPL; a test-only oracle in a separate process (E-08 differential test), never linked, copied or shipped; Windows build, SHA-256 `9474015f24d27acb7516955ec932e5307226bd9d6652cdc870793ed36010ab73`, unpacked under the ignored `build/tools` |
+| Espressif GCC riscv32-esp-elf esp-14.2.0_20251107 | GPL toolchain; builds the E-08 test programs; the ELF files built from our sources are MIT; Windows build, SHA-256 `373abecd1cdfd480b09b8659e319e636064f99fec46f635a05c5413e5f009c05`, under `build/tools`, not shipped |
+| riscv-arch-test 2.7.4 (`96e3589a`) | BSD-3-Clause test sources (RISC-V International); 90 ELF files built from them and their reference signatures committed in `tests/experiments/riscv-arch-test/corpus` with `COPYING.BSD`; test material, not shipped |
 
 These are engineering inventory findings, not a guarantee of legal or security compliance. Do not distribute the entire downloaded directories as a shortcut.

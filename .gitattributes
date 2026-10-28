@@ -37,3 +37,7 @@ tests/experiments/adc/stm32f103_adc.cs -text whitespace=blank-at-eol,blank-at-eo
 *.png binary
 *.jpg binary
 *.pdf binary
+*.S text eol=lf
+*.reference_output text eol=lf
+*.elf binary
+*.bin binary

@@ -1,9 +1,12 @@
-# SimNodus STM32 emulator (docs/architecture/MCU_EMULATOR.md), Qt-free, no
+# SimNodus microcontroller emulator (docs/architecture/MCU_EMULATOR.md; the
+# RISC-V core of experiment E-08: docs/experiments/E-08-plan.md), Qt-free, no
 # third-party code.
 add_library(simnodus_emu STATIC
     bus.cpp
     cpu.cpp
     elf.cpp
+    riscv_cpu.cpp
+    riscv_test_machine.cpp
     gdb_server.cpp
     gdb_socket.cpp
     stm32f103.cpp

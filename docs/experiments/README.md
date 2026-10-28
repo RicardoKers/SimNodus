@@ -112,7 +112,8 @@ Question: can SimNodus's own emulator run unmodified ESP32-C3 flash images
 reset to the MicroPython REPL, with the flash kept between runs, without
 changing the STM32 path? Plan, prerequisites (ROM licence, decision DE0) and
 the predeclared gates G8a (core) and G8b (firmware), recorded 2026-10-28
-before any code: [E-08-plan.md](E-08-plan.md). Report: `E-08-results.md`.
+before any code: [E-08-plan.md](E-08-plan.md). Report: [E-08-results.md](E-08-results.md)
+(gate G8a met on 2026-10-28).
 
 ## E-06: Classroom rehearsal — SN-028
 
