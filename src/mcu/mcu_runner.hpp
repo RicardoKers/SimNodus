@@ -54,7 +54,10 @@ struct DigitalNet {
 };
 
 struct McuRunOptions {
-    std::filesystem::path firmware; // ELF; empty: loaded by the debugger
+    // The board's chip (ADR 0106): "stm32f103" or "esp32c3".
+    std::string chip = "stm32f103";
+    std::filesystem::path firmware; // STM32: ELF, empty: loaded by the debugger; ESP32-C3: a flash image at 0
+    std::filesystem::path rom;      // ESP32-C3: the ROM ELF (find_esp32c3_rom)
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
     std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
     PinModel pin_model;

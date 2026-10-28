@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <optional>
 #include <set>
 
@@ -303,13 +304,22 @@ public:
     void wait(std::chrono::milliseconds time) override
     {
         check_cancelled();
-        QEventLoop loop;
-        QTimer::singleShot(static_cast<int>(time.count()), &loop, &QEventLoop::quit);
-        QEventLoop* outer = waiting_;
-        waiting_ = &loop;
-        loop.exec();
-        waiting_ = outer;
-        check_cancelled();
+        // The loop can end before the timer (a nested command's loop quitting,
+        // a timer firing early), so it runs again until the deadline.
+        const auto deadline = std::chrono::steady_clock::now() + time;
+        for (;;) {
+            const auto left = std::chrono::ceil<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now());
+            if (left.count() <= 0) {
+                break;
+            }
+            QEventLoop loop;
+            QTimer::singleShot(static_cast<int>(left.count()), Qt::PreciseTimer, &loop, &QEventLoop::quit);
+            QEventLoop* outer = waiting_;
+            waiting_ = &loop;
+            loop.exec();
+            waiting_ = outer;
+            check_cancelled();
+        }
     }
 
     // Ends the current wait at once with error "cancelled".

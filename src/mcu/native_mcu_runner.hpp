@@ -22,15 +22,14 @@
 #include <mutex>
 #include <thread>
 
-namespace simnodus::emu {
-class Stm32F103;
-}
-
 namespace simnodus::mcu {
+
+class McuMachine;
 
 class NativeMcuRunner : public McuBackend {
 public:
-    // Uses options.firmware, pins, uarts, pin_model and chunk_us.
+    // Uses options.chip, firmware, pins, uarts, pin_model and chunk_us; the
+    // chip's machine comes from make_machine() (mcu_machine.hpp).
     explicit NativeMcuRunner(McuRunOptions options);
     ~NativeMcuRunner() override;
 
@@ -70,7 +69,7 @@ private:
     void work();
     void fail(const std::string& message);
     // Pin states from the machine, recorded at `time_ns` where they changed (under the lock).
-    void sample_pins(emu::Stm32F103& machine, std::uint64_t time_ns);
+    void sample_pins(McuMachine& machine, std::uint64_t time_ns);
     // Pin voltage for an ADC sample at firmware time `time_ns` (worker thread).
     double analog_value(std::size_t pin, std::uint64_t time_ns);
 
@@ -82,7 +81,7 @@ private:
     std::condition_variable changed_;
     std::uint64_t limit_ns_ = 0;
     McuStatus status_;
-    std::vector<std::pair<int, int>> ports_;       // per watched pin: port, number ({-1, -1}: a device pin)
+    std::vector<int> pin_ids_;                     // per watched pin: the machine's pin number (-1: a device pin)
     std::vector<PinModel> pin_models_;             // per watched pin: the board's, or its device's
     std::vector<std::vector<std::size_t>> device_pins_; // device -> signal pin -> watched pin
     std::map<std::size_t, std::pair<std::size_t, std::size_t>> device_of_pin_; // watched pin -> device, pin
@@ -99,7 +98,7 @@ private:
     std::vector<bool> input_desired_;
     std::vector<std::vector<std::pair<std::uint64_t, double>>> analog_; // per pin: circuit voltages
     struct UartLog {
-        int number = 1;
+        int id = -1; // the machine's number for this UART
         std::string bytes;
         std::vector<std::uint64_t> times;
         std::uint64_t total = 0;

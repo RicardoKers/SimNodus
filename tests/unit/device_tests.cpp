@@ -14,6 +14,7 @@
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
 #include "mcu/device_bus.hpp"
+#include "mcu/mcu_machine.hpp"
 #include "sim/simulation_session.hpp"
 
 #include <algorithm>
@@ -132,13 +133,14 @@ TEST_CASE("devices: the bus gives a 74HC595 the board's edges at once and the bo
         {"STCP", {"PA4"}, {{0, "STCP"}}, 0, false},
         {"BACK", {"PA0"}, {{0, "Q7S"}}, 0, false},
     };
+    auto view = mcu::wrap_stm32(*m); // outlives the bus, which unregisters from it
     mcu::DeviceBus bus;
     std::string error;
-    REQUIRE(bus.init(*m, {hc}, nets, error));
-    m->set_pin_hook([&](int port, int pin, std::uint64_t t) { bus.board_pin_changed(port, pin, t); });
+    REQUIRE(bus.init(*view, {hc}, nets, error));
+    m->set_pin_hook([&](int port, int pin, std::uint64_t t) { bus.board_pin_changed(port * 16 + pin, t); });
     bus.start(0);
-    CHECK(bus.owns_board_pin(0, 5));
-    CHECK(!bus.owns_board_pin(0, 1));
+    CHECK(bus.owns_board_pin(5));
+    CHECK(!bus.owns_board_pin(1));
     // PA4, PA5, PA7 push-pull outputs; PA0 floating input.
     poke(*m, gpioa_crl, (0x1u << 16) | (0x1u << 20) | (0x1u << 28) | 0x4u);
     auto clock_in = [&](bool bit) {
@@ -375,9 +377,10 @@ TEST_CASE("devices: an STM32CubeIDE HAL project draws a heart on a MAX7219 over 
         {"CLK", {"PA5"}, {{0, "CLK"}}, 0, false},
         {"LOAD", {"PA4"}, {{0, "LOAD"}}, 0, false},
     };
+    auto view = mcu::wrap_stm32(m); // outlives the bus, which unregisters from it
     mcu::DeviceBus bus;
-    REQUIRE(bus.init(m, {chip}, nets, error));
-    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    REQUIRE(bus.init(*view, {chip}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port * 16 + pin, at); });
     bus.start(0);
     auto run_to = [&](std::uint64_t end) {
         while (m.time_ns() < end) {
@@ -470,9 +473,10 @@ TEST_CASE("devices: an STM32CubeIDE HAL project uses a 24C02, an LM75 and a PCF8
     for (int i = 0; i < 8; ++i) {
         nets.push_back({"P" + std::to_string(i), {}, {{2, "P" + std::to_string(i)}}, 0, true});
     }
+    auto view = mcu::wrap_stm32(m); // outlives the bus, which unregisters from it
     mcu::DeviceBus bus;
-    REQUIRE(bus.init(m, chips, nets, error));
-    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    REQUIRE(bus.init(*view, chips, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port * 16 + pin, at); });
     bus.start(0);
     std::string text;
     auto run_to = [&](std::uint64_t end) {
@@ -516,9 +520,10 @@ TEST_CASE("devices: without pull-up resistors I2C stalls and the message names t
         {"SCL", {"PB6"}, {{0, "SCL"}}, 0, false}, // no pull-up
         {"SDA", {"PB7"}, {{0, "SDA"}}, 0, false},
     };
+    auto view = mcu::wrap_stm32(m); // outlives the bus, which unregisters from it
     mcu::DeviceBus bus;
-    REQUIRE(bus.init(m, {sensor}, nets, error));
-    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    REQUIRE(bus.init(*view, {sensor}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port * 16 + pin, at); });
     bus.start(0);
     m.run_until_ns(200000000);
     std::string text;
@@ -721,9 +726,10 @@ TEST_CASE("devices: an STM32CubeIDE HAL project writes a 16x2 LCD through a PCF8
     for (int i = 4; i < 8; ++i) {
         nets.push_back({"D" + std::to_string(i), {}, {{0, "P" + std::to_string(i)}, {1, "D" + std::to_string(i)}}, 0, false});
     }
+    auto view = mcu::wrap_stm32(m); // outlives the bus, which unregisters from it
     mcu::DeviceBus bus;
-    REQUIRE(bus.init(m, {pcf, lcd}, nets, error));
-    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port, pin, at); });
+    REQUIRE(bus.init(*view, {pcf, lcd}, nets, error));
+    m.set_pin_hook([&](int port, int pin, std::uint64_t at) { bus.board_pin_changed(port * 16 + pin, at); });
     bus.start(0);
     m.run_until_ns(2600000000ull);
     const std::string text = bus.text(1);

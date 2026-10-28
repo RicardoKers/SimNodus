@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 #include "device_bus.hpp"
 
-#include "emu/stm32f103.hpp"
 
 #include <algorithm>
 
@@ -29,7 +28,7 @@ DeviceBus::~DeviceBus()
     }
 }
 
-bool DeviceBus::init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& devices,
+bool DeviceBus::init(McuMachine& machine, const std::vector<DeviceRequest>& devices,
     const std::vector<DigitalNet>& nets, std::string& error)
 {
     machine_ = &machine;
@@ -58,9 +57,9 @@ bool DeviceBus::init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& 
         net.pull = n.pull;
         net.circuit = n.circuit;
         for (const auto& board_pin : n.board_pins) {
-            if (const auto gpio = gpio_pin(board_pin)) {
-                net.board.emplace_back(gpio->port - 'A', gpio->number);
-                board_net_[net.board.back()] = nets_.size();
+            if (const int pin = machine.pin_id(board_pin); pin >= 0) {
+                net.board.push_back(pin);
+                board_net_[pin] = nets_.size();
             }
         }
         for (const auto& [device, pin] : n.device_pins) {
@@ -154,9 +153,9 @@ void DeviceBus::set_circuit_level(std::size_t device, std::size_t pin, bool leve
     }
 }
 
-void DeviceBus::board_pin_changed(int port, int pin, std::uint64_t time_ns)
+void DeviceBus::board_pin_changed(int pin, std::uint64_t time_ns)
 {
-    const auto it = board_net_.find({port, pin});
+    const auto it = board_net_.find(pin);
     if (it == board_net_.end()) {
         return;
     }
@@ -207,17 +206,16 @@ void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)
     bool strong_high = false;
     bool weak_low = false;
     bool weak_high = false;
-    for (const auto& [port, pin] : net.board) {
-        const emu::PinConfig c = machine_->pin_config(port, pin);
-        if (c.mode != 0) {
-            const bool open_drain = (c.cnf & 1u) != 0;
-            if (!c.drive_high) {
+    for (const int pin : net.board) {
+        const PinState s = machine_->pin_state(pin);
+        if (s.mode == PinMode::Output || s.mode == PinMode::Alternate) {
+            if (!s.level) {
                 strong_low = true;
-            } else if (!open_drain) {
+            } else if (!s.open_drain) {
                 strong_high = true;
             }
-        } else if (c.cnf == 2) {
-            (c.pull_up ? weak_high : weak_low) = true; // internal pull-up or pull-down
+        } else if (s.pull != Pull::None) {
+            (s.pull == Pull::Up ? weak_high : weak_low) = true; // internal pull-up or pull-down
         }
     }
     for (const auto& p : net.pins) {
@@ -255,8 +253,8 @@ void DeviceBus::resolve(std::size_t index, std::uint64_t time_ns)
     }
     net.known = true;
     net.level = level;
-    for (const auto& [port, pin] : net.board) {
-        machine_->set_pin_input(port, pin, level);
+    for (const int pin : net.board) {
+        machine_->set_pin_input(pin, level);
     }
     if (first) {
         return; // start(): the devices get initial inputs instead of edges

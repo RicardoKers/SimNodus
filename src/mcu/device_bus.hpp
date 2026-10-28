@@ -14,6 +14,7 @@
 
 #include "devices/device.hpp"
 #include "emu/timed_device.hpp"
+#include "mcu_machine.hpp"
 #include "mcu_runner.hpp"
 
 #include <cstdint>
@@ -24,9 +25,6 @@
 #include <string>
 #include <vector>
 
-namespace simnodus::emu {
-class Stm32F103;
-}
 
 namespace simnodus::mcu {
 
@@ -43,14 +41,14 @@ public:
     };
 
     // Creates the devices; false with `error` for an unknown kind.
-    bool init(emu::Stm32F103& machine, const std::vector<DeviceRequest>& devices,
+    bool init(McuMachine& machine, const std::vector<DeviceRequest>& devices,
         const std::vector<DigitalNet>& nets, std::string& error);
     bool empty() const { return devices_.empty(); }
 
     // Resolves every net once and gives the devices their starting inputs.
     void start(std::uint64_t time_ns);
     // From the machine's pin hook.
-    void board_pin_changed(int port, int pin, std::uint64_t time_ns);
+    void board_pin_changed(int pin, std::uint64_t time_ns); // the machine's pin number
     // Lets the devices change by themselves up to `time_ns`.
     void advance(std::uint64_t time_ns);
     std::uint64_t next_event_ns() const;
@@ -64,7 +62,7 @@ public:
     // The circuit's level on the net of a chip pin (nets without a board pin).
     void set_circuit_level(std::size_t device, std::size_t pin, bool level, std::uint64_t time_ns);
     // The board pin is on a digital net: the bus sets its input, not the circuit.
-    bool owns_board_pin(int port, int pin) const { return board_net_.count({port, pin}) > 0; }
+    bool owns_board_pin(int pin) const { return board_net_.count(pin) > 0; }
 
     devices::Output output(std::size_t device, std::size_t pin) const { return outputs_[device][pin]; }
     std::size_t device_count() const { return devices_.size(); }
@@ -94,7 +92,7 @@ private:
     };
     struct Net {
         std::string name;
-        std::vector<std::pair<int, int>> board; // port, pin
+        std::vector<int> board; // the machine's pin numbers
         std::vector<DevicePin> pins;
         int pull = 0;
         bool circuit = false;       // the circuit's level counts when nothing drives the net
@@ -110,14 +108,14 @@ private:
     void collect_outputs(std::size_t device, std::uint64_t time_ns); // records changes, marks their nets
     void mark(std::size_t net);
 
-    emu::Stm32F103* machine_ = nullptr;
+    McuMachine* machine_ = nullptr;
     std::vector<std::unique_ptr<devices::Device>> devices_; // nullptr: unpowered
     std::vector<std::string> designators_;
     std::vector<std::vector<std::string>> pin_names_;
     std::vector<std::vector<int>> pin_net_; // device -> pin -> net, -1 if tied
     std::vector<std::vector<devices::Output>> outputs_;
     std::vector<Net> nets_;
-    std::map<std::pair<int, int>, std::size_t> board_net_;
+    std::map<int, std::size_t> board_net_; // machine pin -> net
     std::deque<std::size_t> dirty_;
     std::vector<bool> queued_;
     bool busy_ = false;
