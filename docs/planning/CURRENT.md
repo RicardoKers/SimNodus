@@ -8,6 +8,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On `main`, unreleased since 0.12.0: the ESP32-C3-DevKitM-1 board,
+  experimental** (decision DE1 provisional, ADR 0106; PRs #242-#245):
+  ESP-IDF, Arduino and MicroPython flash images run unmodified next to the
+  circuit, with GPIO, UART0 and USB Serial/JTAG, LEDC PWM, one-shot ADC,
+  I2C0, SPI2 with GDMA and RMT reaching SimNodus's chips at the pin level;
+  examples 45-48. The owner tested the preview package
+  `dist/SimNodus-0.13-preview-2026-10-28-windows-x64.zip` (built from
+  `bc9b3c9`) on 2026-10-28: everything worked.
 - **Release 0.12.0 published on 2026-10-27** after the owner's test of
   the package: tag `v0.12.0`, GitHub release with
   `SimNodus-0.12.0-windows-x64.zip` and `SimNodus-0.12.0-windows-x64-setup.exe`.
@@ -118,7 +126,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. With the next release: SN-241, the YouTube channel
+1. Release 0.13 when the owner asks: the ESP32-C3 board (experimental)
+   and SN-241, the YouTube channel
    https://www.youtube.com/@SimNodus in the README (and the package README
    and the guides' community section, next to Discord).
 2. The videos repository adopts the 0.12 recording commands (it notes them
@@ -139,10 +148,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    one-shot ADC (SN-247 part 1), example 45; the runner and `DeviceBus` use
    `mcu::McuMachine` (STM32 unchanged). I2C0 master with SimNodus's I2C chips
    (ESP-IDF, Arduino `Wire`, MicroPython; example 46), SPI2 master with
-   GDMA (example 47) and RMT transmit for WS2812B strips (example 48). Next:
-   the MicroPython workflow (SN-248),
-   then GDB for RISC-V (SN-249). With the owner's boards: the ROM and console
-   comparison (G8b.1), which ends the experimental mark.
+   GDMA (example 47) and RMT transmit for WS2812B strips (example 48);
+   preview package tested by the owner on 2026-10-28. Left in SN-247:
+   continuous ADC with GDMA and the temperature sensor. Next: the MicroPython
+   workflow (SN-248: project files into the flash filesystem, a console for
+   Thonny and `mpremote`), then GDB for RISC-V (SN-249), Wi-Fi as experiment
+   E-09 (SN-250). With the owner's boards: the ROM and console comparison
+   (G8b.1), which ends the experimental mark.
 
 ## Known constraints
 
@@ -184,6 +196,28 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - **Test package for the owner:** `python tools/package_windows.py
   --build-dir build/dev` writes `dist/SimNodus-<version>-windows-x64.zip`
   and runs the packaged `--check-engine` and `--smoke-test`.
+- **Preview package:** after `cmake --build build/release`,
+  `package_windows.py --build-dir build/release --windeployqt
+  C:/Qt/6.11.1/msvc2022_64/bin/windeployqt.exe --output <folder>`, then copy
+  the zip to `dist/SimNodus-<next>-preview-<date>-windows-x64.zip` (the folder
+  inside keeps the CMake version). Its checks do not run the ESP32-C3: open
+  example 48 with the packaged `simnodus-cli exec` and `sim.read` (chip texts
+  under `displays`).
+- **ESP32-C3 tools (under `build/`, not in Git):** ESP-IDF v5.5.2 in
+  `build/esp-idf` with `IDF_TOOLS_PATH=build/espressif`; build an app from a
+  `.bat` that clears `MSYSTEM`, calls `export.bat`, then `idf.py set-target
+  esp32c3`, `idf.py build`, `idf.py merge-bin` (the merged image is in
+  `build/merged.bin`). `arduino-cli` 1.5.1 in `build/tools/arduino-cli` with
+  its `arduino-cli.yaml` (Arduino-ESP32 3.3.12; images are LGPL, so test
+  them by hand and do not commit them). `simnodus-emu --esp32c3 image.bin
+  --usb "text@ms" --trace-io` runs an image alone and traces register
+  accesses. The Linux CI's GCC errors show earlier with
+  `build/tools/riscv32-esp-elf/bin/riscv32-esp-elf-g++ -fsyntax-only
+  -std=c++20 -Wall -Wextra -Wpedantic -Werror -Isrc -Ithird_party`.
+- **Example projects** are built with `simnodus-cli exec` scripts
+  (`hello` with `"directory": "examples"`, `component.add`, `wire.connect`,
+  `label.add`, `probe.add`, `circuit.check`, `project.save`; delete the
+  `.snx.bak`); every example needs a probe.
 - **Release:** `build/release` is configured with `-DSIMNODUS_VERSION_SUFFIX=`
   (empty; `main` stays `dev`); bump the version in CMake first, build,
   `package_windows.py --build-dir build/release --installer` (Inno Setup 6,
