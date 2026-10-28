@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 5ba0a2ad6f30e90cb19c25001e0528d0407717ed01bb45f69ccc6319c4538f8e -->
+<!-- source: MICROCONTROLLER.md sha256 c995881c03772b1ccc5e00e8251fe1d7a7d26571d780929f660da49b0066cab4 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -266,9 +266,17 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   informado como NACK. O barramento precisa de pull-ups: resistores no
   esquema, ou os pull-ups internos de 45 kΩ dos pinos, que os drivers ligam.
   O exemplo 46 lê um LM75 e grava uma 24C02. O modo escravo não é simulado.
-- **Ainda não**: SPI e RMT (e portanto os chips SPI do SimNodus e as fitas
-  WS2812 com esta placa), ADC contínuo, Wi-Fi e Bluetooth; depuração com GDB
-  (só a Blue Pill); cópia de arquivos do computador para o MicroPython.
+- **SPI**: o SPI2 como mestre (modos 0-3, até 80 MHz, MSB ou LSB primeiro, CS0-CS5
+  por hardware, fases de comando, endereço e dummy) em qualquer GPIO, pela
+  matriz de GPIO, ou nos seus próprios pinos (SCLK GPIO6, MOSI GPIO7, MISO
+  GPIO2, CS GPIO10), com ou sem DMA, com os chips SPI do SimNodus no nível
+  dos pinos: o driver SPI master do ESP-IDF, o `SPI` do Arduino e o
+  `machine.SPI` do MicroPython funcionam sem mudanças. O exemplo 47 lê um
+  MCP3208 e grava uma W25Q32. Linhas duplas e quádruplas e o modo escravo não
+  são simulados.
+- **Ainda não**: RMT (e portanto as fitas WS2812 com esta placa), ADC
+  contínuo, Wi-Fi e Bluetooth; depuração com GDB (só a Blue Pill); cópia de
+  arquivos do computador para o MicroPython.
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas

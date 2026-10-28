@@ -7,6 +7,7 @@
 
 #include "automation/automation.hpp"
 #include "automation/mcp.hpp"
+#include "io/project_file.hpp"
 
 #include <filesystem>
 #include <string>
@@ -207,6 +208,21 @@ TEST_CASE("automation: projects are saved and opened again")
     CHECK(relative["components"] == 4);
     REQUIRE(h.ok("project.save", {{"path", "copy.snx"}}).is_object());
     CHECK(std::filesystem::exists(folder / "copy.snx"));
+
+    // A relative firmware file of a new project starts from hello's "directory"
+    // too, and is saved relative to the project's own folder (a folder on the
+    // current drive: between drives the path stays absolute).
+    const auto here = std::filesystem::current_path() / "simnodus_automation_files";
+    std::filesystem::create_directories(here / "sub");
+    const auto here_text = here.u8string();
+    Fixture k;
+    k.ok("hello", {{"directory", std::string(here_text.begin(), here_text.end())}});
+    k.ok("component.add", {{"type", "bluepill"}, {"at", {0, 0}}, {"parameters", {{"firmware", "fw/blink.elf"}}}});
+    REQUIRE(k.ok("project.save", {{"path", "sub/board.snx"}}).is_object());
+    const auto saved = io::load_project(here / "sub" / "board.snx");
+    REQUIRE(saved.schematic.has_value());
+    CHECK(saved.schematic->components().front().parameters.at("firmware") == "../fw/blink.elf");
+    std::filesystem::remove_all(here);
     std::filesystem::remove_all(folder);
 }
 

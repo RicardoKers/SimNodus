@@ -118,6 +118,14 @@ protected:
     bool input_signal(int signal) const; // through the GPIO matrix (FUNCn_IN_SEL_CFG)
     void claim_signal(int signal) { machine_.signal_driven_[static_cast<std::size_t>(signal)] = true; }
     std::optional<double> pad_volts(int gpio) const { return machine_.pin_voltage(gpio); }
+    // Memory seen by a DMA engine: `size` 1, 2 or 4 bytes.
+    std::uint32_t load(std::uint32_t address, unsigned size)
+    {
+        std::uint32_t value = 0;
+        machine_.bus_.read(address, size, value);
+        return value;
+    }
+    void store(std::uint32_t address, unsigned size, std::uint32_t value) { machine_.bus_.write(address, size, value); }
     // A register of another block (no trace).
     std::uint32_t peek(std::uint32_t address)
     {
@@ -492,13 +500,17 @@ public:
     // Input signal `signal` of the matrix: FUNCn_IN_SEL_CFG (0x154 + 4n) picks a
     // pad (IN_SEL bits 4:0; 0x1E constant 1, 0x1F constant 0) with SIG_IN_SEL
     // (bit 6) set, inverted by bit 5. A pad reads 0 unless its input is enabled.
-    bool input_signal(int signal) const
+    bool input_signal(int signal)
     {
         const std::uint32_t cfg = reg(0x154 + 4 * static_cast<std::uint32_t>(signal));
         const std::uint32_t sel = cfg & 0x1F;
         bool level = false;
-        if (!(cfg & (1u << 6))) {
-            level = false; // through IO_MUX: no modelled peripheral uses it yet
+        if (!(cfg & (1u << 6))) { // straight from the pad whose IO_MUX function 2 is the signal
+            for (int pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+                if (direct_signal(pin) == signal && ((peek(0x60009004u + 4 * static_cast<std::uint32_t>(pin)) >> 12) & 7) == 2) {
+                    level = states_[static_cast<std::size_t>(pin)].input && pads_[static_cast<std::size_t>(pin)];
+                }
+            }
         } else if (sel == 0x1E) {
             level = true;
         } else if (sel < static_cast<std::uint32_t>(Esp32C3::gpio_count)) {
@@ -506,13 +518,28 @@ public:
         }
         return level != ((cfg & (1u << 5)) != 0);
     }
-    // Only the pads routed to `signal`.
+    // Only the pads routed to `signal`, through the matrix or IO_MUX.
     void signal_changed(int signal)
     {
         for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
-            if ((reg(0x554 + 4 * pin) & 0xFF) == static_cast<std::uint32_t>(signal)) {
+            if ((reg(0x554 + 4 * pin) & 0xFF) == static_cast<std::uint32_t>(signal)
+                || direct_signal(static_cast<int>(pin)) == signal) {
                 evaluate(static_cast<int>(pin));
             }
+        }
+    }
+    // The signal of IO_MUX function 2 of a pad: GP-SPI's pins (FSPIQ GPIO2,
+    // FSPIHD 4, FSPIWP 5, FSPICLK 6, FSPID 7, FSPICS0 10), -1 for others.
+    static int direct_signal(int pin)
+    {
+        switch (pin) {
+        case 2: return 64;
+        case 4: return 66;
+        case 5: return 67;
+        case 6: return 63;
+        case 7: return 65;
+        case 10: return 68;
+        default: return -1;
         }
     }
 
@@ -593,6 +620,12 @@ private:
             state.peripheral = true;
             state.output = (out_sel & (1u << 9)) ? enabled != ((out_sel & (1u << 10)) != 0) : true;
             state.level = machine_.signal_level_[out_sel & 0x7F] != ((out_sel & (1u << 8)) != 0);
+        } else if (((iomux >> 12) & 7) == 2 && direct_signal(pin) >= 0
+            && machine_.signal_driven_[static_cast<std::size_t>(direct_signal(pin))]) {
+            // GP-SPI through IO_MUX: a master drives its clock, data and CS.
+            state.peripheral = true;
+            state.output = true;
+            state.level = machine_.signal_level_[static_cast<std::size_t>(direct_signal(pin))];
         } else {
             // A peripheral's signal through the matrix (its own output enable
             // unless OEN_SEL picks GPIO_ENABLE), or another IO_MUX function.
@@ -1921,6 +1954,486 @@ private:
     std::uint8_t shift_ = 0;
 };
 
+// GDMA (TRM chapter "GDMA Controller"): three channels, each with an RX (in)
+// and a TX (out) side tied to a peripheral by IN/OUT_PERI_SEL (0: SPI2).
+// Descriptors in SRAM: word 0 size 11:0, length 23:12, SUC_EOF 30, OWNER 31;
+// word 1 the buffer; word 2 the next descriptor (0 ends the list). Links
+// hold the descriptor's address bits 19:0 under 0x3FC00000. The peripheral
+// pops bytes from the out side and pushes into the in side as it shifts
+// them; interrupts per channel (RAW 0x10n, ST, ENA, CLR) on sources 47-49.
+class Gdma : public Esp32C3::Block {
+public:
+    explicit Gdma(Esp32C3& machine) : Block(machine, "GDMA") {}
+
+    // The next byte of the out link of the channel serving `peripheral`.
+    bool pop(std::uint32_t peripheral, std::uint8_t& byte)
+    {
+        for (std::uint32_t ch = 0; ch < channels; ++ch) {
+            Side& out = out_[ch];
+            if (!out.active || (reg(0x100 + stride * ch) & 0x3F) != peripheral) {
+                continue;
+            }
+            while (out.active) {
+                const std::uint32_t word0 = load(out.descriptor, 4);
+                const std::uint32_t length = (word0 >> 12) & 0xFFF;
+                if (out.offset < length) {
+                    byte = static_cast<std::uint8_t>(load(load(out.descriptor + 4, 4) + out.offset, 1));
+                    if (++out.offset == length) {
+                        finish_out(ch, word0);
+                    }
+                    return true;
+                }
+                finish_out(ch, word0); // an empty buffer
+            }
+        }
+        return false;
+    }
+    // A byte into the in link of the channel serving `peripheral`.
+    void push(std::uint32_t peripheral, std::uint8_t byte)
+    {
+        for (std::uint32_t ch = 0; ch < channels; ++ch) {
+            Side& in = in_[ch];
+            if (!in.active || (reg(0xA0 + stride * ch) & 0x3F) != peripheral) {
+                continue;
+            }
+            const std::uint32_t size = load(in.descriptor, 4) & 0xFFF;
+            store(load(in.descriptor + 4, 4) + in.offset, 1, byte);
+            if (++in.offset >= size) {
+                finish_in(ch, false);
+            }
+            return;
+        }
+    }
+    // The peripheral's transfer ended: the in link's EOF.
+    void end_in(std::uint32_t peripheral)
+    {
+        for (std::uint32_t ch = 0; ch < channels; ++ch) {
+            if (in_[ch].active && (reg(0xA0 + stride * ch) & 0x3F) == peripheral) {
+                finish_in(ch, true);
+            }
+        }
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset < 0x10 * channels && offset % 0x10 == 4) { // INT_ST
+            return reg(offset - 4) & reg(offset + 4);
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        if (offset < 0x10 * channels) {
+            const std::uint32_t ch = offset / 0x10;
+            if (offset % 0x10 == 0x0C) { // INT_CLR
+                reg(0x10 * ch) &= ~value;
+            } else if (offset % 0x10 != 4) {
+                Block::write_word(offset, value);
+            }
+            update(ch);
+            return;
+        }
+        if (offset >= 0x70 && offset < 0x70 + stride * channels) {
+            const std::uint32_t ch = (offset - 0x70) / stride;
+            const std::uint32_t local = (offset - 0x70) % stride + 0x70;
+            if (local == 0x70 && (value & 1)) { // IN_CONF0.IN_RST
+                in_[ch] = Side{};
+            } else if (local == 0xD0 && (value & 1)) { // OUT_CONF0.OUT_RST
+                out_[ch] = Side{};
+            } else if (local == 0x80) { // IN_LINK: START 22, STOP 21, RESTART 23
+                Block::write_word(offset, value & 0x1FFFFF & ~(1u << 21));
+                if (value & (1u << 21)) {
+                    in_[ch].active = false;
+                }
+                if (value & ((1u << 22) | (1u << 23))) {
+                    in_[ch] = Side{true, 0x3FC00000u | (value & 0xFFFFF), 0};
+                }
+                return;
+            } else if (local == 0xE0) { // OUT_LINK: START 21, STOP 20, RESTART 22
+                Block::write_word(offset, value & 0xFFFFF);
+                if (value & (1u << 20)) {
+                    out_[ch].active = false;
+                }
+                if (value & ((1u << 21) | (1u << 22))) {
+                    out_[ch] = Side{true, 0x3FC00000u | (value & 0xFFFFF), 0};
+                }
+                return;
+            }
+        }
+        Block::write_word(offset, value);
+    }
+    void on_reset() override
+    {
+        for (std::uint32_t ch = 0; ch < channels; ++ch) {
+            in_[ch] = out_[ch] = Side{};
+            reg(0xA0 + stride * ch) = 0x3F; // no peripheral
+            reg(0x100 + stride * ch) = 0x3F;
+        }
+    }
+
+private:
+    static constexpr std::uint32_t channels = 3;
+    static constexpr std::uint32_t stride = 0xC0;
+    struct Side {
+        bool active = false;
+        std::uint32_t descriptor = 0;
+        std::uint32_t offset = 0;
+    };
+
+    void interrupt(std::uint32_t ch, std::uint32_t bits)
+    {
+        reg(0x10 * ch) |= bits;
+        update(ch);
+    }
+    void update(std::uint32_t ch) { raise(47 + static_cast<int>(ch), (reg(0x10 * ch) & reg(0x10 * ch + 8)) != 0); }
+
+    void finish_out(std::uint32_t ch, std::uint32_t word0)
+    {
+        Side& out = out_[ch];
+        if (reg(0xD0 + stride * ch) & (1u << 2)) { // OUT_AUTO_WRBACK: the hardware gives the descriptor back
+            store(out.descriptor, 4, word0 & ~(1u << 31));
+        }
+        std::uint32_t bits = 1u << 3; // OUT_DONE
+        if (word0 & (1u << 30)) {
+            bits |= (1u << 4) | (1u << 8); // OUT_EOF, OUT_TOTAL_EOF
+            reg(0xE8 + stride * ch) = out.descriptor; // OUT_EOF_DES_ADDR
+        }
+        const std::uint32_t next = load(out.descriptor + 8, 4);
+        out = next ? Side{true, next, 0} : Side{};
+        interrupt(ch, bits);
+    }
+    void finish_in(std::uint32_t ch, bool eof)
+    {
+        Side& in = in_[ch];
+        std::uint32_t word0 = load(in.descriptor, 4);
+        word0 = (word0 & ~((0xFFFu << 12) | (1u << 31) | (1u << 30))) | (in.offset << 12) | (eof ? 1u << 30 : 0u);
+        store(in.descriptor, 4, word0);
+        std::uint32_t bits = 1u; // IN_DONE
+        if (eof) {
+            bits |= 1u << 1; // IN_SUC_EOF
+            reg(0x88 + stride * ch) = in.descriptor; // IN_SUC_EOF_DES_ADDR
+        }
+        const std::uint32_t next = load(in.descriptor + 8, 4);
+        in = next && !eof ? Side{true, next, 0} : Side{};
+        interrupt(ch, bits);
+    }
+
+    Side in_[channels];
+    Side out_[channels];
+};
+
+// GP-SPI2 as a master (TRM chapter "SPI Controller"): CMD.USR runs one
+// transaction of CS setup, command (USER2), address (ADDR), dummy cycles and
+// data (MS_DLEN bits, full duplex with USER.DOUTDIN, otherwise the MOSI part
+// then the MISO part), and CS hold; CMD.USR clears itself and TRANS_DONE is
+// raised (interrupt source 19). Data from and to W0-W15 or, with DMA_TX_ENA /
+// DMA_RX_ENA, the GDMA channel of peripheral 0. Modes from MISC.CK_IDLE_EDGE
+// and USER.CK_OUT_EDGE; the clock from CLOCK (80 MHz APB); bit order from
+// CTRL. Signals FSPICLK 63, FSPID 65 (MOSI), FSPIQ 64 (MISO in), FSPICS0-5
+// 68-73, through the matrix or IO_MUX. Single-line transfers only.
+class Spi2 : public Esp32C3::Block, public Esp32C3::Timed {
+public:
+    Spi2(Esp32C3& machine, Gdma& dma) : Block(machine, "SPI2"), dma_(dma)
+    {
+        claim_signal(clk_signal);
+        claim_signal(mosi_signal);
+        for (int cs = 0; cs < 6; ++cs) {
+            claim_signal(cs0_signal + cs);
+        }
+    }
+
+    std::uint64_t next_ns() const override { return steps_.empty() ? no_event : steps_.front().at; }
+    void on_ns(std::uint64_t now) override
+    {
+        while (!steps_.empty() && steps_.front().at <= now) {
+            const Step step = steps_.front();
+            steps_.pop_front();
+            perform(step, now);
+        }
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x40) { // DMA_INT_ST
+            return reg(0x3C) & reg(0x34);
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        switch (offset) {
+        case 0x00: { // CMD: UPDATE (23) applies at once; USR (24) starts a transaction
+            const bool busy = (reg(0x00) & (1u << 24)) != 0;
+            Block::write_word(offset, (value & ~((1u << 23) | (1u << 24))) | (busy ? 1u << 24 : 0u));
+            if ((value & (1u << 24)) && !busy) {
+                reg(0x00) |= 1u << 24;
+                begin(now_ns());
+            }
+            break;
+        }
+        case 0x38: // DMA_INT_CLR
+            reg(0x3C) &= ~value;
+            update_interrupt();
+            break;
+        case 0x34: // DMA_INT_ENA
+        case 0x3C: // DMA_INT_RAW: ESP-IDF sets TRANS_DONE so that its ISR starts the first transaction
+            Block::write_word(offset, value);
+            update_interrupt();
+            break;
+        case 0x08: // CTRL
+        case 0x20: // MISC: the idle levels of SCK and CS follow at once
+            Block::write_word(offset, value);
+            if (steps_.empty()) {
+                idle_lines();
+            }
+            break;
+        default: Block::write_word(offset, value);
+        }
+        reschedule();
+    }
+    void on_reset() override
+    {
+        steps_.clear();
+        idle_lines();
+    }
+
+private:
+    static constexpr int clk_signal = 63;
+    static constexpr int miso_signal = 64;
+    static constexpr int mosi_signal = 65;
+    static constexpr int cs0_signal = 68;
+    static constexpr std::uint32_t dma_peripheral = 0;
+    enum class Action { Clk, Mosi, Sample, Cs, Done };
+    struct Step {
+        std::uint64_t at = 0;
+        Action action = Action::Clk;
+        bool level = false;
+    };
+    // The bits of one phase: from TX, into RX, or both.
+    struct Phase {
+        std::vector<bool> out; // empty: MOSI keeps its level
+        std::size_t in = 0;    // bits to receive
+    };
+
+    bool idle_clock() const { return (reg(0x20) & (1u << 29)) != 0; } // MISC.CK_IDLE_EDGE
+    bool cpha() const { return idle_clock() != ((reg(0x10) & (1u << 9)) != 0); } // USER.CK_OUT_EDGE
+    bool cs_active_level(int cs) const { return ((reg(0x20) >> (7 + cs)) & 1) != 0; } // MASTER_CS_POL
+    int selected_cs() const
+    {
+        for (int cs = 0; cs < 6; ++cs) {
+            if (!(reg(0x20) & (1u << cs))) {
+                return cs;
+            }
+        }
+        return -1;
+    }
+    std::uint64_t half_ns() const
+    {
+        const std::uint32_t clock = reg(0x0C);
+        double hz = 80'000'000.0;
+        if (!(clock & (1u << 31))) {
+            hz /= static_cast<double>((((clock >> 18) & 0xF) + 1) * (((clock >> 12) & 0x3F) + 1));
+        }
+        return std::max<std::uint64_t>(1, static_cast<std::uint64_t>(std::llround(0.5e9 / hz)));
+    }
+
+    void idle_lines()
+    {
+        drive_signal(clk_signal, idle_clock());
+        const bool keep = (reg(0x20) & (1u << 30)) != 0 && active_cs_ >= 0; // CS_KEEP_ACTIVE
+        for (int cs = 0; cs < 6; ++cs) {
+            drive_signal(cs0_signal + cs, keep && cs == active_cs_ ? cs_active_level(cs) : !cs_active_level(cs));
+        }
+    }
+    void update_interrupt() { raise(19, (reg(0x3C) & reg(0x34)) != 0); } // ETS_SPI2_INTR_SOURCE
+
+    // Bits of a register value sent MSB first per byte, bytes in memory order.
+    static void append_bits(std::vector<bool>& bits, std::uint32_t value, std::uint32_t count, bool lsb_first)
+    {
+        for (std::uint32_t i = 0; i < count; ++i) {
+            const std::uint32_t byte = i / 8;
+            const std::uint32_t bit = lsb_first ? i % 8 : 7 - i % 8;
+            bits.push_back(((value >> (8 * byte + bit)) & 1) != 0);
+        }
+    }
+    std::uint8_t tx_byte(std::size_t index)
+    {
+        if (reg(0x30) & (1u << 28)) { // DMA_TX_ENA
+            std::uint8_t byte = 0;
+            if (!dma_.pop(dma_peripheral, byte)) {
+                reg(0x3C) |= 1u << 1; // DMA_OUTFIFO_EMPTY_ERR
+            }
+            return byte;
+        }
+        const std::size_t base = (reg(0x10) & (1u << 25)) ? 32 : 0; // USR_MOSI_HIGHPART
+        const std::size_t at = (base + index) % 64;
+        return static_cast<std::uint8_t>(reg(0x98 + 4 * static_cast<std::uint32_t>(at / 4)) >> (8 * (at % 4)));
+    }
+
+    // Builds the whole transaction's steps; data bits from W0-15 or the DMA now.
+    void begin(std::uint64_t now)
+    {
+        const std::uint32_t user = reg(0x10);
+        const bool tx_lsb = (reg(0x08) & (1u << 26)) != 0;
+        rx_lsb_ = (reg(0x08) & (1u << 25)) != 0;
+        const std::uint64_t half = half_ns();
+        std::vector<Phase> phases;
+        if (user & (1u << 31)) { // USR_COMMAND
+            Phase p;
+            append_bits(p.out, reg(0x18) & 0xFFFF, ((reg(0x18) >> 28) & 0xF) + 1, tx_lsb);
+            phases.push_back(std::move(p));
+        }
+        if (user & (1u << 30)) { // USR_ADDR
+            Phase p;
+            append_bits(p.out, reg(0x04), ((reg(0x14) >> 27) & 0x1F) + 1, tx_lsb);
+            phases.push_back(std::move(p));
+        }
+        if (user & (1u << 29)) { // USR_DUMMY
+            Phase p;
+            p.out.assign((reg(0x14) & 0xFF) + 1, true);
+            phases.push_back(std::move(p));
+        }
+        const std::uint32_t bits = (reg(0x1C) & 0x3FFFF) + 1;
+        const bool mosi = (user & (1u << 27)) != 0;
+        const bool miso = (user & (1u << 28)) != 0;
+        auto data_out = [&](Phase& p) {
+            for (std::uint32_t i = 0; i < bits; i += 8) {
+                append_bits(p.out, tx_byte(i / 8), std::min<std::uint32_t>(8, bits - i), tx_lsb);
+            }
+        };
+        if ((user & 1) && (mosi || miso)) { // DOUTDIN: full duplex
+            Phase p;
+            if (mosi) {
+                data_out(p);
+            }
+            p.in = miso ? bits : 0;
+            if (!mosi) {
+                p.out.assign(bits, true);
+            }
+            phases.push_back(std::move(p));
+        } else {
+            if (mosi) {
+                Phase p;
+                data_out(p);
+                phases.push_back(std::move(p));
+            }
+            if (miso) {
+                Phase p;
+                p.in = bits;
+                phases.push_back(std::move(p));
+            }
+        }
+        rx_bits_ = 0;
+        rx_shift_ = 0;
+        rx_count_ = 0;
+        active_cs_ = selected_cs();
+        std::uint64_t t = now;
+        if (active_cs_ >= 0) {
+            add(t, Action::Cs, cs_active_level(active_cs_));
+        }
+        if (user & (1u << 7)) { // CS_SETUP
+            t += 2 * half * (((reg(0x14) >> 17) & 0x1F) + 1);
+        }
+        const bool idle = idle_clock();
+        for (const Phase& p : phases) {
+            const std::size_t count = std::max(p.out.size(), p.in);
+            for (std::size_t i = 0; i < count; ++i) {
+                const bool out = i < p.out.size() ? p.out[i] : true;
+                const bool sample = i < p.in;
+                if (!cpha()) { // data before the leading edge, sampled on it
+                    if (i < p.out.size()) {
+                        add(t, Action::Mosi, out);
+                    }
+                    add(t + half, Action::Clk, !idle);
+                    if (sample) {
+                        add(t + half, Action::Sample);
+                    }
+                    add(t + 2 * half, Action::Clk, idle);
+                } else { // data on the leading edge, sampled on the trailing one
+                    add(t, Action::Clk, !idle);
+                    if (i < p.out.size()) {
+                        add(t, Action::Mosi, out);
+                    }
+                    add(t + half, Action::Clk, idle);
+                    if (sample) {
+                        add(t + half, Action::Sample);
+                    }
+                }
+                t += 2 * half;
+            }
+        }
+        if (user & (1u << 6)) { // CS_HOLD
+            t += 2 * half * ((reg(0x14) >> 22) & 0x1F);
+        }
+        add(t + half, Action::Done);
+    }
+    void add(std::uint64_t at, Action action, bool level = false) { steps_.push_back({at, action, level}); }
+
+    void perform(const Step& step, std::uint64_t now)
+    {
+        (void)now;
+        switch (step.action) {
+        case Action::Clk: drive_signal(clk_signal, step.level); break;
+        case Action::Mosi: drive_signal(mosi_signal, step.level); break;
+        case Action::Cs: drive_signal(cs0_signal + active_cs_, step.level); break;
+        case Action::Sample: shift_in(input_signal(miso_signal)); break;
+        case Action::Done: finish(); break;
+        }
+    }
+    void shift_in(bool bit)
+    {
+        if (rx_lsb_) {
+            rx_shift_ = static_cast<std::uint8_t>(rx_shift_ | (bit ? 1u << rx_bits_ : 0u));
+        } else {
+            rx_shift_ = static_cast<std::uint8_t>((rx_shift_ << 1) | (bit ? 1 : 0));
+        }
+        if (++rx_bits_ == 8) {
+            store_rx();
+        }
+    }
+    void store_rx()
+    {
+        if (reg(0x30) & (1u << 27)) { // DMA_RX_ENA
+            dma_.push(dma_peripheral, rx_shift_);
+        } else {
+            const std::size_t base = (reg(0x10) & (1u << 24)) ? 32 : 0; // USR_MISO_HIGHPART
+            const std::size_t at = (base + rx_count_) % 64;
+            std::uint32_t& word = reg(0x98 + 4 * static_cast<std::uint32_t>(at / 4));
+            const std::uint32_t shift = 8 * static_cast<std::uint32_t>(at % 4);
+            word = (word & ~(0xFFu << shift)) | (static_cast<std::uint32_t>(rx_shift_) << shift);
+        }
+        ++rx_count_;
+        rx_bits_ = 0;
+        rx_shift_ = 0;
+    }
+    void finish()
+    {
+        if (rx_bits_ > 0) { // a last partial byte, left aligned for MSB first
+            if (!rx_lsb_) {
+                rx_shift_ = static_cast<std::uint8_t>(rx_shift_ << (8 - rx_bits_));
+            }
+            store_rx();
+        }
+        if (reg(0x30) & (1u << 27)) {
+            dma_.end_in(dma_peripheral);
+        }
+        idle_lines();
+        reg(0x00) &= ~(1u << 24); // CMD.USR
+        reg(0x3C) |= 1u << 12;    // TRANS_DONE
+        update_interrupt();
+    }
+
+    Gdma& dma_;
+    std::deque<Step> steps_;
+    int active_cs_ = -1;
+    bool rx_lsb_ = false;
+    std::uint32_t rx_bits_ = 0;
+    std::uint8_t rx_shift_ = 0;
+    std::size_t rx_count_ = 0;
+};
+
 // APB_SARADC, one-shot conversions (ONETIME_SAMPLE: unit and channel in bits
 // 28:25, attenuation in 24:23, START bit 29): the result is ready at once in
 // SARADC1/2_DATA_STATUS with ADC1/ADC2_DONE in INT_RAW. A linear converter,
@@ -2171,6 +2684,11 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     timed_.push_back(systimer.get());
     attach(0x60023000u, std::move(systimer));
     attach(0x60040000u, std::make_unique<ApbSaradc>(*this));
+    auto gdma = std::make_unique<Gdma>(*this);
+    auto spi2 = std::make_unique<Spi2>(*this, *gdma);
+    timed_.push_back(spi2.get());
+    attach(0x6003F000u, std::move(gdma));
+    attach(0x60024000u, std::move(spi2));
     auto i2c = std::make_unique<I2c>(*this);
     timed_.push_back(i2c.get());
     attach(0x60013000u, std::move(i2c));
@@ -2191,9 +2709,8 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
         {0x60005000u, "FE2"}, {0x60006000u, "FE"},
         {0x6000E000u, "RTC_I2C"}, {0x60014000u, "UHCI0"},
         {0x60016000u, "RMT"}, {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
-         {0x60024000u, "SPI2"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
-        {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"}, {0x6003F000u, "GDMA"},
+        {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"},
         {0x600C1000u, "SENSITIVE"},
         {0x600CC000u, "XTS_AES"}, {0x600CE000u, "ASSIST_DEBUG"},
         {0x600CF000u, "DEDICATED_GPIO"}, {0x600D0000u, "WORLD_CNTL"},

@@ -1056,6 +1056,64 @@ TEST_CASE("session: example 46 reads an LM75 and a 24C02 from the ESP32-C3 over 
     session.stop();
 }
 
+TEST_CASE("session: example 47 reads an MCP3208 and programs a W25Q32 from the ESP32-C3 over SPI")
+{
+    // SN-247: ESP-IDF's SPI master driver with DMA and two hardware CS lines.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "47_ESP32-C3_SPI_ADC_and_flash.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    model::Id pot = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+        pot = c.designator == "RV1" ? c.id : pot;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    std::vector<std::string> warnings;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.devices.size() == 2);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_until = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(10ms);
+        }
+    };
+    wait_until(0.8);
+    std::string text;
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("Flash JEDEC ID: EF 40 16") != std::string::npos);
+    CHECK(text.find("Flash: SimNodus") != std::string::npos);
+    // The wiper at 50 % of 3.3 V: code 2048 within the converter's step.
+    auto last_code = [&] {
+        std::string all;
+        session.mcu_uart_received(board, "uart0", 0, all);
+        const auto at = all.rfind("CH0: ");
+        return at == std::string::npos ? -1 : std::atoi(all.c_str() + at + 5);
+    };
+    const int middle = last_code();
+    std::printf("  CH0 at 50 %%: %d\n", middle);
+    CHECK(std::abs(middle - 2048) <= 2);
+    session.set_control(pot, 0.25);
+    wait_until(1.6);
+    const int quarter = last_code();
+    std::printf("  CH0 at 25 %%: %d\n", quarter);
+    CHECK(std::abs(quarter - 3072) <= 2); // the position counts from pin 1, at 3.3 V: 0.75 x 3.3 V
+    session.stop();
+}
+
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);

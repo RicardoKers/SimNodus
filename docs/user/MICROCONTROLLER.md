@@ -252,9 +252,16 @@ small differences may remain.
   NACK. The bus needs pull-ups: resistors in the schematic, or the pins'
   internal 45 kΩ pull-ups, which the drivers switch on. Example 46 reads an
   LM75 and writes a 24C02. Slave mode is not simulated.
-- **Not yet**: SPI and RMT (and so SimNodus's SPI chips and WS2812 strips
-  with this board), continuous ADC, Wi-Fi and Bluetooth; debugging with GDB
-  (the Blue Pill only); copying files to MicroPython from the computer.
+- **SPI**: SPI2 as a master (modes 0-3, up to 80 MHz, MSB or LSB first,
+  hardware CS0-CS5, command, address and dummy phases) on any GPIO through
+  the GPIO matrix or on its own pins (SCLK GPIO6, MOSI GPIO7, MISO GPIO2,
+  CS GPIO10), with or without DMA, with SimNodus's SPI chips at the pin
+  level: ESP-IDF's SPI master driver, Arduino's `SPI` and MicroPython's
+  `machine.SPI` work unchanged. Example 47 reads an MCP3208 and programs a
+  W25Q32. Dual and quad lines and slave mode are not simulated.
+- **Not yet**: RMT (and so WS2812 strips with this board), continuous ADC,
+  Wi-Fi and Bluetooth; debugging with GDB (the Blue Pill only); copying files
+  to MicroPython from the computer.
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.
