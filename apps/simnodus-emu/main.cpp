@@ -13,6 +13,7 @@
 // --input sets a pin level from outside at a time in milliseconds; --uart
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
+#include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/riscv_test_machine.hpp"
 #include "emu/stm32f103.hpp"
@@ -22,6 +23,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <thread>
@@ -108,6 +111,142 @@ int run_riscv(const ElfImage& image, double ms, bool quiet, bool count_entries)
     return machine.cpu().state() == RvState::Halted ? 3 : 0;
 }
 
+// ESP32-C3 (E-08, SN-244): a flash image (a merged .bin at 0, or file@offset),
+// the ROM ELF, and ELF files whose symbols name functions in diagnostics.
+int run_esp32c3(int argc, char** argv)
+{
+    std::string rom = "third_party/esp-rom-elfs/esp32c3_rev3_rom.elf";
+    std::vector<std::pair<std::string, std::uint32_t>> images;
+    std::vector<std::string> elfs;
+    double ms = 1000;
+    bool quiet = false;
+    bool trace = false;
+    struct Typed {
+        std::uint64_t time_ns;
+        int port;
+        std::string text;
+    };
+    std::vector<Typed> typed; // --usb text@ms, --uart0 text@ms; \n and \r in the text
+    std::string flash_out;
+    for (int i = 2; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if ((arg == "--usb" || arg == "--uart0") && i + 1 < argc) {
+            const std::string value = argv[++i];
+            const auto at = value.rfind('@');
+            std::string text = value.substr(0, at);
+            for (const auto& [escape, byte] : {std::pair<std::string, char>{"\\n", '\n'}, {"\\r", '\r'}}) {
+                for (auto pos = text.find(escape); pos != std::string::npos; pos = text.find(escape, pos + 1)) {
+                    text.replace(pos, 2, 1, byte);
+                }
+            }
+            typed.push_back({at == std::string::npos ? 0 : static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
+                arg == "--usb" ? 2 : 0, text});
+        } else if (arg == "--flash-out" && i + 1 < argc) {
+            flash_out = argv[++i]; // the whole flash at the end (pass it back as the image to continue)
+        } else if (arg == "--rom" && i + 1 < argc) {
+            rom = argv[++i];
+        } else if (arg == "--elf" && i + 1 < argc) {
+            elfs.push_back(argv[++i]);
+        } else if (arg == "--ms" && i + 1 < argc) {
+            ms = std::strtod(argv[++i], nullptr);
+        } else if (arg == "--quiet") {
+            quiet = true;
+        } else if (arg == "--trace-io") {
+            trace = true;
+        } else if (arg[0] != '-') {
+            const auto at = arg.rfind('@');
+            const std::uint32_t offset = at == std::string::npos ? 0 : static_cast<std::uint32_t>(std::strtoul(arg.c_str() + at + 1, nullptr, 0));
+            images.emplace_back(arg.substr(0, at), offset);
+        } else {
+            std::fprintf(stderr, "usage: simnodus-emu --esp32c3 image.bin[@offset]... [--elf app.elf] [--rom rom.elf] [--ms 1000] [--quiet] [--trace-io]\n");
+            return 2;
+        }
+    }
+    std::string error;
+    const auto rom_elf = read_elf(rom, error, ElfMachine::Riscv);
+    Esp32C3 machine;
+    if (!rom_elf || !machine.load_rom(*rom_elf, error)) {
+        std::fprintf(stderr, "error: %s\n", error.c_str());
+        return 1;
+    }
+    for (const auto& [path, offset] : images) {
+        std::ifstream stream(path, std::ios::binary);
+        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        if (!stream && bytes.empty()) {
+            std::fprintf(stderr, "error: cannot read %s\n", path.c_str());
+            return 1;
+        }
+        if (!machine.load_flash(offset, bytes, error)) {
+            std::fprintf(stderr, "error: %s\n", error.c_str());
+            return 1;
+        }
+    }
+    for (const std::string& path : elfs) {
+        if (const auto elf = read_elf(path, error, ElfMachine::Riscv)) {
+            machine.add_symbols(*elf);
+        } else {
+            std::fprintf(stderr, "error: %s\n", error.c_str());
+            return 1;
+        }
+    }
+    if (trace) {
+        machine.set_trace([&machine](const std::string& text) {
+            std::printf("%14.6f ms  %s\n", static_cast<double>(machine.time_ns()) / 1e6, text.c_str());
+        });
+    }
+    machine.reset();
+    static const char* const ports[] = {"UART0", "UART1", "USB"};
+    std::string lines[3];
+    const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
+    const auto begin = std::chrono::steady_clock::now();
+    std::sort(typed.begin(), typed.end(), [](const Typed& a, const Typed& b) { return a.time_ns < b.time_ns; });
+    std::size_t next_typed = 0;
+    while (machine.time_ns() < end_ns && machine.cpu().state() != RvState::Halted) {
+        std::uint64_t until = std::min(end_ns, machine.time_ns() + 1'000'000);
+        if (next_typed < typed.size()) {
+            until = std::max(machine.time_ns() + 1, std::min(until, typed[next_typed].time_ns));
+        }
+        machine.run_until_ns(until);
+        while (next_typed < typed.size() && typed[next_typed].time_ns <= machine.time_ns()) {
+            machine.send(typed[next_typed].port, typed[next_typed].text);
+            ++next_typed;
+        }
+        for (const auto& out : machine.take_output()) {
+            std::string& line = lines[out.port];
+            if (out.value == '\n' || line.size() > 200) {
+                if (!quiet) {
+                    std::printf("%14.6f ms  %-5s \"%s\"\n", static_cast<double>(out.time_ns) / 1e6, ports[out.port], line.c_str());
+                }
+                line.clear();
+            } else if (out.value != '\r') {
+                line += (out.value >= 32 && out.value < 127) ? static_cast<char>(out.value) : '.';
+            }
+        }
+        for (const auto& text : machine.take_diagnostics()) {
+            std::printf("%14.6f ms  diagnostic: %s\n", static_cast<double>(machine.time_ns()) / 1e6, text.c_str());
+        }
+    }
+    for (int p = 0; p < 3; ++p) {
+        if (!lines[p].empty() && !quiet) {
+            std::printf("%14s     %-5s \"%s\" (no newline yet)\n", "", ports[p], lines[p].c_str());
+        }
+    }
+    const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    if (!flash_out.empty()) {
+        std::ofstream out(flash_out, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(machine.flash().data()), static_cast<std::streamsize>(machine.flash().size()));
+        if (!out) {
+            std::fprintf(stderr, "error: cannot write %s\n", flash_out.c_str());
+        }
+    }
+    const std::string where = machine.function_at(machine.cpu().pc());
+    std::printf("simulated %.3f ms in %.3f s; %llu instructions, %.1f MIPS; CPU %u Hz; PC 0x%08X%s%s\n",
+        static_cast<double>(machine.time_ns()) / 1e6, seconds, static_cast<unsigned long long>(machine.cpu().instructions()),
+        static_cast<double>(machine.cpu().instructions()) / seconds / 1e6, static_cast<unsigned>(machine.cpu_hz()),
+        static_cast<unsigned>(machine.cpu().pc()), where.empty() ? "" : " in ", where.c_str());
+    return machine.cpu().state() == RvState::Halted ? 3 : 0;
+}
+
 void usage()
 {
     std::fprintf(stderr,
@@ -122,6 +261,9 @@ int main(int argc, char** argv)
     if (argc < 2) {
         usage();
         return 2;
+    }
+    if (std::strcmp(argv[1], "--esp32c3") == 0) {
+        return run_esp32c3(argc, argv);
     }
     std::string path;
     double ms = 1000;

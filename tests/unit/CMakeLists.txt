@@ -40,3 +40,10 @@ target_link_libraries(riscv_tests PRIVATE simnodus::emu simnodus::warnings)
 add_test(NAME emu-riscv-unit COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv: ")
 add_test(NAME emu-riscv-arch COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-arch: ")
 add_test(NAME emu-riscv-differential COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-diff: ")
+
+# ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
+# MicroPython images from tests/experiments/esp32c3/firmware.
+add_executable(esp32c3_tests esp32c3_tests.cpp)
+target_include_directories(esp32c3_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(esp32c3_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-esp32c3 COMMAND esp32c3_tests "${PROJECT_SOURCE_DIR}")

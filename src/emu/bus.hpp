@@ -107,7 +107,7 @@ private:
 
     std::vector<std::unique_ptr<Storage>> storages_;
     std::vector<Region> regions_; // sorted by base
-    std::array<Fast, 4> fast_{};  // the first memories added (SRAM, flash, its alias)
+    std::array<Fast, 8> fast_{};  // the first memories added (SRAM, flash, its alias; the ESP32-C3 has more)
     int fast_count_ = 0;
     std::uint64_t memory_writes_ = 0;
 };

@@ -32,9 +32,18 @@ struct ElfSymbol {
 
 enum class ElfMachine { Arm, Riscv };
 
+// A section with contents in the file and an address (PROGBITS). The
+// ESP32-C3's ROM ELF keeps some of the ROM only in sections (esp32c3_rom.hpp).
+struct ElfSection {
+    std::string name;
+    std::uint32_t address = 0;
+    std::vector<std::uint8_t> data;
+};
+
 struct ElfImage {
     std::uint32_t entry = 0;
     std::vector<ElfSegment> segments;
+    std::vector<ElfSection> sections;
     std::vector<ElfSymbol> functions; // sorted by address
     std::map<std::string, std::uint32_t> symbols; // every named symbol with a value
 

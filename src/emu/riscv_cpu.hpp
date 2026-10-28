@@ -16,6 +16,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -63,6 +64,9 @@ public:
         std::uint32_t interrupt_lines = (1u << 3) | (1u << 7) | (1u << 11);
         bool counters = true;      // mcycle, minstret, cycle, instret and mcounteren
         bool vectored_only = false; // mtvec.MODE reads as 1 whatever is written
+        // false: every line the machine raises is enabled whatever mie holds
+        // (the ESP32-C3's interrupt controller enables lines itself).
+        bool mie_gates = true;
     };
 
     explicit RiscvCpu(Bus& bus);
@@ -95,6 +99,9 @@ public:
     // keep the cache right; the machine calls invalidate_code_cache() after
     // other writes (loader, DMA, a remapped cache).
     void add_code_region(std::uint32_t base, std::uint32_t size);
+    // Another address range of the same memory (the ESP32-C3's SRAM through
+    // the data bus): stores there drop decoded code too.
+    void add_code_alias(std::uint32_t alias_base, std::uint32_t code_base, std::uint32_t size);
     void invalidate_code_cache();
 
     // Levels of the interrupt lines (bit n = mcause n); mip reads them.
@@ -139,11 +146,22 @@ public:
     }
 
 private:
+    // Decoded instructions per halfword, in 4 KiB pages made when code runs
+    // there (the ESP32-C3's flash window is 8 MiB, mostly unused).
+    static constexpr std::uint32_t page_bytes = 4096;
     struct CodeRegion {
         std::uint32_t base = 0;
         std::uint32_t size = 0;
         const std::uint8_t* bytes = nullptr;
-        std::vector<RvInsn> insns; // per halfword
+        std::vector<std::unique_ptr<RvInsn[]>> pages;
+        RvInsn& at(std::uint32_t offset)
+        {
+            auto& page = pages[offset / page_bytes];
+            if (!page) {
+                page = std::make_unique<RvInsn[]>(page_bytes / 2);
+            }
+            return page[(offset % page_bytes) / 2];
+        }
     };
 
     const RvInsn& fetch();
@@ -198,7 +216,14 @@ private:
     std::string halt_reason_;
 
     std::vector<CodeRegion> regions_;
+    struct CodeAlias {
+        std::uint32_t alias_base, code_base, size;
+    };
+    std::vector<CodeAlias> code_aliases_;
     CodeRegion* last_region_ = nullptr; // where the previous fetch was
+    // The decoded page of the previous fetch: one comparison on the fast path.
+    std::uint32_t last_page_base_ = 1;     // odd: matches no PC
+    RvInsn* last_page_ = nullptr;
     RvInsn scratch_;
     bool count_entries_ = false;
     std::vector<std::uint64_t> entry_hits_;

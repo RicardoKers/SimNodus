@@ -13,6 +13,7 @@
 !/tests/experiments/riscv-arch-test/corpus/*/*.elf
 !/tests/experiments/riscv-differential/corpus/*.elf
 !/tests/experiments/riscv-benchmark/*.elf
+!/third_party/esp-rom-elfs/*.elf
 *.hex
 # Memory contents of the examples (SN-212).
 !/examples/memories/*.hex

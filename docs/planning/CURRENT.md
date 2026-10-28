@@ -131,12 +131,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 4. Classroom feedback (postponed: academic calendar).
 5. ESP32-C3 track (owner's decision 2026-10-28; ESP32-C3 before the Xtensa
    ESP32): experiment E-08 ([plan](../experiments/E-08-plan.md),
-   [results](../experiments/E-08-results.md)). Gate G8a met on 2026-10-28:
-   the RV32IMC core (`src/emu/riscv_cpu.*`) passes the 90 architecture tests,
-   equals QEMU on 8 192 random blocks and runs 164 MIPS (busy loop) and
-   126 MIPS (mix) on the owner's laptop; it is not in the application yet.
-   DE0 taken: vendor Espressif's ROM ELF. Next SN-244 (SoC and boot path);
-   the owner's boards (DevKitM-1, SuperMini) are needed for G8b.1.
+   [results](../experiments/E-08-results.md)). Gate G8a met (the RV32IMC
+   core). SN-244 part 1 (2026-10-28): the ESP32-C3 machine boots ESP-IDF's
+   `hello_world` and the official MicroPython v1.29.0 image unmodified, from
+   the ROM rebuilt out of Espressif's ROM ELF (equal to a chip's ROM) through
+   the bootloader to `app_main` and the `>>>` prompt on USB-Serial-JTAG; not in
+   the application yet. Next: GPIO, UART receive, watchdogs, Arduino image;
+   the owner's boards (DevKitM-1, SuperMini) for the console comparison.
 
 ## Known constraints
 

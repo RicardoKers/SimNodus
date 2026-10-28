@@ -15,6 +15,7 @@ constexpr std::uint16_t em_arm = 40;
 constexpr std::uint16_t em_riscv = 243;
 constexpr std::uint32_t pt_load = 1;
 constexpr std::uint32_t pf_x = 1;
+constexpr std::uint32_t sht_progbits = 1;
 constexpr std::uint32_t sht_symtab = 2;
 constexpr std::uint8_t stt_func = 2;
 constexpr std::uint8_t stt_section = 3;
@@ -144,6 +145,40 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
     if (image.segments.empty()) {
         error = "The ELF file has nothing to load.";
         return std::nullopt;
+    }
+
+    // Sections with contents and an address (optional, like the symbols).
+    std::uint16_t shstrndx = 0;
+    std::uint32_t names_offset = 0;
+    std::uint32_t names_size = 0;
+    if (get(bytes, 50, shstrndx) && shentsize >= 40 && shstrndx < shnum) {
+        const std::size_t at = shoff + static_cast<std::size_t>(shstrndx) * shentsize;
+        if (!get(bytes, at + 16, names_offset) || !get(bytes, at + 20, names_size) || names_offset > bytes.size()
+            || bytes.size() - names_offset < names_size) {
+            names_size = 0;
+        }
+    }
+    for (std::uint16_t i = 0; shentsize >= 40 && i < shnum; ++i) {
+        const std::size_t at = shoff + static_cast<std::size_t>(i) * shentsize;
+        std::uint32_t sh_name = 0;
+        std::uint32_t sh_type = 0;
+        std::uint32_t sh_addr = 0;
+        std::uint32_t sh_offset = 0;
+        std::uint32_t sh_size = 0;
+        if (!get(bytes, at, sh_name) || !get(bytes, at + 4, sh_type) || !get(bytes, at + 12, sh_addr)
+            || !get(bytes, at + 16, sh_offset) || !get(bytes, at + 20, sh_size) || sh_type != sht_progbits
+            || sh_addr == 0 || sh_size == 0 || sh_offset > bytes.size() || bytes.size() - sh_offset < sh_size) {
+            continue;
+        }
+        ElfSection section;
+        if (sh_name < names_size) {
+            const char* text = reinterpret_cast<const char*>(bytes.data() + names_offset + sh_name);
+            const void* end = std::memchr(text, 0, names_size - sh_name);
+            section.name.assign(text, end ? static_cast<std::size_t>(static_cast<const char*>(end) - text) : 0);
+        }
+        section.address = sh_addr;
+        section.data.assign(bytes.begin() + sh_offset, bytes.begin() + sh_offset + sh_size);
+        image.sections.push_back(std::move(section));
     }
 
     // Function symbols (optional: a stripped file still runs).
