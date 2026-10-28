@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-27. Keep this file short: present state, last results, next
+Updated: 2026-10-28. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -129,6 +129,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
    release.
 4. Classroom feedback (postponed: academic calendar).
+5. ESP32-C3 track (owner's decision 2026-10-28; ESP32-C3 before the Xtensa
+   ESP32): experiment E-08, [plan and gates](../experiments/E-08-plan.md),
+   no code yet. First SN-242: the ROM's licence and source (decision DE0),
+   pinned firmware versions, reference boards; then SN-243..SN-245.
 
 ## Known constraints
 
