@@ -2306,7 +2306,24 @@ TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an e
     std::printf("%s", text.c_str());
     CHECK(text.find("POS 12 SERVO 108") != std::string::npos);
     CHECK(session.device_texts().at(servo) == "dial 108.0");
-    CHECK(session.latest("ma").value_or(0) - session.latest("mb").value_or(0) > -1.0); // forward or freewheeling
+    // Forward or freewheeling, on average over the last 20 ms PWM period: in the
+    // period's off part the motor's current flows back through the flyback diodes
+    // and MA - MB is briefly negative, so one sample proves nothing.
+    session.pause();
+    const auto a = session.samples("ma");
+    const auto b = session.samples("mb");
+    REQUIRE(a.size() == b.size());
+    REQUIRE(!a.empty());
+    double area = 0.0;
+    double span = 0.0;
+    for (std::size_t i = a.size() - 1; i > 0 && a.back().time - a[i - 1].time <= 0.020; --i) {
+        const double dt = a[i].time - a[i - 1].time;
+        area += dt * (a[i].value - b[i].value);
+        span += dt;
+    }
+    REQUIRE(span > 0.015);
+    std::printf("  MA - MB over the last %.1f ms: %.2f V on average\n", span * 1000, area / span);
+    CHECK(area / span > -1.0);
     session.stop();
 }
 
