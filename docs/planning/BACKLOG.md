@@ -161,6 +161,7 @@ translation; the order may change with the owner's lessons.
 | SN-238 | Tutorials show the hand (videos request, item 3): `view.pointer`, `view.keys`, `view.highlight`, `view.locate`, captions placed and sized, `ui.move`/`ui.click`/`ui.drag`/`ui.key`/`ui.type` acting through the real widgets (targets: grid points, pins, parts, toolbar buttons, Components entries, Properties fields, menus, tabs) | done 2026-10-27 |
 | SN-239 | Camera and layout for recordings (videos request, item 4): `view.fit` and `view.show` with `ms` (smooth zoom and pan), `view.panels`, `view.font` and `--scale`, `view.dialog` (Keyboard Shortcuts, About, shown without blocking commands); the analyzer without its side panel came with SN-234 | done 2026-10-27 |
 | SN-240 | Conveniences for recordings (videos request, item 5): `sim.control` with `over` (a smooth turn), `sim.control` for chips' live values, `project.new` with a `name`; the "Controlled by an agent" status stays in recordings (owner's decision of 2026-10-27) | done 2026-10-27 |
+| SN-241 | YouTube channel https://www.youtube.com/@SimNodus in the README with the next release (owner's request 2026-10-27; also the package README and the user guides' help section, next to Discord) | todo |
 
 ## Later (after freeze or after classroom)
 
