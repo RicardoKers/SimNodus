@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.11 (analog and digital circuits and the Blue Pill / STM32F103
+Release 0.12 (analog and digital circuits and the Blue Pill / STM32F103
 microcontroller).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
@@ -18,6 +18,15 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.12: a Serial Port part connects the circuit to a real serial port
+of the computer (a USB-serial adapter: choose the port, baud rate and format
+in Properties; example 44). While a run is paused, the mouse wheel zooms the
+time axis of the scope and the Logic lanes to show a transition in detail.
+Channel scales are automatic and follow a signal that leaves the screen.
+For video tutorials, scripts control the Signal Analyzer and show a drawn
+pointer, key badges and highlights while they work the window's real
+buttons and fields (see AUTOMATION.md).
 
 New in 0.11: about 60 new parts for automation projects: sensors (LM35,
 NTC, PT100, thermocouple, LDR, ACS712, load cell and HX711, Hall, PIR,

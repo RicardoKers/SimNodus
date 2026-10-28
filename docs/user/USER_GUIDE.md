@@ -3,7 +3,7 @@
 SimNodus is a classroom simulator: you draw a circuit, press F5 and it keeps
 running while you press buttons, turn potentiometers and watch LEDs, meters
 and the Signal Analyzer. A Blue Pill board (STM32F103C8) can run your own
-firmware inside the circuit. This guide describes release 0.11. For a first circuit in five minutes, see the
+firmware inside the circuit. This guide describes release 0.12. For a first circuit in five minutes, see the
 [quick start](QUICK_START.md); for every detail of the simulated
 microcontroller, see [MICROCONTROLLER.md](MICROCONTROLLER.md).
 
@@ -556,7 +556,9 @@ results are read correctly.
 - At maximum speed on a 2026 laptop, most examples run 1.5x to 50x real
   time, but four are close to or below it: 26 (LED matrix, 64 multiplexed
   LEDs) about 0.4x, 24 (RTC and watchdog) and 15 (HAL ADC + DMA) about 1x
-  (firmware busy at 72 MHz), 23 (7-segment counter) 1.2x. On slower PCs
+  (firmware busy at 72 MHz), 23 (7-segment counter) 1.2x; 44 with
+  `loopback` about 0.7x, as the firmware echoes its own text without end
+  (with a terminal program it does not). On slower PCs
   they show a speed below 1x: the results stay right, only slower.
 - USART RX from the pin needs exact edges or a bit at least four time steps
   long (2400 baud or slower at 100 µs); a received byte reaches the firmware

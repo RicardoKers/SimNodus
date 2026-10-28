@@ -8,14 +8,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.11.0 published on 2026-10-26** after the owner's test of
-  the package (fixes: streamed buzzer sound, BMP280 calibration in example
-  38's firmware, A3144 currents): tag `v0.11.0`, GitHub release with
-  `SimNodus-0.11.0-windows-x64.zip` and `SimNodus-0.11.0-windows-x64-setup.exe`.
-  Releases 0.1.0-0.10.0 were published between 2026-10-14 and 10-25.
+- **Release 0.12.0 published on 2026-10-27** after the owner's test of
+  the package: tag `v0.12.0`, GitHub release with
+  `SimNodus-0.12.0-windows-x64.zip` and `SimNodus-0.12.0-windows-x64-setup.exe`.
+  Releases 0.1.0-0.11.0 were published between 2026-10-14 and 10-26.
   Community: Discord server https://discord.gg/AsjGNtMnef (README, user
   guides, package README) besides GitHub Issues.
-- **On `main` after 0.11:** new values of ngspice parts apply at once in
+- **New in 0.12:** new values of ngspice parts apply at once in
   an interactive run (SN-232), Autoscale with one 0 V height per unit
   (SN-233), `view.fit` with a grid `area` and a canvas `region` (SN-231).
   From the videos request of 2026-10-27 (the owner's private repository
@@ -28,8 +27,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   chips' live values, `project.new` with a name (SN-240).
 - **Serial Port part (SN-237, ADR 0105, example 44):** a real serial port of
   the computer on RX, TX and GND (TTL 3.3/5 V; baud, data bits, parity, stop
-  bits; `loopback`). Tested with `loopback` only; a real adapter is the
-  owner's test.
+  bits; `loopback`). Automated tests use `loopback`; the owner tested the
+  package before the release.
 - **New in 0.11:** File > Save with Firmware (SN-219) and the placement
   shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and transducers
   (SN-221, example 36); logic chips in DIP packages (SN-222, example 37); I2C
@@ -119,12 +118,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Owner's test of the Serial Port part with a USB-serial adapter or a
-   virtual port pair (example 44 with a terminal program), and of the new
-   recording commands in the videos repository (note them in its
-   `CLAUDE.md`). "Controlled by an agent" stays in the status bar during
-   recordings (owner's decision, 2026-10-27). Test package
-   `dist/SimNodus-0.11.0-dev-windows-x64.zip` built 2026-10-27.
+1. The videos repository adopts the new recording commands (it notes them
+   in its `CLAUDE.md`). "Controlled by an agent" stays in the status bar
+   during recordings (owner's decision, 2026-10-27).
 2. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
    26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186 postponed. Run
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
@@ -142,7 +138,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 - USART RX from the pin needs exact edges or bits of four circuit steps;
   bytes reach DR about 0.4 ms after their stop bit.
 - Examples close to or below real time on a 2026 laptop: 26 (LED matrix,
-  0.4x), 24 and 15 (about 1x), 23 (1.2x); listed in the user guide.
+  0.4x), 24 and 15 (about 1x), 23 (1.2x), 44 with `loopback` (0.7x, the
+  firmware's endless echo); listed in the user guide.
 
 ## Resuming in a new session
 

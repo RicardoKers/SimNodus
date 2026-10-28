@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.12.0 — 2026-10-27
+
 ### Added (2026-10-27, conveniences)
 
 - `sim.control` takes `"over": "2s"` to turn a potentiometer, an adjustable source or a sensor smoothly from where it is, and also sets a chip's value that changes while running (an LM75's temperature, an HC-SR04's distance), so scripts use one command for every knob; `project.new` takes a `"name"` that the window's title shows until the project is saved (SN-240).
