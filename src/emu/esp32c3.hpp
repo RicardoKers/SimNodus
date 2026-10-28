@@ -20,6 +20,7 @@
 #include <deque>
 #include <functional>
 #include <map>
+#include <optional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -55,17 +56,52 @@ public:
     // Power-on reset: the core starts in the ROM.
     void reset();
     // Resets with their reason in RTC_CNTL_RESET_STATE (the ROM prints it):
-    // a system reset (RTC_CNTL_SW_SYS_RST, 0x3) or a CPU reset
-    // (RTC_CNTL_SW_PROCPU_RST, 0xC) keep the SRAM and the RTC domain;
-    // the run loop takes a requested reset between instructions.
-    enum class ResetKind { PowerOn, System, Cpu };
-    void reset(ResetKind kind);
-    void request_reset(ResetKind kind);
+    // a system reset (RTC_CNTL_SW_SYS_RST 0x3, a watchdog 0x7, 0x8, 0x9) or a
+    // CPU reset (RTC_CNTL_SW_PROCPU_RST 0xC, a watchdog 0xB, 0xD, 0x11) keep
+    // the SRAM and the RTC domain; an RTC watchdog's RTC reset (0x10) clears
+    // like a power-on. The run loop takes a requested reset between
+    // instructions. A reason of 0 means the kind's software reset.
+    enum class ResetKind { PowerOn, System, Cpu, DeepSleep };
+    void reset(ResetKind kind, std::uint32_t reason = 0);
+    void request_reset(ResetKind kind, std::uint32_t reason = 0);
+    std::uint32_t reset_reason() const { return last_reason_; }
+    // Sleep (RTC_CNTL_STATE0.SLEEP_EN): the core and the digital clocks stop
+    // until the RTC timer's alarm; light sleep then continues, deep sleep
+    // (RTC_CNTL_DIG_PWC.DG_WRAP_PD_EN) wakes with a reset (DEEPSLEEP_RESET,
+    // 0x5) that keeps only the RTC domain and its memory. No alarm: asleep
+    // until a reset. Wake-up from GPIO or UART is not modelled yet.
+    void enter_sleep(bool deep, std::uint64_t wake_ns);
+    bool asleep() const { return asleep_; }
+    // The board's reset button (CHIP_PU): the chip restarts as at power-on,
+    // the flash keeps its contents.
+    void press_reset() { request_reset(ResetKind::PowerOn); }
     int resets() const { return resets_; }
 
     void run_until_ns(std::uint64_t ns);
     std::uint64_t time_ns() const;
     std::uint32_t cpu_hz() const { return cpu_hz_; }
+
+    // GPIO0..GPIO21 (pads): what the firmware drives and what it sees.
+    static constexpr int gpio_count = 22;
+    struct PinState {
+        bool output = false;     // the pad is driven
+        bool level = false;      // the driven level (an open-drain pad only pulls low)
+        bool open_drain = false;
+        bool peripheral = false; // driven by a peripheral signal not modelled yet
+        bool input = false;      // input enabled (FUN_IE)
+        bool pull_up = false;
+        bool pull_down = false;
+    };
+    struct PinEvent {
+        std::uint64_t time_ns = 0;
+        int pin = 0;
+        PinState state;
+    };
+    PinState pin(int gpio) const;
+    std::vector<PinEvent> take_pin_events();
+    // The level the circuit puts on a pad (for inputs and open-drain outputs);
+    // std::nullopt: nothing drives it (the pulls decide).
+    void set_pin_input(int gpio, std::optional<bool> level);
 
     std::vector<Output> take_output();
     // Bytes from outside for port 0 (UART0), 1 (UART1) or 2 (USB-Serial-JTAG).
@@ -85,6 +121,7 @@ public:
     class Block;     // a peripheral's register block (esp32c3.cpp)
     class FlashChip; // the SPI NOR flash (esp32c3.cpp)
     class Interrupts; // interrupt matrix and controller (esp32c3.cpp)
+    class Gpio;       // GPIO matrix and pads (esp32c3.cpp)
     // A block with events at known times in nanoseconds (timers); the run
     // loop stops the core at the earliest one.
     class Timed {
@@ -92,6 +129,8 @@ public:
         virtual ~Timed() = default;
         virtual std::uint64_t next_ns() const = 0; // no_event for none
         virtual void on_ns(std::uint64_t now) = 0;
+        // The digital clocks stopped for `ns` (light sleep): move the time base.
+        virtual void pause(std::uint64_t ns) { (void)ns; }
     };
     // Level of interrupt source `source` (ETS_*_INTR_SOURCE, 0..61).
     void set_interrupt_source(int source, bool level);
@@ -116,11 +155,24 @@ private:
     std::deque<std::string> unnamed_; // names of the generic blocks (stable addresses)
     std::vector<Timed*> timed_;
     Block* rtc_cntl_ = nullptr;
+    Timed* rtc_timed_ = nullptr;
+    std::function<void(bool light)> rtc_wake_;
+    std::function<bool()> rtc_pauses_;
     Block* usb_ = nullptr;
+    Block* uart_[2] = {};
     bool reset_requested_ = false;
     ResetKind requested_kind_ = ResetKind::PowerOn;
+    std::uint32_t requested_reason_ = 0;
+    std::uint32_t last_reason_ = 1;
+    bool asleep_ = false;
+    bool deep_sleep_ = false;
+    std::uint64_t wake_ns_ = 0;
+    std::uint64_t sleep_start_ns_ = 0;
+    void wake();
     int resets_ = 0;
     Interrupts* interrupts_ = nullptr;
+    Gpio* gpio_ = nullptr;
+    std::vector<PinEvent> pin_events_;
     std::vector<std::uint8_t> flash_;
     std::unique_ptr<FlashChip> flash_chip_;
     std::uint8_t* cache_window_ = nullptr; // 8 MiB, instruction and data views

@@ -180,6 +180,216 @@ TEST_CASE("esp32c3: MicroPython REPL and files kept in the flash")
     CHECK(!has(lines2, "Performing initial setup")); // the file system was there
 }
 
+TEST_CASE("esp32c3: ESP-IDF blink toggles GPIO8 every 500 ms")
+{
+    auto machine = boot(read_file(firmware("blink.bin")));
+    REQUIRE(machine);
+    machine->run_until_ns(2'600'000'000ull);
+    std::vector<std::uint64_t> edges;
+    bool last = false;
+    bool primed = false;
+    for (const auto& e : machine->take_pin_events()) {
+        if (e.pin != 8 || !e.state.output) {
+            continue;
+        }
+        if (primed && e.state.level != last) {
+            edges.push_back(e.time_ns);
+        }
+        last = e.state.level;
+        primed = true;
+    }
+    REQUIRE(edges.size() >= 4);
+    for (std::size_t i = 1; i < edges.size(); ++i) {
+        const double period_ms = static_cast<double>(edges[i] - edges[i - 1]) / 1e6;
+        CHECK(period_ms > 499.5 && period_ms < 500.5); // CONFIG_BLINK_PERIOD 500, within 0.1 % (G8b.2)
+    }
+    CHECK(machine->pin(8).output);
+}
+
+TEST_CASE("esp32c3: MicroPython drives pins, sleeps, counts edges and uses a UART")
+{
+    auto machine = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    run_lines(*machine, 300'000'000ull, 2, partial);
+    machine->send(2, "from machine import Pin, UART; import time; p=Pin(5, Pin.OUT); c=0\r");
+    run_lines(*machine, 350'000'000ull, 2, partial);
+    machine->take_pin_events();
+    machine->send(2, "[(p.value(i%2), time.sleep_ms(500)) for i in range(4)]\r");
+    run_lines(*machine, 2'500'000'000ull, 2, partial);
+    std::vector<std::uint64_t> edges;
+    for (const auto& e : machine->take_pin_events()) {
+        if (e.pin == 5 && e.state.output) {
+            edges.push_back(e.time_ns);
+        }
+    }
+    REQUIRE(edges.size() >= 3);
+    for (std::size_t i = 1; i < edges.size(); ++i) {
+        const double period_ms = static_cast<double>(edges[i] - edges[i - 1]) / 1e6;
+        CHECK(period_ms > 499.5 && period_ms < 500.5); // time.sleep_ms(500) within 0.1 % (G8b.4)
+    }
+    // An input with its pull-up, a falling-edge interrupt, edges from the circuit.
+    machine->send(2, "def h(q): global c; c+=1\r\r");
+    run_lines(*machine, 2'600'000'000ull, 2, partial);
+    machine->send(2, "b=Pin(4, Pin.IN, Pin.PULL_UP); b.irq(h, Pin.IRQ_FALLING); print(b.value())\r");
+    auto lines = run_lines(*machine, 2'700'000'000ull, 2, partial);
+    CHECK(has(lines, "1"));
+    for (int i = 0; i < 3; ++i) {
+        machine->set_pin_input(4, false);
+        machine->run_until_ns(2'700'000'000ull + 20'000'000ull * static_cast<std::uint64_t>(2 * i + 1));
+        machine->set_pin_input(4, true);
+        machine->run_until_ns(2'700'000'000ull + 20'000'000ull * static_cast<std::uint64_t>(2 * i + 2));
+    }
+    machine->send(2, "print('edges', c)\r");
+    lines = run_lines(*machine, 2'900'000'000ull, 2, partial);
+    CHECK(has(lines, "edges 3"));
+    // UART1: bytes from the circuit, bytes to it.
+    machine->send(2, "u=UART(1, 115200, tx=6, rx=7)\r");
+    run_lines(*machine, 3'000'000'000ull, 2, partial);
+    machine->send(1, "abc");
+    machine->send(2, "print(u.read()); u.write(b'xyz')\r");
+    std::string uart1;
+    machine->run_until_ns(3'100'000'000ull);
+    std::string usb;
+    for (const auto& out : machine->take_output()) {
+        if (out.port == 1) {
+            uart1.push_back(static_cast<char>(out.value));
+        } else if (out.port == 2) {
+            usb.push_back(static_cast<char>(out.value));
+        }
+    }
+    CHECK(usb.find("b'abc'") != std::string::npos);
+    CHECK(uart1 == "xyz");
+}
+
+TEST_CASE("esp32c3: a watchdog that runs out resets the chip with its reason")
+{
+    auto machine = boot(read_file(firmware("hello_world.bin")));
+    REQUIRE(machine);
+    machine->run_until_ns(100'000'000ull); // the application runs; it leaves the RTC watchdog off
+    machine->take_output();
+    // RTC watchdog: unlock, stage 0 = system reset after 6800 slow ticks (50 ms at 136 kHz).
+    Bus& bus = machine->bus();
+    bus.write(0x600080A8u, 4, 0x50D83AA1u); // RTC_CNTL_WDTWPROTECT
+    bus.write(0x60008094u, 4, 6800);         // RTC_CNTL_WDTCONFIG1: stage 0 timeout
+    bus.write(0x60008090u, 4, (1u << 31) | (3u << 28)); // WDTCONFIG0: enabled, stage 0 system reset
+    std::string partial;
+    const auto lines = run_lines(*machine, 200'000'000ull, 0, partial);
+    CHECK(machine->reset_reason() == 0x9);
+    CHECK(has(lines, "rst:0x9 (RTCWDT_SYS_RST),boot:0xc (SPI_FAST_FLASH_BOOT)"));
+    // The reset button restarts as at power-on.
+    auto fed = boot(read_file(firmware("hello_world.bin")));
+    REQUIRE(fed);
+    fed->run_until_ns(100'000'000ull);
+    fed->press_reset();
+    fed->run_until_ns(101'000'000ull);
+    CHECK(fed->reset_reason() == 0x1);
+    std::string partial2;
+    const auto lines2 = run_lines(*fed, 200'000'000ull, 0, partial2);
+    CHECK(has(lines2, "rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)"));
+}
+
+TEST_CASE("esp32c3: ESP-IDF esp_timer, light sleep and FreeRTOS examples")
+{
+    auto timer = boot(read_file(firmware("esp_timer.bin")));
+    REQUIRE(timer);
+    std::string partial;
+    auto lines = run_lines(*timer, 13'000'000'000ull, 0, partial);
+    std::vector<std::uint64_t> periodic;
+    for (const Line& line : lines) {
+        if (line.text.find("example: Periodic timer called") != std::string::npos && periodic.size() < 9) {
+            periodic.push_back(line.time_ns);
+        }
+    }
+    REQUIRE(periodic.size() >= 9);
+    for (std::size_t i = 1; i < 9; ++i) { // 500 ms until the one-shot timer at 5 s
+        const double ms = static_cast<double>(periodic[i] - periodic[i - 1]) / 1e6;
+        CHECK(ms > 499.5 && ms < 500.5);
+    }
+    CHECK(has(lines, "example: One-shot timer called"));
+    // The example asserts that light sleep lasted 0.5 s by esp_timer.
+    CHECK(has(lines, "example: Woke up from light sleep"));
+    CHECK(has(lines, "example: Stopped and deleted timers"));
+    CHECK(!has(lines, "Guru Meditation"));
+
+    auto stats = boot(read_file(firmware("real_time_stats.bin")));
+    REQUIRE(stats);
+    std::string partial2;
+    lines = run_lines(*stats, 1'300'000'000ull, 0, partial2);
+    CHECK(has(lines, "| Task | Run Time | Percentage"));
+    for (const char* task : {"| spin0 |", "| spin5 |", "| IDLE |"}) {
+        CHECK(has(lines, task));
+    }
+}
+
+TEST_CASE("esp32c3: Arduino-ESP32 sketch runs unchanged")
+{
+    auto machine = boot(read_file(firmware("arduino_serial_blink.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    auto lines = run_lines(*machine, 600'000'000ull, 0, partial);
+    CHECK(has(lines, "Arduino on ESP32-C3"));
+    CHECK(has(lines, "tick 2 at 535 ms"));
+    machine->send(0, "abc");
+    lines = run_lines(*machine, 1'100'000'000ull, 0, partial);
+    CHECK(has(lines, "ABCtick")); // the echo in capitals, before the next line
+    std::vector<std::uint64_t> edges;
+    for (const auto& e : machine->take_pin_events()) {
+        if (e.pin == 8 && e.state.output) {
+            edges.push_back(e.time_ns);
+        }
+    }
+    REQUIRE(edges.size() >= 4);
+    const double ms = static_cast<double>(edges.back() - edges[edges.size() - 2]) / 1e6;
+    CHECK(ms > 249.5 && ms < 250.5); // delay(250)
+}
+
+TEST_CASE("esp32c3: faults give the panic report and a diagnostic")
+{
+    const auto image = read_file(firmware("faults.bin"));
+    struct Fault {
+        const char* key;
+        const char* report;
+        const char* diagnostic;
+    };
+    const Fault faults[] = {
+        {"i", "panic'ed (Illegal instruction)", "Exception 2 at PC"},
+        {"l", "panic'ed (Load access fault)", "Exception 5 at PC"},
+        {"a", "abort() was called at PC", "Exception 2 at PC"},
+    };
+    for (const Fault& fault : faults) {
+        auto machine = boot(image);
+        REQUIRE(machine);
+        std::string partial;
+        run_lines(*machine, 100'000'000ull, 0, partial);
+        machine->send(0, fault.key);
+        const auto lines = run_lines(*machine, 110'000'000ull, 0, partial);
+        CHECK(has(lines, fault.report));
+        CHECK(has(lines, "rst:0xc (RTC_SW_CPU_RST)")); // the panic handler restarts
+        bool noted = false;
+        for (const std::string& text : machine->take_diagnostics()) {
+            noted = noted || text.find(fault.diagnostic) != std::string::npos;
+        }
+        CHECK(noted);
+    }
+}
+
+TEST_CASE("esp32c3: MicroPython deep sleep wakes by the timer with a reset")
+{
+    auto machine = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    run_lines(*machine, 300'000'000ull, 2, partial);
+    machine->send(2, "import machine; machine.deepsleep(1000)\r");
+    auto lines = run_lines(*machine, 1'400'000'000ull, 2, partial); // asleep 1 s from about 300 ms
+    CHECK(machine->reset_reason() == 0x5);
+    CHECK(has(lines, "rst:0x5 (DSLEEP),boot:0xc (SPI_FAST_FLASH_BOOT)"));
+    run_lines(*machine, 1'600'000'000ull, 2, partial);
+    machine->send(2, "import machine; print('cause', machine.reset_cause(), machine.wake_reason())\r");
+    lines = run_lines(*machine, 1'700'000'000ull, 2, partial);
+    CHECK(has(lines, "cause 4 4")); // DEEPSLEEP_RESET, TIMER_WAKE
+}
+
 TEST_CASE("esp32c3: two runs give the same output")
 {
     const auto image = read_file(firmware("hello_world.bin"));

@@ -130,7 +130,7 @@ int run_esp32c3(int argc, char** argv)
     std::string flash_out;
     for (int i = 2; i < argc; ++i) {
         const std::string arg = argv[i];
-        if ((arg == "--usb" || arg == "--uart0") && i + 1 < argc) {
+        if ((arg == "--usb" || arg == "--uart0" || arg == "--uart1") && i + 1 < argc) {
             const std::string value = argv[++i];
             const auto at = value.rfind('@');
             std::string text = value.substr(0, at);
@@ -140,7 +140,17 @@ int run_esp32c3(int argc, char** argv)
                 }
             }
             typed.push_back({at == std::string::npos ? 0 : static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
-                arg == "--usb" ? 2 : 0, text});
+                arg == "--usb" ? 2 : arg == "--uart1" ? 1 : 0, text});
+        } else if (arg == "--input" && i + 1 < argc) { // GPIO=level@ms, the circuit's level on a pad
+            const std::string value = argv[++i];
+            const auto eq = value.find('=');
+            const auto at = value.rfind('@');
+            if (eq == std::string::npos || at == std::string::npos) {
+                std::fprintf(stderr, "error: --input takes GPIO=0|1@ms\n");
+                return 2;
+            }
+            typed.push_back({static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
+                -1 - std::atoi(value.c_str()), std::string(1, value[eq + 1])});
         } else if (arg == "--flash-out" && i + 1 < argc) {
             flash_out = argv[++i]; // the whole flash at the end (pass it back as the image to continue)
         } else if (arg == "--rom" && i + 1 < argc) {
@@ -201,6 +211,7 @@ int run_esp32c3(int argc, char** argv)
     const auto begin = std::chrono::steady_clock::now();
     std::sort(typed.begin(), typed.end(), [](const Typed& a, const Typed& b) { return a.time_ns < b.time_ns; });
     std::size_t next_typed = 0;
+    std::vector<bool> pins_shown(Esp32C3::gpio_count, false); // print pads once they are outputs
     while (machine.time_ns() < end_ns && machine.cpu().state() != RvState::Halted) {
         std::uint64_t until = std::min(end_ns, machine.time_ns() + 1'000'000);
         if (next_typed < typed.size()) {
@@ -208,8 +219,12 @@ int run_esp32c3(int argc, char** argv)
         }
         machine.run_until_ns(until);
         while (next_typed < typed.size() && typed[next_typed].time_ns <= machine.time_ns()) {
-            machine.send(typed[next_typed].port, typed[next_typed].text);
-            ++next_typed;
+            const Typed& t = typed[next_typed++];
+            if (t.port < 0) { // --input: port -1 - GPIO
+                machine.set_pin_input(-1 - t.port, t.text == "1");
+            } else {
+                machine.send(t.port, t.text);
+            }
         }
         for (const auto& out : machine.take_output()) {
             std::string& line = lines[out.port];
@@ -224,6 +239,13 @@ int run_esp32c3(int argc, char** argv)
         }
         for (const auto& text : machine.take_diagnostics()) {
             std::printf("%14.6f ms  diagnostic: %s\n", static_cast<double>(machine.time_ns()) / 1e6, text.c_str());
+        }
+        for (const auto& e : machine.take_pin_events()) {
+            if (!quiet && (e.state.output || pins_shown[static_cast<std::size_t>(e.pin)])) {
+                std::printf("%14.6f ms  GPIO%d %s\n", static_cast<double>(e.time_ns) / 1e6, e.pin,
+                    e.state.output ? (e.state.level ? "1" : "0") : e.state.peripheral ? "peripheral" : "input");
+                pins_shown[static_cast<std::size_t>(e.pin)] = e.state.output;
+            }
         }
     }
     for (int p = 0; p < 3; ++p) {
