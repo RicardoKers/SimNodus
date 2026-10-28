@@ -131,13 +131,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 4. Classroom feedback (postponed: academic calendar).
 5. ESP32-C3 track (owner's decision 2026-10-28; ESP32-C3 before the Xtensa
    ESP32): experiment E-08 ([plan](../experiments/E-08-plan.md),
-   [results](../experiments/E-08-results.md)). Gate G8a met (the RV32IMC
-   core). SN-244 part 1 (2026-10-28): the ESP32-C3 machine boots ESP-IDF's
-   `hello_world` and the official MicroPython v1.29.0 image unmodified, from
-   the ROM rebuilt out of Espressif's ROM ELF (equal to a chip's ROM) through
-   the bootloader to `app_main` and the `>>>` prompt on USB-Serial-JTAG; not in
-   the application yet. Next: GPIO, UART receive, watchdogs, Arduino image;
-   the owner's boards (DevKitM-1, SuperMini) for the console comparison.
+   [results](../experiments/E-08-results.md)). Gates G8a and G8b met on
+   2026-10-28 except G8b.1's comparison with the board: the ESP32-C3 machine
+   runs unmodified ESP-IDF examples, an Arduino-ESP32 sketch and the official
+   MicroPython v1.29.0 image (REPL over USB-Serial-JTAG, Pin, irq, UART,
+   files, deep sleep), with GPIO, UART, watchdogs, light and deep sleep; not
+   in the application yet. Next: the owner's boards (DevKitM-1, SuperMini)
+   for the ROM and console comparison, then decision DE1 (SN-245).
 
 ## Known constraints
 

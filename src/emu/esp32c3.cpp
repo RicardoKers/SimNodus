@@ -39,6 +39,7 @@ RiscvCpu::Config core_config()
     config.counters = false;   // the cycle counter is the vendor CSR mpccr
     config.vectored_only = true;
     config.mie_gates = false;  // the interrupt controller enables lines
+    config.misaligned_access = true; // Arduino-ESP32's newlib strcmp loads words at odd addresses
     return config;
 }
 
@@ -108,7 +109,10 @@ protected:
     std::uint64_t now_ns() const { return machine_.time_ns(); }
     void reschedule() { machine_.cpu_.request_stop(); } // a timed event moved
     void raise(int source, bool level) { machine_.set_interrupt_source(source, level); }
-    void request_reset(ResetKind kind) { machine_.request_reset(kind); }
+    void request_reset(ResetKind kind, std::uint32_t reason = 0) { machine_.request_reset(kind, reason); }
+    void refresh_pads(); // the GPIO evaluates every pad again
+    void enter_sleep(bool deep, std::uint64_t wake_ns) { machine_.enter_sleep(deep, wake_ns); }
+    void note(const std::string& text) { machine_.diagnostic(text); }
     // A register of another block (no trace).
     std::uint32_t peek(std::uint32_t address)
     {
@@ -231,26 +235,135 @@ private:
 
 namespace {
 
-// UART: the transmit FIFO empties at once (no baud-rate timing yet).
+// A watchdog's four stages (TRM chapter "Watchdog Timers"): each stage runs
+// for its timeout in ticks, then takes its action and the next stage starts;
+// a feed starts stage 0 again. Actions: 0 none, 1 interrupt, 2 CPU reset,
+// 3 system reset, 4 RTC reset (RTC watchdog only).
+struct Wdt {
+    bool enabled = false;
+    std::uint32_t actions[4] = {};
+    std::uint64_t timeouts[4] = {}; // ticks
+    std::uint64_t tick_ps = 0;      // picoseconds per tick
+    int stage = 0;
+    std::uint64_t stage_start = 0;  // ns
+
+    bool running() const
+    {
+        return enabled && tick_ps != 0 && (actions[0] | actions[1] | actions[2] | actions[3]) != 0;
+    }
+    void feed(std::uint64_t now)
+    {
+        stage = 0;
+        stage_start = now;
+    }
+    std::uint64_t next_ns() const
+    {
+        if (!running()) {
+            return no_event;
+        }
+        const std::uint64_t ticks = std::max<std::uint64_t>(timeouts[stage], 1);
+        return stage_start + (ticks * tick_ps + 999) / 1000;
+    }
+    // The action of the stage that ran out (if it did), and on to the next stage.
+    std::uint32_t expire(std::uint64_t now, int* expired_stage = nullptr)
+    {
+        if (now < next_ns()) {
+            return 0;
+        }
+        if (expired_stage) {
+            *expired_stage = stage;
+        }
+        const std::uint32_t action = actions[stage];
+        stage = (stage + 1) % 4;
+        stage_start = now;
+        return action;
+    }
+};
+
+// UART: bytes leave at once (no baud-rate timing yet), so the transmit FIFO is
+// always empty (TXFIFO_EMPTY, TX_DONE). Received bytes wait in the RX FIFO
+// (FIFO_REG reads them, STATUS.RXFIFO_CNT counts them); RXFIFO_FULL when the
+// count reaches CONF1.RXFIFO_FULL_THRHD, RXFIFO_TOUT as soon as bytes wait with
+// CONF1.RX_TOUT_EN set (the chip waits for the line to be idle). Interrupt
+// sources 21 (UART0) and 22 (UART1).
 class Uart : public Esp32C3::Block {
 public:
     Uart(Esp32C3& machine, const char* name, int port) : Block(machine, name), port_(port) {}
+    void receive(std::uint8_t byte) override
+    {
+        if (rx_.size() < 128) {
+            rx_.push_back(byte);
+        } else {
+            reg(0x04) |= 1u << 4; // RXFIFO_OVF
+        }
+        update();
+    }
 
 protected:
     std::uint32_t read_word(std::uint32_t offset) override
     {
-        if (offset == 0x1C) { // UART_STATUS_REG: both FIFOs empty
-            return 0;
+        switch (offset) {
+        case 0x00: { // FIFO: the next received byte
+            if (rx_.empty()) {
+                return 0;
+            }
+            const std::uint8_t byte = rx_.front();
+            rx_.pop_front();
+            update();
+            return byte;
         }
-        return Block::read_word(offset);
+        case 0x08: return reg(0x04) & reg(0x0C);                      // INT_ST
+        case 0x1C: return static_cast<std::uint32_t>(rx_.size());     // STATUS: RXFIFO_CNT; TX FIFO empty
+        default: return Block::read_word(offset);
+        }
     }
-    void write_word(std::uint32_t offset, std::uint32_t value) override;
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        switch (offset) {
+        case 0x00: // FIFO: a byte to send
+            emit(port_, static_cast<std::uint8_t>(value));
+            reg(0x04) |= 1u << 14; // TX_DONE
+            break;
+        case 0x10: // INT_CLR
+            reg(0x04) &= ~value;
+            break;
+        case 0x20: // CONF0: RXFIFO_RST (bit 17) empties the receiver
+            if (value & (1u << 17)) {
+                rx_.clear();
+            }
+            Block::write_word(offset, value);
+            break;
+        default:
+            Block::write_word(offset, value);
+        }
+        update();
+    }
+    void on_reset() override
+    {
+        rx_.clear();
+        reg(0x24) = 0x60 | (0x60u << 9); // CONF1 reset value: both thresholds 96
+        reg(0x04) = 1u << 1;             // TXFIFO_EMPTY
+    }
 
 private:
+    void update()
+    {
+        std::uint32_t raw = reg(0x04) | (1u << 1); // the transmit FIFO is always empty
+        const std::uint32_t threshold = reg(0x24) & 0x1FF;
+        if (!rx_.empty() && rx_.size() >= threshold) {
+            raw |= 1u << 0; // RXFIFO_FULL
+        }
+        if (!rx_.empty() && (reg(0x24) & (1u << 21))) {
+            raw |= 1u << 8; // RXFIFO_TOUT
+        }
+        reg(0x04) = raw;
+        raise(port_ == 0 ? 21 : 22, (raw & reg(0x0C)) != 0);
+    }
+
     int port_;
+    std::deque<std::uint8_t> rx_;
 };
 
-// USB-Serial-JTAG: the IN endpoint always has room (a host that reads at once).
 // USB-Serial-JTAG's CDC serial port: the host reads every byte at once (the
 // IN endpoint always has room) and its bytes wait in the OUT FIFO (EP1 reads
 // them, EP1_CONF.SERIAL_OUT_EP_DATA_AVAIL tells). Interrupts (source 26):
@@ -319,35 +432,340 @@ private:
     std::deque<std::uint8_t> rx_;
 };
 
-class Gpio : public Esp32C3::Block {
+// IO_MUX: per pad function (MCU_SEL; 1 is the GPIO matrix), pulls, input
+// enable; every change re-evaluates the pads.
+class IoMux : public Esp32C3::Block {
+public:
+    explicit IoMux(Esp32C3& machine) : Block(machine, "IO_MUX") {}
+
+protected:
+    void write_word(std::uint32_t offset, std::uint32_t value) override;
+    void on_reset() override
+    {
+        // Reset values (TRM): GPIO function, input enabled, the strapping
+        // pads pulled up; USB D+ (GPIO19) pulled up by the USB PHY.
+        for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+            reg(0x04 + 4 * pin) = (1u << 12) | (1u << 9) | (2u << 10);
+        }
+        for (std::uint32_t pin : {2u, 8u, 9u}) {
+            reg(0x04 + 4 * pin) |= 1u << 8;
+        }
+        // GPIO12-17 (SPI flash), GPIO18/19 (USB), GPIO20/21 (UART0): function 0.
+        for (std::uint32_t pin = 12; pin < 22; ++pin) {
+            reg(0x04 + 4 * pin) &= ~(7u << 12);
+        }
+    }
+};
+
+} // namespace
+
+// GPIO matrix and pads (TRM chapter "IO MUX and GPIO Matrix"). A pad in the
+// GPIO function (IO_MUX MCU_SEL 1) whose FUNCn_OUT_SEL is 128 drives
+// GPIO_OUT's bit while GPIO_ENABLE's bit is set (PINn.PAD_DRIVER: open
+// drain); another output signal, or another IO_MUX function, belongs to a
+// peripheral. GPIO_IN reads the pads with input enabled: a driven level, or
+// the circuit's level, or the pull. PINn.INT_TYPE (1 rising, 2 falling,
+// 3 any, 4 low, 5 high) with INT_ENA bit 13 sets GPIO_STATUS and raises
+// source 16.
+class Esp32C3::Gpio : public Esp32C3::Block {
 public:
     Gpio(Esp32C3& machine, std::uint32_t strapping) : Block(machine, "GPIO"), strapping_(strapping) {}
 
+    Esp32C3::PinState state(int pin) const { return states_[static_cast<std::size_t>(pin)]; }
+    void set_input(int pin, std::optional<bool> level)
+    {
+        external_[static_cast<std::size_t>(pin)] = level;
+        evaluate(pin);
+    }
+    void evaluate_all()
+    {
+        for (int pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+            evaluate(pin);
+        }
+    }
+
 protected:
-    void on_reset() override { reg(0x38) = strapping_; } // GPIO_STRAP_REG
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x3C) { // GPIO_IN
+            std::uint32_t bits = 0;
+            for (int pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+                if (states_[static_cast<std::size_t>(pin)].input && pads_[static_cast<std::size_t>(pin)]) {
+                    bits |= 1u << pin;
+                }
+            }
+            return bits;
+        }
+        if (offset == 0x5C) { // GPIO_PCPU_INT
+            return reg(0x44) & enabled_mask();
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        switch (offset) {
+        case 0x08: reg(0x04) |= value; break;   // OUT_W1TS
+        case 0x0C: reg(0x04) &= ~value; break;  // OUT_W1TC
+        case 0x24: reg(0x20) |= value; break;   // ENABLE_W1TS
+        case 0x28: reg(0x20) &= ~value; break;  // ENABLE_W1TC
+        case 0x48: reg(0x44) |= value; break;   // STATUS_W1TS
+        case 0x4C:                              // STATUS_W1TC
+            reg(0x44) &= ~value;
+            relevel();
+            break;
+        case 0x38: return; // GPIO_STRAP is read-only
+        default: Block::write_word(offset, value);
+        }
+        evaluate_all();
+    }
+    void on_reset() override
+    {
+        reg(0x38) = strapping_; // GPIO_STRAP_REG
+        for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+            reg(0x554 + 4 * pin) = 0x80; // FUNCn_OUT_SEL_CFG: simple GPIO output
+        }
+        states_.fill({});
+        pads_.fill(false);
+        primed_ = false;
+    }
 
 private:
+    std::uint32_t enabled_mask() const
+    {
+        std::uint32_t mask = 0;
+        for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+            if (reg(0x74 + 4 * pin) & (1u << 13)) { // INT_ENA: the CPU
+                mask |= 1u << pin;
+            }
+        }
+        return mask;
+    }
+    void evaluate(int pin)
+    {
+        const std::uint32_t n = static_cast<std::uint32_t>(pin);
+        const std::uint32_t iomux = peek(0x60009004u + 4 * n);
+        const std::uint32_t out_sel = reg(0x554 + 4 * n);
+        Esp32C3::PinState state;
+        state.input = (iomux & (1u << 9)) != 0;
+        state.pull_up = (iomux & (1u << 8)) != 0;
+        state.pull_down = (iomux & (1u << 7)) != 0;
+        state.open_drain = (reg(0x74 + 4 * n) & (1u << 2)) != 0;
+        const bool gpio_function = ((iomux >> 12) & 7) == 1;
+        const bool enabled = ((reg(0x20) >> n) & 1) != 0;
+        if (gpio_function && (out_sel & 0xFF) == 128) {
+            state.output = enabled != ((out_sel & (1u << 10)) != 0);
+            state.level = (((reg(0x04) >> n) & 1) != 0) != ((out_sel & (1u << 8)) != 0);
+        } else {
+            // A peripheral's signal through the matrix (its own output enable
+            // unless OEN_SEL picks GPIO_ENABLE), or another IO_MUX function.
+            state.peripheral = !gpio_function || !(out_sel & (1u << 9)) || enabled;
+        }
+        std::optional<bool> external = external_[n];
+        bool pad = state.pull_up && !state.pull_down;
+        if (external) {
+            pad = *external;
+        }
+        if (state.output && !(state.open_drain && state.level)) {
+            pad = state.level;
+        }
+        Esp32C3::PinState& old = states_[n];
+        if (!primed_ || old.output != state.output || old.level != state.level || old.open_drain != state.open_drain
+            || old.peripheral != state.peripheral || old.input != state.input || old.pull_up != state.pull_up
+            || old.pull_down != state.pull_down) {
+            old = state;
+            pin_changed(pin, state);
+        }
+        const bool before = pads_[n];
+        pads_[n] = pad;
+        if (before != pad) {
+            const std::uint32_t type = (reg(0x74 + 4 * n) >> 7) & 7;
+            if ((type == 1 && pad) || (type == 2 && !pad) || type == 3) {
+                reg(0x44) |= 1u << n; // GPIO_STATUS
+            }
+        }
+        if (pin == Esp32C3::gpio_count - 1) {
+            primed_ = true;
+        }
+        relevel();
+    }
+    // Level-triggered pads keep their status bit while the level lasts.
+    void relevel()
+    {
+        for (std::uint32_t n = 0; n < Esp32C3::gpio_count; ++n) {
+            const std::uint32_t type = (reg(0x74 + 4 * n) >> 7) & 7;
+            if ((type == 4 && !pads_[n]) || (type == 5 && pads_[n])) {
+                reg(0x44) |= 1u << n;
+            }
+        }
+        raise(16, (reg(0x44) & enabled_mask()) != 0);
+    }
+    void pin_changed(int pin, const Esp32C3::PinState& state) { machine_.pin_events_.push_back({now_ns(), pin, state}); }
+
     std::uint32_t strapping_;
+    std::array<Esp32C3::PinState, Esp32C3::gpio_count> states_{};
+    std::array<std::optional<bool>, Esp32C3::gpio_count> external_{};
+    std::array<bool, Esp32C3::gpio_count> pads_{};
+    bool primed_ = false;
 };
 
-class RtcCntl : public Esp32C3::Block {
+void Esp32C3::Block::refresh_pads()
+{
+    if (machine_.gpio_) {
+        machine_.gpio_->evaluate_all();
+    }
+}
+
+namespace {
+
+void IoMux::write_word(std::uint32_t offset, std::uint32_t value)
+{
+    Block::write_word(offset, value);
+    refresh_pads();
+}
+
+// RTC_CNTL: software resets (OPTIONS0: SW_SYS_RST bit 31, SW_PROCPU_RST
+// bit 5), the reset reason, and the RTC watchdog (WDTCONFIG0-4, WDTFEED;
+// stage timeouts in RTC slow clock ticks, 136 kHz; its interrupt is source 27).
+// The super watchdog is taken as fed (ESP-IDF turns on its automatic feed).
+class RtcCntl : public Esp32C3::Block, public Esp32C3::Timed {
 public:
     explicit RtcCntl(Esp32C3& machine) : Block(machine, "RTC_CNTL", 0x800) {}
+
+    std::uint64_t next_ns() const override { return wdt_.next_ns(); }
+    void on_ns(std::uint64_t now) override
+    {
+        int stage = 0;
+        const std::uint32_t action = wdt_.expire(now, &stage);
+        if (action != 0) {
+            note("RTC watchdog: stage " + std::to_string(stage) + " ran out ("
+                + (action == 1 ? "interrupt" : action == 2 ? "CPU reset" : action == 3 ? "system reset" : "RTC reset") + ")");
+        }
+        switch (action) {
+        case 1: // interrupt
+            reg(0x44) |= 1u << 3; // INT_RAW: WDT
+            update();
+            break;
+        case 2: request_reset(Esp32C3::ResetKind::Cpu, 0xD); break;        // RTCWDT_CPU_RST
+        case 3: request_reset(Esp32C3::ResetKind::System, 0x9); break;     // RTCWDT_SYS_RST
+        case 4: request_reset(Esp32C3::ResetKind::PowerOn, 0x10); break;   // RTCWDT_RTC_RST
+        default: break;
+        }
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x48) { // INT_ST
+            return reg(0x44) & reg(0x40);
+        }
+        if (offset == 0x00C) { // TIME_UPDATE: TIME_VALID
+            return Block::read_word(offset) | (1u << 30);
+        }
+        return Block::read_word(offset);
+    }
+
+public:
+    // After a sleep that the RTC timer ended: the cause, and SLP_WAKEUP for
+    // a light sleep (a deep sleep wakes through a reset).
+    void woke(bool light)
+    {
+        reg(0x0F8) = 1u << 3; // SLP_WAKEUP_CAUSE: RTC_TIMER_TRIG_EN
+        if (light) {
+            reg(0x44) |= 1u; // INT_RAW: SLP_WAKEUP
+            update();
+        }
+    }
+    // WDTCONFIG0.PAUSE_IN_SLP: the RTC watchdog stops while the chip sleeps.
+    bool watchdog_pauses_in_sleep() const { return (reg(0x090) & (1u << 9)) != 0; }
+    void pause(std::uint64_t ns) override { wdt_.stage_start += ns; }
 
 protected:
     void write_word(std::uint32_t offset, std::uint32_t value) override
     {
-        if (offset == 0x000) { // RTC_CNTL_OPTIONS0: SW_SYS_RST (bit 31), SW_PROCPU_RST (bit 5)
+        switch (offset) {
+        case 0x000: // OPTIONS0
             if (value & (1u << 31)) {
                 request_reset(Esp32C3::ResetKind::System);
             } else if (value & (1u << 5)) {
                 request_reset(Esp32C3::ResetKind::Cpu);
             }
-            value &= ~((1u << 31) | (1u << 5));
+            Block::write_word(offset, value & ~((1u << 31) | (1u << 5)));
+            break;
+        case 0x0A4: // WDTFEED
+            if (value & (1u << 31)) {
+                wdt_.feed(now_ns());
+            }
+            break;
+        case 0x00C: // TIME_UPDATE: latch the RTC timer into TIME_LOW0/HIGH0
+            if (value & (1u << 31)) {
+                const std::uint64_t ticks = rtc_ticks(now_ns());
+                reg(0x010) = static_cast<std::uint32_t>(ticks);
+                reg(0x014) = static_cast<std::uint32_t>(ticks >> 32) & 0xFFFF;
+            }
+            Block::write_word(offset, value & ~(1u << 31));
+            break;
+        case 0x018: // STATE0: SLEEP_EN starts sleeping
+            Block::write_word(offset, value & ~(1u << 31));
+            if (value & (1u << 31)) {
+                const bool deep = (reg(0x088) & (1u << 31)) != 0; // DIG_PWC.DG_WRAP_PD_EN
+                std::uint64_t wake = no_event;
+                const std::uint32_t triggers = reg(0x03C) >> 15; // WAKEUP_STATE.WAKEUP_ENA
+                if ((triggers & (1u << 3)) && (reg(0x008) & (1u << 16))) { // RTC_TIMER_TRIG_EN, MAIN_TIMER_ALARM_EN
+                    const std::uint64_t target = (std::uint64_t{reg(0x008) & 0xFFFF} << 32) | reg(0x004);
+                    wake = std::max(now_ns(), ns_at_tick(target));
+                }
+                enter_sleep(deep, wake);
+            }
+            break;
+        case 0x090: case 0x094: case 0x098: case 0x09C: case 0x0A0: // WDTCONFIG0-4
+            Block::write_word(offset, value);
+            configure();
+            break;
+        case 0x04C: // INT_CLR
+            reg(0x44) &= ~value;
+            update();
+            break;
+        case 0x100: reg(0x40) |= value; update(); break;  // INT_ENA_W1TS
+        case 0x104: reg(0x40) &= ~value; update(); break; // INT_ENA_W1TC
+        case 0x040: Block::write_word(offset, value); update(); break;
+        default:
+            Block::write_word(offset, value);
         }
-        Block::write_word(offset, value);
+        reschedule();
     }
-    void on_reset() override { reg(0x38) = 1; } // RTC_CNTL_RESET_STATE_REG: power-on reset
+    void on_reset() override
+    {
+        reg(0x38) = 1; // RTC_CNTL_RESET_STATE_REG: power-on reset
+        wdt_ = Wdt{};
+    }
+
+private:
+    void configure()
+    {
+        const std::uint32_t config0 = reg(0x090);
+        const bool was = wdt_.enabled;
+        wdt_.enabled = (config0 & (1u << 31)) != 0;
+        for (int stage = 0; stage < 4; ++stage) {
+            wdt_.actions[stage] = (config0 >> (28 - 3 * stage)) & 7;
+            wdt_.timeouts[stage] = reg(0x094 + 4 * static_cast<std::uint32_t>(stage));
+        }
+        wdt_.tick_ps = 1'000'000'000'000ull / 136'000; // RC_SLOW, nominal
+        if (wdt_.enabled && !was) {
+            wdt_.feed(now_ns());
+        }
+    }
+    void update() { raise(27, (reg(0x44) & reg(0x40)) != 0); }
+    // The RTC timer counts the slow clock (RC_SLOW, nominally 136 kHz).
+    static std::uint64_t rtc_ticks(std::uint64_t ns)
+    {
+        return ns / 1'000'000'000ull * 136'000 + ns % 1'000'000'000ull * 136'000 / 1'000'000'000ull;
+    }
+    static std::uint64_t ns_at_tick(std::uint64_t ticks)
+    {
+        return ticks / 136'000 * 1'000'000'000ull + (ticks % 136'000 * 1'000'000'000ull + 135'999) / 136'000;
+    }
+
+    Wdt wdt_;
 };
 
 // SPI0 and SPI1 memory controllers (TRM chapter "SPI0 and SPI1"). SPI1 runs
@@ -528,11 +946,39 @@ protected:
 // RTC_CALI_MAX slow cycles, from the nominal frequency of the chosen
 // oscillator: RC_SLOW 136 kHz, RC_FAST/256 68.36 kHz, or a 32.768 kHz crystal.
 // The watchdog and timer registers only keep their values for now.
-class Timg : public Esp32C3::Block {
+class Timg : public Esp32C3::Block, public Esp32C3::Timed {
 public:
-    Timg(Esp32C3& machine, const char* name) : Block(machine, name) {}
+    Timg(Esp32C3& machine, const char* name, int group) : Block(machine, name), group_(group) {}
+
+    std::uint64_t next_ns() const override { return wdt_.next_ns(); }
+    void pause(std::uint64_t ns) override { wdt_.stage_start += ns; }
+    void on_ns(std::uint64_t now) override
+    {
+        int stage = 0;
+        const std::uint32_t action = wdt_.expire(now, &stage);
+        if (action != 0) {
+            note(std::string(name()) + " watchdog: stage " + std::to_string(stage) + " ran out ("
+                + (action == 1 ? "interrupt" : action == 2 ? "CPU reset" : "system reset") + ")");
+        }
+        switch (action) {
+        case 1: // interrupt
+            reg(0x74) |= 2; // INT_RAW_TIMERS: WDT
+            update();
+            break;
+        case 2: request_reset(Esp32C3::ResetKind::Cpu, group_ == 0 ? 0xB : 0x11); break;    // TGnWDT_CPU_RST
+        case 3: request_reset(Esp32C3::ResetKind::System, group_ == 0 ? 0x7 : 0x8); break;  // TGnWDT_SYS_RST
+        default: break;
+        }
+    }
 
 protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x78) { // INT_ST_TIMERS
+            return reg(0x74) & reg(0x70);
+        }
+        return Block::read_word(offset);
+    }
     void write_word(std::uint32_t offset, std::uint32_t value) override
     {
         if (offset == 0x68 && (value & (1u << 31))) { // TIMG_RTCCALICFG_REG: RTC_CALI_START
@@ -549,8 +995,52 @@ protected:
             reg(0x80) &= ~1u;                                          // RTCCALICFG2: no timeout
             return;
         }
-        Block::write_word(offset, offset == 0x68 ? value & ~(1u << 15) : value);
+        switch (offset) {
+        case 0x60: // WDTFEED
+            wdt_.feed(now_ns());
+            break;
+        case 0x7C: // INT_CLR_TIMERS
+            reg(0x74) &= ~value;
+            update();
+            break;
+        case 0x48: case 0x4C: case 0x50: case 0x54: case 0x58: case 0x5C: // WDTCONFIG0-5
+            Block::write_word(offset, offset == 0x48 ? value & ~(1u << 22) : value); // CONF_UPDATE_EN clears
+            configure();
+            break;
+        case 0x70: // INT_ENA_TIMERS
+            Block::write_word(offset, value);
+            update();
+            break;
+        default:
+            Block::write_word(offset, offset == 0x68 ? value & ~(1u << 15) : value);
+        }
+        reschedule();
     }
+
+private:
+    void on_reset() override { wdt_ = Wdt{}; }
+    void configure()
+    {
+        const std::uint32_t config0 = reg(0x48);
+        const bool was = wdt_.enabled;
+        wdt_.enabled = (config0 & (1u << 31)) != 0;
+        for (int stage = 0; stage < 4; ++stage) {
+            wdt_.actions[stage] = (config0 >> (29 - 2 * stage)) & 3;
+            wdt_.timeouts[stage] = reg(0x50 + 4 * static_cast<std::uint32_t>(stage));
+        }
+        // The clock: APB (80 MHz once the CPU runs from the PLL) or the crystal.
+        const std::uint64_t clock = (config0 & (1u << 21)) ? 40'000'000ull
+            : std::min<std::uint64_t>(80'000'000ull, machine_.cpu_hz());
+        const std::uint64_t prescale = std::max<std::uint32_t>(reg(0x4C) >> 16, 1);
+        wdt_.tick_ps = prescale * 1'000'000'000'000ull / clock;
+        if (wdt_.enabled && !was) {
+            wdt_.feed(now_ns());
+        }
+    }
+    void update() { raise(group_ == 0 ? 33 : 35, (reg(0x74) & reg(0x70) & 2) != 0); }
+
+    int group_;
+    Wdt wdt_;
 };
 
 // SYSCON (APB_CTRL): RNG_DATA_REG gives a deterministic pseudo-random
@@ -578,7 +1068,9 @@ private:
 };
 
 // SYSTEM: the CPU clock follows SYSCLK_CONF (source and crystal divider) and
-// CPU_PER_CONF (80 or 160 MHz from the PLL).
+// CPU_PER_CONF (80 or 160 MHz from the PLL); FROM_CPU interrupts; the RTC
+// memory CRC before deep sleep finishes at once without computing the CRC
+// (so the ROM never runs a deep-sleep wake stub).
 class System : public Esp32C3::Block {
 public:
     explicit System(Esp32C3& machine) : Block(machine, "SYSTEM") {}
@@ -586,6 +1078,9 @@ public:
 protected:
     void write_word(std::uint32_t offset, std::uint32_t value) override
     {
+        if (offset == 0x048 && (value & (1u << 8))) { // RTC_FASTMEM_CONFIG: RTC_MEM_CRC_START
+            value |= 1u << 31; // RTC_MEM_CRC_FINISH at once; the CRC is not computed
+        }
         Block::write_word(offset, value);
         if (offset >= 0x028 && offset <= 0x034) { // SYSTEM_CPU_INTR_FROM_CPU_n: sources 50..53
             raise(50 + static_cast<int>((offset - 0x028) / 4), (value & 1) != 0);
@@ -685,6 +1180,12 @@ public:
             next = std::min(next, unit.base_ns + ((due - unit.base_value) * 125 + 1) / 2);
         }
         return next;
+    }
+    void pause(std::uint64_t ns) override
+    {
+        for (Unit& unit : units_) {
+            unit.base_ns += ns; // the counters stood still
+        }
     }
     void on_ns(std::uint64_t now) override
     {
@@ -952,14 +1453,6 @@ void Esp32C3::set_interrupt_source(int source, bool level)
     interrupts_->set_source(source, level);
 }
 
-void Uart::write_word(std::uint32_t offset, std::uint32_t value)
-{
-    if (offset == 0x0) { // UART_FIFO_REG
-        emit(port_, static_cast<std::uint8_t>(value));
-        return;
-    }
-    Block::write_word(offset, value);
-}
 
 // ---------------------------------------------------------------------------
 // Machine.
@@ -990,11 +1483,21 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     flash_.assign(options.flash_size, 0xFF); // erased
     flash_chip_ = std::make_unique<FlashChip>(flash_);
 
-    attach(uart0_base, std::make_unique<Uart>(*this, "UART0", 0));
-    attach(uart1_base, std::make_unique<Uart>(*this, "UART1", 1));
-    attach(gpio_base, std::make_unique<Gpio>(*this, options.strapping));
+    for (int port = 0; port < 2; ++port) {
+        auto uart = std::make_unique<Uart>(*this, port == 0 ? "UART0" : "UART1", port);
+        uart_[port] = uart.get();
+        attach(port == 0 ? uart0_base : uart1_base, std::move(uart));
+    }
+    attach(0x60009000u, std::make_unique<IoMux>(*this));
+    auto gpio = std::make_unique<Gpio>(*this, options.strapping);
+    gpio_ = gpio.get();
+    attach(gpio_base, std::move(gpio));
     auto rtc_cntl = std::make_unique<RtcCntl>(*this);
     rtc_cntl_ = rtc_cntl.get();
+    rtc_wake_ = [block = rtc_cntl.get()](bool light) { block->woke(light); };
+    rtc_pauses_ = [block = rtc_cntl.get()] { return block->watchdog_pauses_in_sleep(); };
+    rtc_timed_ = rtc_cntl.get();
+    timed_.push_back(rtc_cntl.get());
     attach(rtc_cntl_base, std::move(rtc_cntl), 0x800);
     attach(efuse_base, std::make_unique<Efuse>(*this), 0x800);
     auto usb = std::make_unique<UsbSerialJtag>(*this);
@@ -1014,8 +1517,11 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     auto systimer = std::make_unique<Systimer>(*this);
     timed_.push_back(systimer.get());
     attach(0x60023000u, std::move(systimer));
-    attach(0x6001F000u, std::make_unique<Timg>(*this, "TIMG0"));
-    attach(0x60020000u, std::make_unique<Timg>(*this, "TIMG1"));
+    for (int group = 0; group < 2; ++group) {
+        auto timg = std::make_unique<Timg>(*this, group == 0 ? "TIMG0" : "TIMG1", group);
+        timed_.push_back(timg.get());
+        attach(group == 0 ? 0x6001F000u : 0x60020000u, std::move(timg));
+    }
     // Every other peripheral: registers that read back what was written.
     struct Plain {
         std::uint32_t base;
@@ -1023,7 +1529,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     };
     static constexpr Plain plain[] = {
         {0x60005000u, "FE2"}, {0x60006000u, "FE"},
-        {0x60009000u, "IO_MUX"}, {0x6000E000u, "RTC_I2C"}, {0x60013000u, "I2C0"}, {0x60014000u, "UHCI0"},
+{0x6000E000u, "RTC_I2C"}, {0x60013000u, "I2C0"}, {0x60014000u, "UHCI0"},
         {0x60016000u, "RMT"}, {0x60019000u, "LEDC"}, {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
          {0x60024000u, "SPI2"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
@@ -1159,14 +1665,18 @@ void Esp32C3::reset()
     resets_ = 0;
 }
 
-void Esp32C3::request_reset(ResetKind kind)
+void Esp32C3::request_reset(ResetKind kind, std::uint32_t reason)
 {
+    if (reset_requested_ && requested_kind_ == ResetKind::PowerOn) {
+        return; // the stronger reset already waits
+    }
     reset_requested_ = true;
     requested_kind_ = kind;
+    requested_reason_ = reason;
     cpu_.request_stop();
 }
 
-void Esp32C3::reset(ResetKind kind)
+void Esp32C3::reset(ResetKind kind, std::uint32_t reason)
 {
     reset_requested_ = false;
     ++resets_;
@@ -1175,6 +1685,11 @@ void Esp32C3::reset(ResetKind kind)
             block->reset(); // the RTC domain keeps its state except at power-on
         }
     }
+    asleep_ = false;
+    if (kind == ResetKind::DeepSleep) {
+        bus_.fill(sram1_ibus, 0, sram1_size); // powered down; RTC memory kept
+        bus_.fill(sram0_ibus, 0, sram0_size);
+    }
     if (kind == ResetKind::PowerOn) {
         for (std::uint32_t base : {sram1_ibus, sram0_ibus, rtc_fast}) {
             const std::uint32_t size = base == sram1_ibus ? sram1_size : base == sram0_ibus ? sram0_size : rtc_fast_size;
@@ -1182,10 +1697,13 @@ void Esp32C3::reset(ResetKind kind)
         }
     }
     // RTC_CNTL_RESET_STATE_REG: RESET_CAUSE_PROCPU
-    std::uint32_t reason = 0;
-    rtc_cntl_->read(0x38, 4, reason);
-    reason = (reason & ~0x3Fu) | (kind == ResetKind::PowerOn ? 0x1u : kind == ResetKind::System ? 0x3u : 0xCu);
-    rtc_cntl_->write(0x38, 4, reason);
+    if (reason == 0) {
+        reason = kind == ResetKind::PowerOn ? 0x1u : kind == ResetKind::System ? 0x3u : kind == ResetKind::DeepSleep ? 0x5u : 0xCu;
+    }
+    last_reason_ = reason;
+    std::uint32_t state = 0;
+    rtc_cntl_->read(0x38, 4, state);
+    rtc_cntl_->write(0x38, 4, (state & ~0x3Fu) | reason);
     cpu_.reset();
     for (std::size_t page = 0; page < 128; ++page) {
         mmu_[page] = 0x100; // invalid until the ROM maps the flash
@@ -1204,6 +1722,34 @@ std::uint64_t Esp32C3::time_ns() const
 {
     const std::uint64_t cycles = cpu_.cycles() - base_cycles_;
     return base_ns_ + cycles / cpu_hz_ * 1'000'000'000ull + cycles % cpu_hz_ * 1'000'000'000ull / cpu_hz_;
+}
+
+void Esp32C3::enter_sleep(bool deep, std::uint64_t wake_ns)
+{
+    asleep_ = true;
+    deep_sleep_ = deep;
+    wake_ns_ = wake_ns;
+    sleep_start_ns_ = time_ns();
+    cpu_.request_stop();
+}
+
+void Esp32C3::wake()
+{
+    asleep_ = false;
+    const std::uint64_t slept = time_ns() - sleep_start_ns_;
+    if (rtc_pauses_()) {
+        rtc_timed_->pause(slept);
+    }
+    rtc_wake_(!deep_sleep_);
+    if (deep_sleep_) {
+        reset(ResetKind::DeepSleep, 0x5);
+        return;
+    }
+    for (Timed* timed : timed_) {
+        if (timed != rtc_timed_) {
+            timed->pause(slept); // the digital timers stood still
+        }
+    }
 }
 
 void Esp32C3::set_cpu_hz(std::uint32_t hz)
@@ -1244,7 +1790,27 @@ void Esp32C3::run_until_ns(std::uint64_t ns)
 {
     while (time_ns() < ns && cpu_.state() != RvState::Halted) {
         if (reset_requested_) {
-            reset(requested_kind_);
+            reset(requested_kind_, requested_reason_);
+        }
+        if (asleep_) {
+            // Only the RTC domain runs: its watchdog (unless it pauses in
+            // sleep), and the wake-up alarm.
+            const bool rtc_runs = !rtc_pauses_();
+            std::uint64_t until = std::min(ns, wake_ns_);
+            if (rtc_runs) {
+                until = std::min(until, rtc_timed_->next_ns());
+            }
+            const std::uint64_t now = time_ns();
+            if (until > now) {
+                cpu_.advance_idle(cpu_.cycles() + cycles_for_ns(until - now));
+            }
+            if (rtc_runs && rtc_timed_->next_ns() <= time_ns()) {
+                rtc_timed_->on_ns(time_ns());
+            }
+            if (time_ns() >= wake_ns_) {
+                wake();
+            }
+            continue;
         }
         run_timers();
         std::uint64_t until = ns;
@@ -1256,9 +1822,11 @@ void Esp32C3::run_until_ns(std::uint64_t ns)
         cpu_.run(cpu_.cycles() + std::max<std::uint64_t>(cycles, 1));
     }
     if (reset_requested_) {
-        reset(requested_kind_);
+        reset(requested_kind_, requested_reason_);
     }
-    run_timers();
+    if (!asleep_) {
+        run_timers(); // asleep, only the RTC domain runs (the loop above)
+    }
     if (cpu_.state() == RvState::Halted && !halt_reported_) {
         halt_reported_ = true;
         diagnostic(cpu_.halt_reason());
@@ -1277,11 +1845,30 @@ void Esp32C3::diagnostic(const std::string& text)
 
 void Esp32C3::send(int port, const std::string& bytes)
 {
-    Block* target = port == 2 ? usb_ : nullptr;
+    Block* target = port == 2 ? usb_ : port == 0 ? uart_[0] : port == 1 ? uart_[1] : nullptr;
     if (target) {
         for (const char c : bytes) {
             target->receive(static_cast<std::uint8_t>(c));
         }
+    }
+}
+
+Esp32C3::PinState Esp32C3::pin(int gpio) const
+{
+    return gpio >= 0 && gpio < gpio_count ? gpio_->state(gpio) : PinState{};
+}
+
+std::vector<Esp32C3::PinEvent> Esp32C3::take_pin_events()
+{
+    std::vector<PinEvent> out;
+    out.swap(pin_events_);
+    return out;
+}
+
+void Esp32C3::set_pin_input(int gpio, std::optional<bool> level)
+{
+    if (gpio >= 0 && gpio < gpio_count) {
+        gpio_->set_input(gpio, level);
     }
 }
 

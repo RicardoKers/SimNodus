@@ -539,6 +539,9 @@ RiscvCpu::Privilege RiscvCpu::data_privilege() const
 bool RiscvCpu::load(std::uint32_t address, unsigned size, std::uint32_t& value)
 {
     if (address & (size - 1)) {
+        if (config_.misaligned_access) {
+            return load_misaligned(address, size, value);
+        }
         trap(LoadMisaligned, address);
         return false;
     }
@@ -556,6 +559,9 @@ bool RiscvCpu::load(std::uint32_t address, unsigned size, std::uint32_t& value)
 bool RiscvCpu::store(std::uint32_t address, unsigned size, std::uint32_t value)
 {
     if (address & (size - 1)) {
+        if (config_.misaligned_access) {
+            return store_misaligned(address, size, value);
+        }
         trap(StoreMisaligned, address);
         return false;
     }
@@ -566,6 +572,50 @@ bool RiscvCpu::store(std::uint32_t address, unsigned size, std::uint32_t value)
     if (!bus_.write(address, size, value)) {
         trap(StoreAccessFault, address);
         return false;
+    }
+    if (!regions_.empty()) {
+        invalidate_code(address, size);
+        for (const CodeAlias& alias : code_aliases_) {
+            if (address - alias.alias_base < alias.size) {
+                invalidate_code(alias.code_base + (address - alias.alias_base), size);
+            }
+        }
+    }
+    return true;
+}
+
+// Misaligned accesses where the core does them: one byte at a time, little
+// endian; a byte that faults makes the whole access fault at its address.
+bool RiscvCpu::load_misaligned(std::uint32_t address, unsigned size, std::uint32_t& value)
+{
+    if (pmp_check_ && !pmp_allows(address, size, PmpRead, data_privilege())) {
+        trap(LoadAccessFault, address);
+        return false;
+    }
+    std::uint32_t result = 0;
+    for (unsigned i = 0; i < size; ++i) {
+        std::uint32_t byte = 0;
+        if (!bus_.read(address + i, 1, byte)) {
+            trap(LoadAccessFault, address);
+            return false;
+        }
+        result |= (byte & 0xFF) << (8 * i);
+    }
+    value = result;
+    return true;
+}
+
+bool RiscvCpu::store_misaligned(std::uint32_t address, unsigned size, std::uint32_t value)
+{
+    if (pmp_check_ && !pmp_allows(address, size, PmpWrite, data_privilege())) {
+        trap(StoreAccessFault, address);
+        return false;
+    }
+    for (unsigned i = 0; i < size; ++i) {
+        if (!bus_.write(address + i, 1, (value >> (8 * i)) & 0xFF)) {
+            trap(StoreAccessFault, address);
+            return false;
+        }
     }
     if (!regions_.empty()) {
         invalidate_code(address, size);

@@ -67,6 +67,10 @@ public:
         // false: every line the machine raises is enabled whatever mie holds
         // (the ESP32-C3's interrupt controller enables lines itself).
         bool mie_gates = true;
+        // true: misaligned loads and stores are done (byte by byte) instead of
+        // trapping; the ESP32-C3 does them (its newlib's string functions
+        // rely on it).
+        bool misaligned_access = false;
     };
 
     explicit RiscvCpu(Bus& bus);
@@ -177,6 +181,8 @@ private:
 
     bool load(std::uint32_t address, unsigned size, std::uint32_t& value);
     bool store(std::uint32_t address, unsigned size, std::uint32_t value);
+    bool load_misaligned(std::uint32_t address, unsigned size, std::uint32_t& value);
+    bool store_misaligned(std::uint32_t address, unsigned size, std::uint32_t value);
     void invalidate_code(std::uint32_t address, unsigned size);
 
     // Physical memory protection.
