@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 fe82979ce0901dd05da89d1270bc546815a8dbb972a96a6a45908ae16831de79 -->
+<!-- source: MICROCONTROLLER.md sha256 5ba0a2ad6f30e90cb19c25001e0528d0407717ed01bb45f69ccc6319c4538f8e -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -259,9 +259,16 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   Serial/JTAG, LEDC (PWM) e leituras avulsas do ADC nos GPIO0-GPIO4
   (aproximadas: lineares, sem ruído), SHA, números aleatórios e eFuse (MAC
   34:85:18:00:C3:01).
-- **Ainda não**: I2C, SPI e RMT (e portanto os chips I2C/SPI do SimNodus e as
-  fitas WS2812 com esta placa), ADC contínuo, Wi-Fi e Bluetooth; depuração com
-  GDB (só a Blue Pill); cópia de arquivos do computador para o MicroPython.
+- **I2C**: o I2C0 como mestre em qualquer GPIO, pela matriz de GPIO, com os
+  chips I2C do SimNodus (os mesmos usados com a Blue Pill) no nível dos pinos:
+  o driver de I2C do ESP-IDF, o `Wire` do Arduino e o `machine.I2C` do
+  MicroPython funcionam sem mudanças, com clock stretching e um chip ausente
+  informado como NACK. O barramento precisa de pull-ups: resistores no
+  esquema, ou os pull-ups internos de 45 kΩ dos pinos, que os drivers ligam.
+  O exemplo 46 lê um LM75 e grava uma 24C02. O modo escravo não é simulado.
+- **Ainda não**: SPI e RMT (e portanto os chips SPI do SimNodus e as fitas
+  WS2812 com esta placa), ADC contínuo, Wi-Fi e Bluetooth; depuração com GDB
+  (só a Blue Pill); cópia de arquivos do computador para o MicroPython.
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas

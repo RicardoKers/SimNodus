@@ -160,9 +160,16 @@ need one. Done at the machine level (no integration yet):
   1536 and 2805 mV. Labelled approximate (no offset, noise or curve);
   continuous (DMA) conversions not modelled. `set_pin_voltage()`; CLI
   `--input GPIO=1.2V@ms`.
-- I2C, SPI and RMT (WS2812) work at the pin level with SimNodus's chips, as on
-  the STM32 (ADR 0102): they need the integration (SN-246), because
-  `DeviceBus` is tied to the STM32 machine today.
+- I2C0 master (after SN-246): the command list (RSTART, WRITE, READ, STOP,
+  END), 32-byte FIFOs, interrupts, timing from CLK_CONF and the period
+  registers, clock stretching and the timeout, on GPIO matrix signals 53/54,
+  with input signals routed by `FUNCn_IN_SEL_CFG`. With SimNodus's LM75 and
+  24C02 on `DeviceBus`: MicroPython's `I2C.scan()` gives `[72, 80]`, reads
+  and writes match, a missing address gives `ENODEV`; SCL at 100 kHz
+  measures 10.00 µs; ESP-IDF's `i2c_master` driver (example 46) and
+  Arduino-ESP32's `Wire` (write, read back, NACK code 2 for an empty
+  address) work unchanged.
+- SPI and RMT (WS2812) at the pin level with SimNodus's chips: next.
 
 ## Decision DE1 (2026-10-28, provisional)
 

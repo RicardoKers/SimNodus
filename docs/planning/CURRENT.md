@@ -137,8 +137,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (SN-246, unreleased): flash images (`.bin`) of ESP-IDF, Arduino and
    MicroPython, GPIO, UART0 and USB Serial/JTAG in the terminal, LEDC PWM,
    one-shot ADC (SN-247 part 1), example 45; the runner and `DeviceBus` use
-   `mcu::McuMachine` (STM32 unchanged). Next: I2C, SPI and RMT at the pin
-   level with SimNodus's chips (SN-247), the MicroPython workflow (SN-248),
+   `mcu::McuMachine` (STM32 unchanged). I2C0 master with SimNodus's I2C chips
+   (ESP-IDF, Arduino `Wire`, MicroPython; example 46). Next: SPI2 with GDMA
+   and RMT (SN-247), the MicroPython workflow (SN-248),
    then GDB for RISC-V (SN-249). With the owner's boards: the ROM and console
    comparison (G8b.1), which ends the experimental mark.
 

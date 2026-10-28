@@ -1014,6 +1014,48 @@ TEST_CASE("session: example 45 runs ESP-IDF's blink on the ESP32-C3 board")
     session.stop();
 }
 
+TEST_CASE("session: example 46 reads an LM75 and a 24C02 from the ESP32-C3 over I2C")
+{
+    // SN-247: ESP-IDF's I2C master driver on I2C0 reaches SimNodus's chips at
+    // the pin level, through the 4.7 kOhm pull-ups of the schematic.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "46_ESP32-C3_I2C_sensor_and_EEPROM.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    std::vector<std::string> warnings;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.devices.size() == 2);
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.4) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+    }
+    std::string text;
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("LM75 at 0x48: found") != std::string::npos);
+    CHECK(text.find("24C02 at 0x50: found") != std::string::npos);
+    CHECK(text.find("EEPROM: SimNodus") != std::string::npos);
+    CHECK(text.find("Temperature: 23.5 C") != std::string::npos);
+    CHECK(text.find("no answer") == std::string::npos);
+    session.stop();
+}
+
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);
