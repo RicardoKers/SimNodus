@@ -3,6 +3,7 @@
 #include "simulation_session.hpp"
 
 #include "engine_host.hpp"
+#include "mcu/mcu_machine.hpp"
 #include "ngspice_runtime.hpp"
 
 #include "model/engineering.hpp"
@@ -150,6 +151,9 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         {
             auto options = m.options;
             options.cortex_m3_timing = settings_.cortex_m3_timing;
+            if (options.chip == "esp32c3" && options.rom.empty()) {
+                options.rom = mcu::find_esp32c3_rom(EngineHost::instance().application_dir());
+            }
             // ADC samples read the circuit at a time it has passed (SN-178).
             options.analog_lag_ns = request_.mcu_lead_us * 1000
                 + static_cast<std::uint64_t>(std::llround(std::max(settings_.max_step, 0.0) * 1e9));
@@ -927,7 +931,8 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         // writes it, as with an ST-LINK.
         const bool loaded_by_debugger = firmware.empty() && environment.gdb_port >= 0;
         if (firmware.empty() && !loaded_by_debugger) {
-            error = c.designator + " has no firmware: choose an ELF file in its properties.";
+            error = c.designator + " has no firmware: choose "
+                + (d->mcu->chip == "esp32c3" ? "a flash image (.bin)" : "an ELF file") + " in its properties.";
             return false;
         }
         std::filesystem::path path(std::u8string(firmware.begin(), firmware.end())); // UTF-8 text
@@ -955,8 +960,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         // Measured (SN-173, EQ-3): windows of 1 ms, 100 us and 20 us run at 2.48x,
         // 2.40x and 2.32x real time; 100 us keeps inputs late by less than 0.1 ms.
         request.options.chunk_us = std::min<std::uint64_t>(request.options.chunk_us, native_window_us);
+        request.options.chip = d->mcu->chip;
         for (const auto& pin : d->pins) {
-            if (mcu::gpio_pin(pin.name)) {
+            if (mcu::chip_gpio(d->mcu->chip, pin.name)) {
                 request.options.pins.push_back(pin.name);
             }
         }

@@ -3,7 +3,8 @@
 SimNodus runs the firmware of the **Blue Pill (STM32F103C8)** in its own STM32
 emulator next to the circuit. This page lists what the simulated chip supports and
 where it differs from a real board (MCU-09); the [user guide](USER_GUIDE.md)
-covers the rest of SimNodus.
+covers the rest of SimNodus. The **ESP32-C3-DevKitM-1** board is new and
+experimental: see [ESP32-C3 board (experimental)](#esp32-c3-board-experimental).
 
 ## Engine
 
@@ -215,6 +216,45 @@ laptop.
   (time stops), as with DBGMCU's stop bits set.
 - **Power.** The board is fed by its 3.3 V regulator (an ideal 3.3 V source
   behind 0.1 Ω); 5 V and VBAT pins are not connected inside.
+
+## ESP32-C3 board (experimental)
+
+The **ESP32-C3-DevKitM-1** part (Microcontrollers) runs ESP32-C3 firmware in
+SimNodus's own RISC-V emulator (ADR 0106). It is **experimental**: the same
+firmware has run unmodified (ESP-IDF examples, an Arduino sketch, the official
+MicroPython image), but it has not yet been compared with a real board, so
+small differences may remain.
+
+- **Firmware**: a flash image (`.bin`) written from address 0, the way
+  `esptool write-flash 0x0` writes it: ESP-IDF's `idf.py merge-bin` output,
+  the Arduino IDE's `.merged.bin` (Sketch > Export Compiled Binary), or
+  MicroPython's `ESP32_GENERIC_C3` firmware `.bin`. ELF files are not accepted.
+  Example 45 blinks an LED on GPIO8 with ESP-IDF's blink example.
+- **ROM**: the chip's ROM is rebuilt at start from Espressif's ROM file,
+  which comes with SimNodus (`roms/esp32c3_rev3_rom.elf`, Apache-2.0).
+- **Pins**: GPIO0-GPIO10 and GPIO18-GPIO21, as on the board's headers; EN,
+  3V3, 5V and G pins. Outputs drive 3.3 V or 0 V behind 33 Ω; inputs read 1
+  above 2.475 V and 0 below 0.825 V (the datasheet's 0.75 and 0.25 x VDD);
+  internal pulls of 45 kΩ. The board's EN and GPIO9 (BOOT) have 10 kΩ
+  pull-ups. The RGB LED (a WS2812 on GPIO8) is not drawn.
+- **Serial ports** in the terminal: **UART0** (the board's USB connector;
+  GPIO21 TX, GPIO20 RX; ESP-IDF's and Arduino's log) and **USB Serial/JTAG**
+  (the chip's own USB on GPIO18/GPIO19; MicroPython's `>>>` prompt).
+- **Simulated**: the RV32IMC core, 4 MB flash, SRAM, caches and flash
+  mapping, interrupts, system timer, timer groups and watchdogs, RTC, light
+  and deep sleep, GPIO with interrupts, UART0/UART1, USB Serial/JTAG, LEDC
+  (PWM) and one-shot ADC readings on GPIO0-GPIO4 (approximate: linear, no
+  noise), SHA, random numbers and eFuse (MAC 34:85:18:00:C3:01).
+- **Not yet**: I2C, SPI and RMT (and so SimNodus's I2C/SPI chips and WS2812
+  strips with this board), continuous ADC, Wi-Fi and Bluetooth; debugging
+  with GDB (the Blue Pill only); copying files to MicroPython from the
+  computer.
+- **Timing**: one instruction per CPU clock cycle (160 MHz with the default
+  settings); cache misses and flash waits are not modelled, so code runs
+  somewhat faster than on the chip. Timers count at their real rates.
+- **Pressing RESET** restarts the chip as the EN button does; the flash keeps
+  what the firmware wrote during the run (MicroPython's files) until the run
+  stops.
 
 ## Debugging with STM32CubeIDE or GDB
 

@@ -21,6 +21,7 @@ public:
 
     // Where to look for the engine; call before the first acquire().
     void set_application_dir(const std::filesystem::path& application_dir);
+    std::filesystem::path application_dir() const; // also where bundled ROMs are (ADR 0106)
     void set_location(const NgspiceLocation& location); // explicit location (tests)
     std::optional<NgspiceLocation> location() const;    // the explicit one, if set
 

@@ -8,7 +8,8 @@ add_executable(engine_tests engine_tests.cpp library_engine_tests.cpp session_en
 target_include_directories(engine_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(engine_tests PRIVATE simnodus::session simnodus::engine_link simnodus::emu simnodus::netlist simnodus::editing simnodus::io simnodus::automation simnodus::warnings)
 target_compile_definitions(engine_tests PRIVATE SIMNODUS_TEST_LIBRARY_DIR="${PROJECT_SOURCE_DIR}/resources/library"
-    SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
+    SIMNODUS_TEST_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples"
+    SIMNODUS_SOURCE_ROM_DIR="${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs")
 if(SIMNODUS_NGSPICE_LIBRARY)
     add_test(NAME engine-ngspice
         COMMAND engine_tests "${SIMNODUS_NGSPICE_LIBRARY}" "${PROJECT_SOURCE_DIR}/resources/ngspice")

@@ -139,6 +139,9 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/QUICK_START.md" "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/USER_GUIDE.md"
         "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/MICROCONTROLLER.md" DESTINATION pt-BR)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
+    # The ESP32-C3's ROM, rebuilt from Espressif's ROM ELF at run time (ADR 0106).
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/esp32c3_rev3_rom.elf" DESTINATION roms)
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE" DESTINATION licenses RENAME esp-rom-elfs-Apache-2.0.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script) and memory contents.
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
@@ -155,6 +158,10 @@ else()
     install(FILES "${PROJECT_SOURCE_DIR}/resources/ngspice/spinit"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/ngspice")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/library")
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/esp32c3_rev3_rom.elf"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/roms")
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses" RENAME esp-rom-elfs-Apache-2.0.txt)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
         FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")

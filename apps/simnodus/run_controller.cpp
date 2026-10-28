@@ -8,6 +8,7 @@
 
 #include "library/component_library.hpp"
 #include "library/spice_template.hpp"
+#include "mcu/mcu_machine.hpp"
 #include "model/engineering.hpp"
 #include "netlist/netlist.hpp"
 #include "sim/engine_host.hpp"
@@ -436,13 +437,14 @@ std::vector<RunController::LogicLane> RunController::logic_lanes() const
         if (!d || !d->mcu || !session_->mcu_status(c.id)) {
             continue;
         }
-        std::vector<std::pair<std::pair<char, int>, std::string>> pins; // (port, number) -> name
+        std::vector<std::pair<std::pair<std::string, int>, std::string>> pins; // (prefix, number) -> name
         for (const auto& p : d->pins) {
-            if (p.name.size() >= 3 && p.name[0] == 'P') {
-                pins.push_back({{p.name[1], std::atoi(p.name.c_str() + 2)}, p.name});
+            if (mcu::chip_gpio(d->mcu->chip, p.name)) {
+                const auto digits = p.name.find_first_of("0123456789");
+                pins.push_back({{p.name.substr(0, digits), std::atoi(p.name.c_str() + digits)}, p.name});
             }
         }
-        std::sort(pins.begin(), pins.end()); // PA0, PA1, ..., PB0, ..., PC13
+        std::sort(pins.begin(), pins.end()); // PA0, PA1, ..., PB0, ..., PC13; GPIO0, GPIO1, ..., GPIO21
         for (const auto& [order, name] : pins) {
             lanes.push_back({c.id, name, -1, QString::fromStdString(c.designator + "." + name), QColor(0x2f, 0x5f, 0xd0)});
         }
@@ -688,21 +690,38 @@ QString RunController::mode_description() const
                       "generator edges are resolved to the time step; semiconductor charge is not carried across segments")
                        .arg(QString::fromStdString(model::format_engineering(s.segment)), step);
     const auto& library = document_.library();
-    const auto& components = snapshot_.components();
-    if (std::any_of(components.begin(), components.end(), [&library](const model::Component& c) {
-            const auto* d = library.find(c.type);
-            return d && d->mcu;
-        })) {
+    const library::McuBoard* first = nullptr;
+    bool stm32 = false;
+    bool esp32c3 = false;
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = library.find(c.type);
+        if (d && d->mcu) {
+            first = first ? first : &*d->mcu;
+            stm32 = stm32 || d->mcu->chip == "stm32f103";
+            esp32c3 = esp32c3 || d->mcu->chip == "esp32c3";
+        }
+    }
+    if (first) {
+        const auto& pm = first->pin_model;
         text += tr("; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; "
-                   "GPIO outputs drive the circuit through 40 Ohm, %1; circuit voltages reach GPIO inputs "
-                   "through Schmitt thresholds (1.16 V / 1.83 V) less than 0.1 ms late, and the ADC reads them "
+                   "GPIO outputs drive the circuit through %L2 Ohm, %1; circuit voltages reach GPIO inputs "
+                   "through Schmitt thresholds (%L3 V / %L4 V) less than 0.1 ms late, and the ADC reads them "
                    "0.1-0.2 ms back")
                     .arg(s.exact_edges ? tr("with a time point at every edge (exact edges)")
-                                       : tr("averaged over each time step (an edge is spread over one step)"));
-        text += s.cortex_m3_timing
-            ? tr("; firmware instructions take the Cortex-M3 cycles with flash wait states (approximate, within 5 % "
-                 "of a real Blue Pill in measured tests)")
-            : tr("; firmware instructions take one cycle each (faster than a real chip)");
+                                       : tr("averaged over each time step (an edge is spread over one step)"))
+                    .arg(pm.output_resistance)
+                    .arg(pm.input_low)
+                    .arg(pm.input_high);
+        if (stm32) {
+            text += s.cortex_m3_timing
+                ? tr("; firmware instructions take the Cortex-M3 cycles with flash wait states (approximate, within 5 % "
+                     "of a real Blue Pill in measured tests)")
+                : tr("; firmware instructions take one cycle each (faster than a real chip)");
+        }
+        if (esp32c3) {
+            text += tr("; the ESP32-C3 is experimental: not yet compared with a real board, one instruction per CPU "
+                       "clock cycle (approximate)");
+        }
     }
     return text;
 }

@@ -1,0 +1,911 @@
+{
+  "type": "esp32c3_devkitm1",
+  "name": "ESP32-C3-DevKitM-1 (experimental)",
+  "category": "Microcontrollers",
+  "prefix": "U",
+  "description": "ESP32-C3 board running your firmware (flash image, .bin: ESP-IDF, Arduino or MicroPython) in the SimNodus emulator; experimental until compared with a real board",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -7,
+          -17,
+          14,
+          34
+        ]
+      },
+      {
+        "rect": [
+          -4,
+          -16,
+          8,
+          9
+        ]
+      },
+      {
+        "text": "ESP32-C3",
+        "at": [
+          0,
+          -12.3
+        ],
+        "size": 0.8
+      },
+      {
+        "text": "MINI-1",
+        "at": [
+          0,
+          -10.7
+        ],
+        "size": 0.8
+      },
+      {
+        "text": "ESP32-C3",
+        "at": [
+          0,
+          2.2
+        ],
+        "size": 1.1
+      },
+      {
+        "text": "DevKitM-1",
+        "at": [
+          0,
+          3.9
+        ],
+        "size": 1.1
+      },
+      {
+        "rect": [
+          -2,
+          9,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          0,
+          11.8
+        ],
+        "size": 0.7
+      },
+      {
+        "rect": [
+          -2.5,
+          15,
+          5,
+          3
+        ]
+      },
+      {
+        "text": "USB",
+        "at": [
+          0,
+          16.5
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -14,
+          -7,
+          -14
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          -14
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -12,
+          -7,
+          -12
+        ]
+      },
+      {
+        "text": "3V3",
+        "at": [
+          -5.3,
+          -12
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -10,
+          -7,
+          -10
+        ]
+      },
+      {
+        "text": "3V3",
+        "at": [
+          -5.3,
+          -10
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -8,
+          -7,
+          -8
+        ]
+      },
+      {
+        "text": "IO2",
+        "at": [
+          -5.3,
+          -8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -6,
+          -7,
+          -6
+        ]
+      },
+      {
+        "text": "IO3",
+        "at": [
+          -5.3,
+          -6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -4,
+          -7,
+          -4
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          -4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          -2,
+          -7,
+          -2
+        ]
+      },
+      {
+        "text": "EN",
+        "at": [
+          -5.3,
+          -2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          0,
+          -7,
+          0
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          2,
+          -7,
+          2
+        ]
+      },
+      {
+        "text": "IO0",
+        "at": [
+          -5.3,
+          2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          4,
+          -7,
+          4
+        ]
+      },
+      {
+        "text": "IO1",
+        "at": [
+          -5.3,
+          4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          6,
+          -7,
+          6
+        ]
+      },
+      {
+        "text": "IO10",
+        "at": [
+          -5.3,
+          6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          8,
+          -7,
+          8
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          10,
+          -7,
+          10
+        ]
+      },
+      {
+        "text": "5V",
+        "at": [
+          -5.3,
+          10
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          12,
+          -7,
+          12
+        ]
+      },
+      {
+        "text": "5V",
+        "at": [
+          -5.3,
+          12
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -9,
+          14,
+          -7,
+          14
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          -5.3,
+          14
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -14,
+          9,
+          -14
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -14
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -12,
+          9,
+          -12
+        ]
+      },
+      {
+        "text": "IO21",
+        "at": [
+          5.3,
+          -12
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -10,
+          9,
+          -10
+        ]
+      },
+      {
+        "text": "IO20",
+        "at": [
+          5.3,
+          -10
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -8,
+          9,
+          -8
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -6,
+          9,
+          -6
+        ]
+      },
+      {
+        "text": "IO9",
+        "at": [
+          5.3,
+          -6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -4,
+          9,
+          -4
+        ]
+      },
+      {
+        "text": "IO8",
+        "at": [
+          5.3,
+          -4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          -2,
+          9,
+          -2
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          -2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          0,
+          9,
+          0
+        ]
+      },
+      {
+        "text": "IO7",
+        "at": [
+          5.3,
+          0
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          2,
+          9,
+          2
+        ]
+      },
+      {
+        "text": "IO6",
+        "at": [
+          5.3,
+          2
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          4,
+          9,
+          4
+        ]
+      },
+      {
+        "text": "IO5",
+        "at": [
+          5.3,
+          4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          6,
+          9,
+          6
+        ]
+      },
+      {
+        "text": "IO4",
+        "at": [
+          5.3,
+          6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          8,
+          9,
+          8
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          8
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          10,
+          9,
+          10
+        ]
+      },
+      {
+        "text": "IO18",
+        "at": [
+          5.3,
+          10
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          12,
+          9,
+          12
+        ]
+      },
+      {
+        "text": "IO19",
+        "at": [
+          5.3,
+          12
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          7,
+          14,
+          9,
+          14
+        ]
+      },
+      {
+        "text": "G",
+        "at": [
+          5.3,
+          14
+        ],
+        "size": 0.8
+      }
+    ],
+    "pins": [
+      {
+        "name": "G1",
+        "at": [
+          -9,
+          -14
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "3V3_1",
+        "at": [
+          -9,
+          -12
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "3V3_2",
+        "at": [
+          -9,
+          -10
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO2",
+        "at": [
+          -9,
+          -8
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO3",
+        "at": [
+          -9,
+          -6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G2",
+        "at": [
+          -9,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "EN",
+        "at": [
+          -9,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G3",
+        "at": [
+          -9,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO0",
+        "at": [
+          -9,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO1",
+        "at": [
+          -9,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GPIO10",
+        "at": [
+          -9,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G4",
+        "at": [
+          -9,
+          8
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "5V_1",
+        "at": [
+          -9,
+          10
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "5V_2",
+        "at": [
+          -9,
+          12
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G5",
+        "at": [
+          -9,
+          14
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "G6",
+        "at": [
+          9,
+          -14
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO21",
+        "at": [
+          9,
+          -12
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO20",
+        "at": [
+          9,
+          -10
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G7",
+        "at": [
+          9,
+          -8
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO9",
+        "at": [
+          9,
+          -6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO8",
+        "at": [
+          9,
+          -4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G8",
+        "at": [
+          9,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO7",
+        "at": [
+          9,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO6",
+        "at": [
+          9,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO5",
+        "at": [
+          9,
+          4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO4",
+        "at": [
+          9,
+          6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G9",
+        "at": [
+          9,
+          8
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO18",
+        "at": [
+          9,
+          10
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GPIO19",
+        "at": [
+          9,
+          12
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "G10",
+        "at": [
+          9,
+          14
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -7,
+    -20
+  ],
+  "value_offset": [
+    8,
+    -20
+  ],
+  "value_parameter": "firmware",
+  "parameters": [
+    {
+      "name": "firmware",
+      "label": "Firmware",
+      "kind": "file",
+      "filter": "*.bin",
+      "default": "",
+      "description": "Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project"
+    }
+  ],
+  "mcu": {
+    "chip": "esp32c3",
+    "firmware_parameter": "firmware",
+    "reset_button": [
+      -2,
+      9,
+      4,
+      2
+    ],
+    "pin_model": {
+      "supply": 3.3,
+      "output_resistance": 33,
+      "pull_resistance": 45000,
+      "input_high": 2.475,
+      "input_low": 0.825
+    },
+    "uarts": [
+      {
+        "name": "uart0",
+        "label": "UART0 (USB connector; GPIO21 TX, GPIO20 RX)",
+        "tx_pin": "GPIO21",
+        "rx_pin": "GPIO20"
+      },
+      {
+        "name": "usb",
+        "label": "USB Serial/JTAG (GPIO18, GPIO19)",
+        "tx_pin": "",
+        "rx_pin": ""
+      }
+    ]
+  },
+  "spice": [
+    "R_{ref}_g12 {node:G1} {node:G2} 1m",
+    "R_{ref}_g13 {node:G1} {node:G3} 1m",
+    "R_{ref}_g14 {node:G1} {node:G4} 1m",
+    "R_{ref}_g15 {node:G1} {node:G5} 1m",
+    "R_{ref}_g16 {node:G1} {node:G6} 1m",
+    "R_{ref}_g17 {node:G1} {node:G7} 1m",
+    "R_{ref}_g18 {node:G1} {node:G8} 1m",
+    "R_{ref}_g19 {node:G1} {node:G9} 1m",
+    "R_{ref}_g110 {node:G1} {node:G10} 1m",
+    "R_{ref}_v12 {node:3V3_1} {node:3V3_2} 1m",
+    "V_{ref}_reg reg_{ref} {node:G1} DC 3.3",
+    "R_{ref}_reg reg_{ref} {node:3V3_1} 0.1",
+    "R_{ref}_5v12 {node:5V_1} {node:5V_2} 1m",
+    "R_{ref}_5v {node:5V_1} {node:G1} 10Meg",
+    "R_{ref}_en {node:EN} {node:3V3_1} 10k",
+    "R_{ref}_boot {node:GPIO9} {node:3V3_1} 10k",
+    "R_{ref}_gpio2 {node:GPIO2} {node:G1} 100Meg",
+    "R_{ref}_gpio3 {node:GPIO3} {node:G1} 100Meg",
+    "R_{ref}_gpio0 {node:GPIO0} {node:G1} 100Meg",
+    "R_{ref}_gpio1 {node:GPIO1} {node:G1} 100Meg",
+    "R_{ref}_gpio10 {node:GPIO10} {node:G1} 100Meg",
+    "R_{ref}_gpio21 {node:GPIO21} {node:G1} 100Meg",
+    "R_{ref}_gpio20 {node:GPIO20} {node:G1} 100Meg",
+    "R_{ref}_gpio9 {node:GPIO9} {node:G1} 100Meg",
+    "R_{ref}_gpio8 {node:GPIO8} {node:G1} 100Meg",
+    "R_{ref}_gpio7 {node:GPIO7} {node:G1} 100Meg",
+    "R_{ref}_gpio6 {node:GPIO6} {node:G1} 100Meg",
+    "R_{ref}_gpio5 {node:GPIO5} {node:G1} 100Meg",
+    "R_{ref}_gpio4 {node:GPIO4} {node:G1} 100Meg",
+    "R_{ref}_gpio18 {node:GPIO18} {node:G1} 100Meg",
+    "R_{ref}_gpio19 {node:GPIO19} {node:G1} 100Meg",
+    "B_{ref}_gpio2 {node:G1} {node:GPIO2} I=V({ext:gpio2_i})-V({ext:gpio2_g})*(V({node:GPIO2})-V({node:G1}))",
+    "B_{ref}_gpio3 {node:G1} {node:GPIO3} I=V({ext:gpio3_i})-V({ext:gpio3_g})*(V({node:GPIO3})-V({node:G1}))",
+    "B_{ref}_gpio0 {node:G1} {node:GPIO0} I=V({ext:gpio0_i})-V({ext:gpio0_g})*(V({node:GPIO0})-V({node:G1}))",
+    "B_{ref}_gpio1 {node:G1} {node:GPIO1} I=V({ext:gpio1_i})-V({ext:gpio1_g})*(V({node:GPIO1})-V({node:G1}))",
+    "B_{ref}_gpio10 {node:G1} {node:GPIO10} I=V({ext:gpio10_i})-V({ext:gpio10_g})*(V({node:GPIO10})-V({node:G1}))",
+    "B_{ref}_gpio21 {node:G1} {node:GPIO21} I=V({ext:gpio21_i})-V({ext:gpio21_g})*(V({node:GPIO21})-V({node:G1}))",
+    "B_{ref}_gpio20 {node:G1} {node:GPIO20} I=V({ext:gpio20_i})-V({ext:gpio20_g})*(V({node:GPIO20})-V({node:G1}))",
+    "B_{ref}_gpio9 {node:G1} {node:GPIO9} I=V({ext:gpio9_i})-V({ext:gpio9_g})*(V({node:GPIO9})-V({node:G1}))",
+    "B_{ref}_gpio8 {node:G1} {node:GPIO8} I=V({ext:gpio8_i})-V({ext:gpio8_g})*(V({node:GPIO8})-V({node:G1}))",
+    "B_{ref}_gpio7 {node:G1} {node:GPIO7} I=V({ext:gpio7_i})-V({ext:gpio7_g})*(V({node:GPIO7})-V({node:G1}))",
+    "B_{ref}_gpio6 {node:G1} {node:GPIO6} I=V({ext:gpio6_i})-V({ext:gpio6_g})*(V({node:GPIO6})-V({node:G1}))",
+    "B_{ref}_gpio5 {node:G1} {node:GPIO5} I=V({ext:gpio5_i})-V({ext:gpio5_g})*(V({node:GPIO5})-V({node:G1}))",
+    "B_{ref}_gpio4 {node:G1} {node:GPIO4} I=V({ext:gpio4_i})-V({ext:gpio4_g})*(V({node:GPIO4})-V({node:G1}))",
+    "B_{ref}_gpio18 {node:G1} {node:GPIO18} I=V({ext:gpio18_i})-V({ext:gpio18_g})*(V({node:GPIO18})-V({node:G1}))",
+    "B_{ref}_gpio19 {node:G1} {node:GPIO19} I=V({ext:gpio19_i})-V({ext:gpio19_g})*(V({node:GPIO19})-V({node:G1}))"
+  ]
+}

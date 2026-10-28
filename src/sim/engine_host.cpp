@@ -16,6 +16,12 @@ void EngineHost::set_application_dir(const std::filesystem::path& application_di
     application_dir_ = application_dir;
 }
 
+std::filesystem::path EngineHost::application_dir() const
+{
+    std::lock_guard lock(state_);
+    return application_dir_;
+}
+
 void EngineHost::set_location(const NgspiceLocation& location)
 {
     std::lock_guard lock(state_);

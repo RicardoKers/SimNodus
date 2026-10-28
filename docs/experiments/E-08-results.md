@@ -164,6 +164,16 @@ need one. Done at the machine level (no integration yet):
   the STM32 (ADR 0102): they need the integration (SN-246), because
   `DeviceBus` is tied to the STM32 machine today.
 
+## Decision DE1 (2026-10-28, provisional)
+
+The owner took DE1 without waiting for the boards: the ESP32-C3 goes into
+the application on the own emulator, marked experimental until G8b.1 is
+met ([ADR 0106](../decisions/0106-esp32c3-on-the-own-emulator.md)). The
+integration (SN-246) put the runner and `DeviceBus` behind a machine
+interface; the ESP32-C3-DevKitM-1 part runs ESP-IDF's blink in an
+interactive run (example 45: GPIO8 toggles every 500 ms, 3.17 V high
+through the LED, the log on UART0).
+
 ## Next
 
 Every G8b criterion is met except G8b.1's comparison with the board. With the

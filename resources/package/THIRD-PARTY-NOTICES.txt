@@ -43,6 +43,22 @@ windeployqt for the Qt rendering backend
   redistributed under Microsoft's DirectX redistribution terms.
   Source: https://github.com/microsoft/DirectXShaderCompiler
 
+ESP32-C3 ROM ELF (roms/esp32c3_rev3_rom.elf), unmodified, from
+espressif/esp-rom-elfs release 20260528; SimNodus rebuilds the ESP32-C3's
+mask ROM from it at run time
+  License: Apache License 2.0, text in licenses/esp-rom-elfs-Apache-2.0.txt.
+  Copyright (c) 2015-2022 Espressif Systems (Shanghai) Co. Ltd. The ROM
+  contains newlib routines under BSD-style licenses
+  (https://sourceware.org/newlib/COPYING.NEWLIB).
+  Source: https://github.com/espressif/esp-rom-elfs
+
+Example firmware examples/firmware/esp32c3_blink/blink.bin: ESP-IDF v5.5.2's
+examples/get-started/blink built for the ESP32-C3 (a plain GPIO on GPIO8).
+  License: Apache License 2.0 (ESP-IDF and the example), text in
+  licenses/esp-rom-elfs-Apache-2.0.txt; Copyright (c) Espressif Systems
+  (Shanghai) Co. Ltd.; it contains newlib (BSD-style) and FreeRTOS (MIT).
+  Source: https://github.com/espressif/esp-idf (v5.5.2)
+
 Example firmware examples/firmware/hal_clock/hal_clock.elf and
 examples/firmware/hal_adc_dma/hal_adc_dma.elf contain compiled code from the
 STM32CubeF1 package 1.8.7 and the GNU Tools for STM32 C library:

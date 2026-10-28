@@ -487,6 +487,12 @@ ComponentDefinition parse_definition(const json& j)
         if (!firmware || firmware->kind != Parameter::Kind::File) {
             invalid("mcu.firmware_parameter must name a file parameter");
         }
+        if (m.contains("chip")) {
+            board.chip = text(m, "chip", true);
+        }
+        if (board.chip != "stm32f103" && board.chip != "esp32c3") {
+            invalid("mcu.chip must be stm32f103 or esp32c3");
+        }
         if (m.contains("ground_pin")) {
             board.ground_pin = text(m, "ground_pin", true);
         }
@@ -520,8 +526,8 @@ ComponentDefinition parse_definition(const json& j)
             if (m["led"].contains("radius")) {
                 led.radius = number(m["led"]["radius"], "mcu.led.radius");
             }
-            if (led.pin.size() < 3 || led.pin[0] != 'P') {
-                invalid("mcu.led.pin must be a GPIO pin name such as PC13");
+            if (!d.pin(led.pin)) {
+                invalid("mcu.led.pin is not a pin of the board");
             }
             board.led = led;
         }

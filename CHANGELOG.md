@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-28, ESP32-C3 board)
+
+- **ESP32-C3-DevKitM-1** board in Microcontrollers, **experimental** until it is compared with a real board (decision DE1, ADR 0106; SN-246): it runs a flash image (`.bin` from address 0: ESP-IDF, Arduino or MicroPython) in SimNodus's own emulator next to the circuit, with GPIO0-10 and 18-21 on its headers (33 Ω outputs, 0.825 V / 2.475 V input thresholds), UART0 and USB Serial/JTAG in the terminal, GPIO lanes in the Logic tab, LEDC PWM and one-shot ADC readings of the circuit's voltages. Example 45 runs ESP-IDF's blink. The package contains Espressif's ROM ELF (`roms/`, Apache-2.0). Not yet: I2C, SPI, RMT, Wi-Fi, GDB.
+- The microcontroller runner and the chips' bus (`DeviceBus`) work through an emulator machine interface (`mcu::McuMachine`) instead of the STM32F103 directly; part files name their chip (`mcu.chip`); engine protocol 10. The Simulation settings text gives the board's own pin model.
+
+### Fixed (2026-10-28)
+
+- `view.pace` waits its full time even when its wait ends early (the `gui-editor` test failed now and then).
+
 ### Added (2026-10-28, experiment E-08)
 
 - ESP32-C3 machine: LEDC PWM with edges at their exact times on the pins (MicroPython's `machine.PWM`, ESP-IDF's LEDC driver) and one-shot ADC readings of a voltage set on a pin, consistent with ESP-IDF's calibration (MicroPython's `ADC.read_uv`) (SN-247). `simnodus-emu --esp32c3 --input GPIO=1.2V@ms`.

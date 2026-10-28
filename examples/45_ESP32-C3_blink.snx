@@ -1,0 +1,176 @@
+{
+  "format": "simnodus-project",
+  "version": 1,
+  "next_id": 14,
+  "settings": {
+    "mode": "interactive",
+    "speed": 1,
+    "max_step": 0.0001,
+    "segment": 1,
+    "transient_stop": 0.01,
+    "transient_max_step": 1e-06
+  },
+  "components": [
+    {
+      "id": 1,
+      "type": "esp32c3_devkitm1",
+      "designator": "U1",
+      "at": [
+        0,
+        0
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/esp32c3_blink/blink.bin"
+      }
+    },
+    {
+      "id": 2,
+      "type": "ground",
+      "designator": "GND1",
+      "at": [
+        -12,
+        -10
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    },
+    {
+      "id": 5,
+      "type": "resistor",
+      "designator": "R1",
+      "at": [
+        14,
+        -4
+      ],
+      "rotation": 90,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      }
+    },
+    {
+      "id": 6,
+      "type": "led",
+      "designator": "LED1",
+      "at": [
+        26,
+        -1
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      }
+    },
+    {
+      "id": 7,
+      "type": "ground",
+      "designator": "GND2",
+      "at": [
+        26,
+        6
+      ],
+      "rotation": 0,
+      "mirrored": false,
+      "parameters": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          -9,
+          -14
+        ],
+        [
+          -12,
+          -14
+        ],
+        [
+          -12,
+          -10
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "points": [
+        [
+          9,
+          -4
+        ],
+        [
+          11,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          17,
+          -4
+        ],
+        [
+          26,
+          -4
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "points": [
+        [
+          26,
+          2
+        ],
+        [
+          26,
+          6
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    {
+      "id": 13,
+      "at": [
+        10,
+        -4
+      ],
+      "name": "GPIO8"
+    }
+  ],
+  "probes": [
+    {
+      "id": 11,
+      "kind": "voltage",
+      "target": {
+        "item": 8,
+        "at": [
+          10,
+          -4
+        ]
+      },
+      "color": "#1f77b4"
+    },
+    {
+      "id": 12,
+      "kind": "current",
+      "target": {
+        "item": 6,
+        "pin": "A",
+        "at": [
+          26,
+          -4
+        ]
+      },
+      "color": "#d62728"
+    }
+  ]
+}

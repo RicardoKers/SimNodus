@@ -56,7 +56,7 @@ private:
     // Rebuilds after the current event: editors may be inside their own handlers.
     void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
-    QWidget* file_editor(const library::Parameter& parameter, const QString& value);
+    QWidget* file_editor(const library::Parameter& parameter, const QString& value, bool firmware);
     QWidget* model_editor(const library::Parameter& parameter, const model::Component& first, const QString& value);
     void commit_model(const std::string& parameter, const std::string& name, const std::string& statement);
     // Vendor subcircuits (ADR 0097): the part pin of each port, and the dialog that sets them.

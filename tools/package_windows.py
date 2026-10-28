@@ -40,6 +40,8 @@ REQUIRED = [
     "translations/simnodus_pt_BR.qm",
     "vcruntime140.dll", "msvcp140.dll",
     "library/mcu/bluepill.json", "examples/07_Blue_Pill_blink.snx", "examples/firmware/blink/blink.elf",
+    "library/mcu/esp32c3_devkitm1.json", "roms/esp32c3_rev3_rom.elf", "licenses/esp-rom-elfs-Apache-2.0.txt",
+    "examples/45_ESP32-C3_blink.snx", "examples/firmware/esp32c3_blink/blink.bin",
     "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json", "library/devices/lcd_hd44780.json",
     "examples/23_Seven_segment_counter.snx",
     "examples/32_ROM_lookup_seven_segment.snx", "examples/memories/hex_digits.hex",

@@ -10,6 +10,7 @@
 #include "emu/gdb_socket.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
+#include "mcu/mcu_machine.hpp"
 #include "sim/process_memory.hpp"
 #include "sim/simulation_session.hpp"
 
@@ -54,6 +55,26 @@ sim::McuEnvironment folder_only(const std::filesystem::path& folder)
 }
 
 } // namespace
+
+TEST_CASE("the ESP32-C3 ROM is found in the installed layouts")
+{
+    // ADR 0106: roms/ next to the program (Windows), share/simnodus/roms (Linux).
+    namespace fs = std::filesystem;
+    const fs::path base = fs::temp_directory_path() / "simnodus_rom_layouts";
+    fs::remove_all(base);
+    const auto rom = fs::path(SIMNODUS_SOURCE_ROM_DIR) / "esp32c3_rev3_rom.elf";
+    fs::create_directories(base / "win" / "roms");
+    fs::copy_file(rom, base / "win" / "roms" / "esp32c3_rev3_rom.elf");
+    CHECK(mcu::find_esp32c3_rom(base / "win") == base / "win" / "roms" / "esp32c3_rev3_rom.elf");
+    fs::create_directories(base / "linux" / "bin");
+    fs::create_directories(base / "linux" / "share" / "simnodus" / "roms");
+    fs::copy_file(rom, base / "linux" / "share" / "simnodus" / "roms" / "esp32c3_rev3_rom.elf");
+    CHECK(fs::equivalent(mcu::find_esp32c3_rom(base / "linux" / "bin"),
+        base / "linux" / "share" / "simnodus" / "roms" / "esp32c3_rev3_rom.elf"));
+    // Elsewhere, a development build uses the source tree's copy.
+    CHECK(fs::equivalent(mcu::find_esp32c3_rom(base / "none"), rom));
+    fs::remove_all(base);
+}
 
 TEST_CASE("session: pin names, Schmitt inputs and pin drives")
 {
@@ -935,6 +956,61 @@ TEST_CASE("session: lesson 3 reports the potentiometer code and the filtered PWM
     session.set_control(pot, 0.25);
     wait_until(1.45);
     check(0.25);
+    session.stop();
+}
+
+TEST_CASE("session: example 45 runs ESP-IDF's blink on the ESP32-C3 board")
+{
+    // SN-246 (ADR 0106): the experimental ESP32-C3 board runs a flash image in
+    // a run like the Blue Pill; its GPIO8 drives the LED and UART0 shows the log.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"gpio8"};
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.chip == "esp32c3");
+    CHECK(request.mcus.front().options.pins.size() == 15); // GPIO0-10 and 18-21 on the headers
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    while (session.status().sim_time < 1.6) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+    }
+    // The LED toggles every 500 ms once the application runs (about 0.1 s after reset).
+    int edges = 0;
+    double high = 0.0;
+    bool last = false;
+    for (const auto& s : session.samples("gpio8")) {
+        const bool level = s.value > 1.65;
+        edges += level != last ? 1 : 0;
+        last = level;
+        high = std::max(high, s.value);
+    }
+    std::printf("  GPIO8: %d edges in 1.6 s, high level %.3f V\n", edges, high);
+    CHECK(edges >= 2);
+    CHECK(edges <= 4);
+    CHECK(high > 3.0); // 3.3 V less the drop of the LED current in the 33 Ohm driver
+    CHECK(high < 3.3);
+    std::string text;
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("Turning the LED ON!") != std::string::npos);
+    CHECK(text.find("Turning the LED OFF!") != std::string::npos);
+    const auto pins = session.mcu_pins(board);
+    CHECK(pins.at("GPIO8").mode == mcu::PinMode::Output);
     session.stop();
 }
 

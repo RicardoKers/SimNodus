@@ -168,16 +168,17 @@ translation; the order may change with the owner's lessons.
 Owner's decision of 2026-10-28: unmodified ESP32-C3 firmware, MicroPython
 included, on SimNodus's own emulator; Wi-Fi in a second step, Bluetooth not
 planned. Plan, criteria and decisions DE0/DE1: [E-08-plan.md](../experiments/E-08-plan.md).
-SN-246..SN-250 are tentative until DE1.
+Decision DE1 taken provisionally on 2026-10-28 (ADR 0106): the ESP32-C3 is
+integrated as an experimental board until the board comparison (G8b.1).
 
 | ID | Task | Milestone / gate | Status |
 |---|---|---|---|
 | SN-242 | ROM source and licence for the ESP32-C3 (Espressif's ROM files, a ROM read from a board, or our own ROM functions); pinned ESP-IDF, Arduino-ESP32 and MicroPython versions; reference boards (DevKitM-1, SuperMini) | prerequisite / DE0 | doing: findings recorded and DE0 taken 2026-10-28 (vendor the ROM ELF with SN-244); waits for the owner's boards |
 | SN-243 | E-08 core: RV32IMC, Zicsr, machine and user modes, PMP, `wfi`; `riscv-arch-test` and random differential against Espressif's QEMU in ctest; benchmark | G8a | done 2026-10-28: G8a met (90/90 architecture tests, 8 192 random blocks equal to QEMU, 164 and 126 MIPS) |
 | SN-244 | E-08 SoC and boot: flash images, flash chip and controller, cache and MMU, ROM, interrupt matrix, SYSTIMER, TIMG and RTC watchdogs, clock calibration, eFuse, memprot, UART0/1, USB-Serial-JTAG, GPIO; ESP-IDF and Arduino images boot unmodified | G8b.1-3, G8b.5-9 | done 2026-10-28 (ESP-IDF examples, Arduino-ESP32 and the official MicroPython image unmodified; GPIO, UART, watchdogs, sleep; every criterion met but the board comparison of G8b.1) |
-| SN-245 | E-08 MicroPython (REPL, files kept in the flash file, `main.py` at boot) and report `E-08-results.md` | G8b.4 / DE1 | doing: G8b.4 met 2026-10-28; the report's conclusion and DE1 wait for the board comparison (G8b.1) |
-| SN-246 | Integration: `emu::Machine` interface, chip-independent `NativeMcuRunner`, generalized pin state and pin model, ESP32-C3 board profiles, flash images in projects and Save with Firmware, strapping pins from the circuit | after DE1 | todo |
-| SN-247 | Lesson peripherals: LEDC, ADC1 with GDMA, I2C0, SPI2, RMT (WS2812), temperature sensor; examples | after SN-246 | doing: LEDC (PWM) and ADC one-shot done 2026-10-28 at the machine level; I2C, SPI, RMT need SN-246 (pin-level coupling with the chips) |
+| SN-245 | E-08 MicroPython (REPL, files kept in the flash file, `main.py` at boot) and report `E-08-results.md` | G8b.4 / DE1 | doing: G8b.4 met 2026-10-28; DE1 taken provisionally 2026-10-28 (ADR 0106); the board comparison (G8b.1) and the report's conclusion wait for the owner's boards |
+| SN-246 | Integration: `emu::Machine` interface, chip-independent `NativeMcuRunner`, generalized pin state and pin model, ESP32-C3 board profiles, flash images in projects and Save with Firmware, strapping pins from the circuit | after DE1 | done 2026-10-28: `mcu::McuMachine` with STM32F103 and ESP32-C3 adapters behind `NativeMcuRunner` and `DeviceBus`; ESP32-C3-DevKitM-1 part (experimental), engine protocol 10, ROM in the package, example 45; strapping pins from the circuit not modelled (the image always boots from flash) |
+| SN-247 | Lesson peripherals: LEDC, ADC1 with GDMA, I2C0, SPI2, RMT (WS2812), temperature sensor; examples | after SN-246 | doing: LEDC (PWM) and ADC one-shot done 2026-10-28, in the application with SN-246; next I2C, SPI, RMT at the pin level with SimNodus's chips (`DeviceBus` now takes any chip) |
 | SN-248 | MicroPython workflow: project files into the flash filesystem, console for Thonny and `mpremote`, user guide (English and pt-BR) | after SN-246 | todo |
 | SN-249 | GDB server for RISC-V | after SN-246 | todo |
 | SN-250 | Experiment E-09, Wi-Fi: MAC model for the unmodified Wi-Fi libraries, virtual access point (SSID, open then WPA2-PSK), DHCP/DNS, NAT gateway on the computer's sockets (enabled per project), port forwarding; its own plan first | phase 2 | todo |
