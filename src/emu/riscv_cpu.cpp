@@ -435,15 +435,24 @@ void RiscvCpu::add_code_region(std::uint32_t base, std::uint32_t size)
     if (!region.bytes || size < 4) {
         return; // not plain memory: decoded on every fetch
     }
-    region.insns.assign(size / 2, RvInsn{});
+    region.pages.resize((size + page_bytes - 1) / page_bytes);
     regions_.push_back(std::move(region));
     last_region_ = nullptr;
+    last_page_base_ = 1;
+}
+
+void RiscvCpu::add_code_alias(std::uint32_t alias_base, std::uint32_t code_base, std::uint32_t size)
+{
+    code_aliases_.push_back({alias_base, code_base, size});
 }
 
 void RiscvCpu::invalidate_code_cache()
 {
     for (CodeRegion& region : regions_) {
-        std::fill(region.insns.begin(), region.insns.end(), RvInsn{});
+        for (auto& page : region.pages) {
+            page.reset();
+        }
+        last_page_base_ = 1;
     }
 }
 
@@ -459,14 +468,22 @@ void RiscvCpu::invalidate_code(std::uint32_t address, unsigned size)
         }
         const std::uint64_t lo = std::max(first, base) - base;
         const std::uint64_t hi = std::min(last - base, std::uint64_t{region.size} - 1);
-        for (std::uint64_t i = lo / 2; i <= hi / 2; ++i) {
-            region.insns[i] = RvInsn{};
+        for (std::uint64_t i = lo & ~1ull; i <= hi; i += 2) {
+            if (region.pages[i / page_bytes]) {
+                region.at(static_cast<std::uint32_t>(i)) = RvInsn{};
+            }
         }
     }
 }
 
 inline const RvInsn& RiscvCpu::fetch()
 {
+    if (pc_ - last_page_base_ < page_bytes - 2) { // room for a 32-bit instruction in the page's memory
+        RvInsn& in = last_page_[(pc_ - last_page_base_) >> 1];
+        if (in.op != OP_NONE) {
+            return in;
+        }
+    }
     CodeRegion* region = last_region_;
     std::uint32_t offset = region ? pc_ - region->base : 0;
     if (!region || offset >= region->size - 2) { // room for a 32-bit instruction
@@ -481,7 +498,9 @@ inline const RvInsn& RiscvCpu::fetch()
         last_region_ = region;
     }
     if (region) {
-        RvInsn& in = region->insns[offset >> 1];
+        RvInsn& in = region->at(offset);
+        last_page_base_ = pc_ - (offset % page_bytes);
+        last_page_ = region->pages[offset / page_bytes].get();
         if (in.op == OP_NONE) {
             std::uint32_t w = 0;
             std::memcpy(&w, region->bytes + offset, (region->bytes[offset] & 3) == 3 ? 4 : 2);
@@ -550,6 +569,11 @@ bool RiscvCpu::store(std::uint32_t address, unsigned size, std::uint32_t value)
     }
     if (!regions_.empty()) {
         invalidate_code(address, size);
+        for (const CodeAlias& alias : code_aliases_) {
+            if (address - alias.alias_base < alias.size) {
+                invalidate_code(alias.code_base + (address - alias.alias_base), size);
+            }
+        }
     }
     return true;
 }
@@ -680,7 +704,7 @@ void RiscvCpu::take_interrupt(int line)
 
 int RiscvCpu::pending_interrupt() const
 {
-    const std::uint32_t ready = mip_ & mie_;
+    const std::uint32_t ready = mip_ & (config_.mie_gates ? mie_ : 0xFFFFFFFFu);
     if (ready == 0 || (priv_ == Privilege::Machine && !mie_bit_)) {
         return -1;
     }
@@ -924,7 +948,7 @@ bool RiscvCpu::check_attention()
     }
     const int line = pending_interrupt();
     if (state_ == RvState::Sleeping) {
-        if ((mip_ & mie_) == 0) {
+        if ((mip_ & (config_.mie_gates ? mie_ : 0xFFFFFFFFu)) == 0) {
             attention_ = true;
             return false; // still asleep: the run loop moves time on
         }
@@ -1114,7 +1138,7 @@ void RiscvCpu::execute(const RvInsn& in)
     case OP_WFI:
         if (priv_ != Privilege::Machine) {
             trap(IllegalInstruction, in.raw); // no supervisor mode: WFI is machine-only here
-        } else if ((mip_ & mie_) == 0) {
+        } else if ((mip_ & (config_.mie_gates ? mie_ : 0xFFFFFFFFu)) == 0) {
             state_ = RvState::Sleeping;
             attention_ = true;
         }

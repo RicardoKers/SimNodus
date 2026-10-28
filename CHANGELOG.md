@@ -6,6 +6,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-28, experiment E-08)
 
+- An ESP32-C3 machine in the emulator (SN-244, first part): unmodified ESP-IDF and official MicroPython flash images boot from the chip's ROM, rebuilt from Espressif's ROM ELF (`third_party/esp-rom-elfs`), through the second-stage bootloader to the application; the MicroPython REPL works over USB-Serial-JTAG and its files stay in the flash. `simnodus-emu --esp32c3 image.bin` runs one. Not yet available in the application.
+
 - A RISC-V core for the coming ESP32-C3 (experiment E-08, SN-243): RV32IMC with Zicsr and Zifencei, machine and user modes, physical memory protection, traps and interrupts, in `src/emu/riscv_cpu.*`, with a bare test machine at QEMU virt's addresses. It passes the 90 applicable riscv-arch-test 2.7.4 tests and matches QEMU on 8 192 random instruction blocks; `simnodus-emu` runs RISC-V ELF files on the test machine. Not yet available in the application.
 
 ## 0.12.0 — 2026-10-27

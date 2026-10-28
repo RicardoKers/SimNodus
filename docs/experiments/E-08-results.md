@@ -1,7 +1,8 @@
 # E-08: ESP32-C3 emulator prototype — results
 
-Date: 2026-10-28. Tasks: SN-242 (prerequisites), SN-243 (core). Result so
-far: **gate G8a met**; gate G8b (firmware, SN-244 and SN-245) not started.
+Date: 2026-10-28. Tasks: SN-242 (prerequisites), SN-243 (core), SN-244 (SoC
+and boot, in progress). Result so far: **gate G8a met**; gate G8b partly
+measured (table below).
 Plan and predeclared criteria: [E-08-plan.md](E-08-plan.md); they are not
 repeated here.
 
@@ -69,10 +70,56 @@ directed cases.
 - The directed cases found two errors in their own first version (an
   instruction word and a missing return to machine mode), none in the core.
 
+## Gate G8b — firmware (in progress)
+
+SN-244, first part (2026-10-28): `src/emu/esp32c3.*` with the memory map
+(ROM and its data-bus view, SRAM0, SRAM1 through both buses, RTC FAST memory,
+the 8 MiB flash window through the cache), the ROM rebuilt from the vendored
+ELF (`src/emu/esp32c3_rom.*`), and the peripherals the boot path needs:
+SPI0/SPI1 with a GD25Q-like flash chip (JEDEC C8 40 16, read, program, erase,
+status), EXTMEM and the 128-entry MMU, eFuse (chip v0.4, eFuse block v1.3, a
+MAC address), SYSTEM (CPU clock selection, FROM_CPU interrupts), SYSCON's RNG
+(deterministic), TIMG's RTC slow clock calibration, SYSTIMER (two units, three
+comparators), the interrupt matrix and controller, SHA-1/224/256 in CPU mode
+(`src/emu/sha.*`), UART0/1 transmit, USB-Serial-JTAG in both directions with
+its interrupt, CPU and system resets with their reasons, and a register block
+that keeps values for every other peripheral page. Vendor CSRs: mpcer, mpcmr,
+mpccr and the undocumented 0x800-0x802 that the ROM uses (0x802 counts cycles
+for `ets_delay_us`). `simnodus-emu --esp32c3` runs a flash image (`--usb` and
+`--uart0` type text, `--trace-io` traces register accesses, `--flash-out`
+saves the flash). Tests: `emu-esp32c3`.
+
+| ID | Criterion (short) | Status | Evidence |
+|---|---|---|---|
+| G8b.1 | ESP-IDF images boot unmodified; console equal to the board's | **boots**; board comparison waits for the boards | `hello_world` (ESP-IDF v5.5.2): ROM banner `ESP-ROM:esp32c3-api1-20210207`, `rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)`, the ROM loading and checking the bootloader (SHA-256 verified by the SHA model), the second-stage bootloader (chip v0.4, partition table, six application segments), `cpu_start`, `heap_init`, `spi_flash: detected chip: gd`, `Hello world!` and `This is esp32c3 chip with 1 CPU core(s), WiFi/BLE, silicon revision v0.4, 2MB external flash`. Known difference to check on the board: after a CPU reset the chip also prints `Saved PC:`. The blink, esp_timer and FreeRTOS examples are still to run |
+| G8b.2 | `blink` period within 0.1 % | **met for the FreeRTOS tick** | `hello_world`'s countdown (`vTaskDelay(1000 ms)`): lines exactly 1000.000 ms apart (1028.2037, 2028.2037 ms, ...). GPIO toggling (`blink`) comes with the GPIO model |
+| G8b.3 | Arduino-ESP32 image runs unchanged | not yet | — |
+| G8b.4 | MicroPython REPL, Pin, sleep_ms, files across restarts, `main.py` at boot | **REPL and files met**; Pin and sleep_ms with the GPIO model | Official image `ESP32_GENERIC_C3-20260824-v1.29.0.bin`: `Performing initial setup` (the file system created through SPI1 erase and program), `MicroPython v1.29.0 on 2026-08-24; ESP32C3 module with ESP32-C3`, `>>>` on USB-Serial-JTAG; `print(6*7)` gives `42`; a `main.py` written from the REPL runs at the next boot from the saved flash, without the initial setup |
+| G8b.5 | `app_main` under 1 s, MicroPython prompt under 3 s | **met** | Whole `simnodus-emu` process on the owner's laptop, ROM rebuild included: `hello_world` to `app_main` (29 ms of firmware time) 0.052-0.054 s; MicroPython to `>>>` on first boot (152 ms) 0.215-0.217 s, from a saved flash 0.17 s. Firmware that waits in WFI runs much faster than real time (12 s of `hello_world` in 0.37 s) |
+| G8b.6 | Faults: panic report, diagnostic with PC, watchdog reset | partly | An access to an unmapped peripheral (before every page was covered) gave the ESP-IDF panic report (`Guru Meditation Error: Core 0 panic'ed (Load access fault)`, register dump, `Rebooting...`) and the emulator's diagnostic with the PC and function (`rtc_sleep_pu`). Watchdog resets not modelled yet |
+| G8b.7 | Reset reasons as the ROM prints them | **CPU reset met**; watchdogs and the reset button to come | `esp_restart()`: `rst:0xc (RTC_SW_CPU_RST),boot:0xc (SPI_FAST_FLASH_BOOT)` and a second boot |
+| G8b.8 | Identical traces on two runs | **met** | Two runs of `hello_world` for 1.2 s: identical output bytes and times (`emu-esp32c3`); the RNG is a fixed-seed generator for this reason |
+| G8b.9 | Nothing changes for the STM32 | **met so far** | `emu-unit` 51/51 and every ctest suite pass; the STM32 code is unchanged except the bus's fast-memory table (4 to 8 entries, checked in order, so the STM32's three memories behave as before) and the ELF reader (also sections) |
+
+Observations:
+
+- The ROM ELF lacks part of the ROM in its program headers; rebuilding it
+  from the sections and the ROM's own `.data` copy table gives an image equal
+  byte for byte to a ROM read from a chip (SHA-256
+  `0de1e65020e803bea0d7443dca149d61895e01fca3bb9c82d073234eebd73f99`,
+  compared locally with the ROM file that Espressif ships with its QEMU,
+  which is not redistributed). The owner's board will be the second check.
+- The interrupt controller takes a line whose priority is at least the
+  threshold (ESP-IDF runs with threshold 1 and priority-1 interrupts); "above
+  the threshold" kept FreeRTOS from starting.
+- The decoded-instruction cache of the core is now paged (4 KiB pages made
+  on first use, for the 8 MiB flash window) with the last page remembered:
+  the busy loop went from 164 to 183-185 MIPS, the mix stayed at 130-137.
+
 ## Next
 
-SN-244: the ESP32-C3 SoC and boot path (ROM ELF into `third_party`, flash
-images, cache and MMU, interrupt matrix, SYSTIMER, watchdogs, eFuse, UART,
-USB-Serial-JTAG, GPIO) toward criteria G8b.1-3 and G8b.5-9. The owner's
-boards (DevKitM-1, SuperMini) are needed for G8b.1's byte-for-byte console
-comparison and the ROM check.
+SN-244, rest: GPIO (outputs, inputs, the GPIO matrix and IO_MUX, pin events
+with times), UART receive, the watchdogs (TIMG MWDT, RTC WDT, super
+watchdog), the blink, esp_timer and FreeRTOS examples and the Arduino-ESP32
+image; then SN-245. The owner's boards (DevKitM-1, SuperMini) are needed for
+G8b.1's byte-for-byte console comparison and the ROM check.
