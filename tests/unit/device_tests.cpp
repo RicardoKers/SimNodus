@@ -667,6 +667,46 @@ TEST_CASE("devices: MicroPython on the ESP32-C3 reads and programs a W25Q32 over
     }
 }
 
+TEST_CASE("devices: MicroPython's neopixel on the ESP32-C3 lights a WS2812B strip through the RMT (SN-247)")
+{
+    mcu::DeviceRequest strip;
+    strip.designator = "LED1";
+    strip.kind = "ws2812";
+    strip.pins = {"DIN", "DOUT"};
+    strip.parameters = {{"count", "8"}};
+    strip.supply = 5.0;
+    const std::vector<mcu::DigitalNet> nets{{"DIN", {"GPIO8"}, {{0, "DIN"}}, 0, false}};
+    C3Board board;
+    REQUIRE(board.start({strip}, nets));
+    board.repl("from machine import Pin; import neopixel");
+    board.repl("np = neopixel.NeoPixel(Pin(8), 8)");
+    board.machine->take_pin_events();
+    board.repl("np[0] = (255, 0, 0); np[1] = (0, 0, 255); np[7] = (16, 32, 48); np.write()");
+    std::printf("  strip: %s\n", board.bus.text(0).c_str());
+    CHECK(board.bus.text(0) == "8x1 rgb\nFF00000000FF000000000000000000000000000000102030");
+    // The bits' timing: 24 bits per LED; a 1 is high for about 0.8 us of 1.25 us.
+    std::vector<std::uint64_t> highs;
+    std::uint64_t rose = 0;
+    bool last = false;
+    for (const auto& e : board.machine->take_pin_events()) {
+        if (e.pin != 8) {
+            continue;
+        }
+        if (e.state.level && !last) {
+            rose = e.time_ns;
+        } else if (!e.state.level && last) {
+            highs.push_back(e.time_ns - rose);
+        }
+        last = e.state.level;
+    }
+    REQUIRE(highs.size() == 8 * 24);
+    std::printf("  first bits high for %llu ns (1) and %llu ns (0)\n", static_cast<unsigned long long>(highs[8]),
+        static_cast<unsigned long long>(highs[0]));
+    for (const auto& d : board.machine->take_diagnostics()) {
+        std::printf("  diagnostic: %s\n", d.c_str());
+    }
+}
+
 TEST_CASE("devices: without pull-up resistors I2C stalls and the message names the cause")
 {
     std::string error;

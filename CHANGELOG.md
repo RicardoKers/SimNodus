@@ -9,6 +9,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 - **ESP32-C3-DevKitM-1** board in Microcontrollers, **experimental** until it is compared with a real board (decision DE1, ADR 0106; SN-246): it runs a flash image (`.bin` from address 0: ESP-IDF, Arduino or MicroPython) in SimNodus's own emulator next to the circuit, with GPIO0-10 and 18-21 on its headers (33 Ω outputs, 0.825 V / 2.475 V input thresholds), UART0 and USB Serial/JTAG in the terminal, GPIO lanes in the Logic tab, LEDC PWM and one-shot ADC readings of the circuit's voltages. Example 45 runs ESP-IDF's blink. The package contains Espressif's ROM ELF (`roms/`, Apache-2.0). Not yet: I2C, SPI, RMT, Wi-Fi, GDB.
 - The microcontroller runner and the chips' bus (`DeviceBus`) work through an emulator machine interface (`mcu::McuMachine`) instead of the STM32F103 directly; part files name their chip (`mcu.chip`); engine protocol 10. The Simulation settings text gives the board's own pin model.
 
+### Added (2026-10-28, ESP32-C3 RMT)
+
+- The ESP32-C3 board's RMT transmit channels send pulse trains with their exact timing (SN-247): symbols in the RMT memory with wrap-around refills, threshold and end interrupts, loops and the idle level. WS2812B strips light from ESP-IDF's RMT driver, Arduino's `rgbLedWrite` and MicroPython's `neopixel` (bits measured at 0.8 µs / 0.4 µs high). Example 48 runs a light along a strip.
+
 ### Added (2026-10-28, ESP32-C3 SPI)
 
 - The ESP32-C3 board's SPI2 works as a master with SimNodus's SPI chips at the pin level (SN-247): modes 0-3, hardware CS0-CS5, command, address and dummy phases, data from the W0-W15 buffer or through the GDMA controller (descriptors in SRAM), pins through the GPIO matrix or IO_MUX. ESP-IDF's SPI master driver with DMA, Arduino's `SPI` and MicroPython's `machine.SPI` run unchanged (1 MHz SCK measured at 1.000 µs). Example 47 reads an MCP3208 and programs a W25Q32.

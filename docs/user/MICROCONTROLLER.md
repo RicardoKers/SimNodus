@@ -259,9 +259,15 @@ small differences may remain.
   level: ESP-IDF's SPI master driver, Arduino's `SPI` and MicroPython's
   `machine.SPI` work unchanged. Example 47 reads an MCP3208 and programs a
   W25Q32. Dual and quad lines and slave mode are not simulated.
-- **Not yet**: RMT (and so WS2812 strips with this board), continuous ADC,
-  Wi-Fi and Bluetooth; debugging with GDB (the Blue Pill only); copying files
-  to MicroPython from the computer.
+- **RMT**: the two transmit channels on any GPIO, with symbols in the RMT
+  memory, wrap-around refills, loops and the idle level, so pulse trains
+  come out with their exact timing: WS2812B strips light from ESP-IDF's RMT
+  driver, Arduino's `rgbLedWrite` and MicroPython's `neopixel`. Example 48
+  runs a light along a strip. Receive channels and the carrier are not
+  simulated.
+- **Not yet**: continuous ADC, the temperature sensor, Wi-Fi and Bluetooth;
+  debugging with GDB (the Blue Pill only); copying files to MicroPython from
+  the computer.
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.

@@ -1,0 +1,200 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "firmware": "firmware/esp32c3_ws2812/esp32c3_ws2812.bin"
+      },
+      "rotation": 0,
+      "type": "esp32c3_devkitm1"
+    },
+    {
+      "at": [
+        40,
+        4
+      ],
+      "designator": "LED1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "count": "8"
+      },
+      "rotation": 0,
+      "type": "ws2812"
+    },
+    {
+      "at": [
+        -24,
+        4
+      ],
+      "designator": "V1",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -12,
+        -14
+      ],
+      "id": 6,
+      "name": "GND"
+    },
+    {
+      "at": [
+        30,
+        -3
+      ],
+      "id": 8,
+      "name": "5V"
+    },
+    {
+      "at": [
+        30,
+        11
+      ],
+      "id": 10,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -24,
+        -1
+      ],
+      "id": 12,
+      "name": "5V"
+    },
+    {
+      "at": [
+        -24,
+        9
+      ],
+      "id": 14,
+      "name": "GND"
+    }
+  ],
+  "next_id": 16,
+  "notes": [],
+  "probes": [
+    {
+      "color": "#1f77b4",
+      "id": 15,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          9,
+          4
+        ],
+        "item": 1,
+        "pin": "GPIO5"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 3,
+      "points": [
+        [
+          9,
+          4
+        ],
+        [
+          24,
+          4
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "points": [
+        [
+          -9,
+          -14
+        ],
+        [
+          -12,
+          -14
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "points": [
+        [
+          30,
+          -1
+        ],
+        [
+          30,
+          -3
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "points": [
+        [
+          30,
+          9
+        ],
+        [
+          30,
+          11
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "points": [
+        [
+          -24,
+          1
+        ],
+        [
+          -24,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": 13,
+      "points": [
+        [
+          -24,
+          7
+        ],
+        [
+          -24,
+          9
+        ]
+      ]
+    }
+  ]
+}

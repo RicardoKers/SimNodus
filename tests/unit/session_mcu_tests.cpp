@@ -1114,6 +1114,47 @@ TEST_CASE("session: example 47 reads an MCP3208 and programs a W25Q32 from the E
     session.stop();
 }
 
+TEST_CASE("session: example 48 runs a light along a WS2812B strip from the ESP32-C3's RMT")
+{
+    // SN-247: ESP-IDF's RMT driver with a bytes encoder, 192 bits per frame.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "48_ESP32-C3_WS2812_strip.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    model::Id strip = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+        strip = c.designator == "LED1" ? c.id : strip;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    std::vector<std::string> warnings;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    // Third step: LED 3 red, the others dark (each step 200 ms after the first).
+    std::string text;
+    while (text.find("LED 3 red") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(board, "uart0", 0, text);
+    }
+    const auto texts = session.device_texts();
+    REQUIRE(texts.count(strip));
+    std::printf("  strip: %s\n", texts.at(strip).c_str());
+    CHECK(texts.at(strip) == "8x1 rgb\n000000000000FF0000000000000000000000000000000000");
+    session.stop();
+}
+
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);

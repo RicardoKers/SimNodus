@@ -179,7 +179,15 @@ need one. Done at the machine level (no integration yet):
   full duplex; SCK at 1 MHz measures 1.000 µs. ESP-IDF's SPI master driver
   with DMA and two hardware CS lines (example 47: the MCP3208 gives 2047 at
   half of 3.3 V) and Arduino-ESP32's `SPI` (W buffer, no DMA) work unchanged.
-- RMT (WS2812) at the pin level with SimNodus's chips: next.
+- RMT transmit channels 0 and 1: symbols from the RMT RAM (MEM_SIZE
+  blocks), the tick from SYS_CONF and DIV_CNT, MEM_TX_WRAP_EN with
+  TX_THR_EVENT every TX_LIM words (ESP-IDF's ping-pong refill), the end
+  marker with TX_END, loops with TX_LOOP_NUM, the idle level, on signals
+  51/52. MicroPython's `neopixel` (192 bits, more than the channel's 48
+  words) lights SimNodus's WS2812B with 1 bits high for 800 ns and 0 bits
+  for 400 ns; ESP-IDF's RMT driver with a bytes encoder (example 48) and
+  Arduino-ESP32's `rgbLedWrite` work unchanged. Not modelled: receive
+  channels, the carrier.
 
 ## Decision DE1 (2026-10-28, provisional)
 
