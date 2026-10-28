@@ -131,8 +131,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 4. Classroom feedback (postponed: academic calendar).
 5. ESP32-C3 track (owner's decision 2026-10-28; ESP32-C3 before the Xtensa
    ESP32): experiment E-08, [plan and gates](../experiments/E-08-plan.md),
-   no code yet. First SN-242: the ROM's licence and source (decision DE0),
-   pinned firmware versions, reference boards; then SN-243..SN-245.
+   no code yet. SN-242 findings (2026-10-28): Espressif's ROM ELF files are
+   Apache-2.0 with the ROM's contents; MicroPython v1.29.0 for the C3 is
+   built on ESP-IDF v5.5.2. Waiting for the owner's decision DE0 (vendor the
+   ROM ELF) and the boards (DevKitM-1, SuperMini). SN-243 (the RISC-V core)
+   does not depend on either.
 
 ## Known constraints
 

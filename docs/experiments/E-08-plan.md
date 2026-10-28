@@ -82,6 +82,61 @@ cryptographic accelerators beyond what the boot path needs.
    Code from GPL or AGPL emulators (Espressif's QEMU, Velxio) is not read
    while writing the corresponding model and is never copied.
 
+## Prerequisite results (SN-242, 2026-10-28)
+
+**ROM.** Espressif publishes the ROM ELF files in
+[esp-rom-elfs](https://github.com/espressif/esp-rom-elfs) under Apache-2.0,
+and its README states that the licence covers the compiled files ("Object"
+form). Release `20260528` (archive SHA-256 checked against the release's
+checksum file) holds three ESP32-C3 files:
+
+| File | Chip revisions | SHA-256 |
+|---|---|---|
+| `esp32c3_rev0_rom.elf` | v0.0-v0.2 | `11d565922e0a405b477756de748a14046f86dfb40d997766252a04cb378f0694` |
+| `esp32c3_rev3_rom.elf` | v0.3, v0.4 | `19ac22e08707df926fb0cf4c54795d4067b983fae8635f396ded173a6d78fc3c` |
+| `esp32c3_rev101_rom.elf` | v1.1 | `9495e1453f36f7eec4112714ea1dca22d77808776adffa93dda7dda4393e8336` |
+
+The rev3 file carries the ROM's contents, not only symbols: code from
+0x40000000 to 0x40059590 (`.fixed.text`, `.init.text`, `.bt_text`, `.text`),
+read-only data from 0x3FF19C00 (`.rodata`, `.rodata.interface`), the initial
+values of the ROM's data in internal RAM, and 4 541 symbols, so diagnostics
+inside the ROM can name the function. Obligations under Apache-2.0: ship the
+licence text with the file and keep the copyright notice (Espressif; the ROM
+also contains newlib, BSD, listed on ESP-IDF's copyright page). The ROM is
+not open source; we use it as a binary. Option 1 is therefore available;
+**DE0 is the owner's decision.** Recommended: vendor `esp32c3_rev3_rom.elf`
+(and `rev101` if the owner's boards are v1.1) in `third_party/esp-rom-elfs`
+with the licence, load it at run time like the other backends, and check
+that it equals a ROM read from the owner's board
+(`esptool --chip esp32c3 dump-mem 0x40000000 0x60000 rom.bin`) when the boards
+arrive; a difference in bytes the ELF defines stops the experiment until it
+is explained.
+
+**Pinned firmware.**
+
+- MicroPython **v1.29.0** (2026-08-24), official `ESP32_GENERIC_C3` image
+  `ESP32_GENERIC_C3-20260824-v1.29.0.bin`, SHA-256
+  `bf72ed9eb88ad3a8f49d02c3d371f9ea34c90a8a303aeb9e324d8efd4a2a655a`,
+  1 754 736 bytes, flashed at offset 0. Built with **ESP-IDF v5.5.2** (from
+  the image's strings). Layout read from the image: bootloader at 0x0 (3
+  segments, entry 0x403CBF10, minimum chip revision v0.3), partition table at
+  0x8000 (`nvs` 0x9000, `phy_init` 0xF000, `factory` 0x10000 of 0x1F0000), the
+  application at 0x10000 (7 segments: flash-mapped data at 0x3C150020 and code
+  at 0x42000020, internal RAM, and two small segments in RTC memory at
+  0x50000000). The table has no filesystem partition: where MicroPython puts
+  its filesystem on a 4 MB flash is checked in the first run.
+- ESP-IDF **v5.5.2** for our own test firmware, the version MicroPython uses
+  (v6.1 is the newest release; it may follow once v5.5.2 passes).
+- Arduino-ESP32 **3.3.12** (2026-09-18, on ESP-IDF v5.5.x); the exact core
+  version is recorded with each sketch's image.
+- Chip revision reported by the eFuse model: **v0.4** with the rev3 ROM,
+  unless the owner's boards (read with `esptool chip-id`) are v1.1.
+- Oracle: Espressif's QEMU **esp-develop-9.2.2-20260417**
+  (`qemu-riscv32-softmmu`, with a Windows build), GPL, test-only.
+
+**Wi-Fi libraries (for E-09):** Espressif's `esp32-wifi-lib` is Apache-2.0, as is
+ESP-IDF, so firmware images that contain them may be used as test material.
+
 ## Work packages
 
 | # | Package | Done when |
