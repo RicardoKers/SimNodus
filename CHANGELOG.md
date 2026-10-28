@@ -6,6 +6,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-10-28, experiment E-08)
 
+- ESP32-C3 machine: LEDC PWM with edges at their exact times on the pins (MicroPython's `machine.PWM`, ESP-IDF's LEDC driver) and one-shot ADC readings of a voltage set on a pin, consistent with ESP-IDF's calibration (MicroPython's `ADC.read_uv`) (SN-247). `simnodus-emu --esp32c3 --input GPIO=1.2V@ms`.
+
 - The ESP32-C3 machine gets GPIO (outputs, inputs from outside, pin interrupts), UART receive, the timer-group and RTC watchdogs, light and deep sleep with timer wake-up, and the reset button (SN-244, second part): ESP-IDF's blink, esp_timer and FreeRTOS examples and an Arduino-ESP32 sketch run unmodified; from MicroPython, `machine.Pin`, `Pin.irq`, `machine.UART`, `time.sleep_ms`, `machine.WDT` and `machine.deepsleep` behave as on the board. `simnodus-emu --esp32c3` takes `--uart1` and `--input GPIO=level@ms` and prints pin changes.
 - An ESP32-C3 machine in the emulator (SN-244, first part): unmodified ESP-IDF and official MicroPython flash images boot from the chip's ROM, rebuilt from Espressif's ROM ELF (`third_party/esp-rom-elfs`), through the second-stage bootloader to the application; the MicroPython REPL works over USB-Serial-JTAG and its files stay in the flash. `simnodus-emu --esp32c3 image.bin` runs one. Not yet available in the application.
 

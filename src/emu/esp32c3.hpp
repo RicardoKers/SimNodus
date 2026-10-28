@@ -16,6 +16,7 @@
 #include "elf.hpp"
 #include "riscv_cpu.hpp"
 
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <functional>
@@ -102,6 +103,11 @@ public:
     // The level the circuit puts on a pad (for inputs and open-drain outputs);
     // std::nullopt: nothing drives it (the pulls decide).
     void set_pin_input(int gpio, std::optional<bool> level);
+    // The voltage the circuit puts on a pad, for the ADC (GPIO0-4 are ADC1's
+    // channels 0-4, GPIO5 ADC2's channel 0). Without one, the ADC reads the
+    // pad's logic level as 0 V or 3.3 V.
+    void set_pin_voltage(int gpio, std::optional<double> volts);
+    std::optional<double> pin_voltage(int gpio) const;
 
     std::vector<Output> take_output();
     // Bytes from outside for port 0 (UART0), 1 (UART1) or 2 (USB-Serial-JTAG).
@@ -172,6 +178,12 @@ private:
     int resets_ = 0;
     Interrupts* interrupts_ = nullptr;
     Gpio* gpio_ = nullptr;
+    // Output signals of the GPIO matrix that a modelled peripheral drives
+    // (LEDC 45..50); a pad routed to one follows its level.
+    std::array<bool, 128> signal_level_{};
+    std::array<bool, 128> signal_driven_{};
+    std::array<std::optional<double>, gpio_count> volts_{};
+    void set_signal(int signal, bool level);
     std::vector<PinEvent> pin_events_;
     std::vector<std::uint8_t> flash_;
     std::unique_ptr<FlashChip> flash_chip_;

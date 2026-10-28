@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <deque>
 #include <cstdio>
 
@@ -113,6 +114,9 @@ protected:
     void refresh_pads(); // the GPIO evaluates every pad again
     void enter_sleep(bool deep, std::uint64_t wake_ns) { machine_.enter_sleep(deep, wake_ns); }
     void note(const std::string& text) { machine_.diagnostic(text); }
+    void drive_signal(int signal, bool level) { machine_.set_signal(signal, level); }
+    void claim_signal(int signal) { machine_.signal_driven_[static_cast<std::size_t>(signal)] = true; }
+    std::optional<double> pad_volts(int gpio) const { return machine_.pin_voltage(gpio); }
     // A register of another block (no trace).
     std::uint32_t peek(std::uint32_t address)
     {
@@ -483,6 +487,15 @@ public:
             evaluate(pin);
         }
     }
+    // Only the pads routed to `signal`.
+    void signal_changed(int signal)
+    {
+        for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
+            if ((reg(0x554 + 4 * pin) & 0xFF) == static_cast<std::uint32_t>(signal)) {
+                evaluate(static_cast<int>(pin));
+            }
+        }
+    }
 
 protected:
     std::uint32_t read_word(std::uint32_t offset) override
@@ -555,6 +568,12 @@ private:
         if (gpio_function && (out_sel & 0xFF) == 128) {
             state.output = enabled != ((out_sel & (1u << 10)) != 0);
             state.level = (((reg(0x04) >> n) & 1) != 0) != ((out_sel & (1u << 8)) != 0);
+        } else if (gpio_function && machine_.signal_driven_[out_sel & 0x7F] && (out_sel & 0xFF) < 128) {
+            // A modelled peripheral's signal through the matrix: it drives the
+            // pad (or GPIO_ENABLE does, with OEN_SEL).
+            state.peripheral = true;
+            state.output = (out_sel & (1u << 9)) ? enabled != ((out_sel & (1u << 10)) != 0) : true;
+            state.level = machine_.signal_level_[out_sel & 0x7F] != ((out_sel & (1u << 8)) != 0);
         } else {
             // A peripheral's signal through the matrix (its own output enable
             // unless OEN_SEL picks GPIO_ENABLE), or another IO_MUX function.
@@ -607,6 +626,14 @@ private:
     std::array<bool, Esp32C3::gpio_count> pads_{};
     bool primed_ = false;
 };
+
+void Esp32C3::set_signal(int signal, bool level)
+{
+    if (signal_level_[static_cast<std::size_t>(signal)] != level) {
+        signal_level_[static_cast<std::size_t>(signal)] = level;
+        gpio_->signal_changed(signal);
+    }
+}
 
 void Esp32C3::Block::refresh_pads()
 {
@@ -1329,6 +1356,217 @@ private:
     Target targets_[3];
 };
 
+// LED PWM controller (TRM chapter "LED PWM Controller"): four timers counting
+// to 2^DUTY_RES at the PWM clock (LEDC_CONF.APB_CLK_SEL: 80 MHz APB, 17.5 MHz
+// RC_FAST or the 40 MHz crystal) divided by CLK_DIV (10.8 fixed point); six
+// channels, each high while its timer's count is in [HPOINT, HPOINT + DUTY)
+// (DUTY has four fraction bits), driving GPIO matrix signals 45..50 while
+// SIG_OUT_EN is set (otherwise IDLE_LV). New values take effect with
+// PARA_UP / LOW_SPEED_UPDATE or DUTY_START; fades go straight to their start
+// duty (not modelled yet). Edges come at their exact times.
+class Ledc : public Esp32C3::Block, public Esp32C3::Timed {
+public:
+    explicit Ledc(Esp32C3& machine) : Block(machine, "LEDC")
+    {
+        for (int ch = 0; ch < 6; ++ch) {
+            claim_signal(45 + ch);
+        }
+    }
+
+    std::uint64_t next_ns() const override { return next_; }
+    void on_ns(std::uint64_t now) override { refresh(now); }
+
+protected:
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        const std::uint64_t now = now_ns();
+        if (offset < 0x78) { // channel registers
+            const std::uint32_t ch = offset / 0x14;
+            const std::uint32_t reg_in_ch = offset % 0x14;
+            Block::write_word(offset, reg_in_ch == 0x0C ? value & ~(1u << 31) : value & ~(1u << 4));
+            const bool update = (reg_in_ch == 0x00 && (value & (1u << 4))) || (reg_in_ch == 0x0C && (value & (1u << 31)));
+            if (update || reg_in_ch == 0x00) {
+                Channel& c = channels_[ch];
+                const std::uint32_t conf0 = reg(0x14 * ch);
+                c.timer = conf0 & 3;
+                c.enabled = (conf0 & (1u << 2)) != 0;
+                c.idle = (conf0 & (1u << 3)) != 0;
+                if (update) {
+                    c.hpoint = reg(0x14 * ch + 0x04) & 0x3FFF;
+                    c.duty16 = reg(0x14 * ch + 0x08) & 0x7FFFF;
+                    reg(0x14 * ch + 0x10) = c.duty16; // DUTY_R
+                }
+            }
+        } else if (offset >= 0xA0 && offset < 0xC0 && (offset & 4) == 0) { // LSTIMERn_CONF
+            const std::uint32_t t = (offset - 0xA0) / 8;
+            Timer& timer = timers_[t];
+            const bool was_held = timer.held;
+            Block::write_word(offset, value & ~(1u << 25));
+            timer.held = (value & (1u << 23)) || (value & (1u << 22)); // RST or PAUSE
+            if (value & (1u << 25) || !timer.configured) { // PARA_UP
+                timer.resolution = value & 0xF;
+                timer.divider = (value >> 4) & 0x3FFFF;
+                timer.configured = true;
+            }
+            if (was_held && !timer.held) {
+                timer.epoch = now; // the count starts from 0
+            }
+        } else {
+            Block::write_word(offset, offset == 0xCC ? 0 : value); // INT_CLR
+        }
+        refresh(now);
+        reschedule();
+    }
+    void on_reset() override
+    {
+        for (Channel& c : channels_) {
+            c = Channel{};
+        }
+        for (Timer& t : timers_) {
+            t = Timer{};
+        }
+        next_ = no_event;
+    }
+
+private:
+    struct Channel {
+        std::uint32_t timer = 0;
+        bool enabled = false;
+        bool idle = false;
+        std::uint32_t hpoint = 0;
+        std::uint32_t duty16 = 0; // duty in 1/16 of a count
+    };
+    struct Timer {
+        bool configured = false;
+        bool held = true;
+        std::uint32_t resolution = 0;
+        std::uint32_t divider = 0; // 10.8 fixed point
+        std::uint64_t epoch = 0;
+    };
+    double clock_hz() const
+    {
+        switch (reg(0xD0) & 3) { // LEDC_CONF.APB_CLK_SEL
+        case 2: return 17'500'000.0;
+        case 3: return 40'000'000.0;
+        default: return 80'000'000.0;
+        }
+    }
+    // Level of channel `ch` at `now` and the time of its next edge.
+    bool level_at(const Channel& c, std::uint64_t now, std::uint64_t& next) const
+    {
+        next = no_event;
+        if (!c.enabled) {
+            return c.idle;
+        }
+        const Timer& t = timers_[c.timer];
+        if (!t.configured || t.held || t.divider < 256 || t.resolution == 0) {
+            return false;
+        }
+        const double tick = static_cast<double>(t.divider) / 256.0 / clock_hz() * 1e9; // ns per count
+        const double counts = static_cast<double>(1u << t.resolution);
+        const double period = counts * tick;
+        const double duty = static_cast<double>(c.duty16) / 16.0;
+        if (duty <= 0) {
+            return false;
+        }
+        if (duty >= counts) {
+            return true;
+        }
+        const double rise = static_cast<double>(c.hpoint) * tick;
+        const double fall = rise + duty * tick;
+        const double elapsed = static_cast<double>(now - t.epoch);
+        const double cycle = std::floor(elapsed / period);
+        const double pos = elapsed - cycle * period;
+        bool high = (pos >= rise && pos < fall) || (fall > period && pos < fall - period);
+        // The next edge: the first of rise and fall (mod period) after pos.
+        double best = 1e300;
+        for (double edge : {rise, std::fmod(fall, period)}) {
+            double d = edge - pos;
+            if (d <= 0) {
+                d += period;
+            }
+            best = std::min(best, d);
+        }
+        next = now + std::max<std::uint64_t>(1, static_cast<std::uint64_t>(std::ceil(best)));
+        return high;
+    }
+    void refresh(std::uint64_t now)
+    {
+        next_ = no_event;
+        for (int ch = 0; ch < 6; ++ch) {
+            std::uint64_t next = no_event;
+            const bool level = level_at(channels_[ch], now, next);
+            drive_signal(45 + ch, level);
+            next_ = std::min(next_, next);
+        }
+    }
+
+    Channel channels_[6];
+    Timer timers_[4];
+    std::uint64_t next_ = no_event;
+};
+
+// APB_SARADC, one-shot conversions (ONETIME_SAMPLE: unit and channel in bits
+// 28:25, attenuation in 24:23, START bit 29): the result is ready at once in
+// SARADC1/2_DATA_STATUS with ADC1/ADC2_DONE in INT_RAW. A linear converter,
+// labelled approximate (no offset, no noise, no curve): the inverse of the
+// first step of ESP-IDF's calibration with this machine's eFuse (calibration
+// version 1, ADC1_CAL_VOL_ATTENn 0: 2000 counts at 400, 550, 750 and
+// 1370 mV), so that calibrated readings (MicroPython's read_uv) give the pad's
+// voltage to within the calibration's second step (0.1 % at 1.25 V, 1.7 % low
+// at 2.4 V with 12 dB); 4095 at 819, 1126, 1536 and 2805 mV. Continuous (DMA) conversions are not modelled
+// yet.
+class ApbSaradc : public Esp32C3::Block {
+public:
+    explicit ApbSaradc(Esp32C3& machine) : Block(machine, "APB_SARADC") {}
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x048) { // INT_ST
+            return reg(0x044) & reg(0x040);
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        if (offset == 0x04C) { // INT_CLR
+            reg(0x044) &= ~value;
+            return;
+        }
+        const bool start = offset == 0x020 && (value & (1u << 29)) && !(reg(0x020) & (1u << 29));
+        Block::write_word(offset, value);
+        if (!start) {
+            return;
+        }
+        const std::uint32_t unit = (value >> 28) & 1;
+        const std::uint32_t channel = (value >> 25) & 7;
+        const std::uint32_t atten = (value >> 23) & 3;
+        const int gpio = unit == 0 ? (channel <= 4 ? static_cast<int>(channel) : -1) : (channel == 0 ? 5 : -1);
+        std::uint32_t raw = 0;
+        if (gpio >= 0) {
+            static constexpr double volts_at_2000[4] = {0.400, 0.550, 0.750, 1.370};
+            double volts = 0.0;
+            if (const auto v = pad_volts(gpio)) {
+                volts = *v;
+            } else {
+                std::uint32_t in = 0;
+                machine_.bus().read(0x6000403Cu, 4, in); // GPIO_IN: the pad's logic level
+                volts = (in >> gpio) & 1 ? 3.3 : 0.0;
+            }
+            const double counts = std::clamp(volts / volts_at_2000[atten] * 2000.0, 0.0, 4095.0);
+            raw = static_cast<std::uint32_t>(std::lround(counts));
+        }
+        if (unit == 0) {
+            reg(0x02C) = raw;                    // SARADC1_DATA_STATUS
+            reg(0x044) |= 1u << 31;              // ADC1_DONE
+        } else {
+            reg(0x030) = raw;                    // SARADC2_DATA_STATUS
+            reg(0x044) |= 1u << 30;              // ADC2_DONE
+        }
+    }
+};
+
 // The MMU table: 128 entries, each mapping 64 KiB of both cache windows to a
 // flash page (bits 7:0) unless bit 8 (invalid) is set.
 class MmuTable : public Esp32C3::Block {
@@ -1517,6 +1755,10 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     auto systimer = std::make_unique<Systimer>(*this);
     timed_.push_back(systimer.get());
     attach(0x60023000u, std::move(systimer));
+    attach(0x60040000u, std::make_unique<ApbSaradc>(*this));
+    auto ledc = std::make_unique<Ledc>(*this);
+    timed_.push_back(ledc.get());
+    attach(0x60019000u, std::move(ledc));
     for (int group = 0; group < 2; ++group) {
         auto timg = std::make_unique<Timg>(*this, group == 0 ? "TIMG0" : "TIMG1", group);
         timed_.push_back(timg.get());
@@ -1530,11 +1772,11 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     static constexpr Plain plain[] = {
         {0x60005000u, "FE2"}, {0x60006000u, "FE"},
 {0x6000E000u, "RTC_I2C"}, {0x60013000u, "I2C0"}, {0x60014000u, "UHCI0"},
-        {0x60016000u, "RMT"}, {0x60019000u, "LEDC"}, {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
+        {0x60016000u, "RMT"}, {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
          {0x60024000u, "SPI2"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
         {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"}, {0x6003F000u, "GDMA"},
-        {0x60040000u, "APB_SARADC"}, {0x600C1000u, "SENSITIVE"},
+        {0x600C1000u, "SENSITIVE"},
         {0x600CC000u, "XTS_AES"}, {0x600CE000u, "ASSIST_DEBUG"},
         {0x600CF000u, "DEDICATED_GPIO"}, {0x600D0000u, "WORLD_CNTL"},
     };
@@ -1863,6 +2105,18 @@ std::vector<Esp32C3::PinEvent> Esp32C3::take_pin_events()
     std::vector<PinEvent> out;
     out.swap(pin_events_);
     return out;
+}
+
+void Esp32C3::set_pin_voltage(int gpio, std::optional<double> volts)
+{
+    if (gpio >= 0 && gpio < gpio_count) {
+        volts_[static_cast<std::size_t>(gpio)] = volts;
+    }
+}
+
+std::optional<double> Esp32C3::pin_voltage(int gpio) const
+{
+    return gpio >= 0 && gpio < gpio_count ? volts_[static_cast<std::size_t>(gpio)] : std::nullopt;
 }
 
 void Esp32C3::set_pin_input(int gpio, std::optional<bool> level)

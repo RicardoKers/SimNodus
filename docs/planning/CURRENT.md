@@ -136,8 +136,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    runs unmodified ESP-IDF examples, an Arduino-ESP32 sketch and the official
    MicroPython v1.29.0 image (REPL over USB-Serial-JTAG, Pin, irq, UART,
    files, deep sleep), with GPIO, UART, watchdogs, light and deep sleep; not
-   in the application yet. Next: the owner's boards (DevKitM-1, SuperMini)
-   for the ROM and console comparison, then decision DE1 (SN-245).
+   in the application yet. Since then (no boards yet): LEDC (PWM) and ADC
+   one-shot readings (SN-247). Waiting for the owner: decision DE1, or the
+   boards for the ROM and console comparison; the integration in the
+   application (SN-246) and I2C/SPI/RMT come after DE1.
 
 ## Known constraints
 
