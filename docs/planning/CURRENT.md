@@ -210,7 +210,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   `build/merged.bin`). `arduino-cli` 1.5.1 in `build/tools/arduino-cli` with
   its `arduino-cli.yaml` (Arduino-ESP32 3.3.12; images are LGPL, so test
   them by hand and do not commit them). `simnodus-emu --esp32c3 image.bin
-  --usb "text@ms" --trace-io` runs an image alone and traces register
+  --usb "text\r@ms" --trace-io` runs an image alone and traces register
   accesses. The Linux CI's GCC errors show earlier with
   `build/tools/riscv32-esp-elf/bin/riscv32-esp-elf-g++ -fsyntax-only
   -std=c++20 -Wall -Wextra -Wpedantic -Werror -Isrc -Ithird_party`.
