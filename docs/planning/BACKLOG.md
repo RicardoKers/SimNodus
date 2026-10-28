@@ -163,6 +163,26 @@ translation; the order may change with the owner's lessons.
 | SN-240 | Conveniences for recordings (videos request, item 5): `sim.control` with `over` (a smooth turn), `sim.control` for chips' live values, `project.new` with a `name`; the "Controlled by an agent" status stays in recordings (owner's decision of 2026-10-27) | done 2026-10-27 |
 | SN-241 | YouTube channel https://www.youtube.com/@SimNodus in the README with the next release (owner's request 2026-10-27; also the package README and the user guides' help section, next to Discord) | todo |
 
+## ESP32-C3 track — own emulator (from 2026-10-28)
+
+Owner's decision of 2026-10-28: unmodified ESP32-C3 firmware, MicroPython
+included, on SimNodus's own emulator; Wi-Fi in a second step, Bluetooth not
+planned. Plan, criteria and decisions DE0/DE1: [E-08-plan.md](../experiments/E-08-plan.md).
+SN-246..SN-250 are tentative until DE1.
+
+| ID | Task | Milestone / gate | Status |
+|---|---|---|---|
+| SN-242 | ROM source and licence for the ESP32-C3 (Espressif's ROM files, a ROM read from a board, or our own ROM functions); pinned ESP-IDF, Arduino-ESP32 and MicroPython versions; reference boards (DevKitM-1, SuperMini) | prerequisite / DE0 | todo |
+| SN-243 | E-08 core: RV32IMC, Zicsr, machine and user modes, PMP, `wfi`; `riscv-arch-test` and random differential against Espressif's QEMU in ctest; benchmark | G8a | todo |
+| SN-244 | E-08 SoC and boot: flash images, flash chip and controller, cache and MMU, ROM, interrupt matrix, SYSTIMER, TIMG and RTC watchdogs, clock calibration, eFuse, memprot, UART0/1, USB-Serial-JTAG, GPIO; ESP-IDF and Arduino images boot unmodified | G8b.1-3, G8b.5-9 | todo |
+| SN-245 | E-08 MicroPython (REPL, files kept in the flash file, `main.py` at boot) and report `E-08-results.md` | G8b.4 / DE1 | todo |
+| SN-246 | Integration: `emu::Machine` interface, chip-independent `NativeMcuRunner`, generalized pin state and pin model, ESP32-C3 board profiles, flash images in projects and Save with Firmware, strapping pins from the circuit | after DE1 | todo |
+| SN-247 | Lesson peripherals: LEDC, ADC1 with GDMA, I2C0, SPI2, RMT (WS2812), temperature sensor; examples | after SN-246 | todo |
+| SN-248 | MicroPython workflow: project files into the flash filesystem, console for Thonny and `mpremote`, user guide (English and pt-BR) | after SN-246 | todo |
+| SN-249 | GDB server for RISC-V | after SN-246 | todo |
+| SN-250 | Experiment E-09, Wi-Fi: MAC model for the unmodified Wi-Fi libraries, virtual access point (SSID, open then WPA2-PSK), DHCP/DNS, NAT gateway on the computer's sockets (enabled per project), port forwarding; its own plan first | phase 2 | todo |
+| SN-251 | ESP32 (Xtensa LX6, two cores, DevKit V1): revisit after the ESP32-C3 track | later | todo |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |

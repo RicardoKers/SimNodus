@@ -105,6 +105,15 @@ its period, a FreeRTOS demo, fault and reset behavior, ELF load under 50 ms
 and identical traces on repeated runs. The analog edge spike E-07b (SN-186)
 records speed and edge error per technique. Report: `E-07-results.md`.
 
+## E-08: ESP32-C3 emulator prototype — SN-242..SN-245
+
+Question: can SimNodus's own emulator run unmodified ESP32-C3 flash images
+(ESP-IDF, Arduino-ESP32, the official MicroPython release) from the chip's
+reset to the MicroPython REPL, with the flash kept between runs, without
+changing the STM32 path? Plan, prerequisites (ROM licence, decision DE0) and
+the predeclared gates G8a (core) and G8b (firmware), recorded 2026-10-28
+before any code: [E-08-plan.md](E-08-plan.md). Report: `E-08-results.md`.
+
 ## E-06: Classroom rehearsal — SN-028
 
 On a representative Windows PC, reproduce installation without development-machine paths. Open each lesson, build/load firmware, run and debug, save/reopen, and recover from an intentional error. Test offline operation when required. Record setup duration, memory, responsiveness, missing assets, and instructor observations.
