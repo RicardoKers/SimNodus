@@ -1,9 +1,10 @@
 # E-08: ESP32-C3 emulator prototype — plan
 
 Date: 2026-10-28. Tasks: SN-242..SN-245 in the [backlog](../planning/BACKLOG.md).
-Status: **planned**; no code yet. The criteria below are recorded before any
-emulator code, as for [E-07](E-07-results.md), and are not relaxed after a run:
-a failed criterion leads to a recorded decision.
+Status: **in progress**; gate G8a met on 2026-10-28 ([results](E-08-results.md)),
+G8b not started. The criteria below were recorded before any emulator code,
+as for [E-07](E-07-results.md), and are not relaxed after a run: a failed
+criterion leads to a recorded decision.
 
 ## Question
 
@@ -131,8 +132,11 @@ is explained.
   version is recorded with each sketch's image.
 - Chip revision reported by the eFuse model: **v0.4** with the rev3 ROM,
   unless the owner's boards (read with `esptool chip-id`) are v1.1.
-- Oracle: Espressif's QEMU **esp-develop-9.2.2-20260417**
-  (`qemu-riscv32-softmmu`, with a Windows build), GPL, test-only.
+- Oracle: Espressif's QEMU **esp_develop_9.2.2_20250817**
+  (`qemu-riscv32-softmmu`, with a Windows build), the version ESP-IDF v5.5.2
+  pins in its `tools/tools.json` (changed on 2026-10-28 from the newest
+  release, esp-develop-9.2.2-20260417, before any comparison ran), GPL,
+  test-only. The test programs use ESP-IDF's GCC, esp-14.2.0_20251107.
 
 **Wi-Fi libraries (for E-09):** Espressif's `esp32-wifi-lib` is Apache-2.0, as is
 ESP-IDF, so firmware images that contain them may be used as test material.

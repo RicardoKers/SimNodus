@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// ELF32 (ARM, little-endian, executable) reader for firmware images: loadable
-// segments at their physical addresses (as debuggers load them:
-// initialized data lands in flash and the start-up code copies it to SRAM)
-// and function symbols for diagnostics.
+// ELF32 (ARM or RISC-V, little-endian, executable) reader for firmware images:
+// loadable segments at their physical addresses (as debuggers load them:
+// initialized data lands in flash and the start-up code copies it to SRAM),
+// function symbols for diagnostics and the addresses of named symbols.
 #pragma once
 
 #include <cstdint>
@@ -30,18 +30,24 @@ struct ElfSymbol {
     std::uint32_t size = 0;
 };
 
+enum class ElfMachine { Arm, Riscv };
+
 struct ElfImage {
     std::uint32_t entry = 0;
     std::vector<ElfSegment> segments;
     std::vector<ElfSymbol> functions; // sorted by address
+    std::map<std::string, std::uint32_t> symbols; // every named symbol with a value
 
     // Function containing `address`, if the ELF has symbols for it.
     const ElfSymbol* function_at(std::uint32_t address) const;
+    std::optional<std::uint32_t> symbol(const std::string& name) const;
 };
 
-// Parses an ELF image; on failure returns nullopt and sets `error` to a
-// sentence for the user.
-std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::string& error);
-std::optional<ElfImage> read_elf(const std::filesystem::path& path, std::string& error);
+// Parses an ELF image built for `machine`; on failure returns nullopt and sets
+// `error` to a sentence for the user.
+std::optional<ElfImage> parse_elf(
+    const std::vector<std::uint8_t>& bytes, std::string& error, ElfMachine machine = ElfMachine::Arm);
+std::optional<ElfImage> read_elf(
+    const std::filesystem::path& path, std::string& error, ElfMachine machine = ElfMachine::Arm);
 
 } // namespace simnodus::emu

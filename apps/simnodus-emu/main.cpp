@@ -3,7 +3,9 @@
 //
 // simnodus-emu: runs STM32F103 firmware in the SimNodus emulator without the
 // circuit (experiment E-07). Prints one line per pin change, UART byte and
-// diagnostic, then a summary with the speed reached.
+// diagnostic, then a summary with the speed reached. A RISC-V ELF runs on the
+// bare RISC-V test machine instead (experiment E-08: the RV32IMC core with
+// RAM, UART, timer and test finisher at QEMU virt's addresses).
 //
 //   simnodus-emu firmware.elf [--ms 1000] [--info] [--quiet] [--count-ops]
 //                [--input PA1=0@100] [--uart 1:text@50] [--gdb PORT]
@@ -12,6 +14,7 @@
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
 #include "emu/gdb_server.hpp"
+#include "emu/riscv_test_machine.hpp"
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
@@ -50,6 +53,59 @@ bool parse_pin(const std::string& name, int& port, int& pin)
 std::uint64_t parse_ms(const std::string& text)
 {
     return static_cast<std::uint64_t>(std::strtod(text.c_str(), nullptr) * 1e6);
+}
+
+// The RV32IMC core on the test machine: UART lines, then the speed reached.
+int run_riscv(const ElfImage& image, double ms, bool quiet, bool count_entries)
+{
+    RiscvTestMachine machine;
+    std::string error;
+    if (!machine.load(image, error)) {
+        std::fprintf(stderr, "error: %s\n", error.c_str());
+        return 1;
+    }
+    machine.cpu().count_entries(count_entries);
+    const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
+    std::size_t printed = 0;
+    std::string line;
+    const auto begin = std::chrono::steady_clock::now();
+    while (machine.time_ns() < end_ns && !machine.finished() && machine.cpu().state() != RvState::Halted) {
+        machine.run_until_ns(std::min(end_ns, machine.time_ns() + 10'000'000)); // 10 ms slices for the output
+        const std::string& output = machine.output();
+        for (; printed < output.size(); ++printed) {
+            const char c = output[printed];
+            if (c == '\n' || line.size() > 200) {
+                if (!quiet) {
+                    std::printf("%14.6f ms  UART \"%s\"\n", static_cast<double>(machine.time_ns()) / 1e6, line.c_str());
+                }
+                line.clear();
+            } else if (c != '\r') {
+                line += (c >= 32 && c < 127) ? c : '.';
+            }
+        }
+    }
+    const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    const std::uint64_t executed = machine.cpu().instructions();
+    std::printf("simulated %.3f ms in %.3f s (%.2fx real time at 160 MHz); %llu instructions, %.1f MIPS%s\n",
+        static_cast<double>(machine.time_ns()) / 1e6, seconds, (static_cast<double>(machine.time_ns()) / 1e9) / seconds,
+        static_cast<unsigned long long>(executed), static_cast<double>(executed) / seconds / 1e6,
+        machine.finished() ? (machine.exit_code() == 0 ? "; finished (pass)" : "; finished (fail)") : "");
+    if (machine.cpu().state() == RvState::Halted) {
+        std::printf("core halted: %s\n", machine.cpu().halt_reason().c_str());
+    }
+    if (count_entries) {
+        const auto& hits = machine.cpu().entry_hits();
+        for (std::size_t e = 1; e < hits.size(); ++e) {
+            if (hits[e]) {
+                std::printf("  %-12s %llu\n", RiscvCpu::entry_name(static_cast<std::uint8_t>(e)),
+                    static_cast<unsigned long long>(hits[e]));
+            }
+        }
+    }
+    if (machine.finished()) {
+        return machine.exit_code() == 0 ? 0 : 4;
+    }
+    return machine.cpu().state() == RvState::Halted ? 3 : 0;
 }
 
 void usage()
@@ -126,6 +182,10 @@ int main(int argc, char** argv)
     std::string error;
     const auto image = read_elf(path, error);
     if (!image) {
+        std::string riscv_error;
+        if (const auto riscv = read_elf(path, riscv_error, ElfMachine::Riscv)) {
+            return run_riscv(*riscv, ms, quiet, count_ops);
+        }
         std::fprintf(stderr, "error: %s\n", error.c_str());
         return 1;
     }

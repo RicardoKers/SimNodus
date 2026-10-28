@@ -12,10 +12,13 @@ namespace {
 
 constexpr std::uint16_t et_exec = 2;
 constexpr std::uint16_t em_arm = 40;
+constexpr std::uint16_t em_riscv = 243;
 constexpr std::uint32_t pt_load = 1;
 constexpr std::uint32_t pf_x = 1;
 constexpr std::uint32_t sht_symtab = 2;
 constexpr std::uint8_t stt_func = 2;
+constexpr std::uint8_t stt_section = 3;
+constexpr std::uint8_t stt_file = 4;
 constexpr std::size_t max_image = 64u * 1024u * 1024u;
 
 template <typename T>
@@ -42,14 +45,25 @@ const ElfSymbol* ElfImage::function_at(std::uint32_t address) const
     return address - it->address < size ? &*it : nullptr;
 }
 
-std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::string& error)
+std::optional<std::uint32_t> ElfImage::symbol(const std::string& name) const
+{
+    const auto it = symbols.find(name);
+    if (it == symbols.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::string& error, ElfMachine expected)
 {
     if (bytes.size() < 52 || std::memcmp(bytes.data(), "\x7f" "ELF", 4) != 0) {
         error = "The file is not an ELF file.";
         return std::nullopt;
     }
     if (bytes[4] != 1 || bytes[5] != 1) {
-        error = "The ELF file is not a 32-bit little-endian image (expected one built for an STM32).";
+        error = expected == ElfMachine::Arm
+            ? "The ELF file is not a 32-bit little-endian image (expected one built for an STM32)."
+            : "The ELF file is not a 32-bit little-endian image (expected one built for a RISC-V microcontroller).";
         return std::nullopt;
     }
     std::uint16_t type = 0;
@@ -70,8 +84,14 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
     get(bytes, 44, phnum);
     get(bytes, 46, shentsize);
     get(bytes, 48, shnum);
-    if (machine != em_arm) {
-        error = "The ELF file is not built for an ARM processor.";
+    if (expected == ElfMachine::Arm && machine != em_arm) {
+        error = machine == em_riscv ? "The ELF file is built for a RISC-V processor, not for an ARM one."
+                                    : "The ELF file is not built for an ARM processor.";
+        return std::nullopt;
+    }
+    if (expected == ElfMachine::Riscv && machine != em_riscv) {
+        error = machine == em_arm ? "The ELF file is built for an ARM processor, not for a RISC-V one."
+                                  : "The ELF file is not built for a RISC-V processor.";
         return std::nullopt;
     }
     if (type != et_exec) {
@@ -155,13 +175,22 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
                 || !get(bytes, sh_offset + s + 8, size) || !get(bytes, sh_offset + s + 12, info)) {
                 break;
             }
-            if ((info & 0xFu) != stt_func || name >= str_size) {
-                continue;
+            std::uint16_t shndx = 0;
+            const unsigned kind = info & 0xFu;
+            if (name == 0 || name >= str_size || kind == stt_section || kind == stt_file
+                || !get(bytes, sh_offset + s + 14, shndx) || shndx == 0) {
+                continue; // unnamed, a section or file entry, or undefined
             }
             const char* text = reinterpret_cast<const char*>(bytes.data() + str_offset + name);
             const void* end = std::memchr(text, 0, str_size - name);
             const std::size_t length = end ? static_cast<std::size_t>(static_cast<const char*>(end) - text) : str_size - name;
-            image.functions.push_back({std::string(text, length), value & ~1u, size});
+            std::string symbol_name(text, length);
+            // ARM function symbols carry the Thumb bit; RISC-V addresses are even.
+            const std::uint32_t address = machine == em_arm && kind == stt_func ? value & ~1u : value;
+            image.symbols.emplace(symbol_name, address);
+            if (kind == stt_func) {
+                image.functions.push_back({std::move(symbol_name), address, size});
+            }
         }
     }
     std::sort(image.functions.begin(), image.functions.end(),
@@ -169,7 +198,7 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
     return image;
 }
 
-std::optional<ElfImage> read_elf(const std::filesystem::path& path, std::string& error)
+std::optional<ElfImage> read_elf(const std::filesystem::path& path, std::string& error, ElfMachine machine)
 {
     std::ifstream stream(path, std::ios::binary);
     if (!stream) {
@@ -181,7 +210,7 @@ std::optional<ElfImage> read_elf(const std::filesystem::path& path, std::string&
         error = "The firmware file is too large.";
         return std::nullopt;
     }
-    return parse_elf(bytes, error);
+    return parse_elf(bytes, error, machine);
 }
 
 } // namespace simnodus::emu

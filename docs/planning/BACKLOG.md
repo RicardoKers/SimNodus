@@ -172,8 +172,8 @@ SN-246..SN-250 are tentative until DE1.
 
 | ID | Task | Milestone / gate | Status |
 |---|---|---|---|
-| SN-242 | ROM source and licence for the ESP32-C3 (Espressif's ROM files, a ROM read from a board, or our own ROM functions); pinned ESP-IDF, Arduino-ESP32 and MicroPython versions; reference boards (DevKitM-1, SuperMini) | prerequisite / DE0 | doing: findings recorded 2026-10-28 (ROM ELF Apache-2.0 with contents, MicroPython v1.29.0 on ESP-IDF v5.5.2); waits for DE0 and the boards |
-| SN-243 | E-08 core: RV32IMC, Zicsr, machine and user modes, PMP, `wfi`; `riscv-arch-test` and random differential against Espressif's QEMU in ctest; benchmark | G8a | todo |
+| SN-242 | ROM source and licence for the ESP32-C3 (Espressif's ROM files, a ROM read from a board, or our own ROM functions); pinned ESP-IDF, Arduino-ESP32 and MicroPython versions; reference boards (DevKitM-1, SuperMini) | prerequisite / DE0 | doing: findings recorded and DE0 taken 2026-10-28 (vendor the ROM ELF with SN-244); waits for the owner's boards |
+| SN-243 | E-08 core: RV32IMC, Zicsr, machine and user modes, PMP, `wfi`; `riscv-arch-test` and random differential against Espressif's QEMU in ctest; benchmark | G8a | done 2026-10-28: G8a met (90/90 architecture tests, 8 192 random blocks equal to QEMU, 164 and 126 MIPS) |
 | SN-244 | E-08 SoC and boot: flash images, flash chip and controller, cache and MMU, ROM, interrupt matrix, SYSTIMER, TIMG and RTC watchdogs, clock calibration, eFuse, memprot, UART0/1, USB-Serial-JTAG, GPIO; ESP-IDF and Arduino images boot unmodified | G8b.1-3, G8b.5-9 | todo |
 | SN-245 | E-08 MicroPython (REPL, files kept in the flash file, `main.py` at boot) and report `E-08-results.md` | G8b.4 / DE1 | todo |
 | SN-246 | Integration: `emu::Machine` interface, chip-independent `NativeMcuRunner`, generalized pin state and pin model, ESP32-C3 board profiles, flash images in projects and Save with Firmware, strapping pins from the circuit | after DE1 | todo |

@@ -31,3 +31,12 @@ add_executable(emu_tests emu_tests.cpp)
 target_include_directories(emu_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(emu_tests PRIVATE simnodus::emu simnodus::warnings)
 add_test(NAME emu-unit COMMAND emu_tests "${PROJECT_SOURCE_DIR}/examples")
+
+# RV32IMC core of experiment E-08: directed cases, the architecture tests and
+# the differential corpus recorded from QEMU (docs/experiments/E-08-plan.md).
+add_executable(riscv_tests riscv_tests.cpp)
+target_include_directories(riscv_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(riscv_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-riscv-unit COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv: ")
+add_test(NAME emu-riscv-arch COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-arch: ")
+add_test(NAME emu-riscv-differential COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-diff: ")
