@@ -476,6 +476,7 @@ public:
     Gpio(Esp32C3& machine, std::uint32_t strapping) : Block(machine, "GPIO"), strapping_(strapping) {}
 
     Esp32C3::PinState state(int pin) const { return states_[static_cast<std::size_t>(pin)]; }
+    bool pad(int pin) const { return pads_[static_cast<std::size_t>(pin)]; }
     void set_input(int pin, std::optional<bool> level)
     {
         external_[static_cast<std::size_t>(pin)] = level;
@@ -618,7 +619,13 @@ private:
         }
         raise(16, (reg(0x44) & enabled_mask()) != 0);
     }
-    void pin_changed(int pin, const Esp32C3::PinState& state) { machine_.pin_events_.push_back({now_ns(), pin, state}); }
+    void pin_changed(int pin, const Esp32C3::PinState& state)
+    {
+        machine_.pin_events_.push_back({now_ns(), pin, state});
+        if (machine_.pin_hook_ && primed_) {
+            machine_.pin_hook_(pin, now_ns());
+        }
+    }
 
     std::uint32_t strapping_;
     std::array<Esp32C3::PinState, Esp32C3::gpio_count> states_{};
@@ -2116,7 +2123,18 @@ void Esp32C3::set_pin_voltage(int gpio, std::optional<double> volts)
 
 std::optional<double> Esp32C3::pin_voltage(int gpio) const
 {
-    return gpio >= 0 && gpio < gpio_count ? volts_[static_cast<std::size_t>(gpio)] : std::nullopt;
+    if (gpio < 0 || gpio >= gpio_count) {
+        return std::nullopt;
+    }
+    if (volts_[static_cast<std::size_t>(gpio)]) {
+        return volts_[static_cast<std::size_t>(gpio)];
+    }
+    return analog_source_ ? analog_source_(gpio, time_ns()) : std::nullopt;
+}
+
+bool Esp32C3::pad_level(int gpio) const
+{
+    return gpio >= 0 && gpio < gpio_count && gpio_->pad(gpio);
 }
 
 void Esp32C3::set_pin_input(int gpio, std::optional<bool> level)

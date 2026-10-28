@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 851bcdf8689cb16189e83bf742071bcc6b690ce2f8f8112e42f4f9de2f7ddf95 -->
+<!-- source: USER_GUIDE.md sha256 b4c4fbfe25cac69b965c5eadb2f6601e82463ea268d6e37b16d4de9a6d7a5a7e -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -117,7 +117,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Eletromecânicos** | Buzzers ativo e passivo (com som no Windows), lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
 | **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
-| **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF |
+| **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF; ESP32-C3-DevKitM-1 executando uma imagem da flash (`.bin`), experimental (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#placa-esp32-c3-experimental)) |
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574, sensor de pressão BMP280, acelerômetro e giroscópio MPU6050, relógio de tempo real DS3231, sensor de cor TCS34725 (I2C); conversor A/D MCP3208, potenciômetro digital MCP41010, flash W25Q32, cartão microSD (SPI); amplificador de célula de carga HX711; sensores DS18B20 (1-Wire), DHT22/DHT11 e HC-SR04; funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
 | **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
@@ -508,8 +508,9 @@ diferenças em relação a uma placa real estão em
   (32) e uma RAM (33), um timer 555 (34), um subcircuito de fabricante (35),
   sensores (36), chips lógicos em encapsulamento DIP (37), um OLED com
   sensores I2C (38), chips SPI e o HX711 (39), sensores de um fio
-  temporizados e uma fita WS2812B (40), motores (41), buzzers (42) e
-  componentes de automação de 24 V (43).
+  temporizados e uma fita WS2812B (40), motores (41), buzzers (42),
+  componentes de automação de 24 V (43), uma Blue Pill na porta serial do
+  computador (44) e a placa ESP32-C3 (45, experimental).
 - As **aulas** 1-3 (exemplos 10, 11 e 16) vêm com notas em
   `examples/lessons/`: objetivos, passos e as observações esperadas. Os
   fontes dos seus firmwares estão em `examples/firmware/`.
@@ -584,7 +585,8 @@ declarados para que os resultados sejam lidos corretamente.
 
 ### Microcontrolador
 
-- Só a Blue Pill (STM32F103C8) está disponível.
+- A Blue Pill (STM32F103C8) e, experimental, a ESP32-C3-DevKitM-1 (ainda
+  não comparada com uma placa real; ainda sem I2C, SPI, RMT, Wi-Fi ou GDB).
 - Ainda não simulados: modos escravo de SPI e I2C, CAN, USB; modos encoder
   e alinhado ao centro dos timers, tempo morto e break; conversões do ADC
   disparadas por timer ou EXTI, modos dual e descontínuo. O painel

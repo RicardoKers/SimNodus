@@ -1899,8 +1899,8 @@ Pinos: %2</translation>
             <translation>interativo (aproximado): segmentos de %1s, passo máximo %2s, integração Gear; bordas de chaves, botões e geradores têm a resolução do passo de tempo; a carga dos semicondutores não passa de um segmento ao outro</translation>
         </message>
         <message>
-            <source>; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; GPIO outputs drive the circuit through 40 Ohm, %1; circuit voltages reach GPIO inputs through Schmitt thresholds (1.16 V / 1.83 V) less than 0.1 ms late, and the ADC reads them 0.1-0.2 ms back</source>
-            <translation>; o firmware do microcontrolador roda no emulador do SimNodus no máximo 0,1 ms à frente do circuito; as saídas GPIO acionam o circuito através de 40 Ohm, %1; as tensões do circuito chegam às entradas GPIO por limiares Schmitt (1,16 V / 1,83 V) com menos de 0,1 ms de atraso, e o ADC as lê 0,1-0,2 ms antes</translation>
+            <source>; microcontroller firmware runs in the SimNodus emulator at most 0.1 ms ahead of the circuit; GPIO outputs drive the circuit through %L2 Ohm, %1; circuit voltages reach GPIO inputs through Schmitt thresholds (%L3 V / %L4 V) less than 0.1 ms late, and the ADC reads them 0.1-0.2 ms back</source>
+            <translation>; o firmware do microcontrolador roda no emulador do SimNodus no máximo 0,1 ms à frente do circuito; as saídas GPIO acionam o circuito através de %L2 Ohm, %1; as tensões do circuito chegam às entradas GPIO por limiares Schmitt (%L3 V / %L4 V) com menos de 0,1 ms de atraso, e o ADC as lê 0,1-0,2 ms antes</translation>
         </message>
         <message>
             <source>with a time point at every edge (exact edges)</source>
@@ -1917,6 +1917,10 @@ Pinos: %2</translation>
         <message>
             <source>; firmware instructions take one cycle each (faster than a real chip)</source>
             <translation>; cada instrução do firmware leva um ciclo (mais rápido que um chip real)</translation>
+        </message>
+        <message>
+            <source>; the ESP32-C3 is experimental: not yet compared with a real board, one instruction per CPU clock cycle (approximate)</source>
+            <translation>; o ESP32-C3 é experimental: ainda não comparado com uma placa real, uma instrução por ciclo de clock da CPU (aproximado)</translation>
         </message>
     </context>
     <context>
@@ -3604,6 +3608,18 @@ Pinos: %2</translation>
         <message>
             <source>ELF file built for the STM32F103C8 (for example with STM32CubeIDE); stored relative to the project</source>
             <translation>Arquivo ELF compilado para o STM32F103C8 (por exemplo com o STM32CubeIDE); guardado em relação ao projeto</translation>
+        </message>
+        <message>
+            <source>ESP32-C3-DevKitM-1 (experimental)</source>
+            <translation>ESP32-C3-DevKitM-1 (experimental)</translation>
+        </message>
+        <message>
+            <source>ESP32-C3 board running your firmware (flash image, .bin: ESP-IDF, Arduino or MicroPython) in the SimNodus emulator; experimental until compared with a real board</source>
+            <translation>Placa ESP32-C3 executando o seu firmware (imagem da flash, .bin: ESP-IDF, Arduino ou MicroPython) no emulador do SimNodus; experimental até ser comparada com uma placa real</translation>
+        </message>
+        <message>
+            <source>Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project</source>
+            <translation>Imagem da flash para o ESP32-C3, gravada a partir do endereço 0 (um .bin unificado do ESP-IDF ou do Arduino, ou o .bin do firmware do MicroPython); guardado em relação ao projeto</translation>
         </message>
         <message>
             <source>Rotary encoder</source>

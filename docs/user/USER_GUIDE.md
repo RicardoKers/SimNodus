@@ -113,7 +113,7 @@ invalid value is outlined in red and not applied.
 | **Electromechanical** | Active and passive buzzers (heard on Windows), lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
-| **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware |
+| **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware; ESP32-C3-DevKitM-1 running a flash image (`.bin`), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#esp32-c3-board-experimental)) |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, BMP280 pressure sensor, MPU6050 accelerometer and gyroscope, DS3231 real-time clock, TCS34725 color sensor (I2C); MCP3208 A/D converter, MCP41010 digital potentiometer, W25Q32 flash, microSD card (SPI); HX711 load cell amplifier; DS18B20 (1-Wire), DHT22/DHT11 and HC-SR04 sensors; they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
@@ -467,8 +467,9 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   (30), A/D and D/A converters (31), a ROM (32) and a RAM (33), a 555 timer
   (34), a vendor subcircuit (35), sensors (36), logic chips in DIP packages
   (37), an OLED with I2C sensors (38), SPI chips and the HX711 (39), timed
-  one-wire sensors and a WS2812B strip (40), motors (41), buzzers (42) and
-  24 V automation parts (43).
+  one-wire sensors and a WS2812B strip (40), motors (41), buzzers (42),
+  24 V automation parts (43), a Blue Pill on the computer's serial port (44)
+  and the ESP32-C3 board (45, experimental).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -540,7 +541,8 @@ results are read correctly.
 
 ### Microcontroller
 
-- Only the Blue Pill (STM32F103C8) is available.
+- The Blue Pill (STM32F103C8) and, experimental, the ESP32-C3-DevKitM-1
+  (not yet compared with a real board; no I2C, SPI, RMT, Wi-Fi or GDB yet).
 - Not simulated yet: SPI and I2C slave modes, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when

@@ -129,17 +129,18 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
    release.
 4. Classroom feedback (postponed: academic calendar).
-5. ESP32-C3 track (owner's decision 2026-10-28; ESP32-C3 before the Xtensa
-   ESP32): experiment E-08 ([plan](../experiments/E-08-plan.md),
-   [results](../experiments/E-08-results.md)). Gates G8a and G8b met on
-   2026-10-28 except G8b.1's comparison with the board: the ESP32-C3 machine
-   runs unmodified ESP-IDF examples, an Arduino-ESP32 sketch and the official
-   MicroPython v1.29.0 image (REPL over USB-Serial-JTAG, Pin, irq, UART,
-   files, deep sleep), with GPIO, UART, watchdogs, light and deep sleep; not
-   in the application yet. Since then (no boards yet): LEDC (PWM) and ADC
-   one-shot readings (SN-247). Waiting for the owner: decision DE1, or the
-   boards for the ROM and console comparison; the integration in the
-   application (SN-246) and I2C/SPI/RMT come after DE1.
+5. ESP32-C3 track (owner's decisions of 2026-10-28; ESP32-C3 before the
+   Xtensa ESP32): experiment E-08 ([plan](../experiments/E-08-plan.md),
+   [results](../experiments/E-08-results.md)). Gates G8a and G8b met except
+   G8b.1's comparison with a board; decision DE1 taken provisionally (ADR
+   0106). **The ESP32-C3-DevKitM-1 is in the application, experimental**
+   (SN-246, unreleased): flash images (`.bin`) of ESP-IDF, Arduino and
+   MicroPython, GPIO, UART0 and USB Serial/JTAG in the terminal, LEDC PWM,
+   one-shot ADC (SN-247 part 1), example 45; the runner and `DeviceBus` use
+   `mcu::McuMachine` (STM32 unchanged). Next: I2C, SPI and RMT at the pin
+   level with SimNodus's chips (SN-247), the MicroPython workflow (SN-248),
+   then GDB for RISC-V (SN-249). With the owner's boards: the ROM and console
+   comparison (G8b.1), which ends the experimental mark.
 
 ## Known constraints
 

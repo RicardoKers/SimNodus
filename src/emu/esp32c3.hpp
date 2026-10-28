@@ -108,6 +108,16 @@ public:
     // pad's logic level as 0 V or 3.3 V.
     void set_pin_voltage(int gpio, std::optional<double> volts);
     std::optional<double> pin_voltage(int gpio) const;
+    // The level on a pad (driven, from the circuit, or the pull).
+    bool pad_level(int gpio) const;
+    // A source of pad voltages asked at each conversion (the circuit); a
+    // voltage set with set_pin_voltage() wins.
+    void set_analog_source(std::function<std::optional<double>(int gpio, std::uint64_t time_ns)> source)
+    {
+        analog_source_ = std::move(source);
+    }
+    // Called when what the firmware does to a pad changes, at that time.
+    void set_pin_hook(std::function<void(int gpio, std::uint64_t time_ns)> hook) { pin_hook_ = std::move(hook); }
 
     std::vector<Output> take_output();
     // Bytes from outside for port 0 (UART0), 1 (UART1) or 2 (USB-Serial-JTAG).
@@ -138,6 +148,11 @@ public:
         // The digital clocks stopped for `ns` (light sleep): move the time base.
         virtual void pause(std::uint64_t ns) { (void)ns; }
     };
+    // Timed events from outside the chip (digital devices); the run loop
+    // stops at their next_ns() too. timed_changed(): a next_ns() moved.
+    void add_timed(Timed* timed) { timed_.push_back(timed); }
+    void remove_timed(Timed* timed) { std::erase(timed_, timed); }
+    void timed_changed() { cpu_.request_stop(); }
     // Level of interrupt source `source` (ETS_*_INTR_SOURCE, 0..61).
     void set_interrupt_source(int source, bool level);
 
@@ -183,6 +198,8 @@ private:
     std::array<bool, 128> signal_level_{};
     std::array<bool, 128> signal_driven_{};
     std::array<std::optional<double>, gpio_count> volts_{};
+    std::function<std::optional<double>(int, std::uint64_t)> analog_source_;
+    std::function<void(int, std::uint64_t)> pin_hook_;
     void set_signal(int signal, bool level);
     std::vector<PinEvent> pin_events_;
     std::vector<std::uint8_t> flash_;

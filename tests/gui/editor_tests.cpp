@@ -1437,6 +1437,39 @@ private slots:
 #endif
     }
 
+    void esp32c3_board_runs_in_the_window()
+    {
+        // SN-246 (ADR 0106): the experimental ESP32-C3 board in a run, with its
+        // serial ports in the terminal and its GPIO lanes in the Logic tab.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/45_ESP32-C3_blink.snx"), errors, warnings));
+        window_->show_analyzer();
+        UartTerminal* terminal = window_->analyzer()->terminal();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->ports()->count() == 2, 150000);
+        QVERIFY(terminal->ports()->currentText().contains(QStringLiteral("UART0")));
+        QTRY_VERIFY_WITH_TIMEOUT(terminal->output()->toPlainText().contains(QStringLiteral("Turning the LED ON!")), 150000);
+        QStringList lanes;
+        for (const auto& l : window_->run_controller()->logic_lanes()) {
+            if (l.channel < 0) { // pin lanes, not the probe's
+                lanes << l.title;
+            }
+        }
+        QCOMPARE(lanes.size(), 15);
+        QCOMPARE(lanes.front(), QStringLiteral("U1.GPIO0"));
+        QCOMPARE(lanes.back(), QStringLiteral("U1.GPIO21"));
+        const QString mode = window_->run_controller()->mode_description();
+        QVERIFY(mode.contains(QStringLiteral("33 Ohm")));
+        QVERIFY(mode.contains(QStringLiteral("ESP32-C3 is experimental")));
+        QVERIFY(!mode.contains(QStringLiteral("Cortex-M3")));
+        window_->stop();
+#endif
+    }
+
     void analyzer_stays_responsive_with_a_long_timebase()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

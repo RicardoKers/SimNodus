@@ -2002,7 +2002,10 @@ json cmd_sim_uart(Context& cx, const json& args)
 {
     active_run(cx);
     const auto& board = cx.component(required(args, "board"));
-    const auto uart = lower(optional_text(args, "uart").value_or("usart1"));
+    // Without a name, the board's first serial port ("usart1" on the Blue Pill, "uart0" on the ESP32-C3).
+    const auto* part = cx.library().find(board.type);
+    const std::string first = part && part->mcu && !part->mcu->uarts.empty() ? part->mcu->uarts.front().name : "usart1";
+    const auto uart = lower(optional_text(args, "uart").value_or(first));
     if (const auto send = optional_text(args, "send")) {
         cx.ws.session().mcu_uart_send(board.id, uart, *send);
     }
@@ -2075,7 +2078,7 @@ const Command commands[] = {
     {"sim.pause", "Pauses the run.", "{}", cmd_sim_pause},
     {"sim.stop", "Ends the run.", "{}", cmd_sim_stop},
     {"sim.uart", "Text a board sent on a serial port; optionally sends text to it.",
-        R"j({"board": "U1", "uart": "usart1", "send": "text, optional"})j", cmd_sim_uart},
+        R"j({"board": "U1", "uart": "usart1 (default: the board's first port)", "send": "text, optional"})j", cmd_sim_uart},
 };
 
 json cmd_help(Context& cx, const json&)

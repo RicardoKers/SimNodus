@@ -232,6 +232,11 @@ TEST_CASE("remote: a start message carries the whole run request")
     board.options.uart_rx_byte_links = {"usart2"};
     board.options.gdb_port = 3333;
     request.mcus.push_back(board);
+    sim::McuRequest c3;
+    c3.component = 43;
+    c3.options.chip = "esp32c3";
+    c3.options.pins = {"GPIO8"};
+    request.mcus.push_back(c3);
     request.debugging = true;
     sim::protocol::EngineSetup setup;
     setup.library_dir = "lib";
@@ -248,8 +253,11 @@ TEST_CASE("remote: a start message carries the whole run request")
     CHECK(read.vectors == request.vectors);
     CHECK(read.current_probes == request.current_probes);
     CHECK(read.ring_capacity == 50000 && read.debugging);
-    REQUIRE(read.mcus.size() == 1);
+    REQUIRE(read.mcus.size() == 2);
     CHECK(read.mcus[0].component == 42);
+    CHECK(read.mcus[0].options.chip == "stm32f103");
+    CHECK(read.mcus[1].options.chip == "esp32c3");
+    CHECK(read.mcus[1].options.pins == c3.options.pins);
     CHECK(read.mcus[0].uart_pins.at("usart1").second == "PA10");
     CHECK(read.mcus[0].options.firmware == board.options.firmware);
     CHECK(read.mcus[0].options.pins == board.options.pins);

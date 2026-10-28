@@ -22,7 +22,7 @@ std::string tool_name(std::string command)
 }
 
 const char* instructions =
-    "SimNodus simulates circuits and STM32 Blue Pill boards. Build circuits with component_add, wire_connect and "
+    "SimNodus simulates circuits and microcontroller boards (STM32 Blue Pill; ESP32-C3, experimental). Build circuits with component_add, wire_connect and "
     "label_add, check them with circuit_check, simulate with sim_run, and save with project_save. Grid points are "
     "integer [x, y] with y growing downwards; components are named by designator (\"R1\"), pins as DESIGNATOR.PIN "
     "(\"R1.2\"); quantities accept engineering text (\"4.7k\", \"10m\"). Call parts_list and parts_describe before "

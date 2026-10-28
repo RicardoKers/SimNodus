@@ -8,6 +8,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+#include <string>
 
 using namespace simnodus;
 using library::ComponentLibrary;
@@ -147,6 +151,40 @@ TEST_CASE("template expressions evaluate parameters")
     CHECK(!library::evaluate_expression("2 +", lookup, error));
     CHECK(!library::evaluate_expression("(2", lookup, error));
     CHECK((library::expression_names("max(duty/100/f - 1e-3, rise)") == std::vector<std::string>{"duty", "f", "rise"}));
+}
+
+TEST_CASE("the ESP32-C3-DevKitM-1 board loads with its headers and chip")
+{
+    // SN-246 (ADR 0106): J1 and J3 of the DevKitM-1, 15 pins each.
+    ComponentLibrary library;
+    library.load_directory(SIMNODUS_TEST_LIBRARY_DIR);
+    const auto* d = library.find("esp32c3_devkitm1");
+    REQUIRE(d != nullptr);
+    CHECK(d->pins.size() == 30);
+    REQUIRE(d->mcu.has_value());
+    CHECK(d->mcu->chip == "esp32c3");
+    CHECK(!d->mcu->led.has_value()); // the board's LED is a WS2812 on GPIO8
+    CHECK(d->mcu->reset_button.has_value());
+    for (const char* name : {"GPIO0", "GPIO10", "GPIO18", "GPIO21", "EN", "5V_1", "3V3_2", "G1", "G10"}) {
+        CHECK(d->pin(name) != nullptr);
+    }
+    CHECK(d->pin("GPIO11") == nullptr); // used by the flash on the module
+    REQUIRE(d->mcu->uarts.size() == 2);
+    CHECK(d->mcu->uarts[0].name == "uart0");
+    CHECK(d->mcu->uarts[0].tx_pin == "GPIO21");
+    CHECK(d->mcu->uarts[1].name == "usb");
+    CHECK(d->parameter(d->mcu->firmware_parameter)->filter == "*.bin");
+    CHECK(library.find("bluepill")->mcu->chip == "stm32f103");
+    // A chip the emulator does not have is refused.
+    std::ifstream in(std::filesystem::path(SIMNODUS_TEST_LIBRARY_DIR) / "mcu" / "esp32c3_devkitm1.json");
+    std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    const auto at = text.find("\"esp32c3\"");
+    REQUIRE(at != std::string::npos);
+    text.replace(at, 9, "\"esp32\"");
+    ComponentLibrary other;
+    const auto refused = other.add_from_json(text);
+    REQUIRE(refused.has_value());
+    CHECK(refused->find("mcu.chip") != std::string::npos);
 }
 
 TEST_CASE("the Blue Pill board loads with its real pins and board profile")

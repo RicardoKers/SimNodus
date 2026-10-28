@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0106: The ESP32-C3 on SimNodus's own emulator, provisionally](0106-esp32c3-on-the-own-emulator.md):
+  DE1 (E-08); a second microcontroller, experimental until the comparison with a board.
 - [0105: A serial port of the computer is a digital device in the engine](0105-computer-serial-port-as-a-device.md):
   SN-237; the Serial Port part opens the real port in the engine process; frames decoded and sent at the part's settings.
 - [0104: External control through one command vocabulary; external I/O as a discreet built-in link](0104-external-control-and-io.md):

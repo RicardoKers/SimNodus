@@ -381,7 +381,7 @@ void PropertiesPanel::rebuild()
         }
         QWidget* editor = nullptr;
         if (p.kind == library::Parameter::Kind::File) {
-            editor = file_editor(p, common ? value : QString());
+            editor = file_editor(p, common ? value : QString(), d->mcu && d->mcu->firmware_parameter == p.name);
         } else if (p.kind == library::Parameter::Kind::Model) {
             editor = model_editor(p, *components.front(), common ? value : QString());
         } else if (p.serial_port) {
@@ -656,7 +656,7 @@ QString PropertiesPanel::project_dir() const
     return document_ ? document_->base_dir() : QString();
 }
 
-QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString& value)
+QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString& value, bool firmware)
 {
     auto* host = new QWidget;
     auto* row = new QHBoxLayout(host);
@@ -683,7 +683,6 @@ QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString
     auto* browse = new QPushButton(tr("Browse..."));
     browse->setObjectName(QStringLiteral("browse_%1").arg(QString::fromStdString(p.name)));
     // A board's firmware, or another file (a memory chip's contents, SN-208).
-    const bool firmware = p.filter.find(".elf") != std::string::npos;
     const QString kind = firmware ? tr("Firmware (%1)") : tr("Files (%1)");
     const QString filter = p.filter.empty() ? tr("All files (*)")
                                             : kind.arg(QString::fromStdString(p.filter)) + QStringLiteral(";;") + tr("All files (*)");

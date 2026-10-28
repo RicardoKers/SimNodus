@@ -66,6 +66,7 @@ void write_mcu_request(Writer& w, const McuRequest& m)
     }
     w.u64(m.component);
     const auto& o = m.options;
+    w.str(o.chip);
     w.str(utf8(o.firmware));
     write_strings(w, o.pins);
     write_strings(w, o.uarts);
@@ -123,6 +124,7 @@ McuRequest read_mcu_request(Reader& r)
     }
     m.component = r.u64();
     auto& o = m.options;
+    o.chip = r.str();
     o.firmware = from_utf8(r.str());
     o.pins = read_strings(r);
     o.uarts = read_strings(r);

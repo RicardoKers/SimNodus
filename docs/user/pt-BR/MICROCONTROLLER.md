@@ -1,10 +1,11 @@
-<!-- source: MICROCONTROLLER.md sha256 3e24162a799a551bcbbb9f58ca129f1646f557a0672ccacbafc3c3f5b1fbce6e -->
+<!-- source: MICROCONTROLLER.md sha256 fe82979ce0901dd05da89d1270bc546815a8dbb972a96a6a45908ae16831de79 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
 de STM32, junto com o circuito. Esta página lista o que o chip simulado suporta e
 onde ele difere de uma placa real (MCU-09); o [guia do usuário](USER_GUIDE.md)
-cobre o restante do SimNodus.
+cobre o restante do SimNodus. A placa **ESP32-C3-DevKitM-1** é nova e
+experimental: veja [Placa ESP32-C3 (experimental)](#placa-esp32-c3-experimental).
 
 ## Motor
 
@@ -226,6 +227,48 @@ real num notebook de 2026.
 - **Alimentação.** A placa é alimentada pelo seu regulador de 3,3 V (uma fonte
   ideal de 3,3 V atrás de 0,1 Ω); os pinos de 5 V e VBAT não são ligados
   internamente.
+
+## Placa ESP32-C3 (experimental)
+
+O componente **ESP32-C3-DevKitM-1** (Microcontroladores) executa firmware de
+ESP32-C3 no próprio emulador RISC-V do SimNodus (ADR 0106). Ele é
+**experimental**: o mesmo firmware já rodou sem modificações (exemplos do
+ESP-IDF, um sketch do Arduino, a imagem oficial do MicroPython), mas ainda não
+foi comparado com uma placa real, então pequenas diferenças podem existir.
+
+- **Firmware**: uma imagem da flash (`.bin`) gravada a partir do endereço 0,
+  como o `esptool write-flash 0x0` grava: a saída do `idf.py merge-bin` do
+  ESP-IDF, o `.merged.bin` da IDE do Arduino (Sketch > Export Compiled Binary)
+  ou o `.bin` do firmware `ESP32_GENERIC_C3` do MicroPython. Arquivos ELF não
+  são aceitos. O exemplo 45 pisca um LED no GPIO8 com o exemplo blink do
+  ESP-IDF.
+- **ROM**: a ROM do chip é reconstruída no início a partir do arquivo de ROM
+  da Espressif, que acompanha o SimNodus (`roms/esp32c3_rev3_rom.elf`,
+  Apache-2.0).
+- **Pinos**: GPIO0-GPIO10 e GPIO18-GPIO21, como nos conectores da placa; pinos
+  EN, 3V3, 5V e G. As saídas fornecem 3,3 V ou 0 V através de 33 Ω; as
+  entradas leem 1 acima de 2,475 V e 0 abaixo de 0,825 V (0,75 e 0,25 x VDD do
+  datasheet); pull-ups/pull-downs internos de 45 kΩ. O EN e o GPIO9 (BOOT) da
+  placa têm pull-ups de 10 kΩ. O LED RGB (um WS2812 no GPIO8) não é desenhado.
+- **Portas seriais** no terminal: **UART0** (o conector USB da placa; GPIO21
+  TX, GPIO20 RX; o log do ESP-IDF e do Arduino) e **USB Serial/JTAG** (o USB
+  do próprio chip, nos GPIO18/GPIO19; o prompt `>>>` do MicroPython).
+- **Simulado**: o núcleo RV32IMC, 4 MB de flash, SRAM, caches e mapeamento da
+  flash, interrupções, temporizador do sistema, grupos de timers e watchdogs,
+  RTC, light sleep e deep sleep, GPIO com interrupções, UART0/UART1, USB
+  Serial/JTAG, LEDC (PWM) e leituras avulsas do ADC nos GPIO0-GPIO4
+  (aproximadas: lineares, sem ruído), SHA, números aleatórios e eFuse (MAC
+  34:85:18:00:C3:01).
+- **Ainda não**: I2C, SPI e RMT (e portanto os chips I2C/SPI do SimNodus e as
+  fitas WS2812 com esta placa), ADC contínuo, Wi-Fi e Bluetooth; depuração com
+  GDB (só a Blue Pill); cópia de arquivos do computador para o MicroPython.
+- **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
+  configuração padrão); faltas de cache e esperas da flash não são modeladas,
+  então o código roda um pouco mais rápido que no chip. Os timers contam nas
+  suas taxas reais.
+- **Pressionar RESET** reinicia o chip como o botão EN; a flash guarda o que o
+  firmware gravou durante a execução (os arquivos do MicroPython) até a
+  simulação parar.
 
 ## Depuração com STM32CubeIDE ou GDB
 

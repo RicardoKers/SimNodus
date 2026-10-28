@@ -3,10 +3,9 @@
 #include "native_mcu_runner.hpp"
 
 #include "device_bus.hpp"
+#include "mcu_machine.hpp"
 
-#include "emu/elf.hpp"
 #include "emu/gdb_server.hpp"
-#include "emu/stm32f103.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -41,35 +40,6 @@ void trim_history(History& history, Time keep)
     history.erase(history.begin(), first_kept);
 }
 
-// "PA9" -> {0, 9}; {-1, -1} for anything else.
-std::pair<int, int> port_pin(const std::string& name)
-{
-    if (name.size() < 3 || name[0] != 'P' || name[1] < 'A' || name[1] > 'E') {
-        return {-1, -1};
-    }
-    const int pin = std::atoi(name.c_str() + 2);
-    return pin >= 0 && pin < 16 ? std::pair{name[1] - 'A', pin} : std::pair{-1, -1};
-}
-
-// `level`: the level on the pin, shown for inputs (outputs show what they drive).
-PinState pin_state(std::uint8_t mode, std::uint8_t cnf, bool drive_high, bool pull_up, bool level)
-{
-    PinState s;
-    if (mode == 0) {
-        switch (cnf) {
-        case 0: s.mode = PinMode::Analog; break;
-        case 2: s.mode = PinMode::Input; s.pull = pull_up ? Pull::Up : Pull::Down; break;
-        default: s.mode = PinMode::Input; break;
-        }
-        s.level = level;
-        return s;
-    }
-    s.mode = cnf >= 2 ? PinMode::Alternate : PinMode::Output;
-    s.open_drain = (cnf & 1u) != 0;
-    s.level = drive_high;
-    return s;
-}
-
 } // namespace
 
 NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(options))
@@ -90,13 +60,10 @@ NativeMcuRunner::NativeMcuRunner(McuRunOptions options) : options_(std::move(opt
     input_desired_.assign(options_.pins.size(), false);
     analog_.resize(options_.pins.size());
     for (std::size_t i = 0; i < options_.pins.size(); ++i) {
-        ports_.push_back(port_pin(options_.pins[i]));
         history_[i].push_back({0, PinState{}});
     }
     for (const auto& uart : options_.uarts) {
-        UartLog log;
-        log.number = uart.empty() ? 1 : uart.back() - '0';
-        uarts_[uart] = log;
+        uarts_[uart] = UartLog{}; // its id comes with the machine
     }
 }
 
@@ -426,14 +393,13 @@ void NativeMcuRunner::fail(const std::string& message)
     changed_.notify_all();
 }
 
-void NativeMcuRunner::sample_pins(emu::Stm32F103& machine, std::uint64_t time_ns)
+void NativeMcuRunner::sample_pins(McuMachine& machine, std::uint64_t time_ns)
 {
-    for (std::size_t i = 0; i < ports_.size(); ++i) {
-        if (ports_[i].first < 0) {
+    for (std::size_t i = 0; i < pin_ids_.size(); ++i) {
+        if (pin_ids_[i] < 0) {
             continue;
         }
-        const auto c = machine.pin_config(ports_[i].first, ports_[i].second);
-        const PinState state = pin_state(c.mode, c.cnf, c.drive_high, c.pull_up, c.output_level);
+        const PinState state = machine.pin_state(pin_ids_[i]);
         const PinState& last = history_[i].back().second;
         if (!state.same_config(last) || state.level != last.level) {
             history_[i].push_back({std::max(time_ns, history_[i].back().first), state});
@@ -446,62 +412,24 @@ void NativeMcuRunner::work()
 {
     const auto begin = std::chrono::steady_clock::now();
     std::string error;
-    emu::MachineOptions machine_options;
-    // A frame on the RX pin is decided once every edge up to its stop bit has
-    // arrived: the ADC's lag plus two windows (an input is applied at a window
-    // boundary, while the firmware may be a window further on).
-    machine_options.uart_rx_lag_ns = options_.analog_lag_ns + 2 * std::max<std::uint64_t>(options_.chunk_us, 1) * 1000;
-    machine_options.uart_rx_min_bit_ns = options_.uart_rx_min_bit_ns;
-    machine_options.cortex_m3_timing = options_.cortex_m3_timing;
-    // Pins on a net with a device: the device bus gives their edges at once.
-    for (const auto& net : options_.nets) {
-        if (net.device_pins.empty()) {
-            continue;
+    auto machine = make_machine(options_, error);
+    if (!machine || !machine->load(options_, error)) {
+        fail(error);
+        return;
+    }
+    {
+        std::lock_guard lock(mutex_);
+        for (const auto& pin : options_.pins) {
+            pin_ids_.push_back(machine->pin_id(pin)); // device pins ("U2.Q0") give -1
         }
-        for (const auto& pin : net.board_pins) {
-            if (pin.size() >= 3 && pin[0] == 'P' && pin[1] >= 'A' && pin[1] <= 'D') {
-                const int number = std::atoi(pin.c_str() + 2);
-                if (number >= 0 && number < 16) {
-                    machine_options.exact_input_pins |= std::uint64_t{1} << ((pin[1] - 'A') * 16 + number);
-                }
-            }
+        for (auto& [name, log] : uarts_) {
+            log.id = machine->uart_id(name);
         }
     }
-    for (const auto& uart : options_.uart_rx_byte_links) {
-        if (!uart.empty() && uart.back() >= '1' && uart.back() <= '3') {
-            machine_options.uart_rx_pins &= ~(1u << (uart.back() - '1'));
-        }
-    }
-    auto machine = std::make_unique<emu::Stm32F103>(machine_options);
-    // Without a firmware file (debugging only) the flash stays empty until the
-    // debugger's `load` writes it.
-    if (options_.chips_only) {
-        // Chips without a board (SN-212): a core that sleeps (WFI) until the devices' next event.
-        emu::ElfImage image;
-        std::vector<std::uint8_t> bytes(0x24, 0);
-        const std::uint32_t vectors[2] = {0x20005000u, 0x08000021u}; // stack, reset handler
-        std::memcpy(bytes.data(), vectors, sizeof vectors);
-        bytes[0x20] = 0x30; // wfi
-        bytes[0x21] = 0xBF;
-        bytes[0x22] = 0xFD; // b wfi
-        bytes[0x23] = 0xE7;
-        image.entry = 0x08000021;
-        image.segments.push_back({0x08000000, 0x08000000, bytes, static_cast<std::uint32_t>(bytes.size()), true});
-        if (!machine->load(image, error)) {
-            fail(error);
-            return;
-        }
-    } else if (!options_.firmware.empty() || options_.gdb_port < 0) {
-        const auto image = emu::read_elf(options_.firmware, error);
-        if (!image || !machine->load(*image, error)) {
-            fail(error);
-            return;
-        }
-    }
-    std::map<std::pair<int, int>, std::size_t> watched;
-    for (std::size_t i = 0; i < ports_.size(); ++i) {
-        if (ports_[i].first >= 0) {
-            watched[ports_[i]] = i;
+    std::map<int, std::size_t> watched; // machine pin -> watched pin
+    for (std::size_t i = 0; i < pin_ids_.size(); ++i) {
+        if (pin_ids_[i] >= 0) {
+            watched[pin_ids_[i]] = i;
         }
     }
     // Digital devices (SN-203): their nets follow the firmware at once.
@@ -511,9 +439,7 @@ void NativeMcuRunner::work()
             fail(error);
             return;
         }
-        machine->set_pin_hook([&bus](int port, int pin, std::uint64_t time_ns) {
-            bus.board_pin_changed(port, pin, time_ns);
-        });
+        machine->set_pin_hook([&bus](int pin, std::uint64_t time_ns) { bus.board_pin_changed(pin, time_ns); });
         bus.set_analog_source([this](std::size_t device, std::size_t pin, std::uint64_t time_ns) {
             if (device >= device_pins_.size() || pin >= device_pins_[device].size()) {
                 return std::nan("");
@@ -532,7 +458,11 @@ void NativeMcuRunner::work()
     // Debugging (SN-180): the GDB server lives on this thread, which owns the machine.
     std::unique_ptr<emu::GdbServer> gdb;
     if (options_.gdb_port >= 0) {
-        gdb = std::make_unique<emu::GdbServer>(*machine);
+        if (!machine->stm32()) {
+            fail("Debugging with GDB is not available for this board's chip yet.");
+            return;
+        }
+        gdb = std::make_unique<emu::GdbServer>(*machine->stm32());
         if (!gdb->start(static_cast<std::uint16_t>(options_.gdb_port), error)) {
             fail("Debugging: " + error);
             return;
@@ -560,22 +490,21 @@ void NativeMcuRunner::work()
             ++status_.debug_resumes;
         }
     };
-    machine->set_analog_source([this, &watched](int port, int pin, std::uint64_t time_ns) {
-        const auto it = watched.find({port, pin});
+    machine->set_analog_source([this, &watched](int pin, std::uint64_t time_ns) {
+        const auto it = watched.find(pin);
         return it == watched.end() ? 0.0 : analog_value(it->second, time_ns);
     });
 
     // Firmware events of a run step into the pin history, the level logs and the terminal.
     auto collect = [&] {
         for (const auto& e : machine->take_pin_events()) {
-            const auto it = watched.find({e.port, e.pin});
+            const auto it = watched.find(e.pin);
             if (it == watched.end()) {
                 continue;
             }
             const std::size_t i = it->second;
-            PinState state = pin_state(e.mode, e.cnf, e.drive_high, e.pull_up, e.level);
             auto& history = history_[i];
-            history.push_back({std::max(e.time_ns, history.back().first), state});
+            history.push_back({std::max(e.time_ns, history.back().first), e.state});
             trim_history(history, history_keep_ns);
             auto& log = levels_[i];
             if (log.back().second != e.level) {
@@ -587,7 +516,7 @@ void NativeMcuRunner::work()
         }
         for (const auto& b : machine->take_uart_bytes()) {
             for (auto& [name, log] : uarts_) {
-                if (log.number == b.usart) {
+                if (log.id == b.uart) {
                     log.bytes += static_cast<char>(b.value);
                     log.times.push_back(b.time_ns);
                     ++log.total;
@@ -599,9 +528,9 @@ void NativeMcuRunner::work()
                 }
             }
         }
-        for (const auto& d : machine->take_diagnostics()) {
+        for (auto& text : machine->take_diagnostics()) {
             if (diagnostics_.size() < 100) {
-                diagnostics_.push_back(d.text);
+                diagnostics_.push_back(std::move(text));
             }
         }
         // Device outputs: drives into the circuit and logic lanes, like board pins.
@@ -653,9 +582,9 @@ void NativeMcuRunner::work()
         std::lock_guard lock(mutex_);
         collect();
         sample_pins(*machine, 0);
-        for (std::size_t i = 0; i < ports_.size(); ++i) {
-            if (ports_[i].first >= 0) {
-                levels_[i].front().second = machine->pin_level(ports_[i].first, ports_[i].second);
+        for (std::size_t i = 0; i < pin_ids_.size(); ++i) {
+            if (pin_ids_[i] >= 0) {
+                levels_[i].front().second = machine->pin_level(pin_ids_[i]);
             }
         }
         status_.state = McuState::Running;
@@ -709,8 +638,8 @@ void NativeMcuRunner::work()
             }
             input_queue_.clear();
             for (auto& [name, log] : uarts_) {
-                if (!log.pending.empty()) {
-                    to_send.emplace_back(log.number, std::exchange(log.pending, {}));
+                if (!log.pending.empty() && log.id >= 0) {
+                    to_send.emplace_back(log.id, std::exchange(log.pending, {}));
                 }
             }
         }
@@ -718,14 +647,14 @@ void NativeMcuRunner::work()
             break;
         }
         if (reset_.exchange(false)) {
-            machine->reset(emu::ResetKind::Pin); // the board's RESET button pulls NRST low
+            machine->press_reset(); // the board's reset button
             std::lock_guard lock(mutex_);
             ++status_.resets;
             collect();
         }
-        for (const auto& [number, text] : to_send) {
+        for (const auto& [id, text] : to_send) {
             for (const char c : text) {
-                machine->uart_receive(number, static_cast<std::uint8_t>(c));
+                machine->uart_receive(id, static_cast<std::uint8_t>(c));
             }
         }
         std::stable_sort(pending.begin(), pending.end(),
@@ -736,10 +665,10 @@ void NativeMcuRunner::work()
             const std::uint64_t now = machine->time_ns();
             while (!pending.empty() && pending.front().apply_ns <= now) {
                 const auto& change = pending.front();
-                const auto [port, pin] = ports_[change.pin];
+                const int pin = pin_ids_[change.pin];
                 // A pin on a device net takes its level from the bus, not from the circuit.
-                if (port >= 0 && !bus.owns_board_pin(port, pin)) {
-                    machine->set_pin_input(port, pin, change.level, change.changed_ns);
+                if (pin >= 0 && !bus.owns_board_pin(pin)) {
+                    machine->set_pin_input(pin, change.level, change.changed_ns);
                 } else if (const auto device = device_of_pin_.find(change.pin); device != device_of_pin_.end()) {
                     bus.set_circuit_level(device->second.first, device->second.second, change.level, now);
                 }
@@ -747,10 +676,10 @@ void NativeMcuRunner::work()
                     std::lock_guard lock(mutex_);
                     status_.max_input_delay_ns = std::max(status_.max_input_delay_ns, now - change.time_ns);
                     // Inputs from the circuit show in the board display and the logic lanes.
-                    if (port >= 0) {
+                    if (pin >= 0) {
                         sample_pins(*machine, now);
                         auto& log = levels_[change.pin];
-                        const bool level = machine->pin_level(port, pin);
+                        const bool level = machine->pin_level(pin);
                         if (log.back().second != level) {
                             log.emplace_back(std::max(now, log.back().first), level);
                         }
