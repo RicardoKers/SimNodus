@@ -1947,6 +1947,12 @@ private slots:
         QVERIFY(control("view.dialog", {{"show", false}})["closed"].get<bool>());
         QTRY_VERIFY(!dialog); // deleted on close
         QVERIFY(control("view.dialog", {{"name", "settings"}}).is_null());
+
+        // SN-240: an untitled project shows the name a recording gives it.
+        QVERIFY(control("project.new", {{"discard", true}, {"name", "RC filter"}}).is_object());
+        QVERIFY(window_->windowTitle().startsWith(QStringLiteral("RC filter")));
+        QVERIFY(control("project.new", {{"discard", true}}).is_object());
+        QVERIFY(!window_->windowTitle().startsWith(QStringLiteral("RC filter")));
     }
 
     void external_control_runs_show_in_the_window()

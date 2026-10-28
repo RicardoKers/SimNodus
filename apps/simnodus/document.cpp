@@ -62,6 +62,7 @@ void Document::replace(model::Schematic schematic, const QString& path)
     schematic_ = std::move(schematic);
     path_ = path;
     origin_dir_.clear();
+    untitled_name_.clear();
     undo_->setClean();
     refresh_library();
     emit changed();
@@ -155,7 +156,16 @@ bool Document::save(const QString& path, QString& error)
 
 QString Document::display_name() const
 {
-    return path_.isEmpty() ? tr("Untitled") : QFileInfo(path_).fileName();
+    if (path_.isEmpty()) {
+        return untitled_name_.isEmpty() ? tr("Untitled") : untitled_name_;
+    }
+    return QFileInfo(path_).fileName();
+}
+
+void Document::set_untitled_name(const QString& name)
+{
+    untitled_name_ = name;
+    emit file_changed();
 }
 
 bool Document::modified() const

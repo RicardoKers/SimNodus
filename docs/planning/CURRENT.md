@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-26. Keep this file short: present state, last results, next
+Updated: 2026-10-27. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -17,9 +17,19 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   guides, package README) besides GitHub Issues.
 - **On `main` after 0.11:** new values of ngspice parts apply at once in
   an interactive run (SN-232), Autoscale with one 0 V height per unit
-  (SN-233), `view.fit` with a grid `area` and a canvas `region` (SN-231), for the owner's video pipeline in the private repository
-  `RicardoKers/simnodus-videos` (episode files, Kokoro narration, the window
-  driven by `simnodus-cli connect`, ffmpeg capture).
+  (SN-233), `view.fit` with a grid `area` and a canvas `region` (SN-231).
+  From the videos request of 2026-10-27 (the owner's private repository
+  `RicardoKers/simnodus-videos`, window driven by `simnodus-cli connect`):
+  `analyzer.set`/`analyzer.autoscale` (SN-234), Auto scales per channel
+  (SN-235), time zoom while paused (SN-236, owner's request), the drawn
+  pointer, key badges, highlights, `view.locate` and `ui.*` input through
+  the real widgets (SN-238), smooth camera, `view.panels`, `view.font`,
+  `--scale`, `view.dialog` (SN-239), `sim.control` with `over` and for
+  chips' live values, `project.new` with a name (SN-240).
+- **Serial Port part (SN-237, ADR 0105, example 44):** a real serial port of
+  the computer on RX, TX and GND (TTL 3.3/5 V; baud, data bits, parity, stop
+  bits; `loopback`). Tested with `loopback` only; a real adapter is the
+  owner's test.
 - **New in 0.11:** File > Save with Firmware (SN-219) and the placement
   shortcuts V, I, Shift+V, Shift+I (SN-220); sensors and transducers
   (SN-221, example 36); logic chips in DIP packages (SN-222, example 37); I2C
@@ -109,10 +119,17 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example 26 (LED matrix, 0.4x), 24
-   and 15 (about 1x). SN-186 postponed. Run `tools/examples_pass.py` and
-   `tools/examples_gui_pass.py` before each release.
-2. Classroom feedback (postponed: academic calendar).
+1. Owner's test of the Serial Port part with a USB-serial adapter or a
+   virtual port pair (example 44 with a terminal program), and of the new
+   recording commands in the videos repository (note them in its
+   `CLAUDE.md`). "Controlled by an agent" stays in the status bar during
+   recordings (owner's decision, 2026-10-27). Test package
+   `dist/SimNodus-0.11.0-dev-windows-x64.zip` built 2026-10-27.
+2. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
+   26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186 postponed. Run
+   `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
+   release.
+3. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
 

@@ -243,6 +243,11 @@ public:
         window_.auto_discard_ = automatic;
     }
 
+    void name_project(const std::string& name) override
+    {
+        window_.document()->set_untitled_name(QString::fromStdString(name));
+    }
+
     std::vector<std::string> open_project(const std::filesystem::path& file, bool discard) override
     {
         refuse_unsaved(discard);

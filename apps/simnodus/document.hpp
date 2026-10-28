@@ -53,6 +53,8 @@ public:
     // folder, or for an example copy the folder it came from. Empty if none.
     QString base_dir() const;
     QString display_name() const;
+    // The name an untitled project shows until it is saved (project.new in a recording, SN-240).
+    void set_untitled_name(const QString& name);
     bool modified() const;
 
 signals:
@@ -74,6 +76,7 @@ private:
     model::Schematic schematic_;
     QUndoStack* undo_ = nullptr;
     QString path_;
+    QString untitled_name_;
     QString origin_dir_; // folder of the file an untitled copy came from
 };
 

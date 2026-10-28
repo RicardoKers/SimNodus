@@ -1279,6 +1279,10 @@ json cmd_project_new(Context& cx, const json& args)
 {
     cx.ws.new_project(args.value("discard", false));
     cx.run.reset();
+    if (const auto name = optional_text(args, "name")) {
+        cx.ws.name_project(*name);
+        return {{"file", nullptr}, {"name", *name}};
+    }
     return {{"file", nullptr}};
 }
 
@@ -1809,13 +1813,99 @@ json cmd_sim_advance(Context& cx, const json& args)
     return {{"status", status_json(cx.ws.session().status())}};
 }
 
+// Steps `apply(fraction)` from 0 towards 1 over `seconds` of the workspace's
+// time (wall-clock), every 30 ms: a knob turns smoothly in a recording.
+template <typename Apply>
+void ramp(Context& cx, double seconds, Apply apply)
+{
+    const int steps = std::max(1, static_cast<int>(seconds / 0.03));
+    const auto pause = std::chrono::milliseconds(static_cast<int>(std::lround(seconds * 1000.0 / steps)));
+    for (int i = 1; i < steps; ++i) {
+        cx.ws.wait(pause);
+        apply(static_cast<double>(i) / steps);
+    }
+    cx.ws.wait(pause);
+}
+
+// The live parameter of a chip that sim.control sets (SN-240): "parameter",
+// else the part's value parameter when live, else its only live parameter.
+const library::Parameter* live_parameter(Context& cx, const model::Component& c, const json& args)
+{
+    const auto* d = cx.ws.library().find(c.type);
+    if (!d || !d->device) {
+        return nullptr;
+    }
+    if (const auto name = optional_text(args, "parameter")) {
+        const auto* p = d->parameter(*name);
+        if (!p || !p->live) {
+            fail("invalid-argument", c.designator + " has no parameter \"" + *name + "\" that changes while running.");
+        }
+        return p;
+    }
+    if (const auto* p = d->parameter(d->value_parameter); p && p->live) {
+        return p;
+    }
+    const library::Parameter* only = nullptr;
+    for (const auto& p : d->parameters) {
+        if (p.live) {
+            if (only) {
+                fail("invalid-argument", c.designator + " has several parameters that change while running; name one "
+                                                       "with \"parameter\".");
+            }
+            only = &p;
+        }
+    }
+    return only;
+}
+
 json cmd_sim_control(Context& cx, const json& args)
 {
     active_run(cx);
-    const auto& c = control_component(cx, required(args, "component"));
-    const double value = control_value(cx, c, required(args, "value"));
-    cx.ws.session().set_control(c.id, value);
-    return {{"component", c.designator}, {"value", value}, {"time", cx.ws.session().status().sim_time}};
+    const auto& c = cx.component(required(args, "component"));
+    const double over = optional_quantity(args, "over", "s").value_or(0.0);
+    if (over < 0 || over > 600) {
+        fail("invalid-argument", "\"over\" is a time from 0 to 600 s.");
+    }
+    const auto& controls = cx.ws.session().netlist().controls;
+    const bool control = std::any_of(
+        controls.begin(), controls.end(), [&](const netlist::ControlSource& s) { return s.component == c.id; });
+    if (control) {
+        const double value = control_value(cx, c, required(args, "value"));
+        if (over > 0) {
+            const double from = cx.ws.session().control(c.id).value_or(value);
+            ramp(cx, over, [&](double f) { cx.ws.session().set_control(c.id, from + (value - from) * f); });
+        }
+        cx.ws.session().set_control(c.id, value);
+        return {{"component", c.designator}, {"value", value}, {"time", cx.ws.session().status().sim_time}};
+    }
+    // A chip's measured quantity (an LM75's temperature, an HC-SR04's distance).
+    const auto* p = live_parameter(cx, c, args);
+    if (!p) {
+        fail("invalid-argument", c.designator + " is not an interactive control (switch, button, potentiometer, keypad, "
+                                 "adjustable source, sensor) or a chip with a value that changes while running.");
+    }
+    const json& given = required(args, "value");
+    std::string text = given.is_string() ? given.get<std::string>() : given.dump();
+    std::optional<double> target = given.is_number() ? std::optional<double>(given.get<double>())
+                                                      : model::parse_engineering(text, p->unit);
+    if (target) {
+        text = model::format_engineering(*target, 6);
+    }
+    const auto now = c.parameters.find(p->name);
+    const std::optional<double> from = now == c.parameters.end() ? std::nullopt : model::parse_engineering(now->second, p->unit);
+    if (over > 0 && target && from) {
+        ramp(cx, over, [&](double f) {
+            cx.ws.session().set_device_parameter(c.id, p->name, model::format_engineering(*from + (*target - *from) * f, 6));
+        });
+    }
+    const Id id = c.id;
+    const std::string name = p->name;
+    model::Schematic work = cx.schematic();
+    set_parameters(cx, work, id, json{{name, text}});
+    cx.apply(model::make_edit(cx.schematic(), work, "Change " + work.component(id)->designator));
+    cx.ws.session().set_device_parameter(id, name, text);
+    return {{"component", cx.schematic().component(id)->designator}, {"parameter", name}, {"value", text},
+        {"time", cx.ws.session().status().sim_time}};
 }
 
 json cmd_sim_read(Context& cx, const json& args)
@@ -1932,7 +2022,7 @@ const Command commands[] = {
     {"parts.describe", "Pins (grid points relative to the origin), parameters, bounds of a part.", R"j({"type": "resistor"})j",
         cmd_parts_describe},
     {"project.new", "Starts an empty project.",
-        R"j({"discard": "true to drop unsaved changes in the window (refused otherwise)"})j", cmd_project_new},
+        R"j({"discard": "true to drop unsaved changes in the window (refused otherwise)", "name": "RC filter: the window's title until it is saved"})j", cmd_project_new},
     {"project.open", "Opens a .snx file.", R"j({"path": "file.snx", "discard": "true to drop unsaved changes in the window"})j",
         cmd_project_open},
     {"project.save", "Saves the project (keeps the previous version as .snx.bak).",
@@ -1976,8 +2066,9 @@ const Command commands[] = {
         cmd_sim_start},
     {"sim.advance", "Lets an interactive run reach a time, then pauses it; waits for a transient analysis.",
         R"j({"to": "10m", "by": "1m instead of to", "timeout": "300"})j", cmd_sim_advance},
-    {"sim.control", "Operates a switch, button, potentiometer, keypad, adjustable source or sensor.",
-        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%, or a sensor's quantity in its unit (\"35 °C\", \"500 lux\")"})j", cmd_sim_control},
+    {"sim.control", "Operates a switch, button, potentiometer, keypad, adjustable source or sensor, or sets a chip's value "
+                    "that changes while running (an LM75's temperature); \"over\" turns it there smoothly.",
+        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%, or a sensor's quantity in its unit (\"35 °C\", \"500 lux\")", "over": "2s: from the present value over this time (optional)", "parameter": "a chip's parameter, when it has several"})j", cmd_sim_control},
     {"sim.read", "Values and measurements of the signals.",
         R"j({"signals": ["V(OUT)"], "from": "0", "to": "10m", "points": "20", "csv": "file.csv"})j", cmd_sim_read},
     {"sim.status", "State, simulated time, speed, messages.", "{}", cmd_sim_status},

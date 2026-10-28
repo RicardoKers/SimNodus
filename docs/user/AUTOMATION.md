@@ -87,7 +87,7 @@ project, or with the project named after the script.
 | `hello`, `help` | Protocol version and whether the window is controlled (`directory` sets where relative paths start); every command with its arguments |
 | `parts.list` | Parts, filtered by `search` or `category` |
 | `parts.describe` | Pins, parameters (units, limits, choices, built-in models), bounds |
-| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`; with `"with_files": true` it also copies firmware and memory contents files into `<name>_files` next to the project; in the window, `new` and `open` refuse to drop unsaved changes unless `"discard": true`) |
+| `project.new`, `project.open`, `project.save`, `project.info` | Project files (`save` keeps the previous version as `.snx.bak`; with `"with_files": true` it also copies firmware and memory contents files into `<name>_files` next to the project; in the window, `new` and `open` refuse to drop unsaved changes unless `"discard": true`; `project.new` takes a `"name"` that the window's title shows until the project is saved) |
 | `circuit.inspect` | Components with pins, points and nets; wires, labels, nets, probes, notes, unconnected pins, settings |
 | `circuit.check` | The pre-run checks of the Messages panel, with codes |
 | `component.add` | Places a part `at` a point, or with a pin `attach`ed to a pin or point (`{"to": "V1.-"}` for a ground) |
@@ -100,7 +100,7 @@ project, or with the project named after the script.
 | `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed, `exact_edges`, `cortex_m3_timing` |
 | `edit.undo`, `edit.redo` | Undo history of the session |
 | `sim.run` | Start, run, measure, stop: a transient analysis, or an interactive run for `duration` with timed `events` |
-| `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step (a sensor's control also takes its quantity with the unit: `"35 °C"`, `"500 lux"`) |
+| `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step (a sensor's control also takes its quantity with the unit: `"35 °C"`, `"500 lux"`). `sim.control` also sets a chip's value that changes while running (an LM75's temperature, an HC-SR04's distance; `"parameter"` names it when the chip has several), and `"over": "2s"` turns a control or such a value there smoothly from where it is, in the workspace's time (a knob turning in a recording) |
 | `sim.uart` | Text a board sent on a serial port; `send` types into it |
 
 `sim.read` and `sim.run` return, for each signal, the last value and the
