@@ -5,6 +5,7 @@
 #include "device_bus.hpp"
 #include "mcu_machine.hpp"
 
+#include "devices/host_link.hpp"
 #include "emu/gdb_server.hpp"
 
 #include <algorithm>
@@ -426,6 +427,61 @@ void NativeMcuRunner::work()
             log.id = machine->uart_id(name);
         }
     }
+    // The board's USB connector to the computer (SN-252, ADR 0107): bytes
+    // both ways, the program's DTR and RTS to the board's reset circuit.
+    struct Link {
+        int uart = -1;
+        std::string circuit;
+        std::unique_ptr<devices::HostLink> link;
+        devices::HostLines lines;   // as the board has them
+        devices::HostLines settling; // as the program set them last
+        std::chrono::steady_clock::time_point since;
+        std::string out; // bytes for the program, written once per collect
+    };
+    std::vector<Link> links;
+    for (const auto& [name, spec] : options_.uart_links) {
+        if (spec.spec.empty()) {
+            continue;
+        }
+        std::string why;
+        auto link = devices::open_host_link(spec.spec, why);
+        std::lock_guard lock(mutex_);
+        if (!link) {
+            diagnostics_.push_back(name + " could not be linked to " + spec.spec + ": " + why
+                + ". The run goes on without the link.");
+            continue;
+        }
+        diagnostics_.push_back(name + " is linked to " + link->description() + ".");
+        links.push_back({machine->uart_id(name), spec.circuit, std::move(link), {}, {}, {}, {}});
+    }
+    auto last_link_poll = std::chrono::steady_clock::time_point{};
+    // The programs' bytes and lines, at most every millisecond of the computer's time.
+    auto service_links = [&] {
+        const auto wall = std::chrono::steady_clock::now();
+        if (links.empty() || wall - last_link_poll < std::chrono::milliseconds(1)) {
+            return;
+        }
+        last_link_poll = wall;
+        for (auto& l : links) {
+            // A program sets DTR and RTS one after the other: the board sees
+            // them once they held for 5 ms, so states between two calls pass.
+            const auto lines = l.link->lines();
+            if (!(lines == l.settling)) {
+                l.settling = lines;
+                l.since = wall;
+            } else if (!(lines == l.lines) && wall - l.since >= std::chrono::milliseconds(5)) {
+                l.lines = lines;
+                machine->host_lines(l.uart, l.circuit, lines.dtr, lines.rts);
+            }
+            std::uint8_t buffer[1024];
+            for (std::size_t n; (n = l.link->read(buffer, sizeof(buffer))) > 0;) {
+                for (std::size_t i = 0; i < n; ++i) {
+                    machine->uart_receive(l.uart, buffer[i]);
+                }
+            }
+        }
+    };
+
     std::map<int, std::size_t> watched; // machine pin -> watched pin
     for (std::size_t i = 0; i < pin_ids_.size(); ++i) {
         if (pin_ids_[i] >= 0) {
@@ -515,6 +571,11 @@ void NativeMcuRunner::work()
             }
         }
         for (const auto& b : machine->take_uart_bytes()) {
+            for (auto& l : links) {
+                if (l.uart == b.uart) {
+                    l.out += static_cast<char>(b.value);
+                }
+            }
             for (auto& [name, log] : uarts_) {
                 if (log.id == b.uart) {
                     log.bytes += static_cast<char>(b.value);
@@ -526,6 +587,21 @@ void NativeMcuRunner::work()
                         log.times.erase(log.times.begin(), log.times.begin() + static_cast<std::ptrdiff_t>(drop));
                     }
                 }
+            }
+        }
+        for (auto& l : links) {
+            if (!l.out.empty()) {
+                l.link->write(reinterpret_cast<const std::uint8_t*>(l.out.data()), l.out.size());
+                l.out.clear();
+            }
+        }
+        // The flash esptool wrote (SN-253), as the board's memory (component 0):
+        // a copy at most every 0.2 s of its time while writes go on.
+        if (const std::uint64_t version = machine->downloaded_flash_version(); version != 0) {
+            const auto known = memories_.find(0);
+            if (known == memories_.end()
+                || (known->second.version != version && machine->time_ns() >= known->second.copied_ns + 200000000ull)) {
+                memories_[0] = {version, machine->flash(), machine->time_ns()};
             }
         }
         for (auto& text : machine->take_diagnostics()) {
@@ -657,6 +733,7 @@ void NativeMcuRunner::work()
                 machine->uart_receive(id, static_cast<std::uint8_t>(c));
             }
         }
+        service_links();
         std::stable_sort(pending.begin(), pending.end(),
             [](const InputChange& a, const InputChange& b) { return a.apply_ns < b.apply_ns; });
 
@@ -714,6 +791,9 @@ void NativeMcuRunner::work()
     }
     machine->set_pin_hook(nullptr); // the bus goes first
     std::lock_guard lock(mutex_);
+    if (const std::uint64_t version = machine->downloaded_flash_version(); version != 0) {
+        memories_[0] = {version, machine->flash(), machine->time_ns()}; // the last writes too
+    }
     status_.state = McuState::Stopped;
 }
 

@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-10-28. Keep this file short: present state, last results, next
+Updated: 2026-10-29. Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -16,6 +16,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   examples 45-48. The owner tested the preview package
   `dist/SimNodus-0.13-preview-2026-10-28-windows-x64.zip` (built from
   `bc9b3c9`) on 2026-10-28: everything worked.
+- **ESP32-C3 serial to the computer (SN-252-254, ADR 0107), on a branch for
+  review:** the board's UART0 and USB Serial/JTAG link to a COM port (a
+  virtual pair for the Arduino IDE and Thonny) or to `tcp:PORT` (RFC 2217
+  for esptool and mpremote); DTR/RTS reset the board into download mode and
+  esptool writes the flash (checked: `write-flash` at 921600 baud, hash
+  verified, the new firmware boots); the uploaded flash is kept as
+  `<designator>-flash.bin`. UART0/UART1 work bit by bit on their pins (a
+  Serial Port part in loopback echoes through an Arduino sketch). Not checked
+  here: the Arduino IDE and Thonny through com0com (no pair installed), and
+  mpremote; the owner should try them with the next preview.
 - **Release 0.12.0 published on 2026-10-27** after the owner's test of
   the package: tag `v0.12.0`, GitHub release with
   `SimNodus-0.12.0-windows-x64.zip` and `SimNodus-0.12.0-windows-x64-setup.exe`.

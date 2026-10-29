@@ -1762,6 +1762,10 @@ Pinos: %2</translation>
             <translation>Selecione componentes de um só tipo para editá-los juntos.</translation>
         </message>
         <message>
+            <source>Not linked</source>
+            <translation>Sem ligação</translation>
+        </message>
+        <message>
             <source>(different values)</source>
             <translation>(valores diferentes)</translation>
         </message>
@@ -1890,6 +1894,18 @@ Pinos: %2</translation>
     </context>
     <context>
         <name>simnodus::ui::RunController</name>
+        <message>
+            <source>%1: the firmware uploaded through the USB connector is not kept: save the project first.</source>
+            <translation>%1: o firmware gravado pelo conector USB não foi guardado: salve o projeto primeiro.</translation>
+        </message>
+        <message>
+            <source>%1: the uploaded firmware could not be saved as %2: %3</source>
+            <translation>%1: o firmware gravado não pôde ser salvo como %2: %3</translation>
+        </message>
+        <message>
+            <source>%1: the firmware uploaded through the USB connector was saved as %2, now the board's firmware.</source>
+            <translation>%1: o firmware gravado pelo conector USB foi salvo como %2, agora o firmware da placa.</translation>
+        </message>
         <message>
             <source>transient analysis, stop %1s, maximum step %2s</source>
             <translation>análise transitória, fim %1s, passo máximo %2s</translation>
@@ -3620,6 +3636,22 @@ Pinos: %2</translation>
         <message>
             <source>Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project</source>
             <translation>Imagem da flash para o ESP32-C3, gravada a partir do endereço 0 (um .bin unificado do ESP-IDF ou do Arduino, ou o .bin do firmware do MicroPython); guardado em relação ao projeto</translation>
+        </message>
+        <message>
+            <source>UART0 to the computer</source>
+            <translation>UART0 para o computador</translation>
+        </message>
+        <message>
+            <source>The board's USB connector (UART0, through its USB-serial bridge) linked to the computer: a serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs that speak RFC 2217 (esptool, mpremote), or empty for none. DTR and RTS reset the board and select download mode, as on the DevKit</source>
+            <translation>O conector USB da placa (UART0, pela sua ponte USB-serial) ligado ao computador: uma porta serial (uma ponta de um par de portas virtuais como o com0com), tcp:4000 para programas que falam RFC 2217 (esptool, mpremote), ou vazio para nenhuma. DTR e RTS reiniciam a placa e escolhem o modo de download, como na DevKit</translation>
+        </message>
+        <message>
+            <source>USB Serial/JTAG to the computer</source>
+            <translation>USB Serial/JTAG para o computador</translation>
+        </message>
+        <message>
+            <source>The chip's own USB (GPIO18 and GPIO19; MicroPython's REPL) linked to the computer: a serial port (one end of a virtual port pair), tcp:4001, or empty for none. DTR and RTS reset the chip and select download mode as the USB Serial/JTAG does</source>
+            <translation>O USB do próprio chip (GPIO18 e GPIO19; o REPL do MicroPython) ligado ao computador: uma porta serial (uma ponta de um par de portas virtuais), tcp:4001, ou vazio para nenhuma. DTR e RTS reiniciam o chip e escolhem o modo de download como o USB Serial/JTAG faz</translation>
         </message>
         <message>
             <source>Rotary encoder</source>

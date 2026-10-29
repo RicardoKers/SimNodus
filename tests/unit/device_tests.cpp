@@ -8,6 +8,7 @@
 
 #include "circuit_builder.hpp"
 #include "devices/device.hpp"
+#include "devices/host_link.hpp"
 #include "editing/operations.hpp"
 #include "emu/elf.hpp"
 #include "emu/stm32f103.hpp"
@@ -2537,4 +2538,104 @@ TEST_CASE("devices: a Blue Pill's USART talks through the serial port part (SN-2
     session.stop();
     CHECK(received.size() > 200); // without the port's bytes: about 80
     CHECK(!led.changes.empty());
+}
+
+TEST_CASE("host link: TCP with RFC 2217 carries bytes, 0xFF and DTR/RTS")
+{
+    using namespace simnodus::devices;
+    CHECK(tcp_link_port("tcp:4000") == 4000);
+    CHECK(tcp_link_port("rfc2217:4001") == 4001);
+    CHECK(tcp_link_port("COM7") == 0);
+    std::string error;
+    CHECK(!open_host_link("tcp:0", error));
+
+    const std::uint16_t port = 45123;
+    auto link = open_host_link("tcp:" + std::to_string(port), error);
+    REQUIRE(link);
+    CHECK(link->description() == "TCP port 45123 (RFC 2217)");
+    CHECK(link->lines() == HostLines{});
+    {
+        Rfc2217TestClient client;
+        REQUIRE(client.connect(port, error));
+        client.set_baud(921600);
+        client.set_lines(true, false);
+        client.send(std::string("a\xFF" "b", 3));
+        std::string got;
+        HostLines lines;
+        const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (got.size() < 3 && std::chrono::steady_clock::now() < end) {
+            std::uint8_t buffer[16];
+            lines = link->lines();
+            got.append(reinterpret_cast<const char*>(buffer), link->read(buffer, sizeof(buffer)));
+        }
+        CHECK(got == std::string("a\xFF" "b", 3));
+        CHECK(lines.dtr);
+        CHECK(!lines.rts);
+        const std::uint8_t out[] = {'o', 0xFF, 'k'};
+        link->write(out, sizeof(out));
+        CHECK(client.receive(300) == std::string("o\xFF" "k", 3));
+        CHECK(client.acknowledgements() >= 3); // baud rate, DTR, RTS
+    }
+    // The program went away: the lines drop.
+    const auto end = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (link->lines().dtr && std::chrono::steady_clock::now() < end) {
+    }
+    CHECK(link->lines() == HostLines{});
+}
+
+TEST_CASE("ESP32-C3 board: DTR and RTS reset it into download mode as esptool does")
+{
+    mcu::McuRunOptions options;
+    options.chip = "esp32c3";
+    options.rom = mcu::find_esp32c3_rom({});
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/esp32c3_blink/blink.bin";
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    REQUIRE(machine && machine->load(options, error));
+    std::string out[3];
+    auto run = [&](std::uint64_t ms) {
+        machine->run_until_ns(machine->time_ns() + ms * 1'000'000);
+        for (const auto& b : machine->take_uart_bytes()) {
+            out[b.uart] += static_cast<char>(b.value);
+        }
+    };
+    run(100);
+    CHECK(out[0].find("boot:0xc") != std::string::npos);
+    // The DevKit's two transistors (esptool's classic reset): EN low, then
+    // GPIO9 low while EN rises, then both released.
+    out[0].clear();
+    machine->host_lines(0, "auto_reset", false, true);
+    run(100);
+    CHECK(out[0].empty());
+    machine->host_lines(0, "auto_reset", true, false);
+    run(60);
+    machine->host_lines(0, "auto_reset", false, false);
+    run(100);
+    CHECK(out[0].find("boot:0x4 (DOWNLOAD(USB/UART0/1))") != std::string::npos);
+    CHECK(machine->downloaded_flash_version() == 0); // nothing written yet
+    // esptool's hard reset: RTS alone; the board starts its firmware again.
+    out[0].clear();
+    machine->host_lines(0, "auto_reset", false, true);
+    run(100);
+    machine->host_lines(0, "auto_reset", false, false);
+    run(200);
+    CHECK(out[0].find("boot:0xc") != std::string::npos);
+    // The USB Serial/JTAG's logic (esptool's USB reset): DTR, then RTS with
+    // DTR low holds the chip in reset, both low starts it in download mode.
+    out[2].clear();
+    machine->host_lines(2, "usb_jtag", true, false);
+    run(100);
+    machine->host_lines(2, "usb_jtag", true, true);
+    machine->host_lines(2, "usb_jtag", false, true);
+    run(100);
+    machine->host_lines(2, "usb_jtag", false, false);
+    run(100);
+    CHECK(out[2].find("boot:0x4") != std::string::npos);
+    // Without DTR first, the same reset starts the firmware.
+    out[2].clear();
+    machine->host_lines(2, "usb_jtag", false, true);
+    run(100);
+    machine->host_lines(2, "usb_jtag", false, false);
+    run(100);
+    CHECK(out[2].find("boot:0xc") != std::string::npos);
 }

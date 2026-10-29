@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <deque>
 #include <cstdio>
@@ -40,6 +41,7 @@ RiscvCpu::Config core_config()
     config.counters = false;   // the cycle counter is the vendor CSR mpccr
     config.vectored_only = true;
     config.mie_gates = false;  // the interrupt controller enables lines
+    config.interrupt_latency = 3;
     config.misaligned_access = true; // Arduino-ESP32's newlib strcmp loads words at odd addresses
     return config;
 }
@@ -92,6 +94,8 @@ public:
     }
     // A byte from outside (serial ports: the host's side).
     virtual void receive(std::uint8_t byte) { (void)byte; }
+    // A pad's level changed (receivers that decode their input signal).
+    virtual void pad_changed() {}
 
 protected:
     // Plain storage unless a peripheral says otherwise.
@@ -112,6 +116,7 @@ protected:
     void raise(int source, bool level) { machine_.set_interrupt_source(source, level); }
     void request_reset(ResetKind kind, std::uint32_t reason = 0) { machine_.request_reset(kind, reason); }
     void refresh_pads(); // the GPIO evaluates every pad again
+    void pads_changed(); // the UARTs' receivers look at their input
     void enter_sleep(bool deep, std::uint64_t wake_ns) { machine_.enter_sleep(deep, wake_ns); }
     void note(const std::string& text) { machine_.diagnostic(text); }
     void drive_signal(int signal, bool level) { machine_.set_signal(signal, level); }
@@ -203,6 +208,7 @@ public:
                     memory_[at] &= mosi[i];
                 }
                 written_ = true;
+                ++writes_;
             }
             wel_ = false;
             break;
@@ -220,6 +226,7 @@ public:
         }
     }
     bool written() const { return written_; }
+    std::uint64_t writes() const { return writes_; } // programs and erases so far
     std::uint8_t status_low() const { return static_cast<std::uint8_t>(status_ | (wel_ ? 2 : 0)); }
     void write_status(std::uint16_t value)
     {
@@ -236,6 +243,7 @@ private:
             const std::uint32_t start = (address & ~(length - 1)) % static_cast<std::uint32_t>(memory_.size());
             std::fill(memory_.begin() + start, memory_.begin() + std::min<std::size_t>(memory_.size(), start + length), std::uint8_t{0xFF});
             written_ = true;
+            ++writes_;
         }
         wel_ = false;
     }
@@ -244,6 +252,7 @@ private:
     std::uint16_t status_ = 0;
     bool wel_ = false;
     bool written_ = false;
+    std::uint64_t writes_ = 0;
 };
 
 namespace {
@@ -293,26 +302,145 @@ struct Wdt {
     }
 };
 
-// UART: bytes leave at once (no baud-rate timing yet), so the transmit FIFO is
-// always empty (TXFIFO_EMPTY, TX_DONE). Received bytes wait in the RX FIFO
-// (FIFO_REG reads them, STATUS.RXFIFO_CNT counts them); RXFIFO_FULL when the
-// count reaches CONF1.RXFIFO_FULL_THRHD, RXFIFO_TOUT as soon as bytes wait with
-// CONF1.RX_TOUT_EN set (the chip waits for the line to be idle). Interrupt
+// UART at the pin level (SN-244, SN-253, SN-254). One frame is a start bit,
+// 5-8 data bits (LSB first), an optional parity bit and 1, 1.5 or 2 stop bits
+// at the baud rate of CLKDIV and CLK_CONF (CONF0 gives the format).
+// Transmit: the 128-byte TX FIFO sends one frame after the other on the
+// U0TXD/U1TXD signal (6, 9), so a pad routed to it (GPIO21 by IO_MUX function
+// 0, or any pad through the matrix) shows the bits; the byte reaches the
+// terminal when its stop bits end. STATUS.TXFIFO_CNT counts the bytes still
+// waiting; TXFIFO_EMPTY while no more than CONF1.TXFIFO_EMPTY_THRHD wait,
+// TX_DONE when the last frame ends.
+// Receive: bytes from outside (the terminal, a link to the computer) arrive
+// one frame apart; the U0RXD/U1RXD signal (GPIO20 by IO_MUX function 0, or a
+// pad through the matrix) is decoded too, sampled in the middle of each bit,
+// once the line has been idle (high) for a frame, so a floating pad gives
+// nothing. Received bytes wait in the RX FIFO (FIFO_REG, STATUS.RXFIFO_CNT);
+// RXFIFO_FULL when the count reaches CONF1.RXFIFO_FULL_THRHD, RXFIFO_TOUT as
+// soon as bytes wait with CONF1.RX_TOUT_EN set (the chip waits for the line to
+// be idle); FRM_ERR when a stop bit is low.
+// Autobaud (CONF0.AUTOBAUD_EN, SN-253): RXD_CNT counts the received frames'
+// edges and LOWPULSE/HIGHPULSE give one bit of the present divider, so the
+// ROM's download mode detects the baud rate it already uses. Interrupt
 // sources 21 (UART0) and 22 (UART1).
-class Uart : public Esp32C3::Block {
+class Uart : public Esp32C3::Block, public Esp32C3::Timed {
 public:
-    Uart(Esp32C3& machine, const char* name, int port) : Block(machine, name), port_(port) {}
+    Uart(Esp32C3& machine, const char* name, int port)
+        : Block(machine, name), port_(port), signal_(port == 0 ? 6 : 9)
+    {
+        claim_signal(signal_);
+    }
     void receive(std::uint8_t byte) override
+    {
+        if (line_.empty()) {
+            line_end_ = std::max(line_end_, now_ns()) + frame_ns();
+            reschedule();
+        }
+        line_.push_back(byte);
+    }
+    std::uint64_t next_ns() const override
+    {
+        return std::min({line_.empty() ? no_event : line_end_, tx_next_, rx_next_});
+    }
+    void on_ns(std::uint64_t now) override
+    {
+        while (!line_.empty() && line_end_ <= now) {
+            const std::uint8_t byte = line_.front();
+            line_.pop_front();
+            deliver(byte);
+            if (!line_.empty()) {
+                line_end_ += frame_ns();
+            }
+        }
+        while (tx_next_ <= now) {
+            transmit_step();
+        }
+        if (rx_next_ <= now) {
+            receive_step();
+        }
+    }
+    // Decoding the input signal: off for a port whose bytes come straight
+    // from another board, and for bits shorter than `min_bit_ns` (the
+    // circuit's step cannot show them; 0 for pins with exact edges).
+    void set_pin_rx(bool on, std::uint64_t min_bit_ns)
+    {
+        pin_rx_ = on;
+        min_bit_ns_ = min_bit_ns;
+    }
+    // A pad changed: the receiver looks at its input signal.
+    void pad_changed() override
+    {
+        const bool level = input_signal(signal_);
+        if (level == rx_level_ || !pin_rx_ || bit_ns() < static_cast<double>(min_bit_ns_)) {
+            rx_level_ = level;
+            return;
+        }
+        rx_level_ = level;
+        const std::uint64_t now = now_ns();
+        if (level) {
+            high_since_ = now;
+        } else if (rx_next_ == no_event && (rx_synced_ || (high_since_ != no_event && now >= high_since_ + frame_ns()))) {
+            // A start bit: the first data bit's middle is 1.5 bits later.
+            rx_bit_ns_ = bit_ns();
+            rx_bits_ = 0;
+            rx_value_ = 0;
+            rx_next_ = now + static_cast<std::uint64_t>(1.5 * rx_bit_ns_);
+            reschedule();
+        }
+    }
+
+protected:
+    int data_bits() const { return 5 + static_cast<int>((reg(0x20) >> 2) & 3); }
+    bool parity() const { return (reg(0x20) & 2) != 0; }
+    double stop_bits() const
+    {
+        const std::uint32_t stop = (reg(0x20) >> 4) & 3;
+        return stop == 2 ? 1.5 : stop == 3 ? 2.0 : 1.0;
+    }
+    double bit_ns() const
+    {
+        const std::uint32_t clk_conf = reg(0x78);
+        const std::uint32_t sel = (clk_conf >> 20) & 3; // 1 APB, 2 RC_FAST, 3 XTAL
+        const double apb = machine_.cpu_hz() >= 80'000'000 ? 80e6 : machine_.cpu_hz();
+        const double sclk = (sel == 1 ? apb : sel == 2 ? 17.5e6 : 40e6) / ((clk_conf & 0xFF) + 1.0);
+        const std::uint32_t clkdiv = reg(0x14);
+        const double divider = (clkdiv & 0xFFF) + ((clkdiv >> 20) & 0xF) / 16.0;
+        const double baud = divider >= 1 ? sclk / divider : 115200.0;
+        return 1e9 / baud;
+    }
+    // One frame on the line: start, data, parity and stop bits.
+    std::uint64_t frame_ns() const
+    {
+        return static_cast<std::uint64_t>((1 + data_bits() + (parity() ? 1 : 0) + stop_bits()) * bit_ns());
+    }
+
+    void deliver(std::uint8_t byte)
     {
         if (rx_.size() < 128) {
             rx_.push_back(byte);
         } else {
             reg(0x04) |= 1u << 4; // RXFIFO_OVF
+            if (!overflow_noted_) {
+                overflow_noted_ = true;
+                note(std::string(name()) + "'s receive FIFO overflowed: the firmware did not read the bytes in time");
+            }
+        }
+        if (reg(0x20) & (1u << 27)) { // AUTOBAUD_EN
+            // Edges of the frame: start bit (0), data LSB first, stop bit (1).
+            const std::uint32_t frame = 0x200u | (static_cast<std::uint32_t>(byte) << 1);
+            std::uint32_t edges = 1; // the idle line falls at the start bit
+            for (int bit = 1; bit < 10; ++bit) {
+                edges += ((frame >> bit) ^ (frame >> (bit - 1))) & 1;
+            }
+            reg(0x30) += edges;
+            const std::uint32_t divider = reg(0x14) & 0xFFF;
+            const std::uint32_t pulse = (divider ? divider : 347) - 1; // 40 MHz / 115200
+            reg(0x28) = pulse; // LOWPULSE
+            reg(0x2C) = pulse; // HIGHPULSE
         }
         update();
     }
 
-protected:
     std::uint32_t read_word(std::uint32_t offset) override
     {
         switch (offset) {
@@ -325,8 +453,12 @@ protected:
             update();
             return byte;
         }
-        case 0x08: return reg(0x04) & reg(0x0C);                      // INT_ST
-        case 0x1C: return static_cast<std::uint32_t>(rx_.size());     // STATUS: RXFIFO_CNT; TX FIFO empty
+        case 0x08: return reg(0x04) & reg(0x0C); // INT_ST
+        case 0x1C: // STATUS: RXFIFO_CNT, TXFIFO_CNT, and the lines (RXD bit 15, TXD bit 31)
+            return static_cast<std::uint32_t>(rx_.size()) | (static_cast<std::uint32_t>(tx_.size()) << 16)
+                | (rx_level_ ? 1u << 15 : 0u) | (tx_level_ ? 1u << 31 : 0u);
+        case 0x64: // FSM_STATUS: ST_UTX_OUT (bits 7:4) is 0 only when the transmitter is idle
+            return (tx_next_ == no_event ? 0u : 2u << 4) | (rx_next_ == no_event ? 0u : 2u);
         default: return Block::read_word(offset);
         }
     }
@@ -334,15 +466,25 @@ protected:
     {
         switch (offset) {
         case 0x00: // FIFO: a byte to send
-            emit(port_, static_cast<std::uint8_t>(value));
-            reg(0x04) |= 1u << 14; // TX_DONE
+            if (tx_.size() < 128) {
+                tx_.push_back(static_cast<std::uint8_t>(value));
+            }
+            if (tx_next_ == no_event) {
+                start_frame(now_ns());
+            }
             break;
         case 0x10: // INT_CLR
             reg(0x04) &= ~value;
             break;
-        case 0x20: // CONF0: RXFIFO_RST (bit 17) empties the receiver
+        case 0x20: // CONF0: RXFIFO_RST (bit 17) empties the receiver, TXFIFO_RST (bit 18) the transmitter
             if (value & (1u << 17)) {
                 rx_.clear();
+            }
+            if (value & (1u << 18)) {
+                tx_.clear();
+            }
+            if (!(value & (1u << 27))) { // autobaud off: its counters restart
+                reg(0x30) = 0;
             }
             Block::write_word(offset, value);
             break;
@@ -354,14 +496,103 @@ protected:
     void on_reset() override
     {
         rx_.clear();
+        line_.clear();
+        tx_.clear();
+        tx_next_ = rx_next_ = no_event;
+        rx_synced_ = false;
+        high_since_ = now_ns();
         reg(0x24) = 0x60 | (0x60u << 9); // CONF1 reset value: both thresholds 96
         reg(0x04) = 1u << 1;             // TXFIFO_EMPTY
+        set_tx_level(true);              // the idle line
     }
 
 private:
+    void set_tx_level(bool level)
+    {
+        tx_level_ = level;
+        drive_signal(signal_, level);
+    }
+    // The next byte of the FIFO starts its frame at `at`: the start bit.
+    void start_frame(std::uint64_t at)
+    {
+        if (tx_.empty()) {
+            tx_next_ = no_event;
+            return;
+        }
+        const std::uint8_t byte = tx_.front();
+        tx_.pop_front();
+        tx_byte_ = byte;
+        const int bits = data_bits();
+        std::uint32_t frame = byte & ((1u << bits) - 1); // data bits after the start bit
+        if (parity()) {
+            const bool odd = (reg(0x20) & 1) != 0;
+            const bool ones = (std::popcount(frame) & 1) != 0;
+            frame |= (ones != odd ? 1u : 0u) << bits;
+        }
+        tx_frame_ = frame;
+        tx_frame_bits_ = bits + (parity() ? 1 : 0);
+        tx_bit_ = -1; // the start bit
+        tx_bit_ns_ = bit_ns();
+        tx_start_ = at;
+        set_tx_level(false);
+        tx_next_ = at + static_cast<std::uint64_t>(tx_bit_ns_);
+        reschedule();
+        update();
+    }
+    // The present bit ended: the next one, the stop bits, or the next frame.
+    void transmit_step()
+    {
+        ++tx_bit_;
+        if (tx_bit_ < tx_frame_bits_) {
+            set_tx_level(((tx_frame_ >> tx_bit_) & 1) != 0);
+            tx_next_ = tx_start_ + static_cast<std::uint64_t>((tx_bit_ + 2) * tx_bit_ns_);
+        } else if (tx_bit_ == tx_frame_bits_) {
+            set_tx_level(true); // the stop bits
+            tx_next_ = tx_start_ + static_cast<std::uint64_t>((tx_frame_bits_ + 1 + stop_bits()) * tx_bit_ns_);
+        } else {
+            emit(port_, tx_byte_);
+            const std::uint64_t end = tx_next_;
+            tx_next_ = no_event;
+            if (tx_.empty()) {
+                reg(0x04) |= 1u << 14; // TX_DONE
+                update();
+            } else {
+                start_frame(end);
+            }
+        }
+    }
+    // The receiver samples its signal in the middle of a bit.
+    void receive_step()
+    {
+        const bool level = input_signal(signal_);
+        const int bits = data_bits();
+        const int total = bits + (parity() ? 1 : 0);
+        if (rx_bits_ < total) {
+            if (rx_bits_ < bits && level) {
+                rx_value_ |= 1u << rx_bits_;
+            }
+            ++rx_bits_;
+            rx_next_ += static_cast<std::uint64_t>(rx_bit_ns_);
+            return;
+        }
+        rx_next_ = no_event; // the stop bit's middle
+        if (level) {
+            rx_synced_ = true;
+            deliver(static_cast<std::uint8_t>(rx_value_));
+        } else {
+            rx_synced_ = false; // a framing error (or a break): wait for an idle line
+            high_since_ = no_event;
+            reg(0x04) |= 1u << 3; // FRM_ERR
+            update();
+        }
+        rx_level_ = level;
+    }
     void update()
     {
-        std::uint32_t raw = reg(0x04) | (1u << 1); // the transmit FIFO is always empty
+        std::uint32_t raw = reg(0x04) & ~(1u << 1);
+        if (tx_.size() <= ((reg(0x24) >> 9) & 0x1FF)) {
+            raw |= 1u << 1; // TXFIFO_EMPTY
+        }
         const std::uint32_t threshold = reg(0x24) & 0x1FF;
         if (!rx_.empty() && rx_.size() >= threshold) {
             raw |= 1u << 0; // RXFIFO_FULL
@@ -374,7 +605,31 @@ private:
     }
 
     int port_;
+    int signal_; // U0TXD/U0RXD 6, U1TXD/U1RXD 9 in the GPIO matrix
     std::deque<std::uint8_t> rx_;
+    std::deque<std::uint8_t> line_; // bytes from outside on the way, the first one ends at line_end_
+    std::uint64_t line_end_ = 0;
+    bool overflow_noted_ = false;
+    // Transmitter: the frame being sent.
+    std::deque<std::uint8_t> tx_;
+    std::uint64_t tx_next_ = no_event; // the present bit ends
+    std::uint64_t tx_start_ = 0;
+    double tx_bit_ns_ = 0;
+    std::uint32_t tx_frame_ = 0;
+    int tx_frame_bits_ = 0;
+    int tx_bit_ = 0;
+    std::uint8_t tx_byte_ = 0;
+    bool tx_level_ = true;
+    // Receiver from the pin.
+    bool pin_rx_ = true;
+    std::uint64_t min_bit_ns_ = 0;
+    bool rx_level_ = false;
+    bool rx_synced_ = false;
+    std::uint64_t high_since_ = no_event;
+    std::uint64_t rx_next_ = no_event; // the next sample
+    double rx_bit_ns_ = 0;
+    int rx_bits_ = 0;
+    std::uint32_t rx_value_ = 0;
 };
 
 // USB-Serial-JTAG's CDC serial port: the host reads every byte at once (the
@@ -483,6 +738,7 @@ protected:
 class Esp32C3::Gpio : public Esp32C3::Block {
 public:
     Gpio(Esp32C3& machine, std::uint32_t strapping) : Block(machine, "GPIO"), strapping_(strapping) {}
+    void set_strapping(std::uint32_t strapping) { strapping_ = strapping; } // sampled at the next reset
 
     Esp32C3::PinState state(int pin) const { return states_[static_cast<std::size_t>(pin)]; }
     bool pad(int pin) const { return pads_[static_cast<std::size_t>(pin)]; }
@@ -505,9 +761,10 @@ public:
         const std::uint32_t cfg = reg(0x154 + 4 * static_cast<std::uint32_t>(signal));
         const std::uint32_t sel = cfg & 0x1F;
         bool level = false;
-        if (!(cfg & (1u << 6))) { // straight from the pad whose IO_MUX function 2 is the signal
+        if (!(cfg & (1u << 6))) { // straight from the pad whose IO_MUX function is the signal
             for (int pin = 0; pin < Esp32C3::gpio_count; ++pin) {
-                if (direct_signal(pin) == signal && ((peek(0x60009004u + 4 * static_cast<std::uint32_t>(pin)) >> 12) & 7) == 2) {
+                if (direct_input(pin) == signal
+                    && static_cast<int>((peek(0x60009004u + 4 * static_cast<std::uint32_t>(pin)) >> 12) & 7) == direct_function(pin)) {
                     level = states_[static_cast<std::size_t>(pin)].input && pads_[static_cast<std::size_t>(pin)];
                 }
             }
@@ -523,7 +780,7 @@ public:
     {
         for (std::uint32_t pin = 0; pin < Esp32C3::gpio_count; ++pin) {
             if ((reg(0x554 + 4 * pin) & 0xFF) == static_cast<std::uint32_t>(signal)
-                || direct_signal(static_cast<int>(pin)) == signal) {
+                || direct_output(static_cast<int>(pin)) == signal) {
                 evaluate(static_cast<int>(pin));
             }
         }
@@ -542,6 +799,12 @@ public:
         default: return -1;
         }
     }
+    // IO_MUX's own functions: GP-SPI's pins (function 2) both ways, UART0's
+    // TX on GPIO21 and RX on GPIO20 (function 0, U0TXD/U0RXD signal 6).
+    static int direct_function(int pin) { return pin == 20 || pin == 21 ? 0 : 2; }
+    static int direct_output(int pin) { return pin == 21 ? 6 : pin == 20 ? -1 : direct_signal(pin); }
+    static int direct_input(int pin) { return pin == 20 ? 6 : pin == 21 ? -1 : direct_signal(pin); }
+
 
 protected:
     std::uint32_t read_word(std::uint32_t offset) override
@@ -620,12 +883,12 @@ private:
             state.peripheral = true;
             state.output = (out_sel & (1u << 9)) ? enabled != ((out_sel & (1u << 10)) != 0) : true;
             state.level = machine_.signal_level_[out_sel & 0x7F] != ((out_sel & (1u << 8)) != 0);
-        } else if (((iomux >> 12) & 7) == 2 && direct_signal(pin) >= 0
-            && machine_.signal_driven_[static_cast<std::size_t>(direct_signal(pin))]) {
-            // GP-SPI through IO_MUX: a master drives its clock, data and CS.
+        } else if (static_cast<int>((iomux >> 12) & 7) == direct_function(pin) && direct_output(pin) >= 0
+            && machine_.signal_driven_[static_cast<std::size_t>(direct_output(pin))]) {
+            // GP-SPI or UART0's TX through IO_MUX: the peripheral drives the pad.
             state.peripheral = true;
             state.output = true;
-            state.level = machine_.signal_level_[static_cast<std::size_t>(direct_signal(pin))];
+            state.level = machine_.signal_level_[static_cast<std::size_t>(direct_output(pin))];
         } else {
             // A peripheral's signal through the matrix (its own output enable
             // unless OEN_SEL picks GPIO_ENABLE), or another IO_MUX function.
@@ -650,6 +913,7 @@ private:
         const bool before = pads_[n];
         pads_[n] = pad;
         if (before != pad) {
+            pads_changed();
             const std::uint32_t type = (reg(0x74 + 4 * n) >> 7) & 7;
             if ((type == 1 && pad) || (type == 2 && !pad) || type == 3) {
                 reg(0x44) |= 1u << n; // GPIO_STATUS
@@ -702,6 +966,15 @@ void Esp32C3::set_signal(int signal, bool level)
 bool Esp32C3::Block::input_signal(int signal) const
 {
     return machine_.gpio_ && machine_.gpio_->input_signal(signal);
+}
+
+void Esp32C3::Block::pads_changed()
+{
+    for (Block* uart : machine_.uart_) {
+        if (uart) {
+            uart->pad_changed();
+        }
+    }
 }
 
 void Esp32C3::Block::refresh_pads()
@@ -921,7 +1194,11 @@ private:
             const std::uint32_t user_address = address_bits >= 32 ? reg(addr_reg) : reg(addr_reg) & ((1u << address_bits) - 1);
             const std::size_t mosi = (user & (1u << 27)) ? std::min<std::size_t>(64, ((reg(mosi_dlen) & 0x3FF) + 8) / 8) : 0;
             const std::size_t miso = (user & (1u << 28)) ? std::min<std::size_t>(64, ((reg(miso_dlen) & 0x3FF) + 8) / 8) : 0;
-            if (!has_command) {
+            // The ROM's esp_rom_spiflash_read (esptool's flasher stub reads
+            // with it) leaves USR_COMMAND off with the read command in USER2;
+            // on the chip the read works, so a transaction with an address
+            // sends USER2's command too.
+            if (!has_command && !has_address) {
                 return;
             }
             buffer_out(data, mosi);
@@ -2826,6 +3103,10 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     bus_.add_memory("ROM (data bus)", esp32c3_drom_base, esp32c3_drom_size, false);
     bus_.add_memory("SRAM0", sram0_ibus, sram0_size, true);
     bus_.add_memory("RTC FAST memory", rtc_fast, rtc_fast_size, true);
+    // Past SRAM1's end the data bus reads 0 instead of faulting: esptool's
+    // flasher stub waits for the flash with a chip structure at the ROM's
+    // last words (0x3FCDFFF4), whose status mask it reads from 0x3FCE0008.
+    bus_.add_memory("past SRAM1 (reads 0)", sram1_dbus + sram1_size, 0x10000, false);
     cpu_.add_code_region(sram1_ibus, sram1_size);
     cpu_.add_code_alias(sram1_dbus, sram1_ibus, sram1_size);
     cpu_.add_code_region(esp32c3_rom_base, esp32c3_rom_size);
@@ -2844,6 +3125,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     for (int port = 0; port < 2; ++port) {
         auto uart = std::make_unique<Uart>(*this, port == 0 ? "UART0" : "UART1", port);
         uart_[port] = uart.get();
+        timed_.push_back(uart.get());
         attach(port == 0 ? uart0_base : uart1_base, std::move(uart));
     }
     attach(0x60009000u, std::make_unique<IoMux>(*this));
@@ -3052,6 +3334,15 @@ void Esp32C3::reset(ResetKind kind, std::uint32_t reason)
 {
     reset_requested_ = false;
     ++resets_;
+    if (kind == ResetKind::PowerOn) { // CHIP_PU latches the strapping pins
+        const bool low = boot_low_ || download_once_;
+        download_once_ = false;
+        const std::uint32_t strapping = low ? options_.strapping & ~0x8u : options_.strapping; // bit 3: GPIO9
+        gpio_->set_strapping(strapping);
+        if (!(strapping & 0x8u)) {
+            download_boots_++;
+        }
+    }
     for (const auto& block : blocks_) {
         if (kind == ResetKind::PowerOn || block.get() != rtc_cntl_) {
             block->reset(); // the RTC domain keeps its state except at power-on
@@ -3158,8 +3449,40 @@ void Esp32C3::run_timers()
     }
 }
 
+void Esp32C3::set_chip_enable(bool on)
+{
+    if (on == !held_) {
+        return;
+    }
+    held_ = !on;
+    if (on) {
+        request_reset(ResetKind::PowerOn); // EN rose: the chip starts
+    } else {
+        cpu_.request_stop();
+    }
+}
+
+void Esp32C3::set_uart_pin_rx(int port, bool on, std::uint64_t min_bit_ns)
+{
+    if (port == 0 || port == 1) {
+        static_cast<Uart*>(uart_[port])->set_pin_rx(on, min_bit_ns);
+    }
+}
+
+std::uint64_t Esp32C3::flash_writes() const
+{
+    return flash_chip_->writes();
+}
+
 void Esp32C3::run_until_ns(std::uint64_t ns)
 {
+    if (held_) { // EN low: nothing runs, time goes on
+        const std::uint64_t now = time_ns();
+        if (ns > now) {
+            cpu_.advance_idle(cpu_.cycles() + cycles_for_ns(ns - now));
+        }
+        return;
+    }
     while (time_ns() < ns && cpu_.state() != RvState::Halted) {
         if (reset_requested_) {
             reset(requested_kind_, requested_reason_);

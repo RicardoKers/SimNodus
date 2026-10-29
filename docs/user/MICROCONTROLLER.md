@@ -239,7 +239,12 @@ small differences may remain.
   pull-ups. The RGB LED (a WS2812 on GPIO8) is not drawn.
 - **Serial ports** in the terminal: **UART0** (the board's USB connector;
   GPIO21 TX, GPIO20 RX; ESP-IDF's and Arduino's log) and **USB Serial/JTAG**
-  (the chip's own USB on GPIO18/GPIO19; MicroPython's `>>>` prompt).
+  (the chip's own USB on GPIO18/GPIO19; MicroPython's `>>>` prompt). UART0
+  and UART1 send and receive at the baud rate, bit by bit on their pins, so
+  the boot log takes as long as on the board, and the Serial Port part or
+  another board wired to GPIO21/GPIO20 talks to them. See
+  [The board's USB to the computer](#the-boards-usb-to-the-computer) for
+  the Arduino IDE, Thonny, mpremote and esptool.
 - **Simulated**: the RV32IMC core, 4 MB flash, SRAM, caches and flash
   mapping, interrupts, system timer, timer groups and watchdogs, RTC, light
   and deep sleep, GPIO with interrupts, UART0/UART1, USB Serial/JTAG, LEDC
@@ -266,14 +271,51 @@ small differences may remain.
   runs a light along a strip. Receive channels and the carrier are not
   simulated.
 - **Not yet**: continuous ADC, the temperature sensor, Wi-Fi and Bluetooth;
-  debugging with GDB (the Blue Pill only); copying files to MicroPython from
-  the computer.
+  debugging with GDB (the Blue Pill only).
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.
 - **Pressing RESET** restarts the chip as the EN button does; the flash keeps
   what the firmware wrote during the run (MicroPython's files) until the run
   stops.
+
+### The board's USB to the computer
+
+The board's two serial ports can reach programs on the computer, so the
+Arduino IDE (Serial Monitor and Upload), Thonny, mpremote, esptool or a
+terminal work with the simulated board as with a real one. In the board's
+properties, **UART0 to the computer** is the DevKit's USB connector (UART0
+behind its USB-serial bridge); **USB Serial/JTAG to the computer** is the
+chip's own USB (MicroPython's REPL). Each takes one of:
+
+- **A serial port** of the computer: one end of a pair of virtual ports
+  (com0com, or a similar program, creates two ports wired to each other, say
+  COM10 and COM11). Choose COM10 in SimNodus and COM11 in the Arduino IDE or
+  Thonny. Both programs only list COM ports, so they need the pair.
+- **tcp:4000** (any free port number): SimNodus listens on this computer
+  only. Programs built on pyserial open it as `rfc2217://localhost:4000`:
+  `esptool --port rfc2217://localhost:4000 ...`, and mpremote; no driver is
+  needed. A raw TCP terminal (`socket://localhost:4000`, PuTTY's Raw) gets the
+  bytes too.
+- **Empty**: no link (the terminal only).
+
+The link opens when the run starts; the Messages panel says where each port
+is linked, or why it could not be. The terminal keeps showing what the
+board sends.
+
+**DTR and RTS** work as on the board. On UART0 they reach EN and GPIO9
+through the DevKit's two transistors, so esptool's and the Arduino IDE's
+automatic reset puts the chip in download mode, and the ROM's own loader
+writes the flash (Upload in the Arduino IDE, `esptool write-flash`). On the
+USB Serial/JTAG port they follow the chip's reset logic (esptool's
+`--before usb_reset`). When the run stops, a flash written this way is saved
+as `U1-flash.bin` (the board's designator) beside the project and becomes
+the board's firmware, as a real board keeps what was uploaded; the project
+must have been saved once.
+
+Uploads take the simulated time they need: at 921600 baud and real-time
+speed, esptool writes 200 KB in about 3 seconds. Thonny and mpremote may
+reset the board when they connect, as they do with a real one.
 
 ## Debugging with STM32CubeIDE or GDB
 

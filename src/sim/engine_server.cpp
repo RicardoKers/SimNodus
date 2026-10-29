@@ -243,11 +243,15 @@ void EngineServer::publish(bool force)
     // Memory chips whose contents changed since the last Update (SN-208).
     std::vector<std::pair<model::Id, std::vector<std::uint8_t>>> memories;
     for (const auto& m : session_.mcu_requests()) {
+        std::vector<model::Id> ids{m.component}; // the board's flash after esptool (SN-253)
         for (const auto& d : m.options.devices) {
-            auto bytes = session_.device_memory(d.component);
-            if (bytes && sent_memories_[d.component] != *bytes) {
-                sent_memories_[d.component] = *bytes;
-                memories.emplace_back(d.component, std::move(*bytes));
+            ids.push_back(d.component);
+        }
+        for (const model::Id id : ids) {
+            auto bytes = session_.device_memory(id);
+            if (bytes && sent_memories_[id] != *bytes) {
+                sent_memories_[id] = *bytes;
+                memories.emplace_back(id, std::move(*bytes));
             }
         }
     }

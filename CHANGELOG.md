@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-10-29, ESP32-C3 serial to the computer)
+
+- The ESP32-C3 board's USB connector reaches programs on the computer (SN-252, ADR 0107): the parameters **UART0 to the computer** and **USB Serial/JTAG to the computer** take a serial port (one end of a virtual port pair such as com0com, for the Arduino IDE and Thonny) or `tcp:PORT`, a server on 127.0.0.1 speaking RFC 2217 (`rfc2217://localhost:PORT` in esptool and mpremote) or raw bytes. Engine protocol 11.
+- Upload through the link (SN-253): DTR and RTS reach EN and GPIO9 through the DevKit's auto-reset circuit on UART0, and the USB Serial/JTAG's reset logic on the chip's USB, so esptool and the Arduino IDE put the chip in download mode and the unmodified ROM loader and flasher stub write the flash (`esptool write-flash` at 921600 baud checked: hash verified, the new firmware boots). When the run stops the uploaded flash is saved as `<designator>-flash.bin` beside the project and becomes the board's firmware.
+- UART0 and UART1 at the pin level (SN-254): frames leave bit by bit on the TX signal (GPIO21 by IO_MUX, or any pad through the matrix) at the baud rate and format, and frames on the RX signal (GPIO20) are decoded, so the Serial Port part and other boards talk to the ESP32-C3's pins; bytes from the terminal or a link arrive one frame apart. The boot log now takes its real time at 115200 baud (an application starts some 0.2 s later than before).
+- Emulator details found on the way: UART autobaud (the ROM's download mode), interrupts taken three instructions after their line rises, `UART_FSM_STATUS`, a receive FIFO overflow message, SPI1 user reads without `USR_COMMAND` (the ROM's reads), and the data bus past SRAM1 reading 0. `simnodus-emu` has `--strap`, `--link uart0=tcp:4000` and hexadecimal bytes (backslash, x, two digits) in `--uart0`/`--usb` text.
+
 ### Added (2026-10-28, ESP32-C3 board)
 
 - **ESP32-C3-DevKitM-1** board in Microcontrollers, **experimental** until it is compared with a real board (decision DE1, ADR 0106; SN-246): it runs a flash image (`.bin` from address 0: ESP-IDF, Arduino or MicroPython) in SimNodus's own emulator next to the circuit, with GPIO0-10 and 18-21 on its headers (33 Ω outputs, 0.825 V / 2.475 V input thresholds), UART0 and USB Serial/JTAG in the terminal, GPIO lanes in the Logic tab, LEDC PWM and one-shot ADC readings of the circuit's voltages. Example 45 runs ESP-IDF's blink. The package contains Espressif's ROM ELF (`roms/`, Apache-2.0). Not yet: I2C, SPI, RMT, Wi-Fi, GDB.

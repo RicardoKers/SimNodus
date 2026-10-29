@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 d5f06dc2be9705ef6067ab9506f6731f1a743cdc2a3430e229001eb5953ea3b9 -->
+<!-- source: MICROCONTROLLER.md sha256 5c0d7d300266240e000adbbfb36112c05241f72ae88ff534224e99334c89fd18 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -252,7 +252,12 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   placa têm pull-ups de 10 kΩ. O LED RGB (um WS2812 no GPIO8) não é desenhado.
 - **Portas seriais** no terminal: **UART0** (o conector USB da placa; GPIO21
   TX, GPIO20 RX; o log do ESP-IDF e do Arduino) e **USB Serial/JTAG** (o USB
-  do próprio chip, nos GPIO18/GPIO19; o prompt `>>>` do MicroPython).
+  do próprio chip, nos GPIO18/GPIO19; o prompt `>>>` do MicroPython). A UART0
+  e a UART1 enviam e recebem na taxa de transmissão, bit a bit nos seus
+  pinos, então o log de boot leva o mesmo tempo que na placa, e o componente
+  Porta Serial ou outra placa ligada aos GPIO21/GPIO20 conversa com elas. Veja
+  [O USB da placa no computador](#o-usb-da-placa-no-computador) para o
+  Arduino IDE, o Thonny, o mpremote e o esptool.
 - **Simulado**: o núcleo RV32IMC, 4 MB de flash, SRAM, caches e mapeamento da
   flash, interrupções, temporizador do sistema, grupos de timers e watchdogs,
   RTC, light sleep e deep sleep, GPIO com interrupções, UART0/UART1, USB
@@ -281,8 +286,7 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   pelo `neopixel` do MicroPython. O exemplo 48 percorre uma fita com uma luz.
   Os canais de recepção e a portadora não são simulados.
 - **Ainda não**: ADC contínuo, o sensor de temperatura, Wi-Fi e Bluetooth;
-  depuração com GDB (só a Blue Pill); cópia de arquivos do computador para o
-  MicroPython.
+  depuração com GDB (só a Blue Pill).
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas
@@ -290,6 +294,45 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
 - **Pressionar RESET** reinicia o chip como o botão EN; a flash guarda o que o
   firmware gravou durante a execução (os arquivos do MicroPython) até a
   simulação parar.
+
+### O USB da placa no computador
+
+As duas portas seriais da placa podem chegar a programas do computador, de
+modo que o Arduino IDE (Monitor Serial e Carregar), o Thonny, o mpremote, o
+esptool ou um terminal funcionam com a placa simulada como com uma real. Nas
+propriedades da placa, **UART0 para o computador** é o conector USB da DevKit
+(a UART0 atrás da sua ponte USB-serial); **USB Serial/JTAG para o
+computador** é o USB do próprio chip (o REPL do MicroPython). Cada uma aceita:
+
+- **Uma porta serial** do computador: uma ponta de um par de portas virtuais
+  (o com0com, ou um programa parecido, cria duas portas ligadas entre si, por
+  exemplo COM10 e COM11). Escolha COM10 no SimNodus e COM11 no Arduino IDE ou
+  no Thonny. Esses dois programas só listam portas COM, por isso precisam do
+  par.
+- **tcp:4000** (qualquer número de porta livre): o SimNodus escuta só neste
+  computador. Programas feitos com o pyserial a abrem como
+  `rfc2217://localhost:4000`: `esptool --port rfc2217://localhost:4000 ...` e
+  o mpremote; nenhum driver é necessário. Um terminal TCP cru
+  (`socket://localhost:4000`, o modo Raw do PuTTY) também recebe os bytes.
+- **Vazio**: sem ligação (só o terminal).
+
+A ligação abre quando a simulação começa; o painel Mensagens diz onde cada
+porta está ligada, ou por que não pôde ser. O terminal continua mostrando o
+que a placa envia.
+
+**DTR e RTS** funcionam como na placa. Na UART0 eles chegam ao EN e ao GPIO9
+pelos dois transistores da DevKit, então o reset automático do esptool e do
+Arduino IDE põe o chip no modo de download, e o carregador da própria ROM
+grava a flash (Carregar no Arduino IDE, `esptool write-flash`). Na porta USB
+Serial/JTAG eles seguem a lógica de reset do chip (o `--before usb_reset` do
+esptool). Quando a simulação para, uma flash gravada assim é salva como
+`U1-flash.bin` (o designador da placa) ao lado do projeto e passa a ser o
+firmware da placa, como uma placa real guarda o que foi gravado; o projeto
+precisa ter sido salvo uma vez.
+
+As gravações levam o tempo simulado de que precisam: a 921600 baud e em
+velocidade de tempo real, o esptool grava 200 KB em uns 3 segundos. O Thonny e
+o mpremote podem reiniciar a placa ao conectar, como fazem com uma real.
 
 ## Depuração com STM32CubeIDE ou GDB
 
