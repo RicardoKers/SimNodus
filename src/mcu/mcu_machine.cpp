@@ -6,6 +6,7 @@
 #include "emu/esp32c3.hpp"
 #include "emu/stm32f103.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -263,12 +264,72 @@ public:
         if (!machine_.load_flash(0, bytes, error)) {
             return false;
         }
+        // UART RX from the pin (SN-254): GPIO20 on a net with a device has
+        // exact edges; a port that gets another board's bytes does not decode.
+        bool rx_exact = false;
+        for (const auto& net : options.nets) {
+            if (!net.device_pins.empty()
+                && std::find(net.board_pins.begin(), net.board_pins.end(), "GPIO20") != net.board_pins.end()) {
+                rx_exact = true;
+            }
+        }
+        machine_.set_uart_pin_rx(0, !options.uart_rx_byte_links.count("uart0"), rx_exact ? 0 : options.uart_rx_min_bit_ns);
+        machine_.set_uart_pin_rx(1, !options.uart_rx_byte_links.count("uart1"), options.uart_rx_min_bit_ns);
         machine_.reset();
         return true;
     }
     std::uint64_t time_ns() const override { return machine_.time_ns(); }
-    void run_until_ns(std::uint64_t ns) override { machine_.run_until_ns(ns); }
+    void run_until_ns(std::uint64_t ns) override
+    {
+        if (release_ns_ != no_release && release_ns_ <= ns) {
+            machine_.run_until_ns(release_ns_);
+            release_ns_ = no_release;
+            machine_.set_chip_enable(true);
+        }
+        machine_.run_until_ns(ns);
+    }
     void press_reset() override { machine_.press_reset(); }
+    void host_lines(int uart, const std::string& circuit, bool dtr, bool rts) override
+    {
+        (void)uart;
+        if (circuit == "auto_reset") {
+            // DTR low and RTS high pull EN low; DTR high and RTS low pull GPIO9
+            // low. EN rises through its RC (10 kΩ, 1 µF on the DevKit) and the
+            // chip starts later, so a program that sets DTR and RTS one after
+            // the other (esptool; over RFC 2217 some 25 ms apart) has GPIO9 low
+            // before it starts.
+            machine_.set_boot_low(dtr && !rts);
+            if (rts && !dtr) {
+                release_ns_ = no_release;
+                machine_.set_chip_enable(false);
+            } else if (!machine_.chip_enabled() && release_ns_ == no_release) {
+                release_ns_ = machine_.time_ns() + en_rise_ns;
+            }
+        } else if (circuit == "usb_jtag") {
+            // RTS high with DTR low holds the chip in reset; DTR high with RTS
+            // low before it chooses download mode for the restart (esptool's
+            // USB reset sequence), both low forgets it.
+            if (rts && !dtr) {
+                machine_.set_download_once(download_latch_);
+                machine_.set_chip_enable(false);
+            } else {
+                if (!machine_.chip_enabled()) {
+                    machine_.set_chip_enable(true);
+                    download_latch_ = false;
+                } else if (!dtr && !rts) {
+                    download_latch_ = false;
+                }
+                if (dtr && !rts) {
+                    download_latch_ = true;
+                }
+            }
+        }
+    }
+    std::uint64_t downloaded_flash_version() const override
+    {
+        return machine_.download_boots() > 0 ? machine_.flash_writes() : 0;
+    }
+    std::vector<std::uint8_t> flash() const override { return machine_.flash(); }
     PinState pin_state(int pin) const override { return c3_state(machine_.pin(pin), machine_.pad_level(pin)); }
     bool pin_level(int pin) const override { return machine_.pad_level(pin); }
     void set_pin_input(int pin, bool level, std::uint64_t changed_ns) override
@@ -334,7 +395,11 @@ private:
         emu::TimedDevice* device;
     };
 
+    static constexpr std::uint64_t no_release = ~0ull;
+    static constexpr std::uint64_t en_rise_ns = 50'000'000; // EN's rise, with room for the program's two calls
     emu::Esp32C3 machine_;
+    std::uint64_t release_ns_ = no_release; // EN rises then
+    bool download_latch_ = false;
     std::vector<std::unique_ptr<TimedAdapter>> adapters_;
 };
 

@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0107: A board's USB connector reaches the computer as a serial link](0107-board-usb-connector-to-the-computer.md):
+  serial port or RFC 2217 TCP server, DTR/RTS through the board's reset circuit, uploads with esptool.
 - [0106: The ESP32-C3 on SimNodus's own emulator, provisionally](0106-esp32c3-on-the-own-emulator.md):
   DE1 (E-08); a second microcontroller, experimental until the comparison with a board.
 - [0105: A serial port of the computer is a digital device in the engine](0105-computer-serial-port-as-a-device.md):

@@ -74,6 +74,14 @@ struct McuRunOptions {
     // uart_rx_min_bit_ns are not decoded (the circuit's step cannot show them).
     std::set<std::string> uart_rx_byte_links;
     std::uint64_t uart_rx_min_bit_ns = 0;
+    // The board's USB connector to the computer (SN-252): a UART's link
+    // ("COM7", "/dev/ttyUSB0", "tcp:4000") and the board's circuit from the
+    // link's DTR and RTS to EN and the boot pin (McuMachine::host_lines).
+    struct UartLink {
+        std::string spec;
+        std::string circuit;
+    };
+    std::map<std::string, UartLink> uart_links;
     // GDB server on 127.0.0.1:gdb_port (SN-180), -1 for none. The firmware then
     // waits halted at its reset handler for the first client.
     int gdb_port = -1;

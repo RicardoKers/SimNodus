@@ -282,6 +282,7 @@ ComponentDefinition parse_definition(const json& j)
             parameter.unit = text(p, "unit");
             parameter.live = p.value("live", false);
             parameter.serial_port = p.value("serial_port", false);
+            parameter.host_link = p.value("host_link", false);
             parameter.default_value = text(p, "default", true);
             parameter.description = text(p, "description");
             parameter.choices = strings(p, "choices");
@@ -533,7 +534,11 @@ ComponentDefinition parse_definition(const json& j)
         }
         if (m.contains("uarts")) {
             for (const auto& u : m["uarts"]) {
-                McuBoard::Uart uart{text(u, "name", true), text(u, "label"), text(u, "tx_pin"), text(u, "rx_pin")};
+                McuBoard::Uart uart{text(u, "name", true), text(u, "label"), text(u, "tx_pin"), text(u, "rx_pin"),
+                    text(u, "link_parameter"), text(u, "reset_circuit")};
+                if (!uart.link_parameter.empty() && !d.parameter(uart.link_parameter)) {
+                    invalid("mcu.uarts.link_parameter is not a parameter of the part");
+                }
                 if (uart.label.empty()) {
                     uart.label = uart.name;
                 }

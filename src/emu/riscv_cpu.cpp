@@ -418,6 +418,9 @@ void RiscvCpu::advance_idle(std::uint64_t to)
 void RiscvCpu::set_interrupt_lines(std::uint32_t lines)
 {
     if (lines != mip_) {
+        if (lines & ~mip_) {
+            interrupt_wait_ = config_.interrupt_latency;
+        }
         mip_ = lines;
         attention_ = true;
     }
@@ -1004,7 +1007,10 @@ bool RiscvCpu::check_attention()
         }
         state_ = RvState::Running; // WFI wakes on any enabled pending line, even with MIE off
     }
-    if (line >= 0) {
+    if (line >= 0 && interrupt_wait_ > 0) {
+        --interrupt_wait_; // one more instruction before the interrupt
+        attention_ = true;
+    } else if (line >= 0) {
         take_interrupt(line);
         attention_ = true; // the handler may have more to take
     }
