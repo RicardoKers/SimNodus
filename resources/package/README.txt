@@ -1,8 +1,8 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.12 (analog and digital circuits and the Blue Pill / STM32F103
-microcontroller).
+Release 0.13 (analog and digital circuits, the Blue Pill / STM32F103
+microcontroller and an experimental ESP32-C3 board).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
 and opens .snx files with a double-click.
@@ -18,6 +18,15 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.13: an ESP32-C3-DevKitM-1 board, experimental until it is compared
+with a real board. It runs a flash image (.bin) of ESP-IDF, Arduino or
+MicroPython unchanged: GPIO, LEDC PWM, ADC, I2C, SPI, RMT (WS2812B strips),
+UART0 and the USB Serial/JTAG port (examples 45-48). Its serial ports can be
+linked to the computer, through a virtual serial port pair (com0com) or TCP
+(rfc2217://localhost:4000), so the Arduino IDE, Thonny, mpremote and esptool
+work with it, uploads included (see MICROCONTROLLER.md). Not yet: Wi-Fi,
+Bluetooth, GDB on the ESP32-C3.
 
 New in 0.12: a Serial Port part connects the circuit to a real serial port
 of the computer (a USB-serial adapter: choose the port, baud rate and format
@@ -38,7 +47,8 @@ examples 36-43.
 
 Community: questions, circuits and bug reports are welcome on the SimNodus
 Discord server, https://discord.gg/AsjGNtMnef (English or Portuguese), and
-on https://github.com/RicardoKers/SimNodus/issues.
+on https://github.com/RicardoKers/SimNodus/issues. Video tutorials:
+https://www.youtube.com/@SimNodus.
 
 New in 0.10: the user guides in Brazilian Portuguese (folder pt-BR; Help >
 User Guide opens them when the interface is in Portuguese). Counters,

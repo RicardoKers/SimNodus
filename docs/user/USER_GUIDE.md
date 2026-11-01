@@ -3,7 +3,7 @@
 SimNodus is a classroom simulator: you draw a circuit, press F5 and it keeps
 running while you press buttons, turn potentiometers and watch LEDs, meters
 and the Signal Analyzer. A Blue Pill board (STM32F103C8) can run your own
-firmware inside the circuit. This guide describes release 0.12. For a first circuit in five minutes, see the
+firmware inside the circuit. This guide describes release 0.13. For a first circuit in five minutes, see the
 [quick start](QUICK_START.md); for every detail of the simulated
 microcontroller, see [MICROCONTROLLER.md](MICROCONTROLLER.md).
 
@@ -584,6 +584,7 @@ results are read correctly.
 ## Community and help
 
 Questions, circuits to share, bug reports and ideas are welcome on the
-[SimNodus Discord server](https://discord.gg/AsjGNtMnef), in English or Portuguese. Reproducible
+[SimNodus Discord server](https://discord.gg/AsjGNtMnef), in English or Portuguese, and
+video tutorials are on the [SimNodus YouTube channel](https://www.youtube.com/@SimNodus). Reproducible
 bugs can also be reported as [GitHub issues](https://github.com/RicardoKers/SimNodus/issues); attach the `.snx`
 project (File > Save with Firmware includes its firmware) and the messages.
