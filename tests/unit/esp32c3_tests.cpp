@@ -141,7 +141,9 @@ TEST_CASE("esp32c3: ESP-IDF hello_world boots unmodified")
         }
     }
     REQUIRE(times.size() >= 3);
-    for (std::size_t i = 1; i < times.size(); ++i) {
+    // From the second interval: the first line waits behind the boot log,
+    // which leaves at 115200 baud (SN-254).
+    for (std::size_t i = 2; i < times.size(); ++i) {
         const double period_ms = static_cast<double>(times[i] - times[i - 1]) / 1e6;
         CHECK(period_ms > 999.0 && period_ms < 1001.0); // within 0.1 % (G8b.2)
     }
@@ -317,7 +319,7 @@ TEST_CASE("esp32c3: ESP-IDF esp_timer, light sleep and FreeRTOS examples")
     auto stats = boot(read_file(firmware("real_time_stats.bin")));
     REQUIRE(stats);
     std::string partial2;
-    lines = run_lines(*stats, 1'300'000'000ull, 0, partial2);
+    lines = run_lines(*stats, 2'500'000'000ull, 0, partial2);
     CHECK(has(lines, "| Task | Run Time | Percentage"));
     for (const char* task : {"| spin0 |", "| spin5 |", "| IDLE |"}) {
         CHECK(has(lines, task));
@@ -331,7 +333,7 @@ TEST_CASE("esp32c3: Arduino-ESP32 sketch runs unchanged")
     std::string partial;
     auto lines = run_lines(*machine, 600'000'000ull, 0, partial);
     CHECK(has(lines, "Arduino on ESP32-C3"));
-    CHECK(has(lines, "tick 2 at 535 ms"));
+    CHECK(has(lines, "tick 2 at 552 ms")); // after the boot log at 115200 baud
     machine->send(0, "abc");
     lines = run_lines(*machine, 1'100'000'000ull, 0, partial);
     CHECK(has(lines, "ABCtick")); // the echo in capitals, before the next line
@@ -363,9 +365,9 @@ TEST_CASE("esp32c3: faults give the panic report and a diagnostic")
         auto machine = boot(image);
         REQUIRE(machine);
         std::string partial;
-        run_lines(*machine, 100'000'000ull, 0, partial);
+        run_lines(*machine, 400'000'000ull, 0, partial); // the boot log leaves at 115200 baud
         machine->send(0, fault.key);
-        const auto lines = run_lines(*machine, 110'000'000ull, 0, partial);
+        const auto lines = run_lines(*machine, 1'000'000'000ull, 0, partial);
         CHECK(has(lines, fault.report));
         CHECK(has(lines, "rst:0xc (RTC_SW_CPU_RST)")); // the panic handler restarts
         bool noted = false;
@@ -452,6 +454,154 @@ TEST_CASE("esp32c3: MicroPython PWM on LEDC and ADC readings")
         }
     }
     CHECK(found);
+}
+
+// esptool's SYNC command as a SLIP frame.
+static std::string sync_frame()
+{
+    std::string frame;
+    for (const int b : {0xC0, 0x00, 0x08, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x07, 0x12, 0x20}) {
+        frame += static_cast<char>(b);
+    }
+    frame += std::string(32, static_cast<char>(0x55));
+    frame += static_cast<char>(0xC0);
+    return frame;
+}
+
+// The start of the ROM's answer to SYNC: a response (1) to command 0x08.
+static const std::string sync_answer{static_cast<char>(0xC0), static_cast<char>(0x01), static_cast<char>(0x08)};
+
+// What the ROM sent on `port`, as raw bytes.
+static std::string output_bytes(Esp32C3& machine, int port)
+{
+    std::string bytes;
+    for (const auto& out : machine.take_output()) {
+        if (out.port == port) {
+            bytes += static_cast<char>(out.value);
+        }
+    }
+    return bytes;
+}
+
+TEST_CASE("esp32c3: download mode answers esptool's SYNC on UART0 and USB Serial/JTAG")
+{
+    for (const int port : {0, 2}) {
+        std::string error;
+        const auto rom = read_elf(repository / "third_party" / "esp-rom-elfs" / "esp32c3_rev3_rom.elf", error, ElfMachine::Riscv);
+        Esp32C3::Options options;
+        options.strapping = 0x4; // GPIO9 low: download mode
+        Esp32C3 machine(options);
+        REQUIRE(rom && machine.load_rom(*rom, error));
+        machine.reset();
+        machine.run_until_ns(50'000'000);
+        CHECK(output_bytes(machine, port).find("waiting for download") != std::string::npos);
+        // esptool sends SYNC every 100 ms or so until an answer comes; UART0
+        // first detects the baud rate from the edges (autobaud).
+        std::string answer;
+        for (int attempt = 0; attempt < 10 && answer.find(sync_answer) == std::string::npos; ++attempt) {
+            machine.send(port, sync_frame());
+            machine.run_until_ns(machine.time_ns() + 100'000'000);
+            answer += output_bytes(machine, port);
+        }
+        CHECK(answer.find(sync_answer) != std::string::npos);
+        CHECK(machine.cpu().state() != RvState::Halted);
+    }
+}
+
+TEST_CASE("esp32c3: EN held low stops the chip; GPIO9 low at its rise starts download mode")
+{
+    auto machine = boot(read_file(firmware("hello_world.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    auto lines = run_lines(*machine, 300'000'000, 0, partial);
+    CHECK(has(lines, "boot:0xc (SPI_FAST_FLASH_BOOT)"));
+    machine->set_chip_enable(false);
+    machine->set_boot_low(true);
+    lines = run_lines(*machine, 400'000'000, 0, partial);
+    CHECK(lines.empty());
+    CHECK(machine->time_ns() >= 400'000'000);
+    machine->set_chip_enable(true);
+    lines = run_lines(*machine, 450'000'000, 0, partial);
+    CHECK(has(lines, "boot:0x4 (DOWNLOAD(USB/UART0/1))"));
+    CHECK(has(lines, "waiting for download"));
+    CHECK(machine->download_boots() == 1);
+    machine->set_boot_low(false);
+    machine->set_chip_enable(false);
+    machine->set_chip_enable(true);
+    lines = run_lines(*machine, 800'000'000, 0, partial);
+    CHECK(has(lines, "boot:0xc (SPI_FAST_FLASH_BOOT)"));
+}
+
+TEST_CASE("esp32c3: UART bytes from outside arrive one frame apart at the baud rate")
+{
+    auto machine = boot(read_file(firmware("hello_world.bin")));
+    REQUIRE(machine);
+    machine->run_until_ns(1'000'000);
+    // The ROM's UART0 runs at 115200 baud, 8N1: a frame is 86.8 us.
+    const std::uint64_t start = machine->time_ns();
+    machine->send(0, "abcd");
+    std::uint32_t count = 0;
+    machine->run_until_ns(start + 80'000);
+    REQUIRE(machine->bus().read(0x6000001C, 4, count));
+    CHECK((count & 0x3FF) == 0);
+    machine->run_until_ns(start + 180'000);
+    REQUIRE(machine->bus().read(0x6000001C, 4, count));
+    CHECK((count & 0x3FF) == 2);
+}
+
+TEST_CASE("esp32c3: UART0's frames on GPIO21 and from GPIO20 at the pin level")
+{
+    auto machine = boot(read_file(firmware("hello_world.bin")));
+    REQUIRE(machine);
+    machine->run_until_ns(1'000'000);
+    // The ROM's first byte, 'E' (0x45), at 115200 baud: decode GPIO21's edges.
+    std::vector<std::pair<std::uint64_t, bool>> edges;
+    for (const auto& e : machine->take_pin_events()) {
+        if (e.pin == 21 && e.state.output) {
+            edges.emplace_back(e.time_ns, e.state.level);
+        }
+    }
+    const double bit = 1e9 / 115200.0;
+    std::uint64_t start = 0;
+    for (const auto& [t, level] : edges) {
+        if (!level) {
+            start = t;
+            break;
+        }
+    }
+    REQUIRE(start != 0);
+    auto level_at = [&](double t) {
+        bool level = true;
+        for (const auto& [at, l] : edges) {
+            if (static_cast<double>(at) <= t) {
+                level = l;
+            }
+        }
+        return level;
+    };
+    unsigned value = 0;
+    for (int i = 0; i < 8; ++i) {
+        value |= (level_at(static_cast<double>(start) + (i + 1.5) * bit) ? 1u : 0u) << i;
+    }
+    CHECK(value == 0x45);
+    CHECK(level_at(static_cast<double>(start) + 9.5 * bit)); // the stop bit
+    // A frame driven on GPIO20 ('A', 0x41) lands in the RX FIFO.
+    std::uint64_t t = machine->time_ns();
+    machine->set_pin_input(20, true);
+    t += 200'000; // idle for longer than a frame
+    machine->run_until_ns(t);
+    const unsigned frame = 0x200u | (0x41u << 1); // start 0, data, stop 1
+    for (int i = 0; i < 10; ++i) {
+        machine->set_pin_input(20, ((frame >> i) & 1) != 0);
+        machine->run_until_ns(t + static_cast<std::uint64_t>((i + 1) * bit));
+    }
+    machine->run_until_ns(machine->time_ns() + 20'000);
+    std::uint32_t status = 0;
+    std::uint32_t byte = 0;
+    REQUIRE(machine->bus().read(0x6000001C, 4, status));
+    CHECK((status & 0x3FF) == 1);
+    REQUIRE(machine->bus().read(0x60000000, 4, byte));
+    CHECK(byte == 0x41);
 }
 
 TEST_CASE("esp32c3: two runs give the same output")

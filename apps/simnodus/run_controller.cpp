@@ -6,6 +6,7 @@
 #include "engine_process.hpp"
 #include "schematic_scene.hpp"
 
+#include "editing/operations.hpp"
 #include "library/component_library.hpp"
 #include "library/spice_template.hpp"
 #include "mcu/mcu_machine.hpp"
@@ -16,6 +17,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QStringList>
 
@@ -254,8 +256,45 @@ void RunController::pause_or_resume()
     }
 }
 
+void RunController::keep_uploaded_flash()
+{
+    for (const auto& c : snapshot_.components()) {
+        const auto* d = document_.library().find(c.type);
+        if (!d || !d->mcu || d->mcu->chip != "esp32c3" || !document_.schematic().component(c.id)) {
+            continue;
+        }
+        const auto bytes = session_->device_memory(c.id);
+        if (!bytes || bytes->empty()) {
+            continue;
+        }
+        const QString designator = QString::fromStdString(c.designator);
+        const QString dir = document_.base_dir();
+        if (dir.isEmpty()) {
+            emit mcu_message(c.id, tr("%1: the firmware uploaded through the USB connector is not kept: "
+                                      "save the project first.").arg(designator));
+            continue;
+        }
+        const QString name = designator + QStringLiteral("-flash.bin");
+        QFile file(QDir(dir).absoluteFilePath(name));
+        if (!file.open(QIODevice::WriteOnly)
+            || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))
+                != static_cast<qint64>(bytes->size())) {
+            emit mcu_message(c.id, tr("%1: the uploaded firmware could not be saved as %2: %3")
+                                       .arg(designator, name, file.errorString()));
+            continue;
+        }
+        file.close();
+        document_.apply(editing::set_parameter(document_.schematic(), c.id, d->mcu->firmware_parameter, name.toStdString()));
+        emit mcu_message(c.id, tr("%1: the firmware uploaded through the USB connector was saved as %2, "
+                                  "now the board's firmware.").arg(designator, name));
+    }
+}
+
 void RunController::stop()
 {
+    if (session_->active()) {
+        keep_uploaded_flash();
+    }
     session_->stop();
     timer_.stop();
     tone_.play(0.0); // the refresh that would silence it does not come any more

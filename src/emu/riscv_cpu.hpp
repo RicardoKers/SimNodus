@@ -71,6 +71,11 @@ public:
         // trapping; the ESP32-C3 does them (its newlib's string functions
         // rely on it).
         bool misaligned_access = false;
+        // Instructions that still run after a line rises before its interrupt
+        // is taken (the pipeline's latency); 0: at once. The ESP32-C3's ROM
+        // enables a UART interrupt one store before it says which port it
+        // serves (uart_buff_switch), which works on the chip because of this.
+        int interrupt_latency = 0;
     };
 
     explicit RiscvCpu(Bus& bus);
@@ -203,6 +208,7 @@ private:
     // CSRs.
     bool mie_bit_ = false, mpie_ = false, mprv_ = false, tw_ = false;
     Privilege mpp_ = Privilege::Machine;
+    int interrupt_wait_ = 0; // instructions before a newly raised line is taken
     std::uint32_t mie_ = 0, mip_ = 0, mtvec_ = 0, mscratch_ = 0, mepc_ = 0, mcause_ = 0, mtval_ = 0;
     std::uint32_t mcounteren_ = 0;
     std::uint64_t cycle_offset_ = 0, instret_offset_ = 0;

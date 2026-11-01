@@ -18,6 +18,7 @@
 #include <cerrno>
 #include <dirent.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 #endif
@@ -97,6 +98,17 @@ public:
         return WriteFile(handle_, bytes, static_cast<DWORD>(size), &count, nullptr) && count == size;
     }
 
+    bool modem_status(bool& dsr, bool& cts) override
+    {
+        DWORD status = 0;
+        if (!GetCommModemStatus(handle_, &status)) {
+            return false;
+        }
+        dsr = (status & MS_DSR_ON) != 0;
+        cts = (status & MS_CTS_ON) != 0;
+        return true;
+    }
+
 private:
     HANDLE handle_;
 };
@@ -157,6 +169,17 @@ public:
             }
         }
         return done == size;
+    }
+
+    bool modem_status(bool& dsr, bool& cts) override
+    {
+        int status = 0;
+        if (::ioctl(fd_, TIOCMGET, &status) != 0) {
+            return false;
+        }
+        dsr = (status & TIOCM_DSR) != 0;
+        cts = (status & TIOCM_CTS) != 0;
+        return true;
     }
 
 private:

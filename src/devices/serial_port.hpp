@@ -33,6 +33,14 @@ public:
     virtual std::size_t read(std::uint8_t* buffer, std::size_t size) = 0;
     // False when the bytes could not be written (the adapter was unplugged).
     virtual bool write(const std::uint8_t* bytes, std::size_t size) = 0;
+    // DSR and CTS now (the other end's DTR and RTS on a virtual port pair);
+    // false when the port cannot tell.
+    virtual bool modem_status(bool& dsr, bool& cts)
+    {
+        (void)dsr;
+        (void)cts;
+        return false;
+    }
 };
 
 // The opened port, or nullptr and `error` (the system's reason).

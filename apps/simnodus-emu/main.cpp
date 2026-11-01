@@ -13,6 +13,7 @@
 // --input sets a pin level from outside at a time in milliseconds; --uart
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
+#include "devices/host_link.hpp"
 #include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/riscv_test_machine.hpp"
@@ -128,6 +129,8 @@ int run_esp32c3(int argc, char** argv)
     };
     std::vector<Typed> typed; // --usb text@ms, --uart0 text@ms; \n and \r in the text
     std::string flash_out;
+    Esp32C3::Options options;
+    std::vector<std::pair<int, std::unique_ptr<simnodus::devices::HostLink>>> links; // --link: real time, no DTR/RTS
     for (int i = 2; i < argc; ++i) {
         const std::string arg = argv[i];
         if ((arg == "--usb" || arg == "--uart0" || arg == "--uart1") && i + 1 < argc) {
@@ -138,6 +141,10 @@ int run_esp32c3(int argc, char** argv)
                 for (auto pos = text.find(escape); pos != std::string::npos; pos = text.find(escape, pos + 1)) {
                     text.replace(pos, 2, 1, byte);
                 }
+            }
+            // \xHH: any byte (esptool's SLIP frames).
+            for (auto pos = text.find("\\x"); pos != std::string::npos && pos + 4 <= text.size(); pos = text.find("\\x", pos + 1)) {
+                text.replace(pos, 4, 1, static_cast<char>(std::strtoul(text.substr(pos + 2, 2).c_str(), nullptr, 16)));
             }
             typed.push_back({at == std::string::npos ? 0 : static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
                 arg == "--usb" ? 2 : arg == "--uart1" ? 1 : 0, text});
@@ -151,6 +158,19 @@ int run_esp32c3(int argc, char** argv)
             }
             typed.push_back({static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6),
                 -1 - std::atoi(value.c_str()), value.substr(eq + 1, at - eq - 1)}); // 0, 1 or a voltage like 1.2V
+        } else if (arg == "--link" && i + 1 < argc) { // PORT=LINK: a serial port of the computer or tcp:4000
+            const std::string value = argv[++i];
+            const auto eq = value.find('=');
+            const std::string port = value.substr(0, eq);
+            std::string why;
+            auto link = simnodus::devices::open_host_link(value.substr(eq + 1), why);
+            if (eq == std::string::npos || !link) {
+                std::fprintf(stderr, "error: --link takes uart0|uart1|usb=COM7|tcp:4000 (%s)\n", why.c_str());
+                return 2;
+            }
+            links.emplace_back(port == "usb" ? 2 : port == "uart1" ? 1 : 0, std::move(link));
+        } else if (arg == "--strap" && i + 1 < argc) {
+            options.strapping = static_cast<std::uint32_t>(std::strtoul(argv[++i], nullptr, 0)); // 0x4: download mode (GPIO9 low)
         } else if (arg == "--flash-out" && i + 1 < argc) {
             flash_out = argv[++i]; // the whole flash at the end (pass it back as the image to continue)
         } else if (arg == "--rom" && i + 1 < argc) {
@@ -174,7 +194,7 @@ int run_esp32c3(int argc, char** argv)
     }
     std::string error;
     const auto rom_elf = read_elf(rom, error, ElfMachine::Riscv);
-    Esp32C3 machine;
+    Esp32C3 machine(options);
     if (!rom_elf || !machine.load_rom(*rom_elf, error)) {
         std::fprintf(stderr, "error: %s\n", error.c_str());
         return 1;
@@ -217,6 +237,18 @@ int run_esp32c3(int argc, char** argv)
         if (next_typed < typed.size()) {
             until = std::max(machine.time_ns() + 1, std::min(until, typed[next_typed].time_ns));
         }
+        if (!links.empty()) {
+            // Linked to a program: at most real-time speed, its bytes in.
+            until = std::min(until, machine.time_ns() + 200'000);
+            const auto real = begin + std::chrono::nanoseconds(machine.time_ns());
+            std::this_thread::sleep_until(real);
+            for (auto& [port, link] : links) {
+                std::uint8_t buffer[1024];
+                for (std::size_t n; (n = link->read(buffer, sizeof(buffer))) > 0;) {
+                    machine.send(port, std::string(reinterpret_cast<const char*>(buffer), n));
+                }
+            }
+        }
         machine.run_until_ns(until);
         while (next_typed < typed.size() && typed[next_typed].time_ns <= machine.time_ns()) {
             const Typed& t = typed[next_typed++];
@@ -230,7 +262,17 @@ int run_esp32c3(int argc, char** argv)
                 machine.send(t.port, t.text);
             }
         }
-        for (const auto& out : machine.take_output()) {
+        auto output = machine.take_output();
+        for (auto& [port, link] : links) {
+            std::string bytes;
+            for (const auto& out : output) {
+                if (out.port == port) {
+                    bytes += static_cast<char>(out.value);
+                }
+            }
+            link->write(reinterpret_cast<const std::uint8_t*>(bytes.data()), bytes.size());
+        }
+        for (const auto& out : output) {
             std::string& line = lines[out.port];
             if (out.value == '\n' || line.size() > 200) {
                 if (!quiet) {

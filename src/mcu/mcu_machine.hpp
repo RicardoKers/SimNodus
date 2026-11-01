@@ -74,6 +74,22 @@ public:
     virtual std::uint64_t cycles_at(std::uint64_t ns) const = 0;
     virtual std::uint64_t ns_at(std::uint64_t cycle) const = 0;
 
+    // The computer's DTR and RTS on a UART's link (SN-253), through the
+    // board's reset and boot circuit: "auto_reset" (two transistors from DTR
+    // and RTS to EN and the boot pin, as a USB-serial bridge's board has),
+    // "usb_jtag" (the USB Serial/JTAG's own reset logic), anything else: none.
+    virtual void host_lines(int uart, const std::string& circuit, bool dtr, bool rts)
+    {
+        (void)uart;
+        (void)circuit;
+        (void)dtr;
+        (void)rts;
+    }
+    // The flash once a download (esptool through the ROM) has written it:
+    // a number that grows with each write, 0 before; and the contents.
+    virtual std::uint64_t downloaded_flash_version() const { return 0; }
+    virtual std::vector<std::uint8_t> flash() const { return {}; }
+
     // The STM32F103 for the GDB server (SN-180); nullptr on other chips.
     virtual emu::Stm32F103* stm32() { return nullptr; }
 };

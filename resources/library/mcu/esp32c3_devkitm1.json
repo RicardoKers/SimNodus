@@ -827,6 +827,22 @@
       "filter": "*.bin",
       "default": "",
       "description": "Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project"
+    },
+    {
+      "name": "uart0_link",
+      "label": "UART0 to the computer",
+      "kind": "text",
+      "host_link": true,
+      "default": "",
+      "description": "The board's USB connector (UART0, through its USB-serial bridge) linked to the computer: a serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs that speak RFC 2217 (esptool, mpremote), or empty for none. DTR and RTS reset the board and select download mode, as on the DevKit"
+    },
+    {
+      "name": "usb_link",
+      "label": "USB Serial/JTAG to the computer",
+      "kind": "text",
+      "host_link": true,
+      "default": "",
+      "description": "The chip's own USB (GPIO18 and GPIO19; MicroPython's REPL) linked to the computer: a serial port (one end of a virtual port pair), tcp:4001, or empty for none. DTR and RTS reset the chip and select download mode as the USB Serial/JTAG does"
     }
   ],
   "mcu": {
@@ -850,13 +866,17 @@
         "name": "uart0",
         "label": "UART0 (USB connector; GPIO21 TX, GPIO20 RX)",
         "tx_pin": "GPIO21",
-        "rx_pin": "GPIO20"
+        "rx_pin": "GPIO20",
+        "link_parameter": "uart0_link",
+        "reset_circuit": "auto_reset"
       },
       {
         "name": "usb",
         "label": "USB Serial/JTAG (GPIO18, GPIO19)",
         "tx_pin": "",
-        "rx_pin": ""
+        "rx_pin": "",
+        "link_parameter": "usb_link",
+        "reset_circuit": "usb_jtag"
       }
     ]
   },

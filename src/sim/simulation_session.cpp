@@ -950,6 +950,12 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         for (const auto& uart : d->mcu->uarts) {
             request.options.uarts.push_back(uart.name);
             request.uart_pins[uart.name] = {uart.tx_pin, uart.rx_pin};
+            if (!uart.link_parameter.empty()) {
+                const auto link = c.parameters.find(uart.link_parameter);
+                if (link != c.parameters.end() && !link->second.empty()) {
+                    request.options.uart_links[uart.name] = {link->second, uart.reset_circuit};
+                }
+            }
         }
         request.options.firmware = loaded_by_debugger ? std::filesystem::path() : path;
         request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
@@ -1172,7 +1178,8 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
 {
     std::vector<std::uint8_t> bytes;
     for (const auto& [id, runner] : mcus_) {
-        if (runner->device_memory(component, bytes)) {
+        // A board's own flash once esptool wrote it (SN-253) is its memory 0.
+        if (runner->device_memory(id == component ? 0 : component, bytes)) {
             return bytes;
         }
     }

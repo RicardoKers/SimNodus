@@ -68,6 +68,9 @@ struct Parameter {
     bool live = false;
     // Text: the name of a serial port of the computer (SN-237); the editor offers the ports it finds.
     bool serial_port = false;
+    // A board's link to the computer (SN-252): the serial ports, "tcp:4000"
+    // and none (empty) to choose from.
+    bool host_link = false;
     // Model: the part's pins in the usual port order of vendor subcircuits
     // ("IN+", "IN-", "V+", "V-", "OUT"); empty: no subcircuits (ADR 0097).
     std::vector<std::string> subcircuit;
@@ -110,6 +113,11 @@ struct McuBoard {
         std::string label; // terminal text ("USART1 (PA9 TX, PA10 RX)")
         std::string tx_pin; // "PA9": held high while the transmitter is on; empty if unknown
         std::string rx_pin; // "PA10": a board's TX on the same net sends it bytes (SN-175)
+        // The board's USB connector (SN-252): the parameter holding the link
+        // to the computer ("COM7", "tcp:4000", empty: none), and the board's
+        // circuit from the link's DTR and RTS ("auto_reset", "usb_jtag", empty).
+        std::string link_parameter;
+        std::string reset_circuit;
     };
     std::vector<Uart> uarts; // serial ports for the terminal (MCU-05)
 };

@@ -3,12 +3,12 @@ add_library(simnodus_json INTERFACE)
 target_include_directories(simnodus_json SYSTEM INTERFACE "${PROJECT_SOURCE_DIR}/third_party")
 
 # Digital devices on a board's nets (SN-203, ADR 0102).
-add_library(simnodus_devices STATIC devices/devices.cpp devices/serial_port.cpp)
+add_library(simnodus_devices STATIC devices/devices.cpp devices/serial_port.cpp devices/host_link.cpp)
 add_library(simnodus::devices ALIAS simnodus_devices)
 target_include_directories(simnodus_devices PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(simnodus_devices PRIVATE simnodus::warnings)
 if(WIN32)
-    target_link_libraries(simnodus_devices PRIVATE advapi32) # the registry's list of serial ports
+    target_link_libraries(simnodus_devices PRIVATE advapi32 ws2_32) # the registry's list of serial ports; the TCP link
 endif()
 
 add_subdirectory(sim)

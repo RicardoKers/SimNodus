@@ -384,21 +384,32 @@ void PropertiesPanel::rebuild()
             editor = file_editor(p, common ? value : QString(), d->mcu && d->mcu->firmware_parameter == p.name);
         } else if (p.kind == library::Parameter::Kind::Model) {
             editor = model_editor(p, *components.front(), common ? value : QString());
-        } else if (p.serial_port) {
+        } else if (p.serial_port || p.host_link) {
             // The computer's serial ports as found now (SN-237); another name can be typed.
+            // A board's link (SN-252) also offers a TCP port and none (empty).
             auto* box = new QComboBox;
             box->setEditable(true);
             box->setInsertPolicy(QComboBox::NoInsert);
+            if (p.host_link) {
+                box->addItem(QString());
+            }
             for (const auto& port : devices::serial_port_names()) {
                 box->addItem(QString::fromStdString(port));
             }
-            box->addItem(QString::fromLatin1(devices::loopback_port));
+            if (p.host_link) {
+                box->addItem(QStringLiteral("tcp:4000"));
+                box->addItem(QStringLiteral("tcp:4001"));
+                box->lineEdit()->setPlaceholderText(tr("Not linked"));
+            } else {
+                box->addItem(QString::fromLatin1(devices::loopback_port));
+            }
             box->setCurrentText(common ? value : QString());
             box->setToolTip(translated(p.description));
             const std::string name = p.name;
-            const auto commit = [this, box, name] {
+            const bool may_be_empty = p.host_link;
+            const auto commit = [this, box, name, may_be_empty] {
                 const QString port = box->currentText().trimmed();
-                if (!rebuilding_ && !port.isEmpty()) {
+                if (!rebuilding_ && (!port.isEmpty() || may_be_empty)) {
                     commit_parameter(name, port);
                 }
             };

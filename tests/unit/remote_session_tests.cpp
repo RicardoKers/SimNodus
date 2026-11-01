@@ -236,6 +236,7 @@ TEST_CASE("remote: a start message carries the whole run request")
     c3.component = 43;
     c3.options.chip = "esp32c3";
     c3.options.pins = {"GPIO8"};
+    c3.options.uart_links["uart0"] = {"tcp:4000", "auto_reset"};
     request.mcus.push_back(c3);
     request.debugging = true;
     sim::protocol::EngineSetup setup;
@@ -258,6 +259,9 @@ TEST_CASE("remote: a start message carries the whole run request")
     CHECK(read.mcus[0].options.chip == "stm32f103");
     CHECK(read.mcus[1].options.chip == "esp32c3");
     CHECK(read.mcus[1].options.pins == c3.options.pins);
+    REQUIRE(read.mcus[1].options.uart_links.count("uart0") == 1);
+    CHECK(read.mcus[1].options.uart_links.at("uart0").spec == "tcp:4000");
+    CHECK(read.mcus[1].options.uart_links.at("uart0").circuit == "auto_reset");
     CHECK(read.mcus[0].uart_pins.at("usart1").second == "PA10");
     CHECK(read.mcus[0].options.firmware == board.options.firmware);
     CHECK(read.mcus[0].options.pins == board.options.pins);

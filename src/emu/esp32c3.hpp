@@ -77,6 +77,20 @@ public:
     // the flash keeps its contents.
     void press_reset() { request_reset(ResetKind::PowerOn); }
     int resets() const { return resets_; }
+    // The board's EN line (CHIP_PU, SN-253): low holds the chip in reset;
+    // rising starts it as at power-on, sampling the strapping pins.
+    void set_chip_enable(bool on);
+    bool chip_enabled() const { return !held_; }
+    // GPIO9 held low at the next power-on reset: the ROM's download mode
+    // (esptool), whatever Options::strapping says.
+    void set_boot_low(bool low) { boot_low_ = low; }
+    // Download mode for the next power-on reset only (the USB Serial/JTAG's
+    // reset logic forces it so, as RTC_CNTL's FORCE_DOWNLOAD_BOOT).
+    void set_download_once(bool on) { download_once_ = on; }
+    // Power-on resets into download mode so far, and the flash's programs
+    // and erases so far (what esptool writes; also the firmware's own).
+    int download_boots() const { return download_boots_; }
+    std::uint64_t flash_writes() const;
 
     void run_until_ns(std::uint64_t ns);
     std::uint64_t time_ns() const;
@@ -120,6 +134,9 @@ public:
     void set_pin_hook(std::function<void(int gpio, std::uint64_t time_ns)> hook) { pin_hook_ = std::move(hook); }
 
     std::vector<Output> take_output();
+    // UART0/UART1 decode the frames on their RX signal (SN-254) unless `on`
+    // is false, and only with bits of at least `min_bit_ns`.
+    void set_uart_pin_rx(int port, bool on, std::uint64_t min_bit_ns);
     // Bytes from outside for port 0 (UART0), 1 (UART1) or 2 (USB-Serial-JTAG).
     void send(int port, const std::string& bytes);
     std::vector<std::string> take_diagnostics();
@@ -191,6 +208,10 @@ private:
     std::uint64_t sleep_start_ns_ = 0;
     void wake();
     int resets_ = 0;
+    bool held_ = false;
+    bool boot_low_ = false;
+    bool download_once_ = false;
+    int download_boots_ = 0;
     Interrupts* interrupts_ = nullptr;
     Gpio* gpio_ = nullptr;
     // Output signals of the GPIO matrix that a modelled peripheral drives
