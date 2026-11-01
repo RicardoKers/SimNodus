@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-01 (end of the 0.13 cycle). Keep this file short: present state, last results, next
+Updated: 2026-11-01 (after 0.13.0: SN-248). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -139,9 +139,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ADC, I2C0, SPI2 with GDMA, RMT (SN-247 except continuous ADC and the
    temperature sensor), serial ports to the computer and pin-level UART
    (SN-252-254). In order:
-   - SN-248, the MicroPython workflow: the console for Thonny and mpremote
-     already works through the links; left: project files into the flash
-     filesystem (and back), the flash kept between runs, the user guide.
+   - SN-248 done on `main` (not released): what the firmware writes to the
+     flash (MicroPython's files, NVS) is kept in `<designator>-flash.bin`
+     like uploads; guide section *MicroPython's files*. The owner can check
+     it with Thonny's file upload.
    - SN-247 leftovers: continuous ADC with GDMA, the temperature sensor.
    - SN-249, GDB for RISC-V; SN-250, Wi-Fi as experiment E-09 (its own plan
      first).

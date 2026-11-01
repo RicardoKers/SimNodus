@@ -276,8 +276,8 @@ small differences may remain.
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.
 - **Pressing RESET** restarts the chip as the EN button does; the flash keeps
-  what the firmware wrote during the run (MicroPython's files) until the run
-  stops.
+  what the firmware wrote (MicroPython's files), and so does the next run
+  (see [MicroPython's files](#micropythons-files)).
 
 ### The board's USB to the computer
 
@@ -322,6 +322,24 @@ MicroPython's REPL is on the USB Serial/JTAG port.
 Uploads take the simulated time they need: at 921600 baud and real-time
 speed, esptool writes 200 KB in about 3 seconds. Thonny and mpremote may
 reset the board when they connect, as they do with a real one.
+
+### MicroPython's files
+
+MicroPython keeps its files (`main.py`, `boot.py`, modules, data) in a file
+system in the flash. Copy them to the board and back as with a real one:
+in Thonny, **View > Files** with the board's port chosen, then **Upload to /**
+or **Download**; with mpremote, `mpremote connect rfc2217://localhost:4000
+fs cp main.py :main.py` (and `fs cp :data.txt .` for the way back).
+
+Whatever the firmware writes to the flash (MicroPython's files, ESP-IDF's
+NVS, Arduino's `Preferences`) is kept as uploads are: when the run stops,
+the flash is saved as `U1-flash.bin` beside the project and becomes the
+board's firmware, so the next run starts with the files and runs `main.py`
+at boot. The project must have been saved once: an example opened from
+**File > Examples** keeps nothing until it is saved under a name of its own.
+To start again from a clean image, choose the original `.bin` in the
+board's **Firmware** property again (or undo the change), or erase it with
+`esptool erase-flash` and write the image again.
 
 ## Debugging with STM32CubeIDE or GDB
 

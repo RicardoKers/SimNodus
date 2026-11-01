@@ -85,9 +85,11 @@ public:
         (void)dtr;
         (void)rts;
     }
-    // The flash once a download (esptool through the ROM) has written it:
-    // a number that grows with each write, 0 before; and the contents.
-    virtual std::uint64_t downloaded_flash_version() const { return 0; }
+    // The flash once something wrote it in this run (esptool through the ROM,
+    // or the firmware itself: MicroPython's files, NVS): a number that grows
+    // with each write, 0 before; whether a download wrote it; the contents.
+    virtual std::uint64_t flash_version() const { return 0; }
+    virtual bool flash_downloaded() const { return false; }
     virtual std::vector<std::uint8_t> flash() const { return {}; }
 
     // The STM32F103 for the GDB server (SN-180); nullptr on other chips.

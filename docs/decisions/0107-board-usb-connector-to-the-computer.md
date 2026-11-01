@@ -73,3 +73,10 @@ and uploading firmware.
   steps is decoded only when its bits are long enough, as on the STM32.
 - Real-port behavior (com0com's line mapping) can only be checked on a
   computer with the pair installed; the automated tests use TCP.
+
+## Update (SN-248, 2026-11-01)
+
+The flash is kept after any write in the run, not only after a download
+boot: MicroPython's file system, ESP-IDF's NVS and Arduino's `Preferences`
+live in the same flash, and a real board keeps them. The window saves it
+only for a project saved under a name; an example copy keeps nothing.

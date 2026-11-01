@@ -1470,6 +1470,81 @@ private slots:
 #endif
     }
 
+    void esp32c3_keeps_what_its_firmware_writes_to_the_flash()
+    {
+        // SN-248: MicroPython's files live in the flash; a saved project keeps
+        // them in "U1-flash.bin", which the next run starts from.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/45_ESP32-C3_blink.snx"), errors, warnings));
+        model::Id board = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            board = c.designator == "U1" ? c.id : board;
+        }
+        QVERIFY(board != model::no_id);
+        const std::string micropython = QFileInfo(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR
+            "/../tests/experiments/esp32c3/firmware/ESP32_GENERIC_C3-20260824-v1.29.0.bin")).absoluteFilePath().toStdString();
+        doc().apply(editing::set_parameter(doc().schematic(), board, "firmware", micropython));
+        auto settings = doc().schematic().settings();
+        settings.speed = 0; // as fast as possible
+        doc().apply(editing::set_settings(doc().schematic(), settings));
+        QStringList messages;
+        QObject listening; // the connection ends with this test
+        connect(window_->run_controller(), &RunController::mcu_message, &listening,
+            [&](model::Id, const QString& text) { messages << text; });
+        auto console = [&] {
+            for (const auto& port : window_->run_controller()->uart_ports()) {
+                if (port.board == board && port.uart == "usb") {
+                    std::string bytes;
+                    window_->run_controller()->uart_received(port, 0, bytes);
+                    return bytes;
+                }
+            }
+            return std::string();
+        };
+        auto send = [&](const std::string& line) {
+            for (const auto& port : window_->run_controller()->uart_ports()) {
+                if (port.board == board && port.uart == "usb") {
+                    window_->run_controller()->uart_send(port, line + "\r");
+                }
+            }
+        };
+        auto write_main = [&] {
+            window_->run();
+            QTRY_VERIFY_WITH_TIMEOUT(console().find(">>> ") != std::string::npos, 150000);
+            send("f=open('main.py','w'); f.write('print(\"main.py ran\")'); f.close(); print('wr' + 'ote')");
+            QTRY_VERIFY_WITH_TIMEOUT(console().find("wrote") != std::string::npos, 150000);
+            window_->stop();
+        };
+        // An unsaved copy keeps nothing beside the example.
+        write_main();
+        QVERIFY(messages.join('\n').contains(QStringLiteral("save the project first")));
+        QVERIFY(!QFile::exists(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/U1-flash.bin")));
+        QString error;
+        const QString project = dir_.filePath(QStringLiteral("micropython/board.snx"));
+        QVERIFY(QDir().mkpath(QFileInfo(project).absolutePath()));
+        QVERIFY2(doc().save(project, error), qPrintable(error));
+        messages.clear();
+        write_main();
+        const QString kept = dir_.filePath(QStringLiteral("micropython/U1-flash.bin"));
+        QVERIFY(QFile::exists(kept));
+        QCOMPARE(QString::fromStdString(doc().schematic().component(board)->parameters.at("firmware")),
+            QStringLiteral("U1-flash.bin"));
+        QVERIFY(messages.join('\n').contains(QStringLiteral("now the board's firmware")));
+        // The next run starts from it: main.py runs at boot.
+        messages.clear();
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(console().find("main.py ran") != std::string::npos, 150000);
+        window_->stop();
+        for (const auto& m : messages) {
+            QVERIFY(!m.contains(QStringLiteral("now the board's firmware"))); // already it: no new edit
+        }
+#endif
+    }
+
     void analyzer_stays_responsive_with_a_long_timebase()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

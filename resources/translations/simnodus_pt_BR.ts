@@ -1895,16 +1895,20 @@ Pinos: %2</translation>
     <context>
         <name>simnodus::ui::RunController</name>
         <message>
-            <source>%1: the firmware uploaded through the USB connector is not kept: save the project first.</source>
-            <translation>%1: o firmware gravado pelo conector USB não foi guardado: salve o projeto primeiro.</translation>
+            <source>%1: what this run wrote to its flash (uploaded firmware, the firmware's files) is not kept: save the project first.</source>
+            <translation>%1: o que esta execução gravou no flash (firmware enviado, arquivos do firmware) não foi guardado: salve o projeto primeiro.</translation>
         </message>
         <message>
-            <source>%1: the uploaded firmware could not be saved as %2: %3</source>
-            <translation>%1: o firmware gravado não pôde ser salvo como %2: %3</translation>
+            <source>%1: its flash could not be saved as %2: %3</source>
+            <translation>%1: o flash não pôde ser salvo como %2: %3</translation>
         </message>
         <message>
-            <source>%1: the firmware uploaded through the USB connector was saved as %2, now the board's firmware.</source>
-            <translation>%1: o firmware gravado pelo conector USB foi salvo como %2, agora o firmware da placa.</translation>
+            <source>%1: its flash was saved in %2.</source>
+            <translation>%1: o flash foi salvo em %2.</translation>
+        </message>
+        <message>
+            <source>%1: what this run wrote to its flash was saved as %2, now the board's firmware.</source>
+            <translation>%1: o que esta execução gravou no flash foi salvo como %2, agora o firmware da placa.</translation>
         </message>
         <message>
             <source>transient analysis, stop %1s, maximum step %2s</source>

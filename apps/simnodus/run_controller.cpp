@@ -256,11 +256,12 @@ void RunController::pause_or_resume()
     }
 }
 
-void RunController::keep_uploaded_flash()
+void RunController::keep_written_flash()
 {
     for (const auto& c : snapshot_.components()) {
         const auto* d = document_.library().find(c.type);
-        if (!d || !d->mcu || d->mcu->chip != "esp32c3" || !document_.schematic().component(c.id)) {
+        const auto* now = document_.schematic().component(c.id);
+        if (!d || !d->mcu || d->mcu->chip != "esp32c3" || !now) {
             continue;
         }
         const auto bytes = session_->device_memory(c.id);
@@ -268,34 +269,39 @@ void RunController::keep_uploaded_flash()
             continue;
         }
         const QString designator = QString::fromStdString(c.designator);
-        const QString dir = document_.base_dir();
-        if (dir.isEmpty()) {
-            emit mcu_message(c.id, tr("%1: the firmware uploaded through the USB connector is not kept: "
-                                      "save the project first.").arg(designator));
+        if (document_.file_path().isEmpty()) { // an example copy keeps its folder untouched too
+            emit mcu_message(c.id, tr("%1: what this run wrote to its flash (uploaded firmware, the firmware's "
+                                      "files) is not kept: save the project first.").arg(designator));
             continue;
         }
         const QString name = designator + QStringLiteral("-flash.bin");
-        QFile file(QDir(dir).absoluteFilePath(name));
+        QFile file(QDir(document_.base_dir()).absoluteFilePath(name));
         if (!file.open(QIODevice::WriteOnly)
             || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))
                 != static_cast<qint64>(bytes->size())) {
-            emit mcu_message(c.id, tr("%1: the uploaded firmware could not be saved as %2: %3")
+            emit mcu_message(c.id, tr("%1: its flash could not be saved as %2: %3")
                                        .arg(designator, name, file.errorString()));
             continue;
         }
         file.close();
+        const auto firmware = now->parameters.find(d->mcu->firmware_parameter);
+        if (firmware != now->parameters.end() && firmware->second == name.toStdString()) {
+            emit mcu_message(c.id, tr("%1: its flash was saved in %2.").arg(designator, name));
+            continue;
+        }
         document_.apply(editing::set_parameter(document_.schematic(), c.id, d->mcu->firmware_parameter, name.toStdString()));
-        emit mcu_message(c.id, tr("%1: the firmware uploaded through the USB connector was saved as %2, "
-                                  "now the board's firmware.").arg(designator, name));
+        emit mcu_message(c.id, tr("%1: what this run wrote to its flash was saved as %2, now the board's "
+                                  "firmware.").arg(designator, name));
     }
 }
 
 void RunController::stop()
 {
-    if (session_->active()) {
-        keep_uploaded_flash();
-    }
+    const bool was_active = session_->active();
     session_->stop();
+    if (was_active) {
+        keep_written_flash(); // the engine's last update carries the last writes
+    }
     timer_.stop();
     tone_.play(0.0); // the refresh that would silence it does not come any more
     scene_.clear_live();
