@@ -336,10 +336,8 @@ public:
             }
         }
     }
-    std::uint64_t downloaded_flash_version() const override
-    {
-        return machine_.download_boots() > 0 ? machine_.flash_writes() : 0;
-    }
+    std::uint64_t flash_version() const override { return machine_.flash_writes(); }
+    bool flash_downloaded() const override { return machine_.download_boots() > 0 && machine_.flash_writes() > 0; }
     std::vector<std::uint8_t> flash() const override { return machine_.flash(); }
     PinState pin_state(int pin) const override { return c3_state(machine_.pin(pin), machine_.pad_level(pin)); }
     bool pin_level(int pin) const override { return machine_.pad_level(pin); }

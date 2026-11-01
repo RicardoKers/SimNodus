@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-01, MicroPython's files kept)
+
+- What an ESP32-C3's firmware writes to its own flash is kept between runs as uploads are (SN-248): MicroPython's files (copied with Thonny or `mpremote fs cp`), ESP-IDF's NVS and Arduino's `Preferences` are saved in `<designator>-flash.bin` beside the project when the run stops, which becomes the board's firmware, so the next run starts with them and runs `main.py` at boot. Before, only a flash written after a download boot was kept. Nothing is written beside an example copy that was not saved under a name (before, an upload into such a copy was saved in the examples folder). The MicroPython workflow is in the microcontroller guide (English and pt-BR).
+- Fixed: the flash kept when a run stops now has the last writes; it was the copy of up to 0.2 s of simulated time earlier, so a run stopped right after an upload or a file write could keep it incomplete.
 ## 0.13.0 — 2026-11-01
 
 ### Added (2026-11-01, links)

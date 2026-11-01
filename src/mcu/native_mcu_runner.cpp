@@ -595,11 +595,13 @@ void NativeMcuRunner::work()
                 l.out.clear();
             }
         }
-        // The flash esptool wrote (SN-253), as the board's memory (component 0):
-        // a copy at most every 0.2 s of its time while writes go on.
-        if (const std::uint64_t version = machine->downloaded_flash_version(); version != 0) {
+        // The flash esptool or the firmware wrote (SN-253, SN-248), as the
+        // board's memory (component 0): a copy at most every 0.2 s of its time
+        // while writes go on.
+        if (const std::uint64_t version = machine->flash_version(); version != 0) {
             const auto known = memories_.find(0);
-            if (known == memories_.end() && diagnostics_.size() < 100) {
+            if (machine->flash_downloaded() && !upload_told_ && diagnostics_.size() < 100) {
+                upload_told_ = true;
                 diagnostics_.push_back("new firmware is being written through the USB connector; it becomes the "
                                        "board's firmware (saved beside the project) when the run stops.");
             }
@@ -795,7 +797,7 @@ void NativeMcuRunner::work()
     }
     machine->set_pin_hook(nullptr); // the bus goes first
     std::lock_guard lock(mutex_);
-    if (const std::uint64_t version = machine->downloaded_flash_version(); version != 0) {
+    if (const std::uint64_t version = machine->flash_version(); version != 0) {
         memories_[0] = {version, machine->flash(), machine->time_ns()}; // the last writes too
     }
     status_.state = McuState::Stopped;

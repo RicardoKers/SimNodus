@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 a178028483b2ea41eb424d5276a86f952461ca9bbc8f14e645ba47dc53394965 -->
+<!-- source: MICROCONTROLLER.md sha256 5fdd2928f7c3d8fd37f085ff0546c142d6fc21279f5e204739bcde32f38b9d66 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -292,8 +292,8 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   então o código roda um pouco mais rápido que no chip. Os timers contam nas
   suas taxas reais.
 - **Pressionar RESET** reinicia o chip como o botão EN; a flash guarda o que o
-  firmware gravou durante a execução (os arquivos do MicroPython) até a
-  simulação parar.
+  firmware gravou (os arquivos do MicroPython), e a próxima execução também
+  (veja [Arquivos do MicroPython](#arquivos-do-micropython)).
 
 ### O USB da placa no computador
 
@@ -339,6 +339,26 @@ do MicroPython fica na porta USB Serial/JTAG.
 As gravações levam o tempo simulado de que precisam: a 921600 baud e em
 velocidade de tempo real, o esptool grava 200 KB em uns 3 segundos. O Thonny e
 o mpremote podem reiniciar a placa ao conectar, como fazem com uma real.
+
+### Arquivos do MicroPython
+
+O MicroPython guarda seus arquivos (`main.py`, `boot.py`, módulos, dados) num
+sistema de arquivos na flash. Copie-os para a placa e de volta como numa
+real: no Thonny, **View > Files** com a porta da placa escolhida, depois
+**Upload to /** ou **Download**; com o mpremote, `mpremote connect
+rfc2217://localhost:4000 fs cp main.py :main.py` (e `fs cp :data.txt .` para
+o caminho de volta).
+
+O que o firmware grava na flash (os arquivos do MicroPython, o NVS do
+ESP-IDF, as `Preferences` do Arduino) é guardado como as gravações pelo USB:
+quando a simulação para, a flash é salva como `U1-flash.bin` ao lado do
+projeto e passa a ser o firmware da placa, então a próxima execução começa
+com os arquivos e roda o `main.py` ao iniciar. O projeto precisa ter sido
+salvo uma vez: um exemplo aberto por **Arquivo > Exemplos** não guarda nada
+até ser salvo com um nome próprio. Para recomeçar de uma imagem limpa,
+escolha de novo o `.bin` original na propriedade **Firmware** da placa (ou
+desfaça a mudança), ou apague a flash com `esptool erase-flash` e grave a
+imagem de novo.
 
 ## Depuração com STM32CubeIDE ou GDB
 

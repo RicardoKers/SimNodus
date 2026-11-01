@@ -119,6 +119,7 @@ private:
         std::uint64_t copied_ns = 0; // machine time of the copy
     };
     std::map<std::uint64_t, Memory> memories_; // memory chips: component -> latest contents
+    bool upload_told_ = false;                 // the message that new firmware is being written
     std::vector<std::pair<std::uint64_t, std::vector<std::uint8_t>>> memory_loads_; // for the worker
 };
 

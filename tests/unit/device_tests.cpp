@@ -2612,7 +2612,8 @@ TEST_CASE("ESP32-C3 board: DTR and RTS reset it into download mode as esptool do
     machine->host_lines(0, "auto_reset", false, false);
     run(100);
     CHECK(out[0].find("boot:0x4 (DOWNLOAD(USB/UART0/1))") != std::string::npos);
-    CHECK(machine->downloaded_flash_version() == 0); // nothing written yet
+    CHECK(machine->flash_version() == 0); // nothing written yet
+    CHECK(!machine->flash_downloaded());
     // esptool's hard reset: RTS alone; the board starts its firmware again.
     out[0].clear();
     machine->host_lines(0, "auto_reset", false, true);

@@ -142,9 +142,10 @@ signals:
     void mcu_message(model::Id board, const QString& text);
 
 private:
-    // A board whose flash esptool wrote through its USB connector (SN-253)
+    // A board whose flash was written in the run, by esptool through its USB
+    // connector (SN-253) or by its firmware (MicroPython's files, SN-248),
     // keeps it: "<designator>-flash.bin" beside the project, as its firmware.
-    void keep_uploaded_flash();
+    void keep_written_flash();
     void refresh();
     void build_channels();
     std::optional<double> net_voltage(const std::string& net) const;
