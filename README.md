@@ -8,15 +8,18 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
 microcontroller, ngspice for the circuit and a Qt 6 interface.
 
-**Status (2026-10-27): release 0.12.0.** Draw analog and digital circuits
-(148 component types, buses, your own blocks), run them continuously
+**Status (2026-11-01): release 0.13.0.** Draw analog and digital circuits
+(149 component types, buses, your own blocks), run them continuously
 while clicking switches, holding push buttons and turning potentiometers, and
 watch the signals in the Signal Analyzer. A Blue Pill (STM32F103C8) runs your
 firmware in SimNodus's own emulator, drives SPI, I2C and 1-Wire chips (LED
 drivers, memories, sensors, an OLED, character LCDs, a WS2812B strip) and can be
 debugged from STM32CubeIDE. Sensors, 74HC logic chips, motors and drivers, 24 V
 automation parts and buzzers you can hear cover most student automation projects, and a Serial Port part connects the circuit to a real serial port of the computer; its instructions take the real chip's cycles
-(calibrated on a Blue Pill).
+(calibrated on a Blue Pill). An **ESP32-C3-DevKitM-1** board, experimental until it is compared with a
+real one, runs unmodified ESP-IDF, Arduino and MicroPython flash images with GPIO, PWM, ADC, I2C, SPI,
+RMT (WS2812B) and its serial ports, which also reach the Arduino IDE, Thonny and esptool on the
+computer (upload included).
 English and Brazilian Portuguese interface and user guides; simulations run in a separate
 engine process. AI agents (Claude Code, Codex) can build and simulate
 circuits through `simnodus-cli` and its MCP server, also on screen in the
@@ -74,6 +77,8 @@ Connect with other users, ask questions, share circuit designs, report bugs, sug
 🇬🇧 English and 🇧🇷 Portuguese are welcome!
 
 **[Join the SimNodus Discord Server](https://discord.gg/AsjGNtMnef)**
+
+📺 Video tutorials: **[SimNodus on YouTube](https://www.youtube.com/@SimNodus)**
 
 You can also use [GitHub Issues](https://github.com/RicardoKers/SimNodus/issues) to report reproducible bugs, track technical issues, and contribute to development.
 

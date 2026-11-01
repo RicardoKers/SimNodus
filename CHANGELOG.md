@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.13.0 — 2026-11-01
+
+### Added (2026-11-01, links)
+
+- The README, the user guides (English and pt-BR) and the package README point to the SimNodus YouTube channel (https://www.youtube.com/@SimNodus) next to Discord (SN-241).
+
 ### Added (2026-10-29, ESP32-C3 serial to the computer)
 
 - The ESP32-C3 board's USB connector reaches programs on the computer (SN-252, ADR 0107): the parameters **UART0 to the computer** and **USB Serial/JTAG to the computer** take a serial port (one end of a virtual port pair such as com0com, for the Arduino IDE and Thonny) or `tcp:PORT`, a server on 127.0.0.1 speaking RFC 2217 (`rfc2217://localhost:PORT` in esptool and mpremote) or raw bytes. Engine protocol 11.
