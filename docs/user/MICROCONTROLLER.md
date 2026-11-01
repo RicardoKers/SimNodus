@@ -308,7 +308,7 @@ through the DevKit's two transistors, so esptool's and the Arduino IDE's
 automatic reset puts the chip in download mode, and the ROM's own loader
 writes the flash (Upload in the Arduino IDE, `esptool write-flash`). On the
 USB Serial/JTAG port they follow the chip's reset logic (esptool's
-`--before usb_reset`). When the run stops, a flash written this way is saved
+`--before usb_reset`, or the same sequence as on UART0). When the run stops, a flash written this way is saved
 as `U1-flash.bin` (the board's designator) beside the project and becomes
 the board's firmware, as a real board keeps what was uploaded; the project
 must have been saved once.

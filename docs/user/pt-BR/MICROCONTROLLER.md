@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 5c0d7d300266240e000adbbfb36112c05241f72ae88ff534224e99334c89fd18 -->
+<!-- source: MICROCONTROLLER.md sha256 334fdc4610f37d24ede50e67df62ca7312511984418e9365ffcf129ff91b1a35 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -325,7 +325,7 @@ pelos dois transistores da DevKit, então o reset automático do esptool e do
 Arduino IDE põe o chip no modo de download, e o carregador da própria ROM
 grava a flash (Carregar no Arduino IDE, `esptool write-flash`). Na porta USB
 Serial/JTAG eles seguem a lógica de reset do chip (o `--before usb_reset` do
-esptool). Quando a simulação para, uma flash gravada assim é salva como
+esptool, ou a mesma sequência da UART0). Quando a simulação para, uma flash gravada assim é salva como
 `U1-flash.bin` (o designador da placa) ao lado do projeto e passa a ser o
 firmware da placa, como uma placa real guarda o que foi gravado; o projeto
 precisa ter sido salvo uma vez.

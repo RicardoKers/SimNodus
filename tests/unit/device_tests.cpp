@@ -2638,4 +2638,14 @@ TEST_CASE("ESP32-C3 board: DTR and RTS reset it into download mode as esptool do
     machine->host_lines(2, "usb_jtag", false, false);
     run(100);
     CHECK(out[2].find("boot:0xc") != std::string::npos);
+    // The classic sequence on the USB port (esptool through a virtual pair):
+    // leaving the reset with DTR high starts download mode.
+    out[2].clear();
+    machine->host_lines(2, "usb_jtag", false, true);
+    run(100);
+    machine->host_lines(2, "usb_jtag", true, false);
+    run(50);
+    machine->host_lines(2, "usb_jtag", false, false);
+    run(100);
+    CHECK(out[2].find("boot:0x4") != std::string::npos);
 }

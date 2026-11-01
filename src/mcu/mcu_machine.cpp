@@ -276,6 +276,14 @@ public:
         machine_.set_uart_pin_rx(0, !options.uart_rx_byte_links.count("uart0"), rx_exact ? 0 : options.uart_rx_min_bit_ns);
         machine_.set_uart_pin_rx(1, !options.uart_rx_byte_links.count("uart1"), options.uart_rx_min_bit_ns);
         machine_.reset();
+        // The circuit's level on each watched pad starts low, as the runner
+        // assumes, and only its changes come later: a pull-up enabled against
+        // a resistor to ground must read the circuit's low, not the pull.
+        for (const auto& pin : options.pins) {
+            if (const int id = c3_pin(pin); id >= 0) {
+                machine_.set_pin_input(id, false);
+            }
+        }
         return true;
     }
     std::uint64_t time_ns() const override { return machine_.time_ns(); }
@@ -308,12 +316,15 @@ public:
         } else if (circuit == "usb_jtag") {
             // RTS high with DTR low holds the chip in reset; DTR high with RTS
             // low before it chooses download mode for the restart (esptool's
-            // USB reset sequence), both low forgets it.
+            // USB reset sequence), both low forgets it; leaving the reset with
+            // DTR high chooses it too (the classic DTR/RTS sequence, which
+            // esptool and the Arduino IDE send when they cannot tell the port
+            // is the chip's USB, as through a virtual port pair or RFC 2217).
             if (rts && !dtr) {
-                machine_.set_download_once(download_latch_);
                 machine_.set_chip_enable(false);
             } else {
                 if (!machine_.chip_enabled()) {
+                    machine_.set_download_once(download_latch_ || dtr);
                     machine_.set_chip_enable(true);
                     download_latch_ = false;
                 } else if (!dtr && !rts) {
