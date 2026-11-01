@@ -599,6 +599,10 @@ void NativeMcuRunner::work()
         // a copy at most every 0.2 s of its time while writes go on.
         if (const std::uint64_t version = machine->downloaded_flash_version(); version != 0) {
             const auto known = memories_.find(0);
+            if (known == memories_.end() && diagnostics_.size() < 100) {
+                diagnostics_.push_back("new firmware is being written through the USB connector; it becomes the "
+                                       "board's firmware (saved beside the project) when the run stops.");
+            }
             if (known == memories_.end()
                 || (known->second.version != version && machine->time_ns() >= known->second.copied_ns + 200000000ull)) {
                 memories_[0] = {version, machine->flash(), machine->time_ns()};

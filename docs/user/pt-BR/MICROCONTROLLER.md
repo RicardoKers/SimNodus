@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 334fdc4610f37d24ede50e67df62ca7312511984418e9365ffcf129ff91b1a35 -->
+<!-- source: MICROCONTROLLER.md sha256 a178028483b2ea41eb424d5276a86f952461ca9bbc8f14e645ba47dc53394965 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -325,10 +325,16 @@ pelos dois transistores da DevKit, então o reset automático do esptool e do
 Arduino IDE põe o chip no modo de download, e o carregador da própria ROM
 grava a flash (Carregar no Arduino IDE, `esptool write-flash`). Na porta USB
 Serial/JTAG eles seguem a lógica de reset do chip (o `--before usb_reset` do
-esptool, ou a mesma sequência da UART0). Quando a simulação para, uma flash gravada assim é salva como
+esptool, ou a mesma sequência da UART0). O painel Mensagens avisa quando um
+firmware novo está sendo gravado; quando a simulação para, ele é salvo como
 `U1-flash.bin` (o designador da placa) ao lado do projeto e passa a ser o
 firmware da placa, como uma placa real guarda o que foi gravado; o projeto
 precisa ter sido salvo uma vez.
+
+Qual porta o `Serial` de um sketch do Arduino usa é escolha do sketch, como
+numa placa real: a UART0 por padrão, a porta USB Serial/JTAG com **Ferramentas
+> USB CDC On Boot: Enabled** no Arduino IDE (aí o `Serial0` é a UART0). O REPL
+do MicroPython fica na porta USB Serial/JTAG.
 
 As gravações levam o tempo simulado de que precisam: a 921600 baud e em
 velocidade de tempo real, o esptool grava 200 KB em uns 3 segundos. O Thonny e

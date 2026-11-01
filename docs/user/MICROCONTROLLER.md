@@ -308,10 +308,16 @@ through the DevKit's two transistors, so esptool's and the Arduino IDE's
 automatic reset puts the chip in download mode, and the ROM's own loader
 writes the flash (Upload in the Arduino IDE, `esptool write-flash`). On the
 USB Serial/JTAG port they follow the chip's reset logic (esptool's
-`--before usb_reset`, or the same sequence as on UART0). When the run stops, a flash written this way is saved
+`--before usb_reset`, or the same sequence as on UART0). The Messages panel
+says when new firmware is being written; when the run stops, it is saved
 as `U1-flash.bin` (the board's designator) beside the project and becomes
 the board's firmware, as a real board keeps what was uploaded; the project
 must have been saved once.
+
+Which port an Arduino sketch's `Serial` uses is the sketch's choice, as on a
+real board: UART0 by default, the USB Serial/JTAG port with **Tools > USB
+CDC On Boot: Enabled** in the Arduino IDE (`Serial0` is then UART0).
+MicroPython's REPL is on the USB Serial/JTAG port.
 
 Uploads take the simulated time they need: at 921600 baud and real-time
 speed, esptool writes 200 KB in about 3 seconds. Thonny and mpremote may
