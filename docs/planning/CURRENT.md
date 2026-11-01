@@ -8,9 +8,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.13.0 prepared on 2026-11-01, waiting for the owner's test of
-  the package** (`dist/SimNodus-0.13.0-windows-x64.zip` and `-setup.exe`);
-  publish the tag and the GitHub release only after it. New in 0.13: the
+- **Release 0.13.0 published on 2026-11-01** after the owner's test of the
+  package: tag `v0.13.0`, GitHub release with
+  `SimNodus-0.13.0-windows-x64.zip` and `-setup.exe`. New in 0.13: the
   **ESP32-C3-DevKitM-1 board, experimental** (decision DE1 provisional, ADR
   0106; PRs #242-#245): ESP-IDF, Arduino and MicroPython flash images run
   unmodified with GPIO, LEDC PWM, one-shot ADC, I2C0, SPI2 with GDMA and RMT
