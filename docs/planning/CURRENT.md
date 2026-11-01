@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-01. Keep this file short: present state, last results, next
+Updated: 2026-11-01 (end of the 0.13 cycle). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -132,35 +132,35 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-1. Release 0.13 when the owner asks: the ESP32-C3 board (experimental)
-   and SN-241, the YouTube channel
-   https://www.youtube.com/@SimNodus in the README (and the package README
-   and the guides' community section, next to Discord).
-2. The videos repository adopts the 0.12 recording commands (it notes them
-   in its `CLAUDE.md`). "Controlled by an agent" stays in the status bar
-   during recordings (owner's decision, 2026-10-27).
-3. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
+1. **ESP32-C3 track, next stage** (experiment E-08,
+   [plan](../experiments/E-08-plan.md),
+   [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
+   released in 0.13.0: the DevKitM-1 board (SN-246), GPIO, LEDC, one-shot
+   ADC, I2C0, SPI2 with GDMA, RMT (SN-247 except continuous ADC and the
+   temperature sensor), serial ports to the computer and pin-level UART
+   (SN-252-254). In order:
+   - SN-248, the MicroPython workflow: the console for Thonny and mpremote
+     already works through the links; left: project files into the flash
+     filesystem (and back), the flash kept between runs, the user guide.
+   - SN-247 leftovers: continuous ADC with GDMA, the temperature sensor.
+   - SN-249, GDB for RISC-V; SN-250, Wi-Fi as experiment E-09 (its own plan
+     first).
+   - With the owner's boards (DevKitM-1, SuperMini): the ROM and console
+     comparison (G8b.1), which ends the experimental mark; also check the
+     two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data
+     bus past SRAM1 reading 0) and the 3-instruction interrupt latency.
+2. Speed: MicroPython's `sleep_ms` below 10 ms busy-waits (FreeRTOS tick of
+   10 ms), so such loops run at about 30 % of real time (the emulator does
+   about 47 MIPS, the chip 160 MHz). A faster core loop or idle detection
+   would help; not planned yet.
+3. The videos repository adopts the recording commands (it notes them in
+   its `CLAUDE.md`); a video of the ESP32-C3 with the Arduino IDE and
+   Thonny would fit the YouTube channel.
+4. SN-230 (HC-05) when the owner asks. Still slow on a 2026 laptop: example
    26 (LED matrix, 0.4x), 24 and 15 (about 1x). SN-186 postponed. Run
    `tools/examples_pass.py` and `tools/examples_gui_pass.py` before each
    release.
-4. Classroom feedback (postponed: academic calendar).
-5. ESP32-C3 track (owner's decisions of 2026-10-28; ESP32-C3 before the
-   Xtensa ESP32): experiment E-08 ([plan](../experiments/E-08-plan.md),
-   [results](../experiments/E-08-results.md)). Gates G8a and G8b met except
-   G8b.1's comparison with a board; decision DE1 taken provisionally (ADR
-   0106). **The ESP32-C3-DevKitM-1 is in the application, experimental**
-   (SN-246, unreleased): flash images (`.bin`) of ESP-IDF, Arduino and
-   MicroPython, GPIO, UART0 and USB Serial/JTAG in the terminal, LEDC PWM,
-   one-shot ADC (SN-247 part 1), example 45; the runner and `DeviceBus` use
-   `mcu::McuMachine` (STM32 unchanged). I2C0 master with SimNodus's I2C chips
-   (ESP-IDF, Arduino `Wire`, MicroPython; example 46), SPI2 master with
-   GDMA (example 47) and RMT transmit for WS2812B strips (example 48);
-   preview package tested by the owner on 2026-10-28. Left in SN-247:
-   continuous ADC with GDMA and the temperature sensor. Next: the MicroPython
-   workflow (SN-248: project files into the flash filesystem, a console for
-   Thonny and `mpremote`), then GDB for RISC-V (SN-249), Wi-Fi as experiment
-   E-09 (SN-250). With the owner's boards: the ROM and console comparison
-   (G8b.1), which ends the experimental mark.
+5. Classroom feedback (postponed: academic calendar).
 
 ## Known constraints
 
@@ -217,7 +217,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   its `arduino-cli.yaml` (Arduino-ESP32 3.3.12; images are LGPL, so test
   them by hand and do not commit them). `simnodus-emu --esp32c3 image.bin
   --usb "text\r@ms" --trace-io` runs an image alone and traces register
-  accesses. The Linux CI's GCC errors show earlier with
+  accesses; `--strap 0x4` starts the ROM's download mode and `--link
+  usb=tcp:4002` (or `uart0=`) links a port to a program in real time, so
+  `--trace-io` follows an esptool session register by register. esptool
+  4.12 is `build/espressif/python_env/idf5.5_py3.11_env/Scripts/esptool.exe`
+  (`--port rfc2217://localhost:4000`). The owner tests the links with
+  Eterlogic's virtual port pair and a Thonny build with RFC 2217
+  (https://github.com/RicardoKers/Thonny-RFC2217). The Linux CI's GCC errors show earlier with
   `build/tools/riscv32-esp-elf/bin/riscv32-esp-elf-g++ -fsyntax-only
   -std=c++20 -Wall -Wextra -Wpedantic -Werror -Isrc -Ithird_party`.
 - **Example projects** are built with `simnodus-cli exec` scripts
