@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-02 (AVR track planned: E-10; SN-247..SN-249 tested by the owner, unreleased). Keep this file short: present state, last results, next
+Updated: 2026-11-02 (ATmega8 complete on main, experimental; the owner compares it with his chip; nothing released since 0.13.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,24 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On `main`, not released since 0.13.0** (the next release, 0.14, waits
+  for the owner):
+  - **ESP32-C3**:
+    - MicroPython's files kept in the flash (SN-248);
+    - continuous ADC with DMA and the temperature sensor (SN-247);
+    - GDB for RISC-V (SN-249);
+    - an application `.bin` placed with its `flash_args`;
+    - the GDB client takeover and the `stepi` fix.
+  - **ATmega8-PU and ATmega8A-PU**, experimental (E-10, SN-255..SN-259;
+    PRs #262-#267, #269, #270):
+    - the AVRe+ core and the whole chip: ports, timers, USART, ADC,
+      comparator, SPI, TWI, EEPROM, watchdog, sleep, Timer2 asynchronous,
+      brown-out;
+    - fuses with the **Fuses...** dialog, the **Crystal** part, the EEPROM
+      kept in the project and in the Memory Viewer, VCC read from the
+      circuit;
+    - examples 50-54 and the guide section *ATmega8 and ATmega8A*.
+  - The owner tested the ESP32-C3 changes with the 2026-11-02b preview.
 - **Release 0.13.0 published on 2026-11-01** after the owner's test of the
   package: tag `v0.13.0`, GitHub release with
   `SimNodus-0.13.0-windows-x64.zip` and `-setup.exe`. New in 0.13: the
@@ -132,40 +150,33 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-0. **AVR track** (owner's request of 2026-11-02; release 0.14 and SN-250
-   on hold). [Feasibility study](../experiments/AVR-feasibility.md) merged;
-   plan with gates G10a-G10c: [E-10-plan.md](../experiments/E-10-plan.md),
-   tasks SN-255..SN-262. The ATmega8 first, then the ATmega328/328P and
-   ATmega32/32A, the Arduino UNO with Optiboot, and GDB. SN-255 done
-   (2026-11-02): references, avr-gcc 7.3.0/avr-libc 2.0.0, avr8js as the
-   oracle (installed; its H flag deviates from the manual), an owned
-   firmware set (I/O, ADC, PWM, serial, timers); the owner has an ATmega8,
-   a USBasp, a USB-serial adapter, an oscilloscope and a logic analyzer.
-   SN-256 done (2026-11-02): the AVRe+ core `src/emu/avr_cpu.*`, gate
-   G10a met ([results](../experiments/E-10-results.md)): every ATmega8
-   instruction with its flags and cycles, 0 differences against avr8js on
-   1 500 random blocks, about 120-140 MIPS. SN-257 done (2026-11-02): the
-   ATmega8 machine `src/emu/atmega.*` (ports, INT0/1, the three timers,
-   USART, EEPROM, watchdog, resets, SPM, fuses with the clock and start-up
-   time, HEX/ELF), the owned firmware `examples/firmware/avr_*` and
-   `simnodus-emu --avr atmega8`. SN-258, first part (2026-11-02): the
-   ATmega8-PU and ATmega8A-PU parts run in the circuit (`AtmegaMachine` in
-   `src/mcu/mcu_machine.cpp`), the Crystal part sets the clock, the EEPROM is
-   kept as `<designator>-eeprom.bin`, examples 50 and 51, guide section *ATmega8
-   and ATmega8A*. Second part: the Fuses… dialog (`apps/simnodus/fuses_dialog.*`)
-   and an ELF's fuses written into the project in one undoable step. Next:
-   SN-259 (ADC, comparator, SPI, TWI, sleep, Timer2 asynchronous, brown-out),
-   then the owner's board comparison (G10b.9) with an ATmega8, a USBasp and a
-   logic analyzer. SN-259 started: the ADC and the analog comparator
-   (example 52, the station firmware), then the SPI and TWI masters
-   (example 53 with an LM75, a 24C02 and a 74HC595), then the sleep modes,
-   Timer2 asynchronous on a watch crystal, VCC/AVCC/AREF from the circuit and
-   brown-out (example 54). SN-259 done: the ATmega8 is complete. Next: the
-   owner's board comparison (G10b.9, G10c.1's ±2 LSB) and decision DE10, then
-   SN-260 (ATmega328/328P, ATmega32/32A).
-   Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
-   GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
-   with the 2026-11-02b preview and waits for release 0.14.
+0. **AVR track: the owner's board comparison** (experiment E-10,
+   [plan](../experiments/E-10-plan.md),
+   [results](../experiments/E-10-results.md); tasks SN-255..SN-262 in the
+   [backlog](BACKLOG.md)).
+   - **Where it stands.** SN-255..SN-259 are done on `main` and unreleased;
+     the ATmega8/8A is complete and experimental. Gate G10a is met, and so
+     are G10b and G10c, except the criteria that need the owner's chip.
+   - **Now.** The owner tests the preview
+     `dist/SimNodus-0.14-preview-2026-11-02-avr-b-windows-x64.zip` (built
+     from `main` at #270), in the simulator and against his ATmega8 on a
+     breadboard (USBasp, USB-serial adapter, oscilloscope, logic analyzer).
+     That is G10b.9, plus G10c.1's ±2 LSB.
+     - The `.hex` files are in `examples/firmware/avr_*`, written with
+       `avrdude -c usbasp -p m8 -U flash:w:<file>.hex:i`. Most run at the
+       factory fuses (E1/D9, 1 MHz).
+     - `avr_bus` needs the low fuse E4 (8 MHz).
+     - `avr_blink_16mhz` needs a 16 MHz crystal before EF/C9.
+     - `avr_sleep` needs a 32.768 kHz crystal on PB6/PB7.
+     - The most telling trace is `avr_station` on TXD (PD1), OC2 (PB3) and
+       PB0; then `avr_pwm`'s periods and duties.
+   - **Next.** Record the comparison in the results, then decision DE10
+     (an ADR: the ATmega8 leaves "experimental" or not). After that SN-260
+     (ATmega328/328P, ATmega32/32A: chip tables on the same core), SN-261
+     (Arduino UNO with Optiboot), SN-262 (avr-gdb).
+   - **From the owner's preview test (fixed in #270).** **View...** shows
+     the ATmega8's EEPROM in the Memory Viewer. Saving an example's copy
+     keeps what the last run wrote to a chip's memory.
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
@@ -234,6 +245,20 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   Firmware is built with the GNU Tools for STM32 14.3.rel1 inside the owner's
   STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it; `hal_clock`
   also needs STM32CubeF1 1.8.7 in `~/STM32Cube/Repository`).
+- **AVR (E-10):**
+  - avr-gcc 7.3.0 and avr-libc 2.0.0 come from the Arduino AVR core 1.8.8
+    of `build/tools/arduino-cli` (its data folder is `D:\data`), with avrdude
+    8.0.0 next to them.
+  - `python tools/build_avr_firmware.py` rebuilds `examples/firmware/avr_*`
+    reproducibly; `python tools/generate_avr_parts.py` regenerates the chip
+    and Crystal parts.
+  - The differential oracle is avr8js 0.21.1 in `build/tools/avr8js`
+    (`tests/experiments/avr-differential/README.md`).
+  - `simnodus-emu --avr atmega8 file.elf|.hex` runs firmware without the
+    circuit.
+- **Intermittent tests:** `engine-ngspice` (ngspice "cannot recover") and
+  `gui-smoke` sometimes fail under parallel load, on CI too; they pass when
+  run again or on their own.
 - **Build and test:** `python tools/fetch_backends.py` (once), then
   `cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_PREFIX_PATH=C:/Qt/6.11.1/msvc2022_64`, `cmake --build build/dev`,
