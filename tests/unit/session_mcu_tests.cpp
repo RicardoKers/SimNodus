@@ -1311,7 +1311,12 @@ TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC an
     REQUIRE(session.start(request, error));
     const auto begin = std::chrono::steady_clock::now();
     std::string text;
-    while (text.find("t 300 ") == std::string::npos) {
+    // The whole line: the bytes arrive one frame after the other.
+    auto line_done = [&] {
+        const auto at = text.find("t 300 ");
+        return at != std::string::npos && text.find('\n', at) != std::string::npos;
+    };
+    while (!line_done()) {
         REQUIRE(session.active());
         REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
         std::this_thread::sleep_for(10ms);
@@ -1321,7 +1326,16 @@ TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC an
     session.stop();
     // The wiper at 30 % from the top: 3.5 V, code floor(3.5 * 1024 / 5) = 716;
     // OCR2 = 716 >> 2 = 179.
-    CHECK(text.find("t 300 pot 716 pwm 179") != std::string::npos);
+    // G10c.1: within 1 LSB (the circuit's voltage at the sampling instant).
+    const auto at = text.find("t 300 pot ");
+    REQUIRE(at != std::string::npos);
+    int pot = -1;
+    int pwm = -1;
+    std::string word;
+    std::istringstream(text.substr(at + 10)) >> pot >> word >> pwm; // "716 pwm 179"
+    std::printf("  t 300: pot %d, pwm %d\n", pot, pwm);
+    CHECK(std::abs(pot - 716) <= 1);
+    CHECK(pwm == pot / 4);
 }
 
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
