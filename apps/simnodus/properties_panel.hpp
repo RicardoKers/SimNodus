@@ -56,6 +56,7 @@ private:
     // Rebuilds after the current event: editors may be inside their own handlers.
     void schedule_rebuild();
     void commit_parameter(const std::string& name, const QString& text);
+    void edit_fuses(model::Id id, const std::string& chip); // the Fuses... dialog of an AVR chip
     QWidget* file_editor(const library::Parameter& parameter, const QString& value, bool firmware);
     QWidget* model_editor(const library::Parameter& parameter, const model::Component& first, const QString& value);
     void commit_model(const std::string& parameter, const std::string& name, const std::string& statement);

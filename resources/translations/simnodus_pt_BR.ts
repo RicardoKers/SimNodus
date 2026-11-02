@@ -453,6 +453,301 @@ Pinos: %2</translation>
         </message>
     </context>
     <context>
+        <name>simnodus::ui::FusesDialog</name>
+        <message>
+            <source>Fuses of the %1</source>
+            <translation>Fusíveis do %1</translation>
+        </message>
+        <message>
+            <source>Programmed bits are 0, as on the chip; a checked box is a programmed bit. The fuses take effect when the simulation starts, as when the chip is powered up.</source>
+            <translation>Bits programados valem 0, como no chip; uma caixa marcada é um bit programado. Os fusíveis valem quando a simulação começa, como ao ligar o chip.</translation>
+        </message>
+        <message>
+            <source>Bytes</source>
+            <translation>Bytes</translation>
+        </message>
+        <message>
+            <source>Low fuse</source>
+            <translation>Fusível low</translation>
+        </message>
+        <message>
+            <source>High fuse</source>
+            <translation>Fusível high</translation>
+        </message>
+        <message>
+            <source>Lock bits</source>
+            <translation>Bits de trava (lock)</translation>
+        </message>
+        <message>
+            <source>Fields</source>
+            <translation>Campos</translation>
+        </message>
+        <message>
+            <source>Internal RC oscillator, 1 MHz (factory)</source>
+            <translation>Oscilador RC interno, 1 MHz (fábrica)</translation>
+        </message>
+        <message>
+            <source>Internal RC oscillator, 2 MHz</source>
+            <translation>Oscilador RC interno, 2 MHz</translation>
+        </message>
+        <message>
+            <source>Internal RC oscillator, 4 MHz</source>
+            <translation>Oscilador RC interno, 4 MHz</translation>
+        </message>
+        <message>
+            <source>Internal RC oscillator, 8 MHz</source>
+            <translation>Oscilador RC interno, 8 MHz</translation>
+        </message>
+        <message>
+            <source>Crystal or resonator, 3-8 MHz (1-16 MHz with CKOPT)</source>
+            <translation>Cristal ou ressonador, 3-8 MHz (1-16 MHz com CKOPT)</translation>
+        </message>
+        <message>
+            <source>Crystal or resonator, 0.9-3 MHz</source>
+            <translation>Cristal ou ressonador, 0,9-3 MHz</translation>
+        </message>
+        <message>
+            <source>Ceramic resonator, 0.4-0.9 MHz</source>
+            <translation>Ressonador cerâmico, 0,4-0,9 MHz</translation>
+        </message>
+        <message>
+            <source>Low-frequency crystal, 32.768 kHz</source>
+            <translation>Cristal de baixa frequência, 32,768 kHz</translation>
+        </message>
+        <message>
+            <source>External clock on XTAL1</source>
+            <translation>Clock externo no XTAL1</translation>
+        </message>
+        <message>
+            <source>External RC oscillator, up to 0.9 MHz</source>
+            <translation>Oscilador RC externo, até 0,9 MHz</translation>
+        </message>
+        <message>
+            <source>External RC oscillator, 0.9-3 MHz</source>
+            <translation>Oscilador RC externo, 0,9-3 MHz</translation>
+        </message>
+        <message>
+            <source>External RC oscillator, 3-8 MHz</source>
+            <translation>Oscilador RC externo, 3-8 MHz</translation>
+        </message>
+        <message>
+            <source>External RC oscillator, 8-12 MHz</source>
+            <translation>Oscilador RC externo, 8-12 MHz</translation>
+        </message>
+        <message>
+            <source>Clock source</source>
+            <translation>Fonte de clock</translation>
+        </message>
+        <message>
+            <source>Start-up time</source>
+            <translation>Tempo de partida</translation>
+        </message>
+        <message>
+            <source>Brown-out detection (BODEN)</source>
+            <translation>Detecção de brown-out (BODEN)</translation>
+        </message>
+        <message>
+            <source>Resets the chip while VCC is below the brown-out level</source>
+            <translation>Mantém o chip em reset enquanto o VCC está abaixo do nível de brown-out</translation>
+        </message>
+        <message>
+            <source>Brown-out level 4.0 V (BODLEVEL; 2.7 V when not programmed)</source>
+            <translation>Nível de brown-out 4,0 V (BODLEVEL; 2,7 V sem programar)</translation>
+        </message>
+        <message>
+            <source>CKOPT: full-swing crystal oscillator</source>
+            <translation>CKOPT: oscilador de cristal com amplitude total</translation>
+        </message>
+        <message>
+            <source>Needed for crystals above 8 MHz</source>
+            <translation>Necessário para cristais acima de 8 MHz</translation>
+        </message>
+        <message>
+            <source>RSTDISBL: PC6 is an I/O pin instead of RESET</source>
+            <translation>RSTDISBL: o PC6 é um pino de E/S em vez do RESET</translation>
+        </message>
+        <message>
+            <source>On a real chip this also disables programming through the ISP connector</source>
+            <translation>Num chip real isto também desativa a gravação pelo conector ISP</translation>
+        </message>
+        <message>
+            <source>WDTON: watchdog always on</source>
+            <translation>WDTON: watchdog sempre ligado</translation>
+        </message>
+        <message>
+            <source>EESAVE: the EEPROM is kept on a chip erase</source>
+            <translation>EESAVE: a EEPROM é mantida ao apagar o chip</translation>
+        </message>
+        <message>
+            <source>SPIEN: programming through the ISP connector (no effect in SimNodus)</source>
+            <translation>SPIEN: gravação pelo conector ISP (sem efeito no SimNodus)</translation>
+        </message>
+        <message>
+            <source>Boot section (BOOTSZ)</source>
+            <translation>Seção de boot (BOOTSZ)</translation>
+        </message>
+        <message>
+            <source>128 words, from 0x0F80</source>
+            <translation>128 palavras, a partir de 0x0F80</translation>
+        </message>
+        <message>
+            <source>256 words, from 0x0F00</source>
+            <translation>256 palavras, a partir de 0x0F00</translation>
+        </message>
+        <message>
+            <source>512 words, from 0x0E00</source>
+            <translation>512 palavras, a partir de 0x0E00</translation>
+        </message>
+        <message>
+            <source>1024 words, from 0x0C00 (factory)</source>
+            <translation>1024 palavras, a partir de 0x0C00 (fábrica)</translation>
+        </message>
+        <message>
+            <source>BOOTRST: the reset vector is the boot section's start</source>
+            <translation>BOOTRST: o vetor de reset é o início da seção de boot</translation>
+        </message>
+        <message>
+            <source>Memory lock (LB)</source>
+            <translation>Trava da memória (LB)</translation>
+        </message>
+        <message>
+            <source>No lock (factory)</source>
+            <translation>Sem trava (fábrica)</translation>
+        </message>
+        <message>
+            <source>No further programming (no effect in SimNodus)</source>
+            <translation>Sem novas gravações (sem efeito no SimNodus)</translation>
+        </message>
+        <message>
+            <source>No programming or verification (no effect in SimNodus)</source>
+            <translation>Sem gravação nem verificação (sem efeito no SimNodus)</translation>
+        </message>
+        <message>
+            <source>Application section (BLB0)</source>
+            <translation>Seção de aplicação (BLB0)</translation>
+        </message>
+        <message>
+            <source>No restriction</source>
+            <translation>Sem restrição</translation>
+        </message>
+        <message>
+            <source>SPM may not write it</source>
+            <translation>O SPM não pode gravá-la</translation>
+        </message>
+        <message>
+            <source>SPM may not write it, LPM from the boot section may not read it</source>
+            <translation>O SPM não pode gravá-la, o LPM da seção de boot não pode lê-la</translation>
+        </message>
+        <message>
+            <source>LPM from the boot section may not read it</source>
+            <translation>O LPM da seção de boot não pode lê-la</translation>
+        </message>
+        <message>
+            <source>Boot section (BLB1)</source>
+            <translation>Seção de boot (BLB1)</translation>
+        </message>
+        <message>
+            <source>SPM may not write it, LPM from the application may not read it</source>
+            <translation>O SPM não pode gravá-la, o LPM da aplicação não pode lê-la</translation>
+        </message>
+        <message>
+            <source>LPM from the application may not read it</source>
+            <translation>O LPM da aplicação não pode lê-la</translation>
+        </message>
+        <message>
+            <source>Factory values</source>
+            <translation>Valores de fábrica</translation>
+        </message>
+        <message>
+            <source>6 CK, no delay (with brown-out detection)</source>
+            <translation>6 CK, sem atraso (com detecção de brown-out)</translation>
+        </message>
+        <message>
+            <source>6 CK + 4.1 ms (fast rising power)</source>
+            <translation>6 CK + 4,1 ms (alimentação que sobe rápido)</translation>
+        </message>
+        <message>
+            <source>6 CK + 65 ms (slowly rising power; factory)</source>
+            <translation>6 CK + 65 ms (alimentação que sobe devagar; fábrica)</translation>
+        </message>
+        <message>
+            <source>18 CK, no delay (with brown-out detection)</source>
+            <translation>18 CK, sem atraso (com detecção de brown-out)</translation>
+        </message>
+        <message>
+            <source>18 CK + 4.1 ms</source>
+            <translation>18 CK + 4,1 ms</translation>
+        </message>
+        <message>
+            <source>18 CK + 65 ms</source>
+            <translation>18 CK + 65 ms</translation>
+        </message>
+        <message>
+            <source>6 CK + 4.1 ms</source>
+            <translation>6 CK + 4,1 ms</translation>
+        </message>
+        <message>
+            <source>1K CK + 4.1 ms</source>
+            <translation>1K CK + 4,1 ms</translation>
+        </message>
+        <message>
+            <source>1K CK + 65 ms</source>
+            <translation>1K CK + 65 ms</translation>
+        </message>
+        <message>
+            <source>32K CK + 65 ms (stable frequency at start-up)</source>
+            <translation>32K CK + 65 ms (frequência estável na partida)</translation>
+        </message>
+        <message>
+            <source>258 CK + 4.1 ms (ceramic resonator, fast rising power)</source>
+            <translation>258 CK + 4,1 ms (ressonador cerâmico, alimentação que sobe rápido)</translation>
+        </message>
+        <message>
+            <source>258 CK + 65 ms (ceramic resonator, slowly rising power)</source>
+            <translation>258 CK + 65 ms (ressonador cerâmico, alimentação que sobe devagar)</translation>
+        </message>
+        <message>
+            <source>1K CK, no delay (ceramic resonator, brown-out detection)</source>
+            <translation>1K CK, sem atraso (ressonador cerâmico, detecção de brown-out)</translation>
+        </message>
+        <message>
+            <source>1K CK + 4.1 ms (ceramic resonator, fast rising power)</source>
+            <translation>1K CK + 4,1 ms (ressonador cerâmico, alimentação que sobe rápido)</translation>
+        </message>
+        <message>
+            <source>1K CK + 65 ms (ceramic resonator, slowly rising power)</source>
+            <translation>1K CK + 65 ms (ressonador cerâmico, alimentação que sobe devagar)</translation>
+        </message>
+        <message>
+            <source>16K CK, no delay (crystal, brown-out detection)</source>
+            <translation>16K CK, sem atraso (cristal, detecção de brown-out)</translation>
+        </message>
+        <message>
+            <source>16K CK + 4.1 ms (crystal, fast rising power)</source>
+            <translation>16K CK + 4,1 ms (cristal, alimentação que sobe rápido)</translation>
+        </message>
+        <message>
+            <source>16K CK + 65 ms (crystal, slowly rising power)</source>
+            <translation>16K CK + 65 ms (cristal, alimentação que sobe devagar)</translation>
+        </message>
+        <message>
+            <source>The chip runs on its internal RC oscillator at %1 MHz; XTAL1 and XTAL2 are I/O pins (PB6, PB7).</source>
+            <translation>O chip roda no oscilador RC interno a %1 MHz; XTAL1 e XTAL2 são pinos de E/S (PB6, PB7).</translation>
+        </message>
+        <message>
+            <source>The chip needs a Crystal part between XTAL1 (PB6) and XTAL2 (PB7); without one it does not start.</source>
+            <translation>O chip precisa de uma peça Cristal entre XTAL1 (PB6) e XTAL2 (PB7); sem ela, ele não parte.</translation>
+        </message>
+        <message>
+            <source>The chip needs a clock on XTAL1 (PB6); SimNodus does not read one from the circuit yet, so it does not start.</source>
+            <translation>O chip precisa de um clock no XTAL1 (PB6); o SimNodus ainda não o lê do circuito, então ele não parte.</translation>
+        </message>
+        <message>
+            <source>The chip needs an RC network on XTAL1 (PB6); SimNodus does not simulate one yet, so it does not start.</source>
+            <translation>O chip precisa de uma rede RC no XTAL1 (PB6); o SimNodus ainda não a simula, então ele não parte.</translation>
+        </message>
+    </context>
+    <context>
         <name>simnodus::ui::IoLink</name>
         <message>
             <source>External I/O: %1 has no address and is not exchanged.</source>
@@ -1774,6 +2069,14 @@ Pinos: %2</translation>
             <translation>%1: %2</translation>
         </message>
         <message>
+            <source>Fuses...</source>
+            <translation>Fusíveis...</translation>
+        </message>
+        <message>
+            <source>Show and change the fuses and lock bits field by field</source>
+            <translation>Mostra e muda os fusíveis e os bits de trava campo a campo</translation>
+        </message>
+        <message>
             <source>(no file)</source>
             <translation>(sem arquivo)</translation>
         </message>
@@ -1894,6 +2197,10 @@ Pinos: %2</translation>
     </context>
     <context>
         <name>simnodus::ui::RunController</name>
+        <message>
+            <source>%1: the firmware's ELF sets the fuses (low %2, high %3, lock %4), now the chip's.</source>
+            <translation>%1: o ELF do firmware define os fusíveis (low %2, high %3, lock %4), agora os do chip.</translation>
+        </message>
         <message>
             <source>%1: what this run wrote to its EEPROM is not kept: save the project first.</source>
             <translation>%1: o que esta simulação gravou na EEPROM não fica guardado: salve o projeto antes.</translation>
