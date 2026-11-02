@@ -826,7 +826,7 @@
       "kind": "file",
       "filter": "*.bin",
       "default": "",
-      "description": "Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project"
+      "description": "Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin), or an application .bin with its build's flash_args beside it; stored relative to the project"
     },
     {
       "name": "uart0_link",
