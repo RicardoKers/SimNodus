@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // TCP transport of the GDB remote serial protocol (SN-180): a listening socket
-// on 127.0.0.1 only (never on other interfaces), one client at a time, packet
+// on 127.0.0.1 only (never on other interfaces), one client at a time (a new
+// one can replace it, see take_over()), packet
 // framing ($payload#checksum, acknowledgements, the 0x03 interrupt byte).
 // Winsock on Windows, BSD sockets elsewhere; no Qt.
 #pragma once
@@ -26,6 +27,10 @@ public:
     // Waits up to timeout_ms for a client; true once one is connected.
     bool accept(int timeout_ms);
     bool connected() const;
+    // Accepts clients that connect while one is attached; the first of them
+    // that sends something replaces the attached one (true). gdb may open
+    // extra connections that it closes without a word: those never take over.
+    bool take_over();
 
     // Waits up to timeout_ms for data and reads what arrived: complete packets
     // (payloads, acknowledged unless no-ack mode is on) and whether an interrupt
@@ -52,6 +57,7 @@ private:
 
     std::intptr_t listener_ = -1;
     std::intptr_t client_ = -1;
+    std::vector<std::intptr_t> waiting_; // connected while client_ is attached
     std::uint16_t port_ = 0;
     bool no_ack_ = false;
     std::string buffer_; // received bytes not yet framed

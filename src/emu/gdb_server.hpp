@@ -97,6 +97,7 @@ private:
     enum class State { NoClient, Halted, Running };
 
     void attach();
+    void release_target(); // the firmware runs free, without breakpoints
     void detach();
     void handle(const std::string& packet);
     void reply(const std::string& payload) { socket_.send(payload); }

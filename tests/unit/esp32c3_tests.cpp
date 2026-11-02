@@ -749,6 +749,8 @@ TEST_CASE("esp32c3: GDB server with the RISC-V registers, breakpoints, memory, r
     CHECK(client.receive_packet(5000, ok));
     CHECK(ok == "OK");
     CHECK(pc() == 0x40000000u); // the ROM's _start
+    CHECK(ask("vCont;s:1;c") == "S05"); // gdb's stepi: the jump at the reset vector
+    CHECK(pc() == 0x40001E90u);
     const std::uint64_t halted_at = time_ns;
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     CHECK(time_ns == halted_at); // halted: time stands still

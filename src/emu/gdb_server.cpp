@@ -396,18 +396,29 @@ void GdbServer::attach()
     target_.set_debugger_attached(true);
 }
 
-void GdbServer::detach()
+void GdbServer::release_target()
 {
     target_.set_debugger_attached(false); // clears breakpoints and the halt
     target_.set_watchpoints({});
     watchpoints_.clear();
     breakpoints_.clear();
+}
+
+void GdbServer::detach()
+{
+    release_target();
     socket_.close_client();
     state_ = State::NoClient;
 }
 
 bool GdbServer::service(int wait_ms)
 {
+    if (state_ != State::NoClient && socket_.take_over()) {
+        // A new client replaced the attached one, as when an IDE relaunches
+        // its debug session while the previous one still holds the connection.
+        release_target();
+        attach();
+    }
     if (state_ == State::NoClient) {
         if (!socket_.accept(wait_first_ ? wait_ms : 0)) {
             return !wait_first_;
