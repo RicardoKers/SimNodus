@@ -13,6 +13,7 @@ namespace {
 constexpr std::uint16_t et_exec = 2;
 constexpr std::uint16_t em_arm = 40;
 constexpr std::uint16_t em_riscv = 243;
+constexpr std::uint16_t em_avr = 83;
 constexpr std::uint32_t pt_load = 1;
 constexpr std::uint32_t pf_x = 1;
 constexpr std::uint32_t sht_progbits = 1;
@@ -62,9 +63,9 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
         return std::nullopt;
     }
     if (bytes[4] != 1 || bytes[5] != 1) {
-        error = expected == ElfMachine::Arm
-            ? "The ELF file is not a 32-bit little-endian image (expected one built for an STM32)."
-            : "The ELF file is not a 32-bit little-endian image (expected one built for a RISC-V microcontroller).";
+        error = expected == ElfMachine::Arm     ? "The ELF file is not a 32-bit little-endian image (expected one built for an STM32)."
+                : expected == ElfMachine::Riscv ? "The ELF file is not a 32-bit little-endian image (expected one built for a RISC-V microcontroller)."
+                                                : "The ELF file is not a 32-bit little-endian image (expected one built for an AVR microcontroller).";
         return std::nullopt;
     }
     std::uint16_t type = 0;
@@ -93,6 +94,12 @@ std::optional<ElfImage> parse_elf(const std::vector<std::uint8_t>& bytes, std::s
     if (expected == ElfMachine::Riscv && machine != em_riscv) {
         error = machine == em_arm ? "The ELF file is built for an ARM processor, not for a RISC-V one."
                                   : "The ELF file is not built for a RISC-V processor.";
+        return std::nullopt;
+    }
+    if (expected == ElfMachine::Avr && machine != em_avr) {
+        error = machine == em_arm     ? "The ELF file is built for an ARM processor, not for an AVR one."
+                : machine == em_riscv ? "The ELF file is built for a RISC-V processor, not for an AVR one."
+                                      : "The ELF file is not built for an AVR microcontroller.";
         return std::nullopt;
     }
     if (type != et_exec) {

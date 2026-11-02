@@ -51,6 +51,7 @@ target_link_libraries(avr_tests PRIVATE simnodus::emu simnodus::warnings)
 add_test(NAME emu-avr-unit COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr: ")
 add_test(NAME emu-avr-differential COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-diff: ")
 add_test(NAME emu-avr-benchmark COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-bench: ")
+add_test(NAME emu-atmega8 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega8: ")
 
 # ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
 # MicroPython images from tests/experiments/esp32c3/firmware.
