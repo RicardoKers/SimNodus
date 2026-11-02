@@ -33,7 +33,7 @@ enum : int {
 };
 
 // Pins by function (index = port * 8 + bit; B = 0, C = 1, D = 2).
-constexpr int PB0 = 0, PB1 = 1, PB2 = 2, PB3 = 3, PB6 = 6, PB7 = 7, PC6 = 14, PD0 = 16, PD1 = 17, PD2 = 18,
+constexpr int PB0 = 0, PB1 = 1, PB2 = 2, PB3 = 3, PB4 = 4, PB5 = 5, PB6 = 6, PB7 = 7, PC4 = 12, PC5 = 13, PC6 = 14, PD0 = 16, PD1 = 17, PD2 = 18,
               PD3 = 19, PD4 = 20, PD5 = 21;
 
 constexpr std::uint32_t flash_bytes = 8192;
@@ -1484,40 +1484,435 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// Registers of peripherals that come in SN-259: storage, and one note when
-// the firmware enables them.
+// SPI master: SCK (PB5) at F_CPU / 4, 16, 64 or 128 (twice as fast with
+// SPI2X), MOSI (PB3) and MISO (PB4) bit by bit on the pins in the four modes
+// (CPOL, CPHA) and both bit orders (DORD); SPIF with its interrupt and WCOL.
+// The firmware sets the DDR of MOSI and SCK as on the chip. SS (PB2) as an
+// input taken low ends master mode (MSTR cleared, SPIF set). Slave mode is
+// not simulated yet.
 
-namespace {
-
-class Later : public Atmega::Peripheral {
+class Atmega::Spi : public Peripheral {
 public:
-    using Atmega::Peripheral::Peripheral;
-    std::vector<std::uint16_t> addresses() const override
+    using Peripheral::Peripheral;
+    std::vector<std::uint16_t> addresses() const override { return {SPCR, SPSR, SPDR}; }
+    std::uint8_t read(std::uint16_t address) override
     {
-        return {TWBR, TWSR, TWAR, TWDR, SPCR, SPSR, SPDR, TWCR};
+        if (address == SPCR) {
+            return spcr_;
+        }
+        if (address == SPSR) {
+            armed_ = spif() || wcol_;
+            return static_cast<std::uint8_t>((spif() ? 0x80 : 0) | (wcol_ ? 0x40 : 0) | (spi2x_ ? 1 : 0));
+        }
+        clear_after_status();
+        return received_;
     }
-    std::uint8_t read(std::uint16_t address) override { return regs_[address]; }
     void write(std::uint16_t address, std::uint8_t value) override
     {
-        regs_[address] = value;
-        if (address == SPCR && bit(value, 6)) {
-            m_.note_once("spi", "SPI is not simulated yet (SN-259)");
-        } else if (address == TWCR && bit(value, 2)) {
-            m_.note_once("twi", "TWI (I2C) is not simulated yet (SN-259)");
+        if (address == SPCR) {
+            const bool was = master();
+            spcr_ = value;
+            if (bit(spcr_, 6) && !bit(spcr_, 4)) {
+                m_.note_once("spi-slave", "SPI slave mode is not simulated yet");
+            }
+            if (!master()) {
+                end_ = 0;
+            }
+            sck_ = bit(spcr_, 3); // CPOL: the idle level
+            check_ss();
+            if (was != master()) {
+                m_.refresh_pins();
+            }
+            m_.update_interrupts();
+            return;
         }
+        if (address == SPSR) {
+            spi2x_ = bit(value, 0);
+            return;
+        }
+        // SPDR
+        clear_after_status();
+        if (busy()) {
+            wcol_ = true;
+            return;
+        }
+        if (!master()) {
+            received_ = value; // a slave's next byte (not shifted without a master)
+            return;
+        }
+        start(value);
     }
     void reset() override
     {
-        regs_.fill(0);
-        regs_[TWSR] = 0xF8;
-        regs_[TWAR] = 0xFE;
+        spcr_ = 0;
+        spi2x_ = wcol_ = armed_ = false;
+        received_ = 0;
+        end_ = 0;
+        sck_ = false;
+        mosi_ = false;
+        m_.flags_[V_SPI] = false;
     }
+    std::uint64_t next_event() const override { return busy() ? next_ : no_event; }
+    void on_time(std::uint64_t cycle) override
+    {
+        while (busy() && next_ <= cycle) {
+            edge(next_);
+        }
+    }
+    bool drives(int pin, bool& level) const override
+    {
+        if (!master()) {
+            return false;
+        }
+        if (pin == PB5) {
+            level = sck_;
+            return true;
+        }
+        if (pin == PB3) {
+            level = mosi_;
+            return true;
+        }
+        return false;
+    }
+    bool takes_input(int pin) const override { return master() && pin == PB4; }
+    void pad_changed(int pin, bool, std::uint64_t) override
+    {
+        if (pin == PB2) {
+            check_ss();
+        }
+    }
+    bool interrupt_enabled() const { return bit(spcr_, 7); }
 
 private:
-    std::array<std::uint8_t, 0x60> regs_{};
+    bool master() const { return bit(spcr_, 6) && bit(spcr_, 4); }
+    bool busy() const { return end_ != 0; }
+    bool spif() const { return m_.flags_[V_SPI]; }
+    void clear_after_status()
+    {
+        // SPIF and WCOL clear when SPDR is accessed after SPSR was read with them set.
+        if (armed_) {
+            m_.set_flag(V_SPI, false);
+            wcol_ = false;
+            armed_ = false;
+        }
+    }
+    // SS as an input driven low: another master; this one becomes a slave.
+    void check_ss()
+    {
+        if (master() && !bit(m_.ddr_[0], 2) && !m_.pad_level(PB2)) {
+            spcr_ = static_cast<std::uint8_t>(spcr_ & ~0x10);
+            end_ = 0;
+            m_.set_flag(V_SPI, true);
+            m_.refresh_pins();
+        }
+    }
+    int bit_index(int n) const { return bit(spcr_, 5) ? n : 7 - n; } // DORD: LSB first
+    void start(std::uint8_t value)
+    {
+        static const unsigned divide[4] = {4, 16, 64, 128};
+        unsigned d = divide[spcr_ & 3];
+        if (spi2x_) {
+            d /= 2;
+        }
+        half_ = d / 2;
+        out_ = value;
+        in_ = 0;
+        edge_ = 0;
+        sck_ = bit(spcr_, 3);
+        const std::uint64_t now_cycle = now();
+        if (!bit(spcr_, 2)) { // CPHA 0: the first bit is on MOSI before the first edge
+            mosi_ = bit(out_, bit_index(0));
+        }
+        next_ = now_cycle + half_;
+        end_ = now_cycle + 16ull * half_;
+        m_.refresh_pins();
+        m_.timed_changed();
+    }
+    // The k-th of the 16 clock edges: leading edges (odd k) and trailing edges.
+    void edge(std::uint64_t at)
+    {
+        ++edge_;
+        sck_ = !sck_;
+        const bool leading = (edge_ & 1) != 0;
+        const int n = (edge_ - 1) / 2; // the bit of this clock period
+        const bool cpha = bit(spcr_, 2);
+        if (leading == !cpha) { // sample: leading with CPHA 0, trailing with CPHA 1
+            if (m_.pad_level(PB4)) {
+                in_ = static_cast<std::uint8_t>(in_ | (1u << bit_index(n)));
+            }
+        } else if (cpha) { // CPHA 1: the bit goes out on the leading edge
+            mosi_ = bit(out_, bit_index(n));
+        } else if (n + 1 < 8) { // CPHA 0: the next bit on the trailing edge
+            mosi_ = bit(out_, bit_index(n + 1));
+        }
+        if (cpha && leading) {
+            mosi_ = bit(out_, bit_index(n));
+        }
+        m_.refresh_pins_at(at);
+        if (edge_ >= 16) {
+            end_ = 0;
+            received_ = in_;
+            m_.set_flag(V_SPI, true);
+            return;
+        }
+        next_ = at + half_;
+    }
+    std::uint8_t spcr_ = 0;
+    bool spi2x_ = false;
+    bool wcol_ = false;
+    bool armed_ = false;
+    std::uint8_t received_ = 0;
+    std::uint8_t out_ = 0;
+    std::uint8_t in_ = 0;
+    bool sck_ = false;
+    bool mosi_ = false;
+    int edge_ = 0;
+    unsigned half_ = 2;
+    std::uint64_t next_ = 0;
+    std::uint64_t end_ = 0;
 };
 
-} // namespace
+// ---------------------------------------------------------------------------
+// TWI (I2C) master: SDA (PC4) and SCL (PC5) open drain, SCL at
+// F_CPU / (16 + 2 TWBR 4^TWPS), the START, repeated START, address, data and
+// STOP steps with their TWSR status codes, ACK and NACK, clock stretching by
+// a slave. TWINT is set after each step; the firmware clears it to start the
+// next. Slave mode (TWAR) and arbitration are not simulated yet.
+
+class Atmega::Twi : public Peripheral {
+public:
+    using Peripheral::Peripheral;
+    std::vector<std::uint16_t> addresses() const override { return {TWBR, TWSR, TWAR, TWDR, TWCR}; }
+    std::uint8_t read(std::uint16_t address) override
+    {
+        switch (address) {
+        case TWBR: return twbr_;
+        case TWSR: return static_cast<std::uint8_t>(status_ | twps_);
+        case TWAR: return twar_;
+        case TWDR: return twdr_;
+        default:
+            return static_cast<std::uint8_t>((twint() ? 0x80 : 0) | (twcr_ & 0x75) | (twwc_ ? 0x08 : 0));
+        }
+    }
+    void write(std::uint16_t address, std::uint8_t value) override
+    {
+        switch (address) {
+        case TWBR: twbr_ = value; return;
+        case TWSR: twps_ = value & 3; return;
+        case TWAR:
+            twar_ = value;
+            if (bit(twcr_, 2) && bit(twcr_, 6)) {
+                m_.note_once("twi-slave", "TWI slave mode is not simulated yet");
+            }
+            return;
+        case TWDR:
+            if (twint()) {
+                twdr_ = value;
+            } else {
+                twwc_ = true; // written while a step is running
+            }
+            return;
+        default: break;
+        }
+        // TWCR
+        const bool was_enabled = bit(twcr_, 2);
+        twcr_ = static_cast<std::uint8_t>(value & 0x75); // TWEA, TWSTA, TWSTO, TWEN, TWIE
+        if (!bit(twcr_, 2)) {
+            steps_.clear();
+            sda_low_ = scl_low_ = false;
+            m_.set_flag(V_TWI, false);
+            if (was_enabled) {
+                m_.refresh_pins();
+            }
+            return;
+        }
+        if (!was_enabled) {
+            m_.refresh_pins();
+        }
+        if (!bit(value, 7) || !steps_.empty()) {
+            m_.update_interrupts();
+            return; // TWINT not written: nothing starts
+        }
+        m_.set_flag(V_TWI, false); // writing 1 clears TWINT and starts the step
+        twwc_ = false;
+        plan();
+        m_.update_interrupts();
+    }
+    void reset() override
+    {
+        twbr_ = 0;
+        twps_ = 0;
+        twar_ = 0xFE;
+        twdr_ = 0xFF;
+        twcr_ = 0;
+        status_ = 0xF8;
+        twwc_ = false;
+        owner_ = false;
+        receiving_ = false;
+        steps_.clear();
+        sda_low_ = scl_low_ = false;
+        m_.flags_[V_TWI] = false;
+    }
+    std::uint64_t next_event() const override { return steps_.empty() ? no_event : next_; }
+    void on_time(std::uint64_t cycle) override
+    {
+        while (!steps_.empty() && next_ <= cycle) {
+            step(next_);
+        }
+    }
+    bool drives(int pin, bool& level) const override
+    {
+        if (!bit(twcr_, 2)) {
+            return false;
+        }
+        if ((pin == PC4 && sda_low_) || (pin == PC5 && scl_low_)) {
+            level = false;
+            return true;
+        }
+        return false;
+    }
+    bool takes_input(int pin) const override
+    {
+        return bit(twcr_, 2) && ((pin == PC4 && !sda_low_) || (pin == PC5 && !scl_low_));
+    }
+    bool interrupt_enabled() const { return bit(twcr_, 0); }
+
+private:
+    // One action on the lines, then a quarter of an SCL period: drive or
+    // release SDA or SCL, sample SDA, or end the step with a status.
+    enum class Op { SdaLow, SdaHigh, SclLow, SclHigh, Sample, Done };
+    struct Step {
+        Op op;
+        int value = 0; // Done: the status; Sample: the bit number (8: ACK)
+    };
+    bool twint() const { return m_.flags_[V_TWI]; }
+    std::uint64_t quarter() const
+    {
+        static const unsigned power[4] = {1, 4, 16, 64};
+        const std::uint64_t period = 16 + 2ull * twbr_ * power[twps_];
+        return std::max<std::uint64_t>(1, period / 4);
+    }
+    void plan()
+    {
+        steps_.clear();
+        const bool start = bit(twcr_, 5);
+        const bool stop = bit(twcr_, 4);
+        if (stop) {
+            // STOP: SDA low while SCL is low, SCL high, then SDA high.
+            steps_.push_back({Op::SdaLow});
+            steps_.push_back({Op::SclHigh});
+            steps_.push_back({Op::SdaHigh});
+            if (!start) {
+                steps_.push_back({Op::Done, -1}); // no TWINT after a STOP
+            }
+            owner_ = false;
+        }
+        if (start) {
+            // (Repeated) START: SDA high, SCL high, SDA low, SCL low.
+            steps_.push_back({Op::SdaHigh});
+            steps_.push_back({Op::SclHigh});
+            steps_.push_back({Op::SdaLow});
+            steps_.push_back({Op::SclLow});
+            steps_.push_back({Op::Done, owner_ && !stop ? 0x10 : 0x08});
+            owner_ = true;
+            address_next_ = true;
+        } else if (!stop) {
+            byte();
+        }
+        next_ = now() + quarter();
+        m_.timed_changed();
+    }
+    // A byte after START (the address), or data: eight bits and the ACK.
+    void byte()
+    {
+        if (address_next_) {
+            receiving_ = bit(twdr_, 0);
+        }
+        const bool reading = receiving_ && !address_next_;
+        for (int b = 7; b >= 0; --b) {
+            if (reading) {
+                steps_.push_back({Op::SdaHigh});
+            } else {
+                steps_.push_back({bit(twdr_, b) ? Op::SdaHigh : Op::SdaLow});
+            }
+            steps_.push_back({Op::SclHigh});
+            steps_.push_back({Op::Sample, b});
+            steps_.push_back({Op::SclLow});
+        }
+        // ACK: the slave's after an address or written data; ours after a read.
+        if (reading) {
+            steps_.push_back({bit(twcr_, 6) ? Op::SdaLow : Op::SdaHigh});
+        } else {
+            steps_.push_back({Op::SdaHigh});
+        }
+        steps_.push_back({Op::SclHigh});
+        steps_.push_back({Op::Sample, 8});
+        steps_.push_back({Op::SclLow});
+        steps_.push_back({Op::Done, 0}); // the status comes from the ACK
+        rx_ = 0;
+    }
+    void step(std::uint64_t at)
+    {
+        const Step s = steps_.front();
+        switch (s.op) {
+        case Op::SdaLow: sda_low_ = true; break;
+        case Op::SdaHigh: sda_low_ = false; break;
+        case Op::SclLow: scl_low_ = true; break;
+        case Op::SclHigh:
+            scl_low_ = false;
+            m_.refresh_pins_at(at);
+            if (!m_.pad_level(PC5)) {
+                next_ = at + quarter(); // a slave stretches the clock: wait for SCL
+                return;
+            }
+            break;
+        case Op::Sample:
+            if (s.value == 8) {
+                ack_ = !m_.pad_level(PC4);
+            } else if (m_.pad_level(PC4)) {
+                rx_ = static_cast<std::uint8_t>(rx_ | (1u << s.value));
+            }
+            break;
+        case Op::Done: finish(s.value); break;
+        }
+        steps_.erase(steps_.begin());
+        m_.refresh_pins_at(at);
+        next_ = at + quarter();
+    }
+    void finish(int status)
+    {
+        twcr_ = static_cast<std::uint8_t>(twcr_ & ~0x30); // TWSTA and TWSTO done
+        if (status < 0) {
+            status_ = 0xF8;
+            return; // after a STOP the bus is free; TWINT stays clear
+        }
+        if (status == 0) {
+            const bool reading = receiving_ && !address_next_;
+            if (reading) {
+                twdr_ = rx_;
+                status_ = bit(twcr_, 6) ? 0x50 : 0x58;
+            } else if (address_next_) {
+                status_ = receiving_ ? (ack_ ? 0x40 : 0x48) : (ack_ ? 0x18 : 0x20);
+            } else {
+                status_ = ack_ ? 0x28 : 0x30;
+            }
+            address_next_ = false;
+        } else {
+            status_ = static_cast<std::uint8_t>(status);
+        }
+        m_.set_flag(V_TWI, true);
+    }
+    std::uint8_t twbr_ = 0, twps_ = 0, twar_ = 0xFE, twdr_ = 0xFF, twcr_ = 0, status_ = 0xF8;
+    bool twwc_ = false;
+    bool owner_ = false;        // we sent a START and no STOP yet
+    bool address_next_ = false; // the next byte is SLA+R/W
+    bool receiving_ = false;
+    bool ack_ = false;
+    std::uint8_t rx_ = 0;
+    bool sda_low_ = false, scl_low_ = false;
+    std::vector<Step> steps_;
+    std::uint64_t next_ = 0;
+};
 
 // ---------------------------------------------------------------------------
 // Machine.
@@ -1545,7 +1940,8 @@ Atmega::Atmega(const Options& options)
     watchdog_ = add(new Watchdog(*this));
     adc_ = add(new Adc(*this));
     add(new AnalogComparator(*this));
-    add(new Later(*this));
+    spi_ = add(new Spi(*this));
+    twi_ = add(new Twi(*this));
     attach_core();
     reset(ResetKind::PowerOn);
 }
@@ -1737,6 +2133,8 @@ bool Atmega::interrupt_enabled(int vector) const
     case V_UDRE: return bit(usart_->read(UCSRB), 5);
     case V_TXC: return bit(usart_->read(UCSRB), 6);
     case V_ADC: return adc_->interrupt_enabled();
+    case V_SPI: return spi_->interrupt_enabled();
+    case V_TWI: return twi_->interrupt_enabled();
     case V_ANA_COMP: return io_owner_[ACSR] && static_cast<AnalogComparator*>(io_owner_[ACSR])->interrupt_enabled();
     case V_EE_RDY: return eeprom_block_->ready_enabled();
     case V_SPM_RDY: return bit(spmcr_, 7);
@@ -1774,6 +2172,7 @@ void Atmega::taken(int vector)
     case V_T1_COMPB:
     case V_T1_OVF:
     case V_T0_OVF:
+    case V_SPI:
     case V_ADC:
     case V_ANA_COMP:
     case V_TXC:
@@ -2238,7 +2637,8 @@ void Atmega::refresh_pins_at(std::uint64_t cycle)
                 if (per->drives(p, level)) {
                     // The USART's TXD drives the pin by itself; output
                     // compare outputs need their DDR bit.
-                    if (p == PD1 || ddr) {
+                    // TWI's SDA and SCL drive their pins whatever the DDR.
+                    if (p == PD1 || p == PC4 || p == PC5 || ddr) {
                         s.output = true;
                         s.level = level;
                         overridden = true;

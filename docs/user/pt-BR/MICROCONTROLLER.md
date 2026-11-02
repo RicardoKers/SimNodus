@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 193a96c9212e54461dc8920ace4f4a1ff103d59d9502304d6eaee8d168b34fb2 -->
+<!-- source: MICROCONTROLLER.md sha256 8611eaee4ef9f795c760dfa11334f46384e0713a6d08ad36ad75db4157522434 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -427,10 +427,16 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   - o comparador analógico: AIN0 ou o bandgap contra AIN1 ou uma entrada
     do ADC, com a sua interrupção e a captura de entrada do Timer1. Ele
     amostra o circuito a cada 10 µs, então uma borda mais curta que isso
-    pode passar despercebida.
-- **Ainda não** (SN-259): SPI, TWI, os modos de sleep além do Idle, o modo
-  assíncrono do Timer2 e o brown-out. O log avisa uma vez quando o firmware
-  usa um deles.
+    pode passar despercebida;
+  - o SPI como mestre, bit a bit em SCK (PB5), MOSI (PB3) e MISO (PB4) nos
+    quatro modos, até F_CPU / 2. O SS (PB2) levado a nível baixo como
+    entrada encerra o modo mestre, como no chip;
+  - o TWI (I2C) como mestre em SDA (PC4) e SCL (PC5), em dreno aberto, com
+    os códigos de estado do TWSR e o clock stretching. Ele conversa com os
+    chips I2C da biblioteca, com os pull-ups no circuito.
+- **Ainda não** (SN-259): SPI e TWI como escravos, os modos de sleep além
+  do Idle, o modo assíncrono do Timer2 e o brown-out. O log avisa uma vez
+  quando o firmware usa um deles.
 - **EEPROM**: o que o firmware grava nela fica guardado ao lado de um
   projeto salvo como `<designador>-eeprom.bin`, que passa a ser a
   propriedade **EEPROM** do chip. A próxima simulação começa com ele, como o
@@ -440,7 +446,8 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   - Esvazie a propriedade para começar apagado de novo.
 - **Exemplos**: 50 (a USART a 9600 baud, com um contador guardado na
   EEPROM), 51 (um pisca a 16 MHz com cristal) e 52 (um potenciômetro no
-  ADC ajustando um PWM, sincronizados por um tick de 1 ms do timer). Os fontes dos firmwares
+  ADC ajustando um PWM, sincronizados por um tick de 1 ms do timer) e 53
+  (um LM75 e uma 24C02 por TWI, um 74HC595 por SPI). Os fontes dos firmwares
   estão em `examples/firmware/avr_*`.
 
 ## Depuração com STM32CubeIDE ou GDB

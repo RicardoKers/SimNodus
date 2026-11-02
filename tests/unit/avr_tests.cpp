@@ -21,6 +21,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <random>
@@ -1062,6 +1063,103 @@ TEST_CASE("atmega8: ADC codes, references, timing and free running; the analog c
     ain1 = 1.5;
     run_cycles(20'000);
     CHECK((cpu.read_data(0x28) & 0x20) == 0);
+}
+
+TEST_CASE("atmega8: TWI master against a slave at the pin level (SN-259)")
+{
+    auto m = machine_with("avr_bus");
+    REQUIRE(m);
+    CHECK(m->clock_hz() == 8'000'000); // FUSES in the ELF: low E4
+    // An I2C slave at 0x48 that answers with 0x19, 0x80 (25.5 C, as an LM75)
+    // and ACKs everything; the 4.7 kOhm pull-ups are the default high level.
+    constexpr int sda = 12, scl = 13;
+    struct Slave {
+        bool sda_low = false;
+        bool last_scl = true, last_sda = true;
+        int bit = 0;
+        bool active = false, reading = false, address = false, ack_phase = false;
+        unsigned shift = 0;
+        int sent = 0;
+        int starts = 0;
+    } s;
+    const std::uint8_t reply[2] = {0x19, 0x80};
+    auto levels = [&](bool& scl_level, bool& sda_level) {
+        const auto c = m->pin(scl);
+        const auto d = m->pin(sda);
+        scl_level = !(c.output && !c.level);
+        sda_level = !(d.output && !d.level) && !s.sda_low;
+    };
+    bool busy = false;
+    std::function<void()> settle = [&] {
+        if (busy) {
+            return;
+        }
+        busy = true;
+        bool c = true, d = true;
+        levels(c, d);
+        if (c && s.last_scl && s.last_sda && !d) { // START
+            s.active = true;
+            s.address = true;
+            s.bit = 0;
+            s.shift = 0;
+            s.ack_phase = false;
+            ++s.starts;
+        } else if (c && s.last_scl && !s.last_sda && d) { // STOP
+            s.active = false;
+            s.sda_low = false;
+        } else if (s.active && c && !s.last_scl) { // SCL rises: sample
+            if (!s.ack_phase && !(s.reading && !s.address)) {
+                s.shift = (s.shift << 1) | (d ? 1u : 0u);
+            }
+            ++s.bit;
+        } else if (s.active && !c && s.last_scl) { // SCL falls: drive
+            if (s.bit == 8 && !s.ack_phase) {
+                s.ack_phase = true;
+                if (s.address) {
+                    s.reading = (s.shift & 1u) != 0;
+                    s.sda_low = (s.shift >> 1) == 0x48; // ACK our address
+                } else {
+                    s.sda_low = !s.reading; // ACK written data
+                }
+            } else if (s.bit == 9) {
+                s.ack_phase = false;
+                s.address = false;
+                s.bit = 0;
+                s.shift = 0;
+                s.sda_low = false;
+                if (s.reading) {
+                    s.sda_low = ((reply[s.sent % 2] >> 7) & 1u) == 0;
+                }
+            } else if (s.reading && !s.address && !s.ack_phase) {
+                s.sda_low = ((reply[s.sent % 2] >> (7 - s.bit)) & 1u) == 0;
+                if (s.bit == 7) {
+                    // after the last bit the master ACKs or NACKs
+                }
+            }
+            if (s.reading && !s.address && s.bit == 8 && s.ack_phase) {
+                s.sda_low = false; // the master drives the ACK
+                ++s.sent;
+            }
+        }
+        levels(c, d);
+        s.last_scl = c;
+        s.last_sda = d;
+        m->set_pin_input(scl, c);
+        m->set_pin_input(sda, d);
+        busy = false;
+    };
+    m->set_pin_hook([&](int pin, std::uint64_t) {
+        if (pin == sda || pin == scl) {
+            settle();
+        }
+    });
+    m->set_pin_input(sda, true);
+    m->set_pin_input(scl, true);
+    m->run_until_ns(800'000'000);
+    const std::string text = uart_text(*m);
+    std::printf("  %s", text.c_str());
+    CHECK(s.starts > 0);
+    CHECK(text.find("LM75 25.5 C") != std::string::npos);
 }
 
 TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM with EESAVE")
