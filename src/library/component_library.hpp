@@ -87,7 +87,7 @@ struct Parameter {
 // chip ("PA0" on the STM32F103, "GPIO0" on the ESP32-C3); the others are power
 // or control pins.
 struct McuBoard {
-    std::string chip = "stm32f103";       // or "esp32c3" (experimental, ADR 0106)
+    std::string chip = "stm32f103";       // "esp32c3" (experimental, ADR 0106), "atmega8", "atmega8a" (E-10)
     std::string firmware_parameter;       // a File parameter
     std::string ground_pin = "G1";        // reference of the pin voltages
     // Electrical GPIO model (MCU-03): driven outputs through a resistance to the

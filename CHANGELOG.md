@@ -4,6 +4,13 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-02, ATmega8 in the circuit, experimental)
+
+- **ATmega8-PU and ATmega8A-PU** parts (Microcontrollers, PDIP-28, experimental; SN-258, experiment E-10): the bare AVR chips run `.hex` or `.elf` firmware in the circuit, with their pins at 5 V, the USART in the terminal (and **USART to the computer**), and the fuses as properties (**Low fuse**, **High fuse**, **Lock bits**; the factory values give the internal 1 MHz). An ELF's fuses apply as a production programmer writes them, and the log says so.
+- **Crystal** part (Passive): between a chip's XTAL1 and XTAL2 its frequency is the clock when the fuses select a crystal; without one, the chip does not start, as on a breadboard.
+- What the firmware writes to the EEPROM is kept beside a saved project as `<designator>-eeprom.bin`, the chip's **EEPROM** property for the next run.
+- Examples 50 (the USART at 9600 baud with a counter in the EEPROM) and 51 (a blink at 16 MHz with a crystal); user guide section *ATmega8 and ATmega8A* in English and pt-BR.
+
 ### Added (2026-11-02, AVR core, not yet in the application)
 
 - The ATmega8 machine (`src/emu/atmega.*`, SN-257): ports, INT0/INT1, Timer0/1/2 with every waveform mode exact in cycles, the USART bit by bit on its pins, the EEPROM with its write time, the watchdog, the resets, self-programming, and the fuses (clock source, start-up time, boot section, RSTDISBL, EESAVE, WDTON). Firmware from Intel HEX or avr-gcc ELF files (their EEPROM, fuse and lock sections applied). Owned example firmware in `examples/firmware/avr_*` (`tools/build_avr_firmware.py`), and `simnodus-emu --avr atmega8` runs them from the command line. The parts for the circuit come next (SN-258).

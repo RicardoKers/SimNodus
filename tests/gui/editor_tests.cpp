@@ -68,6 +68,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <memory>
 
 using namespace simnodus;
@@ -1542,6 +1543,69 @@ private slots:
         for (const auto& m : messages) {
             QVERIFY(!m.contains(QStringLiteral("now the board's firmware"))); // already it: no new edit
         }
+#endif
+    }
+
+    void atmega8_keeps_its_eeprom_in_the_project()
+    {
+        // E-10, SN-258: what the firmware writes to the EEPROM is kept as
+        // "U1-eeprom.bin", the chip's EEPROM for the next run.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+        model::Id chip = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            chip = c.designator == "U1" ? c.id : chip;
+        }
+        QVERIFY(chip != model::no_id);
+        const std::string firmware = QFileInfo(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/firmware/avr_serial/avr_serial.elf"))
+                                         .absoluteFilePath()
+                                         .toStdString();
+        doc().apply(editing::set_parameter(doc().schematic(), chip, "firmware", firmware));
+        auto settings = doc().schematic().settings();
+        settings.speed = 0;
+        doc().apply(editing::set_settings(doc().schematic(), settings));
+        QStringList messages;
+        QObject listening;
+        connect(window_->run_controller(), &RunController::mcu_message, &listening,
+            [&](model::Id, const QString& text) { messages << text; });
+        auto port_of = [&]() -> std::optional<RunController::UartPort> {
+            for (const auto& port : window_->run_controller()->uart_ports()) {
+                if (port.board == chip && port.uart == "usart") {
+                    return port;
+                }
+            }
+            return std::nullopt;
+        };
+        auto console = [&] {
+            std::string bytes;
+            if (const auto port = port_of()) {
+                window_->run_controller()->uart_received(*port, 0, bytes);
+            }
+            return bytes;
+        };
+        auto session = [&](const std::string& typed, const std::string& wanted) {
+            window_->run();
+            QTRY_VERIFY_WITH_TIMEOUT(console().find("> ") != std::string::npos, 60000);
+            window_->run_controller()->uart_send(*port_of(), typed);
+            QTRY_VERIFY_WITH_TIMEOUT(console().find(wanted) != std::string::npos, 60000);
+            QTest::qWait(50); // the EEPROM's write (8.4 ms) ends
+            window_->stop();
+        };
+        QString error;
+        const QString project = dir_.filePath(QStringLiteral("atmega8/serial.snx"));
+        QVERIFY(QDir().mkpath(QFileInfo(project).absolutePath()));
+        QVERIFY2(doc().save(project, error), qPrintable(error));
+        session("ab?", "bytes: 3");
+        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("atmega8/U1-eeprom.bin"))));
+        QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("eeprom")),
+            QStringLiteral("U1-eeprom.bin"));
+        QVERIFY(messages.join('\n').contains(QStringLiteral("now the chip's EEPROM")));
+        // The next run continues the count.
+        session("?", "bytes: 4");
 #endif
     }
 

@@ -1228,6 +1228,68 @@ TEST_CASE("session: example 49 samples a sine with the ESP32-C3's ADC and DMA an
     session.stop();
 }
 
+TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 16 MHz crystal (E-10, SN-258)")
+{
+    REQUIRE(test::engine() != nullptr);
+    auto start = [&](const char* name, sim::RunRequest& request, model::Id& chip) {
+        const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / name);
+        REQUIRE(loaded.schematic.has_value());
+        for (const auto& c : loaded.schematic->components()) {
+            chip = c.designator == "U1" ? c.id : chip;
+        }
+        request.schematic = *loaded.schematic;
+        auto settings = request.schematic.settings();
+        settings.speed = 0.0;
+        request.schematic.set_settings(settings);
+        request.library = &board_library();
+        std::string error;
+        REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+        REQUIRE(request.mcus.size() == 1);
+    };
+    // Example 50: the USART at 9600 baud through the terminal; the count of
+    // received bytes goes into the EEPROM, which the session reports.
+    sim::RunRequest request;
+    model::Id chip = model::no_id;
+    start("50_ATmega8_serial_and_EEPROM.snx", request, chip);
+    CHECK(request.mcus.front().options.parameters.at("fuse_low") == "E1");
+    CHECK(request.mcus.front().options.parameters.count("crystal_hz") == 0);
+    sim::SimulationSession session;
+    std::string error;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](const std::string& wanted) {
+        std::string text;
+        while (text.find(wanted) == std::string::npos) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(10ms);
+            text.clear();
+            session.mcu_uart_received(chip, "usart", 0, text);
+        }
+        return text;
+    };
+    wait_for("ATmega8 ready\r\n> ");
+    session.mcu_uart_send(chip, "usart", "hi?");
+    wait_for("hi\r\nbytes: 3\r\n> ");
+    while (!session.device_memory(chip)) { // the EEPROM's last write takes 8.4 ms
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+    }
+    session.stop();
+    const auto eeprom = session.device_memory(chip);
+    REQUIRE(eeprom.has_value());
+    REQUIRE(eeprom->size() == 512);
+    CHECK((*eeprom)[0] == 3);
+    CHECK((*eeprom)[1] == 0);
+
+    // Example 51: the crystal between XTAL1 and XTAL2 is the clock.
+    sim::RunRequest crystal;
+    model::Id u1 = model::no_id;
+    start("51_ATmega8_crystal_16_MHz.snx", crystal, u1);
+    CHECK(crystal.mcus.front().options.parameters.at("crystal_hz") == "16000000");
+    CHECK(crystal.mcus.front().options.parameters.at("fuse_low") == "EF");
+}
+
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);

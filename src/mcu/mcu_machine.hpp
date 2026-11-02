@@ -103,7 +103,7 @@ public:
     virtual emu::GdbTarget* gdb_target() { return nullptr; }
 };
 
-// The machine for options.chip ("stm32f103" or "esp32c3"); nullptr with
+// The machine for options.chip ("stm32f103", "esp32c3", "atmega8", "atmega8a"); nullptr with
 // `error` for an unknown chip.
 std::unique_ptr<McuMachine> make_machine(const McuRunOptions& options, std::string& error);
 

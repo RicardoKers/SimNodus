@@ -1,0 +1,84 @@
+{
+  "type": "crystal",
+  "name": "Crystal",
+  "category": "Passive",
+  "prefix": "Y",
+  "description": "Quartz crystal or ceramic resonator. Between a microcontroller's XTAL1 and XTAL2 its frequency is the chip's clock when the fuses select an external crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -3,
+          0,
+          -1.2,
+          0
+        ]
+      },
+      {
+        "line": [
+          1.2,
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "line": [
+          -1.2,
+          -1.2,
+          -1.2,
+          1.2
+        ]
+      },
+      {
+        "line": [
+          1.2,
+          -1.2,
+          1.2,
+          1.2
+        ]
+      },
+      {
+        "rect": [
+          -0.7,
+          -1.6,
+          1.4,
+          3.2
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "1",
+        "at": [
+          -3,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "2",
+        "at": [
+          3,
+          0
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "value_parameter": "frequency",
+  "parameters": [
+    {
+      "name": "frequency",
+      "label": "Frequency",
+      "unit": "Hz",
+      "default": "16M",
+      "min": "32.768k",
+      "max": "20M",
+      "description": "Frequency of the crystal or resonator"
+    }
+  ],
+  "spice": [
+    "R_{ref} {node:1} {node:2} 1G"
+  ]
+}

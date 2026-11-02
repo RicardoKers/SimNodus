@@ -1,0 +1,1063 @@
+{
+  "type": "atmega8a_pdip28",
+  "name": "ATmega8A-PU (PDIP-28)",
+  "category": "Microcontrollers",
+  "prefix": "U",
+  "description": "Microchip ATmega8A-PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -7,
+          -15,
+          14,
+          30
+        ]
+      },
+      {
+        "arc": [
+          0,
+          -15,
+          0.8,
+          180,
+          180
+        ]
+      },
+      {
+        "text": "ATmega8A",
+        "at": [
+          0,
+          0
+        ],
+        "size": 0.9
+      },
+      {
+        "line": [
+          -9,
+          -13,
+          -7,
+          -13
+        ]
+      },
+      {
+        "text": "PC6/RESET",
+        "at": [
+          -3.9,
+          -13
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "1",
+        "at": [
+          -8.0,
+          -13.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -11,
+          -7,
+          -11
+        ]
+      },
+      {
+        "text": "PD0/RXD",
+        "at": [
+          -3.9,
+          -11
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "2",
+        "at": [
+          -8.0,
+          -11.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -9,
+          -7,
+          -9
+        ]
+      },
+      {
+        "text": "PD1/TXD",
+        "at": [
+          -3.9,
+          -9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "3",
+        "at": [
+          -8.0,
+          -9.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -7,
+          -7,
+          -7
+        ]
+      },
+      {
+        "text": "PD2/INT0",
+        "at": [
+          -3.9,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "4",
+        "at": [
+          -8.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -5,
+          -7,
+          -5
+        ]
+      },
+      {
+        "text": "PD3/INT1",
+        "at": [
+          -3.9,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "5",
+        "at": [
+          -8.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -3,
+          -7,
+          -3
+        ]
+      },
+      {
+        "text": "PD4/T0",
+        "at": [
+          -3.9,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "6",
+        "at": [
+          -8.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          -1,
+          -7,
+          -1
+        ]
+      },
+      {
+        "text": "VCC",
+        "at": [
+          -3.9,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "7",
+        "at": [
+          -8.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          1,
+          -7,
+          1
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -3.9,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "8",
+        "at": [
+          -8.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          3,
+          -7,
+          3
+        ]
+      },
+      {
+        "text": "PB6/XTAL1",
+        "at": [
+          -3.9,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "9",
+        "at": [
+          -8.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          5,
+          -7,
+          5
+        ]
+      },
+      {
+        "text": "PB7/XTAL2",
+        "at": [
+          -3.9,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "10",
+        "at": [
+          -8.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          7,
+          -7,
+          7
+        ]
+      },
+      {
+        "text": "PD5/T1",
+        "at": [
+          -3.9,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "11",
+        "at": [
+          -8.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          9,
+          -7,
+          9
+        ]
+      },
+      {
+        "text": "PD6/AIN0",
+        "at": [
+          -3.9,
+          9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "12",
+        "at": [
+          -8.0,
+          8.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          11,
+          -7,
+          11
+        ]
+      },
+      {
+        "text": "PD7/AIN1",
+        "at": [
+          -3.9,
+          11
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "13",
+        "at": [
+          -8.0,
+          10.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          -9,
+          13,
+          -7,
+          13
+        ]
+      },
+      {
+        "text": "PB0/ICP1",
+        "at": [
+          -3.9,
+          13
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "14",
+        "at": [
+          -8.0,
+          12.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          13,
+          7,
+          13
+        ]
+      },
+      {
+        "text": "PB1/OC1A",
+        "at": [
+          3.9,
+          13
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "15",
+        "at": [
+          8.0,
+          12.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          11,
+          7,
+          11
+        ]
+      },
+      {
+        "text": "PB2/OC1B",
+        "at": [
+          3.9,
+          11
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "16",
+        "at": [
+          8.0,
+          10.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          9,
+          7,
+          9
+        ]
+      },
+      {
+        "text": "PB3/OC2",
+        "at": [
+          3.9,
+          9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "17",
+        "at": [
+          8.0,
+          8.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          7,
+          7,
+          7
+        ]
+      },
+      {
+        "text": "PB4/MISO",
+        "at": [
+          3.9,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "18",
+        "at": [
+          8.0,
+          6.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          5,
+          7,
+          5
+        ]
+      },
+      {
+        "text": "PB5/SCK",
+        "at": [
+          3.9,
+          5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "19",
+        "at": [
+          8.0,
+          4.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          3,
+          7,
+          3
+        ]
+      },
+      {
+        "text": "AVCC",
+        "at": [
+          3.9,
+          3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "20",
+        "at": [
+          8.0,
+          2.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          1,
+          7,
+          1
+        ]
+      },
+      {
+        "text": "AREF",
+        "at": [
+          3.9,
+          1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "21",
+        "at": [
+          8.0,
+          0.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -1,
+          7,
+          -1
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          3.9,
+          -1
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "22",
+        "at": [
+          8.0,
+          -1.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -3,
+          7,
+          -3
+        ]
+      },
+      {
+        "text": "PC0/ADC0",
+        "at": [
+          3.9,
+          -3
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "23",
+        "at": [
+          8.0,
+          -3.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -5,
+          7,
+          -5
+        ]
+      },
+      {
+        "text": "PC1/ADC1",
+        "at": [
+          3.9,
+          -5
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "24",
+        "at": [
+          8.0,
+          -5.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -7,
+          7,
+          -7
+        ]
+      },
+      {
+        "text": "PC2/ADC2",
+        "at": [
+          3.9,
+          -7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "25",
+        "at": [
+          8.0,
+          -7.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -9,
+          7,
+          -9
+        ]
+      },
+      {
+        "text": "PC3/ADC3",
+        "at": [
+          3.9,
+          -9
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "26",
+        "at": [
+          8.0,
+          -9.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -11,
+          7,
+          -11
+        ]
+      },
+      {
+        "text": "PC4/SDA",
+        "at": [
+          3.9,
+          -11
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "27",
+        "at": [
+          8.0,
+          -11.5
+        ],
+        "size": 0.45
+      },
+      {
+        "line": [
+          9,
+          -13,
+          7,
+          -13
+        ]
+      },
+      {
+        "text": "PC5/SCL",
+        "at": [
+          3.9,
+          -13
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "28",
+        "at": [
+          8.0,
+          -13.5
+        ],
+        "size": 0.45
+      }
+    ],
+    "pins": [
+      {
+        "name": "PC6",
+        "at": [
+          -9,
+          -13
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD0",
+        "at": [
+          -9,
+          -11
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD1",
+        "at": [
+          -9,
+          -9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD2",
+        "at": [
+          -9,
+          -7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD3",
+        "at": [
+          -9,
+          -5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD4",
+        "at": [
+          -9,
+          -3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VCC",
+        "at": [
+          -9,
+          -1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND",
+        "at": [
+          -9,
+          1
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB6",
+        "at": [
+          -9,
+          3
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB7",
+        "at": [
+          -9,
+          5
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD5",
+        "at": [
+          -9,
+          7
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD6",
+        "at": [
+          -9,
+          9
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PD7",
+        "at": [
+          -9,
+          11
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB0",
+        "at": [
+          -9,
+          13
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "PB1",
+        "at": [
+          9,
+          13
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB2",
+        "at": [
+          9,
+          11
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB3",
+        "at": [
+          9,
+          9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB4",
+        "at": [
+          9,
+          7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PB5",
+        "at": [
+          9,
+          5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "AVCC",
+        "at": [
+          9,
+          3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "AREF",
+        "at": [
+          9,
+          1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GND2",
+        "at": [
+          9,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC0",
+        "at": [
+          9,
+          -3
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC1",
+        "at": [
+          9,
+          -5
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC2",
+        "at": [
+          9,
+          -7
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC3",
+        "at": [
+          9,
+          -9
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC4",
+        "at": [
+          9,
+          -11
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "PC5",
+        "at": [
+          9,
+          -13
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -2,
+    -17
+  ],
+  "value_offset": [
+    -2,
+    17
+  ],
+  "parameters": [
+    {
+      "name": "firmware",
+      "label": "Firmware",
+      "kind": "file",
+      "filter": "*.hex *.elf",
+      "default": "",
+      "description": "Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy, the Arduino IDE's exported binary) or an avr-gcc ELF file, whose fuses and EEPROM data apply too; stored relative to the project"
+    },
+    {
+      "name": "fuse_low",
+      "label": "Low fuse",
+      "kind": "text",
+      "default": "E1",
+      "description": "Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 (and the high fuse C9)"
+    },
+    {
+      "name": "fuse_high",
+      "label": "High fuse",
+      "kind": "text",
+      "default": "D9",
+      "description": "High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL (PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST"
+    },
+    {
+      "name": "lock",
+      "label": "Lock bits",
+      "kind": "text",
+      "default": "FF",
+      "description": "Lock byte in hex; FF: no lock. The boot lock bits restrict SPM and LPM"
+    },
+    {
+      "name": "eeprom",
+      "label": "EEPROM",
+      "kind": "file",
+      "filter": "*.bin",
+      "default": "",
+      "description": "EEPROM contents (512 bytes). SimNodus keeps what the firmware writes as <designator>-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data"
+    },
+    {
+      "name": "usart_link",
+      "label": "USART to the computer",
+      "kind": "text",
+      "host_link": true,
+      "default": "",
+      "description": "The USART (PD1 TX, PD0 RX) linked to the computer as through a USB-serial adapter: a serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs that speak RFC 2217, or empty for none"
+    }
+  ],
+  "mcu": {
+    "chip": "atmega8a",
+    "firmware_parameter": "firmware",
+    "ground_pin": "GND",
+    "pin_model": {
+      "supply": 5.0,
+      "output_resistance": 35,
+      "pull_resistance": 35000,
+      "input_high": 3.0,
+      "input_low": 1.0
+    },
+    "uarts": [
+      {
+        "name": "usart",
+        "label": "USART (PD1 TX, PD0 RX)",
+        "tx_pin": "PD1",
+        "rx_pin": "PD0",
+        "link_parameter": "usart_link",
+        "reset_circuit": ""
+      }
+    ]
+  },
+  "spice": [
+    "R_{ref}_gnd2 {node:GND} {node:GND2} 1m",
+    "R_{ref}_vcc {node:VCC} {node:GND} 2.5k",
+    "R_{ref}_avcc {node:AVCC} {node:GND} 100k",
+    "R_{ref}_aref {node:AREF} {node:GND} 32k",
+    "R_{ref}_pc6 {node:PC6} {node:GND} 100Meg",
+    "B_{ref}_pc6 {node:GND} {node:PC6} I=V({ext:pc6_i})-V({ext:pc6_g})*(V({node:PC6})-V({node:GND}))",
+    "R_{ref}_pd0 {node:PD0} {node:GND} 100Meg",
+    "B_{ref}_pd0 {node:GND} {node:PD0} I=V({ext:pd0_i})-V({ext:pd0_g})*(V({node:PD0})-V({node:GND}))",
+    "R_{ref}_pd1 {node:PD1} {node:GND} 100Meg",
+    "B_{ref}_pd1 {node:GND} {node:PD1} I=V({ext:pd1_i})-V({ext:pd1_g})*(V({node:PD1})-V({node:GND}))",
+    "R_{ref}_pd2 {node:PD2} {node:GND} 100Meg",
+    "B_{ref}_pd2 {node:GND} {node:PD2} I=V({ext:pd2_i})-V({ext:pd2_g})*(V({node:PD2})-V({node:GND}))",
+    "R_{ref}_pd3 {node:PD3} {node:GND} 100Meg",
+    "B_{ref}_pd3 {node:GND} {node:PD3} I=V({ext:pd3_i})-V({ext:pd3_g})*(V({node:PD3})-V({node:GND}))",
+    "R_{ref}_pd4 {node:PD4} {node:GND} 100Meg",
+    "B_{ref}_pd4 {node:GND} {node:PD4} I=V({ext:pd4_i})-V({ext:pd4_g})*(V({node:PD4})-V({node:GND}))",
+    "R_{ref}_pb6 {node:PB6} {node:GND} 100Meg",
+    "B_{ref}_pb6 {node:GND} {node:PB6} I=V({ext:pb6_i})-V({ext:pb6_g})*(V({node:PB6})-V({node:GND}))",
+    "R_{ref}_pb7 {node:PB7} {node:GND} 100Meg",
+    "B_{ref}_pb7 {node:GND} {node:PB7} I=V({ext:pb7_i})-V({ext:pb7_g})*(V({node:PB7})-V({node:GND}))",
+    "R_{ref}_pd5 {node:PD5} {node:GND} 100Meg",
+    "B_{ref}_pd5 {node:GND} {node:PD5} I=V({ext:pd5_i})-V({ext:pd5_g})*(V({node:PD5})-V({node:GND}))",
+    "R_{ref}_pd6 {node:PD6} {node:GND} 100Meg",
+    "B_{ref}_pd6 {node:GND} {node:PD6} I=V({ext:pd6_i})-V({ext:pd6_g})*(V({node:PD6})-V({node:GND}))",
+    "R_{ref}_pd7 {node:PD7} {node:GND} 100Meg",
+    "B_{ref}_pd7 {node:GND} {node:PD7} I=V({ext:pd7_i})-V({ext:pd7_g})*(V({node:PD7})-V({node:GND}))",
+    "R_{ref}_pb0 {node:PB0} {node:GND} 100Meg",
+    "B_{ref}_pb0 {node:GND} {node:PB0} I=V({ext:pb0_i})-V({ext:pb0_g})*(V({node:PB0})-V({node:GND}))",
+    "R_{ref}_pb1 {node:PB1} {node:GND} 100Meg",
+    "B_{ref}_pb1 {node:GND} {node:PB1} I=V({ext:pb1_i})-V({ext:pb1_g})*(V({node:PB1})-V({node:GND}))",
+    "R_{ref}_pb2 {node:PB2} {node:GND} 100Meg",
+    "B_{ref}_pb2 {node:GND} {node:PB2} I=V({ext:pb2_i})-V({ext:pb2_g})*(V({node:PB2})-V({node:GND}))",
+    "R_{ref}_pb3 {node:PB3} {node:GND} 100Meg",
+    "B_{ref}_pb3 {node:GND} {node:PB3} I=V({ext:pb3_i})-V({ext:pb3_g})*(V({node:PB3})-V({node:GND}))",
+    "R_{ref}_pb4 {node:PB4} {node:GND} 100Meg",
+    "B_{ref}_pb4 {node:GND} {node:PB4} I=V({ext:pb4_i})-V({ext:pb4_g})*(V({node:PB4})-V({node:GND}))",
+    "R_{ref}_pb5 {node:PB5} {node:GND} 100Meg",
+    "B_{ref}_pb5 {node:GND} {node:PB5} I=V({ext:pb5_i})-V({ext:pb5_g})*(V({node:PB5})-V({node:GND}))",
+    "R_{ref}_pc0 {node:PC0} {node:GND} 100Meg",
+    "B_{ref}_pc0 {node:GND} {node:PC0} I=V({ext:pc0_i})-V({ext:pc0_g})*(V({node:PC0})-V({node:GND}))",
+    "R_{ref}_pc1 {node:PC1} {node:GND} 100Meg",
+    "B_{ref}_pc1 {node:GND} {node:PC1} I=V({ext:pc1_i})-V({ext:pc1_g})*(V({node:PC1})-V({node:GND}))",
+    "R_{ref}_pc2 {node:PC2} {node:GND} 100Meg",
+    "B_{ref}_pc2 {node:GND} {node:PC2} I=V({ext:pc2_i})-V({ext:pc2_g})*(V({node:PC2})-V({node:GND}))",
+    "R_{ref}_pc3 {node:PC3} {node:GND} 100Meg",
+    "B_{ref}_pc3 {node:GND} {node:PC3} I=V({ext:pc3_i})-V({ext:pc3_g})*(V({node:PC3})-V({node:GND}))",
+    "R_{ref}_pc4 {node:PC4} {node:GND} 100Meg",
+    "B_{ref}_pc4 {node:GND} {node:PC4} I=V({ext:pc4_i})-V({ext:pc4_g})*(V({node:PC4})-V({node:GND}))",
+    "R_{ref}_pc5 {node:PC5} {node:GND} 100Meg",
+    "B_{ref}_pc5 {node:GND} {node:PC5} I=V({ext:pc5_i})-V({ext:pc5_g})*(V({node:PC5})-V({node:GND}))"
+  ]
+}

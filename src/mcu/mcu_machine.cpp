@@ -2,18 +2,23 @@
 // SPDX-License-Identifier: MIT
 #include "mcu_machine.hpp"
 
+#include "emu/atmega.hpp"
+
 #include "emu/elf.hpp"
 #include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <filesystem>
 #include <iterator>
+#include <optional>
 #include <sstream>
+#include <utility>
 
 namespace simnodus::mcu {
 
@@ -501,6 +506,180 @@ private:
     std::unique_ptr<emu::GdbTarget> gdb_target_;
 };
 
+// ATmega8 / ATmega8A (experiment E-10, SN-258): a bare chip in the circuit.
+// Its pins are named as on the chip ("PB0".."PD7"), its USART "usart". The
+// fuses, the crystal's frequency (from a Crystal part on XTAL1 and XTAL2) and
+// the EEPROM kept in the project come in McuRunOptions::parameters:
+// "fuse_low", "fuse_high", "lock" (hex), "crystal_hz", "eeprom_file".
+int avr_pin(const std::string& name)
+{
+    if (name.size() != 3 || name[0] != 'P' || name[1] < 'B' || name[1] > 'D' || name[2] < '0' || name[2] > '7'
+        || name == "PC7") {
+        return -1;
+    }
+    return emu::Atmega::pin_index(name[1], name[2] - '0');
+}
+
+class AtmegaMachine : public McuMachine {
+public:
+    explicit AtmegaMachine(const std::string& chip)
+        : machine_([&] {
+              emu::Atmega::Options o;
+              o.model = chip == "atmega8" ? emu::Atmega::Model::Atmega8 : emu::Atmega::Model::Atmega8A;
+              return o;
+          }())
+    {
+    }
+
+    int pin_id(const std::string& name) const override { return avr_pin(name); }
+    int uart_id(const std::string& name) const override { return name == "usart" ? 0 : -1; }
+    bool load(const McuRunOptions& options, std::string& error) override
+    {
+        auto byte_of = [&](const char* name, std::uint8_t fallback) {
+            const auto it = options.parameters.find(name);
+            if (it == options.parameters.end() || it->second.empty()) {
+                return fallback;
+            }
+            return static_cast<std::uint8_t>(std::strtoul(it->second.c_str(), nullptr, 16));
+        };
+        machine_.set_fuses(byte_of("fuse_low", 0xE1), byte_of("fuse_high", 0xD9), byte_of("lock", 0xFF));
+        if (const auto it = options.parameters.find("crystal_hz"); it != options.parameters.end()) {
+            machine_.set_external_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
+        }
+        if (options.firmware.empty()) {
+            error = std::string("The ") + machine_.chip_name() + " has no firmware file (a .hex or .elf).";
+            return false;
+        }
+        std::ifstream stream(options.firmware, std::ios::binary);
+        if (!stream) {
+            error = "Cannot open the firmware file " + options.firmware.string() + ".";
+            return false;
+        }
+        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        // Programming a bare chip erases it; the EEPROM the project kept from
+        // earlier runs is the chip's, so it comes back afterwards (and the
+        // firmware's own EEPROM data only fills an EEPROM never kept).
+        machine_.chip_erase();
+        std::vector<std::uint8_t> kept;
+        if (const auto it = options.parameters.find("eeprom_file"); it != options.parameters.end() && !it->second.empty()) {
+            std::ifstream in(std::filesystem::path(std::u8string(it->second.begin(), it->second.end())), std::ios::binary);
+            kept.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+        }
+        if (bytes.size() >= 4 && bytes[0] == 0x7F && bytes[1] == 'E' && bytes[2] == 'L' && bytes[3] == 'F') {
+            const auto image = emu::parse_elf(bytes, error, emu::ElfMachine::Avr);
+            const std::uint8_t low = machine_.fuse_low(), high = machine_.fuse_high(), lock = machine_.lock_bits();
+            bool fuses_set = false;
+            if (!image || !machine_.load_elf(*image, error, &fuses_set)) {
+                return false;
+            }
+            if (fuses_set) {
+                char text[200];
+                std::snprintf(text, sizeof text,
+                    "The firmware's ELF sets the fuses (low 0x%02X, high 0x%02X) instead of the part's (low 0x%02X, high 0x%02X), "
+                    "as a production programmer writes them",
+                    machine_.fuse_low(), machine_.fuse_high(), low, high);
+                notes_.push_back(text);
+                (void)lock;
+            }
+        } else if (!machine_.load_hex(std::string(bytes.begin(), bytes.end()), error)) {
+            error = options.firmware.filename().string() + ": " + error;
+            return false;
+        }
+        if (!kept.empty()) {
+            machine_.set_eeprom(kept);
+        }
+        eeprom_writes_ = machine_.eeprom_writes();
+        machine_.reset();
+        // The circuit's level on each watched pin starts low, as the runner assumes.
+        for (const auto& pin : options.pins) {
+            if (const int id = avr_pin(pin); id >= 0) {
+                machine_.set_pin_input(id, false);
+            }
+        }
+        return true;
+    }
+    std::uint64_t time_ns() const override { return machine_.time_ns(); }
+    void run_until_ns(std::uint64_t ns) override { machine_.run_until_ns(ns); }
+    void press_reset() override { machine_.request_reset(emu::Atmega::ResetKind::External); }
+    PinState pin_state(int pin) const override { return state_of(machine_.pin(pin), machine_.pad_level(pin)); }
+    bool pin_level(int pin) const override { return machine_.pad_level(pin); }
+    void set_pin_input(int pin, bool level, std::uint64_t changed_ns) override
+    {
+        (void)changed_ns;
+        machine_.set_pin_input(pin, level);
+    }
+    void set_pin_input(int pin, bool level) override { machine_.set_pin_input(pin, level); }
+    void set_analog_source(std::function<double(int, std::uint64_t)> source) override
+    {
+        machine_.set_analog_source([source = std::move(source)](int pin, std::uint64_t time_ns) -> std::optional<double> {
+            return source(pin, time_ns);
+        });
+    }
+    void uart_receive(int uart, std::uint8_t byte) override
+    {
+        if (uart == 0) {
+            machine_.uart_receive(byte);
+        }
+    }
+    std::vector<PinEvent> take_pin_events() override
+    {
+        std::vector<PinEvent> events;
+        for (const auto& e : machine_.take_pin_events()) {
+            const bool pad = e.state.output ? e.state.level : machine_.pad_level(e.pin);
+            events.push_back({e.time_ns, e.pin, state_of(e.state, pad), pad});
+        }
+        return events;
+    }
+    std::vector<UartByte> take_uart_bytes() override
+    {
+        std::vector<UartByte> bytes;
+        for (const auto& b : machine_.take_uart_bytes()) {
+            bytes.push_back({b.time_ns, 0, b.value});
+        }
+        return bytes;
+    }
+    std::vector<std::string> take_diagnostics() override
+    {
+        auto texts = std::exchange(notes_, {});
+        for (auto& t : machine_.take_diagnostics()) {
+            texts.push_back(std::move(t));
+        }
+        return texts;
+    }
+    void set_pin_hook(std::function<void(int, std::uint64_t)> hook) override { machine_.set_pin_hook(std::move(hook)); }
+    void add_timed(emu::TimedDevice* device) override { machine_.add_timed(device); }
+    void remove_timed(emu::TimedDevice* device) override { machine_.remove_timed(device); }
+    void timed_schedule_changed() override { machine_.timed_changed(); }
+    std::uint64_t cycles_at(std::uint64_t ns) const override { return machine_.cycles_at(ns); }
+    std::uint64_t ns_at(std::uint64_t cycle) const override { return machine_.ns_at(cycle); }
+    // The memory the project keeps from a run: the EEPROM (the flash of an
+    // ATmega8 does not change while it runs; the UNO's bootloader uploads
+    // come with SN-261).
+    std::uint64_t flash_version() const override
+    {
+        return machine_.eeprom_writes() > eeprom_writes_ ? machine_.eeprom_writes() : 0;
+    }
+    std::vector<std::uint8_t> flash() const override { return machine_.eeprom(); }
+
+private:
+    static PinState state_of(const emu::Atmega::PinState& s, bool pad)
+    {
+        PinState state;
+        if (s.output) {
+            state.mode = PinMode::Output;
+            state.level = s.level;
+            return state;
+        }
+        state.mode = PinMode::Input;
+        state.pull = s.pull_up ? Pull::Up : Pull::None;
+        state.level = pad;
+        return state;
+    }
+    emu::Atmega machine_;
+    std::uint64_t eeprom_writes_ = 0;
+    std::vector<std::string> notes_;
+};
+
 } // namespace
 
 std::unique_ptr<McuMachine> make_machine(const McuRunOptions& options, std::string& error)
@@ -510,6 +689,9 @@ std::unique_ptr<McuMachine> make_machine(const McuRunOptions& options, std::stri
     }
     if (options.chip == "esp32c3") {
         return std::make_unique<Esp32C3Machine>();
+    }
+    if (options.chip == "atmega8" || options.chip == "atmega8a") {
+        return std::make_unique<AtmegaMachine>(options.chip);
     }
     error = "SimNodus does not emulate the chip \"" + options.chip + "\".";
     return nullptr;
@@ -522,6 +704,9 @@ std::unique_ptr<McuMachine> wrap_stm32(emu::Stm32F103& machine)
 
 bool chip_gpio(const std::string& chip, const std::string& name)
 {
+    if (chip == "atmega8" || chip == "atmega8a") {
+        return avr_pin(name) >= 0;
+    }
     return chip == "esp32c3" ? c3_pin(name) >= 0 : stm32_pin(name) >= 0;
 }
 

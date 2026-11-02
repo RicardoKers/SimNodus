@@ -1988,7 +1988,9 @@ void Atmega::refresh_pins_at(std::uint64_t cycle)
             continue;
         }
         PinState s;
-        if (pin_usable(p)) {
+        if (p == PC6 && !pin_usable(p)) {
+            s.pull_up = true; // RESET has its own pull-up (30-80 kOhm)
+        } else if (pin_usable(p)) {
             const int port = p / 8;
             const int b = p % 8;
             bool level = false;
