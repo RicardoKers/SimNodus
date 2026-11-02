@@ -123,6 +123,9 @@ installed), as a test-only tool in `build/tools/avr8js`.
     with avr8js as planned.
   - H matters only for BCD arithmetic, which is probably why it went
     unnoticed. Reporting it upstream is the owner's call.
+  - The differential test (SN-256) found four more deviations; all five are
+    corrected in the oracle and listed in the
+    [results](E-10-results.md#avr8js-deviations-found).
 
 **Hardware (the owner's, for G10b.9).** An ATmega8 (the marking says
 whether it is the ATmega8-16PU or the ATmega8A-PU; the comparison uses that

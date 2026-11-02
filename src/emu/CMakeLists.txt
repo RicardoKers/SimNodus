@@ -1,7 +1,9 @@
 # SimNodus microcontroller emulator (docs/architecture/MCU_EMULATOR.md; the
-# RISC-V core of experiment E-08: docs/experiments/E-08-plan.md), Qt-free, no
-# third-party code.
+# RISC-V core of experiment E-08: docs/experiments/E-08-plan.md; the AVR core
+# of experiment E-10: docs/experiments/E-10-plan.md), Qt-free, no third-party
+# code.
 add_library(simnodus_emu STATIC
+    avr_cpu.cpp
     bus.cpp
     cpu.cpp
     elf.cpp

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-02, AVR core, not yet in the application)
+
+- The AVRe+ core of the ATmega8, ATmega32 and ATmega328 family (`src/emu/avr_cpu.*`, SN-256, experiment E-10): every instruction with the cycle counts of the AVR Instruction Set Manual, interrupts with their timing, and hooks for the machine. Gate G10a met: directed tests from the manual, 0 differences against avr8js on 1 500 random instruction blocks (`tests/experiments/avr-differential`), and about 120-140 MIPS on the owner's laptop (10-13x real time at 16 MHz). No part uses it yet; the ATmega8 machine comes next (SN-257).
+
 ### Fixed (2026-11-02, GDB with an IDE)
 
 - GDB server: a client that connects while another is attached now replaces it once it sends its first packet. Before, it waited unanswered and failed with "Remote replied unexpectedly to 'vMustReplyEmpty': timeout", as when Espressif-IDE relaunched its debug session while the previous one was still connected. Connections that gdb opens and closes without a word do not take over.
