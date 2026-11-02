@@ -70,6 +70,14 @@
       "hex": "examples/firmware/avr_serial/avr_serial.hex",
       "hex_sha256": "b50d7060ac9dd972b013d4574427cd5812a72f6d8aa601f919fe85dd60e1da2b"
     },
+    "avr_sleep": {
+      "source": "examples/firmware/avr_sleep/avr_sleep.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_sleep/avr_sleep.elf",
+      "elf_sha256": "9f4a5c3cb17e470892ecb786543e02f1e9557efa02ab1a61653d480b60fa976b",
+      "hex": "examples/firmware/avr_sleep/avr_sleep.hex",
+      "hex_sha256": "7167d0773e000c1bc30160c2c21c4a11be7ba2ec8ed3069268bdd3c3a0b33261"
+    },
     "avr_station": {
       "source": "examples/firmware/avr_station/avr_station.c",
       "f_cpu": 1000000,

@@ -372,8 +372,15 @@ a real one.
   data apply as a production programmer writes them. When a run starts, an
   ELF's fuses that differ from the part's become the part's properties, in
   one step that Undo takes back, and the messages say so.
-- **Power**: wire VCC, AVCC and both GND pins. The pins are simulated at
-  5 V; the voltage on VCC is not read yet.
+- **Power**: wire VCC, AVCC and both GND pins. The chip reads its supply
+  from the circuit:
+  - Below about 1.4 V on VCC it is off and says so; when VCC returns, it
+    starts with a power-on reset.
+  - With **BODEN** it is held in reset below the brown-out level (2.6 V,
+    or 3.8 V with BODLEVEL programmed), and starts again with BORF.
+  - Without BODEN, a supply below the datasheet's minimum for the clock
+    (2.7 V; 4.5 V above 8 MHz or for the ATmega8) gives a warning.
+  - The pins drive the circuit as at 5 V whatever VCC is.
 - **Fuses**: the **Low fuse**, **High fuse** and **Lock bits** properties,
   in hex, with programmed bits as 0. They take effect when the run starts,
   as at power-up. **Fuses...** below them shows the same bits field by field
@@ -400,11 +407,11 @@ a real one.
   - the USART, bit by bit on PD1 and PD0, in the terminal or through
     **USART to the computer**;
   - the EEPROM, the watchdog, the resets, and self-programming (SPM);
-  - the ADC: ADC0-ADC5 on PC0-PC5, the bandgap and GND; the AVCC or
-    internal 2.56 V reference; single and free-running conversions with
-    their timing (13 ADC clocks, 25 for the first). Each reads the
-    circuit's voltage at its sampling instant. AVCC and AREF are taken as
-    5 V, since the pins' voltages are not read yet;
+  - the ADC: ADC0-ADC5 on PC0-PC5, the bandgap and GND; the AVCC, AREF or
+    internal 2.56 V reference, with AVCC and AREF taken from the circuit;
+    single and free-running conversions with their timing (13 ADC clocks,
+    25 for the first). Each reads the circuit's voltage at its sampling
+    instant;
   - the analog comparator: AIN0 or the bandgap against AIN1 or an ADC
     input, with its interrupt and Timer1's input capture. It samples the
     circuit every 10 µs, so an edge shorter than that can be missed;
@@ -413,10 +420,18 @@ a real one.
     master mode, as on the chip;
   - TWI (I2C) as a master on SDA (PC4) and SCL (PC5), open drain, with the
     TWSR status codes and clock stretching. It talks to the I2C chips of
-    the library, with pull-ups in the circuit.
-- **Not yet** (SN-259): SPI and TWI as slaves, sleep modes other than Idle,
-  Timer2's asynchronous mode and brown-out. The log says once when the
-  firmware uses one.
+    the library, with pull-ups in the circuit;
+  - the sleep modes:
+    - Idle, ADC Noise Reduction, Power-down, Power-save and Standby, with
+      the datasheet's wake-up sources: from Power-down only a level
+      interrupt on INT0/INT1 or the watchdog wakes the chip;
+    - the timers stand still while the I/O clock stops;
+    - waking from Power-down takes the oscillator's start-up time;
+  - Timer2 asynchronous (AS2) on a 32.768 kHz **Crystal** between TOSC1
+    (PB6) and TOSC2 (PB7), with the main clock on the internal RC. It keeps
+    running in Power-save, and its update-busy flags work as on the chip.
+- **Not yet**: SPI and TWI as slaves. The log says once when the firmware
+  uses one.
 - **EEPROM**: what the firmware writes to it is kept beside a saved project
   as `<designator>-eeprom.bin`, which becomes the chip's **EEPROM** property.
   The next run starts with it, as the chip keeps its EEPROM when it is
@@ -427,7 +442,8 @@ a real one.
 - **Examples**: 50 (the USART at 9600 baud with a counter kept in the
   EEPROM), 51 (a blink at 16 MHz with a crystal) and 52 (a potentiometer on
   the ADC setting a PWM, kept in step by a 1 ms timer tick) and 53 (an
-  LM75 and a 24C02 over TWI, a 74HC595 over SPI). Their firmware sources
+  LM75 and a 24C02 over TWI, a 74HC595 over SPI) and 54 (a real-time clock
+  on a watch crystal, sleeping in Power-save). Their firmware sources
   are in `examples/firmware/avr_*`.
 
 ## Debugging with STM32CubeIDE or GDB
