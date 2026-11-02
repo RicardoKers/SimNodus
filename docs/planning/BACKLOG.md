@@ -197,8 +197,8 @@ ATmega8, 8A, 32, 32A, 328 and 328P as separate parts.
 
 | ID | Task | Milestone / gate | Status |
 |---|---|---|---|
-| SN-255 | E-10 prerequisites: pin the datasheets and the instruction set manual, the avr-gcc/avr-libc versions, simavr as a test-only oracle in `build/tools`; collect the owner's course projects | before code | todo |
-| SN-256 | AVRe+ core with exact cycle counts, instruction tests, differential against simavr, benchmark | G10a | todo |
+| SN-255 | E-10 prerequisites: pin the datasheets and the instruction set manual, the avr-gcc/avr-libc versions, simavr as a test-only oracle in `build/tools`; collect the owner's course projects | before code | done 2026-11-02 except the avr8js install (waits for the owner's permission); results in the plan; owner has no course projects yet, so an owned firmware set covers I/O, ADC, PWM, serial and timers |
+| SN-256 | AVRe+ core with exact cycle counts, instruction tests, differential against avr8js, benchmark | G10a | todo |
 | SN-257 | ATmega8 machine (chip table): GPIO, INT0/1, Timer0/1/2, USART (URSEL), EEPROM, WDT, resets, boot section and lock bits; fuses decoded; Intel HEX and ELF (`.fuse`, `.lock`, `.eeprom`); `simnodus-emu --avr atmega8` | G10b | todo |
 | SN-258 | Integration: `AvrMachine`, ATmega8-PU and ATmega8A-PU parts (PDIP-28, 5 V pin model), Crystal part, Fuses… dialog (English and pt-BR), EEPROM kept in the project, examples and guides; experimental until the board comparison (G10b.9) | G10b → DE10 | todo |
 | SN-259 | ATmega8 complete: ADC, analog comparator, SPI, TWI, sleep, Timer2 asynchronous, brown-out from VCC | G10c | todo |

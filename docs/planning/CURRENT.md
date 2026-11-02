@@ -136,8 +136,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    on hold). [Feasibility study](../experiments/AVR-feasibility.md) merged;
    plan with gates G10a-G10c: [E-10-plan.md](../experiments/E-10-plan.md),
    tasks SN-255..SN-262. The ATmega8 first, then the ATmega328/328P and
-   ATmega32/32A, the Arduino UNO with Optiboot, and GDB. Start with SN-255
-   (references, toolchain, simavr oracle, the owner's course projects).
+   ATmega32/32A, the Arduino UNO with Optiboot, and GDB. SN-255 done
+   (2026-11-02): references, avr-gcc 7.3.0/avr-libc 2.0.0, avr8js as the
+   oracle (its npm install waits for the owner's permission), an owned
+   firmware set (I/O, ADC, PWM, serial, timers); the owner has an ATmega8,
+   a USBasp, a USB-serial adapter, an oscilloscope and a logic analyzer.
+   Next: SN-256 (the core, gate G10a).
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.

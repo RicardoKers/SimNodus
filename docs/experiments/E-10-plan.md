@@ -73,12 +73,87 @@ oscillator simulated in the circuit, and CKOUT.
    their `.hex` and ELF files. They become test material only with the
    owner's permission, and otherwise are tested by hand.
 
+## Prerequisite results (SN-255, 2026-11-02)
+
+**References.**
+
+| Document | Number and revision |
+|---|---|
+| ATmega8A datasheet, complete (Microchip) | DS40001974B (2020) |
+| ATmega8 datasheet (Atmel, for the non-A part) | 2486AA-AVR-02/2013, to be confirmed with the PDF |
+| AVR Instruction Set Manual (Microchip) | DS40002198C (11/2024) |
+
+The PDFs are not stored in the repository; their numbers are enough to find
+them on Microchip's site.
+
+**Toolchain.**
+- avr-gcc **7.3.0** (`7.3.0-atmel3.6.1-arduino7`) and avr-libc **2.0.0**,
+  installed with the Arduino AVR core **1.8.8** through the arduino-cli in
+  `build/tools/arduino-cli`. Its data folder is `D:\data`, outside the
+  repository, as for the ESP32 core.
+- avrdude **8.0.0-arduino1** comes with it, for the owner's USBasp.
+- This is the compiler that Arduino IDE users have. Microchip Studio users
+  have Microchip's toolchain; their `.hex` files are tested when the owner
+  provides some.
+- Checked: a blink built with `-mmcu=atmega8` and avr-libc's `FUSES`
+  macro gives a `.fuse` section at 0x820000 holding 0xE1, 0xD9: the factory
+  values of the table in the study. `.eeprom` is at 0x810000 and `.lock`
+  at 0x830000, the addresses the ELF loader reads.
+
+**Oracle (changed before any comparison ran).** The plan named simavr.
+This laptop has no Linux subsystem, and MSYS2 has no simavr package;
+building it for Windows is not worth the risk. The primary differential
+oracle is therefore **avr8js 0.21.1** (MIT, npm, run with Node.js, which is
+installed), as a test-only tool in `build/tools/avr8js`.
+- Being MIT, its source may also be read.
+- The difference rule of G10a.2 is unchanged: when avr8js and SimNodus
+  disagree, the manual or the chip decides.
+- simavr stays optional, for example on Linux CI later.
+- **Not installed yet:** the `npm install` of avr8js waits for the owner's
+  permission.
+
+**Hardware (the owner's, for G10b.9).** An ATmega8 (the marking says
+whether it is the ATmega8-16PU or the ATmega8A-PU; the comparison uses that
+part), a USBasp programmer, a USB-serial adapter, an oscilloscope and a
+logic analyzer. The firmware is written with avrdude and the USBasp.
+- Fuses are written only to the values the comparison needs. The factory
+  values give 1 MHz internal.
+- For a 16 MHz crystal the ATmega8 needs CKSEL=1111 and CKOPT programmed:
+  low 0xEF, high 0xC9. The values are checked against the datasheet before
+  they are written: a crystal fuse without a crystal stops the chip until a
+  clock is supplied.
+
+**Course projects.** None exist yet. The owner's courses use digital I/O,
+analog input, PWM output, serial communication and timers to keep
+everything in step. The owned firmware set below covers the same, and it
+is also the material of the board comparison (G10b.9) and of the examples.
+
+## Owned firmware set
+
+Sources in `examples/firmware/avr_*`, built with the pinned avr-gcc. Each
+one is a `.c` file with a README, plus the `.hex` and ELF it was built to.
+Each runs at the factory 1 MHz or at 16 MHz with a crystal, chosen by
+`F_CPU` and the `FUSES` in the source.
+
+| Firmware | Covers | Compared on the board (G10b.9) |
+|---|---|---|
+| `avr_blink` | `_delay_ms`, a digital output | period |
+| `avr_button` | a digital input with pull-up, INT0 on the falling edge, debounce with Timer0 | response to a press, seen on the analyzer |
+| `avr_pwm` | Timer1 Fast PWM on OC1A/OC1B, Timer2 PWM on OC2 | frequency and duty |
+| `avr_serial` | USART at 9600 baud with the RX interrupt: a prompt, echo and simple commands | bytes in the terminal |
+| `avr_adc` | ADC0 single conversion with AVCC; ADC1 free running; values sent over serial | readings against a known voltage (G10c.1) |
+| `avr_station` | everything together, kept in step by a Timer1 CTC tick of 1 ms: read the potentiometer, set a PWM duty from it, blink a status LED, report over serial every 100 ms | the whole trace: serial lines, PWM, LED period |
+
+`avr_station` is the model of a student project. Its trace from the
+simulator and from the board, taken with the logic analyzer on TXD, OC1A
+and the LED, is the comparison that matters most.
+
 ## Work packages
 
 | # | Package | Done when |
 |---|---|---|
 | 1 | `src/emu/avr_cpu.*`: AVRe+ core for a flash of up to 64 K words. Includes: the 32 registers, I/O and SRAM in one data space, SREG, SP, interrupts with their latency, the instruction after RETI and SEI, SLEEP, WDR, SPM and LPM, BREAK. Predecoded instructions as in E-07 | Instruction tests pass |
-| 2 | Instruction tests (each instruction's result, flags and cycles from the manual) in ctest; random differential blocks against simavr, batched like `riscv-diff` | Results recorded |
+| 2 | Instruction tests (each instruction's result, flags and cycles from the manual) in ctest; random differential blocks against avr8js, batched like `riscv-diff` | Results recorded |
 | 3 | Benchmark firmware (busy loop, a mix with MUL, 16-bit arithmetic, loads and stores) | Numbers recorded → **G10a** |
 | 4 | `src/emu/atmega.*`: the machine parametrized by a chip table, with the ATmega8 table. Peripherals: GPIO with pull-ups and PUD; INT0/1; Timer0 (overflow only), Timer1 (all modes, OC1A/B, ICP1, 16-bit TEMP), Timer2 (synchronous); USART with the URSEL quirk, frames bit by bit on its pins; EEPROM with its write time and EEMWE window; WDT and the timed change sequence; MCUCSR reset sources; the boot section with BOOTRST, IVSEL and the lock bits | Owned firmware runs in the CLI |
 | 5 | Fuses: decoding (clock source, SUT start-up, CKOPT, BODEN and BODLEVEL, BOOTSZ, BOOTRST, EESAVE, WDTON, RSTDISBL), with each field described per chip in the library JSON. The ELF's `.fuse`, `.lock` and `.eeprom` sections. Intel HEX loading | Fuse tests pass |
@@ -91,7 +166,7 @@ oscillator simulated in the circuit, and CKOUT.
 | ID | Criterion |
 |---|---|
 | G10a.1 | Every instruction the ATmega8 has: result, every SREG flag and the cycle count equal the Instruction Set Manual, including skips over one- and two-word instructions and the 16-bit operations (ADIW, SBIW, MOVW, MUL family) |
-| G10a.2 | Random differential against simavr. Every decoder entry is hit at least 1 000 times, with operands that include r0/r1 (MUL's result), the X, Y and Z pointers with pre-decrement and post-increment, and carries across 8 and 16 bits. Zero unexplained differences: a difference counts as a simavr deviation only when a third reference (the manual or the chip) agrees with our result |
+| G10a.2 | Random differential against avr8js (simavr in the first version of this plan; see the prerequisite results). Every decoder entry is hit at least 1 000 times, with operands that include r0/r1 (MUL's result), the X, Y and Z pointers with pre-decrement and post-increment, and carries across 8 and 16 bits. Zero unexplained differences: a difference counts as an oracle deviation only when a third reference (the manual or the chip) agrees with our result |
 | G10a.3 | At least 64 MIPS on the busy loop and 32 MIPS on the benchmark mix, Release build, on the owner's laptop on Windows (MSVC); Linux (GCC) recorded on CI. That is 4× and 2× real time at 16 MHz. SLEEP lets waiting firmware run even faster |
 | G10a.4 | All 65 536 16-bit opcodes decode without crashing the host. An opcode the ATmega8 does not have gives a diagnostic with the PC and runs as on the chip where the chip's behavior is documented, otherwise as a NOP, as listed in the report. 200 random flash images run 100 000 cycles each without a crash or hang |
 
