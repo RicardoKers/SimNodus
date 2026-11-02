@@ -9,6 +9,7 @@
 #pragma once
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "library/component_library.hpp"
 #include "model/schematic.hpp"
 #endif
 
@@ -17,6 +18,7 @@
 #include <QWidget>
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 class QComboBox;
@@ -44,6 +46,13 @@ private:
     model::Id current() const;
     std::size_t size_of(model::Id component) const;
     std::uint8_t fill_of(model::Id component) const; // the value of a byte nobody wrote
+    // The parameter holding the memory's file ("contents", an AVR chip's "eeprom").
+    std::string contents_parameter(model::Id component) const;
+    static bool avr(const library::ComponentDefinition& d)
+    {
+        return d.mcu && (d.mcu->chip == "atmega8" || d.mcu->chip == "atmega8a");
+    }
+    static constexpr std::size_t avr_eeprom_bytes = 512;
     // The chip's contents: the running (or last) simulation's, else its contents file, else erased.
     std::vector<std::uint8_t> contents(model::Id component, QString& source) const;
     void load();

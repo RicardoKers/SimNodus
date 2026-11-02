@@ -121,6 +121,13 @@ void MemoryWindow::rebuild_list()
     const auto& library = document_.library();
     for (const auto& c : document_.schematic().components()) {
         const auto* d = library.find(c.type);
+        if (d && d->mcu && avr(*d)) { // a bare AVR chip's EEPROM (E-10)
+            chips_->addItem(QStringLiteral("%1 (%2 EEPROM, %3 bytes)")
+                                .arg(QString::fromStdString(c.designator), QString::fromStdString(d->name))
+                                .arg(avr_eeprom_bytes),
+                QVariant::fromValue<qulonglong>(c.id));
+            continue;
+        }
         if (d && d->device && d->device->memory_bytes(c.parameters) > 0) {
             chips_->addItem(QStringLiteral("%1 (%2, %3 bytes)")
                                 .arg(QString::fromStdString(c.designator), QString::fromStdString(d->name))
@@ -141,6 +148,9 @@ std::size_t MemoryWindow::size_of(model::Id component) const
 {
     const auto* c = document_.schematic().component(component);
     const auto* d = c ? document_.library().find(c->type) : nullptr;
+    if (d && d->mcu && avr(*d)) {
+        return avr_eeprom_bytes;
+    }
     return d && d->device ? d->device->memory_bytes(c->parameters) : 0;
 }
 
@@ -149,6 +159,16 @@ std::uint8_t MemoryWindow::fill_of(model::Id component) const
     const auto* c = document_.schematic().component(component);
     const auto* d = c ? document_.library().find(c->type) : nullptr;
     return d && d->device ? d->device->memory_fill : 0xFF;
+}
+
+std::string MemoryWindow::contents_parameter(model::Id component) const
+{
+    const auto* c = document_.schematic().component(component);
+    const auto* d = c ? document_.library().find(c->type) : nullptr;
+    if (d && d->mcu && avr(*d)) {
+        return "eeprom";
+    }
+    return d && d->device ? d->device->contents_parameter : std::string();
 }
 
 std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& source) const
@@ -161,9 +181,9 @@ std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& s
         return *bytes;
     }
     const auto* c = document_.schematic().component(component);
-    const auto* d = c ? document_.library().find(c->type) : nullptr;
-    if (c && d && d->device && !d->device->contents_parameter.empty()) {
-        const auto it = c->parameters.find(d->device->contents_parameter);
+    const std::string parameter = contents_parameter(component);
+    if (c && !parameter.empty()) {
+        const auto it = c->parameters.find(parameter);
         if (it != c->parameters.end() && !it->second.empty()) {
             const QString name = QString::fromStdString(it->second);
             const QString path = QDir(document_.base_dir()).absoluteFilePath(name);
@@ -187,7 +207,7 @@ void MemoryWindow::refresh()
     if (id == model::no_id) {
         table_->setRowCount(0);
         bytes_.clear();
-        status_->setText(tr("The circuit has no memory chip (a 24C02 EEPROM, for example)."));
+        status_->setText(tr("The circuit has no memory chip (a 24C02 EEPROM, or a microcontroller's EEPROM, for example)."));
         return;
     }
     QString source;
@@ -253,21 +273,41 @@ void MemoryWindow::load()
         status_->setText(tr("%1 cannot be loaded: %2").arg(QDir::toNativeSeparators(chosen), QString::fromStdString(error)));
         return;
     }
+    const auto* c = document_.schematic().component(id);
+    const auto* d = c ? document_.library().find(c->type) : nullptr;
+    const bool chip_eeprom = d && d->mcu && avr(*d);
     if (run_.active()) {
+        if (chip_eeprom) {
+            status_->setText(tr("Stop the simulation to load the EEPROM: the chip reads it when it starts."));
+            return;
+        }
         run_.load_device_memory(id, *bytes);
         status_->setText(tr("Loaded into the running chip."));
         return;
     }
     // Nothing runs: the file becomes the chip's contents file, relative to the project.
-    const auto* c = document_.schematic().component(id);
-    const auto* d = c ? document_.library().find(c->type) : nullptr;
-    if (!d || !d->device || d->device->contents_parameter.empty()) {
+    const std::string parameter = contents_parameter(id);
+    if (parameter.empty()) {
+        return;
+    }
+    if (chip_eeprom && !chosen.endsWith(QStringLiteral(".bin"), Qt::CaseInsensitive)) {
+        // The chip reads raw bytes: a HEX file (an .eep) is written as its binary image.
+        if (document_.base_dir().isEmpty()) {
+            status_->setText(tr("Save the project first: the EEPROM is kept as a file beside it."));
+            return;
+        }
+        const QString name = QString::fromStdString(c->designator) + QStringLiteral("-eeprom.bin");
+        if (!io::write_memory_file(QDir(document_.base_dir()).absoluteFilePath(name).toStdWString(), *bytes, error)) {
+            status_->setText(tr("%1 cannot be written: %2").arg(name, QString::fromStdString(error)));
+            return;
+        }
+        document_.apply(editing::set_parameter(document_.schematic(), id, parameter, name.toStdString()));
+        refresh();
         return;
     }
     const QString dir = document_.base_dir();
     const QString stored = dir.isEmpty() ? chosen : QDir(dir).relativeFilePath(chosen);
-    document_.apply(editing::set_parameter(document_.schematic(), id, d->device->contents_parameter,
-        QDir::fromNativeSeparators(stored).toStdString()));
+    document_.apply(editing::set_parameter(document_.schematic(), id, parameter, QDir::fromNativeSeparators(stored).toStdString()));
     refresh();
 }
 

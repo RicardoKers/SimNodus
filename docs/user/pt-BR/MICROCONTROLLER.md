@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 d2d282d58aa1c2f59c2141433d71fbdf57fe1d2bfbb8d4507dfe3d6e966e92f0 -->
+<!-- source: MICROCONTROLLER.md sha256 0c96d68b79d4afaa443700ec264d75a700eaadc77a50e8345efa44ea923ee64d -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -460,6 +460,13 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   - Sem EEPROM guardada, o chip começa apagado, ou com os dados da EEPROM
     do ELF.
   - Esvazie a propriedade para começar apagado de novo.
+  - Um exemplo de **Arquivo > Exemplos** é uma cópia sem arquivo: o que uma
+    simulação grava na EEPROM fica guardado quando o projeto é salvo (as
+    mensagens avisam depois da simulação).
+  - **Ver...**, ao lado da propriedade, abre o **Visualizador de memória**
+    na EEPROM do chip: os bytes como o chip em execução os tem, ou como a
+    última simulação os deixou. **Carregar...** ali (com a simulação
+    parada) faz de um arquivo `.bin` ou `.hex` a EEPROM do chip.
 - **Exemplos**: 50 (a USART a 9600 baud, com um contador guardado na
   EEPROM), 51 (um pisca a 16 MHz com cristal) e 52 (um potenciômetro no
   ADC ajustando um PWM, sincronizados por um tick de 1 ms do timer) e 53

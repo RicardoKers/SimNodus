@@ -141,13 +141,20 @@ signals:
     // A message of a board's microcontroller engine (fault, unsimulated feature).
     void mcu_message(model::Id board, const QString& text);
 
+public:
+    // After the project was saved: what the last run wrote to a chip's memory
+    // while the project had no file yet is kept now. True when that changed
+    // the project (it needs saving again).
+    bool keep_after_save();
+
 private:
     // A board whose flash was written in the run, by esptool through its USB
     // connector (SN-253) or by its firmware (MicroPython's files, SN-248),
     // keeps it: "<designator>-flash.bin" beside the project, as its firmware.
-    void keep_written_flash();
+    bool keep_written_flash(); // true when it changed the project
     // An AVR ELF's fuses and lock bits become the chip's properties (SN-258).
     void take_elf_fuses();
+    bool unkept_ = false; // the last run wrote memory that an unsaved project could not keep
     void refresh();
     void build_channels();
     std::optional<double> net_voltage(const std::string& net) const;
