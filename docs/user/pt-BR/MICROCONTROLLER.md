@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 25784e3008e1023c9a60ebc52dce80e573cccb8d871c4f00bfe717347c8010f8 -->
+<!-- source: MICROCONTROLLER.md sha256 193a96c9212e54461dc8920ace4f4a1ff103d59d9502304d6eaee8d168b34fb2 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -418,10 +418,19 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
     OC1A, OC1B e OC2, captura de entrada);
   - a USART, bit a bit em PD1 e PD0, no terminal ou pela propriedade
     **USART para o computador**;
-  - a EEPROM, o watchdog, os resets e a autoprogramação (SPM).
-- **Ainda não** (SN-259): o ADC, o comparador analógico, SPI, TWI, os modos
-  de sleep além do Idle, o modo assíncrono do Timer2 e o brown-out. O log
-  avisa uma vez quando o firmware usa um deles.
+  - a EEPROM, o watchdog, os resets e a autoprogramação (SPM);
+  - o ADC: ADC0-ADC5 em PC0-PC5, o bandgap e o GND; a referência AVCC ou a
+    interna de 2,56 V; conversões únicas e contínuas com os seus tempos
+    (13 clocks do ADC, 25 na primeira). Cada uma lê a tensão do circuito no
+    instante da amostragem. AVCC e AREF são tomados como 5 V, porque a
+    tensão desses pinos ainda não é lida;
+  - o comparador analógico: AIN0 ou o bandgap contra AIN1 ou uma entrada
+    do ADC, com a sua interrupção e a captura de entrada do Timer1. Ele
+    amostra o circuito a cada 10 µs, então uma borda mais curta que isso
+    pode passar despercebida.
+- **Ainda não** (SN-259): SPI, TWI, os modos de sleep além do Idle, o modo
+  assíncrono do Timer2 e o brown-out. O log avisa uma vez quando o firmware
+  usa um deles.
 - **EEPROM**: o que o firmware grava nela fica guardado ao lado de um
   projeto salvo como `<designador>-eeprom.bin`, que passa a ser a
   propriedade **EEPROM** do chip. A próxima simulação começa com ele, como o
@@ -430,7 +439,8 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
     do ELF.
   - Esvazie a propriedade para começar apagado de novo.
 - **Exemplos**: 50 (a USART a 9600 baud, com um contador guardado na
-  EEPROM) e 51 (um pisca a 16 MHz com cristal). Os fontes dos firmwares
+  EEPROM), 51 (um pisca a 16 MHz com cristal) e 52 (um potenciômetro no
+  ADC ajustando um PWM, sincronizados por um tick de 1 ms do timer). Os fontes dos firmwares
   estão em `examples/firmware/avr_*`.
 
 ## Depuração com STM32CubeIDE ou GDB

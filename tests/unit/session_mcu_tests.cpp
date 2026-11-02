@@ -1290,6 +1290,54 @@ TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 1
     CHECK(crystal.mcus.front().options.parameters.at("fuse_low") == "EF");
 }
 
+TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC and sets the PWM from it (SN-259)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "52_ATmega8_ADC_PWM_station.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id chip = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        chip = c.designator == "U1" ? c.id : chip;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    // The whole line: the bytes arrive one frame after the other.
+    auto line_done = [&] {
+        const auto at = text.find("t 300 ");
+        return at != std::string::npos && text.find('\n', at) != std::string::npos;
+    };
+    while (!line_done()) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(chip, "usart", 0, text);
+    }
+    session.stop();
+    // The wiper at 30 % from the top: 3.5 V, code floor(3.5 * 1024 / 5) = 716;
+    // OCR2 = 716 >> 2 = 179.
+    // G10c.1: within 1 LSB (the circuit's voltage at the sampling instant).
+    const auto at = text.find("t 300 pot ");
+    REQUIRE(at != std::string::npos);
+    int pot = -1;
+    int pwm = -1;
+    std::string word;
+    std::istringstream(text.substr(at + 10)) >> pot >> word >> pwm; // "716 pwm 179"
+    std::printf("  t 300: pot %d, pwm %d\n", pot, pwm);
+    CHECK(std::abs(pot - 716) <= 1);
+    CHECK(pwm == pot / 4);
+}
+
 TEST_CASE("session: a GDB client halts firmware and circuit together, and detaching runs both on")
 {
     REQUIRE(test::engine() != nullptr);

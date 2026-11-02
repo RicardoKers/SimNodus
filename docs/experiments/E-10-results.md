@@ -217,6 +217,31 @@ test checks it with example 51 set back to E1/D9.
 
 Open: G10b.8 and G10b.9, which need the owner's course files and chip.
 
+## The complete chip (SN-259)
+
+**ADC and analog comparator.** The ADC reads the circuit's voltage at its
+sampling instant: 1.5 ADC clocks after the start, 13.5 for the first after
+ADEN. The comparator is sampled every 10 µs once the firmware uses ACSR,
+starting from its present output.
+
+`emu-atmega8` checks them with voltages given to the machine:
+
+| Firmware or input | Result |
+|---|---|
+| `avr_adc` | 2.5 V of 5 V is 512; 1.0 V is 204; 2.5 V of 2.56 V is 1000; the bandgap is 266 |
+| ADSC timing | the first conversion lasts 25 ADC clocks and the next 13, at prescaler 8 |
+| ADLAR | the high bits land in ADCH |
+| Free running | ten conversions in 1040 cycles |
+| Comparator | ACO follows AIN0 against AIN1; ACI only on rising edges in mode 11; the bandgap as the positive input |
+
+The session test of example 52 (`avr_station`) reads the potentiometer at
+3.5 V as 716 (⌊3.5 · 1024 / 5⌋) and sets OCR2 to 179. The filtered PWM
+settles at 3.523 V (180/256 of 5 V).
+
+This is G10c.1 (±1 LSB with a low-impedance source) and G10c.2. The ADC
+stays labeled approximate until it is compared with the owner's chip.
+
 ## Not covered yet
 
-The complete chip (SN-259; gate G10c).
+The rest of SN-259 (SPI, TWI, sleep, Timer2 asynchronous, brown-out; gate
+G10c).

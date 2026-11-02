@@ -49,6 +49,7 @@ REQUIRED = [
     "library/mcu/atmega8_pdip28.json", "library/mcu/atmega8a_pdip28.json", "library/passive/crystal.json",
     "examples/50_ATmega8_serial_and_EEPROM.snx", "examples/firmware/avr_serial/avr_serial.elf",
     "examples/51_ATmega8_crystal_16_MHz.snx", "examples/firmware/avr_blink/avr_blink_16mhz.elf",
+    "examples/52_ATmega8_ADC_PWM_station.snx", "examples/firmware/avr_station/avr_station.elf",
     "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json", "library/devices/lcd_hd44780.json",
     "examples/23_Seven_segment_counter.snx",
     "examples/32_ROM_lookup_seven_segment.snx", "examples/memories/hex_digits.hex",

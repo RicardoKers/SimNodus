@@ -156,7 +156,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    and an ELF's fuses written into the project in one undoable step. Next:
    SN-259 (ADC, comparator, SPI, TWI, sleep, Timer2 asynchronous, brown-out),
    then the owner's board comparison (G10b.9) with an ATmega8, a USBasp and a
-   logic analyzer.
+   logic analyzer. SN-259 started: the ADC and the analog comparator
+   (example 52, the station firmware); next SPI and TWI.
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.
