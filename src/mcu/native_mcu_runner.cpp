@@ -514,11 +514,11 @@ void NativeMcuRunner::work()
     // Debugging (SN-180): the GDB server lives on this thread, which owns the machine.
     std::unique_ptr<emu::GdbServer> gdb;
     if (options_.gdb_port >= 0) {
-        if (!machine->stm32()) {
+        if (!machine->gdb_target()) {
             fail("Debugging with GDB is not available for this board's chip yet.");
             return;
         }
-        gdb = std::make_unique<emu::GdbServer>(*machine->stm32());
+        gdb = std::make_unique<emu::GdbServer>(*machine->gdb_target());
         if (!gdb->start(static_cast<std::uint16_t>(options_.gdb_port), error)) {
             fail("Debugging: " + error);
             return;

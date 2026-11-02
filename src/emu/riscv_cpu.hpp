@@ -140,6 +140,31 @@ public:
     // The reason the core halted (empty while it runs).
     const std::string& halt_reason() const { return halt_reason_; }
 
+    // Debugger (GDB server, SN-249), as on the Cortex-M core. With breakpoints
+    // set, run() stops before executing an instruction at one of them; a load
+    // or store that overlaps a watchpoint stops it after its instruction; with
+    // a debugger attached, EBREAK stops it at the EBREAK instead of trapping.
+    // debug_halted() is then true. Checking them takes the slow path.
+    void set_debugger_attached(bool attached);
+    void set_breakpoints(std::vector<std::uint32_t> addresses);
+    enum class WatchKind { Write = 2, Read = 3, Access = 4 }; // GDB's Z2, Z3, Z4
+    struct Watchpoint {
+        std::uint32_t address = 0;
+        std::uint32_t length = 1;
+        WatchKind kind = WatchKind::Write;
+    };
+    struct WatchHit {
+        bool hit = false;
+        std::uint32_t address = 0;
+        WatchKind kind = WatchKind::Write;
+    };
+    void set_watchpoints(std::vector<Watchpoint> watchpoints);
+    const WatchHit& last_watch() const { return watch_hit_; }
+    bool debug_halted() const { return debug_halted_; }
+    // Resumes after a halt: the next run() executes the instruction at the PC
+    // even if it has a breakpoint (otherwise it would halt again at once).
+    void resume_from_halt();
+
     // Decoding, exposed for tests and the decoder coverage counters.
     static RvInsn decode(std::uint32_t bits);
     static const char* entry_name(std::uint8_t entry);
@@ -226,6 +251,15 @@ private:
     bool trapped_ = false; // set by a trap inside the current instruction
     bool took_interrupt_ = false;
     std::string halt_reason_;
+
+    // Debugger.
+    void check_watch(std::uint32_t address, unsigned size, bool write);
+    bool debugger_ = false;
+    bool debug_halted_ = false;
+    bool skip_breakpoint_ = false; // the first instruction after a resume
+    std::vector<std::uint32_t> breakpoints_;
+    std::vector<Watchpoint> watchpoints_;
+    WatchHit watch_hit_;
 
     std::vector<CodeRegion> regions_;
     struct CodeAlias {

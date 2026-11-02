@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-01, GDB for the ESP32-C3)
+
+- Simulate > Debug Firmware with GDB works with the ESP32-C3 (SN-249): `riscv32-esp-elf-gdb` connects to the board's port, with the RISC-V registers (x0-x31, pc, the machine CSRs), breakpoints, watchpoints, stepping, Ctrl-C, `monitor reset halt` and detach; the circuit stands still while the firmware is halted. The firmware starts halted at the ROM's reset vector; gdb reads the ELF's symbols (no `load`: the flash comes from the board's Firmware or esptool). Checked with `riscv32-esp-elf-gdb` 16.3 on ESP-IDF's blink: a breakpoint at `app_main`, a backtrace through FreeRTOS, `next`, a watchpoint, detach.
+- The RISC-V core stops at breakpoints and watchpoints and, with a debugger attached, at `ebreak`; the GDB server works through a chip-independent target (the Blue Pill's behaviour is unchanged). `simnodus-emu --esp32c3 ... --gdb PORT` for developers.
+
 ### Added (2026-11-01, ESP32-C3 continuous ADC and temperature sensor)
 
 - The ESP32-C3's ADC converts continuously with DMA (SN-247): the digital controller's timer, pattern table and EOF count, each conversion taking the circuit's voltage at its own time, results through the GDMA in link as ESP-IDF's `adc_continuous` driver reads them. Example 49 samples a 50 Hz sine on GPIO0 and a potentiometer on GPIO1 at 20 kHz (10 000 samples per second each, calibrated within 2 %).

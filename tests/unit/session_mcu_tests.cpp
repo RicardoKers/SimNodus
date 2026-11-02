@@ -1299,6 +1299,59 @@ TEST_CASE("session: a GDB client halts firmware and circuit together, and detach
     session.stop();
 }
 
+TEST_CASE("session: GDB debugs the ESP32-C3 with its circuit (SN-249)")
+{
+    // Example 45: the firmware waits at the ROM's reset vector for the
+    // debugger; a breakpoint at the ROM's main halts firmware and circuit.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    request.library = &board_library();
+    auto env = environment();
+    env.gdb_port = 0; // any free port
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto status = session.status();
+    while (!status.debugger_waiting || status.gdb_port <= 0) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 30s);
+        std::this_thread::sleep_for(10ms);
+        status = session.status();
+    }
+    emu::GdbSocket client;
+    REQUIRE(client.connect_client(static_cast<std::uint16_t>(status.gdb_port), error));
+    auto ask = [&client](const std::string& packet) {
+        std::string reply;
+        client.send_raw(emu::GdbSocket::frame(packet));
+        return client.receive_packet(10000, reply) ? reply : std::string("<no reply>");
+    };
+    CHECK(ask("?") == "S05");
+    CHECK(ask("p20") == "00000040"); // the PC at 0x40000000, the ROM's _start
+    CHECK(ask("Z0,40047e3c,2") == "OK"); // the ROM's main
+    CHECK(ask("c") == "S05");
+    CHECK(ask("p20") == "3c7e0440");
+    std::this_thread::sleep_for(100ms);
+    const auto halted = session.status();
+    CHECK(halted.debugger_halted);
+    std::this_thread::sleep_for(300ms);
+    CHECK(session.status().sim_time - halted.sim_time < 0.001); // the circuit stands still with the firmware
+    CHECK(ask("z0,40047e3c,2") == "OK");
+    CHECK(ask("D") == "OK");
+    std::string text;
+    while (text.find("Turning the LED") == std::string::npos) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(request.mcus.front().component, "uart0", 0, text);
+    }
+    CHECK(!session.status().debugger_halted);
+    session.stop();
+}
+
 TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
 {
     REQUIRE(test::engine() != nullptr);

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 bf8fdf4d06ecd416d05a8b3df9651611a48775b92b30630a82b5b8aa07801d89 -->
+<!-- source: MICROCONTROLLER.md sha256 322f3c446e89dda6bf9e10bdb458f16f6aab1130fe4e98a13f568f12fe247a54 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -295,7 +295,9 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   WS2812B acendem pelo driver RMT do ESP-IDF, pelo `rgbLedWrite` do Arduino e
   pelo `neopixel` do MicroPython. O exemplo 48 percorre uma fita com uma luz.
   Os canais de recepção e a portadora não são simulados.
-- **Ainda não**: Wi-Fi e Bluetooth; depuração com GDB (só a Blue Pill).
+- **Ainda não**: Wi-Fi e Bluetooth.
+- **Depuração** com o `riscv32-esp-elf-gdb`: veja
+  [Depuração com STM32CubeIDE ou GDB](#depuração-com-stm32cubeide-ou-gdb).
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas
@@ -407,6 +409,34 @@ Ler um registrador de periférico no debugger tem os
 mesmos efeitos colaterais que no chip (ler `USART_DR` limpa RXNE). O servidor GDB
 escuta apenas em 127.0.0.1. Após `monitor reset`, o gdb pode continuar
 mostrando o PC antigo até o próximo step ou continue.
+
+**ESP32-C3** (SN-249): o mesmo menu funciona com o `riscv32-esp-elf-gdb`
+(o ESP-IDF o instala com as suas ferramentas). A placa mantém o seu
+**Firmware** (a imagem `.bin`, ou o que o esptool gravou); o gdb lê do ELF
+da aplicação só os símbolos, e o `load` não é suportado. A simulação começa
+com o firmware parado no vetor de reset da ROM (0x40000000), então o
+`continue` passa pela ROM e pelo bootloader até a aplicação:
+
+```text
+riscv32-esp-elf-gdb build/app.elf
+(gdb) target remote :3333
+(gdb) break app_main
+(gdb) continue
+(gdb) bt
+(gdb) next
+(gdb) watch s_led_state
+(gdb) detach
+```
+
+Registradores: x0-x31 (pelos nomes da ABI: ra, sp, a0, ...), pc e os CSRs
+de máquina mstatus, misa, mie, mtvec, mscratch, mepc, mcause, mtval e mip.
+Breakpoints, watchpoints, step, Ctrl-C, `monitor reset halt` e detach
+funcionam como na Blue Pill; com um debugger conectado, um `ebreak` no
+firmware o para em vez de gerar uma exceção. Testado com o
+`riscv32-esp-elf-gdb` 16.3 do ESP-IDF v5.5.2 no exemplo blink do ESP-IDF
+(breakpoints, um backtrace pelo FreeRTOS, `next`, um watchpoint, detach).
+IDEs que iniciam o OpenOCD por conta própria (Espressif-IDE, a extensão
+ESP-IDF do VS Code) não foram testadas.
 
 ## Compilação do firmware
 

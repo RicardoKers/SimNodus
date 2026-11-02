@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-01 (after 0.13.0: SN-248, SN-247). Keep this file short: present state, last results, next
+Updated: 2026-11-01 (after 0.13.0: SN-248, SN-247, SN-249). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -147,8 +147,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      (example 49, 20 kHz) and the temperature sensor with the board's live
      **Chip temperature** (engine protocol 12); the GDMA's interrupt sources
      were wrong (47-49, now 44-46).
-   - SN-249, GDB for RISC-V; SN-250, Wi-Fi as experiment E-09 (its own plan
-     first).
+   - SN-249 done on `main` (not released): Simulate > Debug Firmware with
+     GDB works with the ESP32-C3 and `riscv32-esp-elf-gdb` (symbols from the
+     ELF, no `load`).
+   - SN-250, Wi-Fi as experiment E-09 (its own plan first).
+   - The owner tests SN-247, SN-248 and SN-249 together before the next
+     release (said 2026-11-01).
    - With the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data

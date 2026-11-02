@@ -3619,7 +3619,7 @@ void Esp32C3::run_until_ns(std::uint64_t ns)
         }
         return;
     }
-    while (time_ns() < ns && cpu_.state() != RvState::Halted) {
+    while (time_ns() < ns && cpu_.state() != RvState::Halted && !cpu_.debug_halted()) {
         if (reset_requested_) {
             reset(requested_kind_, requested_reason_);
         }
@@ -3658,9 +3658,24 @@ void Esp32C3::run_until_ns(std::uint64_t ns)
     if (!asleep_) {
         run_timers(); // asleep, only the RTC domain runs (the loop above)
     }
+    if (cpu_.debug_halted()) {
+        return; // a breakpoint or watchpoint: the debugger decides what happens next
+    }
     if (cpu_.state() == RvState::Halted && !halt_reported_) {
         halt_reported_ = true;
         diagnostic(cpu_.halt_reason());
+    }
+}
+
+void Esp32C3::step_instruction()
+{
+    if (reset_requested_) {
+        reset(requested_kind_, requested_reason_);
+    }
+    cpu_.step_instruction();
+    run_timers();
+    if (reset_requested_) {
+        reset(requested_kind_, requested_reason_);
     }
 }
 

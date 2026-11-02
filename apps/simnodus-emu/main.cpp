@@ -129,6 +129,7 @@ int run_esp32c3(int argc, char** argv)
     };
     std::vector<Typed> typed; // --usb text@ms, --uart0 text@ms; \n and \r in the text
     std::string flash_out;
+    int gdb_port = -1;
     Esp32C3::Options options;
     std::vector<std::pair<int, std::unique_ptr<simnodus::devices::HostLink>>> links; // --link: real time, no DTR/RTS
     for (int i = 2; i < argc; ++i) {
@@ -169,6 +170,8 @@ int run_esp32c3(int argc, char** argv)
                 return 2;
             }
             links.emplace_back(port == "usb" ? 2 : port == "uart1" ? 1 : 0, std::move(link));
+        } else if (arg == "--gdb" && i + 1 < argc) {
+            gdb_port = std::atoi(argv[++i]); // waits halted at the reset vector for a GDB client
         } else if (arg == "--strap" && i + 1 < argc) {
             options.strapping = static_cast<std::uint32_t>(std::strtoul(argv[++i], nullptr, 0)); // 0x4: download mode (GPIO9 low)
         } else if (arg == "--flash-out" && i + 1 < argc) {
@@ -188,7 +191,7 @@ int run_esp32c3(int argc, char** argv)
             const std::uint32_t offset = at == std::string::npos ? 0 : static_cast<std::uint32_t>(std::strtoul(arg.c_str() + at + 1, nullptr, 0));
             images.emplace_back(arg.substr(0, at), offset);
         } else {
-            std::fprintf(stderr, "usage: simnodus-emu --esp32c3 image.bin[@offset]... [--elf app.elf] [--rom rom.elf] [--ms 1000] [--quiet] [--trace-io]\n");
+            std::fprintf(stderr, "usage: simnodus-emu --esp32c3 image.bin[@offset]... [--elf app.elf] [--rom rom.elf] [--ms 1000] [--quiet] [--trace-io] [--gdb PORT]\n");
             return 2;
         }
     }
@@ -225,6 +228,18 @@ int run_esp32c3(int argc, char** argv)
         });
     }
     machine.reset();
+    const auto gdb_target = make_gdb_target(machine);
+    std::unique_ptr<GdbServer> gdb;
+    if (gdb_port >= 0) {
+        gdb = std::make_unique<GdbServer>(*gdb_target);
+        if (!gdb->start(static_cast<std::uint16_t>(gdb_port), error)) {
+            std::fprintf(stderr, "error: %s\n", error.c_str());
+            return 1;
+        }
+        gdb->wait_for_client(true);
+        std::printf("GDB server on localhost:%u\n", static_cast<unsigned>(gdb->port()));
+        std::fflush(stdout);
+    }
     static const char* const ports[] = {"UART0", "UART1", "USB"};
     std::string lines[3];
     const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
@@ -249,7 +264,13 @@ int run_esp32c3(int argc, char** argv)
                 }
             }
         }
+        if (gdb && !gdb->service(50)) {
+            continue; // halted by the debugger
+        }
         machine.run_until_ns(until);
+        if (gdb) {
+            gdb->after_run();
+        }
         while (next_typed < typed.size() && typed[next_typed].time_ns <= machine.time_ns()) {
             const Typed& t = typed[next_typed++];
             if (t.port < 0) { // --input: port -1 - GPIO
@@ -417,9 +438,10 @@ int main(int argc, char** argv)
     machine.cpu().count_ops(count_ops);
 
     std::sort(stimuli.begin(), stimuli.end(), [](const Stimulus& a, const Stimulus& b) { return a.time_ns < b.time_ns; });
+    const auto gdb_target = make_gdb_target(machine);
     std::unique_ptr<GdbServer> gdb;
     if (gdb_port >= 0) {
-        gdb = std::make_unique<GdbServer>(machine);
+        gdb = std::make_unique<GdbServer>(*gdb_target);
         if (!gdb->start(static_cast<std::uint16_t>(gdb_port), error)) {
             std::fprintf(stderr, "error: %s\n", error.c_str());
             return 1;

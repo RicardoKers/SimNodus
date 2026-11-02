@@ -4,6 +4,7 @@
 
 #include "emu/elf.hpp"
 #include "emu/esp32c3.hpp"
+#include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
@@ -146,7 +147,13 @@ public:
     void timed_schedule_changed() override { machine_.timed_schedule_changed(); }
     std::uint64_t cycles_at(std::uint64_t ns) const override { return machine_.cycles_at(ns); }
     std::uint64_t ns_at(std::uint64_t cycle) const override { return machine_.ns_at(cycle); }
-    emu::Stm32F103* stm32() override { return &machine_; }
+    emu::GdbTarget* gdb_target() override
+    {
+        if (!gdb_target_) {
+            gdb_target_ = emu::make_gdb_target(machine_);
+        }
+        return gdb_target_.get();
+    }
 
 private:
     static emu::MachineOptions machine_options(const McuRunOptions& options)
@@ -180,6 +187,7 @@ private:
 
     std::unique_ptr<emu::Stm32F103> owned_;
     emu::Stm32F103& machine_;
+    std::unique_ptr<emu::GdbTarget> gdb_target_;
 };
 
 // ---------------------------------------------------------------------------
@@ -233,10 +241,6 @@ public:
     }
     bool load(const McuRunOptions& options, std::string& error) override
     {
-        if (options.gdb_port >= 0) {
-            error = "Debugging with GDB is not available for the ESP32-C3 yet.";
-            return false;
-        }
         if (options.rom.empty()) {
             error = "The ESP32-C3's ROM file (esp32c3_rev3_rom.elf) was not found beside SimNodus.";
             return false;
@@ -405,6 +409,13 @@ public:
     void timed_schedule_changed() override { machine_.timed_changed(); }
     std::uint64_t cycles_at(std::uint64_t ns) const override { return ns; }
     std::uint64_t ns_at(std::uint64_t cycle) const override { return cycle; }
+    emu::GdbTarget* gdb_target() override
+    {
+        if (!gdb_target_) {
+            gdb_target_ = emu::make_gdb_target(machine_);
+        }
+        return gdb_target_.get();
+    }
 
 private:
     // A device timed in "cycles" (here nanoseconds) as the machine's timed event.
@@ -421,6 +432,7 @@ private:
     std::uint64_t release_ns_ = no_release; // EN rises then
     bool download_latch_ = false;
     std::vector<std::unique_ptr<TimedAdapter>> adapters_;
+    std::unique_ptr<emu::GdbTarget> gdb_target_;
 };
 
 } // namespace

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "gdb_server.hpp"
 
+#include "esp32c3.hpp"
 #include "stm32f103.hpp"
 
 #include <algorithm>
@@ -13,10 +14,8 @@ namespace simnodus::emu {
 
 namespace {
 
-constexpr int register_count = 21; // r0-r15, xpsr, msp, psp, primask, control
-
-// Register numbers are those of the target description below.
-const char* const target_xml =
+// The Cortex-M3: r0-r15, xpsr, msp, psp, primask, control (numbers of the description).
+const char* const cortex_m_xml =
     "<?xml version=\"1.0\"?>"
     "<!DOCTYPE target SYSTEM \"gdb-target.dtd\">"
     "<target version=\"1.0\">"
@@ -45,6 +44,61 @@ const char* const target_xml =
     "<reg name=\"psp\" bitsize=\"32\" regnum=\"18\" type=\"data_ptr\"/>"
     "<reg name=\"primask\" bitsize=\"32\" regnum=\"19\"/>"
     "<reg name=\"control\" bitsize=\"32\" regnum=\"20\"/>"
+    "</feature>"
+    "</target>";
+
+// RISC-V RV32 (the ESP32-C3): x0-x31 and pc (0-32), and the machine CSRs as
+// gdb numbers them (65 + the CSR number).
+const char* const riscv_xml =
+    "<?xml version=\"1.0\"?>"
+    "<!DOCTYPE target SYSTEM \"gdb-target.dtd\">"
+    "<target version=\"1.0\">"
+    "<architecture>riscv:rv32</architecture>"
+    "<feature name=\"org.gnu.gdb.riscv.cpu\">"
+    "<reg name=\"zero\" bitsize=\"32\" regnum=\"0\" type=\"int\"/>"
+    "<reg name=\"ra\" bitsize=\"32\" regnum=\"1\" type=\"code_ptr\"/>"
+    "<reg name=\"sp\" bitsize=\"32\" regnum=\"2\" type=\"data_ptr\"/>"
+    "<reg name=\"gp\" bitsize=\"32\" regnum=\"3\" type=\"data_ptr\"/>"
+    "<reg name=\"tp\" bitsize=\"32\" regnum=\"4\" type=\"data_ptr\"/>"
+    "<reg name=\"t0\" bitsize=\"32\" regnum=\"5\" type=\"int\"/>"
+    "<reg name=\"t1\" bitsize=\"32\" regnum=\"6\" type=\"int\"/>"
+    "<reg name=\"t2\" bitsize=\"32\" regnum=\"7\" type=\"int\"/>"
+    "<reg name=\"fp\" bitsize=\"32\" regnum=\"8\" type=\"data_ptr\"/>"
+    "<reg name=\"s1\" bitsize=\"32\" regnum=\"9\" type=\"int\"/>"
+    "<reg name=\"a0\" bitsize=\"32\" regnum=\"10\" type=\"int\"/>"
+    "<reg name=\"a1\" bitsize=\"32\" regnum=\"11\" type=\"int\"/>"
+    "<reg name=\"a2\" bitsize=\"32\" regnum=\"12\" type=\"int\"/>"
+    "<reg name=\"a3\" bitsize=\"32\" regnum=\"13\" type=\"int\"/>"
+    "<reg name=\"a4\" bitsize=\"32\" regnum=\"14\" type=\"int\"/>"
+    "<reg name=\"a5\" bitsize=\"32\" regnum=\"15\" type=\"int\"/>"
+    "<reg name=\"a6\" bitsize=\"32\" regnum=\"16\" type=\"int\"/>"
+    "<reg name=\"a7\" bitsize=\"32\" regnum=\"17\" type=\"int\"/>"
+    "<reg name=\"s2\" bitsize=\"32\" regnum=\"18\" type=\"int\"/>"
+    "<reg name=\"s3\" bitsize=\"32\" regnum=\"19\" type=\"int\"/>"
+    "<reg name=\"s4\" bitsize=\"32\" regnum=\"20\" type=\"int\"/>"
+    "<reg name=\"s5\" bitsize=\"32\" regnum=\"21\" type=\"int\"/>"
+    "<reg name=\"s6\" bitsize=\"32\" regnum=\"22\" type=\"int\"/>"
+    "<reg name=\"s7\" bitsize=\"32\" regnum=\"23\" type=\"int\"/>"
+    "<reg name=\"s8\" bitsize=\"32\" regnum=\"24\" type=\"int\"/>"
+    "<reg name=\"s9\" bitsize=\"32\" regnum=\"25\" type=\"int\"/>"
+    "<reg name=\"s10\" bitsize=\"32\" regnum=\"26\" type=\"int\"/>"
+    "<reg name=\"s11\" bitsize=\"32\" regnum=\"27\" type=\"int\"/>"
+    "<reg name=\"t3\" bitsize=\"32\" regnum=\"28\" type=\"int\"/>"
+    "<reg name=\"t4\" bitsize=\"32\" regnum=\"29\" type=\"int\"/>"
+    "<reg name=\"t5\" bitsize=\"32\" regnum=\"30\" type=\"int\"/>"
+    "<reg name=\"t6\" bitsize=\"32\" regnum=\"31\" type=\"int\"/>"
+    "<reg name=\"pc\" bitsize=\"32\" regnum=\"32\" type=\"code_ptr\"/>"
+    "</feature>"
+    "<feature name=\"org.gnu.gdb.riscv.csr\">"
+    "<reg name=\"mstatus\" bitsize=\"32\" regnum=\"833\" group=\"csr\"/>"
+    "<reg name=\"misa\" bitsize=\"32\" regnum=\"834\" group=\"csr\"/>"
+    "<reg name=\"mie\" bitsize=\"32\" regnum=\"837\" group=\"csr\"/>"
+    "<reg name=\"mtvec\" bitsize=\"32\" regnum=\"838\" group=\"csr\"/>"
+    "<reg name=\"mscratch\" bitsize=\"32\" regnum=\"897\" group=\"csr\"/>"
+    "<reg name=\"mepc\" bitsize=\"32\" regnum=\"898\" group=\"csr\"/>"
+    "<reg name=\"mcause\" bitsize=\"32\" regnum=\"899\" group=\"csr\"/>"
+    "<reg name=\"mtval\" bitsize=\"32\" regnum=\"900\" group=\"csr\"/>"
+    "<reg name=\"mip\" bitsize=\"32\" regnum=\"901\" group=\"csr\"/>"
     "</feature>"
     "</target>";
 
@@ -134,9 +188,194 @@ bool starts_with(const std::string& text, const char* prefix)
     return text.rfind(prefix, 0) == 0;
 }
 
+// The STM32F103's Cortex-M3.
+class Stm32Target : public GdbTarget {
+public:
+    explicit Stm32Target(Stm32F103& machine) : machine_(machine) {}
+
+    const char* target_xml() const override { return cortex_m_xml; }
+    int general_registers() const override { return 21; }
+    bool read_register(int n, std::uint32_t& value) override
+    {
+        const Cpu& cpu = machine_.cpu();
+        if (n < 16) {
+            value = cpu.reg(n);
+            return true;
+        }
+        switch (n) {
+        case 16: value = cpu.xpsr(); return true;
+        case 17: value = cpu.msp(); return true;
+        case 18: value = cpu.psp(); return true;
+        case 19: value = cpu.primask(); return true;
+        case 20: value = cpu.control(); return true;
+        default: return false;
+        }
+    }
+    bool write_register(int n, std::uint32_t value) override
+    {
+        Cpu& cpu = machine_.cpu();
+        if (n < 16) {
+            cpu.set_reg(n, value);
+            return true;
+        }
+        if (n == 16) {
+            cpu.set_xpsr(value);
+            return true;
+        }
+        return n < 21; // MSP, PSP, PRIMASK, CONTROL: accepted, not changed
+    }
+    bool read_byte(std::uint32_t address, std::uint8_t& value) override
+    {
+        std::uint32_t word = 0;
+        if (!machine_.bus().read(address, 1, word)) {
+            return false;
+        }
+        value = static_cast<std::uint8_t>(word);
+        return true;
+    }
+    bool write_memory(std::uint32_t address, const std::string& bytes, bool& loaded) override
+    {
+        Bus& bus = machine_.bus();
+        bool code = false;
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            const auto at = address + static_cast<std::uint32_t>(i);
+            const auto value = static_cast<std::uint8_t>(bytes[i]);
+            if (!bus.write(at, 1, value)) {
+                // Flash is read-only for the CPU; the debugger writes it as `load` would.
+                if (!bus.load(at, &value, 1)) {
+                    return false;
+                }
+                code = true;
+                loaded = true;
+            }
+        }
+        if (code || address < 0x20000000u) {
+            machine_.cpu().invalidate_code_cache();
+        }
+        return true;
+    }
+    void set_debugger_attached(bool attached) override { machine_.cpu().set_debugger_attached(attached); }
+    void set_breakpoints(std::vector<std::uint32_t> addresses) override
+    {
+        machine_.cpu().set_breakpoints(std::move(addresses));
+    }
+    void set_watchpoints(const std::vector<Watchpoint>& watchpoints) override
+    {
+        std::vector<Cpu::Watchpoint> list;
+        for (const auto& w : watchpoints) {
+            list.push_back({w.address, w.length, static_cast<Cpu::WatchKind>(w.kind)});
+        }
+        machine_.cpu().set_watchpoints(std::move(list));
+    }
+    WatchHit last_watch() const override
+    {
+        const auto& hit = machine_.cpu().last_watch();
+        return {hit.hit, hit.address, static_cast<WatchKind>(hit.kind)};
+    }
+    bool halted() const override { return machine_.halted(); }
+    void resume() override { machine_.cpu().resume_from_halt(); }
+    void step() override { machine_.step_instruction(); }
+    void reset() override { machine_.reset(ResetKind::Pin); }
+
+private:
+    Stm32F103& machine_;
+};
+
+// The ESP32-C3's RISC-V core. Its flash is written with esptool or the
+// board's Firmware: writes to the flash's address windows fail (gdb `load`
+// is not supported); RAM and registers can be written.
+class Esp32C3Target : public GdbTarget {
+public:
+    explicit Esp32C3Target(Esp32C3& machine) : machine_(machine) {}
+
+    const char* target_xml() const override { return riscv_xml; }
+    int general_registers() const override { return 33; }
+    bool read_register(int n, std::uint32_t& value) override
+    {
+        RiscvCpu& cpu = machine_.cpu();
+        if (n < 32) {
+            value = cpu.reg(n);
+            return true;
+        }
+        if (n == 32) {
+            value = cpu.pc();
+            return true;
+        }
+        return n >= 65 && n < 65 + 4096 && cpu.read_csr(static_cast<std::uint16_t>(n - 65), value);
+    }
+    bool write_register(int n, std::uint32_t value) override
+    {
+        RiscvCpu& cpu = machine_.cpu();
+        if (n < 32) {
+            cpu.set_reg(n, value);
+            return true;
+        }
+        if (n == 32) {
+            cpu.set_pc(value);
+            return true;
+        }
+        return n >= 65 && n < 65 + 4096 && cpu.write_csr(static_cast<std::uint16_t>(n - 65), value);
+    }
+    bool read_byte(std::uint32_t address, std::uint8_t& value) override
+    {
+        std::uint32_t word = 0;
+        if (!machine_.bus().read(address, 1, word)) {
+            return false;
+        }
+        value = static_cast<std::uint8_t>(word);
+        return true;
+    }
+    bool write_memory(std::uint32_t address, const std::string& bytes, bool& loaded) override
+    {
+        (void)loaded;
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            if (!machine_.bus().write(address + static_cast<std::uint32_t>(i), 1, static_cast<std::uint8_t>(bytes[i]))) {
+                return false;
+            }
+        }
+        machine_.cpu().invalidate_code_cache(); // code in SRAM may have changed
+        return true;
+    }
+    void set_debugger_attached(bool attached) override { machine_.cpu().set_debugger_attached(attached); }
+    void set_breakpoints(std::vector<std::uint32_t> addresses) override
+    {
+        machine_.cpu().set_breakpoints(std::move(addresses));
+    }
+    void set_watchpoints(const std::vector<Watchpoint>& watchpoints) override
+    {
+        std::vector<RiscvCpu::Watchpoint> list;
+        for (const auto& w : watchpoints) {
+            list.push_back({w.address, w.length, static_cast<RiscvCpu::WatchKind>(w.kind)});
+        }
+        machine_.cpu().set_watchpoints(std::move(list));
+    }
+    WatchHit last_watch() const override
+    {
+        const auto& hit = machine_.cpu().last_watch();
+        return {hit.hit, hit.address, static_cast<WatchKind>(hit.kind)};
+    }
+    bool halted() const override { return machine_.halted(); }
+    void resume() override { machine_.cpu().resume_from_halt(); }
+    void step() override { machine_.step_instruction(); }
+    void reset() override { machine_.reset(); } // as the EN button: the ROM starts again
+
+private:
+    Esp32C3& machine_;
+};
+
 } // namespace
 
-GdbServer::GdbServer(Stm32F103& machine) : machine_(machine) {}
+std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine)
+{
+    return std::make_unique<Stm32Target>(machine);
+}
+
+std::unique_ptr<GdbTarget> make_gdb_target(Esp32C3& machine)
+{
+    return std::make_unique<Esp32C3Target>(machine);
+}
+
+GdbServer::GdbServer(GdbTarget& target) : target_(target) {}
 
 GdbServer::~GdbServer()
 {
@@ -154,13 +393,13 @@ void GdbServer::attach()
 {
     state_ = State::Halted; // a client finds the firmware stopped where it is
     breakpoints_.clear();
-    machine_.cpu().set_debugger_attached(true);
+    target_.set_debugger_attached(true);
 }
 
 void GdbServer::detach()
 {
-    machine_.cpu().set_debugger_attached(false); // clears breakpoints and the halt
-    machine_.cpu().set_watchpoints({});
+    target_.set_debugger_attached(false); // clears breakpoints and the halt
+    target_.set_watchpoints({});
     watchpoints_.clear();
     breakpoints_.clear();
     socket_.close_client();
@@ -197,85 +436,34 @@ bool GdbServer::service(int wait_ms)
 
 void GdbServer::after_run()
 {
-    if (state_ == State::Running && machine_.halted()) {
+    if (state_ == State::Running && target_.halted()) {
         state_ = State::Halted;
         reply(stop_reply());
     }
 }
 
-std::uint32_t GdbServer::read_register(int n) const
-{
-    const Cpu& cpu = const_cast<Stm32F103&>(machine_).cpu();
-    if (n < 16) {
-        return cpu.reg(n);
-    }
-    switch (n) {
-    case 16: return cpu.xpsr();
-    case 17: return cpu.msp();
-    case 18: return cpu.psp();
-    case 19: return cpu.primask();
-    case 20: return cpu.control();
-    default: return 0;
-    }
-}
-
-bool GdbServer::write_register(int n, std::uint32_t value)
-{
-    Cpu& cpu = machine_.cpu();
-    if (n < 16) {
-        cpu.set_reg(n, value);
-        return true;
-    }
-    if (n == 16) {
-        cpu.set_xpsr(value);
-        return true;
-    }
-    return n < register_count; // MSP, PSP, PRIMASK, CONTROL: accepted, not changed
-}
-
-std::string GdbServer::read_registers() const
+std::string GdbServer::read_registers()
 {
     std::string out;
-    for (int n = 0; n < register_count; ++n) {
-        out += hex_word_le(read_register(n));
+    for (int n = 0; n < target_.general_registers(); ++n) {
+        std::uint32_t value = 0;
+        target_.read_register(n, value);
+        out += hex_word_le(value);
     }
     return out;
 }
 
-std::string GdbServer::read_memory(std::uint32_t address, std::uint32_t length) const
+std::string GdbServer::read_memory(std::uint32_t address, std::uint32_t length)
 {
     std::string out;
-    Bus& bus = const_cast<Stm32F103&>(machine_).bus();
     for (std::uint32_t i = 0; i < length; ++i) {
-        std::uint32_t value = 0;
-        if (!bus.read(address + i, 1, value)) {
+        std::uint8_t value = 0;
+        if (!target_.read_byte(address + i, value)) {
             break;
         }
         out += hex_byte(value);
     }
     return out.empty() && length > 0 ? std::string("E01") : out;
-}
-
-bool GdbServer::write_memory(std::uint32_t address, const std::string& bytes)
-{
-    Bus& bus = machine_.bus();
-    bool code = false;
-    for (std::size_t i = 0; i < bytes.size(); ++i) {
-        const auto at = address + static_cast<std::uint32_t>(i);
-        const auto value = static_cast<std::uint8_t>(bytes[i]);
-        if (!bus.write(at, 1, value)) {
-            // Flash is read-only for the CPU; the debugger writes it as `load` would.
-            if (!bus.load(at, &value, 1)) {
-                return false;
-            }
-            code = true;
-            flash_written_ = true;
-        }
-    }
-    if (code || address < 0x20000000u) {
-        machine_.cpu().invalidate_code_cache();
-    }
-    return true;
 }
 
 void GdbServer::start_after_load()
@@ -284,17 +472,18 @@ void GdbServer::start_after_load()
     // pointer and reset handler from it (gdb only sets the PC).
     if (flash_written_) {
         flash_written_ = false;
-        machine_.reset(ResetKind::Pin);
+        target_.reset();
     }
 }
 
 std::string GdbServer::stop_reply() const
 {
-    const auto& watch = const_cast<Stm32F103&>(machine_).cpu().last_watch();
+    const auto watch = target_.last_watch();
     if (!watch.hit) {
-        return "S05"; // SIGTRAP: breakpoint, BKPT or step
+        return "S05"; // SIGTRAP: breakpoint, BKPT/EBREAK or step
     }
-    const char* kind = watch.kind == Cpu::WatchKind::Write ? "watch" : (watch.kind == Cpu::WatchKind::Read ? "rwatch" : "awatch");
+    const char* kind = watch.kind == GdbTarget::WatchKind::Write ? "watch"
+        : (watch.kind == GdbTarget::WatchKind::Read ? "rwatch" : "awatch");
     char text[48];
     std::snprintf(text, sizeof text, "T05%s:%08x;", kind, static_cast<unsigned>(watch.address));
     return text;
@@ -302,14 +491,14 @@ std::string GdbServer::stop_reply() const
 
 void GdbServer::update_breakpoints()
 {
-    machine_.cpu().set_breakpoints({breakpoints_.begin(), breakpoints_.end()});
+    target_.set_breakpoints({breakpoints_.begin(), breakpoints_.end()});
 }
 
 void GdbServer::monitor(const std::string& command)
 {
     std::string text;
     if (command == "reset" || command == "reset halt" || command == "reset init") {
-        machine_.reset(ResetKind::Pin);
+        target_.reset();
         flash_written_ = false;
         text = "Reset: the firmware is halted at its reset handler.\n";
     } else if (command == "halt") {
@@ -337,20 +526,21 @@ void GdbServer::handle(const std::string& packet)
         reply(read_registers());
         return;
     case 'G': {
-        for (int n = 0; n < register_count && 1 + 8 * static_cast<std::size_t>(n) + 8 <= packet.size(); ++n) {
-            write_register(n, word_le(packet.substr(1 + 8 * static_cast<std::size_t>(n), 8)));
+        for (int n = 0; n < target_.general_registers() && 1 + 8 * static_cast<std::size_t>(n) + 8 <= packet.size(); ++n) {
+            target_.write_register(n, word_le(packet.substr(1 + 8 * static_cast<std::size_t>(n), 8)));
         }
         reply("OK");
         return;
     }
     case 'p': {
         const int n = static_cast<int>(parse_hex(packet, at));
-        reply(n < register_count ? hex_word_le(read_register(n)) : std::string("E01"));
+        std::uint32_t value = 0;
+        reply(target_.read_register(n, value) ? hex_word_le(value) : std::string("E01"));
         return;
     }
     case 'P': {
         const int n = static_cast<int>(parse_hex(packet, at));
-        reply(at + 9 <= packet.size() && write_register(n, word_le(packet.substr(at + 1, 8))) ? "OK" : "E01");
+        reply(at + 9 <= packet.size() && target_.write_register(n, word_le(packet.substr(at + 1, 8))) ? "OK" : "E01");
         return;
     }
     case 'm': {
@@ -372,7 +562,7 @@ void GdbServer::handle(const std::string& packet)
         }
         std::string bytes = kind == 'M' ? from_hex(packet.substr(colon + 1)) : unescape(packet.substr(colon + 1));
         bytes.resize(length);
-        reply(length == 0 || write_memory(address, bytes) ? "OK" : "E01");
+        reply(length == 0 || target_.write_memory(address, bytes, flash_written_) ? "OK" : "E01");
         return;
     }
     case 'Z':
@@ -383,15 +573,15 @@ void GdbServer::handle(const std::string& packet)
             const std::uint32_t address = parse_hex(packet, at);
             ++at;
             const std::uint32_t length = std::max<std::uint32_t>(parse_hex(packet, at), 1);
-            const auto watch_kind = static_cast<Cpu::WatchKind>(type - '0');
-            auto same = [&](const Cpu::Watchpoint& w) {
+            const auto watch_kind = static_cast<GdbTarget::WatchKind>(type - '0');
+            auto same = [&](const GdbTarget::Watchpoint& w) {
                 return w.address == address && w.length == length && w.kind == watch_kind;
             };
             watchpoints_.erase(std::remove_if(watchpoints_.begin(), watchpoints_.end(), same), watchpoints_.end());
             if (kind == 'Z') {
                 watchpoints_.push_back({address, length, watch_kind});
             }
-            machine_.cpu().set_watchpoints(watchpoints_);
+            target_.set_watchpoints(watchpoints_);
             reply("OK");
             return;
         }
@@ -413,13 +603,13 @@ void GdbServer::handle(const std::string& packet)
     case 'c':
     case 'C':
         start_after_load();
-        machine_.cpu().resume_from_halt();
+        target_.resume();
         state_ = State::Running;
         return; // the stop reply comes when the firmware halts
     case 's':
     case 'S':
         start_after_load();
-        machine_.step_instruction();
+        target_.step();
         reply("S05");
         return;
     case 'D':
@@ -435,7 +625,7 @@ void GdbServer::handle(const std::string& packet)
         reply("OK");
         return;
     case 'R':
-        machine_.reset(ResetKind::Pin);
+        target_.reset();
         return;
     default:
         break;
@@ -450,7 +640,7 @@ void GdbServer::handle(const std::string& packet)
         const std::uint32_t offset = parse_hex(packet, p);
         ++p;
         const std::uint32_t length = parse_hex(packet, p);
-        const std::string xml = target_xml;
+        const std::string xml = target_.target_xml();
         if (offset >= xml.size()) {
             reply("l");
         } else {

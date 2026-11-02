@@ -704,6 +704,60 @@ TEST_CASE("riscv: stores into code take effect")
     CHECK(fence.cpu.reg(a0) == 7);
 }
 
+TEST_CASE("riscv: debugger breakpoints, watchpoints and ebreak (SN-249)")
+{
+    // addi a0, x0, 1; addi a0, a0, 1; sw a0, 0(a1); lw a2, 0(a1); ebreak; j .
+    Rv rv({0x00100513, 0x00150513, 0x00a5a023, 0x0005a603, 0x00100073, 0x0000006f});
+    rv.cpu.set_reg(a1, data);
+    rv.cpu.set_debugger_attached(true);
+    rv.cpu.set_breakpoints({base + 4});
+    rv.cpu.run(1000);
+    CHECK(rv.cpu.debug_halted());
+    CHECK(rv.cpu.pc() == base + 4); // before the instruction at the breakpoint
+    CHECK(rv.cpu.reg(a0) == 1);
+    CHECK(rv.cpu.cycles() < 1000); // a halt does not move time on
+    rv.cpu.run(1000);
+    CHECK(rv.cpu.pc() == base + 4); // still halted
+    // A write watchpoint stops after the store.
+    rv.cpu.set_breakpoints({});
+    rv.cpu.set_watchpoints({{data, 4, RiscvCpu::WatchKind::Write}});
+    rv.cpu.resume_from_halt();
+    rv.cpu.run(1000);
+    CHECK(rv.cpu.debug_halted());
+    CHECK(rv.cpu.pc() == base + 12);
+    CHECK(rv.word(data) == 2);
+    CHECK(rv.cpu.last_watch().hit);
+    CHECK(rv.cpu.last_watch().address == data);
+    CHECK(rv.cpu.last_watch().kind == RiscvCpu::WatchKind::Write);
+    // A read watchpoint stops after the load.
+    rv.cpu.set_watchpoints({{data + 2, 1, RiscvCpu::WatchKind::Read}});
+    rv.cpu.resume_from_halt();
+    rv.cpu.run(1000);
+    CHECK(rv.cpu.pc() == base + 16);
+    CHECK(rv.cpu.reg(a2) == 2);
+    CHECK(rv.cpu.last_watch().kind == RiscvCpu::WatchKind::Read);
+    // EBREAK with a debugger halts at the EBREAK, without a trap.
+    rv.cpu.set_watchpoints({});
+    rv.cpu.resume_from_halt();
+    rv.cpu.run(1000);
+    CHECK(rv.cpu.debug_halted());
+    CHECK(rv.cpu.pc() == base + 16);
+    CHECK(rv.csr(mcause) == 0);
+    // Single steps run on from a halt; breakpoints do not stop a step.
+    rv.cpu.set_pc(base);
+    rv.cpu.set_breakpoints({base});
+    rv.cpu.step_instruction();
+    CHECK(rv.cpu.pc() == base + 4);
+    // Without a debugger, EBREAK is the breakpoint exception.
+    rv.cpu.set_debugger_attached(false);
+    rv.cpu.set_pc(base + 16);
+    rv.cpu.run(rv.cpu.cycles() + 1);
+    CHECK(!rv.cpu.debug_halted());
+    CHECK(rv.cpu.pc() == handler);
+    CHECK(rv.csr(mcause) == 3);
+    CHECK(rv.csr(mepc) == base + 16);
+}
+
 TEST_CASE("riscv: no code at the trap vector halts the core")
 {
     Rv rv({0x0000});

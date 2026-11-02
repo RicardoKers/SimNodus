@@ -13,8 +13,12 @@
 #include "emu/elf.hpp"
 #include "emu/esp32c3.hpp"
 #include "emu/esp32c3_rom.hpp"
+#include "emu/gdb_server.hpp"
+#include "emu/gdb_socket.hpp"
 
+#include <atomic>
 #include <cctype>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <filesystem>
@@ -24,6 +28,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace simnodus::emu;
@@ -695,6 +700,84 @@ TEST_CASE("esp32c3: two runs give the same output")
     }
     CHECK(!runs[0].empty());
     CHECK(runs[0] == runs[1]);
+}
+
+TEST_CASE("esp32c3: GDB server with the RISC-V registers, breakpoints, memory, reset and detach (SN-249)")
+{
+    auto machine = boot(read_file(repository / "examples" / "firmware" / "esp32c3_blink" / "blink.bin"));
+    REQUIRE(machine);
+    const auto target = make_gdb_target(*machine);
+    GdbServer server(*target);
+    std::string error;
+    REQUIRE(server.start(0, error));
+    std::atomic<bool> stop{false};
+    std::atomic<std::uint64_t> time_ns{0};
+    std::string console; // UART0, read after the thread ended
+    std::thread thread([&] {
+        while (!stop) {
+            if (server.service(5)) {
+                machine->run_until_ns(machine->time_ns() + 1'000'000);
+                server.after_run();
+                time_ns = machine->time_ns();
+            }
+        }
+    });
+    GdbSocket client;
+    REQUIRE(client.connect_client(server.port(), error));
+    auto ask = [&](const std::string& packet) {
+        std::string reply;
+        client.send_raw(GdbSocket::frame(packet));
+        return client.receive_packet(5000, reply) ? reply : std::string("<no reply>");
+    };
+    auto pc = [&] { // register 32, little endian
+        const std::string hex = ask("p20");
+        std::uint32_t value = 0;
+        for (int i = 3; i >= 0 && hex.size() == 8; --i) {
+            value = (value << 8) | static_cast<std::uint32_t>(std::stoul(hex.substr(static_cast<std::size_t>(2 * i), 2), nullptr, 16));
+        }
+        return value;
+    };
+    const std::string xml = ask("qXfer:features:read:target.xml:0,fff");
+    CHECK(xml.find("org.gnu.gdb.riscv.cpu") != std::string::npos);
+    CHECK(xml.find("riscv:rv32") != std::string::npos);
+    CHECK(ask("?") == "S05");
+    CHECK(ask("g").size() == 33 * 8); // x0-x31 and pc
+    CHECK(ask("p346").size() == 8);   // mtvec (65 + 0x305)
+    // monitor reset halt: the ROM's reset vector.
+    CHECK(ask("qRcmd,72657365742068616c74").rfind("O", 0) == 0); // "reset halt": its message, then OK
+    std::string ok;
+    CHECK(client.receive_packet(5000, ok));
+    CHECK(ok == "OK");
+    CHECK(pc() == 0x40000000u); // the ROM's _start
+    const std::uint64_t halted_at = time_ns;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    CHECK(time_ns == halted_at); // halted: time stands still
+    // A breakpoint at the ROM's main: continue stops there; a step moves on.
+    CHECK(ask("Z0,40047e3c,2") == "OK");
+    client.send_raw(GdbSocket::frame("c"));
+    std::string stop_reply;
+    CHECK(client.receive_packet(5000, stop_reply));
+    CHECK(stop_reply == "S05");
+    CHECK(pc() == 0x40047E3Cu);
+    CHECK(ask("s") == "S05");
+    CHECK(pc() != 0x40047E3Cu);
+    CHECK(ask("z0,40047e3c,2") == "OK");
+    // Memory: the ROM reads, SRAM takes writes.
+    CHECK(ask("m40000400,4").size() == 8);
+    CHECK(ask("M3fcd0000,4:11223344") == "OK");
+    CHECK(ask("m3fcd0000,4") == "11223344");
+    // Detach: the firmware runs on (the blink example's log).
+    CHECK(ask("D") == "OK");
+    const auto begin = std::chrono::steady_clock::now();
+    while (time_ns < 600'000'000ull && std::chrono::steady_clock::now() - begin < std::chrono::seconds(30)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    stop = true;
+    thread.join();
+    for (const auto& out : machine->take_output()) {
+        console += out.port == 0 ? std::string(1, static_cast<char>(out.value)) : std::string();
+    }
+    CHECK(console.find("Turning the LED") != std::string::npos);
 }
 
 int main(int argc, char** argv)

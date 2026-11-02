@@ -92,7 +92,12 @@ public:
     int download_boots() const { return download_boots_; }
     std::uint64_t flash_writes() const;
 
+    // Runs to `ns`, or until the core halts at a debugger breakpoint or
+    // watchpoint (halted()).
     void run_until_ns(std::uint64_t ns);
+    bool halted() const { return cpu_.debug_halted(); }
+    // One instruction for the debugger (and the timers due after it).
+    void step_instruction();
     std::uint64_t time_ns() const;
     std::uint32_t cpu_hz() const { return cpu_hz_; }
 

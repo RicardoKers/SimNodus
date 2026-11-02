@@ -556,6 +556,9 @@ bool RiscvCpu::load(std::uint32_t address, unsigned size, std::uint32_t& value)
         trap(LoadAccessFault, address);
         return false;
     }
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, false);
+    }
     return true;
 }
 
@@ -575,6 +578,9 @@ bool RiscvCpu::store(std::uint32_t address, unsigned size, std::uint32_t value)
     if (!bus_.write(address, size, value)) {
         trap(StoreAccessFault, address);
         return false;
+    }
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, true);
     }
     if (!regions_.empty()) {
         invalidate_code(address, size);
@@ -605,6 +611,9 @@ bool RiscvCpu::load_misaligned(std::uint32_t address, unsigned size, std::uint32
         result |= (byte & 0xFF) << (8 * i);
     }
     value = result;
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, false);
+    }
     return true;
 }
 
@@ -619,6 +628,9 @@ bool RiscvCpu::store_misaligned(std::uint32_t address, unsigned size, std::uint3
             trap(StoreAccessFault, address);
             return false;
         }
+    }
+    if (!watchpoints_.empty()) {
+        check_watch(address, size, true);
     }
     if (!regions_.empty()) {
         invalidate_code(address, size);
@@ -992,12 +1004,12 @@ void RiscvCpu::csr_instruction(const RvInsn& in)
 bool RiscvCpu::check_attention()
 {
     attention_ = false;
-    if (stop_requested_ || state_ == RvState::Halted) {
+    if (stop_requested_ || state_ == RvState::Halted || debug_halted_) {
         attention_ = true;
         return false;
     }
-    if (count_entries_) {
-        attention_ = true; // stay on the slow path to count
+    if (count_entries_ || !breakpoints_.empty() || !watchpoints_.empty()) {
+        attention_ = true; // stay on the slow path to count or to check the debugger's points
     }
     const int line = pending_interrupt();
     if (state_ == RvState::Sleeping) {
@@ -1032,6 +1044,14 @@ RvState RiscvCpu::run(std::uint64_t limit)
             if (cycles_ >= limit) {
                 break;
             }
+            if (!breakpoints_.empty()) {
+                if (skip_breakpoint_) {
+                    skip_breakpoint_ = false;
+                } else if (std::find(breakpoints_.begin(), breakpoints_.end(), pc_) != breakpoints_.end()) {
+                    debug_halted_ = true;
+                    break;
+                }
+            }
         }
         const RvInsn& in = fetch();
         execute(in);
@@ -1039,8 +1059,55 @@ RvState RiscvCpu::run(std::uint64_t limit)
     return state_;
 }
 
+void RiscvCpu::set_debugger_attached(bool attached)
+{
+    debugger_ = attached;
+    if (!attached) {
+        breakpoints_.clear();
+        watchpoints_.clear();
+        debug_halted_ = false;
+        watch_hit_ = {};
+    }
+    attention_ = true;
+}
+
+void RiscvCpu::set_breakpoints(std::vector<std::uint32_t> addresses)
+{
+    breakpoints_ = std::move(addresses);
+    attention_ = true;
+}
+
+void RiscvCpu::set_watchpoints(std::vector<Watchpoint> watchpoints)
+{
+    watchpoints_ = std::move(watchpoints);
+    attention_ = true;
+}
+
+void RiscvCpu::resume_from_halt()
+{
+    debug_halted_ = false;
+    watch_hit_ = {};
+    skip_breakpoint_ = true;
+    attention_ = true;
+}
+
+void RiscvCpu::check_watch(std::uint32_t address, unsigned size, bool write)
+{
+    for (const auto& w : watchpoints_) {
+        const bool kind = w.kind == WatchKind::Access || (w.kind == WatchKind::Write) == write;
+        if (kind && address < w.address + w.length && w.address < address + size) {
+            watch_hit_ = {true, w.address, w.kind};
+            debug_halted_ = true; // after this instruction
+            attention_ = true;
+            return;
+        }
+    }
+}
+
 void RiscvCpu::step_instruction()
 {
+    debug_halted_ = false;
+    watch_hit_ = {};
     attention_ = true;
     took_interrupt_ = false;
     if (check_attention() && state_ == RvState::Running && !took_interrupt_) {
@@ -1183,7 +1250,16 @@ void RiscvCpu::execute(const RvInsn& in)
         invalidate_code_cache();
         break;
     case OP_ECALL: trap(priv_ == Privilege::User ? EcallFromU : EcallFromM, 0); break;
-    case OP_EBREAK: trap(Breakpoint, pc); break;
+    case OP_EBREAK:
+        if (debugger_) { // the debugger's halt, at the EBREAK
+            debug_halted_ = true;
+            attention_ = true;
+            next_pc_ = pc;
+            trapped_ = true; // not retired
+        } else {
+            trap(Breakpoint, pc);
+        }
+        break;
     case OP_MRET:
         if (priv_ != Privilege::Machine) {
             trap(IllegalInstruction, in.raw);
