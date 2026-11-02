@@ -187,6 +187,25 @@ integrated as an experimental board until the board comparison (G8b.1).
 | SN-253 | Upload through the USB connector: DTR/RTS to EN and GPIO9 (the DevKit's auto-reset circuit) and USB Serial/JTAG's reset sequence; GPIO9 read at reset so the ROM enters download mode; the esptool stub erases and writes the simulated flash; the changed flash reaches the project (Save with Firmware). Done when the Arduino IDE's Upload and `esptool write-flash` work unmodified; risk: esptool timeouts when the simulation runs slower than real time | after SN-252 | done 2026-10-29 (`esptool write-flash` at 921600 baud: hash verified, the new firmware boots; the uploaded flash becomes `<designator>-flash.bin`) |
 | SN-254 | ESP32-C3 UART0/UART1 at the pin level: frames bit by bit at the baud rate on the TX pin and sampled on RX (today bytes leave at once), so the Serial Port part (SN-237) and other boards' UARTs talk to the ESP32-C3's pins | after SN-252 | done 2026-10-29 (a Serial Port part in loopback on GPIO21/GPIO20 echoes through an Arduino sketch) |
 
+## AVR track — own emulator (from 2026-11-02)
+
+Owner's request of 2026-11-02: students build projects on Atmel/Microchip AVR
+chips. [Feasibility study](../experiments/AVR-feasibility.md); plan, gates
+G10a-G10c and decision DE10: [E-10-plan.md](../experiments/E-10-plan.md).
+Owner's decisions: the ATmega8 first; Optiboot shipped with the UNO; the
+ATmega8, 8A, 32, 32A, 328 and 328P as separate parts.
+
+| ID | Task | Milestone / gate | Status |
+|---|---|---|---|
+| SN-255 | E-10 prerequisites: pin the datasheets and the instruction set manual, the avr-gcc/avr-libc versions, simavr as a test-only oracle in `build/tools`; collect the owner's course projects | before code | todo |
+| SN-256 | AVRe+ core with exact cycle counts, instruction tests, differential against simavr, benchmark | G10a | todo |
+| SN-257 | ATmega8 machine (chip table): GPIO, INT0/1, Timer0/1/2, USART (URSEL), EEPROM, WDT, resets, boot section and lock bits; fuses decoded; Intel HEX and ELF (`.fuse`, `.lock`, `.eeprom`); `simnodus-emu --avr atmega8` | G10b | todo |
+| SN-258 | Integration: `AvrMachine`, ATmega8-PU and ATmega8A-PU parts (PDIP-28, 5 V pin model), Crystal part, Fuses… dialog (English and pt-BR), EEPROM kept in the project, examples and guides; experimental until the board comparison (G10b.9) | G10b → DE10 | todo |
+| SN-259 | ATmega8 complete: ADC, analog comparator, SPI, TWI, sleep, Timer2 asynchronous, brown-out from VCC | G10c | todo |
+| SN-260 | ATmega328/328P and ATmega32/32A: chip tables, PCINT, CKDIV8, 1.1 V reference and temperature sensor, ATmega32 JTAG fuse and differential ADC, PDIP-40 part | after DE10 | todo |
+| SN-261 | Arduino UNO: board, auto-reset from the host link's DTR, Optiboot shipped, upload with the Arduino IDE and avrdude, EEPROM kept | after SN-260 | todo |
+| SN-262 | GDB for AVR with avr-gdb (`AvrTarget`, flash/SRAM/EEPROM address spaces) | after SN-258 | todo |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |

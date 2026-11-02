@@ -1,6 +1,6 @@
 # AVR feasibility study: ATmega8, ATmega32, ATmega328P and the Arduino UNO
 
-Date: 2026-11-02. Status: **study only**; nothing is implemented. Asked by the
+Date: 2026-11-02. Status: **study only**; nothing is implemented. Plan: [E-10](E-10-plan.md). Asked by the
 owner because students are building projects with Atmel (Microchip) AVR
 microcontrollers. If the owner goes ahead, this study becomes the plan of an
 experiment (E-10) with gates recorded before any emulator code, as E-07 and
