@@ -141,8 +141,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (SN-252-254). In order:
    - SN-248 done on `main` (not released): what the firmware writes to the
      flash (MicroPython's files, NVS) is kept in `<designator>-flash.bin`
-     like uploads; guide section *MicroPython's files*. The owner can check
-     it with Thonny's file upload.
+     like uploads; guide section *MicroPython's files*. The owner checked the
+     preview (2026-11-01): a program uploaded with Thonny ran again after
+     stop/start and after closing and reopening SimNodus.
    - SN-247 leftovers: continuous ADC with GDMA, the temperature sensor.
    - SN-249, GDB for RISC-V; SN-250, Wi-Fi as experiment E-09 (its own plan
      first).
