@@ -112,6 +112,9 @@ private:
 
     const library::ComponentLibrary& base_;
     std::unique_ptr<library::ComponentLibrary> library_;
+    // Libraries replaced while a run used them: the run keeps pointing at its
+    // own until it ends (as the window's Document keeps them).
+    std::vector<std::unique_ptr<library::ComponentLibrary>> retired_;
     model::Schematic schematic_;
     std::filesystem::path file_;
     std::vector<model::Edit> done_;
