@@ -115,6 +115,16 @@ the predeclared gates G8a (core) and G8b (firmware), recorded 2026-10-28
 before any code: [E-08-plan.md](E-08-plan.md). Report: [E-08-results.md](E-08-results.md)
 (gate G8a met on 2026-10-28).
 
+## E-10: AVR emulator, ATmega8 first — SN-255..SN-259
+
+Question: can SimNodus's own emulator run unmodified ATmega8 firmware
+(avr-gcc, Microchip Studio, MPLAB X) in the circuit with its fuses,
+cycle-exact timing and the EEPROM kept, faster than real time, without
+changing the STM32 and ESP32-C3 paths? [Feasibility study](AVR-feasibility.md);
+plan and the predeclared gates G10a (core), G10b (firmware in the circuit)
+and G10c (complete chip), recorded 2026-11-02 before any code:
+[E-10-plan.md](E-10-plan.md).
+
 ## E-06: Classroom rehearsal — SN-028
 
 On a representative Windows PC, reproduce installation without development-machine paths. Open each lesson, build/load firmware, run and debug, save/reopen, and recover from an intentional error. Test offline operation when required. Record setup duration, memory, responsiveness, missing assets, and instructor observations.

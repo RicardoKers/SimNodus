@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-01 (after 0.13.0: SN-248, SN-247, SN-249). Keep this file short: present state, last results, next
+Updated: 2026-11-02 (AVR track planned: E-10; SN-247..SN-249 tested by the owner, unreleased). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -132,6 +132,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
+0. **AVR track** (owner's request of 2026-11-02; release 0.14 and SN-250
+   on hold). [Feasibility study](../experiments/AVR-feasibility.md) merged;
+   plan with gates G10a-G10c: [E-10-plan.md](../experiments/E-10-plan.md),
+   tasks SN-255..SN-262. The ATmega8 first, then the ATmega328/328P and
+   ATmega32/32A, the Arduino UNO with Optiboot, and GDB. Start with SN-255
+   (references, toolchain, simavr oracle, the owner's course projects).
+   Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
+   GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
+   with the 2026-11-02b preview and waits for release 0.14.
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
