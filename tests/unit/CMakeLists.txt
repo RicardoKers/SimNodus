@@ -42,6 +42,16 @@ add_test(NAME emu-riscv-unit COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv:
 add_test(NAME emu-riscv-arch COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-arch: ")
 add_test(NAME emu-riscv-differential COMMAND riscv_tests "${PROJECT_SOURCE_DIR}" "riscv-diff: ")
 
+# AVRe+ core of experiment E-10 (SN-256): directed cases from the instruction
+# set manual and the differential corpus recorded from avr8js
+# (docs/experiments/E-10-plan.md).
+add_executable(avr_tests avr_tests.cpp)
+target_include_directories(avr_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(avr_tests PRIVATE simnodus::emu simnodus::warnings)
+add_test(NAME emu-avr-unit COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr: ")
+add_test(NAME emu-avr-differential COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-diff: ")
+add_test(NAME emu-avr-benchmark COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-bench: ")
+
 # ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
 # MicroPython images from tests/experiments/esp32c3/firmware.
 add_executable(esp32c3_tests esp32c3_tests.cpp)

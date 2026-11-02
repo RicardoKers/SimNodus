@@ -141,7 +141,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    oracle (installed; its H flag deviates from the manual), an owned
    firmware set (I/O, ADC, PWM, serial, timers); the owner has an ATmega8,
    a USBasp, a USB-serial adapter, an oscilloscope and a logic analyzer.
-   Next: SN-256 (the core, gate G10a).
+   SN-256 done (2026-11-02): the AVRe+ core `src/emu/avr_cpu.*`, gate
+   G10a met ([results](../experiments/E-10-results.md)): every ATmega8
+   instruction with its flags and cycles, 0 differences against avr8js on
+   1 500 random blocks, about 120-140 MIPS. Next: SN-257 (the ATmega8
+   machine: GPIO, INT0/1, timers, USART, EEPROM, WDT, fuses, HEX/ELF).
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.
