@@ -144,6 +144,13 @@ sim::Session& HeadlessWorkspace::session()
 
 void HeadlessWorkspace::refresh_library()
 {
+    // An edit during a run (sim.control's new value of a chip or a board)
+    // must not free the library the run reads.
+    if (session_ && session_->active()) {
+        retired_.push_back(std::move(library_));
+    } else {
+        retired_.clear();
+    }
     library_ = std::make_unique<library::ComponentLibrary>(library::with_blocks(base_, schematic_));
 }
 

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-01)
+
+- `simnodus-cli`: `sim.control` with a chip's or board's new value during a run (an LM75's temperature, the ESP32-C3's Chip temperature) could crash the CLI: the project edit replaced the component library that the run still read. The replaced library now stays alive until the run ends, as in the window. Found while checking the preview package (about half the runs of example 49 with a temperature change crashed).
+
 ### Added (2026-11-01, GDB for the ESP32-C3)
 
 - Simulate > Debug Firmware with GDB works with the ESP32-C3 (SN-249): `riscv32-esp-elf-gdb` connects to the board's port, with the RISC-V registers (x0-x31, pc, the machine CSRs), breakpoints, watchpoints, stepping, Ctrl-C, `monitor reset halt` and detach; the circuit stands still while the firmware is halted. The firmware starts halted at the ROM's reset vector; gdb reads the ELF's symbols (no `load`: the flash comes from the board's Firmware or esptool). Checked with `riscv32-esp-elf-gdb` 16.3 on ESP-IDF's blink: a breakpoint at `app_main`, a backtrace through FreeRTOS, `next`, a watchpoint, detach.
