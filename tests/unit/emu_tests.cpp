@@ -1277,6 +1277,7 @@ namespace {
 // microcontroller runner does.
 struct DebugTarget {
     std::unique_ptr<Stm32F103> machine;
+    std::unique_ptr<GdbTarget> target;
     std::unique_ptr<GdbServer> server;
     std::atomic<bool> stop{false};
     std::atomic<std::uint64_t> time_ns{0};
@@ -1288,7 +1289,8 @@ struct DebugTarget {
         if (!machine) {
             return false;
         }
-        server = std::make_unique<GdbServer>(*machine);
+        target = make_gdb_target(*machine);
+        server = std::make_unique<GdbServer>(*target);
         std::string error;
         if (!server->start(0, error)) {
             return false;

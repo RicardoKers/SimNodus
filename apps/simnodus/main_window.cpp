@@ -481,8 +481,9 @@ void MainWindow::build_actions_and_menus()
     io_action_->setVisible(false);
     debug_action_ = simulate->addAction(tr("&Debug Firmware with GDB (port %1)").arg(default_gdb_port));
     debug_action_->setCheckable(true);
-    debug_action_->setStatusTip(tr("The next run waits for STM32CubeIDE or arm-none-eabi-gdb on 127.0.0.1 port %1 "
-                                   "(the next board on %2, ...); the circuit stops while the firmware is halted")
+    debug_action_->setStatusTip(tr("The next run waits for a debugger (STM32CubeIDE, arm-none-eabi-gdb, "
+                                   "riscv32-esp-elf-gdb) on 127.0.0.1 port %1 (the next board on %2, ...); the "
+                                   "circuit stops while the firmware is halted")
                                     .arg(default_gdb_port)
                                     .arg(default_gdb_port + 1));
     // Not remembered between sessions: a forgotten debug mode left every board

@@ -280,7 +280,9 @@ small differences may remain.
   driver, Arduino's `rgbLedWrite` and MicroPython's `neopixel`. Example 48
   runs a light along a strip. Receive channels and the carrier are not
   simulated.
-- **Not yet**: Wi-Fi and Bluetooth; debugging with GDB (the Blue Pill only).
+- **Not yet**: Wi-Fi and Bluetooth.
+- **Debugging** with `riscv32-esp-elf-gdb`: see
+  [Debugging with STM32CubeIDE or GDB](#debugging-with-stm32cubeide-or-gdb).
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.
@@ -387,6 +389,34 @@ Reading a peripheral register in the debugger has the
 same side effects as on the chip (reading `USART_DR` clears RXNE). The GDB
 server listens on 127.0.0.1 only. After `monitor reset`, gdb may keep
 showing the old PC until the next step or continue.
+
+**ESP32-C3** (SN-249): the same menu works with `riscv32-esp-elf-gdb`
+(ESP-IDF installs it with its tools). The board keeps its **Firmware**
+(the `.bin` image, or what esptool uploaded); gdb reads only the
+application's ELF for its symbols, and `load` is not supported. The run
+starts with the firmware halted at the ROM's reset vector (0x40000000), so
+`continue` goes through the ROM and the bootloader into the application:
+
+```text
+riscv32-esp-elf-gdb build/app.elf
+(gdb) target remote :3333
+(gdb) break app_main
+(gdb) continue
+(gdb) bt
+(gdb) next
+(gdb) watch s_led_state
+(gdb) detach
+```
+
+Registers: x0-x31 (by their ABI names: ra, sp, a0, ...), pc and the
+machine CSRs mstatus, misa, mie, mtvec, mscratch, mepc, mcause, mtval and
+mip. Breakpoints, watchpoints, stepping, Ctrl-C, `monitor reset halt` and
+detach work as on the Blue Pill; with a debugger attached, an `ebreak` in
+the firmware halts it instead of raising an exception. Tested with
+`riscv32-esp-elf-gdb` 16.3 from ESP-IDF v5.5.2 on ESP-IDF's blink example
+(breakpoints, a backtrace through FreeRTOS, `next`, a watchpoint, detach).
+IDEs that start OpenOCD themselves (Espressif-IDE, the ESP-IDF extension of
+VS Code) have not been tried.
 
 ## Building firmware
 

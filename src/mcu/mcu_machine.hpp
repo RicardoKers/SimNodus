@@ -20,6 +20,7 @@
 #include <vector>
 
 namespace simnodus::emu {
+class GdbTarget;
 class Stm32F103;
 }
 
@@ -98,8 +99,8 @@ public:
     virtual bool flash_downloaded() const { return false; }
     virtual std::vector<std::uint8_t> flash() const { return {}; }
 
-    // The STM32F103 for the GDB server (SN-180); nullptr on other chips.
-    virtual emu::Stm32F103* stm32() { return nullptr; }
+    // The chip for the GDB server (SN-180, SN-249); nullptr if it has none.
+    virtual emu::GdbTarget* gdb_target() { return nullptr; }
 };
 
 // The machine for options.chip ("stm32f103" or "esp32c3"); nullptr with
