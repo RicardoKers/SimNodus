@@ -11,7 +11,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
 #include <iterator>
+#include <sstream>
 
 namespace simnodus::mcu {
 
@@ -265,7 +267,11 @@ public:
                     "not an ELF file.";
             return false;
         }
-        if (!machine_.load_flash(0, bytes, error)) {
+        std::vector<std::uint8_t> flash = bytes;
+        if (application_image(bytes) && !assemble_from_flash_args(options.firmware, flash, error)) {
+            return false;
+        }
+        if (!machine_.load_flash(0, flash, error)) {
             return false;
         }
         // UART RX from the pin (SN-254): GPIO20 on a net with a device has
@@ -418,6 +424,66 @@ public:
     }
 
 private:
+    // An ESP-IDF or Arduino application image (build/app.bin, the .ino.bin):
+    // its first segment loads into the flash's address windows, where a
+    // bootloader's never does. It belongs at 0x10000, after the bootloader.
+    static bool application_image(const std::vector<std::uint8_t>& bytes)
+    {
+        if (bytes.size() < 32 || bytes[0] != 0xE9) {
+            return false;
+        }
+        const std::uint32_t load = bytes[24] | (bytes[25] << 8) | (bytes[26] << 16) | (std::uint32_t{bytes[27]} << 24);
+        return (load >= 0x3C000000u && load < 0x3C800000u) || (load >= 0x42000000u && load < 0x42800000u);
+    }
+    // The flash as `esptool write-flash @flash_args` writes it: the build's
+    // flash_args beside the application (ESP-IDF's build folder, Arduino's
+    // exported binaries) lists each file and its address.
+    static bool assemble_from_flash_args(const std::filesystem::path& application, std::vector<std::uint8_t>& flash,
+        std::string& error)
+    {
+        const auto folder = application.parent_path();
+        std::ifstream list(folder / "flash_args");
+        const std::string name = application.filename().string();
+        const std::string advice = name + " is an application image, which belongs at address 0x10000 after the "
+                                          "bootloader and the partition table. Choose the merged image (idf.py merge-bin, "
+                                          "or the Arduino IDE's .merged.bin), or keep the build's flash_args file beside "
+                                          "it so SimNodus can place each part.";
+        if (!list) {
+            error = advice;
+            return false;
+        }
+        std::vector<std::uint8_t> assembled;
+        bool has_application = false;
+        for (std::string line; std::getline(list, line);) {
+            std::istringstream words(line);
+            std::string offset_text;
+            std::string file;
+            if (!(words >> offset_text >> file) || offset_text.rfind("--", 0) == 0) {
+                continue; // the flash options line
+            }
+            const std::size_t offset = std::strtoul(offset_text.c_str(), nullptr, 0);
+            const auto path = folder / std::filesystem::path(std::u8string(file.begin(), file.end()));
+            std::error_code ec;
+            has_application = has_application || std::filesystem::equivalent(path, application, ec);
+            std::ifstream part(path, std::ios::binary);
+            if (!part) {
+                error = "flash_args beside " + name + " names " + file + ", which cannot be opened.";
+                return false;
+            }
+            const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(part)), std::istreambuf_iterator<char>());
+            if (assembled.size() < offset + bytes.size()) {
+                assembled.resize(offset + bytes.size(), 0xFF); // erased flash between the parts
+            }
+            std::copy(bytes.begin(), bytes.end(), assembled.begin() + static_cast<std::ptrdiff_t>(offset));
+        }
+        if (!has_application) {
+            error = advice + " (The flash_args there does not name " + name + ".)";
+            return false;
+        }
+        flash = std::move(assembled);
+        return true;
+    }
+
     // A device timed in "cycles" (here nanoseconds) as the machine's timed event.
     struct TimedAdapter : emu::Esp32C3::Timed {
         explicit TimedAdapter(emu::TimedDevice* d) : device(d) {}
