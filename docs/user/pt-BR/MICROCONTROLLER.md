@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 f347916db61b9b652af44fbc1dc96341f8a7ac0ce38d05f0f06c836b67390085 -->
+<!-- source: MICROCONTROLLER.md sha256 56fbe33c1131f171f713ebe90a65e6f067d580820e8527dfd55bc3c9c09b73a4 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -239,7 +239,12 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
 - **Firmware**: uma imagem da flash (`.bin`) gravada a partir do endereço 0,
   como o `esptool write-flash 0x0` grava: a saída do `idf.py merge-bin` do
   ESP-IDF, o `.merged.bin` da IDE do Arduino (Sketch > Export Compiled Binary)
-  ou o `.bin` do firmware `ESP32_GENERIC_C3` do MicroPython. Arquivos ELF não
+  ou o `.bin` do firmware `ESP32_GENERIC_C3` do MicroPython. Uma imagem de
+  aplicação também funciona (o `build/app.bin` do ESP-IDF ou do
+  Espressif-IDE, o `.ino.bin` da IDE do Arduino) quando o arquivo
+  `flash_args` da compilação está ao lado dela, como a compilação o deixa: o
+  SimNodus coloca o bootloader, a tabela de partições e a aplicação nos seus
+  endereços, como o `esptool write-flash @flash_args` faz. Arquivos ELF não
   são aceitos. O exemplo 45 pisca um LED no GPIO8 com o exemplo blink do
   ESP-IDF.
 - **ROM**: a ROM do chip é reconstruída no início a partir do arquivo de ROM

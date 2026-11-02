@@ -228,7 +228,12 @@ small differences may remain.
 - **Firmware**: a flash image (`.bin`) written from address 0, the way
   `esptool write-flash 0x0` writes it: ESP-IDF's `idf.py merge-bin` output,
   the Arduino IDE's `.merged.bin` (Sketch > Export Compiled Binary), or
-  MicroPython's `ESP32_GENERIC_C3` firmware `.bin`. ELF files are not accepted.
+  MicroPython's `ESP32_GENERIC_C3` firmware `.bin`. An application image
+  also works (ESP-IDF's or Espressif-IDE's `build/app.bin`, the Arduino
+  IDE's `.ino.bin`) when the build's `flash_args` file is beside it, as the
+  build leaves it: SimNodus places the bootloader, the partition table and
+  the application at their addresses, as `esptool write-flash @flash_args`
+  does. ELF files are not accepted.
   Example 45 blinks an LED on GPIO8 with ESP-IDF's blink example.
 - **ROM**: the chip's ROM is rebuilt at start from Espressif's ROM file,
   which comes with SimNodus (`roms/esp32c3_rev3_rom.elf`, Apache-2.0).

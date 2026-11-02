@@ -12,6 +12,7 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Fixed (2026-11-01)
 
+- The ESP32-C3's **Firmware** may be an application image (ESP-IDF's or Espressif-IDE's `build/app.bin`, the Arduino IDE's `.ino.bin`) when the build's `flash_args` is beside it: SimNodus places the bootloader, the partition table and the application as `esptool write-flash @flash_args` does. Without `flash_args` a message says to choose the merged image; before, the ROM faulted loading the application as a bootloader ("Exception 7 ... in ets_run_flash_bootloader", the owner's test of 2026-11-02 with an Espressif-IDE build).
 - `simnodus-cli`: `sim.control` with a chip's or board's new value during a run (an LM75's temperature, the ESP32-C3's Chip temperature) could crash the CLI: the project edit replaced the component library that the run still read. The replaced library now stays alive until the run ends, as in the window. Found while checking the preview package (about half the runs of example 49 with a temperature change crashed).
 
 ### Added (2026-11-01, GDB for the ESP32-C3)

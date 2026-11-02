@@ -3638,8 +3638,8 @@ Pinos: %2</translation>
             <translation>Placa ESP32-C3 executando o seu firmware (imagem da flash, .bin: ESP-IDF, Arduino ou MicroPython) no emulador do SimNodus; experimental até ser comparada com uma placa real</translation>
         </message>
         <message>
-            <source>Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin); stored relative to the project</source>
-            <translation>Imagem da flash para o ESP32-C3, gravada a partir do endereço 0 (um .bin unificado do ESP-IDF ou do Arduino, ou o .bin do firmware do MicroPython); guardado em relação ao projeto</translation>
+            <source>Flash image for the ESP32-C3, written from address 0 (a merged .bin of ESP-IDF or Arduino, or MicroPython's firmware .bin), or an application .bin with its build's flash_args beside it; stored relative to the project</source>
+            <translation>Imagem da flash para o ESP32-C3, gravada a partir do endereço 0 (um .bin unificado do ESP-IDF ou do Arduino, ou o .bin do firmware do MicroPython), ou um .bin de aplicação com o flash_args da compilação ao lado; guardado em relação ao projeto</translation>
         </message>
         <message>
             <source>UART0 to the computer</source>

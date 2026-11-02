@@ -25,6 +25,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <set>
@@ -2581,6 +2582,55 @@ TEST_CASE("host link: TCP with RFC 2217 carries bytes, 0xFF and DTR/RTS")
     while (link->lines().dtr && std::chrono::steady_clock::now() < end) {
     }
     CHECK(link->lines() == HostLines{});
+}
+
+TEST_CASE("ESP32-C3 board: an application image is placed with its build's flash_args")
+{
+    // Espressif-IDE and idf.py leave build/app.bin (for 0x10000) with the
+    // bootloader, the partition table and flash_args; the owner chose app.bin
+    // (2026-11-02) and the ROM faulted loading it as a bootloader. Here the
+    // parts are cut out of example 45's merged image.
+    const auto merged_path = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/esp32c3_blink/blink.bin";
+    std::ifstream merged_file(merged_path, std::ios::binary);
+    const std::vector<char> merged((std::istreambuf_iterator<char>(merged_file)), std::istreambuf_iterator<char>());
+    REQUIRE(merged.size() > 0x10000);
+    const auto folder = std::filesystem::temp_directory_path() / "simnodus-flash-args-test";
+    std::filesystem::remove_all(folder);
+    std::filesystem::create_directories(folder / "bootloader");
+    auto write = [&](const std::filesystem::path& path, std::size_t from, std::size_t to) {
+        std::ofstream out(folder / path, std::ios::binary);
+        out.write(merged.data() + from, static_cast<std::streamsize>(to - from));
+    };
+    write("bootloader/bootloader.bin", 0, 0x8000);
+    write("partition-table.bin", 0x8000, 0x9000);
+    write("app.bin", 0x10000, merged.size());
+    mcu::McuRunOptions options;
+    options.chip = "esp32c3";
+    options.rom = mcu::find_esp32c3_rom({});
+    options.firmware = folder / "app.bin";
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    REQUIRE(machine);
+    // Without flash_args: a message that says what to choose.
+    CHECK(!machine->load(options, error));
+    CHECK(error.find("app.bin is an application image") != std::string::npos);
+    CHECK(error.find("merge-bin") != std::string::npos);
+    // With it (ESP-IDF's order, not sorted by address): the board boots.
+    {
+        std::ofstream args(folder / "flash_args");
+        args << "--flash_mode dio --flash_freq 80m --flash_size 2MB\n0x0 bootloader/bootloader.bin\n"
+                "0x10000 app.bin\n0x8000 partition-table.bin\n";
+    }
+    machine = mcu::make_machine(options, error);
+    REQUIRE(machine && machine->load(options, error));
+    machine->run_until_ns(400'000'000);
+    std::string out;
+    for (const auto& b : machine->take_uart_bytes()) {
+        out += b.uart == 0 ? std::string(1, static_cast<char>(b.value)) : std::string();
+    }
+    CHECK(out.find("Turning the LED") != std::string::npos);
+    machine.reset();
+    std::filesystem::remove_all(folder);
 }
 
 TEST_CASE("ESP32-C3 board: DTR and RTS reset it into download mode as esptool does")
