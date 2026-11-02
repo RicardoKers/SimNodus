@@ -144,8 +144,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    SN-256 done (2026-11-02): the AVRe+ core `src/emu/avr_cpu.*`, gate
    G10a met ([results](../experiments/E-10-results.md)): every ATmega8
    instruction with its flags and cycles, 0 differences against avr8js on
-   1 500 random blocks, about 120-140 MIPS. Next: SN-257 (the ATmega8
-   machine: GPIO, INT0/1, timers, USART, EEPROM, WDT, fuses, HEX/ELF).
+   1 500 random blocks, about 120-140 MIPS. SN-257 done (2026-11-02): the
+   ATmega8 machine `src/emu/atmega.*` (ports, INT0/1, the three timers,
+   USART, EEPROM, watchdog, resets, SPM, fuses with the clock and start-up
+   time, HEX/ELF), the owned firmware `examples/firmware/avr_*` and
+   `simnodus-emu --avr atmega8`. Next: SN-258 (the ATmega8-PU and
+   ATmega8A-PU parts in the circuit, the Crystal part, the Fuses dialog, the
+   EEPROM kept in the project).
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.

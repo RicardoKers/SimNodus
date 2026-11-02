@@ -1,7 +1,10 @@
 # E-10: AVR emulator, ATmega8 first — results
 
 Date: 2026-11-02. Tasks: SN-255 (prerequisites, recorded in the plan), SN-256
-(core). Result so far: **gate G10a met**. Gates G10b and G10c have not run.
+(core), SN-257 (the ATmega8 machine). Result so far: **gate G10a met**; the
+machine passes its tests from the command line, and gate G10b is judged after
+the integration in the circuit (SN-258) and the board comparison (G10b.9).
+Gate G10c has not run.
 Plan and predeclared criteria: [E-10-plan.md](E-10-plan.md); they are not
 repeated here.
 
@@ -82,7 +85,95 @@ its own chip:
 
 Reporting these to avr8js is the owner's decision.
 
+## The ATmega8 machine (SN-257)
+
+`src/emu/atmega.*` puts the core in a machine built from the ATmega8A
+datasheet: the ports, INT0/INT1, the three timers, the USART, the EEPROM, the
+watchdog, the resets, self-programming and the fuses. Time is counted in CPU
+cycles at the clock the fuses select. Every peripheral with events at known
+cycles stops the core at its next one, so the effects come at the exact
+cycle:
+- a timer at its next compare match, TOP, BOTTOM or overflow;
+- the USART at each bit;
+- the EEPROM at the end of a write;
+- the watchdog at its time-out.
+
+What it covers:
+- **Timers.** They count in jumps between events, not tick by tick. Each
+  event happens at the tick that leaves its counter value, as in the
+  datasheet's timing diagrams. Covered:
+  - Timer1's sixteen modes (one reserved), with the double-buffered OCR1x,
+    the 16-bit TEMP register, input capture and its noise canceler's four
+    cycles;
+  - Timer2's four modes, and Timer0's overflow;
+  - the compare outputs' actions in each mode (FOC included);
+  - the external clocks T0 and T1;
+  - the shared prescaler and its reset (PSR10, PSR2).
+- **USART.**
+  - TXD sends frames bit by bit (5 to 9 data bits, parity, one or two stop
+    bits, U2X).
+  - RXD is decoded from the pin, sampled in the middle of each bit, with
+    frame, parity and overrun errors and the two-byte FIFO.
+  - Bytes from the computer arrive one frame time apart.
+  - UBRRH and UCSRC share their address: URSEL on write, and two reads in a
+    row return UBRRH, then UCSRC.
+- **EEPROM.** The EEMWE window of four cycles, 8.448 ms per write (the
+  datasheet's 8448 cycles of the 1 MHz oscillator), and the CPU halted for 2
+  cycles on a write and 4 on a read.
+- **Watchdog.** 16K to 2048K cycles of its 1 MHz oscillator, the WDCE
+  sequence, and WDTON.
+- **Fuses.**
+  - The clock source (internal RC at 1, 2, 4 or 8 MHz; a crystal, an
+    external clock or an RC from a part parameter).
+  - The start-up time from CKSEL and SUT before the first instruction.
+  - BOOTSZ and BOOTRST, RSTDISBL (PC6 as I/O), EESAVE on a chip erase,
+    and WDTON.
+  - With a crystal or an external clock selected and nothing connected, the
+    chip does not start and says why.
+  - CKOPT: a note when a crystal above 8 MHz runs without it.
+- **Self-programming.** SPM from the boot section (the page buffer, erase
+  and write in 4.1 ms, the boot lock bits), and LPM of the fuse and lock
+  bytes after BLBSET.
+- **Firmware.** Intel HEX (checksums verified) and avr-gcc ELF, with the
+  `.eeprom`, `.fuse` and `.lock` sections applied as a production
+  programmer writes them.
+
+**Not yet:**
+- Simulated in SN-259, and noted in the log once if the firmware uses them:
+  the ADC, the analog comparator, SPI, TWI, sleep modes other than Idle,
+  Timer2's asynchronous mode, brown-out, and OSCCAL.
+- Not modelled at all: the input synchronizer's 1.5-cycle delay on PINx,
+  and the alignment of a transmitted frame to the baud generator (up to one
+  bit).
+
+**Owned firmware** (`examples/firmware/avr_*`, built with avr-gcc 7.3.0
+by `tools/build_avr_firmware.py`, reproducible byte for byte):
+
+| Firmware | What it does |
+|---|---|
+| `avr_blink` | Blinks the LED on PB0, in a 1 MHz build and a 16 MHz build |
+| `avr_button` | INT0 with a debounce from a Timer1 CTC tick |
+| `avr_pwm` | Timer1 fast PWM, Timer2 phase-correct PWM, Timer0's overflow |
+| `avr_serial` | The USART with an echo, and a counter kept in the EEPROM |
+
+`emu-atmega8` (ctest, 6 cases) runs them and checks:
+
+| Criterion | What `emu-atmega8` checks |
+|---|---|
+| G10b.1 | The blink at both clocks: the 1 MHz period repeats exactly, and both periods are `_delay_ms`'s cycles plus the loop's few. The first edge comes after the start-up times (6 CK + 65 ms; 16K CK + 4.1 ms) |
+| G10b.2 | The PWM periods and duties exact in cycles: 2000 and 500/1500 for Timer1, 4080 and 1024 for Timer2. Timer0's overflow every 16 384 cycles |
+| G10b.3 | The greeting byte for byte, bits of 104 cycles on TXD, the echo through the RX interrupt, and a frame decoded from RXD |
+| G10b.4 | INT0 on the falling edge, with a bounce ignored |
+| G10b.5 | The EEPROM over a reset, and erased or kept by EESAVE on a chip erase |
+| G10b.6 | The factory fuses at 1 MHz, a crystal with none connected, WDTON, RSTDISBL, the fuses taken from the ELF, and the fuse bytes read with LPM |
+| G10b.7 | The power-on, RESET-pin and watchdog resets (PORF, EXTRF, WDRF) |
+
+The criteria that need the circuit, the project or the owner's chip are open:
+G10b.3's Serial Port part, G10b.5's project, G10b.8 and G10b.9. So is the
+speed with the machine (G10b.11). From the command line, `simnodus-emu --avr`
+ran `avr_blink` for 10 s of simulated time in 0.071 s (112 MIPS).
+
 ## Not covered yet
 
-The ATmega8 machine, its peripherals, fuses and integration (SN-257,
-SN-258; gate G10b) and the complete chip (SN-259; gate G10c).
+Integration in the circuit and the GUI (SN-258), the complete chip (SN-259;
+gate G10c).

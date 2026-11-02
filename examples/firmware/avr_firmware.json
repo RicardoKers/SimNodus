@@ -1,0 +1,58 @@
+{
+  "compiler": "avr-gcc.exe (GCC) 7.3.0",
+  "flags": [
+    "-mmcu=atmega8",
+    "-std=c11",
+    "-Os",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections",
+    "-fdebug-prefix-map={root}=."
+  ],
+  "firmware": {
+    "avr_blink": {
+      "source": "examples/firmware/avr_blink/avr_blink.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_blink/avr_blink.elf",
+      "elf_sha256": "4d8ec1e819b2d367124d471ff8d6ea3d00c624256939f0a383d02753a3242548",
+      "hex": "examples/firmware/avr_blink/avr_blink.hex",
+      "hex_sha256": "cbe3483fc6b8938cc77c8270bf2bf7aee11e1395aedc78d8588b4f98338ac222"
+    },
+    "avr_blink_16mhz": {
+      "source": "examples/firmware/avr_blink/avr_blink.c",
+      "f_cpu": 16000000,
+      "elf": "examples/firmware/avr_blink/avr_blink_16mhz.elf",
+      "elf_sha256": "2b940eb5eb826b093e1294618451adb635c7ec973f7ffab6156f60ab8586a7f2",
+      "hex": "examples/firmware/avr_blink/avr_blink_16mhz.hex",
+      "hex_sha256": "25644c6905d99db119526b9dd6db6e0bca630059a186d254e97c85fdb86f0ad9"
+    },
+    "avr_button": {
+      "source": "examples/firmware/avr_button/avr_button.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_button/avr_button.elf",
+      "elf_sha256": "f25bc113058a7cbed368f37f3ccaf08f3a3bc07c0f57b3c1f69d40f7aee05d97",
+      "hex": "examples/firmware/avr_button/avr_button.hex",
+      "hex_sha256": "2015bd8fba70eb55f3625be37162d32ac5448549d2d3a0b94e2a9bcbbbafcb72"
+    },
+    "avr_pwm": {
+      "source": "examples/firmware/avr_pwm/avr_pwm.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_pwm/avr_pwm.elf",
+      "elf_sha256": "7979d8263a301d896227ded97e69db4de166cb9617aaf73e5eb9189fbdda4e0a",
+      "hex": "examples/firmware/avr_pwm/avr_pwm.hex",
+      "hex_sha256": "b9154a7f2b51a3ae2f2b4dd2426dfb5f211581761998c9265f785bef4589a2e7"
+    },
+    "avr_serial": {
+      "source": "examples/firmware/avr_serial/avr_serial.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_serial/avr_serial.elf",
+      "elf_sha256": "35050647ab16814e6766de73775213384e76c9c75a5ef34779c60837ed5a40e2",
+      "hex": "examples/firmware/avr_serial/avr_serial.hex",
+      "hex_sha256": "b50d7060ac9dd972b013d4574427cd5812a72f6d8aa601f919fe85dd60e1da2b"
+    }
+  }
+}

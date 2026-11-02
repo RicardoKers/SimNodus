@@ -10,7 +10,9 @@
 //   avr_tests <repository-dir> [filter]
 #include "test_support.hpp"
 
+#include "emu/atmega.hpp"
 #include "emu/avr_cpu.hpp"
+#include "emu/elf.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -19,6 +21,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <random>
 #include <string>
 #include <vector>
@@ -702,6 +705,303 @@ TEST_CASE("avr-diff: differential corpus against avr8js")
         }
     }
     std::printf("  operations below 1000 hits:%s\n", low.empty() ? " none" : low.c_str());
+}
+
+// ---------------------------------------------------------------------------
+// The ATmega8 machine (SN-257, gate G10b): the owned firmware set in
+// examples/firmware/avr_*, and small programs for what it does not cover.
+
+namespace {
+
+constexpr int pb0 = 0, pb1 = 1, pb2 = 2, pb3 = 3, pc6 = 14, pd0 = 16, pd1 = 17, pd2 = 18, pd7 = 23;
+
+std::unique_ptr<Atmega> machine_with(const std::string& name, Atmega::Options options = {})
+{
+    auto m = std::make_unique<Atmega>(options);
+    std::string error;
+    const std::string folder = name.substr(0, name.rfind("_16mhz") == std::string::npos ? name.size() : name.rfind("_16mhz"));
+    const auto image = read_elf(repository / "examples" / "firmware" / folder / (name + ".elf"), error, ElfMachine::Avr);
+    if (!image || !m->load_elf(*image, error)) {
+        simnodus::test::fail(__FILE__, __LINE__, error);
+        return nullptr;
+    }
+    m->reset();
+    return m;
+}
+
+std::unique_ptr<Atmega> machine_with_words(const std::vector<std::uint16_t>& words, Atmega::Options options = {})
+{
+    auto m = std::make_unique<Atmega>(options);
+    std::vector<std::uint8_t> bytes;
+    for (const std::uint16_t w : words) {
+        bytes.push_back(static_cast<std::uint8_t>(w));
+        bytes.push_back(static_cast<std::uint8_t>(w >> 8));
+    }
+    std::string error;
+    m->load_flash(bytes, error);
+    m->reset();
+    return m;
+}
+
+// Times (ns) at which `pin` changes its driven level.
+std::vector<std::uint64_t> edges(const std::vector<Atmega::PinEvent>& events, int pin)
+{
+    std::vector<std::uint64_t> times;
+    bool have = false;
+    bool level = false;
+    for (const auto& e : events) {
+        if (e.pin != pin || !e.state.output) {
+            continue;
+        }
+        if (have && e.state.level != level) {
+            times.push_back(e.time_ns);
+        }
+        have = true;
+        level = e.state.level;
+    }
+    return times;
+}
+
+std::string uart_text(Atmega& m)
+{
+    std::string text;
+    for (const auto& b : m.take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    return text;
+}
+
+} // namespace
+
+TEST_CASE("atmega8: blink with _delay_ms at the factory 1 MHz and with a 16 MHz crystal")
+{
+    auto m = machine_with("avr_blink");
+    REQUIRE(m);
+    CHECK(m->clock_hz() == 1'000'000);
+    m->run_until_ns(3'000'000'000);
+    const auto t = edges(m->take_pin_events(), pb0);
+    REQUIRE(t.size() >= 5);
+    // The factory fuses (SUT 10) give 6 clocks and 65 ms before the first
+    // instruction; the first toggle comes right after.
+    CHECK(t[0] > 65'000'000 && t[0] < 65'200'000);
+    // _delay_ms(500) is 500 000 cycles; the loop adds the same few each time.
+    const std::uint64_t period = t[2] - t[1];
+    CHECK(period >= 500'000'000 && period < 500'010'000);
+    for (std::size_t i = 2; i < t.size(); ++i) {
+        CHECK(t[i] - t[i - 1] == period);
+    }
+
+    // The 16 MHz build carries its fuses (crystal, CKOPT) in the ELF.
+    Atmega::Options crystal;
+    crystal.external_hz = 16'000'000;
+    auto fast = machine_with("avr_blink_16mhz", crystal);
+    REQUIRE(fast);
+    CHECK(fast->fuse_low() == 0xEF);
+    CHECK(fast->fuse_high() == 0xC9);
+    CHECK(fast->clock_hz() == 16'000'000);
+    fast->run_until_ns(2'000'000'000);
+    const auto f = edges(fast->take_pin_events(), pb0);
+    REQUIRE(f.size() >= 3);
+    const std::uint64_t fast_period = f[2] - f[1];
+    CHECK(fast_period >= 500'000'000 && fast_period < 500'001'000); // 8 000 000 cycles and the loop's few
+    // 16K clocks and 4.1 ms of start-up (CKSEL 1111, SUT 10).
+    CHECK(f[0] > 5'100'000 && f[0] < 5'200'000);
+
+    // The same fuses without a crystal on XTAL1/XTAL2: the chip does not start.
+    auto none = machine_with("avr_blink_16mhz");
+    REQUIRE(none);
+    CHECK(!none->running());
+    none->run_until_ns(1'000'000'000);
+    CHECK(edges(none->take_pin_events(), pb0).empty());
+    CHECK(none->time_ns() == 1'000'000'000);
+    const auto notes = none->take_diagnostics();
+    REQUIRE(!notes.empty());
+    CHECK(notes[0].find("does not start") != std::string::npos);
+}
+
+TEST_CASE("atmega8: Timer1 fast PWM, Timer2 phase-correct PWM and Timer0 overflow, exact in cycles")
+{
+    auto m = machine_with("avr_pwm");
+    REQUIRE(m);
+    m->run_until_ns(400'000'000);
+    const auto events = m->take_pin_events();
+    // Timer1 mode 14, ICR1 = 1999: 2000 cycles (2 ms) a period; OC1A high
+    // for OCR1A + 1 = 500 cycles; OC1B inverting, high for 1999 - 1499 = 500.
+    for (const int pin : {pb1, pb2}) {
+        const auto t = edges(events, pin);
+        REQUIRE(t.size() > 20);
+        for (std::size_t i = 4; i + 2 < t.size(); i += 2) {
+            CHECK(t[i + 2] - t[i] == 2'000'000);
+        }
+        // The two parts of a period: 500 cycles high, 1500 low.
+        const std::uint64_t a = t[5] - t[4];
+        const std::uint64_t b = t[6] - t[5];
+        CHECK((a == 500'000 && b == 1'500'000) || (a == 1'500'000 && b == 500'000));
+    }
+    // Timer2 phase correct, prescaler 8: 8 * 510 = 4080 cycles a period,
+    // high for 8 * 2 * 64 = 1024.
+    const auto t2 = edges(events, pb3);
+    REQUIRE(t2.size() > 20);
+    for (std::size_t i = 4; i + 2 < t2.size(); i += 2) {
+        CHECK(t2[i + 2] - t2[i] == 4'080'000);
+    }
+    const std::uint64_t a = t2[5] - t2[4];
+    CHECK(a == 1'024'000 || a == 4'080'000 - 1'024'000);
+    // Timer0 overflow every 64 * 256 = 16 384 cycles; the interrupt's
+    // latency is the same each time.
+    const auto t0 = edges(events, pd7);
+    REQUIRE(t0.size() > 10);
+    for (std::size_t i = 2; i < t0.size(); ++i) {
+        CHECK(t0[i] - t0[i - 1] == 16'384'000);
+    }
+}
+
+TEST_CASE("atmega8: USART at 9600 baud: bits on TXD, echo, EEPROM kept over a reset")
+{
+    auto m = machine_with("avr_serial");
+    REQUIRE(m);
+    m->run_until_ns(200'000'000);
+    CHECK(uart_text(*m) == "ATmega8 ready\r\n> ");
+    // Each bit lasts 8 * (12 + 1) = 104 cycles with U2X (9615 baud).
+    const auto t = edges(m->take_pin_events(), pd1);
+    REQUIRE(t.size() > 10);
+    for (std::size_t i = 1; i < t.size(); ++i) {
+        const std::uint64_t d = t[i] - t[i - 1];
+        if (d < 2'000'000) { // inside a frame
+            CHECK(d % 104'000 == 0);
+        }
+    }
+    for (const char c : std::string("ab?")) {
+        m->uart_receive(static_cast<std::uint8_t>(c));
+    }
+    m->run_until_ns(400'000'000);
+    CHECK(uart_text(*m) == "ab\r\nbytes: 3\r\n> ");
+    // The counter lives in the EEPROM: it continues after a reset.
+    CHECK(m->eeprom_writes() > 0);
+    m->reset(Atmega::ResetKind::External);
+    m->run_until_ns(m->time_ns() + 200'000'000);
+    CHECK(uart_text(*m) == "ATmega8 ready\r\n> ");
+    m->uart_receive('?');
+    m->run_until_ns(m->time_ns() + 100'000'000);
+    CHECK(uart_text(*m) == "\r\nbytes: 4\r\n> ");
+    CHECK((m->reset_flags() & 0x02) != 0); // EXTRF
+
+    // Frames on RXD from the circuit, bit by bit.
+    auto p = machine_with("avr_serial");
+    REQUIRE(p);
+    p->run_until_ns(200'000'000);
+    uart_text(*p);
+    p->set_pin_input(pd0, true); // the other side holds the line high while idle
+    std::uint64_t at = p->time_ns() + 1'000'000;
+    auto drive = [&](bool level) {
+        p->run_until_ns(at);
+        p->set_pin_input(pd0, level);
+        at += 104'000; // one bit at 1 MHz
+    };
+    const std::uint8_t byte = 'Z';
+    drive(false); // start bit
+    for (int b = 0; b < 8; ++b) {
+        drive(((byte >> b) & 1) != 0);
+    }
+    drive(true); // stop bit
+    p->run_until_ns(at + 20'000'000);
+    CHECK(uart_text(*p) == "Z");
+}
+
+TEST_CASE("atmega8: INT0 on a falling edge with a debounce from a Timer1 CTC tick")
+{
+    auto m = machine_with("avr_button");
+    REQUIRE(m);
+    m->run_until_ns(100'000'000);
+    m->take_pin_events();
+    auto led = [&] { return m->pin(pb0).level; };
+    const bool before = led();
+    m->set_pin_input(pd2, false); // pressed
+    m->run_until_ns(101'000'000);
+    CHECK(led() != before);
+    m->set_pin_input(pd2, true); // a bounce 2 ms later: ignored
+    m->run_until_ns(103'000'000);
+    m->set_pin_input(pd2, false);
+    m->run_until_ns(104'000'000);
+    CHECK(led() != before);
+    m->set_pin_input(pd2, true);
+    m->run_until_ns(200'000'000);
+    m->set_pin_input(pd2, false); // a second press, 96 ms later
+    m->run_until_ns(201'000'000);
+    CHECK(led() == before);
+    // Two presses: PD4..PD7 show 2.
+    CHECK(!m->pin(20).level && m->pin(21).level && !m->pin(22).level && !m->pin(pd7).level);
+}
+
+TEST_CASE("atmega8: watchdog reset, WDTON, RSTDISBL, the RESET pin and reading the fuses")
+{
+    // LDI r16, WDE; OUT WDTCR, r16; RJMP .-1: a reset after 16K cycles of the
+    // 1 MHz watchdog oscillator (16.4 ms).
+    auto w = machine_with_words({LDI(16, 0x08), OUT(0x21, 16), RJMP(-1)});
+    w->run_until_ns(100'000'000);
+    CHECK((w->reset_flags() & 0x08) != 0); // WDRF
+    // WDTON programmed: the watchdog runs without the firmware.
+    Atmega::Options wdton;
+    wdton.fuse_high = 0xD9 & ~0x40;
+    auto v = machine_with_words({RJMP(-1)}, wdton);
+    v->run_until_ns(100'000'000);
+    CHECK((v->reset_flags() & 0x08) != 0);
+    // Without WDTON nothing resets it.
+    auto quiet = machine_with_words({RJMP(-1)});
+    quiet->run_until_ns(100'000'000);
+    CHECK(quiet->reset_flags() == 0x01); // PORF only
+
+    // PC6: RESET by default (the pin resets the chip), an I/O pin with RSTDISBL.
+    auto r = machine_with_words({RJMP(-1)});
+    r->run_until_ns(80'000'000);
+    r->set_pin_input(pc6, false);
+    r->run_until_ns(81'000'000);
+    r->set_pin_input(pc6, true);
+    r->run_until_ns(200'000'000);
+    CHECK((r->reset_flags() & 0x02) != 0); // EXTRF
+    Atmega::Options io;
+    io.fuse_high = 0xD9 & ~0x80;
+    // SBI DDRC, 6; SBI PORTC, 6; RJMP .-1
+    auto o = machine_with_words({SBI(0x14, 6), SBI(0x15, 6), RJMP(-1)}, io);
+    o->run_until_ns(80'000'000);
+    CHECK(o->pin(pc6).output);
+    CHECK(o->pin(pc6).level);
+
+    // The fuse and lock bytes through LPM after BLBSET and SPMEN.
+    // LDI r30,0; LDI r31,0; LDI r16,0x09; OUT SPMCR,r16; LPM; STS 0x100,r0;
+    // LDI r30,3; OUT SPMCR,r16; LPM; STS 0x101,r0; RJMP .-1
+    auto f = machine_with_words({LDI(30, 0), LDI(31, 0), LDI(16, 0x09), OUT(0x37, 16), LPM, STS(0), 0x0100, LDI(30, 3),
+        OUT(0x37, 16), LPM, STS(0), 0x0101, RJMP(-1)});
+    f->run_until_ns(80'000'000);
+    CHECK(f->cpu().peek(0x100) == 0xE1);
+    CHECK(f->cpu().peek(0x101) == 0xD9);
+}
+
+TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM with EESAVE")
+{
+    Atmega m;
+    std::string error;
+    std::ifstream in(repository / "examples" / "firmware" / "avr_blink" / "avr_blink.hex");
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    REQUIRE(!text.empty());
+    REQUIRE(m.load_hex(text, error));
+    m.reset();
+    m.run_until_ns(1'200'000'000);
+    CHECK(edges(m.take_pin_events(), pb0).size() >= 2);
+    CHECK(!m.load_hex(":10000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01\n", error)); // a wrong checksum (00 is right)
+    CHECK(error.find("checksum") != std::string::npos);
+    CHECK(!m.load_hex("", error)); // a file with no data is not a firmware
+    CHECK(error.find("no data") != std::string::npos);
+
+    m.set_eeprom({1, 2, 3});
+    m.chip_erase(); // EESAVE unprogrammed (factory): erased
+    CHECK(m.eeprom()[0] == 0xFF);
+    Atmega::Options keep;
+    keep.fuse_high = 0xD9 & ~0x08;
+    Atmega k(keep);
+    k.set_eeprom({1, 2, 3});
+    k.chip_erase();
+    CHECK(k.eeprom()[0] == 1);
 }
 
 int main(int argc, char** argv)

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// ELF32 (ARM or RISC-V, little-endian, executable) reader for firmware images:
+// ELF32 (ARM, RISC-V or AVR, little-endian, executable) reader for firmware images:
 // loadable segments at their physical addresses (as debuggers load them:
 // initialized data lands in flash and the start-up code copies it to SRAM),
 // function symbols for diagnostics and the addresses of named symbols.
@@ -30,7 +30,7 @@ struct ElfSymbol {
     std::uint32_t size = 0;
 };
 
-enum class ElfMachine { Arm, Riscv };
+enum class ElfMachine { Arm, Riscv, Avr };
 
 // A section with contents in the file and an address (PROGBITS). The
 // ESP32-C3's ROM ELF keeps some of the ROM only in sections (esp32c3_rom.hpp).

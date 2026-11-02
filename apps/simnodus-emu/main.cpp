@@ -5,7 +5,8 @@
 // circuit (experiment E-07). Prints one line per pin change, UART byte and
 // diagnostic, then a summary with the speed reached. A RISC-V ELF runs on the
 // bare RISC-V test machine instead (experiment E-08: the RV32IMC core with
-// RAM, UART, timer and test finisher at QEMU virt's addresses).
+// RAM, UART, timer and test finisher at QEMU virt's addresses). --avr runs
+// AVR firmware on the ATmega8 machine (experiment E-10).
 //
 //   simnodus-emu firmware.elf [--ms 1000] [--info] [--quiet] [--count-ops]
 //                [--input PA1=0@100] [--uart 1:text@50] [--gdb PORT]
@@ -13,7 +14,12 @@
 // --input sets a pin level from outside at a time in milliseconds; --uart
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
+//
+//   simnodus-emu --avr atmega8 firmware.elf|firmware.hex [--ms 1000] [--quiet]
+//                [--fuses 0xE1,0xD9] [--crystal 16000000] [--input PD2=0@100]
+//                [--uart text@50]
 #include "devices/host_link.hpp"
+#include "emu/atmega.hpp"
 #include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/riscv_test_machine.hpp"
@@ -336,6 +342,141 @@ int run_esp32c3(int argc, char** argv)
     return machine.cpu().state() == RvState::Halted ? 3 : 0;
 }
 
+int run_avr(int argc, char** argv)
+{
+    if (argc < 4 || (std::strcmp(argv[2], "atmega8") != 0 && std::strcmp(argv[2], "atmega8a") != 0)) {
+        std::fprintf(stderr, "usage: simnodus-emu --avr atmega8|atmega8a firmware.elf|firmware.hex [--ms 1000] [--quiet] "
+                             "[--fuses LOW,HIGH] [--crystal HZ] [--input PD2=0@ms] [--uart text@ms]\n");
+        return 2;
+    }
+    Atmega::Options options;
+    options.model = std::strcmp(argv[2], "atmega8") == 0 ? Atmega::Model::Atmega8 : Atmega::Model::Atmega8A;
+    const std::string path = argv[3];
+    double ms = 1000;
+    bool quiet = false;
+    struct Input {
+        std::uint64_t time_ns;
+        int pin; // -1: text for the USART
+        std::string value;
+    };
+    std::vector<Input> inputs;
+    bool fuses_given = false;
+    for (int i = 4; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--ms" && i + 1 < argc) {
+            ms = std::strtod(argv[++i], nullptr);
+        } else if (arg == "--quiet") {
+            quiet = true;
+        } else if (arg == "--fuses" && i + 1 < argc) {
+            char* end = nullptr;
+            options.fuse_low = static_cast<std::uint8_t>(std::strtoul(argv[++i], &end, 0));
+            options.fuse_high = static_cast<std::uint8_t>(std::strtoul(end && *end == ',' ? end + 1 : "0xD9", nullptr, 0));
+            fuses_given = true;
+        } else if (arg == "--crystal" && i + 1 < argc) {
+            options.external_hz = static_cast<std::uint32_t>(std::strtoul(argv[++i], nullptr, 0));
+        } else if ((arg == "--input" || arg == "--uart") && i + 1 < argc) {
+            const std::string value = argv[++i];
+            const auto at = value.rfind('@');
+            const std::uint64_t t = at == std::string::npos ? 0 : static_cast<std::uint64_t>(std::strtod(value.c_str() + at + 1, nullptr) * 1e6);
+            if (arg == "--uart") {
+                std::string text = value.substr(0, at);
+                for (auto pos = text.find("\\r"); pos != std::string::npos; pos = text.find("\\r")) {
+                    text.replace(pos, 2, 1, '\r');
+                }
+                inputs.push_back({t, -1, text});
+            } else {
+                const auto eq = value.find('=');
+                if (value.size() < 4 || value[0] != 'P' || eq == std::string::npos) {
+                    std::fprintf(stderr, "error: --input takes PD2=0@ms\n");
+                    return 2;
+                }
+                inputs.push_back({t, Atmega::pin_index(value[1], value[2] - '0'), value.substr(eq + 1, at - eq - 1)});
+            }
+        } else {
+            std::fprintf(stderr, "error: unknown option %s\n", arg.c_str());
+            return 2;
+        }
+    }
+    Atmega machine(options);
+    std::string error;
+    bool ok = false;
+    if (path.size() > 4 && (path.substr(path.size() - 4) == ".hex" || path.substr(path.size() - 4) == ".ihx")) {
+        std::ifstream in(path);
+        const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        ok = !text.empty() && machine.load_hex(text, error);
+        if (text.empty()) {
+            error = "cannot read " + path;
+        }
+    } else if (const auto elf = read_elf(path, error, ElfMachine::Avr)) {
+        bool fuses_set = false;
+        ok = machine.load_elf(*elf, error, &fuses_set);
+        if (fuses_given) {
+            machine.set_fuses(options.fuse_low, options.fuse_high, machine.lock_bits()); // the command line wins
+        } else if (fuses_set) {
+            std::printf("fuses from the ELF: low 0x%02X, high 0x%02X\n", machine.fuse_low(), machine.fuse_high());
+        }
+    }
+    if (!ok) {
+        std::fprintf(stderr, "error: %s\n", error.c_str());
+        return 1;
+    }
+    machine.reset();
+    std::printf("%s, %s\n", machine.chip_name(), machine.clock_description().c_str());
+    std::sort(inputs.begin(), inputs.end(), [](const Input& a, const Input& b) { return a.time_ns < b.time_ns; });
+    std::size_t next = 0;
+    std::string line;
+    const std::uint64_t end_ns = static_cast<std::uint64_t>(ms * 1e6);
+    const auto begin = std::chrono::steady_clock::now();
+    while (machine.time_ns() < end_ns) {
+        std::uint64_t until = std::min(end_ns, machine.time_ns() + 1'000'000);
+        if (next < inputs.size()) {
+            until = std::max(machine.time_ns() + 1, std::min(until, inputs[next].time_ns));
+        }
+        machine.run_until_ns(until);
+        while (next < inputs.size() && inputs[next].time_ns <= machine.time_ns()) {
+            const Input& in = inputs[next++];
+            if (in.pin < 0) {
+                for (const char c : in.value) {
+                    machine.uart_receive(static_cast<std::uint8_t>(c));
+                }
+            } else {
+                machine.set_pin_input(in.pin, in.value == "1");
+            }
+        }
+        for (const auto& b : machine.take_uart_bytes()) {
+            if (b.value == '\n' || line.size() > 200) {
+                if (!quiet) {
+                    std::printf("%14.6f ms  USART \"%s\"\n", static_cast<double>(b.time_ns) / 1e6, line.c_str());
+                }
+                line.clear();
+            } else if (b.value != '\r') {
+                line += (b.value >= 32 && b.value < 127) ? static_cast<char>(b.value) : '.';
+            }
+        }
+        for (const auto& text : machine.take_diagnostics()) {
+            std::printf("%14.6f ms  diagnostic: %s\n", static_cast<double>(machine.time_ns()) / 1e6, text.c_str());
+        }
+        for (const auto& e : machine.take_pin_events()) {
+            if (!quiet) {
+                std::printf("%14.6f ms  %s %s\n", static_cast<double>(e.time_ns) / 1e6, Atmega::pin_name(e.pin).c_str(),
+                    e.state.output ? (e.state.level ? "1" : "0") : e.state.pull_up ? "input, pull-up" : "input");
+            }
+        }
+        if (!machine.running()) {
+            break;
+        }
+    }
+    if (!line.empty() && !quiet) {
+        std::printf("%14s     USART \"%s\" (no newline yet)\n", "", line.c_str());
+    }
+    const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count();
+    std::printf("simulated %.3f ms in %.3f s; %llu instructions, %.1f MIPS; CPU %u Hz; PC 0x%04X\n",
+        static_cast<double>(machine.time_ns()) / 1e6, seconds, static_cast<unsigned long long>(machine.cpu().instructions()),
+        static_cast<double>(machine.cpu().instructions()) / seconds / 1e6, static_cast<unsigned>(machine.clock_hz()),
+        static_cast<unsigned>(machine.cpu().pc() * 2));
+    return machine.running() ? 0 : 3;
+}
+
 void usage()
 {
     std::fprintf(stderr,
@@ -353,6 +494,9 @@ int main(int argc, char** argv)
     }
     if (std::strcmp(argv[1], "--esp32c3") == 0) {
         return run_esp32c3(argc, argv);
+    }
+    if (std::strcmp(argv[1], "--avr") == 0) {
+        return run_avr(argc, argv);
     }
     std::string path;
     double ms = 1000;
