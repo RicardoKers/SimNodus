@@ -38,6 +38,14 @@
       "hex": "examples/firmware/avr_blink/avr_blink_16mhz.hex",
       "hex_sha256": "25644c6905d99db119526b9dd6db6e0bca630059a186d254e97c85fdb86f0ad9"
     },
+    "avr_bus": {
+      "source": "examples/firmware/avr_bus/avr_bus.c",
+      "f_cpu": 8000000,
+      "elf": "examples/firmware/avr_bus/avr_bus.elf",
+      "elf_sha256": "56a8f7e67a7b38cc3e2a8312b2d2a93f40384e164c47dd9954cd2b5253189d8f",
+      "hex": "examples/firmware/avr_bus/avr_bus.hex",
+      "hex_sha256": "2fe09cd149b6bf6df0c73f7b18831f784aeb1c3c05a75fe4d9b8c9694e69c070"
+    },
     "avr_button": {
       "source": "examples/firmware/avr_button/avr_button.c",
       "f_cpu": 1000000,

@@ -620,6 +620,56 @@ TEST_CASE("devices: MicroPython on the ESP32-C3 talks to an LM75 and a 24C02 ove
     }
 }
 
+TEST_CASE("devices: an ATmega8 talks to an LM75 and a 24C02 over TWI and drives a 74HC595 over SPI (SN-259)")
+{
+    auto chip = [](const char* designator, const char* kind, std::map<std::string, std::string> parameters = {}) {
+        mcu::DeviceRequest d;
+        d.designator = designator;
+        d.kind = kind;
+        d.pins = {"SCL", "SDA", "A0", "A1", "A2", kind == std::string("lm75") ? "OS" : "WP"};
+        d.parameters = std::move(parameters);
+        d.supply = 5.0;
+        d.tied = {{"A0", false}, {"A1", false}, {"A2", false}, {"WP", false}};
+        return d;
+    };
+    mcu::DeviceRequest shift;
+    shift.designator = "U4";
+    shift.kind = "74hc595";
+    shift.pins = {"DS", "SHCP", "STCP", "MR", "OE", "Q0", "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q7S"};
+    shift.supply = 5.0;
+    shift.tied = {{"MR", true}, {"OE", false}};
+    const std::vector<mcu::DeviceRequest> chips{chip("U2", "24c02"), chip("U3", "lm75", {{"temperature", "-12.5"}}), shift};
+    const std::vector<mcu::DigitalNet> nets{
+        {"SCL", {"PC5"}, {{0, "SCL"}, {1, "SCL"}}, 1, false}, // 4.7 kOhm pull-ups
+        {"SDA", {"PC4"}, {{0, "SDA"}, {1, "SDA"}}, 1, false},
+        {"MOSI", {"PB3"}, {{2, "DS"}}, 0, false},
+        {"SCK", {"PB5"}, {{2, "SHCP"}}, 0, false},
+        {"LATCH", {"PB2"}, {{2, "STCP"}}, 0, false},
+    };
+    mcu::McuRunOptions options;
+    options.chip = "atmega8a";
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/avr_bus/avr_bus.elf";
+    options.pins = {"PB2", "PB3", "PB5", "PC4", "PC5"};
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    mcu::DeviceBus bus;
+    REQUIRE(machine);
+    REQUIRE(machine->load(options, error));
+    REQUIRE(bus.init(*machine, chips, nets, error));
+    machine->set_pin_hook([&](int pin, std::uint64_t at) { bus.board_pin_changed(pin, at); });
+    bus.start(0);
+    machine->run_until_ns(1'300'000'000);
+    std::string text;
+    for (const auto& b : machine->take_uart_bytes()) {
+        text += static_cast<char>(b.value);
+    }
+    std::printf("  %s", text.c_str());
+    CHECK(text.find("LM75 -12.5 C 24C02 5A 595 05\r\nLM75 -12.5 C 24C02 5A 595 0A") != std::string::npos);
+    for (const auto& d : machine->take_diagnostics()) {
+        std::printf("  diagnostic: %s\n", d.c_str());
+    }
+}
+
 TEST_CASE("devices: MicroPython on the ESP32-C3 reads and programs a W25Q32 over SPI2 with DMA (SN-247)")
 {
     mcu::DeviceRequest flash;

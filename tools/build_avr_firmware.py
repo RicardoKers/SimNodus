@@ -32,6 +32,7 @@ FLAGS = ["-mmcu=atmega8", "-std=c11", "-Os", "-g", "-Wall", "-Wextra", "-Werror"
 # name -> list of (suffix, F_CPU)
 VARIANTS = {
     "avr_blink": [("", 1_000_000), ("_16mhz", 16_000_000)],
+    "avr_bus": [("", 8_000_000)],
 }
 
 

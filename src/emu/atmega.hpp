@@ -241,6 +241,8 @@ private:
     class Watchdog;
     class Adc;
     class AnalogComparator;
+    class Spi;
+    class Twi;
     friend class Ports;
     friend class ExternalInterrupts;
     friend class Timer0;
@@ -251,6 +253,8 @@ private:
     friend class Watchdog;
     friend class Adc;
     friend class AnalogComparator;
+    friend class Spi;
+    friend class Twi;
     Timer0* timer0_ = nullptr;
     Timer1* timer1_ = nullptr;
     Timer2* timer2_ = nullptr;
@@ -258,6 +262,8 @@ private:
     Eeprom* eeprom_block_ = nullptr;
     Watchdog* watchdog_ = nullptr;
     Adc* adc_ = nullptr;
+    Spi* spi_ = nullptr;
+    Twi* twi_ = nullptr;
     bool ac_capture_ = false; // ACIC: Timer1 captures the comparator's output
     ExternalInterrupts* extint_ = nullptr;
     unsigned spm(std::uint16_t z, std::uint16_t r1r0);

@@ -407,10 +407,16 @@ a real one.
     5 V, since the pins' voltages are not read yet;
   - the analog comparator: AIN0 or the bandgap against AIN1 or an ADC
     input, with its interrupt and Timer1's input capture. It samples the
-    circuit every 10 µs, so an edge shorter than that can be missed.
-- **Not yet** (SN-259): SPI, TWI, sleep modes other than Idle, Timer2's
-  asynchronous mode and brown-out. The log says once when the firmware uses
-  one.
+    circuit every 10 µs, so an edge shorter than that can be missed;
+  - SPI as a master, bit by bit on SCK (PB5), MOSI (PB3) and MISO (PB4) in
+    the four modes, up to F_CPU / 2. SS (PB2) taken low as an input ends
+    master mode, as on the chip;
+  - TWI (I2C) as a master on SDA (PC4) and SCL (PC5), open drain, with the
+    TWSR status codes and clock stretching. It talks to the I2C chips of
+    the library, with pull-ups in the circuit.
+- **Not yet** (SN-259): SPI and TWI as slaves, sleep modes other than Idle,
+  Timer2's asynchronous mode and brown-out. The log says once when the
+  firmware uses one.
 - **EEPROM**: what the firmware writes to it is kept beside a saved project
   as `<designator>-eeprom.bin`, which becomes the chip's **EEPROM** property.
   The next run starts with it, as the chip keeps its EEPROM when it is
@@ -420,7 +426,8 @@ a real one.
   - Clear the property to start erased again.
 - **Examples**: 50 (the USART at 9600 baud with a counter kept in the
   EEPROM), 51 (a blink at 16 MHz with a crystal) and 52 (a potentiometer on
-  the ADC setting a PWM, kept in step by a 1 ms timer tick). Their firmware sources
+  the ADC setting a PWM, kept in step by a 1 ms timer tick) and 53 (an
+  LM75 and a 24C02 over TWI, a 74HC595 over SPI). Their firmware sources
   are in `examples/firmware/avr_*`.
 
 ## Debugging with STM32CubeIDE or GDB

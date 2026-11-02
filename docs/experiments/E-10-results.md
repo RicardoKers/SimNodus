@@ -241,7 +241,25 @@ settles at 3.523 V (180/256 of 5 V).
 This is G10c.1 (±1 LSB with a low-impedance source) and G10c.2. The ADC
 stays labeled approximate until it is compared with the owner's chip.
 
+**SPI and TWI masters.** Both work at the pin level, as the library's
+chips expect:
+- **SPI**: the 16 clock edges of a byte as events, sampling and shifting
+  by CPHA, the bit order by DORD.
+- **TWI**: each step a list of line actions a quarter of an SCL period
+  apart, with clock stretching read from SCL.
+
+Tests:
+- `emu-atmega8`: `avr_bus` against a slave written in the test, at the
+  pin level. The LM75 reply 0x19, 0x80 prints `25.5 C`.
+- `engine-ngspice` (the device tests, without the circuit): `avr_bus` on
+  the DeviceBus with the library's LM75 (-12.5 °C), 24C02 and 74HC595
+  prints `LM75 -12.5 C 24C02 5A 595 05` and then `... 0A`.
+- Example 53 in the circuit, with 4.7 kOhm pull-ups, prints
+  `LM75 25.0 C 24C02 5A 595 05`.
+
+This is G10c.3. Slave modes are not simulated (a note in the log).
+
 ## Not covered yet
 
-The rest of SN-259 (SPI, TWI, sleep, Timer2 asynchronous, brown-out; gate
-G10c).
+The rest of SN-259 (sleep modes, Timer2 asynchronous, brown-out; G10c.4 to
+G10c.6).

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-02, ATmega8 SPI and TWI)
+
+- The ATmega8's **SPI** master (SN-259): SCK, MOSI and MISO bit by bit on the pins in the four modes and both bit orders, SPIF with its interrupt, WCOL, and SS ending master mode. The **TWI** (I2C) master: SDA and SCL open drain at the TWBR/TWPS bit rate, START, repeated START, address, data, ACK/NACK and STOP with the TWSR status codes, and clock stretching. Example 53 (an LM75 and a 24C02 over TWI, a 74HC595 over SPI) and the owned firmware `avr_bus`.
+
 ### Added (2026-11-02, ATmega8 ADC and analog comparator)
 
 - The ATmega8's **ADC** (SN-259): ADC0-ADC5, the bandgap and GND, the AVCC and internal 2.56 V references, single and free-running conversions with their timing; each reads the circuit's voltage at its sampling instant. The **analog comparator** with its interrupt and Timer1's input capture, sampled every 10 µs. Example 52 (a potentiometer on the ADC setting a PWM, a student project in small) and the owned firmware `avr_adc` and `avr_station`.
