@@ -146,6 +146,8 @@ private:
     // connector (SN-253) or by its firmware (MicroPython's files, SN-248),
     // keeps it: "<designator>-flash.bin" beside the project, as its firmware.
     void keep_written_flash();
+    // An AVR ELF's fuses and lock bits become the chip's properties (SN-258).
+    void take_elf_fuses();
     void refresh();
     void build_channels();
     std::optional<double> net_voltage(const std::string& net) const;

@@ -22,6 +22,8 @@ add_library(simnodus_ui STATIC
     control_server.hpp
     document.cpp
     document.hpp
+    fuses_dialog.cpp
+    fuses_dialog.hpp
     io_link.cpp
     io_link.hpp
     engine_process.cpp

@@ -6,9 +6,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ### Added (2026-11-02, ATmega8 in the circuit, experimental)
 
-- **ATmega8-PU and ATmega8A-PU** parts (Microcontrollers, PDIP-28, experimental; SN-258, experiment E-10): the bare AVR chips run `.hex` or `.elf` firmware in the circuit, with their pins at 5 V, the USART in the terminal (and **USART to the computer**), and the fuses as properties (**Low fuse**, **High fuse**, **Lock bits**; the factory values give the internal 1 MHz). An ELF's fuses apply as a production programmer writes them, and the log says so.
+- **ATmega8-PU and ATmega8A-PU** parts (Microcontrollers, PDIP-28, experimental; SN-258, experiment E-10): the bare AVR chips run `.hex` or `.elf` firmware in the circuit, with their pins at 5 V, the USART in the terminal (and **USART to the computer**), and the fuses as properties (**Low fuse**, **High fuse**, **Lock bits**; the factory values give the internal 1 MHz). An ELF's fuses apply as a production programmer writes them.
 - **Crystal** part (Passive): between a chip's XTAL1 and XTAL2 its frequency is the clock when the fuses select a crystal; without one, the chip does not start, as on a breadboard.
 - What the firmware writes to the EEPROM is kept beside a saved project as `<designator>-eeprom.bin`, the chip's **EEPROM** property for the next run.
+- **Fuses...** in an ATmega8's properties: the fuse and lock bytes decoded field by field (clock source and start-up time, brown-out, CKOPT, RSTDISBL, WDTON, EESAVE, boot section, lock modes), in step with the hex bytes, with the factory values one click away. When a run starts, an ELF's fuses become the chip's properties in one undoable step.
 - Examples 50 (the USART at 9600 baud with a counter in the EEPROM) and 51 (a blink at 16 MHz with a crystal); user guide section *ATmega8 and ATmega8A* in English and pt-BR.
 
 ### Added (2026-11-02, AVR core, not yet in the application)

@@ -7,6 +7,7 @@
 #include "schematic_scene.hpp"
 
 #include "editing/operations.hpp"
+#include "emu/elf.hpp"
 #include "library/component_library.hpp"
 #include "library/spice_template.hpp"
 #include "mcu/mcu_machine.hpp"
@@ -103,9 +104,77 @@ RunController::~RunController()
     session_->stop();
 }
 
+void RunController::take_elf_fuses()
+{
+    // An avr-gcc ELF with the FUSES or LOCKBITS macro (sections .fuse at
+    // 0x820000, .lock at 0x830000) carries what a production programmer
+    // writes: the chip takes them, and the project shows them (E-10, SN-258).
+    const auto& schematic = document_.schematic();
+    model::Schematic work = schematic;
+    std::vector<std::pair<model::Id, QString>> changed;
+    for (const auto& c : schematic.components()) {
+        const auto* d = document_.library().find(c.type);
+        if (!d || !d->mcu || (d->mcu->chip != "atmega8" && d->mcu->chip != "atmega8a")) {
+            continue;
+        }
+        const auto firmware = c.parameters.find(d->mcu->firmware_parameter);
+        if (firmware == c.parameters.end() || firmware->second.empty()) {
+            continue;
+        }
+        std::filesystem::path path(std::u8string(firmware->second.begin(), firmware->second.end()));
+        if (path.is_relative()) {
+            const QString folder = document_.base_dir();
+            path = std::filesystem::path((folder.isEmpty() ? QDir::currentPath() : folder).toStdWString()) / path;
+        }
+        std::string error;
+        const auto image = emu::read_elf(path, error, emu::ElfMachine::Avr);
+        if (!image) {
+            continue; // a .hex file (no fuses), or an error the run reports
+        }
+        std::vector<std::pair<std::string, std::uint8_t>> wanted;
+        for (const auto& section : image->sections) {
+            if (section.address == 0x820000 && section.data.size() >= 2) {
+                wanted.emplace_back("fuse_low", section.data[0]);
+                wanted.emplace_back("fuse_high", section.data[1]);
+            } else if (section.address == 0x830000 && !section.data.empty()) {
+                wanted.emplace_back("lock", section.data[0]);
+            }
+        }
+        bool any = false;
+        for (const auto& [name, value] : wanted) {
+            const QString text = QStringLiteral("%1").arg(value, 2, 16, QLatin1Char('0')).toUpper();
+            const auto it = c.parameters.find(name);
+            const auto* p = d->parameter(name);
+            const QString now = QString::fromStdString(it != c.parameters.end() ? it->second : p ? p->default_value : std::string());
+            bool ok = false;
+            if (now.trimmed().remove(QStringLiteral("0x"), Qt::CaseInsensitive).toUInt(&ok, 16) != value || !ok) {
+                editing::set_parameter(work, c.id, name, text.toStdString()).apply(work);
+                any = true;
+            }
+        }
+        if (any) {
+            const auto* now = work.component(c.id);
+            changed.emplace_back(c.id, tr("%1: the firmware's ELF sets the fuses (low %2, high %3, lock %4), now the chip's.")
+                           .arg(QString::fromStdString(c.designator), QString::fromStdString(now->parameters.at("fuse_low")),
+                               QString::fromStdString(now->parameters.count("fuse_high") ? now->parameters.at("fuse_high") : "D9"),
+                               QString::fromStdString(now->parameters.count("lock") ? now->parameters.at("lock") : "FF")));
+        }
+    }
+    if (changed.empty()) {
+        return;
+    }
+    document_.apply(model::make_edit(schematic, work, "Fuses from the firmware"));
+    for (const auto& [id, text] : changed) {
+        emit mcu_message(id, text);
+    }
+}
+
 bool RunController::start(QString& error, const sim::RunRequest* base)
 {
     stop();
+    if (!base) {
+        take_elf_fuses();
+    }
     snapshot_ = base ? base->schematic : document_.schematic();
     mode_ = snapshot_.settings().mode;
     const auto& library = document_.library();

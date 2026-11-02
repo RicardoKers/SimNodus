@@ -152,8 +152,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ATmega8-PU and ATmega8A-PU parts run in the circuit (`AtmegaMachine` in
    `src/mcu/mcu_machine.cpp`), the Crystal part sets the clock, the EEPROM is
    kept as `<designator>-eeprom.bin`, examples 50 and 51, guide section *ATmega8
-   and ATmega8A*. Next: the Fuses… dialog and an ELF's fuses written into the
-   project (the rest of SN-258), then SN-259.
+   and ATmega8A*. Second part: the Fuses… dialog (`apps/simnodus/fuses_dialog.*`)
+   and an ELF's fuses written into the project in one undoable step. Next:
+   SN-259 (ADC, comparator, SPI, TWI, sleep, Timer2 asynchronous, brown-out),
+   then the owner's board comparison (G10b.9) with an ATmega8, a USBasp and a
+   logic analyzer.
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.

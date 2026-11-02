@@ -200,9 +200,23 @@ Results:
   The LED of example 51 blinks at 1.000 Hz, with a high level of 4.72 V under
   its load.
 
-This covers G10b.3's terminal and G10b.5's project. Open: the Fuses dialog
-(the rest of SN-258), G10b.8 and G10b.9.
+This covers G10b.3's terminal and G10b.5's project.
+
+**Second part.** The **Fuses...** dialog (`apps/simnodus/fuses_dialog.*`)
+decodes the three bytes field by field and keeps them in step with the hex.
+A GUI test checks it with the bytes of example 51 (EF, C9) and a typed E4
+(internal 8 MHz).
+
+The plan placed the field descriptions in the library JSON. They are in
+the dialog's code instead, so their texts are translated with the
+interface. The next chips add their tables there.
+
+When a run starts, an ELF's `.fuse` and `.lock` sections that differ from
+the part's properties become the properties, in one undoable edit. A GUI
+test checks it with example 51 set back to E1/D9.
+
+Open: G10b.8 and G10b.9, which need the owner's course files and chip.
 
 ## Not covered yet
 
-The rest of SN-258 (the Fuses dialog), the complete chip (SN-259; gate G10c).
+The complete chip (SN-259; gate G10c).

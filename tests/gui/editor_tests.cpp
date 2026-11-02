@@ -14,6 +14,7 @@
 #include "main_window.hpp"
 #include "memory_window.hpp"
 #include "messages_panel.hpp"
+#include "fuses_dialog.hpp"
 #include "properties_panel.hpp"
 #include "run_controller.hpp"
 #include "schematic_scene.hpp"
@@ -1543,6 +1544,69 @@ private slots:
         for (const auto& m : messages) {
             QVERIFY(!m.contains(QStringLiteral("now the board's firmware"))); // already it: no new edit
         }
+#endif
+    }
+
+    void atmega8_fuses_dialog_decodes_and_writes_the_bytes()
+    {
+        // E-10, SN-258: the Fuses... dialog and the hex bytes stay in step.
+        FusesDialog dialog("atmega8a", 0xE1, 0xD9, 0xFF);
+        auto* clock = dialog.findChild<QComboBox*>(QStringLiteral("fuseClock"));
+        auto* start_up = dialog.findChild<QComboBox*>(QStringLiteral("fuseStartUp"));
+        auto* low = dialog.findChild<QLineEdit*>(QStringLiteral("fuseByte0"));
+        auto* ckopt = dialog.findChild<QCheckBox*>(QStringLiteral("fuseBit1_4"));
+        QVERIFY(clock && start_up && low && ckopt);
+        QCOMPARE(clock->currentData().toInt(), 0x1); // internal RC, 1 MHz
+        QVERIFY(start_up->currentText().contains(QStringLiteral("65 ms")));
+        QVERIFY(dialog.clock_summary().contains(QStringLiteral("1 MHz")));
+        QVERIFY(!ckopt->isChecked()); // D9: CKOPT unprogrammed
+        // A crystal of 3-16 MHz with CKOPT: the bytes of example 51.
+        clock->setCurrentIndex(clock->findData(0xE));
+        emit clock->activated(clock->currentIndex());
+        QCOMPARE(dialog.low(), std::uint8_t{0xEF}); // 16K CK + 4.1 ms
+        QCOMPARE(low->text(), QStringLiteral("EF"));
+        ckopt->setChecked(true);
+        QCOMPARE(dialog.high(), std::uint8_t{0xC9});
+        QVERIFY(dialog.clock_summary().contains(QStringLiteral("Crystal")));
+        // Typing a byte updates the fields: E4 is the internal 8 MHz.
+        low->setText(QStringLiteral("e4"));
+        emit low->textEdited(low->text());
+        QCOMPARE(clock->currentData().toInt(), 0x4);
+        QCOMPARE(dialog.low(), std::uint8_t{0xE4});
+        std::uint8_t v = 0;
+        QVERIFY(FusesDialog::parse_byte(QStringLiteral("0xC9"), v) && v == 0xC9);
+        QVERIFY(!FusesDialog::parse_byte(QStringLiteral("1FF"), v));
+    }
+
+    void atmega8_takes_the_fuses_of_its_elf_into_the_project()
+    {
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/51_ATmega8_crystal_16_MHz.snx"), errors, warnings));
+        model::Id chip = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            chip = c.designator == "U1" ? c.id : chip;
+        }
+        QVERIFY(chip != model::no_id);
+        doc().apply(editing::set_parameter(doc().schematic(), chip, "fuse_low", "E1"));
+        doc().apply(editing::set_parameter(doc().schematic(), chip, "fuse_high", "D9"));
+        QStringList messages;
+        QObject listening;
+        connect(window_->run_controller(), &RunController::mcu_message, &listening,
+            [&](model::Id, const QString& text) { messages << text; });
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(window_->run_controller()->active(), 20000);
+        window_->stop();
+        const auto& parameters = doc().schematic().component(chip)->parameters;
+        QCOMPARE(QString::fromStdString(parameters.at("fuse_low")), QStringLiteral("EF"));
+        QCOMPARE(QString::fromStdString(parameters.at("fuse_high")), QStringLiteral("C9"));
+        QVERIFY(messages.join('\n').contains(QStringLiteral("now the chip's")));
+        // One undo step brings the part's fuses back.
+        doc().undo_stack()->undo();
+        QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("fuse_low")), QStringLiteral("E1"));
 #endif
     }
 

@@ -369,13 +369,18 @@ a real one.
 - **Firmware**: an Intel HEX file, as written by Microchip Studio, MPLAB X,
   `avr-objcopy` or the Arduino IDE's Sketch > Export Compiled Binary. An
   avr-gcc ELF file also works. Its fuses (the `FUSES` macro) and its EEPROM
-  data apply as a production programmer writes them; the log says when the
-  ELF's fuses replace the part's.
+  data apply as a production programmer writes them. When a run starts, an
+  ELF's fuses that differ from the part's become the part's properties, in
+  one step that Undo takes back, and the messages say so.
 - **Power**: wire VCC, AVCC and both GND pins. The pins are simulated at
   5 V; the voltage on VCC is not read yet.
 - **Fuses**: the **Low fuse**, **High fuse** and **Lock bits** properties,
   in hex, with programmed bits as 0. They take effect when the run starts,
-  as at power-up.
+  as at power-up. **Fuses...** below them shows the same bits field by field
+  and keeps both views in step: the clock source and its start-up time,
+  brown-out, CKOPT, RSTDISBL, WDTON, EESAVE, the boot section and the lock
+  modes. A checked box is a programmed bit. **Factory values** sets E1, D9
+  and FF again.
   - The factory values (E1, D9) select the internal RC oscillator at 1 MHz
     with a 65 ms start-up, as on a new chip. Code built for 16 MHz runs 16
     times slower until the fuses change.

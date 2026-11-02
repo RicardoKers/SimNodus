@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 #include "properties_panel.hpp"
 
+#include "fuses_dialog.hpp"
+
 #include "document.hpp"
 #include "theme.hpp"
 #include "user_models.hpp"
@@ -453,6 +455,16 @@ void PropertiesPanel::rebuild()
             value_editor_ = editor;
         }
     }
+    if (d->mcu && (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") && components.size() == 1) {
+        // An AVR chip's fuses decoded field by field (E-10, SN-258).
+        auto* fuses = new QPushButton(tr("Fuses..."));
+        fuses->setObjectName(QStringLiteral("fusesButton"));
+        fuses->setToolTip(tr("Show and change the fuses and lock bits field by field"));
+        const model::Id id = components.front()->id;
+        const std::string chip = d->mcu->chip;
+        connect(fuses, &QPushButton::clicked, this, [this, id, chip] { edit_fuses(id, chip); });
+        form_->addRow(QString(), fuses);
+    }
     if (d->block && components.size() == 1) {
         // A block (PRJ-06): the project keeps a copy of its file.
         const model::Id id = components.front()->id;
@@ -724,6 +736,45 @@ QWidget* PropertiesPanel::file_editor(const library::Parameter& p, const QString
         row->addWidget(view);
     }
     return host;
+}
+
+void PropertiesPanel::edit_fuses(model::Id id, const std::string& chip)
+{
+    if (!document_) {
+        return;
+    }
+    const auto* c = document_->schematic().component(id);
+    const auto* d = c ? document_->library().find(c->type) : nullptr;
+    if (!c || !d) {
+        return;
+    }
+    auto byte = [&](const char* name) {
+        const auto it = c->parameters.find(name);
+        const auto* p = d->parameter(name);
+        const std::string text = it != c->parameters.end() ? it->second : p ? p->default_value : std::string("FF");
+        std::uint8_t value = 0xFF;
+        FusesDialog::parse_byte(QString::fromStdString(text), value);
+        return value;
+    };
+    FusesDialog dialog(chip, byte("fuse_low"), byte("fuse_high"), byte("lock"), this);
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    const auto& s = document_->schematic();
+    model::Schematic work = s;
+    auto hex = [](std::uint8_t v) { return QStringLiteral("%1").arg(v, 2, 16, QLatin1Char('0')).toUpper().toStdString(); };
+    const std::pair<const char*, std::uint8_t> values[] = {
+        {"fuse_low", dialog.low()}, {"fuse_high", dialog.high()}, {"lock", dialog.lock()}};
+    bool changed = false;
+    for (const auto& [name, value] : values) {
+        if (byte(name) != value) {
+            editing::set_parameter(work, id, name, hex(value)).apply(work);
+            changed = true;
+        }
+    }
+    if (changed) {
+        document_->apply(model::make_edit(s, work, "Set " + c->designator + " fuses"));
+    }
 }
 
 void PropertiesPanel::commit_parameter(const std::string& name, const QString& text)

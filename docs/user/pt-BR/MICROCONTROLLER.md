@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 29df8f8cace1892fcfe7d0a6d1ea69500355fd3e75d32e4bd9257d59953c039b -->
+<!-- source: MICROCONTROLLER.md sha256 25784e3008e1023c9a60ebc52dce80e573cccb8d871c4f00bfe717347c8010f8 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -388,13 +388,18 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   MPLAB X, o `avr-objcopy` ou o Sketch > Exportar Binário Compilado da IDE
   do Arduino gravam. Um arquivo ELF do avr-gcc também funciona. Os fusíveis
   dele (a macro `FUSES`) e os dados da EEPROM valem como um gravador de
-  produção os grava; o log avisa quando os fusíveis do ELF substituem os da
-  peça.
+  produção os grava. Quando a simulação começa, os fusíveis do ELF que
+  diferem dos da peça viram as propriedades da peça, num passo que Desfazer
+  volta, e as mensagens avisam.
 - **Alimentação**: ligue VCC, AVCC e os dois pinos GND. Os pinos são
   simulados a 5 V; a tensão no VCC ainda não é lida.
 - **Fusíveis**: as propriedades **Fusível low**, **Fusível high** e **Bits de trava (lock)**,
   em hexadecimal, com os bits programados em 0. Elas valem quando a
-  simulação começa, como ao ligar o chip.
+  simulação começa, como ao ligar o chip. **Fusíveis...**, logo abaixo,
+  mostra os mesmos bits campo a campo e mantém as duas vistas iguais: a
+  fonte de clock e o tempo de partida, o brown-out, CKOPT, RSTDISBL, WDTON,
+  EESAVE, a seção de boot e os modos de trava. Uma caixa marcada é um bit
+  programado. **Valores de fábrica** volta a E1, D9 e FF.
   - Os valores de fábrica (E1, D9) escolhem o oscilador RC interno a 1 MHz,
     com 65 ms de partida, como num chip novo. Um código compilado para
     16 MHz roda 16 vezes mais devagar até os fusíveis mudarem.
