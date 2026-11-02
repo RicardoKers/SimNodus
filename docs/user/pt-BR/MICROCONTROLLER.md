@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 322f3c446e89dda6bf9e10bdb458f16f6aab1130fe4e98a13f568f12fe247a54 -->
+<!-- source: MICROCONTROLLER.md sha256 f347916db61b9b652af44fbc1dc96341f8a7ac0ce38d05f0f06c836b67390085 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -435,8 +435,21 @@ funcionam como na Blue Pill; com um debugger conectado, um `ebreak` no
 firmware o para em vez de gerar uma exceção. Testado com o
 `riscv32-esp-elf-gdb` 16.3 do ESP-IDF v5.5.2 no exemplo blink do ESP-IDF
 (breakpoints, um backtrace pelo FreeRTOS, `next`, um watchpoint, detach).
-IDEs que iniciam o OpenOCD por conta própria (Espressif-IDE, a extensão
-ESP-IDF do VS Code) não foram testadas.
+
+A parada em 0x40000000 é na ROM, que não tem informação de depuração no ELF
+da aplicação: uma IDE mostra "no debug information available" ali, e o gdb
+mostra `?? ()`. Isso é esperado; coloque um breakpoint em `app_main` e
+continue. Para ver nomes na ROM, carregue também os símbolos dela:
+`add-symbol-file roms/esp32c3_rev3_rom.elf` (o arquivo fica na pasta do
+SimNodus).
+
+**Espressif-IDE**: numa configuração *GDB Hardware Debugging*, escolha o
+ELF do projeto, o `riscv32-esp-elf-gdb` como debugger e o alvo remoto
+`localhost`, porta `3333`; na aba **Startup**, desmarque *Load image* e
+coloque um breakpoint em `app_main`. Testado com o Espressif-IDE e o
+exemplo blink do ESP-IDF v6.1. Uma nova conexão substitui a que está
+conectada, então reiniciar a sessão de depuração enquanto a anterior ainda
+está conectada funciona.
 
 ## Compilação do firmware
 

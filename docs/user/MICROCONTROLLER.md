@@ -415,8 +415,19 @@ detach work as on the Blue Pill; with a debugger attached, an `ebreak` in
 the firmware halts it instead of raising an exception. Tested with
 `riscv32-esp-elf-gdb` 16.3 from ESP-IDF v5.5.2 on ESP-IDF's blink example
 (breakpoints, a backtrace through FreeRTOS, `next`, a watchpoint, detach).
-IDEs that start OpenOCD themselves (Espressif-IDE, the ESP-IDF extension of
-VS Code) have not been tried.
+
+The halt at 0x40000000 is in the ROM, which has no debug information in the
+application's ELF: an IDE shows "no debug information available" there, and
+gdb shows `?? ()`. That is expected; set a breakpoint at `app_main` and
+continue. For names in the ROM, load its symbols too: `add-symbol-file
+roms/esp32c3_rev3_rom.elf` (the file is in the SimNodus folder).
+
+**Espressif-IDE**: in a *GDB Hardware Debugging* configuration, choose the
+project's ELF, `riscv32-esp-elf-gdb` as the debugger and the remote target
+`localhost`, port `3333`; on the **Startup** tab clear *Load image* and set
+a breakpoint at `app_main`. Tested with Espressif-IDE and ESP-IDF v6.1's
+blink example. A new connection replaces the one that is attached, so relaunching the
+debug session while the previous one is still connected works.
 
 ## Building firmware
 

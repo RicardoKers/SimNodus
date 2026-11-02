@@ -748,6 +748,9 @@ TEST_CASE("riscv: debugger breakpoints, watchpoints and ebreak (SN-249)")
     rv.cpu.set_breakpoints({base});
     rv.cpu.step_instruction();
     CHECK(rv.cpu.pc() == base + 4);
+    rv.cpu.request_stop(); // as a machine timer asks: a step still runs one
+    rv.cpu.step_instruction();
+    CHECK(rv.cpu.pc() == base + 8);
     // Without a debugger, EBREAK is the breakpoint exception.
     rv.cpu.set_debugger_attached(false);
     rv.cpu.set_pc(base + 16);
@@ -756,6 +759,14 @@ TEST_CASE("riscv: debugger breakpoints, watchpoints and ebreak (SN-249)")
     CHECK(rv.cpu.pc() == handler);
     CHECK(rv.csr(mcause) == 3);
     CHECK(rv.csr(mepc) == base + 16);
+
+    // A core asleep in WFI wakes for a step, as halting debug does.
+    Rv sleeper({0x10500073, 0x00100513, 0x0000006f}); // wfi; addi a0, x0, 1; j .
+    sleeper.cpu.set_debugger_attached(true);
+    CHECK(sleeper.cpu.run(100) == RvState::Sleeping);
+    sleeper.cpu.step_instruction();
+    CHECK(sleeper.cpu.pc() == base + 8);
+    CHECK(sleeper.cpu.reg(a0) == 1);
 }
 
 TEST_CASE("riscv: no code at the trap vector halts the core")

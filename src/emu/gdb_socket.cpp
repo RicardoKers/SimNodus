@@ -89,6 +89,9 @@ GdbSocket::GdbSocket() = default;
 GdbSocket::~GdbSocket()
 {
     close_client();
+    for (const auto s : waiting_) {
+        close_socket(s);
+    }
     if (listener_ != invalid) {
         close_socket(listener_);
     }
@@ -141,6 +144,14 @@ bool GdbSocket::accept(int timeout_ms)
     if (client_ != invalid) {
         return true;
     }
+    if (!waiting_.empty()) { // connected while the previous client was attached
+        client_ = waiting_.front();
+        waiting_.erase(waiting_.begin());
+        no_delay(client_);
+        no_ack_ = false;
+        buffer_.clear();
+        return true;
+    }
     if (listener_ == invalid || !wait_readable(listener_, timeout_ms)) {
         return false;
     }
@@ -158,6 +169,38 @@ bool GdbSocket::accept(int timeout_ms)
 bool GdbSocket::connected() const
 {
     return client_ != invalid;
+}
+
+bool GdbSocket::take_over()
+{
+    while (listener_ != invalid && wait_readable(listener_, 0)) {
+        const native_socket s = ::accept(native(listener_), nullptr, nullptr);
+        if (static_cast<std::intptr_t>(s) == invalid) {
+            break;
+        }
+        waiting_.push_back(static_cast<std::intptr_t>(s));
+    }
+    for (auto it = waiting_.begin(); it != waiting_.end();) {
+        if (!wait_readable(*it, 0)) {
+            ++it;
+            continue;
+        }
+        char data[4096];
+        const auto n = ::recv(native(*it), data, sizeof data, 0);
+        if (n <= 0) {
+            close_socket(*it); // closed without a word
+            it = waiting_.erase(it);
+            continue;
+        }
+        close_client();
+        client_ = *it;
+        waiting_.erase(it);
+        no_delay(client_);
+        no_ack_ = false;
+        buffer_.assign(data, static_cast<std::size_t>(n));
+        return true;
+    }
+    return false;
 }
 
 void GdbSocket::close_client()

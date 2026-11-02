@@ -1454,6 +1454,32 @@ TEST_CASE("GDB server: a write watchpoint halts after the store and reports the 
     CHECK(ask(client, "D") == "OK");
 }
 
+TEST_CASE("GDB server: a new client replaces the attached one")
+{
+    DebugTarget target;
+    REQUIRE(target.start("blink"));
+    GdbSocket first;
+    std::string error;
+    REQUIRE(first.connect_client(target.server->port(), error));
+    REQUIRE(ask(first, "?") == "S05");
+    // Connections that say nothing (gdb may open extra ones) do not take over.
+    GdbSocket closed;
+    GdbSocket silent;
+    REQUIRE(closed.connect_client(target.server->port(), error));
+    REQUIRE(silent.connect_client(target.server->port(), error));
+    closed.close_client();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    CHECK(ask(first, "?") == "S05");
+    // An IDE relaunching its session connects again before the old gdb has gone.
+    GdbSocket second;
+    REQUIRE(second.connect_client(target.server->port(), error));
+    CHECK(ask(second, "vMustReplyEmpty").empty());
+    CHECK(ask(second, "?") == "S05");
+    std::string reply;
+    CHECK(!first.receive_packet(1000, reply)); // the first was disconnected
+    CHECK(ask(second, "D") == "OK");
+}
+
 TEST_CASE("GDB server: BKPT halts with a debugger and faults without one")
 {
     ElfImage image;

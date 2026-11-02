@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-02, GDB with an IDE)
+
+- GDB server: a client that connects while another is attached now replaces it once it sends its first packet. Before, it waited unanswered and failed with "Remote replied unexpectedly to 'vMustReplyEmpty': timeout", as when Espressif-IDE relaunched its debug session while the previous one was still connected. Connections that gdb opens and closes without a word do not take over.
+- ESP32-C3: a single step (`stepi`) did not move when the machine's timers had just asked the core to stop (at the reset vector, for example), nor from a core asleep in WFI. It now runs one instruction; WFI steps as a NOP, as with halting debug.
+- Guide: Espressif-IDE setup, and why the halt at 0x40000000 shows no debug information (the ROM; its symbols can be loaded from `roms/esp32c3_rev3_rom.elf`).
+
 ### Fixed (2026-11-01)
 
 - `simnodus-cli`: `sim.control` with a chip's or board's new value during a run (an LM75's temperature, the ESP32-C3's Chip temperature) could crash the CLI: the project edit replaced the component library that the run still read. The replaced library now stays alive until the run ends, as in the window. Found while checking the preview package (about half the runs of example 49 with a temperature change crashed).

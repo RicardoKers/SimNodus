@@ -1106,8 +1106,14 @@ void RiscvCpu::check_watch(std::uint32_t address, unsigned size, bool write)
 
 void RiscvCpu::step_instruction()
 {
+    // One instruction, whatever stop the machine's timers requested; a core
+    // asleep in WFI wakes, as halting debug does (WFI steps as a NOP).
     debug_halted_ = false;
     watch_hit_ = {};
+    stop_requested_ = false;
+    if (state_ == RvState::Sleeping) {
+        state_ = RvState::Running;
+    }
     attention_ = true;
     took_interrupt_ = false;
     if (check_attention() && state_ == RvState::Running && !took_interrupt_) {
