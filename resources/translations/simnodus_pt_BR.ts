@@ -1841,10 +1841,6 @@ Pinos: %2</translation>
             <translation>Todos os bytes 0x%1: o chip inicia cada simulação assim; Carregar... escolhe um arquivo de conteúdo.</translation>
         </message>
         <message>
-            <source>The circuit has no memory chip (a 24C02 EEPROM, for example).</source>
-            <translation>O circuito não tem chip de memória (uma EEPROM 24C02, por exemplo).</translation>
-        </message>
-        <message>
             <source>Load memory contents</source>
             <translation>Carregar conteúdo da memória</translation>
         </message>
@@ -1857,8 +1853,16 @@ Pinos: %2</translation>
             <translation>%1 não pode ser carregado: %2</translation>
         </message>
         <message>
+            <source>Stop the simulation to load the EEPROM: the chip reads it when it starts.</source>
+            <translation>Pare a simulação para carregar a EEPROM: o chip a lê quando parte.</translation>
+        </message>
+        <message>
             <source>Loaded into the running chip.</source>
             <translation>Carregado no chip em execução.</translation>
+        </message>
+        <message>
+            <source>Save the project first: the EEPROM is kept as a file beside it.</source>
+            <translation>Salve o projeto antes: a EEPROM fica guardada num arquivo ao lado dele.</translation>
         </message>
         <message>
             <source>Save memory contents</source>
@@ -1871,6 +1875,10 @@ Pinos: %2</translation>
         <message>
             <source>%1 cannot be written: %2</source>
             <translation>%1 não pode ser gravado: %2</translation>
+        </message>
+        <message>
+            <source>The circuit has no memory chip (a 24C02 EEPROM, or a microcontroller's EEPROM, for example).</source>
+            <translation>O circuito não tem chip de memória (uma EEPROM 24C02, ou a EEPROM de um microcontrolador, por exemplo).</translation>
         </message>
         <message>
             <source>Saved to %1.</source>
@@ -2202,12 +2210,12 @@ Pinos: %2</translation>
             <translation>%1: o ELF do firmware define os fusíveis (low %2, high %3, lock %4), agora os do chip.</translation>
         </message>
         <message>
-            <source>%1: what this run wrote to its EEPROM is not kept: save the project first.</source>
-            <translation>%1: o que esta simulação gravou na EEPROM não fica guardado: salve o projeto antes.</translation>
+            <source>%1: what this run wrote to its EEPROM is kept when you save the project.</source>
+            <translation>%1: o que esta simulação gravou na EEPROM fica guardado quando você salvar o projeto.</translation>
         </message>
         <message>
-            <source>%1: what this run wrote to its flash (uploaded firmware, the firmware's files) is not kept: save the project first.</source>
-            <translation>%1: o que esta execução gravou no flash (firmware enviado, arquivos do firmware) não foi guardado: salve o projeto primeiro.</translation>
+            <source>%1: what this run wrote to its flash (uploaded firmware, the firmware's files) is kept when you save the project.</source>
+            <translation>%1: o que esta simulação gravou na flash (firmware enviado, arquivos do firmware) fica guardado quando você salvar o projeto.</translation>
         </message>
         <message>
             <source>%1: its EEPROM could not be saved as %2: %3</source>

@@ -1523,7 +1523,7 @@ private slots:
         };
         // An unsaved copy keeps nothing beside the example.
         write_main();
-        QVERIFY(messages.join('\n').contains(QStringLiteral("save the project first")));
+        QVERIFY(messages.join('\n').contains(QStringLiteral("kept when you save the project")));
         QVERIFY(!QFile::exists(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/U1-flash.bin")));
         QString error;
         const QString project = dir_.filePath(QStringLiteral("micropython/board.snx"));
@@ -1607,6 +1607,78 @@ private slots:
         // One undo step brings the part's fuses back.
         doc().undo_stack()->undo();
         QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("fuse_low")), QStringLiteral("E1"));
+#endif
+    }
+
+    void atmega8_eeprom_of_an_unsaved_run_is_kept_on_save_and_shown()
+    {
+        // The owner's case (2026-11-02): example 50 opened from File > Examples
+        // is a copy without a file; a run writes the EEPROM; saving the project
+        // afterwards keeps it, and the Memory Viewer shows it.
+#if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)
+        QSKIP("No ngspice configured for this build.");
+#else
+        QStringList errors;
+        QStringList warnings;
+        QVERIFY(doc().open_copy(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/50_ATmega8_serial_and_EEPROM.snx"), errors, warnings));
+        model::Id chip = model::no_id;
+        for (const auto& c : doc().schematic().components()) {
+            chip = c.designator == "U1" ? c.id : chip;
+        }
+        const std::string firmware = QFileInfo(QStringLiteral(SIMNODUS_TEST_EXAMPLES_DIR "/firmware/avr_serial/avr_serial.elf"))
+                                         .absoluteFilePath()
+                                         .toStdString();
+        doc().apply(editing::set_parameter(doc().schematic(), chip, "firmware", firmware));
+        auto settings = doc().schematic().settings();
+        settings.speed = 0;
+        doc().apply(editing::set_settings(doc().schematic(), settings));
+        QStringList messages;
+        QObject listening;
+        connect(window_->run_controller(), &RunController::mcu_message, &listening,
+            [&](model::Id, const QString& text) { messages << text; });
+        auto port = [&] {
+            for (const auto& p : window_->run_controller()->uart_ports()) {
+                if (p.board == chip) {
+                    return p;
+                }
+            }
+            return RunController::UartPort{};
+        };
+        auto console = [&] {
+            std::string bytes;
+            window_->run_controller()->uart_received(port(), 0, bytes);
+            return bytes;
+        };
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(console().find("> ") != std::string::npos, 60000);
+        window_->run_controller()->uart_send(port(), "ab?");
+        QTRY_VERIFY_WITH_TIMEOUT(console().find("bytes: 3") != std::string::npos, 60000);
+        QTest::qWait(50);
+        window_->stop();
+        QVERIFY(messages.join('\n').contains(QStringLiteral("kept when you save the project")));
+        // The Memory Viewer shows the chip's EEPROM: the count 3 at address 0.
+        window_->scene()->select_ids({chip});
+        QPushButton* view = nullptr;
+        QTRY_VERIFY((view = window_->properties()->findChild<QPushButton*>(QStringLiteral("view_eeprom"))) != nullptr);
+        view->click();
+        auto* viewer = window_->memory_viewer();
+        QVERIFY(viewer->isVisible());
+        QCOMPARE(viewer->bytes().size(), std::size_t{512});
+        QCOMPARE(viewer->bytes()[0], std::uint8_t{3});
+        viewer->close();
+        // Saving the copy keeps what the run wrote, and saves the project with it.
+        const QString project = dir_.filePath(QStringLiteral("unsaved/serial.snx"));
+        QVERIFY(QDir().mkpath(QFileInfo(project).absolutePath()));
+        QVERIFY(window_->save_to(project));
+        QVERIFY(QFile::exists(dir_.filePath(QStringLiteral("unsaved/U1-eeprom.bin"))));
+        QCOMPARE(QString::fromStdString(doc().schematic().component(chip)->parameters.at("eeprom")), QStringLiteral("U1-eeprom.bin"));
+        QVERIFY(!doc().modified());
+        // The next run continues the count.
+        window_->run();
+        QTRY_VERIFY_WITH_TIMEOUT(console().find("> ") != std::string::npos, 60000);
+        window_->run_controller()->uart_send(port(), "?");
+        QTRY_VERIFY_WITH_TIMEOUT(console().find("bytes: 4") != std::string::npos, 60000);
+        window_->stop();
 #endif
     }
 

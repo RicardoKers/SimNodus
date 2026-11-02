@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-02, owner's test of the ATmega8 preview)
+
+- The ATmega8's EEPROM in the **Memory Viewer**: **View...** beside the EEPROM property showed "no memory chip"; it now shows the chip's 512 bytes, live while running, and **Load...** (stopped) makes a file the chip's EEPROM.
+- What a run wrote to a chip's memory (the ATmega8's EEPROM, the ESP32-C3's flash) in an example's copy was lost when the project was saved afterwards; saving now keeps it, and the message after the run says so.
+
 ### Added (2026-11-02, ATmega8 sleep, Timer2 asynchronous, power)
 
 - The ATmega8's **sleep modes** (SN-259): Idle, ADC Noise Reduction, Power-down, Power-save and Standby with their wake-up sources, the timers standing still without the I/O clock, the oscillator's start-up on waking. **Timer2 asynchronous** on a 32.768 kHz Crystal between TOSC1 and TOSC2, running in Power-save, with its update-busy flags.

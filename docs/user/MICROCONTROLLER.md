@@ -439,6 +439,13 @@ a real one.
   - With no kept EEPROM, the chip starts erased, or with the ELF's EEPROM
     data.
   - Clear the property to start erased again.
+  - An example from **File > Examples** is a copy without a file: what a
+    run writes to the EEPROM is kept when the project is saved (the
+    messages say so after the run).
+  - **View...** beside the property opens the **Memory Viewer** on the
+    chip's EEPROM: the bytes as the running chip has them, or as the last
+    run left them. **Load...** there (with the simulation stopped) makes a
+    `.bin` or `.hex` file the chip's EEPROM.
 - **Examples**: 50 (the USART at 9600 baud with a counter kept in the
   EEPROM), 51 (a blink at 16 MHz with a crystal) and 52 (a potentiometer on
   the ADC setting a PWM, kept in step by a 1 ms timer tick) and 53 (an

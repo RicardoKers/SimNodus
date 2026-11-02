@@ -325,8 +325,18 @@ void RunController::pause_or_resume()
     }
 }
 
-void RunController::keep_written_flash()
+bool RunController::keep_after_save()
 {
+    if (!unkept_ || session_->active()) {
+        return false;
+    }
+    unkept_ = false;
+    return keep_written_flash();
+}
+
+bool RunController::keep_written_flash()
+{
+    bool edited = false;
     for (const auto& c : snapshot_.components()) {
         const auto* d = document_.library().find(c.type);
         const auto* now = document_.schematic().component(c.id);
@@ -346,10 +356,11 @@ void RunController::keep_written_flash()
         }
         const QString designator = QString::fromStdString(c.designator);
         if (document_.file_path().isEmpty()) { // an example copy keeps its folder untouched too
-            emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM is not kept: save the project first.")
+            unkept_ = true;
+            emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM is kept when you save the project.")
                                              .arg(designator)
                                        : tr("%1: what this run wrote to its flash (uploaded firmware, the firmware's "
-                                            "files) is not kept: save the project first.")
+                                            "files) is kept when you save the project.")
                                              .arg(designator));
             continue;
         }
@@ -371,12 +382,14 @@ void RunController::keep_written_flash()
             continue;
         }
         document_.apply(editing::set_parameter(document_.schematic(), c.id, parameter, name.toStdString()));
+        edited = true;
         emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM was saved as %2, now the chip's EEPROM.")
                                          .arg(designator, name)
                                    : tr("%1: what this run wrote to its flash was saved as %2, now the board's "
                                         "firmware.")
                                          .arg(designator, name));
     }
+    return edited;
 }
 
 void RunController::stop()

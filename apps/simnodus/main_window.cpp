@@ -1764,6 +1764,12 @@ bool MainWindow::save_to(const QString& path)
         QMessageBox::warning(this, tr("Save project"), tr("The project could not be saved:\n%1").arg(error));
         return false;
     }
+    // What the last run wrote to a chip's memory before the project had a
+    // file (an example's copy) is kept now, and saved with it.
+    if (run_->keep_after_save() && !document_->save(path, error)) {
+        messages_->add(Severity::Error, tr("Saving failed: %1").arg(error), tr("File"));
+        return false;
+    }
     add_recent(path);
     QFile::remove(recovery_file()); // the saved file is now the safe copy
     statusBar()->showMessage(tr("Saved %1").arg(QDir::toNativeSeparators(path)), 4000);
