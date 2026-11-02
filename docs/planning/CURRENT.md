@@ -138,7 +138,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    tasks SN-255..SN-262. The ATmega8 first, then the ATmega328/328P and
    ATmega32/32A, the Arduino UNO with Optiboot, and GDB. SN-255 done
    (2026-11-02): references, avr-gcc 7.3.0/avr-libc 2.0.0, avr8js as the
-   oracle (its npm install waits for the owner's permission), an owned
+   oracle (installed; its H flag deviates from the manual), an owned
    firmware set (I/O, ADC, PWM, serial, timers); the owner has an ATmega8,
    a USBasp, a USB-serial adapter, an oscilloscope and a logic analyzer.
    Next: SN-256 (the core, gate G10a).

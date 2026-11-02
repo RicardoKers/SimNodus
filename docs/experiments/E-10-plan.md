@@ -109,8 +109,20 @@ installed), as a test-only tool in `build/tools/avr8js`.
 - The difference rule of G10a.2 is unchanged: when avr8js and SimNodus
   disagree, the manual or the chip decides.
 - simavr stays optional, for example on Linux CI later.
-- **Not installed yet:** the `npm install` of avr8js waits for the owner's
-  permission.
+- Installed on 2026-11-02 with the owner's permission. A first run (LDI,
+  ADD, ADIW) gives the right results and 4 cycles.
+- **Known deviation, found in that first run.** avr8js computes the
+  half-carry flag H from bit 0 instead of bit 3 in ADD, ADC, SUB, SUBI,
+  SBC, SBCI, CP, CPC, CPI and NEG. In ADD, for example, the code reads
+  `1 & ((d & r) | (r & ~R) | (~R & d))`, while the manual gives
+  H = Rd3·Rr3 + Rr3·¬R3 + ¬R3·Rd3.
+  - Example: 5 + 5 gives H = 1 in avr8js, where the chip gives 0; 8 + 8
+    gives H = 0, where the chip gives 1.
+  - The manual decides, so the differential test compares H against the
+    manual's formula, not against avr8js. Every other flag is compared
+    with avr8js as planned.
+  - H matters only for BCD arithmetic, which is probably why it went
+    unnoticed. Reporting it upstream is the owner's call.
 
 **Hardware (the owner's, for G10b.9).** An ATmega8 (the marking says
 whether it is the ATmega8-16PU or the ATmega8A-PU; the comparison uses that
