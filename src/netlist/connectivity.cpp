@@ -52,15 +52,6 @@ bool on_wire(Point p, const model::Wire& w)
     return false;
 }
 
-bool is_ground_name(const std::string& name)
-{
-    std::string upper;
-    for (char c : name) {
-        upper += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
-    }
-    return upper == "0" || upper == "GND";
-}
-
 struct PinAt {
     PinRef pin;
     Point at;
@@ -80,6 +71,15 @@ std::vector<PinAt> all_pins(const Schematic& s, const library::ComponentLibrary&
 }
 
 } // namespace
+
+bool is_ground_name(const std::string& name)
+{
+    std::string upper;
+    for (char c : name) {
+        upper += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+    }
+    return upper == "0" || upper == "GND";
+}
 
 std::string sanitize_name(const std::string& text)
 {

@@ -83,6 +83,63 @@ TEST_CASE("net names are unique ignoring case")
     CHECK(n1->name != n2->name);
 }
 
+TEST_CASE("different label names on one net give a label-conflict warning with both names and the point")
+{
+    const auto lib = load();
+    auto conflicts = [](const netlist::Netlist& n) {
+        std::vector<netlist::Diagnostic> found;
+        std::copy_if(n.diagnostics.begin(), n.diagnostics.end(), std::back_inserter(found),
+            [](const auto& d) { return d.code == "label-conflict"; });
+        return found;
+    };
+    {
+        // R1 and R2 touch at (0,3); a VCC label and an SCL label sit on that point.
+        Schematic s;
+        Id r1 = 0, r2 = 0, vcc = 0, scl = 0;
+        editing::add_component(s, *lib.find("resistor"), {0, 0}, {}, &r1).apply(s); // pins (0,-3), (0,3)
+        editing::add_component(s, *lib.find("resistor"), {0, 6}, {}, &r2).apply(s); // pins (0,3), (0,9)
+        editing::add_label(s, {0, 3}, "VCC", &vcc).apply(s);
+        editing::add_label(s, {0, 3}, "SCL", &scl).apply(s);
+        editing::add_label(s, {0, -3}, "A").apply(s);
+        editing::add_label(s, {0, 9}, "0").apply(s);
+        const auto n = netlist::generate_netlist(s, lib);
+        const auto found = conflicts(n);
+        REQUIRE(found.size() == 1);
+        CHECK(found[0].severity == Severity::Warning);
+        CHECK(found[0].message.find("\"VCC\"") != std::string::npos);
+        CHECK(found[0].message.find("\"SCL\"") != std::string::npos);
+        CHECK(found[0].at == std::optional<Point>(Point{0, 3}));
+        CHECK(std::find(found[0].items.begin(), found[0].items.end(), vcc) != found[0].items.end());
+        CHECK(std::find(found[0].items.begin(), found[0].items.end(), scl) != found[0].items.end());
+        CHECK(n.ok()); // a warning, not an error
+    }
+    {
+        // Two names joined through a wire, and a label on the ground net.
+        Schematic s;
+        editing::add_component(s, *lib.find("resistor"), {0, 0}, {}).apply(s);  // pins (0,-3), (0,3)
+        editing::add_component(s, *lib.find("resistor"), {10, 0}, {}).apply(s); // pins (10,-3), (10,3)
+        editing::add_wire(s, {{0, -3}, {10, -3}}).apply(s);
+        editing::add_label(s, {0, -3}, "IN").apply(s);
+        editing::add_label(s, {10, -3}, "OUT").apply(s);
+        editing::add_label(s, {0, 3}, "GND").apply(s);
+        editing::add_label(s, {10, 3}, "0").apply(s); // same as GND: no conflict
+        editing::add_label(s, {10, 3}, "VREF").apply(s);
+        const auto found = conflicts(netlist::generate_netlist(s, lib));
+        REQUIRE(found.size() == 2);
+        CHECK(found[0].message.find("\"IN\" and \"OUT\"") != std::string::npos);
+        CHECK(found[0].at == std::optional<Point>(Point{10, -3}));
+        CHECK(found[1].message.find("\"GND\" and \"VREF\"") != std::string::npos);
+        CHECK(found[1].at == std::optional<Point>(Point{10, 3}));
+    }
+    {
+        // The same name twice, and 0 next to GND, are not conflicts.
+        test::CircuitBuilder b(lib);
+        b.add("vdc", {{"+", "A"}, {"-", "0"}});
+        b.add("resistor", {{"1", "A"}, {"2", "GND"}});
+        CHECK(conflicts(netlist::generate_netlist(b.schematic, lib)).empty());
+    }
+}
+
 TEST_CASE("model parameters choose a built-in model or one kept in the component")
 {
     const auto lib = load();

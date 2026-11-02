@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 792bf646c219b54265252184a94279e9df027d932046d7de2421654feb014dd8 -->
+<!-- source: USER_GUIDE.md sha256 d1454c335cdf5a1469346ccfd499bd2bb0f0bebcfbb029debb0949765245bc57 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -69,7 +69,7 @@ Atalhos de uma tecla: **R** resistor, **C** capacitor, **L** indutor,
 | Ferramenta | Tecla | Como usar |
 |---|---|---|
 | Fio | W | Clique num pino para começar, clique para fazer as dobras, clique num pino ou num fio para terminar. Espaço troca a direção da quina; um clique duplo termina num ponto livre; Esc cancela |
-| Rótulo de rede | N | Clique num fio ou pino e digite um nome. Rótulos com o mesmo nome ficam ligados sem fio; `GND` ou `0` é o terra. Ctrl+E põe o nome do outro lado |
+| Rótulo de rede | N | Clique num fio ou pino e digite um nome. Rótulos com o mesmo nome ficam ligados sem fio; `GND` ou `0` é o terra. Dois nomes diferentes na mesma rede juntam as duas redes: as verificações avisam. Ctrl+E põe o nome do outro lado |
 | Barramento | B | Veja [Barramentos e distribuidores](#barramentos-e-distribuidores) |
 | Distribuidor | S | Veja [Barramentos e distribuidores](#barramentos-e-distribuidores) |
 | Nota de texto | T | Clique onde o texto começa e digite, por exemplo, instruções para os alunos. Clique duas vezes numa nota para editá-la; um texto vazio a exclui |
