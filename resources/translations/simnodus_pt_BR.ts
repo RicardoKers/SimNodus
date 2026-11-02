@@ -1895,16 +1895,32 @@ Pinos: %2</translation>
     <context>
         <name>simnodus::ui::RunController</name>
         <message>
+            <source>%1: what this run wrote to its EEPROM is not kept: save the project first.</source>
+            <translation>%1: o que esta simulação gravou na EEPROM não fica guardado: salve o projeto antes.</translation>
+        </message>
+        <message>
             <source>%1: what this run wrote to its flash (uploaded firmware, the firmware's files) is not kept: save the project first.</source>
             <translation>%1: o que esta execução gravou no flash (firmware enviado, arquivos do firmware) não foi guardado: salve o projeto primeiro.</translation>
+        </message>
+        <message>
+            <source>%1: its EEPROM could not be saved as %2: %3</source>
+            <translation>%1: não foi possível salvar a EEPROM como %2: %3</translation>
         </message>
         <message>
             <source>%1: its flash could not be saved as %2: %3</source>
             <translation>%1: o flash não pôde ser salvo como %2: %3</translation>
         </message>
         <message>
+            <source>%1: its EEPROM was saved in %2.</source>
+            <translation>%1: a EEPROM foi salva em %2.</translation>
+        </message>
+        <message>
             <source>%1: its flash was saved in %2.</source>
             <translation>%1: o flash foi salvo em %2.</translation>
+        </message>
+        <message>
+            <source>%1: what this run wrote to its EEPROM was saved as %2, now the chip's EEPROM.</source>
+            <translation>%1: o que esta simulação gravou na EEPROM foi salvo como %2, agora a EEPROM do chip.</translation>
         </message>
         <message>
             <source>%1: what this run wrote to its flash was saved as %2, now the board's firmware.</source>
@@ -3610,20 +3626,80 @@ Pinos: %2</translation>
             <translation>Contador de décadas Johnson (DIP-16): uma das saídas Q0-Q9 fica em alto, passando à seguinte a cada borda de subida de CP0 enquanto CP1 está em baixo (ou na descida de CP1 com CP0 em alto); MR em alto volta a Q0; CO fica em alto nas contagens 0-4; VDD de 3 a 15 V; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
         </message>
         <message>
-            <source>Blue Pill (STM32F103C8)</source>
-            <translation>Blue Pill (STM32F103C8)</translation>
+            <source>ATmega8-PU (PDIP-28)</source>
+            <translation>ATmega8-PU (PDIP-28)</translation>
         </message>
         <message>
             <source>Microcontrollers</source>
             <translation>Microcontroladores</translation>
         </message>
         <message>
-            <source>STM32F103C8 board running your firmware (ELF) in the SimNodus emulator</source>
-            <translation>Placa STM32F103C8 executando o seu firmware (ELF) no emulador do SimNodus</translation>
+            <source>Atmel ATmega8-16PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)</source>
+            <translation>Atmel ATmega8-16PU em PDIP-28 (experimental, E-10): 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (5 V)</translation>
         </message>
         <message>
             <source>Firmware</source>
             <translation>Firmware</translation>
+        </message>
+        <message>
+            <source>Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy, the Arduino IDE's exported binary) or an avr-gcc ELF file, whose fuses and EEPROM data apply too; stored relative to the project</source>
+            <translation>Firmware do chip: um arquivo Intel HEX (Microchip Studio, MPLAB X, avr-objcopy, o binário exportado da IDE do Arduino) ou um arquivo ELF do avr-gcc, cujos fusíveis e dados da EEPROM também valem; guardado em relação ao projeto</translation>
+        </message>
+        <message>
+            <source>Low fuse</source>
+            <translation>Fusível low</translation>
+        </message>
+        <message>
+            <source>Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 (and the high fuse C9)</source>
+            <translation>Byte do fusível low em hexadecimal (bits programados valem 0). E1, o valor de fábrica: oscilador RC interno a 1 MHz, partida de 65 ms. EF com um Cristal de 16 MHz entre XTAL1 e XTAL2 (e o fusível high C9)</translation>
+        </message>
+        <message>
+            <source>High fuse</source>
+            <translation>Fusível high</translation>
+        </message>
+        <message>
+            <source>High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL (PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</source>
+            <translation>Byte do fusível high em hexadecimal (bits programados valem 0). D9, o valor de fábrica. Bit 7 RSTDISBL (PC6 como E/S), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</translation>
+        </message>
+        <message>
+            <source>Lock bits</source>
+            <translation>Bits de trava (lock)</translation>
+        </message>
+        <message>
+            <source>Lock byte in hex; FF: no lock. The boot lock bits restrict SPM and LPM</source>
+            <translation>Byte de trava em hexadecimal; FF: sem trava. Os bits de trava do boot restringem SPM e LPM</translation>
+        </message>
+        <message>
+            <source>EEPROM</source>
+            <translation>EEPROM</translation>
+        </message>
+        <message>
+            <source>EEPROM contents (512 bytes). SimNodus keeps what the firmware writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data</source>
+            <translation>Conteúdo da EEPROM (512 bytes). O SimNodus guarda o que o firmware grava como &lt;designador&gt;-eeprom.bin ao lado do projeto; vazio: apagada, ou os dados de EEPROM do próprio firmware</translation>
+        </message>
+        <message>
+            <source>USART to the computer</source>
+            <translation>USART para o computador</translation>
+        </message>
+        <message>
+            <source>The USART (PD1 TX, PD0 RX) linked to the computer as through a USB-serial adapter: a serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs that speak RFC 2217, or empty for none</source>
+            <translation>A USART (PD1 TX, PD0 RX) ligada ao computador como por um conversor USB-serial: uma porta serial (uma ponta de um par de portas virtuais como o com0com), tcp:4000 para programas que falam RFC 2217, ou vazio para nenhuma</translation>
+        </message>
+        <message>
+            <source>ATmega8A-PU (PDIP-28)</source>
+            <translation>ATmega8A-PU (PDIP-28)</translation>
+        </message>
+        <message>
+            <source>Microchip ATmega8A-PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega8A-PU em PDIP-28 (experimental, E-10): 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 2,7-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
+        </message>
+        <message>
+            <source>Blue Pill (STM32F103C8)</source>
+            <translation>Blue Pill (STM32F103C8)</translation>
+        </message>
+        <message>
+            <source>STM32F103C8 board running your firmware (ELF) in the SimNodus emulator</source>
+            <translation>Placa STM32F103C8 executando o seu firmware (ELF) no emulador do SimNodus</translation>
         </message>
         <message>
             <source>ELF file built for the STM32F103C8 (for example with STM32CubeIDE); stored relative to the project</source>
@@ -3764,6 +3840,22 @@ Pinos: %2</translation>
         <message>
             <source>Capacitance</source>
             <translation>Capacitância</translation>
+        </message>
+        <message>
+            <source>Crystal</source>
+            <translation>Cristal</translation>
+        </message>
+        <message>
+            <source>Quartz crystal or ceramic resonator. Between a microcontroller's XTAL1 and XTAL2 its frequency is the chip's clock when the fuses select an external crystal; the oscillation itself is not simulated (add the usual 22 pF capacitors to ground as on the board)</source>
+            <translation>Cristal de quartzo ou ressonador cerâmico. Entre o XTAL1 e o XTAL2 de um microcontrolador, a sua frequência é o clock do chip quando os fusíveis escolhem um cristal externo; a oscilação em si não é simulada (coloque os capacitores de 22 pF para o terra de costume, como na placa)</translation>
+        </message>
+        <message>
+            <source>Frequency</source>
+            <translation>Frequência</translation>
+        </message>
+        <message>
+            <source>Frequency of the crystal or resonator</source>
+            <translation>Frequência do cristal ou ressonador</translation>
         </message>
         <message>
             <source>Inductor</source>
@@ -4652,10 +4744,6 @@ Pinos: %2</translation>
         <message>
             <source>Voltage during the high part</source>
             <translation>Tensão durante a parte alta</translation>
-        </message>
-        <message>
-            <source>Frequency</source>
-            <translation>Frequência</translation>
         </message>
         <message>
             <source>Repetition frequency</source>

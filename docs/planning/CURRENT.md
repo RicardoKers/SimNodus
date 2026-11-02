@@ -148,9 +148,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    ATmega8 machine `src/emu/atmega.*` (ports, INT0/1, the three timers,
    USART, EEPROM, watchdog, resets, SPM, fuses with the clock and start-up
    time, HEX/ELF), the owned firmware `examples/firmware/avr_*` and
-   `simnodus-emu --avr atmega8`. Next: SN-258 (the ATmega8-PU and
-   ATmega8A-PU parts in the circuit, the Crystal part, the Fuses dialog, the
-   EEPROM kept in the project).
+   `simnodus-emu --avr atmega8`. SN-258, first part (2026-11-02): the
+   ATmega8-PU and ATmega8A-PU parts run in the circuit (`AtmegaMachine` in
+   `src/mcu/mcu_machine.cpp`), the Crystal part sets the clock, the EEPROM is
+   kept as `<designator>-eeprom.bin`, examples 50 and 51, guide section *ATmega8
+   and ATmega8A*. Next: the Fuses… dialog and an ELF's fuses written into the
+   project (the rest of SN-258), then SN-259.
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.

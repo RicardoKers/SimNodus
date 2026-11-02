@@ -357,6 +357,58 @@ To start again from a clean image, choose the original `.bin` in the
 board's **Firmware** property again (or undo the change), or erase it with
 `esptool erase-flash` and write the image again.
 
+## ATmega8 and ATmega8A (experimental)
+
+The **ATmega8-PU** and **ATmega8A-PU** parts (Microcontrollers) are the bare
+AVR chips in PDIP-28, as on a breadboard. They run in SimNodus's own AVR
+emulator (experiment E-10). They are **experimental**: every instruction
+has been checked against the AVR Instruction Set Manual, and the timers and
+the USART against the datasheet, but the chip has not yet been compared with
+a real one.
+
+- **Firmware**: an Intel HEX file, as written by Microchip Studio, MPLAB X,
+  `avr-objcopy` or the Arduino IDE's Sketch > Export Compiled Binary. An
+  avr-gcc ELF file also works. Its fuses (the `FUSES` macro) and its EEPROM
+  data apply as a production programmer writes them; the log says when the
+  ELF's fuses replace the part's.
+- **Power**: wire VCC, AVCC and both GND pins. The pins are simulated at
+  5 V; the voltage on VCC is not read yet.
+- **Fuses**: the **Low fuse**, **High fuse** and **Lock bits** properties,
+  in hex, with programmed bits as 0. They take effect when the run starts,
+  as at power-up.
+  - The factory values (E1, D9) select the internal RC oscillator at 1 MHz
+    with a 65 ms start-up, as on a new chip. Code built for 16 MHz runs 16
+    times slower until the fuses change.
+  - For a crystal, set the low fuse to EF and the high fuse to C9 (CKOPT),
+    and place a **Crystal** part (Passive) between XTAL1 (PB6) and XTAL2
+    (PB7). The crystal's frequency is the chip's clock; its oscillation is
+    not simulated.
+  - With a crystal selected and none connected, the chip does not start,
+    and the log says why.
+  - RSTDISBL makes PC6 an I/O pin; otherwise it is RESET, with its pull-up,
+    and taking it low resets the chip. EESAVE, WDTON, BOOTSZ and BOOTRST
+    act as on the chip.
+- **What runs**:
+  - the ports, INT0 and INT1;
+  - Timer0, Timer1 and Timer2 in every mode, exact in cycles (PWM on OC1A,
+    OC1B and OC2, input capture);
+  - the USART, bit by bit on PD1 and PD0, in the terminal or through
+    **USART to the computer**;
+  - the EEPROM, the watchdog, the resets, and self-programming (SPM).
+- **Not yet** (SN-259): the ADC, the analog comparator, SPI, TWI, sleep
+  modes other than Idle, Timer2's asynchronous mode and brown-out. The log
+  says once when the firmware uses one.
+- **EEPROM**: what the firmware writes to it is kept beside a saved project
+  as `<designator>-eeprom.bin`, which becomes the chip's **EEPROM** property.
+  The next run starts with it, as the chip keeps its EEPROM when it is
+  powered off.
+  - With no kept EEPROM, the chip starts erased, or with the ELF's EEPROM
+    data.
+  - Clear the property to start erased again.
+- **Examples**: 50 (the USART at 9600 baud with a counter kept in the
+  EEPROM) and 51 (a blink at 16 MHz with a crystal). Their firmware sources
+  are in `examples/firmware/avr_*`.
+
 ## Debugging with STM32CubeIDE or GDB
 
 SimNodus's emulator contains a GDB server (SN-180), so the firmware can be

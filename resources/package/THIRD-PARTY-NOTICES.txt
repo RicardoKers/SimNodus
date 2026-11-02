@@ -63,6 +63,14 @@ to 48, MIT, built with ESP-IDF v5.5.2).
   (Shanghai) Co. Ltd.; it contains newlib (BSD-style) and FreeRTOS (MIT).
   Source: https://github.com/espressif/esp-idf (v5.5.2)
 
+Example firmware examples/firmware/avr_*/*.elf and *.hex (SimNodus's AVR
+examples, MIT, built with avr-gcc 7.3.0) contain start-up code and library
+routines of avr-libc 2.0.0
+  License: modified BSD license (https://www.nongnu.org/avr-libc/LICENSE.txt),
+  Copyright (c) the avr-libc developers. They also contain routines of GCC's
+  libgcc, under the GCC Runtime Library Exception.
+  Source: https://github.com/avrdudes/avr-libc
+
 Example firmware examples/firmware/hal_clock/hal_clock.elf and
 examples/firmware/hal_adc_dma/hal_adc_dma.elf contain compiled code from the
 STM32CubeF1 package 1.8.7 and the GNU Tools for STM32 C library:

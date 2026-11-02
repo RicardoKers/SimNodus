@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 56fbe33c1131f171f713ebe90a65e6f067d580820e8527dfd55bc3c9c09b73a4 -->
+<!-- source: MICROCONTROLLER.md sha256 29df8f8cace1892fcfe7d0a6d1ea69500355fd3e75d32e4bd9257d59953c039b -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -375,6 +375,58 @@ até ser salvo com um nome próprio. Para recomeçar de uma imagem limpa,
 escolha de novo o `.bin` original na propriedade **Firmware** da placa (ou
 desfaça a mudança), ou apague a flash com `esptool erase-flash` e grave a
 imagem de novo.
+
+## ATmega8 e ATmega8A (experimental)
+
+As peças **ATmega8-PU** e **ATmega8A-PU** (Microcontroladores) são os chips
+AVR avulsos em PDIP-28, como na protoboard. Elas rodam no emulador AVR do
+próprio SimNodus (experimento E-10). São **experimentais**: cada instrução
+foi conferida com o AVR Instruction Set Manual, e os temporizadores e a
+USART com o datasheet, mas o chip ainda não foi comparado com um real.
+
+- **Firmware**: um arquivo Intel HEX, como os que o Microchip Studio, o
+  MPLAB X, o `avr-objcopy` ou o Sketch > Exportar Binário Compilado da IDE
+  do Arduino gravam. Um arquivo ELF do avr-gcc também funciona. Os fusíveis
+  dele (a macro `FUSES`) e os dados da EEPROM valem como um gravador de
+  produção os grava; o log avisa quando os fusíveis do ELF substituem os da
+  peça.
+- **Alimentação**: ligue VCC, AVCC e os dois pinos GND. Os pinos são
+  simulados a 5 V; a tensão no VCC ainda não é lida.
+- **Fusíveis**: as propriedades **Fusível low**, **Fusível high** e **Bits de trava (lock)**,
+  em hexadecimal, com os bits programados em 0. Elas valem quando a
+  simulação começa, como ao ligar o chip.
+  - Os valores de fábrica (E1, D9) escolhem o oscilador RC interno a 1 MHz,
+    com 65 ms de partida, como num chip novo. Um código compilado para
+    16 MHz roda 16 vezes mais devagar até os fusíveis mudarem.
+  - Para um cristal, use o low fuse EF e o high fuse C9 (CKOPT), e coloque
+    uma peça **Cristal** (Passivos) entre XTAL1 (PB6) e XTAL2 (PB7). A
+    frequência do cristal é o clock do chip; a oscilação dele não é
+    simulada.
+  - Com um cristal escolhido e nenhum ligado, o chip não parte, e o log
+    explica por quê.
+  - O RSTDISBL faz do PC6 um pino de E/S; sem ele, o PC6 é o RESET, com o
+    seu pull-up, e levá-lo a nível baixo reinicia o chip. EESAVE, WDTON,
+    BOOTSZ e BOOTRST agem como no chip.
+- **O que roda**:
+  - as portas, INT0 e INT1;
+  - Timer0, Timer1 e Timer2 em todos os modos, exatos em ciclos (PWM em
+    OC1A, OC1B e OC2, captura de entrada);
+  - a USART, bit a bit em PD1 e PD0, no terminal ou pela propriedade
+    **USART para o computador**;
+  - a EEPROM, o watchdog, os resets e a autoprogramação (SPM).
+- **Ainda não** (SN-259): o ADC, o comparador analógico, SPI, TWI, os modos
+  de sleep além do Idle, o modo assíncrono do Timer2 e o brown-out. O log
+  avisa uma vez quando o firmware usa um deles.
+- **EEPROM**: o que o firmware grava nela fica guardado ao lado de um
+  projeto salvo como `<designador>-eeprom.bin`, que passa a ser a
+  propriedade **EEPROM** do chip. A próxima simulação começa com ele, como o
+  chip guarda a EEPROM desligado.
+  - Sem EEPROM guardada, o chip começa apagado, ou com os dados da EEPROM
+    do ELF.
+  - Esvazie a propriedade para começar apagado de novo.
+- **Exemplos**: 50 (a USART a 9600 baud, com um contador guardado na
+  EEPROM) e 51 (um pisca a 16 MHz com cristal). Os fontes dos firmwares
+  estão em `examples/firmware/avr_*`.
 
 ## Depuração com STM32CubeIDE ou GDB
 

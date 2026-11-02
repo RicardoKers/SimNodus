@@ -173,7 +173,36 @@ G10b.3's Serial Port part, G10b.5's project, G10b.8 and G10b.9. So is the
 speed with the machine (G10b.11). From the command line, `simnodus-emu --avr`
 ran `avr_blink` for 10 s of simulated time in 0.071 s (112 MIPS).
 
+## In the circuit (SN-258, first part)
+
+`AtmegaMachine` (`src/mcu/mcu_machine.cpp`) puts the machine behind the
+runner. The parts `atmega8_pdip28` and `atmega8a_pdip28`
+(`tools/generate_avr_parts.py`) place it in the circuit. Their electrical
+model:
+- each GPIO drives through the runner's pin model at 5 V, 35 Ohm out,
+  with a 35 kOhm pull-up, and reads 1 above 3.0 V and 0 below 1.0 V (the
+  ATmega8A datasheet at 5 V);
+- VCC draws about 2 mA;
+- PC6 has the RESET pull-up while it is RESET.
+
+The session passes the fuses, the kept EEPROM file and the frequency of a
+**Crystal** part found between XTAL1 and XTAL2. The run controller keeps the
+EEPROM as `<designator>-eeprom.bin`, through the memory channel the ESP32-C3's
+flash uses (SN-248).
+
+Results:
+- **Session test** (`engine-ngspice`, examples 50 and 51): the greeting and
+  the echo through the terminal, the EEPROM holding the count, and the
+  crystal's 16 MHz found in the circuit.
+- **GUI test** (`gui-editor`): a saved project keeps `U1-eeprom.bin`, and the
+  next run continues the count.
+- **`tools/examples_pass.py`**: example 50 at 3.17x real time, 51 at 2.01x.
+  The LED of example 51 blinks at 1.000 Hz, with a high level of 4.72 V under
+  its load.
+
+This covers G10b.3's terminal and G10b.5's project. Open: the Fuses dialog
+(the rest of SN-258), G10b.8 and G10b.9.
+
 ## Not covered yet
 
-Integration in the circuit and the GUI (SN-258), the complete chip (SN-259;
-gate G10c).
+The rest of SN-258 (the Fuses dialog), the complete chip (SN-259; gate G10c).

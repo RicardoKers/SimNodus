@@ -913,6 +913,55 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
     }
 }
 
+// An AVR chip's settings that are not GPIO (E-10, SN-258): its fuses and lock
+// bits, the EEPROM file the project kept, and the frequency of a Crystal part
+// between XTAL1 and XTAL2 (the chip's oscillator is not simulated in the
+// circuit: the crystal's frequency is the clock when the fuses select it).
+void avr_options(const model::Schematic& schematic, const library::ComponentLibrary& library, const model::Component& c,
+    const std::filesystem::path& project_dir, mcu::McuRunOptions& options)
+{
+    for (const char* name : {"fuse_low", "fuse_high", "lock"}) {
+        const auto it = c.parameters.find(name);
+        if (it != c.parameters.end()) {
+            options.parameters[name] = it->second;
+        } else if (const auto* p = library.find(c.type) ? library.find(c.type)->parameter(name) : nullptr) {
+            options.parameters[name] = p->default_value;
+        }
+    }
+    if (const auto it = c.parameters.find("eeprom"); it != c.parameters.end() && !it->second.empty()) {
+        std::filesystem::path path(std::u8string(it->second.begin(), it->second.end()));
+        if (path.is_relative()) {
+            path = project_dir / path;
+        }
+        const auto text = path.u8string();
+        options.parameters["eeprom_file"] = std::string(text.begin(), text.end());
+    }
+    const auto connectivity = netlist::build_connectivity(schematic, library);
+    auto net_of = [&](model::Id id, const std::string& pin) {
+        const auto it = connectivity.pin_net.find({id, pin});
+        return it == connectivity.pin_net.end() ? -1 : it->second;
+    };
+    const int xtal1 = net_of(c.id, "PB6");
+    const int xtal2 = net_of(c.id, "PB7");
+    for (const auto& other : schematic.components()) {
+        if (other.type != "crystal" || xtal1 < 0 || xtal2 < 0) {
+            continue;
+        }
+        const int a = net_of(other.id, "1");
+        const int b = net_of(other.id, "2");
+        if ((a == xtal1 && b == xtal2) || (a == xtal2 && b == xtal1)) {
+            const auto f = other.parameters.find("frequency");
+            const auto* d = library.find(other.type);
+            const std::string text = f != other.parameters.end() ? f->second
+                                     : d && d->parameter("frequency") ? d->parameter("frequency")->default_value
+                                                                      : std::string();
+            if (const auto hz = model::parse_engineering(text); hz && *hz > 0) {
+                options.parameters["crystal_hz"] = std::to_string(std::llround(*hz));
+            }
+        }
+    }
+}
+
 } // namespace
 
 bool build_mcu_requests(const model::Schematic& schematic, const library::ComponentLibrary& library,
@@ -932,7 +981,10 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         const bool loaded_by_debugger = firmware.empty() && environment.gdb_port >= 0;
         if (firmware.empty() && !loaded_by_debugger) {
             error = c.designator + " has no firmware: choose "
-                + (d->mcu->chip == "esp32c3" ? "a flash image (.bin)" : "an ELF file") + " in its properties.";
+                + (d->mcu->chip == "esp32c3"                                 ? "a flash image (.bin)"
+                   : d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a" ? "a .hex or .elf file"
+                                                                               : "an ELF file")
+                + " in its properties.";
             return false;
         }
         std::filesystem::path path(std::u8string(firmware.begin(), firmware.end())); // UTF-8 text
@@ -972,6 +1024,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 const auto it = c.parameters.find(p.name);
                 request.options.parameters[p.name] = it == c.parameters.end() ? p.default_value : it->second;
             }
+        }
+        if (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") {
+            avr_options(schematic, library, c, environment.project_dir, request.options);
         }
         for (const auto& pin : d->pins) {
             if (mcu::chip_gpio(d->mcu->chip, pin.name)) {
