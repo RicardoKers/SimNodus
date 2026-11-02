@@ -983,12 +983,15 @@ TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM wit
     std::string error;
     std::ifstream in(repository / "examples" / "firmware" / "avr_blink" / "avr_blink.hex");
     const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    REQUIRE(!text.empty());
     REQUIRE(m.load_hex(text, error));
     m.reset();
     m.run_until_ns(1'200'000'000);
     CHECK(edges(m.take_pin_events(), pb0).size() >= 2);
     CHECK(!m.load_hex(":10000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF01\n", error)); // a wrong checksum (00 is right)
     CHECK(error.find("checksum") != std::string::npos);
+    CHECK(!m.load_hex("", error)); // a file with no data is not a firmware
+    CHECK(error.find("no data") != std::string::npos);
 
     m.set_eeprom({1, 2, 3});
     m.chip_erase(); // EESAVE unprogrammed (factory): erased

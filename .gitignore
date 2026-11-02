@@ -15,6 +15,8 @@
 !/tests/experiments/riscv-benchmark/*.elf
 !/third_party/esp-rom-elfs/*.elf
 *.hex
+# AVR example firmware (E-10).
+!/examples/firmware/avr_*/*.hex
 # Memory contents of the examples (SN-212).
 !/examples/memories/*.hex
 *.o

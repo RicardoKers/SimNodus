@@ -1778,6 +1778,10 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
         default: break; // start addresses
         }
     }
+    if (bytes.empty()) {
+        error = "The HEX file has no data.";
+        return false;
+    }
     const std::uint32_t limit = eeprom ? static_cast<std::uint32_t>(eeprom_bytes) : flash_bytes;
     for (const auto& [address, value] : bytes) {
         if (address >= limit) {
