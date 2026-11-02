@@ -3,6 +3,7 @@
 #include "atmega.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <sstream>
 #include <utility>
@@ -614,13 +615,22 @@ public:
     {
         if (pin == PD5) {
             external_edge(level, cycle);
-        } else if (pin == PB0 && level == bit(tccr1b_, 6) && core.top_source != 2) {
-            // Input capture; the noise canceler delays it by four cycles.
-            const std::uint64_t at = cycle + (bit(tccr1b_, 7) ? 4 : 0);
-            sync(at);
-            core.icr = core.count;
-            m_.set_flag(V_T1_CAPT, true);
+        } else if (pin == PB0 && !m_.ac_capture_) {
+            capture(level, cycle);
         }
+    }
+    // An edge of the input capture's source: ICP1, or the analog comparator's
+    // output with ACIC.
+    void capture(bool level, std::uint64_t cycle)
+    {
+        if (level != bit(tccr1b_, 6) || core.top_source == 2) {
+            return;
+        }
+        // The noise canceler delays it by four cycles.
+        const std::uint64_t at = cycle + (bit(tccr1b_, 7) ? 4 : 0);
+        sync(at);
+        core.icr = core.count;
+        m_.set_flag(V_T1_CAPT, true);
     }
 
 private:
@@ -1254,6 +1264,226 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// ADC: 10 bits, ADC0..ADC5 on PC0..PC5 (ADC6/ADC7 are not on the PDIP), the
+// 1.30 V bandgap and GND, the AVCC, internal 2.56 V or AREF reference;
+// single conversions or free running; 13 ADC clocks (25 for the first after
+// ADEN), the input sampled 1.5 ADC clocks after the start (13.5 for the
+// first). The voltage is the circuit's at the sampling instant. AVCC and
+// AREF are taken as 5 V (the supply is not read yet).
+
+class Atmega::Adc : public Peripheral {
+public:
+    using Peripheral::Peripheral;
+    std::vector<std::uint16_t> addresses() const override { return {ADMUX, ADCSRA, ADCH, ADCL}; }
+    std::uint8_t read(std::uint16_t address) override
+    {
+        switch (address) {
+        case ADMUX: return admux_;
+        case ADCSRA: return static_cast<std::uint8_t>(adcsra_ | (busy() ? 0x40 : 0) | (m_.flags_[V_ADC] ? 0x10 : 0));
+        case ADCL:
+            locked_ = true; // the data register keeps its value until ADCH is read
+            return static_cast<std::uint8_t>(data_);
+        default:
+            locked_ = false;
+            return static_cast<std::uint8_t>(data_ >> 8);
+        }
+    }
+    void write(std::uint16_t address, std::uint8_t value) override
+    {
+        if (address == ADMUX) {
+            admux_ = value & 0xEF;
+            if ((admux_ & 0x0F) == 6 || (admux_ & 0x0F) == 7) {
+                m_.note_once("adc67", "ADC6 and ADC7 are not on the PDIP package; they read 0");
+            } else if ((admux_ & 0xC0) == 0x00) {
+                m_.note_once("aref", "The ADC's AREF reference is taken as 5 V (the AREF pin's voltage is not read yet)");
+            } else if ((admux_ & 0xC0) == 0x80) {
+                m_.note_once("refs10", "REFS 10 is reserved on the ATmega8; the ADC uses AREF");
+            }
+            return;
+        }
+        if (address != ADCSRA) {
+            return;
+        }
+        const bool was_enabled = bit(adcsra_, 7);
+        if (bit(value, 4)) {
+            m_.set_flag(V_ADC, false); // writing 1 clears ADIF
+        }
+        adcsra_ = value & 0xAF; // ADSC and ADIF are kept apart
+        if (!bit(adcsra_, 7)) {
+            end_ = 0; // ADEN off stops a conversion
+            first_ = true;
+        } else if (!was_enabled) {
+            first_ = true;
+        }
+        if (bit(value, 6) && bit(adcsra_, 7) && !busy()) {
+            start(now());
+        }
+        m_.update_interrupts();
+        m_.timed_changed();
+    }
+    void reset() override
+    {
+        admux_ = adcsra_ = 0;
+        data_ = 0;
+        locked_ = false;
+        end_ = 0;
+        first_ = true;
+    }
+    std::uint64_t next_event() const override { return busy() ? end_ : no_event; }
+    void on_time(std::uint64_t cycle) override
+    {
+        if (!busy() || end_ > cycle) {
+            return;
+        }
+        const std::uint64_t at = end_;
+        end_ = 0;
+        const unsigned result = convert(sample_);
+        if (!locked_) {
+            data_ = static_cast<std::uint16_t>(bit(admux_, 5) ? result << 6 : result);
+        }
+        m_.set_flag(V_ADC, true);
+        if (bit(adcsra_, 5)) { // free running: the next conversion starts at once
+            start(at);
+        }
+        m_.timed_changed();
+    }
+    bool interrupt_enabled() const { return bit(adcsra_, 3); }
+    bool enabled() const { return bit(adcsra_, 7); }
+    std::uint8_t mux() const { return admux_ & 0x0F; }
+
+private:
+    bool busy() const { return end_ != 0; }
+    void start(std::uint64_t at)
+    {
+        static const unsigned divide[8] = {2, 2, 4, 8, 16, 32, 64, 128};
+        const unsigned clock = divide[adcsra_ & 7];
+        const unsigned clocks = first_ ? 25 : 13;
+        // The sample: 1.5 ADC clocks after the start, 13.5 for the first.
+        sample_ = at + (first_ ? 27 : 3) * clock / 2;
+        end_ = at + static_cast<std::uint64_t>(clocks) * clock;
+        sample_mux_ = admux_;
+        first_ = false;
+    }
+    unsigned convert(std::uint64_t sample_cycle) const
+    {
+        const int channel = sample_mux_ & 0x0F;
+        double volts = 0.0;
+        if (channel <= 5) {
+            volts = m_.analog_voltage(8 + channel, sample_cycle); // PC0..PC5
+        } else if (channel == 14) {
+            volts = 1.30; // the bandgap
+        }
+        const int refs = sample_mux_ >> 6;
+        const double reference = refs == 3 ? 2.56 : 5.0;
+        const double code = std::floor(volts * 1024.0 / reference);
+        return static_cast<unsigned>(std::clamp(code, 0.0, 1023.0));
+    }
+    std::uint8_t admux_ = 0;
+    std::uint8_t adcsra_ = 0;
+    std::uint8_t sample_mux_ = 0;
+    std::uint16_t data_ = 0;
+    bool locked_ = false;
+    bool first_ = true;
+    std::uint64_t sample_ = 0;
+    std::uint64_t end_ = 0;
+};
+
+// ---------------------------------------------------------------------------
+// Analog comparator: AIN0 (PD6) or the 1.30 V bandgap against AIN1 (PD7) or,
+// with ACME and the ADC off, an ADC input. The circuit is sampled every
+// 10 us once the firmware has used ACSR (an approximation: an edge shorter
+// than that can be missed); ACI on a toggle, falling or rising output;
+// Timer1's input capture with ACIC.
+
+class Atmega::AnalogComparator : public Peripheral {
+public:
+    using Peripheral::Peripheral;
+    std::vector<std::uint16_t> addresses() const override { return {ACSR}; }
+    std::uint8_t read(std::uint16_t) override
+    {
+        activate();
+        update(now());
+        return static_cast<std::uint8_t>(acsr_ | (output_ ? 0x20 : 0) | (m_.flags_[V_ANA_COMP] ? 0x10 : 0));
+    }
+    void write(std::uint16_t, std::uint8_t value) override
+    {
+        activate();
+        if (bit(value, 4)) {
+            m_.set_flag(V_ANA_COMP, false); // writing 1 clears ACI
+        }
+        acsr_ = value & 0xCF;
+        m_.ac_capture_ = bit(acsr_, 2);
+        next_ = now();
+        update(now());
+        m_.update_interrupts();
+        m_.timed_changed();
+    }
+    void reset() override
+    {
+        acsr_ = 0;
+        output_ = false;
+        active_ = false;
+        next_ = 0;
+        m_.ac_capture_ = false;
+    }
+    std::uint64_t next_event() const override { return active_ && !bit(acsr_, 7) ? next_ : no_event; }
+    void on_time(std::uint64_t cycle) override
+    {
+        if (next_event() > cycle) {
+            return;
+        }
+        update(cycle);
+        next_ = cycle + std::max<std::uint64_t>(1, m_.cycles_for_ns(10'000));
+    }
+    bool interrupt_enabled() const { return bit(acsr_, 3); }
+
+private:
+    // The comparator runs from reset on the chip; here it is sampled once the
+    // firmware uses it, starting from the output it has then (no edge).
+    void activate()
+    {
+        if (!active_) {
+            active_ = true;
+            output_ = compare(now());
+            next_ = now();
+        }
+    }
+    bool compare(std::uint64_t cycle) const
+    {
+        const double plus = bit(acsr_, 6) ? 1.30 : m_.analog_voltage(22, cycle); // PD6
+        int minus_pin = 23;                                                     // PD7
+        if (bit(m_.sfior_, 3) && !m_.adc_->enabled()) {
+            const int channel = m_.adc_->mux() & 7;
+            minus_pin = channel <= 5 ? 8 + channel : -1;
+        }
+        const double minus = minus_pin >= 0 ? m_.analog_voltage(minus_pin, cycle) : 0.0;
+        return plus > minus;
+    }
+    void update(std::uint64_t cycle)
+    {
+        if (bit(acsr_, 7)) {
+            return; // ACD: off
+        }
+        const bool out = compare(cycle);
+        if (out == output_) {
+            return;
+        }
+        output_ = out;
+        const int mode = acsr_ & 3;
+        if (mode == 0 || (mode == 2 && !out) || (mode == 3 && out)) {
+            m_.set_flag(V_ANA_COMP, true);
+        }
+        if (bit(acsr_, 2)) {
+            m_.timer1_->capture(out, cycle);
+        }
+    }
+    std::uint8_t acsr_ = 0;
+    bool output_ = false;
+    bool active_ = false;
+    std::uint64_t next_ = 0;
+};
+
+// ---------------------------------------------------------------------------
 // Registers of peripherals that come in SN-259: storage, and one note when
 // the firmware enables them.
 
@@ -1264,20 +1494,16 @@ public:
     using Atmega::Peripheral::Peripheral;
     std::vector<std::uint16_t> addresses() const override
     {
-        return {TWBR, TWSR, TWAR, TWDR, ADCL, ADCH, ADCSRA, ADMUX, ACSR, SPCR, SPSR, SPDR, TWCR};
+        return {TWBR, TWSR, TWAR, TWDR, SPCR, SPSR, SPDR, TWCR};
     }
     std::uint8_t read(std::uint16_t address) override { return regs_[address]; }
     void write(std::uint16_t address, std::uint8_t value) override
     {
         regs_[address] = value;
-        if (address == ADCSRA && bit(value, 7)) {
-            m_.note_once("adc", "The ADC is not simulated yet (SN-259): conversions do not finish");
-        } else if (address == SPCR && bit(value, 6)) {
+        if (address == SPCR && bit(value, 6)) {
             m_.note_once("spi", "SPI is not simulated yet (SN-259)");
         } else if (address == TWCR && bit(value, 2)) {
             m_.note_once("twi", "TWI (I2C) is not simulated yet (SN-259)");
-        } else if (address == ACSR && bit(value, 3)) {
-            m_.note_once("ac", "The analog comparator is not simulated yet (SN-259)");
         }
     }
     void reset() override
@@ -1317,6 +1543,8 @@ Atmega::Atmega(const Options& options)
     usart_ = add(new Usart(*this));
     eeprom_block_ = add(new Eeprom(*this));
     watchdog_ = add(new Watchdog(*this));
+    adc_ = add(new Adc(*this));
+    add(new AnalogComparator(*this));
     add(new Later(*this));
     attach_core();
     reset(ResetKind::PowerOn);
@@ -1508,6 +1736,8 @@ bool Atmega::interrupt_enabled(int vector) const
     case V_RXC: return bit(usart_->read(UCSRB), 7);
     case V_UDRE: return bit(usart_->read(UCSRB), 5);
     case V_TXC: return bit(usart_->read(UCSRB), 6);
+    case V_ADC: return adc_->interrupt_enabled();
+    case V_ANA_COMP: return io_owner_[ACSR] && static_cast<AnalogComparator*>(io_owner_[ACSR])->interrupt_enabled();
     case V_EE_RDY: return eeprom_block_->ready_enabled();
     case V_SPM_RDY: return bit(spmcr_, 7);
     default: return false;
@@ -1544,6 +1774,8 @@ void Atmega::taken(int vector)
     case V_T1_COMPB:
     case V_T1_OVF:
     case V_T0_OVF:
+    case V_ADC:
+    case V_ANA_COMP:
     case V_TXC:
         flags_[static_cast<std::size_t>(vector)] = false;
         if (vector == V_TXC) {
@@ -2096,6 +2328,16 @@ void Atmega::pin_changed(int pin, bool, bool after)
 }
 
 void Atmega::output_changed() { refresh_pins(); }
+
+double Atmega::analog_voltage(int pin, std::uint64_t cycle) const
+{
+    if (analog_source_) {
+        if (const auto v = analog_source_(pin, ns_at(cycle)); v && !std::isnan(*v)) {
+            return *v;
+        }
+    }
+    return pad_level(pin) ? 5.0 : 0.0; // without the circuit: the pin's logic level
+}
 
 // ---- USART bytes ----
 

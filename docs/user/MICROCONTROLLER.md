@@ -399,10 +399,18 @@ a real one.
     OC1B and OC2, input capture);
   - the USART, bit by bit on PD1 and PD0, in the terminal or through
     **USART to the computer**;
-  - the EEPROM, the watchdog, the resets, and self-programming (SPM).
-- **Not yet** (SN-259): the ADC, the analog comparator, SPI, TWI, sleep
-  modes other than Idle, Timer2's asynchronous mode and brown-out. The log
-  says once when the firmware uses one.
+  - the EEPROM, the watchdog, the resets, and self-programming (SPM);
+  - the ADC: ADC0-ADC5 on PC0-PC5, the bandgap and GND; the AVCC or
+    internal 2.56 V reference; single and free-running conversions with
+    their timing (13 ADC clocks, 25 for the first). Each reads the
+    circuit's voltage at its sampling instant. AVCC and AREF are taken as
+    5 V, since the pins' voltages are not read yet;
+  - the analog comparator: AIN0 or the bandgap against AIN1 or an ADC
+    input, with its interrupt and Timer1's input capture. It samples the
+    circuit every 10 µs, so an edge shorter than that can be missed.
+- **Not yet** (SN-259): SPI, TWI, sleep modes other than Idle, Timer2's
+  asynchronous mode and brown-out. The log says once when the firmware uses
+  one.
 - **EEPROM**: what the firmware writes to it is kept beside a saved project
   as `<designator>-eeprom.bin`, which becomes the chip's **EEPROM** property.
   The next run starts with it, as the chip keeps its EEPROM when it is
@@ -411,7 +419,8 @@ a real one.
     data.
   - Clear the property to start erased again.
 - **Examples**: 50 (the USART at 9600 baud with a counter kept in the
-  EEPROM) and 51 (a blink at 16 MHz with a crystal). Their firmware sources
+  EEPROM), 51 (a blink at 16 MHz with a crystal) and 52 (a potentiometer on
+  the ADC setting a PWM, kept in step by a 1 ms timer tick). Their firmware sources
   are in `examples/firmware/avr_*`.
 
 ## Debugging with STM32CubeIDE or GDB

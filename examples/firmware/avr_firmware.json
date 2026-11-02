@@ -14,6 +14,14 @@
     "-fdebug-prefix-map={root}=."
   ],
   "firmware": {
+    "avr_adc": {
+      "source": "examples/firmware/avr_adc/avr_adc.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_adc/avr_adc.elf",
+      "elf_sha256": "8eaab4e5a64891fa53ccc51342418b06ffbbed7369afc0057e907bb7c4e7cb6e",
+      "hex": "examples/firmware/avr_adc/avr_adc.hex",
+      "hex_sha256": "86c664963b6ba0bd27a056f73eca6922851a2260df84dfe69f13b93e3556401f"
+    },
     "avr_blink": {
       "source": "examples/firmware/avr_blink/avr_blink.c",
       "f_cpu": 1000000,
@@ -53,6 +61,14 @@
       "elf_sha256": "35050647ab16814e6766de73775213384e76c9c75a5ef34779c60837ed5a40e2",
       "hex": "examples/firmware/avr_serial/avr_serial.hex",
       "hex_sha256": "b50d7060ac9dd972b013d4574427cd5812a72f6d8aa601f919fe85dd60e1da2b"
+    },
+    "avr_station": {
+      "source": "examples/firmware/avr_station/avr_station.c",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr_station/avr_station.elf",
+      "elf_sha256": "e06ddd218d391ec1fab2cb2a4eca138118235f711d618229cfa9f61fbb0d5e8b",
+      "hex": "examples/firmware/avr_station/avr_station.hex",
+      "hex_sha256": "5215f1fdf7d1fdd15b18a95bfb22c094ff245ac5ebb1850a5ced401ac1c5e8e9"
     }
   }
 }

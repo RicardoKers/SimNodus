@@ -22,6 +22,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <vector>
@@ -975,6 +976,92 @@ TEST_CASE("atmega8: watchdog reset, WDTON, RSTDISBL, the RESET pin and reading t
     f->run_until_ns(80'000'000);
     CHECK(f->cpu().peek(0x100) == 0xE1);
     CHECK(f->cpu().peek(0x101) == 0xD9);
+}
+
+TEST_CASE("atmega8: ADC codes, references, timing and free running; the analog comparator (SN-259)")
+{
+    // Voltages from "the circuit": PC0 2.5 V, PC1 1.0 V, PD6 2.0 V, PD7 set below.
+    double ain1 = 1.0;
+    auto m = machine_with("avr_adc");
+    REQUIRE(m);
+    m->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        switch (pin) {
+        case 8: return 2.5;
+        case 9: return 1.0;
+        case 22: return 2.0;
+        case 23: return ain1;
+        default: return std::nullopt;
+        }
+    });
+    m->run_until_ns(300'000'000);
+    // 2.5 V of 5 V: 512; 1.0 V: 204; 2.5 V of 2.56 V: 1000; the bandgap: 266.
+    const std::string text = uart_text(*m);
+    CHECK(text.find("A0 512 A1 204 A0/2.56 1000 BG 266\r\n") != std::string::npos);
+
+    // Timing through the registers: the first conversion after ADEN takes
+    // 25 ADC clocks, the next 13 (prescaler 8: 200 and 104 cycles).
+    auto t = machine_with_words({RJMP(-1)});
+    t->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        return pin == 22 ? 2.0 : pin == 23 ? ain1 : 1.25; // AIN0, AIN1, the ADC inputs
+    });
+    t->run_until_ns(70'000'000);
+    auto& cpu = t->cpu();
+    auto busy = [&] { return (cpu.read_data(0x26) & 0x40) != 0; };
+    auto run_cycles = [&](std::uint64_t n) { t->run_until_ns(t->ns_at(t->cycles() + n)); };
+    cpu.write_data(0x27, 0x40);       // AVCC, ADC0
+    cpu.write_data(0x26, 0x80 | 0x40 | 0x03); // ADEN, ADSC, /8
+    // The core runs a two-cycle RJMP: the registers are read between
+    // instructions, so the checks stand 10 cycles either side of the end.
+    run_cycles(190);
+    CHECK(busy());
+    run_cycles(20);
+    CHECK(!busy());
+    CHECK((cpu.read_data(0x26) & 0x10) != 0); // ADIF
+    CHECK((cpu.read_data(0x24) | (cpu.read_data(0x25) << 8)) == 256); // 1.25 V of 5 V
+    cpu.write_data(0x26, 0x80 | 0x40 | 0x10 | 0x03); // a new one, and ADIF cleared
+    CHECK((cpu.read_data(0x26) & 0x10) == 0);
+    run_cycles(94);
+    CHECK(busy());
+    run_cycles(20);
+    CHECK(!busy());
+    // ADLAR: left adjusted, ADCH holds the eight high bits.
+    cpu.write_data(0x27, 0x60);
+    cpu.write_data(0x26, 0x80 | 0x40 | 0x03);
+    run_cycles(110);
+    CHECK(cpu.read_data(0x25) == 256 >> 2);
+    // Free running: a conversion every 13 ADC clocks without ADSC writes.
+    cpu.write_data(0x27, 0x40);
+    cpu.write_data(0x26, 0x80 | 0x40 | 0x20 | 0x10 | 0x03);
+    int ends = 0;
+    const std::uint64_t from = t->cycles();
+    while (t->cycles() - from < 1040) {
+        const bool before = (cpu.read_data(0x26) & 0x10) != 0;
+        run_cycles(1);
+        if (!before && (cpu.read_data(0x26) & 0x10) != 0) {
+            ++ends;
+            cpu.write_data(0x26, 0x80 | 0x40 | 0x20 | 0x10 | 0x03); // clear ADIF
+        }
+    }
+    CHECK(ends == 10); // 1040 cycles / 104
+
+    // The comparator: AIN0 (2.0 V) against AIN1; ACI on a rising output.
+    cpu.write_data(0x26, 0x00); // ADC off
+    cpu.write_data(0x28, 0x13); // ACI cleared, ACIS 11
+    run_cycles(100);
+    CHECK((cpu.read_data(0x28) & 0x20) != 0); // ACO: 2.0 V > 1.0 V
+    CHECK((cpu.read_data(0x28) & 0x10) == 0); // no edge yet
+    ain1 = 3.0;
+    run_cycles(20'000); // sampled every 10 us
+    CHECK((cpu.read_data(0x28) & 0x20) == 0);
+    CHECK((cpu.read_data(0x28) & 0x10) == 0); // falling: not the rising mode
+    ain1 = 1.0;
+    run_cycles(20'000);
+    CHECK((cpu.read_data(0x28) & 0x10) != 0); // rising: ACI
+    // The bandgap (1.30 V) as the positive input.
+    cpu.write_data(0x28, 0x50);
+    ain1 = 1.5;
+    run_cycles(20'000);
+    CHECK((cpu.read_data(0x28) & 0x20) == 0);
 }
 
 TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM with EESAVE")

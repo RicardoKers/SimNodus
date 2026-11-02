@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-02, ATmega8 ADC and analog comparator)
+
+- The ATmega8's **ADC** (SN-259): ADC0-ADC5, the bandgap and GND, the AVCC and internal 2.56 V references, single and free-running conversions with their timing; each reads the circuit's voltage at its sampling instant. The **analog comparator** with its interrupt and Timer1's input capture, sampled every 10 µs. Example 52 (a potentiometer on the ADC setting a PWM, a student project in small) and the owned firmware `avr_adc` and `avr_station`.
+
 ### Added (2026-11-02, ATmega8 in the circuit, experimental)
 
 - **ATmega8-PU and ATmega8A-PU** parts (Microcontrollers, PDIP-28, experimental; SN-258, experiment E-10): the bare AVR chips run `.hex` or `.elf` firmware in the circuit, with their pins at 5 V, the USART in the terminal (and **USART to the computer**), and the fuses as properties (**Low fuse**, **High fuse**, **Lock bits**; the factory values give the internal 1 MHz). An ELF's fuses apply as a production programmer writes them.
