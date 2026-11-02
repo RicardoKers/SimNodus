@@ -84,6 +84,11 @@ void write_mcu_request(Writer& w, const McuRequest& m)
         w.str(link.spec);
         w.str(link.circuit);
     }
+    w.size(o.parameters.size());
+    for (const auto& [name, value] : o.parameters) {
+        w.str(name);
+        w.str(value);
+    }
     w.size(o.devices.size());
     for (const auto& d : o.devices) {
         w.u64(d.component);
@@ -150,6 +155,10 @@ McuRequest read_mcu_request(Reader& r)
         o.uart_links[uart] = {spec, r.str()};
     }
     for (std::size_t n = r.size(8); n > 0 && r.ok(); --n) {
+        auto name = r.str();
+        o.parameters[name] = r.str();
+    }
+    for (std::size_t n = r.size(8); n > 0 && r.ok(); --n) {
         mcu::DeviceRequest d;
         d.component = r.u64();
         d.designator = r.str();
@@ -169,7 +178,7 @@ McuRequest read_mcu_request(Reader& r)
         d.memory.assign(memory.begin(), memory.end());
         o.devices.push_back(std::move(d));
     }
-    for (std::size_t n = r.size(16); n > 0 && r.ok(); --n) {
+    for (std::size_t n = r.size(8); n > 0 && r.ok(); --n) {
         mcu::DigitalNet net;
         net.name = r.str();
         net.board_pins = read_strings(r);

@@ -1839,7 +1839,7 @@ void ramp(Context& cx, double seconds, Apply apply)
 const library::Parameter* live_parameter(Context& cx, const model::Component& c, const json& args)
 {
     const auto* d = cx.ws.library().find(c.type);
-    if (!d || !d->device) {
+    if (!d || (!d->device && !d->mcu)) {
         return nullptr;
     }
     if (const auto name = optional_text(args, "parameter")) {

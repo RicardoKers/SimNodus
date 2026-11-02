@@ -3658,6 +3658,14 @@ Pinos: %2</translation>
             <translation>O USB do próprio chip (GPIO18 e GPIO19; o REPL do MicroPython) ligado ao computador: uma porta serial (uma ponta de um par de portas virtuais), tcp:4001, ou vazio para nenhuma. DTR e RTS reiniciam o chip e escolhem o modo de download como o USB Serial/JTAG faz</translation>
         </message>
         <message>
+            <source>Chip temperature</source>
+            <translation>Temperatura do chip</translation>
+        </message>
+        <message>
+            <source>Temperature of the chip that its temperature sensor measures; change it while running to test the firmware (-40 to 125 °C)</source>
+            <translation>Temperatura do chip que o seu sensor de temperatura mede; mude-a durante a simulação para testar o firmware (-40 a 125 °C)</translation>
+        </message>
+        <message>
             <source>Rotary encoder</source>
             <translation>Encoder rotativo</translation>
         </message>

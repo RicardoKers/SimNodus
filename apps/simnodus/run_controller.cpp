@@ -332,7 +332,7 @@ bool RunController::apply_live_parameters()
         model::Component c = original;
         const auto* d = library.find(c.type);
         const auto* now = document_.schematic().component(c.id);
-        if (!d || !d->device || !now) {
+        if (!d || (!d->device && !d->mcu) || !now) { // chips, and a board's chip temperature
             continue;
         }
         for (const auto& p : d->parameters) {

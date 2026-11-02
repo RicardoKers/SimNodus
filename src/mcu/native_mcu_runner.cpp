@@ -707,6 +707,9 @@ void NativeMcuRunner::work()
                 }
             }
             for (const auto& change : std::exchange(parameter_changes_, {})) {
+                if (change.component == 0) { // the board itself (its chip's temperature)
+                    machine->set_parameter(change.name, change.value);
+                }
                 for (std::size_t d = 0; d < options_.devices.size(); ++d) {
                     if (options_.devices[d].component == change.component) {
                         bus.set_parameter(d, change.name, change.value, now);

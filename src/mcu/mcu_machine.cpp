@@ -275,6 +275,9 @@ public:
         }
         machine_.set_uart_pin_rx(0, !options.uart_rx_byte_links.count("uart0"), rx_exact ? 0 : options.uart_rx_min_bit_ns);
         machine_.set_uart_pin_rx(1, !options.uart_rx_byte_links.count("uart1"), options.uart_rx_min_bit_ns);
+        for (const auto& [name, value] : options.parameters) {
+            set_parameter(name, value);
+        }
         machine_.reset();
         // The circuit's level on each watched pad starts low, as the runner
         // assumes, and only its changes come later: a pull-up enabled against
@@ -334,6 +337,14 @@ public:
                     download_latch_ = true;
                 }
             }
+        }
+    }
+    void set_parameter(const std::string& name, const std::string& value) override
+    {
+        char* end = nullptr;
+        const double number = std::strtod(value.c_str(), &end);
+        if (name == "chip_temperature" && end != value.c_str()) {
+            machine_.set_chip_celsius(std::clamp(number, -40.0, 125.0)); // the sensor's range
         }
     }
     std::uint64_t flash_version() const override { return machine_.flash_writes(); }

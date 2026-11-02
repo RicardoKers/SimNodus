@@ -45,6 +45,7 @@ REQUIRED = [
     "examples/46_ESP32-C3_I2C_sensor_and_EEPROM.snx", "examples/firmware/esp32c3_i2c/esp32c3_i2c.bin",
     "examples/47_ESP32-C3_SPI_ADC_and_flash.snx", "examples/firmware/esp32c3_spi/esp32c3_spi.bin",
     "examples/48_ESP32-C3_WS2812_strip.snx", "examples/firmware/esp32c3_ws2812/esp32c3_ws2812.bin",
+    "examples/49_ESP32-C3_ADC_with_DMA_and_temperature.snx", "examples/firmware/esp32c3_adc_dma/esp32c3_adc_dma.bin",
     "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json", "library/devices/lcd_hd44780.json",
     "examples/23_Seven_segment_counter.snx",
     "examples/32_ROM_lookup_seven_segment.snx", "examples/memories/hex_digits.hex",

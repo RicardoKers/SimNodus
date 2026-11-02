@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-01, ESP32-C3 continuous ADC and temperature sensor)
+
+- The ESP32-C3's ADC converts continuously with DMA (SN-247): the digital controller's timer, pattern table and EOF count, each conversion taking the circuit's voltage at its own time, results through the GDMA in link as ESP-IDF's `adc_continuous` driver reads them. Example 49 samples a 50 Hz sine on GPIO0 and a potentiometer on GPIO1 at 20 kHz (10 000 samples per second each, calibrated within 2 %).
+- The ESP32-C3's temperature sensor measures the board's new **Chip temperature** property (25 °C, changeable while running, also with `sim.control`), in the range ESP-IDF's driver selects through the analog blocks' internal I2C bus (now modelled as stored registers); ESP-IDF's driver, MicroPython's `esp32.mcu_temperature()` and Arduino's `temperatureRead()` checked. Engine protocol 12 (a board's live parameters).
+- Fixed: the ESP32-C3's GDMA raised interrupt sources 47-49 instead of 44-46 (ETS_DMA_CH0..2); drivers that wait for the GDMA's own interrupt (the continuous ADC) now get it. The GDMA in link continues after an EOF, as the ADC's descriptor ring needs.
+
 ### Added (2026-11-01, MicroPython's files kept)
 
 - What an ESP32-C3's firmware writes to its own flash is kept between runs as uploads are (SN-248): MicroPython's files (copied with Thonny or `mpremote fs cp`), ESP-IDF's NVS and Arduino's `Preferences` are saved in `<designator>-flash.bin` beside the project when the run stops, which becomes the board's firmware, so the next run starts with them and runs `main.py` at boot. Before, only a flash written after a download boot was kept. Nothing is written beside an example copy that was not saved under a name (before, an upload into such a copy was saved in the examples folder). The MicroPython workflow is in the microcontroller guide (English and pt-BR).
