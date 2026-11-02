@@ -83,7 +83,8 @@ def main() -> None:
                 "hex_sha256": sha256(hex_file),
             }
             print(f"{name}: {elf.stat().st_size} bytes of ELF")
-    (FIRMWARE / "avr_firmware.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    with open(FIRMWARE / "avr_firmware.json", "w", encoding="utf-8", newline="\n") as out:
+        out.write(json.dumps(record, indent=2) + "\n")
 
 
 if __name__ == "__main__":
