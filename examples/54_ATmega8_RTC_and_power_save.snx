@@ -1,0 +1,262 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "eeprom": "",
+        "firmware": "firmware/avr_sleep/avr_sleep.elf",
+        "fuse_high": "D9",
+        "fuse_low": "E1",
+        "lock": "FF",
+        "usart_link": ""
+      },
+      "rotation": 0,
+      "type": "atmega8a_pdip28"
+    },
+    {
+      "at": [
+        -30,
+        -10
+      ],
+      "designator": "V1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        -30,
+        -7
+      ],
+      "designator": "GND1",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -9,
+        1
+      ],
+      "designator": "GND2",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        9,
+        -1
+      ],
+      "designator": "GND3",
+      "id": 8,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -24,
+        2
+      ],
+      "designator": "Y1",
+      "id": 9,
+      "mirrored": false,
+      "parameters": {
+        "frequency": "32.768k"
+      },
+      "rotation": 90,
+      "type": "crystal"
+    },
+    {
+      "at": [
+        -16,
+        18
+      ],
+      "designator": "R1",
+      "id": 14,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 90,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -16,
+        26
+      ],
+      "designator": "LED1",
+      "id": 16,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        -16,
+        29
+      ],
+      "designator": "GND4",
+      "id": 18,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -30,
+        -13
+      ],
+      "id": 4,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        -9,
+        -1
+      ],
+      "id": 5,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        9,
+        3
+      ],
+      "id": 6,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        -24,
+        -1
+      ],
+      "id": 10,
+      "name": "TOSC1"
+    },
+    {
+      "at": [
+        -24,
+        5
+      ],
+      "id": 11,
+      "name": "TOSC2"
+    },
+    {
+      "at": [
+        -9,
+        3
+      ],
+      "id": 12,
+      "name": "TOSC1"
+    },
+    {
+      "at": [
+        -9,
+        5
+      ],
+      "id": 13,
+      "name": "TOSC2"
+    }
+  ],
+  "next_id": 21,
+  "notes": [
+    {
+      "at": [
+        -40,
+        -30
+      ],
+      "id": 20,
+      "text": "ATmega8A at the factory clock (internal RC, 1 MHz) as a small real-time clock: Timer2 counts a 32.768 kHz\nwatch crystal on TOSC1 and TOSC2 (AS2) and overflows once a second; in between the chip sleeps in\nPower-save. Each second the LED on PB0 toggles and the terminal shows \"seconds 12\"."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 19,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          13
+        ],
+        "item": 1,
+        "pin": "PB0"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 15,
+      "points": [
+        [
+          -9,
+          13
+        ],
+        [
+          -13,
+          13
+        ],
+        [
+          -13,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "points": [
+        [
+          -19,
+          18
+        ],
+        [
+          -16,
+          18
+        ],
+        [
+          -16,
+          23
+        ]
+      ]
+    }
+  ]
+}

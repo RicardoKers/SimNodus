@@ -45,9 +45,12 @@ public:
     // Pins: index = port * 8 + bit, port 0 = B, 1 = C, 2 = D (PB0..PB7,
     // PC0..PC6, PD0..PD7 on the ATmega8).
     static constexpr int pin_count = 24;
+    // The supply pins, for their voltages from the circuit (analog source).
+    static constexpr int vcc_pin = 100, avcc_pin = 101, aref_pin = 102;
     static int pin_index(char port, int bit) { return (port - 'B') * 8 + bit; }
     static std::string pin_name(int pin);
     bool pin_exists(int pin) const;
+    bool pin_usable(int pin) const; // not taken by RESET, the oscillator or TOSC
 
     struct PinState {
         bool output = false; // driven by the chip
@@ -167,6 +170,7 @@ public:
     void uart_byte(std::uint8_t value, std::uint64_t cycle);
     // The circuit's voltage on a pin at a cycle (the ADC, the comparator).
     double analog_voltage(int pin, std::uint64_t cycle) const;
+    bool io_clock_stopped() const; // asleep in a mode that stops the I/O clock
     void halt_cpu(unsigned cycles) { cpu_.set_cycles(cpu_.cycles() + cycles); }
     void request_reset(ResetKind kind);
 
@@ -180,7 +184,6 @@ private:
     void apply_fuses();
     bool interrupt_enabled(int vector) const;
     void pin_changed(int pin, bool before, bool after);
-    bool pin_usable(int pin) const; // not taken by RESET or the oscillator
     std::uint64_t next_event() const;
     void run_events(std::uint64_t cycle);
 
@@ -243,6 +246,7 @@ private:
     class AnalogComparator;
     class Spi;
     class Twi;
+    class Power;
     friend class Ports;
     friend class ExternalInterrupts;
     friend class Timer0;
@@ -255,6 +259,7 @@ private:
     friend class AnalogComparator;
     friend class Spi;
     friend class Twi;
+    friend class Power;
     Timer0* timer0_ = nullptr;
     Timer1* timer1_ = nullptr;
     Timer2* timer2_ = nullptr;
@@ -264,6 +269,15 @@ private:
     Adc* adc_ = nullptr;
     Spi* spi_ = nullptr;
     Twi* twi_ = nullptr;
+    Power* power_ = nullptr;
+    enum class Hold { None, Off, BrownOut };
+    Hold power_hold_ = Hold::None;
+    int sleep_mode_ = -1; // SM2:0 while asleep, -1 awake
+    std::uint64_t sleep_start_ = 0;
+    std::uint64_t startup_clocks_ = 6;
+    void enter_sleep(int mode);
+    void leave_sleep();
+    bool wakes(int vector) const;
     bool ac_capture_ = false; // ACIC: Timer1 captures the comparator's output
     ExternalInterrupts* extint_ = nullptr;
     unsigned spm(std::uint16_t z, std::uint16_t r1r0);

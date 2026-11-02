@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 8611eaee4ef9f795c760dfa11334f46384e0713a6d08ad36ad75db4157522434 -->
+<!-- source: MICROCONTROLLER.md sha256 d2d282d58aa1c2f59c2141433d71fbdf57fe1d2bfbb8d4507dfe3d6e966e92f0 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -391,8 +391,15 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   produção os grava. Quando a simulação começa, os fusíveis do ELF que
   diferem dos da peça viram as propriedades da peça, num passo que Desfazer
   volta, e as mensagens avisam.
-- **Alimentação**: ligue VCC, AVCC e os dois pinos GND. Os pinos são
-  simulados a 5 V; a tensão no VCC ainda não é lida.
+- **Alimentação**: ligue VCC, AVCC e os dois pinos GND. O chip lê a sua
+  alimentação do circuito:
+  - Abaixo de cerca de 1,4 V no VCC ele fica desligado e avisa; quando o
+    VCC volta, parte com um reset de ligação (power-on).
+  - Com o **BODEN**, fica em reset abaixo do nível de brown-out (2,6 V, ou
+    3,8 V com o BODLEVEL programado), e volta com o BORF.
+  - Sem o BODEN, uma alimentação abaixo do mínimo do datasheet para o
+    clock (2,7 V; 4,5 V acima de 8 MHz ou para o ATmega8) gera um aviso.
+  - Os pinos acionam o circuito como a 5 V, seja qual for o VCC.
 - **Fusíveis**: as propriedades **Fusível low**, **Fusível high** e **Bits de trava (lock)**,
   em hexadecimal, com os bits programados em 0. Elas valem quando a
   simulação começa, como ao ligar o chip. **Fusíveis...**, logo abaixo,
@@ -419,11 +426,11 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
   - a USART, bit a bit em PD1 e PD0, no terminal ou pela propriedade
     **USART para o computador**;
   - a EEPROM, o watchdog, os resets e a autoprogramação (SPM);
-  - o ADC: ADC0-ADC5 em PC0-PC5, o bandgap e o GND; a referência AVCC ou a
-    interna de 2,56 V; conversões únicas e contínuas com os seus tempos
-    (13 clocks do ADC, 25 na primeira). Cada uma lê a tensão do circuito no
-    instante da amostragem. AVCC e AREF são tomados como 5 V, porque a
-    tensão desses pinos ainda não é lida;
+  - o ADC: ADC0-ADC5 em PC0-PC5, o bandgap e o GND; a referência AVCC,
+    AREF ou a interna de 2,56 V, com AVCC e AREF tirados do circuito;
+    conversões únicas e contínuas com os seus tempos (13 clocks do ADC, 25
+    na primeira). Cada uma lê a tensão do circuito no instante da
+    amostragem;
   - o comparador analógico: AIN0 ou o bandgap contra AIN1 ou uma entrada
     do ADC, com a sua interrupção e a captura de entrada do Timer1. Ele
     amostra o circuito a cada 10 µs, então uma borda mais curta que isso
@@ -433,10 +440,19 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
     entrada encerra o modo mestre, como no chip;
   - o TWI (I2C) como mestre em SDA (PC4) e SCL (PC5), em dreno aberto, com
     os códigos de estado do TWSR e o clock stretching. Ele conversa com os
-    chips I2C da biblioteca, com os pull-ups no circuito.
-- **Ainda não** (SN-259): SPI e TWI como escravos, os modos de sleep além
-  do Idle, o modo assíncrono do Timer2 e o brown-out. O log avisa uma vez
-  quando o firmware usa um deles.
+    chips I2C da biblioteca, com os pull-ups no circuito;
+  - os modos de sleep:
+    - Idle, ADC Noise Reduction, Power-down, Power-save e Standby, com as
+      fontes de despertar do datasheet: do Power-down só uma interrupção
+      por nível em INT0/INT1 ou o watchdog acorda o chip;
+    - os temporizadores param enquanto o clock de E/S para;
+    - acordar do Power-down leva o tempo de partida do oscilador;
+  - o Timer2 assíncrono (AS2) num **Cristal** de 32,768 kHz entre TOSC1
+    (PB6) e TOSC2 (PB7), com o clock principal no RC interno. Ele continua
+    rodando no Power-save, e as flags de atualização pendente funcionam
+    como no chip.
+- **Ainda não**: SPI e TWI como escravos. O log avisa uma vez quando o
+  firmware usa um deles.
 - **EEPROM**: o que o firmware grava nela fica guardado ao lado de um
   projeto salvo como `<designador>-eeprom.bin`, que passa a ser a
   propriedade **EEPROM** do chip. A próxima simulação começa com ele, como o
@@ -447,7 +463,8 @@ USART com o datasheet, mas o chip ainda não foi comparado com um real.
 - **Exemplos**: 50 (a USART a 9600 baud, com um contador guardado na
   EEPROM), 51 (um pisca a 16 MHz com cristal) e 52 (um potenciômetro no
   ADC ajustando um PWM, sincronizados por um tick de 1 ms do timer) e 53
-  (um LM75 e uma 24C02 por TWI, um 74HC595 por SPI). Os fontes dos firmwares
+  (um LM75 e uma 24C02 por TWI, um 74HC595 por SPI) e 54 (um relógio de
+  tempo real com cristal de relógio, dormindo em Power-save). Os fontes dos firmwares
   estão em `examples/firmware/avr_*`.
 
 ## Depuração com STM32CubeIDE ou GDB

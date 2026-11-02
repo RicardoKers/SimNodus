@@ -1033,6 +1033,13 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 request.options.pins.push_back(pin.name);
             }
         }
+        if (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") {
+            // A bare chip reads its supply from the circuit (SN-259): power,
+            // brown-out and the ADC's references.
+            for (const char* supply : {"VCC", "AVCC", "AREF"}) {
+                request.options.pins.push_back(supply);
+            }
+        }
         if (environment.gdb_port >= 0) {
             request.options.gdb_port = environment.gdb_port + static_cast<int>(requests.size());
         }

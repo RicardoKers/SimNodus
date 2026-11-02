@@ -158,8 +158,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    then the owner's board comparison (G10b.9) with an ATmega8, a USBasp and a
    logic analyzer. SN-259 started: the ADC and the analog comparator
    (example 52, the station firmware), then the SPI and TWI masters
-   (example 53 with an LM75, a 24C02 and a 74HC595); next sleep, Timer2
-   asynchronous and brown-out.
+   (example 53 with an LM75, a 24C02 and a 74HC595), then the sleep modes,
+   Timer2 asynchronous on a watch crystal, VCC/AVCC/AREF from the circuit and
+   brown-out (example 54). SN-259 done: the ATmega8 is complete. Next: the
+   owner's board comparison (G10b.9, G10c.1's ±2 LSB) and decision DE10, then
+   SN-260 (ATmega328/328P, ATmega32/32A).
    Everything after SN-247..SN-249 on `main` (the flash_args assembly, the
    GDB client takeover and the RISC-V `stepi` fix) was tested by the owner
    with the 2026-11-02b preview and waits for release 0.14.

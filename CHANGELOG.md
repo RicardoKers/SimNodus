@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-02, ATmega8 sleep, Timer2 asynchronous, power)
+
+- The ATmega8's **sleep modes** (SN-259): Idle, ADC Noise Reduction, Power-down, Power-save and Standby with their wake-up sources, the timers standing still without the I/O clock, the oscillator's start-up on waking. **Timer2 asynchronous** on a 32.768 kHz Crystal between TOSC1 and TOSC2, running in Power-save, with its update-busy flags.
+- A bare ATmega8 reads **VCC, AVCC and AREF** from the circuit: no power below about 1.4 V (and a power-on reset when it returns), **brown-out** with BODEN and BODLEVEL, a warning below the datasheet's minimum supply for the clock, and the ADC's AVCC and AREF references as the circuit has them.
+- Example 54 (a real-time clock on a watch crystal, sleeping in Power-save) and the owned firmware `avr_sleep`. The ATmega8 is complete for E-10's gate G10c; it stays experimental until it is compared with the owner's chip.
+
 ### Added (2026-11-02, ATmega8 SPI and TWI)
 
 - The ATmega8's **SPI** master (SN-259): SCK, MOSI and MISO bit by bit on the pins in the four modes and both bit orders, SPIF with its interrupt, WCOL, and SS ending master mode. The **TWI** (I2C) master: SDA and SCL open drain at the TWBR/TWPS bit rate, START, repeated START, address, data, ACK/NACK and STOP with the TWSR status codes, and clock stretching. Example 53 (an LM75 and a 24C02 over TWI, a 74HC595 over SPI) and the owned firmware `avr_bus`.

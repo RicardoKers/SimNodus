@@ -531,7 +531,12 @@ public:
     {
     }
 
-    int pin_id(const std::string& name) const override { return avr_pin(name); }
+    int pin_id(const std::string& name) const override
+    {
+        // The supply pins are watched for their voltages (power, brown-out, the ADC's references).
+        return name == "VCC" ? emu::Atmega::vcc_pin : name == "AVCC" ? emu::Atmega::avcc_pin
+             : name == "AREF" ? emu::Atmega::aref_pin : avr_pin(name);
+    }
     int uart_id(const std::string& name) const override { return name == "usart" ? 0 : -1; }
     bool load(const McuRunOptions& options, std::string& error) override
     {

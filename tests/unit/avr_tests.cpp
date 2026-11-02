@@ -1003,6 +1003,9 @@ TEST_CASE("atmega8: ADC codes, references, timing and free running; the analog c
     // 25 ADC clocks, the next 13 (prescaler 8: 200 and 104 cycles).
     auto t = machine_with_words({RJMP(-1)});
     t->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        if (pin >= Atmega::vcc_pin) {
+            return std::nullopt; // VCC, AVCC, AREF: 5 V
+        }
         return pin == 22 ? 2.0 : pin == 23 ? ain1 : 1.25; // AIN0, AIN1, the ADC inputs
     });
     t->run_until_ns(70'000'000);
@@ -1160,6 +1163,125 @@ TEST_CASE("atmega8: TWI master against a slave at the pin level (SN-259)")
     std::printf("  %s", text.c_str());
     CHECK(s.starts > 0);
     CHECK(text.find("LM75 25.5 C") != std::string::npos);
+}
+
+TEST_CASE("atmega8: Timer2 on a 32.768 kHz crystal wakes the chip from power-save every second (SN-259)")
+{
+    Atmega::Options options;
+    options.external_hz = 32768; // the watch crystal between TOSC1 and TOSC2
+    auto m = machine_with("avr_sleep", options);
+    REQUIRE(m);
+    m->run_until_ns(4'500'000'000);
+    const auto t = edges(m->take_pin_events(), pb0);
+    REQUIRE(t.size() >= 4);
+    // 128 x 256 ticks of 32768 Hz: exactly 1 s, and the same interrupt latency each time.
+    for (std::size_t i = 1; i < t.size(); ++i) {
+        CHECK(t[i] - t[i - 1] == 1'000'000'000);
+    }
+    CHECK(uart_text(*m).find("seconds 4\r\n") != std::string::npos);
+    // Asleep between the seconds: a few thousand instructions in 4.5 s.
+    CHECK(m->cpu().instructions() < 40'000);
+    CHECK(!m->pin_usable(6)); // PB6, PB7: TOSC1, TOSC2
+}
+
+TEST_CASE("atmega8: power-down wakes on a level interrupt, not on an edge; the timers stop (SN-259)")
+{
+    // 0: RJMP main; 1 (INT0): RETI; main at 2:
+    //   LDI r16,0x40; OUT GICR,r16; LDI r16,<MCUCR>; OUT MCUCR,r16; SEI; SLEEP;
+    //   SBI DDRB,0; SBI PORTB,0; RJMP .-1
+    auto program = [](int mcucr) {
+        return std::vector<std::uint16_t>{RJMP(1), RETI, LDI(16, 0x40), OUT(0x3B, 16), LDI(16, mcucr), OUT(0x35, 16),
+            BSET(7), SLEEP, SBI(0x17, 0), SBI(0x18, 0), RJMP(-1)};
+    };
+    for (const bool level : {true, false}) {
+        // SE, SM 010 (power-down); ISC0 00 (low level) or 10 (falling edge).
+        auto m = machine_with_words(program(level ? 0xA0 : 0xA2));
+        m->set_pin_input(pd2, true);
+        m->run_until_ns(100'000'000);
+        CHECK(!m->pin(pb0).output); // asleep
+        const auto asleep = m->cpu().instructions();
+        m->set_pin_input(pd2, false);
+        m->run_until_ns(101'000'000);
+        CHECK(m->pin(pb0).output == level);
+        if (!level) {
+            CHECK(m->cpu().instructions() == asleep); // an edge does not wake power-down
+        }
+    }
+    // Timer1 stands still in power-down: a CTC interrupt never comes, though
+    // Idle would take it. 0: RJMP main; 6 (TIMER1 COMPA): SBI PORTB,1; RETI.
+    auto timer = [](int mcucr) {
+        return std::vector<std::uint16_t>{RJMP(7), NOP, NOP, NOP, NOP, NOP, SBI(0x18, 1), RETI, SBI(0x17, 1),
+            LDI(16, 0x03), OUT(0x2B, 16), LDI(16, 0xE8), OUT(0x2A, 16), LDI(16, 0x10), OUT(0x39, 16), LDI(16, 0x09),
+            OUT(0x2E, 16), LDI(16, mcucr), OUT(0x35, 16), BSET(7), SLEEP, RJMP(-2)};
+    };
+    // OCR1AH = 0x03, OCR1AL = 0xE8 (1000 cycles), OCIE1A, CTC with CK/1.
+    auto idle = machine_with_words(timer(0x80));
+    idle->run_until_ns(100'000'000);
+    CHECK(idle->pin(pb1).level); // Idle: the timer runs and its interrupt wakes the chip
+    auto down = machine_with_words(timer(0xA0));
+    down->run_until_ns(100'000'000);
+    CHECK(!down->pin(pb1).level);
+}
+
+TEST_CASE("atmega8: VCC from the circuit: power-on, brown-out, a low supply, the ADC's AVCC (SN-259)")
+{
+    double vcc = 5.0;
+    auto m = machine_with("avr_blink");
+    REQUIRE(m);
+    m->set_fuses(0xE1 & ~0x40, 0xD9, 0xFF); // BODEN programmed, BODLEVEL 2.6 V (the ELF had the factory fuses)
+    m->reset();
+    m->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        return pin == Atmega::vcc_pin ? std::optional<double>(vcc) : std::nullopt;
+    });
+    m->run_until_ns(1'200'000'000);
+    CHECK(edges(m->take_pin_events(), pb0).size() >= 2);
+    vcc = 2.3; // below the brown-out level: held in reset
+    m->run_until_ns(2'500'000'000);
+    CHECK(edges(m->take_pin_events(), pb0).empty());
+    CHECK(!m->pin(pb0).output);
+    vcc = 5.0;
+    m->run_until_ns(4'000'000'000);
+    CHECK((m->reset_flags() & 0x04) != 0); // BORF
+    CHECK(edges(m->take_pin_events(), pb0).size() >= 2);
+    // No power at all: off, with a message, and a power-on reset afterwards.
+    vcc = 0.0;
+    m->run_until_ns(4'500'000'000);
+    bool told = false;
+    for (const auto& d : m->take_diagnostics()) {
+        told = told || d.find("has no power") != std::string::npos;
+    }
+    CHECK(told);
+    vcc = 5.0;
+    m->run_until_ns(5'000'000'000);
+    CHECK(m->reset_flags() == 0x01); // PORF only
+
+    // An ATmega8 at 16 MHz on 4.0 V without brown-out detection: a warning.
+    Atmega::Options fast;
+    fast.model = Atmega::Model::Atmega8;
+    fast.external_hz = 16'000'000;
+    auto f = machine_with("avr_blink_16mhz", fast);
+    REQUIRE(f);
+    f->set_analog_source([](int pin, std::uint64_t) -> std::optional<double> {
+        return pin == Atmega::vcc_pin ? std::optional<double>(4.0) : std::nullopt;
+    });
+    f->run_until_ns(50'000'000);
+    bool warned = false;
+    for (const auto& d : f->take_diagnostics()) {
+        warned = warned || d.find("below the 4.5 V") != std::string::npos;
+    }
+    CHECK(warned);
+
+    // The ADC's AVCC reference is the circuit's: 2.0 V of 4.0 V is 512.
+    auto a = machine_with("avr_adc");
+    REQUIRE(a);
+    a->set_analog_source([](int pin, std::uint64_t) -> std::optional<double> {
+        if (pin == Atmega::avcc_pin) {
+            return 4.0;
+        }
+        return pin == 8 ? std::optional<double>(2.0) : std::nullopt;
+    });
+    a->run_until_ns(300'000'000);
+    CHECK(uart_text(*a).find("A0 512 ") != std::string::npos);
 }
 
 TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM with EESAVE")

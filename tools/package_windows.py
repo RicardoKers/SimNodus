@@ -51,6 +51,7 @@ REQUIRED = [
     "examples/51_ATmega8_crystal_16_MHz.snx", "examples/firmware/avr_blink/avr_blink_16mhz.elf",
     "examples/52_ATmega8_ADC_PWM_station.snx", "examples/firmware/avr_station/avr_station.elf",
     "examples/53_ATmega8_TWI_and_SPI_chips.snx", "examples/firmware/avr_bus/avr_bus.elf",
+    "examples/54_ATmega8_RTC_and_power_save.snx", "examples/firmware/avr_sleep/avr_sleep.elf",
     "library/logic/nand.json", "library/blocks/port.json", "library/storage/counter4.json", "library/regulators/lm317.json", "library/display/decoder_4511.json", "library/devices/74hc595.json", "library/devices/max7219.json", "library/devices/pcf8574.json", "library/devices/lcd_hd44780.json",
     "examples/23_Seven_segment_counter.snx",
     "examples/32_ROM_lookup_seven_segment.snx", "examples/memories/hex_digits.hex",

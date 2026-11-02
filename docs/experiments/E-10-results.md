@@ -259,7 +259,39 @@ Tests:
 
 This is G10c.3. Slave modes are not simulated (a note in the log).
 
+**Sleep, Timer2 asynchronous, power.** Implementation:
+- **Sleep modes.** They stop the I/O clock where the datasheet does: the
+  timers hold their counts and their prescaler's phase. Only the
+  datasheet's wake-up sources wake the chip; from Power-down that is the
+  level interrupts. Waking from Power-down or Power-save adds the
+  oscillator's start-up clocks.
+- **Timer2.** It counts a crystal whose period is not a whole number of
+  CPU cycles. The ticks fall at the cycles nearest their true times, and a
+  write sets an update-busy flag for two TOSC periods.
+- **Power.** The session watches VCC, AVCC and AREF like GPIO pins. The
+  machine samples VCC every 100 µs for power, brown-out (typical levels,
+  0.13 V of hysteresis) and the supply warning. Until VCC has been seen,
+  or for the first 10 ms, a low reading is not taken as "no power": the
+  circuit's first values come a little after the start.
+
+`emu-atmega8` checks:
+
+| Case | Result |
+|---|---|
+| `avr_sleep` on a 32.768 kHz crystal | the LED toggles exactly every 1 s, and the chip runs fewer than 40 000 instructions in 4.5 s |
+| Power-down | a low level on INT0 wakes it, a falling edge does not; Timer1's CTC interrupt never comes there, while in Idle it does |
+| Brown-out with BODEN | the chip is held at 2.3 V and starts with BORF at 5 V |
+| No power | at 0 V the chip reports it has no power, and starts with PORF only |
+| Low supply | an ATmega8 at 16 MHz on 4.0 V gives the warning |
+| AVCC reference | 2.0 V against an AVCC of 4.0 V reads 512 |
+
+Example 54 in the circuit prints `seconds 1`, `seconds 2` and toggles its
+LED at 0.5 Hz.
+
+This is G10c.4 to G10c.6. Gate G10c is met, except the comparisons with the
+owner's chip.
+
 ## Not covered yet
 
-The rest of SN-259 (sleep modes, Timer2 asynchronous, brown-out; G10c.4 to
-G10c.6).
+The board comparison (G10b.9, and the ADC within ±2 LSB of G10c.1) and
+decision DE10; then the ATmega328/328P and ATmega32/32A (SN-260).

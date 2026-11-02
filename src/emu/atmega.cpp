@@ -90,6 +90,9 @@ public:
             return;
         }
         const int sense = (m_.mcucr_ >> (2 * n)) & 3;
+        if (sense != 0 && m_.io_clock_stopped() && m_.sleep_mode_ != 1) {
+            return; // edges need the I/O clock: only level interrupts wake from power-down
+        }
         if ((sense == 1) || (sense == 2 && !level) || (sense == 3 && level)) {
             m_.set_flag(n == 0 ? V_INT0 : V_INT1, true);
         } else {
@@ -319,10 +322,19 @@ struct TickClock {
     bool external = false;
     bool rising = false;
     std::uint64_t* origin = nullptr;
+    // An asynchronous clock (Timer2 on TOSC1/TOSC2): CPU cycles per prescaled
+    // tick, not a whole number; 0: the CPU clock.
+    long double async_period = 0;
 
     std::uint64_t ticks_until(std::uint64_t cycle) const
     {
-        return cycle <= *origin ? 0 : (cycle - *origin) / divide;
+        if (cycle <= *origin) {
+            return 0;
+        }
+        if (async_period > 0) {
+            return static_cast<std::uint64_t>(static_cast<long double>(cycle - *origin) / async_period);
+        }
+        return (cycle - *origin) / divide;
     }
     std::uint64_t ticks_between(std::uint64_t after, std::uint64_t upto) const
     {
@@ -334,7 +346,10 @@ struct TickClock {
     // Cycle of the k-th tick after `after` (k >= 1).
     std::uint64_t tick_cycle(std::uint64_t after, std::uint64_t k) const
     {
-        const std::uint64_t base = after < *origin ? 0 : (after - *origin) / divide;
+        const std::uint64_t base = ticks_until(after);
+        if (async_period > 0) {
+            return *origin + static_cast<std::uint64_t>(std::ceil(static_cast<long double>(base + k) * async_period));
+        }
         return *origin + (base + k) * divide;
     }
 };
@@ -346,7 +361,7 @@ public:
 
     std::uint64_t next_event() const override
     {
-        if (clock.divide == 0 || clock.external) {
+        if (clock.divide == 0 || clock.external || frozen) {
             return no_event;
         }
         const std::uint64_t ticks = core.ticks_to_event();
@@ -401,6 +416,13 @@ public:
 
     TimerCore core;
     TickClock clock;
+    bool frozen = false; // its clock stopped in a sleep mode
+    // The sleep ended after `elapsed` cycles without its clock: no ticks.
+    void thaw(std::uint64_t now_cycle)
+    {
+        frozen = false;
+        last_ = now_cycle;
+    }
 
 protected:
     void advance_plain(std::uint64_t ticks)
@@ -722,7 +744,15 @@ public:
         case TCCR2: return tccr2_;
         case TCNT2: sync(now()); return static_cast<std::uint8_t>(core.count);
         case OCR2: return static_cast<std::uint8_t>(core.ch[0].buffer);
-        default: return assr_;
+        default: {
+            std::uint8_t v = assr_;
+            for (int f = 0; f < 3; ++f) {
+                if (now() < update_busy_[static_cast<std::size_t>(f)]) {
+                    v = static_cast<std::uint8_t>(v | (1u << f)); // TCR2UB, OCR2UB, TCN2UB
+                }
+            }
+            return v;
+        }
         }
     }
     void write(std::uint16_t address, std::uint8_t value) override
@@ -730,6 +760,7 @@ public:
         switch (address) {
         case TCCR2:
             sync(now());
+            busy_after_write(0);
             tccr2_ = value & 0x7F;
             if ((value & 0x80) && !core.pwm) { // FOC2
                 if (compare_action(core.ch[0], 0, true)) {
@@ -738,27 +769,52 @@ public:
             }
             configure();
             return;
-        case TCNT2: write_count(value); return;
+        case TCNT2:
+            busy_after_write(2);
+            write_count(value);
+            return;
         case OCR2:
             sync(now());
+            busy_after_write(1);
             core.ch[0].buffer = value;
             if (core.update == Update::Immediate) {
                 core.ch[0].ocr = value;
             }
             m_.timed_changed();
             return;
-        default:
+        default: {
+            sync(now());
+            const bool was = async();
             assr_ = value & 0x08;
-            if (assr_) {
-                m_.note_once("t2-async", "Timer2's asynchronous mode (AS2) is not simulated yet; Timer2 keeps counting the CPU clock");
+            if (async() != was) {
+                m_.prescaler2_ = now(); // the prescaler restarts on the new clock
+                last_ = now();
+                if (async() && m_.options_.external_hz == 0) {
+                    m_.note_once("t2-crystal", "Timer2 runs from TOSC1/TOSC2 (AS2) but no Crystal is between PB6 and PB7: "
+                                               "it does not count");
+                }
+                m_.refresh_pins();
             }
+            configure();
             return;
+        }
+        }
+    }
+    bool async() const { return bit(assr_, 3); }
+    // A write in asynchronous mode takes effect after two TOSC1 edges; until
+    // then TCN2UB, OCR2UB or TCR2UB reads 1.
+    void busy_after_write(int flag)
+    {
+        if (async() && m_.options_.external_hz) {
+            update_busy_[static_cast<std::size_t>(flag)] =
+                now() + static_cast<std::uint64_t>(std::ceil(2.0L * m_.cpu_hz_ / m_.options_.external_hz));
         }
     }
     void reset() override
     {
         tccr2_ = 0;
         assr_ = 0;
+        update_busy_.fill(0);
         core.count = 0;
         core.down = false;
         core.ch[0].ocr = core.ch[0].buffer = 0;
@@ -785,11 +841,21 @@ private:
         }
         static const unsigned divide[8] = {0, 1, 8, 32, 64, 128, 256, 1024};
         clock.divide = divide[tccr2_ & 7];
+        clock.async_period = 0;
+        if (async()) {
+            const std::uint32_t hz = m_.options_.external_hz;
+            if (hz == 0 || m_.cpu_hz_ == 0) {
+                clock.divide = 0; // no crystal: no clock
+            } else if (clock.divide) {
+                clock.async_period = static_cast<long double>(m_.cpu_hz_) * clock.divide / hz;
+            }
+        }
         connect_outputs();
         m_.timed_changed();
     }
     std::uint8_t tccr2_ = 0;
     std::uint8_t assr_ = 0;
+    std::array<std::uint64_t, 3> update_busy_{}; // TCR2UB, OCR2UB, TCN2UB
 };
 
 // ---------------------------------------------------------------------------
@@ -1294,8 +1360,6 @@ public:
             admux_ = value & 0xEF;
             if ((admux_ & 0x0F) == 6 || (admux_ & 0x0F) == 7) {
                 m_.note_once("adc67", "ADC6 and ADC7 are not on the PDIP package; they read 0");
-            } else if ((admux_ & 0xC0) == 0x00) {
-                m_.note_once("aref", "The ADC's AREF reference is taken as 5 V (the AREF pin's voltage is not read yet)");
             } else if ((admux_ & 0xC0) == 0x80) {
                 m_.note_once("refs10", "REFS 10 is reserved on the ATmega8; the ADC uses AREF");
             }
@@ -1349,6 +1413,13 @@ public:
     }
     bool interrupt_enabled() const { return bit(adcsra_, 3); }
     bool enabled() const { return bit(adcsra_, 7); }
+    void noise_reduction_start()
+    {
+        if (enabled() && !busy()) {
+            start(now());
+            m_.timed_changed();
+        }
+    }
     std::uint8_t mux() const { return admux_ & 0x0F; }
 
 private:
@@ -1374,7 +1445,9 @@ private:
             volts = 1.30; // the bandgap
         }
         const int refs = sample_mux_ >> 6;
-        const double reference = refs == 3 ? 2.56 : 5.0;
+        const double reference = refs == 3   ? 2.56
+                                 : refs == 1 ? m_.analog_voltage(Atmega::avcc_pin, sample_cycle)
+                                             : m_.analog_voltage(Atmega::aref_pin, sample_cycle);
         const double code = std::floor(volts * 1024.0 / reference);
         return static_cast<unsigned>(std::clamp(code, 0.0, 1023.0));
     }
@@ -1915,6 +1988,87 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// Power: the voltage on VCC from the circuit, sampled every 100 us. Below
+// about 1.4 V the chip is off (a power-on reset when it rises again). With
+// BODEN, below the brown-out level (BODLEVEL: 2.6 V, programmed 3.8 V;
+// typical values) it is held in reset and starts with BORF. Without the
+// circuit (the command line, tests) VCC is 5 V.
+
+class Atmega::Power : public Peripheral {
+public:
+    using Peripheral::Peripheral;
+    std::vector<std::uint16_t> addresses() const override { return {}; }
+    std::uint8_t read(std::uint16_t) override { return 0; }
+    void write(std::uint16_t, std::uint8_t) override {}
+    void reset() override { next_ = now(); }
+    std::uint64_t next_event() const override { return m_.analog_source_ ? next_ : no_event; }
+    void on_time(std::uint64_t cycle) override
+    {
+        if (next_ > cycle) {
+            return;
+        }
+        next_ = cycle + std::max<std::uint64_t>(1, m_.cycles_for_ns(100'000));
+        check(cycle);
+    }
+    void check(std::uint64_t cycle)
+    {
+        const double vcc = m_.analog_voltage(Atmega::vcc_pin, cycle);
+        // The circuit's first values come a little after the start: until VCC
+        // has been seen, or for 10 ms, a low reading is not yet "no power".
+        if (vcc >= 1.4) {
+            seen_ = true;
+        } else if (!seen_ && m_.time_ns() < 10'000'000) {
+            return;
+        }
+        const bool bod = !bit(m_.options_.fuse_low, 6);
+        const double level = bit(m_.options_.fuse_low, 7) ? 2.6 : 3.8;
+        if (vcc < 1.4) {
+            if (m_.power_hold_ != Hold::Off) {
+                m_.power_hold_ = Hold::Off;
+                m_.request_reset(ResetKind::PowerOn); // everything stops: the pins float
+                char text[160];
+                std::snprintf(text, sizeof text, "VCC is %.2f V: the %s has no power and does not run (wire VCC, AVCC and GND)",
+                    vcc, m_.chip_name());
+                m_.diagnostic(text);
+            }
+            return;
+        }
+        if (bod && vcc < level) {
+            if (m_.power_hold_ == Hold::None) {
+                m_.power_hold_ = Hold::BrownOut;
+                m_.request_reset(ResetKind::BrownOut); // held in reset: the pins float
+            }
+            return;
+        }
+        if (m_.power_hold_ == Hold::Off && (!bod || vcc >= level + 0.13)) {
+            m_.power_hold_ = Hold::None;
+            m_.request_reset(ResetKind::PowerOn);
+        } else if (m_.power_hold_ == Hold::BrownOut && vcc >= level + 0.13) { // the hysteresis
+            m_.power_hold_ = Hold::None;
+            m_.request_reset(ResetKind::BrownOut);
+        }
+        if (m_.power_hold_ == Hold::None && !bod) {
+            // The datasheet's safe operating area: 4.5 V above 8 MHz (and for the
+            // ATmega8-16), 2.7 V for the ATmega8A up to 8 MHz.
+            const bool fast = m_.cpu_hz_ > 8'000'000 || m_.options_.model == Model::Atmega8;
+            const double minimum = fast ? 4.5 : 2.7;
+            if (vcc < minimum - 0.05) {
+                char text[200];
+                std::snprintf(text, sizeof text,
+                    "VCC is %.2f V, below the %.1f V the datasheet asks for at %.0f MHz: a real chip may run wrongly "
+                    "(the simulation runs on; BODEN would hold it in reset)",
+                    vcc, minimum, m_.cpu_hz_ / 1e6);
+                m_.note_once("low-vcc", text);
+            }
+        }
+    }
+
+private:
+    std::uint64_t next_ = 0;
+    bool seen_ = false; // VCC was above 1.4 V once
+};
+
+// ---------------------------------------------------------------------------
 // Machine.
 
 Atmega::Atmega(const Options& options)
@@ -1941,6 +2095,7 @@ Atmega::Atmega(const Options& options)
     adc_ = add(new Adc(*this));
     add(new AnalogComparator(*this));
     spi_ = add(new Spi(*this));
+    power_ = add(new Power(*this));
     twi_ = add(new Twi(*this));
     attach_core();
     reset(ResetKind::PowerOn);
@@ -1965,6 +2120,9 @@ bool Atmega::pin_usable(int pin) const
     if (pin == PC6) {
         return !bit(options_.fuse_high, 7); // RSTDISBL programmed: an I/O pin
     }
+    if ((pin == PB6 || pin == PB7) && timer2_ && timer2_->async()) {
+        return false; // TOSC1/TOSC2: Timer2's crystal
+    }
     if (pin == PB6 || pin == PB7) {
         const int cksel = options_.fuse_low & 0x0F;
         if (cksel >= 1 && cksel <= 4) {
@@ -1988,11 +2146,7 @@ void Atmega::attach_core()
         if (!bit(mcucr_, 7)) {
             return false;
         }
-        const int mode = (mcucr_ >> 4) & 7;
-        if (mode != 0) {
-            note_once("sleep" + std::to_string(mode),
-                "Sleep modes other than Idle are not simulated yet (SN-259); this one behaves as Idle");
-        }
+        enter_sleep((mcucr_ >> 4) & 7);
         return true;
     };
     cpu_.on_wdr = [this] { watchdog_->wdr(); };
@@ -2144,8 +2298,9 @@ bool Atmega::interrupt_enabled(int vector) const
 
 int Atmega::pending_vector()
 {
+    const bool asleep = cpu_.state() == AvrState::Sleeping;
     for (int v = 1; v < V_COUNT; ++v) {
-        if (!interrupt_enabled(v)) {
+        if (!interrupt_enabled(v) || (asleep && !wakes(v))) {
             continue;
         }
         if ((v == V_INT0 || v == V_INT1) && extint_->level_pending(v - 1)) {
@@ -2158,8 +2313,83 @@ int Atmega::pending_vector()
     return -1;
 }
 
+void Atmega::enter_sleep(int mode)
+{
+    if (mode == 4 || mode == 5 || mode == 7) {
+        note_once("sleep-reserved", "Sleep mode " + std::to_string(mode) + " is reserved on the ATmega8; it behaves as Idle");
+        mode = 0;
+    }
+    sleep_mode_ = mode;
+    sleep_start_ = cpu_.cycles();
+    if (mode == 0) {
+        return; // Idle: every clock but the CPU's runs
+    }
+    // The I/O clock stops: Timer0, Timer1 and a synchronous Timer2 stand still.
+    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_)}) {
+        t->sync(cpu_.cycles());
+        t->frozen = true;
+    }
+    if (!timer2_->async() || mode == 2 || mode == 6) {
+        timer2_->sync(cpu_.cycles());
+        timer2_->frozen = true;
+    }
+    if (mode == 1) {
+        adc_->noise_reduction_start(); // entering ADC Noise Reduction starts a conversion
+    }
+    timed_changed();
+}
+
+void Atmega::leave_sleep()
+{
+    if (sleep_mode_ < 0) {
+        return;
+    }
+    const int mode = sleep_mode_;
+    sleep_mode_ = -1;
+    if (mode == 0) {
+        return;
+    }
+    if (mode == 2 || mode == 3) {
+        cpu_.set_cycles(cpu_.cycles() + startup_clocks_); // the oscillator starts again
+    } else if (mode == 6) {
+        cpu_.set_cycles(cpu_.cycles() + 6); // standby: the oscillator kept running
+    }
+    const std::uint64_t elapsed = cpu_.cycles() - sleep_start_;
+    prescaler10_ += elapsed; // the prescaler's phase stood still too
+    if (timer2_->frozen) {
+        prescaler2_ += elapsed;
+    }
+    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_), static_cast<TimerBase*>(timer2_)}) {
+        if (t->frozen) {
+            t->thaw(cpu_.cycles());
+        }
+    }
+    timed_changed();
+}
+
+bool Atmega::io_clock_stopped() const { return sleep_mode_ > 0; }
+
+bool Atmega::wakes(int vector) const
+{
+    switch (sleep_mode_) {
+    case -1:
+    case 0: return true;
+    case 1: // ADC Noise Reduction
+        return vector == V_INT0 || vector == V_INT1 || vector == V_ADC || vector == V_EE_RDY || vector == V_SPM_RDY
+               || ((vector == V_T2_COMP || vector == V_T2_OVF) && timer2_->async());
+    case 3: // Power-save: Timer2 in asynchronous mode as well
+        if ((vector == V_T2_COMP || vector == V_T2_OVF) && timer2_->async()) {
+            return true;
+        }
+        [[fallthrough]];
+    default: // Power-down, Standby: the level interrupts only
+        return (vector == V_INT0 || vector == V_INT1) && extint_->level_pending(vector - 1);
+    }
+}
+
 void Atmega::taken(int vector)
 {
+    leave_sleep();
     // The hardware clears these flags when their vector runs; RXC, UDRE and
     // EE_RDY are levels that the firmware clears.
     switch (vector) {
@@ -2275,6 +2505,7 @@ void Atmega::apply_fuses()
         }
     }
     startup_cycles_ = cpu_hz_ ? clocks + cycles_at(delay_ns) : 0;
+    startup_clocks_ = clocks; // waking from power-down: the oscillator's start-up only
     cpu_.set_reset_pc(bit(options_.fuse_high, 0) ? 0 : boot_start_words());
 }
 
@@ -2522,6 +2753,10 @@ void Atmega::reset(ResetKind kind)
         p->reset();
     }
     reset_requested_ = false;
+    sleep_mode_ = -1;
+    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_), static_cast<TimerBase*>(timer2_)}) {
+        t->frozen = false;
+    }
     refresh_pins();
     update_interrupts();
     if (cpu_hz_ == 0) {
@@ -2585,9 +2820,11 @@ void Atmega::run_until_ns(std::uint64_t ns)
         }
         const std::uint64_t event = next_event();
         const std::uint64_t stop = std::min(limit, event);
-        if (reset_pin_low_ || cpu_.cycles() < run_from_) {
-            // Held in reset, or starting up: time passes without instructions.
-            cpu_.set_cycles(reset_pin_low_ ? stop : std::min(stop, run_from_));
+        const bool held = reset_pin_low_ || power_hold_ != Hold::None;
+        if (held || cpu_.cycles() < run_from_) {
+            // Held in reset (the RESET pin, no power, brown-out), or starting
+            // up: time passes without instructions.
+            cpu_.set_cycles(held ? stop : std::min(stop, run_from_));
         } else if (cpu_.cycles() < stop) {
             cpu_.run(stop); // asleep, the core moves time to `stop`; an interrupt wakes it
         }
@@ -2735,6 +2972,9 @@ double Atmega::analog_voltage(int pin, std::uint64_t cycle) const
         if (const auto v = analog_source_(pin, ns_at(cycle)); v && !std::isnan(*v)) {
             return *v;
         }
+    }
+    if (pin == vcc_pin || pin == avcc_pin || pin == aref_pin) {
+        return 5.0; // without the circuit: a 5 V supply
     }
     return pad_level(pin) ? 5.0 : 0.0; // without the circuit: the pin's logic level
 }
