@@ -15,11 +15,13 @@
 #include "sim/simulation_session.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <filesystem>
 #include <set>
+#include <sstream>
 #include <thread>
 
 using namespace simnodus;
@@ -1152,6 +1154,77 @@ TEST_CASE("session: example 48 runs a light along a WS2812B strip from the ESP32
     REQUIRE(texts.count(strip));
     std::printf("  strip: %s\n", texts.at(strip).c_str());
     CHECK(texts.at(strip) == "8x1 rgb\n000000000000FF0000000000000000000000000000000000");
+    session.stop();
+}
+
+TEST_CASE("session: example 49 samples a sine with the ESP32-C3's ADC and DMA and reads its temperature")
+{
+    // SN-247: continuous conversions take the circuit's voltage at their own
+    // times (10 kHz on each pin); the board's chip temperature changes while
+    // running, as the window sends it.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "49_ESP32-C3_ADC_with_DMA_and_temperature.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    std::vector<std::string> warnings;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error, &warnings));
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.parameters.at("chip_temperature") == "25");
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](const std::string& wanted) {
+        std::string text;
+        while (text.find(wanted) == std::string::npos) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+            std::this_thread::sleep_for(10ms);
+            text.clear();
+            session.mcu_uart_received(board, "uart0", 0, text);
+        }
+        return text;
+    };
+    // The second report (a full second of samples): "GPIO0: 10016 samples, min 254 mV, max 2219 mV, mean 1244 mV".
+    std::string text = wait_for("Chip temperature: 25.0 C");
+    while (text.find("Chip temperature", text.find("Chip temperature") + 1) == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(board, "uart0", 0, text);
+    }
+    auto report = [&](const std::string& pin) {
+        const auto at = text.rfind(pin + ": ");
+        REQUIRE(at != std::string::npos);
+        int values[4] = {0, 0, 0, 0};
+        std::istringstream words(text.substr(at + pin.size() + 2));
+        std::string word;
+        words >> values[0] >> word >> word >> values[1] >> word >> word >> values[2] >> word >> word >> values[3];
+        std::printf("  %s: %d samples, min %d mV, max %d mV, mean %d mV\n", pin.c_str(), values[0], values[1], values[2],
+            values[3]);
+        CHECK(std::abs(values[0] - 10000) <= 64);
+        return std::array<int, 4>{values[0], values[1], values[2], values[3]};
+    };
+    const auto sine = report("GPIO0"); // 1.25 V +- 1 V, 50 Hz, through 1 kOhm into the pad
+    CHECK(std::abs(sine[1] - 250) <= 10);
+    CHECK(std::abs(sine[2] - 2250) <= 45); // the calibration reads 1.7 % low near 2.4 V
+    CHECK(std::abs(sine[3] - 1250) <= 15);
+    const auto pot = report("GPIO1"); // the potentiometer's wiper at 30 %
+    CHECK(pot[1] == pot[2]);
+    CHECK(pot[3] > 2200);
+    CHECK(pot[3] < 2350);
+    session.set_device_parameter(board, "chip_temperature", "60");
+    wait_for("Chip temperature: 60.0 C");
     session.stop();
 }
 

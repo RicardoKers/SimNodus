@@ -2363,7 +2363,8 @@ private:
         reg(0x10 * ch) |= bits;
         update(ch);
     }
-    void update(std::uint32_t ch) { raise(47 + static_cast<int>(ch), (reg(0x10 * ch) & reg(0x10 * ch + 8)) != 0); }
+    // ETS_DMA_CH0..2_INTR_SOURCE: 44..46 (the sources restart at 40 after SYSTIMER's).
+    void update(std::uint32_t ch) { raise(44 + static_cast<int>(ch), (reg(0x10 * ch) & reg(0x10 * ch + 8)) != 0); }
 
     void finish_out(std::uint32_t ch, std::uint32_t word0)
     {
@@ -2391,8 +2392,10 @@ private:
             bits |= 1u << 1; // IN_SUC_EOF
             reg(0x88 + stride * ch) = in.descriptor; // IN_SUC_EOF_DES_ADDR
         }
+        // The link goes on after an EOF too: the ADC's descriptors form a
+        // ring (an SPI transfer starts its link again anyway).
         const std::uint32_t next = load(in.descriptor + 8, 4);
-        in = next && !eof ? Side{true, next, 0} : Side{};
+        in = next ? Side{true, next, 0} : Side{};
         interrupt(ch, bits);
     }
 
@@ -2903,25 +2906,105 @@ private:
     bool last_[2] = {false, false};
 };
 
-// APB_SARADC, one-shot conversions (ONETIME_SAMPLE: unit and channel in bits
-// 28:25, attenuation in 24:23, START bit 29): the result is ready at once in
-// SARADC1/2_DATA_STATUS with ADC1/ADC2_DONE in INT_RAW. A linear converter,
-// labelled approximate (no offset, no noise, no curve): the inverse of the
-// first step of ESP-IDF's calibration with this machine's eFuse (calibration
-// version 1, ADC1_CAL_VOL_ATTENn 0: 2000 counts at 400, 550, 750 and
-// 1370 mV), so that calibrated readings (MicroPython's read_uv) give the pad's
-// voltage to within the calibration's second step (0.1 % at 1.25 V, 1.7 % low
-// at 2.4 V with 12 dB); 4095 at 819, 1126, 1536 and 2805 mV. Continuous (DMA) conversions are not modelled
-// yet.
-class ApbSaradc : public Esp32C3::Block {
+// The analog blocks' internal I2C bus (REGI2C), as the ROM's
+// rom_i2c_writeReg/readReg drive it: a write to I2C0_CTRL (0x000) or I2C1_CTRL
+// (0x004) with START (bit 26) names a block (bits 7:0) and register (15:8);
+// with WR (bit 24) the data (23:16) is stored, otherwise the stored value is
+// returned in 23:16. BUSY (bit 25) is never set: it is done at once. Only the
+// stored values are modelled, not what they do to the analog circuits, except
+// the temperature sensor's range (ApbSaradc).
+class AnalogI2c : public Esp32C3::Block {
 public:
-    explicit ApbSaradc(Esp32C3& machine) : Block(machine, "APB_SARADC") {}
+    explicit AnalogI2c(Esp32C3& machine) : Block(machine, "RTC_I2C") {}
+
+    std::uint8_t value(std::uint8_t block, std::uint8_t address) const { return values_[block * 256u + address]; }
+
+protected:
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        if ((offset == 0x000 || offset == 0x004) && (value & (1u << 26))) {
+            std::uint8_t& stored = values_[(value & 0xFF) * 256u + ((value >> 8) & 0xFF)];
+            if (value & (1u << 24)) {
+                stored = static_cast<std::uint8_t>(value >> 16);
+            }
+            value = (value & ~((0xFFu << 16) | (1u << 25))) | (std::uint32_t{stored} << 16);
+        }
+        Block::write_word(offset, value);
+    }
+
+private:
+    std::array<std::uint8_t, 256 * 256> values_{};
+};
+
+// APB_SARADC (TRM chapter "On-Chip Sensors and Analog Signal Processing").
+// One-shot conversions (ONETIME_SAMPLE: unit and channel in bits 28:25,
+// attenuation in 24:23, START bit 29): the result is ready at once in
+// SARADC1/2_DATA_STATUS with ADC1/ADC2_DONE in INT_RAW. Continuous
+// conversions (the digital controller, SN-247): while CTRL2.TIMER_EN is set,
+// one conversion every 2 x TIMER_TARGET cycles of the controller's clock (80
+// MHz / (CLKM_DIV_NUM + 1 + CLKM_DIV_A / CLKM_DIV_B)), taking the pattern
+// table's entries in turn (CTRL.SAR_PATT_LEN + 1 of them, 6 bits each from
+// bit 18 of SAR_PATT_TAB1/2 down: unit, channel, attenuation); with
+// DMA_CONF.APB_ADC_TRANS each result goes to the GDMA channel of peripheral 8
+// as 4 bytes (data 11:0, channel 15:13, unit 16), with the in link's EOF after
+// every APB_ADC_EOF_NUM conversions. A linear converter, labelled approximate
+// (no offset, no noise, no curve): the inverse of the first step of
+// ESP-IDF's calibration with this machine's eFuse (calibration version 1,
+// ADC1_CAL_VOL_ATTENn 0: 2000 counts at 400, 550, 750 and 1370 mV), so that
+// calibrated readings (MicroPython's read_uv) give the pad's voltage to
+// within the calibration's second step (0.1 % at 1.25 V, 1.7 % low at 2.4 V
+// with 12 dB); 4095 at 819, 1126, 1536 and 2805 mV. The pad's voltage is the
+// circuit's at the conversion's time. The temperature sensor (APB_TSENS_CTRL,
+// powered by TSENS_PU) gives TSENS_OUT for the machine's chip temperature in
+// the range its DAC (REGI2C block 0x69, register 6) selects: the inverse of
+// ESP-IDF's conversion (0.4386 x out - 27.88 x offset - 20.52 degrees C).
+class ApbSaradc : public Esp32C3::Block, public Esp32C3::Timed {
+public:
+    ApbSaradc(Esp32C3& machine, Gdma& dma, const AnalogI2c& analog)
+        : Block(machine, "APB_SARADC"), dma_(dma), analog_(analog)
+    {
+    }
+
+    std::uint64_t next_ns() const override { return next_; }
+    void on_ns(std::uint64_t now) override
+    {
+        if (!running()) {
+            next_ = no_event;
+            return;
+        }
+        const std::uint32_t length = ((reg(0x000) >> 15) & 7) + 1;
+        const std::uint32_t entry = (reg(0x018 + 4 * (pointer_ / 4)) >> (18 - 6 * (pointer_ % 4))) & 0x3F;
+        pointer_ = (pointer_ + 1) % length;
+        const std::uint32_t unit = (entry >> 5) & 1;
+        const std::uint32_t channel = (entry >> 2) & 7;
+        const std::uint32_t data = convert(unit, channel, entry & 3) | (channel << 13) | (unit << 16);
+        if (reg(0x050) & (1u << 31)) { // APB_ADC_TRANS
+            for (int i = 0; i < 4; ++i) {
+                dma_.push(8, static_cast<std::uint8_t>(data >> (8 * i)));
+            }
+            const std::uint32_t eof = reg(0x050) & 0xFFFF;
+            if (eof != 0 && ++count_ >= eof) {
+                count_ = 0;
+                dma_.end_in(8);
+            }
+        }
+        next_ = std::max(next_ + period_ns(), now + 1);
+    }
+    void pause(std::uint64_t ns) override
+    {
+        if (next_ != no_event) {
+            next_ += ns;
+        }
+    }
 
 protected:
     std::uint32_t read_word(std::uint32_t offset) override
     {
         if (offset == 0x048) { // INT_ST
             return reg(0x044) & reg(0x040);
+        }
+        if (offset == 0x058) { // APB_TSENS_CTRL: TSENS_OUT while TSENS_PU
+            return (reg(0x058) & ~0xFFu) | ((reg(0x058) & (1u << 22)) ? temperature_out() : 0u);
         }
         return Block::read_word(offset);
     }
@@ -2931,29 +3014,24 @@ protected:
             reg(0x044) &= ~value;
             return;
         }
+        const bool was_running = running();
         const bool start = offset == 0x020 && (value & (1u << 29)) && !(reg(0x020) & (1u << 29));
         Block::write_word(offset, value);
+        if (offset == 0x000 && (value & (1u << 23))) { // SAR_PATT_P_CLEAR
+            pointer_ = 0;
+        } else if (offset == 0x050 && (value & (1u << 30))) { // APB_ADC_RESET_FSM
+            pointer_ = 0;
+            count_ = 0;
+        }
+        if (running() != was_running) {
+            next_ = running() ? now_ns() + period_ns() : no_event;
+            reschedule();
+        }
         if (!start) {
             return;
         }
         const std::uint32_t unit = (value >> 28) & 1;
-        const std::uint32_t channel = (value >> 25) & 7;
-        const std::uint32_t atten = (value >> 23) & 3;
-        const int gpio = unit == 0 ? (channel <= 4 ? static_cast<int>(channel) : -1) : (channel == 0 ? 5 : -1);
-        std::uint32_t raw = 0;
-        if (gpio >= 0) {
-            static constexpr double volts_at_2000[4] = {0.400, 0.550, 0.750, 1.370};
-            double volts = 0.0;
-            if (const auto v = pad_volts(gpio)) {
-                volts = *v;
-            } else {
-                std::uint32_t in = 0;
-                machine_.bus().read(0x6000403Cu, 4, in); // GPIO_IN: the pad's logic level
-                volts = (in >> gpio) & 1 ? 3.3 : 0.0;
-            }
-            const double counts = std::clamp(volts / volts_at_2000[atten] * 2000.0, 0.0, 4095.0);
-            raw = static_cast<std::uint32_t>(std::lround(counts));
-        }
+        const std::uint32_t raw = convert(unit, (value >> 25) & 7, (value >> 23) & 3);
         if (unit == 0) {
             reg(0x02C) = raw;                    // SARADC1_DATA_STATUS
             reg(0x044) |= 1u << 31;              // ADC1_DONE
@@ -2962,6 +3040,60 @@ protected:
             reg(0x044) |= 1u << 30;              // ADC2_DONE
         }
     }
+    void on_reset() override
+    {
+        next_ = no_event;
+        pointer_ = 0;
+        count_ = 0;
+    }
+
+private:
+    bool running() const { return (reg(0x004) & (1u << 24)) != 0; } // CTRL2.TIMER_EN
+    std::uint64_t period_ns() const
+    {
+        const std::uint32_t clkm = reg(0x054);
+        const double b = (clkm >> 8) & 0x3F;
+        const double divider = (clkm & 0xFF) + 1 + (b != 0 ? ((clkm >> 14) & 0x3F) / b : 0.0);
+        const std::uint32_t target = std::max<std::uint32_t>((reg(0x004) >> 12) & 0xFFF, 1);
+        return std::max<std::uint64_t>(static_cast<std::uint64_t>(std::llround(2.0 * target * divider * 12.5)), 1);
+    }
+    std::uint32_t convert(std::uint32_t unit, std::uint32_t channel, std::uint32_t atten)
+    {
+        const int gpio = unit == 0 ? (channel <= 4 ? static_cast<int>(channel) : -1) : (channel == 0 ? 5 : -1);
+        if (gpio < 0) {
+            return 0;
+        }
+        static constexpr double volts_at_2000[4] = {0.400, 0.550, 0.750, 1.370};
+        double volts = 0.0;
+        if (const auto v = pad_volts(gpio)) {
+            volts = *v;
+        } else {
+            std::uint32_t in = 0;
+            machine_.bus().read(0x6000403Cu, 4, in); // GPIO_IN: the pad's logic level
+            volts = (in >> gpio) & 1 ? 3.3 : 0.0;
+        }
+        const double counts = std::clamp(volts / volts_at_2000[atten] * 2000.0, 0.0, 4095.0);
+        return static_cast<std::uint32_t>(std::lround(counts));
+    }
+    std::uint32_t temperature_out() const
+    {
+        int offset = 0;
+        switch (analog_.value(0x69, 6) & 0xF) { // I2C_SARADC_TSENS_DAC
+        case 5: offset = -2; break;
+        case 7: offset = -1; break;
+        case 11: offset = 1; break;
+        case 10: offset = 2; break;
+        default: break;
+        }
+        const double out = (machine_.chip_celsius() + 20.52 + 27.88 * offset) / 0.4386;
+        return static_cast<std::uint32_t>(std::lround(std::clamp(out, 0.0, 255.0)));
+    }
+
+    Gdma& dma_;
+    const AnalogI2c& analog_;
+    std::uint64_t next_ = no_event;
+    std::uint32_t pointer_ = 0; // the pattern table's next entry
+    std::uint32_t count_ = 0;   // conversions since the last EOF
 };
 
 // The MMU table: 128 entries, each mapping 64 KiB of both cache windows to a
@@ -3157,8 +3289,12 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     auto systimer = std::make_unique<Systimer>(*this);
     timed_.push_back(systimer.get());
     attach(0x60023000u, std::move(systimer));
-    attach(0x60040000u, std::make_unique<ApbSaradc>(*this));
     auto gdma = std::make_unique<Gdma>(*this);
+    auto analog = std::make_unique<AnalogI2c>(*this);
+    auto saradc = std::make_unique<ApbSaradc>(*this, *gdma, *analog);
+    timed_.push_back(saradc.get());
+    attach(0x6000E000u, std::move(analog));
+    attach(0x60040000u, std::move(saradc));
     auto spi2 = std::make_unique<Spi2>(*this, *gdma);
     timed_.push_back(spi2.get());
     attach(0x6003F000u, std::move(gdma));
@@ -3184,7 +3320,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     };
     static constexpr Plain plain[] = {
         {0x60005000u, "FE2"}, {0x60006000u, "FE"},
-        {0x6000E000u, "RTC_I2C"}, {0x60014000u, "UHCI0"},
+        {0x60014000u, "UHCI0"},
         {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
         {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"},

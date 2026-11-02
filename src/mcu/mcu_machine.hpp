@@ -88,6 +88,12 @@ public:
     // The flash once something wrote it in this run (esptool through the ROM,
     // or the firmware itself: MicroPython's files, NVS): a number that grows
     // with each write, 0 before; whether a download wrote it; the contents.
+    // A live parameter of the board (McuRunOptions::parameters) changed.
+    virtual void set_parameter(const std::string& name, const std::string& value)
+    {
+        (void)name;
+        (void)value;
+    }
     virtual std::uint64_t flash_version() const { return 0; }
     virtual bool flash_downloaded() const { return false; }
     virtual std::vector<std::uint8_t> flash() const { return {}; }

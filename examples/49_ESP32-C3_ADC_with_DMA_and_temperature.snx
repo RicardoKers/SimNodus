@@ -1,0 +1,210 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "chip_temperature": "25",
+        "firmware": "firmware/esp32c3_adc_dma/esp32c3_adc_dma.bin",
+        "uart0_link": "",
+        "usb_link": ""
+      },
+      "rotation": 0,
+      "type": "esp32c3_devkitm1"
+    },
+    {
+      "at": [
+        -30,
+        6
+      ],
+      "designator": "V1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "amplitude": "1",
+        "f": "50",
+        "offset": "1.25",
+        "phase": "0"
+      },
+      "rotation": 0,
+      "type": "vsine"
+    },
+    {
+      "at": [
+        -30,
+        9
+      ],
+      "designator": "GND1",
+      "id": 3,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    },
+    {
+      "at": [
+        -22,
+        2
+      ],
+      "designator": "R1",
+      "id": 4,
+      "mirrored": false,
+      "parameters": {
+        "R": "1k"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -20,
+        -12
+      ],
+      "designator": "RV1",
+      "id": 7,
+      "mirrored": false,
+      "parameters": {
+        "R": "10k",
+        "position": "30"
+      },
+      "rotation": 0,
+      "type": "potentiometer"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -20,
+        -15
+      ],
+      "id": 8,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -20,
+        -9
+      ],
+      "id": 9,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -17,
+        -12
+      ],
+      "id": 10,
+      "name": "POT"
+    },
+    {
+      "at": [
+        -9,
+        4
+      ],
+      "id": 11,
+      "name": "POT"
+    },
+    {
+      "at": [
+        -9,
+        -12
+      ],
+      "id": 12,
+      "name": "3V3"
+    },
+    {
+      "at": [
+        -9,
+        -14
+      ],
+      "id": 13,
+      "name": "GND"
+    }
+  ],
+  "next_id": 16,
+  "notes": [],
+  "probes": [
+    {
+      "color": "",
+      "id": 14,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          2
+        ],
+        "item": 1,
+        "pin": "GPIO0"
+      }
+    },
+    {
+      "color": "",
+      "id": 15,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -9,
+          4
+        ],
+        "item": 1,
+        "pin": "GPIO1"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 5,
+      "points": [
+        [
+          -30,
+          3
+        ],
+        [
+          -30,
+          -1
+        ],
+        [
+          -22,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "points": [
+        [
+          -22,
+          5
+        ],
+        [
+          -22,
+          2
+        ],
+        [
+          -9,
+          2
+        ]
+      ]
+    }
+  ]
+}

@@ -967,6 +967,12 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         // 2.40x and 2.32x real time; 100 us keeps inputs late by less than 0.1 ms.
         request.options.chunk_us = std::min<std::uint64_t>(request.options.chunk_us, native_window_us);
         request.options.chip = d->mcu->chip;
+        for (const auto& p : d->parameters) {
+            if (p.live) { // the ESP32-C3's chip temperature (SN-247)
+                const auto it = c.parameters.find(p.name);
+                request.options.parameters[p.name] = it == c.parameters.end() ? p.default_value : it->second;
+            }
+        }
         for (const auto& pin : d->pins) {
             if (mcu::chip_gpio(d->mcu->chip, pin.name)) {
                 request.options.pins.push_back(pin.name);
@@ -1152,6 +1158,12 @@ std::uint64_t SimulationSession::mcu_uart_received(model::Id component, const st
 void SimulationSession::set_device_parameter(model::Id component, const std::string& name, const std::string& value)
 {
     for (const auto& m : request_.mcus) {
+        if (m.component == component) { // a board's own parameter: component 0 in its runner
+            if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {
+                it->second->set_device_parameter(0, name, value);
+            }
+            return;
+        }
         for (const auto& d : m.options.devices) {
             if (d.component == component) {
                 if (const auto it = mcus_.find(m.component); it != mcus_.end() && active()) {

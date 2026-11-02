@@ -843,6 +843,16 @@
       "host_link": true,
       "default": "",
       "description": "The chip's own USB (GPIO18 and GPIO19; MicroPython's REPL) linked to the computer: a serial port (one end of a virtual port pair), tcp:4001, or empty for none. DTR and RTS reset the chip and select download mode as the USB Serial/JTAG does"
+    },
+    {
+      "name": "chip_temperature",
+      "label": "Chip temperature",
+      "unit": "°C",
+      "default": "25",
+      "min": "-40",
+      "max": "125",
+      "live": true,
+      "description": "Temperature of the chip that its temperature sensor measures; change it while running to test the firmware (-40 to 125 °C)"
     }
   ],
   "mcu": {

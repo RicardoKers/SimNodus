@@ -124,6 +124,9 @@ public:
     std::optional<double> pin_voltage(int gpio) const;
     // The level on a pad (driven, from the circuit, or the pull).
     bool pad_level(int gpio) const;
+    // The die temperature the temperature sensor measures (SN-247), 25 °C at first.
+    void set_chip_celsius(double celsius) { chip_celsius_ = celsius; }
+    double chip_celsius() const { return chip_celsius_; }
     // A source of pad voltages asked at each conversion (the circuit); a
     // voltage set with set_pin_voltage() wins.
     void set_analog_source(std::function<std::optional<double>(int gpio, std::uint64_t time_ns)> source)
@@ -219,6 +222,7 @@ private:
     std::array<bool, 128> signal_level_{};
     std::array<bool, 128> signal_driven_{};
     std::array<std::optional<double>, gpio_count> volts_{};
+    double chip_celsius_ = 25.0;
     std::function<std::optional<double>(int, std::uint64_t)> analog_source_;
     std::function<void(int, std::uint64_t)> pin_hook_;
     void set_signal(int signal, bool level);

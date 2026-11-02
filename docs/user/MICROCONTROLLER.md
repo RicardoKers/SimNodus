@@ -248,8 +248,18 @@ small differences may remain.
 - **Simulated**: the RV32IMC core, 4 MB flash, SRAM, caches and flash
   mapping, interrupts, system timer, timer groups and watchdogs, RTC, light
   and deep sleep, GPIO with interrupts, UART0/UART1, USB Serial/JTAG, LEDC
-  (PWM) and one-shot ADC readings on GPIO0-GPIO4 (approximate: linear, no
-  noise), SHA, random numbers and eFuse (MAC 34:85:18:00:C3:01).
+  (PWM), the ADC on GPIO0-GPIO4 (approximate: linear, no noise), SHA,
+  random numbers and eFuse (MAC 34:85:18:00:C3:01).
+- **ADC**: one-shot readings and continuous conversions with DMA (ESP-IDF's
+  `adc_continuous` driver, up to 83 kHz), each taking the circuit's voltage
+  at its own time, so a waveform is sampled as on the board. Calibrated
+  readings are within about 2 % (1.7 % low near 2.4 V with 12 dB). Example
+  49 samples a 50 Hz sine and a potentiometer at 20 kHz.
+- **Temperature sensor**: it measures the board's **Chip temperature**
+  property (25 °C by default; change it while running). ESP-IDF's
+  `temperature_sensor` driver, MicroPython's `esp32.mcu_temperature()` and
+  Arduino's `temperatureRead()` read it; ESP-IDF rounds down to whole
+  degrees, so a reading may be up to 1 °C low.
 - **I2C**: I2C0 as a master on any GPIO through the GPIO matrix, with
   SimNodus's I2C chips (the same ones as with the Blue Pill) at the pin level:
   ESP-IDF's I2C driver, Arduino's `Wire` and MicroPython's `machine.I2C`
@@ -270,8 +280,7 @@ small differences may remain.
   driver, Arduino's `rgbLedWrite` and MicroPython's `neopixel`. Example 48
   runs a light along a strip. Receive channels and the carrier are not
   simulated.
-- **Not yet**: continuous ADC, the temperature sensor, Wi-Fi and Bluetooth;
-  debugging with GDB (the Blue Pill only).
+- **Not yet**: Wi-Fi and Bluetooth; debugging with GDB (the Blue Pill only).
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
   settings); cache misses and flash waits are not modelled, so code runs
   somewhat faster than on the chip. Timers count at their real rates.

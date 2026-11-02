@@ -14,12 +14,14 @@
 #include "emu/esp32c3.hpp"
 #include "emu/esp32c3_rom.hpp"
 
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -454,6 +456,79 @@ TEST_CASE("esp32c3: MicroPython PWM on LEDC and ADC readings")
         }
     }
     CHECK(found);
+}
+
+TEST_CASE("esp32c3: continuous ADC with GDMA and the temperature sensor (example 49)")
+{
+    // SN-247: ESP-IDF's continuous ADC driver samples GPIO0 and GPIO1 at
+    // 20 kHz through the GDMA ring; its temperature sensor reads the chip's
+    // temperature in the range the driver chooses.
+    auto machine = boot(read_file(repository / "examples" / "firmware" / "esp32c3_adc_dma" / "esp32c3_adc_dma.bin"));
+    REQUIRE(machine);
+    machine->set_analog_source([](int gpio, std::uint64_t time_ns) -> std::optional<double> {
+        if (gpio == 0) { // 50 Hz, 0.25 V to 2.25 V
+            return 1.25 + std::sin(2 * 3.14159265358979 * 50.0 * static_cast<double>(time_ns) * 1e-9);
+        }
+        return gpio == 1 ? std::optional<double>(1.0) : std::nullopt;
+    });
+    struct Reading {
+        int samples[2] = {0, 0};
+        int min_mv[2] = {0, 0};
+        int max_mv[2] = {0, 0};
+        int mean_mv[2] = {0, 0};
+        double celsius = -100;
+    };
+    std::string partial;
+    std::uint64_t t = 0;
+    auto second = [&] {
+        t += 1'000'000'000ull;
+        Reading r;
+        for (const Line& line : run_lines(*machine, t, 0, partial)) {
+            // "GPIO0: 10016 samples, min 254 mV, max 2219 mV, mean 1244 mV" or "Chip temperature: 25.0 C"
+            std::string spaced = line.text;
+            for (char& c : spaced) {
+                c = (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '.') ? c : ' ';
+            }
+            std::istringstream words(spaced);
+            std::vector<double> n;
+            for (double x = 0; words >> x;) {
+                n.push_back(x);
+            }
+            if (line.text.rfind("GPIO", 0) == 0 && n.size() == 5 && (n[0] == 0 || n[0] == 1)) {
+                const int ch = static_cast<int>(n[0]);
+                r.samples[ch] = static_cast<int>(n[1]);
+                r.min_mv[ch] = static_cast<int>(n[2]);
+                r.max_mv[ch] = static_cast<int>(n[3]);
+                r.mean_mv[ch] = static_cast<int>(n[4]);
+            } else if (line.text.rfind("Chip temperature", 0) == 0 && n.size() == 1) {
+                r.celsius = n[0];
+            }
+        }
+        return r;
+    };
+    second();
+    const Reading r = second();
+    std::printf("  GPIO0: %d samples, %d..%d mV, mean %d; GPIO1: %d samples, mean %d mV; %.1f C\n", r.samples[0],
+        r.min_mv[0], r.max_mv[0], r.mean_mv[0], r.samples[1], r.mean_mv[1], r.celsius);
+    for (int ch = 0; ch < 2; ++ch) {
+        CHECK(std::abs(r.samples[ch] - 10000) <= 64); // 10 kHz each, read in frames of 32
+    }
+    CHECK(std::abs(r.min_mv[0] - 250) <= 10);
+    CHECK(std::abs(r.max_mv[0] - 2250) <= 45); // the calibration reads 1.7 % low near 2.4 V
+    CHECK(std::abs(r.mean_mv[0] - 1250) <= 15);
+    CHECK(std::abs(r.mean_mv[1] - 1000) <= 10);
+    CHECK(r.min_mv[1] == r.max_mv[1]);
+    CHECK(std::abs(r.celsius - 25.0) < 0.5);
+    // Outside the -10..80 °C range the driver moves the sensor's range.
+    for (const double celsius : {-25.0, 105.0, 40.0}) {
+        machine->set_chip_celsius(celsius);
+        second();
+        const double read = second().celsius;
+        std::printf("  chip at %.0f C reads %.1f C\n", celsius, read);
+        // ESP-IDF truncates to whole degrees after steps of 0.4386 degrees.
+        CHECK(read <= celsius + 0.5);
+        CHECK(read > celsius - 1.5);
+    }
 }
 
 // esptool's SYNC command as a SLIP frame.

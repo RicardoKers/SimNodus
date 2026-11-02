@@ -82,6 +82,9 @@ struct McuRunOptions {
         std::string circuit;
     };
     std::map<std::string, UartLink> uart_links;
+    // The board's live parameters (SN-247: the ESP32-C3's "chip_temperature"
+    // in °C), as typed; McuMachine::set_parameter() changes one while running.
+    std::map<std::string, std::string> parameters;
     // GDB server on 127.0.0.1:gdb_port (SN-180), -1 for none. The firmware then
     // waits halted at its reset handler for the first client.
     int gdb_port = -1;

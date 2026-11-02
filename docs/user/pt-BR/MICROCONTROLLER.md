@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 5fdd2928f7c3d8fd37f085ff0546c142d6fc21279f5e204739bcde32f38b9d66 -->
+<!-- source: MICROCONTROLLER.md sha256 bf8fdf4d06ecd416d05a8b3df9651611a48775b92b30630a82b5b8aa07801d89 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -261,9 +261,19 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
 - **Simulado**: o núcleo RV32IMC, 4 MB de flash, SRAM, caches e mapeamento da
   flash, interrupções, temporizador do sistema, grupos de timers e watchdogs,
   RTC, light sleep e deep sleep, GPIO com interrupções, UART0/UART1, USB
-  Serial/JTAG, LEDC (PWM) e leituras avulsas do ADC nos GPIO0-GPIO4
-  (aproximadas: lineares, sem ruído), SHA, números aleatórios e eFuse (MAC
-  34:85:18:00:C3:01).
+  Serial/JTAG, LEDC (PWM), o ADC nos GPIO0-GPIO4 (aproximado: linear, sem
+  ruído), SHA, números aleatórios e eFuse (MAC 34:85:18:00:C3:01).
+- **ADC**: leituras avulsas e conversões contínuas com DMA (o driver
+  `adc_continuous` do ESP-IDF, até 83 kHz), cada uma com a tensão do circuito
+  no seu próprio instante, de modo que uma forma de onda é amostrada como na
+  placa. As leituras calibradas ficam a cerca de 2 % (1,7 % abaixo perto de
+  2,4 V com 12 dB). O exemplo 49 amostra uma senoide de 50 Hz e um
+  potenciômetro a 20 kHz.
+- **Sensor de temperatura**: mede a propriedade **Temperatura do chip** da
+  placa (25 °C por padrão; mude-a durante a simulação). O driver
+  `temperature_sensor` do ESP-IDF, o `esp32.mcu_temperature()` do MicroPython
+  e o `temperatureRead()` do Arduino a leem; o ESP-IDF arredonda para baixo
+  em graus inteiros, então uma leitura pode ficar até 1 °C abaixo.
 - **I2C**: o I2C0 como mestre em qualquer GPIO, pela matriz de GPIO, com os
   chips I2C do SimNodus (os mesmos usados com a Blue Pill) no nível dos pinos:
   o driver de I2C do ESP-IDF, o `Wire` do Arduino e o `machine.I2C` do
@@ -285,8 +295,7 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   WS2812B acendem pelo driver RMT do ESP-IDF, pelo `rgbLedWrite` do Arduino e
   pelo `neopixel` do MicroPython. O exemplo 48 percorre uma fita com uma luz.
   Os canais de recepção e a portadora não são simulados.
-- **Ainda não**: ADC contínuo, o sensor de temperatura, Wi-Fi e Bluetooth;
-  depuração com GDB (só a Blue Pill).
+- **Ainda não**: Wi-Fi e Bluetooth; depuração com GDB (só a Blue Pill).
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
   configuração padrão); faltas de cache e esperas da flash não são modeladas,
   então o código roda um pouco mais rápido que no chip. Os timers contam nas

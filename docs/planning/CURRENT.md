@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-01 (after 0.13.0: SN-248). Keep this file short: present state, last results, next
+Updated: 2026-11-01 (after 0.13.0: SN-248, SN-247). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -136,15 +136,17 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
    released in 0.13.0: the DevKitM-1 board (SN-246), GPIO, LEDC, one-shot
-   ADC, I2C0, SPI2 with GDMA, RMT (SN-247 except continuous ADC and the
-   temperature sensor), serial ports to the computer and pin-level UART
+   ADC, I2C0, SPI2 with GDMA, RMT (SN-247), serial ports to the computer and pin-level UART
    (SN-252-254). In order:
    - SN-248 done on `main` (not released): what the firmware writes to the
      flash (MicroPython's files, NVS) is kept in `<designator>-flash.bin`
      like uploads; guide section *MicroPython's files*. The owner checked the
      preview (2026-11-01): a program uploaded with Thonny ran again after
      stop/start and after closing and reopening SimNodus.
-   - SN-247 leftovers: continuous ADC with GDMA, the temperature sensor.
+   - SN-247 finished on `main` (not released): continuous ADC with GDMA
+     (example 49, 20 kHz) and the temperature sensor with the board's live
+     **Chip temperature** (engine protocol 12); the GDMA's interrupt sources
+     were wrong (47-49, now 44-46).
    - SN-249, GDB for RISC-V; SN-250, Wi-Fi as experiment E-09 (its own plan
      first).
    - With the owner's boards (DevKitM-1, SuperMini): the ROM and console

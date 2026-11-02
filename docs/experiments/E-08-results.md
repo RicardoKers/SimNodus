@@ -157,9 +157,11 @@ need one. Done at the machine level (no integration yet):
   eFuse, so calibrated readings give the pad's voltage (MicroPython
   `read_uv`: 1.25 V at 12 dB reads 1.249 V, 0.30 V at 0 dB 0.299 V; 2.4 V reads
   2.359 V through the calibration's second step); saturation at 819, 1126,
-  1536 and 2805 mV. Labelled approximate (no offset, noise or curve);
-  continuous (DMA) conversions not modelled. `set_pin_voltage()`; CLI
-  `--input GPIO=1.2V@ms`.
+  1536 and 2805 mV. Labelled approximate (no offset, noise or curve).
+  `set_pin_voltage()`; CLI `--input GPIO=1.2V@ms`. Continuous (DMA)
+  conversions and the temperature sensor were added later (SN-247,
+  2026-11-01): ESP-IDF's `adc_continuous` at 20 kHz gives 10 000 samples per
+  second on each of two pins (example 49).
 - I2C0 master (after SN-246): the command list (RSTART, WRITE, READ, STOP,
   END), 32-byte FIFOs, interrupts, timing from CLK_CONF and the period
   registers, clock stretching and the timeout, on GPIO matrix signals 53/54,
