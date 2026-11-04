@@ -16,15 +16,23 @@ namespace simnodus::ui {
 
 namespace {
 
-// The ATmega8's factory bytes (datasheet, Fuse Bits).
-constexpr std::uint8_t factory_low = 0xE1;
-constexpr std::uint8_t factory_high = 0xD9;
-constexpr std::uint8_t factory_lock = 0xFF;
+bool is_328(const std::string& chip) { return chip == "atmega328" || chip == "atmega328p"; }
 
-// Clock source groups of CKSEL3:0 (ATmega8A datasheet, Clock Sources): the
-// value written for the group; crystals use CKSEL3:1, CKSEL0 belongs to the
-// start-up time.
+// Clock source groups of CKSEL3:0 (datasheets, Clock Sources): the value
+// written for the group; crystals use CKSEL3:1, CKSEL0 belongs to the
+// start-up time (and on the 328/328P to the low-frequency crystal's too).
 enum Group { ExternalClock, InternalRc, ExternalRc, LowFrequencyCrystal, Crystal };
+
+Group group_of_328(int cksel)
+{
+    if (cksel == 0) {
+        return ExternalClock;
+    }
+    if (cksel <= 3) {
+        return InternalRc;
+    }
+    return cksel <= 5 ? LowFrequencyCrystal : Crystal;
+}
 
 Group group_of(int cksel)
 {
@@ -42,6 +50,16 @@ Group group_of(int cksel)
 
 } // namespace
 
+int FusesDialog::group(int cksel) const { return m328_ ? group_of_328(cksel) : group_of(cksel); }
+
+std::array<std::uint8_t, 4> FusesDialog::factory(const std::string& chip)
+{
+    if (is_328(chip)) {
+        return {0x62, 0xD9, 0xFF, 0xFF};
+    }
+    return {0xE1, 0xD9, 0xFF, 0xFF};
+}
+
 bool FusesDialog::parse_byte(const QString& text, std::uint8_t& value)
 {
     QString t = text.trimmed();
@@ -57,21 +75,30 @@ bool FusesDialog::parse_byte(const QString& text, std::uint8_t& value)
     return true;
 }
 
-FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t high, std::uint8_t lock, QWidget* parent)
-    : QDialog(parent), bytes_{low, high, lock}
+FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t high, std::uint8_t lock, QWidget* parent,
+    std::uint8_t extended)
+    : QDialog(parent), bytes_{low, high, lock, extended}, m328_(is_328(chip))
 {
-    setWindowTitle(tr("Fuses of the %1").arg(chip == "atmega8" ? QStringLiteral("ATmega8") : QStringLiteral("ATmega8A")));
+    const QString name = chip == "atmega8"     ? QStringLiteral("ATmega8")
+                         : chip == "atmega328"  ? QStringLiteral("ATmega328")
+                         : chip == "atmega328p" ? QStringLiteral("ATmega328P")
+                                                : QStringLiteral("ATmega8A");
+    setWindowTitle(tr("Fuses of the %1").arg(name));
     auto* layout = new QVBoxLayout(this);
     auto* intro = new QLabel(tr("Programmed bits are 0, as on the chip; a checked box is a programmed bit. The fuses "
                                 "take effect when the simulation starts, as when the chip is powered up."));
     intro->setWordWrap(true);
     layout->addWidget(intro);
 
-    // The three bytes in hex.
+    // The bytes in hex: low, high, (extended,) lock.
     auto* bytes = new QGroupBox(tr("Bytes"));
     auto* bytes_form = new QFormLayout(bytes);
-    const QString names[3] = {tr("Low fuse"), tr("High fuse"), tr("Lock bits")};
-    for (int i = 0; i < 3; ++i) {
+    const QString names[4] = {tr("Low fuse"), tr("High fuse"), tr("Lock bits"), tr("Extended fuse")};
+    std::vector<int> order = {0, 1, 2};
+    if (m328_) {
+        order = {0, 1, 3, 2};
+    }
+    for (const int i : order) {
         auto* edit = new QLineEdit;
         edit->setObjectName(QStringLiteral("fuseByte%1").arg(i));
         edit->setMaxLength(4);
@@ -103,7 +130,7 @@ FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t
     // and CKSEL0 for crystals).
     clock_ = new QComboBox;
     clock_->setObjectName(QStringLiteral("fuseClock"));
-    const std::vector<std::pair<int, QString>> clocks = {
+    std::vector<std::pair<int, QString>> clocks = {
         {0x1, tr("Internal RC oscillator, 1 MHz (factory)")},
         {0x2, tr("Internal RC oscillator, 2 MHz")},
         {0x3, tr("Internal RC oscillator, 4 MHz")},
@@ -118,6 +145,19 @@ FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t
         {0x7, tr("External RC oscillator, 3-8 MHz")},
         {0x8, tr("External RC oscillator, 8-12 MHz")},
     };
+    if (m328_) {
+        clocks = {
+            {0x2, tr("Internal RC oscillator, 8 MHz (factory, divided by 8 with CKDIV8)")},
+            {0x3, tr("Internal RC oscillator, 128 kHz")},
+            {0xE, tr("Low-power crystal, 8-16 MHz")},
+            {0xC, tr("Low-power crystal, 3-8 MHz")},
+            {0xA, tr("Low-power crystal, 0.9-3 MHz")},
+            {0x8, tr("Ceramic resonator, 0.4-0.9 MHz")},
+            {0x6, tr("Full-swing crystal, 0.4-20 MHz")},
+            {0x4, tr("Low-frequency crystal, 32.768 kHz")},
+            {0x0, tr("External clock on XTAL1")},
+        };
+    }
     for (const auto& [value, text] : clocks) {
         clock_->addItem(text, value);
     }
@@ -129,37 +169,58 @@ FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t
         const int cksel = clock_->currentData().toInt();
         const int keep_sut = (bytes_[0] >> 4) & 3;
         bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xC0) | (keep_sut << 4) | cksel);
-        if (group_of(cksel) == Crystal) {
+        if (group(cksel) == Crystal) {
             bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xC0) | 0x20 | (cksel | 1)); // 16K CK + 4.1 ms
-        } else if (group_of(cksel) == LowFrequencyCrystal && keep_sut == 3) {
+        } else if (group(cksel) == LowFrequencyCrystal && m328_) {
+            bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xC0) | 0x10 | (cksel | 1)); // 32K CK + 65 ms
+        } else if (group(cksel) == LowFrequencyCrystal && keep_sut == 3) {
             bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xCF) | 0x10);
+        } else if (m328_ && keep_sut == 3) {
+            bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xCF) | 0x20); // SUT 11 is reserved: 65 ms
         }
         refresh();
     });
     connect(start_up_, &QComboBox::activated, this, [this] {
         const int code = start_up_->currentData().toInt(); // SUT, plus CKSEL0 in bit 2 for crystals
         const int cksel = bytes_[0] & 0x0F;
-        if (group_of(cksel) == Crystal) {
+        if (group(cksel) == Crystal || (m328_ && group(cksel) == LowFrequencyCrystal)) {
             bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xC0) | ((code & 3) << 4) | (cksel & 0x0E) | ((code >> 2) & 1));
         } else {
             bytes_[0] = static_cast<std::uint8_t>((bytes_[0] & 0xCF) | ((code & 3) << 4));
         }
         refresh();
     });
-    add_bit(0, 6, tr("Brown-out detection (BODEN)"), tr("Resets the chip while VCC is below the brown-out level"));
-    add_bit(0, 7, tr("Brown-out level 4.0 V (BODLEVEL; 2.7 V when not programmed)"));
+    if (m328_) {
+        add_bit(0, 7, tr("CKDIV8: the clock divided by 8 at start-up (CLKPR)"));
+        add_bit(0, 6, tr("CKOUT: the system clock on PB0"), tr("PB0 is then not an I/O pin"));
+        add_field(3, 0x07, tr("Brown-out level (BODLEVEL)"),
+            {{0x07, tr("Brown-out detection off (factory)")}, {0x06, tr("1.8 V")}, {0x05, tr("2.7 V")}, {0x04, tr("4.3 V")}});
+        add_bit(1, 7, tr("RSTDISBL: PC6 is an I/O pin instead of RESET"),
+            tr("On a real chip this also disables programming through the ISP connector"));
+        add_bit(1, 6, tr("DWEN: debugWIRE on the RESET pin (no effect in SimNodus)"));
+        add_bit(1, 4, tr("WDTON: watchdog always on"));
+        add_bit(1, 3, tr("EESAVE: the EEPROM is kept on a chip erase"));
+        add_bit(1, 5, tr("SPIEN: programming through the ISP connector (no effect in SimNodus)"));
+        add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
+            {{0x06, tr("256 words, from 0x3F00")}, {0x04, tr("512 words, from 0x3E00")}, {0x02, tr("1024 words, from 0x3C00")},
+                {0x00, tr("2048 words, from 0x3800 (factory)")}});
+        add_bit(1, 0, tr("BOOTRST: the reset vector is the boot section's start"));
+    } else {
+        add_bit(0, 6, tr("Brown-out detection (BODEN)"), tr("Resets the chip while VCC is below the brown-out level"));
+        add_bit(0, 7, tr("Brown-out level 4.0 V (BODLEVEL; 2.7 V when not programmed)"));
 
-    // High fuse.
-    add_bit(1, 4, tr("CKOPT: full-swing crystal oscillator"), tr("Needed for crystals above 8 MHz"));
-    add_bit(1, 7, tr("RSTDISBL: PC6 is an I/O pin instead of RESET"),
-        tr("On a real chip this also disables programming through the ISP connector"));
-    add_bit(1, 6, tr("WDTON: watchdog always on"));
-    add_bit(1, 3, tr("EESAVE: the EEPROM is kept on a chip erase"));
-    add_bit(1, 5, tr("SPIEN: programming through the ISP connector (no effect in SimNodus)"));
-    add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
-        {{0x06, tr("128 words, from 0x0F80")}, {0x04, tr("256 words, from 0x0F00")}, {0x02, tr("512 words, from 0x0E00")},
-            {0x00, tr("1024 words, from 0x0C00 (factory)")}});
-    add_bit(1, 0, tr("BOOTRST: the reset vector is the boot section's start"));
+        // High fuse.
+        add_bit(1, 4, tr("CKOPT: full-swing crystal oscillator"), tr("Needed for crystals above 8 MHz"));
+        add_bit(1, 7, tr("RSTDISBL: PC6 is an I/O pin instead of RESET"),
+            tr("On a real chip this also disables programming through the ISP connector"));
+        add_bit(1, 6, tr("WDTON: watchdog always on"));
+        add_bit(1, 3, tr("EESAVE: the EEPROM is kept on a chip erase"));
+        add_bit(1, 5, tr("SPIEN: programming through the ISP connector (no effect in SimNodus)"));
+        add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
+            {{0x06, tr("128 words, from 0x0F80")}, {0x04, tr("256 words, from 0x0F00")}, {0x02, tr("512 words, from 0x0E00")},
+                {0x00, tr("1024 words, from 0x0C00 (factory)")}});
+        add_bit(1, 0, tr("BOOTRST: the reset vector is the boot section's start"));
+    }
 
     // Lock bits.
     add_field(2, 0x03, tr("Memory lock (LB)"),
@@ -181,8 +242,8 @@ FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t
     buttons->button(QDialogButtonBox::RestoreDefaults)->setText(tr("Factory values"));
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(buttons->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this, [this] {
-        bytes_ = {factory_low, factory_high, factory_lock};
+    connect(buttons->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this, [this, chip] {
+        bytes_ = factory(chip);
         refresh();
     });
     layout->addWidget(buttons);
@@ -228,6 +289,19 @@ void FusesDialog::start_up_choices()
 {
     const int cksel = bytes_[0] & 0x0F;
     start_up_->clear();
+    if (m328_ && (group(cksel) == ExternalClock || group(cksel) == InternalRc)) {
+        start_up_->addItem(tr("6 CK + 14 CK, no delay (with brown-out detection)"), 0);
+        start_up_->addItem(tr("6 CK + 14 CK + 4.1 ms (fast rising power)"), 1);
+        start_up_->addItem(tr("6 CK + 14 CK + 65 ms (slowly rising power; factory)"), 2);
+        return;
+    }
+    if (m328_ && group(cksel) == LowFrequencyCrystal) {
+        start_up_->addItem(tr("1K CK + 4.1 ms"), 0);
+        start_up_->addItem(tr("1K CK + 65 ms"), 1);
+        start_up_->addItem(tr("32K CK + 4.1 ms"), 4);
+        start_up_->addItem(tr("32K CK + 65 ms (stable frequency at start-up)"), 5);
+        return;
+    }
     switch (group_of(cksel)) {
     case ExternalClock:
     case InternalRc:
@@ -262,7 +336,7 @@ void FusesDialog::start_up_choices()
 void FusesDialog::refresh()
 {
     updating_ = true;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < (m328_ ? 4 : 3); ++i) {
         auto* edit = hex_[static_cast<std::size_t>(i)];
         const QString text = QStringLiteral("%1").arg(bytes_[static_cast<std::size_t>(i)], 2, 16, QLatin1Char('0')).toUpper();
         std::uint8_t shown = 0;
@@ -272,11 +346,12 @@ void FusesDialog::refresh()
     }
     const int cksel = bytes_[0] & 0x0F;
     const int sut = (bytes_[0] >> 4) & 3;
-    const Group group = group_of(cksel);
-    const int clock_value = group == Crystal ? (cksel & 0x0E) : cksel;
+    const int g = group(cksel);
+    const bool split = g == Crystal || (m328_ && g == LowFrequencyCrystal); // CKSEL0 belongs to the start-up
+    const int clock_value = split ? (cksel & 0x0E) : cksel;
     clock_->setCurrentIndex(clock_->findData(clock_value));
     start_up_choices();
-    const int code = group == Crystal ? (((cksel & 1) << 2) | sut) : sut;
+    const int code = split ? (((cksel & 1) << 2) | sut) : sut;
     start_up_->setCurrentIndex(start_up_->findData(code)); // -1: a reserved combination
     for (const auto& b : bits_) {
         b.box->setChecked(((bytes_[static_cast<std::size_t>(b.byte)] >> b.bit) & 1u) == 0);
@@ -291,7 +366,12 @@ void FusesDialog::refresh()
 QString FusesDialog::clock_summary() const
 {
     const int cksel = bytes_[0] & 0x0F;
-    switch (group_of(cksel)) {
+    if (m328_ && group(cksel) == InternalRc) {
+        const bool div8 = ((bytes_[0] >> 7) & 1) == 0;
+        const QString clock = cksel == 3 ? tr("128 kHz") : div8 ? tr("1 MHz (8 MHz divided by 8)") : tr("8 MHz");
+        return tr("The chip runs on its internal RC oscillator at %1; XTAL1 and XTAL2 are I/O pins (PB6, PB7).").arg(clock);
+    }
+    switch (static_cast<Group>(group(cksel))) {
     case InternalRc:
         return tr("The chip runs on its internal RC oscillator at %1 MHz; XTAL1 and XTAL2 are I/O pins (PB6, PB7).")
             .arg(1 << (cksel - 1));

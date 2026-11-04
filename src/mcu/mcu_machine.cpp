@@ -506,11 +506,17 @@ private:
     std::unique_ptr<emu::GdbTarget> gdb_target_;
 };
 
-// ATmega8 / ATmega8A (experiment E-10, SN-258): a bare chip in the circuit.
-// Its pins are named as on the chip ("PB0".."PD7"), its USART "usart". The
-// fuses, the crystal's frequency (from a Crystal part on XTAL1 and XTAL2) and
-// the EEPROM kept in the project come in McuRunOptions::parameters:
-// "fuse_low", "fuse_high", "lock" (hex), "crystal_hz", "eeprom_file".
+// ATmega8 / ATmega8A (experiment E-10, SN-258) and ATmega328 / ATmega328P
+// (SN-260): a bare chip in the circuit. Its pins are named as on the chip
+// ("PB0".."PD7"), its USART "usart". The fuses, the crystal's frequency (from
+// a Crystal part on XTAL1 and XTAL2) and the EEPROM kept in the project come
+// in McuRunOptions::parameters: "fuse_low", "fuse_high", "fuse_extended",
+// "lock" (hex), "crystal_hz", "eeprom_file".
+bool is_avr_chip(const std::string& chip)
+{
+    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p";
+}
+
 int avr_pin(const std::string& name)
 {
     if (name.size() != 3 || name[0] != 'P' || name[1] < 'B' || name[1] > 'D' || name[2] < '0' || name[2] > '7'
@@ -523,11 +529,10 @@ int avr_pin(const std::string& name)
 class AtmegaMachine : public McuMachine {
 public:
     explicit AtmegaMachine(const std::string& chip)
-        : machine_([&] {
-              emu::Atmega::Options o;
-              o.model = chip == "atmega8" ? emu::Atmega::Model::Atmega8 : emu::Atmega::Model::Atmega8A;
-              return o;
-          }())
+        : machine_(emu::Atmega::factory(chip == "atmega8"      ? emu::Atmega::Model::Atmega8
+                                        : chip == "atmega328"  ? emu::Atmega::Model::Atmega328
+                                        : chip == "atmega328p" ? emu::Atmega::Model::Atmega328P
+                                                               : emu::Atmega::Model::Atmega8A))
     {
     }
 
@@ -547,7 +552,9 @@ public:
             }
             return static_cast<std::uint8_t>(std::strtoul(it->second.c_str(), nullptr, 16));
         };
-        machine_.set_fuses(byte_of("fuse_low", 0xE1), byte_of("fuse_high", 0xD9), byte_of("lock", 0xFF));
+        const emu::Atmega::Options factory = emu::Atmega::factory(machine_.options().model);
+        machine_.set_fuses(byte_of("fuse_low", factory.fuse_low), byte_of("fuse_high", factory.fuse_high), byte_of("lock", 0xFF));
+        machine_.set_extended_fuse(byte_of("fuse_extended", factory.fuse_extended));
         if (const auto it = options.parameters.find("crystal_hz"); it != options.parameters.end()) {
             machine_.set_external_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
         }
@@ -695,7 +702,7 @@ std::unique_ptr<McuMachine> make_machine(const McuRunOptions& options, std::stri
     if (options.chip == "esp32c3") {
         return std::make_unique<Esp32C3Machine>();
     }
-    if (options.chip == "atmega8" || options.chip == "atmega8a") {
+    if (is_avr_chip(options.chip)) {
         return std::make_unique<AtmegaMachine>(options.chip);
     }
     error = "SimNodus does not emulate the chip \"" + options.chip + "\".";
@@ -709,7 +716,7 @@ std::unique_ptr<McuMachine> wrap_stm32(emu::Stm32F103& machine)
 
 bool chip_gpio(const std::string& chip, const std::string& name)
 {
-    if (chip == "atmega8" || chip == "atmega8a") {
+    if (is_avr_chip(chip)) {
         return avr_pin(name) >= 0;
     }
     return chip == "esp32c3" ? c3_pin(name) >= 0 : stm32_pin(name) >= 0;

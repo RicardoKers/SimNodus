@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 ead08b587b1ca3b75f0add2ab93ca5516c408fe3ff706bcf27f963c7c6cb6770 -->
+<!-- source: USER_GUIDE.md sha256 9fc2ab988cd8a7c0fe5e11d2b979e91655e067277958e0c1eec281b59d9788cd -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -117,7 +117,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | **Eletromecânicos** | Buzzers ativo e passivo (com som no Windows), lâmpada (acende conforme a corrente), relé (bobina e contato reversível; acrescente um diodo de roda livre), motor CC (mostra a velocidade) |
 | **Memórias** | ROM paralela e RAM estática de 16 bytes a 64 KB (A0-A15, D0-D7, CE, OE, WE), com ou sem placa; conteúdo de arquivos `.bin` ou Intel `.hex` e no Visualizador de memória |
 | **Conversores** | Conversores A/D e D/A ideais de 4, 8, 10 ou 12 bits; a referência é um pino (VREF), e os níveis lógicos seguem uma alimentação oculta, como nas portas |
-| **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF; ESP32-C3-DevKitM-1 executando uma imagem da flash (`.bin`), experimental (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#placa-esp32-c3-experimental)); chips ATmega8-PU e ATmega8A-PU executando firmware `.hex` ou `.elf` com os seus fusíveis (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-e-atmega8a)) |
+| **Microcontroladores** | Blue Pill (STM32F103C8) executando o seu firmware ELF; ESP32-C3-DevKitM-1 executando uma imagem da flash (`.bin`), experimental (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#placa-esp32-c3-experimental)); chips ATmega8-PU e ATmega8A-PU executando firmware `.hex` ou `.elf` com os seus fusíveis (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-e-atmega8a)); ATmega328P-PU e ATmega328-PU, experimentais (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega328-e-atmega328p-experimental)) |
 | **Chips para microcontroladores** | Registrador de deslocamento 74HC595, driver de display de LED MAX7219, EEPROM 24C02, sensor de temperatura LM75, expansor de E/S PCF8574, sensor de pressão BMP280, acelerômetro e giroscópio MPU6050, relógio de tempo real DS3231, sensor de cor TCS34725 (I2C); conversor A/D MCP3208, potenciômetro digital MCP41010, flash W25Q32, cartão microSD (SPI); amplificador de célula de carga HX711; sensores DS18B20 (1-Wire), DHT22/DHT11 e HC-SR04; funcionam com a placa a que estão ligados, ou sozinhos (veja [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-para-microcontroladores)) |
 | **Sensores** | Sensores indutivos de proximidade NPN e PNP (24 V), transmissor 4-20 mA a dois fios, sensor de movimento PIR HC-SR501, sensor de temperatura LM35, termistor NTC, PT100/PT1000, termopar tipo K, LDR, fotodiodo BPW34, sensor de corrente ACS712, célula de carga (ponte de extensômetros), chave Hall A3144, optoacoplador PC817, solenoide |
 | **Blocos** | Porta de bloco, para transformar um circuito em bloco |
@@ -513,7 +513,10 @@ diferenças em relação a uma placa real estão em
   computador (44), a placa ESP32-C3 (45, 46 com chips I2C, 47 com chips SPI
   e 48 com uma fita WS2812B; experimental) e o ATmega8 (50 serial e EEPROM,
   51 cristal de 16 MHz, 52 ADC e PWM, 53 chips I2C e SPI, 54 relógio de
-  tempo real em power-save).
+  tempo real em power-save) e o ATmega328P (55 serial e o sensor de
+  temperatura, 56 quatro saídas PWM e o disparo automático do ADC, 57
+  power-down acordado pelo watchdog e por uma mudança de pino;
+  experimental).
 - As **aulas** 1-3 (exemplos 10, 11 e 16) vêm com notas em
   `examples/lessons/`: objetivos, passos e as observações esperadas. Os
   fontes dos seus firmwares estão em `examples/firmware/`.
@@ -588,10 +591,10 @@ declarados para que os resultados sejam lidos corretamente.
 
 ### Microcontrolador
 
-- A Blue Pill (STM32F103C8), o ATmega8 e o ATmega8A e, experimental, a
-  ESP32-C3-DevKitM-1 (ainda não comparada com uma placa real; ainda sem
-  Wi-Fi). Outros chips AVR (ATmega328, ATmega32) e o Arduino UNO vêm
-  depois; o ATmega8 ainda não tem GDB.
+- A Blue Pill (STM32F103C8), o ATmega8 e o ATmega8A e, experimentais, o
+  ATmega328P e o ATmega328 e a ESP32-C3-DevKitM-1 (ainda não comparados
+  com um chip ou uma placa real; ainda sem Wi-Fi). O ATmega32 e o Arduino
+  UNO vêm depois; os chips AVR ainda não têm GDB.
 - Ainda não simulados: modos escravo de SPI e I2C, CAN, USB; modos encoder
   e alinhado ao centro dos timers, tempo morto e break; conversões do ADC
   disparadas por timer ou EXTI, modos dual e descontínuo. O painel

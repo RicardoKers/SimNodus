@@ -17,6 +17,7 @@
 *.hex
 # AVR example firmware (E-10).
 !/examples/firmware/avr_*/*.hex
+!/examples/firmware/avr328_*/*.hex
 # Memory contents of the examples (SN-212).
 !/examples/memories/*.hex
 *.o

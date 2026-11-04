@@ -12,8 +12,10 @@ namespace simnodus::emu {
 
 namespace {
 
-// ATmega8 data addresses (I/O address + 0x20), from the register summary of
-// the ATmega8A datasheet.
+// The machine's registers: the ATmega8's data addresses (I/O address + 0x20,
+// from the register summary of the ATmega8A datasheet), then the registers
+// other chips add (from 0x100). Each chip maps its own addresses onto these
+// (chip_registers below); a peripheral answers to the machine's names.
 enum : std::uint16_t {
     TWBR = 0x20, TWSR = 0x21, TWAR = 0x22, TWDR = 0x23, ADCL = 0x24, ADCH = 0x25, ADCSRA = 0x26, ADMUX = 0x27,
     ACSR = 0x28, UBRRL = 0x29, UCSRB = 0x2A, UCSRA = 0x2B, UDR = 0x2C, SPCR = 0x2D, SPSR = 0x2E, SPDR = 0x2F,
@@ -23,26 +25,61 @@ enum : std::uint16_t {
     OCR1BH = 0x49, OCR1AL = 0x4A, OCR1AH = 0x4B, TCNT1L = 0x4C, TCNT1H = 0x4D, TCCR1B = 0x4E, TCCR1A = 0x4F,
     SFIOR = 0x50, OSCCAL = 0x51, TCNT0 = 0x52, TCCR0 = 0x53, MCUCSR = 0x54, MCUCR = 0x55, TWCR = 0x56,
     SPMCR = 0x57, TIFR = 0x58, TIMSK = 0x59, GIFR = 0x5A, GICR = 0x5B,
+    // The ATmega328/328P's own (MCUSR, SPMCSR, OSCCAL, the ports, the
+    // EEPROM, SPI, TWI, ADC, Timer1 and the USART's data and status use the
+    // ATmega8's names above).
+    TIFR0 = 0x100, TIFR1, TIFR2, PCIFR, EIFR, EIMSK, GPIOR0, GTCCR, TCCR0A, TCCR0B, OCR0A, OCR0B, GPIOR1, GPIOR2,
+    SMCR, MCUCR328, WDTCSR, CLKPR, PRR, PCICR, EICRA, PCMSK0, PCMSK1, PCMSK2, TIMSK0, TIMSK1, TIMSK2, ADCSRB,
+    DIDR0, DIDR1, TCCR1C, TCCR2A, TCCR2B, OCR2A, OCR2B, TWAMR, UCSRC, UBRRH, REGISTER_END
+};
+static_assert(REGISTER_END <= 0x140, "io_owner_ is sized for the machine's registers");
+
+// The chip's data addresses mapped onto the machine's registers.
+struct RegisterMap {
+    std::uint16_t address;
+    std::uint16_t reg;
+};
+const RegisterMap mega328_registers[] = {
+    {0x23, PINB}, {0x24, DDRB}, {0x25, PORTB}, {0x26, PINC}, {0x27, DDRC}, {0x28, PORTC}, {0x29, PIND},
+    {0x2A, DDRD}, {0x2B, PORTD}, {0x35, TIFR0}, {0x36, TIFR1}, {0x37, TIFR2}, {0x3B, PCIFR}, {0x3C, EIFR},
+    {0x3D, EIMSK}, {0x3E, GPIOR0}, {0x3F, EECR}, {0x40, EEDR}, {0x41, EEARL}, {0x42, EEARH}, {0x43, GTCCR},
+    {0x44, TCCR0A}, {0x45, TCCR0B}, {0x46, TCNT0}, {0x47, OCR0A}, {0x48, OCR0B}, {0x4A, GPIOR1}, {0x4B, GPIOR2},
+    {0x4C, SPCR}, {0x4D, SPSR}, {0x4E, SPDR}, {0x50, ACSR}, {0x53, SMCR}, {0x54, MCUCSR}, {0x55, MCUCR328},
+    {0x57, SPMCR}, {0x60, WDTCSR}, {0x61, CLKPR}, {0x64, PRR}, {0x66, OSCCAL}, {0x68, PCICR}, {0x69, EICRA},
+    {0x6B, PCMSK0}, {0x6C, PCMSK1}, {0x6D, PCMSK2}, {0x6E, TIMSK0}, {0x6F, TIMSK1}, {0x70, TIMSK2}, {0x78, ADCL},
+    {0x79, ADCH}, {0x7A, ADCSRA}, {0x7B, ADCSRB}, {0x7C, ADMUX}, {0x7E, DIDR0}, {0x7F, DIDR1}, {0x80, TCCR1A},
+    {0x81, TCCR1B}, {0x82, TCCR1C}, {0x84, TCNT1L}, {0x85, TCNT1H}, {0x86, ICR1L}, {0x87, ICR1H}, {0x88, OCR1AL},
+    {0x89, OCR1AH}, {0x8A, OCR1BL}, {0x8B, OCR1BH}, {0xB0, TCCR2A}, {0xB1, TCCR2B}, {0xB2, TCNT2}, {0xB3, OCR2A},
+    {0xB4, OCR2B}, {0xB6, ASSR}, {0xB8, TWBR}, {0xB9, TWSR}, {0xBA, TWAR}, {0xBB, TWDR}, {0xBC, TWCR},
+    {0xBD, TWAMR}, {0xC0, UCSRA}, {0xC1, UCSRB}, {0xC2, UCSRC}, {0xC4, UBRRL}, {0xC5, UBRRH}, {0xC6, UDR},
 };
 
-// Interrupt vectors of the ATmega8.
+// The machine's interrupt vectors: the ATmega8's numbers, then the ones other
+// chips add. Each chip lists its vectors in its own order (priority).
 enum : int {
     V_INT0 = 1, V_INT1 = 2, V_T2_COMP = 3, V_T2_OVF = 4, V_T1_CAPT = 5, V_T1_COMPA = 6, V_T1_COMPB = 7,
     V_T1_OVF = 8, V_T0_OVF = 9, V_SPI = 10, V_RXC = 11, V_UDRE = 12, V_TXC = 13, V_ADC = 14, V_EE_RDY = 15,
-    V_ANA_COMP = 16, V_TWI = 17, V_SPM_RDY = 18, V_COUNT = 19
+    V_ANA_COMP = 16, V_TWI = 17, V_SPM_RDY = 18, V_T0_COMPA = 19, V_T0_COMPB = 20, V_T2_COMPB = 21,
+    V_PCINT0 = 22, V_PCINT1 = 23, V_PCINT2 = 24, V_WDT = 25, V_INT2 = 26, V_COUNT = 27
 };
+static_assert(V_COUNT <= 32, "flags_ holds 32 vectors");
+const int mega8_vectors[] = {0, V_INT0, V_INT1, V_T2_COMP, V_T2_OVF, V_T1_CAPT, V_T1_COMPA, V_T1_COMPB, V_T1_OVF,
+    V_T0_OVF, V_SPI, V_RXC, V_UDRE, V_TXC, V_ADC, V_EE_RDY, V_ANA_COMP, V_TWI, V_SPM_RDY};
+const int mega328_vectors[] = {0, V_INT0, V_INT1, V_PCINT0, V_PCINT1, V_PCINT2, V_WDT, V_T2_COMP, V_T2_COMPB,
+    V_T2_OVF, V_T1_CAPT, V_T1_COMPA, V_T1_COMPB, V_T1_OVF, V_T0_COMPA, V_T0_COMPB, V_T0_OVF, V_SPI, V_RXC, V_UDRE,
+    V_TXC, V_ADC, V_EE_RDY, V_ANA_COMP, V_TWI, V_SPM_RDY};
 
 // Pins by function (index = port * 8 + bit; B = 0, C = 1, D = 2).
 constexpr int PB0 = 0, PB1 = 1, PB2 = 2, PB3 = 3, PB4 = 4, PB5 = 5, PB6 = 6, PB7 = 7, PC4 = 12, PC5 = 13, PC6 = 14, PD0 = 16, PD1 = 17, PD2 = 18,
-              PD3 = 19, PD4 = 20, PD5 = 21;
+              PD3 = 19, PD4 = 20, PD5 = 21, PD6 = 22;
 
-constexpr std::uint32_t flash_bytes = 8192;
-constexpr std::uint32_t page_words = 32;
-constexpr std::size_t eeprom_bytes = 512;
 // The watchdog and the EEPROM and flash write timers run on the chip's
-// 1 MHz watchdog oscillator (nominal at 5 V; it varies with the supply and
-// the temperature, so these times are labeled approximate).
-constexpr std::uint64_t eeprom_write_ns = 8'448'000; // 8448 cycles
+// watchdog oscillator (1 MHz on the ATmega8, 128 kHz on the 328/328P; nominal
+// at 5 V, it varies with the supply and the temperature, so these times are
+// labeled approximate).
+constexpr std::uint64_t eeprom_write_ns = 8'448'000; // the ATmega8: 8448 cycles
+constexpr std::uint64_t eeprom_write_328_ns = 3'400'000; // erase and write
+constexpr std::uint64_t eeprom_split_328_ns = 1'800'000; // erase only or write only
 constexpr std::uint64_t flash_write_ns = 4'100'000;  // 3.7-4.5 ms in the datasheet
 
 bool bit(std::uint8_t value, int n) { return ((value >> n) & 1u) != 0; }
@@ -66,6 +103,7 @@ public:
     // A pin this peripheral makes an input (RXD with the receiver on).
     virtual bool takes_input(int) const { return false; }
     virtual void pad_changed(int, bool, std::uint64_t) {}
+    virtual void clock_changed() {} // the CPU clock changed (CLKPR)
 
 protected:
     std::uint64_t now() const { return m_.cpu_.cycles(); }
@@ -73,8 +111,11 @@ protected:
 };
 
 // ---------------------------------------------------------------------------
-// External interrupts INT0 (PD2) and INT1 (PD3); MCUCR's ISCx1:0 select low
-// level (00), any change (01), falling (10) or rising edge (11).
+// External interrupts INT0 (PD2) and INT1 (PD3); ISCx1:0 (MCUCR, or EICRA on
+// the 328/328P) select low level (00), any change (01), falling (10) or rising
+// edge (11). The 328/328P's pin change interrupts: PCINT0..7 on port B,
+// 8..14 on port C, 16..23 on port D, one flag per port; asynchronous, so they
+// wake the chip from every sleep mode.
 
 class Atmega::ExternalInterrupts : public Peripheral {
 public:
@@ -85,11 +126,17 @@ public:
     void reset() override {}
     void pad_changed(int pin, bool level, std::uint64_t) override
     {
+        if (m_.mega328() && pin >= 0 && pin < 24) {
+            const int group = pin / 8;
+            if (bit(m_.pcicr_, group) && bit(m_.pcmsk_[static_cast<std::size_t>(group)], pin % 8)) {
+                m_.set_flag(V_PCINT0 + group, true);
+            }
+        }
         const int n = pin == PD2 ? 0 : pin == PD3 ? 1 : -1;
         if (n < 0) {
             return;
         }
-        const int sense = (m_.mcucr_ >> (2 * n)) & 3;
+        const int sense = (sense_register() >> (2 * n)) & 3;
         if (sense != 0 && m_.io_clock_stopped() && m_.sleep_mode_ != 1) {
             return; // edges need the I/O clock: only level interrupts wake from power-down
         }
@@ -102,8 +149,11 @@ public:
     // Low-level mode: pending while the pin is low; no flag.
     bool level_pending(int n) const
     {
-        return ((m_.mcucr_ >> (2 * n)) & 3) == 0 && !m_.pad_level(n == 0 ? PD2 : PD3);
+        return ((sense_register() >> (2 * n)) & 3) == 0 && !m_.pad_level(n == 0 ? PD2 : PD3);
     }
+
+private:
+    std::uint8_t sense_register() const { return m_.mega328() ? m_.eicra_ : m_.mcucr_; }
 };
 
 // ---------------------------------------------------------------------------
@@ -128,6 +178,12 @@ public:
                     value = static_cast<std::uint8_t>(value | (1u << b));
                 }
             }
+            // The 328/328P's DIDR0 (ADC0..5) and DIDR1 (AIN0, AIN1) turn the digital input off: it reads 0.
+            if (port == 1) {
+                value = static_cast<std::uint8_t>(value & ~(m_.didr0_ & 0x3F));
+            } else if (port == 2) {
+                value = static_cast<std::uint8_t>(value & ~((m_.didr1_ & 3) << 6));
+            }
             return value;
         }
         return reg == 1 ? m_.ddr_[static_cast<std::size_t>(port)] : m_.port_[static_cast<std::size_t>(port)];
@@ -140,7 +196,11 @@ public:
             value &= 0x7F; // port C has PC0..PC6
         }
         if (reg == 0) {
-            return; // PINx is read-only on the ATmega8 (no toggle by writing 1)
+            if (m_.mega328()) { // writing 1 to a PINx bit toggles PORTx's
+                m_.port_[static_cast<std::size_t>(port)] ^= value;
+                m_.refresh_pins();
+            }
+            return; // PINx is read-only on the ATmega8
         }
         (reg == 1 ? m_.ddr_ : m_.port_)[static_cast<std::size_t>(port)] = value;
         m_.refresh_pins();
@@ -354,10 +414,11 @@ struct TickClock {
     }
 };
 
-// Common part of the three timers.
-class TimerBase : public Atmega::Peripheral {
+// Common part of the timers.
+class Atmega::TimerBase : public Atmega::Peripheral {
 public:
     TimerBase(Atmega& m, int bits) : Atmega::Peripheral(m), core(bits) {}
+    virtual bool async() const { return false; } // Timer2 on its own crystal
 
     std::uint64_t next_event() const override
     {
@@ -574,13 +635,14 @@ public:
     }
     std::vector<std::uint16_t> addresses() const override
     {
-        return {TCCR1A, TCCR1B, TCNT1H, TCNT1L, OCR1AH, OCR1AL, OCR1BH, OCR1BL, ICR1H, ICR1L};
+        return {TCCR1A, TCCR1B, TCCR1C, TCNT1H, TCNT1L, OCR1AH, OCR1AL, OCR1BH, OCR1BL, ICR1H, ICR1L};
     }
     std::uint8_t read(std::uint16_t address) override
     {
         switch (address) {
         case TCCR1A: return tccr1a_;
         case TCCR1B: return tccr1b_;
+        case TCCR1C: return 0; // FOC1A and FOC1B read 0
         case TCNT1L:
             sync(now());
             return low_and_temp(core.count);
@@ -596,10 +658,14 @@ public:
         case TCCR1A:
             sync(now());
             tccr1a_ = value & 0xF3;
-            if (value & 0x0C) { // FOC1A, FOC1B in non-PWM modes
+            if ((value & 0x0C) && !m_.mega328()) { // FOC1A, FOC1B in non-PWM modes
                 force(value);
             }
             configure();
+            return;
+        case TCCR1C: // the 328/328P's FOC1A (bit 7) and FOC1B (bit 6)
+            sync(now());
+            force(static_cast<std::uint8_t>(value >> 4));
             return;
         case TCCR1B:
             sync(now());
@@ -709,7 +775,7 @@ private:
             core.load_buffers();
         }
         if (wgm == 13) {
-            m_.note_once("t1-mode13", "Timer1 mode 13 is reserved on the ATmega8");
+            m_.note_once("t1-mode13", std::string("Timer1 mode 13 is reserved on the ") + m_.chip_name());
         }
         static const unsigned divide[8] = {0, 1, 8, 64, 256, 1024, 1, 1};
         const int cs = tccr1b_ & 7;
@@ -800,7 +866,7 @@ public:
         }
         }
     }
-    bool async() const { return bit(assr_, 3); }
+    bool async() const override { return bit(assr_, 3); }
     // A write in asynchronous mode takes effect after two TOSC1 edges; until
     // then TCN2UB, OCR2UB or TCR2UB reads 1.
     void busy_after_write(int flag)
@@ -858,14 +924,220 @@ private:
     std::array<std::uint64_t, 3> update_busy_{}; // TCR2UB, OCR2UB, TCN2UB
 };
 
+// Timer/Counter0 and Timer/Counter2 of the ATmega328/328P: 8 bits, two
+// compare channels (OC0A PD6 and OC0B PD5; OC2A PB3 and OC2B PD3), eight
+// waveform modes (WGMn2:0 across TCCRnA and TCCRnB; 4 and 6 reserved).
+// Timer0 counts on the prescaler shared with Timer1 or on T0 (PD4); Timer2
+// has its own prescaler and the asynchronous mode on TOSC1/TOSC2.
+
+class Atmega::Timer8AB : public TimerBase {
+public:
+    Timer8AB(Atmega& m, int n) : TimerBase(m, 8), n_(n)
+    {
+        core.channels = 2;
+        core.ch[0].pin = n == 0 ? PD6 : PB3;
+        core.ch[0].vector = n == 0 ? V_T0_COMPA : V_T2_COMP;
+        core.ch[1].pin = n == 0 ? PD5 : PD3;
+        core.ch[1].vector = n == 0 ? V_T0_COMPB : V_T2_COMPB;
+        core.tov_vector = n == 0 ? V_T0_OVF : V_T2_OVF;
+        clock.origin = n == 0 ? &m.prescaler10_ : &m.prescaler2_;
+    }
+    std::vector<std::uint16_t> addresses() const override
+    {
+        if (n_ == 0) {
+            return {TCCR0A, TCCR0B, TCNT0, OCR0A, OCR0B};
+        }
+        return {TCCR2A, TCCR2B, TCNT2, OCR2A, OCR2B, ASSR};
+    }
+    std::uint8_t read(std::uint16_t address) override
+    {
+        switch (address) {
+        case TCCR0A:
+        case TCCR2A: return tccra_;
+        case TCCR0B:
+        case TCCR2B: return tccrb_;
+        case TCNT0:
+        case TCNT2: sync(now()); return static_cast<std::uint8_t>(core.count);
+        case OCR0A:
+        case OCR2A: return static_cast<std::uint8_t>(core.ch[0].buffer);
+        case OCR0B:
+        case OCR2B: return static_cast<std::uint8_t>(core.ch[1].buffer);
+        default: {
+            std::uint8_t v = assr_;
+            for (int f = 0; f < 5; ++f) {
+                if (now() < update_busy_[static_cast<std::size_t>(f)]) {
+                    v = static_cast<std::uint8_t>(v | (1u << f)); // TCR2BUB, TCR2AUB, OCR2BUB, OCR2AUB, TCN2UB
+                }
+            }
+            return v;
+        }
+        }
+    }
+    void write(std::uint16_t address, std::uint8_t value) override
+    {
+        switch (address) {
+        case TCCR0A:
+        case TCCR2A:
+            sync(now());
+            busy_after_write(1);
+            tccra_ = value & 0xF3;
+            configure();
+            return;
+        case TCCR0B:
+        case TCCR2B: {
+            sync(now());
+            busy_after_write(0);
+            tccrb_ = value & 0x0F;
+            configure();
+            bool changed = false;
+            for (int i = 0; i < 2; ++i) {
+                if (bit(value, 7 - i) && !core.pwm) { // FOCnA, FOCnB
+                    changed |= compare_action(core.ch[static_cast<std::size_t>(i)], i, true);
+                }
+            }
+            if (changed) {
+                m_.refresh_pins();
+            }
+            return;
+        }
+        case TCNT0:
+        case TCNT2:
+            busy_after_write(4);
+            write_count(value);
+            return;
+        case OCR0A:
+        case OCR2A:
+        case OCR0B:
+        case OCR2B: {
+            sync(now());
+            const int i = address == OCR0A || address == OCR2A ? 0 : 1;
+            busy_after_write(i == 0 ? 3 : 2);
+            core.ch[static_cast<std::size_t>(i)].buffer = value;
+            if (core.update == Update::Immediate) {
+                core.ch[static_cast<std::size_t>(i)].ocr = value;
+            }
+            m_.timed_changed();
+            return;
+        }
+        default: {
+            sync(now());
+            const bool was = async();
+            assr_ = value & 0x60;
+            if (bit(assr_, 6)) {
+                m_.note_once("t2-exclk", "Timer2's external clock on TOSC1 (EXCLK) is not simulated; it takes the crystal");
+            }
+            if (async() != was) {
+                m_.prescaler2_ = now(); // the prescaler restarts on the new clock
+                last_ = now();
+                if (async() && m_.options_.external_hz == 0) {
+                    m_.note_once("t2-crystal", "Timer2 runs from TOSC1/TOSC2 (AS2) but no Crystal is between PB6 and PB7: "
+                                               "it does not count");
+                }
+                m_.refresh_pins();
+            }
+            configure();
+            return;
+        }
+        }
+    }
+    bool async() const override { return n_ == 2 && bit(assr_, 5); }
+    void clock_changed() override
+    {
+        if (async()) { // the crystal's period in CPU cycles changed: restart the prescaler's phase
+            m_.prescaler2_ = now();
+            last_ = now();
+            configure();
+        }
+    }
+    void reset() override
+    {
+        tccra_ = tccrb_ = 0;
+        assr_ = 0;
+        update_busy_.fill(0);
+        core.count = 0;
+        core.down = false;
+        for (auto& c : core.ch) {
+            c.ocr = c.buffer = 0;
+            c.com = 0;
+            c.level = false;
+            c.connected = false;
+        }
+        last_ = now();
+        configure();
+    }
+    void pad_changed(int pin, bool level, std::uint64_t cycle) override
+    {
+        if (n_ == 0 && pin == PD4) {
+            external_edge(level, cycle);
+        }
+    }
+
+private:
+    // A write in asynchronous mode takes effect after two TOSC1 edges; until
+    // then its ASSR busy flag reads 1.
+    void busy_after_write(int flag)
+    {
+        if (async() && m_.options_.external_hz) {
+            update_busy_[static_cast<std::size_t>(flag)] =
+                now() + static_cast<std::uint64_t>(std::ceil(2.0L * m_.cpu_hz_ / m_.options_.external_hz));
+        }
+    }
+    void configure()
+    {
+        const int wgm = (tccra_ & 3) | (bit(tccrb_, 3) ? 4 : 0);
+        core.ch[0].com = static_cast<std::uint8_t>(tccra_ >> 6);
+        core.ch[1].com = static_cast<std::uint8_t>((tccra_ >> 4) & 3);
+        core.fixed_top = 0xFF;
+        core.top_source = wgm == 2 || wgm == 5 || wgm == 7 ? 1 : 0;
+        const bool fast = wgm == 3 || wgm == 7;
+        const bool phase = wgm == 1 || wgm == 5;
+        core.pwm = fast || phase;
+        core.shape = phase ? Shape::UpDown : Shape::Up;
+        core.clear_at_top = wgm == 2 || fast;
+        core.tov_at_top = fast;
+        core.update = core.pwm ? Update::Top : Update::Immediate;
+        core.toggle_a = wgm == 5 || wgm == 7;
+        if (core.update == Update::Immediate) {
+            core.load_buffers();
+        }
+        if (wgm == 4 || wgm == 6) {
+            m_.note_once("t8-reserved", "Timer" + std::to_string(n_) + " mode " + std::to_string(wgm)
+                                            + " is reserved; it counts as in normal mode");
+        }
+        static const unsigned divide0[8] = {0, 1, 8, 64, 256, 1024, 1, 1};
+        static const unsigned divide2[8] = {0, 1, 8, 32, 64, 128, 256, 1024};
+        const int cs = tccrb_ & 7;
+        clock.divide = n_ == 0 ? divide0[cs] : divide2[cs];
+        clock.external = n_ == 0 && cs >= 6;
+        clock.rising = cs == 7;
+        clock.async_period = 0;
+        if (async()) {
+            const std::uint32_t hz = m_.options_.external_hz;
+            if (hz == 0 || m_.cpu_hz_ == 0) {
+                clock.divide = 0; // no crystal: no clock
+            } else if (clock.divide) {
+                clock.async_period = static_cast<long double>(m_.cpu_hz_) * clock.divide / hz;
+            }
+        }
+        connect_outputs();
+        m_.timed_changed();
+    }
+    int n_;
+    std::uint8_t tccra_ = 0;
+    std::uint8_t tccrb_ = 0;
+    std::uint8_t assr_ = 0;
+    std::array<std::uint64_t, 5> update_busy_{};
+};
+
 // ---------------------------------------------------------------------------
 // USART: frames bit by bit on TXD (PD1); RXD (PD0) decoded from the pin, or
-// bytes from the computer. UBRRH and UCSRC share an address (URSEL).
+// bytes from the computer. UBRRH and UCSRC share an address (URSEL) on the
+// ATmega8; the 328/328P's UCSR0C and UBRR0H have their own.
 
 class Atmega::Usart : public Peripheral {
 public:
     using Peripheral::Peripheral;
-    std::vector<std::uint16_t> addresses() const override { return {UDR, UCSRA, UCSRB, UBRRL, UBRRH_UCSRC}; }
+    std::vector<std::uint16_t> addresses() const override { return {UDR, UCSRA, UCSRB, UBRRL, UBRRH_UCSRC, UCSRC, UBRRH}; }
     std::uint8_t read(std::uint16_t address) override
     {
         switch (address) {
@@ -882,6 +1154,8 @@ public:
         case UCSRA: return ucsra();
         case UCSRB: return static_cast<std::uint8_t>(ucsrb_ | (rxb8_ ? 0x02 : 0));
         case UBRRL: return static_cast<std::uint8_t>(ubrr_);
+        case UCSRC: return ucsrc_;
+        case UBRRH: return static_cast<std::uint8_t>(ubrr_ >> 8);
         default: {
             // Two reads in a row: UBRRH, then UCSRC.
             const bool second = last_read_ + 1 == now();
@@ -928,6 +1202,13 @@ public:
         }
         case UBRRL:
             ubrr_ = static_cast<std::uint16_t>((ubrr_ & 0x0F00) | value);
+            return;
+        case UBRRH: ubrr_ = static_cast<std::uint16_t>((ubrr_ & 0x00FF) | ((value & 0x0F) << 8)); return;
+        case UCSRC:
+            ucsrc_ = value;
+            if (value & 0xC0) {
+                m_.note_once("usart-sync", "The USART's synchronous and SPI master modes (UMSEL0) are not simulated; it runs asynchronous");
+            }
             return;
         default:
             if (bit(value, 7)) {
@@ -1184,7 +1465,9 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// EEPROM: 512 bytes, the EEMWE window of four cycles, the write time.
+// EEPROM: 512 bytes (1 KB on the 328/328P), the EEMWE window of four
+// cycles, the write time. The 328/328P's EEPM1:0 choose erase and write
+// (3.4 ms), erase only or write only (1.8 ms).
 
 class Atmega::Eeprom : public Peripheral {
 public:
@@ -1194,7 +1477,7 @@ public:
     {
         switch (address) {
         case EECR: {
-            std::uint8_t v = static_cast<std::uint8_t>(eecr_ & 0x08);
+            std::uint8_t v = static_cast<std::uint8_t>(eecr_ & 0x38);
             v |= now() < mwe_until_ ? 0x04 : 0;
             v |= busy() ? 0x02 : 0;
             return v;
@@ -1207,27 +1490,43 @@ public:
     void write(std::uint16_t address, std::uint8_t value) override
     {
         switch (address) {
-        case EECR:
-            eecr_ = value & 0x08;
+        case EECR: {
+            // EEPM1:0 (the 328/328P) change only while no write runs.
+            const std::uint8_t mode = m_.mega328() && !busy() ? (value & 0x30) : (eecr_ & 0x30);
+            eecr_ = static_cast<std::uint8_t>((value & 0x08) | mode);
             if (bit(value, 2)) {
                 mwe_until_ = now() + 4; // EEMWE: EEWE must follow within four cycles
             }
             if (bit(value, 1) && now() < mwe_until_ && !busy()) {
-                pending_address_ = eear_ % eeprom_bytes;
+                const std::size_t at = eear_ % m_.eeprom_.size();
+                pending_address_ = at;
+                std::uint64_t ns = eeprom_write_ns;
                 pending_value_ = eedr_;
-                done_ = now() + m_.cycles_for_ns(eeprom_write_ns);
+                if (m_.mega328()) {
+                    const int eepm = (eecr_ >> 4) & 3;
+                    ns = eepm == 0 ? eeprom_write_328_ns : eeprom_split_328_ns;
+                    if (eepm == 1) {
+                        pending_value_ = 0xFF; // erase only
+                    } else if (eepm == 2) {
+                        pending_value_ = static_cast<std::uint8_t>(m_.eeprom_[at] & eedr_); // write only
+                    }
+                }
+                done_ = now() + m_.cycles_for_ns(ns);
                 m_.halt_cpu(2);
                 m_.timed_changed();
             }
             if (bit(value, 0) && !busy()) {
-                eedr_ = m_.eeprom_[eear_ % eeprom_bytes];
+                eedr_ = m_.eeprom_[eear_ % m_.eeprom_.size()];
                 m_.halt_cpu(4);
             }
             update();
             return;
+        }
         case EEDR: eedr_ = value; return;
-        case EEARL: eear_ = static_cast<std::uint16_t>((eear_ & 0x100) | value); return;
-        default: eear_ = static_cast<std::uint16_t>((eear_ & 0xFF) | ((value & 1) << 8)); return;
+        case EEARL: eear_ = static_cast<std::uint16_t>((eear_ & 0xFF00) | value); return;
+        default:
+            eear_ = static_cast<std::uint16_t>((eear_ & 0xFF) | ((value & ((m_.eeprom_.size() - 1) >> 8)) << 8));
+            return;
         }
     }
     void reset() override
@@ -1267,22 +1566,37 @@ public:
 };
 
 // ---------------------------------------------------------------------------
-// Watchdog: 16K to 2048K cycles of its 1 MHz oscillator; disabling it or
-// changing the period needs the WDCE sequence; WDTON keeps it on.
+// Watchdog. The ATmega8: 16K to 2048K cycles of its 1 MHz oscillator;
+// disabling it or changing the period needs the WDCE sequence; WDTON keeps it
+// on. The 328/328P: 2K to 1024K cycles of its 128 kHz oscillator (16 ms to
+// 8 s), an interrupt mode (WDIE), and a reset mode that WDRF forces on until
+// the firmware clears WDRF in MCUSR (or WDTON programmed).
 
 class Atmega::Watchdog : public Peripheral {
 public:
     using Peripheral::Peripheral;
-    std::vector<std::uint16_t> addresses() const override { return {WDTCR}; }
+    std::vector<std::uint16_t> addresses() const override { return {WDTCR, WDTCSR}; }
     std::uint8_t read(std::uint16_t) override
     {
-        return static_cast<std::uint8_t>((now() < wdce_until_ ? 0x10 : 0) | (wde_ ? 0x08 : 0) | wdp_);
+        const auto wdce = static_cast<std::uint8_t>(now() < wdce_until_ ? 0x10 : 0);
+        if (!m_.mega328()) {
+            return static_cast<std::uint8_t>(wdce | (wde_ ? 0x08 : 0) | wdp_);
+        }
+        return static_cast<std::uint8_t>((m_.flags_[V_WDT] ? 0x80 : 0) | (wdie_ ? 0x40 : 0) | ((wdp_ & 8) << 2) | wdce
+                                         | (reset_mode() ? 0x08 : 0) | (wdp_ & 7));
     }
     void write(std::uint16_t, std::uint8_t value) override
     {
         const bool wdce = bit(value, 4);
         const bool wde = bit(value, 3);
-        const auto wdp = static_cast<std::uint8_t>(value & 7);
+        auto wdp = static_cast<std::uint8_t>(value & 7);
+        if (m_.mega328()) {
+            wdp = static_cast<std::uint8_t>(wdp | (bit(value, 5) ? 8 : 0));
+            wdie_ = bit(value, 6); // WDIE needs no sequence
+            if (bit(value, 7)) {
+                m_.set_flag(V_WDT, false); // writing 1 clears WDIF
+            }
+        }
         if (wdce && wde) {
             wdce_until_ = now() + 4;
             wde_ = true;
@@ -1295,27 +1609,68 @@ public:
         } else if (wde) {
             wde_ = true; // enabling needs no sequence
         }
+        if (wdp_ > 9 && m_.mega328()) {
+            m_.note_once("wdp-reserved", "WDP3:0 above 1001 is reserved; the watchdog takes 8 s");
+        }
         restart();
     }
     void reset() override
     {
         wde_ = false;
+        wdie_ = false;
         wdp_ = 0;
         wdce_until_ = 0;
         restart();
+        start_ = std::max(start_, m_.run_from_); // it counts from the first instruction
     }
     void wdr() { restart(); }
-    bool enabled() const { return wde_ || !bit(m_.options_.fuse_high, 6); }
+    bool reset_mode() const
+    {
+        if (!m_.mega328()) {
+            return wde_;
+        }
+        return wde_ || bit(m_.mcucsr_, 3) || !bit(m_.options_.fuse_high, 4); // WDRF, WDTON
+    }
+    bool interrupt_mode() const { return m_.mega328() && wdie_ && bit(m_.options_.fuse_high, 4); }
+    bool enabled() const
+    {
+        if (!m_.mega328()) {
+            return wde_ || !bit(m_.options_.fuse_high, 6);
+        }
+        return reset_mode() || interrupt_mode();
+    }
     std::uint64_t next_event() const override
     {
-        return enabled() ? start_ + m_.cycles_for_ns((16'384ull << wdp_) * 1000) : no_event;
+        if (!enabled()) {
+            return no_event;
+        }
+        if (!m_.mega328()) {
+            return start_ + m_.cycles_for_ns((16'384ull << wdp_) * 1000);
+        }
+        const unsigned p = std::min<unsigned>(wdp_, 9);
+        return start_ + m_.cycles_for_ns(16'000'000ull << p); // 2048 << p cycles at 128 kHz
     }
     void on_time(std::uint64_t cycle) override
     {
-        if (enabled() && next_event() <= cycle) {
-            m_.request_reset(ResetKind::Watchdog);
+        if (!enabled() || next_event() > cycle) {
+            return;
+        }
+        if (interrupt_mode()) {
+            m_.set_flag(V_WDT, true); // then a reset at the next time-out if WDE is set and WDIE was cleared
+            restart();
+            return;
+        }
+        m_.request_reset(ResetKind::Watchdog);
+    }
+    // The interrupt ran: in interrupt and reset mode the hardware clears WDIE,
+    // so the next time-out resets.
+    void taken()
+    {
+        if (reset_mode()) {
+            wdie_ = false;
         }
     }
+    bool interrupt_enabled() const { return wdie_; }
 
 private:
     void restart()
@@ -1324,6 +1679,7 @@ private:
         m_.timed_changed();
     }
     bool wde_ = false;
+    bool wdie_ = false;
     std::uint8_t wdp_ = 0;
     std::uint64_t wdce_until_ = 0;
     std::uint64_t start_ = 0;
@@ -1334,17 +1690,20 @@ private:
 // 1.30 V bandgap and GND, the AVCC, internal 2.56 V or AREF reference;
 // single conversions or free running; 13 ADC clocks (25 for the first after
 // ADEN), the input sampled 1.5 ADC clocks after the start (13.5 for the
-// first). The voltage is the circuit's at the sampling instant. AVCC and
-// AREF are taken as 5 V (the supply is not read yet).
+// first). The voltage is the circuit's at the sampling instant. The
+// 328/328P: the 1.1 V reference and bandgap, the temperature sensor (ADC8,
+// read as 25 C), and auto triggering from ADCSRB's ADTS (an interrupt flag
+// rising starts a conversion).
 
 class Atmega::Adc : public Peripheral {
 public:
     using Peripheral::Peripheral;
-    std::vector<std::uint16_t> addresses() const override { return {ADMUX, ADCSRA, ADCH, ADCL}; }
+    std::vector<std::uint16_t> addresses() const override { return {ADMUX, ADCSRA, ADCH, ADCL, ADCSRB}; }
     std::uint8_t read(std::uint16_t address) override
     {
         switch (address) {
         case ADMUX: return admux_;
+        case ADCSRB: return adcsrb_;
         case ADCSRA: return static_cast<std::uint8_t>(adcsra_ | (busy() ? 0x40 : 0) | (m_.flags_[V_ADC] ? 0x10 : 0));
         case ADCL:
             locked_ = true; // the data register keeps its value until ADCH is read
@@ -1361,8 +1720,15 @@ public:
             if ((admux_ & 0x0F) == 6 || (admux_ & 0x0F) == 7) {
                 m_.note_once("adc67", "ADC6 and ADC7 are not on the PDIP package; they read 0");
             } else if ((admux_ & 0xC0) == 0x80) {
-                m_.note_once("refs10", "REFS 10 is reserved on the ATmega8; the ADC uses AREF");
+                m_.note_once("refs10", std::string("REFS 10 is reserved on the ") + m_.chip_name() + "; the ADC uses AREF");
+            } else if ((admux_ & 0x0F) == 8 && m_.mega328()) {
+                m_.note_once("adc-temperature", "The temperature sensor (ADC8) reads as at 25 C (about 352 with the 1.1 V "
+                                                "reference; real chips differ by several degrees until calibrated)");
             }
+            return;
+        }
+        if (address == ADCSRB) {
+            adcsrb_ = value & 0x47;
             return;
         }
         if (address != ADCSRA) {
@@ -1387,7 +1753,7 @@ public:
     }
     void reset() override
     {
-        admux_ = adcsra_ = 0;
+        admux_ = adcsra_ = adcsrb_ = 0;
         data_ = 0;
         locked_ = false;
         end_ = 0;
@@ -1406,7 +1772,7 @@ public:
             data_ = static_cast<std::uint16_t>(bit(admux_, 5) ? result << 6 : result);
         }
         m_.set_flag(V_ADC, true);
-        if (bit(adcsra_, 5)) { // free running: the next conversion starts at once
+        if (bit(adcsra_, 5) && (adcsrb_ & 7) == 0) { // free running: the next conversion starts at once
             start(at);
         }
         m_.timed_changed();
@@ -1421,6 +1787,16 @@ public:
         }
     }
     std::uint8_t mux() const { return admux_ & 0x0F; }
+    bool acme() const { return bit(adcsrb_, 6); }
+    // An interrupt flag rose: the 328/328P's auto trigger source starts a conversion.
+    void flag_rose(int vector)
+    {
+        static const int source[8] = {0, V_ANA_COMP, V_INT0, V_T0_COMPA, V_T0_OVF, V_T1_COMPB, V_T1_OVF, V_T1_CAPT};
+        if (enabled() && bit(adcsra_, 5) && (adcsrb_ & 7) != 0 && source[adcsrb_ & 7] == vector && !busy()) {
+            start(now());
+            m_.timed_changed();
+        }
+    }
 
 private:
     bool busy() const { return end_ != 0; }
@@ -1439,13 +1815,16 @@ private:
     {
         const int channel = sample_mux_ & 0x0F;
         double volts = 0.0;
+        const bool m328 = m_.mega328();
         if (channel <= 5) {
             volts = m_.analog_voltage(8 + channel, sample_cycle); // PC0..PC5
         } else if (channel == 14) {
-            volts = 1.30; // the bandgap
+            volts = m328 ? 1.10 : 1.30; // the bandgap
+        } else if (channel == 8 && m328) {
+            volts = 352 * 1.1 / 1024; // the temperature sensor at 25 C
         }
         const int refs = sample_mux_ >> 6;
-        const double reference = refs == 3   ? 2.56
+        const double reference = refs == 3   ? (m328 ? 1.10 : 2.56)
                                  : refs == 1 ? m_.analog_voltage(Atmega::avcc_pin, sample_cycle)
                                              : m_.analog_voltage(Atmega::aref_pin, sample_cycle);
         const double code = std::floor(volts * 1024.0 / reference);
@@ -1453,6 +1832,7 @@ private:
     }
     std::uint8_t admux_ = 0;
     std::uint8_t adcsra_ = 0;
+    std::uint8_t adcsrb_ = 0;
     std::uint8_t sample_mux_ = 0;
     std::uint16_t data_ = 0;
     bool locked_ = false;
@@ -1523,9 +1903,11 @@ private:
     }
     bool compare(std::uint64_t cycle) const
     {
-        const double plus = bit(acsr_, 6) ? 1.30 : m_.analog_voltage(22, cycle); // PD6
-        int minus_pin = 23;                                                     // PD7
-        if (bit(m_.sfior_, 3) && !m_.adc_->enabled()) {
+        const double bandgap = m_.mega328() ? 1.10 : 1.30;
+        const double plus = bit(acsr_, 6) ? bandgap : m_.analog_voltage(22, cycle); // PD6
+        int minus_pin = 23;                                                        // PD7
+        const bool acme = m_.mega328() ? m_.adc_->acme() : bit(m_.sfior_, 3);
+        if (acme && !m_.adc_->enabled()) {
             const int channel = m_.adc_->mux() & 7;
             minus_pin = channel <= 5 ? 8 + channel : -1;
         }
@@ -1755,7 +2137,7 @@ private:
 class Atmega::Twi : public Peripheral {
 public:
     using Peripheral::Peripheral;
-    std::vector<std::uint16_t> addresses() const override { return {TWBR, TWSR, TWAR, TWDR, TWCR}; }
+    std::vector<std::uint16_t> addresses() const override { return {TWBR, TWSR, TWAR, TWDR, TWCR, TWAMR}; }
     std::uint8_t read(std::uint16_t address) override
     {
         switch (address) {
@@ -1763,6 +2145,7 @@ public:
         case TWSR: return static_cast<std::uint8_t>(status_ | twps_);
         case TWAR: return twar_;
         case TWDR: return twdr_;
+        case TWAMR: return twamr_;
         default:
             return static_cast<std::uint8_t>((twint() ? 0x80 : 0) | (twcr_ & 0x75) | (twwc_ ? 0x08 : 0));
         }
@@ -1771,6 +2154,7 @@ public:
     {
         switch (address) {
         case TWBR: twbr_ = value; return;
+        case TWAMR: twamr_ = value & 0xFE; return;
         case TWSR: twps_ = value & 3; return;
         case TWAR:
             twar_ = value;
@@ -1815,6 +2199,7 @@ public:
     {
         twbr_ = 0;
         twps_ = 0;
+        twamr_ = 0;
         twar_ = 0xFE;
         twdr_ = 0xFF;
         twcr_ = 0;
@@ -1975,6 +2360,7 @@ private:
         }
         m_.set_flag(V_TWI, true);
     }
+    std::uint8_t twamr_ = 0;
     std::uint8_t twbr_ = 0, twps_ = 0, twar_ = 0xFE, twdr_ = 0xFF, twcr_ = 0, status_ = 0xF8;
     bool twwc_ = false;
     bool owner_ = false;        // we sent a START and no STOP yet
@@ -1991,7 +2377,8 @@ private:
 // Power: the voltage on VCC from the circuit, sampled every 100 us. Below
 // about 1.4 V the chip is off (a power-on reset when it rises again). With
 // BODEN, below the brown-out level (BODLEVEL: 2.6 V, programmed 3.8 V;
-// typical values) it is held in reset and starts with BORF. Without the
+// typical values; the 328/328P: the extended fuse's BODLEVEL2:0, 1.8, 2.7 or
+// 4.3 V) it is held in reset and starts with BORF. Without the
 // circuit (the command line, tests) VCC is 5 V.
 
 class Atmega::Power : public Peripheral {
@@ -2020,8 +2407,18 @@ public:
         } else if (!seen_ && m_.time_ns() < 10'000'000) {
             return;
         }
-        const bool bod = !bit(m_.options_.fuse_low, 6);
-        const double level = bit(m_.options_.fuse_low, 7) ? 2.6 : 3.8;
+        bool bod = !bit(m_.options_.fuse_low, 6);
+        double level = bit(m_.options_.fuse_low, 7) ? 2.6 : 3.8;
+        double hysteresis = 0.13;
+        if (m_.mega328()) {
+            const int bodlevel = m_.options_.fuse_extended & 7;
+            bod = bodlevel >= 4 && bodlevel <= 6;
+            level = bodlevel == 6 ? 1.8 : bodlevel == 5 ? 2.7 : 4.3;
+            hysteresis = 0.05;
+            if (bodlevel < 4) {
+                m_.note_once("bodlevel", "BODLEVEL2:0 below 100 is reserved; the brown-out detector is off");
+            }
+        }
         if (vcc < 1.4) {
             if (m_.power_hold_ != Hold::Off) {
                 m_.power_hold_ = Hold::Off;
@@ -2040,10 +2437,10 @@ public:
             }
             return;
         }
-        if (m_.power_hold_ == Hold::Off && (!bod || vcc >= level + 0.13)) {
+        if (m_.power_hold_ == Hold::Off && (!bod || vcc >= level + hysteresis)) {
             m_.power_hold_ = Hold::None;
             m_.request_reset(ResetKind::PowerOn);
-        } else if (m_.power_hold_ == Hold::BrownOut && vcc >= level + 0.13) { // the hysteresis
+        } else if (m_.power_hold_ == Hold::BrownOut && vcc >= level + hysteresis) { // the hysteresis
             m_.power_hold_ = Hold::None;
             m_.request_reset(ResetKind::BrownOut);
         }
@@ -2051,7 +2448,11 @@ public:
             // The datasheet's safe operating area: 4.5 V above 8 MHz (and for the
             // ATmega8-16), 2.7 V for the ATmega8A up to 8 MHz.
             const bool fast = m_.cpu_hz_ > 8'000'000 || m_.options_.model == Model::Atmega8;
-            const double minimum = fast ? 4.5 : 2.7;
+            double minimum = fast ? 4.5 : 2.7;
+            if (m_.mega328()) { // 1.8 V to 4 MHz, 2.7 V to 10 MHz, 4.5 V to 20 MHz, linear between
+                const double mhz = m_.cpu_hz_ / 1e6;
+                minimum = mhz <= 4 ? 1.8 : mhz <= 10 ? 1.8 + (mhz - 4) * 0.15 : 2.7 + (mhz - 10) * 0.18;
+            }
             if (vcc < minimum - 0.05) {
                 char text[200];
                 std::snprintf(text, sizeof text,
@@ -2071,12 +2472,55 @@ private:
 // ---------------------------------------------------------------------------
 // Machine.
 
+namespace {
+
+bool is_328(Atmega::Model model) { return model == Atmega::Model::Atmega328 || model == Atmega::Model::Atmega328P; }
+
+AvrConfig core_config(Atmega::Model model)
+{
+    if (is_328(model)) {
+        return AvrConfig{16384, 0x900, 0xFF, 0x08FF, true, true, 2};
+    }
+    return AvrConfig{4096, 0x460, 0x5F, 0x0000, false, false, 1};
+}
+
+} // namespace
+
+Atmega::Options Atmega::factory(Model model)
+{
+    Options o;
+    o.model = model;
+    if (is_328(model)) {
+        o.fuse_low = 0x62;
+        o.fuse_high = 0xD9;
+        o.fuse_extended = 0xFF;
+    }
+    return o;
+}
+
 Atmega::Atmega(const Options& options)
     : options_(options),
-      cpu_(AvrConfig{flash_bytes / 2, 0x460, 0x5F, 0x0000, false, false, 1}),
-      eeprom_(eeprom_bytes, std::uint8_t{0xFF}),
-      page_buffer_(page_words, std::uint16_t{0xFFFF})
+      cpu_(core_config(options.model)),
+      eeprom_(is_328(options.model) ? 1024 : 512, std::uint8_t{0xFF})
 {
+    const bool m328 = is_328(options.model);
+    flash_bytes_ = m328 ? 32768 : 8192;
+    page_words_ = m328 ? 64 : 32;
+    boot_min_words_ = m328 ? 256 : 128;
+    page_buffer_.assign(page_words_, std::uint16_t{0xFFFF});
+    if (m328) {
+        vector_count_ = static_cast<int>(std::size(mega328_vectors));
+        std::copy(std::begin(mega328_vectors), std::end(mega328_vectors), vector_role_.begin());
+        for (const RegisterMap& m : mega328_registers) {
+            io_role_[m.address] = m.reg;
+        }
+    } else {
+        vector_count_ = static_cast<int>(std::size(mega8_vectors));
+        std::copy(std::begin(mega8_vectors), std::end(mega8_vectors), vector_role_.begin());
+        for (std::uint16_t a = 0x20; a < 0x60; ++a) {
+            io_role_[a] = a;
+        }
+    }
     auto add = [this](auto* p) {
         peripherals_.emplace_back(p);
         for (const std::uint16_t a : p->addresses()) {
@@ -2086,9 +2530,17 @@ Atmega::Atmega(const Options& options)
     };
     add(new Ports(*this));
     extint_ = add(new ExternalInterrupts(*this));
-    timer0_ = add(new Timer0(*this));
+    if (m328) {
+        timer0_ = add(new Timer8AB(*this, 0));
+    } else {
+        timer0_ = add(new Timer0(*this));
+    }
     timer1_ = add(new Timer1(*this));
-    timer2_ = add(new Timer2(*this));
+    if (m328) {
+        timer2_ = add(new Timer8AB(*this, 2));
+    } else {
+        timer2_ = add(new Timer2(*this));
+    }
     usart_ = add(new Usart(*this));
     eeprom_block_ = add(new Eeprom(*this));
     watchdog_ = add(new Watchdog(*this));
@@ -2105,7 +2557,15 @@ Atmega::Atmega() : Atmega(Options{}) {}
 
 Atmega::~Atmega() = default;
 
-const char* Atmega::chip_name() const { return options_.model == Model::Atmega8 ? "ATmega8" : "ATmega8A"; }
+const char* Atmega::chip_name() const
+{
+    switch (options_.model) {
+    case Model::Atmega8: return "ATmega8";
+    case Model::Atmega328: return "ATmega328";
+    case Model::Atmega328P: return "ATmega328P";
+    default: return "ATmega8A";
+    }
+}
 
 std::string Atmega::pin_name(int pin)
 {
@@ -2122,6 +2582,16 @@ bool Atmega::pin_usable(int pin) const
     }
     if ((pin == PB6 || pin == PB7) && timer2_ && timer2_->async()) {
         return false; // TOSC1/TOSC2: Timer2's crystal
+    }
+    if ((pin == PB6 || pin == PB7) && mega328()) {
+        const int cksel = options_.fuse_low & 0x0F;
+        if (cksel == 2 || cksel == 3) {
+            return true; // the internal 8 MHz or 128 kHz RC: XTAL1/XTAL2 are I/O pins
+        }
+        return pin == PB7 && cksel == 0; // an external clock uses XTAL1 only
+    }
+    if (pin == PB0 && mega328() && !bit(options_.fuse_low, 6)) {
+        return false; // CKOUT: the system clock on PB0
     }
     if (pin == PB6 || pin == PB7) {
         const int cksel = options_.fuse_low & 0x0F;
@@ -2143,6 +2613,13 @@ void Atmega::attach_core()
     cpu_.pending_vector = [this] { return pending_vector(); };
     cpu_.interrupt_taken = [this](int v) { taken(v); };
     cpu_.on_sleep = [this] {
+        if (mega328()) {
+            if (!bit(smcr_, 0)) {
+                return false;
+            }
+            enter_sleep((smcr_ >> 1) & 7);
+            return true;
+        }
         if (!bit(mcucr_, 7)) {
             return false;
         }
@@ -2155,29 +2632,85 @@ void Atmega::attach_core()
     cpu_.diagnostic = [this](const std::string& text) { diagnostic(text); };
 }
 
+namespace {
+
+// Interrupt flags in a flag register, bit by bit (0: no flag).
+const int tifr_order[8] = {V_T0_OVF, 0, V_T1_OVF, V_T1_COMPB, V_T1_COMPA, V_T1_CAPT, V_T2_OVF, V_T2_COMP};
+const int tifr0_order[8] = {V_T0_OVF, V_T0_COMPA, V_T0_COMPB, 0, 0, 0, 0, 0};
+const int tifr1_order[8] = {V_T1_OVF, V_T1_COMPA, V_T1_COMPB, 0, 0, V_T1_CAPT, 0, 0};
+const int tifr2_order[8] = {V_T2_OVF, V_T2_COMP, V_T2_COMPB, 0, 0, 0, 0, 0};
+const int gifr_order[8] = {0, 0, 0, 0, 0, 0, V_INT0, V_INT1};
+const int eifr_order[8] = {V_INT0, V_INT1, 0, 0, 0, 0, 0, 0};
+const int pcifr_order[8] = {V_PCINT0, V_PCINT1, V_PCINT2, 0, 0, 0, 0, 0};
+
+} // namespace
+
+std::uint8_t Atmega::flag_register(const int* order) const
+{
+    std::uint8_t v = 0;
+    for (int b = 0; b < 8; ++b) {
+        if (order[b] && flags_[static_cast<std::size_t>(order[b])]) {
+            v = static_cast<std::uint8_t>(v | (1u << b));
+        }
+    }
+    return v;
+}
+
+void Atmega::clear_flags(const int* order, std::uint8_t value)
+{
+    for (int b = 0; b < 8; ++b) {
+        if (order[b] && bit(value, b)) {
+            flags_[static_cast<std::size_t>(order[b])] = false; // writing 1 clears a flag
+        }
+    }
+    update_interrupts();
+}
+
+void Atmega::sync_timers()
+{
+    timer0_->sync(cpu_.cycles());
+    timer1_->sync(cpu_.cycles());
+    timer2_->sync(cpu_.cycles());
+}
+
+bool Atmega::pud() const { return mega328() ? bit(mcucr_, 4) : bit(sfior_, 2); }
+
 std::uint8_t Atmega::read_io(std::uint16_t address)
 {
-    if (Peripheral* p = io_owner_[address]) {
-        return p->read(address);
+    const std::uint16_t reg = io_role_[address];
+    if (Peripheral* p = io_owner_[reg]) {
+        return p->read(reg);
     }
-    switch (address) {
+    switch (reg) {
     case GICR: return gicr_;
-    case GIFR: return static_cast<std::uint8_t>((flags_[V_INT1] ? 0x80 : 0) | (flags_[V_INT0] ? 0x40 : 0));
+    case GIFR: return flag_register(gifr_order);
     case TIMSK: return timsk_;
-    case TIFR: {
-        timer0_->sync(cpu_.cycles());
-        timer1_->sync(cpu_.cycles());
-        timer2_->sync(cpu_.cycles());
-        static const int order[8] = {V_T0_OVF, 0, V_T1_OVF, V_T1_COMPB, V_T1_COMPA, V_T1_CAPT, V_T2_OVF, V_T2_COMP};
-        std::uint8_t v = 0;
-        for (int b = 0; b < 8; ++b) {
-            if (order[b] && flags_[static_cast<std::size_t>(order[b])]) {
-                v = static_cast<std::uint8_t>(v | (1u << b));
-            }
-        }
-        return v;
-    }
-    case MCUCR: return mcucr_;
+    case TIFR: sync_timers(); return flag_register(tifr_order);
+    case TIFR0: sync_timers(); return flag_register(tifr0_order);
+    case TIFR1: sync_timers(); return flag_register(tifr1_order);
+    case TIFR2: sync_timers(); return flag_register(tifr2_order);
+    case TIMSK0: return timskn_[0];
+    case TIMSK1: return timskn_[1];
+    case TIMSK2: return timskn_[2];
+    case EIFR: return flag_register(eifr_order);
+    case PCIFR: return flag_register(pcifr_order);
+    case EIMSK: return eimsk_;
+    case EICRA: return eicra_;
+    case PCICR: return pcicr_;
+    case PCMSK0: return pcmsk_[0];
+    case PCMSK1: return pcmsk_[1];
+    case PCMSK2: return pcmsk_[2];
+    case GPIOR0: return gpior_[0];
+    case GPIOR1: return gpior_[1];
+    case GPIOR2: return gpior_[2];
+    case SMCR: return smcr_;
+    case PRR: return prr_;
+    case DIDR0: return didr0_;
+    case DIDR1: return didr1_;
+    case GTCCR: return gtccr_;
+    case CLKPR: return static_cast<std::uint8_t>((cpu_.cycles() < clkpce_until_ ? 0x80 : 0) | clkps_);
+    case MCUCR:
+    case MCUCR328: return mcucr_;
     case MCUCSR: return mcucsr_;
     case SFIOR: return static_cast<std::uint8_t>(sfior_ & 0x0C);
     case OSCCAL: return osccal_;
@@ -2195,50 +2728,100 @@ std::uint8_t Atmega::read_io(std::uint16_t address)
 
 void Atmega::write_io(std::uint16_t address, std::uint8_t value)
 {
-    if (Peripheral* p = io_owner_[address]) {
-        p->write(address, value);
+    const std::uint16_t reg = io_role_[address];
+    if (Peripheral* p = io_owner_[reg]) {
+        p->write(reg, value);
         return;
     }
-    switch (address) {
-    case GICR:
-        if (bit(value, 0)) { // IVCE: IVSEL may change within four cycles
+    // IVCE then IVSEL within four cycles: the vectors move to the boot section
+    // (GICR on the ATmega8, MCUCR on the 328/328P; bits 1 and 0 in both).
+    auto vector_select = [this](std::uint8_t& r, std::uint8_t v, std::uint8_t keep) {
+        if (bit(v, 0)) {
             ivce_until_ = cpu_.cycles() + 4;
-            gicr_ = static_cast<std::uint8_t>((value & 0xC0) | (gicr_ & 0x02) | 0x01);
+            r = static_cast<std::uint8_t>((v & keep) | (r & 0x02) | 0x01);
         } else {
             if (cpu_.cycles() < ivce_until_) {
-                gicr_ = static_cast<std::uint8_t>((gicr_ & ~0x02) | (value & 0x02));
-                cpu_.set_vector_base(bit(gicr_, 1) ? boot_start_words() : 0);
+                r = static_cast<std::uint8_t>((r & ~0x02) | (v & 0x02));
+                cpu_.set_vector_base(bit(r, 1) ? boot_start_words() : 0);
             }
-            gicr_ = static_cast<std::uint8_t>((value & 0xC0) | (gicr_ & 0x02));
+            r = static_cast<std::uint8_t>((v & keep) | (r & 0x02));
         }
+    };
+    switch (reg) {
+    case GICR:
+        vector_select(gicr_, value, 0xC0);
         update_interrupts();
         return;
-    case GIFR:
-        if (bit(value, 7)) {
-            flags_[V_INT1] = false;
+    case MCUCR328: {
+        const bool pud_was = pud();
+        vector_select(mcucr_, value, 0x70);
+        if (bit(value, 6) && bit(value, 5)) {
+            note_once("bods", "BODS (the brown-out detector off in sleep) is accepted; the detector's current is not simulated");
         }
-        if (bit(value, 6)) {
-            flags_[V_INT0] = false;
+        if (pud() != pud_was) {
+            refresh_pins();
         }
-        update_interrupts();
         return;
+    }
+    case GIFR: clear_flags(gifr_order, value); return;
+    case EIFR: clear_flags(eifr_order, value); return;
+    case PCIFR: clear_flags(pcifr_order, value); return;
     case TIMSK:
         timsk_ = value & 0xFD;
         update_interrupts();
         return;
-    case TIFR: {
-        timer0_->sync(cpu_.cycles());
-        timer1_->sync(cpu_.cycles());
-        timer2_->sync(cpu_.cycles());
-        static const int order[8] = {V_T0_OVF, 0, V_T1_OVF, V_T1_COMPB, V_T1_COMPA, V_T1_CAPT, V_T2_OVF, V_T2_COMP};
-        for (int b = 0; b < 8; ++b) {
-            if (order[b] && bit(value, b)) {
-                flags_[static_cast<std::size_t>(order[b])] = false; // writing 1 clears a flag
-            }
+    case TIFR: sync_timers(); clear_flags(tifr_order, value); return;
+    case TIFR0: sync_timers(); clear_flags(tifr0_order, value); return;
+    case TIFR1: sync_timers(); clear_flags(tifr1_order, value); return;
+    case TIFR2: sync_timers(); clear_flags(tifr2_order, value); return;
+    case TIMSK0: timskn_[0] = value & 0x07; update_interrupts(); return;
+    case TIMSK1: timskn_[1] = value & 0x27; update_interrupts(); return;
+    case TIMSK2: timskn_[2] = value & 0x07; update_interrupts(); return;
+    case EIMSK: eimsk_ = value & 0x03; update_interrupts(); return;
+    case EICRA: eicra_ = value & 0x0F; update_interrupts(); return;
+    case PCICR: pcicr_ = value & 0x07; update_interrupts(); return;
+    case PCMSK0: pcmsk_[0] = value; return;
+    case PCMSK1: pcmsk_[1] = value & 0x7F; return;
+    case PCMSK2: pcmsk_[2] = value; return;
+    case GPIOR0: gpior_[0] = value; return;
+    case GPIOR1: gpior_[1] = value; return;
+    case GPIOR2: gpior_[2] = value; return;
+    case SMCR: smcr_ = value & 0x0F; return;
+    case PRR:
+        prr_ = value & 0xEF;
+        if (prr_) {
+            note_once("prr", "PRR (power reduction) is accepted, but the modules it stops keep running in the simulation");
         }
-        update_interrupts();
         return;
-    }
+    case DIDR0: didr0_ = value & 0x3F; return;
+    case DIDR1: didr1_ = value & 0x03; return;
+    case GTCCR:
+        if (bit(value, 0)) { // PSRSYNC: restart the prescaler of Timer0 and Timer1
+            timer0_->sync(cpu_.cycles());
+            timer1_->sync(cpu_.cycles());
+            prescaler10_ = cpu_.cycles();
+            timed_changed();
+        }
+        if (bit(value, 1)) { // PSRASY
+            timer2_->sync(cpu_.cycles());
+            prescaler2_ = cpu_.cycles();
+            timed_changed();
+        }
+        gtccr_ = static_cast<std::uint8_t>(value & 0x80);
+        if (gtccr_) {
+            note_once("tsm", "GTCCR's TSM (timers held for synchronization) is not simulated; the prescalers restart once");
+        }
+        return;
+    case CLKPR:
+        if (value == 0x80) {
+            clkpce_until_ = cpu_.cycles() + 4; // CLKPCE alone: CLKPS may change within four cycles
+        } else if (!bit(value, 7) && cpu_.cycles() < clkpce_until_) {
+            clkpce_until_ = 0;
+            clkps_ = static_cast<std::uint8_t>(std::min(value & 0x0F, 8));
+            sync_timers();
+            set_cpu_hz(source_hz_ >> clkps_);
+        }
+        return;
     case MCUCR:
         mcucr_ = value;
         update_interrupts();
@@ -2273,6 +2856,27 @@ void Atmega::write_io(std::uint16_t address, std::uint8_t value)
 
 bool Atmega::interrupt_enabled(int vector) const
 {
+    if (mega328()) {
+        switch (vector) {
+        case V_INT0: return bit(eimsk_, 0);
+        case V_INT1: return bit(eimsk_, 1);
+        case V_PCINT0:
+        case V_PCINT1:
+        case V_PCINT2: return bit(pcicr_, vector - V_PCINT0);
+        case V_WDT: return watchdog_->interrupt_enabled();
+        case V_T0_OVF: return bit(timskn_[0], 0);
+        case V_T0_COMPA: return bit(timskn_[0], 1);
+        case V_T0_COMPB: return bit(timskn_[0], 2);
+        case V_T1_OVF: return bit(timskn_[1], 0);
+        case V_T1_COMPA: return bit(timskn_[1], 1);
+        case V_T1_COMPB: return bit(timskn_[1], 2);
+        case V_T1_CAPT: return bit(timskn_[1], 5);
+        case V_T2_OVF: return bit(timskn_[2], 0);
+        case V_T2_COMP: return bit(timskn_[2], 1);
+        case V_T2_COMPB: return bit(timskn_[2], 2);
+        default: break;
+        }
+    }
     switch (vector) {
     case V_INT0: return bit(gicr_, 6);
     case V_INT1: return bit(gicr_, 7);
@@ -2299,15 +2903,16 @@ bool Atmega::interrupt_enabled(int vector) const
 int Atmega::pending_vector()
 {
     const bool asleep = cpu_.state() == AvrState::Sleeping;
-    for (int v = 1; v < V_COUNT; ++v) {
+    for (int n = 1; n < vector_count_; ++n) {
+        const int v = vector_role_[static_cast<std::size_t>(n)];
         if (!interrupt_enabled(v) || (asleep && !wakes(v))) {
             continue;
         }
         if ((v == V_INT0 || v == V_INT1) && extint_->level_pending(v - 1)) {
-            return v;
+            return n;
         }
         if (flags_[static_cast<std::size_t>(v)] && (v != V_SPM_RDY || cpu_.cycles() >= spm_until_)) {
-            return v;
+            return n;
         }
     }
     return -1;
@@ -2315,8 +2920,8 @@ int Atmega::pending_vector()
 
 void Atmega::enter_sleep(int mode)
 {
-    if (mode == 4 || mode == 5 || mode == 7) {
-        note_once("sleep-reserved", "Sleep mode " + std::to_string(mode) + " is reserved on the ATmega8; it behaves as Idle");
+    if (mode == 4 || mode == 5 || (mode == 7 && !mega328())) {
+        note_once("sleep-reserved", "Sleep mode " + std::to_string(mode) + " is reserved on the " + chip_name() + "; it behaves as Idle");
         mode = 0;
     }
     sleep_mode_ = mode;
@@ -2325,7 +2930,7 @@ void Atmega::enter_sleep(int mode)
         return; // Idle: every clock but the CPU's runs
     }
     // The I/O clock stops: Timer0, Timer1 and a synchronous Timer2 stand still.
-    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_)}) {
+    for (TimerBase* t : {timer0_, static_cast<TimerBase*>(timer1_)}) {
         t->sync(cpu_.cycles());
         t->frozen = true;
     }
@@ -2351,15 +2956,15 @@ void Atmega::leave_sleep()
     }
     if (mode == 2 || mode == 3) {
         cpu_.set_cycles(cpu_.cycles() + startup_clocks_); // the oscillator starts again
-    } else if (mode == 6) {
-        cpu_.set_cycles(cpu_.cycles() + 6); // standby: the oscillator kept running
+    } else if (mode == 6 || mode == 7) {
+        cpu_.set_cycles(cpu_.cycles() + 6); // (extended) standby: the oscillator kept running
     }
     const std::uint64_t elapsed = cpu_.cycles() - sleep_start_;
     prescaler10_ += elapsed; // the prescaler's phase stood still too
     if (timer2_->frozen) {
         prescaler2_ += elapsed;
     }
-    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_), static_cast<TimerBase*>(timer2_)}) {
+    for (TimerBase* t : {timer0_, static_cast<TimerBase*>(timer1_), timer2_}) {
         if (t->frozen) {
             t->thaw(cpu_.cycles());
         }
@@ -2371,14 +2976,18 @@ bool Atmega::io_clock_stopped() const { return sleep_mode_ > 0; }
 
 bool Atmega::wakes(int vector) const
 {
+    if (sleep_mode_ > 0 && (vector == V_PCINT0 || vector == V_PCINT1 || vector == V_PCINT2 || vector == V_WDT)) {
+        return true; // the 328/328P's pin changes and watchdog wake from every mode
+    }
+    const bool t2 = (vector == V_T2_COMP || vector == V_T2_COMPB || vector == V_T2_OVF) && timer2_->async();
     switch (sleep_mode_) {
     case -1:
     case 0: return true;
     case 1: // ADC Noise Reduction
-        return vector == V_INT0 || vector == V_INT1 || vector == V_ADC || vector == V_EE_RDY || vector == V_SPM_RDY
-               || ((vector == V_T2_COMP || vector == V_T2_OVF) && timer2_->async());
-    case 3: // Power-save: Timer2 in asynchronous mode as well
-        if ((vector == V_T2_COMP || vector == V_T2_OVF) && timer2_->async()) {
+        return vector == V_INT0 || vector == V_INT1 || vector == V_ADC || vector == V_EE_RDY || vector == V_SPM_RDY || t2;
+    case 3: // Power-save, extended standby: Timer2 in asynchronous mode as well
+    case 7:
+        if (t2) {
             return true;
         }
         [[fallthrough]];
@@ -2387,45 +2996,48 @@ bool Atmega::wakes(int vector) const
     }
 }
 
-void Atmega::taken(int vector)
+void Atmega::taken(int number)
 {
     leave_sleep();
+    const int vector = number > 0 && number < vector_count_ ? vector_role_[static_cast<std::size_t>(number)] : 0;
     // The hardware clears these flags when their vector runs; RXC, UDRE and
     // EE_RDY are levels that the firmware clears.
     switch (vector) {
-    case V_INT0:
-    case V_INT1:
-    case V_T2_COMP:
-    case V_T2_OVF:
-    case V_T1_CAPT:
-    case V_T1_COMPA:
-    case V_T1_COMPB:
-    case V_T1_OVF:
-    case V_T0_OVF:
-    case V_SPI:
-    case V_ADC:
-    case V_ANA_COMP:
-    case V_TXC:
+    case V_RXC:
+    case V_UDRE:
+    case V_EE_RDY:
+    case V_SPM_RDY:
+    case V_TWI: // TWINT stays until the firmware writes 1
+    case 0: break;
+    case V_WDT:
+        flags_[static_cast<std::size_t>(vector)] = false;
+        watchdog_->taken();
+        break;
+    default:
         flags_[static_cast<std::size_t>(vector)] = false;
         if (vector == V_TXC) {
             usart_->write(UCSRA, static_cast<std::uint8_t>(usart_->read(UCSRA) | 0x40));
         }
         break;
-    default: break;
     }
     update_interrupts();
 }
 
 void Atmega::set_flag(int vector, bool on)
 {
+    const bool rose = on && !flags_[static_cast<std::size_t>(vector)];
     flags_[static_cast<std::size_t>(vector)] = on;
+    if (rose && mega328()) {
+        adc_->flag_rose(vector);
+    }
     update_interrupts();
 }
 
 void Atmega::update_interrupts()
 {
     bool any = false;
-    for (int v = 1; v < V_COUNT && !any; ++v) {
+    for (int n = 1; n < vector_count_ && !any; ++n) {
+        const int v = vector_role_[static_cast<std::size_t>(n)];
         if (!interrupt_enabled(v)) {
             continue;
         }
@@ -2456,7 +3068,12 @@ std::uint64_t Atmega::ns_at(std::uint64_t cycle) const
     if (cpu_hz_ == 0) {
         return idle_ns_;
     }
-    return cycle / cpu_hz_ * 1'000'000'000ull + cycle % cpu_hz_ * 1'000'000'000ull / cpu_hz_;
+    if (cycle < clock_base_cycle_) { // before the last clock change: an estimate at today's clock
+        const std::uint64_t back = (clock_base_cycle_ - cycle) * 1'000'000'000ull / cpu_hz_;
+        return clock_base_ns_ - std::min(clock_base_ns_, back);
+    }
+    const std::uint64_t d = cycle - clock_base_cycle_;
+    return clock_base_ns_ + d / cpu_hz_ * 1'000'000'000ull + d % cpu_hz_ * 1'000'000'000ull / cpu_hz_;
 }
 
 std::uint64_t Atmega::cycles_at(std::uint64_t ns) const
@@ -2464,72 +3081,170 @@ std::uint64_t Atmega::cycles_at(std::uint64_t ns) const
     if (cpu_hz_ == 0) {
         return 0;
     }
+    if (ns < clock_base_ns_) {
+        return clock_base_cycle_ - std::min<std::uint64_t>(clock_base_cycle_, (clock_base_ns_ - ns) * cpu_hz_ / 1'000'000'000ull);
+    }
+    return clock_base_cycle_ + cycles_for_ns(ns - clock_base_ns_);
+}
+
+std::uint64_t Atmega::cycles_for_ns(std::uint64_t ns) const
+{
     const std::uint64_t whole = ns / 1'000'000'000ull * cpu_hz_;
     const std::uint64_t rest = ns % 1'000'000'000ull * cpu_hz_;
     return whole + (rest + 999'999'999ull) / 1'000'000'000ull;
 }
 
-std::uint64_t Atmega::cycles_for_ns(std::uint64_t ns) const { return cycles_at(ns); }
+void Atmega::set_cpu_hz(std::uint32_t hz)
+{
+    if (hz == cpu_hz_) {
+        return;
+    }
+    const std::uint64_t now_ns = time_ns();
+    clock_base_cycle_ = cpu_.cycles();
+    clock_base_ns_ = now_ns;
+    if (hz == 0) {
+        idle_ns_ = now_ns;
+    }
+    cpu_hz_ = hz;
+    for (auto& p : peripherals_) {
+        p->clock_changed();
+    }
+    timed_changed();
+}
 
 void Atmega::apply_fuses()
 {
+    if (mega328()) {
+        apply_fuses_328();
+        return;
+    }
     const int cksel = options_.fuse_low & 0x0F;
     const int sut = (options_.fuse_low >> 4) & 3;
     std::uint64_t clocks = 6;
     std::uint64_t delay_ns = 0;
+    std::uint32_t hz = 0;
     static const std::uint64_t tout[3] = {0, 4'100'000, 65'000'000};
     if (cksel >= 1 && cksel <= 4) {
         static const std::uint32_t rc[5] = {0, 1'000'000, 2'000'000, 4'000'000, 8'000'000};
-        cpu_hz_ = rc[cksel];
+        hz = rc[cksel];
         delay_ns = sut < 3 ? tout[sut] : 0;
     } else if (cksel == 0) { // external clock on XTAL1
-        cpu_hz_ = options_.external_hz;
+        hz = options_.external_hz;
         delay_ns = sut < 3 ? tout[sut] : 0;
     } else if (cksel <= 8) { // external RC oscillator
-        cpu_hz_ = options_.external_hz;
+        hz = options_.external_hz;
         clocks = sut == 3 ? 6 : 18;
         delay_ns = sut == 3 ? tout[1] : tout[sut];
     } else if (cksel == 9) { // low-frequency crystal
-        cpu_hz_ = options_.external_hz;
+        hz = options_.external_hz;
         clocks = sut == 2 ? 32768 : 1024;
         delay_ns = sut == 0 ? tout[1] : tout[2];
     } else { // crystal or ceramic resonator
-        cpu_hz_ = options_.external_hz;
+        hz = options_.external_hz;
         static const std::uint64_t ck[8] = {258, 258, 1024, 1024, 1024, 16384, 16384, 16384};
         static const std::uint64_t ms[8] = {4'100'000, 65'000'000, 0, 4'100'000, 65'000'000, 0, 4'100'000, 65'000'000};
         const int row = ((cksel & 1) << 2) | sut;
         clocks = ck[row];
         delay_ns = ms[row];
-        if (cpu_hz_ > 8'000'000 && bit(options_.fuse_high, 4)) {
+        if (hz > 8'000'000 && bit(options_.fuse_high, 4)) {
             note_once("ckopt", "The crystal is above 8 MHz but CKOPT is not programmed: the oscillator may not run reliably on a real chip");
         }
     }
-    startup_cycles_ = cpu_hz_ ? clocks + cycles_at(delay_ns) : 0;
+    source_hz_ = hz;
+    set_cpu_hz(hz);
+    startup_cycles_ = cpu_hz_ ? clocks + cycles_for_ns(delay_ns) : 0;
     startup_clocks_ = clocks; // waking from power-down: the oscillator's start-up only
+    cpu_.set_reset_pc(bit(options_.fuse_high, 0) ? 0 : boot_start_words());
+}
+
+// The ATmega328/328P's clock sources (datasheet section 9): CKSEL3:0 0000
+// external clock, 0010 the calibrated 8 MHz RC, 0011 the 128 kHz RC, 0100-0101
+// a low-frequency crystal, 0110-0111 a full-swing crystal, 1000-1111 a
+// low-power crystal; then CKDIV8 sets CLKPR's division to 8. The start-up:
+// the oscillator's clocks, 14 clocks and the SUT delay.
+void Atmega::apply_fuses_328()
+{
+    const int cksel = options_.fuse_low & 0x0F;
+    const int sut = (options_.fuse_low >> 4) & 3;
+    static const std::uint64_t tout[4] = {0, 4'100'000, 65'000'000, 0};
+    std::uint64_t clocks = 6;
+    std::uint64_t delay_ns = 0;
+    std::uint32_t hz = 0;
+    if (cksel == 0 || cksel == 2 || cksel == 3) {
+        hz = cksel == 2 ? 8'000'000 : cksel == 3 ? 128'000 : options_.external_hz;
+        delay_ns = tout[sut];
+        if (sut == 3) {
+            note_once("sut-reserved", "SUT1:0 = 11 is reserved for this clock source; the start-up has no delay");
+        }
+    } else if (cksel == 4 || cksel == 5) {
+        hz = options_.external_hz;
+        clocks = (cksel & 1) ? 32768 : 1024;
+        delay_ns = sut == 0 ? tout[1] : tout[2];
+    } else if (cksel >= 6) {
+        hz = options_.external_hz;
+        static const std::uint64_t ck[8] = {258, 258, 1024, 1024, 1024, 16384, 16384, 16384};
+        static const std::uint64_t ms[8] = {4'100'000, 65'000'000, 0, 4'100'000, 65'000'000, 0, 4'100'000, 65'000'000};
+        const int row = ((cksel & 1) << 2) | sut;
+        clocks = ck[row];
+        delay_ns = ms[row];
+        if (cksel >= 8) {
+            static const std::uint32_t top[4] = {900'000, 3'000'000, 8'000'000, 16'000'000}; // CKSEL3:1 100..111
+            const std::uint32_t limit = top[(cksel >> 1) & 3];
+            if (hz > limit && limit < 16'000'000) {
+                char text[200];
+                std::snprintf(text, sizeof text,
+                    "The %.6g MHz crystal is above the %.3g MHz range CKSEL3:1 selects: the oscillator may not start on a real chip",
+                    hz / 1e6, limit / 1e6);
+                note_once("cksel-range", text);
+            }
+        }
+    } else {
+        note_once("cksel-reserved", "CKSEL3:0 = 0001 is reserved: the chip has no clock");
+    }
+    if (!bit(options_.fuse_low, 6)) {
+        note_once("ckout", "CKOUT is programmed: PB0 gives the system clock (not drawn in the simulation) and is not an I/O pin");
+    }
+    if (!bit(options_.fuse_high, 6)) {
+        note_once("dwen", "DWEN (debugWIRE) is programmed: on a real chip RESET becomes the debugWIRE pin; the simulation ignores it");
+    }
+    source_hz_ = hz;
+    clkps_ = bit(options_.fuse_low, 7) ? 0 : 3; // CKDIV8 programmed: divided by 8
+    set_cpu_hz(hz >> clkps_);
+    startup_cycles_ = cpu_hz_ ? std::max<std::uint64_t>(1, (clocks + 14) >> clkps_) + cycles_for_ns(delay_ns) : 0;
+    startup_clocks_ = std::max<std::uint64_t>(1, clocks >> clkps_);
     cpu_.set_reset_pc(bit(options_.fuse_high, 0) ? 0 : boot_start_words());
 }
 
 std::string Atmega::clock_description() const
 {
     const int cksel = options_.fuse_low & 0x0F;
-    char text[160];
-    if (cksel >= 1 && cksel <= 4) {
-        std::snprintf(text, sizeof text, "internal RC oscillator, %u MHz (nominal; the chip's varies a few percent)",
-            static_cast<unsigned>(cpu_hz_ / 1'000'000));
+    char text[200];
+    const bool m328 = mega328();
+    const bool internal = m328 ? (cksel == 2 || cksel == 3) : (cksel >= 1 && cksel <= 4);
+    const char* external = cksel == 0 ? "an external clock"
+                           : (m328 ? cksel <= 5 : cksel <= 8) ? (m328 ? "a low-frequency crystal" : "an external RC oscillator")
+                                                              : "a crystal";
+    char divided[48] = "";
+    if (clkps_ != 0) {
+        std::snprintf(divided, sizeof divided, ", divided by %u (CLKPR)", 1u << clkps_);
+    }
+    if (internal) {
+        std::snprintf(text, sizeof text, "internal RC oscillator, %.6g MHz%s (nominal; the chip's varies a few percent)",
+            source_hz_ / 1e6, divided);
     } else if (cpu_hz_ == 0) {
         std::snprintf(text, sizeof text, "%s selected by the fuses, but nothing is connected to XTAL1/XTAL2: the chip does not start",
-            cksel == 0 ? "an external clock" : cksel <= 8 ? "an external RC oscillator" : "a crystal");
+            external);
     } else {
-        std::snprintf(text, sizeof text, "%s at %.6g MHz", cksel == 0 ? "external clock" : cksel <= 8 ? "external RC oscillator" : "crystal",
-            cpu_hz_ / 1e6);
+        std::snprintf(text, sizeof text, "%s at %.6g MHz%s", external + (external[1] == 'n' ? 3 : 2), source_hz_ / 1e6, divided);
     }
     return text;
 }
 
 std::uint32_t Atmega::boot_start_words() const
 {
-    static const std::uint32_t size[4] = {1024, 512, 256, 128}; // BOOTSZ 00, 01, 10, 11
-    return flash_bytes / 2 - size[(options_.fuse_high >> 1) & 3];
+    // BOOTSZ 11 is the smallest section (128 words on the ATmega8, 256 on the
+    // 328/328P), each step down doubles it.
+    return flash_bytes_ / 2 - (boot_min_words_ << (3 - ((options_.fuse_high >> 1) & 3)));
 }
 
 void Atmega::set_fuses(std::uint8_t low, std::uint8_t high, std::uint8_t lock)
@@ -2543,14 +3258,14 @@ void Atmega::set_fuses(std::uint8_t low, std::uint8_t high, std::uint8_t lock)
 
 bool Atmega::load_flash(const std::vector<std::uint8_t>& bytes, std::string& error, std::uint32_t at)
 {
-    if (at + bytes.size() > flash_bytes) {
+    if (at + bytes.size() > flash_bytes_) {
         error = std::string("The firmware needs ") + std::to_string(at + bytes.size()) + " bytes of flash; the " + chip_name()
-                + " has 8192.";
+                + " has " + std::to_string(flash_bytes_) + ".";
         return false;
     }
 
-    std::vector<std::uint16_t> current(flash_bytes / 2);
-    for (std::uint32_t w = 0; w < flash_bytes / 2; ++w) {
+    std::vector<std::uint16_t> current(flash_bytes_ / 2);
+    for (std::uint32_t w = 0; w < flash_bytes_ / 2; ++w) {
         current[w] = cpu_.flash_word(w);
     }
     for (std::size_t i = 0; i < bytes.size(); ++i) {
@@ -2566,7 +3281,7 @@ std::uint8_t Atmega::flash_byte(std::uint32_t address) const { return cpu_.flash
 
 void Atmega::chip_erase()
 {
-    cpu_.load_flash(std::vector<std::uint16_t>(flash_bytes / 2, 0xFFFF));
+    cpu_.load_flash(std::vector<std::uint16_t>(flash_bytes_ / 2, 0xFFFF));
     if (bit(options_.fuse_high, 3)) { // EESAVE unprogrammed: the EEPROM is erased too
         std::fill(eeprom_.begin(), eeprom_.end(), std::uint8_t{0xFF});
     }
@@ -2644,14 +3359,15 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
         error = "The HEX file has no data.";
         return false;
     }
-    const std::uint32_t limit = eeprom ? static_cast<std::uint32_t>(eeprom_bytes) : flash_bytes;
+    const std::uint32_t limit = eeprom ? static_cast<std::uint32_t>(eeprom_.size()) : flash_bytes_;
     for (const auto& [address, value] : bytes) {
         if (address >= limit) {
             error = std::string("The HEX file has data at 0x") + [&] {
                 char t[16];
                 std::snprintf(t, sizeof t, "%X", static_cast<unsigned>(address));
                 return std::string(t);
-            }() + ", beyond the " + chip_name() + "'s " + (eeprom ? "512 bytes of EEPROM." : "8 KB of flash.");
+            }() + ", beyond the " + chip_name() + "'s " + std::to_string(eeprom ? eeprom_.size() : flash_bytes_ / 1024)
+                + (eeprom ? " bytes of EEPROM." : " KB of flash.");
             return false;
         }
     }
@@ -2661,7 +3377,7 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
         }
         return true;
     }
-    std::vector<std::uint8_t> image(flash_bytes, std::uint8_t{0xFF});
+    std::vector<std::uint8_t> image(flash_bytes_, std::uint8_t{0xFF});
     for (const auto& [address, value] : bytes) {
         image[address] = value;
     }
@@ -2670,15 +3386,15 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
 
 bool Atmega::load_elf(const ElfImage& image, std::string& error, bool* fuses_set)
 {
-    std::vector<std::uint8_t> flash(flash_bytes, std::uint8_t{0xFF});
+    std::vector<std::uint8_t> flash(flash_bytes_, std::uint8_t{0xFF});
     bool any = false;
-    std::optional<std::uint8_t> low, high, lock;
+    std::optional<std::uint8_t> low, high, lock, extended;
     for (const ElfSegment& s : image.segments) {
         const std::uint32_t a = s.physical;
         if (a < 0x800000) { // flash
-            if (a + s.data.size() > flash_bytes) {
+            if (a + s.data.size() > flash_bytes_) {
                 error = std::string("The firmware needs ") + std::to_string(a + s.data.size()) + " bytes of flash; the "
-                        + chip_name() + " has 8192.";
+                        + chip_name() + " has " + std::to_string(flash_bytes_) + ".";
                 return false;
             }
             std::copy(s.data.begin(), s.data.end(), flash.begin() + a);
@@ -2697,6 +3413,9 @@ bool Atmega::load_elf(const ElfImage& image, std::string& error, bool* fuses_set
             if (s.data.size() > 1) {
                 high = s.data[1];
             }
+            if (s.data.size() > 2 && mega328()) {
+                extended = s.data[2];
+            }
         } else if (s.address == 0x830000 && !s.data.empty()) { // .lock
             lock = s.data[0];
         }
@@ -2709,7 +3428,7 @@ bool Atmega::load_elf(const ElfImage& image, std::string& error, bool* fuses_set
         return false;
     }
     const bool changed = (low && *low != options_.fuse_low) || (high && *high != options_.fuse_high)
-                         || (lock && *lock != options_.lock);
+                         || (lock && *lock != options_.lock) || (extended && *extended != options_.fuse_extended);
     if (low) {
         options_.fuse_low = *low;
     }
@@ -2718,6 +3437,9 @@ bool Atmega::load_elf(const ElfImage& image, std::string& error, bool* fuses_set
     }
     if (lock) {
         options_.lock = *lock;
+    }
+    if (extended) {
+        options_.fuse_extended = *extended;
     }
     if (fuses_set) {
         *fuses_set = changed;
@@ -2745,6 +3467,11 @@ void Atmega::reset(ResetKind kind)
     port_.fill(0);
     ddr_.fill(0);
     gicr_ = mcucr_ = sfior_ = timsk_ = spmcr_ = 0;
+    eicra_ = eimsk_ = pcicr_ = smcr_ = prr_ = didr0_ = didr1_ = gtccr_ = 0;
+    pcmsk_.fill(0);
+    gpior_.fill(0);
+    timskn_.fill(0);
+    clkpce_until_ = 0;
     osccal_ = 0xA8; // the 1 MHz calibration byte differs per chip; a typical value
     ivce_until_ = spm_until_ = spm_window_ = blbset_until_ = 0;
     rww_busy_ = false;
@@ -2754,7 +3481,7 @@ void Atmega::reset(ResetKind kind)
     }
     reset_requested_ = false;
     sleep_mode_ = -1;
-    for (TimerBase* t : {static_cast<TimerBase*>(timer0_), static_cast<TimerBase*>(timer1_), static_cast<TimerBase*>(timer2_)}) {
+    for (TimerBase* t : {timer0_, static_cast<TimerBase*>(timer1_), timer2_}) {
         t->frozen = false;
     }
     refresh_pins();
@@ -2850,7 +3577,7 @@ void Atmega::refresh_pins() { refresh_pins_at(cpu_.cycles()); }
 
 void Atmega::refresh_pins_at(std::uint64_t cycle)
 {
-    const bool pud = bit(sfior_, 2);
+    const bool pud = this->pud();
     for (int p = 0; p < pin_count; ++p) {
         if (!pin_exists(p)) {
             continue;
@@ -3000,14 +3727,14 @@ unsigned Atmega::spm(std::uint16_t z, std::uint16_t r1r0)
         note_once("spm-app", "SPM runs only from the boot loader section; this one, from the application section, did nothing");
         return 0;
     }
-    const std::uint32_t page = (z >> 1) & ~(page_words - 1) & (flash_bytes / 2 - 1);
+    const std::uint32_t page = (z >> 1) & ~(page_words_ - 1) & (flash_bytes_ / 2 - 1);
     const bool to_boot = page >= boot;
     const std::uint8_t lock = options_.lock;
     const bool refused = to_boot ? !bit(lock, 4) : !bit(lock, 2); // BLB11 / BLB01 programmed
     const std::uint8_t op = spmcr_ & 0x1E;
     spmcr_ &= 0x80;
     if (op == 0x00) { // fill the page buffer
-        page_buffer_[(z >> 1) & (page_words - 1)] = r1r0;
+        page_buffer_[(z >> 1) & (page_words_ - 1)] = r1r0;
         return 0;
     }
     if (op == 0x10) { // RWWSRE: the RWW section reads again
@@ -3023,13 +3750,13 @@ unsigned Atmega::spm(std::uint16_t z, std::uint16_t r1r0)
         note_once("spm-lock", "SPM was refused: the boot lock bits protect that section");
         return 0;
     }
-    const std::uint64_t duration = cycles_at(flash_write_ns);
+    const std::uint64_t duration = cycles_for_ns(flash_write_ns);
     if (op == 0x02) { // page erase
-        for (std::uint32_t w = 0; w < page_words; ++w) {
+        for (std::uint32_t w = 0; w < page_words_; ++w) {
             cpu_.write_flash_word(page + w, 0xFFFF);
         }
     } else if (op == 0x04) { // page write
-        for (std::uint32_t w = 0; w < page_words; ++w) {
+        for (std::uint32_t w = 0; w < page_words_; ++w) {
             cpu_.write_flash_word(page + w, static_cast<std::uint16_t>(cpu_.flash_word(page + w) & page_buffer_[w]));
         }
         std::fill(page_buffer_.begin(), page_buffer_.end(), std::uint16_t{0xFFFF});
@@ -3052,7 +3779,20 @@ bool Atmega::lpm_special(std::uint16_t z, std::uint8_t& value)
         switch (z) {
         case 0x0000: value = options_.fuse_low; return true;
         case 0x0001: value = options_.lock; return true;
+        case 0x0002: value = mega328() ? options_.fuse_extended : 0xFF; return true;
         case 0x0003: value = options_.fuse_high; return true;
+        default: value = 0xFF; return true;
+        }
+    }
+    // The 328/328P's SIGRD with SPMEN: the signature row (signature bytes at
+    // even addresses, the factory OSCCAL value at 1).
+    if (mega328() && bit(spmcr_, 5) && bit(spmcr_, 0) && cpu_.cycles() < spm_window_) {
+        spmcr_ &= 0x80;
+        switch (z) {
+        case 0x0000: value = 0x1E; return true;
+        case 0x0001: value = 0x9C; return true; // a typical calibration byte
+        case 0x0002: value = 0x95; return true;
+        case 0x0004: value = options_.model == Model::Atmega328P ? 0x0F : 0x14; return true;
         default: value = 0xFF; return true;
         }
     }

@@ -1,7 +1,6 @@
 {
   "compiler": "avr-gcc.exe (GCC) 7.3.0",
   "flags": [
-    "-mmcu=atmega8",
     "-std=c11",
     "-Os",
     "-g",
@@ -14,8 +13,36 @@
     "-fdebug-prefix-map={root}=."
   ],
   "firmware": {
+    "avr328_pwm": {
+      "source": "examples/firmware/avr328_pwm/avr328_pwm.c",
+      "mcu": "atmega328p",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr328_pwm/avr328_pwm.elf",
+      "elf_sha256": "e64861eae8bb343add0c97117f561310d13ec0f2bb76cded6f03fc3b302f3591",
+      "hex": "examples/firmware/avr328_pwm/avr328_pwm.hex",
+      "hex_sha256": "c5009e548d1229a0a4cddcca5adc3679fdd995a3ca4884da170ebed7e838e3f5"
+    },
+    "avr328_serial": {
+      "source": "examples/firmware/avr328_serial/avr328_serial.c",
+      "mcu": "atmega328p",
+      "f_cpu": 8000000,
+      "elf": "examples/firmware/avr328_serial/avr328_serial.elf",
+      "elf_sha256": "ae83a43363d3191a597f1ad153d034fd2108072c803392cd7d0290e32baea4b6",
+      "hex": "examples/firmware/avr328_serial/avr328_serial.hex",
+      "hex_sha256": "6b242c6340a763946008ba6e45fdfdb65fde79ecab92645929fb9a0fb76294f4"
+    },
+    "avr328_wake": {
+      "source": "examples/firmware/avr328_wake/avr328_wake.c",
+      "mcu": "atmega328p",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr328_wake/avr328_wake.elf",
+      "elf_sha256": "cd3a8210ce41a9391c385f6eafa26678bb49a016392be8c9a08e7f2d4b6bc9df",
+      "hex": "examples/firmware/avr328_wake/avr328_wake.hex",
+      "hex_sha256": "be3c19cd0582a2f2b2c3a5f0e07ef89e37456f6783cde51686a81f94feef3c6a"
+    },
     "avr_adc": {
       "source": "examples/firmware/avr_adc/avr_adc.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_adc/avr_adc.elf",
       "elf_sha256": "8eaab4e5a64891fa53ccc51342418b06ffbbed7369afc0057e907bb7c4e7cb6e",
@@ -24,6 +51,7 @@
     },
     "avr_blink": {
       "source": "examples/firmware/avr_blink/avr_blink.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_blink/avr_blink.elf",
       "elf_sha256": "4d8ec1e819b2d367124d471ff8d6ea3d00c624256939f0a383d02753a3242548",
@@ -32,6 +60,7 @@
     },
     "avr_blink_16mhz": {
       "source": "examples/firmware/avr_blink/avr_blink.c",
+      "mcu": "atmega8",
       "f_cpu": 16000000,
       "elf": "examples/firmware/avr_blink/avr_blink_16mhz.elf",
       "elf_sha256": "2b940eb5eb826b093e1294618451adb635c7ec973f7ffab6156f60ab8586a7f2",
@@ -40,6 +69,7 @@
     },
     "avr_bus": {
       "source": "examples/firmware/avr_bus/avr_bus.c",
+      "mcu": "atmega8",
       "f_cpu": 8000000,
       "elf": "examples/firmware/avr_bus/avr_bus.elf",
       "elf_sha256": "56a8f7e67a7b38cc3e2a8312b2d2a93f40384e164c47dd9954cd2b5253189d8f",
@@ -48,6 +78,7 @@
     },
     "avr_button": {
       "source": "examples/firmware/avr_button/avr_button.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_button/avr_button.elf",
       "elf_sha256": "f25bc113058a7cbed368f37f3ccaf08f3a3bc07c0f57b3c1f69d40f7aee05d97",
@@ -56,6 +87,7 @@
     },
     "avr_pwm": {
       "source": "examples/firmware/avr_pwm/avr_pwm.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_pwm/avr_pwm.elf",
       "elf_sha256": "7979d8263a301d896227ded97e69db4de166cb9617aaf73e5eb9189fbdda4e0a",
@@ -64,6 +96,7 @@
     },
     "avr_serial": {
       "source": "examples/firmware/avr_serial/avr_serial.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_serial/avr_serial.elf",
       "elf_sha256": "35050647ab16814e6766de73775213384e76c9c75a5ef34779c60837ed5a40e2",
@@ -72,6 +105,7 @@
     },
     "avr_sleep": {
       "source": "examples/firmware/avr_sleep/avr_sleep.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_sleep/avr_sleep.elf",
       "elf_sha256": "9f4a5c3cb17e470892ecb786543e02f1e9557efa02ab1a61653d480b60fa976b",
@@ -80,6 +114,7 @@
     },
     "avr_station": {
       "source": "examples/firmware/avr_station/avr_station.c",
+      "mcu": "atmega8",
       "f_cpu": 1000000,
       "elf": "examples/firmware/avr_station/avr_station.elf",
       "elf_sha256": "e06ddd218d391ec1fab2cb2a4eca138118235f711d618229cfa9f61fbb0d5e8b",

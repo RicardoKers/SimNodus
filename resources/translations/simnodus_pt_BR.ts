@@ -479,6 +479,10 @@ Pinos: %2</translation>
             <translation>Bits de trava (lock)</translation>
         </message>
         <message>
+            <source>Extended fuse</source>
+            <translation>Fusível estendido</translation>
+        </message>
+        <message>
             <source>Fields</source>
             <translation>Campos</translation>
         </message>
@@ -535,12 +539,88 @@ Pinos: %2</translation>
             <translation>Oscilador RC externo, 8-12 MHz</translation>
         </message>
         <message>
+            <source>Internal RC oscillator, 8 MHz (factory, divided by 8 with CKDIV8)</source>
+            <translation>Oscilador RC interno, 8 MHz (de fábrica, dividido por 8 com CKDIV8)</translation>
+        </message>
+        <message>
+            <source>Internal RC oscillator, 128 kHz</source>
+            <translation>Oscilador RC interno, 128 kHz</translation>
+        </message>
+        <message>
+            <source>Low-power crystal, 8-16 MHz</source>
+            <translation>Cristal de baixo consumo, 8-16 MHz</translation>
+        </message>
+        <message>
+            <source>Low-power crystal, 3-8 MHz</source>
+            <translation>Cristal de baixo consumo, 3-8 MHz</translation>
+        </message>
+        <message>
+            <source>Low-power crystal, 0.9-3 MHz</source>
+            <translation>Cristal de baixo consumo, 0,9-3 MHz</translation>
+        </message>
+        <message>
+            <source>Full-swing crystal, 0.4-20 MHz</source>
+            <translation>Cristal full-swing, 0,4-20 MHz</translation>
+        </message>
+        <message>
             <source>Clock source</source>
             <translation>Fonte de clock</translation>
         </message>
         <message>
             <source>Start-up time</source>
             <translation>Tempo de partida</translation>
+        </message>
+        <message>
+            <source>CKDIV8: the clock divided by 8 at start-up (CLKPR)</source>
+            <translation>CKDIV8: o clock dividido por 8 na partida (CLKPR)</translation>
+        </message>
+        <message>
+            <source>CKOUT: the system clock on PB0</source>
+            <translation>CKOUT: o clock do sistema no PB0</translation>
+        </message>
+        <message>
+            <source>PB0 is then not an I/O pin</source>
+            <translation>O PB0 deixa de ser um pino de E/S</translation>
+        </message>
+        <message>
+            <source>Brown-out level (BODLEVEL)</source>
+            <translation>Nível de brown-out (BODLEVEL)</translation>
+        </message>
+        <message>
+            <source>Brown-out detection off (factory)</source>
+            <translation>Detecção de brown-out desligada (de fábrica)</translation>
+        </message>
+        <message>
+            <source>1.8 V</source>
+            <translation>1,8 V</translation>
+        </message>
+        <message>
+            <source>2.7 V</source>
+            <translation>2,7 V</translation>
+        </message>
+        <message>
+            <source>4.3 V</source>
+            <translation>4,3 V</translation>
+        </message>
+        <message>
+            <source>DWEN: debugWIRE on the RESET pin (no effect in SimNodus)</source>
+            <translation>DWEN: debugWIRE no pino RESET (sem efeito no SimNodus)</translation>
+        </message>
+        <message>
+            <source>256 words, from 0x3F00</source>
+            <translation>256 palavras, a partir de 0x3F00</translation>
+        </message>
+        <message>
+            <source>512 words, from 0x3E00</source>
+            <translation>512 palavras, a partir de 0x3E00</translation>
+        </message>
+        <message>
+            <source>1024 words, from 0x3C00</source>
+            <translation>1024 palavras, a partir de 0x3C00</translation>
+        </message>
+        <message>
+            <source>2048 words, from 0x3800 (factory)</source>
+            <translation>2048 palavras, a partir de 0x3800 (de fábrica)</translation>
         </message>
         <message>
             <source>Brown-out detection (BODEN)</source>
@@ -659,6 +739,22 @@ Pinos: %2</translation>
             <translation>Valores de fábrica</translation>
         </message>
         <message>
+            <source>6 CK + 14 CK, no delay (with brown-out detection)</source>
+            <translation>6 CK + 14 CK, sem atraso (com detecção de brown-out)</translation>
+        </message>
+        <message>
+            <source>6 CK + 14 CK + 4.1 ms (fast rising power)</source>
+            <translation>6 CK + 14 CK + 4,1 ms (alimentação que sobe rápido)</translation>
+        </message>
+        <message>
+            <source>6 CK + 14 CK + 65 ms (slowly rising power; factory)</source>
+            <translation>6 CK + 14 CK + 65 ms (alimentação que sobe devagar; de fábrica)</translation>
+        </message>
+        <message>
+            <source>32K CK + 4.1 ms</source>
+            <translation>32K CK + 4,1 ms</translation>
+        </message>
+        <message>
             <source>6 CK, no delay (with brown-out detection)</source>
             <translation>6 CK, sem atraso (com detecção de brown-out)</translation>
         </message>
@@ -729,6 +825,22 @@ Pinos: %2</translation>
         <message>
             <source>16K CK + 65 ms (crystal, slowly rising power)</source>
             <translation>16K CK + 65 ms (cristal, alimentação que sobe devagar)</translation>
+        </message>
+        <message>
+            <source>128 kHz</source>
+            <translation>128 kHz</translation>
+        </message>
+        <message>
+            <source>1 MHz (8 MHz divided by 8)</source>
+            <translation>1 MHz (8 MHz divididos por 8)</translation>
+        </message>
+        <message>
+            <source>8 MHz</source>
+            <translation>8 MHz</translation>
+        </message>
+        <message>
+            <source>The chip runs on its internal RC oscillator at %1; XTAL1 and XTAL2 are I/O pins (PB6, PB7).</source>
+            <translation>O chip roda no seu oscilador RC interno a %1; XTAL1 e XTAL2 são pinos de E/S (PB6, PB7).</translation>
         </message>
         <message>
             <source>The chip runs on its internal RC oscillator at %1 MHz; XTAL1 and XTAL2 are I/O pins (PB6, PB7).</source>
@@ -3941,16 +4053,16 @@ Pinos: %2</translation>
             <translation>Contador de décadas Johnson (DIP-16): uma das saídas Q0-Q9 fica em alto, passando à seguinte a cada borda de subida de CP0 enquanto CP1 está em baixo (ou na descida de CP1 com CP0 em alto); MR em alto volta a Q0; CO fica em alto nas contagens 0-4; VDD de 3 a 15 V; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
         </message>
         <message>
-            <source>ATmega8-PU (PDIP-28)</source>
-            <translation>ATmega8-PU (PDIP-28)</translation>
+            <source>ATmega328-PU (PDIP-28)</source>
+            <translation>ATmega328-PU (PDIP-28)</translation>
         </message>
         <message>
             <source>Microcontrollers</source>
             <translation>Microcontroladores</translation>
         </message>
         <message>
-            <source>Atmel ATmega8-16PU in PDIP-28: 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)</source>
-            <translation>Atmel ATmega8-16PU em PDIP-28: 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (5 V)</translation>
+            <source>Microchip ATmega328-PU in PDIP-28 (experimental): the ATmega328P without picoPower, with its own signature (1E 95 14); 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega328-PU em PDIP-28 (experimental): o ATmega328P sem picoPower, com a sua própria assinatura (1E 95 14); 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, até 20 MHz. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
         </message>
         <message>
             <source>Firmware</source>
@@ -3965,16 +4077,24 @@ Pinos: %2</translation>
             <translation>Fusível low</translation>
         </message>
         <message>
-            <source>Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 (and the high fuse C9)</source>
-            <translation>Byte do fusível low em hexadecimal (bits programados valem 0). E1, o valor de fábrica: oscilador RC interno a 1 MHz, partida de 65 ms. EF com um Cristal de 16 MHz entre XTAL1 e XTAL2 (e o fusível high C9)</translation>
+            <source>Low fuse byte in hex (programmed bits are 0). 62, the factory value: internal 8 MHz RC oscillator divided by 8 (CKDIV8), 1 MHz, 65 ms start-up. E2: 8 MHz. FF with a 16 MHz Crystal between XTAL1 and XTAL2, as on the Arduino UNO</source>
+            <translation>Byte do fusível baixo em hexadecimal (bits programados são 0). 62, o valor de fábrica: oscilador RC interno de 8 MHz dividido por 8 (CKDIV8), 1 MHz, partida de 65 ms. E2: 8 MHz. FF com um Crystal de 16 MHz entre XTAL1 e XTAL2, como no Arduino UNO</translation>
         </message>
         <message>
             <source>High fuse</source>
             <translation>Fusível high</translation>
         </message>
         <message>
-            <source>High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL (PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</source>
-            <translation>Byte do fusível high em hexadecimal (bits programados valem 0). D9, o valor de fábrica. Bit 7 RSTDISBL (PC6 como E/S), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</translation>
+            <source>High fuse byte in hex (programmed bits are 0). D9, the factory value; DE on the Arduino UNO. Bit 7 RSTDISBL (PC6 as I/O), 6 DWEN, 5 SPIEN, 4 WDTON, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</source>
+            <translation>Byte do fusível alto em hexadecimal (bits programados são 0). D9, o valor de fábrica; DE no Arduino UNO. Bit 7 RSTDISBL (PC6 como E/S), 6 DWEN, 5 SPIEN, 4 WDTON, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</translation>
+        </message>
+        <message>
+            <source>Extended fuse</source>
+            <translation>Fusível estendido</translation>
+        </message>
+        <message>
+            <source>Extended fuse byte in hex: BODLEVEL2:0 in bits 2-0. FF: brown-out detection off (the factory value), FE 1.8 V, FD 2.7 V (the Arduino UNO), FC 4.3 V</source>
+            <translation>Byte do fusível estendido em hexadecimal: BODLEVEL2:0 nos bits 2-0. FF: detecção de brown-out desligada (o valor de fábrica), FE 1,8 V, FD 2,7 V (o Arduino UNO), FC 4,3 V</translation>
         </message>
         <message>
             <source>Lock bits</source>
@@ -3989,8 +4109,8 @@ Pinos: %2</translation>
             <translation>EEPROM</translation>
         </message>
         <message>
-            <source>EEPROM contents (512 bytes). SimNodus keeps what the firmware writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data</source>
-            <translation>Conteúdo da EEPROM (512 bytes). O SimNodus guarda o que o firmware grava como &lt;designador&gt;-eeprom.bin ao lado do projeto; vazio: apagada, ou os dados de EEPROM do próprio firmware</translation>
+            <source>EEPROM contents (1 KB). SimNodus keeps what the firmware writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data</source>
+            <translation>Conteúdo da EEPROM (1 KB). O SimNodus guarda o que o firmware escreve como &lt;designador&gt;-eeprom.bin ao lado do projeto; vazio: apagada, ou os dados de EEPROM do próprio firmware</translation>
         </message>
         <message>
             <source>USART to the computer</source>
@@ -3999,6 +4119,34 @@ Pinos: %2</translation>
         <message>
             <source>The USART (PD1 TX, PD0 RX) linked to the computer as through a USB-serial adapter: a serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs that speak RFC 2217, or empty for none</source>
             <translation>A USART (PD1 TX, PD0 RX) ligada ao computador como por um conversor USB-serial: uma porta serial (uma ponta de um par de portas virtuais como o com0com), tcp:4000 para programas que falam RFC 2217, ou vazio para nenhuma</translation>
+        </message>
+        <message>
+            <source>ATmega328P-PU (PDIP-28)</source>
+            <translation>ATmega328P-PU (PDIP-28)</translation>
+        </message>
+        <message>
+            <source>Microchip ATmega328P-PU in PDIP-28 (experimental): 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz at 1.8-5.5 V; the Arduino UNO's chip. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega328P-PU em PDIP-28 (experimental): 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, até 20 MHz a 1,8-5,5 V; o chip do Arduino UNO. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
+        </message>
+        <message>
+            <source>ATmega8-PU (PDIP-28)</source>
+            <translation>ATmega8-PU (PDIP-28)</translation>
+        </message>
+        <message>
+            <source>Atmel ATmega8-16PU in PDIP-28: 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)</source>
+            <translation>Atmel ATmega8-16PU em PDIP-28: 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (5 V)</translation>
+        </message>
+        <message>
+            <source>Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 (and the high fuse C9)</source>
+            <translation>Byte do fusível low em hexadecimal (bits programados valem 0). E1, o valor de fábrica: oscilador RC interno a 1 MHz, partida de 65 ms. EF com um Cristal de 16 MHz entre XTAL1 e XTAL2 (e o fusível high C9)</translation>
+        </message>
+        <message>
+            <source>High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL (PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</source>
+            <translation>Byte do fusível high em hexadecimal (bits programados valem 0). D9, o valor de fábrica. Bit 7 RSTDISBL (PC6 como E/S), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</translation>
+        </message>
+        <message>
+            <source>EEPROM contents (512 bytes). SimNodus keeps what the firmware writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data</source>
+            <translation>Conteúdo da EEPROM (512 bytes). O SimNodus guarda o que o firmware grava como &lt;designador&gt;-eeprom.bin ao lado do projeto; vazio: apagada, ou os dados de EEPROM do próprio firmware</translation>
         </message>
         <message>
             <source>ATmega8A-PU (PDIP-28)</source>

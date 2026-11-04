@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-04 (ATmega8 compared with a real chip and no longer experimental, DE10; nothing released since 0.13.0). Keep this file short: present state, last results, next
+Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P added, experimental, SN-260; nothing released since 0.13.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -25,6 +25,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
       kept in the project and in the Memory Viewer, VCC read from the
       circuit;
     - examples 50-54 and the guide section *ATmega8 and ATmega8A*.
+  - **ATmega328P-PU and ATmega328-PU**, experimental (SN-260): the same
+    emulator with the 328's registers and vectors mapped onto one machine;
+    CKDIV8/CLKPR, Timer0/2 with two outputs, PCINT, the watchdog's
+    interrupt, the 1.1 V reference and temperature sensor, the ADC's auto
+    trigger, the extended fuse; examples 55-57 and the guide section
+    *ATmega328 and ATmega328P*.
   - The owner tested the ESP32-C3 changes with the 2026-11-02b preview.
 - **Release 0.13.0 published on 2026-11-01** after the owner's test of the
   package: tag `v0.13.0`, GitHub release with
@@ -152,16 +158,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 0. **AVR track: the next chips** (experiment E-10,
    [plan](../experiments/E-10-plan.md),
-   [results](../experiments/E-10-results.md); tasks SN-255..SN-262 in the
+   [results](../experiments/E-10-results.md); tasks SN-255..SN-263 in the
    [backlog](BACKLOG.md)).
-   - **Where it stands.** SN-255..SN-259 are on `main`, unreleased. On
-     2026-11-04 the owner ran examples 50, 51, 52 and 54 on his ATmega8 and
-     they matched the simulation (G10b.9); decision DE10 (ADR 0108) removed
-     the "experimental" mark. Not measured yet: the ADC's ±2 LSB (labeled
-     approximate) and example 53's chips.
-   - **Next, with the owner's go.** SN-260 (ATmega328/328P, ATmega32/32A:
-     chip tables on the same core, experimental until compared), SN-261
-     (Arduino UNO with Optiboot), SN-262 (avr-gdb).
+   - **Where it stands.** SN-255..SN-260 are on `main`, unreleased. The
+     ATmega8/8A matched the owner's chip (G10b.9, DE10, ADR 0108); not
+     measured yet: the ADC's ±2 LSB (labeled approximate) and example 53's
+     chips. The ATmega328/328P (SN-260) passes its tests in the simulator
+     and stays experimental until compared with a chip: examples 55-57 on a
+     328P with a USBasp would do (factory fuses, 1 MHz).
+   - **Next, with the owner's go.** SN-261 (Arduino UNO with Optiboot),
+     SN-263 (ATmega32/32A, PDIP-40), SN-262 (avr-gdb).
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and

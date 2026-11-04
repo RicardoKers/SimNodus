@@ -124,7 +124,7 @@ void MemoryWindow::rebuild_list()
         if (d && d->mcu && avr(*d)) { // a bare AVR chip's EEPROM (E-10)
             chips_->addItem(QStringLiteral("%1 (%2 EEPROM, %3 bytes)")
                                 .arg(QString::fromStdString(c.designator), QString::fromStdString(d->name))
-                                .arg(avr_eeprom_bytes),
+                                .arg(avr_eeprom_bytes(*d)),
                 QVariant::fromValue<qulonglong>(c.id));
             continue;
         }
@@ -149,7 +149,7 @@ std::size_t MemoryWindow::size_of(model::Id component) const
     const auto* c = document_.schematic().component(component);
     const auto* d = c ? document_.library().find(c->type) : nullptr;
     if (d && d->mcu && avr(*d)) {
-        return avr_eeprom_bytes;
+        return avr_eeprom_bytes(*d);
     }
     return d && d->device ? d->device->memory_bytes(c->parameters) : 0;
 }

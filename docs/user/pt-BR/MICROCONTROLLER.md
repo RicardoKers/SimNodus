@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 a1fdb735d3478c6f8c7bb0df6955bcf91b302415f410284ee7b29f083ef4bed3 -->
+<!-- source: MICROCONTROLLER.md sha256 737af16180eaa8d755f43d4c9420ff4e3d70edffbc0d9e9a38ba5c2665b03721 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -477,6 +477,56 @@ próprio SimNodus (experimento E-10, ADR 0108).
   (um LM75 e uma 24C02 por TWI, um 74HC595 por SPI) e 54 (um relógio de
   tempo real com cristal de relógio, dormindo em Power-save). Os fontes dos firmwares
   estão em `examples/firmware/avr_*`.
+
+## ATmega328 e ATmega328P (experimental)
+
+As peças **ATmega328P-PU** (o chip do Arduino UNO) e **ATmega328-PU**
+(Microcontroladores) têm a pinagem do ATmega8 e rodam no mesmo emulador
+(SN-260). São **experimentais** até serem comparadas com um chip real (ADR
+0108). As duas diferem só na assinatura (1E 95 0F e 1E 95 14) e no BODS do
+328P. Tudo o que a seção do ATmega8 acima diz vale, com estas diferenças:
+
+- **Memórias**: 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM. Os vetores
+  de interrupção ocupam duas palavras (JMP).
+- **Fusíveis**: um terceiro byte, o **Extended fuse**, guarda o BODLEVEL.
+  O diálogo **Fusíveis...** mostra os campos do 328.
+  - Os valores de fábrica (62, D9, FF) escolhem o oscilador RC interno de
+    8 MHz dividido por 8 (CKDIV8): o chip começa a 1 MHz. O firmware pode
+    mudar a divisão durante a execução pelo CLKPR (`clock_prescale_set` da
+    avr-libc), e o clock da simulação acompanha.
+  - Os fusíveis do Arduino UNO são FF, DE e FD: um cristal de 16 MHz
+    (coloque um **Crystal** entre PB6 e PB7), uma seção de boot de 256
+    palavras com o vetor de reset nela, brown-out em 2,7 V.
+  - O oscilador de cristal de baixo consumo avisa quando o cristal passa da
+    faixa que o CKSEL3:1 escolhe. CKOUT e DWEN são anotados no log.
+- **Brown-out**: BODLEVEL de 1,8, 2,7 ou 4,3 V, do extended fuse.
+- **O que roda**, além do que o ATmega8 tem:
+  - Timer0 e Timer2 com duas saídas de comparação cada (OC0A PD6, OC0B
+    PD5, OC2A PB3, OC2B PD3) nos oito modos de forma de onda; o TCCR1C do
+    Timer1;
+  - as interrupções de mudança de pino PCINT0-23 nas portas B, C e D. Elas
+    acordam o chip de todos os modos de sleep;
+  - INT0 e INT1 pelo EICRA e pelo EIMSK; escrever 1 num bit de PINx
+    inverte o pino;
+  - o modo de interrupção do watchdog (WDIE), seu oscilador de 128 kHz
+    (16 ms a 8 s), e o reset que o WDRF mantém ligado até o firmware
+    limpar o MCUSR, como no chip;
+  - a referência de 1,1 V do ADC, o sensor de temperatura (ADC8, lido como
+    a 25 °C: cerca de 352; chips reais precisam de calibração) e o disparo
+    automático pelo ADTS (contínuo, o comparador, INT0, eventos do Timer0
+    e do Timer1);
+  - o UCSR0C e o UBRR0H próprios da USART0, os modos só apagar e só
+    escrever da EEPROM (EEPM), DIDR0 e DIDR1, GPIOR0-2, o sleep extended
+    standby;
+  - a leitura da assinatura e dos fusíveis pelo SIGRD e pelo BLBSET do SPM.
+- **Ainda não**: o modo mestre SPI da USART, o PRR parando um módulo (ele
+  é aceito; o módulo continua rodando), o clock externo do Timer2 (EXCLK),
+  a placa Arduino UNO e o seu bootloader (SN-261), o GDB (SN-262).
+- **Exemplos**: 55 (serial a 38400 baud depois do CLKPR, o sensor de
+  temperatura, um contador na EEPROM), 56 (as quatro saídas PWM de 8 bits e
+  um ADC disparado pelo overflow do Timer0) e 57 (power-down acordado pelo
+  watchdog, por uma mudança de pino e pelo INT0). Os fontes dos firmwares
+  estão em `examples/firmware/avr328_*`.
 
 ## Depuração com STM32CubeIDE ou GDB
 
