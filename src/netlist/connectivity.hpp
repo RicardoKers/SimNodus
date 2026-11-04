@@ -62,6 +62,9 @@ struct Connectivity {
 
 Connectivity build_connectivity(const model::Schematic& schematic, const library::ComponentLibrary& library);
 
+// A label name for the reference net: 0 or GND, in any case.
+bool is_ground_name(const std::string& name);
+
 // SPICE-safe identifier: letters, digits and '_' (others become '_').
 std::string sanitize_name(const std::string& text);
 
