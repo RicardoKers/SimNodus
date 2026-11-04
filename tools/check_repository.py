@@ -174,6 +174,10 @@ def main() -> int:
             errors.append(f"{relative}: remove UTF-8 BOM")
         if "\x00" in content:
             errors.append(f"{relative}: unexpected NUL byte")
+        # Third-party source kept byte for byte as upstream ships it, its
+        # whitespace too: Optiboot (SN-261).
+        if relative.startswith("third_party/optiboot/") and relative != "third_party/optiboot/README.md":
+            continue
         if content and not content.endswith("\n"):
             if HISTORICAL_NO_FINAL_NEWLINE.get(relative) != hashlib.sha256(raw).hexdigest():
                 errors.append(f"{relative}: missing final newline")

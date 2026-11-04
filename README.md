@@ -22,7 +22,8 @@ RMT (WS2812B) and its serial ports, which also reach the Arduino IDE, Thonny and
 computer (upload included). Bare **ATmega8** and **ATmega8A** chips run `.hex` or `.elf` firmware from
 Microchip Studio, avr-gcc or the Arduino IDE with their fuses, a crystal, the EEPROM kept in the
 project, ADC, PWM, USART, SPI, I2C and sleep modes, compared with a real chip. The **ATmega328P** and
-**ATmega328** (the Arduino UNO's chip) run in the same emulator, experimental until compared.
+**ATmega328** (the Arduino UNO's chip) run in the same emulator, and an **Arduino UNO** board with Optiboot
+takes uploads from the Arduino IDE through a virtual serial port; experimental until compared.
 English and Brazilian Portuguese interface and user guides; simulations run in a separate
 engine process. AI agents (Claude Code, Codex) can build and simulate
 circuits through `simnodus-cli` and its MCP server, also on screen in the

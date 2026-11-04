@@ -5,6 +5,7 @@ emulator next to the circuit. This page lists what the simulated chip supports a
 where it differs from a real board (MCU-09); the [user guide](USER_GUIDE.md)
 covers the rest of SimNodus. The **ESP32-C3-DevKitM-1** board is new and
 experimental: see [ESP32-C3 board (experimental)](#esp32-c3-board-experimental).
+So are the ATmega328P and the [Arduino UNO](#arduino-uno-experimental).
 
 ## Engine
 
@@ -504,6 +505,43 @@ holds, with these differences:
   ADC triggered by Timer0's overflow) and 57 (power-down woken by the
   watchdog, a pin change and INT0). Their firmware sources are in
   `examples/firmware/avr328_*`.
+
+## Arduino UNO (experimental)
+
+The **Arduino UNO R3** part (Microcontrollers) is the board as it leaves the
+factory (SN-261): an ATmega328P (see the section above) at 16 MHz with
+**Optiboot** in its boot section and the Arduino fuses (FF, DE, FD; lock
+0F), so the Arduino IDE and avrdude upload to it unchanged. Its pins carry
+the header names: **D0**-**D13**, **A0**-**A5**, **RESET**, **AREF**, and
+the board's **5V**, **3V3**, **IOREF**, **VIN** and **GND**. It is
+experimental until it is compared with a real board.
+
+- **Power**: the board is fed by its USB connector. **5V** and **3V3** are
+  outputs for the circuit; wire a **GND** to the circuit's ground.
+- **The L LED** on D13 lights on the board, and **RESET** on the board
+  resets it (Optiboot then waits about a second for an upload, as on a
+  real board).
+- **Firmware**: a sketch's `.hex` (the Arduino IDE's **Sketch > Export
+  Compiled Binary**, with or without the bootloader) or an avr-gcc `.elf`.
+  Empty: the board has only its bootloader and waits for an upload.
+- **USB to the computer**: the USART (D1 TX, D0 RX) through the board's
+  USB connector, as **UART0 to the computer** on the ESP32-C3 above: a
+  virtual port pair (com0com or similar) or `tcp:PORT`. **DTR** resets the
+  board through its 100 nF capacitor, as the Arduino IDE does before an
+  upload:
+  1. Set **USB to the computer** to one end of the pair (COM10) and start
+     the run.
+  2. In the Arduino IDE choose **Tools > Board > Arduino UNO** and the
+     other end (COM11), then **Upload**. avrdude resets the board and
+     Optiboot writes the sketch; the **Serial Monitor** (at the sketch's
+     baud rate) works on the same port.
+  3. When the run stops, the flash is saved as `U1-flash.bin` beside the
+     project and becomes the board's firmware, and what the sketch wrote to
+     the EEPROM as `U1-eeprom.bin`. The project must have been saved once.
+- **Not simulated**: the USB bridge (the ATmega16U2) itself, the 1 kΩ
+  resistors from it to D0 and D1, the TX and RX LEDs, VIN's regulator.
+- **Example**: 58 (the serial example of section *ATmega328 and
+  ATmega328P* built for 16 MHz; `l` toggles the L LED).
 
 ## Debugging with STM32CubeIDE or GDB
 

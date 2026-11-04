@@ -144,6 +144,9 @@ if(WIN32)
     # The ESP32-C3's ROM, rebuilt from Espressif's ROM ELF at run time (ADR 0106).
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/esp32c3_rev3_rom.elf" DESTINATION roms)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE" DESTINATION licenses RENAME esp-rom-elfs-Apache-2.0.txt)
+    # The Arduino UNO's bootloader (SN-261): Optiboot, GPL-2.0-or-later, with its source.
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/optiboot/optiboot_atmega328.hex" DESTINATION roms)
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/third_party/optiboot/" DESTINATION licenses/optiboot)
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/library/" DESTINATION library)
     # Example projects with their firmware (ELF, C source and linker script) and memory contents.
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION examples
@@ -164,6 +167,10 @@ else()
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/roms")
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses" RENAME esp-rom-elfs-Apache-2.0.txt)
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/optiboot/optiboot_atmega328.hex"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/roms")
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/third_party/optiboot/"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses/optiboot")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/" DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/examples"
         FILES_MATCHING PATTERN "*.snx" PATTERN "*.elf" PATTERN "*.c" PATTERN "*.ld" PATTERN "*.hex" PATTERN "*.bin" PATTERN "*.lib")
     install(FILES "${PROJECT_SOURCE_DIR}/resources/package/simnodus.desktop" DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")

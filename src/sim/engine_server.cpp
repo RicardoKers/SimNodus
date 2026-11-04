@@ -243,7 +243,8 @@ void EngineServer::publish(bool force)
     // Memory chips whose contents changed since the last Update (SN-208).
     std::vector<std::pair<model::Id, std::vector<std::uint8_t>>> memories;
     for (const auto& m : session_.mcu_requests()) {
-        std::vector<model::Id> ids{m.component}; // the board's flash after esptool (SN-253)
+        // The board's flash after esptool or a bootloader (SN-253), its chip's EEPROM (SN-261).
+        std::vector<model::Id> ids{m.component, SimulationSession::eeprom_memory(m.component)};
         for (const auto& d : m.options.devices) {
             ids.push_back(d.component);
         }

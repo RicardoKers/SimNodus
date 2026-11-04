@@ -27,9 +27,18 @@
       "mcu": "atmega328p",
       "f_cpu": 8000000,
       "elf": "examples/firmware/avr328_serial/avr328_serial.elf",
-      "elf_sha256": "ae83a43363d3191a597f1ad153d034fd2108072c803392cd7d0290e32baea4b6",
+      "elf_sha256": "d3832640ba080a47350e5c957c6872991a06e4074bf4ded7299a8d94e984eada",
       "hex": "examples/firmware/avr328_serial/avr328_serial.hex",
       "hex_sha256": "6b242c6340a763946008ba6e45fdfdb65fde79ecab92645929fb9a0fb76294f4"
+    },
+    "avr328_serial_16mhz": {
+      "source": "examples/firmware/avr328_serial/avr328_serial.c",
+      "mcu": "atmega328p",
+      "f_cpu": 16000000,
+      "elf": "examples/firmware/avr328_serial/avr328_serial_16mhz.elf",
+      "elf_sha256": "e2b3f65c6485c3d5600b306f35ebb682d5fbbd8293d03723ddfb9a5567c235fa",
+      "hex": "examples/firmware/avr328_serial/avr328_serial_16mhz.hex",
+      "hex_sha256": "fc339761a661fad48e36294c521d417b5024c09b88f6715ca272ba214fc2e9ed"
     },
     "avr328_wake": {
       "source": "examples/firmware/avr328_wake/avr328_wake.c",

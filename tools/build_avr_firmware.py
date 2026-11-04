@@ -34,7 +34,7 @@ FLAGS = ["-std=c11", "-Os", "-g", "-Wall", "-Wextra", "-Werror", "-ffunction-sec
 VARIANTS = {
     "avr_blink": [("", 1_000_000), ("_16mhz", 16_000_000)],
     "avr_bus": [("", 8_000_000)],
-    "avr328_serial": [("", 8_000_000)],
+    "avr328_serial": [("", 8_000_000), ("_16mhz", 16_000_000)],
 }
 
 

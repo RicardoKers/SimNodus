@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P added, experimental, SN-260; nothing released since 0.13.0). Keep this file short: present state, last results, next
+Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P and the Arduino UNO added, experimental, SN-260, SN-261; nothing released since 0.13.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -31,6 +31,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     interrupt, the 1.1 V reference and temperature sensor, the ADC's auto
     trigger, the extended fuse; examples 55-57 and the guide section
     *ATmega328 and ATmega328P*.
+  - **Arduino UNO R3**, experimental (SN-261): the 328P with the Arduino
+    fuses and Optiboot (GPL, shipped with its source); DTR auto-reset on the
+    USB link; the flash an upload writes and the EEPROM kept; example 58.
   - The owner tested the ESP32-C3 changes with the 2026-11-02b preview.
 - **Release 0.13.0 published on 2026-11-01** after the owner's test of the
   package: tag `v0.13.0`, GitHub release with
@@ -166,8 +169,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      chips. The ATmega328/328P (SN-260) passes its tests in the simulator
      and stays experimental until compared with a chip: examples 55-57 on a
      328P with a USBasp would do (factory fuses, 1 MHz).
-   - **Next, with the owner's go.** SN-261 (Arduino UNO with Optiboot),
-     SN-263 (ATmega32/32A, PDIP-40), SN-262 (avr-gdb).
+   - **The UNO (SN-261)** takes an avrdude-style upload in the tests. The
+     owner's check: an upload from the Arduino IDE through a virtual port
+     pair (as with the ESP32-C3), then the Serial Monitor.
+   - **Next, with the owner's go.** SN-263 (ATmega32/32A, PDIP-40), SN-262
+     (avr-gdb).
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and

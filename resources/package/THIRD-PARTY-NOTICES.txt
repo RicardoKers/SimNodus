@@ -52,6 +52,14 @@ mask ROM from it at run time
   (https://sourceware.org/newlib/COPYING.NEWLIB).
   Source: https://github.com/espressif/esp-rom-elfs
 
+Optiboot 4.4 (roms/optiboot_atmega328.hex), the Arduino UNO's bootloader,
+unmodified, from the Arduino AVR core 1.8.8; the emulated UNO runs it
+  License: GNU General Public License version 2 or later, text in
+  licenses/optiboot/COPYING. Its complete source is in licenses/optiboot.
+  Copyright Peter Knight, Jason P Kyle, Spiff, Ladyada, Bill Westfield and
+  contributors.
+  Source: https://github.com/Optiboot/optiboot
+
 Example firmware examples/firmware/esp32c3_blink/blink.bin (ESP-IDF v5.5.2's
 examples/get-started/blink built for the ESP32-C3, a plain GPIO on GPIO8) and
 examples/firmware/esp32c3_i2c/esp32c3_i2c.bin,

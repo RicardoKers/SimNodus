@@ -4053,20 +4053,48 @@ Pinos: %2</translation>
             <translation>Contador de décadas Johnson (DIP-16): uma das saídas Q0-Q9 fica em alto, passando à seguinte a cada borda de subida de CP0 enquanto CP1 está em baixo (ou na descida de CP1 com CP0 em alto); MR em alto volta a Q0; CO fica em alto nas contagens 0-4; VDD de 3 a 15 V; funciona como chip digital: com uma placa ou sozinho, as entradas vindas do resto do circuito chegam até 0,1 ms atrasadas (clocks de até alguns kHz)</translation>
         </message>
         <message>
-            <source>ATmega328-PU (PDIP-28)</source>
-            <translation>ATmega328-PU (PDIP-28)</translation>
+            <source>Arduino UNO R3</source>
+            <translation>Arduino UNO R3</translation>
         </message>
         <message>
             <source>Microcontrollers</source>
             <translation>Microcontroladores</translation>
         </message>
         <message>
-            <source>Microchip ATmega328-PU in PDIP-28 (experimental): the ATmega328P without picoPower, with its own signature (1E 95 14); 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
-            <translation>Microchip ATmega328-PU em PDIP-28 (experimental): o ATmega328P sem picoPower, com a sua própria assinatura (1E 95 14); 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, até 20 MHz. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
+            <source>Arduino UNO R3 (experimental): an ATmega328P at 16 MHz with Optiboot, as the Arduino IDE uploads to it. Runs a sketch's .hex or .elf (Sketch &gt; Export Compiled Binary), or waits for an upload through its USB connector; powered by the USB (5V and 3V3 are outputs)</source>
+            <translation>Arduino UNO R3 (experimental): um ATmega328P a 16 MHz com o Optiboot, como a IDE do Arduino grava nele. Roda o .hex ou o .elf de um sketch (Sketch &gt; Exportar Binário Compilado), ou espera uma gravação pelo seu conector USB; alimentado pelo USB (5V e 3V3 são saídas)</translation>
         </message>
         <message>
             <source>Firmware</source>
             <translation>Firmware</translation>
+        </message>
+        <message>
+            <source>The sketch: an Intel HEX file (the Arduino IDE's Sketch &gt; Export Compiled Binary, with or without the bootloader) or an avr-gcc ELF file; stored relative to the project. Empty: the board has only its bootloader and waits for an upload through the USB connector. After an upload, SimNodus keeps the flash as &lt;designator&gt;-flash.bin</source>
+            <translation>O sketch: um arquivo Intel HEX (Sketch &gt; Exportar Binário Compilado da IDE do Arduino, com ou sem o bootloader) ou um arquivo ELF do avr-gcc; guardado relativo ao projeto. Vazio: a placa tem só o bootloader e espera uma gravação pelo conector USB. Depois de uma gravação, o SimNodus guarda a flash como &lt;designador&gt;-flash.bin</translation>
+        </message>
+        <message>
+            <source>EEPROM</source>
+            <translation>EEPROM</translation>
+        </message>
+        <message>
+            <source>EEPROM contents (1 KB). SimNodus keeps what the sketch writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased</source>
+            <translation>Conteúdo da EEPROM (1 KB). O SimNodus guarda o que o sketch escreve como &lt;designador&gt;-eeprom.bin ao lado do projeto; vazio: apagada</translation>
+        </message>
+        <message>
+            <source>USB to the computer</source>
+            <translation>USB para o computador</translation>
+        </message>
+        <message>
+            <source>The board's USB connector linked to the computer: a serial port (one end of a virtual port pair such as com0com; the Arduino IDE uploads and opens its Serial Monitor on the other end), tcp:4000 for programs that speak RFC 2217, or empty for none. DTR resets the board, as the IDE does before an upload</source>
+            <translation>O conector USB da placa ligado ao computador: uma porta serial (uma ponta de um par de portas virtuais como o com0com; a IDE do Arduino grava e abre o Monitor Serial na outra ponta), tcp:4000 para programas que falam RFC 2217, ou vazio para nenhuma. O DTR reinicia a placa, como a IDE faz antes de gravar</translation>
+        </message>
+        <message>
+            <source>ATmega328-PU (PDIP-28)</source>
+            <translation>ATmega328-PU (PDIP-28)</translation>
+        </message>
+        <message>
+            <source>Microchip ATmega328-PU in PDIP-28 (experimental): the ATmega328P without picoPower, with its own signature (1E 95 14); 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega328-PU em PDIP-28 (experimental): o ATmega328P sem picoPower, com a sua própria assinatura (1E 95 14); 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, até 20 MHz. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
         </message>
         <message>
             <source>Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy, the Arduino IDE's exported binary) or an avr-gcc ELF file, whose fuses and EEPROM data apply too; stored relative to the project</source>
@@ -4103,10 +4131,6 @@ Pinos: %2</translation>
         <message>
             <source>Lock byte in hex; FF: no lock. The boot lock bits restrict SPM and LPM</source>
             <translation>Byte de trava em hexadecimal; FF: sem trava. Os bits de trava do boot restringem SPM e LPM</translation>
-        </message>
-        <message>
-            <source>EEPROM</source>
-            <translation>EEPROM</translation>
         </message>
         <message>
             <source>EEPROM contents (1 KB). SimNodus keeps what the firmware writes as &lt;designator&gt;-eeprom.bin beside the project; empty: erased, or the firmware's own EEPROM data</source>

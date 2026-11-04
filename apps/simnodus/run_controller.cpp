@@ -114,8 +114,8 @@ void RunController::take_elf_fuses()
     std::vector<std::pair<model::Id, QString>> changed;
     for (const auto& c : schematic.components()) {
         const auto* d = document_.library().find(c.type);
-        if (!d || !d->mcu || !library::avr_chip(d->mcu->chip)) {
-            continue;
+        if (!d || !d->mcu || !library::avr_chip(d->mcu->chip) || !d->parameter("fuse_low")) {
+            continue; // a board (the UNO) fixes its fuses
         }
         const auto firmware = c.parameters.find(d->mcu->firmware_parameter);
         if (firmware == c.parameters.end() || firmware->second.empty()) {
@@ -347,50 +347,57 @@ bool RunController::keep_written_flash()
             continue;
         }
         // What a run writes and the project keeps: the ESP32-C3's flash
-        // (uploads, the firmware's files) becomes its firmware; an ATmega8's
+        // (uploads, the firmware's files) and an AVR's flash after an upload
+        // through its bootloader (SN-261) become the firmware; an AVR's
         // EEPROM goes into its EEPROM parameter (E-10, SN-258).
-        const bool avr = library::avr_chip(d->mcu->chip);
-        if (d->mcu->chip != "esp32c3" && !avr) {
+        const bool is_avr = library::avr_chip(d->mcu->chip);
+        if (d->mcu->chip != "esp32c3" && !is_avr) {
             continue;
         }
-        const auto bytes = session_->device_memory(c.id);
-        if (!bytes || bytes->empty()) {
-            continue;
+        for (const bool avr : {false, true}) {
+            if (avr && !is_avr) {
+                continue;
+            }
+            const auto bytes = session_->device_memory(avr ? sim::SimulationSession::eeprom_memory(c.id) : c.id);
+            if (!bytes || bytes->empty()) {
+                continue;
+            }
+            const QString designator = QString::fromStdString(c.designator);
+            if (document_.file_path().isEmpty()) { // an example copy keeps its folder untouched too
+                unkept_ = true;
+                emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM is kept when you save the project.")
+                                                 .arg(designator)
+                                           : tr("%1: what this run wrote to its flash (uploaded firmware, the firmware's "
+                                                "files) is kept when you save the project.")
+                                                 .arg(designator));
+                continue;
+            }
+            const QString name = designator + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
+            QFile file(QDir(document_.base_dir()).absoluteFilePath(name));
+            if (!file.open(QIODevice::WriteOnly)
+                || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))
+                    != static_cast<qint64>(bytes->size())) {
+                emit mcu_message(c.id, avr ? tr("%1: its EEPROM could not be saved as %2: %3").arg(designator, name, file.errorString())
+                                           : tr("%1: its flash could not be saved as %2: %3").arg(designator, name, file.errorString()));
+                continue;
+            }
+            file.close();
+            const std::string parameter = avr ? std::string("eeprom") : d->mcu->firmware_parameter;
+            const auto* holder = document_.schematic().component(c.id); // the flash's edit may have replaced it
+            const auto current = holder ? holder->parameters.find(parameter) : decltype(holder->parameters.end()){};
+            if (holder && current != holder->parameters.end() && current->second == name.toStdString()) {
+                emit mcu_message(c.id, avr ? tr("%1: its EEPROM was saved in %2.").arg(designator, name)
+                                           : tr("%1: its flash was saved in %2.").arg(designator, name));
+                continue;
+            }
+            document_.apply(editing::set_parameter(document_.schematic(), c.id, parameter, name.toStdString()));
+            edited = true;
+            emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM was saved as %2, now the chip's EEPROM.")
+                                             .arg(designator, name)
+                                       : tr("%1: what this run wrote to its flash was saved as %2, now the board's "
+                                            "firmware.")
+                                             .arg(designator, name));
         }
-        const QString designator = QString::fromStdString(c.designator);
-        if (document_.file_path().isEmpty()) { // an example copy keeps its folder untouched too
-            unkept_ = true;
-            emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM is kept when you save the project.")
-                                             .arg(designator)
-                                       : tr("%1: what this run wrote to its flash (uploaded firmware, the firmware's "
-                                            "files) is kept when you save the project.")
-                                             .arg(designator));
-            continue;
-        }
-        const QString name = designator + (avr ? QStringLiteral("-eeprom.bin") : QStringLiteral("-flash.bin"));
-        QFile file(QDir(document_.base_dir()).absoluteFilePath(name));
-        if (!file.open(QIODevice::WriteOnly)
-            || file.write(reinterpret_cast<const char*>(bytes->data()), static_cast<qint64>(bytes->size()))
-                != static_cast<qint64>(bytes->size())) {
-            emit mcu_message(c.id, avr ? tr("%1: its EEPROM could not be saved as %2: %3").arg(designator, name, file.errorString())
-                                       : tr("%1: its flash could not be saved as %2: %3").arg(designator, name, file.errorString()));
-            continue;
-        }
-        file.close();
-        const std::string parameter = avr ? std::string("eeprom") : d->mcu->firmware_parameter;
-        const auto current = now->parameters.find(parameter);
-        if (current != now->parameters.end() && current->second == name.toStdString()) {
-            emit mcu_message(c.id, avr ? tr("%1: its EEPROM was saved in %2.").arg(designator, name)
-                                       : tr("%1: its flash was saved in %2.").arg(designator, name));
-            continue;
-        }
-        document_.apply(editing::set_parameter(document_.schematic(), c.id, parameter, name.toStdString()));
-        edited = true;
-        emit mcu_message(c.id, avr ? tr("%1: what this run wrote to its EEPROM was saved as %2, now the chip's EEPROM.")
-                                         .arg(designator, name)
-                                   : tr("%1: what this run wrote to its flash was saved as %2, now the board's "
-                                        "firmware.")
-                                         .arg(designator, name));
     }
     return edited;
 }

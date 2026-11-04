@@ -1271,12 +1271,12 @@ TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 1
     wait_for("ATmega8 ready\r\n> ");
     session.mcu_uart_send(chip, "usart", "hi?");
     wait_for("hi\r\nbytes: 3\r\n> ");
-    while (!session.device_memory(chip)) { // the EEPROM's last write takes 8.4 ms
+    while (!session.device_memory(sim::SimulationSession::eeprom_memory(chip))) { // the EEPROM's last write takes 8.4 ms
         REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
         std::this_thread::sleep_for(10ms);
     }
     session.stop();
-    const auto eeprom = session.device_memory(chip);
+    const auto eeprom = session.device_memory(sim::SimulationSession::eeprom_memory(chip));
     REQUIRE(eeprom.has_value());
     REQUIRE(eeprom->size() == 512);
     CHECK((*eeprom)[0] == 3);
@@ -1329,15 +1329,53 @@ TEST_CASE("session: example 55, the ATmega328P from its factory fuses: CLKPR, US
     wait_for("ATmega328P ready\r\n> ");
     session.mcu_uart_send(chip, "usart", "t?");
     wait_for("temperature: 352\r\n> \r\nbytes: 2\r\n> ");
-    while (!session.device_memory(chip)) { // the EEPROM's last write takes 3.4 ms
+    while (!session.device_memory(sim::SimulationSession::eeprom_memory(chip))) { // the EEPROM's last write takes 3.4 ms
         REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
         std::this_thread::sleep_for(10ms);
     }
     session.stop();
-    const auto eeprom = session.device_memory(chip);
+    const auto eeprom = session.device_memory(sim::SimulationSession::eeprom_memory(chip));
     REQUIRE(eeprom.has_value());
     REQUIRE(eeprom->size() == 1024);
     CHECK((*eeprom)[0] == 2);
+}
+
+TEST_CASE("session: example 58, the Arduino UNO: its fuses, crystal and Optiboot come from the board (SN-261)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "58_Arduino_UNO_serial_and_upload.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id board = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        board = c.designator == "U1" ? c.id : board;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 1);
+    const auto& options = request.mcus.front().options;
+    CHECK(options.parameters.at("fuse_low") == "FF");
+    CHECK(options.parameters.at("crystal_hz") == "16000000");
+    CHECK(options.parameters.at("bootloader") == "optiboot_atmega328.hex");
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "D13") != options.pins.end());
+    CHECK(std::find(options.pins.begin(), options.pins.end(), "VCC") == options.pins.end()); // the board feeds its chip
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("ATmega328P ready\r\n> ") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(board, "usart", 0, text);
+    }
+    session.stop();
 }
 
 TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC and sets the PWM from it (SN-259)")

@@ -154,6 +154,9 @@ bool SimulationSession::start(RunRequest request, std::string& error)
             if (options.chip == "esp32c3" && options.rom.empty()) {
                 options.rom = mcu::find_esp32c3_rom(EngineHost::instance().application_dir());
             }
+            if (const auto boot = options.parameters.find("bootloader"); boot != options.parameters.end() && options.rom.empty()) {
+                options.rom = mcu::find_bootloader(EngineHost::instance().application_dir(), boot->second);
+            }
             // ADC samples read the circuit at a time it has passed (SN-178).
             options.analog_lag_ns = request_.mcu_lead_us * 1000
                 + static_cast<std::uint64_t>(std::llround(std::max(settings_.max_step, 0.0) * 1e9));
@@ -920,7 +923,16 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
 void avr_options(const model::Schematic& schematic, const library::ComponentLibrary& library, const model::Component& c,
     const std::filesystem::path& project_dir, mcu::McuRunOptions& options)
 {
+    const auto* board = library.find(c.type);
+    if (board && board->mcu) { // what the board fixes (the Arduino UNO's fuses, crystal, bootloader)
+        for (const auto& [name, value] : board->mcu->parameters) {
+            options.parameters[name] = value;
+        }
+    }
     for (const char* name : {"fuse_low", "fuse_high", "fuse_extended", "lock"}) {
+        if (options.parameters.count(name)) {
+            continue;
+        }
         const auto it = c.parameters.find(name);
         if (it != c.parameters.end()) {
             options.parameters[name] = it->second;
@@ -941,6 +953,9 @@ void avr_options(const model::Schematic& schematic, const library::ComponentLibr
         const auto it = connectivity.pin_net.find({id, pin});
         return it == connectivity.pin_net.end() ? -1 : it->second;
     };
+    if (options.parameters.count("crystal_hz")) {
+        return; // the board's own crystal
+    }
     const int xtal1 = net_of(c.id, "PB6");
     const int xtal2 = net_of(c.id, "PB7");
     for (const auto& other : schematic.components()) {
@@ -979,7 +994,8 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         // With debugging, a board may start without firmware: the debugger's `load`
         // writes it, as with an ST-LINK.
         const bool loaded_by_debugger = firmware.empty() && environment.gdb_port >= 0;
-        if (firmware.empty() && !loaded_by_debugger) {
+        const bool bootloader_only = firmware.empty() && d->mcu->parameters.count("bootloader"); // an UNO waiting for an upload
+        if (firmware.empty() && !loaded_by_debugger && !bootloader_only) {
             error = c.designator + " has no firmware: choose "
                 + (d->mcu->chip == "esp32c3"                                 ? "a flash image (.bin)"
                    : library::avr_chip(d->mcu->chip) ? "a .hex or .elf file"
@@ -992,7 +1008,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             path = environment.project_dir / path;
         }
         std::error_code ec;
-        if (!loaded_by_debugger && !std::filesystem::is_regular_file(path, ec)) {
+        if (!loaded_by_debugger && !bootloader_only && !std::filesystem::is_regular_file(path, ec)) {
             const auto text = path.u8string();
             error = c.designator + ": the firmware file " + std::string(text.begin(), text.end()) + " does not exist.";
             return false;
@@ -1009,7 +1025,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 }
             }
         }
-        request.options.firmware = loaded_by_debugger ? std::filesystem::path() : path;
+        request.options.firmware = loaded_by_debugger || bootloader_only ? std::filesystem::path() : path;
         request.options.pin_model = {d->mcu->pin_model.supply, d->mcu->pin_model.output_resistance,
             d->mcu->pin_model.pull_resistance, d->mcu->pin_model.input_high, d->mcu->pin_model.input_low};
         request.ground_pin = d->mcu->ground_pin;
@@ -1037,7 +1053,9 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
             // A bare chip reads its supply from the circuit (SN-259): power,
             // brown-out and the ADC's references.
             for (const char* supply : {"VCC", "AVCC", "AREF"}) {
-                request.options.pins.push_back(supply);
+                if (d->pin(supply)) { // a board (the UNO) feeds its chip itself
+                    request.options.pins.push_back(supply);
+                }
             }
         }
         if (environment.gdb_port >= 0) {
@@ -1252,8 +1270,10 @@ std::optional<std::vector<std::uint8_t>> SimulationSession::device_memory(model:
 {
     std::vector<std::uint8_t> bytes;
     for (const auto& [id, runner] : mcus_) {
-        // A board's own flash once esptool wrote it (SN-253) is its memory 0.
-        if (runner->device_memory(id == component ? 0 : component, bytes)) {
+        // A board's own flash once esptool or a bootloader wrote it (SN-253)
+        // is its memory 0; its chip's EEPROM, mcu::board_eeprom (SN-261).
+        const std::uint64_t key = id == component ? 0 : eeprom_memory(id) == component ? mcu::board_eeprom : component;
+        if (runner->device_memory(key, bytes)) {
             return bytes;
         }
     }

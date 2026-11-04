@@ -57,7 +57,7 @@ struct McuRunOptions {
     // The board's chip (ADR 0106): "stm32f103", "esp32c3", "atmega8" or "atmega8a".
     std::string chip = "stm32f103";
     std::filesystem::path firmware; // STM32: ELF, empty: loaded by the debugger; ESP32-C3: a flash image at 0
-    std::filesystem::path rom;      // ESP32-C3: the ROM ELF (find_esp32c3_rom)
+    std::filesystem::path rom;      // ESP32-C3: the ROM ELF (find_esp32c3_rom); an AVR board: its bootloader (.hex)
     std::vector<std::string> pins; // GPIO pin names to watch, e.g. "PC13"
     std::vector<std::string> uarts; // UART peripherals for the terminal, e.g. "usart1"
     PinModel pin_model;

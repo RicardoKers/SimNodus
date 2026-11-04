@@ -455,7 +455,7 @@ void PropertiesPanel::rebuild()
             value_editor_ = editor;
         }
     }
-    if (d->mcu && library::avr_chip(d->mcu->chip) && components.size() == 1) {
+    if (d->mcu && library::avr_chip(d->mcu->chip) && d->parameter("fuse_low") && components.size() == 1) {
         // An AVR chip's fuses decoded field by field (E-10, SN-258).
         auto* fuses = new QPushButton(tr("Fuses..."));
         fuses->setObjectName(QStringLiteral("fusesButton"));
