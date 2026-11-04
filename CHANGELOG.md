@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-04, check for joined net labels)
+
+- The pre-run checks (window and `circuit.check`) warn with `label-conflict` when one net carries two different names: two labels on one point, labels joined through a wire or pin, a label on the ground net, or a power symbol beside a label of another name. The message names both nets and the item points at the place. Before, the nets were joined in silence (a VCC label touching an SCL label tied the I2C clock to the supply).
+
 ## 0.14.0 — 2026-11-04
 
 ### Fixed (2026-11-04, owner's test of the Arduino UNO)

@@ -765,6 +765,72 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
         report(Severity::Warning, "open-wire-end", "A wire ends without a connection.", {wire}, end);
     }
 
+    // Different names on one net: labels touching the same point, or joined
+    // through wires and pins, silently tie their nets together.
+    for (const auto& net : nets) {
+        std::vector<std::string> names; // distinct, in order of appearance; 0 and GND are one name
+        auto add_name = [&names](const std::string& name) {
+            const std::string shown = is_ground_name(name) ? std::string("GND") : name;
+            if (std::find(names.begin(), names.end(), shown) == names.end()) {
+                names.push_back(shown);
+            }
+        };
+        if (net.ground) {
+            add_name("GND");
+        }
+        for (const auto& name : net.label_names) {
+            if (name.empty() || name.front() != hidden_label_mark) {
+                add_name(name);
+            }
+        }
+        if (names.size() < 2) {
+            continue;
+        }
+        // The point: two labels with different names on one spot, else a
+        // label whose name is not the first one.
+        std::vector<Id> items = net.labels;
+        std::optional<Point> at;
+        std::vector<const model::NetLabel*> labels;
+        for (const Id id : net.labels) {
+            for (const auto& l : schematic.labels()) {
+                if (l.id == id && (l.name.empty() || l.name.front() != hidden_label_mark)) {
+                    labels.push_back(&l);
+                }
+            }
+        }
+        for (std::size_t i = 0; i < labels.size() && !at; ++i) {
+            for (std::size_t j = i + 1; j < labels.size(); ++j) {
+                if (labels[i]->position == labels[j]->position && labels[i]->name != labels[j]->name
+                    && !(is_ground_name(labels[i]->name) && is_ground_name(labels[j]->name))) {
+                    at = labels[i]->position;
+                    break;
+                }
+            }
+        }
+        for (std::size_t i = 0; i < labels.size() && !at; ++i) {
+            if (!(is_ground_name(labels[i]->name) ? names.front() == "GND" : labels[i]->name == names.front())) {
+                at = labels[i]->position;
+            }
+        }
+        // Parts that tie a net by name (power symbols, block ports) count too.
+        for (const auto& pin : net.pins) {
+            const auto* c = schematic.component(pin.first);
+            const auto* d = c ? library.find(c->type) : nullptr;
+            if (d && (!d->ties_net.empty() || !d->ties_net_parameter.empty())
+                && std::find(items.begin(), items.end(), pin.first) == items.end()) {
+                items.push_back(pin.first);
+            }
+        }
+        std::string list;
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            list += (i == 0 ? "" : i + 1 == names.size() ? " and " : ", ") + ("\"" + names[i] + "\"");
+        }
+        report(Severity::Warning, "label-conflict",
+            "The names " + list + " are on the same net, so these nets are joined into one. "
+                + "Move or rename a label if they should stay apart.",
+            items, at);
+    }
+
     // Splitters (UI-19): both sides carry the same bits; a bus pin needs a bus.
     for (const auto& sp : schematic.splitters()) {
         int left = 0, right = 0;

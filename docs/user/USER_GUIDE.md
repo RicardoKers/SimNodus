@@ -65,7 +65,7 @@ voltmeter, **Shift+I** ammeter.
 | Tool | Key | How |
 |---|---|---|
 | Wire | W | Click a pin to start, click to add bends, click a pin or a wire to finish. Space changes the corner direction; a double-click ends at an open point; Esc cancels |
-| Net label | N | Click a wire or pin and type a name. Labels with the same name are connected without a wire; `GND` or `0` is ground. Ctrl+E puts the name on the other side |
+| Net label | N | Click a wire or pin and type a name. Labels with the same name are connected without a wire; `GND` or `0` is ground. Two different names on one net join both nets: the checks warn about it. Ctrl+E puts the name on the other side |
 | Bus | B | See [Buses and splitters](#buses-and-splitters) |
 | Splitter | S | See [Buses and splitters](#buses-and-splitters) |
 | Text note | T | Click where the text starts and type, for example instructions for students. Double-click a note to edit it; an empty text deletes it |
