@@ -1,8 +1,9 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.13 (analog and digital circuits, the Blue Pill / STM32F103
-microcontroller and an experimental ESP32-C3 board).
+Release 0.14 (analog and digital circuits, the Blue Pill / STM32F103
+microcontroller, AVR chips and the Arduino UNO, and an experimental
+ESP32-C3 board).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
 and opens .snx files with a double-click.
@@ -18,6 +19,18 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.14: AVR microcontrollers in SimNodus's own emulator. The bare
+ATmega8 and ATmega8A (PDIP-28) run .hex or .elf firmware from Microchip
+Studio, avr-gcc or the Arduino IDE with their fuses (Fuses... dialog), a
+Crystal part, the EEPROM kept in the project, timers and PWM, USART, ADC,
+SPI, I2C and sleep modes; they were compared with a real chip. The
+ATmega328P and ATmega328, the ATmega32 and ATmega32A (PDIP-40) and an
+Arduino UNO board with Optiboot are experimental until compared: the UNO
+takes uploads from the Arduino IDE through a virtual serial port pair
+(examples 50-59, see MICROCONTROLLER.md). The ESP32-C3 gained GDB
+debugging, the continuous ADC with DMA, its temperature sensor and
+MicroPython's files kept in its flash.
 
 New in 0.13: an ESP32-C3-DevKitM-1 board, experimental until it is compared
 with a real board. It runs a flash image (.bin) of ESP-IDF, Arduino or

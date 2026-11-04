@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P, the Arduino UNO and the ATmega32/32A added, experimental, SN-260, SN-261, SN-263; nothing released since 0.13.0). Keep this file short: present state, last results, next
+Updated: 2026-11-04 (release 0.14.0: the AVR line and the ESP32-C3's GDB, continuous ADC and MicroPython files). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,8 +8,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **On `main`, not released since 0.13.0** (the next release, 0.14, waits
-  for the owner):
+- **Release 0.14.0 (2026-11-04)**, after the owner's test of the
+  2026-11-04b preview (the AVR examples 50-59 and the UNO's upload from the
+  Arduino IDE through Eterlogic's virtual port pair):
   - **ESP32-C3**:
     - MicroPython's files kept in the flash (SN-248);
     - continuous ADC with DMA and the temperature sensor (SN-247);

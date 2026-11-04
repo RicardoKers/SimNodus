@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.14.0 — 2026-11-04
+
 ### Fixed (2026-11-04, owner's test of the Arduino UNO)
 
 - An upload from the Arduino IDE through Eterlogic's virtual port pair failed with "not in sync: resp=0x30": the pair does not pass avrdude's DTR on, so the board never restarted into Optiboot and the sketch echoed avrdude's bytes. The UNO's USB bridge now also restarts the board when avrdude asks a running sketch for the bootloader twice (STK_GET_SYNC); checked with avrdude 8.0 from the Arduino IDE on COM1/COM2.
