@@ -8,7 +8,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.14.0 (2026-11-04)**, after the owner's test of the
+- **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
+  with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
   2026-11-04b preview (the AVR examples 50-59 and the UNO's upload from the
   Arduino IDE through Eterlogic's virtual port pair):
   - **ESP32-C3**:
@@ -176,9 +177,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    - **The UNO (SN-261)** takes an avrdude-style upload in the tests. The
      owner's check: an upload from the Arduino IDE through a virtual port
      pair (as with the ESP32-C3), then the Serial Monitor.
-   - **Now.** The owner tests everything with a preview zip: the AVR
-     examples 50-59 and the UNO's upload from the Arduino IDE.
-   - **Next, with the owner's go.** SN-262 (avr-gdb), then release 0.14.
+   - **Released in 0.14.0** after the owner's test of the AVR examples and
+     the UNO's upload from the Arduino IDE.
+   - **Next, with the owner's go.** SN-262 (avr-gdb); comparing the 328P,
+     the ATmega32 and the UNO with real ones.
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
