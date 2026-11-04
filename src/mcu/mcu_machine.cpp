@@ -585,6 +585,10 @@ public:
             machine_.set_external_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
         }
         const bool has_bootloader = options.parameters.count("bootloader") != 0;
+        sync_reset_ = false;
+        for (const auto& [name, link] : options.uart_links) {
+            sync_reset_ = sync_reset_ || (has_bootloader && link.circuit == "dtr_reset");
+        }
         if (options.firmware.empty() && !has_bootloader) {
             error = std::string("The ") + machine_.chip_name() + " has no firmware file (a .hex or .elf).";
             return false;
@@ -708,9 +712,28 @@ public:
     }
     void uart_receive(int uart, std::uint8_t byte) override
     {
-        if (uart == 0) {
-            machine_.uart_receive(byte);
+        if (uart != 0) {
+            return;
         }
+        // The UNO's USB bridge also restarts the board when avrdude asks a
+        // running sketch for the bootloader's sync (STK_GET_SYNC, "0 ") twice
+        // within two seconds: some virtual port pairs do not pass avrdude's
+        // DTR on, and without the reset the upload cannot start (SN-261).
+        if (sync_reset_ && !machine_.in_boot_section()) {
+            if (last_byte_ == 0x30 && byte == 0x20) {
+                const std::uint64_t now = machine_.time_ns();
+                if (sync_seen_ns_ != 0 && now - sync_seen_ns_ < 2'000'000'000ull) {
+                    sync_seen_ns_ = 0;
+                    last_byte_ = 0;
+                    notes_.push_back("avrdude asked for the bootloader: the board restarts into Optiboot for the upload");
+                    machine_.request_reset(emu::Atmega::ResetKind::External);
+                    return;
+                }
+                sync_seen_ns_ = now;
+            }
+            last_byte_ = byte;
+        }
+        machine_.uart_receive(byte);
     }
     std::vector<PinEvent> take_pin_events() override
     {
@@ -783,6 +806,9 @@ private:
     std::uint64_t eeprom_writes_ = 0;
     std::uint64_t flash_writes_ = 0;
     bool dtr_ = false;
+    bool sync_reset_ = false;
+    std::uint8_t last_byte_ = 0;
+    std::uint64_t sync_seen_ns_ = 0;
     std::vector<int> watched_supplies_;
     std::vector<std::string> notes_;
 };

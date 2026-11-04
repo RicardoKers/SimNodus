@@ -562,7 +562,11 @@ experimental until it is compared with a real board.
   USB connector, as **UART0 to the computer** on the ESP32-C3 above: a
   virtual port pair (com0com or similar) or `tcp:PORT`. **DTR** resets the
   board through its 100 nF capacitor, as the Arduino IDE does before an
-  upload:
+  upload. Some virtual port pairs (Eterlogic's, with the avrdude of the
+  Arduino IDE) do not pass that DTR on, so the board also restarts into
+  Optiboot when avrdude asks a running sketch for the bootloader twice
+  (its first "not in sync" attempts are normal); the Messages panel says
+  so:
   1. Set **USB to the computer** to one end of the pair (COM10) and start
      the run.
   2. In the Arduino IDE choose **Tools > Board > Arduino UNO** and the

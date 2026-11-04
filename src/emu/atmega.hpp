@@ -139,6 +139,8 @@ public:
     std::uint64_t ns_at(std::uint64_t cycle) const;
     std::uint64_t cycles_at(std::uint64_t ns) const; // rounded up
     bool running() const { return cpu_hz_ != 0; }
+    // The core runs in the boot loader section (a bootloader is in control).
+    bool in_boot_section() const { return cpu_.pc() >= boot_start_words(); }
     std::uint8_t reset_flags() const { return mcucsr_; }
 
     // ---- Pins ----

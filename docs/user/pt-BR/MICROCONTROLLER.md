@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 790ed53ac1d897f956489cbbd0a190ec685400649a2f4f84120967f7856f11c7 -->
+<!-- source: MICROCONTROLLER.md sha256 600c1f469e6d82bdff6637a3ac4d5998e9ca92ca726c4d1c5cb401d7ed0f5e19 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -588,7 +588,11 @@ experimental até ser comparada com uma placa real.
   placa, como o **UART0 para o computador** da ESP32-C3 acima: um par de
   portas virtuais (com0com ou parecido) ou `tcp:PORTA`. O **DTR** reinicia
   a placa pelo seu capacitor de 100 nF, como a IDE do Arduino faz antes de
-  gravar:
+  gravar. Alguns pares de portas virtuais (o da Eterlogic, com o avrdude da
+  IDE do Arduino) não repassam esse DTR, então a placa também reinicia no
+  Optiboot quando o avrdude pede o bootloader duas vezes a um sketch em
+  execução (as primeiras tentativas "not in sync" são normais); o painel
+  de Mensagens avisa:
   1. Ponha em **USB para o computador** uma ponta do par (COM10) e inicie a
      simulação.
   2. Na IDE do Arduino escolha **Ferramentas > Placa > Arduino UNO** e a

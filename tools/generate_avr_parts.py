@@ -228,8 +228,9 @@ def uno():
                 {"rect": [-7, -21, 6, 4]}, {"text": "USB", "at": [-4, -19.6], "size": 0.7},
                 {"rect": [-3, 2, 6, 10]}, {"text": "ATmega328P", "at": [0, 7], "size": 0.55},
                 {"text": "Arduino", "at": [0, -6], "size": 1.1}, {"text": "UNO", "at": [0, -4.3], "size": 1.1},
-                {"rect": [3, -17, 4, 2]}, {"text": "RESET", "at": [5, -14.2], "size": 0.55},
-                {"text": "L", "at": [7, -9.6], "size": 0.6}]
+                {"rect": [0, -17.5, 3.5, 1.6]}, {"text": "RESET", "at": [1.75, -15], "size": 0.55},
+                # The L LED on D13: a faint circle while it is off (the run draws it lit).
+                {"arc": [1, -12, 0.6, 0, 360]}, {"text": "L", "at": [2.6, -12], "size": 0.6}]
     pins = []
     gpio = []
     for column, names in ((-1, left), (1, right)):
@@ -287,8 +288,8 @@ def uno():
             "ground_pin": "GND1",
             "pin_model": {"supply": 5.0, "output_resistance": 35, "pull_resistance": 35000,
                           "input_high": 3.0, "input_low": 1.5},
-            "led": {"pin": "D13", "at": [5.5, -9.6], "radius": 0.6},
-            "reset_button": [3, -17, 4, 2],
+            "led": {"pin": "D13", "at": [1, -12], "radius": 0.6},
+            "reset_button": [0, -17.5, 3.5, 1.6],
             "uarts": [{"name": "usart", "label": "USB (USART: D1 TX, D0 RX)", "tx_pin": "D1", "rx_pin": "D0",
                        "link_parameter": "usb_link", "reset_circuit": "dtr_reset"}],
             # The board's fuses as Arduino burns them (boards.txt), its 16 MHz

@@ -2883,3 +2883,39 @@ TEST_CASE("Arduino UNO: DTR resets it into Optiboot, which takes an upload as av
     }
     std::filesystem::remove_all(folder);
 }
+
+TEST_CASE("Arduino UNO: avrdude's sync to a running sketch restarts it into Optiboot without DTR (SN-261)")
+{
+    // Some virtual port pairs do not pass avrdude's DTR on: the board's USB
+    // bridge restarts it when avrdude asks for the bootloader twice.
+    auto options = uno_options();
+    options.firmware = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/avr328_serial/avr328_serial_16mhz.hex";
+    options.uart_links["usart"] = {"COM99", "dtr_reset"}; // only the circuit matters to the machine
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    REQUIRE(machine);
+    REQUIRE(machine->load(options, error));
+    std::string in;
+    auto run = [&](std::uint64_t ms) {
+        machine->run_until_ns(machine->time_ns() + ms * 1'000'000);
+        for (const auto& b : machine->take_uart_bytes()) {
+            in += static_cast<char>(b.value);
+        }
+    };
+    run(300);
+    CHECK(in.find("ATmega328P ready") != std::string::npos);
+    bool synced = false;
+    for (int attempt = 0; attempt < 10 && !synced; ++attempt) {
+        in.clear();
+        machine->uart_receive(0, 0x30);
+        machine->uart_receive(0, 0x20);
+        run(200);
+        synced = in.size() >= 2 && in[0] == 0x14 && in[1] == 0x10;
+    }
+    CHECK(synced);
+    bool told = false;
+    for (const auto& note : machine->take_diagnostics()) {
+        told = told || note.find("Optiboot") != std::string::npos;
+    }
+    CHECK(told);
+}
