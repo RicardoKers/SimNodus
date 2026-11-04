@@ -17,6 +17,7 @@ namespace simnodus::ui {
 namespace {
 
 bool is_328(const std::string& chip) { return chip == "atmega328" || chip == "atmega328p"; }
+bool is_32(const std::string& chip) { return chip == "atmega32" || chip == "atmega32a"; }
 
 // Clock source groups of CKSEL3:0 (datasheets, Clock Sources): the value
 // written for the group; crystals use CKSEL3:1, CKSEL0 belongs to the
@@ -57,6 +58,9 @@ std::array<std::uint8_t, 4> FusesDialog::factory(const std::string& chip)
     if (is_328(chip)) {
         return {0x62, 0xD9, 0xFF, 0xFF};
     }
+    if (is_32(chip)) {
+        return {0xE1, 0x99, 0xFF, 0xFF};
+    }
     return {0xE1, 0xD9, 0xFF, 0xFF};
 }
 
@@ -77,11 +81,13 @@ bool FusesDialog::parse_byte(const QString& text, std::uint8_t& value)
 
 FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t high, std::uint8_t lock, QWidget* parent,
     std::uint8_t extended)
-    : QDialog(parent), bytes_{low, high, lock, extended}, m328_(is_328(chip))
+    : QDialog(parent), bytes_{low, high, lock, extended}, m328_(is_328(chip)), m32_(is_32(chip))
 {
     const QString name = chip == "atmega8"     ? QStringLiteral("ATmega8")
                          : chip == "atmega328"  ? QStringLiteral("ATmega328")
                          : chip == "atmega328p" ? QStringLiteral("ATmega328P")
+                         : chip == "atmega32"   ? QStringLiteral("ATmega32")
+                         : chip == "atmega32a"  ? QStringLiteral("ATmega32A")
                                                 : QStringLiteral("ATmega8A");
     setWindowTitle(tr("Fuses of the %1").arg(name));
     auto* layout = new QVBoxLayout(this);
@@ -211,14 +217,26 @@ FusesDialog::FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t
 
         // High fuse.
         add_bit(1, 4, tr("CKOPT: full-swing crystal oscillator"), tr("Needed for crystals above 8 MHz"));
-        add_bit(1, 7, tr("RSTDISBL: PC6 is an I/O pin instead of RESET"),
-            tr("On a real chip this also disables programming through the ISP connector"));
-        add_bit(1, 6, tr("WDTON: watchdog always on"));
+        if (m32_) {
+            add_bit(1, 6, tr("JTAGEN: PC2-PC5 are the JTAG pins (factory)"),
+                tr("Until the firmware sets JTD in MCUCSR, PC2-PC5 do not work as I/O pins"));
+            add_bit(1, 7, tr("OCDEN: on-chip debugging through JTAG (no effect in SimNodus)"));
+        } else {
+            add_bit(1, 7, tr("RSTDISBL: PC6 is an I/O pin instead of RESET"),
+                tr("On a real chip this also disables programming through the ISP connector"));
+            add_bit(1, 6, tr("WDTON: watchdog always on"));
+        }
         add_bit(1, 3, tr("EESAVE: the EEPROM is kept on a chip erase"));
         add_bit(1, 5, tr("SPIEN: programming through the ISP connector (no effect in SimNodus)"));
-        add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
-            {{0x06, tr("128 words, from 0x0F80")}, {0x04, tr("256 words, from 0x0F00")}, {0x02, tr("512 words, from 0x0E00")},
-                {0x00, tr("1024 words, from 0x0C00 (factory)")}});
+        if (m32_) {
+            add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
+                {{0x06, tr("256 words, from 0x3F00")}, {0x04, tr("512 words, from 0x3E00")}, {0x02, tr("1024 words, from 0x3C00")},
+                    {0x00, tr("2048 words, from 0x3800 (factory)")}});
+        } else {
+            add_field(1, 0x06, tr("Boot section (BOOTSZ)"),
+                {{0x06, tr("128 words, from 0x0F80")}, {0x04, tr("256 words, from 0x0F00")}, {0x02, tr("512 words, from 0x0E00")},
+                    {0x00, tr("1024 words, from 0x0C00 (factory)")}});
+        }
         add_bit(1, 0, tr("BOOTRST: the reset vector is the boot section's start"));
     }
 
@@ -370,6 +388,14 @@ QString FusesDialog::clock_summary() const
         const bool div8 = ((bytes_[0] >> 7) & 1) == 0;
         const QString clock = cksel == 3 ? tr("128 kHz") : div8 ? tr("1 MHz (8 MHz divided by 8)") : tr("8 MHz");
         return tr("The chip runs on its internal RC oscillator at %1; XTAL1 and XTAL2 are I/O pins (PB6, PB7).").arg(clock);
+    }
+    if (m32_) { // XTAL1 and XTAL2 are pins of their own on the PDIP-40
+        switch (static_cast<Group>(group(cksel))) {
+        case InternalRc: return tr("The chip runs on its internal RC oscillator at %1 MHz.").arg(1 << (cksel - 1));
+        case Crystal:
+        case LowFrequencyCrystal: return tr("The chip needs a Crystal part between XTAL1 and XTAL2; without one it does not start.");
+        default: return tr("The chip needs a clock or an RC network on XTAL1; SimNodus does not simulate one yet, so it does not start.");
+        }
     }
     switch (static_cast<Group>(group(cksel))) {
     case InternalRc:

@@ -1603,6 +1603,19 @@ private slots:
         QCOMPARE(FusesDialog::factory("atmega328")[0], std::uint8_t{0x62});
     }
 
+    void atmega32_fuses_dialog_shows_jtagen()
+    {
+        // SN-263: the ATmega32's high fuse: JTAGEN programmed at the factory (99).
+        FusesDialog dialog("atmega32a", 0xE1, 0x99, 0xFF);
+        auto* jtagen = dialog.findChild<QCheckBox*>(QStringLiteral("fuseBit1_6"));
+        QVERIFY(jtagen && jtagen->isChecked());
+        QVERIFY(jtagen->text().contains(QStringLiteral("JTAGEN")));
+        jtagen->setChecked(false);
+        QCOMPARE(dialog.high(), std::uint8_t{0xD9});
+        QVERIFY(!dialog.has_extended());
+        QCOMPARE(FusesDialog::factory("atmega32")[1], std::uint8_t{0x99});
+    }
+
     void atmega8_takes_the_fuses_of_its_elf_into_the_project()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

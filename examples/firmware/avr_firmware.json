@@ -49,6 +49,15 @@
       "hex": "examples/firmware/avr328_wake/avr328_wake.hex",
       "hex_sha256": "be3c19cd0582a2f2b2c3a5f0e07ef89e37456f6783cde51686a81f94feef3c6a"
     },
+    "avr32_demo": {
+      "source": "examples/firmware/avr32_demo/avr32_demo.c",
+      "mcu": "atmega32",
+      "f_cpu": 1000000,
+      "elf": "examples/firmware/avr32_demo/avr32_demo.elf",
+      "elf_sha256": "c51008f2c1ae8a198445bebaeba11a18a2fc997db675bab174806db82ea4cd85",
+      "hex": "examples/firmware/avr32_demo/avr32_demo.hex",
+      "hex_sha256": "516de5383bad12e7fc9f63beead61c9f9ec6e8947387957c83de763baf0ea7aa"
+    },
     "avr_adc": {
       "source": "examples/firmware/avr_adc/avr_adc.c",
       "mcu": "atmega8",

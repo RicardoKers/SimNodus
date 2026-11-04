@@ -53,6 +53,7 @@ add_test(NAME emu-avr-differential COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "av
 add_test(NAME emu-avr-benchmark COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "avr-bench: ")
 add_test(NAME emu-atmega8 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega8: ")
 add_test(NAME emu-atmega328 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega328: ")
+add_test(NAME emu-atmega32 COMMAND avr_tests "${PROJECT_SOURCE_DIR}" "atmega32: ")
 
 # ESP32-C3 machine of experiment E-08 (SN-244): unmodified ESP-IDF and
 # MicroPython images from tests/experiments/esp32c3/firmware.

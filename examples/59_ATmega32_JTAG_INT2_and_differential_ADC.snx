@@ -1,0 +1,381 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "eeprom": "",
+        "firmware": "firmware/avr32_demo/avr32_demo.elf",
+        "fuse_high": "99",
+        "fuse_low": "E1",
+        "lock": "FF",
+        "usart_link": ""
+      },
+      "rotation": 0,
+      "type": "atmega32a_pdip40"
+    },
+    {
+      "at": [
+        -40,
+        0
+      ],
+      "designator": "V1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {
+        "V": "5"
+      },
+      "rotation": 0,
+      "type": "vdc"
+    },
+    {
+      "at": [
+        20,
+        -19
+      ],
+      "designator": "RV1",
+      "id": 9,
+      "mirrored": true,
+      "parameters": {
+        "R": "10k",
+        "position": "50"
+      },
+      "rotation": 0,
+      "type": "potentiometer"
+    },
+    {
+      "at": [
+        30,
+        -8
+      ],
+      "designator": "RV2",
+      "id": 13,
+      "mirrored": true,
+      "parameters": {
+        "R": "10k",
+        "position": "51"
+      },
+      "rotation": 0,
+      "type": "potentiometer"
+    },
+    {
+      "at": [
+        -20,
+        -15
+      ],
+      "designator": "SW1",
+      "id": 17,
+      "mirrored": false,
+      "parameters": {
+        "bounce": "no"
+      },
+      "rotation": 0,
+      "type": "button_no"
+    },
+    {
+      "at": [
+        -26,
+        -10
+      ],
+      "designator": "R1",
+      "id": 20,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        -26,
+        -4
+      ],
+      "designator": "LED1",
+      "id": 22,
+      "mirrored": false,
+      "parameters": {
+        "color": "yellow"
+      },
+      "rotation": 0,
+      "type": "led"
+    },
+    {
+      "at": [
+        20,
+        22
+      ],
+      "designator": "R2",
+      "id": 24,
+      "mirrored": false,
+      "parameters": {
+        "R": "330"
+      },
+      "rotation": 0,
+      "type": "resistor"
+    },
+    {
+      "at": [
+        20,
+        28
+      ],
+      "designator": "LED2",
+      "id": 26,
+      "mirrored": false,
+      "parameters": {
+        "color": "red"
+      },
+      "rotation": 0,
+      "type": "led"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [
+    {
+      "at": [
+        -40,
+        -3
+      ],
+      "id": 3,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        -40,
+        3
+      ],
+      "id": 4,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -10,
+        -1
+      ],
+      "id": 5,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        10,
+        1
+      ],
+      "id": 6,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        -10,
+        1
+      ],
+      "id": 7,
+      "name": "GND"
+    },
+    {
+      "at": [
+        10,
+        -1
+      ],
+      "id": 8,
+      "name": "GND"
+    },
+    {
+      "at": [
+        20,
+        -22
+      ],
+      "id": 11,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        20,
+        -16
+      ],
+      "id": 12,
+      "name": "GND"
+    },
+    {
+      "at": [
+        30,
+        -11
+      ],
+      "id": 15,
+      "name": "VCC"
+    },
+    {
+      "at": [
+        30,
+        -5
+      ],
+      "id": 16,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -23,
+        -15
+      ],
+      "id": 19,
+      "name": "GND"
+    },
+    {
+      "at": [
+        -26,
+        -1
+      ],
+      "id": 23,
+      "name": "GND"
+    },
+    {
+      "at": [
+        20,
+        31
+      ],
+      "id": 27,
+      "name": "GND"
+    }
+  ],
+  "next_id": 32,
+  "notes": [
+    {
+      "at": [
+        -44,
+        -34
+      ],
+      "id": 31,
+      "text": "ATmega32A (experimental) at the factory clock (internal RC, 1 MHz) running avr32_demo. The firmware\nwrites JTD twice, so PC2-PC5 count (with the factory fuses they are the JTAG pins). RV1 on ADC0 sets\nTimer0's PWM on OC0 (PB3, LED1); SW1 on INT2 (PB2) toggles LED2 (PD7); the terminal (USART) shows RV1's\ncode and the differential reading ADC1 - ADC0 with a gain of 10: move RV2 a little around RV1."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 28,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -10,
+          -13
+        ],
+        "item": 1,
+        "pin": "PB3"
+      }
+    },
+    {
+      "color": "",
+      "id": 29,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          10,
+          13
+        ],
+        "item": 1,
+        "pin": "PC2"
+      }
+    },
+    {
+      "color": "",
+      "id": 30,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          -10,
+          9
+        ],
+        "item": 1,
+        "pin": "PD1"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": [
+    {
+      "id": 10,
+      "points": [
+        [
+          10,
+          -19
+        ],
+        [
+          17,
+          -19
+        ]
+      ]
+    },
+    {
+      "id": 14,
+      "points": [
+        [
+          10,
+          -17
+        ],
+        [
+          27,
+          -17
+        ],
+        [
+          27,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": 18,
+      "points": [
+        [
+          -10,
+          -15
+        ],
+        [
+          -17,
+          -15
+        ]
+      ]
+    },
+    {
+      "id": 21,
+      "points": [
+        [
+          -10,
+          -13
+        ],
+        [
+          -26,
+          -13
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "points": [
+        [
+          10,
+          19
+        ],
+        [
+          20,
+          19
+        ]
+      ]
+    }
+  ]
+}

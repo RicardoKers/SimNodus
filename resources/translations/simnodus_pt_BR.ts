@@ -687,6 +687,18 @@ Pinos: %2</translation>
             <translation>BOOTRST: o vetor de reset é o início da seção de boot</translation>
         </message>
         <message>
+            <source>JTAGEN: PC2-PC5 are the JTAG pins (factory)</source>
+            <translation>JTAGEN: PC2-PC5 são os pinos do JTAG (de fábrica)</translation>
+        </message>
+        <message>
+            <source>Until the firmware sets JTD in MCUCSR, PC2-PC5 do not work as I/O pins</source>
+            <translation>Até o firmware ligar o JTD no MCUCSR, PC2-PC5 não funcionam como pinos de E/S</translation>
+        </message>
+        <message>
+            <source>OCDEN: on-chip debugging through JTAG (no effect in SimNodus)</source>
+            <translation>OCDEN: depuração no chip pelo JTAG (sem efeito no SimNodus)</translation>
+        </message>
+        <message>
             <source>Memory lock (LB)</source>
             <translation>Trava da memória (LB)</translation>
         </message>
@@ -841,6 +853,18 @@ Pinos: %2</translation>
         <message>
             <source>The chip runs on its internal RC oscillator at %1; XTAL1 and XTAL2 are I/O pins (PB6, PB7).</source>
             <translation>O chip roda no seu oscilador RC interno a %1; XTAL1 e XTAL2 são pinos de E/S (PB6, PB7).</translation>
+        </message>
+        <message>
+            <source>The chip runs on its internal RC oscillator at %1 MHz.</source>
+            <translation>O chip roda no seu oscilador RC interno a %1 MHz.</translation>
+        </message>
+        <message>
+            <source>The chip needs a Crystal part between XTAL1 and XTAL2; without one it does not start.</source>
+            <translation>O chip precisa de uma peça Crystal entre XTAL1 e XTAL2; sem ela ele não parte.</translation>
+        </message>
+        <message>
+            <source>The chip needs a clock or an RC network on XTAL1; SimNodus does not simulate one yet, so it does not start.</source>
+            <translation>O chip precisa de um clock ou de uma rede RC no XTAL1; o SimNodus ainda não simula isso, então ele não parte.</translation>
         </message>
         <message>
             <source>The chip runs on its internal RC oscillator at %1 MHz; XTAL1 and XTAL2 are I/O pins (PB6, PB7).</source>
@@ -4151,6 +4175,34 @@ Pinos: %2</translation>
         <message>
             <source>Microchip ATmega328P-PU in PDIP-28 (experimental): 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz at 1.8-5.5 V; the Arduino UNO's chip. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
             <translation>Microchip ATmega328P-PU em PDIP-28 (experimental): 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, até 20 MHz a 1,8-5,5 V; o chip do Arduino UNO. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
+        </message>
+        <message>
+            <source>ATmega32-PU (PDIP-40)</source>
+            <translation>ATmega32-PU (PDIP-40)</translation>
+        </message>
+        <message>
+            <source>Atmel ATmega32-16PU in PDIP-40 (experimental): 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, ports A to D, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; PC2-PC5 are JTAG pins at the factory fuses; wire VCC, AVCC and GND (5 V)</source>
+            <translation>Atmel ATmega32-16PU em PDIP-40 (experimental): 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, portas A a D, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; PC2-PC5 são pinos do JTAG com os fusíveis de fábrica; ligue VCC, AVCC e GND (5 V)</translation>
+        </message>
+        <message>
+            <source>Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy) or an avr-gcc ELF file, whose fuses and EEPROM data apply too; stored relative to the project</source>
+            <translation>Firmware do chip: um arquivo Intel HEX (Microchip Studio, MPLAB X, avr-objcopy) ou um arquivo ELF do avr-gcc, cujos fusíveis e dados de EEPROM também valem; guardado relativo ao projeto</translation>
+        </message>
+        <message>
+            <source>Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 (and the high fuse 89)</source>
+            <translation>Byte do fusível baixo em hexadecimal (bits programados são 0). E1, o valor de fábrica: oscilador RC interno a 1 MHz, partida de 65 ms. EF com um Crystal de 16 MHz entre XTAL1 e XTAL2 (e o fusível alto 89)</translation>
+        </message>
+        <message>
+            <source>High fuse byte in hex (programmed bits are 0). 99, the factory value: JTAGEN programmed, so PC2-PC5 are the JTAG pins until the firmware sets JTD; D9 frees them. Bit 7 OCDEN, 6 JTAGEN, 5 SPIEN, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</source>
+            <translation>Byte do fusível alto em hexadecimal (bits programados são 0). 99, o valor de fábrica: JTAGEN programado, então PC2-PC5 são os pinos do JTAG até o firmware ligar o JTD; D9 os libera. Bit 7 OCDEN, 6 JTAGEN, 5 SPIEN, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST</translation>
+        </message>
+        <message>
+            <source>ATmega32A-PU (PDIP-40)</source>
+            <translation>ATmega32A-PU (PDIP-40)</translation>
+        </message>
+        <message>
+            <source>Microchip ATmega32A-PU in PDIP-40 (experimental): 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, ports A to D, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; PC2-PC5 are JTAG pins at the factory fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega32A-PU em PDIP-40 (experimental): 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM, portas A a D, até 16 MHz a 2,7-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; PC2-PC5 são pinos do JTAG com os fusíveis de fábrica; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
         </message>
         <message>
             <source>ATmega8-PU (PDIP-28)</source>

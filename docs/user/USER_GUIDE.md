@@ -113,7 +113,7 @@ invalid value is outlined in red and not applied.
 | **Electromechanical** | Active and passive buzzers (heard on Windows), lamp (glows with its current), relay (coil and changeover contact; add a flyback diode), DC motor (shows its speed) |
 | **Memories** | Parallel ROM and static RAM of 16 bytes to 64 KB (A0-A15, D0-D7, CE, OE, WE), with or without a board; contents from `.bin` or Intel `.hex` files and in the Memory Viewer |
 | **Converters** | Ideal A/D and D/A converters with 4, 8, 10 or 12 bits; the reference is a pin (VREF), the logic levels follow a hidden supply like the gates |
-| **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware; ESP32-C3-DevKitM-1 running a flash image (`.bin`), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#esp32-c3-board-experimental)); ATmega8-PU and ATmega8A-PU chips running `.hex` or `.elf` firmware with their fuses (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-and-atmega8a)); ATmega328P-PU and ATmega328-PU, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega328-and-atmega328p-experimental)); Arduino UNO R3 with Optiboot, uploads from the Arduino IDE, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#arduino-uno-experimental)) |
+| **Microcontrollers** | Blue Pill (STM32F103C8) running your ELF firmware; ESP32-C3-DevKitM-1 running a flash image (`.bin`), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#esp32-c3-board-experimental)); ATmega8-PU and ATmega8A-PU chips running `.hex` or `.elf` firmware with their fuses (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega8-and-atmega8a)); ATmega328P-PU and ATmega328-PU, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega328-and-atmega328p-experimental)); ATmega32-PU and ATmega32A-PU (PDIP-40), experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#atmega32-and-atmega32a-experimental)); Arduino UNO R3 with Optiboot, uploads from the Arduino IDE, experimental (see [MICROCONTROLLER.md](MICROCONTROLLER.md#arduino-uno-experimental)) |
 | **Chips for microcontrollers** | 74HC595 shift register, MAX7219 LED display driver, 24C02 EEPROM, LM75 temperature sensor, PCF8574 I/O expander, BMP280 pressure sensor, MPU6050 accelerometer and gyroscope, DS3231 real-time clock, TCS34725 color sensor (I2C); MCP3208 A/D converter, MCP41010 digital potentiometer, W25Q32 flash, microSD card (SPI); HX711 load cell amplifier; DS18B20 (1-Wire), DHT22/DHT11 and HC-SR04 sensors; they run with the board they are wired to, or on their own (see [MICROCONTROLLER.md](MICROCONTROLLER.md#chips-for-microcontrollers)) |
 | **Sensors** | Inductive proximity sensors NPN and PNP (24 V), 4-20 mA two-wire transmitter, HC-SR501 PIR motion sensor, LM35 temperature sensor, NTC thermistor, PT100/PT1000, type K thermocouple, LDR, BPW34 photodiode, ACS712 current sensor, load cell (strain-gauge bridge), A3144 Hall switch, PC817 optocoupler, solenoid |
 | **Blocks** | Block port, to turn a circuit into a block |
@@ -474,8 +474,9 @@ from a real board are in [MICROCONTROLLER.md](MICROCONTROLLER.md).
   51 a 16 MHz crystal, 52 ADC and PWM, 53 I2C and SPI chips, 54 a real-time
   clock in power-save) and the ATmega328P (55 serial and the temperature
   sensor, 56 four PWM outputs and the ADC's auto trigger, 57 power-down woken
-  by the watchdog and a pin change; experimental) and the Arduino UNO (58,
-  serial and uploads; experimental).
+  by the watchdog and a pin change; experimental), the Arduino UNO (58,
+  serial and uploads; experimental) and the ATmega32 (59, JTAG, INT2 and the
+  differential ADC; experimental).
 - **Lessons** 1-3 (examples 10, 11 and 16) come with notes in
   `examples/lessons/`: goals, steps and the expected observations.
   Their firmware sources are in `examples/firmware/`.
@@ -548,9 +549,9 @@ results are read correctly.
 ### Microcontroller
 
 - The Blue Pill (STM32F103C8), the ATmega8 and ATmega8A, and, experimental,
-  the ATmega328P and ATmega328, the Arduino UNO and the ESP32-C3-DevKitM-1
-  (not yet compared with a real chip or board; no Wi-Fi yet). The ATmega32
-  comes later; the AVR chips have no GDB yet.
+  the ATmega328P and ATmega328, the ATmega32 and ATmega32A, the Arduino UNO
+  and the ESP32-C3-DevKitM-1 (not yet compared with a real chip or board; no
+  Wi-Fi yet). The AVR chips have no GDB yet.
 - Not simulated yet: SPI and I2C slave modes, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when

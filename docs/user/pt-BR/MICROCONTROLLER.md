@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 49b9ea566082086f1a891227f98b6d6331643abe3bf2d7180dfd23e3407b8f61 -->
+<!-- source: MICROCONTROLLER.md sha256 790ed53ac1d897f956489cbbd0a190ec685400649a2f4f84120967f7856f11c7 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -6,7 +6,7 @@ de STM32, junto com o circuito. Esta página lista o que o chip simulado suporta
 onde ele difere de uma placa real (MCU-09); o [guia do usuário](USER_GUIDE.md)
 cobre o restante do SimNodus. A placa **ESP32-C3-DevKitM-1** é nova e
 experimental: veja [Placa ESP32-C3 (experimental)](#placa-esp32-c3-experimental).
-O mesmo vale para o ATmega328P e o [Arduino UNO](#arduino-uno-experimental).
+O mesmo vale para o ATmega328P, o [ATmega32](#atmega32-e-atmega32a-experimental) e o [Arduino UNO](#arduino-uno-experimental).
 
 ## Motor
 
@@ -528,6 +528,43 @@ As peças **ATmega328P-PU** (o chip do Arduino UNO) e **ATmega328-PU**
   um ADC disparado pelo overflow do Timer0) e 57 (power-down acordado pelo
   watchdog, por uma mudança de pino e pelo INT0). Os fontes dos firmwares
   estão em `examples/firmware/avr328_*`.
+
+## ATmega32 e ATmega32A (experimental)
+
+As peças **ATmega32-PU** e **ATmega32A-PU** (Microcontroladores) são os
+chips em PDIP-40 (SN-263), no mesmo emulador. São experimentais até serem
+comparadas com um chip real. Seguem a seção do ATmega8 acima (os mesmos
+registradores, fusíveis e fontes de clock), com estas diferenças:
+
+- **Pinos**: quatro portas, A a D (PA0-PA7 são ADC0-ADC7). **RESET**,
+  **XTAL1** e **XTAL2** são pinos próprios; um **Crystal** vai entre XTAL1 e
+  XTAL2, e o cristal de 32,768 kHz do Timer2 entre TOSC1 (PC6) e TOSC2
+  (PC7).
+- **JTAG**: o fusível alto de fábrica (99) tem o **JTAGEN** programado,
+  então PC2-PC5 são os pinos do JTAG e não seguem DDRC e PORTC, como num
+  chip novo. O firmware os libera escrevendo JTD no MCUCSR duas vezes em
+  quatro ciclos (`MCUCSR = _BV(JTD); MCUCSR = _BV(JTD);`), ou o fusível alto
+  D9 faz isso. O log avisa quando o firmware escreve nesses pinos enquanto o
+  JTAG os ocupa.
+- **Memórias**: 32 KB de flash, 2 KB de SRAM, 1 KB de EEPROM; vetores de
+  duas palavras.
+- **O que roda**, além do que o ATmega8 tem:
+  - o Timer0 com uma saída de comparação no OC0 (PB3) nos seus quatro
+    modos; as saídas do Timer1 no OC1A (PD5) e no OC1B (PD4), a captura no
+    ICP1 (PD6); o OC2 do Timer2 no PD7;
+  - o INT2 no PB2 (uma borda escolhida pelo ISC2; ele acorda o chip de
+    todos os modos de sleep);
+  - as oito entradas do ADC, os canais diferenciais com ganho de 1, 10 ou
+    200 (os valores ideais do datasheet: erros de offset e de ganho não são
+    simulados), o bandgap de 1,22 V, o disparo automático pelo ADTS do
+    SFIOR;
+  - SPI em PB4-PB7, TWI em PC0 (SCL) e PC1 (SDA), o comparador em PB2
+    (AIN0) e PB3 (AIN1); o sleep extended standby.
+- **Ainda não**: o JTAG e a depuração no chip em si (o OCDEN não tem
+  efeito).
+- **Exemplo**: 59 (JTD e uma contagem em PC2-PC5, um PWM no OC0 pelo
+  potenciômetro, o INT2, o ADC diferencial). O fonte do firmware está em
+  `examples/firmware/avr32_demo`.
 
 ## Arduino UNO (experimental)
 

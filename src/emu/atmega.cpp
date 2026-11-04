@@ -25,6 +25,8 @@ enum : std::uint16_t {
     OCR1BH = 0x49, OCR1AL = 0x4A, OCR1AH = 0x4B, TCNT1L = 0x4C, TCNT1H = 0x4D, TCCR1B = 0x4E, TCCR1A = 0x4F,
     SFIOR = 0x50, OSCCAL = 0x51, TCNT0 = 0x52, TCCR0 = 0x53, MCUCSR = 0x54, MCUCR = 0x55, TWCR = 0x56,
     SPMCR = 0x57, TIFR = 0x58, TIMSK = 0x59, GIFR = 0x5A, GICR = 0x5B,
+    // The ATmega32's, at addresses the ATmega8 leaves free.
+    PINA = 0x39, DDRA = 0x3A, PORTA = 0x3B, OCR0 = 0x5C,
     // The ATmega328/328P's own (MCUSR, SPMCSR, OSCCAL, the ports, the
     // EEPROM, SPI, TWI, ADC, Timer1 and the USART's data and status use the
     // ATmega8's names above).
@@ -65,6 +67,8 @@ enum : int {
 static_assert(V_COUNT <= 32, "flags_ holds 32 vectors");
 const int mega8_vectors[] = {0, V_INT0, V_INT1, V_T2_COMP, V_T2_OVF, V_T1_CAPT, V_T1_COMPA, V_T1_COMPB, V_T1_OVF,
     V_T0_OVF, V_SPI, V_RXC, V_UDRE, V_TXC, V_ADC, V_EE_RDY, V_ANA_COMP, V_TWI, V_SPM_RDY};
+const int mega32_vectors[] = {0, V_INT0, V_INT1, V_INT2, V_T2_COMP, V_T2_OVF, V_T1_CAPT, V_T1_COMPA, V_T1_COMPB,
+    V_T1_OVF, V_T0_COMPA, V_T0_OVF, V_SPI, V_RXC, V_UDRE, V_TXC, V_ADC, V_EE_RDY, V_ANA_COMP, V_TWI, V_SPM_RDY};
 const int mega328_vectors[] = {0, V_INT0, V_INT1, V_PCINT0, V_PCINT1, V_PCINT2, V_WDT, V_T2_COMP, V_T2_COMPB,
     V_T2_OVF, V_T1_CAPT, V_T1_COMPA, V_T1_COMPB, V_T1_OVF, V_T0_COMPA, V_T0_COMPB, V_T0_OVF, V_SPI, V_RXC, V_UDRE,
     V_TXC, V_ADC, V_EE_RDY, V_ANA_COMP, V_TWI, V_SPM_RDY};
@@ -132,7 +136,15 @@ public:
                 m_.set_flag(V_PCINT0 + group, true);
             }
         }
-        const int n = pin == PD2 ? 0 : pin == PD3 ? 1 : -1;
+        if (pin == m_.fp_.int2 && m_.mega32()) {
+            // INT2: an edge chosen by ISC2 (MCUCSR bit 6), detected
+            // asynchronously, so it wakes the chip from every sleep mode.
+            if (level == bit(m_.mcucsr_, 6)) {
+                m_.set_flag(V_INT2, true);
+            }
+            return;
+        }
+        const int n = pin == m_.fp_.int0 ? 0 : pin == m_.fp_.int1 ? 1 : -1;
         if (n < 0) {
             return;
         }
@@ -149,7 +161,7 @@ public:
     // Low-level mode: pending while the pin is low; no flag.
     bool level_pending(int n) const
     {
-        return ((sense_register() >> (2 * n)) & 3) == 0 && !m_.pad_level(n == 0 ? PD2 : PD3);
+        return ((sense_register() >> (2 * n)) & 3) == 0 && !m_.pad_level(n == 0 ? m_.fp_.int0 : m_.fp_.int1);
     }
 
 private:
@@ -164,12 +176,22 @@ public:
     using Peripheral::Peripheral;
     std::vector<std::uint16_t> addresses() const override
     {
-        return {PINB, DDRB, PORTB, PINC, DDRC, PORTC, PIND, DDRD, PORTD};
+        std::vector<std::uint16_t> a = {PINB, DDRB, PORTB, PINC, DDRC, PORTC, PIND, DDRD, PORTD};
+        if (m_.mega32()) {
+            a.insert(a.end(), {PINA, DDRA, PORTA});
+        }
+        return a;
+    }
+    // Port (0 B, 1 C, 2 D, 3 A) and register (0 PINx, 1 DDRx, 2 PORTx).
+    static std::pair<int, int> decode(std::uint16_t address)
+    {
+        const int port = address >= PINA ? 3 : address >= PINB ? 0 : address >= PINC ? 1 : 2;
+        const std::uint16_t base = port == 3 ? PINA : port == 0 ? PINB : port == 1 ? PINC : PIND;
+        return {port, address - base};
     }
     std::uint8_t read(std::uint16_t address) override
     {
-        const int port = address >= PINB ? 0 : address >= PINC ? 1 : 2;
-        const int reg = (address - (port == 0 ? PINB : port == 1 ? PINC : PIND));
+        const auto [port, reg] = decode(address);
         if (reg == 0) { // PINx: the pin levels (the input synchronizer's 1.5-cycle delay is not modelled)
             std::uint8_t value = 0;
             for (int b = 0; b < 8; ++b) {
@@ -190,10 +212,13 @@ public:
     }
     void write(std::uint16_t address, std::uint8_t value) override
     {
-        const int port = address >= PINB ? 0 : address >= PINC ? 1 : 2;
-        const int reg = (address - (port == 0 ? PINB : port == 1 ? PINC : PIND));
-        if (port == 1) {
+        const auto [port, reg] = decode(address);
+        if (port == 1 && !m_.mega32()) {
             value &= 0x7F; // port C has PC0..PC6
+        }
+        if (port == 1 && reg != 0 && (value & 0x3C) && m_.jtag_on()) {
+            m_.note_once("jtag", "PC2-PC5 are the JTAG pins (JTAGEN is programmed, as on a new chip): they do not "
+                                 "follow DDRC/PORTC. Write JTD in MCUCSR twice, or unprogram JTAGEN in the high fuse");
         }
         if (reg == 0) {
             if (m_.mega328()) { // writing 1 to a PINx bit toggles PORTx's
@@ -608,7 +633,7 @@ public:
     }
     void pad_changed(int pin, bool level, std::uint64_t cycle) override
     {
-        if (pin == PD4) {
+        if (pin == m_.fp_.t0) {
             external_edge(level, cycle);
         }
     }
@@ -625,9 +650,9 @@ public:
     explicit Timer1(Atmega& m) : TimerBase(m, 16)
     {
         core.channels = 2;
-        core.ch[0].pin = PB1;
+        core.ch[0].pin = m.fp_.oc1a;
         core.ch[0].vector = V_T1_COMPA;
-        core.ch[1].pin = PB2;
+        core.ch[1].pin = m.fp_.oc1b;
         core.ch[1].vector = V_T1_COMPB;
         core.tov_vector = V_T1_OVF;
         core.icf_vector = V_T1_CAPT;
@@ -701,9 +726,9 @@ public:
     }
     void pad_changed(int pin, bool level, std::uint64_t cycle) override
     {
-        if (pin == PD5) {
+        if (pin == m_.fp_.t1) {
             external_edge(level, cycle);
-        } else if (pin == PB0 && !m_.ac_capture_) {
+        } else if (pin == m_.fp_.icp1 && !m_.ac_capture_) {
             capture(level, cycle);
         }
     }
@@ -790,23 +815,47 @@ private:
     std::uint8_t temp_ = 0;
 };
 
-// Timer/Counter2: 8 bits with one compare channel on OC2 (PB3), its own
-// prescaler (1, 8, 32, 64, 128, 256, 1024). The asynchronous mode with a
-// 32.768 kHz crystal comes in SN-259.
+// Timer/Counter2: 8 bits with one compare channel on OC2 (PB3; PD7 on the
+// ATmega32), its own prescaler (1, 8, 32, 64, 128, 256, 1024) and the
+// asynchronous mode on a 32.768 kHz crystal. The ATmega32's Timer0 is the
+// same counter (n = 0): OC0 on PB3, the prescaler shared with Timer1 or T0
+// (PB0), no asynchronous mode.
 class Atmega::Timer2 : public TimerBase {
 public:
-    explicit Timer2(Atmega& m) : TimerBase(m, 8)
+    explicit Timer2(Atmega& m, int n = 2) : TimerBase(m, 8), n_(n)
     {
         core.channels = 1;
-        core.ch[0].pin = PB3;
-        core.ch[0].vector = V_T2_COMP;
-        core.tov_vector = V_T2_OVF;
-        clock.origin = &m.prescaler2_;
+        core.ch[0].pin = n == 0 ? m.fp_.oc0 : m.fp_.oc2;
+        core.ch[0].vector = n == 0 ? V_T0_COMPA : V_T2_COMP;
+        core.tov_vector = n == 0 ? V_T0_OVF : V_T2_OVF;
+        clock.origin = n == 0 ? &m.prescaler10_ : &m.prescaler2_;
     }
-    std::vector<std::uint16_t> addresses() const override { return {TCCR2, TCNT2, OCR2, ASSR}; }
-    std::uint8_t read(std::uint16_t address) override
+    std::vector<std::uint16_t> addresses() const override
+    {
+        if (n_ == 0) {
+            return {TCCR0, TCNT0, OCR0};
+        }
+        return {TCCR2, TCNT2, OCR2, ASSR};
+    }
+    std::uint16_t alias(std::uint16_t address) const
     {
         switch (address) {
+        case TCCR0: return TCCR2;
+        case TCNT0: return TCNT2;
+        case OCR0: return OCR2;
+        default: return address;
+        }
+    }
+    void pad_changed(int pin, bool level, std::uint64_t cycle) override
+    {
+        if (n_ == 0 && pin == m_.fp_.t0) {
+            external_edge(level, cycle);
+        }
+    }
+    std::uint32_t crystal_hz() const { return m_.mega32() ? m_.options_.tosc_hz : m_.options_.external_hz; }
+    std::uint8_t read(std::uint16_t address) override
+    {
+        switch (alias(address)) {
         case TCCR2: return tccr2_;
         case TCNT2: sync(now()); return static_cast<std::uint8_t>(core.count);
         case OCR2: return static_cast<std::uint8_t>(core.ch[0].buffer);
@@ -823,7 +872,7 @@ public:
     }
     void write(std::uint16_t address, std::uint8_t value) override
     {
-        switch (address) {
+        switch (alias(address)) {
         case TCCR2:
             sync(now());
             busy_after_write(0);
@@ -855,9 +904,11 @@ public:
             if (async() != was) {
                 m_.prescaler2_ = now(); // the prescaler restarts on the new clock
                 last_ = now();
-                if (async() && m_.options_.external_hz == 0) {
-                    m_.note_once("t2-crystal", "Timer2 runs from TOSC1/TOSC2 (AS2) but no Crystal is between PB6 and PB7: "
-                                               "it does not count");
+                if (async() && crystal_hz() == 0) {
+                    m_.note_once("t2-crystal", m_.mega32() ? "Timer2 runs from TOSC1/TOSC2 (AS2) but no Crystal is between PC6 "
+                                                             "and PC7: it does not count"
+                                                           : "Timer2 runs from TOSC1/TOSC2 (AS2) but no Crystal is between PB6 "
+                                                             "and PB7: it does not count");
                 }
                 m_.refresh_pins();
             }
@@ -866,14 +917,14 @@ public:
         }
         }
     }
-    bool async() const override { return bit(assr_, 3); }
+    bool async() const override { return n_ == 2 && bit(assr_, 3); }
     // A write in asynchronous mode takes effect after two TOSC1 edges; until
     // then TCN2UB, OCR2UB or TCR2UB reads 1.
     void busy_after_write(int flag)
     {
-        if (async() && m_.options_.external_hz) {
+        if (async() && crystal_hz()) {
             update_busy_[static_cast<std::size_t>(flag)] =
-                now() + static_cast<std::uint64_t>(std::ceil(2.0L * m_.cpu_hz_ / m_.options_.external_hz));
+                now() + static_cast<std::uint64_t>(std::ceil(2.0L * m_.cpu_hz_ / crystal_hz()));
         }
     }
     void reset() override
@@ -906,10 +957,13 @@ private:
             core.load_buffers();
         }
         static const unsigned divide[8] = {0, 1, 8, 32, 64, 128, 256, 1024};
-        clock.divide = divide[tccr2_ & 7];
+        static const unsigned divide0[8] = {0, 1, 8, 64, 256, 1024, 1, 1};
+        clock.divide = n_ == 0 ? divide0[tccr2_ & 7] : divide[tccr2_ & 7];
+        clock.external = n_ == 0 && (tccr2_ & 7) >= 6;
+        clock.rising = (tccr2_ & 7) == 7;
         clock.async_period = 0;
         if (async()) {
-            const std::uint32_t hz = m_.options_.external_hz;
+            const std::uint32_t hz = crystal_hz();
             if (hz == 0 || m_.cpu_hz_ == 0) {
                 clock.divide = 0; // no crystal: no clock
             } else if (clock.divide) {
@@ -919,6 +973,7 @@ private:
         connect_outputs();
         m_.timed_changed();
     }
+    int n_;
     std::uint8_t tccr2_ = 0;
     std::uint8_t assr_ = 0;
     std::array<std::uint64_t, 3> update_busy_{}; // TCR2UB, OCR2UB, TCN2UB
@@ -1277,16 +1332,16 @@ public:
     }
     bool drives(int pin, bool& level) const override
     {
-        if (pin == PD1 && bit(ucsrb_, 3)) {
+        if (pin == m_.fp_.txd && bit(ucsrb_, 3)) {
             level = tx_level_;
             return true;
         }
         return false;
     }
-    bool takes_input(int pin) const override { return pin == PD0 && bit(ucsrb_, 4); }
+    bool takes_input(int pin) const override { return pin == m_.fp_.rxd && bit(ucsrb_, 4); }
     void pad_changed(int pin, bool level, std::uint64_t cycle) override
     {
-        if (pin != PD0 || !bit(ucsrb_, 4) || !m_.uart_pin_rx_ || rx_active_ || level) {
+        if (pin != m_.fp_.rxd || !bit(ucsrb_, 4) || !m_.uart_pin_rx_ || rx_active_ || level) {
             return;
         }
         // A start bit: sample its middle, then each bit's.
@@ -1394,7 +1449,7 @@ private:
     }
     void rx_step(std::uint64_t at)
     {
-        const bool level = m_.pad_level(PD0);
+        const bool level = m_.pad_level(m_.fp_.rxd);
         const int n = data_bits();
         const int upm = (ucsrc_ >> 4) & 3;
         if (rx_bit_ < 0) {
@@ -1634,6 +1689,9 @@ public:
     bool interrupt_mode() const { return m_.mega328() && wdie_ && bit(m_.options_.fuse_high, 4); }
     bool enabled() const
     {
+        if (m_.mega32()) {
+            return wde_; // no WDTON fuse
+        }
         if (!m_.mega328()) {
             return wde_ || !bit(m_.options_.fuse_high, 6);
         }
@@ -1716,7 +1774,14 @@ public:
     void write(std::uint16_t address, std::uint8_t value) override
     {
         if (address == ADMUX) {
-            admux_ = value & 0xEF;
+            admux_ = m_.mega32() ? value : static_cast<std::uint8_t>(value & 0xEF);
+            if (m_.mega32()) {
+                if ((admux_ & 0x1F) >= 8 && (admux_ & 0x1F) < 0x1E) {
+                    m_.note_once("adc-differential", "The differential ADC channels and their gain are simulated from the "
+                                                     "datasheet's ideal values (offset and gain errors are not)");
+                }
+                return;
+            }
             if ((admux_ & 0x0F) == 6 || (admux_ & 0x0F) == 7) {
                 m_.note_once("adc67", "ADC6 and ADC7 are not on the PDIP package; they read 0");
             } else if ((admux_ & 0xC0) == 0x80) {
@@ -1772,7 +1837,7 @@ public:
             data_ = static_cast<std::uint16_t>(bit(admux_, 5) ? result << 6 : result);
         }
         m_.set_flag(V_ADC, true);
-        if (bit(adcsra_, 5) && (adcsrb_ & 7) == 0) { // free running: the next conversion starts at once
+        if (bit(adcsra_, 5) && trigger_source() == 0) { // free running: the next conversion starts at once
             start(at);
         }
         m_.timed_changed();
@@ -1788,11 +1853,14 @@ public:
     }
     std::uint8_t mux() const { return admux_ & 0x0F; }
     bool acme() const { return bit(adcsrb_, 6); }
+    // ADTS2:0: ADCSRB on the 328/328P, SFIOR's bits 7-5 on the ATmega32.
+    int trigger_source() const { return m_.mega32() ? (m_.sfior_ >> 5) & 7 : adcsrb_ & 7; }
     // An interrupt flag rose: the 328/328P's auto trigger source starts a conversion.
     void flag_rose(int vector)
     {
         static const int source[8] = {0, V_ANA_COMP, V_INT0, V_T0_COMPA, V_T0_OVF, V_T1_COMPB, V_T1_OVF, V_T1_CAPT};
-        if (enabled() && bit(adcsra_, 5) && (adcsrb_ & 7) != 0 && source[adcsrb_ & 7] == vector && !busy()) {
+        const int adts = trigger_source();
+        if (enabled() && bit(adcsra_, 5) && adts != 0 && source[adts] == vector && !busy()) {
             start(now());
             m_.timed_changed();
         }
@@ -1813,11 +1881,14 @@ private:
     }
     unsigned convert(std::uint64_t sample_cycle) const
     {
+        if (m_.mega32()) {
+            return convert32(sample_cycle);
+        }
         const int channel = sample_mux_ & 0x0F;
         double volts = 0.0;
         const bool m328 = m_.mega328();
         if (channel <= 5) {
-            volts = m_.analog_voltage(8 + channel, sample_cycle); // PC0..PC5
+            volts = m_.analog_voltage(m_.fp_.adc0 + channel, sample_cycle); // PC0..PC5
         } else if (channel == 14) {
             volts = m328 ? 1.10 : 1.30; // the bandgap
         } else if (channel == 8 && m328) {
@@ -1829,6 +1900,38 @@ private:
                                              : m_.analog_voltage(Atmega::aref_pin, sample_cycle);
         const double code = std::floor(volts * 1024.0 / reference);
         return static_cast<unsigned>(std::clamp(code, 0.0, 1023.0));
+    }
+    // The ATmega32: ADC0..ADC7 on PA0..PA7, the differential channels with
+    // their gain (MUX4:0 01000-11101, a 10-bit two's complement result), the
+    // 1.22 V bandgap and GND; references AREF, AVCC or 2.56 V.
+    unsigned convert32(std::uint64_t sample_cycle) const
+    {
+        const int mux = sample_mux_ & 0x1F;
+        const int refs = sample_mux_ >> 6;
+        const double reference = refs == 3   ? 2.56
+                                 : refs == 1 ? m_.analog_voltage(Atmega::avcc_pin, sample_cycle)
+                                             : m_.analog_voltage(Atmega::aref_pin, sample_cycle);
+        auto input = [&](int channel) { return m_.analog_voltage(m_.fp_.adc0 + channel, sample_cycle); };
+        if (mux < 8 || mux >= 0x1E) {
+            const double volts = mux < 8 ? input(mux) : mux == 0x1E ? 1.22 : 0.0;
+            return static_cast<unsigned>(std::clamp(std::floor(volts * 1024.0 / reference), 0.0, 1023.0));
+        }
+        // Positive input, negative input and gain (datasheet, Input Channel and Gain Selections).
+        int positive = 0;
+        int negative = 0;
+        double gain = 1.0;
+        if (mux < 0x10) {
+            const int k = mux - 8;               // 01000-01111
+            negative = (k & 4) ? 2 : 0;          // ADC0 or ADC2
+            positive = negative + (k & 1);
+            gain = (k & 2) ? 200.0 : 10.0;
+        } else {
+            positive = mux & 7;                  // 10000-11101: ADCn - ADC1, then ADCn - ADC2, gain 1
+            negative = mux < 0x18 ? 1 : 2;
+        }
+        const double code = std::floor((input(positive) - input(negative)) * gain * 512.0 / reference);
+        const auto value = static_cast<int>(std::clamp(code, -512.0, 511.0));
+        return static_cast<unsigned>(value) & 0x3FF;
     }
     std::uint8_t admux_ = 0;
     std::uint8_t adcsra_ = 0;
@@ -1903,13 +2006,13 @@ private:
     }
     bool compare(std::uint64_t cycle) const
     {
-        const double bandgap = m_.mega328() ? 1.10 : 1.30;
-        const double plus = bit(acsr_, 6) ? bandgap : m_.analog_voltage(22, cycle); // PD6
-        int minus_pin = 23;                                                        // PD7
+        const double bandgap = m_.mega328() ? 1.10 : m_.mega32() ? 1.22 : 1.30;
+        const double plus = bit(acsr_, 6) ? bandgap : m_.analog_voltage(m_.fp_.ain0, cycle);
+        int minus_pin = m_.fp_.ain1;
         const bool acme = m_.mega328() ? m_.adc_->acme() : bit(m_.sfior_, 3);
         if (acme && !m_.adc_->enabled()) {
             const int channel = m_.adc_->mux() & 7;
-            minus_pin = channel <= 5 ? 8 + channel : -1;
+            minus_pin = channel <= (m_.mega32() ? 7 : 5) ? m_.fp_.adc0 + channel : -1;
         }
         const double minus = minus_pin >= 0 ? m_.analog_voltage(minus_pin, cycle) : 0.0;
         return plus > minus;
@@ -2019,20 +2122,20 @@ public:
         if (!master()) {
             return false;
         }
-        if (pin == PB5) {
+        if (pin == m_.fp_.sck) {
             level = sck_;
             return true;
         }
-        if (pin == PB3) {
+        if (pin == m_.fp_.mosi) {
             level = mosi_;
             return true;
         }
         return false;
     }
-    bool takes_input(int pin) const override { return master() && pin == PB4; }
+    bool takes_input(int pin) const override { return master() && pin == m_.fp_.miso; }
     void pad_changed(int pin, bool, std::uint64_t) override
     {
-        if (pin == PB2) {
+        if (pin == m_.fp_.ss) {
             check_ss();
         }
     }
@@ -2054,7 +2157,7 @@ private:
     // SS as an input driven low: another master; this one becomes a slave.
     void check_ss()
     {
-        if (master() && !bit(m_.ddr_[0], 2) && !m_.pad_level(PB2)) {
+        if (master() && !bit(m_.ddr_[static_cast<std::size_t>(m_.fp_.ss / 8)], m_.fp_.ss % 8) && !m_.pad_level(m_.fp_.ss)) {
             spcr_ = static_cast<std::uint8_t>(spcr_ & ~0x10);
             end_ = 0;
             m_.set_flag(V_SPI, true);
@@ -2092,7 +2195,7 @@ private:
         const int n = (edge_ - 1) / 2; // the bit of this clock period
         const bool cpha = bit(spcr_, 2);
         if (leading == !cpha) { // sample: leading with CPHA 0, trailing with CPHA 1
-            if (m_.pad_level(PB4)) {
+            if (m_.pad_level(m_.fp_.miso)) {
                 in_ = static_cast<std::uint8_t>(in_ | (1u << bit_index(n)));
             }
         } else if (cpha) { // CPHA 1: the bit goes out on the leading edge
@@ -2223,7 +2326,7 @@ public:
         if (!bit(twcr_, 2)) {
             return false;
         }
-        if ((pin == PC4 && sda_low_) || (pin == PC5 && scl_low_)) {
+        if ((pin == m_.fp_.sda && sda_low_) || (pin == m_.fp_.scl && scl_low_)) {
             level = false;
             return true;
         }
@@ -2231,7 +2334,7 @@ public:
     }
     bool takes_input(int pin) const override
     {
-        return bit(twcr_, 2) && ((pin == PC4 && !sda_low_) || (pin == PC5 && !scl_low_));
+        return bit(twcr_, 2) && ((pin == m_.fp_.sda && !sda_low_) || (pin == m_.fp_.scl && !scl_low_));
     }
     bool interrupt_enabled() const { return bit(twcr_, 0); }
 
@@ -2319,15 +2422,15 @@ private:
         case Op::SclHigh:
             scl_low_ = false;
             m_.refresh_pins_at(at);
-            if (!m_.pad_level(PC5)) {
+            if (!m_.pad_level(m_.fp_.scl)) {
                 next_ = at + quarter(); // a slave stretches the clock: wait for SCL
                 return;
             }
             break;
         case Op::Sample:
             if (s.value == 8) {
-                ack_ = !m_.pad_level(PC4);
-            } else if (m_.pad_level(PC4)) {
+                ack_ = !m_.pad_level(m_.fp_.sda);
+            } else if (m_.pad_level(m_.fp_.sda)) {
                 rx_ = static_cast<std::uint8_t>(rx_ | (1u << s.value));
             }
             break;
@@ -2447,7 +2550,7 @@ public:
         if (m_.power_hold_ == Hold::None && !bod) {
             // The datasheet's safe operating area: 4.5 V above 8 MHz (and for the
             // ATmega8-16), 2.7 V for the ATmega8A up to 8 MHz.
-            const bool fast = m_.cpu_hz_ > 8'000'000 || m_.options_.model == Model::Atmega8;
+            const bool fast = m_.cpu_hz_ > 8'000'000 || m_.options_.model == Model::Atmega8 || m_.options_.model == Model::Atmega32;
             double minimum = fast ? 4.5 : 2.7;
             if (m_.mega328()) { // 1.8 V to 4 MHz, 2.7 V to 10 MHz, 4.5 V to 20 MHz, linear between
                 const double mhz = m_.cpu_hz_ / 1e6;
@@ -2475,11 +2578,15 @@ private:
 namespace {
 
 bool is_328(Atmega::Model model) { return model == Atmega::Model::Atmega328 || model == Atmega::Model::Atmega328P; }
+bool is_32(Atmega::Model model) { return model == Atmega::Model::Atmega32 || model == Atmega::Model::Atmega32A; }
 
 AvrConfig core_config(Atmega::Model model)
 {
     if (is_328(model)) {
         return AvrConfig{16384, 0x900, 0xFF, 0x08FF, true, true, 2};
+    }
+    if (is_32(model)) {
+        return AvrConfig{16384, 0x860, 0x5F, 0x0000, true, true, 2};
     }
     return AvrConfig{4096, 0x460, 0x5F, 0x0000, false, false, 1};
 }
@@ -2494,6 +2601,8 @@ Atmega::Options Atmega::factory(Model model)
         o.fuse_low = 0x62;
         o.fuse_high = 0xD9;
         o.fuse_extended = 0xFF;
+    } else if (is_32(model)) {
+        o.fuse_high = 0x99; // JTAGEN programmed
     }
     return o;
 }
@@ -2501,14 +2610,27 @@ Atmega::Options Atmega::factory(Model model)
 Atmega::Atmega(const Options& options)
     : options_(options),
       cpu_(core_config(options.model)),
-      eeprom_(is_328(options.model) ? 1024 : 512, std::uint8_t{0xFF})
+      eeprom_(is_328(options.model) || is_32(options.model) ? 1024 : 512, std::uint8_t{0xFF})
 {
     const bool m328 = is_328(options.model);
-    flash_bytes_ = m328 ? 32768 : 8192;
-    page_words_ = m328 ? 64 : 32;
-    boot_min_words_ = m328 ? 256 : 128;
+    const bool m32 = is_32(options.model);
+    flash_bytes_ = m328 || m32 ? 32768 : 8192;
+    page_words_ = m328 || m32 ? 64 : 32;
+    boot_min_words_ = m328 || m32 ? 256 : 128;
     page_buffer_.assign(page_words_, std::uint16_t{0xFFFF});
-    if (m328) {
+    constexpr int PA0 = 24, PC0 = 8, PC1 = 9, PC7 = 15, PD7 = 23;
+    if (m32) {
+        fp_ = {PB0, PB1, PD6, PD5, PD4, PD7, PB3, PD2, PD3, PB2, PB2, PB3, PB4, PB5, 6, 7, PC1, PC0, PA0, PD1, PD0, PC6, PC7};
+    } else {
+        fp_ = {PD4, PD5, PB0, PB1, PB2, PB3, -1, PD2, PD3, -1, PD6, PD7, PB2, PB3, PB4, PB5, PC4, PC5, PC0, PD1, PD0, PB6, PB7};
+    }
+    if (m32) {
+        vector_count_ = static_cast<int>(std::size(mega32_vectors));
+        std::copy(std::begin(mega32_vectors), std::end(mega32_vectors), vector_role_.begin());
+        for (std::uint16_t a = 0x20; a < 0x60; ++a) {
+            io_role_[a] = a;
+        }
+    } else if (m328) {
         vector_count_ = static_cast<int>(std::size(mega328_vectors));
         std::copy(std::begin(mega328_vectors), std::end(mega328_vectors), vector_role_.begin());
         for (const RegisterMap& m : mega328_registers) {
@@ -2532,6 +2654,8 @@ Atmega::Atmega(const Options& options)
     extint_ = add(new ExternalInterrupts(*this));
     if (m328) {
         timer0_ = add(new Timer8AB(*this, 0));
+    } else if (m32) {
+        timer0_ = add(new Timer2(*this, 0));
     } else {
         timer0_ = add(new Timer0(*this));
     }
@@ -2563,20 +2687,39 @@ const char* Atmega::chip_name() const
     case Model::Atmega8: return "ATmega8";
     case Model::Atmega328: return "ATmega328";
     case Model::Atmega328P: return "ATmega328P";
+    case Model::Atmega32: return "ATmega32";
+    case Model::Atmega32A: return "ATmega32A";
     default: return "ATmega8A";
     }
 }
 
 std::string Atmega::pin_name(int pin)
 {
-    const char port = static_cast<char>('B' + pin / 8);
+    const char port = pin >= 24 ? 'A' : static_cast<char>('B' + pin / 8);
     return std::string("P") + port + std::to_string(pin % 8);
 }
 
-bool Atmega::pin_exists(int pin) const { return pin >= 0 && pin < pin_count && pin != 15; } // no PC7
+bool Atmega::pin_exists(int pin) const
+{
+    if (mega32()) {
+        return pin >= 0 && pin < pin_count;
+    }
+    return pin >= 0 && pin < 24 && pin != 15; // no PC7, no port A
+}
+
+bool Atmega::jtag_on() const { return mega32() && !bit(options_.fuse_high, 6) && !bit(mcucsr_, 7); }
 
 bool Atmega::pin_usable(int pin) const
 {
+    if (mega32()) {
+        if (pin >= 10 && pin <= 13 && jtag_on()) {
+            return false; // TCK, TMS, TDO, TDI
+        }
+        if ((pin == fp_.tosc1 || pin == fp_.tosc2) && timer2_ && timer2_->async()) {
+            return false; // TOSC1/TOSC2: Timer2's crystal
+        }
+        return pin_exists(pin);
+    }
     if (pin == PC6) {
         return !bit(options_.fuse_high, 7); // RSTDISBL programmed: an I/O pin
     }
@@ -2640,6 +2783,8 @@ const int tifr0_order[8] = {V_T0_OVF, V_T0_COMPA, V_T0_COMPB, 0, 0, 0, 0, 0};
 const int tifr1_order[8] = {V_T1_OVF, V_T1_COMPA, V_T1_COMPB, 0, 0, V_T1_CAPT, 0, 0};
 const int tifr2_order[8] = {V_T2_OVF, V_T2_COMP, V_T2_COMPB, 0, 0, 0, 0, 0};
 const int gifr_order[8] = {0, 0, 0, 0, 0, 0, V_INT0, V_INT1};
+const int tifr32_order[8] = {V_T0_OVF, V_T0_COMPA, V_T1_OVF, V_T1_COMPB, V_T1_COMPA, V_T1_CAPT, V_T2_OVF, V_T2_COMP};
+const int gifr32_order[8] = {0, 0, 0, 0, 0, V_INT2, V_INT0, V_INT1};
 const int eifr_order[8] = {V_INT0, V_INT1, 0, 0, 0, 0, 0, 0};
 const int pcifr_order[8] = {V_PCINT0, V_PCINT1, V_PCINT2, 0, 0, 0, 0, 0};
 
@@ -2683,9 +2828,9 @@ std::uint8_t Atmega::read_io(std::uint16_t address)
     }
     switch (reg) {
     case GICR: return gicr_;
-    case GIFR: return flag_register(gifr_order);
+    case GIFR: return flag_register(mega32() ? gifr32_order : gifr_order);
     case TIMSK: return timsk_;
-    case TIFR: sync_timers(); return flag_register(tifr_order);
+    case TIFR: sync_timers(); return flag_register(mega32() ? tifr32_order : tifr_order);
     case TIFR0: sync_timers(); return flag_register(tifr0_order);
     case TIFR1: sync_timers(); return flag_register(tifr1_order);
     case TIFR2: sync_timers(); return flag_register(tifr2_order);
@@ -2712,7 +2857,7 @@ std::uint8_t Atmega::read_io(std::uint16_t address)
     case MCUCR:
     case MCUCR328: return mcucr_;
     case MCUCSR: return mcucsr_;
-    case SFIOR: return static_cast<std::uint8_t>(sfior_ & 0x0C);
+    case SFIOR: return static_cast<std::uint8_t>(sfior_ & (mega32() ? 0xEC : 0x0C));
     case OSCCAL: return osccal_;
     case SPMCR: {
         std::uint8_t v = static_cast<std::uint8_t>(spmcr_ & 0x80);
@@ -2749,7 +2894,7 @@ void Atmega::write_io(std::uint16_t address, std::uint8_t value)
     };
     switch (reg) {
     case GICR:
-        vector_select(gicr_, value, 0xC0);
+        vector_select(gicr_, value, mega32() ? 0xE0 : 0xC0);
         update_interrupts();
         return;
     case MCUCR328: {
@@ -2763,14 +2908,14 @@ void Atmega::write_io(std::uint16_t address, std::uint8_t value)
         }
         return;
     }
-    case GIFR: clear_flags(gifr_order, value); return;
+    case GIFR: clear_flags(mega32() ? gifr32_order : gifr_order, value); return;
     case EIFR: clear_flags(eifr_order, value); return;
     case PCIFR: clear_flags(pcifr_order, value); return;
     case TIMSK:
-        timsk_ = value & 0xFD;
+        timsk_ = mega32() ? value : static_cast<std::uint8_t>(value & 0xFD);
         update_interrupts();
         return;
-    case TIFR: sync_timers(); clear_flags(tifr_order, value); return;
+    case TIFR: sync_timers(); clear_flags(mega32() ? tifr32_order : tifr_order, value); return;
     case TIFR0: sync_timers(); clear_flags(tifr0_order, value); return;
     case TIFR1: sync_timers(); clear_flags(tifr1_order, value); return;
     case TIFR2: sync_timers(); clear_flags(tifr2_order, value); return;
@@ -2826,7 +2971,30 @@ void Atmega::write_io(std::uint16_t address, std::uint8_t value)
         mcucr_ = value;
         update_interrupts();
         return;
-    case MCUCSR: mcucsr_ = static_cast<std::uint8_t>(mcucsr_ & value & 0x0F); return; // writing 0 clears a flag
+    case MCUCSR:
+        if (mega32()) {
+            // ISC2 (bit 6); JTD (bit 7) changes only when written twice
+            // within four cycles; the reset flags (JTRF too) clear with 0.
+            const int jtd = bit(value, 7) ? 1 : 0;
+            std::uint8_t kept = static_cast<std::uint8_t>(mcucsr_ & 0x80);
+            if (jtd != (bit(mcucsr_, 7) ? 1 : 0)) {
+                if (jtd_pending_ == jtd && cpu_.cycles() <= jtd_written_ + 4) {
+                    kept = static_cast<std::uint8_t>(jtd ? 0x80 : 0);
+                    jtd_pending_ = -1;
+                } else {
+                    jtd_pending_ = jtd;
+                    jtd_written_ = cpu_.cycles();
+                }
+            }
+            const bool jtag_was = jtag_on();
+            mcucsr_ = static_cast<std::uint8_t>(kept | (value & 0x40) | (mcucsr_ & value & 0x1F));
+            if (jtag_on() != jtag_was) {
+                refresh_pins();
+            }
+            return;
+        }
+        mcucsr_ = static_cast<std::uint8_t>(mcucsr_ & value & 0x0F); // writing 0 clears a flag
+        return;
     case SFIOR:
         if (bit(value, 0)) { // PSR10: restart the prescaler of Timer0 and Timer1
             timer0_->sync(cpu_.cycles());
@@ -2839,7 +3007,7 @@ void Atmega::write_io(std::uint16_t address, std::uint8_t value)
             prescaler2_ = cpu_.cycles();
             timed_changed();
         }
-        sfior_ = static_cast<std::uint8_t>(value & 0x0C);
+        sfior_ = static_cast<std::uint8_t>(value & (mega32() ? 0xEC : 0x0C)); // ADTS2:0 on the ATmega32
         refresh_pins(); // PUD
         return;
     case OSCCAL:
@@ -2880,6 +3048,8 @@ bool Atmega::interrupt_enabled(int vector) const
     switch (vector) {
     case V_INT0: return bit(gicr_, 6);
     case V_INT1: return bit(gicr_, 7);
+    case V_INT2: return mega32() && bit(gicr_, 5);
+    case V_T0_COMPA: return mega32() && bit(timsk_, 1);
     case V_T2_COMP: return bit(timsk_, 7);
     case V_T2_OVF: return bit(timsk_, 6);
     case V_T1_CAPT: return bit(timsk_, 5);
@@ -2920,7 +3090,7 @@ int Atmega::pending_vector()
 
 void Atmega::enter_sleep(int mode)
 {
-    if (mode == 4 || mode == 5 || (mode == 7 && !mega328())) {
+    if (mode == 4 || mode == 5 || (mode == 7 && !mega328() && !mega32())) {
         note_once("sleep-reserved", "Sleep mode " + std::to_string(mode) + " is reserved on the " + chip_name() + "; it behaves as Idle");
         mode = 0;
     }
@@ -2976,8 +3146,8 @@ bool Atmega::io_clock_stopped() const { return sleep_mode_ > 0; }
 
 bool Atmega::wakes(int vector) const
 {
-    if (sleep_mode_ > 0 && (vector == V_PCINT0 || vector == V_PCINT1 || vector == V_PCINT2 || vector == V_WDT)) {
-        return true; // the 328/328P's pin changes and watchdog wake from every mode
+    if (sleep_mode_ > 0 && (vector == V_PCINT0 || vector == V_PCINT1 || vector == V_PCINT2 || vector == V_WDT || vector == V_INT2)) {
+        return true; // the 328/328P's pin changes and watchdog, the ATmega32's INT2, wake from every mode
     }
     const bool t2 = (vector == V_T2_COMP || vector == V_T2_COMPB || vector == V_T2_OVF) && timer2_->async();
     switch (sleep_mode_) {
@@ -3465,6 +3635,10 @@ void Atmega::reset(ResetKind kind)
     case ResetKind::BrownOut: mcucsr_ |= 0x04; break;
     case ResetKind::Watchdog: mcucsr_ |= 0x08; break;
     }
+    if (mega32()) {
+        mcucsr_ &= 0x1F; // JTD and ISC2 start at 0
+        jtd_pending_ = -1;
+    }
     // The start-up time passes before the first instruction (a second reset
     // at the same moment does not add to it).
     run_from_ = cpu_.cycles() + startup_cycles_;
@@ -3590,7 +3764,7 @@ void Atmega::refresh_pins_at(std::uint64_t cycle)
             continue;
         }
         PinState s;
-        if (p == PC6 && !pin_usable(p)) {
+        if (p == PC6 && !mega32() && !pin_usable(p)) {
             s.pull_up = true; // RESET has its own pull-up (30-80 kOhm)
         } else if (pin_usable(p)) {
             const int port = p / 8;
@@ -3609,7 +3783,7 @@ void Atmega::refresh_pins_at(std::uint64_t cycle)
                     // The USART's TXD drives the pin by itself; output
                     // compare outputs need their DDR bit.
                     // TWI's SDA and SCL drive their pins whatever the DDR.
-                    if (p == PD1 || p == PC4 || p == PC5 || ddr) {
+                    if (p == fp_.txd || p == fp_.sda || p == fp_.scl || ddr) {
                         s.output = true;
                         s.level = level;
                         overridden = true;
@@ -3645,10 +3819,13 @@ void Atmega::refresh_pins_at(std::uint64_t cycle)
 
 bool Atmega::pad_level(int pin) const
 {
+    if (pin == reset_pin && mega32()) {
+        return !reset_pin_low_;
+    }
     if (!pin_exists(pin)) {
         return false;
     }
-    if (pin == PC6 && !pin_usable(pin)) {
+    if (pin == PC6 && !mega32() && !pin_usable(pin)) {
         return !reset_pin_low_; // RESET: its pull-up holds it high
     }
     const PinState& s = driven_[static_cast<std::size_t>(pin)];
@@ -3661,6 +3838,11 @@ bool Atmega::pad_level(int pin) const
 
 Atmega::PinState Atmega::pin(int pin) const
 {
+    if (pin == reset_pin && mega32()) {
+        PinState s;
+        s.pull_up = true; // the ATmega32's RESET pin and its pull-up
+        return s;
+    }
     return pin_exists(pin) ? driven_[static_cast<std::size_t>(pin)] : PinState{};
 }
 
@@ -3668,10 +3850,20 @@ std::vector<Atmega::PinEvent> Atmega::take_pin_events() { return std::exchange(p
 
 void Atmega::set_pin_input(int pin, std::optional<bool> level)
 {
+    if (pin == reset_pin && mega32()) {
+        const bool low = level && !*level;
+        if (low != reset_pin_low_) {
+            reset_pin_low_ = low;
+            if (!low) {
+                request_reset(ResetKind::External);
+            }
+        }
+        return;
+    }
     if (!pin_exists(pin)) {
         return;
     }
-    if (pin == PC6 && !pin_usable(pin)) {
+    if (pin == PC6 && !mega32() && !pin_usable(pin)) {
         const bool low = level && !*level;
         if (low != reset_pin_low_) {
             reset_pin_low_ = low;

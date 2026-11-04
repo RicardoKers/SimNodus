@@ -1526,6 +1526,77 @@ TEST_CASE("atmega328: the watchdog reset loop that WDRF keeps, signature and fus
     CHECK(Atmega(rc).clock_hz() == 8'000'000);
 }
 
+// ---------------------------------------------------------------------------
+// The ATmega32/32A (SN-263): port A, Timer0 with OC0, INT2, the JTAG pins,
+// the differential ADC, the RESET pin of its own (PDIP-40).
+
+TEST_CASE("atmega32: JTD frees PC2-PC5, OC0 PWM from ADC0, INT2, the differential ADC, the USART")
+{
+    constexpr int pa0 = 24, pa1 = 25, pb2_ = 2, pc2 = 10, pd7_ = 23;
+    auto m = machine_with("avr32_demo", Atmega::factory(Atmega::Model::Atmega32A));
+    REQUIRE(m);
+    CHECK(m->vector_count() == 21);
+    CHECK(m->fuse_high() == 0x99);
+    double minus = 2.45;
+    m->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        if (pin >= Atmega::vcc_pin) {
+            return std::nullopt; // 5 V
+        }
+        return pin == pa0 ? 2.5 : pin == pa1 ? minus : 0.0;
+    });
+    m->run_until_ns(1'200'000'000);
+    // ADC0 at 2.5 V of 5 V: 512; ADC1 - ADC0 = -0.05 V with a gain of 10:
+    // floor(-0.5 * 512 / 5) = -52.
+    const std::string text = uart_text(*m);
+    CHECK(text.find("pot 512 diff -52\r\n") != std::string::npos);
+    auto events = m->take_pin_events();
+    // Timer0 fast PWM, /8: 2048 cycles a period, OC0 high (128 + 1) * 8.
+    bool ok = false;
+    const auto oc0 = duty(events, pb3, ok);
+    REQUIRE(ok);
+    CHECK(oc0.first == 1'032'000);
+    CHECK(oc0.first + oc0.second == 2'048'000);
+    // PC2-PC5 count once JTD is set.
+    CHECK(edges(events, pc2).size() >= 3);
+    // INT2: a press on PB2 toggles PD7.
+    const bool led = m->pin(pd7_).level;
+    m->set_pin_input(pb2_, false);
+    m->run_until_ns(m->time_ns() + 1'000'000);
+    CHECK(m->pin(pd7_).level != led);
+    m->set_pin_input(pb2_, true);
+    // A positive difference.
+    minus = 2.55;
+    m->run_until_ns(m->time_ns() + 600'000'000);
+    CHECK(uart_text(*m).find("diff 51\r\n") != std::string::npos);
+    // The RESET pin of its own.
+    m->set_pin_input(Atmega::reset_pin, false);
+    m->run_until_ns(m->time_ns() + 10'000'000);
+    m->set_pin_input(Atmega::reset_pin, true);
+    m->run_until_ns(m->time_ns() + 10'000'000);
+    CHECK((m->reset_flags() & 0x02) != 0); // EXTRF
+}
+
+TEST_CASE("atmega32: the factory JTAGEN keeps PC2-PC5 from DDRC and PORTC until JTD or the fuse frees them")
+{
+    // LDI r16,0x3C; OUT DDRC,r16; OUT PORTC,r16; RJMP .-1
+    const std::vector<std::uint16_t> words = {0xE30C, 0xBB04, 0xBB05, 0xCFFF};
+    auto m = machine_with_words(words, Atmega::factory(Atmega::Model::Atmega32));
+    m->run_until_ns(100'000'000);
+    CHECK(!m->pin(10).output); // PC2: TCK
+    CHECK(!m->pin(13).output); // PC5: TDI
+    bool noted = false;
+    for (const auto& note : m->take_diagnostics()) {
+        noted = noted || note.find("JTAG") != std::string::npos;
+    }
+    CHECK(noted);
+    Atmega::Options free = Atmega::factory(Atmega::Model::Atmega32);
+    free.fuse_high = 0xD9; // JTAGEN unprogrammed
+    auto f = machine_with_words(words, free);
+    f->run_until_ns(100'000'000);
+    CHECK(f->pin(10).output);
+    CHECK(f->pin(10).level);
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2) {

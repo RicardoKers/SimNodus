@@ -65,6 +65,7 @@ private:
     std::array<std::uint8_t, 4> bytes_{};
     std::array<QLineEdit*, 4> hex_{};
     bool m328_ = false;
+    bool m32_ = false;
     int group(int cksel) const;
     std::vector<Bit> bits_;
     std::vector<Field> fields_;
