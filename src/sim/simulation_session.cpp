@@ -956,23 +956,38 @@ void avr_options(const model::Schematic& schematic, const library::ComponentLibr
     if (options.parameters.count("crystal_hz")) {
         return; // the board's own crystal
     }
-    const int xtal1 = net_of(c.id, "PB6");
-    const int xtal2 = net_of(c.id, "PB7");
-    for (const auto& other : schematic.components()) {
-        if (other.type != "crystal" || xtal1 < 0 || xtal2 < 0) {
-            continue;
-        }
-        const int a = net_of(other.id, "1");
-        const int b = net_of(other.id, "2");
-        if ((a == xtal1 && b == xtal2) || (a == xtal2 && b == xtal1)) {
-            const auto f = other.parameters.find("frequency");
-            const auto* d = library.find(other.type);
-            const std::string text = f != other.parameters.end() ? f->second
-                                     : d && d->parameter("frequency") ? d->parameter("frequency")->default_value
-                                                                      : std::string();
-            if (const auto hz = model::parse_engineering(text); hz && *hz > 0) {
-                options.parameters["crystal_hz"] = std::to_string(std::llround(*hz));
+    // A Crystal part between two pins: its frequency.
+    auto crystal_between = [&](const char* pin1, const char* pin2) -> std::optional<std::string> {
+        const int x1 = net_of(c.id, pin1);
+        const int x2 = net_of(c.id, pin2);
+        for (const auto& other : schematic.components()) {
+            if (other.type != "crystal" || x1 < 0 || x2 < 0) {
+                continue;
             }
+            const int a = net_of(other.id, "1");
+            const int b = net_of(other.id, "2");
+            if ((a == x1 && b == x2) || (a == x2 && b == x1)) {
+                const auto f = other.parameters.find("frequency");
+                const auto* d = library.find(other.type);
+                const std::string text = f != other.parameters.end() ? f->second
+                                         : d && d->parameter("frequency") ? d->parameter("frequency")->default_value
+                                                                          : std::string();
+                if (const auto hz = model::parse_engineering(text); hz && *hz > 0) {
+                    return std::to_string(std::llround(*hz));
+                }
+            }
+        }
+        return std::nullopt;
+    };
+    // The ATmega32 (PDIP-40) has XTAL1/XTAL2 pins of their own and Timer2's
+    // crystal on TOSC1/TOSC2 (PC6, PC7); the PDIP-28 chips share PB6/PB7.
+    const bool pdip40 = board && board->pin("XTAL1");
+    if (const auto hz = crystal_between(pdip40 ? "XTAL1" : "PB6", pdip40 ? "XTAL2" : "PB7")) {
+        options.parameters["crystal_hz"] = *hz;
+    }
+    if (pdip40) {
+        if (const auto hz = crystal_between("PC6", "PC7")) {
+            options.parameters["tosc_hz"] = *hz;
         }
     }
 }

@@ -370,9 +370,21 @@ then holds the sketch with Optiboot intact, and the board's two memories
 (flash and EEPROM) are what the project keeps. Not yet checked: the
 Arduino IDE itself through a virtual port pair (the owner's test).
 
+## The ATmega32/32A (SN-263, 2026-11-04)
+
+The PDIP-40 chips share the ATmega8's register layout; the machine adds port
+A, a table of pins by function (the timers', INT2, SPI, TWI, the comparator
+and the ADC inputs move), the RESET pin of its own, the ATmega32's vectors,
+and the JTAG pins that the factory JTAGEN takes until JTD is written twice.
+The owned firmware `avr32_demo` checks in `emu-atmega32`: JTD and the count
+on PC2-PC5, OC0's fast PWM exact in cycles (1032 of 2048), INT2, the
+differential channel ADC1 - ADC0 at 10x (-52 and 51 for -50 mV and 50 mV),
+the RESET pin. The differential channels use the datasheet's ideal gain and
+offset (labeled in the guide).
+
 ## Not covered yet
 
 - The ADC's ±2 LSB on the chip, and example 53 with the real chips.
 - The ATmega328P compared with a chip (examples 55-57).
 - The Arduino IDE's upload to the UNO (the owner's test).
-- The ATmega32/32A (SN-263), avr-gdb (SN-262).
+- The ATmega32/32A and the 328P compared with chips; avr-gdb (SN-262).

@@ -5,6 +5,9 @@ atmega328_pdip28.json and atmega328p_pdip28.json: the bare chips in PDIP-28, pin
 RSTDISBL is programmed, PB6/PB7 are XTAL1/XTAL2 when the fuses select a
 crystal), VCC, GND, AVCC and AREF. Each GPIO drives the circuit through the
 runner's pin model (5 V; the supply voltage on VCC is not read yet: SN-259).
+resources/library/mcu/atmega32_pdip40.json and atmega32a_pdip40.json (SN-263):
+the ATmega32 and ATmega32A in PDIP-40, with ports A to D, RESET, XTAL1 and
+XTAL2 as pins of their own.
 resources/library/mcu/arduino_uno.json: the Arduino UNO R3 (SN-261), an
 ATmega328P with the board's fuses, its 16 MHz crystal and Optiboot in the
 boot section; pins named as on the headers (D0..D13, A0..A5), the USB
@@ -121,6 +124,92 @@ def chip(chip_id, title, description, m328=False):
             # VIH 0.6 VCC.
             "pin_model": {"supply": 5.0, "output_resistance": 35, "pull_resistance": 35000,
                           "input_high": 3.0, "input_low": 1.5 if m328 else 1.0},
+            "uarts": [{"name": "usart", "label": "USART (PD1 TX, PD0 RX)", "tx_pin": "PD1", "rx_pin": "PD0",
+                       "link_parameter": "usart_link", "reset_circuit": ""}],
+        },
+        "spice": spice,
+    }
+
+
+# PDIP-40 pinout of the ATmega32/32A.
+PINOUT40 = [
+    (1, "PB0", "PB0/T0"), (2, "PB1", "PB1/T1"), (3, "PB2", "PB2/INT2/AIN0"), (4, "PB3", "PB3/OC0/AIN1"),
+    (5, "PB4", "PB4/SS"), (6, "PB5", "PB5/MOSI"), (7, "PB6", "PB6/MISO"), (8, "PB7", "PB7/SCK"), (9, "RESET", "RESET"),
+    (10, "VCC", "VCC"), (11, "GND", "GND"), (12, "XTAL2", "XTAL2"), (13, "XTAL1", "XTAL1"), (14, "PD0", "PD0/RXD"),
+    (15, "PD1", "PD1/TXD"), (16, "PD2", "PD2/INT0"), (17, "PD3", "PD3/INT1"), (18, "PD4", "PD4/OC1B"),
+    (19, "PD5", "PD5/OC1A"), (20, "PD6", "PD6/ICP1"), (21, "PD7", "PD7/OC2"), (22, "PC0", "PC0/SCL"),
+    (23, "PC1", "PC1/SDA"), (24, "PC2", "PC2/TCK"), (25, "PC3", "PC3/TMS"), (26, "PC4", "PC4/TDO"),
+    (27, "PC5", "PC5/TDI"), (28, "PC6", "PC6/TOSC1"), (29, "PC7", "PC7/TOSC2"), (30, "AVCC", "AVCC"),
+    (31, "GND2", "GND"), (32, "AREF", "AREF"), (33, "PA7", "PA7/ADC7"), (34, "PA6", "PA6/ADC6"),
+    (35, "PA5", "PA5/ADC5"), (36, "PA4", "PA4/ADC4"), (37, "PA3", "PA3/ADC3"), (38, "PA2", "PA2/ADC2"),
+    (39, "PA1", "PA1/ADC1"), (40, "PA0", "PA0/ADC0"),
+]
+
+
+def chip40(chip_id, title, description):
+    graphics = [{"rect": [-8, -21, 16, 42]}, {"arc": [0, -21, 0.8, 180, 180]},
+                {"text": title, "at": [0, 0], "size": 0.9}]
+    pins = []
+    for number, name, label in PINOUT40:
+        left = number <= 20
+        y = -19 + 2 * ((number - 1) if left else (40 - number))
+        x_end, x_body = (-10, -8) if left else (10, 8)
+        graphics.append({"line": [x_end, y, x_body, y]})
+        graphics.append({"text": label, "at": [-4.6 if left else 4.6, y], "size": 0.55})
+        graphics.append({"text": str(number), "at": [-9.0 if left else 9.0, y - 0.5], "size": 0.45})
+        pins.append({"name": name, "at": [x_end, y], "dir": "left" if left else "right"})
+    gpio = [name for _, name, _ in PINOUT40 if name.startswith("P") or name == "RESET"]
+    spice = ["R_{ref}_gnd2 {node:GND} {node:GND2} 1m",
+             "R_{ref}_vcc {node:VCC} {node:GND} 2.5k",
+             "R_{ref}_avcc {node:AVCC} {node:GND} 100k",
+             "R_{ref}_aref {node:AREF} {node:GND} 32k",
+             "R_{ref}_xtal1 {node:XTAL1} {node:GND} 100Meg",
+             "R_{ref}_xtal2 {node:XTAL2} {node:GND} 100Meg"]
+    for name in gpio:
+        low = name.lower()
+        spice.append(f"R_{{ref}}_{low} {{node:{name}}} {{node:GND}} 100Meg")
+        spice.append(f"B_{{ref}}_{low} {{node:GND}} {{node:{name}}} "
+                     f"I=V({{ext:{low}_i}})-V({{ext:{low}_g}})*(V({{node:{name}}})-V({{node:GND}}))")
+    return {
+        "type": chip_id + "_pdip40",
+        "name": title + "-PU (PDIP-40)",
+        "category": "Microcontrollers",
+        "prefix": "U",
+        "description": description,
+        "symbol": {"graphics": graphics, "pins": pins},
+        "designator_offset": [-2, -23],
+        "value_offset": [-2, 23],
+        "parameters": [
+            {"name": "firmware", "label": "Firmware", "kind": "file", "filter": "*.hex *.elf", "default": "",
+             "description": "Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy) or an "
+                            "avr-gcc ELF file, whose fuses and EEPROM data apply too; stored relative to the project"},
+            {"name": "fuse_low", "label": "Low fuse", "kind": "text", "default": "E1",
+             "description": "Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC "
+                            "oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 "
+                            "(and the high fuse 89)"},
+            {"name": "fuse_high", "label": "High fuse", "kind": "text", "default": "99",
+             "description": "High fuse byte in hex (programmed bits are 0). 99, the factory value: JTAGEN programmed, "
+                            "so PC2-PC5 are the JTAG pins until the firmware sets JTD; D9 frees them. Bit 7 OCDEN, "
+                            "6 JTAGEN, 5 SPIEN, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST"},
+            {"name": "lock", "label": "Lock bits", "kind": "text", "default": "FF",
+             "description": "Lock byte in hex; FF: no lock. The boot lock bits restrict SPM and LPM"},
+            {"name": "eeprom", "label": "EEPROM", "kind": "file", "filter": "*.bin", "default": "",
+             "description": "EEPROM contents (1 KB). SimNodus keeps what the firmware writes as "
+                            "<designator>-eeprom.bin beside the project; empty: erased, or the firmware's own "
+                            "EEPROM data"},
+            {"name": "usart_link", "label": "USART to the computer", "kind": "text", "host_link": True,
+             "default": "",
+             "description": "The USART (PD1 TX, PD0 RX) linked to the computer as through a USB-serial adapter: a "
+                            "serial port (one end of a virtual port pair such as com0com), tcp:4000 for programs "
+                            "that speak RFC 2217, or empty for none"},
+        ],
+        "mcu": {
+            "chip": chip_id,
+            "firmware_parameter": "firmware",
+            "ground_pin": "GND",
+            # ATmega32A datasheet, DC characteristics at 5 V (as the ATmega8A's).
+            "pin_model": {"supply": 5.0, "output_resistance": 35, "pull_resistance": 35000,
+                          "input_high": 3.0, "input_low": 1.0},
             "uarts": [{"name": "usart", "label": "USART (PD1 TX, PD0 RX)", "tx_pin": "PD1", "rx_pin": "PD0",
                        "link_parameter": "usart_link", "reset_circuit": ""}],
         },
@@ -257,6 +346,15 @@ def main():
                "picoPower, with its own signature (1E 95 14); 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz. "
                "Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)",
                m328=True))
+    write(os.path.join(mcu, "atmega32_pdip40.json"),
+          chip40("atmega32", "ATmega32", "Atmel ATmega32-16PU in PDIP-40 (experimental): 32 KB flash, 2 KB SRAM, "
+                 "1 KB of EEPROM, ports A to D, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; "
+                 "PC2-PC5 are JTAG pins at the factory fuses; wire VCC, AVCC and GND (5 V)"))
+    write(os.path.join(mcu, "atmega32a_pdip40.json"),
+          chip40("atmega32a", "ATmega32A", "Microchip ATmega32A-PU in PDIP-40 (experimental): 32 KB flash, 2 KB "
+                 "SRAM, 1 KB of EEPROM, ports A to D, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its "
+                 "fuses; PC2-PC5 are JTAG pins at the factory fuses; wire VCC, AVCC and GND (the pins are simulated "
+                 "at 5 V)"))
     write(os.path.join(mcu, "arduino_uno.json"), uno())
     write(os.path.join(ROOT, "resources", "library", "passive", "crystal.json"), crystal())
 

@@ -3,8 +3,8 @@
 //
 // ATmega machine of the SimNodus emulator (experiment E-10, SN-257, SN-260):
 // the AVR core (avr_cpu.hpp) with the chip's peripherals, fuses and memories,
-// written from the ATmega8A (DS40001974B) and ATmega328P (DS40002061B)
-// datasheets. One class serves every chip of the family: each chip maps its
+// written from the ATmega8A (DS40001974B), ATmega328P (DS40002061B) and
+// ATmega32A (DS40002072A) datasheets. One class serves every chip of the family: each chip maps its
 // register addresses and interrupt vectors onto the machine's (atmega.cpp). Time is counted in CPU cycles at the clock the fuses select;
 // peripherals with events at known cycles (timers, the USART's bits, the
 // EEPROM's write time, the watchdog) stop the core at their next event. See
@@ -27,7 +27,7 @@ namespace simnodus::emu {
 
 class Atmega {
 public:
-    enum class Model { Atmega8, Atmega8A, Atmega328, Atmega328P };
+    enum class Model { Atmega8, Atmega8A, Atmega328, Atmega328P, Atmega32, Atmega32A };
 
     struct Options {
         Model model = Model::Atmega8A;
@@ -42,17 +42,21 @@ public:
         // clock on XTAL1, when the fuses select one; 0: nothing connected (the
         // chip does not start, as on a breadboard).
         std::uint32_t external_hz = 0;
+        // The ATmega32's crystal on TOSC1/TOSC2 (PC6, PC7) for Timer2's
+        // asynchronous mode; the ATmega8's and 328's share XTAL1/XTAL2.
+        std::uint32_t tosc_hz = 0;
     };
     // A chip's factory fuses: the ATmega8 E1/D9, the ATmega328/328P 62/D9/FF
     // (the internal 8 MHz RC oscillator divided by 8).
     static Options factory(Model model);
 
-    // Pins: index = port * 8 + bit, port 0 = B, 1 = C, 2 = D (PB0..PB7,
-    // PC0..PC6, PD0..PD7 on the ATmega8).
-    static constexpr int pin_count = 24;
-    // The supply pins, for their voltages from the circuit (analog source).
-    static constexpr int vcc_pin = 100, avcc_pin = 101, aref_pin = 102;
-    static int pin_index(char port, int bit) { return (port - 'B') * 8 + bit; }
+    // Pins: index = port * 8 + bit, port 0 = B, 1 = C, 2 = D, 3 = A (PB0..PB7,
+    // PC0..PC6, PD0..PD7 on the ATmega8; PA0..PA7 and PC7 on the ATmega32).
+    static constexpr int pin_count = 32;
+    // The supply pins, for their voltages from the circuit (analog source),
+    // and the ATmega32's own RESET pin.
+    static constexpr int vcc_pin = 100, avcc_pin = 101, aref_pin = 102, reset_pin = 103;
+    static int pin_index(char port, int bit) { return port == 'A' ? 24 + bit : (port - 'B') * 8 + bit; }
     static std::string pin_name(int pin);
     bool pin_exists(int pin) const;
     bool pin_usable(int pin) const; // not taken by RESET, the oscillator or TOSC
@@ -81,6 +85,7 @@ public:
     const Options& options() const { return options_; }
     const char* chip_name() const;
     bool mega328() const { return options_.model == Model::Atmega328 || options_.model == Model::Atmega328P; }
+    bool mega32() const { return options_.model == Model::Atmega32 || options_.model == Model::Atmega32A; }
     std::uint32_t flash_size() const { return flash_bytes_; }
     std::size_t eeprom_size() const { return eeprom_.size(); }
 
@@ -108,6 +113,7 @@ public:
     void set_fuses(std::uint8_t low, std::uint8_t high, std::uint8_t lock);
     void set_extended_fuse(std::uint8_t value) { options_.fuse_extended = value; }
     void set_external_hz(std::uint32_t hz) { options_.external_hz = hz; }
+    void set_tosc_hz(std::uint32_t hz) { options_.tosc_hz = hz; }
     // The clock the fuses select (0 when the chip cannot start), and a
     // sentence describing it for the log.
     std::uint32_t clock_hz() const { return cpu_hz_; }
@@ -237,8 +243,17 @@ private:
     std::uint64_t idle_ns_ = 0; // the time while the chip has no clock
     std::uint8_t timsk_ = 0;
     // Port registers and pins.
-    std::array<std::uint8_t, 3> port_{};
-    std::array<std::uint8_t, 3> ddr_{};
+    std::array<std::uint8_t, 4> port_{}; // B, C, D, A
+    std::array<std::uint8_t, 4> ddr_{};
+    // Pins by function: they differ between the PDIP-28 chips and the ATmega32.
+    struct FunctionPins {
+        int t0, t1, icp1, oc1a, oc1b, oc2, oc0, int0, int1, int2, ain0, ain1, ss, mosi, miso, sck, sda, scl, adc0, txd,
+            rxd, tosc1, tosc2;
+    };
+    FunctionPins fp_{};
+    std::uint64_t jtd_written_ = 0; // the ATmega32's JTD takes two writes within four cycles
+    int jtd_pending_ = -1;
+    bool jtag_on() const;
     std::array<std::optional<bool>, pin_count> input_{};
     std::array<PinState, pin_count> driven_{};
     std::array<bool, pin_count> level_{};

@@ -52,10 +52,10 @@ private:
     {
         return d.mcu && library::avr_chip(d.mcu->chip);
     }
-    // The chip's EEPROM: 512 bytes on the ATmega8/8A, 1 KB on the 328/328P.
+    // The chip's EEPROM: 512 bytes on the ATmega8/8A, 1 KB on the 328/328P and the ATmega32.
     static std::size_t avr_eeprom_bytes(const library::ComponentDefinition& d)
     {
-        return d.mcu->chip == "atmega328" || d.mcu->chip == "atmega328p" ? 1024 : 512;
+        return d.mcu->chip == "atmega8" || d.mcu->chip == "atmega8a" ? 512 : 1024;
     }
     // The chip's contents: the running (or last) simulation's, else its contents file, else erased.
     std::vector<std::uint8_t> contents(model::Id component, QString& source) const;

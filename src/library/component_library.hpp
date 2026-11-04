@@ -86,7 +86,8 @@ struct Parameter {
 // an EEPROM kept in the project.
 inline bool avr_chip(const std::string& chip)
 {
-    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p";
+    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p" || chip == "atmega32"
+           || chip == "atmega32a";
 }
 
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
@@ -95,7 +96,7 @@ inline bool avr_chip(const std::string& chip)
 // or control pins.
 struct McuBoard {
     // "esp32c3" (experimental, ADR 0106), "atmega8", "atmega8a" (E-10),
-    // "atmega328", "atmega328p" (SN-260).
+    // "atmega328", "atmega328p" (SN-260), "atmega32", "atmega32a" (SN-263).
     std::string chip = "stm32f103";
     std::string firmware_parameter;       // a File parameter
     std::string ground_pin = "G1";        // reference of the pin voltages

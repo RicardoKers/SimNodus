@@ -5,7 +5,7 @@ emulator next to the circuit. This page lists what the simulated chip supports a
 where it differs from a real board (MCU-09); the [user guide](USER_GUIDE.md)
 covers the rest of SimNodus. The **ESP32-C3-DevKitM-1** board is new and
 experimental: see [ESP32-C3 board (experimental)](#esp32-c3-board-experimental).
-So are the ATmega328P and the [Arduino UNO](#arduino-uno-experimental).
+So are the ATmega328P, the [ATmega32](#atmega32-and-atmega32a-experimental) and the [Arduino UNO](#arduino-uno-experimental).
 
 ## Engine
 
@@ -505,6 +505,40 @@ holds, with these differences:
   ADC triggered by Timer0's overflow) and 57 (power-down woken by the
   watchdog, a pin change and INT0). Their firmware sources are in
   `examples/firmware/avr328_*`.
+
+## ATmega32 and ATmega32A (experimental)
+
+The **ATmega32-PU** and **ATmega32A-PU** parts (Microcontrollers) are the
+PDIP-40 chips (SN-263), in the same emulator. They are experimental until
+they are compared with a real chip. They follow the ATmega8's section above
+(the same register layout, fuses and clock sources), with these differences:
+
+- **Pins**: four ports, A to D (PA0-PA7 are ADC0-ADC7). **RESET**, **XTAL1**
+  and **XTAL2** are pins of their own; a **Crystal** goes between XTAL1 and
+  XTAL2, and Timer2's 32.768 kHz crystal between TOSC1 (PC6) and TOSC2
+  (PC7).
+- **JTAG**: the factory high fuse (99) has **JTAGEN** programmed, so PC2-PC5
+  are the JTAG pins and do not follow DDRC and PORTC, as on a new chip. The
+  firmware frees them by writing JTD in MCUCSR twice within four cycles
+  (`MCUCSR = _BV(JTD); MCUCSR = _BV(JTD);`), or the high fuse D9 does. The
+  log says so when firmware writes those pins while JTAG holds them.
+- **Memories**: 32 KB of flash, 2 KB of SRAM, 1 KB of EEPROM; two-word
+  vectors.
+- **What runs**, on top of the ATmega8's:
+  - Timer0 with a compare output on OC0 (PB3) in its four modes; Timer1's
+    outputs on OC1A (PD5) and OC1B (PD4), input capture on ICP1 (PD6);
+    Timer2's OC2 on PD7;
+  - INT2 on PB2 (an edge chosen by ISC2; it wakes the chip from every sleep
+    mode);
+  - the ADC's eight inputs, the differential channels with a gain of 1, 10
+    or 200 (the datasheet's ideal values: offset and gain errors are not
+    simulated), the 1.22 V bandgap, auto triggering from SFIOR's ADTS;
+  - SPI on PB4-PB7, TWI on PC0 (SCL) and PC1 (SDA), the comparator on PB2
+    (AIN0) and PB3 (AIN1); extended standby sleep.
+- **Not yet**: JTAG and on-chip debugging themselves (OCDEN has no effect).
+- **Example**: 59 (JTD and a count on PC2-PC5, a PWM on OC0 from the
+  potentiometer, INT2, the differential ADC). Its firmware source is in
+  `examples/firmware/avr32_demo`.
 
 ## Arduino UNO (experimental)
 

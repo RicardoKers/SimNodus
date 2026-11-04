@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P and the Arduino UNO added, experimental, SN-260, SN-261; nothing released since 0.13.0). Keep this file short: present state, last results, next
+Updated: 2026-11-04 (ATmega8 no longer experimental, DE10; ATmega328/328P, the Arduino UNO and the ATmega32/32A added, experimental, SN-260, SN-261, SN-263; nothing released since 0.13.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -34,6 +34,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   - **Arduino UNO R3**, experimental (SN-261): the 328P with the Arduino
     fuses and Optiboot (GPL, shipped with its source); DTR auto-reset on the
     USB link; the flash an upload writes and the EEPROM kept; example 58.
+  - **ATmega32-PU and ATmega32A-PU**, experimental (SN-263): PDIP-40 with
+    port A, JTAG on PC2-PC5 at the factory fuses, INT2, Timer0's OC0, the
+    differential ADC; example 59.
   - The owner tested the ESP32-C3 changes with the 2026-11-02b preview.
 - **Release 0.13.0 published on 2026-11-01** after the owner's test of the
   package: tag `v0.13.0`, GitHub release with
@@ -172,8 +175,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    - **The UNO (SN-261)** takes an avrdude-style upload in the tests. The
      owner's check: an upload from the Arduino IDE through a virtual port
      pair (as with the ESP32-C3), then the Serial Monitor.
-   - **Next, with the owner's go.** SN-263 (ATmega32/32A, PDIP-40), SN-262
-     (avr-gdb).
+   - **Now.** The owner tests everything with a preview zip: the AVR
+     examples 50-59 and the UNO's upload from the Arduino IDE.
+   - **Next, with the owner's go.** SN-262 (avr-gdb), then release 0.14.
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and

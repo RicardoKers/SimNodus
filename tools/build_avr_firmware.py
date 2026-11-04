@@ -1,8 +1,8 @@
 """Build the AVR example firmware (experiment E-10) into .elf and .hex files.
 
 Each examples/firmware/avr_<name>/avr_<name>.c is built for the ATmega8, and
-each avr328_<name>/avr328_<name>.c for the ATmega328P, with avr-gcc and
-avr-libc. The default clock is the factory one (internal RC,
+each avr328_<name>/avr328_<name>.c for the ATmega328P and each
+avr32_<name>/avr32_<name>.c for the ATmega32, with avr-gcc and avr-libc. The default clock is the factory one (internal RC,
 1 MHz); VARIANTS adds builds at another F_CPU (the firmware's FUSES select
 the clock source). The ELF and HEX files are committed so that the examples
 run without a compiler; avr_firmware.json records the compiler and the
@@ -66,7 +66,7 @@ def main() -> None:
     version = subprocess.run([str(gcc), "--version"], capture_output=True, text=True, check=True).stdout.splitlines()[0]
     record = {"compiler": version, "flags": FLAGS, "firmware": {}}
     flags = [f.replace("{root}", str(ROOT)) for f in FLAGS]
-    for folder in sorted([*FIRMWARE.glob("avr_*"), *FIRMWARE.glob("avr328_*")]):
+    for folder in sorted([*FIRMWARE.glob("avr_*"), *FIRMWARE.glob("avr328_*"), *FIRMWARE.glob("avr32_*")]):
         source = folder / f"{folder.name}.c"
         if not source.is_file():
             continue
@@ -74,7 +74,8 @@ def main() -> None:
             name = folder.name + suffix
             elf = folder / f"{name}.elf"
             hex_file = folder / f"{name}.hex"
-            mcu = "atmega328p" if folder.name.startswith("avr328_") else "atmega8"
+            mcu = ("atmega328p" if folder.name.startswith("avr328_")
+                   else "atmega32" if folder.name.startswith("avr32_") else "atmega8")
             subprocess.run([str(gcc), f"-mmcu={mcu}", *flags, f"-DF_CPU={f_cpu}UL", str(source), "-o", str(elf)],
                            check=True)
             subprocess.run([str(objcopy), "-O", "ihex", "-R", ".eeprom", "-R", ".fuse", "-R", ".lock", str(elf),

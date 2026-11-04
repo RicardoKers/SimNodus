@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-04, SN-263)
+
+- **ATmega32-PU** and **ATmega32A-PU** parts (Microcontrollers, PDIP-40), experimental: ports A to D, RESET, XTAL1 and XTAL2 as pins of their own, Timer0 with OC0, INT2 (asynchronous), the factory JTAGEN holding PC2-PC5 until JTD is written twice, the differential ADC channels with gain, the 1.22 V bandgap, ADC auto triggering from SFIOR, Timer2's crystal on TOSC1/TOSC2 (PC6, PC7); the Fuses... dialog shows JTAGEN and OCDEN. Example 59 and the owned firmware `avr32_demo`.
+
 ### Added (2026-11-04, SN-261)
 
 - **Arduino UNO R3** part (Microcontrollers), experimental: an ATmega328P at 16 MHz with the Arduino fuses and **Optiboot** in its boot section (GPL-2.0-or-later, shipped with its source in `third_party/optiboot`). Its pins carry the header names (D0-D13, A0-A5); 5V and 3V3 are outputs; the L LED on D13 and the reset button work on the board. Its USB connector links the USART to the computer (virtual port pair or `tcp:PORT`), and DTR resets the board as the Arduino IDE and avrdude do before an upload; Optiboot writes the sketch with SPM.

@@ -18,6 +18,7 @@
 # AVR example firmware (E-10).
 !/examples/firmware/avr_*/*.hex
 !/examples/firmware/avr328_*/*.hex
+!/examples/firmware/avr32_*/*.hex
 # The Arduino UNO's bootloader (SN-261).
 !/third_party/optiboot/*.hex
 # Memory contents of the examples (SN-212).

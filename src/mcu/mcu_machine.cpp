@@ -516,11 +516,21 @@ private:
 // "lock" (hex), "crystal_hz", "eeprom_file".
 bool is_avr_chip(const std::string& chip)
 {
-    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p";
+    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p" || chip == "atmega32"
+           || chip == "atmega32a";
 }
 
-int avr_pin(const std::string& name)
+int avr_pin(const std::string& name, const std::string& chip = {})
 {
+    if (chip == "atmega32" || chip == "atmega32a") { // port A, PC7 and a RESET pin of its own (PDIP-40)
+        if (name == "RESET") {
+            return emu::Atmega::reset_pin;
+        }
+        if (name.size() == 3 && name[0] == 'P' && name[1] >= 'A' && name[1] <= 'D' && name[2] >= '0' && name[2] <= '7') {
+            return emu::Atmega::pin_index(name[1], name[2] - '0');
+        }
+        return -1;
+    }
     // The Arduino UNO's header names (SN-261): D0..D13, A0..A5, RESET.
     static const std::map<std::string, std::string> arduino = {{"D0", "PD0"}, {"D1", "PD1"}, {"D2", "PD2"},
         {"D3", "PD3"}, {"D4", "PD4"}, {"D5", "PD5"}, {"D6", "PD6"}, {"D7", "PD7"}, {"D8", "PB0"}, {"D9", "PB1"},
@@ -542,7 +552,10 @@ public:
         : machine_(emu::Atmega::factory(chip == "atmega8"      ? emu::Atmega::Model::Atmega8
                                         : chip == "atmega328"  ? emu::Atmega::Model::Atmega328
                                         : chip == "atmega328p" ? emu::Atmega::Model::Atmega328P
-                                                               : emu::Atmega::Model::Atmega8A))
+                                        : chip == "atmega32"   ? emu::Atmega::Model::Atmega32
+                                        : chip == "atmega32a"  ? emu::Atmega::Model::Atmega32A
+                                                               : emu::Atmega::Model::Atmega8A)),
+          chip_(chip)
     {
     }
 
@@ -550,7 +563,7 @@ public:
     {
         // The supply pins are watched for their voltages (power, brown-out, the ADC's references).
         return name == "VCC" ? emu::Atmega::vcc_pin : name == "AVCC" ? emu::Atmega::avcc_pin
-             : name == "AREF" ? emu::Atmega::aref_pin : avr_pin(name);
+             : name == "AREF" ? emu::Atmega::aref_pin : avr_pin(name, chip_);
     }
     int uart_id(const std::string& name) const override { return name == "usart" ? 0 : -1; }
     bool load(const McuRunOptions& options, std::string& error) override
@@ -565,6 +578,9 @@ public:
         const emu::Atmega::Options factory = emu::Atmega::factory(machine_.options().model);
         machine_.set_fuses(byte_of("fuse_low", factory.fuse_low), byte_of("fuse_high", factory.fuse_high), byte_of("lock", 0xFF));
         machine_.set_extended_fuse(byte_of("fuse_extended", factory.fuse_extended));
+        if (const auto it = options.parameters.find("tosc_hz"); it != options.parameters.end()) {
+            machine_.set_tosc_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
+        }
         if (const auto it = options.parameters.find("crystal_hz"); it != options.parameters.end()) {
             machine_.set_external_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
         }
@@ -652,7 +668,7 @@ public:
         machine_.reset();
         // The circuit's level on each watched pin starts low, as the runner assumes.
         for (const auto& pin : options.pins) {
-            if (const int id = avr_pin(pin); id >= 0) {
+            if (const int id = avr_pin(pin, chip_); id >= 0) {
                 machine_.set_pin_input(id, false);
             }
         }
@@ -763,6 +779,7 @@ private:
         return state;
     }
     emu::Atmega machine_;
+    std::string chip_;
     std::uint64_t eeprom_writes_ = 0;
     std::uint64_t flash_writes_ = 0;
     bool dtr_ = false;
@@ -795,7 +812,7 @@ std::unique_ptr<McuMachine> wrap_stm32(emu::Stm32F103& machine)
 bool chip_gpio(const std::string& chip, const std::string& name)
 {
     if (is_avr_chip(chip)) {
-        return avr_pin(name) >= 0;
+        return avr_pin(name, chip) >= 0;
     }
     return chip == "esp32c3" ? c3_pin(name) >= 0 : stm32_pin(name) >= 0;
 }
