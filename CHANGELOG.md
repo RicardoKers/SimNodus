@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-04, owner's test of the Arduino UNO)
+
+- An upload from the Arduino IDE through Eterlogic's virtual port pair failed with "not in sync: resp=0x30": the pair does not pass avrdude's DTR on, so the board never restarted into Optiboot and the sketch echoed avrdude's bytes. The UNO's USB bridge now also restarts the board when avrdude asks a running sketch for the bootloader twice (STK_GET_SYNC); checked with avrdude 8.0 from the Arduino IDE on COM1/COM2.
+- The UNO's L LED sits clear of the pin labels and shows as a faint circle while it is off; the reset button no longer touches AREF's label.
+
 ### Added (2026-11-04, SN-263)
 
 - **ATmega32-PU** and **ATmega32A-PU** parts (Microcontrollers, PDIP-40), experimental: ports A to D, RESET, XTAL1 and XTAL2 as pins of their own, Timer0 with OC0, INT2 (asynchronous), the factory JTAGEN holding PC2-PC5 until JTD is written twice, the differential ADC channels with gain, the 1.22 V bandgap, ADC auto triggering from SFIOR, Timer2's crystal on TOSC1/TOSC2 (PC6, PC7); the Fuses... dialog shows JTAGEN and OCDEN. Example 59 and the owned firmware `avr32_demo`.
