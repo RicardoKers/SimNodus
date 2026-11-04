@@ -164,45 +164,26 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-0. **AVR track: the next chips** (experiment E-10,
-   [plan](../experiments/E-10-plan.md),
+0. **AVR track** (experiment E-10, [plan](../experiments/E-10-plan.md),
    [results](../experiments/E-10-results.md); tasks SN-255..SN-263 in the
-   [backlog](BACKLOG.md)).
-   - **Where it stands.** SN-255..SN-260 are on `main`, unreleased. The
-     ATmega8/8A matched the owner's chip (G10b.9, DE10, ADR 0108); not
-     measured yet: the ADC's ±2 LSB (labeled approximate) and example 53's
-     chips. The ATmega328/328P (SN-260) passes its tests in the simulator
-     and stays experimental until compared with a chip: examples 55-57 on a
-     328P with a USBasp would do (factory fuses, 1 MHz).
-   - **The UNO (SN-261)** takes an avrdude-style upload in the tests. The
-     owner's check: an upload from the Arduino IDE through a virtual port
-     pair (as with the ESP32-C3), then the Serial Monitor.
-   - **Released in 0.14.0** after the owner's test of the AVR examples and
-     the UNO's upload from the Arduino IDE.
-   - **Next, with the owner's go.** SN-262 (avr-gdb); comparing the 328P,
-     the ATmega32 and the UNO with real ones.
-1. **ESP32-C3 track, next stage** (experiment E-08,
-   [plan](../experiments/E-08-plan.md),
-   [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and
-   released in 0.13.0: the DevKitM-1 board (SN-246), GPIO, LEDC, one-shot
-   ADC, I2C0, SPI2 with GDMA, RMT (SN-247), serial ports to the computer and pin-level UART
-   (SN-252-254). In order:
-   - SN-248 done on `main` (not released): what the firmware writes to the
-     flash (MicroPython's files, NVS) is kept in `<designator>-flash.bin`
-     like uploads; guide section *MicroPython's files*. The owner checked the
-     preview (2026-11-01): a program uploaded with Thonny ran again after
-     stop/start and after closing and reopening SimNodus.
-   - SN-247 finished on `main` (not released): continuous ADC with GDMA
-     (example 49, 20 kHz) and the temperature sensor with the board's live
-     **Chip temperature** (engine protocol 12); the GDMA's interrupt sources
-     were wrong (47-49, now 44-46).
-   - SN-249 done on `main` (not released): Simulate > Debug Firmware with
-     GDB works with the ESP32-C3 and `riscv32-esp-elf-gdb` (symbols from the
-     ELF, no `load`).
-   - SN-250, Wi-Fi as experiment E-09 (its own plan first).
-   - The owner tests SN-247, SN-248 and SN-249 together before the next
-     release (said 2026-11-01).
-   - With the owner's boards (DevKitM-1, SuperMini): the ROM and console
+   [backlog](BACKLOG.md)). Released in 0.14.0: the ATmega8/8A (compared with
+   the owner's chip, DE10, ADR 0108; the ADC's ±2 LSB and example 53's chips
+   not measured), and, experimental, the ATmega328/328P, the ATmega32/32A and
+   the Arduino UNO with Optiboot (uploads from the Arduino IDE checked by the
+   owner through Eterlogic's virtual port pair). Next, with the owner's go:
+   - SN-262, GDB for AVR with avr-gdb (an `AvrTarget` for the existing GDB
+     server: flash, SRAM and EEPROM address spaces);
+   - comparisons with real chips and boards that end the experimental mark:
+     examples 55-57 on a 328P with a USBasp (factory fuses, 1 MHz), 58 on an
+     UNO, 59 on an ATmega32.
+1. **ESP32-C3 track** (experiment E-08, [plan](../experiments/E-08-plan.md),
+   [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Released:
+   the DevKitM-1 board with GPIO, LEDC, ADC, I2C0, SPI2 with GDMA, RMT and
+   the serial ports to the computer (0.13.0); MicroPython's files kept in the
+   flash (SN-248), the continuous ADC with GDMA and the temperature sensor
+   (SN-247) and GDB with `riscv32-esp-elf-gdb` (SN-249) in 0.14.0. Next:
+   - SN-250, Wi-Fi as experiment E-09 (phase 2; its own plan first);
+   - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data
      bus past SRAM1 reading 0) and the 3-instruction interrupt latency.
