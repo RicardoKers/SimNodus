@@ -3,7 +3,7 @@
   "name": "ATmega8-PU (PDIP-28)",
   "category": "Microcontrollers",
   "prefix": "U",
-  "description": "Atmel ATmega8-16PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)",
+  "description": "Atmel ATmega8-16PU in PDIP-28: 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)",
   "symbol": {
     "graphics": [
       {

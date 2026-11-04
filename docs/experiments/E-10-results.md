@@ -4,7 +4,8 @@ Date: 2026-11-02. Tasks: SN-255 (prerequisites, recorded in the plan), SN-256
 (core), SN-257 (the ATmega8 machine), SN-258 (in the circuit), SN-259 (the
 complete chip). Result so far: **gate G10a met**. Gates G10b and G10c are met
 except the ADC's ±2 LSB measured on the chip and the course files G10b.8
-(none exist yet). The board comparison G10b.9 is met (2026-11-04).
+(none exist yet). The board comparison G10b.9 is met (2026-11-04), and decision DE10
+(ADR 0108) took the ATmega8/8A out of "experimental".
 Plan and predeclared criteria: [E-10-plan.md](E-10-plan.md); they are not
 repeated here.
 
@@ -325,8 +326,14 @@ Not measured on the chip:
 G10b.8 has no course files yet. The owned firmware set stood in for them,
 as the prerequisite results recorded.
 
+## Decision DE10 (owner, 2026-11-04)
+
+The ATmega8 and ATmega8A leave "experimental" ([ADR 0108](../decisions/0108-avr-on-own-emulator.md)).
+The ADC, the analog comparator and the brown-out levels stay labeled
+approximate. The next chips start experimental until they are compared
+with a real one.
+
 ## Not covered yet
 
-- Decision DE10 (the owner's).
 - The ADC's ±2 LSB on the chip, and example 53 with the real chips.
 - Then the ATmega328/328P and ATmega32/32A (SN-260).

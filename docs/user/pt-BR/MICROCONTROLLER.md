@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 0c96d68b79d4afaa443700ec264d75a700eaadc77a50e8345efa44ea923ee64d -->
+<!-- source: MICROCONTROLLER.md sha256 a1fdb735d3478c6f8c7bb0df6955bcf91b302415f410284ee7b29f083ef4bed3 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -376,13 +376,17 @@ escolha de novo o `.bin` original na propriedade **Firmware** da placa (ou
 desfaça a mudança), ou apague a flash com `esptool erase-flash` e grave a
 imagem de novo.
 
-## ATmega8 e ATmega8A (experimental)
+## ATmega8 e ATmega8A
 
 As peças **ATmega8-PU** e **ATmega8A-PU** (Microcontroladores) são os chips
 AVR avulsos em PDIP-28, como na protoboard. Elas rodam no emulador AVR do
-próprio SimNodus (experimento E-10). São **experimentais**: cada instrução
-foi conferida com o AVR Instruction Set Manual, e os temporizadores e a
-USART com o datasheet, mas o chip ainda não foi comparado com um real.
+próprio SimNodus (experimento E-10, ADR 0108).
+- Cada instrução foi conferida com o AVR Instruction Set Manual, e os
+  periféricos com o datasheet.
+- Os exemplos 50, 51, 52 e 54 se comportaram num ATmega8 real como na
+  simulação: porta serial, PWM, clock a cristal, EEPROM e sleep.
+- O ADC, o comparador analógico e os níveis de brown-out são aproximados.
+  Eles ainda não foram medidos num chip.
 
 - **Firmware**: um arquivo Intel HEX, como os que o Microchip Studio, o
   MPLAB X, o `avr-objcopy` ou o Sketch > Exportar Binário Compilado da IDE

@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-04, decision DE10)
+
+- The **ATmega8-PU** and **ATmega8A-PU** are no longer experimental (ADR 0108). The owner ran examples 50, 51, 52 and 54 on a real ATmega8 and saw the same serial output, PWM, crystal clock, EEPROM and sleep timing as in the simulation (E-10, G10b.9). The ADC, the analog comparator and the brown-out levels stay labeled approximate until they are measured on a chip.
+
 ### Fixed (2026-11-02, owner's test of the ATmega8 preview)
 
 - The ATmega8's EEPROM in the **Memory Viewer**: **View...** beside the EEPROM property showed "no memory chip"; it now shows the chip's 512 bytes, live while running, and **Load...** (stopped) makes a file the chip's EEPROM.

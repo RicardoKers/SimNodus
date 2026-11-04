@@ -2,6 +2,8 @@
 
 ## Latest decisions (2026-10-14 rebuild)
 
+- [0108: AVR microcontrollers on SimNodus's own emulator](0108-avr-on-own-emulator.md):
+  DE10 (E-10); the ATmega8 and ATmega8A, compared with a real chip, no longer experimental.
 - [0107: A board's USB connector reaches the computer as a serial link](0107-board-usb-connector-to-the-computer.md):
   serial port or RFC 2217 TCP server, DTR/RTS through the board's reset circuit, uploads with esptool.
 - [0106: The ESP32-C3 on SimNodus's own emulator, provisionally](0106-esp32c3-on-the-own-emulator.md):

@@ -357,14 +357,17 @@ To start again from a clean image, choose the original `.bin` in the
 board's **Firmware** property again (or undo the change), or erase it with
 `esptool erase-flash` and write the image again.
 
-## ATmega8 and ATmega8A (experimental)
+## ATmega8 and ATmega8A
 
 The **ATmega8-PU** and **ATmega8A-PU** parts (Microcontrollers) are the bare
 AVR chips in PDIP-28, as on a breadboard. They run in SimNodus's own AVR
-emulator (experiment E-10). They are **experimental**: every instruction
-has been checked against the AVR Instruction Set Manual, and the timers and
-the USART against the datasheet, but the chip has not yet been compared with
-a real one.
+emulator (experiment E-10, ADR 0108).
+- Every instruction has been checked against the AVR Instruction Set
+  Manual, and the peripherals against the datasheet.
+- Examples 50, 51, 52 and 54 behaved on a real ATmega8 as in the
+  simulation: serial port, PWM, crystal clock, EEPROM and sleep.
+- The ADC, the analog comparator and the brown-out levels are approximate.
+  They have not been measured on a chip.
 
 - **Firmware**: an Intel HEX file, as written by Microchip Studio, MPLAB X,
   `avr-objcopy` or the Arduino IDE's Sketch > Export Compiled Binary. An
