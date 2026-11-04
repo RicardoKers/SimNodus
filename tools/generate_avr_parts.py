@@ -130,11 +130,11 @@ def write(path, data):
 def main():
     mcu = os.path.join(ROOT, "resources", "library", "mcu")
     write(os.path.join(mcu, "atmega8_pdip28.json"),
-          chip("atmega8", "ATmega8", "Atmel ATmega8-16PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, "
+          chip("atmega8", "ATmega8", "Atmel ATmega8-16PU in PDIP-28: 8 KB flash, 1 KB SRAM, "
                "512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, "
                "AVCC and GND (5 V)"))
     write(os.path.join(mcu, "atmega8a_pdip28.json"),
-          chip("atmega8a", "ATmega8A", "Microchip ATmega8A-PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB "
+          chip("atmega8a", "ATmega8A", "Microchip ATmega8A-PU in PDIP-28: 8 KB flash, 1 KB "
                "SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire "
                "VCC, AVCC and GND (the pins are simulated at 5 V)"))
     write(os.path.join(ROOT, "resources", "library", "passive", "crystal.json"), crystal())

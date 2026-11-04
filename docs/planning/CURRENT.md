@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-02 (ATmega8 complete on main, experimental; the owner compares it with his chip; nothing released since 0.13.0). Keep this file short: present state, last results, next
+Updated: 2026-11-04 (ATmega8 compared with a real chip and no longer experimental, DE10; nothing released since 0.13.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -16,7 +16,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     - GDB for RISC-V (SN-249);
     - an application `.bin` placed with its `flash_args`;
     - the GDB client takeover and the `stepi` fix.
-  - **ATmega8-PU and ATmega8A-PU**, experimental (E-10, SN-255..SN-259;
+  - **ATmega8-PU and ATmega8A-PU**, compared with a real chip (E-10, DE10, ADR 0108, SN-255..SN-259;
     PRs #262-#267, #269, #270):
     - the AVRe+ core and the whole chip: ports, timers, USART, ADC,
       comparator, SPI, TWI, EEPROM, watchdog, sleep, Timer2 asynchronous,
@@ -150,33 +150,18 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Next steps
 
-0. **AVR track: the owner's board comparison** (experiment E-10,
+0. **AVR track: the next chips** (experiment E-10,
    [plan](../experiments/E-10-plan.md),
    [results](../experiments/E-10-results.md); tasks SN-255..SN-262 in the
    [backlog](BACKLOG.md)).
-   - **Where it stands.** SN-255..SN-259 are done on `main` and unreleased;
-     the ATmega8/8A is complete and experimental. Gate G10a is met, and so
-     are G10b and G10c, except the criteria that need the owner's chip.
-   - **Now.** The owner tests the preview
-     `dist/SimNodus-0.14-preview-2026-11-02-avr-b-windows-x64.zip` (built
-     from `main` at #270), in the simulator and against his ATmega8 on a
-     breadboard (USBasp, USB-serial adapter, oscilloscope, logic analyzer).
-     That is G10b.9, plus G10c.1's ±2 LSB.
-     - The `.hex` files are in `examples/firmware/avr_*`, written with
-       `avrdude -c usbasp -p m8 -U flash:w:<file>.hex:i`. Most run at the
-       factory fuses (E1/D9, 1 MHz).
-     - `avr_bus` needs the low fuse E4 (8 MHz).
-     - `avr_blink_16mhz` needs a 16 MHz crystal before EF/C9.
-     - `avr_sleep` needs a 32.768 kHz crystal on PB6/PB7.
-     - The most telling trace is `avr_station` on TXD (PD1), OC2 (PB3) and
-       PB0; then `avr_pwm`'s periods and duties.
-   - **Next.** Record the comparison in the results, then decision DE10
-     (an ADR: the ATmega8 leaves "experimental" or not). After that SN-260
-     (ATmega328/328P, ATmega32/32A: chip tables on the same core), SN-261
+   - **Where it stands.** SN-255..SN-259 are on `main`, unreleased. On
+     2026-11-04 the owner ran examples 50, 51, 52 and 54 on his ATmega8 and
+     they matched the simulation (G10b.9); decision DE10 (ADR 0108) removed
+     the "experimental" mark. Not measured yet: the ADC's ±2 LSB (labeled
+     approximate) and example 53's chips.
+   - **Next, with the owner's go.** SN-260 (ATmega328/328P, ATmega32/32A:
+     chip tables on the same core, experimental until compared), SN-261
      (Arduino UNO with Optiboot), SN-262 (avr-gdb).
-   - **From the owner's preview test (fixed in #270).** **View...** shows
-     the ATmega8's EEPROM in the Memory Viewer. Saving an example's copy
-     keeps what the last run wrote to a chip's memory.
 1. **ESP32-C3 track, next stage** (experiment E-08,
    [plan](../experiments/E-08-plan.md),
    [results](../experiments/E-08-results.md); ADRs 0106 and 0107). Done and

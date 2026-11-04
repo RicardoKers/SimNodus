@@ -3,8 +3,9 @@
 Date: 2026-11-02. Tasks: SN-255 (prerequisites, recorded in the plan), SN-256
 (core), SN-257 (the ATmega8 machine), SN-258 (in the circuit), SN-259 (the
 complete chip). Result so far: **gate G10a met**. Gates G10b and G10c are met
-except the criteria that need the owner's chip: the board comparison G10b.9,
-the course files G10b.8, and the ADC's ±2 LSB on the chip.
+except the ADC's ±2 LSB measured on the chip and the course files G10b.8
+(none exist yet). The board comparison G10b.9 is met (2026-11-04), and decision DE10
+(ADR 0108) took the ATmega8/8A out of "experimental".
 Plan and predeclared criteria: [E-10-plan.md](E-10-plan.md); they are not
 repeated here.
 
@@ -300,9 +301,39 @@ File > Examples, the EEPROM could not be seen, and its count did not stay.
 
 The owner confirmed both fixes with the `2026-11-02-avr-b` preview.
 
+## Board comparison (G10b.9, 2026-11-04)
+
+The owner flashed the examples' firmware into his ATmega8 on a breadboard
+with a USBasp. He compared each run with the same example in the
+simulator, using a USB-serial adapter and a logic analyzer:
+
+| Example | Firmware | Result |
+|---|---|---|
+| 50 | `avr_serial` | Same on the chip: the serial greeting, the echo, and the count kept in the EEPROM |
+| 51 | `avr_blink_16mhz` with a 16 MHz crystal (EF/C9) | The chip did as the simulation |
+| 52 | `avr_station` | Same: the serial reports and the PWM checked with the logic analyzer |
+| 53 | `avr_bus` | Not compared: the LM75, 24C02 and 74HC595 were not at hand |
+| 54 | `avr_sleep` with a 32.768 kHz crystal | Same: the seconds and the LED |
+
+**G10b.9 is met.** Four firmwares were compared, where three were asked,
+with no difference reported.
+
+Not measured on the chip:
+- the ADC within ±2 LSB of a known voltage (G10c.1). Example 52 ran with
+  its potentiometer, but no reading was compared with a measured voltage;
+- TWI and SPI with chips (example 53).
+
+G10b.8 has no course files yet. The owned firmware set stood in for them,
+as the prerequisite results recorded.
+
+## Decision DE10 (owner, 2026-11-04)
+
+The ATmega8 and ATmega8A leave "experimental" ([ADR 0108](../decisions/0108-avr-on-own-emulator.md)).
+The ADC, the analog comparator and the brown-out levels stay labeled
+approximate. The next chips start experimental until they are compared
+with a real one.
+
 ## Not covered yet
 
-- The board comparison: G10b.9, and the ADC within ±2 LSB of G10c.1. The
-  owner runs it with the `2026-11-02-avr-b` preview and his ATmega8.
-- Decision DE10.
+- The ADC's ±2 LSB on the chip, and example 53 with the real chips.
 - Then the ATmega328/328P and ATmega32/32A (SN-260).

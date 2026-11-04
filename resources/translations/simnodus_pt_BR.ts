@@ -3949,8 +3949,8 @@ Pinos: %2</translation>
             <translation>Microcontroladores</translation>
         </message>
         <message>
-            <source>Atmel ATmega8-16PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)</source>
-            <translation>Atmel ATmega8-16PU em PDIP-28 (experimental, E-10): 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (5 V)</translation>
+            <source>Atmel ATmega8-16PU in PDIP-28: 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 4.5-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (5 V)</source>
+            <translation>Atmel ATmega8-16PU em PDIP-28: 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 4,5-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (5 V)</translation>
         </message>
         <message>
             <source>Firmware</source>
@@ -4005,8 +4005,8 @@ Pinos: %2</translation>
             <translation>ATmega8A-PU (PDIP-28)</translation>
         </message>
         <message>
-            <source>Microchip ATmega8A-PU in PDIP-28 (experimental, E-10): 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
-            <translation>Microchip ATmega8A-PU em PDIP-28 (experimental, E-10): 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 2,7-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
+            <source>Microchip ATmega8A-PU in PDIP-28: 8 KB flash, 1 KB SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)</source>
+            <translation>Microchip ATmega8A-PU em PDIP-28: 8 KB de flash, 1 KB de SRAM, 512 bytes de EEPROM, até 16 MHz a 2,7-5,5 V. Roda firmware .hex ou .elf com os seus fusíveis; ligue VCC, AVCC e GND (os pinos são simulados a 5 V)</translation>
         </message>
         <message>
             <source>Blue Pill (STM32F103C8)</source>

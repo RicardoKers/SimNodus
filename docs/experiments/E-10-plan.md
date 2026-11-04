@@ -1,7 +1,8 @@
 # E-10: AVR emulator, ATmega8 first — plan
 
 Date: 2026-11-02. Tasks: SN-255..SN-262 in the [backlog](../planning/BACKLOG.md).
-Status: **planned**; no emulator code yet. The criteria below are recorded
+Status: **done**; decision DE10 taken on 2026-11-04
+([ADR 0108](../decisions/0108-avr-on-own-emulator.md), [results](E-10-results.md)). The criteria below are recorded
 before any code, as for [E-07](E-07-results.md) and [E-08](E-08-plan.md),
 and are not relaxed after a run: a failed criterion leads to a recorded
 decision. Background, the parts compared and the fuse design:
