@@ -3082,7 +3082,7 @@ std::uint64_t Atmega::cycles_at(std::uint64_t ns) const
         return 0;
     }
     if (ns < clock_base_ns_) {
-        return clock_base_cycle_ - std::min(clock_base_cycle_, (clock_base_ns_ - ns) * cpu_hz_ / 1'000'000'000ull);
+        return clock_base_cycle_ - std::min<std::uint64_t>(clock_base_cycle_, (clock_base_ns_ - ns) * cpu_hz_ / 1'000'000'000ull);
     }
     return clock_base_cycle_ + cycles_for_ns(ns - clock_base_ns_);
 }
