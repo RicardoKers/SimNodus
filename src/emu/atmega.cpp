@@ -839,7 +839,12 @@ public:
     }
     std::uint16_t alias(std::uint16_t address) const
     {
-        return address == TCCR0 ? TCCR2 : address == TCNT0 ? TCNT2 : address == OCR0 ? OCR2 : address;
+        switch (address) {
+        case TCCR0: return TCCR2;
+        case TCNT0: return TCNT2;
+        case OCR0: return OCR2;
+        default: return address;
+        }
     }
     void pad_changed(int pin, bool level, std::uint64_t cycle) override
     {
