@@ -124,7 +124,7 @@ changing the STM32 and ESP32-C3 paths? [Feasibility study](AVR-feasibility.md);
 plan and the predeclared gates G10a (core), G10b (firmware in the circuit)
 and G10c (complete chip), recorded 2026-11-02 before any code:
 [E-10-plan.md](E-10-plan.md). Report: [E-10-results.md](E-10-results.md)
-(gate G10a met on 2026-11-02).
+(gates G10a met, G10b and G10c met except the owner's chip comparisons, 2026-11-02).
 
 ## E-06: Classroom rehearsal — SN-028
 

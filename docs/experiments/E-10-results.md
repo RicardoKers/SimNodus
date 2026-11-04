@@ -1,10 +1,10 @@
 # E-10: AVR emulator, ATmega8 first — results
 
 Date: 2026-11-02. Tasks: SN-255 (prerequisites, recorded in the plan), SN-256
-(core), SN-257 (the ATmega8 machine). Result so far: **gate G10a met**; the
-machine passes its tests from the command line, and gate G10b is judged after
-the integration in the circuit (SN-258) and the board comparison (G10b.9).
-Gate G10c has not run.
+(core), SN-257 (the ATmega8 machine), SN-258 (in the circuit), SN-259 (the
+complete chip). Result so far: **gate G10a met**. Gates G10b and G10c are met
+except the criteria that need the owner's chip: the board comparison G10b.9,
+the course files G10b.8, and the ADC's ±2 LSB on the chip.
 Plan and predeclared criteria: [E-10-plan.md](E-10-plan.md); they are not
 repeated here.
 
@@ -291,7 +291,18 @@ LED at 0.5 Hz.
 This is G10c.4 to G10c.6. Gate G10c is met, except the comparisons with the
 owner's chip.
 
+**From the owner's test of the preview.** With example 50 opened from
+File > Examples, the EEPROM could not be seen, and its count did not stay.
+- **View...** beside the EEPROM property opened a Memory Viewer that only
+  listed memory chips. It now shows the chip's 512 bytes.
+- An example's copy has no file, so the run's EEPROM was dropped; saving
+  the project afterwards now keeps it (#270).
+
+The owner confirmed both fixes with the `2026-11-02-avr-b` preview.
+
 ## Not covered yet
 
-The board comparison (G10b.9, and the ADC within ±2 LSB of G10c.1) and
-decision DE10; then the ATmega328/328P and ATmega32/32A (SN-260).
+- The board comparison: G10b.9, and the ADC within ±2 LSB of G10c.1. The
+  owner runs it with the `2026-11-02-avr-b` preview and his ATmega8.
+- Decision DE10.
+- Then the ATmega328/328P and ATmega32/32A (SN-260).
