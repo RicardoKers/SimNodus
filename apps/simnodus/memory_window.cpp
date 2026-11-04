@@ -175,7 +175,10 @@ std::vector<std::uint8_t> MemoryWindow::contents(model::Id component, QString& s
 {
     const std::size_t size = size_of(component);
     const std::uint8_t fill = fill_of(component);
-    if (auto bytes = run_.device_memory(component); bytes && !bytes->empty()) {
+    const auto* shown = document_.schematic().component(component);
+    const auto* kind = shown ? document_.library().find(shown->type) : nullptr;
+    const model::Id memory = kind && kind->mcu && avr(*kind) ? sim::SimulationSession::eeprom_memory(component) : component;
+    if (auto bytes = run_.device_memory(memory); bytes && !bytes->empty()) {
         source = run_.active() ? tr("Live contents of the running chip.") : tr("Contents at the end of the last run.");
         bytes->resize(size, fill);
         return *bytes;

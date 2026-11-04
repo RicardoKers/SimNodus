@@ -1,0 +1,88 @@
+{
+  "buses": [],
+  "components": [
+    {
+      "at": [
+        0,
+        0
+      ],
+      "designator": "U1",
+      "id": 1,
+      "mirrored": false,
+      "parameters": {
+        "eeprom": "",
+        "firmware": "firmware/avr328_serial/avr328_serial_16mhz.hex",
+        "usb_link": ""
+      },
+      "rotation": 0,
+      "type": "arduino_uno"
+    },
+    {
+      "at": [
+        -12,
+        -6
+      ],
+      "designator": "GND1",
+      "id": 2,
+      "mirrored": false,
+      "parameters": {},
+      "rotation": 0,
+      "type": "ground"
+    }
+  ],
+  "format": "simnodus-project",
+  "labels": [],
+  "next_id": 6,
+  "notes": [
+    {
+      "at": [
+        -30,
+        -30
+      ],
+      "id": 5,
+      "text": "Arduino UNO R3 (experimental) running avr328_serial at 16 MHz, uploaded as the Arduino IDE would.\nRun (F5) and open the terminal (USB): it greets; l toggles the L LED (D13), t prints the temperature\nsensor's code, ? prints how many bytes arrived (a count kept in the EEPROM). To upload from the Arduino\nIDE, set USB to the computer to one end of a virtual port pair and upload to the other end while it runs."
+    }
+  ],
+  "probes": [
+    {
+      "color": "",
+      "id": 3,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          12,
+          14
+        ],
+        "item": 1,
+        "pin": "D1"
+      }
+    },
+    {
+      "color": "",
+      "id": 4,
+      "kind": "voltage",
+      "target": {
+        "at": [
+          12,
+          -12
+        ],
+        "item": 1,
+        "pin": "D13"
+      }
+    }
+  ],
+  "settings": {
+    "cortex_m3_timing": true,
+    "exact_edges": false,
+    "max_step": 0.0001,
+    "mcu_quantum": 0.001,
+    "mode": "interactive",
+    "segment": 1.0,
+    "speed": 1.0,
+    "transient_max_step": 1e-06,
+    "transient_stop": 0.01
+  },
+  "splitters": [],
+  "version": 1,
+  "wires": []
+}

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 737af16180eaa8d755f43d4c9420ff4e3d70edffbc0d9e9a38ba5c2665b03721 -->
+<!-- source: MICROCONTROLLER.md sha256 49b9ea566082086f1a891227f98b6d6331643abe3bf2d7180dfd23e3407b8f61 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -6,6 +6,7 @@ de STM32, junto com o circuito. Esta página lista o que o chip simulado suporta
 onde ele difere de uma placa real (MCU-09); o [guia do usuário](USER_GUIDE.md)
 cobre o restante do SimNodus. A placa **ESP32-C3-DevKitM-1** é nova e
 experimental: veja [Placa ESP32-C3 (experimental)](#placa-esp32-c3-experimental).
+O mesmo vale para o ATmega328P e o [Arduino UNO](#arduino-uno-experimental).
 
 ## Motor
 
@@ -527,6 +528,43 @@ As peças **ATmega328P-PU** (o chip do Arduino UNO) e **ATmega328-PU**
   um ADC disparado pelo overflow do Timer0) e 57 (power-down acordado pelo
   watchdog, por uma mudança de pino e pelo INT0). Os fontes dos firmwares
   estão em `examples/firmware/avr328_*`.
+
+## Arduino UNO (experimental)
+
+A peça **Arduino UNO R3** (Microcontroladores) é a placa como sai da
+fábrica (SN-261): um ATmega328P (veja a seção acima) a 16 MHz com o
+**Optiboot** na seção de boot e os fusíveis do Arduino (FF, DE, FD; lock
+0F), então a IDE do Arduino e o avrdude gravam nela sem mudanças. Os pinos
+têm os nomes dos conectores: **D0**-**D13**, **A0**-**A5**, **RESET**,
+**AREF**, e os **5V**, **3V3**, **IOREF**, **VIN** e **GND** da placa. Ela é
+experimental até ser comparada com uma placa real.
+
+- **Alimentação**: a placa é alimentada pelo conector USB. **5V** e **3V3**
+  são saídas para o circuito; ligue um **GND** ao terra do circuito.
+- **O LED L** no D13 acende na placa, e o **RESET** da placa a reinicia (o
+  Optiboot então espera cerca de um segundo por uma gravação, como numa
+  placa real).
+- **Firmware**: o `.hex` de um sketch (**Sketch > Exportar Binário
+  Compilado** da IDE do Arduino, com ou sem o bootloader) ou um `.elf` do
+  avr-gcc. Vazio: a placa tem só o bootloader e espera uma gravação.
+- **USB para o computador**: a USART (D1 TX, D0 RX) pelo conector USB da
+  placa, como o **UART0 para o computador** da ESP32-C3 acima: um par de
+  portas virtuais (com0com ou parecido) ou `tcp:PORTA`. O **DTR** reinicia
+  a placa pelo seu capacitor de 100 nF, como a IDE do Arduino faz antes de
+  gravar:
+  1. Ponha em **USB para o computador** uma ponta do par (COM10) e inicie a
+     simulação.
+  2. Na IDE do Arduino escolha **Ferramentas > Placa > Arduino UNO** e a
+     outra ponta (COM11), e então **Carregar**. O avrdude reinicia a placa e
+     o Optiboot grava o sketch; o **Monitor Serial** (na velocidade do
+     sketch) funciona na mesma porta.
+  3. Quando a simulação para, a flash é salva como `U1-flash.bin` ao lado
+     do projeto e vira o firmware da placa, e o que o sketch escreveu na
+     EEPROM como `U1-eeprom.bin`. O projeto precisa ter sido salvo uma vez.
+- **Não simulados**: a ponte USB (o ATmega16U2) em si, os resistores de
+  1 kΩ dela para o D0 e o D1, os LEDs TX e RX, o regulador do VIN.
+- **Exemplo**: 58 (o exemplo serial da seção *ATmega328 e ATmega328P*
+  compilado para 16 MHz; `l` inverte o LED L).
 
 ## Depuração com STM32CubeIDE ou GDB
 

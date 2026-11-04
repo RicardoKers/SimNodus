@@ -150,8 +150,12 @@ public:
     virtual void set_device_parameter(model::Id component, const std::string& name, const std::string& value) = 0;
     // Memory chips (SN-208): the contents of the current or last run, and new
     // contents for a running chip.
+    // A board's own flash is its component's memory; its chip's EEPROM (an
+    // AVR's, SN-261) is eeprom_memory(board).
     virtual std::optional<std::vector<std::uint8_t>> device_memory(model::Id component) const = 0;
     virtual void load_device_memory(model::Id component, const std::vector<std::uint8_t>& bytes) = 0;
+    static constexpr model::Id eeprom_memory(model::Id board) { return board | eeprom_flag; }
+    static constexpr model::Id eeprom_flag = model::Id{1} << 62;
 };
 
 class SimulationSession : public Session {

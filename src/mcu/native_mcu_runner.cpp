@@ -610,6 +610,13 @@ void NativeMcuRunner::work()
                 memories_[0] = {version, machine->flash(), machine->time_ns()};
             }
         }
+        if (const std::uint64_t version = machine->eeprom_version(); version != 0) {
+            const auto known = memories_.find(board_eeprom);
+            if (known == memories_.end()
+                || (known->second.version != version && machine->time_ns() >= known->second.copied_ns + 200000000ull)) {
+                memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns()};
+            }
+        }
         for (auto& text : machine->take_diagnostics()) {
             if (diagnostics_.size() < 100) {
                 diagnostics_.push_back(std::move(text));
@@ -802,6 +809,9 @@ void NativeMcuRunner::work()
     std::lock_guard lock(mutex_);
     if (const std::uint64_t version = machine->flash_version(); version != 0) {
         memories_[0] = {version, machine->flash(), machine->time_ns()}; // the last writes too
+    }
+    if (const std::uint64_t version = machine->eeprom_version(); version != 0) {
+        memories_[board_eeprom] = {version, machine->eeprom(), machine->time_ns()};
     }
     status_.state = McuState::Stopped;
 }

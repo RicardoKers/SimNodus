@@ -358,8 +358,21 @@ as before.
   oscillator's nominal period; the BOD levels' typical values.
 - The 328/328P stay experimental until compared with a chip (ADR 0108).
 
+## The Arduino UNO (SN-261, 2026-11-04)
+
+The UNO is the 328P with the board's fuses (FF, DE, FD, lock 0F), its
+16 MHz crystal and Optiboot 4.4 (the Arduino AVR core 1.8.8's binary,
+unmodified) in the boot section. A device test plays avrdude's STK500
+exchange through the USART after a DTR reset: GET_SYNC, LOAD_ADDRESS and
+PROG_PAGE for each 128-byte page, LEAVE_PROGMODE; Optiboot answers each,
+writes the pages with SPM, and its watchdog starts the sketch. The flash
+then holds the sketch with Optiboot intact, and the board's two memories
+(flash and EEPROM) are what the project keeps. Not yet checked: the
+Arduino IDE itself through a virtual port pair (the owner's test).
+
 ## Not covered yet
 
 - The ADC's ±2 LSB on the chip, and example 53 with the real chips.
 - The ATmega328P compared with a chip (examples 55-57).
-- The Arduino UNO (SN-261), the ATmega32/32A (SN-263), avr-gdb (SN-262).
+- The Arduino IDE's upload to the UNO (the owner's test).
+- The ATmega32/32A (SN-263), avr-gdb (SN-262).

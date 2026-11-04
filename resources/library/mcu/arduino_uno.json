@@ -1,0 +1,921 @@
+{
+  "type": "arduino_uno",
+  "name": "Arduino UNO R3",
+  "category": "Microcontrollers",
+  "prefix": "U",
+  "description": "Arduino UNO R3 (experimental): an ATmega328P at 16 MHz with Optiboot, as the Arduino IDE uploads to it. Runs a sketch's .hex or .elf (Sketch > Export Compiled Binary), or waits for an upload through its USB connector; powered by the USB (5V and 3V3 are outputs)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -10,
+          -19,
+          20,
+          38
+        ]
+      },
+      {
+        "rect": [
+          -7,
+          -21,
+          6,
+          4
+        ]
+      },
+      {
+        "text": "USB",
+        "at": [
+          -4,
+          -19.6
+        ],
+        "size": 0.7
+      },
+      {
+        "rect": [
+          -3,
+          2,
+          6,
+          10
+        ]
+      },
+      {
+        "text": "ATmega328P",
+        "at": [
+          0,
+          7
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "Arduino",
+        "at": [
+          0,
+          -6
+        ],
+        "size": 1.1
+      },
+      {
+        "text": "UNO",
+        "at": [
+          0,
+          -4.3
+        ],
+        "size": 1.1
+      },
+      {
+        "rect": [
+          3,
+          -17,
+          4,
+          2
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          5,
+          -14.2
+        ],
+        "size": 0.55
+      },
+      {
+        "text": "L",
+        "at": [
+          7,
+          -9.6
+        ],
+        "size": 0.6
+      },
+      {
+        "line": [
+          -12,
+          -16,
+          -10,
+          -16
+        ]
+      },
+      {
+        "text": "IOREF",
+        "at": [
+          -7.6,
+          -16
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -14,
+          -10,
+          -14
+        ]
+      },
+      {
+        "text": "RESET",
+        "at": [
+          -7.6,
+          -14
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -12,
+          -10,
+          -12
+        ]
+      },
+      {
+        "text": "3V3",
+        "at": [
+          -7.6,
+          -12
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -10,
+          -10,
+          -10
+        ]
+      },
+      {
+        "text": "5V",
+        "at": [
+          -7.6,
+          -10
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -8,
+          -10,
+          -8
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -7.6,
+          -8
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -6,
+          -10,
+          -6
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          -7.6,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          -4,
+          -10,
+          -4
+        ]
+      },
+      {
+        "text": "VIN",
+        "at": [
+          -7.6,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          0,
+          -10,
+          0
+        ]
+      },
+      {
+        "text": "A0",
+        "at": [
+          -7.6,
+          0
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          2,
+          -10,
+          2
+        ]
+      },
+      {
+        "text": "A1",
+        "at": [
+          -7.6,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          4,
+          -10,
+          4
+        ]
+      },
+      {
+        "text": "A2",
+        "at": [
+          -7.6,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          6,
+          -10,
+          6
+        ]
+      },
+      {
+        "text": "A3",
+        "at": [
+          -7.6,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          8,
+          -10,
+          8
+        ]
+      },
+      {
+        "text": "A4/SDA",
+        "at": [
+          -7.6,
+          8
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          -12,
+          10,
+          -10,
+          10
+        ]
+      },
+      {
+        "text": "A5/SCL",
+        "at": [
+          -7.6,
+          10
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -16,
+          10,
+          -16
+        ]
+      },
+      {
+        "text": "AREF",
+        "at": [
+          7.4,
+          -16
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -14,
+          10,
+          -14
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          7.4,
+          -14
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -12,
+          10,
+          -12
+        ]
+      },
+      {
+        "text": "D13/SCK",
+        "at": [
+          7.4,
+          -12
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -10,
+          10,
+          -10
+        ]
+      },
+      {
+        "text": "D12/MISO",
+        "at": [
+          7.4,
+          -10
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -8,
+          10,
+          -8
+        ]
+      },
+      {
+        "text": "~D11/MOSI",
+        "at": [
+          7.4,
+          -8
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -6,
+          10,
+          -6
+        ]
+      },
+      {
+        "text": "~D10/SS",
+        "at": [
+          7.4,
+          -6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -4,
+          10,
+          -4
+        ]
+      },
+      {
+        "text": "~D9",
+        "at": [
+          7.4,
+          -4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          -2,
+          10,
+          -2
+        ]
+      },
+      {
+        "text": "D8",
+        "at": [
+          7.4,
+          -2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          2,
+          10,
+          2
+        ]
+      },
+      {
+        "text": "D7",
+        "at": [
+          7.4,
+          2
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          4,
+          10,
+          4
+        ]
+      },
+      {
+        "text": "~D6",
+        "at": [
+          7.4,
+          4
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          6,
+          10,
+          6
+        ]
+      },
+      {
+        "text": "~D5",
+        "at": [
+          7.4,
+          6
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          8,
+          10,
+          8
+        ]
+      },
+      {
+        "text": "D4",
+        "at": [
+          7.4,
+          8
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          10,
+          10,
+          10
+        ]
+      },
+      {
+        "text": "~D3",
+        "at": [
+          7.4,
+          10
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          12,
+          10,
+          12
+        ]
+      },
+      {
+        "text": "D2",
+        "at": [
+          7.4,
+          12
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          14,
+          10,
+          14
+        ]
+      },
+      {
+        "text": "D1/TX",
+        "at": [
+          7.4,
+          14
+        ],
+        "size": 0.55
+      },
+      {
+        "line": [
+          12,
+          16,
+          10,
+          16
+        ]
+      },
+      {
+        "text": "D0/RX",
+        "at": [
+          7.4,
+          16
+        ],
+        "size": 0.55
+      }
+    ],
+    "pins": [
+      {
+        "name": "IOREF",
+        "at": [
+          -12,
+          -16
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "RESET",
+        "at": [
+          -12,
+          -14
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "3V3",
+        "at": [
+          -12,
+          -12
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "5V",
+        "at": [
+          -12,
+          -10
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND1",
+        "at": [
+          -12,
+          -8
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "GND2",
+        "at": [
+          -12,
+          -6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "VIN",
+        "at": [
+          -12,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A0",
+        "at": [
+          -12,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A1",
+        "at": [
+          -12,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A2",
+        "at": [
+          -12,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A3",
+        "at": [
+          -12,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A4",
+        "at": [
+          -12,
+          8
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "A5",
+        "at": [
+          -12,
+          10
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "AREF",
+        "at": [
+          12,
+          -16
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GND3",
+        "at": [
+          12,
+          -14
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D13",
+        "at": [
+          12,
+          -12
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D12",
+        "at": [
+          12,
+          -10
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D11",
+        "at": [
+          12,
+          -8
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D10",
+        "at": [
+          12,
+          -6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D9",
+        "at": [
+          12,
+          -4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D8",
+        "at": [
+          12,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D7",
+        "at": [
+          12,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D6",
+        "at": [
+          12,
+          4
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D5",
+        "at": [
+          12,
+          6
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D4",
+        "at": [
+          12,
+          8
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D3",
+        "at": [
+          12,
+          10
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D2",
+        "at": [
+          12,
+          12
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D1",
+        "at": [
+          12,
+          14
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "D0",
+        "at": [
+          12,
+          16
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -2,
+    -23
+  ],
+  "value_offset": [
+    -2,
+    21
+  ],
+  "parameters": [
+    {
+      "name": "firmware",
+      "label": "Firmware",
+      "kind": "file",
+      "filter": "*.hex *.elf *.bin",
+      "default": "",
+      "description": "The sketch: an Intel HEX file (the Arduino IDE's Sketch > Export Compiled Binary, with or without the bootloader) or an avr-gcc ELF file; stored relative to the project. Empty: the board has only its bootloader and waits for an upload through the USB connector. After an upload, SimNodus keeps the flash as <designator>-flash.bin"
+    },
+    {
+      "name": "eeprom",
+      "label": "EEPROM",
+      "kind": "file",
+      "filter": "*.bin",
+      "default": "",
+      "description": "EEPROM contents (1 KB). SimNodus keeps what the sketch writes as <designator>-eeprom.bin beside the project; empty: erased"
+    },
+    {
+      "name": "usb_link",
+      "label": "USB to the computer",
+      "kind": "text",
+      "host_link": true,
+      "default": "",
+      "description": "The board's USB connector linked to the computer: a serial port (one end of a virtual port pair such as com0com; the Arduino IDE uploads and opens its Serial Monitor on the other end), tcp:4000 for programs that speak RFC 2217, or empty for none. DTR resets the board, as the IDE does before an upload"
+    }
+  ],
+  "mcu": {
+    "chip": "atmega328p",
+    "firmware_parameter": "firmware",
+    "ground_pin": "GND1",
+    "pin_model": {
+      "supply": 5.0,
+      "output_resistance": 35,
+      "pull_resistance": 35000,
+      "input_high": 3.0,
+      "input_low": 1.5
+    },
+    "led": {
+      "pin": "D13",
+      "at": [
+        5.5,
+        -9.6
+      ],
+      "radius": 0.6
+    },
+    "reset_button": [
+      3,
+      -17,
+      4,
+      2
+    ],
+    "uarts": [
+      {
+        "name": "usart",
+        "label": "USB (USART: D1 TX, D0 RX)",
+        "tx_pin": "D1",
+        "rx_pin": "D0",
+        "link_parameter": "usb_link",
+        "reset_circuit": "dtr_reset"
+      }
+    ],
+    "parameters": {
+      "fuse_low": "FF",
+      "fuse_high": "DE",
+      "fuse_extended": "FD",
+      "lock": "0F",
+      "crystal_hz": "16000000",
+      "bootloader": "optiboot_atmega328.hex"
+    }
+  },
+  "spice": [
+    "R_{ref}_g12 {node:GND1} {node:GND2} 1m",
+    "R_{ref}_g13 {node:GND1} {node:GND3} 1m",
+    "V_{ref}_5v usb_{ref} {node:GND1} DC 5",
+    "R_{ref}_5v usb_{ref} {node:5V} 0.1",
+    "V_{ref}_3v3 reg_{ref} {node:GND1} DC 3.3",
+    "R_{ref}_3v3 reg_{ref} {node:3V3} 0.5",
+    "R_{ref}_ioref {node:IOREF} {node:5V} 1m",
+    "R_{ref}_vin {node:VIN} {node:GND1} 10Meg",
+    "R_{ref}_aref {node:AREF} {node:GND1} 32k",
+    "R_{ref}_reset_pullup {node:RESET} {node:5V} 10k",
+    "R_{ref}_reset {node:RESET} {node:GND1} 100Meg",
+    "B_{ref}_reset {node:GND1} {node:RESET} I=V({ext:reset_i})-V({ext:reset_g})*(V({node:RESET})-V({node:GND1}))",
+    "R_{ref}_a0 {node:A0} {node:GND1} 100Meg",
+    "B_{ref}_a0 {node:GND1} {node:A0} I=V({ext:a0_i})-V({ext:a0_g})*(V({node:A0})-V({node:GND1}))",
+    "R_{ref}_a1 {node:A1} {node:GND1} 100Meg",
+    "B_{ref}_a1 {node:GND1} {node:A1} I=V({ext:a1_i})-V({ext:a1_g})*(V({node:A1})-V({node:GND1}))",
+    "R_{ref}_a2 {node:A2} {node:GND1} 100Meg",
+    "B_{ref}_a2 {node:GND1} {node:A2} I=V({ext:a2_i})-V({ext:a2_g})*(V({node:A2})-V({node:GND1}))",
+    "R_{ref}_a3 {node:A3} {node:GND1} 100Meg",
+    "B_{ref}_a3 {node:GND1} {node:A3} I=V({ext:a3_i})-V({ext:a3_g})*(V({node:A3})-V({node:GND1}))",
+    "R_{ref}_a4 {node:A4} {node:GND1} 100Meg",
+    "B_{ref}_a4 {node:GND1} {node:A4} I=V({ext:a4_i})-V({ext:a4_g})*(V({node:A4})-V({node:GND1}))",
+    "R_{ref}_a5 {node:A5} {node:GND1} 100Meg",
+    "B_{ref}_a5 {node:GND1} {node:A5} I=V({ext:a5_i})-V({ext:a5_g})*(V({node:A5})-V({node:GND1}))",
+    "R_{ref}_d13 {node:D13} {node:GND1} 100Meg",
+    "B_{ref}_d13 {node:GND1} {node:D13} I=V({ext:d13_i})-V({ext:d13_g})*(V({node:D13})-V({node:GND1}))",
+    "R_{ref}_d12 {node:D12} {node:GND1} 100Meg",
+    "B_{ref}_d12 {node:GND1} {node:D12} I=V({ext:d12_i})-V({ext:d12_g})*(V({node:D12})-V({node:GND1}))",
+    "R_{ref}_d11 {node:D11} {node:GND1} 100Meg",
+    "B_{ref}_d11 {node:GND1} {node:D11} I=V({ext:d11_i})-V({ext:d11_g})*(V({node:D11})-V({node:GND1}))",
+    "R_{ref}_d10 {node:D10} {node:GND1} 100Meg",
+    "B_{ref}_d10 {node:GND1} {node:D10} I=V({ext:d10_i})-V({ext:d10_g})*(V({node:D10})-V({node:GND1}))",
+    "R_{ref}_d9 {node:D9} {node:GND1} 100Meg",
+    "B_{ref}_d9 {node:GND1} {node:D9} I=V({ext:d9_i})-V({ext:d9_g})*(V({node:D9})-V({node:GND1}))",
+    "R_{ref}_d8 {node:D8} {node:GND1} 100Meg",
+    "B_{ref}_d8 {node:GND1} {node:D8} I=V({ext:d8_i})-V({ext:d8_g})*(V({node:D8})-V({node:GND1}))",
+    "R_{ref}_d7 {node:D7} {node:GND1} 100Meg",
+    "B_{ref}_d7 {node:GND1} {node:D7} I=V({ext:d7_i})-V({ext:d7_g})*(V({node:D7})-V({node:GND1}))",
+    "R_{ref}_d6 {node:D6} {node:GND1} 100Meg",
+    "B_{ref}_d6 {node:GND1} {node:D6} I=V({ext:d6_i})-V({ext:d6_g})*(V({node:D6})-V({node:GND1}))",
+    "R_{ref}_d5 {node:D5} {node:GND1} 100Meg",
+    "B_{ref}_d5 {node:GND1} {node:D5} I=V({ext:d5_i})-V({ext:d5_g})*(V({node:D5})-V({node:GND1}))",
+    "R_{ref}_d4 {node:D4} {node:GND1} 100Meg",
+    "B_{ref}_d4 {node:GND1} {node:D4} I=V({ext:d4_i})-V({ext:d4_g})*(V({node:D4})-V({node:GND1}))",
+    "R_{ref}_d3 {node:D3} {node:GND1} 100Meg",
+    "B_{ref}_d3 {node:GND1} {node:D3} I=V({ext:d3_i})-V({ext:d3_g})*(V({node:D3})-V({node:GND1}))",
+    "R_{ref}_d2 {node:D2} {node:GND1} 100Meg",
+    "B_{ref}_d2 {node:GND1} {node:D2} I=V({ext:d2_i})-V({ext:d2_g})*(V({node:D2})-V({node:GND1}))",
+    "R_{ref}_d1 {node:D1} {node:GND1} 100Meg",
+    "B_{ref}_d1 {node:GND1} {node:D1} I=V({ext:d1_i})-V({ext:d1_g})*(V({node:D1})-V({node:GND1}))",
+    "R_{ref}_d0 {node:D0} {node:GND1} 100Meg",
+    "B_{ref}_d0 {node:GND1} {node:D0} I=V({ext:d0_i})-V({ext:d0_g})*(V({node:D0})-V({node:GND1}))"
+  ]
+}

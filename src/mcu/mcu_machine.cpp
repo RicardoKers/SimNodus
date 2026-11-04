@@ -10,12 +10,14 @@
 #include "emu/stm32f103.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <filesystem>
 #include <iterator>
+#include <map>
 #include <optional>
 #include <sstream>
 #include <utility>
@@ -519,6 +521,14 @@ bool is_avr_chip(const std::string& chip)
 
 int avr_pin(const std::string& name)
 {
+    // The Arduino UNO's header names (SN-261): D0..D13, A0..A5, RESET.
+    static const std::map<std::string, std::string> arduino = {{"D0", "PD0"}, {"D1", "PD1"}, {"D2", "PD2"},
+        {"D3", "PD3"}, {"D4", "PD4"}, {"D5", "PD5"}, {"D6", "PD6"}, {"D7", "PD7"}, {"D8", "PB0"}, {"D9", "PB1"},
+        {"D10", "PB2"}, {"D11", "PB3"}, {"D12", "PB4"}, {"D13", "PB5"}, {"A0", "PC0"}, {"A1", "PC1"}, {"A2", "PC2"},
+        {"A3", "PC3"}, {"A4", "PC4"}, {"A5", "PC5"}, {"RESET", "PC6"}};
+    if (const auto it = arduino.find(name); it != arduino.end()) {
+        return avr_pin(it->second);
+    }
     if (name.size() != 3 || name[0] != 'P' || name[1] < 'B' || name[1] > 'D' || name[2] < '0' || name[2] > '7'
         || name == "PC7") {
         return -1;
@@ -558,16 +568,11 @@ public:
         if (const auto it = options.parameters.find("crystal_hz"); it != options.parameters.end()) {
             machine_.set_external_hz(static_cast<std::uint32_t>(std::strtod(it->second.c_str(), nullptr)));
         }
-        if (options.firmware.empty()) {
+        const bool has_bootloader = options.parameters.count("bootloader") != 0;
+        if (options.firmware.empty() && !has_bootloader) {
             error = std::string("The ") + machine_.chip_name() + " has no firmware file (a .hex or .elf).";
             return false;
         }
-        std::ifstream stream(options.firmware, std::ios::binary);
-        if (!stream) {
-            error = "Cannot open the firmware file " + options.firmware.string() + ".";
-            return false;
-        }
-        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
         // Programming a bare chip erases it; the EEPROM the project kept from
         // earlier runs is the chip's, so it comes back afterwards (and the
         // firmware's own EEPROM data only fills an EEPROM never kept).
@@ -577,7 +582,37 @@ public:
             std::ifstream in(std::filesystem::path(std::u8string(it->second.begin(), it->second.end())), std::ios::binary);
             kept.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
         }
-        if (bytes.size() >= 4 && bytes[0] == 0x7F && bytes[1] == 'E' && bytes[2] == 'L' && bytes[3] == 'F') {
+        // A board's bootloader (the Arduino UNO's Optiboot) in the boot section,
+        // with the lock bits that protect it, as the factory burns it.
+        if (has_bootloader) {
+            std::ifstream boot(options.rom, std::ios::binary);
+            const std::string text((std::istreambuf_iterator<char>(boot)), std::istreambuf_iterator<char>());
+            if (options.rom.empty() || text.empty() || !machine_.load_hex(text, error)) {
+                error = "The board's bootloader (" + options.parameters.at("bootloader") + ") could not be loaded"
+                        + (error.empty() ? std::string(".") : ": " + error);
+                return false;
+            }
+            machine_.set_fuses(machine_.fuse_low(), machine_.fuse_high(), byte_of("lock", 0xFF));
+        }
+        if (options.firmware.empty()) {
+            finish_load(kept, options);
+            return true;
+        }
+        std::ifstream stream(options.firmware, std::ios::binary);
+        if (!stream) {
+            error = "Cannot open the firmware file " + options.firmware.string() + ".";
+            return false;
+        }
+        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        auto extension = options.firmware.extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        if (extension == ".bin") {
+            // The whole flash as a run kept it after an upload (SN-261).
+            if (!machine_.load_flash(bytes, error)) {
+                error = options.firmware.filename().string() + ": " + error;
+                return false;
+            }
+        } else if (bytes.size() >= 4 && bytes[0] == 0x7F && bytes[1] == 'E' && bytes[2] == 'L' && bytes[3] == 'F') {
             const auto image = emu::parse_elf(bytes, error, emu::ElfMachine::Avr);
             const std::uint8_t low = machine_.fuse_low(), high = machine_.fuse_high(), lock = machine_.lock_bits();
             bool fuses_set = false;
@@ -597,10 +632,23 @@ public:
             error = options.firmware.filename().string() + ": " + error;
             return false;
         }
+        finish_load(kept, options);
+        return true;
+    }
+    void finish_load(const std::vector<std::uint8_t>& kept, const McuRunOptions& options)
+    {
+        // A board (the UNO) feeds its chip itself: its supply pins are not the circuit's.
+        watched_supplies_.clear();
+        for (const auto& pin : options.pins) {
+            if (pin == "VCC" || pin == "AVCC" || pin == "AREF") {
+                watched_supplies_.push_back(pin_id(pin));
+            }
+        }
         if (!kept.empty()) {
             machine_.set_eeprom(kept);
         }
         eeprom_writes_ = machine_.eeprom_writes();
+        flash_writes_ = machine_.flash_writes();
         machine_.reset();
         // The circuit's level on each watched pin starts low, as the runner assumes.
         for (const auto& pin : options.pins) {
@@ -608,7 +656,18 @@ public:
                 machine_.set_pin_input(id, false);
             }
         }
-        return true;
+    }
+    // The Arduino UNO's auto-reset (SN-261): the USB bridge's DTR reaches
+    // RESET through 100 nF, so DTR becoming active gives a short low pulse
+    // and the chip starts again (the bootloader then waits for an upload).
+    void host_lines(int uart, const std::string& circuit, bool dtr, bool rts) override
+    {
+        (void)uart;
+        (void)rts;
+        if (circuit == "dtr_reset" && dtr && !dtr_) {
+            machine_.request_reset(emu::Atmega::ResetKind::External);
+        }
+        dtr_ = dtr;
     }
     std::uint64_t time_ns() const override { return machine_.time_ns(); }
     void run_until_ns(std::uint64_t ns) override { machine_.run_until_ns(ns); }
@@ -623,7 +682,11 @@ public:
     void set_pin_input(int pin, bool level) override { machine_.set_pin_input(pin, level); }
     void set_analog_source(std::function<double(int, std::uint64_t)> source) override
     {
-        machine_.set_analog_source([source = std::move(source)](int pin, std::uint64_t time_ns) -> std::optional<double> {
+        machine_.set_analog_source([this, source = std::move(source)](int pin, std::uint64_t time_ns) -> std::optional<double> {
+            if (pin >= emu::Atmega::vcc_pin
+                && std::find(watched_supplies_.begin(), watched_supplies_.end(), pin) == watched_supplies_.end()) {
+                return std::nullopt; // 5 V
+            }
             return source(pin, time_ns);
         });
     }
@@ -664,14 +727,26 @@ public:
     void timed_schedule_changed() override { machine_.timed_changed(); }
     std::uint64_t cycles_at(std::uint64_t ns) const override { return machine_.cycles_at(ns); }
     std::uint64_t ns_at(std::uint64_t cycle) const override { return machine_.ns_at(cycle); }
-    // The memory the project keeps from a run: the EEPROM (the flash of an
-    // ATmega8 does not change while it runs; the UNO's bootloader uploads
-    // come with SN-261).
+    // The memories the project keeps from a run: the flash once a bootloader
+    // (or the firmware) wrote it with SPM, and the EEPROM.
     std::uint64_t flash_version() const override
+    {
+        return machine_.flash_writes() > flash_writes_ ? machine_.flash_writes() : 0;
+    }
+    bool flash_downloaded() const override { return flash_version() != 0; }
+    std::vector<std::uint8_t> flash() const override
+    {
+        std::vector<std::uint8_t> bytes(machine_.flash_size());
+        for (std::uint32_t a = 0; a < bytes.size(); ++a) {
+            bytes[a] = machine_.flash_byte(a);
+        }
+        return bytes;
+    }
+    std::uint64_t eeprom_version() const override
     {
         return machine_.eeprom_writes() > eeprom_writes_ ? machine_.eeprom_writes() : 0;
     }
-    std::vector<std::uint8_t> flash() const override { return machine_.eeprom(); }
+    std::vector<std::uint8_t> eeprom() const override { return machine_.eeprom(); }
 
 private:
     static PinState state_of(const emu::Atmega::PinState& s, bool pad)
@@ -689,6 +764,9 @@ private:
     }
     emu::Atmega machine_;
     std::uint64_t eeprom_writes_ = 0;
+    std::uint64_t flash_writes_ = 0;
+    bool dtr_ = false;
+    std::vector<int> watched_supplies_;
     std::vector<std::string> notes_;
 };
 
@@ -720,6 +798,25 @@ bool chip_gpio(const std::string& chip, const std::string& name)
         return avr_pin(name) >= 0;
     }
     return chip == "esp32c3" ? c3_pin(name) >= 0 : stm32_pin(name) >= 0;
+}
+
+std::filesystem::path find_bootloader(const std::filesystem::path& application_dir, const std::string& name)
+{
+    std::vector<std::filesystem::path> candidates;
+    if (!application_dir.empty()) {
+        candidates.push_back(application_dir / "roms" / name);
+        candidates.push_back(application_dir / ".." / "share" / "simnodus" / "roms" / name);
+    }
+#ifdef SIMNODUS_SOURCE_BOOTLOADER_DIR
+    candidates.push_back(std::filesystem::path(SIMNODUS_SOURCE_BOOTLOADER_DIR) / name);
+#endif
+    std::error_code ec;
+    for (const auto& candidate : candidates) {
+        if (std::filesystem::is_regular_file(candidate, ec)) {
+            return candidate;
+        }
+    }
+    return {};
 }
 
 std::filesystem::path find_esp32c3_rom(const std::filesystem::path& application_dir)

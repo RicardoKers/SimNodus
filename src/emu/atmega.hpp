@@ -118,6 +118,8 @@ public:
     const std::vector<std::uint8_t>& eeprom() const { return eeprom_; }
     void set_eeprom(const std::vector<std::uint8_t>& bytes);
     std::uint64_t eeprom_writes() const { return eeprom_writes_; }
+    // Pages the firmware erased or wrote with SPM (a bootloader's upload).
+    std::uint64_t flash_writes() const { return flash_writes_; }
 
     // ---- Running ----
     enum class ResetKind { PowerOn, External, Watchdog, BrownOut };
@@ -227,6 +229,7 @@ private:
     std::uint64_t run_from_ = 0; // the first instruction after a reset's start-up time
     std::vector<std::uint8_t> eeprom_;
     std::uint64_t eeprom_writes_ = 0;
+    std::uint64_t flash_writes_ = 0;
     std::uint8_t mcucsr_ = 0;
     std::array<bool, 32> flags_{};
     std::vector<std::unique_ptr<Peripheral>> peripherals_;

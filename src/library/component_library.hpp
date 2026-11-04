@@ -129,6 +129,10 @@ struct McuBoard {
         std::string reset_circuit;
     };
     std::vector<Uart> uarts; // serial ports for the terminal (MCU-05)
+    // What the board fixes for its chip (SN-261, the Arduino UNO): fuses,
+    // "crystal_hz", "bootloader" (a file the application ships), as run
+    // parameters (McuRunOptions::parameters).
+    std::map<std::string, std::string> parameters;
 };
 
 // A character display area of a symbol (SN-206): the editor draws the text of

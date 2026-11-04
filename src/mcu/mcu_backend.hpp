@@ -79,6 +79,9 @@ struct McuStatus {
     std::string message;                  // failure reason
 };
 
+// The board's second memory in device_memory(): its chip's EEPROM.
+inline constexpr std::uint64_t board_eeprom = ~std::uint64_t{0};
+
 class McuBackend {
 public:
     virtual ~McuBackend() = default;
@@ -155,6 +158,8 @@ public:
         (void)value;
     }
     // Memory chips of the board (SN-208): the latest contents, and new ones.
+    // Component 0 is the board's own flash (SN-253); board_eeprom its chip's
+    // EEPROM (an AVR's, SN-261).
     virtual bool device_memory(std::uint64_t component, std::vector<std::uint8_t>& bytes) const
     {
         (void)component;

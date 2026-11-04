@@ -10,4 +10,5 @@ find_package(Threads REQUIRED)
 target_link_libraries(simnodus_mcu PUBLIC Threads::Threads simnodus::devices PRIVATE simnodus::emu simnodus::warnings)
 # The ESP32-C3's ROM ELF in the source tree, for runs from the build directory.
 target_compile_definitions(simnodus_mcu PRIVATE
-    SIMNODUS_SOURCE_ROM_DIR="${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs")
+    SIMNODUS_SOURCE_ROM_DIR="${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs"
+    SIMNODUS_SOURCE_BOOTLOADER_DIR="${PROJECT_SOURCE_DIR}/third_party/optiboot")

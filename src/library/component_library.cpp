@@ -545,6 +545,17 @@ ComponentDefinition parse_definition(const json& j)
                 board.uarts.push_back(uart);
             }
         }
+        if (m.contains("parameters")) {
+            if (!m["parameters"].is_object()) {
+                invalid("mcu.parameters must be an object of texts");
+            }
+            for (const auto& [name, value] : m["parameters"].items()) {
+                if (!value.is_string()) {
+                    invalid("mcu.parameters must be an object of texts");
+                }
+                board.parameters[name] = value.get<std::string>();
+            }
+        }
         if (m.contains("reset_button")) {
             const auto r = numbers(m["reset_button"], 4, "mcu.reset_button");
             board.reset_button = std::vector<model::PointF>{{r[0], r[1]}, {r[2], r[3]}};

@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-04, SN-261)
+
+- **Arduino UNO R3** part (Microcontrollers), experimental: an ATmega328P at 16 MHz with the Arduino fuses and **Optiboot** in its boot section (GPL-2.0-or-later, shipped with its source in `third_party/optiboot`). Its pins carry the header names (D0-D13, A0-A5); 5V and 3V3 are outputs; the L LED on D13 and the reset button work on the board. Its USB connector links the USART to the computer (virtual port pair or `tcp:PORT`), and DTR resets the board as the Arduino IDE and avrdude do before an upload; Optiboot writes the sketch with SPM.
+- A run keeps an AVR's flash once a bootloader wrote it (`<designator>-flash.bin`, the board's next firmware) and its EEPROM (`<designator>-eeprom.bin`) as two memories of the board; a `.bin` firmware loads as the whole flash.
+- Example 58 (the UNO with the serial example built for 16 MHz).
+
 ### Added (2026-11-04, SN-260)
 
 - **ATmega328P-PU** and **ATmega328-PU** parts (Microcontrollers, PDIP-28), experimental until compared with a real chip (ADR 0108). They run in the ATmega8's emulator, which now maps each chip's registers and interrupt vectors onto one machine: 32 KB of flash, 2 KB of SRAM, 1 KB of EEPROM, two-word vectors; the extended fuse (BODLEVEL), CKDIV8 and CLKPR with the clock changing at run time; Timer0 and Timer2 with two outputs each in eight waveform modes; the pin change interrupts PCINT0-23; EICRA/EIMSK; the watchdog's interrupt mode, its 128 kHz oscillator and the reset WDRF keeps on; the 1.1 V reference, the temperature sensor (read as at 25 °C) and the ADC's auto trigger; USART0's UCSR0C/UBRR0H; the EEPROM's EEPM modes; DIDR0/1, GPIOR0-2, PINx toggling, extended standby; signature and fuse reads. The **Fuses...** dialog shows the 328's fields and the extended fuse; the Memory Viewer shows its 1 KB EEPROM; `simnodus-emu --avr atmega328p` runs it on the command line.

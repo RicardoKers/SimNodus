@@ -2750,3 +2750,136 @@ TEST_CASE("ESP32-C3 board: DTR and RTS reset it into download mode as esptool do
     run(100);
     CHECK(out[2].find("boot:0x4") != std::string::npos);
 }
+
+namespace {
+
+// An Intel HEX file's data records as a flash image (0xFF elsewhere).
+std::vector<std::uint8_t> hex_image(const std::filesystem::path& path, std::size_t size)
+{
+    std::vector<std::uint8_t> image(size, 0xFF);
+    std::ifstream in(path);
+    std::string line;
+    auto byte = [&](std::size_t at) { return static_cast<std::uint8_t>(std::stoul(line.substr(at, 2), nullptr, 16)); };
+    while (std::getline(in, line)) {
+        if (line.size() < 11 || line[0] != ':' || byte(7) != 0) {
+            continue;
+        }
+        const std::size_t count = byte(1);
+        const std::size_t address = (static_cast<std::size_t>(byte(3)) << 8) | byte(5);
+        for (std::size_t i = 0; i < count && address + i < size; ++i) {
+            image[address + i] = byte(9 + 2 * i);
+        }
+    }
+    return image;
+}
+
+mcu::McuRunOptions uno_options()
+{
+    mcu::McuRunOptions options;
+    options.chip = "atmega328p";
+    options.rom = mcu::find_bootloader({}, "optiboot_atmega328.hex");
+    options.parameters = {{"fuse_low", "FF"}, {"fuse_high", "DE"}, {"fuse_extended", "FD"}, {"lock", "0F"},
+        {"crystal_hz", "16000000"}, {"bootloader", "optiboot_atmega328.hex"}};
+    return options;
+}
+
+} // namespace
+
+TEST_CASE("Arduino UNO: DTR resets it into Optiboot, which takes an upload as avrdude sends it (SN-261)")
+{
+    auto options = uno_options();
+    REQUIRE(!options.rom.empty());
+    std::string error;
+    auto machine = mcu::make_machine(options, error);
+    REQUIRE(machine);
+    REQUIRE(machine->load(options, error)); // no sketch: only the bootloader
+    std::string in;
+    auto run = [&](std::uint64_t ms) {
+        machine->run_until_ns(machine->time_ns() + ms * 1'000'000);
+        for (const auto& b : machine->take_uart_bytes()) {
+            in += static_cast<char>(b.value);
+        }
+    };
+    auto send = [&](const std::vector<std::uint8_t>& bytes) {
+        for (const auto b : bytes) {
+            machine->uart_receive(0, b);
+        }
+    };
+    // avrdude's STK500 exchange: each command ends with ' ' and is answered 0x14 ... 0x10.
+    auto command = [&](const std::vector<std::uint8_t>& bytes) {
+        in.clear();
+        send(bytes);
+        for (int i = 0; i < 100 && in.size() < 2; ++i) {
+            run(2);
+        }
+        return in.size() >= 2 && in[0] == 0x14 && in.back() == 0x10;
+    };
+    run(200);
+    CHECK(machine->flash_version() == 0);
+    // The IDE opens the port: DTR resets the board, Optiboot answers within its second.
+    machine->host_lines(0, "dtr_reset", true, true);
+    run(100);
+    bool synced = false;
+    for (int i = 0; i < 20 && !synced; ++i) {
+        synced = command({0x30, 0x20}); // STK_GET_SYNC
+    }
+    REQUIRE(synced);
+    const auto sketch = hex_image(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/avr328_serial/avr328_serial_16mhz.hex", 0x7E00);
+    std::size_t end = sketch.size();
+    while (end > 0 && sketch[end - 1] == 0xFF) {
+        --end;
+    }
+    REQUIRE(end > 256);
+    for (std::size_t page = 0; page < end; page += 128) {
+        const auto word = static_cast<std::uint16_t>(page / 2);
+        REQUIRE(command({0x55, static_cast<std::uint8_t>(word), static_cast<std::uint8_t>(word >> 8), 0x20})); // LOAD_ADDRESS
+        std::vector<std::uint8_t> program = {0x64, 0x00, 0x80, 'F'};                                        // PROG_PAGE
+        program.insert(program.end(), sketch.begin() + static_cast<std::ptrdiff_t>(page),
+            sketch.begin() + static_cast<std::ptrdiff_t>(page + 128));
+        program.push_back(0x20);
+        REQUIRE(command(program));
+    }
+    REQUIRE(command({0x51, 0x20})); // LEAVE_PROGMODE: Optiboot lets its watchdog start the sketch
+    in.clear();
+    run(300);
+    CHECK(in.find("ATmega328P ready") != std::string::npos);
+    // The flash the upload wrote, with Optiboot still in the boot section, for the project to keep.
+    REQUIRE(machine->flash_version() != 0);
+    CHECK(machine->flash_downloaded());
+    const auto flash = machine->flash();
+    REQUIRE(flash.size() == 32768);
+    CHECK(std::equal(sketch.begin(), sketch.begin() + static_cast<std::ptrdiff_t>(end), flash.begin()));
+    CHECK(flash[0x7E00] == 0x11); // Optiboot's first instruction
+    // The sketch's EEPROM counter: the board's second memory.
+    machine->uart_receive(0, '?');
+    in.clear();
+    run(100);
+    CHECK(in.find("bytes: 1") != std::string::npos);
+    CHECK(machine->eeprom_version() != 0);
+    CHECK(machine->eeprom().size() == 1024);
+    CHECK(machine->eeprom()[0] == 1);
+
+    // The kept flash as the next run's firmware (.bin), and a sketch's .hex at
+    // power-on: Optiboot hands over to the sketch at once.
+    const auto folder = std::filesystem::temp_directory_path() / "simnodus-uno-test";
+    std::filesystem::create_directories(folder);
+    const auto kept = folder / "U1-flash.bin";
+    {
+        std::ofstream out(kept, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(flash.data()), static_cast<std::streamsize>(flash.size()));
+    }
+    for (const auto& firmware : {kept, std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware/avr328_serial/avr328_serial_16mhz.hex"}) {
+        auto again = uno_options();
+        again.firmware = firmware;
+        auto board = mcu::make_machine(again, error);
+        REQUIRE(board);
+        REQUIRE(board->load(again, error));
+        board->run_until_ns(200'000'000);
+        std::string text;
+        for (const auto& b : board->take_uart_bytes()) {
+            text += static_cast<char>(b.value);
+        }
+        CHECK(text.find("ATmega328P ready") != std::string::npos);
+    }
+    std::filesystem::remove_all(folder);
+}

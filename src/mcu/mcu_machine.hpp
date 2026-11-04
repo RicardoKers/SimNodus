@@ -98,6 +98,9 @@ public:
     virtual std::uint64_t flash_version() const { return 0; }
     virtual bool flash_downloaded() const { return false; }
     virtual std::vector<std::uint8_t> flash() const { return {}; }
+    // The chip's EEPROM once the firmware wrote it (an AVR's): the same way.
+    virtual std::uint64_t eeprom_version() const { return 0; }
+    virtual std::vector<std::uint8_t> eeprom() const { return {}; }
 
     // The chip for the GDB server (SN-180, SN-249); nullptr if it has none.
     virtual emu::GdbTarget* gdb_target() { return nullptr; }
@@ -117,5 +120,8 @@ bool chip_gpio(const std::string& chip, const std::string& name);
 // The ESP32-C3's ROM ELF: `roms/esp32c3_rev3_rom.elf` beside the application,
 // in its share directory (Linux), or in the source tree; empty if none.
 std::filesystem::path find_esp32c3_rom(const std::filesystem::path& application_dir);
+// A board's bootloader the application ships (the Arduino UNO's
+// "optiboot_atmega328.hex", SN-261), in the same places; empty if missing.
+std::filesystem::path find_bootloader(const std::filesystem::path& application_dir, const std::string& name);
 
 } // namespace simnodus::mcu

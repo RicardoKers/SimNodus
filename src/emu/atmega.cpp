@@ -3377,7 +3377,11 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
         }
         return true;
     }
-    std::vector<std::uint8_t> image(flash_bytes_, std::uint8_t{0xFF});
+    // Onto the flash as it is (erased by chip_erase(), or holding a bootloader).
+    std::vector<std::uint8_t> image(flash_bytes_);
+    for (std::uint32_t a = 0; a < flash_bytes_; ++a) {
+        image[a] = cpu_.flash_byte(a);
+    }
     for (const auto& [address, value] : bytes) {
         image[address] = value;
     }
@@ -3386,7 +3390,10 @@ bool Atmega::load_hex(const std::string& text, std::string& error, bool eeprom)
 
 bool Atmega::load_elf(const ElfImage& image, std::string& error, bool* fuses_set)
 {
-    std::vector<std::uint8_t> flash(flash_bytes_, std::uint8_t{0xFF});
+    std::vector<std::uint8_t> flash(flash_bytes_); // onto the flash as it is, as load_hex()
+    for (std::uint32_t a = 0; a < flash_bytes_; ++a) {
+        flash[a] = cpu_.flash_byte(a);
+    }
     bool any = false;
     std::optional<std::uint8_t> low, high, lock, extended;
     for (const ElfSegment& s : image.segments) {
@@ -3751,6 +3758,9 @@ unsigned Atmega::spm(std::uint16_t z, std::uint16_t r1r0)
         return 0;
     }
     const std::uint64_t duration = cycles_for_ns(flash_write_ns);
+    if (op == 0x02 || op == 0x04) {
+        ++flash_writes_;
+    }
     if (op == 0x02) { // page erase
         for (std::uint32_t w = 0; w < page_words_; ++w) {
             cpu_.write_flash_word(page + w, 0xFFFF);
