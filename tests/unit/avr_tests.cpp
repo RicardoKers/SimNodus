@@ -1311,6 +1311,221 @@ TEST_CASE("atmega8: Intel HEX loading and a chip erase that keeps the EEPROM wit
     CHECK(k.eeprom()[0] == 1);
 }
 
+// ---------------------------------------------------------------------------
+// The ATmega328/328P (SN-260): the same machine with the 328's registers,
+// vectors and fuses; the owned firmware set in examples/firmware/avr328_*.
+
+namespace {
+
+constexpr int pb4 = 4, pb5 = 5, pc0 = 8, pd3 = 19, pd4 = 20, pd5 = 21, pd6 = 22;
+
+Atmega::Options factory328(Atmega::Model model = Atmega::Model::Atmega328P) { return Atmega::factory(model); }
+
+// High and low times (ns) of a periodic output, from its last edges.
+std::pair<std::uint64_t, std::uint64_t> duty(const std::vector<Atmega::PinEvent>& events, int pin, bool& ok)
+{
+    const auto t = edges(events, pin);
+    ok = t.size() >= 6;
+    if (!ok) {
+        return {0, 0};
+    }
+    const std::size_t n = t.size();
+    bool level = false;
+    for (const auto& e : events) {
+        if (e.pin == pin && e.state.output && e.time_ns == t[n - 1]) {
+            level = e.state.level;
+        }
+    }
+    // After the last edge the pin is at `level`: the interval before it was the other level.
+    const std::uint64_t before_last = t[n - 1] - t[n - 2];
+    const std::uint64_t before_that = t[n - 2] - t[n - 3];
+    return level ? std::make_pair(before_that, before_last) : std::make_pair(before_last, before_that);
+}
+
+} // namespace
+
+TEST_CASE("atmega328: factory fuses, CLKPR to 8 MHz, USART0 at 38400 baud, EEPROM, temperature, PINB toggle")
+{
+    for (const auto model : {Atmega::Model::Atmega328P, Atmega::Model::Atmega328}) {
+        auto m = machine_with("avr328_serial", factory328(model));
+        REQUIRE(m);
+        CHECK(m->vector_count() == 26);
+        CHECK(m->eeprom_size() == 1024);
+        // CKDIV8 programmed: the 8 MHz RC divided by 8.
+        CHECK(m->clock_hz() == 1'000'000);
+        CHECK(m->clock_prescaler() == 3);
+        m->run_until_ns(200'000'000);
+        CHECK(m->clock_hz() == 8'000'000); // the firmware's clock_prescale_set(clock_div_1)
+        CHECK(uart_text(*m) == "ATmega328P ready\r\n> ");
+        // A bit lasts 8 * (25 + 1) = 208 cycles at 8 MHz: 26 us.
+        const auto t = edges(m->take_pin_events(), pd1);
+        REQUIRE(t.size() > 10);
+        for (std::size_t i = 1; i < t.size(); ++i) {
+            const std::uint64_t d = t[i] - t[i - 1];
+            if (d < 300'000) {
+                CHECK(d % 26'000 == 0);
+            }
+        }
+        for (const char c : std::string("l?t")) {
+            m->uart_receive(static_cast<std::uint8_t>(c));
+        }
+        m->run_until_ns(400'000'000);
+        CHECK(uart_text(*m) == "\r\nbytes: 2\r\n> \r\ntemperature: 352\r\n> ");
+        CHECK(m->pin(pb5).output);
+        CHECK(m->pin(pb5).level); // PINB written with 1: PORTB5 toggled
+        // The counter lives in the EEPROM: it continues after a reset.
+        m->reset(Atmega::ResetKind::External);
+        m->run_until_ns(m->time_ns() + 200'000'000);
+        CHECK(uart_text(*m) == "ATmega328P ready\r\n> ");
+        m->uart_receive('?');
+        m->run_until_ns(m->time_ns() + 50'000'000);
+        CHECK(uart_text(*m) == "\r\nbytes: 4\r\n> ");
+        CHECK(!m->pin(pb5).level); // the reset cleared PORTB
+    }
+}
+
+TEST_CASE("atmega328: Timer0 and Timer2 PWM on four pins, the ADC triggered by Timer0's overflow, Timer1 CTC")
+{
+    auto m = machine_with("avr328_pwm", factory328());
+    REQUIRE(m);
+    double pot = 1.25;
+    m->set_analog_source([&](int pin, std::uint64_t) -> std::optional<double> {
+        if (pin >= Atmega::vcc_pin) {
+            return std::nullopt; // 5 V
+        }
+        return pin == pc0 ? pot : 0.0;
+    });
+    m->run_until_ns(200'000'000);
+    auto events = m->take_pin_events();
+    bool ok = false;
+    // Timer0 fast PWM, prescaler 8: 2048 cycles a period. OC0A high for
+    // (63 + 1) * 8 = 512; OC0B inverting, low for (191 + 1) * 8 = 1536.
+    auto a = duty(events, pd6, ok);
+    REQUIRE(ok);
+    CHECK(a.first == 512'000);
+    CHECK(a.second == 1'536'000);
+    auto b = duty(events, pd5, ok);
+    REQUIRE(ok);
+    CHECK(b.first == 512'000);
+    CHECK(b.second == 1'536'000);
+    // Timer2 phase correct, prescaler 8: 4080 cycles a period. The ADC reads
+    // 1.25 V of 5 V: ADCH 64. OC2A high 2 * 64 * 8 = 1024, OC2B 2 * 191 * 8.
+    auto c = duty(events, pb3, ok);
+    REQUIRE(ok);
+    CHECK(c.first == 1'024'000);
+    CHECK(c.first + c.second == 4'080'000);
+    auto d = duty(events, pd3, ok);
+    REQUIRE(ok);
+    CHECK(d.first == 3'056'000);
+    // Timer1 CTC toggles OC1A every 10 000 cycles.
+    const auto t1 = edges(events, pb1);
+    REQUIRE(t1.size() > 5);
+    for (std::size_t i = 2; i < t1.size(); ++i) {
+        CHECK(t1[i] - t1[i - 1] == 10'000'000);
+    }
+    // The potentiometer at half: OC2A follows within a few conversions.
+    pot = 2.5;
+    m->run_until_ns(300'000'000);
+    events = m->take_pin_events();
+    c = duty(events, pb3, ok);
+    REQUIRE(ok);
+    CHECK(c.first == 2'048'000);
+}
+
+TEST_CASE("atmega328: the watchdog interrupt and a pin change wake it from power-down; INT0 on a low level")
+{
+    auto m = machine_with("avr328_wake", factory328());
+    REQUIRE(m);
+    m->run_until_ns(3'500'000'000ull);
+    CHECK(m->cpu().state() == AvrState::Sleeping);
+    auto events = m->take_pin_events();
+    // The watchdog: 128K cycles of its 128 kHz oscillator, 1.024 s.
+    const auto t = edges(events, pb5);
+    REQUIRE(t.size() >= 2);
+    for (std::size_t i = 1; i < t.size(); ++i) {
+        CHECK(t[i] - t[i - 1] == 1'024'000'000);
+    }
+    // A press on PD4 (PCINT20) wakes it at once.
+    const bool led = m->pin(pb4).level;
+    m->set_pin_input(pd4, false);
+    m->run_until_ns(m->time_ns() + 1'000'000);
+    CHECK(m->pin(pb4).level != led);
+    m->set_pin_input(pd4, true);
+    m->run_until_ns(m->time_ns() + 1'000'000);
+    CHECK(m->pin(pb4).level != led); // a release does not toggle
+    // INT0 on a low level wakes it from power-down.
+    m->set_pin_input(pd2, false);
+    m->run_until_ns(m->time_ns() + 1'000'000);
+    CHECK(m->pin(pb3).level);
+    m->set_pin_input(pd2, true);
+    m->run_until_ns(m->time_ns() + 1'100'000'000); // the next watchdog wake turns it off
+    CHECK(!m->pin(pb3).level);
+    bool bods = false;
+    for (const auto& note : m->take_diagnostics()) {
+        bods = bods || note.find("BODS") != std::string::npos;
+    }
+    CHECK(bods);
+}
+
+TEST_CASE("atmega328: the watchdog reset loop that WDRF keeps, signature and fuse reads, the UNO's fuses")
+{
+    // SBI DDRB,5; SBI PINB,5; RJMP .-1: each start lights PB5.
+    const std::vector<std::uint16_t> lit = {0x9A25, 0x9A1D, 0xCFFF};
+    auto starts = [](Atmega& m) {
+        int n = 0;
+        for (const auto& e : m.take_pin_events()) {
+            n += e.pin == pb5 && e.state.output && e.state.level ? 1 : 0;
+        }
+        return n;
+    };
+    auto m = machine_with_words(lit, factory328());
+    m->run_until_ns(500'000'000);
+    CHECK(starts(*m) == 1);
+    m->request_reset(Atmega::ResetKind::Watchdog);
+    m->run_until_ns(1'000'000'000);
+    // WDRF keeps WDE on: a reset every 16 ms after the 65 ms start-up.
+    CHECK(starts(*m) >= 5);
+    CHECK((m->reset_flags() & 0x08) != 0);
+    CHECK((m->cpu().read_data(0x60) & 0x08) != 0); // WDE reads 1
+
+    // Clearing MCUSR first (LDI r16,0; OUT MCUSR,r16) ends the loop.
+    std::vector<std::uint16_t> clear = {0xE000, 0xBF04};
+    clear.insert(clear.end(), lit.begin(), lit.end());
+    auto q = machine_with_words(clear, factory328());
+    q->request_reset(Atmega::ResetKind::Watchdog);
+    q->run_until_ns(1'000'000'000);
+    CHECK(starts(*q) == 1);
+
+    // SIGRD | SPMEN, then LPM at Z = 4: the third signature byte.
+    for (const auto model : {Atmega::Model::Atmega328P, Atmega::Model::Atmega328}) {
+        auto s = machine_with_words({0xE201, 0xE0E4, 0xE0F0, 0xBF07, 0x95C8, 0xCFFF}, factory328(model));
+        s->run_until_ns(100'000'000);
+        CHECK(s->cpu().peek(0) == (model == Atmega::Model::Atmega328P ? 0x0F : 0x14));
+    }
+    // BLBSET | SPMEN, then LPM at Z = 2: the extended fuse.
+    Atmega::Options ext = factory328();
+    ext.fuse_extended = 0xFD;
+    auto e = machine_with_words({0xE009, 0xE0E2, 0xE0F0, 0xBF07, 0x95C8, 0xCFFF}, ext);
+    e->run_until_ns(100'000'000);
+    CHECK(e->cpu().peek(0) == 0xFD);
+
+    // The UNO's fuses: a 16 MHz crystal (FF), BOOTRST with a 256-word boot
+    // section (DE), brown-out at 2.7 V (FD).
+    Atmega::Options uno = factory328();
+    uno.fuse_low = 0xFF;
+    uno.fuse_high = 0xDE;
+    uno.fuse_extended = 0xFD;
+    uno.external_hz = 16'000'000;
+    Atmega u(uno);
+    CHECK(u.clock_hz() == 16'000'000);
+    CHECK(u.clock_prescaler() == 0);
+    CHECK(u.cpu().pc() == 0x3F00);
+    // CKDIV8 unprogrammed with the internal RC: 8 MHz.
+    Atmega::Options rc = factory328();
+    rc.fuse_low = 0xE2;
+    CHECK(Atmega(rc).clock_hz() == 8'000'000);
+}
+
 int main(int argc, char** argv)
 {
     if (argc < 2) {

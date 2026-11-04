@@ -50,9 +50,13 @@ private:
     std::string contents_parameter(model::Id component) const;
     static bool avr(const library::ComponentDefinition& d)
     {
-        return d.mcu && (d.mcu->chip == "atmega8" || d.mcu->chip == "atmega8a");
+        return d.mcu && library::avr_chip(d.mcu->chip);
     }
-    static constexpr std::size_t avr_eeprom_bytes = 512;
+    // The chip's EEPROM: 512 bytes on the ATmega8/8A, 1 KB on the 328/328P.
+    static std::size_t avr_eeprom_bytes(const library::ComponentDefinition& d)
+    {
+        return d.mcu->chip == "atmega328" || d.mcu->chip == "atmega328p" ? 1024 : 512;
+    }
     // The chip's contents: the running (or last) simulation's, else its contents file, else erased.
     std::vector<std::uint8_t> contents(model::Id component, QString& source) const;
     void load();

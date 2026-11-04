@@ -15,8 +15,9 @@
 // sends text to USART1..3 at a time in milliseconds; --gdb waits for a GDB
 // client on 127.0.0.1:PORT (0: any free port) and runs under its control.
 //
-//   simnodus-emu --avr atmega8 firmware.elf|firmware.hex [--ms 1000] [--quiet]
-//                [--fuses 0xE1,0xD9] [--crystal 16000000] [--input PD2=0@100]
+//   simnodus-emu --avr atmega8|atmega8a|atmega328|atmega328p firmware.elf|.hex
+//                [--ms 1000] [--quiet] [--fuses 0xE1,0xD9[,0xFF]]
+//                [--crystal 16000000] [--input PD2=0@100]
 //                [--uart text@50]
 #include "devices/host_link.hpp"
 #include "emu/atmega.hpp"
@@ -344,13 +345,17 @@ int run_esp32c3(int argc, char** argv)
 
 int run_avr(int argc, char** argv)
 {
-    if (argc < 4 || (std::strcmp(argv[2], "atmega8") != 0 && std::strcmp(argv[2], "atmega8a") != 0)) {
-        std::fprintf(stderr, "usage: simnodus-emu --avr atmega8|atmega8a firmware.elf|firmware.hex [--ms 1000] [--quiet] "
-                             "[--fuses LOW,HIGH] [--crystal HZ] [--input PD2=0@ms] [--uart text@ms]\n");
+    const std::string chip = argc > 2 ? argv[2] : "";
+    if (argc < 4 || (chip != "atmega8" && chip != "atmega8a" && chip != "atmega328" && chip != "atmega328p")) {
+        std::fprintf(stderr, "usage: simnodus-emu --avr atmega8|atmega8a|atmega328|atmega328p firmware.elf|firmware.hex "
+                             "[--ms 1000] [--quiet] [--fuses LOW,HIGH[,EXTENDED]] [--crystal HZ] [--input PD2=0@ms] "
+                             "[--uart text@ms]\n");
         return 2;
     }
-    Atmega::Options options;
-    options.model = std::strcmp(argv[2], "atmega8") == 0 ? Atmega::Model::Atmega8 : Atmega::Model::Atmega8A;
+    Atmega::Options options = Atmega::factory(chip == "atmega8"     ? Atmega::Model::Atmega8
+                                              : chip == "atmega328"  ? Atmega::Model::Atmega328
+                                              : chip == "atmega328p" ? Atmega::Model::Atmega328P
+                                                                     : Atmega::Model::Atmega8A);
     const std::string path = argv[3];
     double ms = 1000;
     bool quiet = false;
@@ -370,7 +375,10 @@ int run_avr(int argc, char** argv)
         } else if (arg == "--fuses" && i + 1 < argc) {
             char* end = nullptr;
             options.fuse_low = static_cast<std::uint8_t>(std::strtoul(argv[++i], &end, 0));
-            options.fuse_high = static_cast<std::uint8_t>(std::strtoul(end && *end == ',' ? end + 1 : "0xD9", nullptr, 0));
+            options.fuse_high = static_cast<std::uint8_t>(std::strtoul(end && *end == ',' ? end + 1 : "0xD9", &end, 0));
+            if (end && *end == ',') {
+                options.fuse_extended = static_cast<std::uint8_t>(std::strtoul(end + 1, nullptr, 0));
+            }
             fuses_given = true;
         } else if (arg == "--crystal" && i + 1 < argc) {
             options.external_hz = static_cast<std::uint32_t>(std::strtoul(argv[++i], nullptr, 0));
@@ -412,6 +420,7 @@ int run_avr(int argc, char** argv)
         ok = machine.load_elf(*elf, error, &fuses_set);
         if (fuses_given) {
             machine.set_fuses(options.fuse_low, options.fuse_high, machine.lock_bits()); // the command line wins
+            machine.set_extended_fuse(options.fuse_extended);
         } else if (fuses_set) {
             std::printf("fuses from the ELF: low 0x%02X, high 0x%02X\n", machine.fuse_low(), machine.fuse_high());
         }

@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Ricardo Kerschbaumer
 // SPDX-License-Identifier: MIT
 //
-// ATmega machine of the SimNodus emulator (experiment E-10, SN-257): the AVR
-// core (avr_cpu.hpp) with the chip's peripherals, fuses and memories, written
-// from the ATmega8A datasheet (DS40001974B). One class serves every chip of
-// the family through a table (atmega.cpp); the ATmega8 and ATmega8A come
-// first. Time is counted in CPU cycles at the clock the fuses select;
+// ATmega machine of the SimNodus emulator (experiment E-10, SN-257, SN-260):
+// the AVR core (avr_cpu.hpp) with the chip's peripherals, fuses and memories,
+// written from the ATmega8A (DS40001974B) and ATmega328P (DS40002061B)
+// datasheets. One class serves every chip of the family: each chip maps its
+// register addresses and interrupt vectors onto the machine's (atmega.cpp). Time is counted in CPU cycles at the clock the fuses select;
 // peripherals with events at known cycles (timers, the USART's bits, the
 // EEPROM's write time, the watchdog) stop the core at their next event. See
 // docs/experiments/E-10-plan.md.
@@ -27,20 +27,25 @@ namespace simnodus::emu {
 
 class Atmega {
 public:
-    enum class Model { Atmega8, Atmega8A };
+    enum class Model { Atmega8, Atmega8A, Atmega328, Atmega328P };
 
     struct Options {
         Model model = Model::Atmega8A;
         // Fuses and lock bits as the chip holds them (programmed = 0). The
-        // defaults are the factory values: internal RC oscillator at 1 MHz.
+        // defaults are the ATmega8's factory values (internal RC oscillator at
+        // 1 MHz); factory() gives each chip's.
         std::uint8_t fuse_low = 0xE1;
         std::uint8_t fuse_high = 0xD9;
         std::uint8_t lock = 0xFF;
+        std::uint8_t fuse_extended = 0xFF; // the ATmega328/328P's (BODLEVEL)
         // Frequency of the crystal or resonator on XTAL1/XTAL2, or of the
         // clock on XTAL1, when the fuses select one; 0: nothing connected (the
         // chip does not start, as on a breadboard).
         std::uint32_t external_hz = 0;
     };
+    // A chip's factory fuses: the ATmega8 E1/D9, the ATmega328/328P 62/D9/FF
+    // (the internal 8 MHz RC oscillator divided by 8).
+    static Options factory(Model model);
 
     // Pins: index = port * 8 + bit, port 0 = B, 1 = C, 2 = D (PB0..PB7,
     // PC0..PC6, PD0..PD7 on the ATmega8).
@@ -75,6 +80,9 @@ public:
 
     const Options& options() const { return options_; }
     const char* chip_name() const;
+    bool mega328() const { return options_.model == Model::Atmega328 || options_.model == Model::Atmega328P; }
+    std::uint32_t flash_size() const { return flash_bytes_; }
+    std::size_t eeprom_size() const { return eeprom_.size(); }
 
     // ---- Firmware ----
     // Intel HEX text (what avr-objcopy, Microchip Studio and the Arduino IDE
@@ -95,12 +103,15 @@ public:
     std::uint8_t fuse_low() const { return options_.fuse_low; }
     std::uint8_t fuse_high() const { return options_.fuse_high; }
     std::uint8_t lock_bits() const { return options_.lock; }
+    std::uint8_t fuse_extended() const { return options_.fuse_extended; }
     // New fuses take effect at the next reset, as on the chip.
     void set_fuses(std::uint8_t low, std::uint8_t high, std::uint8_t lock);
+    void set_extended_fuse(std::uint8_t value) { options_.fuse_extended = value; }
     void set_external_hz(std::uint32_t hz) { options_.external_hz = hz; }
     // The clock the fuses select (0 when the chip cannot start), and a
     // sentence describing it for the log.
     std::uint32_t clock_hz() const { return cpu_hz_; }
+    std::uint8_t clock_prescaler() const { return clkps_; } // CLKPR's CLKPS (the 328/328P)
     std::string clock_description() const;
 
     // ---- EEPROM (kept in the project by the board layer) ----
@@ -114,6 +125,8 @@ public:
     void run_until_ns(std::uint64_t ns);
     void step_instruction();
     std::uint64_t time_ns() const { return cpu_hz_ ? ns_at(cpu_.cycles()) : idle_ns_; }
+    // Interrupt vectors of the chip (2 words each above 8 KB of flash).
+    int vector_count() const { return vector_count_; }
     std::uint64_t cycles() const { return cpu_.cycles(); }
     std::uint64_t ns_at(std::uint64_t cycle) const;
     std::uint64_t cycles_at(std::uint64_t ns) const; // rounded up
@@ -156,9 +169,12 @@ public:
     const AvrCpu& cpu() const { return cpu_; }
 
     class Peripheral; // a block of I/O registers with events (atmega.cpp)
+    class TimerBase;
 
     // ---- For the peripherals (atmega.cpp) ----
-    void set_flag(int vector, bool on);   // an interrupt flag (by vector)
+    // An interrupt flag, by the machine's vector names (atmega.cpp; the chip
+    // maps them to its own vector numbers).
+    void set_flag(int vector, bool on);
     bool flag(int vector) const { return flags_[static_cast<std::size_t>(vector)]; }
     void update_interrupts();
     void diagnostic(const std::string& text);
@@ -182,6 +198,12 @@ private:
     int pending_vector();
     void taken(int vector);
     void apply_fuses();
+    void apply_fuses_328();
+    void set_cpu_hz(std::uint32_t hz); // a new CPU clock from now on (the time base moves)
+    bool pud() const; // pull-ups disabled
+    std::uint8_t flag_register(const int* order) const;
+    void clear_flags(const int* order, std::uint8_t value);
+    void sync_timers();
     bool interrupt_enabled(int vector) const;
     void pin_changed(int pin, bool before, bool after);
     std::uint64_t next_event() const;
@@ -190,6 +212,17 @@ private:
     Options options_;
     AvrCpu cpu_;
     std::uint32_t cpu_hz_ = 0;
+    std::uint32_t source_hz_ = 0; // the oscillator, before CLKPR's division
+    std::uint8_t clkps_ = 0;
+    std::uint64_t clkpce_until_ = 0;
+    std::uint64_t clock_base_cycle_ = 0; // ns_at() counts from here at cpu_hz_
+    std::uint64_t clock_base_ns_ = 0;
+    std::uint32_t flash_bytes_ = 8192;
+    std::uint32_t page_words_ = 32;
+    std::uint32_t boot_min_words_ = 128;
+    int vector_count_ = 19;
+    std::array<int, 32> vector_role_{}; // the chip's vector number -> the machine's
+    std::array<std::uint16_t, 0x100> io_role_{}; // the chip's data address -> the machine's register
     std::uint64_t startup_cycles_ = 0;
     std::uint64_t run_from_ = 0; // the first instruction after a reset's start-up time
     std::vector<std::uint8_t> eeprom_;
@@ -197,7 +230,7 @@ private:
     std::uint8_t mcucsr_ = 0;
     std::array<bool, 32> flags_{};
     std::vector<std::unique_ptr<Peripheral>> peripherals_;
-    std::array<Peripheral*, 0x100> io_owner_{}; // by data address
+    std::array<Peripheral*, 0x140> io_owner_{}; // by the machine's register
     std::uint64_t idle_ns_ = 0; // the time while the chip has no clock
     std::uint8_t timsk_ = 0;
     // Port registers and pins.
@@ -222,6 +255,11 @@ private:
     std::uint8_t mcucr_ = 0;
     std::uint8_t sfior_ = 0;
     std::uint8_t osccal_ = 0;
+    // The ATmega328/328P's.
+    std::uint8_t eicra_ = 0, eimsk_ = 0, pcicr_ = 0, smcr_ = 0, prr_ = 0, didr0_ = 0, didr1_ = 0, gtccr_ = 0;
+    std::array<std::uint8_t, 3> pcmsk_{};
+    std::array<std::uint8_t, 3> gpior_{};
+    std::array<std::uint8_t, 3> timskn_{}; // TIMSK0..TIMSK2
     std::uint64_t ivce_until_ = 0;
     // SPM and LPM.
     std::uint8_t spmcr_ = 0;
@@ -239,6 +277,7 @@ private:
     class Timer0;
     class Timer1;
     class Timer2;
+    class Timer8AB;
     class Usart;
     class Eeprom;
     class Watchdog;
@@ -252,6 +291,7 @@ private:
     friend class Timer0;
     friend class Timer1;
     friend class Timer2;
+    friend class Timer8AB;
     friend class Usart;
     friend class Eeprom;
     friend class Watchdog;
@@ -260,9 +300,9 @@ private:
     friend class Spi;
     friend class Twi;
     friend class Power;
-    Timer0* timer0_ = nullptr;
+    TimerBase* timer0_ = nullptr;
     Timer1* timer1_ = nullptr;
-    Timer2* timer2_ = nullptr;
+    TimerBase* timer2_ = nullptr;
     Usart* usart_ = nullptr;
     Eeprom* eeprom_block_ = nullptr;
     Watchdog* watchdog_ = nullptr;

@@ -1,7 +1,7 @@
-"""Generate the AVR chip parts (experiment E-10, SN-258) and the Crystal part.
+"""Generate the AVR chip parts (experiment E-10, SN-258, SN-260) and the Crystal part.
 
-resources/library/mcu/atmega8_pdip28.json and atmega8a_pdip28.json: the bare
-chips in PDIP-28, pins named as on the chip (PB0..PD7; PC6 is RESET until
+resources/library/mcu/atmega8_pdip28.json, atmega8a_pdip28.json,
+atmega328_pdip28.json and atmega328p_pdip28.json: the bare chips in PDIP-28, pins named as on the chip (PB0..PD7; PC6 is RESET until
 RSTDISBL is programmed, PB6/PB7 are XTAL1/XTAL2 when the fuses select a
 crystal), VCC, GND, AVCC and AREF. Each GPIO drives the circuit through the
 runner's pin model (5 V; the supply voltage on VCC is not read yet: SN-259).
@@ -27,13 +27,17 @@ PINOUT = [
     (25, "PC2", "PC2/ADC2"), (26, "PC3", "PC3/ADC3"), (27, "PC4", "PC4/SDA"), (28, "PC5", "PC5/SCL"),
 ]
 GPIO = [name for _, name, _ in PINOUT if name.startswith("P")]
+# The ATmega328/328P: the same pins, with Timer0's and Timer2's two outputs each.
+LABELS_328 = {"PD3": "PD3/INT1/OC2B", "PD5": "PD5/T1/OC0B", "PD6": "PD6/AIN0/OC0A", "PB3": "PB3/OC2A"}
 
 
-def chip(chip_id, title, description):
+def chip(chip_id, title, description, m328=False):
     graphics = [{"rect": [-7, -15, 14, 30]}, {"arc": [0, -15, 0.8, 180, 180]},
                 {"text": title, "at": [0, 0], "size": 0.9}]
     pins = []
     for number, name, label in PINOUT:
+        if m328:
+            label = LABELS_328.get(name, label)
         left = number <= 14
         y = -13 + 2 * ((number - 1) if left else (28 - number))
         x_end, x_body = (-9, -7) if left else (9, 7)
@@ -51,6 +55,32 @@ def chip(chip_id, title, description):
         spice.append(f"R_{{ref}}_{low} {{node:{name}}} {{node:GND}} 100Meg")
         spice.append(f"B_{{ref}}_{low} {{node:GND}} {{node:{name}}} "
                      f"I=V({{ext:{low}_i}})-V({{ext:{low}_g}})*(V({{node:{name}}})-V({{node:GND}}))")
+    if m328:
+        fuses = [
+            {"name": "fuse_low", "label": "Low fuse", "kind": "text", "default": "62",
+             "description": "Low fuse byte in hex (programmed bits are 0). 62, the factory value: internal 8 MHz RC "
+                            "oscillator divided by 8 (CKDIV8), 1 MHz, 65 ms start-up. E2: 8 MHz. FF with a 16 MHz "
+                            "Crystal between XTAL1 and XTAL2, as on the Arduino UNO"},
+            {"name": "fuse_high", "label": "High fuse", "kind": "text", "default": "D9",
+             "description": "High fuse byte in hex (programmed bits are 0). D9, the factory value; DE on the Arduino "
+                            "UNO. Bit 7 RSTDISBL (PC6 as I/O), 6 DWEN, 5 SPIEN, 4 WDTON, 3 EESAVE, 2-1 BOOTSZ, "
+                            "0 BOOTRST"},
+            {"name": "fuse_extended", "label": "Extended fuse", "kind": "text", "default": "FF",
+             "description": "Extended fuse byte in hex: BODLEVEL2:0 in bits 2-0. FF: brown-out detection off (the "
+                            "factory value), FE 1.8 V, FD 2.7 V (the Arduino UNO), FC 4.3 V"},
+        ]
+        eeprom = "1 KB"
+    else:
+        fuses = [
+            {"name": "fuse_low", "label": "Low fuse", "kind": "text", "default": "E1",
+             "description": "Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC "
+                            "oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 "
+                            "(and the high fuse C9)"},
+            {"name": "fuse_high", "label": "High fuse", "kind": "text", "default": "D9",
+             "description": "High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL "
+                            "(PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST"},
+        ]
+        eeprom = "512 bytes"
     return {
         "type": chip_id + "_pdip28",
         "name": title + "-PU (PDIP-28)",
@@ -65,17 +95,11 @@ def chip(chip_id, title, description):
              "description": "Firmware for the chip: an Intel HEX file (Microchip Studio, MPLAB X, avr-objcopy, the "
                             "Arduino IDE's exported binary) or an avr-gcc ELF file, whose fuses and EEPROM data apply "
                             "too; stored relative to the project"},
-            {"name": "fuse_low", "label": "Low fuse", "kind": "text", "default": "E1",
-             "description": "Low fuse byte in hex (programmed bits are 0). E1, the factory value: internal RC "
-                            "oscillator at 1 MHz, 65 ms start-up. EF with a 16 MHz Crystal between XTAL1 and XTAL2 "
-                            "(and the high fuse C9)"},
-            {"name": "fuse_high", "label": "High fuse", "kind": "text", "default": "D9",
-             "description": "High fuse byte in hex (programmed bits are 0). D9, the factory value. Bit 7 RSTDISBL "
-                            "(PC6 as I/O), 6 WDTON, 4 CKOPT, 3 EESAVE, 2-1 BOOTSZ, 0 BOOTRST"},
+            *fuses,
             {"name": "lock", "label": "Lock bits", "kind": "text", "default": "FF",
              "description": "Lock byte in hex; FF: no lock. The boot lock bits restrict SPM and LPM"},
             {"name": "eeprom", "label": "EEPROM", "kind": "file", "filter": "*.bin", "default": "",
-             "description": "EEPROM contents (512 bytes). SimNodus keeps what the firmware writes as "
+             "description": f"EEPROM contents ({eeprom}). SimNodus keeps what the firmware writes as "
                             "<designator>-eeprom.bin beside the project; empty: erased, or the firmware's own "
                             "EEPROM data"},
             {"name": "usart_link", "label": "USART to the computer", "kind": "text", "host_link": True,
@@ -92,7 +116,7 @@ def chip(chip_id, title, description):
             # 4.2 V at 20 mA (about 35 Ohm), pull-ups of 20-50 kOhm, VIL 0.2 VCC,
             # VIH 0.6 VCC.
             "pin_model": {"supply": 5.0, "output_resistance": 35, "pull_resistance": 35000,
-                          "input_high": 3.0, "input_low": 1.0},
+                          "input_high": 3.0, "input_low": 1.5 if m328 else 1.0},
             "uarts": [{"name": "usart", "label": "USART (PD1 TX, PD0 RX)", "tx_pin": "PD1", "rx_pin": "PD0",
                        "link_parameter": "usart_link", "reset_circuit": ""}],
         },
@@ -137,6 +161,15 @@ def main():
           chip("atmega8a", "ATmega8A", "Microchip ATmega8A-PU in PDIP-28: 8 KB flash, 1 KB "
                "SRAM, 512 bytes of EEPROM, up to 16 MHz at 2.7-5.5 V. Runs .hex or .elf firmware with its fuses; wire "
                "VCC, AVCC and GND (the pins are simulated at 5 V)"))
+    write(os.path.join(mcu, "atmega328p_pdip28.json"),
+          chip("atmega328p", "ATmega328P", "Microchip ATmega328P-PU in PDIP-28 (experimental): 32 KB flash, 2 KB "
+               "SRAM, 1 KB of EEPROM, up to 20 MHz at 1.8-5.5 V; the Arduino UNO's chip. Runs .hex or .elf firmware "
+               "with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)", m328=True))
+    write(os.path.join(mcu, "atmega328_pdip28.json"),
+          chip("atmega328", "ATmega328", "Microchip ATmega328-PU in PDIP-28 (experimental): the ATmega328P without "
+               "picoPower, with its own signature (1E 95 14); 32 KB flash, 2 KB SRAM, 1 KB of EEPROM, up to 20 MHz. "
+               "Runs .hex or .elf firmware with its fuses; wire VCC, AVCC and GND (the pins are simulated at 5 V)",
+               m328=True))
     write(os.path.join(ROOT, "resources", "library", "passive", "crystal.json"), crystal())
 
 

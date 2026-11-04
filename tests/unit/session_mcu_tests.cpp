@@ -1290,6 +1290,56 @@ TEST_CASE("session: the ATmega8A in the circuit: serial with the EEPROM, and a 1
     CHECK(crystal.mcus.front().options.parameters.at("fuse_low") == "EF");
 }
 
+TEST_CASE("session: example 55, the ATmega328P from its factory fuses: CLKPR, USART0, temperature, 1 KB EEPROM (SN-260)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded =
+        io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "55_ATmega328P_serial_CLKPR_and_temperature.snx");
+    REQUIRE(loaded.schematic.has_value());
+    model::Id chip = model::no_id;
+    for (const auto& c : loaded.schematic->components()) {
+        chip = c.designator == "U1" ? c.id : chip;
+    }
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 1);
+    CHECK(request.mcus.front().options.chip == "atmega328p");
+    CHECK(request.mcus.front().options.parameters.at("fuse_low") == "62");
+    CHECK(request.mcus.front().options.parameters.at("fuse_extended") == "FF");
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](const std::string& wanted) {
+        std::string text;
+        while (text.find(wanted) == std::string::npos) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(10ms);
+            text.clear();
+            session.mcu_uart_received(chip, "usart", 0, text);
+        }
+        return text;
+    };
+    wait_for("ATmega328P ready\r\n> ");
+    session.mcu_uart_send(chip, "usart", "t?");
+    wait_for("temperature: 352\r\n> \r\nbytes: 2\r\n> ");
+    while (!session.device_memory(chip)) { // the EEPROM's last write takes 3.4 ms
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+    }
+    session.stop();
+    const auto eeprom = session.device_memory(chip);
+    REQUIRE(eeprom.has_value());
+    REQUIRE(eeprom->size() == 1024);
+    CHECK((*eeprom)[0] == 2);
+}
+
 TEST_CASE("session: example 52 reads the potentiometer with the ATmega8's ADC and sets the PWM from it (SN-259)")
 {
     REQUIRE(test::engine() != nullptr);

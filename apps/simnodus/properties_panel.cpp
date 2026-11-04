@@ -455,7 +455,7 @@ void PropertiesPanel::rebuild()
             value_editor_ = editor;
         }
     }
-    if (d->mcu && (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") && components.size() == 1) {
+    if (d->mcu && library::avr_chip(d->mcu->chip) && components.size() == 1) {
         // An AVR chip's fuses decoded field by field (E-10, SN-258).
         auto* fuses = new QPushButton(tr("Fuses..."));
         fuses->setObjectName(QStringLiteral("fusesButton"));
@@ -756,15 +756,18 @@ void PropertiesPanel::edit_fuses(model::Id id, const std::string& chip)
         FusesDialog::parse_byte(QString::fromStdString(text), value);
         return value;
     };
-    FusesDialog dialog(chip, byte("fuse_low"), byte("fuse_high"), byte("lock"), this);
+    FusesDialog dialog(chip, byte("fuse_low"), byte("fuse_high"), byte("lock"), this, byte("fuse_extended"));
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }
     const auto& s = document_->schematic();
     model::Schematic work = s;
     auto hex = [](std::uint8_t v) { return QStringLiteral("%1").arg(v, 2, 16, QLatin1Char('0')).toUpper().toStdString(); };
-    const std::pair<const char*, std::uint8_t> values[] = {
+    std::vector<std::pair<const char*, std::uint8_t>> values = {
         {"fuse_low", dialog.low()}, {"fuse_high", dialog.high()}, {"lock", dialog.lock()}};
+    if (dialog.has_extended()) {
+        values.emplace_back("fuse_extended", dialog.extended());
+    }
     bool changed = false;
     for (const auto& [name, value] : values) {
         if (byte(name) != value) {

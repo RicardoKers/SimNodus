@@ -4,6 +4,11 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-04, SN-260)
+
+- **ATmega328P-PU** and **ATmega328-PU** parts (Microcontrollers, PDIP-28), experimental until compared with a real chip (ADR 0108). They run in the ATmega8's emulator, which now maps each chip's registers and interrupt vectors onto one machine: 32 KB of flash, 2 KB of SRAM, 1 KB of EEPROM, two-word vectors; the extended fuse (BODLEVEL), CKDIV8 and CLKPR with the clock changing at run time; Timer0 and Timer2 with two outputs each in eight waveform modes; the pin change interrupts PCINT0-23; EICRA/EIMSK; the watchdog's interrupt mode, its 128 kHz oscillator and the reset WDRF keeps on; the 1.1 V reference, the temperature sensor (read as at 25 °C) and the ADC's auto trigger; USART0's UCSR0C/UBRR0H; the EEPROM's EEPM modes; DIDR0/1, GPIOR0-2, PINx toggling, extended standby; signature and fuse reads. The **Fuses...** dialog shows the 328's fields and the extended fuse; the Memory Viewer shows its 1 KB EEPROM; `simnodus-emu --avr atmega328p` runs it on the command line.
+- Examples 55 (serial after CLKPR, the temperature sensor, a counter in the EEPROM), 56 (four PWM outputs and an ADC triggered by Timer0's overflow) and 57 (power-down woken by the watchdog, a pin change and INT0), with their owned firmware in `examples/firmware/avr328_*`.
+
 ### Changed (2026-11-04, decision DE10)
 
 - The **ATmega8-PU** and **ATmega8A-PU** are no longer experimental (ADR 0108). The owner ran examples 50, 51, 52 and 54 on a real ATmega8 and saw the same serial output, PWM, crystal clock, EEPROM and sleep timing as in the simulation (E-10, G10b.9). The ADC, the analog comparator and the brown-out levels stay labeled approximate until they are measured on a chip.

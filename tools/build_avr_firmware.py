@@ -1,7 +1,8 @@
 """Build the AVR example firmware (experiment E-10) into .elf and .hex files.
 
-Each examples/firmware/avr_<name>/avr_<name>.c is built for the ATmega8 with
-avr-gcc and avr-libc. The default clock is the factory one (internal RC,
+Each examples/firmware/avr_<name>/avr_<name>.c is built for the ATmega8, and
+each avr328_<name>/avr328_<name>.c for the ATmega328P, with avr-gcc and
+avr-libc. The default clock is the factory one (internal RC,
 1 MHz); VARIANTS adds builds at another F_CPU (the firmware's FUSES select
 the clock source). The ELF and HEX files are committed so that the examples
 run without a compiler; avr_firmware.json records the compiler and the
@@ -27,12 +28,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FIRMWARE = ROOT / "examples" / "firmware"
-FLAGS = ["-mmcu=atmega8", "-std=c11", "-Os", "-g", "-Wall", "-Wextra", "-Werror", "-ffunction-sections",
+FLAGS = ["-std=c11", "-Os", "-g", "-Wall", "-Wextra", "-Werror", "-ffunction-sections",
          "-fdata-sections", "-Wl,--gc-sections", "-fdebug-prefix-map={root}=."]  # GCC 7: no -ffile-prefix-map
 # name -> list of (suffix, F_CPU)
 VARIANTS = {
     "avr_blink": [("", 1_000_000), ("_16mhz", 16_000_000)],
     "avr_bus": [("", 8_000_000)],
+    "avr328_serial": [("", 8_000_000)],
 }
 
 
@@ -64,7 +66,7 @@ def main() -> None:
     version = subprocess.run([str(gcc), "--version"], capture_output=True, text=True, check=True).stdout.splitlines()[0]
     record = {"compiler": version, "flags": FLAGS, "firmware": {}}
     flags = [f.replace("{root}", str(ROOT)) for f in FLAGS]
-    for folder in sorted(FIRMWARE.glob("avr_*")):
+    for folder in sorted([*FIRMWARE.glob("avr_*"), *FIRMWARE.glob("avr328_*")]):
         source = folder / f"{folder.name}.c"
         if not source.is_file():
             continue
@@ -72,11 +74,14 @@ def main() -> None:
             name = folder.name + suffix
             elf = folder / f"{name}.elf"
             hex_file = folder / f"{name}.hex"
-            subprocess.run([str(gcc), *flags, f"-DF_CPU={f_cpu}UL", str(source), "-o", str(elf)], check=True)
+            mcu = "atmega328p" if folder.name.startswith("avr328_") else "atmega8"
+            subprocess.run([str(gcc), f"-mmcu={mcu}", *flags, f"-DF_CPU={f_cpu}UL", str(source), "-o", str(elf)],
+                           check=True)
             subprocess.run([str(objcopy), "-O", "ihex", "-R", ".eeprom", "-R", ".fuse", "-R", ".lock", str(elf),
                             str(hex_file)], check=True)
             record["firmware"][name] = {
                 "source": source.relative_to(ROOT).as_posix(),
+                "mcu": mcu,
                 "f_cpu": f_cpu,
                 "elf": elf.relative_to(ROOT).as_posix(),
                 "elf_sha256": sha256(elf),

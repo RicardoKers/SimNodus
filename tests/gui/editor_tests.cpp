@@ -1578,6 +1578,31 @@ private slots:
         QVERIFY(!FusesDialog::parse_byte(QStringLiteral("1FF"), v));
     }
 
+    void atmega328_fuses_dialog_has_the_extended_fuse_and_the_unos_bytes()
+    {
+        // SN-260: the 328's fields, CKDIV8 and the extended fuse.
+        FusesDialog dialog("atmega328p", 0x62, 0xD9, 0xFF, nullptr, 0xFF);
+        QVERIFY(dialog.has_extended());
+        auto* clock = dialog.findChild<QComboBox*>(QStringLiteral("fuseClock"));
+        auto* ckdiv8 = dialog.findChild<QCheckBox*>(QStringLiteral("fuseBit0_7"));
+        auto* bodlevel = dialog.findChild<QComboBox*>(QStringLiteral("fuseField3_7"));
+        auto* extended = dialog.findChild<QLineEdit*>(QStringLiteral("fuseByte3"));
+        QVERIFY(clock && ckdiv8 && bodlevel && extended);
+        QCOMPARE(clock->currentData().toInt(), 0x2); // the internal 8 MHz RC
+        QVERIFY(ckdiv8->isChecked());
+        QVERIFY(dialog.clock_summary().contains(QStringLiteral("divided by 8")));
+        // The UNO's bytes: a low-power crystal of 8-16 MHz, no CKDIV8, BODLEVEL 2.7 V.
+        clock->setCurrentIndex(clock->findData(0xE));
+        emit clock->activated(clock->currentIndex());
+        ckdiv8->setChecked(false);
+        QCOMPARE(dialog.low(), std::uint8_t{0xEF}); // 16K CK + 4.1 ms
+        bodlevel->setCurrentIndex(bodlevel->findData(0x05));
+        emit bodlevel->activated(bodlevel->currentIndex());
+        QCOMPARE(dialog.extended(), std::uint8_t{0xFD});
+        QCOMPARE(extended->text(), QStringLiteral("FD"));
+        QCOMPARE(FusesDialog::factory("atmega328")[0], std::uint8_t{0x62});
+    }
+
     void atmega8_takes_the_fuses_of_its_elf_into_the_project()
     {
 #if !defined(SIMNODUS_TEST_NGSPICE_LIBRARY)

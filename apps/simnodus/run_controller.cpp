@@ -114,7 +114,7 @@ void RunController::take_elf_fuses()
     std::vector<std::pair<model::Id, QString>> changed;
     for (const auto& c : schematic.components()) {
         const auto* d = document_.library().find(c.type);
-        if (!d || !d->mcu || (d->mcu->chip != "atmega8" && d->mcu->chip != "atmega8a")) {
+        if (!d || !d->mcu || !library::avr_chip(d->mcu->chip)) {
             continue;
         }
         const auto firmware = c.parameters.find(d->mcu->firmware_parameter);
@@ -136,6 +136,9 @@ void RunController::take_elf_fuses()
             if (section.address == 0x820000 && section.data.size() >= 2) {
                 wanted.emplace_back("fuse_low", section.data[0]);
                 wanted.emplace_back("fuse_high", section.data[1]);
+                if (section.data.size() >= 3 && d->parameter("fuse_extended")) {
+                    wanted.emplace_back("fuse_extended", section.data[2]);
+                }
             } else if (section.address == 0x830000 && !section.data.empty()) {
                 wanted.emplace_back("lock", section.data[0]);
             }
@@ -346,7 +349,7 @@ bool RunController::keep_written_flash()
         // What a run writes and the project keeps: the ESP32-C3's flash
         // (uploads, the firmware's files) becomes its firmware; an ATmega8's
         // EEPROM goes into its EEPROM parameter (E-10, SN-258).
-        const bool avr = d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a";
+        const bool avr = library::avr_chip(d->mcu->chip);
         if (d->mcu->chip != "esp32c3" && !avr) {
             continue;
         }

@@ -82,12 +82,21 @@ struct Parameter {
     std::map<std::string, model::Orientation> orientations;
 };
 
+// The bare AVR chips (experiment E-10): .hex or .elf firmware with fuses and
+// an EEPROM kept in the project.
+inline bool avr_chip(const std::string& chip)
+{
+    return chip == "atmega8" || chip == "atmega8a" || chip == "atmega328" || chip == "atmega328p";
+}
+
 // Microcontroller board (MCU-01, INT-06): runs firmware in SimNodus's own
 // emulator (ADR 0089, 0094, 0106). The chip's GPIO pins are named as on the
 // chip ("PA0" on the STM32F103, "GPIO0" on the ESP32-C3); the others are power
 // or control pins.
 struct McuBoard {
-    std::string chip = "stm32f103";       // "esp32c3" (experimental, ADR 0106), "atmega8", "atmega8a" (E-10)
+    // "esp32c3" (experimental, ADR 0106), "atmega8", "atmega8a" (E-10),
+    // "atmega328", "atmega328p" (SN-260).
+    std::string chip = "stm32f103";
     std::string firmware_parameter;       // a File parameter
     std::string ground_pin = "G1";        // reference of the pin voltages
     // Electrical GPIO model (MCU-03): driven outputs through a resistance to the

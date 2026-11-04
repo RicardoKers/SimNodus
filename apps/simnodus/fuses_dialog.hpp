@@ -28,12 +28,18 @@ class FusesDialog : public QDialog {
     Q_OBJECT
 
 public:
-    // `chip`: "atmega8" or "atmega8a"; the bytes as the part holds them.
-    FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t high, std::uint8_t lock, QWidget* parent = nullptr);
+    // `chip`: "atmega8", "atmega8a", "atmega328" or "atmega328p"; the bytes as
+    // the part holds them (the extended fuse: the 328/328P's).
+    FusesDialog(const std::string& chip, std::uint8_t low, std::uint8_t high, std::uint8_t lock, QWidget* parent = nullptr,
+        std::uint8_t extended = 0xFF);
 
     std::uint8_t low() const { return bytes_[0]; }
     std::uint8_t high() const { return bytes_[1]; }
     std::uint8_t lock() const { return bytes_[2]; }
+    std::uint8_t extended() const { return bytes_[3]; }
+    bool has_extended() const { return m328_; }
+    // A chip's factory bytes: low, high, lock, extended.
+    static std::array<std::uint8_t, 4> factory(const std::string& chip);
     // A sentence for the chosen clock, as the dialog shows it.
     QString clock_summary() const;
 
@@ -42,7 +48,7 @@ public:
 
 private:
     struct Bit {
-        int byte; // 0 low, 1 high, 2 lock
+        int byte; // 0 low, 1 high, 2 lock, 3 extended
         int bit;
         QCheckBox* box;
     };
@@ -56,8 +62,10 @@ private:
     void add_bit(int byte, int bit, const QString& text, const QString& tip = {});
     Field& add_field(int byte, std::uint8_t mask, const QString& label, const std::vector<std::pair<int, QString>>& values);
 
-    std::array<std::uint8_t, 3> bytes_{};
-    std::array<QLineEdit*, 3> hex_{};
+    std::array<std::uint8_t, 4> bytes_{};
+    std::array<QLineEdit*, 4> hex_{};
+    bool m328_ = false;
+    int group(int cksel) const;
     std::vector<Bit> bits_;
     std::vector<Field> fields_;
     QComboBox* clock_ = nullptr;

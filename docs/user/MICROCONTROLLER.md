@@ -456,6 +456,55 @@ emulator (experiment E-10, ADR 0108).
   on a watch crystal, sleeping in Power-save). Their firmware sources
   are in `examples/firmware/avr_*`.
 
+## ATmega328 and ATmega328P (experimental)
+
+The **ATmega328P-PU** (the Arduino UNO's chip) and **ATmega328-PU** parts
+(Microcontrollers) have the ATmega8's pinout and run in the same emulator
+(SN-260). They are **experimental** until they are compared with a real
+chip (ADR 0108). The two differ only in their signature (1E 95 0F and
+1E 95 14) and the 328P's BODS. Everything in the ATmega8's section above
+holds, with these differences:
+
+- **Memories**: 32 KB of flash, 2 KB of SRAM, 1 KB of EEPROM. The
+  interrupt vectors take two words (JMP).
+- **Fuses**: a third byte, the **Extended fuse**, holds BODLEVEL. The
+  **Fuses...** dialog shows the 328's fields.
+  - The factory values (62, D9, FF) select the internal 8 MHz RC
+    oscillator divided by 8 (CKDIV8): the chip starts at 1 MHz.
+    Firmware may change the division at run time through CLKPR (avr-libc's
+    `clock_prescale_set`), and the simulation's clock follows.
+  - The Arduino UNO's fuses are FF, DE and FD: a 16 MHz crystal (place a
+    **Crystal** between PB6 and PB7), a 256-word boot section with the
+    reset vector in it, brown-out at 2.7 V.
+  - The low-power crystal oscillator warns when the crystal is above the
+    range CKSEL3:1 selects. CKOUT and DWEN are noted in the log.
+- **Brown-out**: BODLEVEL 1.8, 2.7 or 4.3 V, from the extended fuse.
+- **What runs**, on top of the ATmega8's:
+  - Timer0 and Timer2 with two compare outputs each (OC0A PD6, OC0B PD5,
+    OC2A PB3, OC2B PD3) in all eight waveform modes; Timer1's TCCR1C;
+  - the pin change interrupts PCINT0-23 on ports B, C and D. They wake
+    the chip from every sleep mode;
+  - INT0 and INT1 through EICRA and EIMSK; writing 1 to a PINx bit toggles
+    the pin;
+  - the watchdog's interrupt mode (WDIE), its 128 kHz oscillator
+    (16 ms to 8 s), and the reset that WDRF keeps on until the firmware
+    clears MCUSR, as on the chip;
+  - the ADC's 1.1 V reference, the temperature sensor (ADC8, read as at
+    25 °C: about 352; real chips need calibration) and auto triggering
+    from ADTS (free running, the comparator, INT0, Timer0 and Timer1
+    events);
+  - USART0's own UCSR0C and UBRR0H, the EEPROM's erase-only and write-only
+    modes (EEPM), DIDR0 and DIDR1, GPIOR0-2, extended standby sleep;
+  - signature and fuse reads through SPM's SIGRD and BLBSET.
+- **Not yet**: the USART's SPI master mode, PRR stopping a module (it is
+  accepted; the module keeps running), Timer2's external clock (EXCLK),
+  the Arduino UNO board and its bootloader (SN-261), GDB (SN-262).
+- **Examples**: 55 (serial at 38400 baud after CLKPR, the temperature
+  sensor, a counter in the EEPROM), 56 (the four 8-bit PWM outputs and an
+  ADC triggered by Timer0's overflow) and 57 (power-down woken by the
+  watchdog, a pin change and INT0). Their firmware sources are in
+  `examples/firmware/avr328_*`.
+
 ## Debugging with STM32CubeIDE or GDB
 
 SimNodus's emulator contains a GDB server (SN-180), so the firmware can be

@@ -920,7 +920,7 @@ void attach_devices(const model::Schematic& schematic, const library::ComponentL
 void avr_options(const model::Schematic& schematic, const library::ComponentLibrary& library, const model::Component& c,
     const std::filesystem::path& project_dir, mcu::McuRunOptions& options)
 {
-    for (const char* name : {"fuse_low", "fuse_high", "lock"}) {
+    for (const char* name : {"fuse_low", "fuse_high", "fuse_extended", "lock"}) {
         const auto it = c.parameters.find(name);
         if (it != c.parameters.end()) {
             options.parameters[name] = it->second;
@@ -982,8 +982,8 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
         if (firmware.empty() && !loaded_by_debugger) {
             error = c.designator + " has no firmware: choose "
                 + (d->mcu->chip == "esp32c3"                                 ? "a flash image (.bin)"
-                   : d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a" ? "a .hex or .elf file"
-                                                                               : "an ELF file")
+                   : library::avr_chip(d->mcu->chip) ? "a .hex or .elf file"
+                                                     : "an ELF file")
                 + " in its properties.";
             return false;
         }
@@ -1025,7 +1025,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 request.options.parameters[p.name] = it == c.parameters.end() ? p.default_value : it->second;
             }
         }
-        if (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") {
+        if (library::avr_chip(d->mcu->chip)) {
             avr_options(schematic, library, c, environment.project_dir, request.options);
         }
         for (const auto& pin : d->pins) {
@@ -1033,7 +1033,7 @@ bool build_mcu_requests(const model::Schematic& schematic, const library::Compon
                 request.options.pins.push_back(pin.name);
             }
         }
-        if (d->mcu->chip == "atmega8" || d->mcu->chip == "atmega8a") {
+        if (library::avr_chip(d->mcu->chip)) {
             // A bare chip reads its supply from the circuit (SN-259): power,
             // brown-out and the ADC's references.
             for (const char* supply : {"VCC", "AVCC", "AREF"}) {

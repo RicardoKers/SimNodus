@@ -333,7 +333,33 @@ The ADC, the analog comparator and the brown-out levels stay labeled
 approximate. The next chips start experimental until they are compared
 with a real one.
 
+## The ATmega328/328P (SN-260, 2026-11-04)
+
+One machine serves both families. Each chip maps its data addresses onto the
+machine's registers (the ATmega8's names, plus the 328's own from 0x100) and
+its vector numbers onto the machine's vectors, in its own priority order.
+The ATmega8's tests pass unchanged, and its firmware builds byte for byte
+as before.
+
+- Owned firmware `examples/firmware/avr328_*` (avr-gcc 7.3.0,
+  `-mmcu=atmega328p`): `avr328_serial` (CLKPR to 8 MHz, USART0 at 38400
+  baud, PINB toggle, the temperature sensor, an EEPROM counter),
+  `avr328_pwm` (Timer0 fast PWM and Timer2 phase-correct PWM on four pins,
+  the ADC auto-triggered by Timer0's overflow, Timer1 CTC) and
+  `avr328_wake` (power-down woken by the watchdog's interrupt, PCINT20 and
+  INT0's low level, BODS).
+- `emu-atmega328` checks them exact in cycles: the bit time (208 cycles,
+  26 µs), Timer0's 512/1536 and Timer2's 1024/3056 cycles, the watchdog's
+  1.024 s, the wake-ups, the reset loop that WDRF keeps, the signature
+  bytes and the extended fuse read through SPM, the UNO's fuses (16 MHz,
+  the reset vector at 0x3F00).
+- Approximate, labeled in the guide: the temperature sensor reads as at
+  25 °C (code 352, the datasheet's typical value); the 128 kHz watchdog
+  oscillator's nominal period; the BOD levels' typical values.
+- The 328/328P stay experimental until compared with a chip (ADR 0108).
+
 ## Not covered yet
 
 - The ADC's ±2 LSB on the chip, and example 53 with the real chips.
-- Then the ATmega328/328P and ATmega32/32A (SN-260).
+- The ATmega328P compared with a chip (examples 55-57).
+- The Arduino UNO (SN-261), the ATmega32/32A (SN-263), avr-gdb (SN-262).
