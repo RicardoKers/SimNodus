@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-05 (SN-262, GDB for the AVR chips with avr-gdb, tested by the owner; on `main` after 0.14.0, ready for 0.15.0). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (release 0.15.0: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,19 +8,16 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **On `main` since 0.14.0** (not released yet):
+- **Release 0.15.0 (2026-11-05)**, after the owner's tests of the
+  2026-11-05 preview (examples 50, 55 and 58 with avr-gdb 7.8) and the
+  2026-11-05b preview (the waiting message per chip and per board):
   - SN-262, GDB for the AVR chips and the UNO with `avr-gdb`: an `AvrTarget`
     for the GDB server with avr-gdb's registers and address spaces (flash
     from 0, SRAM from 0x800000, EEPROM from 0x810000), breakpoints,
-    watchpoints on SRAM and I/O, `load` as on the Blue Pill. Checked with
-    avr-gdb 7.8 (Microchip Studio 7, also in MPLAB XC8 2.36 on the owner's
-    laptop) against `simnodus-emu --avr ... --gdb` and in the session tests
-    (example 58). Preview for the owner:
-    `dist/SimNodus-0.15-preview-2026-11-05-avr-gdb-windows-x64.zip` (its
-    window, example 55 and avr-gdb 7.8 checked: halt at the reset vector,
-    `break main`, `next`, SRAM reads, detach runs on). The owner tested it
-    on 2026-11-05: examples 50, 55 and 58 work with avr-gdb; the waiting
-    message now names only the chip's own debugger.
+    watchpoints on SRAM and I/O, `load` as on the Blue Pill. avr-gdb 7.8 is
+    in Microchip Studio 7 and MPLAB XC8 2.36, not in the Arduino tools.
+  - The *Waiting for the debugger* message names only the debugger of each
+    board's chip and, with several boards, each board's port (#282).
   - A warning when one net carries two label names (`label-conflict`).
 - **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
   with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
@@ -184,10 +181,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    the owner's chip, DE10, ADR 0108; the ADC's ±2 LSB and example 53's chips
    not measured), and, experimental, the ATmega328/328P, the ATmega32/32A and
    the Arduino UNO with Optiboot (uploads from the Arduino IDE checked by the
-   owner through Eterlogic's virtual port pair). Next, with the owner's go:
-   - release 0.15.0 with SN-262, the `label-conflict` warning and the
-     per-chip debugger message (#282), which the 2026-11-05 preview zip
-     does not have yet;
+   owner through Eterlogic's virtual port pair); GDB with `avr-gdb` (SN-262)
+   in 0.15.0. Next, with the owner's go:
    - comparisons with real chips and boards that end the experimental mark:
      examples 55-57 on a 328P with a USBasp (factory fuses, 1 MHz), 58 on an
      UNO, 59 on an ATmega32.

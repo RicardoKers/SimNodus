@@ -4,6 +4,8 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+## 0.15.0 — 2026-11-05
+
 ### Changed (2026-11-05, owner's test of SN-262)
 
 - The *Waiting for the debugger* message of a debug run names only the debugger for the circuit's chip (`avr-gdb`, `riscv32-esp-elf-gdb`, or STM32CubeIDE / `arm-none-eabi-gdb`) instead of all of them; with several boards it lists each board's debugger and port (3333, 3334, ...).

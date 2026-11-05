@@ -1,7 +1,7 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.14 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.15 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
 ESP32-C3 board).
 Run simnodus.exe; no installation, account or network access is needed.
@@ -19,6 +19,13 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.15: Simulate > Debug Firmware with GDB works with the AVR chips
+and the Arduino UNO through avr-gdb (Microchip Studio, MPLAB XC8, avr-gcc
+toolchains): breakpoints, watchpoints on the SRAM and I/O registers,
+stepping and load. While a debug run waits, its message names only the
+debugger for the circuit's chip and each board's port. The pre-run checks
+warn when one net carries two label names.
 
 New in 0.14: AVR microcontrollers in SimNodus's own emulator. The bare
 ATmega8 and ATmega8A (PDIP-28) run .hex or .elf firmware from Microchip
