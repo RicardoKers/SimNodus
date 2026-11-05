@@ -1457,8 +1457,32 @@ Pinos: %2</translation>
             <translation>Verificação</translation>
         </message>
         <message>
-            <source>Waiting for the debugger: connect STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb or avr-gdb to localhost:%1. The circuit starts when the firmware runs. To run without a debugger, turn off Simulate &gt; Debug Firmware with GDB.</source>
-            <translation>Aguardando o depurador: conecte o STM32CubeIDE, o arm-none-eabi-gdb, o riscv32-esp-elf-gdb ou o avr-gdb a localhost:%1. O circuito começa quando o firmware rodar. Para executar sem depurador, desligue Simular &gt; Depurar firmware com GDB.</translation>
+            <source>riscv32-esp-elf-gdb</source>
+            <translation>o riscv32-esp-elf-gdb</translation>
+        </message>
+        <message>
+            <source>avr-gdb</source>
+            <translation>o avr-gdb</translation>
+        </message>
+        <message>
+            <source>STM32CubeIDE or arm-none-eabi-gdb</source>
+            <translation>o STM32CubeIDE ou o arm-none-eabi-gdb</translation>
+        </message>
+        <message>
+            <source>%1 to localhost:%2 (%3)</source>
+            <translation>%1 a localhost:%2 (%3)</translation>
+        </message>
+        <message>
+            <source>Waiting for the debugger: connect %1 to localhost:%2.</source>
+            <translation>Aguardando o depurador: conecte %1 a localhost:%2.</translation>
+        </message>
+        <message>
+            <source>Waiting for the debuggers: connect %1.</source>
+            <translation>Aguardando os depuradores: conecte %1.</translation>
+        </message>
+        <message>
+            <source>The circuit starts when the firmware runs. To run without a debugger, turn off Simulate &gt; Debug Firmware with GDB.</source>
+            <translation>O circuito começa quando o firmware rodar. Para executar sem depurador, desligue Simular &gt; Depurar firmware com GDB.</translation>
         </message>
         <message>
             <source>Simulation started. Click switches and buttons to operate them.</source>

@@ -14,6 +14,7 @@
 #include "tone_output.hpp"
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
+#include "editing/operations.hpp"
 #include "library/component_library.hpp"
 #endif
 
@@ -239,6 +240,34 @@ private slots:
         QVERIFY(window.panel_visible(Panel::Messages));
         QCOMPARE(window.messages()->warning_count(), 1);
         QCOMPARE(window.messages()->error_count(), 1);
+    }
+
+    void gdb_waiting_message_names_each_boards_debugger()
+    {
+        auto settings = fresh_settings();
+        MainWindow window(*settings);
+        const auto& parts = window.library();
+        simnodus::model::Schematic circuit;
+        QVERIFY(gdb_waiting_message(circuit, parts, 3333).isEmpty());
+        auto add = [&](const char* type, simnodus::model::Point at) {
+            simnodus::model::Id id = simnodus::model::no_id;
+            simnodus::editing::add_component(circuit, *parts.find(type), at, {}, &id).apply(circuit);
+            return QString::fromStdString(circuit.component(id)->designator);
+        };
+        add("resistor", {0, 0});
+        const QString uno = add("arduino_uno", {0, 40});
+        QString text = gdb_waiting_message(circuit, parts, 3333);
+        QVERIFY2(text.startsWith(QStringLiteral("Waiting for the debugger: connect avr-gdb to localhost:3333.")),
+            qPrintable(text));
+        QVERIFY(!text.contains(QStringLiteral("arm-none-eabi")) && !text.contains(QStringLiteral("riscv32")));
+        const QString pill = add("bluepill", {80, 40});
+        const QString c3 = add("esp32c3_devkitm1", {160, 40});
+        text = gdb_waiting_message(circuit, parts, 3333);
+        QVERIFY2(text.startsWith(QStringLiteral("Waiting for the debuggers: connect avr-gdb to localhost:3333 (%1); "
+                                                "STM32CubeIDE or arm-none-eabi-gdb to localhost:3334 (%2); "
+                                                "riscv32-esp-elf-gdb to localhost:3335 (%3).")
+                                     .arg(uno, pill, c3)),
+            qPrintable(text));
     }
 
     void shortcut_list_follows_the_menus()
