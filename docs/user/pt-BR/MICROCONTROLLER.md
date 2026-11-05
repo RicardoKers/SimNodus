@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 600c1f469e6d82bdff6637a3ac4d5998e9ca92ca726c4d1c5cb401d7ed0f5e19 -->
+<!-- source: MICROCONTROLLER.md sha256 92806782e50bccd4fec75daa24af13d6bc3a8cb44aa50b1d41a4e916da39ed61 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -478,6 +478,8 @@ próprio SimNodus (experimento E-10, ADR 0108).
   (um LM75 e uma 24C02 por TWI, um 74HC595 por SPI) e 54 (um relógio de
   tempo real com cristal de relógio, dormindo em Power-save). Os fontes dos firmwares
   estão em `examples/firmware/avr_*`.
+- **Depuração** com o `avr-gdb` (todos os chips AVR e o UNO): veja
+  [Depuração com STM32CubeIDE ou GDB](#depuração-com-stm32cubeide-ou-gdb).
 
 ## ATmega328 e ATmega328P (experimental)
 
@@ -521,8 +523,7 @@ As peças **ATmega328P-PU** (o chip do Arduino UNO) e **ATmega328-PU**
     standby;
   - a leitura da assinatura e dos fusíveis pelo SIGRD e pelo BLBSET do SPM.
 - **Ainda não**: o modo mestre SPI da USART, o PRR parando um módulo (ele
-  é aceito; o módulo continua rodando), o clock externo do Timer2 (EXCLK),
-  a placa Arduino UNO e o seu bootloader (SN-261), o GDB (SN-262).
+  é aceito; o módulo continua rodando) e o clock externo do Timer2 (EXCLK).
 - **Exemplos**: 55 (serial a 38400 baud depois do CLKPR, o sensor de
   temperatura, um contador na EEPROM), 56 (as quatro saídas PWM de 8 bits e
   um ADC disparado pelo overflow do Timer0) e 57 (power-down acordado pelo
@@ -561,7 +562,7 @@ registradores, fusíveis e fontes de clock), com estas diferenças:
   - SPI em PB4-PB7, TWI em PC0 (SCL) e PC1 (SDA), o comparador em PB2
     (AIN0) e PB3 (AIN1); o sleep extended standby.
 - **Ainda não**: o JTAG e a depuração no chip em si (o OCDEN não tem
-  efeito).
+  efeito); o `avr-gdb` funciona pelo próprio servidor GDB do SimNodus.
 - **Exemplo**: 59 (JTD e uma contagem em PC2-PC5, um PWM no OC0 pelo
   potenciômetro, o INT2, o ADC diferencial). O fonte do firmware está em
   `examples/firmware/avr32_demo`.
@@ -686,6 +687,67 @@ coloque um breakpoint em `app_main`. Testado com o Espressif-IDE e o
 exemplo blink do ESP-IDF v6.1. Uma nova conexão substitui a que está
 conectada, então reiniciar a sessão de depuração enquanto a anterior ainda
 está conectada funciona.
+
+**ATmega8/8A, ATmega328/328P, ATmega32/32A e o Arduino UNO** (SN-262): o
+mesmo menu funciona com o `avr-gdb`. A IDE do Arduino não o instala; ele vem
+com o Microchip Studio (`toolchain\avr8\avr8-gnu-toolchain\bin\avr-gdb.exe`
+na sua pasta), com o AVR 8-bit toolchain da Microchip e com o MPLAB XC8
+(`avr\bin\avr-gdb.exe`); no Linux ele é o pacote `gdb-avr`. O gdb lê os
+símbolos do ELF do firmware, então compile com `-g` (o avr-gcc faz isso por
+padrão na configuração Debug do Microchip Studio; o
+`arduino-cli compile --export-binaries` copia o `.elf` de um sketch para a
+pasta `build` dele).
+
+```text
+avr-gdb firmware.elf
+(gdb) target remote :3333
+(gdb) break main
+(gdb) continue
+(gdb) next
+(gdb) info registers
+(gdb) x/8xb 0x800100
+(gdb) watch counter
+(gdb) detach
+```
+
+- **Registradores**: r0-r31, SREG, SP e PC (um endereço em bytes, como no
+  ELF).
+- **Endereços** como o avr-gdb os conta: a flash a partir de 0, o espaço de
+  dados a partir de 0x800000 (os registradores, os registradores de I/O nos
+  seus endereços de dados e depois a SRAM: `x/8xb 0x800100` mostra o início
+  da SRAM do ATmega328P), a EEPROM a partir de 0x810000. Um breakpoint num
+  endereço de código puro precisa de um cast, `break *(void(*)())0x2ea`: o
+  avr-gdb entende `*0x2ea` como um endereço de dados (o servidor recusa
+  breakpoints fora da flash).
+- **A execução começa** com o firmware parado no vetor de reset; o do UNO é
+  o início do Optiboot (0x7E00), e o Optiboot inicia o sketch logo depois
+  desse reset de power-on, então `break main` e `continue` funcionam.
+- **`load`** grava as seções de flash e de EEPROM do ELF, como um
+  gravador, e o próximo passo ou continue começa de um reset; o **Firmware**
+  da placa pode ficar vazio, como na Blue Pill. Os fusíveis do ELF são
+  aceitos, mas ficam os da peça (ajuste-os em **Fuses...**). A flash que o
+  `load` grava vale para a execução; ela não fica guardada no projeto.
+- **`monitor reset`** reinicia o chip como num power-on (o MCUSR mostra o
+  PORF).
+- **Watchpoints** na SRAM e nos registradores de I/O param depois da
+  instrução (`watch` no `UDR0` para a cada byte enviado); um watchpoint na
+  EEPROM é recusado, e então o gdb vigia executando passo a passo
+  (lentamente).
+- **Ler um registrador de I/O** no depurador não tem efeitos colaterais (o
+  `UDR` mantém o seu byte, ler o `ADCL` não trava o `ADCH`); escrever um faz
+  o que a escrita do firmware faz.
+- Com um depurador conectado, uma instrução `BREAK` no firmware
+  (ATmega328/328P, ATmega32/32A) para o firmware depois do `BREAK`.
+
+Testado com o `avr-gdb` 7.8 do Microchip Studio 7 nos firmwares de
+`examples/firmware` (avr_blink no ATmega8, avr328_serial no ATmega328P,
+avr32_demo no ATmega32A) e num sketch blink do Arduino compilado pelo
+`arduino-cli` (com otimização no link): breakpoints, `next`, `stepi`, um
+backtrace, `watch`, `rwatch` (parando na interrupção da USART), `load`,
+`monitor reset` e detach. O depurador do próprio Microchip Studio não se
+conecta a um servidor GDB; IDEs que rodam o gdb com um alvo remoto (o *GDB
+Hardware Debugging* do Eclipse, o VS Code) devem funcionar, mas não foram
+testadas.
 
 ## Compilação do firmware
 

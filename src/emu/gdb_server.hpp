@@ -9,8 +9,10 @@
 // detach and kill (the firmware runs on), watchpoints on writes, reads or both
 // (Z2-Z4). The chip is a GdbTarget: the STM32F103 (writes to flash go
 // through the loader, so `load` works; the first run or step after a flash
-// write resets the chip, as an ST-LINK does) or the ESP32-C3 (its flash is
-// written with esptool or the board's Firmware; gdb reads the ELF's symbols).
+// write resets the chip, as an ST-LINK does), the ESP32-C3 (its flash is
+// written with esptool or the board's Firmware; gdb reads the ELF's symbols)
+// or an ATmega (SN-262: avr-gdb's address spaces, flash at 0, SRAM at
+// 0x800000, EEPROM at 0x810000; `load` writes the flash and the EEPROM).
 //
 // The machine's owner calls service() between run steps and after_run() after
 // each, on the thread that runs the machine. A client that connects halts the
@@ -27,6 +29,7 @@
 
 namespace simnodus::emu {
 
+class Atmega;
 class Esp32C3;
 class Stm32F103;
 
@@ -46,10 +49,17 @@ public:
     };
 
     virtual ~GdbTarget() = default;
-    // The target description (qXfer:features:read:target.xml).
+    // The target description (qXfer:features:read:target.xml); nullptr for
+    // a gdb that knows the registers itself (avr-gdb).
     virtual const char* target_xml() const = 0;
-    // The registers of the `g` packet, in order (numbers of the description).
+    // The registers of the `g` packet, in order (numbers of the description),
+    // and each one's size in bytes.
     virtual int general_registers() const = 0;
+    virtual int register_size(int n) const
+    {
+        (void)n;
+        return 4;
+    }
     virtual bool read_register(int n, std::uint32_t& value) = 0;
     virtual bool write_register(int n, std::uint32_t value) = 0;
     virtual bool read_byte(std::uint32_t address, std::uint8_t& value) = 0;
@@ -58,7 +68,19 @@ public:
     virtual bool write_memory(std::uint32_t address, const std::string& bytes, bool& loaded) = 0;
     virtual void set_debugger_attached(bool attached) = 0;
     virtual void set_breakpoints(std::vector<std::uint32_t> addresses) = 0;
+    // False for an address that holds no code (gdb then reports the error).
+    virtual bool can_break(std::uint32_t address) const
+    {
+        (void)address;
+        return true;
+    }
     virtual void set_watchpoints(const std::vector<Watchpoint>& watchpoints) = 0;
+    // False for a watchpoint the chip cannot set (gdb then watches by stepping).
+    virtual bool can_watch(const Watchpoint& watchpoint) const
+    {
+        (void)watchpoint;
+        return true;
+    }
     virtual WatchHit last_watch() const = 0;
     virtual bool halted() const = 0; // at a breakpoint or watchpoint
     virtual void resume() = 0;       // from a halt, past a breakpoint at the PC
@@ -68,6 +90,7 @@ public:
 
 std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine);
 std::unique_ptr<GdbTarget> make_gdb_target(Esp32C3& machine);
+std::unique_ptr<GdbTarget> make_gdb_target(Atmega& machine);
 
 class GdbServer {
 public:

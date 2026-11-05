@@ -1307,8 +1307,8 @@ Pinos: %2</translation>
             <translation>Servidor com que as peças de entrada e saída de bit e de palavra trocam seus sinais</translation>
         </message>
         <message>
-            <source>The next run waits for a debugger (STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb) on 127.0.0.1 port %1 (the next board on %2, ...); the circuit stops while the firmware is halted</source>
-            <translation>A próxima execução espera um debugger (STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb) em 127.0.0.1, porta %1 (a placa seguinte na %2, ...); o circuito para enquanto o firmware está parado</translation>
+            <source>The next run waits for a debugger (STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb, avr-gdb) on 127.0.0.1 port %1 (the next board on %2, ...); the circuit stops while the firmware is halted</source>
+            <translation>A próxima execução espera um debugger (STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb, avr-gdb) em 127.0.0.1, porta %1 (a placa seguinte na %2, ...); o circuito para enquanto o firmware está parado</translation>
         </message>
         <message>
             <source>Allow External &amp;Control</source>
@@ -1457,8 +1457,8 @@ Pinos: %2</translation>
             <translation>Verificação</translation>
         </message>
         <message>
-            <source>Waiting for the debugger: connect STM32CubeIDE or arm-none-eabi-gdb to localhost:%1. The circuit starts when the firmware runs. To run without a debugger, turn off Simulate &gt; Debug Firmware with GDB.</source>
-            <translation>Aguardando o depurador: conecte o STM32CubeIDE ou o arm-none-eabi-gdb a localhost:%1. O circuito começa quando o firmware rodar. Para executar sem depurador, desligue Simular &gt; Depurar firmware com GDB.</translation>
+            <source>Waiting for the debugger: connect STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb or avr-gdb to localhost:%1. The circuit starts when the firmware runs. To run without a debugger, turn off Simulate &gt; Debug Firmware with GDB.</source>
+            <translation>Aguardando o depurador: conecte o STM32CubeIDE, o arm-none-eabi-gdb, o riscv32-esp-elf-gdb ou o avr-gdb a localhost:%1. O circuito começa quando o firmware rodar. Para executar sem depurador, desligue Simular &gt; Depurar firmware com GDB.</translation>
         </message>
         <message>
             <source>Simulation started. Click switches and buttons to operate them.</source>

@@ -5,7 +5,8 @@
 // ATmega8 with its result, its flags and its cycles from the AVR Instruction
 // Set Manual (DS40002198C), interrupts, decoding of every opcode, random
 // images, and the differential corpus recorded from avr8js
-// (tests/experiments/avr-differential).
+// (tests/experiments/avr-differential); the GDB server with avr-gdb's
+// packets (SN-262).
 //
 //   avr_tests <repository-dir> [filter]
 #include "test_support.hpp"
@@ -13,8 +14,11 @@
 #include "emu/atmega.hpp"
 #include "emu/avr_cpu.hpp"
 #include "emu/elf.hpp"
+#include "emu/gdb_server.hpp"
+#include "emu/gdb_socket.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdlib>
 #include <cstdio>
@@ -26,6 +30,7 @@
 #include <optional>
 #include <random>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace simnodus::emu;
@@ -1595,6 +1600,244 @@ TEST_CASE("atmega32: the factory JTAGEN keeps PC2-PC5 from DDRC and PORTC until 
     f->run_until_ns(100'000'000);
     CHECK(f->pin(10).output);
     CHECK(f->pin(10).level);
+}
+
+// ---------------------------------------------------------------------------
+// GDB (SN-262): the core's breakpoints, watchpoints and BREAK, then the GDB
+// server driven packet by packet as avr-gdb drives it.
+
+TEST_CASE("avr-gdb: breakpoints halt before, watchpoints and BREAK after their instruction")
+{
+    // LDI r16,1; STS 0x0100,r16; BREAK; RJMP . (the ATmega328P has BREAK)
+    auto m = machine_with_words({0xE001, 0x9300, 0x0100, 0x9598, 0xCFFF}, Atmega::factory(Atmega::Model::Atmega328P));
+    AvrCpu& cpu = m->cpu();
+    cpu.set_debugger_attached(true);
+    cpu.set_watchpoints({{0x100, 1, AvrCpu::WatchKind::Write}});
+    m->run_until_ns(100'000'000); // past the factory fuses' 65 ms start-up
+    REQUIRE(m->halted());
+    CHECK(cpu.pc() == 3); // after the two-word STS
+    CHECK(cpu.last_watch().hit);
+    CHECK(cpu.last_watch().address == 0x100u);
+    CHECK(cpu.peek(0x100) == 1);
+    const std::uint64_t at = m->time_ns();
+    m->run_until_ns(at + 100'000'000);
+    CHECK(m->time_ns() == at); // halted: time stands still
+
+    cpu.set_watchpoints({});
+    cpu.resume_from_halt();
+    m->run_until_ns(at + 100'000'000);
+    REQUIRE(m->halted());
+    CHECK(cpu.pc() == 4); // after the BREAK
+    CHECK(!cpu.last_watch().hit);
+
+    cpu.set_breakpoints({4});
+    cpu.resume_from_halt(); // the RJMP at the breakpoint runs once, then halts there again
+    m->run_until_ns(at + 100'000'000);
+    REQUIRE(m->halted());
+    CHECK(cpu.pc() == 4);
+
+    // Without a debugger nothing halts and BREAK is a NOP.
+    cpu.set_debugger_attached(false);
+    m->run_until_ns(at + 100'000'000);
+    CHECK(!m->halted());
+    CHECK(m->time_ns() >= at + 100'000'000);
+}
+
+namespace {
+
+// The machine's owner: services the GDB server between 1 ms run steps, as the
+// microcontroller runner does.
+struct AvrDebugTarget {
+    std::unique_ptr<Atmega> machine;
+    std::unique_ptr<GdbTarget> target;
+    std::unique_ptr<GdbServer> server;
+    std::atomic<bool> stop{false};
+    std::atomic<std::uint64_t> time_ns{0};
+    std::thread thread;
+
+    bool start(const std::string& firmware, Atmega::Options options)
+    {
+        machine = machine_with(firmware, options);
+        if (!machine) {
+            return false;
+        }
+        target = make_gdb_target(*machine);
+        server = std::make_unique<GdbServer>(*target);
+        std::string error;
+        if (!server->start(0, error)) {
+            return false;
+        }
+        server->wait_for_client(true);
+        thread = std::thread([this] {
+            while (!stop) {
+                if (server->service(5)) {
+                    machine->run_until_ns(machine->time_ns() + 1000000);
+                    server->after_run();
+                    time_ns = machine->time_ns();
+                }
+            }
+        });
+        return true;
+    }
+    ~AvrDebugTarget()
+    {
+        stop = true;
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+};
+
+std::string ask(GdbSocket& client, const std::string& packet)
+{
+    std::string reply;
+    client.send_raw(GdbSocket::frame(packet));
+    if (!client.receive_packet(5000, reply)) {
+        return "<no reply>";
+    }
+    return reply;
+}
+
+// A little-endian register value as gdb receives it.
+std::uint32_t le_value(const std::string& hex)
+{
+    std::uint32_t value = 0;
+    for (std::size_t i = hex.size(); i >= 2; i -= 2) {
+        value = (value << 8) | static_cast<std::uint32_t>(std::stoul(hex.substr(i - 2, 2), nullptr, 16));
+    }
+    return value;
+}
+
+std::string hex_address(std::uint32_t address)
+{
+    char text[16];
+    std::snprintf(text, sizeof text, "%x", static_cast<unsigned>(address));
+    return text;
+}
+
+} // namespace
+
+TEST_CASE("avr-gdb: the server speaks avr-gdb's registers and address spaces")
+{
+    std::string error;
+    const auto image = read_elf(repository / "examples" / "firmware" / "avr328_serial" / "avr328_serial.elf", error,
+        ElfMachine::Avr);
+    REQUIRE(image);
+    auto symbol = [&](const char* name) {
+        const auto it = image->symbols.find(name);
+        return it == image->symbols.end() ? 0u : it->second;
+    };
+    const std::uint32_t main_address = symbol("main");
+    const std::uint32_t head = symbol("head");
+    const std::uint32_t data_load = symbol("__data_load_start");
+    REQUIRE(main_address != 0);
+    REQUIRE(head >= 0x800100u);
+    REQUIRE(data_load != 0);
+
+    AvrDebugTarget target;
+    REQUIRE(target.start("avr328_serial", Atmega::factory(Atmega::Model::Atmega328P)));
+    GdbSocket client;
+    REQUIRE(client.connect_client(target.server->port(), error));
+
+    // avr-gdb 7.8 knows the registers itself: no target description.
+    const std::string supported = ask(client, "qSupported:multiprocess+;swbreak+;hwbreak+;qRelocInsn+");
+    CHECK(supported.find("PacketSize=") != std::string::npos);
+    CHECK(supported.find("qXfer:features") == std::string::npos);
+    CHECK(ask(client, "?") == "S05");
+    // g: r0-r31, SREG (1 byte), SP (2), PC (4, a byte address): 39 bytes.
+    std::string registers = ask(client, "g");
+    REQUIRE(registers.size() == 78);
+    CHECK(registers.substr(70) == "00000000"); // the reset vector
+    const std::uint64_t halted_at = target.time_ns;
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    CHECK(target.time_ns == halted_at); // waiting for the debugger: halted
+
+    // break main; continue
+    const std::string z0 = "Z0," + hex_address(main_address) + ",2";
+    CHECK(ask(client, "Z0,800100,2") == "E01"); // no code in the data space
+    CHECK(ask(client, z0) == "OK");
+    CHECK(ask(client, "c") == "S05");
+    CHECK(le_value(ask(client, "p22")) == main_address);
+    const std::string sp = ask(client, "p21");
+    REQUIRE(sp.size() == 4);
+    CHECK(le_value(sp) > 0x800u);
+    CHECK(le_value(sp) <= 0x8FFu); // RAMEND, less what the startup code pushed
+    CHECK(ask(client, "p20").size() == 2); // SREG: one byte
+    CHECK(ask(client, "z0," + hex_address(main_address) + ",2") == "OK");
+
+    // Registers: P and G with their own sizes.
+    CHECK(ask(client, "P10=5a") == "OK"); // r16
+    registers = ask(client, "g");
+    CHECK(registers.substr(32, 2) == "5a");
+    registers.replace(34, 2, "a5"); // r17
+    CHECK(ask(client, "G" + registers) == "OK");
+    CHECK(ask(client, "p11") == "a5");
+    CHECK(le_value(ask(client, "p22")) == main_address);
+
+    // Address spaces: the startup code copied .data from the flash to the SRAM.
+    const std::string flash = ask(client, "m" + hex_address(data_load) + ",10");
+    REQUIRE(flash.size() == 32);
+    CHECK(ask(client, "m800100,10") == flash);
+    CHECK(ask(client, "M800130,2:0706") == "OK");
+    CHECK(ask(client, "m800130,2") == "0706");
+    CHECK(ask(client, "m80005f,1") == ask(client, "p20")); // SREG in the data space
+    CHECK(ask(client, "M810010,2:3412") == "OK"); // the EEPROM
+    CHECK(ask(client, "m810010,2") == "3412");
+    CHECK(ask(client, "m800900,1") == "E01"); // past RAMEND
+    CHECK(ask(client, "m8000,1") == "E01");   // past the 32 KB flash
+    CHECK(ask(client, "m820000,1") == "E01"); // fuses: not readable
+
+    // stepi
+    CHECK(ask(client, "s") == "S05");
+    CHECK(le_value(ask(client, "p22")) != main_address);
+
+    // watch on UDR0 (an I/O register): the greeting's first byte.
+    CHECK(ask(client, "Z2,8000c6,1") == "OK");
+    CHECK(ask(client, "c") == "T05watch:008000c6;");
+    CHECK(ask(client, "z2,8000c6,1") == "OK");
+    // rwatch on a variable: the main loop reads `head`.
+    const std::string watch = hex_address(head) + ",1";
+    CHECK(ask(client, "Z3," + watch) == "OK");
+    char expected[40];
+    std::snprintf(expected, sizeof expected, "T05rwatch:%08x;", static_cast<unsigned>(head));
+    CHECK(ask(client, "c") == expected);
+    CHECK(ask(client, "z3," + watch) == "OK");
+    CHECK(ask(client, "Z2,810000,1") == "E01"); // the EEPROM cannot be watched: gdb steps instead
+
+    // monitor reset: the firmware halts at the reset vector.
+    std::string text;
+    client.send_raw(GdbSocket::frame("qRcmd,7265736574")); // "reset"
+    REQUIRE(client.receive_packet(5000, text));
+    CHECK(text[0] == 'O');
+    REQUIRE(client.receive_packet(5000, text));
+    CHECK(text == "OK");
+    CHECK(ask(client, "p22") == "00000000");
+
+    // load: a flash write makes the next step start from a reset.
+    CHECK(ask(client, "P22=10000000") == "OK"); // gdb sets the ELF's entry; the reset decides
+    // avr-gdb's load writes with X (binary); the reset vector's own bytes.
+    const std::string vector = ask(client, "m0,4");
+    REQUIRE(vector.size() == 8);
+    std::string binary;
+    for (std::size_t i = 0; i < 8; i += 2) {
+        binary += static_cast<char>(std::stoul(vector.substr(i, 2), nullptr, 16));
+    }
+    CHECK(ask(client, "X0,4:" + GdbSocket::escape(binary)) == "OK");
+    CHECK(ask(client, "M820000,3:62d9ff") == "OK"); // the ELF's fuses: accepted, the part's stay
+    CHECK(ask(client, "s") == "S05");
+    CHECK(le_value(ask(client, "p22")) == symbol("__ctors_end")); // the reset vector's JMP
+
+    // Ctrl-C while running halts with SIGINT.
+    client.send_raw(GdbSocket::frame("c"));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    client.send_raw("\x03");
+    CHECK((client.receive_packet(5000, text) ? text : "") == "S02");
+
+    // Detach: the firmware runs on.
+    CHECK(ask(client, "D") == "OK");
+    const std::uint64_t detached_at = target.time_ns;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    CHECK(target.time_ns > detached_at);
 }
 
 int main(int argc, char** argv)

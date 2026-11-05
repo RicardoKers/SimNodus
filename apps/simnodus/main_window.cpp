@@ -482,7 +482,7 @@ void MainWindow::build_actions_and_menus()
     debug_action_ = simulate->addAction(tr("&Debug Firmware with GDB (port %1)").arg(default_gdb_port));
     debug_action_->setCheckable(true);
     debug_action_->setStatusTip(tr("The next run waits for a debugger (STM32CubeIDE, arm-none-eabi-gdb, "
-                                   "riscv32-esp-elf-gdb) on 127.0.0.1 port %1 (the next board on %2, ...); the "
+                                   "riscv32-esp-elf-gdb, avr-gdb) on 127.0.0.1 port %1 (the next board on %2, ...); the "
                                    "circuit stops while the firmware is halted")
                                     .arg(default_gdb_port)
                                     .arg(default_gdb_port + 1));
@@ -864,7 +864,7 @@ bool MainWindow::start_run(const sim::RunRequest* base, QString& error)
         return d && d->mcu;
     });
     if (board && debug_action_->isChecked()) {
-        const QString text = tr("Waiting for the debugger: connect STM32CubeIDE or arm-none-eabi-gdb to localhost:%1. "
+        const QString text = tr("Waiting for the debugger: connect STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb or avr-gdb to localhost:%1. "
                                 "The circuit starts when the firmware runs. To run without a debugger, turn off "
                                 "Simulate > Debug Firmware with GDB.")
                                  .arg(default_gdb_port);

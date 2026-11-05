@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "avr_cpu.hpp"
 
+#include <algorithm>
 #include <cstdio>
 
 namespace simnodus::emu {
@@ -202,6 +203,9 @@ void AvrCpu::poke(std::uint16_t address, std::uint8_t value)
 
 std::uint8_t AvrCpu::read_data(std::uint16_t address)
 {
+    if (!watchpoints_.empty()) {
+        check_watch(address, false);
+    }
     if (address < 0x20) {
         return data_[address];
     }
@@ -228,6 +232,9 @@ std::uint8_t AvrCpu::read_data(std::uint16_t address)
 
 void AvrCpu::write_data(std::uint16_t address, std::uint8_t value)
 {
+    if (!watchpoints_.empty()) {
+        check_watch(address, true);
+    }
     if (address < 0x20) {
         data_[address] = value;
         return;
@@ -514,7 +521,7 @@ AvrState AvrCpu::run(std::uint64_t limit)
 {
     stop_requested_ = false;
     while (cycles_ < limit && !stop_requested_) {
-        if (state_ == AvrState::Halted) {
+        if (state_ == AvrState::Halted || debug_halted_) {
             break;
         }
         if (inhibit_interrupt_) {
@@ -525,6 +532,14 @@ AvrState AvrCpu::run(std::uint64_t limit)
         if (state_ == AvrState::Sleeping) {
             cycles_ = limit; // nothing to do until an interrupt: time moves on
             break;
+        }
+        if (!breakpoints_.empty()) {
+            if (skip_breakpoint_) {
+                skip_breakpoint_ = false;
+            } else if (std::find(breakpoints_.begin(), breakpoints_.end(), pc_) != breakpoints_.end()) {
+                debug_halted_ = true;
+                break;
+            }
         }
         const AvrInsn& in = fetch();
         execute(in);
@@ -546,6 +561,42 @@ void AvrCpu::step_instruction()
         state_ = AvrState::Running; // a debugger's step wakes the core
     }
     execute(fetch());
+}
+
+void AvrCpu::set_debugger_attached(bool attached)
+{
+    debugger_ = attached;
+    if (!attached) {
+        breakpoints_.clear();
+        watchpoints_.clear();
+        debug_halted_ = false;
+        skip_breakpoint_ = false;
+        watch_hit_ = {};
+    }
+}
+
+void AvrCpu::set_breakpoints(std::vector<std::uint32_t> words) { breakpoints_ = std::move(words); }
+
+void AvrCpu::set_watchpoints(std::vector<Watchpoint> watchpoints) { watchpoints_ = std::move(watchpoints); }
+
+void AvrCpu::resume_from_halt()
+{
+    debug_halted_ = false;
+    watch_hit_ = {};
+    skip_breakpoint_ = true;
+}
+
+void AvrCpu::check_watch(std::uint16_t address, bool write)
+{
+    for (const auto& w : watchpoints_) {
+        const bool kind = w.kind == WatchKind::Access || (w.kind == WatchKind::Write) == write;
+        if (kind && address >= w.address && address < w.address + w.length) {
+            watch_hit_ = {true, w.address, w.kind};
+            debug_halted_ = true; // after this instruction
+            stop_requested_ = true;
+            return;
+        }
+    }
 }
 
 void AvrCpu::execute(const AvrInsn& in)
@@ -914,7 +965,10 @@ void AvrCpu::execute(const AvrInsn& in)
         }
         break;
     case OP_BREAK:
-        if (on_break) {
+        if (debugger_) {
+            debug_halted_ = true; // after the BREAK, so that continuing goes on
+            stop_requested_ = true;
+        } else if (on_break) {
             on_break();
         }
         break;

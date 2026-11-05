@@ -346,15 +346,19 @@ int run_esp32c3(int argc, char** argv)
 int run_avr(int argc, char** argv)
 {
     const std::string chip = argc > 2 ? argv[2] : "";
-    if (argc < 4 || (chip != "atmega8" && chip != "atmega8a" && chip != "atmega328" && chip != "atmega328p")) {
-        std::fprintf(stderr, "usage: simnodus-emu --avr atmega8|atmega8a|atmega328|atmega328p firmware.elf|firmware.hex "
-                             "[--ms 1000] [--quiet] [--fuses LOW,HIGH[,EXTENDED]] [--crystal HZ] [--input PD2=0@ms] "
-                             "[--uart text@ms]\n");
+    if (argc < 4
+        || (chip != "atmega8" && chip != "atmega8a" && chip != "atmega328" && chip != "atmega328p" && chip != "atmega32"
+            && chip != "atmega32a")) {
+        std::fprintf(stderr, "usage: simnodus-emu --avr atmega8|atmega8a|atmega328|atmega328p|atmega32|atmega32a "
+                             "firmware.elf|firmware.hex [--ms 1000] [--quiet] [--fuses LOW,HIGH[,EXTENDED]] [--crystal HZ] "
+                             "[--input PD2=0@ms] [--uart text@ms] [--gdb PORT]\n");
         return 2;
     }
     Atmega::Options options = Atmega::factory(chip == "atmega8"     ? Atmega::Model::Atmega8
                                               : chip == "atmega328"  ? Atmega::Model::Atmega328
                                               : chip == "atmega328p" ? Atmega::Model::Atmega328P
+                                              : chip == "atmega32"   ? Atmega::Model::Atmega32
+                                              : chip == "atmega32a"  ? Atmega::Model::Atmega32A
                                                                      : Atmega::Model::Atmega8A);
     const std::string path = argv[3];
     double ms = 1000;
@@ -366,10 +370,13 @@ int run_avr(int argc, char** argv)
     };
     std::vector<Input> inputs;
     bool fuses_given = false;
+    int gdb_port = -1;
     for (int i = 4; i < argc; ++i) {
         const std::string arg = argv[i];
         if (arg == "--ms" && i + 1 < argc) {
             ms = std::strtod(argv[++i], nullptr);
+        } else if (arg == "--gdb" && i + 1 < argc) {
+            gdb_port = std::atoi(argv[++i]); // waits halted at the reset vector for avr-gdb
         } else if (arg == "--quiet") {
             quiet = true;
         } else if (arg == "--fuses" && i + 1 < argc) {
@@ -431,6 +438,18 @@ int run_avr(int argc, char** argv)
     }
     machine.reset();
     std::printf("%s, %s\n", machine.chip_name(), machine.clock_description().c_str());
+    const auto gdb_target = make_gdb_target(machine);
+    std::unique_ptr<GdbServer> gdb;
+    if (gdb_port >= 0) {
+        gdb = std::make_unique<GdbServer>(*gdb_target);
+        if (!gdb->start(static_cast<std::uint16_t>(gdb_port), error)) {
+            std::fprintf(stderr, "error: %s\n", error.c_str());
+            return 1;
+        }
+        gdb->wait_for_client(true);
+        std::printf("GDB server on localhost:%u\n", static_cast<unsigned>(gdb->port()));
+        std::fflush(stdout);
+    }
     std::sort(inputs.begin(), inputs.end(), [](const Input& a, const Input& b) { return a.time_ns < b.time_ns; });
     std::size_t next = 0;
     std::string line;
@@ -441,7 +460,13 @@ int run_avr(int argc, char** argv)
         if (next < inputs.size()) {
             until = std::max(machine.time_ns() + 1, std::min(until, inputs[next].time_ns));
         }
+        if (gdb && !gdb->service(50)) {
+            continue; // halted by the debugger
+        }
         machine.run_until_ns(until);
+        if (gdb) {
+            gdb->after_run();
+        }
         while (next < inputs.size() && inputs[next].time_ns <= machine.time_ns()) {
             const Input& in = inputs[next++];
             if (in.pin < 0) {

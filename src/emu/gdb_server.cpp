@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 #include "gdb_server.hpp"
 
+#include "atmega.hpp"
 #include "esp32c3.hpp"
 #include "stm32f103.hpp"
 
@@ -109,10 +110,10 @@ std::string hex_byte(unsigned value)
     return text;
 }
 
-std::string hex_word_le(std::uint32_t value)
+std::string hex_word_le(std::uint32_t value, int bytes = 4)
 {
     std::string out;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < bytes; ++i) {
         out += hex_byte(value >> (8 * i));
     }
     return out;
@@ -150,10 +151,10 @@ std::string to_hex(const std::string& text)
     return out;
 }
 
-std::uint32_t word_le(const std::string& hex)
+std::uint32_t word_le(const std::string& hex, int bytes = 4)
 {
     std::uint32_t value = 0;
-    for (int i = 3; i >= 0; --i) {
+    for (int i = bytes - 1; i >= 0; --i) {
         const auto at = static_cast<std::size_t>(2 * i);
         value = (value << 8) | static_cast<std::uint32_t>(hex_digit(hex[at]) * 16 + hex_digit(hex[at + 1]));
     }
@@ -363,6 +364,141 @@ private:
     Esp32C3& machine_;
 };
 
+// An ATmega's AVR core (SN-262), as avr-gdb sees it: r0-r31 (one byte each),
+// SREG (one byte), SP (two bytes) and PC (four bytes, a byte address);
+// avr-gdb knows them without a target description. Its addresses: the flash
+// from 0, the data space (registers, I/O, SRAM) from 0x800000, the EEPROM
+// from 0x810000. Writes to the flash are a programmer's (gdb `load`): the
+// next run or step starts from a reset. The fuse, lock and signature spaces
+// (0x820000 and above) accept writes and keep the part's fuses.
+class AvrTarget : public GdbTarget {
+public:
+    static constexpr std::uint32_t data_base = 0x800000;
+    static constexpr std::uint32_t eeprom_base = 0x810000;
+    static constexpr std::uint32_t fuse_base = 0x820000;
+    static constexpr std::uint32_t space_end = 0x900000;
+
+    explicit AvrTarget(Atmega& machine) : machine_(machine) {}
+
+    const char* target_xml() const override { return nullptr; }
+    int general_registers() const override { return 35; }
+    int register_size(int n) const override { return n < 33 ? 1 : (n == 33 ? 2 : 4); }
+    bool read_register(int n, std::uint32_t& value) override
+    {
+        const AvrCpu& cpu = machine_.cpu();
+        if (n < 32) {
+            value = cpu.reg(n);
+        } else if (n == 32) {
+            value = cpu.sreg();
+        } else if (n == 33) {
+            value = cpu.sp();
+        } else if (n == 34) {
+            value = cpu.pc() * 2;
+        } else {
+            return false;
+        }
+        return true;
+    }
+    bool write_register(int n, std::uint32_t value) override
+    {
+        AvrCpu& cpu = machine_.cpu();
+        if (n < 32) {
+            cpu.set_reg(n, static_cast<std::uint8_t>(value));
+        } else if (n == 32) {
+            cpu.set_sreg(static_cast<std::uint8_t>(value));
+        } else if (n == 33) {
+            cpu.set_sp(static_cast<std::uint16_t>(value));
+        } else if (n == 34) {
+            cpu.set_pc(value / 2);
+        } else {
+            return false;
+        }
+        return true;
+    }
+    bool read_byte(std::uint32_t address, std::uint8_t& value) override
+    {
+        if (address < data_base) {
+            if (address >= machine_.flash_size()) {
+                return false;
+            }
+            value = machine_.flash_byte(address);
+            return true;
+        }
+        if (address < eeprom_base) {
+            return address - data_base < 0x10000
+                && machine_.debug_read(static_cast<std::uint16_t>(address - data_base), value);
+        }
+        if (address < fuse_base) {
+            if (address - eeprom_base >= machine_.eeprom_size()) {
+                return false;
+            }
+            value = machine_.eeprom()[address - eeprom_base];
+            return true;
+        }
+        return false;
+    }
+    bool write_memory(std::uint32_t address, const std::string& bytes, bool& loaded) override
+    {
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            const std::uint32_t at = address + static_cast<std::uint32_t>(i);
+            const auto value = static_cast<std::uint8_t>(bytes[i]);
+            bool done = false;
+            if (at < data_base) {
+                done = machine_.debug_write_flash(at, value);
+                loaded = loaded || done;
+            } else if (at < eeprom_base) {
+                done = at - data_base < 0x10000
+                    && machine_.debug_write(static_cast<std::uint16_t>(at - data_base), value);
+            } else if (at < fuse_base) {
+                done = machine_.debug_write_eeprom(at - eeprom_base, value);
+            } else {
+                done = at < space_end; // fuses, lock bits, signature: the part's stay
+            }
+            if (!done) {
+                return false;
+            }
+        }
+        return true;
+    }
+    void set_debugger_attached(bool attached) override { machine_.cpu().set_debugger_attached(attached); }
+    void set_breakpoints(std::vector<std::uint32_t> addresses) override
+    {
+        for (auto& a : addresses) {
+            a /= 2; // the core counts words
+        }
+        machine_.cpu().set_breakpoints(std::move(addresses));
+    }
+    bool can_break(std::uint32_t address) const override { return address < machine_.flash_size(); }
+    bool can_watch(const Watchpoint& w) const override
+    {
+        return w.address >= data_base && w.address + w.length <= data_base + machine_.data_size();
+    }
+    void set_watchpoints(const std::vector<Watchpoint>& watchpoints) override
+    {
+        std::vector<AvrCpu::Watchpoint> list;
+        for (const auto& w : watchpoints) {
+            if (can_watch(w)) {
+                list.push_back({w.address - data_base, w.length, static_cast<AvrCpu::WatchKind>(w.kind)});
+            }
+        }
+        machine_.cpu().set_watchpoints(std::move(list));
+    }
+    WatchHit last_watch() const override
+    {
+        const auto& hit = machine_.cpu().last_watch();
+        return {hit.hit, hit.address + data_base, static_cast<WatchKind>(hit.kind)};
+    }
+    bool halted() const override { return machine_.halted(); }
+    void resume() override { machine_.cpu().resume_from_halt(); }
+    void step() override { machine_.step_instruction(); }
+    // As at power-on (MCUSR's PORF): a bootloader such as the UNO's Optiboot
+    // starts the application at once.
+    void reset() override { machine_.reset(Atmega::ResetKind::PowerOn); }
+
+private:
+    Atmega& machine_;
+};
+
 } // namespace
 
 std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine)
@@ -373,6 +509,11 @@ std::unique_ptr<GdbTarget> make_gdb_target(Stm32F103& machine)
 std::unique_ptr<GdbTarget> make_gdb_target(Esp32C3& machine)
 {
     return std::make_unique<Esp32C3Target>(machine);
+}
+
+std::unique_ptr<GdbTarget> make_gdb_target(Atmega& machine)
+{
+    return std::make_unique<AvrTarget>(machine);
 }
 
 GdbServer::GdbServer(GdbTarget& target) : target_(target) {}
@@ -459,7 +600,7 @@ std::string GdbServer::read_registers()
     for (int n = 0; n < target_.general_registers(); ++n) {
         std::uint32_t value = 0;
         target_.read_register(n, value);
-        out += hex_word_le(value);
+        out += hex_word_le(value, target_.register_size(n));
     }
     return out;
 }
@@ -537,8 +678,14 @@ void GdbServer::handle(const std::string& packet)
         reply(read_registers());
         return;
     case 'G': {
-        for (int n = 0; n < target_.general_registers() && 1 + 8 * static_cast<std::size_t>(n) + 8 <= packet.size(); ++n) {
-            target_.write_register(n, word_le(packet.substr(1 + 8 * static_cast<std::size_t>(n), 8)));
+        std::size_t p = 1;
+        for (int n = 0; n < target_.general_registers(); ++n) {
+            const auto size = static_cast<std::size_t>(target_.register_size(n));
+            if (p + 2 * size > packet.size()) {
+                break;
+            }
+            target_.write_register(n, word_le(packet.substr(p, 2 * size), static_cast<int>(size)));
+            p += 2 * size;
         }
         reply("OK");
         return;
@@ -546,12 +693,16 @@ void GdbServer::handle(const std::string& packet)
     case 'p': {
         const int n = static_cast<int>(parse_hex(packet, at));
         std::uint32_t value = 0;
-        reply(target_.read_register(n, value) ? hex_word_le(value) : std::string("E01"));
+        reply(target_.read_register(n, value) ? hex_word_le(value, target_.register_size(n)) : std::string("E01"));
         return;
     }
     case 'P': {
         const int n = static_cast<int>(parse_hex(packet, at));
-        reply(at + 9 <= packet.size() && target_.write_register(n, word_le(packet.substr(at + 1, 8))) ? "OK" : "E01");
+        const auto size = static_cast<std::size_t>(target_.register_size(n));
+        reply(at + 1 + 2 * size <= packet.size()
+                    && target_.write_register(n, word_le(packet.substr(at + 1, 2 * size), static_cast<int>(size)))
+                ? "OK"
+                : "E01");
         return;
     }
     case 'm': {
@@ -588,6 +739,10 @@ void GdbServer::handle(const std::string& packet)
             auto same = [&](const GdbTarget::Watchpoint& w) {
                 return w.address == address && w.length == length && w.kind == watch_kind;
             };
+            if (kind == 'Z' && !target_.can_watch({address, length, watch_kind})) {
+                reply("E01"); // gdb then watches by stepping
+                return;
+            }
             watchpoints_.erase(std::remove_if(watchpoints_.begin(), watchpoints_.end(), same), watchpoints_.end());
             if (kind == 'Z') {
                 watchpoints_.push_back({address, length, watch_kind});
@@ -602,6 +757,10 @@ void GdbServer::handle(const std::string& packet)
         }
         at = 3;
         const std::uint32_t address = parse_hex(packet, at) & ~1u;
+        if (kind == 'Z' && !target_.can_break(address)) {
+            reply("E01");
+            return;
+        }
         if (kind == 'Z') {
             breakpoints_.insert(address);
         } else {
@@ -642,7 +801,8 @@ void GdbServer::handle(const std::string& packet)
         break;
     }
     if (starts_with(packet, "qSupported")) {
-        reply("PacketSize=4000;qXfer:features:read+;QStartNoAckMode+;vContSupported+");
+        reply(target_.target_xml() ? "PacketSize=4000;qXfer:features:read+;QStartNoAckMode+;vContSupported+"
+                                   : "PacketSize=4000;QStartNoAckMode+;vContSupported+");
     } else if (packet == "QStartNoAckMode") {
         reply("OK");
         socket_.set_no_ack(true);
@@ -651,8 +811,10 @@ void GdbServer::handle(const std::string& packet)
         const std::uint32_t offset = parse_hex(packet, p);
         ++p;
         const std::uint32_t length = parse_hex(packet, p);
-        const std::string xml = target_.target_xml();
-        if (offset >= xml.size()) {
+        const std::string xml = target_.target_xml() ? target_.target_xml() : "";
+        if (xml.empty()) {
+            reply("E01");
+        } else if (offset >= xml.size()) {
             reply("l");
         } else {
             const std::string part = xml.substr(offset, length);

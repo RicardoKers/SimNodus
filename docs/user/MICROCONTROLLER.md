@@ -456,6 +456,8 @@ emulator (experiment E-10, ADR 0108).
   LM75 and a 24C02 over TWI, a 74HC595 over SPI) and 54 (a real-time clock
   on a watch crystal, sleeping in Power-save). Their firmware sources
   are in `examples/firmware/avr_*`.
+- **Debugging** with `avr-gdb` (every AVR chip and the UNO): see
+  [Debugging with STM32CubeIDE or GDB](#debugging-with-stm32cubeide-or-gdb).
 
 ## ATmega328 and ATmega328P (experimental)
 
@@ -498,8 +500,7 @@ holds, with these differences:
     modes (EEPM), DIDR0 and DIDR1, GPIOR0-2, extended standby sleep;
   - signature and fuse reads through SPM's SIGRD and BLBSET.
 - **Not yet**: the USART's SPI master mode, PRR stopping a module (it is
-  accepted; the module keeps running), Timer2's external clock (EXCLK),
-  the Arduino UNO board and its bootloader (SN-261), GDB (SN-262).
+  accepted; the module keeps running) and Timer2's external clock (EXCLK).
 - **Examples**: 55 (serial at 38400 baud after CLKPR, the temperature
   sensor, a counter in the EEPROM), 56 (the four 8-bit PWM outputs and an
   ADC triggered by Timer0's overflow) and 57 (power-down woken by the
@@ -535,7 +536,8 @@ they are compared with a real chip. They follow the ATmega8's section above
     simulated), the 1.22 V bandgap, auto triggering from SFIOR's ADTS;
   - SPI on PB4-PB7, TWI on PC0 (SCL) and PC1 (SDA), the comparator on PB2
     (AIN0) and PB3 (AIN1); extended standby sleep.
-- **Not yet**: JTAG and on-chip debugging themselves (OCDEN has no effect).
+- **Not yet**: JTAG and on-chip debugging themselves (OCDEN has no effect);
+  `avr-gdb` works through SimNodus's own GDB server instead.
 - **Example**: 59 (JTD and a count on PC2-PC5, a PWM on OC0 from the
   potentiometer, INT2, the differential ADC). Its firmware source is in
   `examples/firmware/avr32_demo`.
@@ -657,6 +659,62 @@ project's ELF, `riscv32-esp-elf-gdb` as the debugger and the remote target
 a breakpoint at `app_main`. Tested with Espressif-IDE and ESP-IDF v6.1's
 blink example. A new connection replaces the one that is attached, so relaunching the
 debug session while the previous one is still connected works.
+
+**ATmega8/8A, ATmega328/328P, ATmega32/32A and the Arduino UNO** (SN-262):
+the same menu works with `avr-gdb`. The Arduino IDE does not install it; it
+comes with Microchip Studio (`toolchain\avr8\avr8-gnu-toolchain\bin\avr-gdb.exe`
+in its folder), with Microchip's AVR 8-bit toolchain and with MPLAB XC8
+(`avr\bin\avr-gdb.exe`); on Linux it is the `gdb-avr` package. gdb reads
+the symbols from the firmware's ELF, so build it with `-g` (avr-gcc does by
+default in Microchip Studio's Debug configuration;
+`arduino-cli compile --export-binaries` copies a sketch's `.elf` into its
+`build` folder).
+
+```text
+avr-gdb firmware.elf
+(gdb) target remote :3333
+(gdb) break main
+(gdb) continue
+(gdb) next
+(gdb) info registers
+(gdb) x/8xb 0x800100
+(gdb) watch counter
+(gdb) detach
+```
+
+- **Registers**: r0-r31, SREG, SP and PC (a byte address, as in the ELF).
+- **Addresses** as avr-gdb counts them: the flash from 0, the data space
+  from 0x800000 (the registers, the I/O registers at their data addresses,
+  then the SRAM: `x/8xb 0x800100` shows the start of the ATmega328P's SRAM),
+  the EEPROM from 0x810000. A breakpoint at a bare code address needs a
+  cast, `break *(void(*)())0x2ea`: avr-gdb takes `*0x2ea` as a data address
+  (the server refuses breakpoints outside the flash).
+- **The run starts** with the firmware halted at its reset vector; the
+  UNO's is Optiboot's start (0x7E00), and Optiboot starts the sketch at
+  once after this power-on reset, so `break main` and `continue` work.
+- **`load`** writes the ELF's flash and EEPROM sections, as a programmer
+  does, and the next step or continue starts from reset; the board's
+  **Firmware** may stay empty, as with the Blue Pill. Fuses in the ELF are
+  accepted but the part's stay (set them with **Fuses...**). The flash that
+  `load` writes lasts for the run; it is not kept in the project.
+- **`monitor reset`** resets the chip as at power-on (MCUSR shows PORF).
+- **Watchpoints** on the SRAM and the I/O registers stop after the
+  instruction (`watch` on `UDR0` stops at every byte sent); a watchpoint on
+  the EEPROM is refused, and gdb then watches by single-stepping (slowly).
+- **Reading an I/O register** in the debugger has no side effects (`UDR`
+  keeps its byte, reading `ADCL` does not hold `ADCH`); writing one does what
+  the firmware's write does.
+- With a debugger attached, a `BREAK` instruction in the firmware
+  (ATmega328/328P, ATmega32/32A) halts it after the `BREAK`.
+
+Tested with `avr-gdb` 7.8 from Microchip Studio 7 on the firmware of
+`examples/firmware` (avr_blink on the ATmega8, avr328_serial on the
+ATmega328P, avr32_demo on the ATmega32A) and on an Arduino blink sketch
+built by `arduino-cli` (with link-time optimization): breakpoints, `next`,
+`stepi`, a backtrace, `watch`, `rwatch` (halting in the USART's interrupt),
+`load`, `monitor reset` and detach. Microchip Studio's own debugger cannot connect to
+a GDB server; IDEs that run gdb with a remote target (Eclipse's *GDB
+Hardware Debugging*, VS Code) should work but have not been tested.
 
 ## Building firmware
 

@@ -205,7 +205,7 @@ ATmega8, 8A, 32, 32A, 328 and 328P as separate parts.
 | SN-260 | ATmega328/328P: chip tables (registers and vectors mapped onto one machine), PCINT, CKDIV8 and CLKPR, Timer0/2 with two outputs, the watchdog's interrupt, 1.1 V reference and temperature sensor, ADC auto trigger, the extended fuse | after DE10 | done 2026-11-04: `emu-atmega328`, examples 55-57, the parts (experimental until compared with a chip), the Fuses… dialog and the guides |
 | SN-263 | ATmega32/32A: port A, Timer0 with a compare output, INT2, the JTAG fuse taking PC2-PC5, the differential ADC with gain, the PDIP-40 part | after SN-260 | done 2026-11-04: `emu-atmega32`, example 59, the parts (experimental until compared with a chip), the Fuses… dialog and the guides |
 | SN-261 | Arduino UNO: board, auto-reset from the host link's DTR, Optiboot shipped, upload with the Arduino IDE and avrdude, EEPROM kept | after SN-260 | done 2026-11-04 in the simulator: Optiboot takes an avrdude-style STK500 upload in the tests, the flash and EEPROM are kept, example 58; the Arduino IDE through a virtual port pair waits for the owner's test |
-| SN-262 | GDB for AVR with avr-gdb (`AvrTarget`, flash/SRAM/EEPROM address spaces) | after SN-258 | todo |
+| SN-262 | GDB for AVR with avr-gdb (`AvrTarget`, flash/SRAM/EEPROM address spaces) | after SN-258 | done 2026-11-05 (checked with avr-gdb 7.8 from Microchip Studio 7) |
 
 ## Later (after freeze or after classroom)
 
