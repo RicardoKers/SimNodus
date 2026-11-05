@@ -115,6 +115,17 @@ the predeclared gates G8a (core) and G8b (firmware), recorded 2026-10-28
 before any code: [E-08-plan.md](E-08-plan.md). Report: [E-08-results.md](E-08-results.md)
 (gate G8a met on 2026-10-28).
 
+## E-09: Wi-Fi for the ESP32-C3 — SN-250, SN-264..SN-269
+
+Question: can SimNodus's own ESP32-C3 emulator run the unmodified Wi-Fi
+libraries of ESP-IDF, Arduino-ESP32 and MicroPython images against a virtual
+access point (open, then WPA2-PSK, with DHCP and DNS), reach the computer's
+network through a user-space gateway enabled per project, and serve a board's
+web server to the computer's browser? Plan, probe and the predeclared gates
+G9a (radio up), G9b (association), G9c (gateway), G9d (servers, several
+boards) and G9e (fidelity, no regression), recorded 2026-11-05 before any
+code: [E-09-plan.md](E-09-plan.md). Waits for the owner's decisions DE9a-DE9c.
+
 ## E-10: AVR emulator, ATmega8 first — SN-255..SN-259
 
 Question: can SimNodus's own emulator run unmodified ATmega8 firmware
