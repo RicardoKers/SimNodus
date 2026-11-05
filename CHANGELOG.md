@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-05, SN-250 plan)
+
+- Plan of experiment E-09, Wi-Fi for the ESP32-C3 (`docs/experiments/E-09-plan.md`): the question, a probe of the official MicroPython image (its `WLAN.active(True)` waits in the ROM's analog I2C set-up, before any MAC register), the oracles and sources, the predeclared gates G9a-G9e, the owner's decisions DE9a-DE9c and tasks SN-264..SN-269. No emulator code yet.
+
 ## 0.15.0 — 2026-11-05
 
 ### Changed (2026-11-05, owner's test of SN-262)
