@@ -1550,6 +1550,72 @@ TEST_CASE("session: GDB debugs the ESP32-C3 with its circuit (SN-249)")
     session.stop();
 }
 
+TEST_CASE("session: avr-gdb debugs the Arduino UNO with its circuit (SN-262)")
+{
+    // Example 58: the run waits at Optiboot's start (BOOTRST); Optiboot
+    // starts the sketch after the power-on reset, and a breakpoint at the
+    // sketch's main halts firmware and circuit.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "58_Arduino_UNO_serial_and_upload.snx");
+    REQUIRE(loaded.schematic.has_value());
+    std::string error;
+    const auto image = emu::read_elf(
+        std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "firmware" / "avr328_serial" / "avr328_serial_16mhz.elf", error,
+        emu::ElfMachine::Avr);
+    REQUIRE(image.has_value());
+    const auto main_symbol = image->symbols.find("main");
+    REQUIRE(main_symbol != image->symbols.end());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    request.library = &board_library();
+    auto env = environment();
+    env.gdb_port = 0; // any free port
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto status = session.status();
+    while (!status.debugger_waiting || status.gdb_port <= 0) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 30s);
+        std::this_thread::sleep_for(10ms);
+        status = session.status();
+    }
+    emu::GdbSocket client;
+    REQUIRE(client.connect_client(static_cast<std::uint16_t>(status.gdb_port), error));
+    auto ask = [&client](const std::string& packet) {
+        std::string reply;
+        client.send_raw(emu::GdbSocket::frame(packet));
+        return client.receive_packet(10000, reply) ? reply : std::string("<no reply>");
+    };
+    CHECK(ask("?") == "S05");
+    CHECK(ask("p22") == "007e0000"); // the PC at Optiboot's start, 0x7E00
+    char z0[40];
+    std::snprintf(z0, sizeof z0, "Z0,%x,2", static_cast<unsigned>(main_symbol->second));
+    CHECK(ask(z0) == "OK");
+    CHECK(ask("c") == "S05");
+    char pc[16];
+    const auto main_address = static_cast<unsigned>(main_symbol->second);
+    std::snprintf(pc, sizeof pc, "%02x%02x0000", main_address & 0xFFu, (main_address >> 8) & 0xFFu);
+    CHECK(ask("p22") == pc);
+    std::this_thread::sleep_for(100ms);
+    const auto halted = session.status();
+    CHECK(halted.debugger_halted);
+    std::this_thread::sleep_for(300ms);
+    CHECK(session.status().sim_time - halted.sim_time < 0.001); // the circuit stands still with the firmware
+    z0[0] = 'z';
+    CHECK(ask(z0) == "OK");
+    CHECK(ask("D") == "OK");
+    std::string text;
+    while (text.find("ATmega328P ready") == std::string::npos) {
+        REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+        std::this_thread::sleep_for(10ms);
+        text.clear();
+        session.mcu_uart_received(request.mcus.front().component, "usart", 0, text);
+    }
+    CHECK(!session.status().debugger_halted);
+    session.stop();
+}
+
 TEST_CASE("session: one board's TX wired to another's RX passes the bytes on")
 {
     REQUIRE(test::engine() != nullptr);

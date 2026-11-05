@@ -130,8 +130,11 @@ public:
     // ---- Running ----
     enum class ResetKind { PowerOn, External, Watchdog, BrownOut };
     void reset(ResetKind kind = ResetKind::PowerOn);
+    // Runs to `ns`, or until the core halts at a debugger breakpoint or
+    // watchpoint (halted()).
     void run_until_ns(std::uint64_t ns);
     void step_instruction();
+    bool halted() const { return cpu_.debug_halted(); }
     std::uint64_t time_ns() const { return cpu_hz_ ? ns_at(cpu_.cycles()) : idle_ns_; }
     // Interrupt vectors of the chip (2 words each above 8 KB of flash).
     int vector_count() const { return vector_count_; }
@@ -177,6 +180,17 @@ public:
 
     AvrCpu& cpu() { return cpu_; }
     const AvrCpu& cpu() const { return cpu_; }
+
+    // ---- The debugger's view (SN-262) ----
+    // The data space: reading an I/O register has no side effects (UDR keeps
+    // its byte, ADCL does not lock ADCH); writing one does what the
+    // firmware's write does. Addresses past the SRAM are refused.
+    std::uint16_t data_size() const { return cpu_.config().data_size; }
+    bool debug_read(std::uint16_t address, std::uint8_t& value);
+    bool debug_write(std::uint16_t address, std::uint8_t value);
+    // One flash byte, as a programmer writes it (the debugger's `load`).
+    bool debug_write_flash(std::uint32_t address, std::uint8_t value);
+    bool debug_write_eeprom(std::uint32_t address, std::uint8_t value);
 
     class Peripheral; // a block of I/O registers with events (atmega.cpp)
     class TimerBase;

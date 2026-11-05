@@ -130,6 +130,31 @@ public:
     // bytes after BLBSET or SIGRD); return false to read the flash.
     std::function<bool(std::uint16_t z, std::uint8_t& value)> lpm_read;
     std::function<void()> on_break;
+
+    // Debugger (GDB server, SN-262), as on the other cores. A breakpoint
+    // (a word address) halts the core before its instruction; a data access
+    // that overlaps a watchpoint (data addresses) halts it after its
+    // instruction; with a debugger attached, BREAK halts it after the BREAK
+    // instead of calling on_break. debug_halted() is then true and run()
+    // returns until resume_from_halt().
+    enum class WatchKind { Write = 2, Read = 3, Access = 4 }; // GDB's Z2, Z3, Z4
+    struct Watchpoint {
+        std::uint32_t address = 0;
+        std::uint32_t length = 1;
+        WatchKind kind = WatchKind::Write;
+    };
+    struct WatchHit {
+        bool hit = false;
+        std::uint32_t address = 0;
+        WatchKind kind = WatchKind::Write;
+    };
+    void set_debugger_attached(bool attached);
+    void set_breakpoints(std::vector<std::uint32_t> words);
+    void set_watchpoints(std::vector<Watchpoint> watchpoints);
+    const WatchHit& last_watch() const { return watch_hit_; }
+    bool debug_halted() const { return debug_halted_; }
+    // From a halt: the instruction at the PC runs even if it has a breakpoint.
+    void resume_from_halt();
     // Diagnostics: an opcode this chip does not have, an access outside the
     // data space.
     std::function<void(const std::string& text)> diagnostic;
@@ -165,6 +190,7 @@ private:
         data_[static_cast<std::size_t>(low) + 1] = static_cast<std::uint8_t>(value >> 8);
     }
     void undefined(const AvrInsn& in);
+    void check_watch(std::uint16_t address, bool write);
 
     AvrConfig config_;
     std::uint32_t flash_mask_;
@@ -186,6 +212,12 @@ private:
     bool inhibit_interrupt_ = false; // one instruction after SEI and RETI
     bool count_ops_ = false;
     std::vector<std::uint64_t> op_hits_;
+    bool debugger_ = false;
+    bool debug_halted_ = false;
+    bool skip_breakpoint_ = false; // the first instruction after a resume
+    std::vector<std::uint32_t> breakpoints_;
+    std::vector<Watchpoint> watchpoints_;
+    WatchHit watch_hit_;
 };
 
 } // namespace simnodus::emu

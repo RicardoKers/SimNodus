@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-04 (release 0.14.0: the AVR line and the ESP32-C3's GDB, continuous ADC and MicroPython files). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (SN-262: GDB for the AVR chips with avr-gdb, on `main` after 0.14.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **On `main` since 0.14.0** (not released yet):
+  - SN-262, GDB for the AVR chips and the UNO with `avr-gdb`: an `AvrTarget`
+    for the GDB server with avr-gdb's registers and address spaces (flash
+    from 0, SRAM from 0x800000, EEPROM from 0x810000), breakpoints,
+    watchpoints on SRAM and I/O, `load` as on the Blue Pill. Checked with
+    avr-gdb 7.8 (Microchip Studio 7, also in MPLAB XC8 2.36 on the owner's
+    laptop) against `simnodus-emu --avr ... --gdb` and in the session tests
+    (example 58); the window itself waits for the owner's test.
+  - A warning when one net carries two label names (`label-conflict`).
 - **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
   with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
   2026-11-04b preview (the AVR examples 50-59 and the UNO's upload from the
@@ -171,8 +180,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    not measured), and, experimental, the ATmega328/328P, the ATmega32/32A and
    the Arduino UNO with Optiboot (uploads from the Arduino IDE checked by the
    owner through Eterlogic's virtual port pair). Next, with the owner's go:
-   - SN-262, GDB for AVR with avr-gdb (an `AvrTarget` for the existing GDB
-     server: flash, SRAM and EEPROM address spaces);
+   - the owner's test of SN-262 in the window (avr-gdb on examples 50, 55
+     and 58);
    - comparisons with real chips and boards that end the experimental mark:
      examples 55-57 on a 328P with a USBasp (factory fuses, 1 MHz), 58 on an
      UNO, 59 on an ATmega32.
@@ -231,6 +240,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   STM32CubeIDE 2.1.1 (`python tools/build_firmware.py` finds it; `hal_clock`
   also needs STM32CubeF1 1.8.7 in `~/STM32Cube/Repository`).
 - **AVR (E-10):**
+  - avr-gdb 7.8 is not in the Arduino tools; it comes with Microchip
+    Studio 7 (`C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin`)
+    and MPLAB XC8 2.36 (`C:\Program Files\Microchip\xc8\v2.36\avr\bin`).
+    `simnodus-emu --avr atmega328p file.elf --gdb 3333` serves it without
+    the window.
   - avr-gcc 7.3.0 and avr-libc 2.0.0 come from the Arduino AVR core 1.8.8
     of `build/tools/arduino-cli` (its data folder is `D:\data`), with avrdude
     8.0.0 next to them.

@@ -589,7 +589,8 @@ public:
         for (const auto& [name, link] : options.uart_links) {
             sync_reset_ = sync_reset_ || (has_bootloader && link.circuit == "dtr_reset");
         }
-        if (options.firmware.empty() && !has_bootloader) {
+        // With debugging (SN-262) the flash may start empty: avr-gdb's `load` writes it.
+        if (options.firmware.empty() && !has_bootloader && options.gdb_port < 0) {
             error = std::string("The ") + machine_.chip_name() + " has no firmware file (a .hex or .elf).";
             return false;
         }
@@ -786,6 +787,13 @@ public:
         return machine_.eeprom_writes() > eeprom_writes_ ? machine_.eeprom_writes() : 0;
     }
     std::vector<std::uint8_t> eeprom() const override { return machine_.eeprom(); }
+    emu::GdbTarget* gdb_target() override
+    {
+        if (!gdb_target_) {
+            gdb_target_ = emu::make_gdb_target(machine_);
+        }
+        return gdb_target_.get();
+    }
 
 private:
     static PinState state_of(const emu::Atmega::PinState& s, bool pad)
@@ -811,6 +819,7 @@ private:
     std::uint64_t sync_seen_ns_ = 0;
     std::vector<int> watched_supplies_;
     std::vector<std::string> notes_;
+    std::unique_ptr<emu::GdbTarget> gdb_target_; // after machine_: it refers to it
 };
 
 } // namespace

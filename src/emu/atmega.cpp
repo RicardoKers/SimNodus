@@ -98,6 +98,8 @@ public:
     explicit Peripheral(Atmega& machine) : m_(machine) {}
     virtual std::vector<std::uint16_t> addresses() const = 0;
     virtual std::uint8_t read(std::uint16_t address) = 0;
+    // A read without side effects, for the debugger.
+    virtual std::uint8_t peek(std::uint16_t address) { return read(address); }
     virtual void write(std::uint16_t address, std::uint8_t value) = 0;
     virtual void reset() = 0;
     std::uint64_t next_event() const override { return no_event; }
@@ -677,6 +679,22 @@ public:
         default: return temp_; // the high bytes read TEMP
         }
     }
+    std::uint8_t peek(std::uint16_t address) override
+    {
+        switch (address) {
+        case TCCR1A:
+        case TCCR1B:
+        case TCCR1C: return read(address);
+        case TCNT1L: sync(now()); return static_cast<std::uint8_t>(core.count);
+        case TCNT1H: sync(now()); return static_cast<std::uint8_t>(core.count >> 8);
+        case OCR1AL: return static_cast<std::uint8_t>(core.ch[0].buffer);
+        case OCR1AH: return static_cast<std::uint8_t>(core.ch[0].buffer >> 8);
+        case OCR1BL: return static_cast<std::uint8_t>(core.ch[1].buffer);
+        case OCR1BH: return static_cast<std::uint8_t>(core.ch[1].buffer >> 8);
+        case ICR1L: return static_cast<std::uint8_t>(core.icr);
+        default: return static_cast<std::uint8_t>(core.icr >> 8);
+        }
+    }
     void write(std::uint16_t address, std::uint8_t value) override
     {
         switch (address) {
@@ -1218,6 +1236,16 @@ public:
             return second ? static_cast<std::uint8_t>(ucsrc_ | 0x80) : static_cast<std::uint8_t>(ubrr_ >> 8);
         }
         }
+    }
+    std::uint8_t peek(std::uint16_t address) override
+    {
+        if (address == UDR) {
+            return fifo_.empty() ? 0 : fifo_.front().value;
+        }
+        if (address == UBRRH_UCSRC) {
+            return static_cast<std::uint8_t>(ubrr_ >> 8); // the shared address shows UBRRH
+        }
+        return read(address);
     }
     void write(std::uint16_t address, std::uint8_t value) override
     {
@@ -1771,6 +1799,13 @@ public:
             return static_cast<std::uint8_t>(data_ >> 8);
         }
     }
+    std::uint8_t peek(std::uint16_t address) override
+    {
+        if (address == ADMUX || address == ADCSRB || address == ADCSRA) {
+            return read(address);
+        }
+        return static_cast<std::uint8_t>(address == ADCL ? data_ : data_ >> 8);
+    }
     void write(std::uint16_t address, std::uint8_t value) override
     {
         if (address == ADMUX) {
@@ -2064,6 +2099,13 @@ public:
         }
         clear_after_status();
         return received_;
+    }
+    std::uint8_t peek(std::uint16_t address) override
+    {
+        if (address == SPSR) {
+            return static_cast<std::uint8_t>((spif() ? 0x80 : 0) | (wcol_ ? 0x40 : 0) | (spi2x_ ? 1 : 0));
+        }
+        return address == SPCR ? spcr_ : received_;
     }
     void write(std::uint16_t address, std::uint8_t value) override
     {
@@ -3721,7 +3763,7 @@ void Atmega::run_until_ns(std::uint64_t ns)
         return;
     }
     const std::uint64_t limit = cycles_at(ns);
-    while (cpu_.cycles() < limit) {
+    while (cpu_.cycles() < limit && !cpu_.debug_halted()) {
         if (reset_requested_) {
             reset(requested_kind_);
             continue;
@@ -3738,6 +3780,60 @@ void Atmega::run_until_ns(std::uint64_t ns)
         }
         run_events(cpu_.cycles());
     }
+}
+
+// ---- The debugger's view ----
+
+bool Atmega::debug_read(std::uint16_t address, std::uint8_t& value)
+{
+    if (address >= data_size()) {
+        return false;
+    }
+    if (address < 0x20 || address > cpu_.config().io_end || address == AvrCpu::sreg_address
+        || address == AvrCpu::spl_address || address == AvrCpu::sph_address) {
+        value = cpu_.peek(address);
+        return true;
+    }
+    if (Peripheral* p = io_owner_[io_role_[address]]) {
+        value = p->peek(io_role_[address]);
+    } else {
+        value = read_io(address); // the machine's own registers read without side effects
+    }
+    return true;
+}
+
+bool Atmega::debug_write(std::uint16_t address, std::uint8_t value)
+{
+    if (address >= data_size()) {
+        return false;
+    }
+    if (address < 0x20 || address > cpu_.config().io_end || address == AvrCpu::sreg_address
+        || address == AvrCpu::spl_address || address == AvrCpu::sph_address) {
+        cpu_.poke(address, value);
+    } else {
+        write_io(address, value);
+    }
+    return true;
+}
+
+bool Atmega::debug_write_flash(std::uint32_t address, std::uint8_t value)
+{
+    if (address >= flash_bytes_) {
+        return false;
+    }
+    const std::uint16_t w = cpu_.flash_word(address / 2);
+    cpu_.write_flash_word(address / 2,
+        static_cast<std::uint16_t>((address & 1) ? ((w & 0x00FF) | (value << 8)) : ((w & 0xFF00) | value)));
+    return true;
+}
+
+bool Atmega::debug_write_eeprom(std::uint32_t address, std::uint8_t value)
+{
+    if (address >= eeprom_.size()) {
+        return false;
+    }
+    eeprom_[address] = value;
+    return true;
 }
 
 void Atmega::step_instruction()
