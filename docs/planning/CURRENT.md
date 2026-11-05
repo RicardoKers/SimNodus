@@ -15,7 +15,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     watchpoints on SRAM and I/O, `load` as on the Blue Pill. Checked with
     avr-gdb 7.8 (Microchip Studio 7, also in MPLAB XC8 2.36 on the owner's
     laptop) against `simnodus-emu --avr ... --gdb` and in the session tests
-    (example 58); the window itself waits for the owner's test.
+    (example 58). Preview for the owner:
+    `dist/SimNodus-0.15-preview-2026-11-05-avr-gdb-windows-x64.zip` (its
+    window, example 55 and avr-gdb 7.8 checked: halt at the reset vector,
+    `break main`, `next`, SRAM reads, detach runs on).
   - A warning when one net carries two label names (`label-conflict`).
 - **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
   with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
@@ -255,6 +258,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     (`tests/experiments/avr-differential/README.md`).
   - `simnodus-emu --avr atmega8 file.elf|.hex` runs firmware without the
     circuit.
+- **MCP for this agent:** the user-scope `simnodus` server points to
+  `C:\Program Files\SimNodus\simnodus-cli.exe mcp --window` (the installed
+  0.13.0; re-registered on 2026-11-05 after the old 0.7.0-dev folder was
+  deleted). Its calls need the window open with Tools > Allow External
+  Control.
 - **Intermittent tests:** `engine-ngspice` (ngspice "cannot recover") and
   `gui-smoke` sometimes fail under parallel load, on CI too; they pass when
   run again or on their own.
