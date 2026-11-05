@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-05 (SN-262: GDB for the AVR chips with avr-gdb, on `main` after 0.14.0). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (SN-262, GDB for the AVR chips with avr-gdb, tested by the owner; on `main` after 0.14.0, ready for 0.15.0). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -185,6 +185,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    not measured), and, experimental, the ATmega328/328P, the ATmega32/32A and
    the Arduino UNO with Optiboot (uploads from the Arduino IDE checked by the
    owner through Eterlogic's virtual port pair). Next, with the owner's go:
+   - release 0.15.0 with SN-262, the `label-conflict` warning and the
+     per-chip debugger message (#282), which the 2026-11-05 preview zip
+     does not have yet;
    - comparisons with real chips and boards that end the experimental mark:
      examples 55-57 on a 328P with a USBasp (factory fuses, 1 MHz), 58 on an
      UNO, 59 on an ATmega32.
