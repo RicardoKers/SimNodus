@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-05 (release 0.15.0: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,7 +8,8 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **Release 0.15.0 (2026-11-05)**, after the owner's tests of the
+- **Release 0.15.0 published on 2026-11-05** (tag `v0.15.0`, GitHub release
+  with `SimNodus-0.15.0-windows-x64.zip` and `-setup.exe`), after the owner's tests of the
   2026-11-05 preview (examples 50, 55 and 58 with avr-gdb 7.8) and the
   2026-11-05b preview (the waiting message per chip and per board):
   - SN-262, GDB for the AVR chips and the UNO with `avr-gdb`: an `AvrTarget`
