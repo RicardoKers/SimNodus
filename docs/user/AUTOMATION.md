@@ -271,11 +271,28 @@ and adds the `view_*` tools. The window may be started after the agent: each
 call connects when needed. Relative paths start from the folder the agent
 starts the server in.
 
-Claude Code (use the folder where SimNodus is installed):
+Claude Code (use the folder where SimNodus is installed; `--scope user`
+makes it available in every project):
 
 ```text
-claude mcp add simnodus -- "C:\path\to\SimNodus\simnodus-cli.exe" mcp --window
+claude mcp add --scope user simnodus -- "C:\path\to\SimNodus\simnodus-cli.exe" mcp --window
 ```
+
+The registration keeps that path. If the folder is moved or deleted (an
+unpacked zip of an older version, for example), Claude Code reports the
+`simnodus` server as failed to connect: remove it and add it again with the
+new path.
+
+```text
+claude mcp remove simnodus -s user
+claude mcp add --scope user simnodus -- "C:\Program Files\SimNodus\simnodus-cli.exe" mcp --window
+```
+
+The installer's folder (`C:\Program Files\SimNodus`) stays the same when a
+new version is installed over the old one, so a registration that points
+there needs no change. The server connects even while no window is open;
+each call then answers `no-window` until SimNodus runs with Tools > Allow
+External Control.
 
 Codex, in `~/.codex/config.toml`:
 
