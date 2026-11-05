@@ -15,7 +15,10 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     watchpoints on SRAM and I/O, `load` as on the Blue Pill. Checked with
     avr-gdb 7.8 (Microchip Studio 7, also in MPLAB XC8 2.36 on the owner's
     laptop) against `simnodus-emu --avr ... --gdb` and in the session tests
-    (example 58); the window itself waits for the owner's test.
+    (example 58). Preview for the owner:
+    `dist/SimNodus-0.15-preview-2026-11-05-avr-gdb-windows-x64.zip` (its
+    window, example 55 and avr-gdb 7.8 checked: halt at the reset vector,
+    `break main`, `next`, SRAM reads, detach runs on).
   - A warning when one net carries two label names (`label-conflict`).
 - **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
   with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
