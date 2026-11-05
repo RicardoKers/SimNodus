@@ -18,7 +18,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
     (example 58). Preview for the owner:
     `dist/SimNodus-0.15-preview-2026-11-05-avr-gdb-windows-x64.zip` (its
     window, example 55 and avr-gdb 7.8 checked: halt at the reset vector,
-    `break main`, `next`, SRAM reads, detach runs on).
+    `break main`, `next`, SRAM reads, detach runs on). The owner tested it
+    on 2026-11-05: examples 50, 55 and 58 work with avr-gdb; the waiting
+    message now names only the chip's own debugger.
   - A warning when one net carries two label names (`label-conflict`).
 - **Release 0.14.0 published on 2026-11-04** (tag `v0.14.0`, GitHub release
   with `SimNodus-0.14.0-windows-x64.zip` and `-setup.exe`), after the owner's test of the
@@ -183,8 +185,6 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    not measured), and, experimental, the ATmega328/328P, the ATmega32/32A and
    the Arduino UNO with Optiboot (uploads from the Arduino IDE checked by the
    owner through Eterlogic's virtual port pair). Next, with the owner's go:
-   - the owner's test of SN-262 in the window (avr-gdb on examples 50, 55
-     and 58);
    - comparisons with real chips and boards that end the experimental mark:
      examples 55-57 on a 328P with a USBasp (factory fuses, 1 MHz), 58 on an
      UNO, 59 on an ATmega32.

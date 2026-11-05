@@ -858,16 +858,10 @@ bool MainWindow::start_run(const sim::RunRequest* base, QString& error)
     }
     run_->set_speed(run_->snapshot().settings().speed);
     analyzer_->reload();
-    const auto& components = document_->schematic().components();
-    const bool board = std::any_of(components.begin(), components.end(), [this](const model::Component& c) {
-        const auto* d = document_->library().find(c.type);
-        return d && d->mcu;
-    });
-    if (board && debug_action_->isChecked()) {
-        const QString text = tr("Waiting for the debugger: connect STM32CubeIDE, arm-none-eabi-gdb, riscv32-esp-elf-gdb or avr-gdb to localhost:%1. "
-                                "The circuit starts when the firmware runs. To run without a debugger, turn off "
-                                "Simulate > Debug Firmware with GDB.")
-                                 .arg(default_gdb_port);
+    const QString text = debug_action_->isChecked()
+        ? gdb_waiting_message(document_->schematic(), document_->library(), default_gdb_port)
+        : QString();
+    if (!text.isEmpty()) {
         statusBar()->showMessage(text, 15000);
         messages_->add(Severity::Info, text, tr("Simulation"));
         return true;
@@ -1961,6 +1955,36 @@ void MainWindow::closeEvent(QCloseEvent* event)
     save_settings();
     analyzer_->hide();
     QMainWindow::closeEvent(event);
+}
+
+QString gdb_waiting_message(const model::Schematic& schematic, const library::ComponentLibrary& parts, int first_port)
+{
+    // Each board gets the next port in schematic order (build_mcu_requests), and
+    // the message names only the debugger that speaks to its chip.
+    const auto tr = [](const char* text) { return MainWindow::tr(text); };
+    QStringList boards;
+    QString single;
+    for (const auto& c : schematic.components()) {
+        const auto* d = parts.find(c.type);
+        if (!d || !d->mcu) {
+            continue;
+        }
+        const QString debugger = d->mcu->chip == "esp32c3"       ? tr("riscv32-esp-elf-gdb")
+                                 : library::avr_chip(d->mcu->chip) ? tr("avr-gdb")
+                                                                   : tr("STM32CubeIDE or arm-none-eabi-gdb");
+        const int port = first_port + static_cast<int>(boards.size());
+        single = debugger;
+        boards << tr("%1 to localhost:%2 (%3)").arg(debugger).arg(port).arg(QString::fromStdString(c.designator));
+    }
+    if (boards.isEmpty()) {
+        return {};
+    }
+    const QString connect_text = boards.size() == 1
+        ? tr("Waiting for the debugger: connect %1 to localhost:%2.").arg(single).arg(first_port)
+        : tr("Waiting for the debuggers: connect %1.").arg(boards.join(QStringLiteral("; ")));
+    return connect_text + QLatin1Char(' ')
+        + tr("The circuit starts when the firmware runs. To run without a debugger, turn off "
+             "Simulate > Debug Firmware with GDB.");
 }
 
 } // namespace simnodus::ui

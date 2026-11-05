@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-05, owner's test of SN-262)
+
+- The *Waiting for the debugger* message of a debug run names only the debugger for the circuit's chip (`avr-gdb`, `riscv32-esp-elf-gdb`, or STM32CubeIDE / `arm-none-eabi-gdb`) instead of all of them; with several boards it lists each board's debugger and port (3333, 3334, ...).
+
 ### Added (2026-11-05, SN-262)
 
 - **GDB for the AVR chips** (ATmega8/8A, ATmega328/328P, ATmega32/32A and the Arduino UNO): Simulate > Debug Firmware with GDB works with `avr-gdb` (Microchip Studio, Microchip's AVR toolchain, MPLAB XC8, Linux's `gdb-avr`). The server speaks avr-gdb's registers (r0-r31, SREG, SP, PC as a byte address) and address spaces (flash from 0, the data space from 0x800000, the EEPROM from 0x810000): breakpoints, watchpoints on the SRAM and the I/O registers (`watch`, `rwatch`, `awatch`), `stepi`/`next`, Ctrl-C, `monitor reset` (as at power-on, so the UNO's Optiboot starts the sketch at once), detach. `load` writes the ELF's flash and EEPROM as a programmer does and the next run starts from reset, as on the Blue Pill; the board's firmware may stay empty while debugging; the ELF's fuses are accepted but the part's stay. Reading an I/O register in the debugger has no side effects (UDR, ADCL, SPDR, TCNT1's TEMP); with a debugger attached, `BREAK` halts the firmware. Breakpoints outside the code and watchpoints on the EEPROM are refused (gdb reports the first, watches the second by stepping). `simnodus-emu --avr` takes `--gdb PORT` and the ATmega32/32A. Checked with avr-gdb 7.8 from Microchip Studio 7 on the AVR examples' firmware and an Arduino sketch.

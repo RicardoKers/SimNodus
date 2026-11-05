@@ -244,4 +244,8 @@ private:
     QPointer<QThread> engine_thread_;
 };
 
+// What to connect when a debug run starts: each board's own debugger and port
+// (first_port, first_port + 1, ... in schematic order); empty without boards.
+QString gdb_waiting_message(const model::Schematic& schematic, const library::ComponentLibrary& parts, int first_port);
+
 } // namespace simnodus::ui
