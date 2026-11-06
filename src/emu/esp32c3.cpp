@@ -2927,13 +2927,73 @@ protected:
             if (value & (1u << 24)) {
                 stored = static_cast<std::uint8_t>(value >> 16);
             }
-            value = (value & ~((0xFFu << 16) | (1u << 25))) | (std::uint32_t{stored} << 16);
+            const std::uint32_t read = stored | done_bits(value & 0xFF, (value >> 8) & 0xFF);
+            value = (value & ~((0xFFu << 16) | (1u << 25))) | (read << 16);
         }
         Block::write_word(offset, value);
     }
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x050) {
+            // The PHY's peak detector (libphy's ram_pkdet_vol_start) waits for
+            // its state in bits 26:24 to read 7, done: it finishes at once
+            // (E-09, SN-265).
+            return Block::read_word(offset) | (7u << 24);
+        }
+        if (offset == 0x04C) {
+            // The TX DC offset calibration (txdc_cal_v70) waits for bit 24,
+            // its comparator's sample ready.
+            return Block::read_word(offset) | (1u << 24);
+        }
+        return Block::read_word(offset);
+    }
 
 private:
+    // Status bits of the analog blocks that the PHY's calibrations wait for;
+    // they read as finished (E-09, SN-265). Block 0x62 register 7 bit 1: the
+    // RF PLL calibration has ended (wait_rfpll_cal_end).
+    static std::uint32_t done_bits(std::uint32_t block, std::uint32_t reg)
+    {
+        if (block == 0x62 && reg == 7) {
+            return 0x02;
+        }
+        return 0;
+    }
+
     std::array<std::uint8_t, 256 * 256> values_{};
+};
+
+// The radio's register blocks (RF front end FE and FE2, baseband BB and NRX),
+// which the Technical Reference Manual does not describe (E-09, SN-265).
+// Registers read back what was written, and the status bits that the PHY
+// library's calibrations wait for read as finished; each was found in a trace
+// of ESP-IDF v5.5.2's libphy (phy_version 1232) and is named by the function
+// that waits for it.
+class RadioBlock : public Esp32C3::Block {
+public:
+    struct DoneBits {
+        std::uint32_t offset;
+        std::uint32_t bits;
+    };
+    RadioBlock(Esp32C3& machine, const char* name, std::vector<DoneBits> done)
+        : Block(machine, name), done_(std::move(done))
+    {
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        std::uint32_t value = Block::read_word(offset);
+        for (const DoneBits& d : done_) {
+            if (d.offset == offset) {
+                value |= d.bits;
+            }
+        }
+        return value;
+    }
+
+private:
+    std::vector<DoneBits> done_;
 };
 
 // APB_SARADC (TRM chapter "On-Chip Sensors and Analog Signal Processing").
@@ -3318,10 +3378,19 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
         std::uint32_t base;
         const char* name;
     };
+    attach(0x60005000u, std::make_unique<RadioBlock>(*this, "FE2", std::vector<RadioBlock::DoneBits>{}));
+    attach(0x60006000u, std::make_unique<RadioBlock>(*this, "FE", std::vector<RadioBlock::DoneBits>{
+        {0x174, 1u << 16}, // ram_iq_est_enable: the IQ estimate is ready
+    }));
+    attach(0x6001C000u, std::make_unique<RadioBlock>(*this, "NRX", std::vector<RadioBlock::DoneBits>{}));
+    attach(0x6001D000u, std::make_unique<RadioBlock>(*this, "BB", std::vector<RadioBlock::DoneBits>{}));
+    // The Wi-Fi MAC, until SN-266 models it: only the bit libpp's hal_init
+    // waits for after setting bit 1 of 0xD14.
+    attach(0x60033000u, std::make_unique<RadioBlock>(*this, "WIFI_MAC", std::vector<RadioBlock::DoneBits>{
+        {0xD14, 1u << 0}, // hal_init
+    }));
     static constexpr Plain plain[] = {
-        {0x60005000u, "FE2"}, {0x60006000u, "FE"},
         {0x60014000u, "UHCI0"},
-        {0x6001C000u, "NRX"}, {0x6001D000u, "BB"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
         {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"},
         {0x600C1000u, "SENSITIVE"},

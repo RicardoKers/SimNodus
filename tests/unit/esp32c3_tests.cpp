@@ -355,6 +355,49 @@ TEST_CASE("esp32c3: Arduino-ESP32 sketch runs unchanged")
     CHECK(ms > 249.5 && ms < 250.5); // delay(250)
 }
 
+TEST_CASE("esp32c3: the Wi-Fi starts, calibrates its PHY and scans an empty air (E-09, SN-265)")
+{
+    // ESP-IDF's scan example: the full PHY calibration on the first boot, the
+    // station started, a scan that finds nothing (no access point yet).
+    auto machine = boot(read_file(firmware("wifi_scan.bin")));
+    REQUIRE(machine);
+    std::string partial;
+    const auto lines = run_lines(*machine, 3'200'000'000ull, 0, partial);
+    CHECK(has(lines, "falling back to full calibration"));
+    CHECK(has(lines, "phy_init: Saving new calibration data"));
+    CHECK(!has(lines, "pll_cal exceeds")); // the RF PLL calibration ends in time
+    CHECK(has(lines, "wifi:mode : sta (34:85:18:00:c3:01)"));
+    CHECK(has(lines, "scan: Total APs scanned = 0"));
+    CHECK(machine->take_diagnostics().empty());
+    // The next boot loads the calibration it saved in NVS.
+    auto again = boot(machine->flash());
+    REQUIRE(again);
+    std::string partial2;
+    const auto lines2 = run_lines(*again, 3'200'000'000ull, 0, partial2);
+    CHECK(!has(lines2, "falling back to full calibration"));
+    CHECK(has(lines2, "wifi:mode : sta"));
+    CHECK(has(lines2, "scan: Total APs scanned = 0"));
+
+    // The station example looks for "SimNodus" and does not find it.
+    auto station = boot(read_file(firmware("wifi_station_wpa2.bin")));
+    REQUIRE(station);
+    std::string partial3;
+    const auto lines3 = run_lines(*station, 3'200'000'000ull, 0, partial3);
+    CHECK(has(lines3, "wifi station: connect to the AP fail"));
+
+    // MicroPython: WLAN.active(True) returns and scan() gives an empty list.
+    auto python = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(python);
+    std::string partial4;
+    run_lines(*python, 400'000'000ull, 2, partial4);
+    python->send(2, "import network; w = network.WLAN(network.STA_IF); w.active(True); print('active', w.active())\r");
+    auto lines4 = run_lines(*python, 1'500'000'000ull, 2, partial4);
+    CHECK(has(lines4, "active True"));
+    python->send(2, "print('found', w.scan())\r");
+    lines4 = run_lines(*python, 5'000'000'000ull, 2, partial4);
+    CHECK(has(lines4, "found []"));
+}
+
 TEST_CASE("esp32c3: faults give the panic report and a diagnostic")
 {
     const auto image = read_file(firmware("faults.bin"));

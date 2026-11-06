@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Changed (2026-11-05, SN-265)
+
+- ESP32-C3: the Wi-Fi starts instead of hanging (E-09). The PHY's calibration runs, and the station mode starts in ESP-IDF, Arduino and MicroPython: `WLAN.active(True)` returns, and `esp_wifi_start` reaches `WIFI_EVENT_STA_START`. The next boot loads the calibration that the firmware saved. Scans find no network yet, as a board in a room without access points; the virtual access point comes with SN-266 and SN-267. The radio's register blocks are named in the trace.
+
 ### Added (2026-11-05, SN-264)
 
 - Wi-Fi test material for experiment E-09 in `tests/experiments/esp32c3`: six unmodified ESP-IDF v5.5.2 examples (scan, station open and WPA2-PSK, HTTP server, SNTP, UDP server), two Arduino-ESP32 sketches (`WiFiClient`, `WebServer`) and three MicroPython scripts, with their SHA-256 and build settings. The E-09 plan records the owner's decisions (station first; our own WPA2 crypto; lwIP for the gateway; the gateway off by default and confirmed on a project's first run on a computer), the licences of the sources and the baseline: every image stops in the PHY's full calibration. Nothing changes in the application.
