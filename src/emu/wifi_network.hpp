@@ -42,6 +42,9 @@ public:
 
     // The address leased to `station`, if any.
     std::optional<Ipv4Address> lease_of(const MacAddress& station) const;
+    // The station that uses `address`, learned from its packets (a fixed
+    // address, not only a lease), if any.
+    std::optional<MacAddress> station_of(const Ipv4Address& address) const;
 
     static constexpr Ipv4Address gateway{192, 168, 4, 1};
 
@@ -59,6 +62,7 @@ private:
     MacAddress own_;
     WifiGateway* gateway_ = nullptr;
     std::map<MacAddress, Ipv4Address> leases_;
+    std::map<Ipv4Address, MacAddress> neighbors_; // addresses seen in the stations' packets
     std::uint16_t ip_id_ = 1;
 };
 

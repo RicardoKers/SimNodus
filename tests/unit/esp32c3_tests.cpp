@@ -891,6 +891,11 @@ TEST_CASE("esp32c3: the Wi-Fi gateway carries TCP and UDP to the computer and fo
         }
     }
     CHECK(from_board == "from board");
+    // A fixed address (Arduino's WiFi.config, MicroPython's ifconfig) gets the
+    // gateway's answers too: the network learns it from the board's packets.
+    python->send(2, "w.ifconfig(('192.168.4.201', '255.255.255.0', '192.168.4.1', '192.168.4.1')); u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); u.sendto(b'fixed', ('192.168.4.254', 18462)); print('static', u.recvfrom(16)); u.close()\r");
+    lines = run(python->time_ns() + 1'500'000'000ull);
+    CHECK(has(lines, "static (b'fixed', ('192.168.4.254', 18462))"));
 
     // Without the gateway (the default) names do not resolve and nothing
     // leaves the simulation.

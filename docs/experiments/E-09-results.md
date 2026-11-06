@@ -506,3 +506,26 @@ above, so the recommendation is:
    - SoftAP and ESP-NOW only on request.
 
 DE9 is the owner's decision; nothing above changes until then.
+
+## The owner's test of the preview (2026-11-06)
+
+The owner tested `SimNodus-0.16-preview-2026-11-06-wifi`:
+
+- **Example 60:** it worked with the forwarded port changed to 8085, because
+  8080 was in use on the owner's computer.
+- **Arduino IDE through shared serial ports:**
+  - `ConsoleWiFi` listed and joined the network and pinged a site on the
+    internet;
+  - the owner's own NTP clock sketch showed the time.
+
+One fault: the same NTP sketch with a fixed address
+(`WiFi.config(192.168.4.201, 192.168.4.1, ..., 8.8.8.8, 1.1.1.1)`) never got
+the time. The gateway sent its answers only to addresses the DHCP server had
+leased, so the DNS answers from 8.8.8.8 and the NTP answers were dropped.
+`WifiNetwork` now learns each station's address from its packets (IP source,
+ARP sender), as a real access point does. A test with MicroPython's fixed
+address 192.168.4.201 fails without the fix and passes with it.
+
+Ping to the outside is not carried by the gateway: only 192.168.4.1
+answers. The `ConsoleWiFi` result is to be read again with that in mind.
+

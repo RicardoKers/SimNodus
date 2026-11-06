@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-06, owner's test of the Wi-Fi preview)
+
+- ESP32-C3 Wi-Fi: a board with a fixed address (Arduino's `WiFi.config`, MicroPython's `ifconfig`) got no answers through the gateway, so an NTP clock with a fixed IP never set its time: the gateway sent answers only to addresses the DHCP server had leased. The network now learns each board's address from its packets (IP source, ARP), as an access point does.
+
 ### Added (2026-11-06, SN-269, application)
 
 - **Simulate > Wi-Fi Network...** (experimental, ESP32-C3): the project's network (SimNodus's access point on or off; name, WPA2-PSK or open, password, channel), the gateway to this computer's network and the ports of this computer forwarded to boards. The first time a project with the gateway runs on a computer, SimNodus asks before connecting the boards to that computer's network; the answer stays on the computer, not in the project.
