@@ -1306,7 +1306,7 @@ protected:
     }
     void on_reset() override
     {
-        reg(0x044) = 0x1800C301;                 // RD_MAC_SPI_SYS_0: MAC bytes 5..2 (01 C3 00 18)
+        reg(0x044) = 0x1800C300u | machine_.options().mac_last; // RD_MAC_SPI_SYS_0: MAC bytes 5..2 (xx C3 00 18)
         reg(0x048) = 0x3485;                     // RD_MAC_SPI_SYS_1: MAC bytes 1..0 (85 34)
         reg(0x050) = (4u << 18) | (3u << 24);    // RD_MAC_SPI_SYS_3: WAFER_VERSION_MINOR_LO 4, BLK_VERSION_MINOR 3
         reg(0x058) = 0;                          // RD_MAC_SPI_SYS_5: WAFER_VERSION_MINOR_HI 0, MAJOR 0
@@ -3292,6 +3292,12 @@ protected:
         case 0xC40:
             events_ &= ~value;
             update_interrupt();
+            return;
+        case 0xD14:
+            Block::write_word(offset, value);
+            if ((value & 2u) && machine_.wifi_start_) {
+                machine_.wifi_start_(); // hal_init: the firmware starts the Wi-Fi
+            }
             return;
         case 0xCAC:
             tx_complete_ &= ~(value & 0xFu);

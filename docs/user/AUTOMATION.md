@@ -97,7 +97,7 @@ project, or with the project named after the script.
 | `wire.connect` | Wires two pins or points with an L-shaped route; refuses (`blocked`) a route that would touch another pin or wire; `via` adds corner points |
 | `label.add` | Net label; equal names connect, `GND` or `0` is ground |
 | `probe.add`, `note.add` | Probes for the Signal Analyzer, text notes |
-| `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed, `exact_edges`, `cortex_m3_timing` |
+| `settings.get`, `settings.set` | Mode, transient stop and step, interactive step, segment, speed, `exact_edges`, `cortex_m3_timing`; the ESP32-C3 boards' Wi-Fi network: `wifi_access_point`, `wifi_ssid`, `wifi_security` (`wpa2` or `open`), `wifi_passphrase`, `wifi_channel`, `wifi_gateway`, `wifi_forwards` (`["8080=192.168.4.2:80"]`) |
 | `edit.undo`, `edit.redo` | Undo history of the session |
 | `sim.run` | Start, run, measure, stop: a transient analysis, or an interactive run for `duration` with timed `events` |
 | `sim.start`, `sim.advance`, `sim.control`, `sim.read`, `sim.status`, `sim.pause`, `sim.stop` | A run step by step (a sensor's control also takes its quantity with the unit: `"35 °C"`, `"500 lux"`). `sim.control` also sets a chip's value that changes while running (an LM75's temperature, an HC-SR04's distance; `"parameter"` names it when the chip has several), and `"over": "2s"` turns a control or such a value there smoothly from where it is, in the workspace's time (a knob turning in a recording) |
@@ -132,6 +132,10 @@ SimNodus to see the circuit.
 
 - An interactive run without a window goes as fast as the computer allows
   (`speed` 0) unless `speed` is given.
+- A project's Wi-Fi gateway to this computer stays off in a run unless
+  `sim.run` or `sim.start` passes `"allow_network": true`; the run's
+  `messages` say so. The network between the boards and SimNodus's access
+  point works either way.
 - `sim.advance` and timed `events` stop the run at the first accepted time
   point at or after the asked time. With the default 100 µs step a button
   pressed "at 10 ms" acts at 10.0–10.1 ms; the reply says when (`applied_at`).

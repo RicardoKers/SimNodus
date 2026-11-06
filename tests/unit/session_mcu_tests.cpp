@@ -8,6 +8,7 @@
 #include "circuit_builder.hpp"
 #include "emu/elf.hpp"
 #include "emu/gdb_socket.hpp"
+#include "emu/host_socket.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
 #include "mcu/mcu_machine.hpp"
@@ -1013,6 +1014,161 @@ TEST_CASE("session: example 45 runs ESP-IDF's blink on the ESP32-C3 board")
     CHECK(text.find("Turning the LED OFF!") != std::string::npos);
     const auto pins = session.mcu_pins(board);
     CHECK(pins.at("GPIO8").mode == mcu::PinMode::Output);
+    session.stop();
+}
+
+TEST_CASE("session: two ESP32-C3 boards join the project's Wi-Fi network (E-09, SN-269)")
+{
+    // Each board runs in its own runner thread; the run's air carries their
+    // frames, SimNodus's access point gives each an address.
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "45_ESP32-C3_blink.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    const auto station = std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / ".." / "tests" / "experiments" / "esp32c3"
+        / "firmware" / "wifi_station_wpa2.bin";
+    model::Component first = *request.schematic.component_by_designator("U1");
+    first.parameters["firmware"] = station.lexically_normal().string();
+    request.schematic.put(first);
+    // A copy of the whole circuit (board, LED, wires) below the first one.
+    const model::Schematic original = request.schematic;
+    for (model::Component c : original.components()) {
+        c.id = request.schematic.allocate_id();
+        const auto digits = c.designator.find_first_of("0123456789");
+        c.designator = c.designator.substr(0, digits) + std::to_string(std::stoi(c.designator.substr(digits)) + 10);
+        c.position.y += 60;
+        if (c.type == first.type) {
+            c.parameters["firmware"] = station.lexically_normal().string();
+        }
+        request.schematic.put(c);
+    }
+    for (model::Wire w : original.wires()) {
+        w.id = request.schematic.allocate_id();
+        for (auto& point : w.points) {
+            point.y += 60;
+        }
+        request.schematic.put(w);
+    }
+    for (model::NetLabel l : original.labels()) {
+        l.id = request.schematic.allocate_id();
+        l.position.y += 60;
+        l.name += "_B";
+        request.schematic.put(l);
+    }
+    const model::Component second = *request.schematic.component_by_designator("U11");
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    CHECK(settings.wifi.access_point); // on by default: SimNodus / simnodus-wifi, WPA2
+    CHECK(!settings.wifi.gateway);     // the gateway is off by default (DE9c)
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    std::string error;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), environment(), request.mcus, error));
+    REQUIRE(request.mcus.size() == 2);
+    sim::SimulationSession session;
+    const bool started = session.start(request, error);
+    if (!started) {
+        std::printf("  start: %s\n", error.c_str());
+        for (const auto& d : session.diagnostics()) {
+            std::printf("  %s\n", d.message.c_str());
+        }
+    }
+    REQUIRE(started);
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text1;
+    std::string text2;
+    // The line after the address: the address line has arrived whole.
+    const std::string joined = "connected to ap SSID:SimNodus";
+    while (session.status().sim_time < 6.0
+        && (text1.find(joined) == std::string::npos || text2.find(joined) == std::string::npos)) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(20ms);
+        session.mcu_uart_received(first.id, "uart0", 0, text1);
+        session.mcu_uart_received(second.id, "uart0", 0, text2);
+    }
+    session.stop();
+    std::printf("  joined at %.2f s of simulated time\n", session.status().sim_time);
+    CHECK(text1.find("security: WPA2-PSK") != std::string::npos);
+    CHECK(text2.find("security: WPA2-PSK") != std::string::npos);
+    const bool two = text1.find("got ip:192.168.4.2") != std::string::npos;
+    const bool three = text1.find("got ip:192.168.4.3") != std::string::npos;
+    CHECK(two != three); // one address each
+    CHECK(text2.find(two ? "got ip:192.168.4.3" : "got ip:192.168.4.2") != std::string::npos);
+    CHECK(text1.find("aid = ") != std::string::npos);
+    CHECK(text2.find("aid = ") != std::string::npos);
+    // Each board has its own MAC address.
+    CHECK(text1.find("wifi:mode : sta (34:85:18:00:c3:01)") != std::string::npos);
+    CHECK(text2.find("wifi:mode : sta (34:85:18:00:c3:05)") != std::string::npos);
+}
+
+TEST_CASE("session: example 60's web server answers through the Wi-Fi gateway's forwarded port (E-09, SN-269)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "60_ESP32-C3_Wi-Fi_web_server.snx");
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().wifi.gateway);
+    REQUIRE(loaded.schematic->settings().wifi.forwards.size() == 1);
+    CHECK(loaded.schematic->settings().wifi.forwards.front().host_port == 8080);
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    settings.wifi.forwards.front().host_port = 18471; // a port the test machine is unlikely to use
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"gpio8"};
+    std::string error;
+    sim::McuEnvironment env = environment();
+    env.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
+    const model::Id board = request.mcus.front().component;
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("web server: http://192.168.4.2/") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(session.status().sim_time < 8.0);
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(20ms);
+        session.mcu_uart_received(board, "uart0", 0, text);
+    }
+    bool gateway_note = false;
+    for (const auto& [id, note] : session.take_mcu_diagnostics()) {
+        gateway_note = gateway_note || note.find("127.0.0.1:18471 goes to 192.168.4.2:80") != std::string::npos;
+    }
+    CHECK(gateway_note);
+    // A browser's request through the forwarded port switches the LED.
+    auto client = emu::HostSocket::connect_tcp({127, 0, 0, 1}, 18471);
+    REQUIRE(client);
+    std::string reply;
+    bool sent = false;
+    while (reply.find("</html>") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        if (!sent && client->finished() > 0) {
+            const std::string get = "GET /?led=1 HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n";
+            sent = client->send(reinterpret_cast<const std::uint8_t*>(get.data()), get.size()) > 0;
+        }
+        std::uint8_t buffer[1024];
+        const long n = sent ? client->receive(buffer, sizeof(buffer)) : -1;
+        if (n > 0) {
+            reply.append(reinterpret_cast<const char*>(buffer), static_cast<std::size_t>(n));
+        }
+        std::this_thread::sleep_for(5ms);
+    }
+    CHECK(reply.find(" 200 OK") != std::string::npos);
+    CHECK(reply.find("LED: <b>on</b>") != std::string::npos);
+    CHECK(reply.find("Chip temperature: 25.0") != std::string::npos);
+    const double after = session.status().sim_time + 0.2;
+    while (session.status().sim_time < after) {
+        std::this_thread::sleep_for(10ms);
+    }
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("web: LED on") != std::string::npos);
+    CHECK(session.mcu_pins(board).at("GPIO8").level);
     session.stop();
 }
 

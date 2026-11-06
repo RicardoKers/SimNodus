@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 1b4714e085414f54a2462083d874529b729245a15796f45c717a4ac8cd6e303b -->
+<!-- source: USER_GUIDE.md sha256 b0c3799d0fe06d6cef13d3b892435165f55139bc9425af67d435531e30c28f57 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -594,8 +594,9 @@ declarados para que os resultados sejam lidos corretamente.
 
 - A Blue Pill (STM32F103C8), o ATmega8 e o ATmega8A e, experimentais, o
   ATmega328P e o ATmega328, o ATmega32 e o ATmega32A, o Arduino UNO e a
-  ESP32-C3-DevKitM-1 (ainda não comparados com um chip ou uma placa real;
-  ainda sem Wi-Fi). Todos podem ser depurados com o GDB.
+  ESP32-C3-DevKitM-1 (ainda não comparados com um chip ou uma placa real; o
+  Wi-Fi dela é experimental, veja a seção *Wi-Fi* do guia de
+  microcontroladores). Todos podem ser depurados com o GDB.
 - Ainda não simulados: modos escravo de SPI e I2C, CAN, USB; modos encoder
   e alinhado ao centro dos timers, tempo morto e break; conversões do ADC
   disparadas por timer ou EXTI, modos dual e descontínuo. O painel

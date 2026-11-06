@@ -72,7 +72,10 @@ examples/get-started/blink built for the ESP32-C3, a plain GPIO on GPIO8) and
 examples/firmware/esp32c3_i2c/esp32c3_i2c.bin,
 examples/firmware/esp32c3_spi/esp32c3_spi.bin and
 examples/firmware/esp32c3_ws2812/esp32c3_ws2812.bin (SimNodus's examples 46
-to 48, MIT, built with ESP-IDF v5.5.2).
+to 48, MIT, built with ESP-IDF v5.5.2), and
+examples/firmware/esp32c3_wifi_web/esp32c3_wifi_web.bin (example 60, MIT),
+which also contains Espressif's Wi-Fi and PHY libraries (Apache-2.0), lwIP
+(BSD-3-Clause, see the lwIP entry above) and Mbed TLS (Apache-2.0).
   License: Apache License 2.0 (ESP-IDF and the example), text in
   licenses/esp-rom-elfs-Apache-2.0.txt; Copyright (c) Espressif Systems
   (Shanghai) Co. Ltd.; it contains newlib (BSD-style) and FreeRTOS (MIT).

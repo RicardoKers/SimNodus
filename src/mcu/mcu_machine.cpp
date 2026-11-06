@@ -8,6 +8,7 @@
 #include "emu/esp32c3.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/stm32f103.hpp"
+#include "emu/wifi_air.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -238,6 +239,9 @@ public:
     Esp32C3Machine() = default;
     ~Esp32C3Machine() override
     {
+        if (air_ && on_air_) {
+            air_->detach(machine_);
+        }
         for (auto& adapter : adapters_) {
             machine_.remove_timed(adapter.get());
         }
@@ -295,7 +299,21 @@ public:
         for (const auto& [name, value] : options.parameters) {
             set_parameter(name, value);
         }
+        // 34:85:18:00:C3:01 for the first board, then 05, 09...: the station,
+        // access point and Bluetooth addresses derive from the base (+0..+2).
+        machine_.set_mac_last(static_cast<std::uint8_t>(0x01 + 4 * (options.board_index % 63)));
         machine_.reset();
+        if (options.wifi) {
+            // The run's Wi-Fi network (SN-269), joined when the firmware starts
+            // its Wi-Fi: boards that never do pay nothing for it.
+            air_ = options.wifi;
+            machine_.set_wifi_start([this] {
+                if (!on_air_) {
+                    on_air_ = true;
+                    air_->attach(machine_);
+                }
+            });
+        }
         // The circuit's level on each watched pad starts low, as the runner
         // assumes, and only its changes come later: a pull-up enabled against
         // a resistor to ground must read the circuit's low, not the pull.
@@ -501,6 +519,8 @@ private:
 
     static constexpr std::uint64_t no_release = ~0ull;
     static constexpr std::uint64_t en_rise_ns = 50'000'000; // EN's rise, with room for the program's two calls
+    std::shared_ptr<emu::WifiAir> air_; // declared before the machine: detached first
+    bool on_air_ = false;
     emu::Esp32C3 machine_;
     std::uint64_t release_ns_ = no_release; // EN rises then
     bool download_latch_ = false;

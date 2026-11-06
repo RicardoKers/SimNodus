@@ -1489,6 +1489,10 @@ Pinos: %2</translation>
             <translation>Simulação iniciada. Clique nas chaves e nos botões para operá-los.</translation>
         </message>
         <message>
+            <source>&amp;Wi-Fi Network...</source>
+            <translation>Rede &amp;Wi-Fi...</translation>
+        </message>
+        <message>
             <source>External control is on: AI agents and scripts on this computer can edit and run the circuit with simnodus-cli connect (%1).</source>
             <translation>O controle externo está ligado: agentes de IA e scripts neste computador podem editar e simular o circuito com simnodus-cli connect (%1).</translation>
         </message>
@@ -1535,6 +1539,18 @@ Pinos: %2</translation>
         <message>
             <source>External control on</source>
             <translation>Controle externo ligado</translation>
+        </message>
+        <message>
+            <source>Wi-Fi gateway</source>
+            <translation>Gateway do Wi-Fi</translation>
+        </message>
+        <message>
+            <source>This project's Wi-Fi gateway connects its ESP32-C3 boards to this computer's network: their firmware can reach this computer, the local network and the internet, and forwarded ports open on 127.0.0.1.
+
+Allow it for this project on this computer? Without it, the boards' network stays inside the simulation.</source>
+            <translation>O gateway do Wi-Fi deste projeto liga as placas ESP32-C3 à rede deste computador: o firmware delas alcança este computador, a rede local e a internet, e as portas redirecionadas se abrem em 127.0.0.1.
+
+Permitir para este projeto neste computador? Sem isso, a rede das placas fica dentro da simulação.</translation>
         </message>
         <message>
             <source>Net label</source>
@@ -2370,6 +2386,10 @@ Pinos: %2</translation>
             <translation>%1: o ELF do firmware define os fusíveis (low %2, high %3, lock %4), agora os do chip.</translation>
         </message>
         <message>
+            <source>The Wi-Fi gateway to this computer stays off in this run.</source>
+            <translation>O gateway do Wi-Fi para este computador fica desligado nesta execução.</translation>
+        </message>
+        <message>
             <source>%1: what this run wrote to its EEPROM is kept when you save the project.</source>
             <translation>%1: o que esta simulação gravou na EEPROM fica guardado quando você salvar o projeto.</translation>
         </message>
@@ -2672,6 +2692,105 @@ Pinos: %2</translation>
         <message>
             <source>Send</source>
             <translation>Enviar</translation>
+        </message>
+    </context>
+    <context>
+        <name>simnodus::ui::WifiDialog</name>
+        <message>
+            <source>Wi-Fi Network</source>
+            <translation>Rede Wi-Fi</translation>
+        </message>
+        <message>
+            <source>The ESP32-C3 boards of this project see this network. Firmware written for it connects with the name and password below (experimental).</source>
+            <translation>As placas ESP32-C3 deste projeto veem esta rede. O firmware escrito para ela se conecta com o nome e a senha abaixo (experimental).</translation>
+        </message>
+        <message>
+            <source>SimNodus's access point</source>
+            <translation>Ponto de acesso do SimNodus</translation>
+        </message>
+        <message>
+            <source>Network</source>
+            <translation>Rede</translation>
+        </message>
+        <message>
+            <source>Name (SSID)</source>
+            <translation>Nome (SSID)</translation>
+        </message>
+        <message>
+            <source>WPA2-PSK</source>
+            <translation>WPA2-PSK</translation>
+        </message>
+        <message>
+            <source>Open (no password)</source>
+            <translation>Aberta (sem senha)</translation>
+        </message>
+        <message>
+            <source>Security</source>
+            <translation>Segurança</translation>
+        </message>
+        <message>
+            <source>8 to 63 characters. The network exists only in the simulation.</source>
+            <translation>De 8 a 63 caracteres. A rede existe só na simulação.</translation>
+        </message>
+        <message>
+            <source>Password</source>
+            <translation>Senha</translation>
+        </message>
+        <message>
+            <source>Channel</source>
+            <translation>Canal</translation>
+        </message>
+        <message>
+            <source>Boards get 192.168.4.2 and up by DHCP; the access point is 192.168.4.1.</source>
+            <translation>As placas recebem 192.168.4.2 em diante por DHCP; o ponto de acesso é 192.168.4.1.</translation>
+        </message>
+        <message>
+            <source>Gateway to this computer's network</source>
+            <translation>Gateway para a rede deste computador</translation>
+        </message>
+        <message>
+            <source>With the gateway, the boards' firmware reaches this computer (as host.simnodus), the local network and the internet, as a device on this computer's network would. Turn it on only for firmware you trust. When this project is run on another computer, SimNodus asks there first.</source>
+            <translation>Com o gateway, o firmware das placas alcança este computador (como host.simnodus), a rede local e a internet, como um aparelho na rede deste computador. Ligue-o só para firmware em que você confia. Quando este projeto rodar em outro computador, o SimNodus pergunta lá antes.</translation>
+        </message>
+        <message>
+            <source>Ports of this computer forwarded to boards</source>
+            <translation>Portas deste computador redirecionadas às placas</translation>
+        </message>
+        <message>
+            <source>Port on 127.0.0.1</source>
+            <translation>Porta em 127.0.0.1</translation>
+        </message>
+        <message>
+            <source>Board address</source>
+            <translation>Endereço da placa</translation>
+        </message>
+        <message>
+            <source>Board port</source>
+            <translation>Porta da placa</translation>
+        </message>
+        <message>
+            <source>Add</source>
+            <translation>Adicionar</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Remover</translation>
+        </message>
+        <message>
+            <source>A browser on this computer opens a board's web server at http://127.0.0.1:&lt;port&gt;/ while the simulation runs.</source>
+            <translation>Um navegador neste computador abre o servidor web de uma placa em http://127.0.0.1:&lt;porta&gt;/ enquanto a simulação roda.</translation>
+        </message>
+        <message>
+            <source>The network's name has 1 to 32 characters.</source>
+            <translation>O nome da rede tem de 1 a 32 caracteres.</translation>
+        </message>
+        <message>
+            <source>A WPA2 password has 8 to 63 characters.</source>
+            <translation>Uma senha WPA2 tem de 8 a 63 caracteres.</translation>
+        </message>
+        <message>
+            <source>Row %1 of the forwarded ports needs a port of this computer, a board's address like 192.168.4.2 and the board's port.</source>
+            <translation>A linha %1 das portas redirecionadas precisa de uma porta deste computador, um endereço de placa como 192.168.4.2 e a porta da placa.</translation>
         </message>
     </context>
     <context>

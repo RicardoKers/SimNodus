@@ -550,8 +550,9 @@ results are read correctly.
 
 - The Blue Pill (STM32F103C8), the ATmega8 and ATmega8A, and, experimental,
   the ATmega328P and ATmega328, the ATmega32 and ATmega32A, the Arduino UNO
-  and the ESP32-C3-DevKitM-1 (not yet compared with a real chip or board; no
-  Wi-Fi yet). All of them can be debugged with GDB.
+  and the ESP32-C3-DevKitM-1 (not yet compared with a real chip or board; its
+  Wi-Fi is experimental, see the microcontroller guide's *Wi-Fi* section).
+  All of them can be debugged with GDB.
 - Not simulated yet: SPI and I2C slave modes, CAN, USB; timer encoder and
   center-aligned modes, dead time and break; ADC conversions started by a
   timer or EXTI, dual and discontinuous modes. The Messages panel says when

@@ -286,7 +286,8 @@ small differences may remain.
   driver, Arduino's `rgbLedWrite` and MicroPython's `neopixel`. Example 48
   runs a light along a strip. Receive channels and the carrier are not
   simulated.
-- **Not yet**: Wi-Fi and Bluetooth.
+- **Wi-Fi** (experimental): the board joins SimNodus's access point; see
+  [Wi-Fi](#wi-fi). **Not yet**: Bluetooth.
 - **Debugging** with `riscv32-esp-elf-gdb`: see
   [Debugging with STM32CubeIDE or GDB](#debugging-with-stm32cubeide-or-gdb).
 - **Timing**: one instruction per CPU clock cycle (160 MHz with the default
@@ -357,6 +358,66 @@ at boot. The project must have been saved once: an example opened from
 To start again from a clean image, choose the original `.bin` in the
 board's **Firmware** property again (or undo the change), or erase it with
 `esptool erase-flash` and write the image again.
+
+### Wi-Fi
+
+The Wi-Fi is experimental: the board's radio hardware is not documented by
+the manufacturer, so it was modelled from the behaviour of Espressif's own
+Wi-Fi libraries, and the results have not been compared with a real board
+yet.
+
+The ESP32-C3 boards of a project see one Wi-Fi network: **SimNodus's access
+point**. Firmware connects to it as to a real network, without changes:
+ESP-IDF's `esp_wifi`, Arduino's `WiFi.begin()` and MicroPython's
+`network.WLAN`.
+
+- **Name and password**: `SimNodus` and `simnodus-wifi` (WPA2-PSK, channel
+  6), unless the project changes them in **Simulate > Wi-Fi Network...**.
+  The network can also be open, without a password.
+- **Addresses**: the access point is 192.168.4.1. It gives the boards
+  192.168.4.2, .3 and up by DHCP and is their gateway and DNS server.
+- **Several boards**: boards on the same network reach each other by these
+  addresses, as on one real network. Each board has its own MAC address
+  (34:85:18:00:c3:01, :05, :09...).
+- **Scans** list the network with the RSSI -40 dBm. Boards that never start
+  their Wi-Fi run as fast as before.
+
+Firmware written for a real access point runs here unchanged if it uses the
+same name and password. Example 60 is a web server: the page shows the LED
+and the chip temperature, and its links switch the LED.
+
+**The gateway to this computer.** The network stays inside the simulation
+unless the project turns on **Gateway to this computer's network** in
+**Simulate > Wi-Fi Network...**. With the gateway:
+
+- The boards' firmware reaches this computer as `host.simnodus`
+  (192.168.4.254), the local network and the internet, as a device on this
+  computer's network would: web pages, MQTT brokers, NTP time.
+- **Ports of this computer forwarded to boards** make a board's server
+  reachable from this computer: with port 8080 forwarded to 192.168.4.2:80,
+  a browser opens `http://127.0.0.1:8080/` while the simulation runs. The
+  forwarded ports listen on 127.0.0.1 only, so other computers cannot reach
+  them.
+- The first time a project with the gateway runs on a computer, SimNodus
+  asks whether to allow it. The answer is kept on that computer, not in the
+  project, so a project received from someone else never reaches the network
+  without the question. **Run without network** keeps the boards' network
+  inside the simulation.
+
+Turn the gateway on only for firmware you trust. Runs from `simnodus-cli`
+or an AI agent leave it off unless the command asks with
+`"allow_network": true`.
+
+**Limits.**
+
+- Timing on the air is approximate: every frame is sent at 1 Mbit/s, and
+  there are no collisions, signal levels or interference. Downloads are
+  slower than on a real board.
+- There is no access point mode on the board itself (SoftAP), no ESP-NOW,
+  no WPA3, and no Bluetooth.
+- A ping from a board reaches only the access point.
+- Two runs without the gateway give the same results. With the gateway,
+  the computer's network decides the timing.
 
 ## ATmega8 and ATmega8A
 

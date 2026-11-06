@@ -10,10 +10,15 @@
 #include <cstdint>
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
 #include <vector>
+
+namespace simnodus::emu {
+class WifiAir;
+}
 
 namespace simnodus::mcu {
 
@@ -98,6 +103,12 @@ struct McuRunOptions {
     // Cortex-M3 cycle counts with the flash wait states (SN-181) instead of
     // one instruction per cycle.
     bool cortex_m3_timing = true;
+    // The Wi-Fi air the ESP32-C3 boards of a run share (E-09, SN-269), or
+    // none; set by the session in the engine, not sent over the protocol.
+    std::shared_ptr<emu::WifiAir> wifi;
+    // The board's place among the run's boards of its chip (0 for the first),
+    // so that each has its own MAC address; set by the session.
+    int board_index = 0;
 };
 
 } // namespace simnodus::mcu

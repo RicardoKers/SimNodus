@@ -54,6 +54,8 @@ add_library(simnodus_ui STATIC
     scope_widget.hpp
     settings_dialog.cpp
     settings_dialog.hpp
+    wifi_dialog.cpp
+    wifi_dialog.hpp
     symbol_painter.cpp
     symbol_painter.hpp
     theme.cpp

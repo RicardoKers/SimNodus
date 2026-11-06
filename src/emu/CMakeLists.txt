@@ -8,6 +8,9 @@ file(GLOB SIMNODUS_LWIP_SOURCES CONFIGURE_DEPENDS "${SIMNODUS_LWIP_DIR}/core/*.c
 add_library(simnodus_lwip STATIC ${SIMNODUS_LWIP_SOURCES})
 target_include_directories(simnodus_lwip SYSTEM PUBLIC "${SIMNODUS_LWIP_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/lwip_port")
 set_target_properties(simnodus_lwip PROPERTIES POSITION_INDEPENDENT_CODE ON)
+if(MSVC)
+    target_compile_options(simnodus_lwip PRIVATE /wd4103) # lwIP's packed-structure check
+endif()
 
 add_library(simnodus_emu STATIC
     atmega.cpp

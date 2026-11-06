@@ -3,6 +3,7 @@
 #include "simulation_session.hpp"
 
 #include "engine_host.hpp"
+#include "emu/wifi_air.hpp"
 #include "mcu/mcu_machine.hpp"
 #include "ngspice_runtime.hpp"
 
@@ -17,6 +18,7 @@
 #include <cmath>
 #include <filesystem>
 #include <set>
+#include <sstream>
 
 namespace simnodus::sim {
 namespace {
@@ -146,11 +148,62 @@ bool SimulationSession::start(RunRequest request, std::string& error)
     }
     request_.debugging = std::any_of(request_.mcus.begin(), request_.mcus.end(),
         [](const McuRequest& m) { return m.options.gdb_port >= 0; });
+    // The ESP32-C3 boards' Wi-Fi network (E-09, SN-269): SimNodus's access
+    // point, and its gateway to this computer when the project turns it on.
+    wifi_.reset();
+    wifi_notes_.clear();
+    const auto first_c3 = std::find_if(request_.mcus.begin(), request_.mcus.end(),
+        [](const McuRequest& m) { return m.options.chip == "esp32c3"; });
+    if (first_c3 != request_.mcus.end() && settings_.wifi.access_point) {
+        const model::WifiSettings& w = settings_.wifi;
+        emu::WifiApConfig config;
+        config.ssid = w.ssid;
+        config.channel = w.channel;
+        config.wpa2 = w.wpa2;
+        config.passphrase = w.passphrase;
+        config.gateway = w.gateway;
+        for (const auto& f : w.forwards) {
+            emu::WifiForward forward;
+            unsigned a = 0, b = 0, c = 0, d = 0;
+            char dot1 = 0, dot2 = 0, dot3 = 0;
+            std::istringstream address(f.station);
+            address >> a >> dot1 >> b >> dot2 >> c >> dot3 >> d;
+            if (!address || dot1 != '.' || dot2 != '.' || dot3 != '.' || a > 255 || b > 255 || c > 255 || d > 255) {
+                wifi_notes_.emplace_back(first_c3->component, "Wi-Fi: the forwarded port " + std::to_string(f.host_port)
+                    + " names no address (\"" + f.station + "\"); skipped.");
+                continue;
+            }
+            forward.host_port = static_cast<std::uint16_t>(f.host_port);
+            forward.station = {static_cast<std::uint8_t>(a), static_cast<std::uint8_t>(b), static_cast<std::uint8_t>(c),
+                static_cast<std::uint8_t>(d)};
+            forward.station_port = static_cast<std::uint16_t>(f.station_port);
+            config.forwards.push_back(forward);
+        }
+        wifi_ = std::make_shared<emu::WifiAir>(config);
+        if (!wifi_->gateway_error().empty()) {
+            wifi_notes_.emplace_back(first_c3->component, "Wi-Fi: the gateway to this computer did not start: "
+                + wifi_->gateway_error() + ". The boards' network stays inside the simulation.");
+        } else if (w.gateway) {
+            std::string note = "Wi-Fi: the gateway connects the boards to this computer's network; host.simnodus is this "
+                               "computer.";
+            for (const auto& f : config.forwards) {
+                note += " 127.0.0.1:" + std::to_string(f.host_port) + " goes to " + std::to_string(f.station[0]) + "."
+                    + std::to_string(f.station[1]) + "." + std::to_string(f.station[2]) + "." + std::to_string(f.station[3])
+                    + ":" + std::to_string(f.station_port) + ".";
+            }
+            wifi_notes_.emplace_back(first_c3->component, note);
+        }
+    }
+    std::map<std::string, int> chip_boards; // boards of each chip so far
     for (const auto& m : request_.mcus) {
         std::unique_ptr<mcu::McuBackend> runner;
         {
             auto options = m.options;
             options.cortex_m3_timing = settings_.cortex_m3_timing;
+            options.board_index = chip_boards[options.chip]++;
+            if (options.chip == "esp32c3") {
+                options.wifi = wifi_;
+            }
             if (options.chip == "esp32c3" && options.rom.empty()) {
                 options.rom = mcu::find_esp32c3_rom(EngineHost::instance().application_dir());
             }
@@ -1218,6 +1271,7 @@ std::optional<mcu::McuStatus> SimulationSession::mcu_status(model::Id component)
 std::vector<std::pair<model::Id, std::string>> SimulationSession::take_mcu_diagnostics()
 {
     std::vector<std::pair<model::Id, std::string>> result;
+    result.swap(wifi_notes_);
     for (auto& [id, runner] : mcus_) {
         for (auto& text : runner->take_diagnostics()) {
             result.emplace_back(id, std::move(text));

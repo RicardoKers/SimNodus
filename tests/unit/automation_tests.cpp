@@ -196,6 +196,17 @@ TEST_CASE("automation: projects are saved and opened again")
     CHECK(opened["components"] == 4);
     CHECK(g.ok("settings.get")["transient_stop"] == 0.02);
     CHECK(g.error("project.open", {{"path", path + ".missing"}}) == "io-error");
+    // The ESP32-C3 boards' Wi-Fi network (SN-269).
+    const auto wifi = g.ok("settings.set", {{"wifi_ssid", "Lab"}, {"wifi_security", "open"}, {"wifi_channel", 11},
+        {"wifi_gateway", true}, {"wifi_forwards", {"8080=192.168.4.2:80"}}});
+    CHECK(wifi["wifi_ssid"] == "Lab");
+    CHECK(wifi["wifi_security"] == "open");
+    CHECK(wifi["wifi_channel"] == 11);
+    CHECK(wifi["wifi_gateway"] == true);
+    CHECK(wifi["wifi_forwards"][0] == "8080=192.168.4.2:80");
+    CHECK(g.error("settings.set", {{"wifi_channel", 14}}) == "invalid-argument");
+    CHECK(g.error("settings.set", {{"wifi_passphrase", "short"}}) == "invalid-argument");
+    CHECK(g.error("settings.set", {{"wifi_forwards", {"8080"}}}) == "invalid-argument");
     CHECK(g.error("sim.read") == "not-running");
 
     // Relative paths start from hello's "directory" (simnodus-cli connect sends its own).

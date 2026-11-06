@@ -174,6 +174,34 @@ TEST_CASE("exact edges are saved; old projects and wrong values keep the default
     CHECK(!loaded.schematic->settings().exact_edges);
 }
 
+TEST_CASE("the Wi-Fi network is saved only when it differs from the default (SN-269)")
+{
+    Schematic s;
+    CHECK(io::to_json_text(s).find("\"wifi\"") == std::string::npos); // projects without Wi-Fi keep their files
+    SimulationSettings settings;
+    settings.wifi.ssid = "Lab 3";
+    settings.wifi.wpa2 = false;
+    settings.wifi.channel = 11;
+    settings.wifi.gateway = true;
+    settings.wifi.forwards = {WifiForwardSetting{8080, "192.168.4.2", 80}, WifiForwardSetting{2323, "192.168.4.3", 23}};
+    s.set_settings(settings);
+    auto loaded = io::from_json_text(io::to_json_text(s));
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().wifi == settings.wifi);
+    CHECK(loaded.warnings.empty());
+
+    // Wrong values keep the default and warn.
+    std::string text = io::to_json_text(s);
+    const auto at = text.find("\"channel\": 11");
+    REQUIRE(at != std::string::npos);
+    text.replace(at, 13, "\"channel\": 99");
+    loaded = io::from_json_text(text);
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().wifi.channel == 6);
+    CHECK(loaded.schematic->settings().wifi.ssid == "Lab 3");
+    CHECK(!loaded.warnings.empty());
+}
+
 TEST_CASE("the microcontroller quantum is saved and checked")
 {
     Schematic s;

@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 92806782e50bccd4fec75daa24af13d6bc3a8cb44aa50b1d41a4e916da39ed61 -->
+<!-- source: MICROCONTROLLER.md sha256 511f76559e597ae059d363cdfc0cb5eb21ccb8143fe72b19df06a856bdbb12d7 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -301,7 +301,8 @@ foi comparado com uma placa real, então pequenas diferenças podem existir.
   WS2812B acendem pelo driver RMT do ESP-IDF, pelo `rgbLedWrite` do Arduino e
   pelo `neopixel` do MicroPython. O exemplo 48 percorre uma fita com uma luz.
   Os canais de recepção e a portadora não são simulados.
-- **Ainda não**: Wi-Fi e Bluetooth.
+- **Wi-Fi** (experimental): a placa se conecta ao ponto de acesso do
+  SimNodus; veja [Wi-Fi](#wi-fi). **Ainda não**: Bluetooth.
 - **Depuração** com o `riscv32-esp-elf-gdb`: veja
   [Depuração com STM32CubeIDE ou GDB](#depuração-com-stm32cubeide-ou-gdb).
 - **Tempo**: uma instrução por ciclo de clock da CPU (160 MHz com a
@@ -376,6 +377,67 @@ até ser salvo com um nome próprio. Para recomeçar de uma imagem limpa,
 escolha de novo o `.bin` original na propriedade **Firmware** da placa (ou
 desfaça a mudança), ou apague a flash com `esptool erase-flash` e grave a
 imagem de novo.
+
+### Wi-Fi
+
+O Wi-Fi é experimental: o fabricante não documenta o hardware de rádio da
+placa, então ele foi modelado a partir do comportamento das próprias
+bibliotecas de Wi-Fi da Espressif, e os resultados ainda não foram
+comparados com uma placa real.
+
+As placas ESP32-C3 de um projeto veem uma rede Wi-Fi: o **ponto de acesso
+do SimNodus**. O firmware se conecta a ela como a uma rede real, sem
+mudanças: o `esp_wifi` do ESP-IDF, o `WiFi.begin()` do Arduino e o
+`network.WLAN` do MicroPython.
+
+- **Nome e senha**: `SimNodus` e `simnodus-wifi` (WPA2-PSK, canal 6), a
+  menos que o projeto os mude em **Simular > Rede Wi-Fi...**. A rede também
+  pode ser aberta, sem senha.
+- **Endereços**: o ponto de acesso é 192.168.4.1. Ele dá às placas
+  192.168.4.2, .3 em diante por DHCP e é o gateway e o servidor DNS delas.
+- **Várias placas**: placas na mesma rede se alcançam por esses endereços,
+  como numa rede real. Cada placa tem seu próprio endereço MAC
+  (34:85:18:00:c3:01, :05, :09...).
+- **As buscas** (scans) listam a rede com RSSI de -40 dBm. Placas que nunca
+  ligam o Wi-Fi rodam tão rápido quanto antes.
+
+Um firmware escrito para um ponto de acesso real roda aqui sem mudanças se
+usar o mesmo nome e a mesma senha. O exemplo 60 é um servidor web: a página
+mostra o LED e a temperatura do chip, e os links dela ligam e desligam o
+LED.
+
+**O gateway para este computador.** A rede fica dentro da simulação, a
+menos que o projeto ligue **Gateway para a rede deste computador** em
+**Simular > Rede Wi-Fi...**. Com o gateway:
+
+- O firmware das placas alcança este computador como `host.simnodus`
+  (192.168.4.254), a rede local e a internet, como um aparelho na rede deste
+  computador: páginas web, brokers MQTT, a hora por NTP.
+- **Portas deste computador redirecionadas às placas** deixam o servidor de
+  uma placa acessível deste computador: com a porta 8080 redirecionada a
+  192.168.4.2:80, um navegador abre `http://127.0.0.1:8080/` enquanto a
+  simulação roda. As portas redirecionadas escutam só em 127.0.0.1, então
+  outros computadores não as alcançam.
+- Na primeira vez que um projeto com o gateway roda num computador, o
+  SimNodus pergunta se pode permitir. A resposta fica guardada nesse
+  computador, não no projeto, então um projeto recebido de outra pessoa
+  nunca chega à rede sem a pergunta. Recusar mantém a rede das placas dentro
+  da simulação.
+
+Ligue o gateway só para firmware em que você confia. Execuções pelo
+`simnodus-cli` ou por um agente de IA o deixam desligado, a menos que o
+comando peça com `"allow_network": true`.
+
+**Limites.**
+
+- O tempo no ar é aproximado: todo quadro vai a 1 Mbit/s, e não há colisões,
+  níveis de sinal nem interferência. Downloads são mais lentos que numa
+  placa real.
+- Não há modo ponto de acesso na própria placa (SoftAP), nem ESP-NOW, nem
+  WPA3, nem Bluetooth.
+- Um ping de uma placa só alcança o ponto de acesso.
+- Duas execuções sem o gateway dão os mesmos resultados. Com o gateway, a
+  rede do computador decide o tempo.
 
 ## ATmega8 e ATmega8A
 

@@ -66,6 +66,10 @@ public:
 
     void set_speed(double speed);
     void set_gdb_port(int port) { gdb_port_ = port; } // -1: no debugging
+    // Whether the project's Wi-Fi gateway may use this computer's network in
+    // the next run started from the window (DE9c); runs from automation
+    // bring their own decision.
+    void set_network_allowed(bool allowed) { network_allowed_ = allowed; }
     // Buzzers through the computer's speakers (SN-228, Windows).
     void set_sound(bool on);
     // Memory chips (SN-208): the contents of the current or last run, and new contents for a running chip.
@@ -180,6 +184,7 @@ private:
     std::vector<std::pair<model::Id, std::string>> device_lanes_; // board, device pin (U2.Q0)
     sim::RunState last_state_ = sim::RunState::Idle;
     int gdb_port_ = -1;
+    bool network_allowed_ = false;
 };
 
 } // namespace simnodus::ui

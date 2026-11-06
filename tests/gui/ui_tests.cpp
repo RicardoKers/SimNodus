@@ -12,6 +12,7 @@
 #include "scope_widget.hpp"
 #include "theme.hpp"
 #include "tone_output.hpp"
+#include "wifi_dialog.hpp"
 
 #ifndef Q_MOC_RUN // Qt 6.4's moc cannot parse the C++20 standard headers these pull in
 #include "editing/operations.hpp"
@@ -19,6 +20,10 @@
 #endif
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QTableWidget>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QSettings>
@@ -268,6 +273,41 @@ private slots:
                                                 "riscv32-esp-elf-gdb to localhost:3335 (%3).")
                                      .arg(uno, pill, c3)),
             qPrintable(text));
+    }
+
+    void wifi_dialog_edits_the_projects_network()
+    {
+        simnodus::model::WifiSettings settings;
+        simnodus::ui::WifiDialog dialog(settings);
+        auto* ssid = dialog.findChild<QLineEdit*>(QStringLiteral("wifiSsid"));
+        auto* passphrase = dialog.findChild<QLineEdit*>(QStringLiteral("wifiPassphrase"));
+        auto* gateway = dialog.findChild<QCheckBox*>(QStringLiteral("wifiGateway"));
+        auto* forwards = dialog.findChild<QTableWidget*>(QStringLiteral("wifiForwards"));
+        auto* buttons = dialog.findChild<QDialogButtonBox*>();
+        QVERIFY(ssid && passphrase && gateway && forwards && buttons);
+        QCOMPARE(ssid->text(), QStringLiteral("SimNodus"));
+        QCOMPARE(passphrase->text(), QStringLiteral("simnodus-wifi"));
+        QVERIFY(!gateway->isChecked()); // off by default (DE9c)
+        // A WPA2 password that is too short is refused.
+        passphrase->setText(QStringLiteral("short"));
+        buttons->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(dialog.result(), int(QDialog::Rejected));
+        passphrase->setText(QStringLiteral("lab-network"));
+        ssid->setText(QStringLiteral("Lab 3"));
+        gateway->setChecked(true);
+        forwards->insertRow(0);
+        forwards->setItem(0, 0, new QTableWidgetItem(QStringLiteral("8080")));
+        forwards->setItem(0, 1, new QTableWidgetItem(QStringLiteral("192.168.4.2")));
+        forwards->setItem(0, 2, new QTableWidgetItem(QStringLiteral("80")));
+        buttons->button(QDialogButtonBox::Ok)->click();
+        QCOMPARE(dialog.result(), int(QDialog::Accepted));
+        const auto result = dialog.settings();
+        QCOMPARE(QString::fromStdString(result.ssid), QStringLiteral("Lab 3"));
+        QCOMPARE(QString::fromStdString(result.passphrase), QStringLiteral("lab-network"));
+        QVERIFY(result.gateway);
+        QCOMPARE(int(result.forwards.size()), 1);
+        QCOMPARE(result.forwards.front().host_port, 8080);
+        QCOMPARE(QString::fromStdString(result.forwards.front().station), QStringLiteral("192.168.4.2"));
     }
 
     void shortcut_list_follows_the_menus()

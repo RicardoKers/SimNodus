@@ -50,7 +50,7 @@ target_link_libraries(simnodus_netlist PUBLIC simnodus::model simnodus::library 
 
 add_library(simnodus_session STATIC sim/simulation_session.cpp)
 add_library(simnodus::session ALIAS simnodus_session)
-target_link_libraries(simnodus_session PUBLIC simnodus::sim simnodus::netlist simnodus::mcu PRIVATE simnodus::io simnodus::warnings)
+target_link_libraries(simnodus_session PUBLIC simnodus::sim simnodus::netlist simnodus::mcu PRIVATE simnodus::io simnodus::emu simnodus::warnings)
 
 # The editor/engine process boundary (SN-151, ADR 0101).
 add_library(simnodus_engine_link STATIC

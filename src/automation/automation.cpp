@@ -911,6 +911,11 @@ void start_run(Context& cx, const json& args)
     // Without a window nobody watches: as fast as possible unless asked. In
     // the window, the project's speed.
     settings.speed = optional_quantity(args, "speed", "").value_or(cx.ws.watched() ? settings.speed : 0.0);
+    // The Wi-Fi gateway to this computer (DE9c): only when the command says so.
+    const bool network_refused = settings.wifi.gateway && !args.value("allow_network", false);
+    if (network_refused) {
+        settings.wifi.gateway = false;
+    }
     schematic.set_settings(settings);
 
     auto run = std::make_unique<Automation::Run>();
@@ -967,6 +972,10 @@ void start_run(Context& cx, const json& args)
         fail("run-failed", reason);
     }
     run->messages = warnings;
+    if (network_refused) {
+        run->messages.push_back("The project's Wi-Fi gateway to this computer stays off in this run: "
+                                "pass \"allow_network\": true to connect the boards to this computer's network.");
+    }
     if (!cx.ws.start_run(std::move(request), reason)) {
         const auto& found = session.diagnostics();
         if (std::any_of(found.begin(), found.end(),
@@ -1340,12 +1349,24 @@ json cmd_project_info(Context& cx, const json&)
         {"probes", s.probes().size()}, {"notes", s.notes().size()}};
 }
 
+std::string forward_text(const model::WifiForwardSetting& f)
+{
+    return std::to_string(f.host_port) + "=" + f.station + ":" + std::to_string(f.station_port);
+}
+
 json settings_json(const model::SimulationSettings& s)
 {
+    json forwards = json::array();
+    for (const auto& f : s.wifi.forwards) {
+        forwards.push_back(forward_text(f));
+    }
     return {{"mode", s.mode == model::SimulationMode::Transient ? "transient" : "interactive"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
         {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges},
-        {"cortex_m3_timing", s.cortex_m3_timing}};
+        {"cortex_m3_timing", s.cortex_m3_timing},
+        {"wifi_access_point", s.wifi.access_point}, {"wifi_ssid", s.wifi.ssid},
+        {"wifi_security", s.wifi.wpa2 ? "wpa2" : "open"}, {"wifi_passphrase", s.wifi.passphrase},
+        {"wifi_channel", s.wifi.channel}, {"wifi_gateway", s.wifi.gateway}, {"wifi_forwards", forwards}};
 }
 
 json cmd_circuit_inspect(Context& cx, const json&)
@@ -1737,6 +1758,66 @@ json cmd_settings_set(Context& cx, const json& args)
     if (args.contains("cortex_m3_timing")) {
         s.cortex_m3_timing = args["cortex_m3_timing"].get<bool>();
     }
+    // The ESP32-C3 boards' Wi-Fi network (SN-269).
+    const auto flag = [&](const char* key, bool& target) {
+        if (args.contains(key)) {
+            if (!args[key].is_boolean()) {
+                fail("invalid-argument", std::string("Argument \"") + key + "\" is true or false.");
+            }
+            target = args[key].get<bool>();
+        }
+    };
+    flag("wifi_access_point", s.wifi.access_point);
+    flag("wifi_gateway", s.wifi.gateway);
+    if (const auto ssid = optional_text(args, "wifi_ssid")) {
+        if (ssid->empty() || ssid->size() > 32) {
+            fail("invalid-argument", "Argument \"wifi_ssid\" has 1 to 32 characters.");
+        }
+        s.wifi.ssid = *ssid;
+    }
+    if (const auto security = optional_text(args, "wifi_security")) {
+        if (!iequals(*security, "open") && !iequals(*security, "wpa2")) {
+            fail("invalid-argument", "Argument \"wifi_security\" is \"open\" or \"wpa2\".");
+        }
+        s.wifi.wpa2 = iequals(*security, "wpa2");
+    }
+    if (const auto passphrase = optional_text(args, "wifi_passphrase")) {
+        if (passphrase->size() < 8 || passphrase->size() > 63) {
+            fail("invalid-argument", "Argument \"wifi_passphrase\" has 8 to 63 characters.");
+        }
+        s.wifi.passphrase = *passphrase;
+    }
+    if (args.contains("wifi_channel")) {
+        const int channel = args["wifi_channel"].is_number_integer() ? args["wifi_channel"].get<int>()
+            : args["wifi_channel"].is_string() ? std::atoi(args["wifi_channel"].get<std::string>().c_str()) : 0;
+        if (channel < 1 || channel > 13) {
+            fail("invalid-argument", "Argument \"wifi_channel\" is 1 to 13.");
+        }
+        s.wifi.channel = channel;
+    }
+    if (args.contains("wifi_forwards")) {
+        if (!args["wifi_forwards"].is_array()) {
+            fail("invalid-argument", "Argument \"wifi_forwards\" is a list like [\"8080=192.168.4.2:80\"].");
+        }
+        std::vector<model::WifiForwardSetting> forwards;
+        for (const auto& item : args["wifi_forwards"]) {
+            const std::string text = item.is_string() ? item.get<std::string>() : std::string();
+            const auto equals = text.find('=');
+            const auto colon = text.rfind(':');
+            model::WifiForwardSetting f;
+            if (equals == std::string::npos || colon == std::string::npos || colon < equals) {
+                fail("invalid-argument", "A forwarded port is \"HOSTPORT=STATIONIP:PORT\", like \"8080=192.168.4.2:80\".");
+            }
+            f.host_port = std::atoi(text.substr(0, equals).c_str());
+            f.station = text.substr(equals + 1, colon - equals - 1);
+            f.station_port = std::atoi(text.substr(colon + 1).c_str());
+            if (f.host_port < 1 || f.host_port > 65535 || f.station_port < 1 || f.station_port > 65535) {
+                fail("invalid-argument", "A forwarded port's numbers are 1 to 65535.");
+            }
+            forwards.push_back(f);
+        }
+        s.wifi.forwards = std::move(forwards);
+    }
     cx.apply(editing::set_settings(cx.schematic(), s));
     return settings_json(cx.schematic().settings());
 }
@@ -2071,15 +2152,15 @@ const Command commands[] = {
     {"note.add", "Text note on the schematic.", R"j({"at": "[x, y]", "text": "..."})j", cmd_note_add},
     {"settings.get", "Simulation settings.", "{}", cmd_settings_get},
     {"settings.set", "Changes simulation settings.",
-        R"j({"mode": "interactive or transient", "transient_stop": "20m", "transient_max_step": "1u", "max_step": "100u", "segment": "1", "speed": "1 (0 = maximum)", "mcu_quantum": "1m", "exact_edges": "false", "cortex_m3_timing": "true (false = one instruction per cycle)"})j",
+        R"j({"mode": "interactive or transient", "transient_stop": "20m", "transient_max_step": "1u", "max_step": "100u", "segment": "1", "speed": "1 (0 = maximum)", "mcu_quantum": "1m", "exact_edges": "false", "cortex_m3_timing": "true (false = one instruction per cycle)", "wifi_access_point": "true (the ESP32-C3 boards' network)", "wifi_ssid": "SimNodus", "wifi_security": "wpa2 or open", "wifi_passphrase": "simnodus-wifi", "wifi_channel": "6", "wifi_gateway": "false (true = to this computer's network; runs need allow_network)", "wifi_forwards": ["8080=192.168.4.2:80"]})j",
         cmd_settings_set},
     {"edit.undo", "Undoes the last change.", "{}", cmd_undo},
     {"edit.redo", "Redoes the last undone change.", "{}", cmd_redo},
     {"sim.run", "Runs and measures: a transient analysis, or an interactive run for a duration with timed control changes.",
-        R"j({"mode": "interactive or transient (default: the project's)", "duration": "20m", "signals": ["V(OUT)", "V(R1.2,R1.1)", "I(R1.1)"], "events": [{"at": "5m", "component": "SW1", "value": "1"}], "points": "50", "csv": "out.csv", "keep": "false", "timeout": "300"})j",
+        R"j({"mode": "interactive or transient (default: the project's)", "duration": "20m", "signals": ["V(OUT)", "V(R1.2,R1.1)", "I(R1.1)"], "events": [{"at": "5m", "component": "SW1", "value": "1"}], "points": "50", "csv": "out.csv", "keep": "false", "timeout": "300", "allow_network": "false (true: the project's Wi-Fi gateway may use this computer's network)"})j",
         cmd_sim_run},
     {"sim.start", "Starts a run and keeps it for sim.advance, sim.control and sim.read.",
-        R"j({"mode": "interactive or transient", "duration": "transient stop time", "signals": ["V(OUT)"], "speed": "0 (maximum)", "history": "100000 samples per net"})j",
+        R"j({"mode": "interactive or transient", "duration": "transient stop time", "signals": ["V(OUT)"], "speed": "0 (maximum)", "history": "100000 samples per net", "allow_network": "false (true: the project's Wi-Fi gateway may use this computer's network)"})j",
         cmd_sim_start},
     {"sim.advance", "Lets an interactive run reach a time, then pauses it; waits for a transient analysis.",
         R"j({"to": "10m", "by": "1m instead of to", "timeout": "300"})j", cmd_sim_advance},

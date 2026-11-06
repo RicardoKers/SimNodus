@@ -372,3 +372,137 @@ to the gateway in a first try.
 - The application's controls: the network's settings in a project, the
   first-run confirmation (DE9c), and the forwarded ports (SN-269).
 - Ping to the outside.
+
+## SN-269, first part: the network in the engine (2026-11-06)
+
+**Result.** A project's ESP32-C3 boards share one Wi-Fi network in a run.
+
+- **Two boards on one network.** A session test runs two ESP32-C3 boards
+  with the WPA2 station example. Each board is in its own runner thread,
+  and each gets its own address (192.168.4.2 and .3) and its own MAC
+  address (34:85:18:00:c3:01 and :05).
+- **Settings.** The network is part of the project's settings, defined by
+  `model::WifiSettings`:
+  - the access point is on: `SimNodus` / `simnodus-wifi`, WPA2, channel 6;
+  - the gateway is off;
+  - forwarded ports are listed there.
+
+  A project file names `wifi` only when it differs from these defaults.
+- **The CLI and MCP.** `settings.get` / `settings.set` cover these settings
+  (`wifi_access_point`, `wifi_ssid`, `wifi_security`, `wifi_passphrase`,
+  `wifi_channel`, `wifi_gateway`, `wifi_forwards`). A run there leaves the
+  gateway off unless `sim.run` / `sim.start` passes
+  `"allow_network": true`, and the run's messages say so. This is DE9c for
+  agents.
+
+**How.**
+
+- **The air is now thread-safe.** Each board has a port: a timed device in
+  its own machine, with an inbox. A frame reaches a board at its end time,
+  or at once if the board is already past it. Boards run within the
+  coupling quantum of each other, so the skew stays within that.
+- **The access point** advances when the first board's clock passes its
+  events. It relays frames between stations as a real access point does:
+  unicast to another associated station with its PTK, broadcast to all
+  with the GTK.
+- **The engine** creates the air with the run when a project has an
+  ESP32-C3 board (`SimulationSession::start`). A board joins it only when
+  its firmware starts the Wi-Fi (the driver's `hal_init`), so examples
+  45-49 pay nothing for it.
+- **MAC addresses.** The n-th ESP32-C3 of a run gets the base MAC address
+  ending in 0x01 + 4n.
+- **Gateway messages.** The gateway's start, or its failure, is reported
+  among the board's messages.
+
+**Speed (G9e.4).** With the laptop otherwise idle, `tools/examples_pass.py`
+runs examples 45-49 at 2.17, 2.12, 1.70, 2.20 and 1.45x real time. Before
+E-09 they ran at 1.98, 2.09, 1.73, 2.16 and 1.44x. Boards that do not start
+the Wi-Fi pay nothing for it. A first measurement while another application
+used the laptop showed about 1.5x both with and without this change.
+
+**Next.** The application's part follows below.
+
+## SN-269, second part: the application, example 60 and the gate review (2026-11-06)
+
+**In the application.**
+
+- **Simulate > Wi-Fi Network...** sets the project's network:
+  - the access point on or off;
+  - the name (SSID), security (WPA2-PSK or open), password and channel;
+  - the gateway to this computer, with a plain warning;
+  - the ports of this computer forwarded to boards.
+- **First-run confirmation (DE9c).** The first time a project with the
+  gateway runs on a computer, SimNodus asks before connecting the boards to
+  that computer's network.
+  - The answer is kept in the local settings under the project file's path,
+    never in the project. An unsaved project is asked once per session.
+  - Turning the gateway on in the dialog counts as the user's own consent.
+  - Without consent, the run keeps the network inside the simulation and
+    says so in the Messages panel.
+- **Messages.** The gateway's start (`host.simnodus`, each forwarded port)
+  or its failure (a port in use) appears among the board's messages.
+- **pt-BR.** The texts have their translations. The `gdb_waiting_message`
+  of #282 now uses `MainWindow::tr` explicitly, so that lupdate keeps its
+  translations in the right context.
+
+**Example 60** (`60_ESP32-C3_Wi-Fi_web_server.snx`; firmware
+`esp32c3_wifi_web`, MIT, ESP-IDF v5.5.2): the board joins `SimNodus` and
+serves a page with its LED and chip temperature. The project forwards port
+8080 of this computer to the board's port 80.
+
+- A session test fetches `/?led=1` through the forwarded port, checks the
+  page (`LED: on`, `Chip temperature: 25.0`), and checks GPIO8 high and the
+  firmware's log line.
+- By hand, `curl http://127.0.0.1:18090/?led=1` against `simnodus-emu` gave
+  the same page.
+
+**The guides** (English and pt-BR) have a *Wi-Fi* section in the
+microcontroller guide, and the automation reference lists the `wifi_*`
+settings and `allow_network`.
+
+## Gate review (2026-11-06)
+
+| Gate | Status |
+|---|---|
+| **G9a.1** Scans list the AP | Met: ESP-IDF scan, MicroPython `scan()` (the Arduino sketches connect instead of scanning) |
+| **G9a.2** Every register on the path modelled or listed | Met with a list: these read back what was written: the TSF and power-event block (`0x60035000`, `0x60035118`), the TBTT and beacon-filter settings, the page `0x60011000`. None blocks the paths tested |
+| **G9a.3** Start under 2 s | Met: the whole 6 s run of `wifi_scan` took 1.1 s of wall-clock time |
+| **G9b.1** Join and DHCP (open, WPA2), three frameworks | Met |
+| **G9b.2** Wrong password; AP restart | Partly: a wrong password ends with reason 15 after three resends of message 1, as hostapd does. **The comparison with a board on a real AP is open.** A rejoin after the AP restarts is not tested: the application has no control for it yet |
+| **G9b.3** Console equal to a board's | **Open: needs the owner's DevKitM-1 and an access point with the same name and password** |
+| **G9b.4** Crypto vectors | Met |
+| **G9c.1** TCP, UDP, DNS to local servers | Met in ctest |
+| **G9c.2** Off by default | Met: no name resolves, no socket; first-run confirmation in the window, `allow_network` in automation |
+| **G9c.3** By hand: a public site, MQTT | Partly: NTP from `pool.ntp.org` over the internet worked. **HTTP to a public site and MQTT: the owner's check** |
+| **G9c.4** TCP at 0.25x real time | Open as a measurement: the board's TCP timers run on virtual time and the computer's side is held by the sockets, so slow runs do not break connections by design. Not yet measured at 0.25x |
+| **G9d.1** Servers reached from the computer | Met: Arduino `WebServer`, MicroPython socket server, example 60 |
+| **G9d.2** Two boards on one AP | Partly: two boards join and get their own addresses in one session, and the AP relays between stations. A UDP/TCP exchange between the two boards is not yet tested |
+| **G9e.1** Determinism without the gateway | Met for one board (same frames at the same times); several boards depend on the threads' interleaving within the coupling quantum |
+| **G9e.2** Idle MIPS with Wi-Fi at least 80 % | Not measured yet |
+| **G9e.3** Approximate timing labelled | Met: the guide's *Limits* |
+| **G9e.4** Nothing changes without Wi-Fi | Met: ctest and `examples_pass.py` unchanged; examples 45-49 as fast as before (boards join the air only when they start Wi-Fi) |
+
+## Decision DE9: recommendation
+
+The plan's outcome for "G9a-G9d pass" applies, with the open items listed
+above, so the recommendation is:
+
+1. **Keep the ESP32-C3's Wi-Fi on SimNodus's own emulator, marked
+   experimental.** Write an ADR (0109) for the decisions with lasting
+   effect:
+   - the register-level MAC model;
+   - the access point and network in our own code;
+   - lwIP behind a NAT for the gateway;
+   - the network policy of DE9c.
+2. **Before the experimental mark goes, the board comparisons with the
+   owner:**
+   - G9b.3: the console against a real access point;
+   - G9b.2: the wrong-password reason;
+   - G9c.3: HTTP and MQTT by hand.
+3. **Next steps, each its own task:**
+   - a UDP/TCP test between two boards (G9d.2);
+   - the 0.25x and idle-MIPS measurements (G9c.4, G9e.2);
+   - power-save timing (TSF, TBTT) if a firmware needs it;
+   - SoftAP and ESP-NOW only on request.
+
+DE9 is the owner's decision; nothing above changes until then.
