@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-06 (E-09 Wi-Fi: SN-264..SN-266 done; SN-267 in progress, a station joins the open network and gets an address; WPA2 next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-06 (E-09 Wi-Fi: SN-264..SN-267 done, stations join open and WPA2 networks and get an address; SN-268 gateway next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -204,9 +204,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      SN-266 done: the MAC model sends and receives, and the ESP-IDF and
      MicroPython scans find SimNodus's access point (`WifiAir`: beacons,
      probe responses; `simnodus-emu --wifi-ap`, `--wifi-pcap`)
-     ([results](../experiments/E-09-results.md)). SN-267 in progress: the
-     open network works (association, DHCP: ESP-IDF and MicroPython get
-     192.168.4.2); next the WPA2 handshake and the MAC's CCMP;
+     ([results](../experiments/E-09-results.md)). SN-267 done: open and
+     WPA2-PSK networks (our own crypto, the MAC's hardware CCMP, the AES
+     accelerator); ESP-IDF, Arduino and MicroPython get 192.168.4.2. Next:
+     SN-268, the gateway to the computer's network with lwIP (DE9b) and port
+     forwarding;
    - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data

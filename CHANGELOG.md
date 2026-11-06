@@ -4,6 +4,14 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-06, SN-267, WPA2)
+
+- WPA2-PSK on SimNodus's virtual access point (E-09): the 4-way handshake with our own cryptography (`wifi_crypto`: SHA-1, HMAC, PBKDF2, the 802.11 PRF, AES-128/256, key wrap, CCM/CCMP, checked against the published vectors), CCMP data frames, and a deauthentication with reason 15 after a wrong passphrase. The ESP32-C3 model gains the MAC's hardware CCMP (the key entries the driver installs) and the **AES accelerator** (typical and DMA modes through GDMA: ECB, CBC, OFB, CTR, CFB8, CFB128). The unmodified ESP-IDF station example, Arduino's `WiFi.begin()` and MicroPython's `WLAN.connect()` join with the passphrase and get 192.168.4.2. `simnodus-emu --wifi-ap SSID[@channel],wpa2[=passphrase]`.
+
+### Fixed (2026-11-06, SN-267)
+
+- ESP32-C3 Wi-Fi: the frames the MAC sent carried the driver's 4-byte FCS placeholder (0xDEADBEEF) at their end.
+
 ### Added (2026-11-06, SN-267, open network)
 
 - SimNodus's virtual access point lets ESP32-C3 stations join an open network (E-09): open-system authentication, association, and an IP network behind it (`WifiNetwork`: 192.168.4.1, DHCP for 192.168.4.2-20, ARP, ping; DNS answers "no such name" until the gateway). The unmodified ESP-IDF station example and MicroPython's `WLAN.connect()` get 192.168.4.2. Still only in `simnodus-emu --wifi-ap` and the tests.
