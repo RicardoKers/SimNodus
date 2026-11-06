@@ -175,8 +175,10 @@ def main() -> int:
         if "\x00" in content:
             errors.append(f"{relative}: unexpected NUL byte")
         # Third-party source kept byte for byte as upstream ships it, its
-        # whitespace too: Optiboot (SN-261).
+        # whitespace too: Optiboot (SN-261), lwIP (SN-268).
         if relative.startswith("third_party/optiboot/") and relative != "third_party/optiboot/README.md":
+            continue
+        if relative.startswith("third_party/lwip/") and relative != "third_party/lwip/README.md":
             continue
         if content and not content.endswith("\n"):
             if HISTORICAL_NO_FINAL_NEWLINE.get(relative) != hashlib.sha256(raw).hexdigest():

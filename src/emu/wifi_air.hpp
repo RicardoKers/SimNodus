@@ -12,6 +12,7 @@
 #pragma once
 
 #include "esp32c3.hpp"
+#include "wifi_gateway.hpp"
 #include "wifi_network.hpp"
 
 #include <array>
@@ -19,6 +20,7 @@
 #include <fstream>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -31,6 +33,9 @@ struct WifiApConfig {
     std::array<std::uint8_t, 6> bssid{0x02, 0x53, 0x4E, 0x00, 0x00, 0x01};
     bool wpa2 = false; // WPA2-PSK with CCMP; open when false
     std::string passphrase = "simnodus-wifi"; // 8..63 characters, for WPA2
+    // The gateway to the computer's network (SN-268): off by default (DE9c).
+    bool gateway = false;
+    std::vector<WifiForward> forwards; // ports of 127.0.0.1 to stations' ports
     int rssi = -40;    // dBm at the boards
 };
 
@@ -57,6 +62,9 @@ public:
     const WifiNetwork& network() const { return network_; }
     // Whether `station` is associated now.
     bool associated(const MacAddress& station) const;
+    // Why the gateway did not start (another one runs, a port is taken), or
+    // empty.
+    const std::string& gateway_error() const { return gateway_error_; }
 
 private:
     bool transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame);
@@ -66,6 +74,7 @@ private:
     void management(const Esp32C3::WifiFrame& frame, const MacAddress& station);
     void data(const Esp32C3::WifiFrame& frame, const MacAddress& station);
     void reply(std::vector<std::uint8_t> bytes, std::uint64_t after_ns);
+    void flush_gateway(std::uint64_t after_ns);
     std::vector<std::uint8_t> data_frame(const EtherPacket& packet);
     void eapol(const Esp32C3::WifiFrame& frame, const MacAddress& station, const std::vector<std::uint8_t>& body);
     void send_key(const MacAddress& station, std::uint16_t info, const std::vector<std::uint8_t>& key_data, std::uint64_t after_ns);
@@ -93,6 +102,9 @@ private:
 
     WifiApConfig ap_;
     WifiNetwork network_;
+    std::unique_ptr<WifiGateway> gateway_;
+    std::string gateway_error_;
+    std::uint64_t next_gateway_ns_ = 0;
     std::vector<std::uint8_t> pmk_;          // WPA2: PBKDF2(passphrase, SSID)
     std::array<std::uint8_t, 16> gtk_{};     // the group key
     std::uint32_t nonce_counter_ = 0;

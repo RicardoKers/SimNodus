@@ -134,6 +134,8 @@ int run_esp32c3(int argc, char** argv)
     bool wifi_log = false;
     std::optional<WifiApConfig> wifi_ap;
     std::string wifi_pcap;
+    bool wifi_gateway = false;
+    std::vector<WifiForward> wifi_forwards;
     struct Typed {
         std::uint64_t time_ns;
         int port;
@@ -221,6 +223,31 @@ int run_esp32c3(int argc, char** argv)
             wifi_log = true; // the Wi-Fi frames on the air
         } else if (arg == "--wifi-pcap" && i + 1 < argc) {
             wifi_pcap = argv[++i]; // the same frames in a pcap file for Wireshark
+        } else if (arg == "--wifi-gateway") {
+            wifi_gateway = true; // the access point's gateway to this computer's network
+        } else if (arg == "--wifi-forward" && i + 1 < argc) {
+            // HOSTPORT=STATIONIP:PORT, for example 8080=192.168.4.2:80
+            const std::string value = argv[++i];
+            WifiForward forward;
+            unsigned long numbers[6] = {};
+            const char* p = value.c_str();
+            const char separators[6] = {'=', '.', '.', '.', ':', '\0'};
+            bool ok = true;
+            for (int n = 0; n < 6 && ok; ++n) {
+                char* end = nullptr;
+                numbers[n] = std::strtoul(p, &end, 10);
+                ok = end != p && *end == separators[n];
+                p = end + (n < 5 ? 1 : 0);
+            }
+            if (!ok) {
+                std::fprintf(stderr, "error: --wifi-forward takes HOSTPORT=STATIONIP:PORT\n");
+                return 2;
+            }
+            forward.host_port = static_cast<std::uint16_t>(numbers[0]);
+            forward.station = {static_cast<std::uint8_t>(numbers[1]), static_cast<std::uint8_t>(numbers[2]),
+                static_cast<std::uint8_t>(numbers[3]), static_cast<std::uint8_t>(numbers[4])};
+            forward.station_port = static_cast<std::uint16_t>(numbers[5]);
+            wifi_forwards.push_back(forward);
         } else if (arg[0] != '-') {
             const auto at = arg.rfind('@');
             const std::uint32_t offset = at == std::string::npos ? 0 : static_cast<std::uint32_t>(std::strtoul(arg.c_str() + at + 1, nullptr, 0));
@@ -282,7 +309,13 @@ int run_esp32c3(int argc, char** argv)
     };
     std::unique_ptr<WifiAir> air;
     if (wifi_ap) {
+        wifi_ap->gateway = wifi_gateway;
+        wifi_ap->forwards = wifi_forwards;
         air = std::make_unique<WifiAir>(*wifi_ap);
+        if (!air->gateway_error().empty()) {
+            std::fprintf(stderr, "error: Wi-Fi gateway: %s\n", air->gateway_error().c_str());
+            return 1;
+        }
         air->attach(machine);
         air->set_monitor(monitor);
     } else if (wifi_log || !wifi_pcap.empty()) {
@@ -316,8 +349,9 @@ int run_esp32c3(int argc, char** argv)
         if (next_typed < typed.size()) {
             until = std::max(machine.time_ns() + 1, std::min(until, typed[next_typed].time_ns));
         }
-        if (!links.empty()) {
-            // Linked to a program: at most real-time speed, its bytes in.
+        if (!links.empty() || wifi_gateway) {
+            // Linked to a program or the computer's network: at most
+            // real-time speed, its bytes in.
             until = std::min(until, machine.time_ns() + 200'000);
             const auto real = begin + std::chrono::nanoseconds(machine.time_ns());
             std::this_thread::sleep_until(real);

@@ -305,3 +305,70 @@ nonces and the GTK are derived deterministically, so runs repeat.
 
 The access point's settings in a project come with the integration
 (SN-269).
+
+## SN-268: the gateway to the computer's network (2026-11-06)
+
+**Result.** With the gateway on, boards reach the computer and the internet,
+and the computer reaches a board's server:
+
+- **The Arduino sketch** `arduino_wifi_client` (WPA2) fetches
+  `http://host.simnodus/` from a web server on the computer's 127.0.0.1:80:
+  `wifi client: HTTP/1.0 200 OK` and `body Hello from the computer`. The
+  server logs the requests.
+- **The ESP-IDF `sntp` example** sets its clock from `pool.ntp.org` over the
+  real internet: DNS through the computer's resolver, UDP port 123
+  (`Notification of a time synchronization event`). This was checked by
+  hand, G9c.3.
+- **Port forwarding:** `curl http://127.0.0.1:18080/` reaches the Arduino
+  `WebServer` sketch on the board (`--wifi-forward 18080=192.168.4.2:80`).
+  `/led?on=1` turns GPIO8 on in the simulation.
+- **Without the gateway** (the default) names do not resolve and nothing
+  leaves the simulation.
+
+**How.** `WifiGateway` (`src/emu/wifi_gateway.*`, with lwIP 2.2.1 vendored
+unmodified in `third_party/lwip`, DE9b):
+
+- **TCP:** a station's TCP SYN to an outside address creates a NAT entry.
+  The packet's destination is rewritten to lwIP's listener on
+  192.168.4.1:1. lwIP accepts the connection, and the gateway opens a
+  non-blocking socket to the original address. lwIP's answers get that
+  address back, with the checksums recomputed. lwIP needs no patch.
+- **UDP:** one socket of the computer per station port.
+- **DNS** on 192.168.4.1 resolves with the computer's resolver;
+  `host.simnodus` is 192.168.4.254, which the network answers ARP for and
+  the gateway maps to 127.0.0.1.
+- **Forwarded ports** listen on 127.0.0.1 only (DE9c) and open a connection
+  from 192.168.4.1 through lwIP.
+- **Timing:** lwIP's clock is the virtual time. The access point polls the
+  gateway every millisecond of virtual time. `simnodus-emu` runs at
+  real-time speed while the gateway is on.
+
+Broadcasts and multicasts stay on the Wi-Fi network: the DHCP Discover went
+to the gateway in a first try.
+
+**Tests.** `emu-esp32c3` has a new case with MicroPython over WPA2:
+
+- TCP and UDP to servers the test opens on 127.0.0.1;
+- `getaddrinfo('host.simnodus')` returning 192.168.4.254;
+- a server on the board reached through a forwarded port;
+- a second gateway refused (lwIP is global);
+- names not resolving without the gateway.
+
+**Gate status.**
+
+- **G9c.1** is met: TCP, UDP and DNS to local servers in ctest.
+- **G9c.2** is met: off by default, no name resolves, no socket.
+- **G9c.3:** NTP over the internet was checked by hand. The owner checks an
+  HTTP site and MQTT.
+- **G9c.4:** the board's TCP timers run on virtual time and the computer's
+  side is kept by the sockets. Measuring at 0.25x real time comes with the
+  application.
+- **G9d.1** is met for the Arduino `WebServer` sketch (by hand, curl) and
+  MicroPython (ctest).
+- **G9d.2** (two boards) waits for the shared air in the session.
+
+**Not yet.**
+
+- The application's controls: the network's settings in a project, the
+  first-run confirmation (DE9c), and the forwarded ports (SN-269).
+- Ping to the outside.

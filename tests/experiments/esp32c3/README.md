@@ -75,7 +75,10 @@ calibration`), which SN-265 models.
 Wi-Fi (E-09): `--wifi-ap SSID[@channel][,wpa2[=passphrase]]` puts SimNodus's
 access point on the air (open or WPA2-PSK, passphrase `simnodus-wifi` by
 default, DHCP for 192.168.4.2-20), `--wifi-log` prints every frame and
-`--wifi-pcap file.pcap` writes them for Wireshark:
+`--wifi-pcap file.pcap` writes them for Wireshark. `--wifi-gateway` connects
+the network to this computer (`host.simnodus` is the computer; the run then
+goes at real-time speed) and `--wifi-forward 8080=192.168.4.2:80` forwards
+127.0.0.1:8080 to a board's port 80:
 
 ```text
 build/dev/apps/simnodus-emu/simnodus-emu --esp32c3 tests/experiments/esp32c3/firmware/wifi_scan.bin --ms 3500 --wifi-ap SimNodus@6 --wifi-pcap scan.pcap

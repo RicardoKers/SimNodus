@@ -8,6 +8,13 @@ nlohmann/json 3.11.3 (compiled into simnodus.exe)
   License: MIT. Copyright (c) 2013-2023 Niels Lohmann.
   Source: https://github.com/nlohmann/json
 
+lwIP 2.2.1 (compiled into the simulation engine; the ESP32-C3's Wi-Fi
+gateway to the computer's network), unmodified core
+  License: BSD-3-Clause, text in licenses/lwip-BSD-3-Clause.txt.
+  Copyright (c) 2001-2004 Swedish Institute of Computer Science and the lwIP
+  contributors.
+  Source: https://github.com/lwip-tcpip/lwip (tag STABLE-2_2_1_RELEASE)
+
 Qt 6 (Qt Core, Gui, Widgets, Svg, Network and their plugins)
   License: GNU Lesser General Public License v3.0 (LGPL-3.0-only); texts in
   licenses/LGPL-3.0-only.txt and licenses/GPL-3.0-only.txt.

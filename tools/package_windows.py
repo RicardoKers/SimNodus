@@ -34,7 +34,7 @@ REQUIRED = [
     "simnodus.exe", "simnodus-engine.exe", "simnodus-cli.exe", "AUTOMATION.md", "Qt6Core.dll", "Qt6Gui.dll", "Qt6Widgets.dll", "Qt6Network.dll", "platforms/qwindows.dll",
     "ngspice/ngspice.dll", "ngspice/sndfile.dll", "ngspice/samplerate.dll", "ngspice/libomp140.x86_64.dll",
     "ngspice/spinit", "ngspice/spice2poly.cm", "ngspice/COPYING", "LICENSE", "README.txt", "THIRD-PARTY-NOTICES.txt",
-    "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt",
+    "licenses/LGPL-3.0-only.txt", "licenses/GPL-3.0-only.txt", "licenses/nlohmann-json-MIT.txt", "licenses/lwip-BSD-3-Clause.txt",
     "library/passive/resistor.json", "examples/01_LED_and_push_button.snx", "QUICK-START.md", "USER-GUIDE.md", "MICROCONTROLLER.md",
     "pt-BR/USER_GUIDE.md", "pt-BR/QUICK_START.md", "pt-BR/MICROCONTROLLER.md",
     "translations/simnodus_pt_BR.qm",

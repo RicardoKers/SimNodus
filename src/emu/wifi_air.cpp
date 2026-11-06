@@ -59,6 +59,10 @@ std::uint64_t wifi_airtime_ns(std::size_t bytes)
 
 WifiAir::WifiAir(const WifiApConfig& ap) : ap_(ap), network_(ap.bssid), next_beacon_ns_(beacon_interval_ns / 2)
 {
+    if (ap_.gateway) {
+        gateway_ = WifiGateway::start(ap_.forwards, gateway_error_);
+        network_.set_gateway(gateway_.get());
+    }
     if (ap_.wpa2) {
         pmk_ = pbkdf2_sha1(ap_.passphrase, Bytes(ap_.ssid.begin(), ap_.ssid.end()), 4096, 32);
         // A group key that is the same on every run (the simulation is
@@ -86,6 +90,9 @@ void WifiAir::attach(Esp32C3& board)
 std::uint64_t WifiAir::next_ns() const
 {
     std::uint64_t next = next_beacon_ns_;
+    if (gateway_) {
+        next = std::min(next, next_gateway_ns_);
+    }
     for (const auto& [mac, s] : stations_) {
         if (s.deadline_ns != 0) {
             next = std::min(next, s.deadline_ns);
@@ -96,6 +103,11 @@ std::uint64_t WifiAir::next_ns() const
 
 void WifiAir::on_ns(std::uint64_t now)
 {
+    if (gateway_ && next_gateway_ns_ <= now) {
+        gateway_->poll(now);
+        flush_gateway(now);
+        next_gateway_ns_ = now + 1'000'000; // every millisecond of virtual time
+    }
     while (next_beacon_ns_ <= now) {
         send(beacon(next_beacon_ns_ / 1000), next_beacon_ns_, nullptr);
         next_beacon_ns_ += beacon_interval_ns;
@@ -293,8 +305,16 @@ void WifiAir::data(const Esp32C3::WifiFrame& frame, const MacAddress& station)
     if (ap_.wpa2 && !(frame.bytes[1] & 0x40u)) {
         return; // a WPA2 network passes only protected data
     }
-    for (const EtherPacket& answer : network_.handle(packet)) {
+    for (const EtherPacket& answer : network_.handle(packet, frame.end_ns)) {
         reply(data_frame(answer), frame.end_ns);
+    }
+    flush_gateway(frame.end_ns);
+}
+
+void WifiAir::flush_gateway(std::uint64_t after_ns)
+{
+    for (const EtherPacket& packet : network_.from_gateway()) {
+        reply(data_frame(packet), after_ns);
     }
 }
 
