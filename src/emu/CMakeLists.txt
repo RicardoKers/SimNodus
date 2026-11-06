@@ -21,7 +21,8 @@ add_library(simnodus_emu STATIC
     stm32f1_i2c.cpp
     stm32f1_spi.cpp
     stm32f1_system.cpp
-    stm32f1_timer.cpp)
+    stm32f1_timer.cpp
+    wifi_air.cpp)
 add_library(simnodus::emu ALIAS simnodus_emu)
 target_include_directories(simnodus_emu PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_link_libraries(simnodus_emu PRIVATE simnodus::warnings)

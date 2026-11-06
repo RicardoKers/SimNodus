@@ -25,6 +25,7 @@
 #include "emu/gdb_server.hpp"
 #include "emu/riscv_test_machine.hpp"
 #include "emu/stm32f103.hpp"
+#include "emu/wifi_air.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -34,6 +35,7 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -129,6 +131,9 @@ int run_esp32c3(int argc, char** argv)
     double ms = 1000;
     bool quiet = false;
     bool trace = false;
+    bool wifi_log = false;
+    std::optional<WifiApConfig> wifi_ap;
+    std::string wifi_pcap;
     struct Typed {
         std::uint64_t time_ns;
         int port;
@@ -193,6 +198,24 @@ int run_esp32c3(int argc, char** argv)
             quiet = true;
         } else if (arg == "--trace-io") {
             trace = true;
+        } else if (arg == "--wifi-ap" && i + 1 < argc) {
+            // SSID[@channel][,wpa2]: SimNodus's access point on the air (E-09)
+            std::string value = argv[++i];
+            WifiApConfig ap;
+            if (const auto comma = value.rfind(','); comma != std::string::npos) {
+                ap.wpa2 = value.substr(comma + 1) == "wpa2";
+                value.resize(comma);
+            }
+            const auto at = value.rfind('@');
+            ap.ssid = value.substr(0, at);
+            if (at != std::string::npos) {
+                ap.channel = std::atoi(value.c_str() + at + 1);
+            }
+            wifi_ap = ap;
+        } else if (arg == "--wifi-log") {
+            wifi_log = true; // the Wi-Fi frames on the air
+        } else if (arg == "--wifi-pcap" && i + 1 < argc) {
+            wifi_pcap = argv[++i]; // the same frames in a pcap file for Wireshark
         } else if (arg[0] != '-') {
             const auto at = arg.rfind('@');
             const std::uint32_t offset = at == std::string::npos ? 0 : static_cast<std::uint32_t>(std::strtoul(arg.c_str() + at + 1, nullptr, 0));
@@ -232,6 +255,35 @@ int run_esp32c3(int argc, char** argv)
     if (trace) {
         machine.set_trace([&machine](const std::string& text) {
             std::printf("%14.6f ms  %s\n", static_cast<double>(machine.time_ns()) / 1e6, text.c_str());
+        });
+    }
+    const auto log_frame = [](const Esp32C3::WifiFrame& frame) {
+        std::printf("%14.6f ms  WIFI  ch %d, %zu bytes:", static_cast<double>(frame.end_ns) / 1e6, frame.channel, frame.bytes.size());
+        for (std::size_t i = 0; i < frame.bytes.size() && i < 40; ++i) {
+            std::printf(" %02x", frame.bytes[i]);
+        }
+        std::printf("\n");
+    };
+    WifiPcap pcap;
+    if (!wifi_pcap.empty() && !pcap.open(wifi_pcap)) {
+        std::fprintf(stderr, "error: cannot write %s\n", wifi_pcap.c_str());
+        return 1;
+    }
+    const auto monitor = [&pcap, log_frame, wifi_log](const Esp32C3::WifiFrame& frame) {
+        if (wifi_log) {
+            log_frame(frame);
+        }
+        pcap.write(frame);
+    };
+    std::unique_ptr<WifiAir> air;
+    if (wifi_ap) {
+        air = std::make_unique<WifiAir>(*wifi_ap);
+        air->attach(machine);
+        air->set_monitor(monitor);
+    } else if (wifi_log || !wifi_pcap.empty()) {
+        machine.set_wifi_tx([monitor](const Esp32C3::WifiFrame& frame) {
+            monitor(frame);
+            return false; // nobody else on the air
         });
     }
     machine.reset();

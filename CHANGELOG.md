@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-05, SN-266)
+
+- ESP32-C3 Wi-Fi MAC model (E-09): TX queues, RX descriptors and interrupts as the unmodified Wi-Fi libraries drive them, the channel read from the RF PLL, ACK timeouts for frames nobody acknowledges. A virtual access point on the air (`WifiAir`: beacons, probe responses, open or WPA2 announced) is found by the ESP-IDF scan and by MicroPython's `WLAN.scan()`. `simnodus-emu --esp32c3` takes `--wifi-ap SSID[@channel][,wpa2]`, `--wifi-log` and `--wifi-pcap file` (frames for Wireshark). Not in the application yet; association, WPA2 and DHCP come next (SN-267).
+
 ### Changed (2026-11-05, SN-265)
 
 - ESP32-C3: the Wi-Fi starts instead of hanging (E-09). The PHY's calibration runs, and the station mode starts in ESP-IDF, Arduino and MicroPython: `WLAN.active(True)` returns, and `esp_wifi_start` reaches `WIFI_EVENT_STA_START`. The next boot loads the calibration that the firmware saved. Scans find no network yet, as a board in a room without access points; the virtual access point comes with SN-266 and SN-267. The radio's register blocks are named in the trace.

@@ -84,3 +84,88 @@ the station's failure and MicroPython's `active(True)` and `scan()`.
 
 **Next.** SN-266: the MAC's TX slots and RX DMA, its interrupts and the TSF,
 so that the probe requests of the scan reach a radio medium.
+
+## SN-266: the MAC and the air (2026-11-05)
+
+**Result.** The unmodified Wi-Fi libraries send and receive through the MAC
+model. The ESP-IDF `scan` example finds SimNodus's access point on its own:
+`Total APs scanned = 1`, SSID `SimNodus`, RSSI -40, channel 6, open. A WPA2
+network is reported as `WIFI_AUTH_WPA2_PSK` with CCMP. MicroPython's
+`WLAN.scan()` gives `[(b'SimNodus', b'\x02SN\x00\x00\x01', 11, -40, 0, False)]`.
+
+During an active scan the station sends one probe request on each of
+channels 1-11, about 120 ms apart, from its address `34:85:18:00:c3:01`. The
+access point answers on its channel. The station example then finds the
+network and sends a deauthentication and an open-system authentication
+(`wifi:state: init -> auth`). No answer comes yet, so it times out after 1 s
+and retries, as against a silent AP. Answering is SN-267.
+
+**How the MAC was found.** Sources:
+
+- arXiv 2501.17684 gives the C3's MAC range and roles: RX enable 0x084,
+  RX base 0x088, TX 0xD08, interrupt status 0xC3C and clear 0xC40,
+  power 0xCA0.
+- The disassembly of libpp and the ROM gives the rest, with the function
+  names: `hal_mac_txq_enable`, `hal_mac_get_txq_state`,
+  `lmacProcessTxComplete`, `hal_mac_rx_*`, `wdevProcessRxSucDataAll`,
+  `wDev_ProcessRxSucData`, `wDev_ProcessFiq`.
+- Traces and GDB sessions on the unmodified images confirmed each step.
+
+The register map is in the comment of `Esp32C3::WifiMac`
+(`src/emu/esp32c3.cpp`).
+
+| Item | Finding |
+|---|---|
+| TX queue q | control word at `0x60033D08 - 8q`; bits 31:30 start it; bits 19:0 address the first lldesc, with the upper bits from `0xC64` (0x3FC00000) |
+| TX completion | bit q of `0xCB0`, cleared through `0xCAC`; the result in bits 15:12 of `0x60034320 - 0x4C*q` (0 success, 1 RTS error, 2 CTS timeout, 4 TX error, 5 ACK timeout) |
+| RX | `0x084` bit 31 enables it, bit 0 asks for a reload; `0x088` base, `0x08C` next, `0x090` last filled; lldesc words with EOF (bit 30) and owner (bit 31) |
+| RX buffer | the 48-byte `wifi_pkt_rx_ctrl_t` header, then the frame with its FCS; header word 0 bit 28 marks interface 0 (the station), bit 29 interface 1; `rx_state` (byte 47) 0 |
+| Interrupts | `0xC3C` = events masked by `0xC34`; bit 24 RX, bit 7 TX done, bit 19 TX timeout, bit 21 RX event; source 0 |
+| Channel | the low byte of the analog register `0x6000E0C4` is twice the frequency above 2400 MHz (`rom_write_chan_freq`) |
+| Addresses | own address `0x040/0x044`, BSSID `0x000/0x004`, with masks and enable bits at `0x060/0x064` and `0x020/0x024` |
+
+**The air.** `WifiAir` (`src/emu/wifi_air.*`) connects boards and an access
+point:
+
+- The access point sends beacons every 102.4 ms with SSID, rates, DS, TIM,
+  ERP, extended rates, and RSN for WPA2.
+- It answers probe requests for any SSID or its own.
+- It acknowledges frames addressed to its BSSID.
+
+A frame sent to one station that nobody acknowledges ends with status 5 (ACK
+timeout), so the driver's retries apply. Each frame's airtime is timed at
+1 Mbit/s with the long preamble. This is approximate: rates, collisions and
+CCA are not modelled.
+
+**Tools.**
+
+- `simnodus-emu --esp32c3 image.bin --wifi-ap SSID[@channel][,wpa2]` puts
+  the access point on the air.
+- `--wifi-log` prints every frame.
+- `--wifi-pcap file.pcap` writes them for Wireshark (link type 105).
+
+**Tests.** `emu-esp32c3` has two new cases:
+
+- The ESP-IDF scan against an open AP and a WPA2 AP: the probe requests on
+  channels 1-11, the probe response, the beacons, and two runs that give the
+  same frames at the same times.
+- MicroPython's scan, the station's first authentication, and the pcap
+  format.
+
+**Gate G9a status.**
+
+- G9a.1 is met for ESP-IDF and MicroPython. The Arduino sketches connect
+  instead of scanning, and they reach the same authentication step.
+- G9a.2 is partial. These still read back what was written:
+  - the power interrupt block (`0x60035118`/`11C`) and the TSF registers
+    (`0x60035000`), which SN-267 needs for beacon timing and power save;
+  - the page at `0x60011000`.
+- G9a.3: the start was measured with SN-265.
+
+**Not yet.**
+
+- Authentication, association, the WPA2 handshake and DHCP (SN-267).
+- The gateway (SN-268).
+- The air in the application: today only `simnodus-emu` and the tests
+  attach one.
+- Several boards on one air need a shared clock between their machines.

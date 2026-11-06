@@ -2996,6 +2996,268 @@ private:
     std::vector<DoneBits> done_;
 };
 
+} // namespace
+
+// The Wi-Fi MAC, 0x60033000-0x60035FFF (E-09, SN-266). Not in the Technical
+// Reference Manual: the registers come from arXiv 2501.17684 (the C3's
+// addresses), from the disassembly of ESP-IDF v5.5.2's libpp and the ROM
+// (function names below), and from traces of the unmodified images.
+//
+// - Addresses: own address 0x040/0x044 (enable in 0x064 bit 16), BSSID
+//   0x000/0x004 (0x024 bit 16).
+// - RX: 0x084 bit 31 enables the receiver, bit 0 asks the MAC to reload its
+//   descriptor list (hal_mac_rx_set_dscr_reload); 0x088 is the list's base
+//   (hal_mac_rx_set_base), 0x08C the next descriptor and 0x090 the last one
+//   filled (hal_mac_rx_read_rxdscrnext/last). Descriptors are lldesc: word 0
+//   size (11:0), length (23:12), EOF (30), owner (31); word 1 the buffer;
+//   word 2 the next descriptor. A received buffer holds the 48-byte
+//   wifi_pkt_rx_ctrl_t header (esp_wifi_types_native.h), then the frame with
+//   its FCS; header word 0 bit 28 tells the driver that interface 0 (the
+//   station) was addressed, bit 29 interface 1 (wDev_ProcessRxSucData).
+// - TX: queue q's control word at 0xD08 - 8q (hal_mac_txq_enable sets bits
+//   31:30 to start it) holds the first descriptor's address in bits 19:0,
+//   with the upper bits from 0xC64; 0xD04 - 8q its timeout and EDCA settings;
+//   the PLCP words at 0x12F8 - 0x4C*q. When a frame has gone, bit q of
+//   0xCB0 is set (hal_mac_get_txq_state's third kind, read by
+//   lmacProcessTxComplete) until the driver writes it to 0xCAC
+//   (hal_mac_clr_txq_state); the result is in bits 15:12 of the queue's word
+//   at 0x1320 - 0x4C*q (hal_mac_get_txq_pmd): 0 success, 1 RTS error,
+//   2 CTS timeout, 4 TX error, 5 ACK timeout.
+// - Interrupts: 0xC3C reads the events enabled in 0xC34
+//   (hal_mac_interrupt_get_event); writing 0xC40 clears them. Bit 24 a frame
+//   was received (lmacProcessRxSucData), bit 7 a TX queue completed
+//   (lmacPostTxComplete). They raise source 0 (ETS_WIFI_MAC_INTR_SOURCE).
+// - 0xD14 bit 0: ready after hal_init sets bit 1.
+//
+// Airtime is approximate: every frame is timed at 1 Mbit/s with the long
+// preamble (192 us). A frame to one station succeeds if the medium says it
+// was acknowledged, else it ends with an ACK timeout; retries are the
+// driver's, and collisions are not modelled.
+class Esp32C3::WifiMac : public Esp32C3::Block, public Esp32C3::Timed {
+public:
+    explicit WifiMac(Esp32C3& machine) : Block(machine, "WIFI_MAC", 0x3000) {}
+
+    std::uint64_t next_ns() const override
+    {
+        std::uint64_t next = no_event;
+        for (const Sending& s : sending_) {
+            next = std::min(next, s.frame.end_ns);
+        }
+        if (!arriving_.empty()) {
+            next = std::min(next, arriving_.front().end_ns);
+        }
+        return next;
+    }
+    void on_ns(std::uint64_t now) override
+    {
+        for (std::size_t i = 0; i < sending_.size();) {
+            if (sending_[i].frame.end_ns > now) {
+                ++i;
+                continue;
+            }
+            const Sending done = std::move(sending_[i]);
+            sending_.erase(sending_.begin() + static_cast<std::ptrdiff_t>(i));
+            reg(queue_control(done.queue)) &= ~(3u << 30);
+            // A frame to one station needs its ACK; group frames do not.
+            const bool acked = machine_.wifi_tx_ && machine_.wifi_tx_(done.frame);
+            const bool group = done.frame.bytes.size() >= 10 && (done.frame.bytes[4] & 1u);
+            std::uint32_t& pmd = reg(0x1320 - 0x4Cu * static_cast<std::uint32_t>(done.queue));
+            pmd = (pmd & ~0xF000u) | ((group || acked ? 0u : 5u) << 12); // 0 success, 5 ACK timeout
+            tx_complete_ |= 1u << done.queue;
+            events_ |= event_tx_done;
+            update_interrupt();
+        }
+        while (!arriving_.empty() && arriving_.front().end_ns <= now) {
+            WifiFrame frame = std::move(arriving_.front());
+            arriving_.pop_front();
+            receive_now(frame);
+        }
+    }
+
+    void arrive(WifiFrame frame)
+    {
+        const auto at = std::upper_bound(arriving_.begin(), arriving_.end(), frame.end_ns,
+            [](std::uint64_t t, const WifiFrame& f) { return t < f.end_ns; });
+        arriving_.insert(at, std::move(frame));
+        reschedule();
+    }
+    int channel()
+    {
+        // rom_write_chan_freq: the low byte of 0x6000E0C4 is twice the
+        // frequency above 2400 MHz.
+        const std::uint32_t mhz = 2400 + (peek(0x6000E0C4u) & 0xFFu) / 2;
+        if (mhz == 2484) {
+            return 14;
+        }
+        if (mhz < 2412 || mhz > 2472 || (mhz - 2412) % 5 != 0) {
+            return 0;
+        }
+        return static_cast<int>((mhz - 2407) / 5);
+    }
+    std::array<std::uint8_t, 6> address() const
+    {
+        const std::uint32_t lo = reg(0x040);
+        const std::uint32_t hi = reg(0x044);
+        return {static_cast<std::uint8_t>(lo), static_cast<std::uint8_t>(lo >> 8), static_cast<std::uint8_t>(lo >> 16),
+            static_cast<std::uint8_t>(lo >> 24), static_cast<std::uint8_t>(hi), static_cast<std::uint8_t>(hi >> 8)};
+    }
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        switch (offset) {
+        case 0xC3C: return events_ & reg(0xC34);
+        case 0xCA8: return 0;
+        case 0xCB0: return tx_complete_;
+        case 0xD14: return Block::read_word(offset) | 1u; // hal_init: ready
+        default: return Block::read_word(offset);
+        }
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        switch (offset) {
+        case 0x084:
+            Block::write_word(offset, value & ~1u); // a reload happens at once
+            if ((value & 1u) && reg(0x08C) == 0) {
+                reg(0x08C) = reg(0x088);
+            }
+            return;
+        case 0x088:
+            Block::write_word(offset, value);
+            reg(0x08C) = value;
+            return;
+        case 0xC34:
+            Block::write_word(offset, value);
+            update_interrupt();
+            return;
+        case 0xC40:
+            events_ &= ~value;
+            update_interrupt();
+            return;
+        case 0xCAC:
+            tx_complete_ &= ~(value & 0xFu);
+            return;
+        default: break;
+        }
+        Block::write_word(offset, value);
+        if (offset >= 0xCD0 && offset <= 0xD08 && (offset & 7u) == 0 && (value & (1u << 31))) {
+            start_queue(static_cast<int>((0xD08 - offset) / 8));
+        }
+    }
+    void on_reset() override
+    {
+        sending_.clear();
+        arriving_.clear();
+        events_ = 0;
+        tx_complete_ = 0;
+    }
+
+private:
+    static constexpr std::uint32_t event_tx_done = 1u << 7;
+    static constexpr std::uint32_t event_rx = 1u << 24;
+    struct Sending {
+        int queue = 0;
+        WifiFrame frame;
+    };
+
+    static std::uint32_t queue_control(int queue) { return 0xD08 - 8u * static_cast<std::uint32_t>(queue); }
+    std::uint32_t dma_address(std::uint32_t value) { return (value & 0xFFFFFu) | (reg(0xC64) & 0xFFF00000u); }
+
+    void start_queue(int queue)
+    {
+        for (const Sending& s : sending_) {
+            if (s.queue == queue) {
+                return;
+            }
+        }
+        Sending s;
+        s.queue = queue;
+        std::uint32_t desc = dma_address(reg(queue_control(queue)));
+        for (int guard = 0; desc != 0 && guard < 64; ++guard) {
+            const std::uint32_t word0 = load(desc, 4);
+            const std::uint32_t length = (word0 >> 12) & 0xFFFu;
+            const std::uint32_t buffer = load(desc + 4, 4);
+            for (std::uint32_t i = 0; i < length; ++i) {
+                s.frame.bytes.push_back(static_cast<std::uint8_t>(load(buffer + i, 1)));
+            }
+            if (word0 & (1u << 30)) {
+                break; // EOF
+            }
+            desc = load(desc + 8, 4);
+        }
+        s.frame.channel = channel();
+        s.frame.end_ns = now_ns() + airtime_ns(s.frame.bytes.size());
+        sending_.push_back(std::move(s));
+        reschedule();
+    }
+    static std::uint64_t airtime_ns(std::size_t bytes) { return 192'000 + (bytes + 4) * 8'000; }
+
+    void receive_now(const WifiFrame& frame)
+    {
+        if (!(reg(0x084) & (1u << 31)) || frame.channel != channel() || frame.bytes.size() < 10) {
+            return;
+        }
+        const std::array<std::uint8_t, 6> own = address();
+        const bool group = frame.bytes[4] & 1u;
+        if (!group && !std::equal(own.begin(), own.end(), frame.bytes.begin() + 4)) {
+            return;
+        }
+        const std::uint32_t desc = reg(0x08C);
+        if (desc == 0) {
+            return; // no buffer: the frame is lost
+        }
+        const std::uint32_t word0 = load(desc, 4);
+        const std::uint32_t size = word0 & 0xFFFu;
+        const std::uint32_t buffer = load(desc + 4, 4);
+        const std::uint32_t sig_len = static_cast<std::uint32_t>(frame.bytes.size()) + 4;
+        const std::uint32_t length = 48 + sig_len;
+        if (length > size) {
+            return;
+        }
+        std::array<std::uint32_t, 12> header{};
+        header[0] = static_cast<std::uint8_t>(static_cast<std::int8_t>(frame.rssi)) | (1u << 28);
+        header[2] = static_cast<std::uint32_t>(frame.channel & 0xF) << 16;
+        header[3] = static_cast<std::uint32_t>(now_ns() / 1000);
+        header[5] = static_cast<std::uint8_t>(std::int8_t{-96}); // noise floor
+        header[11] = sig_len;
+        for (std::uint32_t i = 0; i < 12; ++i) {
+            store(buffer + 4 * i, 4, header[i]);
+        }
+        for (std::size_t i = 0; i < frame.bytes.size(); ++i) {
+            store(buffer + 48 + static_cast<std::uint32_t>(i), 1, frame.bytes[i]);
+        }
+        const std::uint32_t fcs = crc32(frame.bytes);
+        for (std::uint32_t i = 0; i < 4; ++i) {
+            store(buffer + 48 + static_cast<std::uint32_t>(frame.bytes.size()) + i, 1, (fcs >> (8 * i)) & 0xFFu);
+        }
+        store(desc, 4, (word0 & 0xFFFu) | (length << 12) | (1u << 30));
+        reg(0x090) = desc;
+        reg(0x08C) = load(desc + 8, 4);
+        events_ |= event_rx;
+        update_interrupt();
+    }
+
+    static std::uint32_t crc32(const std::vector<std::uint8_t>& bytes)
+    {
+        std::uint32_t crc = 0xFFFFFFFFu;
+        for (std::uint8_t b : bytes) {
+            crc ^= b;
+            for (int k = 0; k < 8; ++k) {
+                crc = (crc >> 1) ^ (0xEDB88320u & (0u - (crc & 1u)));
+            }
+        }
+        return ~crc;
+    }
+    void update_interrupt() { raise(0, (events_ & reg(0xC34)) != 0); }
+
+    std::vector<Sending> sending_;
+    std::deque<WifiFrame> arriving_;
+    std::uint32_t events_ = 0;
+    std::uint32_t tx_complete_ = 0;
+};
+
+namespace {
+
 // APB_SARADC (TRM chapter "On-Chip Sensors and Analog Signal Processing").
 // One-shot conversions (ONETIME_SAMPLE: unit and channel in bits 28:25,
 // attenuation in 24:23, START bit 29): the result is ready at once in
@@ -3280,6 +3542,21 @@ void Esp32C3::set_interrupt_source(int source, bool level)
     interrupts_->set_source(source, level);
 }
 
+void Esp32C3::wifi_receive(WifiFrame frame)
+{
+    wifi_mac_->arrive(std::move(frame));
+}
+
+int Esp32C3::wifi_channel() const
+{
+    return wifi_mac_->channel();
+}
+
+std::array<std::uint8_t, 6> Esp32C3::wifi_address() const
+{
+    return wifi_mac_->address();
+}
+
 
 // ---------------------------------------------------------------------------
 // Machine.
@@ -3384,11 +3661,10 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     }));
     attach(0x6001C000u, std::make_unique<RadioBlock>(*this, "NRX", std::vector<RadioBlock::DoneBits>{}));
     attach(0x6001D000u, std::make_unique<RadioBlock>(*this, "BB", std::vector<RadioBlock::DoneBits>{}));
-    // The Wi-Fi MAC, until SN-266 models it: only the bit libpp's hal_init
-    // waits for after setting bit 1 of 0xD14.
-    attach(0x60033000u, std::make_unique<RadioBlock>(*this, "WIFI_MAC", std::vector<RadioBlock::DoneBits>{
-        {0xD14, 1u << 0}, // hal_init
-    }));
+    auto wifi_mac = std::make_unique<WifiMac>(*this);
+    wifi_mac_ = wifi_mac.get();
+    timed_.push_back(wifi_mac.get());
+    attach(0x60033000u, std::move(wifi_mac), 0x3000);
     static constexpr Plain plain[] = {
         {0x60014000u, "UHCI0"},
         {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},

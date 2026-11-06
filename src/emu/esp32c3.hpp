@@ -163,6 +163,7 @@ public:
     class FlashChip; // the SPI NOR flash (esp32c3.cpp)
     class Interrupts; // interrupt matrix and controller (esp32c3.cpp)
     class Gpio;       // GPIO matrix and pads (esp32c3.cpp)
+    class WifiMac;    // the Wi-Fi MAC (esp32c3.cpp)
     // A block with events at known times in nanoseconds (timers); the run
     // loop stops the core at the earliest one.
     class Timed {
@@ -180,6 +181,28 @@ public:
     void timed_changed() { cpu_.request_stop(); }
     // Level of interrupt source `source` (ETS_*_INTR_SOURCE, 0..61).
     void set_interrupt_source(int source, bool level);
+
+    // Wi-Fi radio (E-09, SN-266). A frame on the air: the 802.11 MPDU without
+    // its FCS, the channel (1..14), when its last bit ends, and the signal
+    // strength it arrives with.
+    struct WifiFrame {
+        std::vector<std::uint8_t> bytes;
+        int channel = 0;
+        std::uint64_t end_ns = 0;
+        int rssi = -40; // dBm
+    };
+    // Frames the MAC sends, called when each one ends on the air; it returns
+    // true if a station acknowledged the frame (frames to one station that
+    // nobody acknowledges end with an ACK timeout).
+    void set_wifi_tx(std::function<bool(const WifiFrame&)> tx) { wifi_tx_ = std::move(tx); }
+    // A frame reaching the antenna. It is received at frame.end_ns if the
+    // radio is tuned to frame.channel and the MAC's receiver accepts it.
+    void wifi_receive(WifiFrame frame);
+    // The channel the radio is tuned to (from the RF PLL), 0 before the PHY
+    // has set one.
+    int wifi_channel() const;
+    // The station's MAC address as the driver set it, all zero before.
+    std::array<std::uint8_t, 6> wifi_address() const;
 
 private:
     friend class Block;
@@ -206,6 +229,8 @@ private:
     std::function<bool()> rtc_pauses_;
     Block* usb_ = nullptr;
     Block* uart_[2] = {};
+    WifiMac* wifi_mac_ = nullptr;
+    std::function<bool(const WifiFrame&)> wifi_tx_;
     bool reset_requested_ = false;
     ResetKind requested_kind_ = ResetKind::PowerOn;
     std::uint32_t requested_reason_ = 0;

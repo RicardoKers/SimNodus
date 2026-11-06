@@ -71,3 +71,11 @@ test access point is `SimNodus` with password `simnodus-wifi` (WPA2-PSK), or
 Baseline on 2026-11-05: every image stops in the PHY's full calibration
 (`failed to load RF calibration data (0x1102), falling back to full
 calibration`), which SN-265 models.
+
+Wi-Fi (E-09): `--wifi-ap SSID[@channel][,wpa2]` puts SimNodus's access point
+on the air (beacons and probe responses so far), `--wifi-log` prints every
+frame and `--wifi-pcap file.pcap` writes them for Wireshark:
+
+```text
+build/dev/apps/simnodus-emu/simnodus-emu --esp32c3 tests/experiments/esp32c3/firmware/wifi_scan.bin --ms 3500 --wifi-ap SimNodus@6 --wifi-pcap scan.pcap
+```
