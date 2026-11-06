@@ -3,9 +3,11 @@
 Date: 2026-11-05. Task: SN-250 in the [backlog](../planning/BACKLOG.md), split
 into SN-264..SN-269 below. Status: **in progress**. Decisions DE9a-DE9c, the prerequisites (SN-264),
 the PHY start-up (SN-265) and the MAC with the air (SN-266) were done on
-2026-11-05: a scan finds SimNodus's access point. SN-267 was done on
-2026-11-06: stations join open and WPA2-PSK networks and get an address by
-DHCP. The gateway (SN-268) is next. Results:
+2026-11-05: a scan finds SimNodus's access point. SN-267 and SN-268 were
+done on 2026-11-06: stations join open and WPA2-PSK networks, get an
+address by DHCP, and reach the computer and the internet through the
+gateway, which also forwards ports to them. The integration (SN-269) is
+next. Results:
 [E-09-results.md](E-09-results.md). As for [E-07](E-07-results.md),
 [E-08](E-08-plan.md) and [E-10](E-10-plan.md), the criteria below are recorded
 before any code and are not relaxed after a run: a failed criterion leads to
@@ -225,7 +227,7 @@ probe showed.
 | 2 | SN-265 PHY and RF start-up: the analog I2C master's status bits, FE/FE2, BB/NRX, power detector, calibration read-backs, PHY data in NVS; diagnostics for every new unmodelled access | `esp_wifi_init` and `esp_wifi_start` return `ESP_OK` → part of **G9a** (done 2026-11-05) |
 | 3 | SN-266 MAC core: TX slots and DMA descriptors, RX DMA ring, interrupts (MAC, PWR, BB), TSF, ACK and retry, the radio medium with channels; a frame trace exportable as pcap for Wireshark | A scan lists the virtual AP → **G9a** (done 2026-11-05 for ESP-IDF and MicroPython) |
 | 4 | SN-267 virtual access point: open, then WPA2-PSK (hardware CCMP key slots in the MAC model); DHCP, DNS; reason codes; the AP's settings in the project | Association and DHCP → **G9b** (done 2026-11-06 for open and WPA2-PSK; the board comparisons wait for the owner) |
-| 5 | SN-268 gateway and port forwarding: NAT through the library of DE9b; policy of DE9c; several boards | **G9c**, **G9d** |
+| 5 | SN-268 gateway and port forwarding: NAT through the library of DE9b; policy of DE9c; several boards | **G9c**, **G9d** (done 2026-11-06 but two boards on one air) |
 | 6 | SN-269 integration and report: the AP and gateway in the GUI and `simnodus-cli`/MCP (`wifi.*` commands), Wi-Fi examples, user guide (English and pt-BR), `E-09-results.md` | **G9e**, decision **DE9** |
 
 ## Gate G9a — radio up

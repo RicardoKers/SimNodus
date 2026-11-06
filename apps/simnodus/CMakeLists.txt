@@ -141,6 +141,7 @@ if(WIN32)
     install(FILES "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/QUICK_START.md" "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/USER_GUIDE.md"
         "${PROJECT_SOURCE_DIR}/docs/user/pt-BR/MICROCONTROLLER.md" DESTINATION pt-BR)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" DESTINATION licenses RENAME nlohmann-json-MIT.txt)
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/lwip/COPYING" DESTINATION licenses RENAME lwip-BSD-3-Clause.txt)
     # The ESP32-C3's ROM, rebuilt from Espressif's ROM ELF at run time (ADR 0106).
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/esp32c3_rev3_rom.elf" DESTINATION roms)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE" DESTINATION licenses RENAME esp-rom-elfs-Apache-2.0.txt)
@@ -167,6 +168,8 @@ else()
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/roms")
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/esp-rom-elfs/LICENSE"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses" RENAME esp-rom-elfs-Apache-2.0.txt)
+    install(FILES "${PROJECT_SOURCE_DIR}/third_party/lwip/COPYING"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/licenses" RENAME lwip-BSD-3-Clause.txt)
     install(FILES "${PROJECT_SOURCE_DIR}/third_party/optiboot/optiboot_atmega328.hex"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/simnodus/roms")
     install(DIRECTORY "${PROJECT_SOURCE_DIR}/third_party/optiboot/"

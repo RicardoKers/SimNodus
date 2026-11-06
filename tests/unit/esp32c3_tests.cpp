@@ -15,6 +15,7 @@
 #include "emu/esp32c3_rom.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/gdb_socket.hpp"
+#include "emu/host_socket.hpp"
 #include "emu/wifi_air.hpp"
 #include "emu/wifi_crypto.hpp"
 
@@ -805,6 +806,107 @@ TEST_CASE("esp32c3: WPA2 cryptography against the published test vectors (E-09, 
         wrong[4] ^= 1; // the destination is authenticated
         CHECK(!ccmp_decrypt(ccm_key.data(), wrong, back, pn));
     }
+}
+
+TEST_CASE("esp32c3: the Wi-Fi gateway carries TCP and UDP to the computer and forwards a port (E-09, SN-268)")
+{
+    // Servers on this computer: TCP answers "pong:" and what it got, UDP
+    // echoes.
+    std::string error;
+    auto tcp_server = HostSocket::listen_tcp(18461, error);
+    REQUIRE(tcp_server);
+    auto udp_server = HostSocket::open_udp(18462);
+    REQUIRE(udp_server);
+    std::unique_ptr<HostSocket> tcp_peer;
+    std::string tcp_got;
+    const auto serve = [&] {
+        if (!tcp_peer) {
+            tcp_peer = tcp_server->accept();
+        }
+        std::uint8_t buffer[64];
+        if (tcp_peer) {
+            const long n = tcp_peer->receive(buffer, sizeof(buffer));
+            if (n > 0) {
+                tcp_got.append(reinterpret_cast<const char*>(buffer), static_cast<std::size_t>(n));
+                const std::string reply = "pong:" + tcp_got;
+                tcp_peer->send(reinterpret_cast<const std::uint8_t*>(reply.data()), reply.size());
+            }
+        }
+        HostAddress from{};
+        std::uint16_t port = 0;
+        const long m = udp_server->receive_from(buffer, sizeof(buffer), from, port);
+        if (m > 0) {
+            udp_server->send_to(from, port, buffer, static_cast<std::size_t>(m));
+        }
+    };
+
+    auto python = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(python);
+    WifiApConfig config;
+    config.wpa2 = true;
+    config.gateway = true;
+    config.forwards = {WifiForward{18463, {192, 168, 4, 2}, 80}};
+    WifiAir air(config);
+    REQUIRE(air.gateway_error().empty());
+    air.attach(*python);
+    // A second gateway in the same process is refused (lwIP is global).
+    WifiAir second(config);
+    CHECK(!second.gateway_error().empty());
+
+    std::string partial;
+    const auto run = [&](std::uint64_t until) {
+        std::vector<Line> lines;
+        while (python->time_ns() < until) {
+            const auto part = run_lines(*python, std::min(until, python->time_ns() + 5'000'000), 2, partial);
+            lines.insert(lines.end(), part.begin(), part.end());
+            serve();
+        }
+        return lines;
+    };
+    run(400'000'000ull);
+    python->send(2, "import network, socket; w = network.WLAN(network.STA_IF); w.active(True); w.connect('SimNodus', 'simnodus-wifi')\r");
+    run(6'000'000'000ull);
+    // TCP and DNS: host.simnodus is the computer (192.168.4.254).
+    python->send(2, "a = socket.getaddrinfo('host.simnodus', 18461)[0][-1]; print('addr', a); s = socket.socket(); s.connect(a); s.send(b'ping'); print('tcp', s.recv(32)); s.close()\r");
+    auto lines = run(8'000'000'000ull);
+    CHECK(has(lines, "addr ('192.168.4.254', 18461)"));
+    CHECK(has(lines, "tcp b'pong:ping'"));
+    CHECK(tcp_got == "ping");
+    // UDP.
+    python->send(2, "u = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); u.sendto(b'echo', ('192.168.4.254', 18462)); print('udp', u.recvfrom(16)); u.close()\r");
+    lines = run(9'500'000'000ull);
+    CHECK(has(lines, "udp (b'echo', ('192.168.4.254', 18462))"));
+    // A server on the board, reached from the computer through port 18463.
+    python->send(2, "l = socket.socket(); l.bind(('0.0.0.0', 80)); l.listen(1); c, peer = l.accept(); print('peer', peer[0]); c.send(b'from board'); c.close(); l.close()\r");
+    run(10'000'000'000ull);
+    auto client = HostSocket::connect_tcp({127, 0, 0, 1}, 18463);
+    REQUIRE(client);
+    std::string from_board;
+    while (python->time_ns() < 13'000'000'000ull && from_board.size() < 10) {
+        lines = run(python->time_ns() + 5'000'000);
+        std::uint8_t buffer[64];
+        const long n = client->finished() > 0 ? client->receive(buffer, sizeof(buffer)) : -1;
+        if (n > 0) {
+            from_board.append(reinterpret_cast<const char*>(buffer), static_cast<std::size_t>(n));
+        }
+    }
+    CHECK(from_board == "from board");
+
+    // Without the gateway (the default) names do not resolve and nothing
+    // leaves the simulation.
+    auto offline = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(offline);
+    config.gateway = false;
+    config.forwards.clear();
+    WifiAir air2(config);
+    air2.attach(*offline);
+    std::string partial2;
+    run_lines(*offline, 400'000'000ull, 2, partial2);
+    offline->send(2, "import network, socket; w = network.WLAN(network.STA_IF); w.active(True); w.connect('SimNodus', 'simnodus-wifi')\r");
+    run_lines(*offline, 6'000'000'000ull, 2, partial2);
+    offline->send(2, "print(socket.getaddrinfo('host.simnodus', 80))\r");
+    const auto lines2 = run_lines(*offline, 7'000'000'000ull, 2, partial2);
+    CHECK(has(lines2, "OSError"));
 }
 
 TEST_CASE("esp32c3: Wi-Fi frames in a pcap file (E-09, SN-266)")

@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: MIT
 #include "wifi_network.hpp"
 
+#include "wifi_gateway.hpp"
+
 #include <algorithm>
+#include <string>
 
 namespace simnodus::emu {
 
@@ -12,6 +15,7 @@ constexpr std::uint16_t ethertype_ipv4 = 0x0800;
 constexpr std::uint16_t ethertype_arp = 0x0806;
 constexpr std::uint8_t protocol_icmp = 1;
 constexpr std::uint8_t protocol_udp = 17;
+constexpr std::uint8_t protocol_tcp = 6;
 constexpr Ipv4Address broadcast_ip{255, 255, 255, 255};
 constexpr std::uint8_t first_lease = 2;
 constexpr std::uint8_t last_lease = 20;
@@ -71,20 +75,51 @@ std::optional<Ipv4Address> WifiNetwork::lease_of(const MacAddress& station) cons
     return it->second;
 }
 
-std::vector<EtherPacket> WifiNetwork::handle(const EtherPacket& packet)
+std::vector<EtherPacket> WifiNetwork::handle(const EtherPacket& packet, std::uint64_t now_ns)
 {
     switch (packet.ethertype) {
     case ethertype_arp: return arp(packet);
-    case ethertype_ipv4: return ipv4(packet);
+    case ethertype_ipv4: return ipv4(packet, now_ns);
     default: return {};
     }
+}
+
+std::vector<EtherPacket> WifiNetwork::from_gateway()
+{
+    std::vector<EtherPacket> out;
+    if (!gateway_) {
+        return out;
+    }
+    for (std::vector<std::uint8_t>& ip : gateway_->take_to_stations()) {
+        if (ip.size() < 20) {
+            continue;
+        }
+        const Ipv4Address dst = ipv4_at(ip, 16);
+        for (const auto& [mac, address] : leases_) {
+            if (address == dst) {
+                EtherPacket packet;
+                packet.to = mac;
+                packet.from = own_;
+                packet.ethertype = ethertype_ipv4;
+                packet.payload = std::move(ip);
+                out.push_back(std::move(packet));
+                break;
+            }
+        }
+    }
+    return out;
 }
 
 std::vector<EtherPacket> WifiNetwork::arp(const EtherPacket& packet)
 {
     const std::vector<std::uint8_t>& b = packet.payload;
-    // Ethernet and IPv4, a request for the gateway's address.
-    if (b.size() < 28 || be16(b, 0) != 1 || be16(b, 2) != ethertype_ipv4 || be16(b, 6) != 1 || ipv4_at(b, 24) != gateway) {
+    // Ethernet and IPv4, a request for the gateway's address, or with the
+    // gateway on for the computer's (192.168.4.254, answered for it).
+    if (b.size() < 28 || be16(b, 0) != 1 || be16(b, 2) != ethertype_ipv4 || be16(b, 6) != 1) {
+        return {};
+    }
+    const Ipv4Address asked = ipv4_at(b, 24);
+    if (asked != gateway && !(gateway_ && asked == WifiGateway::computer)) {
         return {};
     }
     EtherPacket reply;
@@ -98,12 +133,12 @@ std::vector<EtherPacket> WifiNetwork::arp(const EtherPacket& packet)
     out.push_back(4);
     put16(out, 2); // reply
     put(out, own_);
-    put(out, gateway);
+    put(out, asked);
     out.insert(out.end(), b.begin() + 8, b.begin() + 18); // the asker's MAC and IP
     return {reply};
 }
 
-std::vector<EtherPacket> WifiNetwork::ipv4(const EtherPacket& packet)
+std::vector<EtherPacket> WifiNetwork::ipv4(const EtherPacket& packet, std::uint64_t now_ns)
 {
     const std::vector<std::uint8_t>& b = packet.payload;
     if (b.size() < 20 || (b[0] >> 4) != 4) {
@@ -117,6 +152,15 @@ std::vector<EtherPacket> WifiNetwork::ipv4(const EtherPacket& packet)
     const Ipv4Address src = ipv4_at(b, 12);
     const Ipv4Address dst = ipv4_at(b, 16);
     const std::vector<std::uint8_t> data(b.begin() + static_cast<std::ptrdiff_t>(header), b.begin() + static_cast<std::ptrdiff_t>(total));
+    // To the outside (or the computer, 192.168.4.254), and TCP to the
+    // gateway's own address (connections to forwarded ports): the gateway.
+    const bool local = dst[0] == 192 && dst[1] == 168 && dst[2] == 4 && dst != WifiGateway::computer;
+    const bool unicast = dst != broadcast_ip && dst[0] != 0 && dst[0] < 224;
+    if (gateway_ && (b[9] == protocol_udp || b[9] == protocol_tcp) && unicast
+        && (!local || (dst == gateway && b[9] == protocol_tcp))) {
+        gateway_->from_station(std::vector<std::uint8_t>(b.begin(), b.begin() + static_cast<std::ptrdiff_t>(total)), now_ns);
+        return {};
+    }
     if (b[9] == protocol_udp && data.size() >= 8) {
         const std::uint16_t src_port = be16(data, 0);
         const std::uint16_t dst_port = be16(data, 2);
@@ -233,11 +277,40 @@ std::vector<EtherPacket> WifiNetwork::dns(const EtherPacket& packet, const Ipv4A
     if (query.size() < 12 || (query[2] & 0x80u)) {
         return {};
     }
-    // "No such name" with the question repeated.
-    std::vector<std::uint8_t> r(query.begin(), query.end());
+    // The first question: its name and type.
+    std::string name;
+    std::size_t at = 12;
+    while (at < query.size() && query[at] != 0 && !(query[at] & 0xC0u)) {
+        const std::size_t length = query[at];
+        if (at + 1 + length > query.size()) {
+            return {};
+        }
+        if (!name.empty()) {
+            name += '.';
+        }
+        name.append(query.begin() + static_cast<std::ptrdiff_t>(at + 1), query.begin() + static_cast<std::ptrdiff_t>(at + 1 + length));
+        at += 1 + length;
+    }
+    if (at + 5 > query.size() || query[at] != 0) {
+        return {};
+    }
+    const std::uint16_t type = static_cast<std::uint16_t>((query[at + 1] << 8) | query[at + 2]);
+    const std::size_t question_end = at + 5;
+    std::optional<Ipv4Address> address;
+    if (gateway_) {
+        address = gateway_->resolve(name);
+    }
+    std::vector<std::uint8_t> r(query.begin(), query.begin() + static_cast<std::ptrdiff_t>(question_end));
     r[2] = static_cast<std::uint8_t>(0x80u | (query[2] & 0x01u)); // response, RD as asked
-    r[3] = 0x83;                                                  // RA, NXDOMAIN
-    r[6] = r[7] = r[8] = r[9] = r[10] = r[11] = 0;                // no answers or other records
+    r[3] = address ? 0x80 : 0x83;                                  // RA; no error, or NXDOMAIN
+    r[4] = 0;
+    r[5] = 1;                                                      // the question
+    r[6] = r[7] = r[8] = r[9] = r[10] = r[11] = 0;
+    if (address && type == 1) { // an A record
+        r[7] = 1;
+        r.insert(r.end(), {0xC0, 0x0C, 0, 1, 0, 1, 0, 0, 0, 60, 0, 4});
+        put(r, *address);
+    }
     return {udp(packet.from, from, 53, port, r)};
 }
 

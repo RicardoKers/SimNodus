@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-06, SN-268)
+
+- The Wi-Fi gateway to the computer's network (E-09), off by default: TCP from the boards ends in **lwIP 2.2.1** (vendored unmodified in `third_party/lwip`, BSD-3-Clause, notice in the package) and continues on the computer's sockets; UDP and DNS go through the computer; `host.simnodus` (192.168.4.254) is the computer itself; forwarded ports listen on 127.0.0.1 and reach a board's server. Checked: an Arduino sketch fetching a page from the computer, ESP-IDF's SNTP example over the internet, curl to an Arduino web server on the board. `simnodus-emu --wifi-gateway` and `--wifi-forward HOSTPORT=STATIONIP:PORT`. Not in the application yet (SN-269).
+
 ### Added (2026-11-06, SN-267, WPA2)
 
 - WPA2-PSK on SimNodus's virtual access point (E-09): the 4-way handshake with our own cryptography (`wifi_crypto`: SHA-1, HMAC, PBKDF2, the 802.11 PRF, AES-128/256, key wrap, CCM/CCMP, checked against the published vectors), CCMP data frames, and a deauthentication with reason 15 after a wrong passphrase. The ESP32-C3 model gains the MAC's hardware CCMP (the key entries the driver installs) and the **AES accelerator** (typical and DMA modes through GDMA: ECB, CBC, OFB, CTR, CFB8, CFB128). The unmodified ESP-IDF station example, Arduino's `WiFi.begin()` and MicroPython's `WLAN.connect()` join with the passphrase and get 192.168.4.2. `simnodus-emu --wifi-ap SSID[@channel],wpa2[=passphrase]`.
