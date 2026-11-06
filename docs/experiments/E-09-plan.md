@@ -3,8 +3,9 @@
 Date: 2026-11-05. Task: SN-250 in the [backlog](../planning/BACKLOG.md), split
 into SN-264..SN-269 below. Status: **in progress**. Decisions DE9a-DE9c, the prerequisites (SN-264),
 the PHY start-up (SN-265) and the MAC with the air (SN-266) were done on
-2026-11-05: a scan finds SimNodus's access point. SN-267 (association, WPA2,
-DHCP) is next. Results:
+2026-11-05: a scan finds SimNodus's access point. SN-267 started on
+2026-11-06: a station joins the open network and gets an address by DHCP;
+WPA2 is next. Results:
 [E-09-results.md](E-09-results.md). As for [E-07](E-07-results.md),
 [E-08](E-08-plan.md) and [E-10](E-10-plan.md), the criteria below are recorded
 before any code and are not relaxed after a run: a failed criterion leads to

@@ -31,7 +31,7 @@ std::uint64_t wifi_airtime_ns(std::size_t bytes)
     return 192'000 + (bytes + 4) * 8'000;
 }
 
-WifiAir::WifiAir(const WifiApConfig& ap) : ap_(ap), next_beacon_ns_(beacon_interval_ns / 2) {}
+WifiAir::WifiAir(const WifiApConfig& ap) : ap_(ap), network_(ap.bssid), next_beacon_ns_(beacon_interval_ns / 2) {}
 
 WifiAir::~WifiAir()
 {
@@ -73,6 +73,16 @@ bool WifiAir::transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame)
         return false;
     }
     const bool to_ap = std::equal(ap_.bssid.begin(), ap_.bssid.end(), b.begin() + 4);
+    MacAddress station{};
+    std::copy(b.begin() + 10, b.begin() + 16, station.begin());
+    if (to_ap) {
+        if ((b[0] & 0x0Cu) == 0x00) {
+            management(frame, station);
+        } else if ((b[0] & 0x0Cu) == 0x08) {
+            data(frame, station);
+        }
+        return true; // the access point acknowledges what is addressed to it
+    }
     if (b[0] == 0x40) { // probe request
         // Answered when it asks for any network or for this SSID.
         bool asked = true;
@@ -85,11 +95,104 @@ bool WifiAir::transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame)
         if (asked) {
             std::array<std::uint8_t, 6> to{};
             std::copy(b.begin() + 10, b.begin() + 16, to.begin());
-            const std::uint64_t start = frame.end_ns + response_delay_ns;
-            send(probe_response(to, start / 1000), start, nullptr);
+            reply(probe_response(to, (frame.end_ns + response_delay_ns) / 1000), frame.end_ns);
         }
     }
-    return to_ap; // the access point acknowledges what is addressed to it
+    return false;
+}
+
+bool WifiAir::associated(const MacAddress& station) const
+{
+    const auto it = stations_.find(station);
+    return it != stations_.end() && it->second.associated;
+}
+
+void WifiAir::reply(std::vector<std::uint8_t> bytes, std::uint64_t after_ns)
+{
+    const std::uint64_t start = std::max(after_ns, air_free_ns_) + response_delay_ns;
+    air_free_ns_ = start + wifi_airtime_ns(bytes.size());
+    send(std::move(bytes), start, nullptr);
+}
+
+void WifiAir::management(const Esp32C3::WifiFrame& frame, const MacAddress& station)
+{
+    const std::vector<std::uint8_t>& b = frame.bytes;
+    const std::uint8_t subtype = b[0] >> 4;
+    Station& s = stations_[station];
+    if (subtype == 11 && b.size() >= 30) { // authentication
+        const std::uint16_t algorithm = static_cast<std::uint16_t>(b[24] | (b[25] << 8));
+        const std::uint16_t sequence = static_cast<std::uint16_t>(b[26] | (b[27] << 8));
+        if (sequence != 1) {
+            return;
+        }
+        std::vector<std::uint8_t> out;
+        management_header(out, 11, station);
+        put16(out, algorithm);
+        put16(out, 2);
+        put16(out, algorithm == 0 ? 0 : 13); // success, or "algorithm not supported"
+        s.authenticated = algorithm == 0;
+        s.associated = false;
+        reply(std::move(out), frame.end_ns);
+    } else if ((subtype == 0 || subtype == 2) && b.size() >= 28) { // (re)association request
+        std::vector<std::uint8_t> out;
+        management_header(out, subtype == 0 ? 1 : 3, station);
+        put16(out, static_cast<std::uint16_t>(0x0401 | (ap_.wpa2 ? 0x0010 : 0)));
+        if (!s.authenticated) {
+            put16(out, 9); // status: not authenticated
+            put16(out, 0);
+        } else {
+            if (s.aid == 0) {
+                s.aid = static_cast<std::uint16_t>(stations_.size());
+            }
+            s.associated = true;
+            put16(out, 0); // success
+            put16(out, static_cast<std::uint16_t>(0xC000 | s.aid));
+            element(out, 1, {0x82, 0x84, 0x8B, 0x96, 0x24, 0x30, 0x48, 0x6C});
+            element(out, 50, {0x0C, 0x12, 0x18, 0x60});
+        }
+        reply(std::move(out), frame.end_ns);
+    } else if (subtype == 10 || subtype == 12) { // disassociation, deauthentication
+        s.associated = false;
+        s.authenticated = subtype == 10 && s.authenticated;
+    }
+}
+
+void WifiAir::data(const Esp32C3::WifiFrame& frame, const MacAddress& station)
+{
+    const std::vector<std::uint8_t>& b = frame.bytes;
+    // To the distribution system, not protected, from an associated station.
+    if ((b[1] & 0x03u) != 0x01 || (b[1] & 0x40u) || !associated(station)) {
+        return;
+    }
+    const std::size_t header = (b[0] & 0x80u) ? 26 : 24; // QoS data has a QoS control field
+    if ((b[0] & 0x40u) || b.size() < header + 8 || b[header] != 0xAA || b[header + 1] != 0xAA || b[header + 2] != 0x03) {
+        return; // null data, or not LLC/SNAP
+    }
+    EtherPacket packet;
+    std::copy(b.begin() + 16, b.begin() + 22, packet.to.begin()); // address 3: the destination
+    packet.from = station;
+    packet.ethertype = static_cast<std::uint16_t>((b[header + 6] << 8) | b[header + 7]);
+    packet.payload.assign(b.begin() + static_cast<std::ptrdiff_t>(header + 8), b.end());
+    for (const EtherPacket& answer : network_.handle(packet)) {
+        reply(data_frame(answer), frame.end_ns);
+    }
+}
+
+std::vector<std::uint8_t> WifiAir::data_frame(const EtherPacket& packet)
+{
+    std::vector<std::uint8_t> out;
+    out.push_back(0x08); // data
+    out.push_back(0x02); // from the distribution system
+    put16(out, 0);
+    out.insert(out.end(), packet.to.begin(), packet.to.end());
+    out.insert(out.end(), ap_.bssid.begin(), ap_.bssid.end());
+    out.insert(out.end(), packet.from.begin(), packet.from.end());
+    put16(out, static_cast<std::uint16_t>(sequence_++ << 4));
+    out.insert(out.end(), {0xAA, 0xAA, 0x03, 0x00, 0x00, 0x00});
+    out.push_back(static_cast<std::uint8_t>(packet.ethertype >> 8));
+    out.push_back(static_cast<std::uint8_t>(packet.ethertype));
+    out.insert(out.end(), packet.payload.begin(), packet.payload.end());
+    return out;
 }
 
 void WifiAir::send(std::vector<std::uint8_t> bytes, std::uint64_t start_ns, const Esp32C3* skip)

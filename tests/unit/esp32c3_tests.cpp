@@ -505,6 +505,140 @@ TEST_CASE("esp32c3: the Wi-Fi MAC sends probe requests and the scan finds SimNod
     CHECK(has(lines5, "wifi:state: init -> auth (0xb0)"));
 }
 
+TEST_CASE("esp32c3: a station joins the open access point and gets an address by DHCP (E-09, SN-267)")
+{
+    WifiApConfig config;
+    config.ssid = "SimNodus-open";
+    // ESP-IDF's station example.
+    auto board = boot(read_file(firmware("wifi_station_open.bin")));
+    REQUIRE(board);
+    WifiAir air(config);
+    air.attach(*board);
+    std::string partial;
+    const auto lines = run_lines(*board, 3'000'000'000ull, 0, partial);
+    CHECK(has(lines, "wifi:state: auth -> assoc (0x0)"));
+    CHECK(has(lines, "wifi:state: assoc -> run (0x10)"));
+    CHECK(has(lines, "wifi:connected with SimNodus-open, aid = 1, channel 6, BW20, bssid = 02:53:4e:00:00:01"));
+    CHECK(has(lines, "sta ip: 192.168.4.2, mask: 255.255.255.0, gw: 192.168.4.1"));
+    CHECK(has(lines, "wifi station: connected to ap SSID:SimNodus-open"));
+    CHECK(air.associated(board->wifi_address()));
+    const auto lease = air.network().lease_of(board->wifi_address());
+    REQUIRE(lease);
+    CHECK((*lease == Ipv4Address{192, 168, 4, 2}));
+
+    // MicroPython's WLAN.connect().
+    auto python = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(python);
+    WifiAir air2(config);
+    air2.attach(*python);
+    std::string partial2;
+    run_lines(*python, 400'000'000ull, 2, partial2);
+    python->send(2, "import network; w = network.WLAN(network.STA_IF); w.active(True); w.connect('SimNodus-open')\r");
+    run_lines(*python, 6'000'000'000ull, 2, partial2);
+    python->send(2, "print(w.isconnected(), w.ifconfig())\r");
+    const auto lines2 = run_lines(*python, 6'500'000'000ull, 2, partial2);
+    CHECK(has(lines2, "True ('192.168.4.2', '255.255.255.0', '192.168.4.1', '192.168.4.1')"));
+}
+
+namespace {
+
+// An IPv4 packet from 192.168.4.2 to `dst` with `protocol` and `data`.
+EtherPacket ipv4_packet(const Ipv4Address& dst, std::uint8_t protocol, const std::vector<std::uint8_t>& data)
+{
+    EtherPacket p;
+    p.to = {0x02, 0x53, 0x4E, 0x00, 0x00, 0x01};
+    p.from = {0x34, 0x85, 0x18, 0x00, 0xC3, 0x01};
+    p.ethertype = 0x0800;
+    p.payload = {0x45, 0, 0, static_cast<std::uint8_t>(20 + data.size()), 0, 1, 0, 0, 64, protocol, 0, 0,
+        192, 168, 4, 2, dst[0], dst[1], dst[2], dst[3]};
+    p.payload.insert(p.payload.end(), data.begin(), data.end());
+    return p;
+}
+
+} // namespace
+
+TEST_CASE("esp32c3: the access point's network answers ping, DNS and a DHCP renewal (E-09, SN-267)")
+{
+    WifiNetwork network({0x02, 0x53, 0x4E, 0x00, 0x00, 0x01});
+    // Ping to the gateway: an echo reply with a valid checksum.
+    std::vector<std::uint8_t> echo{8, 0, 0, 0, 0x12, 0x34, 0, 1, 'h', 'i'};
+    const std::uint16_t sum = internet_checksum(echo.data(), echo.size());
+    echo[2] = static_cast<std::uint8_t>(sum >> 8);
+    echo[3] = static_cast<std::uint8_t>(sum);
+    auto out = network.handle(ipv4_packet(WifiNetwork::gateway, 1, echo));
+    REQUIRE(out.size() == 1);
+    const std::vector<std::uint8_t>& reply = out[0].payload;
+    REQUIRE(reply.size() == 30);
+    CHECK(reply[9] == 1);
+    CHECK(reply[16] == 192);
+    CHECK(reply[19] == 2); // to 192.168.4.2
+    CHECK(reply[20] == 0); // echo reply
+    CHECK(internet_checksum(reply.data(), 20) == 0);
+    CHECK(internet_checksum(reply.data() + 20, 10) == 0);
+    CHECK(reply[29] == 'i');
+    // Ping elsewhere: no answer (no gateway to the computer yet).
+    CHECK(network.handle(ipv4_packet({8, 8, 8, 8}, 1, echo)).empty());
+
+    // DNS: "no such name", with the question repeated.
+    std::vector<std::uint8_t> dns{0, 53, 0, 53, 0, 0, 0, 0, 0xAB, 0xCD, 0x01, 0x00, 0, 1, 0, 0, 0, 0, 0, 0,
+        4, 't', 'e', 's', 't', 0, 0, 1, 0, 1};
+    dns[0] = 0xC0;
+    dns[1] = 0x00; // source port 49152
+    dns[5] = static_cast<std::uint8_t>(dns.size());
+    out = network.handle(ipv4_packet(WifiNetwork::gateway, 17, dns));
+    REQUIRE(out.size() == 1);
+    const std::vector<std::uint8_t>& answer = out[0].payload;
+    REQUIRE(answer.size() == 20 + dns.size());
+    CHECK(answer[20] == 0);
+    CHECK(answer[21] == 53);
+    CHECK(answer[22] == 0xC0); // back to the asking port
+    CHECK(answer[28] == 0xAB);
+    CHECK(answer[29] == 0xCD);
+    CHECK(answer[30] == 0x81);       // response, recursion desired
+    CHECK((answer[31] & 0x0F) == 3); // NXDOMAIN
+    CHECK(answer[33] == 1);          // one question
+    CHECK(answer[35] == 0);          // no answers
+
+    // DHCP: DISCOVER -> OFFER, REQUEST of another address -> NAK.
+    const auto dhcp = [](std::uint8_t type, std::optional<Ipv4Address> requested) {
+        std::vector<std::uint8_t> m(240, 0);
+        m[0] = 1;
+        m[1] = 1;
+        m[2] = 6;
+        m[4] = 0x11; // xid
+        const std::uint8_t chaddr[6] = {0x34, 0x85, 0x18, 0x00, 0xC3, 0x01};
+        std::copy(chaddr, chaddr + 6, m.begin() + 28);
+        m[236] = 99;
+        m[237] = 130;
+        m[238] = 83;
+        m[239] = 99;
+        m.insert(m.end(), {53, 1, type});
+        if (requested) {
+            m.insert(m.end(), {50, 4, (*requested)[0], (*requested)[1], (*requested)[2], (*requested)[3]});
+        }
+        m.push_back(255);
+        std::vector<std::uint8_t> u{0, 68, 0, 67, static_cast<std::uint8_t>((8 + m.size()) >> 8), static_cast<std::uint8_t>(8 + m.size()), 0, 0};
+        u.insert(u.end(), m.begin(), m.end());
+        auto p = ipv4_packet({255, 255, 255, 255}, 17, u);
+        p.payload[2] = static_cast<std::uint8_t>(p.payload.size() >> 8);
+        p.payload[3] = static_cast<std::uint8_t>(p.payload.size());
+        return p;
+    };
+    out = network.handle(dhcp(1, std::nullopt));
+    REQUIRE(out.size() == 1);
+    CHECK(out[0].payload[28 + 16] == 192);
+    CHECK(out[0].payload[28 + 19] == 2);     // yiaddr 192.168.4.2
+    CHECK(out[0].payload[28 + 240 + 2] == 2); // OFFER
+    out = network.handle(dhcp(3, Ipv4Address{192, 168, 4, 9}));
+    REQUIRE(out.size() == 1);
+    CHECK(out[0].payload[28 + 240 + 2] == 6); // NAK
+    CHECK(!network.lease_of({0x34, 0x85, 0x18, 0x00, 0xC3, 0x01}));
+    out = network.handle(dhcp(3, Ipv4Address{192, 168, 4, 2}));
+    REQUIRE(out.size() == 1);
+    CHECK(out[0].payload[28 + 240 + 2] == 5); // ACK
+    CHECK(network.lease_of({0x34, 0x85, 0x18, 0x00, 0xC3, 0x01}));
+}
+
 TEST_CASE("esp32c3: Wi-Fi frames in a pcap file (E-09, SN-266)")
 {
     const fs::path path = fs::temp_directory_path() / "simnodus_wifi_test.pcap";

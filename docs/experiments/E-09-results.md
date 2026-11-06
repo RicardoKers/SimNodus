@@ -169,3 +169,51 @@ CCA are not modelled.
 - The air in the application: today only `simnodus-emu` and the tests
   attach one.
 - Several boards on one air need a shared clock between their machines.
+
+## SN-267, first part: an open network with DHCP (2026-11-06)
+
+**Result.** Against an open access point, the unmodified ESP-IDF station
+example joins and gets an address:
+
+- `init -> auth -> assoc -> run`, then
+  `connected with SimNodus-open, aid = 1, channel 6, BW20`;
+- `sta ip: 192.168.4.2, mask: 255.255.255.0, gw: 192.168.4.1`.
+
+MicroPython's `WLAN.connect('SimNodus-open')` gives `isconnected()` True and
+`ifconfig()` `('192.168.4.2', '255.255.255.0', '192.168.4.1', '192.168.4.1')`.
+
+lwIP's duplicate-address probes (ARP) take about 1 s of virtual time before
+the address is announced, as on a board. The station then starts power save
+(`pm start, type: 1`) and sends null-data frames with the PM bit; the frames
+still reach it, because the MAC model receives while the station "sleeps".
+
+**The access point.** `WifiAir` now:
+
+- answers open-system authentication and (re)association (AID from 1);
+- forgets a station on deauthentication or disassociation;
+- passes unprotected data frames from associated stations (LLC/SNAP, QoS
+  data included) to its network, and sends the answers as data frames from
+  the distribution system;
+- spaces its own frames so that they never overlap.
+
+`WifiNetwork` (`src/emu/wifi_network.*`) is the network behind it:
+
+- 192.168.4.1/24;
+- a DHCP server for 192.168.4.2-20: OFFER, ACK, NAK for another address,
+  RELEASE;
+- ARP and ping for the gateway;
+- DNS answered with "no such name" until the gateway of SN-268 resolves
+  names.
+
+**Tests.** `emu-esp32c3` has two new cases:
+
+- the ESP-IDF station and MicroPython joining the open network, with the
+  lease checked;
+- ping, DNS and the DHCP messages, tested directly on the network.
+
+**Gate G9b status.**
+
+- G9b.1 is met for the open network on ESP-IDF and MicroPython. The Arduino
+  sketches use the WPA2 network.
+- WPA2 comes next: the 4-way handshake, the MAC's CCMP key slots and the
+  wrong-password reason code (G9b.2, G9b.4).
