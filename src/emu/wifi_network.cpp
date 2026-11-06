@@ -75,8 +75,34 @@ std::optional<Ipv4Address> WifiNetwork::lease_of(const MacAddress& station) cons
     return it->second;
 }
 
+std::optional<MacAddress> WifiNetwork::station_of(const Ipv4Address& address) const
+{
+    if (const auto it = neighbors_.find(address); it != neighbors_.end()) {
+        return it->second;
+    }
+    for (const auto& [mac, leased] : leases_) {
+        if (leased == address) {
+            return mac;
+        }
+    }
+    return std::nullopt;
+}
+
 std::vector<EtherPacket> WifiNetwork::handle(const EtherPacket& packet, std::uint64_t now_ns)
 {
+    // Learn which station uses which address, as an access point does from
+    // the traffic: a fixed address (WiFi.config) has no lease.
+    const auto learn = [this, &packet](const Ipv4Address& address) {
+        if (address[0] == 192 && address[1] == 168 && address[2] == 4 && address != gateway
+            && address != Ipv4Address{192, 168, 4, 255} && address != Ipv4Address{192, 168, 4, 0}) {
+            neighbors_[address] = packet.from;
+        }
+    };
+    if (packet.ethertype == ethertype_ipv4 && packet.payload.size() >= 20) {
+        learn(ipv4_at(packet.payload, 12));
+    } else if (packet.ethertype == ethertype_arp && packet.payload.size() >= 28) {
+        learn(ipv4_at(packet.payload, 14));
+    }
     switch (packet.ethertype) {
     case ethertype_arp: return arp(packet);
     case ethertype_ipv4: return ipv4(packet, now_ns);
@@ -94,17 +120,13 @@ std::vector<EtherPacket> WifiNetwork::from_gateway()
         if (ip.size() < 20) {
             continue;
         }
-        const Ipv4Address dst = ipv4_at(ip, 16);
-        for (const auto& [mac, address] : leases_) {
-            if (address == dst) {
-                EtherPacket packet;
-                packet.to = mac;
-                packet.from = own_;
-                packet.ethertype = ethertype_ipv4;
-                packet.payload = std::move(ip);
-                out.push_back(std::move(packet));
-                break;
-            }
+        if (const auto station = station_of(ipv4_at(ip, 16))) {
+            EtherPacket packet;
+            packet.to = *station;
+            packet.from = own_;
+            packet.ethertype = ethertype_ipv4;
+            packet.payload = std::move(ip);
+            out.push_back(std::move(packet));
         }
     }
     return out;
