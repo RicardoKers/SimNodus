@@ -46,3 +46,28 @@ build/dev/apps/simnodus-emu/simnodus-emu --esp32c3 tests/experiments/esp32c3/fir
 GPIO=0|1@ms` sets a pad's level from outside, `--trace-io` prints every
 peripheral register access with the function at the PC, `--flash-out file`
 saves the flash at the end (pass it back as the image to continue).
+
+## Wi-Fi test material (E-09)
+
+For the [E-09 plan](../../../docs/experiments/E-09-plan.md) (SN-264). The
+test access point is `SimNodus` with password `simnodus-wifi` (WPA2-PSK), or
+`SimNodus-open` (open). ESP-IDF v5.5.2 with esp32-wifi-lib
+`01d52d9e69032c486015dc28b08c3bf6aaf348a9`; each example's own
+`sdkconfig.defaults` gets the lines named here.
+
+| File | What | SHA-256 | Licence |
+|---|---|---|---|
+| `firmware/wifi_scan.bin` | ESP-IDF `examples/wifi/scan`, default configuration | `6c0e5cd587740a0680bfe820bfe9c55efef57ec3a6fddf4b50ac8a6be450b0f2` | Apache-2.0 (Espressif) |
+| `firmware/wifi_station_wpa2.bin` | ESP-IDF `examples/wifi/getting_started/station` with `CONFIG_ESP_WIFI_SSID="SimNodus"`, `CONFIG_ESP_WIFI_PASSWORD="simnodus-wifi"`, `CONFIG_ESP_WIFI_AUTH_WPA2_PSK=y` | `dbf5437e0b0b652caa3cb400d8ed6d69d46a08168fdba23acec2a46f70b838cd` | Apache-2.0 (Espressif) |
+| `firmware/wifi_station_open.bin` | The same example with `CONFIG_ESP_WIFI_SSID="SimNodus-open"`, `CONFIG_ESP_WIFI_PASSWORD=""`, `CONFIG_ESP_WIFI_AUTH_OPEN=y` | `515c622b8ae5fbeebefe2dc673282158e556d29385f7c8498ef0b342799be2da` | Apache-2.0 (Espressif) |
+| `firmware/wifi_http_server.bin` | ESP-IDF `examples/protocols/http_server/simple` with `CONFIG_EXAMPLE_CONNECT_WIFI=y`, `CONFIG_EXAMPLE_CONNECT_ETHERNET=n`, `CONFIG_EXAMPLE_WIFI_SSID="SimNodus"`, `CONFIG_EXAMPLE_WIFI_PASSWORD="simnodus-wifi"` | `b1f66fbe7d96263b90aecf6c4ee3d306754ce426a9fd3b39d622e34c790fef92` | Apache-2.0 (Espressif) |
+| `firmware/wifi_sntp.bin` | ESP-IDF `examples/protocols/sntp` with the same four lines (time server `pool.ntp.org`, the default) | `a115e970ccb8acbd944e07c50e00e6290ab617ee28f305787d51ccee31efea06` | Apache-2.0 (Espressif) |
+| `firmware/wifi_udp_server.bin` | ESP-IDF `examples/protocols/sockets/udp_server` (port 3333) with the same four lines | `2e153300141d0b1524503e193cfef5bdbe87d7ed91bb057952ce0c66d970a930` | Apache-2.0 (Espressif) |
+| `firmware/arduino_wifi_client.bin` | `wifi/arduino_wifi_client` (ours): joins `SimNodus`, fetches `http://host.simnodus/` every 5 s; built as `arduino_serial_blink.bin` below | `ce423b7b181099324851066bbae28959852296f74c67163261c0746176af16f5` | MIT (the sketch), LGPL-2.1 (Arduino-ESP32 core), Apache-2.0 (ESP-IDF) |
+| `firmware/arduino_wifi_webserver.bin` | `wifi/arduino_wifi_webserver` (ours): joins `SimNodus`, serves `/` and `/led?on=0\|1` (GPIO8) on port 80 | `7e9c1c50194f36f027d4dde4e24ffcdf7cd7bd24cdbc03f01b7ad8657df324ee` | MIT (the sketch), LGPL-2.1 (Arduino-ESP32 core), Apache-2.0 (ESP-IDF) |
+
+`wifi/micropython/` holds scripts (ours, MIT) for the MicroPython image:
+`wifi_scan.py` (G9a), `wifi_http.py` (G9b, G9c) and `wifi_server.py` (G9d).
+Baseline on 2026-11-05: every image stops in the PHY's full calibration
+(`failed to load RF calibration data (0x1102), falling back to full
+calibration`), which SN-265 models.

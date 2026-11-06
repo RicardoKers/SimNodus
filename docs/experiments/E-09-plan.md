@@ -1,8 +1,8 @@
 # E-09: Wi-Fi for the ESP32-C3 — plan
 
 Date: 2026-11-05. Task: SN-250 in the [backlog](../planning/BACKLOG.md), split
-into SN-264..SN-269 below. Status: **plan, waiting for the owner's decisions
-DE9a-DE9c**; no emulator code yet. As for [E-07](E-07-results.md),
+into SN-264..SN-269 below. Status: **prerequisites done (SN-264, 2026-11-05)**; decisions DE9a-DE9c
+taken on 2026-11-05; no emulator code yet, SN-265 (PHY) is next. As for [E-07](E-07-results.md),
 [E-08](E-08-plan.md) and [E-10](E-10-plan.md), the criteria below are recorded
 before any code and are not relaxed after a run: a failed criterion leads to
 a recorded decision.
@@ -139,11 +139,85 @@ MAC work. Speed for comparison: the same run, idle at the REPL, reaches
    - Nothing is downloaded, and nothing listens while the simulation is
      stopped.
 
+## Decisions (2026-11-05)
+
+The owner accepted the recommended defaults on 2026-11-05 and asked to start
+SN-264. DE9b's two choices were worked out in SN-264, after that answer; they
+may still change before the package that needs them (crypto in SN-267, TCP/IP
+in SN-268).
+
+- **DE9a, scope and order.** Station mode first. SoftAP and ESP-NOW come
+  after DE9. E-09 starts now; the real-chip comparisons of the AVR and
+  ESP32-C3 tracks are done when the chips and boards are at hand.
+- **DE9b, libraries.**
+  - **Crypto:** our own code (SHA-1, HMAC-SHA1, PBKDF2, the 802.11 PRF, AES,
+    AES key wrap, CCMP), checked against the IEEE 802.11 and NIST vectors.
+    It is small, and `src/emu/sha.cpp` exists already. Mbed TLS (Apache-2.0
+    option of its dual licence) is the fallback.
+  - **TCP/IP:** **lwIP** (BSD-3-Clause, no dependencies, builds with MSVC and
+    GCC). The tun2socks gateways end a device's TCP the same way. libslirp is
+    rejected because it needs GLib (LGPL-2.1, built with Meson). Our own TCP
+    is rejected as too risky. The lwIP release is pinned and vendored in
+    `third_party/lwip` with SN-268.
+- **DE9c, network policy.**
+  - The gateway is off by default. Turning it on is a project property, with
+    a warning that the firmware gets the computer's network.
+  - The first run of such a project on a computer asks for confirmation. The
+    answer is kept in the local settings, never in the project file, so a
+    project received from someone else does not get the network just by being
+    opened and run.
+  - When on, the gateway reaches what the computer reaches: the internet, the
+    LAN, and the computer itself under the name `host.simnodus`.
+  - Forwarded ports listen on 127.0.0.1 only, unless the user picks another
+    address. Nothing listens while the simulation is stopped, and nothing is
+    downloaded.
+
+## Prerequisite results (SN-264, 2026-11-05)
+
+**Pinned libraries.** ESP-IDF v5.5.2 with `components/esp_wifi/lib`
+(esp32-wifi-lib) at commit `01d52d9e69032c486015dc28b08c3bf6aaf348a9`
+(2025-12-24). PHY library `phy_version 1232,d493f299,Aug 25 2025`, as the
+images print. Arduino-ESP32 3.3.12 and MicroPython v1.29.0 are on ESP-IDF
+v5.5.x.
+
+**Test images.** These are in `tests/experiments/esp32c3/firmware`, with
+their SHA-256 and build settings in the
+[test material README](../../tests/experiments/esp32c3/README.md):
+
+- six ESP-IDF v5.5.2 examples: `wifi/scan`, `getting_started/station` (open
+  and WPA2-PSK), `http_server/simple`, `sntp` and `sockets/udp_server`;
+- two Arduino sketches of ours: a `WiFiClient` and a `WebServer`;
+- three MicroPython scripts of ours, for the MicroPython image already there.
+
+The test access point is `SimNodus` with password `simnodus-wifi` (WPA2-PSK),
+and `SimNodus-open` (open).
+
+**Baseline.** Every ESP-IDF image boots, prints `wifi_init` and
+`phy_init: phy_version 1232`, then
+`failed to load RF calibration data (0x1102), falling back to full calibration`,
+and stays in the full calibration; 3 s of virtual time were observed. Both
+Arduino sketches stop after `WiFi.begin` in the same place. The first
+obstacle is the PHY calibration for all three frameworks, as the MicroPython
+probe showed.
+
+**Licences.**
+
+| Source | Licence | Use in E-09 |
+|---|---|---|
+| esp32-wifi-lib blobs inside the images | Apache-2.0 (Espressif) | Run as test material |
+| esp32-open-mac (`esp32-open-mac/esp32-open-mac`) | MIT; its licence README states that the code is a clean rewrite and reverse engineering of the Apache-2.0 blobs | May be read and reused, with its notice |
+| esp32-open-mac's QEMU fork | GPL-2.0 (QEMU) | Read its documentation and observe its behaviour; never read its model's source while writing ours; never copy it |
+| lcgamboa's QEMU fork | GPL-2.0 (QEMU) | Test-only oracle under the same rule; built only if a step needs it |
+| arXiv 2501.17684 | Paper | Read as documentation |
+| lwIP | BSD-3-Clause | Vendored for the gateway (SN-268) |
+| libslirp | BSD-3-Clause, but needs GLib (LGPL-2.1) | Not used |
+| Mbed TLS | Apache-2.0 OR GPL-2.0-or-later | Fallback for crypto, under Apache-2.0 |
+
 ## Work packages
 
 | # | Package | Done when |
 |---|---|---|
-| 1 | SN-264 prerequisites: pinned images, licences, DE9b and DE9c taken | Recorded in this plan |
+| 1 | SN-264 prerequisites: pinned images, licences, DE9b and DE9c taken | Recorded in this plan (done 2026-11-05) |
 | 2 | SN-265 PHY and RF start-up: the analog I2C master's status bits, FE/FE2, BB/NRX, power detector, calibration read-backs, PHY data in NVS; diagnostics for every new unmodelled access | `esp_wifi_init` and `esp_wifi_start` return `ESP_OK` → part of **G9a** |
 | 3 | SN-266 MAC core: TX slots and DMA descriptors, RX DMA ring, interrupts (MAC, PWR, BB), TSF, ACK and retry, the radio medium with channels; a frame trace exportable as pcap for Wireshark | A scan lists the virtual AP → **G9a** |
 | 4 | SN-267 virtual access point: open, then WPA2-PSK (hardware CCMP key slots in the MAC model); DHCP, DNS; reason codes; the AP's settings in the project | Association and DHCP → **G9b** |
@@ -203,7 +277,7 @@ MAC work. Speed for comparison: the same run, idle at the REPL, reaches
 - **Only G9e.2 or G9a.3 fail (speed):** one more week for performance, then
   a review.
 
-## Decisions for the owner before code
+## Decisions for the owner before code (taken 2026-11-05, see above)
 
 - **DE9a: scope and order.** Station first; SoftAP and ESP-NOW after DE9.
   Is this the right priority against the real-chip comparisons of the AVR and

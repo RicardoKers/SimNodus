@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-05, SN-264)
+
+- Wi-Fi test material for experiment E-09 in `tests/experiments/esp32c3`: six unmodified ESP-IDF v5.5.2 examples (scan, station open and WPA2-PSK, HTTP server, SNTP, UDP server), two Arduino-ESP32 sketches (`WiFiClient`, `WebServer`) and three MicroPython scripts, with their SHA-256 and build settings. The E-09 plan records the owner's decisions (station first; our own WPA2 crypto; lwIP for the gateway; the gateway off by default and confirmed on a project's first run on a computer), the licences of the sources and the baseline: every image stops in the PHY's full calibration. Nothing changes in the application.
+
 ### Added (2026-11-05, SN-250 plan)
 
 - Plan of experiment E-09, Wi-Fi for the ESP32-C3 (`docs/experiments/E-09-plan.md`): the question, a probe of the official MicroPython image (its `WLAN.active(True)` waits in the ROM's analog I2C set-up, before any MAC register), the oracles and sources, the predeclared gates G9a-G9e, the owner's decisions DE9a-DE9c and tasks SN-264..SN-269. No emulator code yet.
