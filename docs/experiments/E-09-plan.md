@@ -1,8 +1,10 @@
 # E-09: Wi-Fi for the ESP32-C3 — plan
 
 Date: 2026-11-05. Task: SN-250 in the [backlog](../planning/BACKLOG.md), split
-into SN-264..SN-269 below. Status: **prerequisites done (SN-264, 2026-11-05)**; decisions DE9a-DE9c
-taken on 2026-11-05; no emulator code yet, SN-265 (PHY) is next. As for [E-07](E-07-results.md),
+into SN-264..SN-269 below. Status: **in progress**. Decisions DE9a-DE9c and the prerequisites (SN-264)
+were done on 2026-11-05, and so was the PHY start-up (SN-265): the station
+starts on all three frameworks. SN-266 (MAC) is next. Results:
+[E-09-results.md](E-09-results.md). As for [E-07](E-07-results.md),
 [E-08](E-08-plan.md) and [E-10](E-10-plan.md), the criteria below are recorded
 before any code and are not relaxed after a run: a failed criterion leads to
 a recorded decision.
@@ -218,7 +220,7 @@ probe showed.
 | # | Package | Done when |
 |---|---|---|
 | 1 | SN-264 prerequisites: pinned images, licences, DE9b and DE9c taken | Recorded in this plan (done 2026-11-05) |
-| 2 | SN-265 PHY and RF start-up: the analog I2C master's status bits, FE/FE2, BB/NRX, power detector, calibration read-backs, PHY data in NVS; diagnostics for every new unmodelled access | `esp_wifi_init` and `esp_wifi_start` return `ESP_OK` → part of **G9a** |
+| 2 | SN-265 PHY and RF start-up: the analog I2C master's status bits, FE/FE2, BB/NRX, power detector, calibration read-backs, PHY data in NVS; diagnostics for every new unmodelled access | `esp_wifi_init` and `esp_wifi_start` return `ESP_OK` → part of **G9a** (done 2026-11-05) |
 | 3 | SN-266 MAC core: TX slots and DMA descriptors, RX DMA ring, interrupts (MAC, PWR, BB), TSF, ACK and retry, the radio medium with channels; a frame trace exportable as pcap for Wireshark | A scan lists the virtual AP → **G9a** |
 | 4 | SN-267 virtual access point: open, then WPA2-PSK (hardware CCMP key slots in the MAC model); DHCP, DNS; reason codes; the AP's settings in the project | Association and DHCP → **G9b** |
 | 5 | SN-268 gateway and port forwarding: NAT through the library of DE9b; policy of DE9c; several boards | **G9c**, **G9d** |

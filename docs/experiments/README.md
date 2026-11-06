@@ -124,7 +124,8 @@ network through a user-space gateway enabled per project, and serve a board's
 web server to the computer's browser? Plan, probe and the predeclared gates
 G9a (radio up), G9b (association), G9c (gateway), G9d (servers, several
 boards) and G9e (fidelity, no regression), recorded 2026-11-05 before any
-code: [E-09-plan.md](E-09-plan.md). Waits for the owner's decisions DE9a-DE9c.
+code: [E-09-plan.md](E-09-plan.md). Report: [E-09-results.md](E-09-results.md)
+(decisions taken and the PHY start-up done on 2026-11-05).
 
 ## E-10: AVR emulator, ATmega8 first — SN-255..SN-259
 
