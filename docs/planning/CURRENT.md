@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-05 (E-09 Wi-Fi plan recorded, waiting for the owner's decisions; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (E-09 Wi-Fi: decisions DE9a-DE9c taken and prerequisites SN-264 done; SN-265 next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -193,12 +193,14 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    the serial ports to the computer (0.13.0); MicroPython's files kept in the
    flash (SN-248), the continuous ADC with GDMA and the temperature sensor
    (SN-247) and GDB with `riscv32-esp-elf-gdb` (SN-249) in 0.14.0. Next:
-   - SN-250, Wi-Fi as experiment E-09: plan recorded 2026-11-05
-     ([E-09-plan.md](../experiments/E-09-plan.md), tasks SN-264..SN-269);
-     the owner decides DE9a (scope and priority), DE9b (crypto and TCP/IP
-     libraries) and DE9c (network policy) before any code. The probe found
-     MicroPython's `WLAN.active(True)` waiting in the ROM's analog I2C
-     set-up, and Espressif's QEMU has no Wi-Fi model for the C3;
+   - SN-250, Wi-Fi as experiment E-09
+     ([E-09-plan.md](../experiments/E-09-plan.md), tasks SN-264..SN-269):
+     decisions taken 2026-11-05 (station first; our own WPA2 crypto and lwIP
+     for the gateway; the gateway off by default, confirmed on a project's
+     first run on a computer). SN-264 done: eight pinned Wi-Fi images and
+     three MicroPython scripts in `tests/experiments/esp32c3`; every one
+     stops in the PHY's full calibration. Next: SN-265, the PHY and RF
+     start-up (gate G9a);
    - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data
