@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-06 (E-09 Wi-Fi: SN-264..SN-268 done, boards join open and WPA2 networks and reach the computer and the internet through the gateway; SN-269 integration next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-06 (E-09 Wi-Fi: SN-264..SN-268 done; SN-269 in progress, the network runs in the engine with the project's settings; the GUI next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -209,10 +209,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      accelerator); ESP-IDF, Arduino and MicroPython get 192.168.4.2. SN-268
      done: the gateway (lwIP 2.2.1 vendored, off by default) carries TCP,
      UDP and DNS to the computer (`host.simnodus`) and the internet, and
-     forwards ports of 127.0.0.1 to a board. Next: SN-269, the network in
-     the application (settings in the project, the first-run confirmation,
-     forwarded ports, several boards on one air), examples, guides and the
-     report (DE9);
+     forwards ports of 127.0.0.1 to a board. SN-269 in progress: the
+     network runs in the engine from the project's settings (on by default,
+     gateway off), several boards share it, and the CLI sets it
+     (`allow_network` for the gateway). Next: the application's dialog and
+     first-run confirmation, an example, the guides and the report (DE9);
    - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data

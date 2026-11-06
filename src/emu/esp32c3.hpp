@@ -35,6 +35,10 @@ public:
         // Strapping pins sampled at reset (GPIO_STRAP_REG): 0xC is SPI boot
         // (GPIO8 and GPIO9 high), as a board without buttons pressed.
         std::uint32_t strapping = 0xC;
+        // The last byte of the base MAC address in the eFuses
+        // (34:85:18:00:C3:xx); boards on one Wi-Fi network need different
+        // ones (SN-269).
+        std::uint8_t mac_last = 0x01;
     };
     struct Output {
         std::uint64_t time_ns = 0;
@@ -44,6 +48,9 @@ public:
 
     Esp32C3();
     explicit Esp32C3(const Options& options);
+    const Options& options() const { return options_; }
+    // The base MAC address's last byte, from the next reset on.
+    void set_mac_last(std::uint8_t last) { options_.mac_last = last; }
     ~Esp32C3();
     Esp32C3(const Esp32C3&) = delete;
     Esp32C3& operator=(const Esp32C3&) = delete;
@@ -195,6 +202,10 @@ public:
     // true if a station acknowledged the frame (frames to one station that
     // nobody acknowledges end with an ACK timeout).
     void set_wifi_tx(std::function<bool(const WifiFrame&)> tx) { wifi_tx_ = std::move(tx); }
+    // Called when the firmware starts the Wi-Fi (the driver's hal_init), so a
+    // board joins the air only then (SN-269); the call comes from the
+    // machine's own thread while it runs.
+    void set_wifi_start(std::function<void()> start) { wifi_start_ = std::move(start); }
     // A frame reaching the antenna. It is received at frame.end_ns if the
     // radio is tuned to frame.channel and the MAC's receiver accepts it.
     void wifi_receive(WifiFrame frame);
@@ -231,6 +242,7 @@ private:
     Block* uart_[2] = {};
     WifiMac* wifi_mac_ = nullptr;
     std::function<bool(const WifiFrame&)> wifi_tx_;
+    std::function<void()> wifi_start_;
     bool reset_requested_ = false;
     ResetKind requested_kind_ = ResetKind::PowerOn;
     std::uint32_t requested_reason_ = 0;

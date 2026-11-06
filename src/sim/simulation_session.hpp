@@ -258,6 +258,8 @@ private:
     // Created by start() before the worker exists and kept until the next start;
     // the runners themselves are thread-safe.
     std::map<model::Id, std::unique_ptr<mcu::McuBackend>> mcus_;
+    std::shared_ptr<emu::WifiAir> wifi_;                      // the boards' Wi-Fi network (SN-269)
+    std::vector<std::pair<model::Id, std::string>> wifi_notes_; // its messages, with the first board
     // Pin driver sources (SN-132): source name (lower case) -> board pin.
     struct ExternalRef {
         model::Id component = model::no_id;

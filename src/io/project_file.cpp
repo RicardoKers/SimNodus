@@ -295,10 +295,92 @@ Probe probe_from(const json& j)
 
 json settings_json(const SimulationSettings& s)
 {
-    return json{{"mode", s.mode == SimulationMode::Interactive ? "interactive" : "transient"}, {"speed", s.speed},
+    json j{{"mode", s.mode == SimulationMode::Interactive ? "interactive" : "transient"}, {"speed", s.speed},
         {"max_step", s.max_step}, {"segment", s.segment}, {"transient_stop", s.transient_stop},
         {"transient_max_step", s.transient_max_step}, {"mcu_quantum", s.mcu_quantum}, {"exact_edges", s.exact_edges},
         {"cortex_m3_timing", s.cortex_m3_timing}};
+    // The Wi-Fi network only when it differs from the default, so projects
+    // without Wi-Fi keep their files.
+    if (s.wifi != WifiSettings{}) {
+        const WifiSettings& w = s.wifi;
+        json forwards = json::array();
+        for (const auto& f : w.forwards) {
+            forwards.push_back({{"host_port", f.host_port}, {"station", f.station}, {"station_port", f.station_port}});
+        }
+        j["wifi"] = {{"access_point", w.access_point}, {"ssid", w.ssid}, {"security", w.wpa2 ? "wpa2" : "open"},
+            {"passphrase", w.passphrase}, {"channel", w.channel}, {"gateway", w.gateway}, {"forwards", forwards}};
+    }
+    return j;
+}
+
+WifiSettings wifi_from(const json& j, std::vector<std::string>& warnings)
+{
+    WifiSettings w;
+    if (!j.is_object()) {
+        warnings.push_back("setting wifi is not an object; default used");
+        return w;
+    }
+    const auto flag = [&](const char* key, bool& target) {
+        if (j.contains(key)) {
+            if (j[key].is_boolean()) {
+                target = j[key].get<bool>();
+            } else {
+                warnings.push_back(std::string("setting wifi.") + key + " is not true or false; default used");
+            }
+        }
+    };
+    flag("access_point", w.access_point);
+    flag("gateway", w.gateway);
+    if (j.contains("ssid") && j["ssid"].is_string()) {
+        const std::string ssid = j["ssid"].get<std::string>();
+        if (!ssid.empty() && ssid.size() <= 32) {
+            w.ssid = ssid;
+        } else {
+            warnings.push_back("setting wifi.ssid must have 1 to 32 characters; default used");
+        }
+    }
+    if (j.contains("security")) {
+        const std::string security = j["security"].is_string() ? j["security"].get<std::string>() : std::string();
+        if (security == "open" || security == "wpa2") {
+            w.wpa2 = security == "wpa2";
+        } else {
+            warnings.push_back("setting wifi.security is not open or wpa2; default used");
+        }
+    }
+    if (j.contains("passphrase") && j["passphrase"].is_string()) {
+        const std::string passphrase = j["passphrase"].get<std::string>();
+        if (passphrase.size() >= 8 && passphrase.size() <= 63) {
+            w.passphrase = passphrase;
+        } else {
+            warnings.push_back("setting wifi.passphrase must have 8 to 63 characters; default used");
+        }
+    }
+    if (j.contains("channel")) {
+        if (j["channel"].is_number_integer() && j["channel"].get<int>() >= 1 && j["channel"].get<int>() <= 13) {
+            w.channel = j["channel"].get<int>();
+        } else {
+            warnings.push_back("setting wifi.channel is not 1 to 13; default used");
+        }
+    }
+    if (j.contains("forwards") && j["forwards"].is_array()) {
+        for (const auto& f : j["forwards"]) {
+            WifiForwardSetting forward;
+            if (!f.is_object() || !f.value("host_port", json()).is_number_integer() || !f.value("station_port", json()).is_number_integer()
+                || !f.value("station", json()).is_string()) {
+                warnings.push_back("a forwarded Wi-Fi port is not {host_port, station, station_port}; skipped");
+                continue;
+            }
+            forward.host_port = f["host_port"].get<int>();
+            forward.station = f["station"].get<std::string>();
+            forward.station_port = f["station_port"].get<int>();
+            if (forward.host_port < 1 || forward.host_port > 65535 || forward.station_port < 1 || forward.station_port > 65535) {
+                warnings.push_back("a forwarded Wi-Fi port is out of range; skipped");
+                continue;
+            }
+            w.forwards.push_back(forward);
+        }
+    }
+    return w;
 }
 
 SimulationSettings settings_from(const json& j, std::vector<std::string>& warnings)
@@ -347,6 +429,9 @@ SimulationSettings settings_from(const json& j, std::vector<std::string>& warnin
         } else {
             warnings.push_back("setting cortex_m3_timing is not true or false; default used");
         }
+    }
+    if (j.contains("wifi")) {
+        s.wifi = wifi_from(j["wifi"], warnings);
     }
     return s;
 }

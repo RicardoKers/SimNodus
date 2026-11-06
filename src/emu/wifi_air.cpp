@@ -72,22 +72,74 @@ WifiAir::WifiAir(const WifiApConfig& ap) : ap_(ap), network_(ap.bssid), next_bea
     }
 }
 
+struct WifiAir::Port : Esp32C3::Timed {
+    WifiAir* air = nullptr;
+    Esp32C3* board = nullptr;
+    std::deque<Esp32C3::WifiFrame> inbox; // by end time
+
+    std::uint64_t next_ns() const override
+    {
+        std::lock_guard lock(air->mutex_);
+        const std::uint64_t ap = air->ap_next_ns();
+        return inbox.empty() ? ap : std::min(ap, inbox.front().end_ns);
+    }
+    void on_ns(std::uint64_t now) override
+    {
+        std::lock_guard lock(air->mutex_);
+        air->advance(now);
+        while (!inbox.empty() && inbox.front().end_ns <= now) {
+            Esp32C3::WifiFrame frame = std::move(inbox.front());
+            inbox.pop_front();
+            frame.end_ns = std::max(frame.end_ns, board->time_ns());
+            board->wifi_receive(std::move(frame));
+        }
+    }
+    void put(Esp32C3::WifiFrame frame)
+    {
+        const auto at = std::upper_bound(inbox.begin(), inbox.end(), frame.end_ns,
+            [](std::uint64_t t, const Esp32C3::WifiFrame& f) { return t < f.end_ns; });
+        inbox.insert(at, std::move(frame));
+    }
+};
+
 WifiAir::~WifiAir()
 {
-    for (Esp32C3* board : boards_) {
-        board->remove_timed(this);
-        board->set_wifi_tx(nullptr);
+    std::lock_guard lock(mutex_);
+    for (auto& port : ports_) {
+        port->board->remove_timed(port.get());
+        port->board->set_wifi_tx(nullptr);
     }
 }
 
 void WifiAir::attach(Esp32C3& board)
 {
-    boards_.push_back(&board);
-    board.add_timed(this);
-    board.set_wifi_tx([this, &board](const Esp32C3::WifiFrame& frame) { return transmit(board, frame); });
+    std::lock_guard lock(mutex_);
+    auto port = std::make_unique<Port>();
+    port->air = this;
+    port->board = &board;
+    board.add_timed(port.get());
+    board.timed_changed();
+    board.set_wifi_tx([this, &board](const Esp32C3::WifiFrame& frame) {
+        std::lock_guard inner(mutex_);
+        return transmit(board, frame);
+    });
+    ports_.push_back(std::move(port));
 }
 
-std::uint64_t WifiAir::next_ns() const
+void WifiAir::detach(Esp32C3& board)
+{
+    std::lock_guard lock(mutex_);
+    for (auto it = ports_.begin(); it != ports_.end(); ++it) {
+        if ((*it)->board == &board) {
+            board.remove_timed(it->get());
+            board.set_wifi_tx(nullptr);
+            ports_.erase(it);
+            return;
+        }
+    }
+}
+
+std::uint64_t WifiAir::ap_next_ns() const
 {
     std::uint64_t next = next_beacon_ns_;
     if (gateway_) {
@@ -101,7 +153,7 @@ std::uint64_t WifiAir::next_ns() const
     return next;
 }
 
-void WifiAir::on_ns(std::uint64_t now)
+void WifiAir::advance(std::uint64_t now)
 {
     if (gateway_ && next_gateway_ns_ <= now) {
         gateway_->poll(now);
@@ -155,11 +207,11 @@ bool WifiAir::transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame)
     if (monitor_) {
         monitor_(frame);
     }
-    for (Esp32C3* board : boards_) {
-        if (board != &from) {
+    for (auto& port : ports_) {
+        if (port->board != &from) {
             Esp32C3::WifiFrame copy = frame;
             copy.rssi = ap_.rssi;
-            board->wifi_receive(std::move(copy));
+            port->put(std::move(copy));
         }
     }
     const std::vector<std::uint8_t>& b = frame.bytes;
@@ -197,6 +249,7 @@ bool WifiAir::transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame)
 
 bool WifiAir::associated(const MacAddress& station) const
 {
+    std::lock_guard lock(mutex_);
     const auto it = stations_.find(station);
     return it != stations_.end() && it->second.associated;
 }
@@ -272,10 +325,11 @@ void WifiAir::management(const Esp32C3::WifiFrame& frame, const MacAddress& stat
 void WifiAir::data(const Esp32C3::WifiFrame& frame, const MacAddress& station)
 {
     // To the distribution system from an associated station.
-    if ((frame.bytes[1] & 0x03u) != 0x01 || !associated(station)) {
+    const auto known = stations_.find(station);
+    if ((frame.bytes[1] & 0x03u) != 0x01 || known == stations_.end() || !known->second.associated) {
         return;
     }
-    Station& s = stations_[station];
+    Station& s = known->second;
     Bytes plain;
     if (frame.bytes[1] & 0x40u) { // protected
         std::uint64_t pn = 0;
@@ -304,6 +358,17 @@ void WifiAir::data(const Esp32C3::WifiFrame& frame, const MacAddress& station)
     }
     if (ap_.wpa2 && !(frame.bytes[1] & 0x40u)) {
         return; // a WPA2 network passes only protected data
+    }
+    // To another station: the access point passes it on; a broadcast or
+    // multicast goes to every station and to the access point's network.
+    const bool group = packet.to[0] & 1u;
+    const auto peer = stations_.find(packet.to);
+    if (!group && peer != stations_.end() && peer->second.associated && packet.to != ap_.bssid) {
+        reply(data_frame(packet), frame.end_ns);
+        return;
+    }
+    if (group && stations_.size() > 1) {
+        reply(data_frame(packet), frame.end_ns);
     }
     for (const EtherPacket& answer : network_.handle(packet, frame.end_ns)) {
         reply(data_frame(answer), frame.end_ns);
@@ -441,9 +506,9 @@ void WifiAir::send(std::vector<std::uint8_t> bytes, std::uint64_t start_ns, cons
     if (monitor_) {
         monitor_(frame);
     }
-    for (Esp32C3* board : boards_) {
-        if (board != skip) {
-            board->wifi_receive(frame);
+    for (auto& port : ports_) {
+        if (port->board != skip) {
+            port->put(frame);
         }
     }
 }

@@ -8,7 +8,16 @@
 // system) and associate, and passes their data frames to its IP network
 // (WifiNetwork: DHCP, ARP, ping, DNS). With WPA2-PSK it runs the 4-way
 // handshake (EAPOL-Key, IEEE 802.11 12.7.6) and protects data frames with
-// CCMP (wifi_crypto).
+// CCMP (wifi_crypto). Frames between stations go through it, as through a
+// real access point.
+//
+// Boards may run in different threads (one runner per board, SN-269). Each
+// board has a port: a timed device in its own machine with an inbox. A frame
+// reaches a board at its end time, or at the board's present time if the
+// board is already past it (boards run within the coupling quantum of each
+// other). The access point's own events (beacons, EAPOL resends, the
+// gateway) run when the first board's clock passes them. Everything shared is
+// behind one mutex.
 #pragma once
 
 #include "esp32c3.hpp"
@@ -20,7 +29,9 @@
 #include <fstream>
 #include <functional>
 #include <map>
+#include <deque>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -39,20 +50,24 @@ struct WifiApConfig {
     int rssi = -40;    // dBm at the boards
 };
 
-class WifiAir : public Esp32C3::Timed {
+class WifiAir {
 public:
     explicit WifiAir(const WifiApConfig& ap);
-    ~WifiAir() override;
+    ~WifiAir();
     WifiAir(const WifiAir&) = delete;
     WifiAir& operator=(const WifiAir&) = delete;
 
     // Connects a board: its frames reach the air, and the air's reach it.
+    // Call from the thread that runs the board, or before it runs.
     void attach(Esp32C3& board);
+    // Disconnects it (before the board is destroyed).
+    void detach(Esp32C3& board);
     // Called with every frame on the air (for logs and pcap files).
-    void set_monitor(std::function<void(const Esp32C3::WifiFrame&)> monitor) { monitor_ = std::move(monitor); }
-
-    std::uint64_t next_ns() const override;
-    void on_ns(std::uint64_t now) override;
+    void set_monitor(std::function<void(const Esp32C3::WifiFrame&)> monitor)
+    {
+        std::lock_guard lock(mutex_);
+        monitor_ = std::move(monitor);
+    }
 
     // Frame builders, public for the tests.
     std::vector<std::uint8_t> beacon(std::uint64_t tsf_us);
@@ -66,7 +81,12 @@ public:
     // empty.
     const std::string& gateway_error() const { return gateway_error_; }
 
+    struct Port; // a board's place on the air (wifi_air.cpp)
+
 private:
+    friend struct Port;
+    std::uint64_t ap_next_ns() const;
+    void advance(std::uint64_t now);
     bool transmit(Esp32C3& from, const Esp32C3::WifiFrame& frame);
     void send(std::vector<std::uint8_t> bytes, std::uint64_t start_ns, const Esp32C3* skip);
     void management_header(std::vector<std::uint8_t>& out, std::uint8_t subtype, const std::array<std::uint8_t, 6>& to);
@@ -111,7 +131,8 @@ private:
     std::uint64_t group_pn_ = 0;
     std::map<MacAddress, Station> stations_;
     std::uint64_t air_free_ns_ = 0; // the access point's next frame starts after this
-    std::vector<Esp32C3*> boards_;
+    mutable std::mutex mutex_;
+    std::vector<std::unique_ptr<Port>> ports_;
     std::function<void(const Esp32C3::WifiFrame&)> monitor_;
     std::uint64_t next_beacon_ns_ = 0;
     std::uint16_t sequence_ = 0;

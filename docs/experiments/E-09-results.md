@@ -372,3 +372,56 @@ to the gateway in a first try.
 - The application's controls: the network's settings in a project, the
   first-run confirmation (DE9c), and the forwarded ports (SN-269).
 - Ping to the outside.
+
+## SN-269, first part: the network in the engine (2026-11-06)
+
+**Result.** A project's ESP32-C3 boards share one Wi-Fi network in a run.
+
+- **Two boards on one network.** A session test runs two ESP32-C3 boards
+  with the WPA2 station example. Each board is in its own runner thread,
+  and each gets its own address (192.168.4.2 and .3) and its own MAC
+  address (34:85:18:00:c3:01 and :05).
+- **Settings.** The network is part of the project's settings, defined by
+  `model::WifiSettings`:
+  - the access point is on: `SimNodus` / `simnodus-wifi`, WPA2, channel 6;
+  - the gateway is off;
+  - forwarded ports are listed there.
+
+  A project file names `wifi` only when it differs from these defaults.
+- **The CLI and MCP.** `settings.get` / `settings.set` cover these settings
+  (`wifi_access_point`, `wifi_ssid`, `wifi_security`, `wifi_passphrase`,
+  `wifi_channel`, `wifi_gateway`, `wifi_forwards`). A run there leaves the
+  gateway off unless `sim.run` / `sim.start` passes
+  `"allow_network": true`, and the run's messages say so. This is DE9c for
+  agents.
+
+**How.**
+
+- **The air is now thread-safe.** Each board has a port: a timed device in
+  its own machine, with an inbox. A frame reaches a board at its end time,
+  or at once if the board is already past it. Boards run within the
+  coupling quantum of each other, so the skew stays within that.
+- **The access point** advances when the first board's clock passes its
+  events. It relays frames between stations as a real access point does:
+  unicast to another associated station with its PTK, broadcast to all
+  with the GTK.
+- **The engine** creates the air with the run when a project has an
+  ESP32-C3 board (`SimulationSession::start`). A board joins it only when
+  its firmware starts the Wi-Fi (the driver's `hal_init`), so examples
+  45-49 pay nothing for it.
+- **MAC addresses.** The n-th ESP32-C3 of a run gets the base MAC address
+  ending in 0x01 + 4n.
+- **Gateway messages.** The gateway's start, or its failure, is reported
+  among the board's messages.
+
+**Speed.** On the same laptop, `tools/examples_pass.py` ran examples 45-49
+at 1.61, 1.55, 1.44, 1.59 and 1.29x real time with this change, and at 1.48,
+1.46, 1.42, 1.42 and 1.21x on `main` without it. That is within the noise:
+the laptop was slower that day than in earlier measurements.
+
+**Next.** The application's part comes in the second part of SN-269:
+
+- a dialog for the network;
+- the first-run confirmation of the gateway (DE9c);
+- the gateway's messages;
+- an example, the user guides and the report for DE9.

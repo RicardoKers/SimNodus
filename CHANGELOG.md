@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-06, SN-269, engine)
+
+- A project's ESP32-C3 boards share a Wi-Fi network in a run (E-09): SimNodus's access point is on by default (`SimNodus` / `simnodus-wifi`, WPA2, channel 6), its gateway to this computer off; the settings are in the project (`settings.wifi`, written only when changed) and in `settings.get` / `settings.set` (`wifi_*`). Boards in different runner threads share the air, the access point relays frames between them, and each board has its own MAC address. A board joins the network only when its firmware starts the Wi-Fi. Runs started from the CLI or MCP keep the gateway off unless they pass `"allow_network": true`. The application's dialog comes next.
+
 ### Added (2026-11-06, SN-268)
 
 - The Wi-Fi gateway to the computer's network (E-09), off by default: TCP from the boards ends in **lwIP 2.2.1** (vendored unmodified in `third_party/lwip`, BSD-3-Clause, notice in the package) and continues on the computer's sockets; UDP and DNS go through the computer; `host.simnodus` (192.168.4.254) is the computer itself; forwarded ports listen on 127.0.0.1 and reach a board's server. Checked: an Arduino sketch fetching a page from the computer, ESP-IDF's SNTP example over the internet, curl to an Arduino web server on the board. `simnodus-emu --wifi-gateway` and `--wifi-forward HOSTPORT=STATIONIP:PORT`. Not in the application yet (SN-269).

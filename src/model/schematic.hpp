@@ -135,6 +135,31 @@ struct Probe {
 
 enum class SimulationMode { Interactive, Transient };
 
+// A port of the computer (127.0.0.1) forwarded to a board on the Wi-Fi
+// network (E-09, SN-268).
+struct WifiForwardSetting {
+    int host_port = 8080;
+    std::string station = "192.168.4.2";
+    int station_port = 80;
+
+    friend bool operator==(const WifiForwardSetting&, const WifiForwardSetting&) = default;
+};
+
+// The Wi-Fi network the ESP32-C3 boards of a project see (E-09, SN-269):
+// SimNodus's access point, and its gateway to the computer's network, off
+// unless the project turns it on (decision DE9c).
+struct WifiSettings {
+    bool access_point = true;
+    std::string ssid = "SimNodus";
+    bool wpa2 = true; // WPA2-PSK; false: open
+    std::string passphrase = "simnodus-wifi";
+    int channel = 6;
+    bool gateway = false;
+    std::vector<WifiForwardSetting> forwards;
+
+    friend bool operator==(const WifiSettings&, const WifiSettings&) = default;
+};
+
 struct SimulationSettings {
     SimulationMode mode = SimulationMode::Interactive;
     double speed = 1.0;        // interactive: simulated seconds per wall second; 0 = maximum
@@ -152,6 +177,7 @@ struct SimulationSettings {
     // Microcontroller timing (SN-181): Cortex-M3 cycle counts with the flash
     // wait states, within 5 % of a real Blue Pill; off: one instruction per cycle.
     bool cortex_m3_timing = true;
+    WifiSettings wifi;
 
     friend bool operator==(const SimulationSettings&, const SimulationSettings&) = default;
 };
