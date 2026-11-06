@@ -217,3 +217,91 @@ still reach it, because the MAC model receives while the station "sleeps".
   sketches use the WPA2 network.
 - WPA2 comes next: the 4-way handshake, the MAC's CCMP key slots and the
   wrong-password reason code (G9b.2, G9b.4).
+
+## SN-267, second part: WPA2-PSK (2026-11-06)
+
+**Result.** Against a WPA2-PSK access point (`SimNodus` / `simnodus-wifi`),
+all three frameworks join and get an address:
+
+- The unmodified ESP-IDF station example prints
+  `connected with SimNodus, aid = 1, channel 6, BW20` and
+  `security: WPA2-PSK, phy: bg, rssi: -40`, then
+  `sta ip: 192.168.4.2` and `connected to ap SSID:SimNodus password:simnodus-wifi`.
+- Arduino's `WiFi.begin("SimNodus", "simnodus-wifi")` prints
+  `wifi client: address 192.168.4.2`.
+- MicroPython's `WLAN.connect()` gives `isconnected()` True and the same
+  address.
+
+With a wrong passphrase, the station's message 2 fails the MIC check. The
+access point sends message 1 again three times, 1 s apart, then
+deauthenticates with reason 15, as hostapd does. The station reports
+`wifi:state: run -> init (0xf00)` and the example retries. Whether a board
+against a real access point prints the same is part of G9b.2, with the
+owner's board.
+
+**Our cryptography (DE9b).** `src/emu/wifi_crypto.*`:
+
+- SHA-1, HMAC-SHA1, PBKDF2, the 802.11 PRF;
+- AES-128/256, both ways;
+- AES key wrap, CCM and CCMP.
+
+They are checked against FIPS 180-4, RFC 2202, IEEE 802.11 annex J (PBKDF2),
+FIPS 197 C.1/C.3, RFC 3394 and RFC 3610 packet vector 1. The PRF was checked
+against Python's `hmac`, and CCMP by round trip and by the firmware itself.
+
+**The access point.** After a WPA2 association, the 4-way handshake
+(EAPOL-Key, RSN descriptor, HMAC-SHA1 MIC):
+
+- Message 1 carries ANonce.
+- Message 2 gives the PTK (KCK, KEK, TK) from PBKDF2(passphrase, SSID) and
+  the nonces; its MIC is checked.
+- Message 3 has the RSN element and the GTK KDE, wrapped with the KEK.
+- Message 4 ends the handshake.
+
+Then data frames are CCMP in both directions, with replay detection. The
+nonces and the GTK are derived deterministically, so runs repeat.
+
+**Three findings in the firmware's hardware path.**
+
+1. **The FCS slot.** Every frame the driver queues has 4 more bytes at the
+   end, the FCS slot, filled with `ef be ad de`. The MAC computes the FCS.
+   The model now drops them; until then, the EAPOL MICs did not verify.
+2. **The AES accelerator.** The supplicant unwraps message 3's key data with
+   the AES accelerator in DMA mode (`aes_hal_wait_done` waits for STATE 2).
+   `AesAccelerator` (`src/emu/esp32c3.cpp`; TRM chapter "AES Accelerator",
+   ESP-IDF's `hwcrypto_reg.h`/`aes_ll.h`) works:
+   - in typical mode;
+   - in DMA mode through GDMA (peripheral 6), with ECB, CBC, OFB, CTR, CFB8
+     and CFB128, AES-128 and AES-256, interrupt source 51.
+
+   GCM gives a diagnostic.
+3. **Hardware CCMP.** The driver installs the keys in the MAC
+   (`hal_crypto_set_key_entry`):
+   - Entry n is at `0x60034400 + 0x28*n`: the peer's address in words 0
+     and 1, bit 30 of word 1 for a group key, the 16-byte key in words 2-5.
+   - `0x60033814` is the mask of valid entries.
+   - On this run the PTK went to entry 4 and the GTK to entry 0. The keys
+     were matched against the ones recomputed from the captured handshake.
+
+   The driver then queues protected frames with their CCMP header, the plain
+   body and room for the MIC; the MAC encrypts them. Received protected
+   frames are decrypted in place for the driver: header, CCMP header, plain
+   body, MIC bytes zeroed.
+
+**Tests.** `emu-esp32c3` has two new cases:
+
+- the ESP-IDF WPA2 station: four EAPOL frames, data protected from the
+  station with a non-plain body, DHCP;
+- the wrong passphrase, Arduino, MicroPython, and the cryptographic vectors.
+
+**Gate G9b status.**
+
+- G9b.1 is met for open and WPA2 on ESP-IDF, Arduino and MicroPython.
+- G9b.4 is met: the crypto vectors pass.
+- G9b.2: the wrong-password reason is to be compared with the owner's board.
+  The rejoin after the access point is turned off and on waits for the
+  application's controls.
+- G9b.3 (console against a real access point) waits for the owner's board.
+
+The access point's settings in a project come with the integration
+(SN-269).

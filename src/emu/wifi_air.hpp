@@ -6,7 +6,9 @@
 // the same channel, in virtual time. The access point announces itself
 // (beacons every 102.4 ms, probe responses), lets stations authenticate (open
 // system) and associate, and passes their data frames to its IP network
-// (WifiNetwork: DHCP, ARP, ping, DNS). WPA2's handshake comes next (SN-267).
+// (WifiNetwork: DHCP, ARP, ping, DNS). With WPA2-PSK it runs the 4-way
+// handshake (EAPOL-Key, IEEE 802.11 12.7.6) and protects data frames with
+// CCMP (wifi_crypto).
 #pragma once
 
 #include "esp32c3.hpp"
@@ -27,7 +29,8 @@ struct WifiApConfig {
     int channel = 6;
     // A locally administered address (02:...), "SN" in the middle.
     std::array<std::uint8_t, 6> bssid{0x02, 0x53, 0x4E, 0x00, 0x00, 0x01};
-    bool wpa2 = false; // announced (RSN element) only; the handshake is SN-267
+    bool wpa2 = false; // WPA2-PSK with CCMP; open when false
+    std::string passphrase = "simnodus-wifi"; // 8..63 characters, for WPA2
     int rssi = -40;    // dBm at the boards
 };
 
@@ -43,7 +46,7 @@ public:
     // Called with every frame on the air (for logs and pcap files).
     void set_monitor(std::function<void(const Esp32C3::WifiFrame&)> monitor) { monitor_ = std::move(monitor); }
 
-    std::uint64_t next_ns() const override { return next_beacon_ns_; }
+    std::uint64_t next_ns() const override;
     void on_ns(std::uint64_t now) override;
 
     // Frame builders, public for the tests.
@@ -64,15 +67,36 @@ private:
     void data(const Esp32C3::WifiFrame& frame, const MacAddress& station);
     void reply(std::vector<std::uint8_t> bytes, std::uint64_t after_ns);
     std::vector<std::uint8_t> data_frame(const EtherPacket& packet);
+    void eapol(const Esp32C3::WifiFrame& frame, const MacAddress& station, const std::vector<std::uint8_t>& body);
+    void send_key(const MacAddress& station, std::uint16_t info, const std::vector<std::uint8_t>& key_data, std::uint64_t after_ns);
+    std::vector<std::uint8_t> eapol_key(const MacAddress& station, std::uint16_t info, const std::vector<std::uint8_t>& key_data);
 
     struct Station {
         bool authenticated = false;
         bool associated = false;
         std::uint16_t aid = 0;
+        // WPA2: the handshake's state and the pairwise keys.
+        int handshake = 0; // 1: message 1 sent, 3: message 3 sent, 4: done
+        std::uint64_t replay = 0;
+        std::array<std::uint8_t, 32> anonce{};
+        std::vector<std::uint8_t> ptk; // KCK, KEK, TK (48 bytes)
+        std::uint64_t tx_pn = 0;
+        std::uint64_t rx_pn = 0;
+        // The EAPOL-Key message waiting for its answer, sent again after 1 s
+        // up to 3 times; then a deauthentication with reason 15 (4-way
+        // handshake timeout), as hostapd does.
+        std::uint16_t pending_info = 0;
+        std::vector<std::uint8_t> pending_data;
+        std::uint64_t deadline_ns = 0;
+        int resent = 0;
     };
 
     WifiApConfig ap_;
     WifiNetwork network_;
+    std::vector<std::uint8_t> pmk_;          // WPA2: PBKDF2(passphrase, SSID)
+    std::array<std::uint8_t, 16> gtk_{};     // the group key
+    std::uint32_t nonce_counter_ = 0;
+    std::uint64_t group_pn_ = 0;
     std::map<MacAddress, Station> stations_;
     std::uint64_t air_free_ns_ = 0; // the access point's next frame starts after this
     std::vector<Esp32C3*> boards_;

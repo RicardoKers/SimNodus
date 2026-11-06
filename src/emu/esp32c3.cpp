@@ -5,6 +5,7 @@
 #include "esp32c3_rom.hpp"
 #include "sha.hpp"
 #include "timed_device.hpp"
+#include "wifi_crypto.hpp"
 
 #include <algorithm>
 #include <array>
@@ -2403,6 +2404,164 @@ private:
     Side out_[channels];
 };
 
+// AES accelerator (TRM chapter "AES Accelerator"; register names from ESP-IDF's
+// hwcrypto_reg.h and aes_ll.h). KEY 0x00-0x1C, TEXT_IN 0x20, TEXT_OUT 0x30
+// and IV 0x50 hold bytes in memory order (little-endian words); MODE 0x40
+// (0 AES-128 and 2 AES-256 encryption, plus 4 for decryption). TRIGGER 0x48
+// runs one block at once when DMA_ENABLE (0x90) is 0. With DMA it reads
+// BLOCK_NUM (0x98) blocks through GDMA (peripheral 6) in BLOCK_MODE (0x94: 0
+// ECB, 1 CBC, 2 OFB, 3 CTR with INC_SEL 0x9C, 4 CFB8, 5 CFB128), writes the
+// results back, updates IV, and STATE (0x4C) reads 2 (done) until DMA_EXIT
+// (0xB8); INT_ENA (0xB0) raises source 51, INT_CLEAR (0xAC) lowers it. It
+// finishes at once. GCM is not modelled (a diagnostic says so).
+class AesAccelerator : public Esp32C3::Block {
+public:
+    AesAccelerator(Esp32C3& machine, Gdma& dma) : Block(machine, "AES"), dma_(dma) {}
+
+protected:
+    std::uint32_t read_word(std::uint32_t offset) override
+    {
+        if (offset == 0x4C) {
+            return state_;
+        }
+        return Block::read_word(offset);
+    }
+    void write_word(std::uint32_t offset, std::uint32_t value) override
+    {
+        Block::write_word(offset, value);
+        if (offset == 0x48 && (value & 1u)) {
+            if (reg(0x90) & 1u) {
+                run_dma();
+            } else {
+                run_block();
+            }
+        } else if (offset == 0xAC && (value & 1u)) {
+            raise(source, false);
+        } else if (offset == 0xB8) {
+            state_ = 0;
+        }
+    }
+    void on_reset() override { state_ = 0; }
+
+private:
+    static constexpr int source = 51;    // ETS_AES_INTR_SOURCE
+    static constexpr std::uint32_t peripheral = 6; // GDMA_PERI_SEL: AES
+
+    std::array<std::uint8_t, 16> bytes_at(std::uint32_t offset) const
+    {
+        std::array<std::uint8_t, 16> out{};
+        for (std::uint32_t i = 0; i < 16; ++i) {
+            out[i] = static_cast<std::uint8_t>(reg(offset + (i & ~3u)) >> (8 * (i & 3u)));
+        }
+        return out;
+    }
+    void put_bytes(std::uint32_t offset, const std::array<std::uint8_t, 16>& bytes)
+    {
+        for (std::uint32_t w = 0; w < 4; ++w) {
+            reg(offset + 4 * w) = bytes[4 * w] | (bytes[4 * w + 1] << 8) | (bytes[4 * w + 2] << 16) | (static_cast<std::uint32_t>(bytes[4 * w + 3]) << 24);
+        }
+    }
+    Aes cipher() const
+    {
+        std::array<std::uint8_t, 32> key{};
+        for (std::uint32_t i = 0; i < 32; ++i) {
+            key[i] = static_cast<std::uint8_t>(reg(i & ~3u) >> (8 * (i & 3u)));
+        }
+        return Aes(key.data(), (reg(0x40) & 3u) == 2 ? 32 : 16);
+    }
+    bool decrypting() const { return reg(0x40) & 4u; }
+
+    void run_block()
+    {
+        const Aes aes = cipher();
+        const auto in = bytes_at(0x20);
+        put_bytes(0x30, decrypting() ? aes.decrypt(in.data()) : aes.encrypt(in.data()));
+    }
+
+    void run_dma()
+    {
+        const Aes aes = cipher();
+        const std::uint32_t mode = reg(0x94) & 7u;
+        if (mode > 5) {
+            note("AES accelerator: GCM is not modelled");
+            state_ = 2;
+            return;
+        }
+        std::array<std::uint8_t, 16> iv = bytes_at(0x50);
+        for (std::uint32_t n = reg(0x98); n > 0; --n) {
+            std::array<std::uint8_t, 16> in{};
+            for (auto& b : in) {
+                if (!dma_.pop(peripheral, b)) {
+                    b = 0;
+                }
+            }
+            std::array<std::uint8_t, 16> out{};
+            switch (mode) {
+            case 0: out = decrypting() ? aes.decrypt(in.data()) : aes.encrypt(in.data()); break;
+            case 1:
+                if (decrypting()) {
+                    out = aes.decrypt(in.data());
+                    for (int i = 0; i < 16; ++i) {
+                        out[i] ^= iv[i];
+                    }
+                    iv = in;
+                } else {
+                    for (int i = 0; i < 16; ++i) {
+                        in[i] ^= iv[i];
+                    }
+                    out = aes.encrypt(in.data());
+                    iv = out;
+                }
+                break;
+            case 2: // OFB
+                iv = aes.encrypt(iv.data());
+                for (int i = 0; i < 16; ++i) {
+                    out[i] = static_cast<std::uint8_t>(in[i] ^ iv[i]);
+                }
+                break;
+            case 3: { // CTR: a 32-bit (INC_SEL 0) or 128-bit big-endian counter
+                const auto stream = aes.encrypt(iv.data());
+                for (int i = 0; i < 16; ++i) {
+                    out[i] = static_cast<std::uint8_t>(in[i] ^ stream[i]);
+                }
+                const int low = (reg(0x9C) & 1u) ? 0 : 12;
+                for (int i = 15; i >= low && ++iv[static_cast<std::size_t>(i)] == 0; --i) {
+                }
+                break;
+            }
+            case 4: // CFB8
+                for (int i = 0; i < 16; ++i) {
+                    const auto stream = aes.encrypt(iv.data());
+                    out[i] = static_cast<std::uint8_t>(in[i] ^ stream[0]);
+                    std::rotate(iv.begin(), iv.begin() + 1, iv.end());
+                    iv[15] = decrypting() ? in[i] : out[i];
+                }
+                break;
+            default: { // CFB128
+                const auto stream = aes.encrypt(iv.data());
+                for (int i = 0; i < 16; ++i) {
+                    out[i] = static_cast<std::uint8_t>(in[i] ^ stream[i]);
+                }
+                iv = decrypting() ? in : out;
+                break;
+            }
+            }
+            for (std::uint8_t b : out) {
+                dma_.push(peripheral, b);
+            }
+        }
+        put_bytes(0x50, iv);
+        dma_.end_in(peripheral);
+        state_ = 2; // done
+        if (reg(0xB0) & 1u) {
+            raise(source, true);
+        }
+    }
+
+    Gdma& dma_;
+    std::uint32_t state_ = 0;
+};
+
 // GP-SPI2 as a master (TRM chapter "SPI Controller"): CMD.USR runs one
 // transaction of CS setup, command (USER2), address (ADDR), dummy cycles and
 // data (MS_DLEN bits, full duplex with USER.DOUTDIN, otherwise the MOSI part
@@ -3185,12 +3344,99 @@ private:
             }
             desc = load(desc + 8, 4);
         }
+        // The descriptors' length includes the FCS's 4 bytes (the driver
+        // leaves 0xDEADBEEF there); the MAC computes the FCS on the air.
+        s.frame.bytes.resize(s.frame.bytes.size() >= 4 ? s.frame.bytes.size() - 4 : 0);
+        encrypt(s.frame.bytes);
         s.frame.channel = channel();
         s.frame.end_ns = now_ns() + airtime_ns(s.frame.bytes.size());
         sending_.push_back(std::move(s));
         reschedule();
     }
     static std::uint64_t airtime_ns(std::size_t bytes) { return 192'000 + (bytes + 4) * 8'000; }
+
+    // Hardware CCMP (hal_crypto_set_key_entry): key entry n at 0x1400 + 0x28n
+    // holds the peer's address (words 0 and 1's low half), bit 30 of word 1
+    // set for a group key, and the 16-byte key in words 2-5; 0x814 is the
+    // mask of valid entries. The driver hands over a protected frame with its
+    // CCMP header, the plain body and room for the MIC; the MAC encrypts it.
+    struct Key {
+        std::array<std::uint8_t, 16> key{};
+        bool group = false;
+    };
+    std::vector<Key> keys_for(const std::uint8_t* peer)
+    {
+        std::vector<Key> keys;
+        for (std::uint32_t n = 0; n < 32; ++n) {
+            if (!(reg(0x814) & (1u << n))) {
+                continue;
+            }
+            const std::uint32_t base = 0x1400 + 0x28 * n;
+            const std::uint32_t w0 = reg(base);
+            const std::uint32_t w1 = reg(base + 4);
+            const std::uint8_t address[6] = {static_cast<std::uint8_t>(w0), static_cast<std::uint8_t>(w0 >> 8),
+                static_cast<std::uint8_t>(w0 >> 16), static_cast<std::uint8_t>(w0 >> 24), static_cast<std::uint8_t>(w1),
+                static_cast<std::uint8_t>(w1 >> 8)};
+            if (!std::equal(address, address + 6, peer)) {
+                continue;
+            }
+            Key k;
+            k.group = w1 & (1u << 30);
+            for (std::uint32_t i = 0; i < 16; ++i) {
+                k.key[i] = static_cast<std::uint8_t>(reg(base + 8 + (i & ~3u)) >> (8 * (i & 3u)));
+            }
+            keys.push_back(k);
+        }
+        return keys;
+    }
+    void encrypt(std::vector<std::uint8_t>& bytes)
+    {
+        if (bytes.size() < 24 || (bytes[0] & 0x0Cu) != 0x08u || !(bytes[1] & 0x40u)) {
+            return; // only protected data frames
+        }
+        const std::size_t header = wifi_header_length(bytes);
+        if (bytes.size() < header + 16) {
+            return;
+        }
+        const std::uint8_t* ccmp = bytes.data() + header;
+        const std::uint64_t pn = ccmp[0] | (std::uint64_t{ccmp[1]} << 8) | (std::uint64_t{ccmp[4]} << 16)
+            | (std::uint64_t{ccmp[5]} << 24) | (std::uint64_t{ccmp[6]} << 32) | (std::uint64_t{ccmp[7]} << 40);
+        const int key_id = ccmp[3] >> 6;
+        const bool group = bytes[4] & 1u;
+        for (const Key& k : keys_for(bytes.data() + 4)) {
+            if (k.group == group) {
+                std::vector<std::uint8_t> plain(bytes.begin(), bytes.begin() + static_cast<std::ptrdiff_t>(header));
+                plain[1] &= static_cast<std::uint8_t>(~0x40u);
+                plain.insert(plain.end(), bytes.begin() + static_cast<std::ptrdiff_t>(header + 8), bytes.end() - 8);
+                bytes = ccmp_encrypt(k.key.data(), plain, pn, key_id);
+                return;
+            }
+        }
+    }
+
+    // A protected data frame from a peer with a key is decrypted in place:
+    // the header (Protected still set), the CCMP header, the plain body, and
+    // the MIC's 8 bytes zeroed. Without a key, or with a wrong MIC, the frame
+    // stays as it came.
+    std::vector<std::uint8_t> decrypt(const std::vector<std::uint8_t>& bytes)
+    {
+        if (bytes.size() < 24 || (bytes[0] & 0x0Cu) != 0x08u || !(bytes[1] & 0x40u)) {
+            return bytes;
+        }
+        const bool group = bytes[4] & 1u;
+        for (const Key& k : keys_for(bytes.data() + 10)) {
+            std::vector<std::uint8_t> plain;
+            std::uint64_t pn = 0;
+            if (k.group == group && ccmp_decrypt(k.key.data(), bytes, plain, pn)) {
+                const std::size_t header = wifi_header_length(bytes);
+                std::vector<std::uint8_t> out(bytes.begin(), bytes.begin() + static_cast<std::ptrdiff_t>(header + 8));
+                out.insert(out.end(), plain.begin() + static_cast<std::ptrdiff_t>(header), plain.end());
+                out.insert(out.end(), 8, std::uint8_t{0});
+                return out;
+            }
+        }
+        return bytes;
+    }
 
     void receive_now(const WifiFrame& frame)
     {
@@ -3206,10 +3452,11 @@ private:
         if (desc == 0) {
             return; // no buffer: the frame is lost
         }
+        const std::vector<std::uint8_t> bytes = decrypt(frame.bytes);
         const std::uint32_t word0 = load(desc, 4);
         const std::uint32_t size = word0 & 0xFFFu;
         const std::uint32_t buffer = load(desc + 4, 4);
-        const std::uint32_t sig_len = static_cast<std::uint32_t>(frame.bytes.size()) + 4;
+        const std::uint32_t sig_len = static_cast<std::uint32_t>(bytes.size()) + 4;
         const std::uint32_t length = 48 + sig_len;
         if (length > size) {
             return;
@@ -3223,12 +3470,12 @@ private:
         for (std::uint32_t i = 0; i < 12; ++i) {
             store(buffer + 4 * i, 4, header[i]);
         }
-        for (std::size_t i = 0; i < frame.bytes.size(); ++i) {
-            store(buffer + 48 + static_cast<std::uint32_t>(i), 1, frame.bytes[i]);
+        for (std::size_t i = 0; i < bytes.size(); ++i) {
+            store(buffer + 48 + static_cast<std::uint32_t>(i), 1, bytes[i]);
         }
         const std::uint32_t fcs = crc32(frame.bytes);
         for (std::uint32_t i = 0; i < 4; ++i) {
-            store(buffer + 48 + static_cast<std::uint32_t>(frame.bytes.size()) + i, 1, (fcs >> (8 * i)) & 0xFFu);
+            store(buffer + 48 + static_cast<std::uint32_t>(bytes.size()) + i, 1, (fcs >> (8 * i)) & 0xFFu);
         }
         store(desc, 4, (word0 & 0xFFFu) | (length << 12) | (1u << 30));
         reg(0x090) = desc;
@@ -3634,6 +3881,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     attach(0x60040000u, std::move(saradc));
     auto spi2 = std::make_unique<Spi2>(*this, *gdma);
     timed_.push_back(spi2.get());
+    attach(0x6003A000u, std::make_unique<AesAccelerator>(*this, *gdma));
     attach(0x6003F000u, std::move(gdma));
     attach(0x60024000u, std::move(spi2));
     auto rmt = std::make_unique<Rmt>(*this);
@@ -3667,7 +3915,7 @@ Esp32C3::Esp32C3(const Options& options) : options_(options), cpu_(bus_, core_co
     attach(0x60033000u, std::move(wifi_mac), 0x3000);
     static constexpr Plain plain[] = {
         {0x60014000u, "UHCI0"},
-        {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"}, {0x6003A000u, "AES"},
+        {0x6002B000u, "TWAI"}, {0x6002D000u, "I2S"},
         {0x6003C000u, "RSA"}, {0x6003D000u, "DS"}, {0x6003E000u, "HMAC"},
         {0x600C1000u, "SENSITIVE"},
         {0x600CC000u, "XTS_AES"}, {0x600CE000u, "ASSIST_DEBUG"},

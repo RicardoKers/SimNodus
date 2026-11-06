@@ -199,11 +199,16 @@ int run_esp32c3(int argc, char** argv)
         } else if (arg == "--trace-io") {
             trace = true;
         } else if (arg == "--wifi-ap" && i + 1 < argc) {
-            // SSID[@channel][,wpa2]: SimNodus's access point on the air (E-09)
+            // SSID[@channel][,wpa2[=passphrase]]: SimNodus's access point on
+            // the air (E-09); the passphrase defaults to simnodus-wifi
             std::string value = argv[++i];
             WifiApConfig ap;
-            if (const auto comma = value.rfind(','); comma != std::string::npos) {
-                ap.wpa2 = value.substr(comma + 1) == "wpa2";
+            if (const auto comma = value.find(','); comma != std::string::npos) {
+                const std::string security = value.substr(comma + 1);
+                ap.wpa2 = security.rfind("wpa2", 0) == 0;
+                if (security.rfind("wpa2=", 0) == 0) {
+                    ap.passphrase = security.substr(5);
+                }
                 value.resize(comma);
             }
             const auto at = value.rfind('@');

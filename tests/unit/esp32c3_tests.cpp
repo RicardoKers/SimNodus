@@ -16,6 +16,7 @@
 #include "emu/gdb_server.hpp"
 #include "emu/gdb_socket.hpp"
 #include "emu/wifi_air.hpp"
+#include "emu/wifi_crypto.hpp"
 
 #include <atomic>
 #include <cctype>
@@ -482,8 +483,8 @@ TEST_CASE("esp32c3: the Wi-Fi MAC sends probe requests and the scan finds SimNod
     const auto lines4 = run_lines(*python, 5'000'000'000ull, 2, partial4);
     CHECK(has(lines4, "[(b'SimNodus', b'\\x02SN\\x00\\x00\\x01', 11, -40, 0, False)]"));
 
-    // The station example finds the network and starts to authenticate; the
-    // access point does not answer yet (SN-267), so the attempt times out.
+    // The station example finds the network and authenticates (open system,
+    // sequence 1).
     auto station_board = boot(read_file(firmware("wifi_station_open.bin")));
     REQUIRE(station_board);
     config = WifiApConfig{};
@@ -538,6 +539,80 @@ TEST_CASE("esp32c3: a station joins the open access point and gets an address by
     python->send(2, "print(w.isconnected(), w.ifconfig())\r");
     const auto lines2 = run_lines(*python, 6'500'000'000ull, 2, partial2);
     CHECK(has(lines2, "True ('192.168.4.2', '255.255.255.0', '192.168.4.1', '192.168.4.1')"));
+}
+
+TEST_CASE("esp32c3: WPA2-PSK: the 4-way handshake, the MAC's CCMP and the AES accelerator (E-09, SN-267)")
+{
+    WifiApConfig config;
+    config.wpa2 = true;
+    // ESP-IDF's station example: the handshake (the supplicant unwraps the
+    // group key with the AES accelerator through GDMA), then DHCP over CCMP
+    // that the MAC encrypts and decrypts with the installed keys.
+    auto board = boot(read_file(firmware("wifi_station_wpa2.bin")));
+    REQUIRE(board);
+    WifiAir air(config);
+    air.attach(*board);
+    int eapol = 0;
+    int protected_from_station = 0;
+    air.set_monitor([&](const Esp32C3::WifiFrame& frame) {
+        const auto& b = frame.bytes;
+        if (b.size() > 40 && (b[0] & 0x0C) == 0x08) {
+            const std::size_t header = wifi_header_length(b);
+            if (!(b[1] & 0x40) && b[header + 6] == 0x88 && b[header + 7] == 0x8E) {
+                ++eapol;
+            }
+            if ((b[1] & 0x41) == 0x41) {
+                ++protected_from_station;
+                CHECK(b[header + 3] == 0x20); // CCMP header: ExtIV, key 0
+                CHECK(b[header + 8] != 0xAA); // the body is not plain LLC
+            }
+        }
+    });
+    std::string partial;
+    const auto lines = run_lines(*board, 3'000'000'000ull, 0, partial);
+    CHECK(has(lines, "wifi:connected with SimNodus, aid = 1, channel 6, BW20, bssid = 02:53:4e:00:00:01"));
+    CHECK(has(lines, "wifi:security: WPA2-PSK, phy: bg, rssi: -40"));
+    CHECK(has(lines, "sta ip: 192.168.4.2, mask: 255.255.255.0, gw: 192.168.4.1"));
+    CHECK(has(lines, "wifi station: connected to ap SSID:SimNodus password:simnodus-wifi"));
+    CHECK(eapol == 4);
+    CHECK(protected_from_station >= 2); // DHCP DISCOVER and REQUEST at least
+    CHECK(board->take_diagnostics().empty());
+
+    // A wrong passphrase: message 2's MIC fails, the access point sends
+    // message 1 again three times and then deauthenticates with reason 15.
+    auto wrong = boot(read_file(firmware("wifi_station_wpa2.bin")));
+    REQUIRE(wrong);
+    WifiApConfig other = config;
+    other.passphrase = "not-the-password";
+    WifiAir air2(other);
+    air2.attach(*wrong);
+    std::string partial2;
+    const auto lines2 = run_lines(*wrong, 4'500'000'000ull, 0, partial2);
+    CHECK(has(lines2, "wifi:state: run -> init (0xf00)"));
+    CHECK(has(lines2, "wifi station: connect to the AP fail"));
+    CHECK(!has(lines2, "got ip"));
+
+    // Arduino-ESP32: WiFi.begin("SimNodus", "simnodus-wifi").
+    auto arduino = boot(read_file(firmware("arduino_wifi_client.bin")));
+    REQUIRE(arduino);
+    WifiAir air3(config);
+    air3.attach(*arduino);
+    std::string partial3;
+    const auto lines3 = run_lines(*arduino, 3'000'000'000ull, 0, partial3);
+    CHECK(has(lines3, "wifi client: address 192.168.4.2"));
+
+    // MicroPython: WLAN.connect("SimNodus", "simnodus-wifi").
+    auto python = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(python);
+    WifiAir air4(config);
+    air4.attach(*python);
+    std::string partial4;
+    run_lines(*python, 400'000'000ull, 2, partial4);
+    python->send(2, "import network; w = network.WLAN(network.STA_IF); w.active(True); w.connect('SimNodus', 'simnodus-wifi')\r");
+    run_lines(*python, 6'000'000'000ull, 2, partial4);
+    python->send(2, "print(w.isconnected(), w.ifconfig()[0])\r");
+    const auto lines4 = run_lines(*python, 6'500'000'000ull, 2, partial4);
+    CHECK(has(lines4, "True 192.168.4.2"));
 }
 
 namespace {
@@ -637,6 +712,99 @@ TEST_CASE("esp32c3: the access point's network answers ping, DNS and a DHCP rene
     REQUIRE(out.size() == 1);
     CHECK(out[0].payload[28 + 240 + 2] == 5); // ACK
     CHECK(network.lease_of({0x34, 0x85, 0x18, 0x00, 0xC3, 0x01}));
+}
+
+namespace {
+
+std::string hex(const std::uint8_t* bytes, std::size_t count)
+{
+    std::string out;
+    char buffer[3];
+    for (std::size_t i = 0; i < count; ++i) {
+        std::snprintf(buffer, sizeof(buffer), "%02x", bytes[i]);
+        out += buffer;
+    }
+    return out;
+}
+
+template <typename Container>
+std::string hex(const Container& bytes)
+{
+    return hex(bytes.data(), bytes.size());
+}
+
+Bytes counting(std::uint8_t first, std::size_t count)
+{
+    Bytes out(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        out[i] = static_cast<std::uint8_t>(first + i);
+    }
+    return out;
+}
+
+} // namespace
+
+TEST_CASE("esp32c3: WPA2 cryptography against the published test vectors (E-09, SN-267)")
+{
+    // FIPS 180-4 and RFC 2202.
+    CHECK(hex(sha1(Bytes{'a', 'b', 'c'})) == "a9993e364706816aba3e25717850c26c9cd0d89d");
+    CHECK(hex(hmac_sha1(Bytes(20, 0x0B), Bytes{'H', 'i', ' ', 'T', 'h', 'e', 'r', 'e'})) == "b617318655057264e28bc0b6fb378c8ef146be00");
+    // IEEE 802.11 annex J: passphrase "password", SSID "IEEE".
+    CHECK(hex(pbkdf2_sha1("password", Bytes{'I', 'E', 'E', 'E'}, 4096, 32))
+        == "f42c6fc52df0ebef9ebb4b90b38a5f902e83fe1b135a70e23aed762e9710a12e");
+    // The 802.11 PRF (computed with Python's hmac for these inputs).
+    CHECK(hex(prf_sha1(counting(0, 32), "Pairwise key expansion", counting(0, 76), 48))
+        == "e4498e7375804649bee63f3e89639568e2e43cea122829e4caf9a0d903a7c1ed4a7a2be58646bd0a7530f5b3ccce0e66");
+    // FIPS 197 appendix C.1.
+    const Bytes key = counting(0, 16);
+    const Bytes plain{0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+    CHECK(hex(Aes128(key.data()).encrypt(plain.data())) == "69c4e0d86a7b0430d8cdb78070b4c55a");
+    const auto sealed128 = Aes(key.data()).encrypt(plain.data());
+    CHECK(hex(Aes(key.data()).decrypt(sealed128.data())) == hex(plain));
+    // FIPS 197 appendix C.3 (AES-256), both ways.
+    const Bytes key256 = counting(0, 32);
+    const auto sealed256 = Aes(key256.data(), 32).encrypt(plain.data());
+    CHECK(hex(sealed256) == "8ea2b7ca516745bfeafc49904b496089");
+    CHECK(hex(Aes(key256.data(), 32).decrypt(sealed256.data())) == hex(plain));
+    // RFC 3394 section 4.1.
+    CHECK(hex(aes_key_wrap(key.data(), plain)) == "1fa68b0a8112b447aef34bd8fb5a7b829d3e862371d2cfe5");
+    // RFC 3610 packet vector #1 (M = 8, L = 2).
+    const Bytes ccm_key = counting(0xC0, 16);
+    const std::uint8_t nonce[13] = {0x00, 0x00, 0x00, 0x03, 0x02, 0x01, 0x00, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5};
+    const Bytes sealed = ccm_encrypt(ccm_key.data(), nonce, counting(0, 8), counting(8, 23));
+    CHECK(hex(sealed) == "588c979a61c663d2f066d0c2c0f989806d5f6b61dac38417e8d12cfdf926e0");
+    Bytes opened;
+    CHECK(ccm_decrypt(ccm_key.data(), nonce, counting(0, 8), sealed, opened));
+    CHECK(opened == counting(8, 23));
+    Bytes tampered = sealed;
+    tampered[3] ^= 1;
+    CHECK(!ccm_decrypt(ccm_key.data(), nonce, counting(0, 8), tampered, opened));
+
+    // CCMP: a QoS data frame and a plain data frame through encryption and
+    // back; the packet number and the key ID go in the CCMP header.
+    for (const std::uint8_t subtype : {std::uint8_t{0x88}, std::uint8_t{0x08}}) {
+        Bytes frame{subtype, 0x01, 0, 0, 2, 0x53, 0x4E, 0, 0, 1, 0x34, 0x85, 0x18, 0, 0xC3, 1, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x30, 0x00};
+        if (subtype == 0x88) {
+            frame.insert(frame.end(), {0x05, 0x00});
+        }
+        const std::size_t header = frame.size();
+        CHECK(wifi_header_length(frame) == header);
+        const Bytes body = counting(0x40, 37);
+        frame.insert(frame.end(), body.begin(), body.end());
+        const Bytes protected_frame = ccmp_encrypt(ccm_key.data(), frame, 0x0000123456789AULL, 1);
+        REQUIRE(protected_frame.size() == frame.size() + 16);
+        CHECK((protected_frame[1] & 0x40) != 0);
+        CHECK(protected_frame[header] == 0x9A);
+        CHECK(protected_frame[header + 3] == 0x60); // ExtIV, key ID 1
+        Bytes back;
+        std::uint64_t pn = 0;
+        REQUIRE(ccmp_decrypt(ccm_key.data(), protected_frame, back, pn));
+        CHECK(pn == 0x0000123456789AULL);
+        CHECK(back == frame);
+        Bytes wrong = protected_frame;
+        wrong[4] ^= 1; // the destination is authenticated
+        CHECK(!ccmp_decrypt(ccm_key.data(), wrong, back, pn));
+    }
 }
 
 TEST_CASE("esp32c3: Wi-Fi frames in a pcap file (E-09, SN-266)")
