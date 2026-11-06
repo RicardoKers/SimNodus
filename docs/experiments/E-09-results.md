@@ -414,10 +414,11 @@ to the gateway in a first try.
 - **Gateway messages.** The gateway's start, or its failure, is reported
   among the board's messages.
 
-**Speed.** On the same laptop, `tools/examples_pass.py` ran examples 45-49
-at 1.61, 1.55, 1.44, 1.59 and 1.29x real time with this change, and at 1.48,
-1.46, 1.42, 1.42 and 1.21x on `main` without it. That is within the noise:
-the laptop was slower that day than in earlier measurements.
+**Speed (G9e.4).** With the laptop otherwise idle, `tools/examples_pass.py`
+runs examples 45-49 at 2.17, 2.12, 1.70, 2.20 and 1.45x real time. Before
+E-09 they ran at 1.98, 2.09, 1.73, 2.16 and 1.44x. Boards that do not start
+the Wi-Fi pay nothing for it. A first measurement while another application
+used the laptop showed about 1.5x both with and without this change.
 
 **Next.** The application's part comes in the second part of SN-269:
 
