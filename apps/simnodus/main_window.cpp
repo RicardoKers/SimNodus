@@ -16,6 +16,7 @@
 #include "schematic_scene.hpp"
 #include "schematic_view.hpp"
 #include "settings_dialog.hpp"
+#include "wifi_dialog.hpp"
 #include "theme.hpp"
 #include "user_models.hpp"
 
@@ -463,6 +464,7 @@ void MainWindow::build_actions_and_menus()
     reset_action_->setStatusTip(tr("Restart the simulation from the beginning"));
     simulate->addSeparator();
     simulate->addAction(tr("Simulation &Settings..."), this, &MainWindow::edit_settings);
+    simulate->addAction(tr("&Wi-Fi Network..."), this, &MainWindow::edit_wifi);
     auto* sound = simulate->addAction(tr("S&ound"));
     sound->setCheckable(true);
     sound->setChecked(settings_.value(QStringLiteral("simulation/sound"), true).toBool());
@@ -850,6 +852,7 @@ void MainWindow::run()
 
 bool MainWindow::start_run(const sim::RunRequest* base, QString& error)
 {
+    run_->set_network_allowed(base == nullptr && network_allowed());
     const bool started = run_->start(error, base);
     report_diagnostics();
     if (!started) {
@@ -970,6 +973,72 @@ void MainWindow::reset()
 {
     run_->stop();
     run();
+}
+
+void MainWindow::edit_wifi()
+{
+    auto settings = document_->schematic().settings();
+    WifiDialog dialog(settings.wifi, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        if (dialog.settings().gateway && !settings.wifi.gateway) {
+            allow_network(); // turned on here: the user's own choice on this computer
+        }
+        settings.wifi = dialog.settings();
+        document_->apply(editing::set_settings(document_->schematic(), settings));
+        update_run_state();
+    }
+}
+
+namespace {
+
+constexpr const char* allowed_key = "wifi/gatewayAllowed"; // project files whose gateway this computer allowed
+
+} // namespace
+
+void MainWindow::allow_network()
+{
+    const QString file = document_->file_path();
+    if (file.isEmpty()) {
+        unsaved_network_allowed_ = true;
+        return;
+    }
+    QStringList allowed = settings_.value(allowed_key).toStringList();
+    const QString key = QFileInfo(file).absoluteFilePath();
+    if (!allowed.contains(key)) {
+        allowed.append(key);
+        settings_.setValue(allowed_key, allowed);
+    }
+}
+
+bool MainWindow::network_allowed()
+{
+    const auto& schematic = document_->schematic();
+    if (!schematic.settings().wifi.gateway || !schematic.settings().wifi.access_point) {
+        return false;
+    }
+    const bool has_wifi_board = std::any_of(schematic.components().begin(), schematic.components().end(), [this](const auto& c) {
+        const auto* d = document_->library().find(c.type);
+        return d && d->mcu && d->mcu->chip == "esp32c3";
+    });
+    if (!has_wifi_board) {
+        return false;
+    }
+    const QString file = document_->file_path();
+    if (file.isEmpty() ? unsaved_network_allowed_
+                       : settings_.value(allowed_key).toStringList().contains(QFileInfo(file).absoluteFilePath())) {
+        return true;
+    }
+    const auto answer = QMessageBox::question(this, tr("Wi-Fi gateway"),
+        tr("This project's Wi-Fi gateway connects its ESP32-C3 boards to this computer's network: their firmware can "
+           "reach this computer, the local network and the internet, and forwarded ports open on 127.0.0.1.\n\n"
+           "Allow it for this project on this computer? Without it, the boards' network stays inside the "
+           "simulation."),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer != QMessageBox::Yes) {
+        return false;
+    }
+    allow_network();
+    return true;
 }
 
 void MainWindow::edit_settings()
@@ -1961,7 +2030,6 @@ QString gdb_waiting_message(const model::Schematic& schematic, const library::Co
 {
     // Each board gets the next port in schematic order (build_mcu_requests), and
     // the message names only the debugger that speaks to its chip.
-    const auto tr = [](const char* text) { return MainWindow::tr(text); };
     QStringList boards;
     QString single;
     for (const auto& c : schematic.components()) {
@@ -1969,21 +2037,21 @@ QString gdb_waiting_message(const model::Schematic& schematic, const library::Co
         if (!d || !d->mcu) {
             continue;
         }
-        const QString debugger = d->mcu->chip == "esp32c3"       ? tr("riscv32-esp-elf-gdb")
-                                 : library::avr_chip(d->mcu->chip) ? tr("avr-gdb")
-                                                                   : tr("STM32CubeIDE or arm-none-eabi-gdb");
+        const QString debugger = d->mcu->chip == "esp32c3"       ? MainWindow::tr("riscv32-esp-elf-gdb")
+                                 : library::avr_chip(d->mcu->chip) ? MainWindow::tr("avr-gdb")
+                                                                   : MainWindow::tr("STM32CubeIDE or arm-none-eabi-gdb");
         const int port = first_port + static_cast<int>(boards.size());
         single = debugger;
-        boards << tr("%1 to localhost:%2 (%3)").arg(debugger).arg(port).arg(QString::fromStdString(c.designator));
+        boards << MainWindow::tr("%1 to localhost:%2 (%3)").arg(debugger).arg(port).arg(QString::fromStdString(c.designator));
     }
     if (boards.isEmpty()) {
         return {};
     }
     const QString connect_text = boards.size() == 1
-        ? tr("Waiting for the debugger: connect %1 to localhost:%2.").arg(single).arg(first_port)
-        : tr("Waiting for the debuggers: connect %1.").arg(boards.join(QStringLiteral("; ")));
+        ? MainWindow::tr("Waiting for the debugger: connect %1 to localhost:%2.").arg(single).arg(first_port)
+        : MainWindow::tr("Waiting for the debuggers: connect %1.").arg(boards.join(QStringLiteral("; ")));
     return connect_text + QLatin1Char(' ')
-        + tr("The circuit starts when the firmware runs. To run without a debugger, turn off "
+        + MainWindow::tr("The circuit starts when the firmware runs. To run without a debugger, turn off "
              "Simulate > Debug Firmware with GDB.");
 }
 

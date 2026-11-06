@@ -145,6 +145,11 @@ public slots:
     void stop();
     void reset();
     void edit_settings();
+    void edit_wifi();
+    // DE9c: asks once per project on this computer before the Wi-Fi gateway
+    // connects the boards to this computer's network.
+    bool network_allowed();
+    void allow_network();
 
 signals:
     void engine_check_finished(bool ok);
@@ -191,6 +196,7 @@ private:
     std::optional<model::Block> read_block(const QString& path, QString& error) const;
 
     QSettings& settings_;
+    bool unsaved_network_allowed_ = false; // for a project without a file, this session
     library::ComponentLibrary library_;
     Document* document_ = nullptr;
     SchematicScene* scene_ = nullptr;

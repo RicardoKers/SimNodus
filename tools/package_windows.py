@@ -47,6 +47,7 @@ REQUIRED = [
     "examples/47_ESP32-C3_SPI_ADC_and_flash.snx", "examples/firmware/esp32c3_spi/esp32c3_spi.bin",
     "examples/48_ESP32-C3_WS2812_strip.snx", "examples/firmware/esp32c3_ws2812/esp32c3_ws2812.bin",
     "examples/49_ESP32-C3_ADC_with_DMA_and_temperature.snx", "examples/firmware/esp32c3_adc_dma/esp32c3_adc_dma.bin",
+    "examples/60_ESP32-C3_Wi-Fi_web_server.snx", "examples/firmware/esp32c3_wifi_web/esp32c3_wifi_web.bin",
     "library/mcu/atmega8_pdip28.json", "library/mcu/atmega8a_pdip28.json", "library/mcu/atmega328_pdip28.json",
     "library/mcu/atmega328p_pdip28.json", "library/mcu/arduino_uno.json",
     "library/mcu/atmega32_pdip40.json", "library/mcu/atmega32a_pdip40.json", "library/passive/crystal.json",

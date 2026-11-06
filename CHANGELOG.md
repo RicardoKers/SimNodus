@@ -4,6 +4,16 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-06, SN-269, application)
+
+- **Simulate > Wi-Fi Network...** (experimental, ESP32-C3): the project's network (SimNodus's access point on or off; name, WPA2-PSK or open, password, channel), the gateway to this computer's network and the ports of this computer forwarded to boards. The first time a project with the gateway runs on a computer, SimNodus asks before connecting the boards to that computer's network; the answer stays on the computer, not in the project.
+- Example 60: an ESP32-C3 web server on the Wi-Fi network; with the gateway allowed, http://127.0.0.1:8080/ shows the board's LED and chip temperature and switches the LED.
+- The microcontroller guide's *Wi-Fi* section (English and pt-BR) and the `wifi_*` settings in the automation reference.
+
+### Fixed (2026-11-06)
+
+- The pt-BR translation of the debugger's waiting message (#282) now survives `tools/update_translations.py` (`MainWindow::tr` instead of a local lambda).
+
 ### Added (2026-11-06, SN-269, engine)
 
 - A project's ESP32-C3 boards share a Wi-Fi network in a run (E-09): SimNodus's access point is on by default (`SimNodus` / `simnodus-wifi`, WPA2, channel 6), its gateway to this computer off; the settings are in the project (`settings.wifi`, written only when changed) and in `settings.get` / `settings.set` (`wifi_*`). Boards in different runner threads share the air, the access point relays frames between them, and each board has its own MAC address. A board joins the network only when its firmware starts the Wi-Fi. Runs started from the CLI or MCP keep the gateway off unless they pass `"allow_network": true`. The application's dialog comes next.

@@ -179,6 +179,14 @@ bool RunController::start(QString& error, const sim::RunRequest* base)
         take_elf_fuses();
     }
     snapshot_ = base ? base->schematic : document_.schematic();
+    if (!base && !network_allowed_ && snapshot_.settings().wifi.gateway) {
+        // The gateway was not allowed on this computer: the network stays
+        // inside the simulation (DE9c).
+        auto settings = snapshot_.settings();
+        settings.wifi.gateway = false;
+        snapshot_.set_settings(settings);
+        emit mcu_message(model::no_id, tr("The Wi-Fi gateway to this computer stays off in this run."));
+    }
     mode_ = snapshot_.settings().mode;
     const auto& library = document_.library();
 

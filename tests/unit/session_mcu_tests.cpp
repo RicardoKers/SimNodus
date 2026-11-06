@@ -8,6 +8,7 @@
 #include "circuit_builder.hpp"
 #include "emu/elf.hpp"
 #include "emu/gdb_socket.hpp"
+#include "emu/host_socket.hpp"
 #include "engine_fixture.hpp"
 #include "io/project_file.hpp"
 #include "mcu/mcu_machine.hpp"
@@ -1077,8 +1078,10 @@ TEST_CASE("session: two ESP32-C3 boards join the project's Wi-Fi network (E-09, 
     const auto begin = std::chrono::steady_clock::now();
     std::string text1;
     std::string text2;
+    // The line after the address: the address line has arrived whole.
+    const std::string joined = "connected to ap SSID:SimNodus";
     while (session.status().sim_time < 6.0
-        && (text1.find("got ip") == std::string::npos || text2.find("got ip") == std::string::npos)) {
+        && (text1.find(joined) == std::string::npos || text2.find(joined) == std::string::npos)) {
         REQUIRE(session.active());
         REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
         std::this_thread::sleep_for(20ms);
@@ -1098,6 +1101,75 @@ TEST_CASE("session: two ESP32-C3 boards join the project's Wi-Fi network (E-09, 
     // Each board has its own MAC address.
     CHECK(text1.find("wifi:mode : sta (34:85:18:00:c3:01)") != std::string::npos);
     CHECK(text2.find("wifi:mode : sta (34:85:18:00:c3:05)") != std::string::npos);
+}
+
+TEST_CASE("session: example 60's web server answers through the Wi-Fi gateway's forwarded port (E-09, SN-269)")
+{
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "60_ESP32-C3_Wi-Fi_web_server.snx");
+    REQUIRE(loaded.schematic.has_value());
+    CHECK(loaded.schematic->settings().wifi.gateway);
+    REQUIRE(loaded.schematic->settings().wifi.forwards.size() == 1);
+    CHECK(loaded.schematic->settings().wifi.forwards.front().host_port == 8080);
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    settings.wifi.forwards.front().host_port = 18471; // a port the test machine is unlikely to use
+    request.schematic.set_settings(settings);
+    request.library = &board_library();
+    request.vectors = {"gpio8"};
+    std::string error;
+    sim::McuEnvironment env = environment();
+    env.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, board_library(), env, request.mcus, error));
+    const model::Id board = request.mcus.front().component;
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    std::string text;
+    while (text.find("web server: http://192.168.4.2/") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(session.status().sim_time < 8.0);
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        std::this_thread::sleep_for(20ms);
+        session.mcu_uart_received(board, "uart0", 0, text);
+    }
+    bool gateway_note = false;
+    for (const auto& [id, note] : session.take_mcu_diagnostics()) {
+        gateway_note = gateway_note || note.find("127.0.0.1:18471 goes to 192.168.4.2:80") != std::string::npos;
+    }
+    CHECK(gateway_note);
+    // A browser's request through the forwarded port switches the LED.
+    auto client = emu::HostSocket::connect_tcp({127, 0, 0, 1}, 18471);
+    REQUIRE(client);
+    std::string reply;
+    bool sent = false;
+    while (reply.find("</html>") == std::string::npos) {
+        REQUIRE(session.active());
+        REQUIRE(std::chrono::steady_clock::now() - begin < 300s);
+        if (!sent && client->finished() > 0) {
+            const std::string get = "GET /?led=1 HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n";
+            sent = client->send(reinterpret_cast<const std::uint8_t*>(get.data()), get.size()) > 0;
+        }
+        std::uint8_t buffer[1024];
+        const long n = sent ? client->receive(buffer, sizeof(buffer)) : -1;
+        if (n > 0) {
+            reply.append(reinterpret_cast<const char*>(buffer), static_cast<std::size_t>(n));
+        }
+        std::this_thread::sleep_for(5ms);
+    }
+    CHECK(reply.find(" 200 OK") != std::string::npos);
+    CHECK(reply.find("LED: <b>on</b>") != std::string::npos);
+    CHECK(reply.find("Chip temperature: 25.0") != std::string::npos);
+    const double after = session.status().sim_time + 0.2;
+    while (session.status().sim_time < after) {
+        std::this_thread::sleep_for(10ms);
+    }
+    session.mcu_uart_received(board, "uart0", 0, text);
+    CHECK(text.find("web: LED on") != std::string::npos);
+    CHECK(session.mcu_pins(board).at("GPIO8").level);
+    session.stop();
 }
 
 TEST_CASE("session: example 46 reads an LM75 and a 24C02 from the ESP32-C3 over I2C")
