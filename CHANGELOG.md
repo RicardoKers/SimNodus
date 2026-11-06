@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-06, SN-267, open network)
+
+- SimNodus's virtual access point lets ESP32-C3 stations join an open network (E-09): open-system authentication, association, and an IP network behind it (`WifiNetwork`: 192.168.4.1, DHCP for 192.168.4.2-20, ARP, ping; DNS answers "no such name" until the gateway). The unmodified ESP-IDF station example and MicroPython's `WLAN.connect()` get 192.168.4.2. Still only in `simnodus-emu --wifi-ap` and the tests.
+
 ### Added (2026-11-05, SN-266)
 
 - ESP32-C3 Wi-Fi MAC model (E-09): TX queues, RX descriptors and interrupts as the unmodified Wi-Fi libraries drive them, the channel read from the RF PLL, ACK timeouts for frames nobody acknowledges. A virtual access point on the air (`WifiAir`: beacons, probe responses, open or WPA2 announced) is found by the ESP-IDF scan and by MicroPython's `WLAN.scan()`. `simnodus-emu --esp32c3` takes `--wifi-ap SSID[@channel][,wpa2]`, `--wifi-log` and `--wifi-pcap file` (frames for Wireshark). Not in the application yet; association, WPA2 and DHCP come next (SN-267).
