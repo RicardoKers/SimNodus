@@ -15,6 +15,7 @@
 #include "emu/esp32c3_rom.hpp"
 #include "emu/gdb_server.hpp"
 #include "emu/gdb_socket.hpp"
+#include "emu/wifi_air.hpp"
 
 #include <atomic>
 #include <cctype>
@@ -396,6 +397,135 @@ TEST_CASE("esp32c3: the Wi-Fi starts, calibrates its PHY and scans an empty air 
     python->send(2, "print('found', w.scan())\r");
     lines4 = run_lines(*python, 5'000'000'000ull, 2, partial4);
     CHECK(has(lines4, "found []"));
+}
+
+TEST_CASE("esp32c3: the Wi-Fi MAC sends probe requests and the scan finds SimNodus's access point (E-09, SN-266)")
+{
+    // ESP-IDF's scan example against an open access point on channel 6.
+    auto machine = boot(read_file(firmware("wifi_scan.bin")));
+    REQUIRE(machine);
+    WifiApConfig config;
+    config.channel = 6;
+    WifiAir air(config);
+    air.attach(*machine);
+    std::vector<Esp32C3::WifiFrame> frames;
+    air.set_monitor([&frames](const Esp32C3::WifiFrame& frame) { frames.push_back(frame); });
+    std::string partial;
+    const auto lines = run_lines(*machine, 3'200'000'000ull, 0, partial);
+    CHECK(has(lines, "scan: Total APs scanned = 1"));
+    CHECK(has(lines, "SimNodus"));
+    CHECK(has(lines, "WIFI_AUTH_OPEN"));
+    CHECK(has(lines, "scan: Channel \t\t6"));
+    CHECK(has(lines, "scan: RSSI \t\t-40"));
+    // One probe request on each channel 1-11 from the station's address, the
+    // channel read from the RF PLL; one probe response on channel 6.
+    std::vector<int> probed;
+    int responses = 0;
+    int beacons = 0;
+    for (const auto& frame : frames) {
+        REQUIRE(frame.bytes.size() >= 24);
+        if (frame.bytes[0] == 0x40) {
+            probed.push_back(frame.channel);
+            CHECK(std::equal(frame.bytes.begin() + 10, frame.bytes.begin() + 16, machine->wifi_address().begin()));
+        } else if (frame.bytes[0] == 0x50) {
+            ++responses;
+            CHECK(frame.channel == 6);
+        } else if (frame.bytes[0] == 0x80) {
+            ++beacons;
+        }
+    }
+    const std::vector<int> channels{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    CHECK(probed == channels);
+    CHECK(responses == 1);
+    CHECK(beacons >= 30); // every 102.4 ms
+    const std::array<std::uint8_t, 6> station{0x34, 0x85, 0x18, 0x00, 0xC3, 0x01};
+    CHECK(machine->wifi_address() == station);
+    CHECK(machine->take_diagnostics().empty());
+
+    // The same scan twice: the same frames at the same times.
+    auto second = boot(read_file(firmware("wifi_scan.bin")));
+    REQUIRE(second);
+    WifiAir air2(config);
+    air2.attach(*second);
+    std::vector<Esp32C3::WifiFrame> frames2;
+    air2.set_monitor([&frames2](const Esp32C3::WifiFrame& frame) { frames2.push_back(frame); });
+    second->run_until_ns(3'200'000'000ull);
+    REQUIRE(frames2.size() == frames.size());
+    for (std::size_t i = 0; i < frames.size(); ++i) {
+        CHECK(frames2[i].bytes == frames[i].bytes);
+        CHECK(frames2[i].end_ns == frames[i].end_ns);
+    }
+
+    // A WPA2 network is reported with its security (the handshake is SN-267).
+    auto secured = boot(read_file(firmware("wifi_scan.bin")));
+    REQUIRE(secured);
+    config.channel = 1;
+    config.wpa2 = true;
+    WifiAir air3(config);
+    air3.attach(*secured);
+    std::string partial3;
+    const auto lines3 = run_lines(*secured, 3'200'000'000ull, 0, partial3);
+    CHECK(has(lines3, "WIFI_AUTH_WPA2_PSK"));
+    CHECK(has(lines3, "WIFI_CIPHER_TYPE_CCMP"));
+    CHECK(has(lines3, "scan: Channel \t\t1"));
+
+    // MicroPython's scan() lists it.
+    auto python = boot(read_file(firmware("ESP32_GENERIC_C3-20260824-v1.29.0.bin")));
+    REQUIRE(python);
+    config = WifiApConfig{};
+    config.channel = 11;
+    WifiAir air4(config);
+    air4.attach(*python);
+    std::string partial4;
+    run_lines(*python, 400'000'000ull, 2, partial4);
+    python->send(2, "import network; w = network.WLAN(network.STA_IF); w.active(True); print(w.scan())\r");
+    const auto lines4 = run_lines(*python, 5'000'000'000ull, 2, partial4);
+    CHECK(has(lines4, "[(b'SimNodus', b'\\x02SN\\x00\\x00\\x01', 11, -40, 0, False)]"));
+
+    // The station example finds the network and starts to authenticate; the
+    // access point does not answer yet (SN-267), so the attempt times out.
+    auto station_board = boot(read_file(firmware("wifi_station_open.bin")));
+    REQUIRE(station_board);
+    config = WifiApConfig{};
+    config.ssid = "SimNodus-open";
+    WifiAir air5(config);
+    air5.attach(*station_board);
+    bool authentication = false;
+    air5.set_monitor([&authentication, &config](const Esp32C3::WifiFrame& frame) {
+        if (frame.bytes.size() >= 30 && frame.bytes[0] == 0xB0
+            && std::equal(config.bssid.begin(), config.bssid.end(), frame.bytes.begin() + 4)) {
+            authentication = true; // open system, sequence 1
+            CHECK(frame.bytes[24] == 0);
+            CHECK(frame.bytes[26] == 1);
+        }
+    });
+    std::string partial5;
+    const auto lines5 = run_lines(*station_board, 2'500'000'000ull, 0, partial5);
+    CHECK(authentication);
+    CHECK(has(lines5, "wifi:state: init -> auth (0xb0)"));
+}
+
+TEST_CASE("esp32c3: Wi-Fi frames in a pcap file (E-09, SN-266)")
+{
+    const fs::path path = fs::temp_directory_path() / "simnodus_wifi_test.pcap";
+    {
+        WifiPcap pcap;
+        REQUIRE(pcap.open(path.string()));
+        Esp32C3::WifiFrame frame;
+        frame.bytes = {0x80, 0x00, 0x00, 0x00};
+        frame.end_ns = 1'000'002'000ull;
+        pcap.write(frame);
+    }
+    const auto bytes = read_file(path);
+    fs::remove(path);
+    REQUIRE(bytes.size() == 24 + 16 + 4);
+    CHECK(bytes[0] == 0xD4);
+    CHECK(bytes[3] == 0xA1);
+    CHECK(bytes[20] == 105); // LINKTYPE_IEEE802_11
+    CHECK(bytes[24] == 1);   // 1 s
+    CHECK(bytes[28] == 2);   // 2 us
+    CHECK(bytes[32] == 4);   // captured length
+    CHECK(bytes[40] == 0x80);
 }
 
 TEST_CASE("esp32c3: faults give the panic report and a diagnostic")

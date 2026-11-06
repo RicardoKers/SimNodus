@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-05 (E-09 Wi-Fi: decisions taken, SN-264 and SN-265 done, the station starts; SN-266 next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-05 (E-09 Wi-Fi: SN-264..SN-266 done, a scan finds SimNodus's access point; SN-267 next; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -201,9 +201,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      three MicroPython scripts in `tests/experiments/esp32c3`; every one
      stopped in the PHY's full calibration. SN-265 done: the PHY
      calibrates and the station starts on ESP-IDF, Arduino and MicroPython;
-     scans find no AP yet ([results](../experiments/E-09-results.md)).
-     Next: SN-266, the MAC (TX slots, RX DMA, interrupts, TSF) and the
-     radio medium;
+     SN-266 done: the MAC model sends and receives, and the ESP-IDF and
+     MicroPython scans find SimNodus's access point (`WifiAir`: beacons,
+     probe responses; `simnodus-emu --wifi-ap`, `--wifi-pcap`)
+     ([results](../experiments/E-09-results.md)). Next: SN-267, the access
+     point's authentication, association, WPA2 handshake and DHCP;
    - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data
