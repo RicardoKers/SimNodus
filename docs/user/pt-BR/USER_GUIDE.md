@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 49c8f51129729431568bc0ea16d80c3fdbee27e06538b2f40849de17ce488147 -->
+<!-- source: USER_GUIDE.md sha256 982d676ca2dfd015148af9114175db6032788be57c36ae2b4073ab5261c0237c -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -102,7 +102,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 | Categoria | Componentes |
 |---|---|
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
-| **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, terra |
+| **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, painéis solares de 1 W, 5 W, 10 W e 20 W, terra |
 | **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4; módulo joystick de dois eixos |
 | **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
@@ -164,6 +164,22 @@ Observações sobre alguns componentes:
   Retorno por mola desliga isso); clique no quadrado SW para empurrá-la. A roda
   do mouse move X e Shift com a roda move Y. Numa placa de 3,3 V, alimente o
   módulo com 3,3 V. O exemplo 61 o lê com uma Blue Pill.
+- **Painéis solares:** um modelo de um diodo ajustado pelos valores do
+  datasheet nas STC (1000 W/m², 25 °C): tensão de circuito aberto, corrente
+  de curto-circuito, a tensão e a corrente de máxima potência, as células em
+  série e os coeficientes de temperatura, todos editáveis em Propriedades (os
+  modelos prontos são painéis de 1 W e 5 W com 12 células e de 10 W e 20 W
+  com 36 células). O fator de idealidade é ajustado em cada modelo pronto
+  para que a máxima potência caia em Vmp; depois de editar os valores do
+  datasheet, a curva ainda passa por eles com cerca de 1 % de erro. Durante
+  a execução, arraste o painel ou gire a roda do mouse para mudar a
+  irradiância (0 a 1200 W/m²) e use Shift com a roda para a temperatura das
+  células (-20 a 85 °C). O símbolo mostra a potência retirada como fração do
+  ponto de máxima potência na luz e na temperatura atuais (calculado pelo
+  mesmo modelo), então um MPPT pode ser avaliado: cerca de 100 % no máximo.
+  Sombreamento parcial, diodos de bypass, espectro e o comportamento térmico
+  do painel ficam de fora. O exemplo 62 segue o máximo com uma Blue Pill e
+  uma carga eletrônica.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma
   fonte controlada por corrente sente a corrente que flui de C+ para C-, por

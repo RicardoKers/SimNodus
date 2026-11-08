@@ -236,8 +236,9 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 6. **Energy and motor control parts** (owner's request of 2026-11-08,
    SN-271..SN-277 in the [backlog](BACKLOG.md)): the load on the DC motor
    (SN-271), several live controls per part and the two-axis joystick
-   (SN-272, SN-273, example 61) are done, unreleased; next, a photovoltaic
-   module for MPPT lessons, a lithium cell for chargers, then a BLDC motor
+   (SN-272, SN-273, example 61) and the solar panels with an MPPT example
+   (SN-274, example 62) are done, unreleased; next, a lithium cell for
+   chargers (SN-275), then a BLDC motor
    with a three-phase driver after a speed experiment (E-11).
 
 ## Known constraints
@@ -343,7 +344,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   MICROCONTROLLER; a change to one of them includes the same change in the
   translation and its new source hash (`check_repository.py` prints it).
 - **Generated parts:** the library JSON of logic, storage, display, timer,
-  converter, regulator, sensor, logic chip, motion, power/interface and I/O parts comes from `tools/generate_*_parts.py`;
+  converter, regulator, sensor, logic chip, motion, power/interface, I/O and solar parts comes from `tools/generate_*_parts.py`;
   edit the generator and rerun it, not the JSON.
 - **Pitfalls met so far:** ninja kept stale objects in `build/dev`
   (header changes not seen: 0 recorded dependencies, then heap corruption in

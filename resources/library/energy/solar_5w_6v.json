@@ -1,0 +1,289 @@
+{
+  "type": "solar_5w_6v",
+  "name": "Solar panel 5 W 6 V",
+  "category": "Sources",
+  "prefix": "PV",
+  "description": "Photovoltaic module, 12 cells in series, about 4.97 W at 1000 W/m² and 25 °C (Voc 7.2 V, Isc 0.95 A, Vmp 5.7 V, Imp 0.877 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -3,
+          -3,
+          6,
+          6
+        ]
+      },
+      {
+        "line": [
+          -3,
+          -1,
+          3,
+          -1
+        ]
+      },
+      {
+        "line": [
+          -3,
+          1,
+          3,
+          1
+        ]
+      },
+      {
+        "line": [
+          -1,
+          -3,
+          -1,
+          3
+        ]
+      },
+      {
+        "line": [
+          1,
+          -3,
+          1,
+          3
+        ]
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -3
+        ]
+      },
+      {
+        "line": [
+          0,
+          3,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "+",
+        "at": [
+          0.9,
+          -3.6
+        ],
+        "size": 1
+      },
+      {
+        "line": [
+          -5.6,
+          -5.6,
+          -3.6,
+          -3.6
+        ]
+      },
+      {
+        "line": [
+          -3.6,
+          -3.6,
+          -4.4,
+          -3.7
+        ]
+      },
+      {
+        "line": [
+          -3.6,
+          -3.6,
+          -3.7,
+          -4.4
+        ]
+      },
+      {
+        "line": [
+          -4.6,
+          -6.4,
+          -2.6,
+          -4.4
+        ]
+      },
+      {
+        "line": [
+          -2.6,
+          -4.4,
+          -3.4,
+          -4.5
+        ]
+      },
+      {
+        "line": [
+          -2.6,
+          -4.4,
+          -2.7,
+          -5.2
+        ]
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    4,
+    -2
+  ],
+  "value_offset": [
+    4,
+    2
+  ],
+  "value_parameter": "irradiance",
+  "parameters": [
+    {
+      "name": "irradiance",
+      "label": "Irradiance",
+      "unit": "W/m²",
+      "default": "1000",
+      "description": "Light on the panel (full sun 1000 W/m²); drag the part or use the wheel while running (0 to 1200 W/m²)",
+      "min": "0",
+      "max": "1200"
+    },
+    {
+      "name": "temperature",
+      "label": "Cell temperature",
+      "unit": "°C",
+      "default": "25",
+      "description": "Temperature of the cells (25 °C at STC; about 45-60 °C in the sun); Shift with the wheel while running (-20 to 85 °C)",
+      "min": "-20",
+      "max": "85"
+    },
+    {
+      "name": "Voc",
+      "label": "Open-circuit voltage",
+      "unit": "V",
+      "default": "7.2",
+      "description": "Voc at STC, from the datasheet",
+      "min": "0.3",
+      "max": "100"
+    },
+    {
+      "name": "Isc",
+      "label": "Short-circuit current",
+      "unit": "A",
+      "default": "0.95",
+      "description": "Isc at STC, from the datasheet",
+      "min": "1m",
+      "max": "20"
+    },
+    {
+      "name": "Vmp",
+      "label": "Voltage at maximum power",
+      "unit": "V",
+      "default": "5.7",
+      "description": "Vmp at STC, below Voc",
+      "min": "0.2",
+      "max": "100"
+    },
+    {
+      "name": "Imp",
+      "label": "Current at maximum power",
+      "unit": "A",
+      "default": "0.877",
+      "description": "Imp at STC, below Isc",
+      "min": "1m",
+      "max": "20"
+    },
+    {
+      "name": "cells",
+      "label": "Cells in series",
+      "unit": "",
+      "default": "12",
+      "description": "Number of cells in series (Ns)",
+      "min": "1",
+      "max": "200"
+    },
+    {
+      "name": "alpha",
+      "label": "Isc temperature coefficient",
+      "unit": "%/°C",
+      "default": "0.05",
+      "description": "Change of Isc per °C",
+      "min": "-1",
+      "max": "1"
+    },
+    {
+      "name": "beta",
+      "label": "Voc temperature coefficient",
+      "unit": "%/°C",
+      "default": "-0.32",
+      "description": "Change of Voc per °C",
+      "min": "-1",
+      "max": "0"
+    },
+    {
+      "name": "n",
+      "label": "Ideality factor",
+      "unit": "",
+      "default": "1.455",
+      "description": "Diode ideality factor; fitted so the maximum power is at Vmp for the preset's values",
+      "min": "0.5",
+      "max": "3"
+    },
+    {
+      "name": "Rsh",
+      "label": "Shunt resistance",
+      "unit": "Ohm",
+      "default": "1300",
+      "description": "Leakage across the cells (left out of the fit; about 0.5 % of Imp at Vmp)",
+      "min": "1",
+      "max": "1G"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "irradiance",
+    "controls": [
+      {
+        "name": "temperature",
+        "kind": "potentiometer",
+        "parameter": "temperature"
+      }
+    ]
+  },
+  "readout": {
+    "kind": "node",
+    "element": "r_{ref}",
+    "scale": 1,
+    "unit": "% MPP"
+  },
+  "spice": [
+    "B_{ref}_g g_{ref} 0 V=1200*V({control})",
+    "B_{ref}_t t_{ref} 0 V=-20+(85-(-20))*V({control:temperature})",
+    "B_{ref}_a a_{ref} 0 V={n}*{cells}*8.617333262e-05*(V(t_{ref})+273.15)",
+    "B_{ref}_isc isc_{ref} 0 V={Isc}*(1+{alpha}/100*(V(t_{ref})-25))",
+    "B_{ref}_iph iph_{ref} 0 V=V(isc_{ref})*V(g_{ref})/1000",
+    "B_{ref}_i0 i0_{ref} 0 V=V(isc_{ref})/(exp(min({Voc}*(1+{beta}/100*(V(t_{ref})-25))/max(V(a_{ref}),1e-3),80))-1)",
+    "B_{ref}_rs rs_{ref} 0 V=max(({Voc}+{n}*{cells}*8.617333262e-05*298.15*ln(max(1-{Imp}/{Isc},1e-6))-{Vmp})/{Imp},1e-3)",
+    "B_{ref}_ph {node:-} d_{ref} I=V(iph_{ref})",
+    "B_{ref}_d d_{ref} {node:-} I=V(i0_{ref})*(exp(min(V(d_{ref},{node:-})/max(V(a_{ref}),1e-3),60))*(1+max(V(d_{ref},{node:-})/max(V(a_{ref}),1e-3)-60,0))-1)",
+    "R_{ref}_sh d_{ref} {node:-} {Rsh}",
+    "B_{ref}_s d_{ref} s_{ref} I=V(d_{ref},s_{ref})/max(V(rs_{ref}),1e-3)",
+    "V_{ref}_i s_{ref} {node:+} DC 0",
+    "B_{ref}_im im_{ref} 0 V=V(iph_{ref})-V(i0_{ref})*(exp(min(V(m_{ref})/max(V(a_{ref}),1e-3),60))*(1+max(V(m_{ref})/max(V(a_{ref}),1e-3)-60,0))-1)-V(m_{ref})/{Rsh}",
+    "B_{ref}_vm vm_{ref} 0 V=V(m_{ref})-V(im_{ref})*max(V(rs_{ref}),1e-3)",
+    "B_{ref}_gm gm_{ref} 0 V=V(i0_{ref})/max(V(a_{ref}),1e-3)*exp(min(V(m_{ref})/max(V(a_{ref}),1e-3),60))+1/{Rsh}",
+    "B_{ref}_m 0 m_{ref} I=V(im_{ref})-V(vm_{ref})*V(gm_{ref})/(1+max(V(rs_{ref}),1e-3)*V(gm_{ref}))",
+    "R_{ref}_m m_{ref} 0 1G",
+    "C_{ref}_m m_{ref} 0 {= Isc / Voc * 0.003}",
+    "B_{ref}_r r_{ref} 0 V=100*max(V({node:+},{node:-})*I(V_{ref}_i),0)/max(V(vm_{ref})*V(im_{ref}),1e-9)"
+  ]
+}

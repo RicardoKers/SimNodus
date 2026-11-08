@@ -98,7 +98,7 @@ invalid value is outlined in red and not applied.
 | Category | Parts |
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
-| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, ground |
+| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, ground |
 | **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad; two-axis joystick module |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
@@ -156,6 +156,21 @@ Notes on some parts:
   return turns that off); click the SW square to push it. The wheel moves X
   and Shift with the wheel moves Y. On a 3.3 V board power the module from
   3.3 V. Example 61 reads it with a Blue Pill.
+- **Solar panels:** a single-diode model fitted from the datasheet values
+  at STC (1000 W/m², 25 °C): open-circuit voltage, short-circuit current,
+  the voltage and current at maximum power, cells in series and the
+  temperature coefficients, all editable in Properties (the presets are 1 W
+  and 5 W panels of 12 cells and 10 W and 20 W panels of 36 cells). The
+  ideality factor is fitted for each preset so the maximum power falls at
+  Vmp; after editing the datasheet values the curve still passes through
+  them within about 1 %. While running, drag the panel or turn the wheel to
+  change the irradiance (0 to 1200 W/m²) and use Shift with the wheel for
+  the cell temperature (-20 to 85 °C). The symbol shows the power taken as a
+  share of the maximum power point at the present light and temperature
+  (computed from the same model), so an MPPT can be graded: about 100 % at
+  the maximum. Partial shading, bypass diodes, spectrum and the panel's
+  thermal behavior are left out. Example 62 tracks the maximum with a Blue
+  Pill and an electronic load.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so

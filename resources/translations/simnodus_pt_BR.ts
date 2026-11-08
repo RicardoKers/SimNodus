@@ -3884,6 +3884,130 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Tensão nominal da bobina (corrente de A para B)</translation>
         </message>
         <message>
+            <source>Solar panel 10 W 12 V</source>
+            <translation>Painel solar 10 W 12 V</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Fontes</translation>
+        </message>
+        <message>
+            <source>Photovoltaic module, 36 cells in series, about 9.96 W at 1000 W/m² and 25 °C (Voc 21.6 V, Isc 0.62 A, Vmp 17.5 V, Imp 0.572 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes</source>
+            <translation>Módulo fotovoltaico, 36 células em série, cerca de 9,96 W a 1000 W/m² e 25 °C (Voc 21,6 V, Isc 0,62 A, Vmp 17,5 V, Imp 0,572 A); modelo de um diodo ajustado por esses valores. A irradiância e a temperatura das células mudam durante a simulação; o símbolo mostra a potência retirada como fração do ponto de máxima potência. Sem sombreamento parcial nem diodos de bypass</translation>
+        </message>
+        <message>
+            <source>Irradiance</source>
+            <translation>Irradiância</translation>
+        </message>
+        <message>
+            <source>Light on the panel (full sun 1000 W/m²); drag the part or use the wheel while running (0 to 1200 W/m²)</source>
+            <translation>Luz sobre o painel (sol pleno 1000 W/m²); arraste o componente ou use a roda do mouse durante a simulação (0 a 1200 W/m²)</translation>
+        </message>
+        <message>
+            <source>Cell temperature</source>
+            <translation>Temperatura das células</translation>
+        </message>
+        <message>
+            <source>Temperature of the cells (25 °C at STC; about 45-60 °C in the sun); Shift with the wheel while running (-20 to 85 °C)</source>
+            <translation>Temperatura das células (25 °C nas STC; cerca de 45-60 °C ao sol); Shift com a roda do mouse durante a simulação (-20 a 85 °C)</translation>
+        </message>
+        <message>
+            <source>Open-circuit voltage</source>
+            <translation>Tensão em circuito aberto</translation>
+        </message>
+        <message>
+            <source>Voc at STC, from the datasheet</source>
+            <translation>Voc nas STC, do datasheet</translation>
+        </message>
+        <message>
+            <source>Short-circuit current</source>
+            <translation>Corrente de curto-circuito</translation>
+        </message>
+        <message>
+            <source>Isc at STC, from the datasheet</source>
+            <translation>Isc nas STC, do datasheet</translation>
+        </message>
+        <message>
+            <source>Voltage at maximum power</source>
+            <translation>Tensão de máxima potência</translation>
+        </message>
+        <message>
+            <source>Vmp at STC, below Voc</source>
+            <translation>Vmp nas STC, abaixo de Voc</translation>
+        </message>
+        <message>
+            <source>Current at maximum power</source>
+            <translation>Corrente de máxima potência</translation>
+        </message>
+        <message>
+            <source>Imp at STC, below Isc</source>
+            <translation>Imp nas STC, abaixo de Isc</translation>
+        </message>
+        <message>
+            <source>Cells in series</source>
+            <translation>Células em série</translation>
+        </message>
+        <message>
+            <source>Number of cells in series (Ns)</source>
+            <translation>Número de células em série (Ns)</translation>
+        </message>
+        <message>
+            <source>Isc temperature coefficient</source>
+            <translation>Coeficiente de temperatura de Isc</translation>
+        </message>
+        <message>
+            <source>Change of Isc per °C</source>
+            <translation>Variação de Isc por °C</translation>
+        </message>
+        <message>
+            <source>Voc temperature coefficient</source>
+            <translation>Coeficiente de temperatura de Voc</translation>
+        </message>
+        <message>
+            <source>Change of Voc per °C</source>
+            <translation>Variação de Voc por °C</translation>
+        </message>
+        <message>
+            <source>Ideality factor</source>
+            <translation>Fator de idealidade</translation>
+        </message>
+        <message>
+            <source>Diode ideality factor; fitted so the maximum power is at Vmp for the preset's values</source>
+            <translation>Fator de idealidade do diodo; ajustado para que a máxima potência fique em Vmp com os valores do modelo pronto</translation>
+        </message>
+        <message>
+            <source>Shunt resistance</source>
+            <translation>Resistência em paralelo</translation>
+        </message>
+        <message>
+            <source>Leakage across the cells (left out of the fit; about 0.5 % of Imp at Vmp)</source>
+            <translation>Fuga através das células (fora do ajuste; cerca de 0,5 % de Imp em Vmp)</translation>
+        </message>
+        <message>
+            <source>Solar panel 1 W 6 V</source>
+            <translation>Painel solar 1 W 6 V</translation>
+        </message>
+        <message>
+            <source>Photovoltaic module, 12 cells in series, about 0.997 W at 1000 W/m² and 25 °C (Voc 7 V, Isc 0.19 A, Vmp 5.6 V, Imp 0.179 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes</source>
+            <translation>Módulo fotovoltaico, 12 células em série, cerca de 0,997 W a 1000 W/m² e 25 °C (Voc 7 V, Isc 0,19 A, Vmp 5,6 V, Imp 0,179 A); modelo de um diodo ajustado por esses valores. A irradiância e a temperatura das células mudam durante a simulação; o símbolo mostra a potência retirada como fração do ponto de máxima potência. Sem sombreamento parcial nem diodos de bypass</translation>
+        </message>
+        <message>
+            <source>Solar panel 20 W 12 V</source>
+            <translation>Painel solar 20 W 12 V</translation>
+        </message>
+        <message>
+            <source>Photovoltaic module, 36 cells in series, about 20 W at 1000 W/m² and 25 °C (Voc 21.6 V, Isc 1.23 A, Vmp 17.6 V, Imp 1.14 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes</source>
+            <translation>Módulo fotovoltaico, 36 células em série, cerca de 20 W a 1000 W/m² e 25 °C (Voc 21,6 V, Isc 1,23 A, Vmp 17,6 V, Imp 1,14 A); modelo de um diodo ajustado por esses valores. A irradiância e a temperatura das células mudam durante a simulação; o símbolo mostra a potência retirada como fração do ponto de máxima potência. Sem sombreamento parcial nem diodos de bypass</translation>
+        </message>
+        <message>
+            <source>Solar panel 5 W 6 V</source>
+            <translation>Painel solar 5 W 6 V</translation>
+        </message>
+        <message>
+            <source>Photovoltaic module, 12 cells in series, about 4.97 W at 1000 W/m² and 25 °C (Voc 7.2 V, Isc 0.95 A, Vmp 5.7 V, Imp 0.877 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes</source>
+            <translation>Módulo fotovoltaico, 12 células em série, cerca de 4,97 W a 1000 W/m² e 25 °C (Voc 7,2 V, Isc 0,95 A, Vmp 5,7 V, Imp 0,877 A); modelo de um diodo ajustado por esses valores. A irradiância e a temperatura das células mudam durante a simulação; o símbolo mostra a potência retirada como fração do ponto de máxima potência. Sem sombreamento parcial nem diodos de bypass</translation>
+        </message>
+        <message>
             <source>Op-amp</source>
             <translation>Amplificador operacional</translation>
         </message>
@@ -5256,20 +5380,12 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Bateria</translation>
         </message>
         <message>
-            <source>Sources</source>
-            <translation>Fontes</translation>
-        </message>
-        <message>
             <source>Voltage source with internal resistance</source>
             <translation>Fonte de tensão com resistência interna</translation>
         </message>
         <message>
             <source>Voltage</source>
             <translation>Tensão</translation>
-        </message>
-        <message>
-            <source>Open-circuit voltage</source>
-            <translation>Tensão em circuito aberto</translation>
         </message>
         <message>
             <source>Internal resistance</source>
