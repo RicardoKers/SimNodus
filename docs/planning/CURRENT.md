@@ -238,8 +238,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (SN-271), several live controls per part and the two-axis joystick
    (SN-272, SN-273, example 61) and the solar panels with an MPPT example
    (SN-274, example 62) and the lithium batteries with a charger example
-   (SN-275, example 63) are done, unreleased; next, a BLDC motor
-   with a three-phase driver after a speed experiment (E-11).
+   (SN-275, example 63) are done, unreleased. Experiment E-11 (SN-276,
+   [results](../experiments/E-11-results.md)): the BLDC and PMSM motors,
+   the three-phase bridge and example 64 work (G11a) but run at only
+   0.03-0.21x real time (G11b failed); they stay experimental. **DE11 waits
+   for the owner** (recommended: investigate the coupling cost, SN-278,
+   before SN-277). Found on the way and fixed: the STM32's watched pins
+   start low, so a pull-up against a net held low reads low.
 
 ## Known constraints
 
@@ -344,7 +349,7 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
   MICROCONTROLLER; a change to one of them includes the same change in the
   translation and its new source hash (`check_repository.py` prints it).
 - **Generated parts:** the library JSON of logic, storage, display, timer,
-  converter, regulator, sensor, logic chip, motion, power/interface, I/O, solar and battery parts comes from `tools/generate_*_parts.py`;
+  converter, regulator, sensor, logic chip, motion, power/interface, I/O, solar, battery and BLDC parts comes from `tools/generate_*_parts.py`;
   edit the generator and rerun it, not the JSON.
 - **Pitfalls met so far:** ninja kept stale objects in `build/dev`
   (header changes not seen: 0 recorded dependencies, then heap corruption in

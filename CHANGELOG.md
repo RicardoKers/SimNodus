@@ -4,6 +4,15 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, E-11 / SN-276, experimental)
+
+- **BLDC motor**, **PMSM motor (sinusoidal)** and **Three-phase half-bridge driver** (Electromechanical), experimental: three windings in star with trapezoidal or sinusoidal back-EMF, open-collector Hall outputs, inertia, friction and a live load; the bridge has IN and EN per phase and gives the average voltage with the microcontroller's step averages. `tools/generate_bldc_parts.py` writes them.
+- Example 64: six-step commutation from the Hall sensors on a Blue Pill (`firmware/bldc_control`, which also does sinusoidal commutation with PB12 to GND and 5 or 20 kHz PWM with PB13 or PB14). It runs at about 0.05x real time: experiment E-11 measured 0.03-0.21x and found the cost in the coupling of the board to the bridge and motor ([results](docs/experiments/E-11-results.md)).
+
+### Fixed (2026-11-08, found in E-11)
+
+- Blue Pill: a pin with the internal pull-up read high while the circuit held it low from the start (an open-collector output that is on, such as a Hall sensor), until the net changed. Each watched pin now starts at the circuit's low level, as on the AVR chips and the ESP32-C3.
+
 ### Added (2026-11-08, SN-275)
 
 - **Lithium batteries** (Sources): lithium-ion (NMC/LCO) and LiFePO4, 1 to 4 cells in series, each with or without protection. Thevenin model: open-circuit voltage from the state of charge (typical curves at 25 °C), series resistance and an RC pair; capacity, initial state of charge and a **time acceleration** that divides the capacity and the RC time constant so a CC/CV charge runs in minutes. The symbol shows the state of charge; past 100 % the voltage rises steeply. The protected versions cut charging above 4.25 V per cell (3.75 V for LiFePO4) and discharging below 2.5 V (2.0 V), with hysteresis, like a DW01. `tools/generate_battery_parts.py` writes them.

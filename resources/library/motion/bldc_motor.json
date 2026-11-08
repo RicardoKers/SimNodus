@@ -1,0 +1,355 @@
+{
+  "type": "bldc_motor",
+  "name": "BLDC motor",
+  "category": "Electromechanical",
+  "prefix": "M",
+  "description": "Three-phase brushless DC motor (BLDC) with trapezoidal back-EMF, for six-step commutation; three open-collector Hall sensor outputs (add pull-ups); shows its speed; the load is dragged while running. Experimental (E-11)",
+  "symbol": {
+    "graphics": [
+      {
+        "circle": [
+          0,
+          0,
+          3.2
+        ]
+      },
+      {
+        "text": "M",
+        "at": [
+          0,
+          -0.6
+        ],
+        "size": 1.8
+      },
+      {
+        "text": "3~",
+        "at": [
+          0,
+          1.4
+        ],
+        "size": 1.0
+      },
+      {
+        "rect": [
+          5,
+          -4.6,
+          4,
+          6.2
+        ]
+      },
+      {
+        "text": "Hall",
+        "at": [
+          7,
+          -3.6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          3.2,
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "line": [
+          -6,
+          -2,
+          -2.5,
+          -2
+        ]
+      },
+      {
+        "text": "U",
+        "at": [
+          -5,
+          -2.6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          0,
+          -3.0,
+          0
+        ]
+      },
+      {
+        "text": "V",
+        "at": [
+          -5,
+          -0.6
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          -6,
+          2,
+          -2.5,
+          2
+        ]
+      },
+      {
+        "text": "W",
+        "at": [
+          -5,
+          1.4
+        ],
+        "size": 0.8
+      },
+      {
+        "line": [
+          9,
+          -2,
+          11,
+          -2
+        ]
+      },
+      {
+        "text": "HA",
+        "at": [
+          7.6,
+          -2
+        ],
+        "size": 0.65
+      },
+      {
+        "line": [
+          9,
+          -1,
+          11,
+          -1
+        ]
+      },
+      {
+        "text": "HB",
+        "at": [
+          7.6,
+          -1
+        ],
+        "size": 0.65
+      },
+      {
+        "line": [
+          9,
+          0,
+          11,
+          0
+        ]
+      },
+      {
+        "text": "HC",
+        "at": [
+          7.6,
+          0
+        ],
+        "size": 0.65
+      },
+      {
+        "line": [
+          9,
+          1,
+          11,
+          1
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          7.6,
+          1
+        ],
+        "size": 0.65
+      }
+    ],
+    "pins": [
+      {
+        "name": "U",
+        "at": [
+          -6,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "V",
+        "at": [
+          -6,
+          0
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "W",
+        "at": [
+          -6,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "HA",
+        "at": [
+          11,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "HB",
+        "at": [
+          11,
+          -1
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "HC",
+        "at": [
+          11,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "GND",
+        "at": [
+          11,
+          1
+        ],
+        "dir": "right"
+      }
+    ]
+  },
+  "designator_offset": [
+    -3,
+    -5
+  ],
+  "value_offset": [
+    -3,
+    5
+  ],
+  "value_parameter": "V",
+  "parameters": [
+    {
+      "name": "V",
+      "label": "Rated voltage",
+      "unit": "V",
+      "default": "12",
+      "description": "Bus voltage for the no-load speed",
+      "min": "1",
+      "max": "100"
+    },
+    {
+      "name": "rpm",
+      "label": "No-load speed",
+      "unit": "rpm",
+      "default": "3000",
+      "description": "Speed at the rated voltage without load, under six-step commutation",
+      "min": "10",
+      "max": "100k"
+    },
+    {
+      "name": "R",
+      "label": "Phase resistance",
+      "unit": "Ohm",
+      "default": "0.5",
+      "description": "Resistance of each winding (line to line: twice this)",
+      "min": "1m",
+      "max": "100"
+    },
+    {
+      "name": "L",
+      "label": "Phase inductance",
+      "unit": "H",
+      "default": "500u",
+      "description": "Inductance of each winding",
+      "min": "1u",
+      "max": "1"
+    },
+    {
+      "name": "pairs",
+      "label": "Pole pairs",
+      "unit": "",
+      "default": "4",
+      "description": "Pole pairs: electrical turns per mechanical turn",
+      "min": "1",
+      "max": "20"
+    },
+    {
+      "name": "Inoload",
+      "label": "No-load current",
+      "unit": "A",
+      "default": "200m",
+      "description": "Bus current at the no-load speed (sets the friction)",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "tm",
+      "label": "Mechanical time constant",
+      "unit": "s",
+      "default": "50m",
+      "description": "Time to reach 63 % of the speed from rest with the shaft free; sets the inertia",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "load",
+      "label": "Load",
+      "unit": "%",
+      "default": "0",
+      "description": "Load torque on the shaft as a share of the stall torque; drag the part or use the wheel while running",
+      "min": "0",
+      "max": "100"
+    }
+  ],
+  "interactive": {
+    "kind": "potentiometer",
+    "parameter": "load"
+  },
+  "models": [
+    ".model SW_HALL SW(VT=0 VH=0.02 RON=10 ROFF=1e9)"
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "w_{ref}",
+    "scale": 9.549296585513721,
+    "unit": "rpm"
+  },
+  "spice": [
+    "V_{ref}_su {node:U} au_{ref} DC 0",
+    "R_{ref}_u au_{ref} bu_{ref} {R}",
+    "L_{ref}_u bu_{ref} eu_{ref} {L}",
+    "B_{ref}_fu fu_{ref} 0 V=max(-1,min(1,asin(sin(({pairs}*V(th_{ref}))))/0.52359878))",
+    "B_{ref}_eu eu_{ref} n_{ref} V=({= V / (2 * rpm * 6.2831853 / 60)})*V(w_{ref})*V(fu_{ref})",
+    "V_{ref}_sv {node:V} av_{ref} DC 0",
+    "R_{ref}_v av_{ref} bv_{ref} {R}",
+    "L_{ref}_v bv_{ref} ev_{ref} {L}",
+    "B_{ref}_fv fv_{ref} 0 V=max(-1,min(1,asin(sin(({pairs}*V(th_{ref})-2.0943951)))/0.52359878))",
+    "B_{ref}_ev ev_{ref} n_{ref} V=({= V / (2 * rpm * 6.2831853 / 60)})*V(w_{ref})*V(fv_{ref})",
+    "V_{ref}_sw {node:W} aw_{ref} DC 0",
+    "R_{ref}_w aw_{ref} bw_{ref} {R}",
+    "L_{ref}_w bw_{ref} ew_{ref} {L}",
+    "B_{ref}_fw fw_{ref} 0 V=max(-1,min(1,asin(sin(({pairs}*V(th_{ref})-4.1887902)))/0.52359878))",
+    "B_{ref}_ew ew_{ref} n_{ref} V=({= V / (2 * rpm * 6.2831853 / 60)})*V(w_{ref})*V(fw_{ref})",
+    "B_{ref}_t 0 w_{ref} I=({= V / (2 * rpm * 6.2831853 / 60)})*(V(fu_{ref})*I(V_{ref}_su)+V(fv_{ref})*I(V_{ref}_sv)+V(fw_{ref})*I(V_{ref}_sw))",
+    "C_{ref}_j w_{ref} 0 {= tm * (2 * V / (2 * rpm * 6.2831853 / 60)) * (2 * V / (2 * rpm * 6.2831853 / 60)) / (2 * R)}",
+    "R_{ref}_b w_{ref} 0 {= (rpm * 6.2831853 / 60) / ((2 * V / (2 * rpm * 6.2831853 / 60)) * Inoload)}",
+    "B_{ref}_load w_{ref} 0 I={= (2 * V / (2 * rpm * 6.2831853 / 60)) * V / (2 * R)}*V({control})*tanh(V(w_{ref})/{= (rpm * 6.2831853 / 60) / 100})",
+    "B_{ref}_th 0 th_{ref} I=V(w_{ref})",
+    "C_{ref}_th th_{ref} 0 1",
+    "R_{ref}_th th_{ref} 0 1T",
+    "R_{ref}_n n_{ref} 0 1G",
+    "B_{ref}_ha ha_{ref} 0 V=-sin({pairs}*V(th_{ref})-0.52359878-0*2.0943951)",
+    "S_{ref}_ha {node:HA} {node:GND} ha_{ref} 0 SW_HALL",
+    "B_{ref}_hb hb_{ref} 0 V=-sin({pairs}*V(th_{ref})-0.52359878-1*2.0943951)",
+    "S_{ref}_hb {node:HB} {node:GND} hb_{ref} 0 SW_HALL",
+    "B_{ref}_hc hc_{ref} 0 V=-sin({pairs}*V(th_{ref})-0.52359878-2*2.0943951)",
+    "S_{ref}_hc {node:HC} {node:GND} hc_{ref} 0 SW_HALL"
+  ]
+}

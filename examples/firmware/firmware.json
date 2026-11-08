@@ -28,6 +28,14 @@
       "sha256": "432166936bd08504aa91d05b029f6de086b40a70ab3676b9d420176a1b1be2d0",
       "size": 10372
     },
+    "bldc_control": {
+      "sources": [
+        "examples/firmware/bldc_control/bldc_control.c"
+      ],
+      "elf": "examples/firmware/bldc_control/bldc_control.elf",
+      "sha256": "477755ff671fa7147c2d404e97f92a9efa8e1e57e61e10f67e05117fcb01d303",
+      "size": 18348
+    },
     "blink": {
       "sources": [
         "examples/firmware/blink/blink.c"

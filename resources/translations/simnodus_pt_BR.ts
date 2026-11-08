@@ -4648,6 +4648,78 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Temperatura do chip que o seu sensor de temperatura mede; mude-a durante a simulação para testar o firmware (-40 a 125 °C)</translation>
         </message>
         <message>
+            <source>BLDC motor</source>
+            <translation>Motor BLDC</translation>
+        </message>
+        <message>
+            <source>Three-phase brushless DC motor (BLDC) with trapezoidal back-EMF, for six-step commutation; three open-collector Hall sensor outputs (add pull-ups); shows its speed; the load is dragged while running. Experimental (E-11)</source>
+            <translation>Motor CC sem escovas trifásico (BLDC) com força contraeletromotriz trapezoidal, para comutação em seis passos; três saídas Hall de coletor aberto (acrescente pull-ups); mostra a velocidade; a carga é arrastada durante a simulação. Experimental (E-11)</translation>
+        </message>
+        <message>
+            <source>Bus voltage for the no-load speed</source>
+            <translation>Tensão do barramento para a velocidade a vazio</translation>
+        </message>
+        <message>
+            <source>Speed at the rated voltage without load, under six-step commutation</source>
+            <translation>Velocidade na tensão nominal sem carga, com comutação em seis passos</translation>
+        </message>
+        <message>
+            <source>Phase resistance</source>
+            <translation>Resistência de fase</translation>
+        </message>
+        <message>
+            <source>Resistance of each winding (line to line: twice this)</source>
+            <translation>Resistência de cada enrolamento (entre linhas: o dobro)</translation>
+        </message>
+        <message>
+            <source>Phase inductance</source>
+            <translation>Indutância de fase</translation>
+        </message>
+        <message>
+            <source>Inductance of each winding</source>
+            <translation>Indutância de cada enrolamento</translation>
+        </message>
+        <message>
+            <source>Pole pairs</source>
+            <translation>Pares de polos</translation>
+        </message>
+        <message>
+            <source>Pole pairs: electrical turns per mechanical turn</source>
+            <translation>Pares de polos: voltas elétricas por volta mecânica</translation>
+        </message>
+        <message>
+            <source>Bus current at the no-load speed (sets the friction)</source>
+            <translation>Corrente do barramento na velocidade a vazio (define o atrito)</translation>
+        </message>
+        <message>
+            <source>Time to reach 63 % of the speed from rest with the shaft free; sets the inertia</source>
+            <translation>Tempo para chegar a 63 % da velocidade, partindo do repouso com o eixo livre; define a inércia</translation>
+        </message>
+        <message>
+            <source>Three-phase half-bridge driver</source>
+            <translation>Driver trifásico de meia-ponte</translation>
+        </message>
+        <message>
+            <source>Three half-bridges with IN and EN per phase (DRV8313 style): EN high connects OUT, to VM while IN is high and to GND while it is low; EN low leaves OUT open (body diodes to VM and GND). PWM goes on IN; with the microcontroller's step averages the output is the average voltage. Experimental (E-11)</source>
+            <translation>Três meias-pontes com IN e EN por fase (estilo DRV8313): EN alto liga OUT, a VM enquanto IN está alto e a GND enquanto está baixo; EN baixo deixa OUT aberta (diodos de corpo para VM e GND). O PWM vai em IN; com as médias por passo do microcontrolador a saída é a tensão média. Experimental (E-11)</translation>
+        </message>
+        <message>
+            <source>Logic level</source>
+            <translation>Nível lógico</translation>
+        </message>
+        <message>
+            <source>Input high level (the microcontroller's supply)</source>
+            <translation>Nível alto das entradas (a alimentação do microcontrolador)</translation>
+        </message>
+        <message>
+            <source>On-resistance</source>
+            <translation>Resistência ligada</translation>
+        </message>
+        <message>
+            <source>Resistance of each switch when on</source>
+            <translation>Resistência de cada chave quando ligada</translation>
+        </message>
+        <message>
             <source>Rotary encoder</source>
             <translation>Encoder rotativo</translation>
         </message>
@@ -4670,6 +4742,18 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Dual full bridge for motors (L298): with ENA high, OUT1 follows IN1 and OUT2 follows IN2 (high: to VS, low: to SENSA), likewise ENB, IN3, IN4 and OUT3, OUT4; an enable low lets its outputs float (PWM on the enables sets the speed). About 1.3 ohm per switch, 2.6 V lost at 1 A; logic supply 5 V on VSS, motor supply up to 46 V on VS; tie SENSA and SENSB to GND or through sense resistors. No internal flyback diodes: add them, as the datasheet says</source>
             <translation>Ponte completa dupla para motores (L298): com ENA em alto, OUT1 segue IN1 e OUT2 segue IN2 (alto: para VS, baixo: para SENSA), igualmente ENB, IN3, IN4 e OUT3, OUT4; um enable em baixo deixa suas saídas soltas (PWM nos enables define a velocidade). Cerca de 1,3 ohm por chave, 2,6 V perdidos a 1 A; alimentação lógica de 5 V em VSS, do motor até 46 V em VS; ligue SENSA e SENSB ao GND ou por resistores de medição. Sem diodos de roda livre internos: acrescente-os, como diz a folha de dados</translation>
+        </message>
+        <message>
+            <source>PMSM motor (sinusoidal)</source>
+            <translation>Motor PMSM (senoidal)</translation>
+        </message>
+        <message>
+            <source>Three-phase permanent-magnet synchronous motor (PMSM) with sinusoidal back-EMF, for sinusoidal commutation and FOC; three open-collector Hall sensor outputs (add pull-ups); shows its speed; the load is dragged while running. Experimental (E-11)</source>
+            <translation>Motor síncrono trifásico de ímãs permanentes (PMSM) com força contraeletromotriz senoidal, para comutação senoidal e FOC; três saídas Hall de coletor aberto (acrescente pull-ups); mostra a velocidade; a carga é arrastada durante a simulação. Experimental (E-11)</translation>
+        </message>
+        <message>
+            <source>Speed at the rated voltage without load, under sinusoidal commutation with space-vector PWM</source>
+            <translation>Velocidade na tensão nominal sem carga, com comutação senoidal e PWM vetorial</translation>
         </message>
         <message>
             <source>Stepper motor 28BYJ-48 (unipolar)</source>

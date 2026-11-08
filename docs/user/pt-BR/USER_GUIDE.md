@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 6ed244810105f375177bd04e3ce2496a5728b1a2f79f43ae0245c33e3d65bdf8 -->
+<!-- source: USER_GUIDE.md sha256 8f8f7cbddba3495b3da1c6d529200c46e1de69d277e0d1614c56e7fda515a86f -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -196,6 +196,16 @@ Observações sobre alguns componentes:
   (2,5 V); o outro sentido ainda passa por um diodo. Temperatura,
   envelhecimento, autodescarga e a histerese da tensão ficam de fora. O
   exemplo 63 carrega uma célula com um carregador CC/CV com LM317.
+- **Motores BLDC e PMSM, ponte trifásica (experimentais):** três
+  enrolamentos em estrela com força contraeletromotriz trapezoidal (BLDC) ou
+  senoidal (PMSM), inércia, atrito, uma carga arrastada durante a execução e
+  três saídas Hall de coletor aberto (acrescente pull-ups) com os códigos
+  A B C = 101, 100, 110, 010, 011, 001 para os setores que acionam U+V-,
+  U+W-, V+W-, V+U-, W+U-, W+V-. A ponte tem IN (o PWM) e EN (ligada, ou a
+  saída aberta) por fase. O exemplo 64 faz a comutação em seis passos pelos
+  sensores Hall numa Blue Pill. Uma placa acionando essas peças roda devagar,
+  cerca de 0,03x a 0,2x do tempo real (experimento E-11); um acoplamento mais
+  rápido está sendo investigado.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma
   fonte controlada por corrente sente a corrente que flui de C+ para C-, por

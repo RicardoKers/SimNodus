@@ -1,0 +1,365 @@
+{
+  "type": "bridge_3phase",
+  "name": "Three-phase half-bridge driver",
+  "category": "Electromechanical",
+  "prefix": "U",
+  "description": "Three half-bridges with IN and EN per phase (DRV8313 style): EN high connects OUT, to VM while IN is high and to GND while it is low; EN low leaves OUT open (body diodes to VM and GND). PWM goes on IN; with the microcontroller's step averages the output is the average voltage. Experimental (E-11)",
+  "symbol": {
+    "graphics": [
+      {
+        "rect": [
+          -6,
+          -9,
+          12,
+          18
+        ]
+      },
+      {
+        "text": "3x half",
+        "at": [
+          0,
+          -6.6
+        ],
+        "size": 0.9
+      },
+      {
+        "text": "bridge",
+        "at": [
+          0,
+          -5.4
+        ],
+        "size": 0.9
+      },
+      {
+        "line": [
+          -8,
+          -6,
+          -6,
+          -6
+        ]
+      },
+      {
+        "text": "IN1",
+        "at": [
+          -4.3,
+          -6
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -8,
+          -4,
+          -6,
+          -4
+        ]
+      },
+      {
+        "text": "IN2",
+        "at": [
+          -4.3,
+          -4
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -8,
+          -2,
+          -6,
+          -2
+        ]
+      },
+      {
+        "text": "IN3",
+        "at": [
+          -4.3,
+          -2
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -8,
+          2,
+          -6,
+          2
+        ]
+      },
+      {
+        "text": "EN1",
+        "at": [
+          -4.3,
+          2
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -8,
+          4,
+          -6,
+          4
+        ]
+      },
+      {
+        "text": "EN2",
+        "at": [
+          -4.3,
+          4
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          -8,
+          6,
+          -6,
+          6
+        ]
+      },
+      {
+        "text": "EN3",
+        "at": [
+          -4.3,
+          6
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          6,
+          -2,
+          8,
+          -2
+        ]
+      },
+      {
+        "text": "OUT1",
+        "at": [
+          4.0,
+          -2
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          6,
+          0,
+          8,
+          0
+        ]
+      },
+      {
+        "text": "OUT2",
+        "at": [
+          4.0,
+          0
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          6,
+          2,
+          8,
+          2
+        ]
+      },
+      {
+        "text": "OUT3",
+        "at": [
+          4.0,
+          2
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          0,
+          -11,
+          0,
+          -9
+        ]
+      },
+      {
+        "text": "VM",
+        "at": [
+          0,
+          -8.2
+        ],
+        "size": 0.75
+      },
+      {
+        "line": [
+          0,
+          9,
+          0,
+          11
+        ]
+      },
+      {
+        "text": "GND",
+        "at": [
+          0,
+          8.2
+        ],
+        "size": 0.75
+      }
+    ],
+    "pins": [
+      {
+        "name": "IN1",
+        "at": [
+          -8,
+          -6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "IN2",
+        "at": [
+          -8,
+          -4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "IN3",
+        "at": [
+          -8,
+          -2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "EN1",
+        "at": [
+          -8,
+          2
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "EN2",
+        "at": [
+          -8,
+          4
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "EN3",
+        "at": [
+          -8,
+          6
+        ],
+        "dir": "left"
+      },
+      {
+        "name": "OUT1",
+        "at": [
+          8,
+          -2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUT2",
+        "at": [
+          8,
+          0
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "OUT3",
+        "at": [
+          8,
+          2
+        ],
+        "dir": "right"
+      },
+      {
+        "name": "VM",
+        "at": [
+          0,
+          -11
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "GND",
+        "at": [
+          0,
+          11
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    7,
+    -9
+  ],
+  "parameters": [
+    {
+      "name": "vio",
+      "label": "Logic level",
+      "unit": "V",
+      "default": "3.3",
+      "description": "Input high level (the microcontroller's supply)",
+      "min": "1.8",
+      "max": "5.5"
+    },
+    {
+      "name": "Ron",
+      "label": "On-resistance",
+      "unit": "Ohm",
+      "default": "250m",
+      "description": "Resistance of each switch when on",
+      "min": "1m",
+      "max": "10"
+    }
+  ],
+  "models": [
+    ".model SW_EN3 SW(VT=0.5 VH=0.1 RON=1m ROFF=1e9)",
+    ".model D_BODY3 D(IS=1e-12 N=1.3 RS=0.02)"
+  ],
+  "spice": [
+    "B_{ref}_d1 d1_{ref} 0 V=min(max(V({node:IN1},{node:GND})/{vio},0),1)",
+    "B_{ref}_o1 o1_{ref} {node:GND} V=V({node:VM},{node:GND})*V(d1_{ref})",
+    "R_{ref}_r1 o1_{ref} s1_{ref} {Ron}",
+    "V_{ref}_i1 s1_{ref} p1_{ref} DC 0",
+    "B_{ref}_c1 c1_{ref} 0 V=V({node:EN1},{node:GND})/{vio}",
+    "S_{ref}_e1 p1_{ref} {node:OUT1} c1_{ref} 0 SW_EN3",
+    "D_{ref}_h1 {node:OUT1} {node:VM} D_BODY3",
+    "D_{ref}_l1 {node:GND} {node:OUT1} D_BODY3",
+    "R_{ref}_z1 {node:OUT1} {node:GND} 10Meg",
+    "B_{ref}_d2 d2_{ref} 0 V=min(max(V({node:IN2},{node:GND})/{vio},0),1)",
+    "B_{ref}_o2 o2_{ref} {node:GND} V=V({node:VM},{node:GND})*V(d2_{ref})",
+    "R_{ref}_r2 o2_{ref} s2_{ref} {Ron}",
+    "V_{ref}_i2 s2_{ref} p2_{ref} DC 0",
+    "B_{ref}_c2 c2_{ref} 0 V=V({node:EN2},{node:GND})/{vio}",
+    "S_{ref}_e2 p2_{ref} {node:OUT2} c2_{ref} 0 SW_EN3",
+    "D_{ref}_h2 {node:OUT2} {node:VM} D_BODY3",
+    "D_{ref}_l2 {node:GND} {node:OUT2} D_BODY3",
+    "R_{ref}_z2 {node:OUT2} {node:GND} 10Meg",
+    "B_{ref}_d3 d3_{ref} 0 V=min(max(V({node:IN3},{node:GND})/{vio},0),1)",
+    "B_{ref}_o3 o3_{ref} {node:GND} V=V({node:VM},{node:GND})*V(d3_{ref})",
+    "R_{ref}_r3 o3_{ref} s3_{ref} {Ron}",
+    "V_{ref}_i3 s3_{ref} p3_{ref} DC 0",
+    "B_{ref}_c3 c3_{ref} 0 V=V({node:EN3},{node:GND})/{vio}",
+    "S_{ref}_e3 p3_{ref} {node:OUT3} c3_{ref} 0 SW_EN3",
+    "D_{ref}_h3 {node:OUT3} {node:VM} D_BODY3",
+    "D_{ref}_l3 {node:GND} {node:OUT3} D_BODY3",
+    "R_{ref}_z3 {node:OUT3} {node:GND} 10Meg",
+    "B_{ref}_vm {node:VM} {node:GND} I=V(d1_{ref})*I(V_{ref}_i1)+V(d2_{ref})*I(V_{ref}_i2)+V(d3_{ref})*I(V_{ref}_i3)",
+    "R_{ref}_in1 {node:IN1} {node:GND} 1Meg",
+    "R_{ref}_in2 {node:IN2} {node:GND} 1Meg",
+    "R_{ref}_in3 {node:IN3} {node:GND} 1Meg",
+    "R_{ref}_en1 {node:EN1} {node:GND} 1Meg",
+    "R_{ref}_en2 {node:EN2} {node:GND} 1Meg",
+    "R_{ref}_en3 {node:EN3} {node:GND} 1Meg"
+  ]
+}
