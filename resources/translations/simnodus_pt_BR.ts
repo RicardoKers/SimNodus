@@ -4720,6 +4720,30 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Resistência de cada chave quando ligada</translation>
         </message>
         <message>
+            <source>Three-phase half-bridge driver with current sense</source>
+            <translation>Driver trifásico de meia-ponte com medição de corrente</translation>
+        </message>
+        <message>
+            <source>Three half-bridges with IN and EN per phase (DRV8313 style): EN high connects OUT, to VM while IN is high and to GND while it is low; EN low leaves OUT open (body diodes to VM and GND). PWM goes on IN; with the microcontroller's step averages the output is the average voltage; SO1-SO3 give each phase current as offset + gain x I (DRV8323 style, in-line sensing). Experimental (E-11)</source>
+            <translation>Três meias-pontes com IN e EN por fase (estilo DRV8313): EN alto liga OUT, a VM enquanto IN está alto e a GND enquanto está baixo; EN baixo deixa OUT aberta (diodos de corpo para VM e GND). O PWM vai em IN; com as médias por passo do microcontrolador a saída é a tensão média; SO1-SO3 dão a corrente de cada fase como offset + ganho x I (estilo DRV8323, medição em linha). Experimental (E-11)</translation>
+        </message>
+        <message>
+            <source>Current-sense gain</source>
+            <translation>Ganho da medição de corrente</translation>
+        </message>
+        <message>
+            <source>SO volts per ampere of phase current (out of OUT positive)</source>
+            <translation>Volts em SO por ampère de corrente de fase (saindo de OUT, positiva)</translation>
+        </message>
+        <message>
+            <source>Current-sense offset</source>
+            <translation>Offset da medição de corrente</translation>
+        </message>
+        <message>
+            <source>SO at zero current (half the logic level)</source>
+            <translation>SO com corrente zero (metade do nível lógico)</translation>
+        </message>
+        <message>
             <source>Rotary encoder</source>
             <translation>Encoder rotativo</translation>
         </message>

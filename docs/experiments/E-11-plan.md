@@ -2,7 +2,8 @@
 
 Date: 2026-11-08. Task: SN-276 in the [backlog](../planning/BACKLOG.md);
 the parts follow in SN-277. Results: [E-11-results.md](E-11-results.md)
-(G11a met, G11b failed; DE11 waits for the owner).
+(G11a met, G11b failed and mostly recovered by SN-278; DE11: go on with
+SN-277 at the measured speeds, the parts experimental).
 The criteria below are recorded before any measurement and are not relaxed
 after a run; a failed criterion leads to a recorded decision.
 

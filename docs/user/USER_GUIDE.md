@@ -193,9 +193,14 @@ Notes on some parts:
   Hall outputs (add pull-ups) with the codes A B C = 101, 100, 110, 010,
   011, 001 for the sectors that drive U+V-, U+W-, V+W-, V+U-, W+U-, W+V-.
   The bridge has IN (the PWM) and EN (on, or the output left open) per
-  phase. Example 64 runs six-step from the Hall sensors on a Blue Pill.
+  phase; the version **with current sense** also gives each phase current
+  on SO1-SO3 as 1.65 V + 0.2 V/A (in-line, as its step average). Example 64
+  runs six-step from the Hall sensors on a Blue Pill; example 65 runs
+  field-oriented control (Clarke and Park transforms, PI loops for id and
+  iq, space-vector duties) in fixed point with the current-sense outputs.
   Measured speed with a 10 kHz PWM (experiment E-11): six-step about 0.35x
-  real time, sinusoidal commutation about 1x; a 5 kHz PWM, slower than the
+  real time, sinusoidal commutation about 1x, field-oriented control about
+  0.3x (an ADC conversion pair in every PWM period); a 5 kHz PWM, slower than the
   100 µs step, and exact microcontroller edges are much slower.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a

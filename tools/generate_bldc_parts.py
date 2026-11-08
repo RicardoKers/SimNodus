@@ -161,7 +161,7 @@ def motor(kind, name, sinusoidal):
     }
 
 
-def bridge():
+def bridge(csa=False):
     graphics = [{"rect": [-6, -9, 12, 18]}, {"text": "3x half", "at": [0, -6.6], "size": 0.9},
                 {"text": "bridge", "at": [0, -5.4], "size": 0.9}]
     pins = []
@@ -170,10 +170,15 @@ def bridge():
         graphics.append({"line": [-8, y, -6, y]})
         graphics.append({"text": name, "at": [-4.3, y], "size": 0.75})
         pins.append(pin(name, -8, y, "left"))
-    for name, y in (("OUT1", -2), ("OUT2", 0), ("OUT3", 2)):
+    right = [("OUT1", -2), ("OUT2", 0), ("OUT3", 2)]
+    if csa:
+        right += [("SO1", 4), ("SO2", 6), ("SO3", 8)]
+    for name, y in right:
         graphics.append({"line": [6, y, 8, y]})
         graphics.append({"text": name, "at": [4.0, y], "size": 0.75})
         pins.append(pin(name, 8, y, "right"))
+        if name.startswith("SO"):
+            pins[-1]["optional"] = True  # a controller often reads only two phases
     graphics += [{"line": [0, -11, 0, -9]}, {"text": "VM", "at": [0, -8.2], "size": 0.75},
                  {"line": [0, 9, 0, 11]}, {"text": "GND", "at": [0, 8.2], "size": 0.75}]
     pins += [pin("VM", 0, -11, "up"), pin("GND", 0, 11, "down")]
@@ -189,38 +194,60 @@ def bridge():
             # EN as a conductance in proportion to its (step-averaged) level: a leg
             # enabled a fraction x of the time conducts x times as much on average,
             # and the smooth change keeps ngspice's steps long (SN-278).
-            f"B_{{ref}}_e{k} p{k}_{{ref}} {{node:OUT{k}}} I=V(p{k}_{{ref}},{{node:OUT{k}}})*(1e-9+1000*min(max(V(c{k}_{{ref}}),0),1))",
+            f"B_{{ref}}_e{k} p{k}_{{ref}} x{k}_{{ref}} I=V(p{k}_{{ref}},x{k}_{{ref}})*(1e-9+1000*min(max(V(c{k}_{{ref}}),0),1))",
             # Body diodes as straight segments (0.6 V, 0.1 ohm): no exponential knee.
-            f"B_{{ref}}_h{k} {{node:OUT{k}}} {{node:VM}} I=10*max(V({{node:OUT{k}}},{{node:VM}})-0.6,0)",
-            f"B_{{ref}}_l{k} {{node:GND}} {{node:OUT{k}}} I=10*max(V({{node:GND}},{{node:OUT{k}}})-0.6,0)",
-            f"R_{{ref}}_z{k} {{node:OUT{k}}} {{node:GND}} 10Meg",
+            f"B_{{ref}}_h{k} x{k}_{{ref}} {{node:VM}} I=10*max(V(x{k}_{{ref}},{{node:VM}})-0.6,0)",
+            f"B_{{ref}}_l{k} {{node:GND}} x{k}_{{ref}} I=10*max(V({{node:GND}},x{k}_{{ref}})-0.6,0)",
+            f"R_{{ref}}_z{k} x{k}_{{ref}} {{node:GND}} 10Meg",
+            # The phase current, out of OUT into the load.
+            f"V_{{ref}}_m{k} x{k}_{{ref}} {{node:OUT{k}}} DC 0",
         ]
+        if csa:
+            # Current-sense amplifier: offset + gain x phase current, clamped to
+            # 0..logic level, behind 100 ohm (the phase current measured in line,
+            # as the step average sees it).
+            lines += [
+                f"B_{{ref}}_a{k} a{k}_{{ref}} {{node:GND}} V=min(max({{offset}}+{{gain}}*I(V_{{ref}}_m{k}),0),{{vio}})",
+                f"R_{{ref}}_a{k} a{k}_{{ref}} {{node:SO{k}}} 100",
+            ]
         supply.append(f"V(d{k}_{{ref}})*I(V_{{ref}}_i{k})")
     lines.append(f"B_{{ref}}_vm {{node:VM}} {{node:GND}} I={'+'.join(supply)}")
     lines += [f"R_{{ref}}_in{k} {{node:IN{k}}} {{node:GND}} 1Meg" for k in (1, 2, 3)]
     lines += [f"R_{{ref}}_en{k} {{node:EN{k}}} {{node:GND}} 1Meg" for k in (1, 2, 3)]
+    parameters = [
+        number("vio", "Logic level", "V", "3.3", "Input high level (the microcontroller's supply)", "1.8", "5.5"),
+        number("Ron", "On-resistance", "Ohm", "250m", "Resistance of each switch when on", "1m", "10"),
+    ]
+    description = ("Three half-bridges with IN and EN per phase (DRV8313 style): EN high connects OUT, to VM "
+                   "while IN is high and to GND while it is low; EN low leaves OUT open (body diodes to VM and "
+                   "GND). PWM goes on IN; with the microcontroller's step averages the output is the average "
+                   "voltage. Experimental (E-11)")
+    if csa:
+        parameters += [
+            number("gain", "Current-sense gain", "V/A", "0.2",
+                   "SO volts per ampere of phase current (out of OUT positive)", "1m", "10"),
+            number("offset", "Current-sense offset", "V", "1.65", "SO at zero current (half the logic level)",
+                   "0", "5"),
+        ]
+        description = description.replace(
+            ". Experimental", "; SO1-SO3 give each phase current as offset + gain x I (DRV8323 style, "
+            "in-line sensing). Experimental")
     return {
-        "type": "bridge_3phase",
-        "name": "Three-phase half-bridge driver",
+        "type": "bridge_3phase_csa" if csa else "bridge_3phase",
+        "name": "Three-phase half-bridge driver with current sense" if csa else "Three-phase half-bridge driver",
         "category": CATEGORY,
         "prefix": "U",
-        "description": ("Three half-bridges with IN and EN per phase (DRV8313 style): EN high connects OUT, to VM "
-                        "while IN is high and to GND while it is low; EN low leaves OUT open (body diodes to VM and "
-                        "GND). PWM goes on IN; with the microcontroller's step averages the output is the average "
-                        "voltage. Experimental (E-11)"),
+        "description": description,
         "symbol": {"graphics": graphics, "pins": pins},
         "designator_offset": [7, -9],
-        "parameters": [
-            number("vio", "Logic level", "V", "3.3", "Input high level (the microcontroller's supply)", "1.8", "5.5"),
-            number("Ron", "On-resistance", "Ohm", "250m", "Resistance of each switch when on", "1m", "10"),
-        ],
+        "parameters": parameters,
         "spice": lines,
     }
 
 
 def main():
     for definition in (motor("bldc_motor", "BLDC motor", False), motor("pmsm_motor", "PMSM motor (sinusoidal)", True),
-                       bridge()):
+                       bridge(), bridge(csa=True)):
         path = os.path.join(FOLDER, definition["type"] + ".json")
         with open(path, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(definition, fh, indent=2, ensure_ascii=False)
