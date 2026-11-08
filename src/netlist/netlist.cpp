@@ -133,7 +133,7 @@ bool same_topology(const Netlist& a, const Netlist& b)
         return x.component == y.component && x.name == y.name && x.letter == y.letter && x.nodes == y.nodes;
     };
     const auto same_control = [](const ControlSource& x, const ControlSource& y) {
-        return x.component == y.component && x.source == y.source && x.node == y.node;
+        return x.component == y.component && x.slot == y.slot && x.source == y.source && x.node == y.node;
     };
     const auto same_external = [](const ExternalSource& x, const ExternalSource& y) {
         return x.component == y.component && x.source == y.source && x.node == y.node;
@@ -600,26 +600,31 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
             }
         }
 
-        std::string control_node;
+        std::map<std::string, std::string> control_nodes; // control name ("" for the first) -> node
         if (d->interactive) {
-            ControlSource control;
-            control.component = c.id;
-            control.kind = d->interactive->kind;
-            control.source = "V_ctl_" + ref;
-            control.node = "ctl_" + ref;
-            if (!d->interactive->parameter.empty()) {
-                const auto* p = d->parameter(d->interactive->parameter);
-                if (p && !p->choices.empty()) {
-                    control.initial = words[p->name] == p->choices.back() ? 1.0 : 0.0;
-                } else if (p && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
-                    control.initial = library::potentiometer_control(*p, d->interactive->logarithmic, numbers[p->name]);
-                } else if (p) {
-                    control.initial = numbers[p->name] / (p->unit == "%" ? 100.0 : 1.0);
+            const auto& interactive = *d->interactive;
+            for (int slot = 0; slot < interactive.slot_count(); ++slot) {
+                const std::string name = slot == 0 ? std::string() : interactive.controls[slot - 1].name;
+                ControlSource control;
+                control.component = c.id;
+                control.slot = slot;
+                control.kind = interactive.slot_kind(slot);
+                control.source = "V_ctl_" + ref + (name.empty() ? "" : "_" + name);
+                control.node = "ctl_" + ref + (name.empty() ? "" : "_" + name);
+                if (const auto& parameter = interactive.slot_parameter(slot); !parameter.empty()) {
+                    const auto* p = d->parameter(parameter);
+                    if (p && !p->choices.empty()) {
+                        control.initial = words[p->name] == p->choices.back() ? 1.0 : 0.0;
+                    } else if (p && control.kind == library::Interactive::Kind::Potentiometer) {
+                        control.initial = library::potentiometer_control(*p, interactive.slot_logarithmic(slot), numbers[p->name]);
+                    } else if (p) {
+                        control.initial = numbers[p->name] / (p->unit == "%" ? 100.0 : 1.0);
+                    }
                 }
+                control.bounce = slot == 0 && words.count("bounce") && words["bounce"] == "yes";
+                control_nodes[name] = control.node;
+                out.controls.push_back(control);
             }
-            control.bounce = words.count("bounce") && words["bounce"] == "yes";
-            control_node = control.node;
-            out.controls.push_back(control);
         }
 
         const library::ValueLookup lookup = [&](std::string_view name) -> std::optional<double> {
@@ -661,7 +666,7 @@ Netlist generate_circuit(const model::Schematic& schematic, const library::Compo
                     line += ref;
                     break;
                 case library::TemplateToken::Kind::Control:
-                    line += control_node;
+                    line += control_nodes[t.text];
                     break;
                 case library::TemplateToken::Kind::External: {
                     const std::string node = "ext_" + ref + "_" + t.text;

@@ -86,7 +86,7 @@ public:
     // (a resistor) to an interactive run that keeps its topology (SN-232);
     // true if one was sent.
     bool apply_live_parameters();
-    void set_control(model::Id component, double value);
+    void set_control(model::Id component, double value, int slot = 0);
     // The latest voltage at a component's pin in the current run.
     std::optional<double> pin_voltage(model::Id component, const std::string& pin) const;
     // The reset button of a microcontroller board.

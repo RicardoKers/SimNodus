@@ -310,6 +310,36 @@ private slots:
         (void)rv;
     }
 
+    void dragging_a_joystick_moves_both_axes_and_springs_back()
+    {
+        // SN-273: the stick follows the mouse on both axes and returns to the
+        // center on release; the SW square holds the push switch.
+        const model::Id js = place("joystick_ky023", {0, 0});
+        std::map<int, double> last;
+        std::vector<std::pair<int, double>> seen;
+        connect(view(), &SchematicView::control_changed, this, [&](model::Id id, double value, int slot) {
+            if (id == js) {
+                last[slot] = value;
+                seen.emplace_back(slot, value);
+            }
+        });
+        view()->set_running(true);
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({-1, -2}));
+        move_to({2, -5}, Qt::LeftButton); // right and up
+        const double x = last[0];
+        const double y = last[1];
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({2, -5}));
+        QVERIFY2(x > 0.8 && y > 0.8, qPrintable(QStringLiteral("x %1, y %2").arg(x).arg(y)));
+        QCOMPARE(last[0], 0.5);
+        QCOMPARE(last[1], 0.5);
+        seen.clear();
+        QTest::mousePress(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({4, -5}));
+        QVERIFY(!seen.empty() && seen.back() == std::make_pair(2, 1.0));
+        QTest::mouseRelease(view()->viewport(), Qt::LeftButton, Qt::NoModifier, at({4, -5}));
+        QVERIFY(seen.back() == std::make_pair(2, 0.0));
+        view()->set_running(false);
+    }
+
     void dragging_an_adjustable_source_up_raises_it()
     {
         // Owner's report of 2026-10-25: up lowered the value, against the wheel.

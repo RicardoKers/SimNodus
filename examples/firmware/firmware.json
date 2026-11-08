@@ -632,6 +632,14 @@
         "STM32Cube_FW_F1_V1.8.7/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c"
       ]
     },
+    "joystick": {
+      "sources": [
+        "examples/firmware/joystick/joystick.c"
+      ],
+      "elf": "examples/firmware/joystick/joystick.elf",
+      "sha256": "a2303565752605023d8952779459994b3202e5c983da1b1f7aad012f0d5c88c4",
+      "size": 11272
+    },
     "lesson1_gpio": {
       "sources": [
         "examples/firmware/lesson1_gpio/lesson1_gpio.c"

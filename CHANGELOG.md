@@ -4,6 +4,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, SN-272 and SN-273)
+
+- **Joystick module** (Switches & Controls), like the KY-023: VRx and VRy from two 10 kΩ potentiometers between +5V and GND, SW closed to GND while the stick is pushed. While running, drag the stick: the knob follows the mouse on both axes and springs back to the center on release (**Spring return** turns that off); click the SW square to push it; the wheel moves X, Shift with the wheel moves Y.
+- Example 61: the joystick on a Blue Pill (`firmware/joystick`, bare metal): ADC1 reads both axes, PB0 the switch with the internal pull-up; the UART prints the codes and the direction.
+- Several live controls on one part: `interactive.controls` in the part format, `{control:NAME}` in templates, a control area worked by a click and a two-axis `stick`; `sim.control` and `sim.run` events take `"control"` to name one, and `parts.describe` lists them. The engine protocol is now version 13.
+
 ### Added (2026-11-08, SN-271)
 
 - DC motor with a load: a **Load** parameter (0-100 % of the stall torque) dragged on the part or turned with the wheel while running, so the current rises and the speed falls as on a real motor; a held load stops the shaft without turning it backwards. A **Mechanical time constant** parameter (50 ms by default, as before) sets the inertia of the rotor and what it drives. Projects saved before keep their behavior (load 0 %).

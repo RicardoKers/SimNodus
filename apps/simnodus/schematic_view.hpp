@@ -94,7 +94,8 @@ signals:
     void status_message(const QString& text);
     void edit_value_requested(model::Id component);
     // Interactive control while running: value 0..1 (INT-02).
-    void control_changed(model::Id component, double value);
+    // `slot` picks one of a part's several controls (SN-272); 0 is the first.
+    void control_changed(model::Id component, double value, int slot = 0);
     // The reset button of a microcontroller board was clicked while running.
     void mcu_reset_requested(model::Id component);
     void label_name_needed(model::Point at);
@@ -136,6 +137,8 @@ private:
     bool move_probe_to(model::Id probe, const model::Point& at);
     void set_probe_reference(const model::Point& at);
     bool handle_control_press(model::Id id, const QPointF& scene_point);
+    // A stick's two controls from a scene point (SN-273): x and y, 0..1.
+    void move_stick(const QPointF& scene_point);
     void show_live_tooltip(const QPoint& view_point);
 
     SchematicScene* scene_ = nullptr;
@@ -168,6 +171,8 @@ private:
 
     // Interactive controls while running.
     model::Id held_button_ = model::no_id;
+    int held_slot_ = 0;                  // the held button's control (SN-272)
+    model::Id stick_drag_ = model::no_id; // a joystick's stick being moved (SN-273)
     model::Id pot_drag_ = model::no_id;
     double pot_start_value_ = 0.0;
     QPoint pot_start_point_;

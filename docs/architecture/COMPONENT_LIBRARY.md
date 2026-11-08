@@ -136,10 +136,22 @@ lines use the common symbol line width; color is chosen by the application
 | `{NAME}` | parameter value as a plain number, or the chosen word |
 | `{= EXPR}` | arithmetic on parameters: `+ - * /`, parentheses, `min()`, `max()`, `mod()`; `t0` is the start time of the current segment |
 | `{control}` | node of the interactive control source (0/1 for toggles and buttons, 0–1 for a potentiometer) |
+| `{control:NAME}` | node of the part's further control `NAME` (SN-272), listed in `interactive.controls` |
 
 Element names start with the SPICE element letter and include `{ref}`
 (`R_{ref}`), so they are unique. Interactive components are driven by an
 external voltage source the netlist generator adds on `{control}` (ADR 0080).
+A part may have several live controls (SN-272): `interactive.controls` lists
+further toggles, buttons and potentiometers, each with a `name`, a `kind`, an
+optional `parameter` (its starting value) and an optional `area` (x, y, width,
+height in symbol coordinates) where a click works a toggle or button. Control
+slot 0 is the first control, slot i + 1 is `controls[i]`; the session API,
+the engine protocol (version 13) and `sim.control` (`"control": NAME`) address
+them by slot. `interactive.stick` (SN-273) makes a potentiometer first control
+and the potentiometer named by `y` move together when the symbol is dragged
+inside `area` (left/bottom 0, right/top 1); `spring` (default true) and an
+optional yes/no `spring_parameter` send both back to 0.5 on release. Shift
+with the wheel turns the first further potentiometer.
 Periodic sources use `t0` to keep their phase when an interactive run
 restarts a segment (ngspice-47 accepts a negative PULSE delay; checked on
 2026-10-14). The loader checks that every placeholder refers to an existing pin or

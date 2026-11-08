@@ -374,7 +374,7 @@ bool SimulationSession::start(RunRequest request, std::string& error)
         bounces_.clear();
         for (const auto& c : netlist_.controls) {
             controls_[lower(c.source)] = c.initial;
-            control_source_[c.component] = lower(c.source);
+            control_source_[{c.component, c.slot}] = lower(c.source);
             if (c.bounce) {
                 bouncing_sources_.insert(lower(c.source));
             }
@@ -436,10 +436,10 @@ void SimulationSession::set_speed(double speed)
     status_.speed = speed_;
 }
 
-void SimulationSession::set_control(model::Id component, double value)
+void SimulationSession::set_control(model::Id component, double value, int slot)
 {
     std::lock_guard lock(mutex_);
-    const auto it = control_source_.find(component);
+    const auto it = control_source_.find({component, slot});
     if (it != control_source_.end()) {
         const double previous = controls_[it->second];
         if (bouncing_sources_.count(it->second) && previous != value) {
@@ -463,10 +463,10 @@ static double bounce_value(double since_change, double value, double previous)
     return value;
 }
 
-std::optional<double> SimulationSession::control(model::Id component) const
+std::optional<double> SimulationSession::control(model::Id component, int slot) const
 {
     std::lock_guard lock(mutex_);
-    const auto it = control_source_.find(component);
+    const auto it = control_source_.find({component, slot});
     if (it == control_source_.end()) {
         return std::nullopt;
     }

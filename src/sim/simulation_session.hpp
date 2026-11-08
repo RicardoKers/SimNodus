@@ -110,8 +110,9 @@ public:
     virtual bool active() const = 0; // running or paused
 
     virtual void set_speed(double speed) = 0;
-    virtual void set_control(model::Id component, double value) = 0;
-    virtual std::optional<double> control(model::Id component) const = 0;
+    // Interactive controls; `slot` picks one of a part's several controls (SN-272).
+    virtual void set_control(model::Id component, double value, int slot = 0) = 0;
+    virtual std::optional<double> control(model::Id component, int slot = 0) const = 0;
 
     virtual RunStatus status() const = 0;
     virtual const std::vector<netlist::Diagnostic>& diagnostics() const = 0;
@@ -173,8 +174,8 @@ public:
     bool active() const override;
 
     void set_speed(double speed) override;
-    void set_control(model::Id component, double value) override;
-    std::optional<double> control(model::Id component) const override;
+    void set_control(model::Id component, double value, int slot = 0) override;
+    std::optional<double> control(model::Id component, int slot = 0) const override;
 
     RunStatus status() const override;
     const std::vector<netlist::Diagnostic>& diagnostics() const override { return diagnostics_; }
@@ -246,7 +247,7 @@ private:
     std::map<std::string, std::unique_ptr<SampleRing>> rings_;
     TransientResult transient_;
     std::map<std::string, double> controls_; // source name (lower case) -> value
-    std::map<model::Id, std::string> control_source_;
+    std::map<std::pair<model::Id, int>, std::string> control_source_; // (component, slot) -> source
     // Contact bounce of controls with bounce enabled: after a change at
     // `start` (seconds) the contact returns to `previous` in short intervals.
     struct Bounce {

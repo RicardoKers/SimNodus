@@ -1171,19 +1171,42 @@ double control_value(const json& v)
 }
 
 // A sensor's quantity may also be given in its unit ("35 °C", "500 lux", "20 mT").
-double control_value(Context& cx, const model::Component& c, const json& v)
+double control_value(Context& cx, const model::Component& c, const json& v, int slot = 0)
 {
     const auto* d = cx.ws.library().find(c.type);
-    if (v.is_string() && d && d->interactive && d->interactive->kind == library::Interactive::Kind::Potentiometer) {
-        const auto* p = d->parameter(d->interactive->parameter);
+    if (v.is_string() && d && d->interactive && d->interactive->slot_kind(slot) == library::Interactive::Kind::Potentiometer) {
+        const auto* p = d->parameter(d->interactive->slot_parameter(slot));
         const auto t = v.get<std::string>();
         if (p && p->unit != "%" && !p->unit.empty() && t.size() > p->unit.size() && t.ends_with(p->unit)) {
             if (const auto parsed = model::parse_engineering(t, p->unit)) {
-                return library::potentiometer_control(*p, d->interactive->logarithmic, *parsed);
+                return library::potentiometer_control(*p, d->interactive->slot_logarithmic(slot), *parsed);
             }
         }
     }
     return control_value(v);
+}
+
+// The slot of the control named by "control" in `args` (SN-272: a part with
+// several controls, a joystick's "y"); 0, the first control, without it.
+int control_slot(Context& cx, const model::Component& c, const json& args)
+{
+    if (!args.contains("control") || args["control"].is_null()) {
+        return 0;
+    }
+    const auto* d = cx.ws.library().find(c.type);
+    const std::string name = args["control"].is_string() ? args["control"].get<std::string>() : args["control"].dump();
+    const int slot = d && d->interactive ? d->interactive->slot(name) : -1;
+    if (slot < 0) {
+        std::string names;
+        if (d && d->interactive) {
+            for (const auto& more : d->interactive->controls) {
+                names += (names.empty() ? "" : ", ") + more.name;
+            }
+        }
+        fail("invalid-argument", c.designator + " has no control \"" + name + "\""
+            + (names.empty() ? std::string(".") : "; its further controls: " + names + "."));
+    }
+    return slot;
 }
 
 const model::Component& control_component(Context& cx, const json& ref)
@@ -1291,6 +1314,13 @@ json cmd_parts_describe(Context& cx, const json& args)
     if (d->interactive) {
         const char* kinds[] = {"toggle", "button", "potentiometer", "keypad"};
         out["control"] = kinds[static_cast<int>(d->interactive->kind)];
+        if (!d->interactive->controls.empty()) {
+            json more = json::object();
+            for (const auto& control : d->interactive->controls) {
+                more[control.name] = kinds[static_cast<int>(control.kind)];
+            }
+            out["controls"] = more; // sim.control with "control": a name
+        }
     }
     if (d->mcu) {
         out["microcontroller"] = {{"firmware_parameter", d->mcu->firmware_parameter}};
@@ -1881,7 +1911,8 @@ json cmd_sim_start(Context& cx, const json& args)
     }
     json controls = json::array();
     for (const auto& c : cx.ws.session().netlist().controls) {
-        if (const auto* component = cx.schematic().component(c.component)) {
+        const auto* component = cx.schematic().component(c.component);
+        if (component && c.slot == 0) {
             controls.push_back(component->designator);
         }
     }
@@ -1965,13 +1996,18 @@ json cmd_sim_control(Context& cx, const json& args)
     const bool control = std::any_of(
         controls.begin(), controls.end(), [&](const netlist::ControlSource& s) { return s.component == c.id; });
     if (control) {
-        const double value = control_value(cx, c, required(args, "value"));
+        const int slot = control_slot(cx, c, args);
+        const double value = control_value(cx, c, required(args, "value"), slot);
         if (over > 0) {
-            const double from = cx.ws.session().control(c.id).value_or(value);
-            ramp(cx, over, [&](double f) { cx.ws.session().set_control(c.id, from + (value - from) * f); });
+            const double from = cx.ws.session().control(c.id, slot).value_or(value);
+            ramp(cx, over, [&](double f) { cx.ws.session().set_control(c.id, from + (value - from) * f, slot); });
         }
-        cx.ws.session().set_control(c.id, value);
-        return {{"component", c.designator}, {"value", value}, {"time", cx.ws.session().status().sim_time}};
+        cx.ws.session().set_control(c.id, value, slot);
+        json out{{"component", c.designator}, {"value", value}, {"time", cx.ws.session().status().sim_time}};
+        if (slot > 0) {
+            out["control"] = args["control"];
+        }
+        return out;
     }
     // A chip's measured quantity (an LM75's temperature, an HC-SR04's distance).
     const auto* p = live_parameter(cx, c, args);
@@ -2055,12 +2091,15 @@ json cmd_sim_run(Context& cx, const json& args)
             Id component;
             std::string designator;
             double value;
+            int slot = 0;
         };
         std::vector<Event> events;
         if (args.contains("events")) {
             for (const auto& e : args["events"]) {
                 const auto& c = control_component(cx, required(e, "component"));
-                events.push_back({quantity(required(e, "at"), "at", "s"), c.id, c.designator, control_value(cx, c, required(e, "value"))});
+                const int slot = control_slot(cx, c, e);
+                events.push_back({quantity(required(e, "at"), "at", "s"), c.id, c.designator,
+                    control_value(cx, c, required(e, "value"), slot), slot});
             }
         }
         std::stable_sort(events.begin(), events.end(), [](const Event& a, const Event& b) { return a.at < b.at; });
@@ -2070,7 +2109,7 @@ json cmd_sim_run(Context& cx, const json& args)
             }
             advance_to(cx, e.at, timeout);
             check_failed(cx);
-            cx.ws.session().set_control(e.component, e.value);
+            cx.ws.session().set_control(e.component, e.value, e.slot);
             applied.push_back({{"component", e.designator}, {"value", e.value}, {"at", e.at},
                 {"applied_at", cx.ws.session().status().sim_time}});
         }
@@ -2157,7 +2196,7 @@ const Command commands[] = {
     {"edit.undo", "Undoes the last change.", "{}", cmd_undo},
     {"edit.redo", "Redoes the last undone change.", "{}", cmd_redo},
     {"sim.run", "Runs and measures: a transient analysis, or an interactive run for a duration with timed control changes.",
-        R"j({"mode": "interactive or transient (default: the project's)", "duration": "20m", "signals": ["V(OUT)", "V(R1.2,R1.1)", "I(R1.1)"], "events": [{"at": "5m", "component": "SW1", "value": "1"}], "points": "50", "csv": "out.csv", "keep": "false", "timeout": "300", "allow_network": "false (true: the project's Wi-Fi gateway may use this computer's network)"})j",
+        R"j({"mode": "interactive or transient (default: the project's)", "duration": "20m", "signals": ["V(OUT)", "V(R1.2,R1.1)", "I(R1.1)"], "events": [{"at": "5m", "component": "SW1", "value": "1", "control": "optional: a further control's name"}], "points": "50", "csv": "out.csv", "keep": "false", "timeout": "300", "allow_network": "false (true: the project's Wi-Fi gateway may use this computer's network)"})j",
         cmd_sim_run},
     {"sim.start", "Starts a run and keeps it for sim.advance, sim.control and sim.read.",
         R"j({"mode": "interactive or transient", "duration": "transient stop time", "signals": ["V(OUT)"], "speed": "0 (maximum)", "history": "100000 samples per net", "allow_network": "false (true: the project's Wi-Fi gateway may use this computer's network)"})j",
@@ -2166,7 +2205,7 @@ const Command commands[] = {
         R"j({"to": "10m", "by": "1m instead of to", "timeout": "300"})j", cmd_sim_advance},
     {"sim.control", "Operates a switch, button, potentiometer, keypad, adjustable source or sensor, or sets a chip's value "
                     "that changes while running (an LM75's temperature); \"over\" turns it there smoothly.",
-        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%, or a sensor's quantity in its unit (\"35 °C\", \"500 lux\")", "over": "2s: from the present value over this time (optional)", "parameter": "a chip's parameter, when it has several"})j", cmd_sim_control},
+        R"j({"component": "SW1", "value": "1, 0, 0.5, true, on, 50%, or a sensor's quantity in its unit (\"35 °C\", \"500 lux\")", "over": "2s: from the present value over this time (optional)", "control": "one of a part's further controls (parts.describe lists them: a joystick's y or press)", "parameter": "a chip's parameter, when it has several"})j", cmd_sim_control},
     {"sim.read", "Values and measurements of the signals.",
         R"j({"signals": ["V(OUT)"], "from": "0", "to": "10m", "points": "20", "csv": "file.csv"})j", cmd_sim_read},
     {"sim.status", "State, simulated time, speed, messages.", "{}", cmd_sim_status},

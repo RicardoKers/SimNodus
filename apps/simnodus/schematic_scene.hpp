@@ -50,6 +50,7 @@ inline model::Point to_grid(const QPointF& p)
 struct LiveState {
     bool running = false;
     std::map<model::Id, double> controls;   // interactive component -> control value
+    std::map<std::pair<model::Id, int>, double> more_controls; // (component, slot >= 1) -> value (SN-272)
     // Glowing parts (LED, lamp): brightness 0..1 and color ("red", "#ffd27a").
     struct Glow {
         double level = 0.0;

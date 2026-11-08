@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 03042c633f561395a7f5c54780b712cdcf3b77c73c6ecddeba3705c9fe91fbc9 -->
+<!-- source: USER_GUIDE.md sha256 49c8f51129729431568bc0ea16d80c3fdbee27e06538b2f40849de17ce488147 -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -103,7 +103,7 @@ aplicar. Um valor inválido fica contornado em vermelho e não é aplicado.
 |---|---|
 | **Passivos** | Resistor, capacitor, indutor (ideais); potenciômetro; transformador (primário P1-P2, secundário S1-S2) |
 | **Fontes** | Fonte de tensão CC, bateria (com resistência interna), fonte de corrente CC (saindo pelo +), fontes de tensão e de corrente ajustáveis (giradas durante a execução entre um limite inferior e um superior), fontes de tensão e de corrente controladas por tensão e por corrente (VCVS, VCCS, CCVS, CCCS), gerador de pulsos, gerador senoidal, terra |
-| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4 |
+| **Chaves e controles** | Chave SPST, chave reversível SPDT, botões NA (fechado enquanto pressionado) e NF (aberto enquanto pressionado) com repique dos contatos opcional; teclado matricial 4x4; módulo joystick de dois eixos |
 | **Instrumentos** | Voltímetro (entrada de 1 GΩ), amperímetro (ideal; corrente entrando pelo +) |
 | **Semicondutores** | Diodo (silício), Schottky, germânio, Zener, LED (acende conforme a corrente, cor selecionável), transistores NPN e PNP, MOSFETs canal N e canal P (corpo ligado à fonte) |
 | **Modelos simplificados** | Modelos didáticos: diodo com tensão direta fixa; NPN e PNP com Vbe fixo, um beta mostrado no símbolo e uma tensão de saturação |
@@ -156,6 +156,14 @@ Observações sobre alguns componentes:
 - **Teclado 4x4:** durante a execução, segure o mouse sobre uma tecla: ela
   liga a sua linha (R1-R4) à sua coluna (C1-C4) até você soltar. Uma tecla
   por vez. O exemplo 30 faz a varredura dele com uma Blue Pill.
+- **Módulo joystick:** como o KY-023, dois potenciômetros de 10 kΩ entre
+  +5V e GND dão VRx e VRy, e empurrar a alavanca fecha SW com o GND
+  (acrescente um pull-up, ou use o interno da placa). Durante a execução,
+  arraste a alavanca: o botão segue o mouse nos dois eixos (direita e cima
+  sobem VRx e VRy) e volta ao centro quando você solta (Propriedades >
+  Retorno por mola desliga isso); clique no quadrado SW para empurrá-la. A roda
+  do mouse move X e Shift com a roda move Y. Numa placa de 3,3 V, alimente o
+  módulo com 3,3 V. O exemplo 61 o lê com uma Blue Pill.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma
   fonte controlada por corrente sente a corrente que flui de C+ para C-, por

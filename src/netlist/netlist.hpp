@@ -45,6 +45,7 @@ struct ControlSource {
     std::string node;      // control node
     double initial = 0.0;  // 0/1, or 0..1 for a potentiometer
     library::Interactive::Kind kind = library::Interactive::Kind::Toggle;
+    int slot = 0;        // 0: the part's first control; i + 1: interactive.controls[i] (SN-272)
     bool bounce = false; // parameter "bounce" = "yes": contacts bounce after each change
 };
 

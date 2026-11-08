@@ -55,8 +55,8 @@ public:
     bool active() const override;
 
     void set_speed(double speed) override;
-    void set_control(model::Id component, double value) override;
-    std::optional<double> control(model::Id component) const override;
+    void set_control(model::Id component, double value, int slot = 0) override;
+    std::optional<double> control(model::Id component, int slot = 0) const override;
 
     RunStatus status() const override { return status_; }
     const std::vector<netlist::Diagnostic>& diagnostics() const override { return diagnostics_; }
@@ -118,7 +118,7 @@ private:
     std::vector<netlist::Diagnostic> diagnostics_;
     RunStatus status_;
     std::map<std::string, double> latest_;
-    std::map<model::Id, double> controls_;
+    std::map<std::pair<model::Id, int>, double> controls_; // (component, slot) -> value
     std::vector<std::string> vectors_;
     std::map<std::string, std::unique_ptr<SampleRing>> rings_;
     std::size_t ring_capacity_ = 0;

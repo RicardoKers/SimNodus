@@ -527,9 +527,9 @@ void RunController::set_speed(double speed)
     session_->set_speed(speed);
 }
 
-void RunController::set_control(model::Id component, double value)
+void RunController::set_control(model::Id component, double value, int slot)
 {
-    session_->set_control(component, value);
+    session_->set_control(component, value, slot);
     refresh(); // immediate visual feedback
 }
 
@@ -708,8 +708,12 @@ void RunController::refresh()
     const auto& n = session_->netlist();
     const auto& library = document_.library();
     for (const auto& control : n.controls) {
-        if (const auto v = session_->control(control.component)) {
-            live.controls[control.component] = *v;
+        if (const auto v = session_->control(control.component, control.slot)) {
+            if (control.slot == 0) {
+                live.controls[control.component] = *v;
+            } else {
+                live.more_controls[{control.component, control.slot}] = *v;
+            }
         }
     }
     for (const auto& [id, vectors] : light_vectors_) {
