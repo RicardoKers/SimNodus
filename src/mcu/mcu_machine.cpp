@@ -92,7 +92,18 @@ public:
         // the debugger's `load` writes it.
         if (!options.firmware.empty() || options.gdb_port < 0) {
             const auto image = emu::read_elf(options.firmware, error);
-            return image && machine_.load(*image, error);
+            if (!image || !machine_.load(*image, error)) {
+                return false;
+            }
+        }
+        // The circuit's level on each watched pin starts low, as the runner
+        // assumes, and only its changes come later: a pull-up enabled against
+        // a net the circuit holds low (an open-collector Hall sensor that is
+        // on from the start, E-11) must read the circuit's low, not the pull.
+        for (const auto& pin : options.pins) {
+            if (const int id = stm32_pin(pin); id >= 0) {
+                machine_.set_pin_input(id / 16, id % 16, false);
+            }
         }
         return true;
     }

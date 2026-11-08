@@ -2379,6 +2379,61 @@ TEST_CASE("devices: example 41 turns a servo, a stepper and a DC motor with an e
     session.stop();
 }
 
+TEST_CASE("devices: example 64 runs a BLDC motor six-step from its Hall sensors and a load slows it (E-11)")
+{
+    // Also the STM32's watched pins starting low: the Hall outputs are on from
+    // the start, and PB5-PB7's pull-ups must not hide that (E-11).
+    REQUIRE(test::engine() != nullptr);
+    const auto loaded = io::load_project(std::filesystem::path(SIMNODUS_TEST_EXAMPLES_DIR) / "64_BLDC_six_step_Hall_sensors.snx");
+    REQUIRE(loaded.schematic.has_value());
+    sim::RunRequest request;
+    request.schematic = *loaded.schematic;
+    auto settings = request.schematic.settings();
+    settings.speed = 0.0;
+    request.schematic.set_settings(settings);
+    request.library = &device_library();
+    request.vectors = {"w_m1"};
+    model::Id board = model::no_id, motor = model::no_id;
+    for (const auto& c : request.schematic.components()) {
+        board = c.type == "bluepill" ? c.id : board;
+        motor = c.type == "bldc_motor" ? c.id : motor;
+    }
+    std::string error;
+    std::vector<std::string> warnings;
+    sim::McuEnvironment environment;
+    environment.project_dir = SIMNODUS_TEST_EXAMPLES_DIR;
+    REQUIRE(sim::build_mcu_requests(request.schematic, device_library(), environment, request.mcus, error, &warnings));
+    CHECK(warnings.empty());
+    sim::SimulationSession session;
+    REQUIRE(session.start(request, error));
+    const auto begin = std::chrono::steady_clock::now();
+    auto wait_for = [&](double t) {
+        while (session.status().sim_time < t) {
+            REQUIRE(session.active());
+            REQUIRE(std::chrono::steady_clock::now() - begin < 120s);
+            std::this_thread::sleep_for(2ms);
+        }
+    };
+    // Short: the coupled run is slow (about 0.05x real time, E-11 results).
+    wait_for(0.5);
+    // 80 % duty of 12 V on a 3000 rpm motor, less the friction's share.
+    const double free_rpm = session.latest("w_m1").value_or(0) * 60 / (2 * 3.14159265);
+    std::printf("  six-step at 80 %%: %.0f rpm\n", free_rpm);
+    CHECK(free_rpm > 2200);
+    CHECK(free_rpm < 2500);
+    session.set_control(motor, 0.3);
+    wait_for(0.9);
+    const double loaded_rpm = session.latest("w_m1").value_or(0) * 60 / (2 * 3.14159265);
+    std::printf("  with 30 %% of the stall torque: %.0f rpm\n", loaded_rpm);
+    CHECK(loaded_rpm < free_rpm - 400);
+    CHECK(loaded_rpm > 500);
+    std::string text;
+    session.mcu_uart_received(board, "usart1", 0, text);
+    CHECK(text.find("BLDC six-step, PWM 10 kHz") != std::string::npos);
+    CHECK(text.find("RPM 0 ") == std::string::npos);
+    session.stop();
+}
+
 TEST_CASE("devices: example 42 plays a scale the passive buzzer reports and beeps the active one (SN-228)")
 {
     REQUIRE(test::engine() != nullptr);

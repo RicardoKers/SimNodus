@@ -187,6 +187,15 @@ Notes on some parts:
   direction still passes through a diode. Temperature, aging,
   self-discharge and the voltage hysteresis are left out. Example 63
   charges a cell with an LM317 CC/CV charger.
+- **BLDC and PMSM motors, three-phase bridge (experimental):** three
+  windings in star with trapezoidal (BLDC) or sinusoidal (PMSM) back-EMF,
+  inertia, friction, a load dragged while running, and three open-collector
+  Hall outputs (add pull-ups) with the codes A B C = 101, 100, 110, 010,
+  011, 001 for the sectors that drive U+V-, U+W-, V+W-, V+U-, W+U-, W+V-.
+  The bridge has IN (the PWM) and EN (on, or the output left open) per
+  phase. Example 64 runs six-step from the Hall sensors on a Blue Pill. A
+  board driving these parts runs slowly, about 0.03x to 0.2x real time
+  (experiment E-11); a faster coupling is being investigated.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so
