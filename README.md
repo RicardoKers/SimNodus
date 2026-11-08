@@ -8,7 +8,7 @@ continuously running, interactive simulation. Its first target is the
 STM32F103C8/Blue Pill, using SimNodus's own STM32 emulator for the
 microcontroller, ngspice for the circuit and a Qt 6 interface.
 
-**Status (2026-11-05): release 0.15.0.** Draw analog and digital circuits
+**Status (2026-11-08): release 0.16.0.** Draw analog and digital circuits
 (157 component types, buses, your own blocks), run them continuously
 while clicking switches, holding push buttons and turning potentiometers, and
 watch the signals in the Signal Analyzer. A Blue Pill (STM32F103C8) runs your
@@ -19,7 +19,8 @@ automation parts and buzzers you can hear cover most student automation projects
 (calibrated on a Blue Pill). An **ESP32-C3-DevKitM-1** board, experimental until it is compared with a
 real one, runs unmodified ESP-IDF, Arduino and MicroPython flash images with GPIO, PWM, ADC, I2C, SPI,
 RMT (WS2812B) and its serial ports, which also reach the Arduino IDE, Thonny and esptool on the
-computer (upload included). Bare **ATmega8** and **ATmega8A** chips run `.hex` or `.elf` firmware from
+computer (upload included), and Wi-Fi: the boards join SimNodus's virtual access point (WPA2) and,
+with a gateway you allow, reach this computer and the internet (web, MQTT, NTP, ping). Bare **ATmega8** and **ATmega8A** chips run `.hex` or `.elf` firmware from
 Microchip Studio, avr-gcc or the Arduino IDE with their fuses, a crystal, the EEPROM kept in the
 project, ADC, PWM, USART, SPI, I2C and sleep modes, compared with a real chip. The **ATmega328P** and
 **ATmega328** (the Arduino UNO's chip) run in the same emulator, and an **Arduino UNO** board with Optiboot

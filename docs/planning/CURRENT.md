@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-08 (SN-270 on `main`, not released: ESP32-C3 uploads through UART0 at the Arduino IDE's 921600 baud are fast and reliable again; E-09 Wi-Fi done on `main`, not released; DE9 waits for the owner; release 0.15.0 published). Keep this file short: present state, last results, next
+Updated: 2026-11-08 (release 0.16.0 being published: ESP32-C3 Wi-Fi, experimental (E-09), ping through the gateway, uploads through UART0 at 921600 baud; DE9 waits for the owner). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,14 +8,24 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
-- **SN-270 (2026-11-08, on `main`, not released):** the owner saw Arduino IDE uploads through the
-  DevKit's UART0 run slowly and fail midway. Cause: SYSCLK_CONF.CLK_XTAL_FREQ read 0, so esptool's
-  stub set UART0's divider to 0 on CHANGE_BAUDRATE and the port stayed at 115200 baud (1.4 s per
-  16 KB block against esptool's 3 s timeout). Fixed; through Eterlogic's pair at real-time speed
-  an upload takes about 5 s (was 18 s), 10 in a row passed, and one at 40 % of real time passes.
-  The owner checks it in the GUI with the Arduino IDE.
-- **Release 0.15.0 published on 2026-11-05** (tag `v0.15.0`, GitHub release
-  with `SimNodus-0.15.0-windows-x64.zip` and `-setup.exe`), after the owner's tests of the
+- **Release 0.16.0 (2026-11-08)** (tag `v0.16.0`, GitHub release with
+  `SimNodus-0.16.0-windows-x64.zip` and `-setup.exe`), after the owner's
+  tests of the 2026-11-06b, 2026-11-08 and 2026-11-08b previews with the
+  Arduino IDE (example 60; two boards as server and client; DHCP and a fixed
+  address; two boards on an MQTT broker on the internet; ConsoleWiFi's ping;
+  uploads through UART0):
+  - **ESP32-C3 Wi-Fi, experimental** (E-09, SN-264..SN-269): the radio and
+    MAC model, SimNodus's virtual access point with WPA2-PSK, hardware CCMP
+    and the AES accelerator, DHCP/ARP/DNS, the gateway to the computer's
+    network with lwIP 2.2.1 behind a NAT (off by default, confirmed on a
+    project's first run, ports on 127.0.0.1), **Simulate > Wi-Fi Network...**,
+    example 60. Fixed addresses answered through the gateway (#294); ping
+    through the gateway (#295).
+  - SN-270: uploads through UART0 at 921600 baud (SYSCLK_CONF's crystal
+    frequency read 0, which left UART0 at 115200 baud; #296).
+  - Waiting on the owner: DE9 (recommended: keep the Wi-Fi experimental,
+    ADR 0109) and the comparisons with real ESP32-C3 boards (G9b.2, G9b.3).
+- **Release 0.15.0 published on 2026-11-05** (tag `v0.15.0`), after the owner's tests of the
   2026-11-05 preview (examples 50, 55 and 58 with avr-gdb 7.8) and the
   2026-11-05b preview (the waiting message per chip and per board):
   - SN-262, GDB for the AVR chips and the UNO with `avr-gdb`: an `AvrTarget`
@@ -198,36 +208,15 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    the DevKitM-1 board with GPIO, LEDC, ADC, I2C0, SPI2 with GDMA, RMT and
    the serial ports to the computer (0.13.0); MicroPython's files kept in the
    flash (SN-248), the continuous ADC with GDMA and the temperature sensor
-   (SN-247) and GDB with `riscv32-esp-elf-gdb` (SN-249) in 0.14.0. Next:
-   - SN-250, Wi-Fi as experiment E-09
-     ([E-09-plan.md](../experiments/E-09-plan.md), tasks SN-264..SN-269):
-     decisions taken 2026-11-05 (station first; our own WPA2 crypto and lwIP
-     for the gateway; the gateway off by default, confirmed on a project's
-     first run on a computer). SN-264 done: eight pinned Wi-Fi images and
-     three MicroPython scripts in `tests/experiments/esp32c3`; every one
-     stopped in the PHY's full calibration. SN-265 done: the PHY
-     calibrates and the station starts on ESP-IDF, Arduino and MicroPython;
-     SN-266 done: the MAC model sends and receives, and the ESP-IDF and
-     MicroPython scans find SimNodus's access point (`WifiAir`: beacons,
-     probe responses; `simnodus-emu --wifi-ap`, `--wifi-pcap`)
-     ([results](../experiments/E-09-results.md)). SN-267 done: open and
-     WPA2-PSK networks (our own crypto, the MAC's hardware CCMP, the AES
-     accelerator); ESP-IDF, Arduino and MicroPython get 192.168.4.2. SN-268
-     done: the gateway (lwIP 2.2.1 vendored, off by default) carries TCP,
-     UDP and DNS to the computer (`host.simnodus`) and the internet, and
-     forwards ports of 127.0.0.1 to a board. SN-269 done: the network in
-     the application (Simulate > Wi-Fi Network..., on by default with the
-     gateway off; the first-run confirmation of the gateway), several boards
-     on one network, the CLI's `wifi_*` settings and `allow_network`,
-     example 60 (a web server), the guides in English and pt-BR, and the
-     gate review. The owner tested the preview on 2026-11-08 (two boards as
-     server and client, DHCP and a fixed address, MQTT through a broker on
-     the internet, all from the Arduino IDE); a fixed-IP fault (#294) and
-     ping through the gateway were added after. The recommendation for
-     **DE9** stands (the owner's decision:
-     keep the Wi-Fi experimental, ADR 0109, then the board comparisons
-     G9b.2, G9b.3 and G9c.3 with the owner's DevKitM-1 and a real access
-     point);
+   (SN-247) and GDB with `riscv32-esp-elf-gdb` (SN-249) in 0.14.0; Wi-Fi,
+   experimental (E-09, [plan](../experiments/E-09-plan.md),
+   [results](../experiments/E-09-results.md), SN-264..SN-269) and uploads
+   through UART0 at 921600 baud (SN-270) in 0.16.0. Next:
+   - **DE9**, the owner's decision (recommended: keep the Wi-Fi
+     experimental and record ADR 0109: the MAC model, the access point in our
+     own code, lwIP behind a NAT, the gateway policy), then the board
+     comparisons G9b.2 and G9b.3 with the owner's DevKitM-1 and a real
+     access point;
    - with the owner's boards (DevKitM-1, SuperMini): the ROM and console
      comparison (G8b.1), which ends the experimental mark; also check the
      two guesses of ADR 0107 (SPI1 reads without `USR_COMMAND`, the data

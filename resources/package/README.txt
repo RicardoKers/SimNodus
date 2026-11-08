@@ -1,9 +1,9 @@
 SimNodus - interactive circuit and STM32 simulator for teaching
 ================================================================
 
-Release 0.15 (analog and digital circuits, the Blue Pill / STM32F103
+Release 0.16 (analog and digital circuits, the Blue Pill / STM32F103
 microcontroller, AVR chips and the Arduino UNO, and an experimental
-ESP32-C3 board).
+ESP32-C3 board with Wi-Fi).
 Run simnodus.exe; no installation, account or network access is needed.
 The setup.exe of the same release installs SimNodus with a Start menu entry
 and opens .snx files with a double-click.
@@ -19,6 +19,15 @@ from STM32CubeIDE) in SimNodus's own STM32 emulator: GPIO, EXTI, USART
 watchdogs and CRC. Simulate >
 Debug Firmware with GDB lets STM32CubeIDE debug the firmware while it drives
 the circuit.
+
+New in 0.16 (experimental): Wi-Fi for the ESP32-C3 boards. They join
+SimNodus's virtual access point (SimNodus / simnodus-wifi, WPA2) and talk to
+each other; Simulate > Wi-Fi Network... sets the network. A gateway, off by
+default and confirmed on a project's first run, lets the boards reach this
+computer (host.simnodus) and the internet: web pages, MQTT brokers, NTP
+time and ping; forwarded ports listen on 127.0.0.1 only. Example 60 is a
+web server on a board. Uploads through the DevKit's UART0 at 921600 baud
+are fast and reliable again.
 
 New in 0.15: Simulate > Debug Firmware with GDB works with the AVR chips
 and the Arduino UNO through avr-gdb (Microchip Studio, MPLAB XC8, avr-gcc
