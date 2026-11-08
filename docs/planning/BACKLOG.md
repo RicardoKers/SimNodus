@@ -214,6 +214,25 @@ ATmega8, 8A, 32, 32A, 328 and 328P as separate parts.
 | SN-261 | Arduino UNO: board, auto-reset from the host link's DTR, Optiboot shipped, upload with the Arduino IDE and avrdude, EEPROM kept | after SN-260 | done 2026-11-04 in the simulator: Optiboot takes an avrdude-style STK500 upload in the tests, the flash and EEPROM are kept, example 58; the Arduino IDE through a virtual port pair waits for the owner's test |
 | SN-262 | GDB for AVR with avr-gdb (`AvrTarget`, flash/SRAM/EEPROM address spaces) | after SN-258 | done 2026-11-05 (checked with avr-gdb 7.8 from Microchip Studio 7) |
 
+## Energy and motor control parts (from 2026-11-08)
+
+Owner's request of 2026-11-08: parts for projects on power electronics and
+motor control (MPPT, chargers, BLDC controllers). Every model is a labeled
+teaching model: its guide section lists what it models and what it leaves
+out, and no fidelity is claimed that was not measured. Suggested order: the
+table's order; each task brings its parts, an example, the guide sections
+(English and pt-BR) and tests.
+
+| ID | Task | Status |
+|---|---|---|
+| SN-271 | DC motor with a load: a load torque (0-100 % of the stall torque) dragged while running, friction-like (`T·tanh(ω/ε)`, so a held load never turns the shaft backwards), plus an optional rotor inertia parameter; current rises and speed falls with the load; 0 % by default so existing projects keep their behavior; readout of speed and load | todo |
+| SN-272 | Several live controls on one part: named controls (`{control:x}`) in the part format, one interactive source each, saved in the project, `sim.control` with a control name, the CLI and MCP descriptions; a 2D drag on the symbol and an optional return to a rest position on release. Needed by SN-273 and used by SN-274..SN-276 | todo |
+| SN-273 | Two-axis analog joystick module (KY-023 style): VRx, VRy (ratiometric potentiometers, 10 kΩ), SW (push switch to GND), +5V, GND; the stick dragged in 2D on the symbol, springs back to the center on release, the switch pressed with a click; example with a Blue Pill reading both axes | todo |
+| SN-274 | Photovoltaic module, single-diode model (photocurrent, diode with n·Ns cells, Rs, Rsh) fitted from datasheet values at STC: Pmax, Voc, Isc, Vmp, Imp, cells in series, temperature coefficients of Voc and Isc; the fit (Rs, Rsh, I0) computed in C++ when the netlist is built, a message when the values cannot be fitted. Presets instead of a free "power" setting: a 1 W cell group, a 5 W 6 V panel, a 10 W and a 20 W 12 V-class panel (36 cells), with every value editable; live controls: irradiance (0-1200 W/m²) and cell temperature; readout of the operating point and its power as a fraction of the maximum at the present irradiance, so an MPPT can be graded. Example: a boost or buck converter with Perturb & Observe on a Blue Pill (switching frequency chosen for usable speed, documented). Partial shading and bypass diodes left out | todo |
+| SN-275 | Lithium cell or pack, Thevenin model: open-circuit voltage from the state of charge (tables for Li-ion NMC/LCO 3.0-4.2 V and LiFePO4 2.5-3.65 V), series resistance and one or two RC pairs, the charge held as a capacitor voltage so it survives interactive segments; parameters: chemistry, capacity (mAh), cells in series (1S-4S), initial state of charge, a labeled time acceleration (the effective capacity divided by it, so a CC/CV charge fits in minutes); readout of state of charge, voltage and current; warnings above the maximum and below the minimum cell voltage. Optional protection (DW01-style cut-off) as a parameter. Example: a CC/CV charger from a converter or a TP4056-style linear stage. Temperature and aging left out | todo |
+| SN-276 | Experiment E-11, BLDC motor speed: a three-phase motor model in SPICE (three R+L windings in star with an internal neutral, back-EMF `ke·ω·f(θ)` trapezoidal or sinusoidal, torque from the phase currents, pole pairs, inertia, friction, the SN-271 load) and a behavioral three-phase bridge; measure the speed of a six-step and an FOC-style run with the Blue Pill (PWM at 5, 10 and 20 kHz, exact edges) before promising the part; short plan and results | todo |
+| SN-277 | BLDC motor and three-phase driver parts (after E-11): the motor (Kv or ke, phase resistance and inductance, pole pairs, trapezoidal or sinusoidal back-EMF, inertia, live load torque), three Hall outputs at 120° electrical (open collector with pull-ups, or push-pull), readout of speed and direction; a three-phase half-bridge driver in the DRV8313/L6234 style (IN and EN per phase, on-resistance, supply pin) and current sense through shunts; the floating phase shows the back-EMF zero crossing, so sensorless control works later without changes. Examples: six-step commutation from the Halls, and sinusoidal/FOC control with phase current measurement; speed limits from E-11 in the guide | todo |
+
 ## Later (after freeze or after classroom)
 
 | ID | Task |
