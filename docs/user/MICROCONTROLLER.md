@@ -392,7 +392,8 @@ unless the project turns on **Gateway to this computer's network** in
 
 - The boards' firmware reaches this computer as `host.simnodus`
   (192.168.4.254), the local network and the internet, as a device on this
-  computer's network would: web pages, MQTT brokers, NTP time.
+  computer's network would: web pages, MQTT brokers, NTP time, and ping
+  (this computer sends the ping and passes the answer back).
 - **Ports of this computer forwarded to boards** make a board's server
   reachable from this computer: with port 8080 forwarded to 192.168.4.2:80,
   a browser opens `http://127.0.0.1:8080/` while the simulation runs. The
@@ -415,7 +416,10 @@ or an AI agent leave it off unless the command asks with
   slower than on a real board.
 - There is no access point mode on the board itself (SoftAP), no ESP-NOW,
   no WPA3, and no Bluetooth.
-- A ping from a board reaches only the access point.
+- Without the gateway, a ping from a board reaches only the access point
+  (192.168.4.1). On Linux, pings through the gateway need
+  `net.ipv4.ping_group_range` to include the user, as most distributions
+  set it.
 - Two runs without the gateway give the same results. With the gateway,
   the computer's network decides the timing.
 

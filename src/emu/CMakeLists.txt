@@ -41,5 +41,5 @@ add_library(simnodus::emu ALIAS simnodus_emu)
 target_include_directories(simnodus_emu PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_link_libraries(simnodus_emu PRIVATE simnodus::warnings simnodus_lwip)
 if(WIN32)
-    target_link_libraries(simnodus_emu PRIVATE ws2_32) # GDB server and Wi-Fi gateway sockets
+    target_link_libraries(simnodus_emu PRIVATE ws2_32 iphlpapi) # GDB server and Wi-Fi gateway sockets, pings
 endif()

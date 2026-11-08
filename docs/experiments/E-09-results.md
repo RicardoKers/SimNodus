@@ -473,10 +473,10 @@ settings and `allow_network`.
 | **G9b.4** Crypto vectors | Met |
 | **G9c.1** TCP, UDP, DNS to local servers | Met in ctest |
 | **G9c.2** Off by default | Met: no name resolves, no socket; first-run confirmation in the window, `allow_network` in automation |
-| **G9c.3** By hand: a public site, MQTT | Partly: NTP from `pool.ntp.org` over the internet worked. **HTTP to a public site and MQTT: the owner's check** |
+| **G9c.3** By hand: a public site, MQTT | Met: NTP from `pool.ntp.org`; the owner's MQTT test with two boards and a broker on the internet (2026-11-08); ping through the gateway |
 | **G9c.4** TCP at 0.25x real time | Open as a measurement: the board's TCP timers run on virtual time and the computer's side is held by the sockets, so slow runs do not break connections by design. Not yet measured at 0.25x |
 | **G9d.1** Servers reached from the computer | Met: Arduino `WebServer`, MicroPython socket server, example 60 |
-| **G9d.2** Two boards on one AP | Partly: two boards join and get their own addresses in one session, and the AP relays between stations. A UDP/TCP exchange between the two boards is not yet tested |
+| **G9d.2** Two boards on one AP | Met: two boards get their own addresses in a session test; the owner's server and client boards, and two boards through an MQTT broker (2026-11-08) |
 | **G9e.1** Determinism without the gateway | Met for one board (same frames at the same times); several boards depend on the threads' interleaving within the coupling quantum |
 | **G9e.2** Idle MIPS with Wi-Fi at least 80 % | Not measured yet |
 | **G9e.3** Approximate timing labelled | Met: the guide's *Limits* |
@@ -526,6 +526,41 @@ leased, so the DNS answers from 8.8.8.8 and the NTP answers were dropped.
 ARP sender), as a real access point does. A test with MicroPython's fixed
 address 192.168.4.201 fails without the fix and passes with it.
 
-Ping to the outside is not carried by the gateway: only 192.168.4.1
-answers. The `ConsoleWiFi` result is to be read again with that in mind.
+The owner then tested the 2026-11-06b preview with the Arduino IDE and its
+libraries (2026-11-08):
+
+- example 60;
+- two ESP32-C3 boards, one as a server and one as a client;
+- one board on DHCP and the other on a fixed address;
+- two boards on an MQTT broker on the internet, one publishing and one
+  subscribed.
+
+All worked. This meets **G9d.2** (two boards on one AP talk to each other)
+and the MQTT part of **G9c.3**.
+
+The owner saw two problems:
+
+- **Uploads through UART0** are slower than through USB Serial/JTAG and
+  often fail midway. This is not part of the Wi-Fi; it is followed in a
+  task of its own.
+- **Ping:** `ConsoleWiFi` resolved the name but its ping timed out, because
+  the gateway did not carry ICMP.
+
+**Ping through the gateway (2026-11-08).** An echo request from a board to
+the outside, or to `host.simnodus` (127.0.0.1), is now sent by the computer
+(`HostPinger`):
+
+- Windows uses `IcmpSendEcho` from iphlpapi.
+- Linux uses an ICMP datagram socket, which `net.ipv4.ping_group_range`
+  must allow.
+- Neither needs administrator rights.
+- An answer comes back to the board as an echo reply from the pinged
+  address, with the board's identifier, sequence and data. A ping with no
+  answer within a second times out on the board, as without the gateway.
+
+An Arduino sketch with ESP-IDF's `esp_ping` got answers from 8.8.8.8 in
+about 20 ms and from `host.simnodus` in about 10 ms. Without the gateway it
+timed out. A ctest case sends an echo to the computer through the gateway
+and checks the reply; it is skipped where the computer allows no
+unprivileged pings.
 

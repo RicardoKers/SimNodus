@@ -914,6 +914,48 @@ TEST_CASE("esp32c3: the Wi-Fi gateway carries TCP and UDP to the computer and fo
     CHECK(has(lines2, "OSError"));
 }
 
+TEST_CASE("esp32c3: the Wi-Fi gateway carries a ping to the computer and back")
+{
+    if (!HostPinger::available()) {
+        std::printf("  skipped: this computer does not allow pings without privileges (net.ipv4.ping_group_range)\n");
+        return;
+    }
+    std::string error;
+    auto gateway = WifiGateway::start({}, error);
+    REQUIRE(gateway);
+    // An echo request from 192.168.4.2 to the computer (192.168.4.254 is 127.0.0.1).
+    std::vector<std::uint8_t> echo{8, 0, 0, 0, 0x12, 0x34, 0x00, 0x07, 'p', 'i', 'n', 'g'};
+    const std::uint16_t sum = internet_checksum(echo.data(), echo.size());
+    echo[2] = static_cast<std::uint8_t>(sum >> 8);
+    echo[3] = static_cast<std::uint8_t>(sum);
+    std::vector<std::uint8_t> packet{0x45, 0, 0, static_cast<std::uint8_t>(20 + echo.size()), 0, 1, 0, 0, 64, 1, 0, 0,
+        192, 168, 4, 2, 192, 168, 4, 254};
+    const std::uint16_t header_sum = internet_checksum(packet.data(), 20);
+    packet[10] = static_cast<std::uint8_t>(header_sum >> 8);
+    packet[11] = static_cast<std::uint8_t>(header_sum);
+    packet.insert(packet.end(), echo.begin(), echo.end());
+    gateway->from_station(packet, 0);
+    std::vector<std::vector<std::uint8_t>> replies;
+    const auto begin = std::chrono::steady_clock::now();
+    for (std::uint64_t now = 1'000'000; replies.empty() && std::chrono::steady_clock::now() - begin < std::chrono::seconds(3);
+         now += 1'000'000) {
+        gateway->poll(now);
+        replies = gateway->take_to_stations();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    REQUIRE(replies.size() == 1);
+    const auto& reply = replies.front();
+    REQUIRE(reply.size() == 20 + echo.size());
+    CHECK(reply[9] == 1);                                      // ICMP
+    CHECK((reply[12] == 192 && reply[15] == 254));             // from the computer's address
+    CHECK((reply[16] == 192 && reply[19] == 2));               // to the station
+    CHECK(reply[20] == 0);                                     // echo reply
+    CHECK((reply[24] == 0x12 && reply[25] == 0x34 && reply[27] == 7)); // the station's identifier and sequence
+    CHECK(reply[28] == 'p');
+    CHECK(internet_checksum(reply.data(), 20) == 0);
+    CHECK(internet_checksum(reply.data() + 20, reply.size() - 20) == 0);
+}
+
 TEST_CASE("esp32c3: Wi-Fi frames in a pcap file (E-09, SN-266)")
 {
     const fs::path path = fs::temp_directory_path() / "simnodus_wifi_test.pcap";
