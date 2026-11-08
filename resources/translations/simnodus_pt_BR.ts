@@ -3884,12 +3884,100 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Tensão nominal da bobina (corrente de A para B)</translation>
         </message>
         <message>
-            <source>Solar panel 10 W 12 V</source>
-            <translation>Painel solar 10 W 12 V</translation>
+            <source>Lithium-ion battery</source>
+            <translation>Bateria de íon-lítio</translation>
         </message>
         <message>
             <source>Sources</source>
             <translation>Fontes</translation>
+        </message>
+        <message>
+            <source>Lithium-ion (NMC/LCO) cells, 3.7 V nominal, 4.2 V full, 3.0 V empty; Thevenin model (open-circuit voltage from the state of charge, series resistance and an RC pair) with a time acceleration for chargers; shows the state of charge. No temperature, aging or self-discharge</source>
+            <translation>Células de íon-lítio (NMC/LCO), 3,7 V nominal, 4,2 V cheia, 3,0 V vazia; modelo de Thevenin (tensão de circuito aberto pelo estado de carga, resistência série e um par RC) com aceleração do tempo para carregadores; mostra o estado de carga. Sem temperatura, envelhecimento nem autodescarga</translation>
+        </message>
+        <message>
+            <source>Capacity</source>
+            <translation>Capacidade</translation>
+        </message>
+        <message>
+            <source>Capacity of each cell</source>
+            <translation>Capacidade de cada célula</translation>
+        </message>
+        <message>
+            <source>Cells in series</source>
+            <translation>Células em série</translation>
+        </message>
+        <message>
+            <source>Cells in series (1S to 4S); voltages and resistances add</source>
+            <translation>Células em série (1S a 4S); tensões e resistências se somam</translation>
+        </message>
+        <message>
+            <source>Initial state of charge</source>
+            <translation>Estado de carga inicial</translation>
+        </message>
+        <message>
+            <source>State of charge when the run starts</source>
+            <translation>Estado de carga quando a simulação começa</translation>
+        </message>
+        <message>
+            <source>Time acceleration</source>
+            <translation>Aceleração do tempo</translation>
+        </message>
+        <message>
+            <source>Divides the capacity and the RC time constant, so a charge of hours runs in minutes with the same voltages and currents (1 = real time; 60 = an hour in a minute)</source>
+            <translation>Divide a capacidade e a constante de tempo do RC, para que uma carga de horas aconteça em minutos com as mesmas tensões e correntes (1 = tempo real; 60 = uma hora em um minuto)</translation>
+        </message>
+        <message>
+            <source>Series resistance</source>
+            <translation>Resistência em série</translation>
+        </message>
+        <message>
+            <source>Internal resistance of each cell</source>
+            <translation>Resistência interna de cada célula</translation>
+        </message>
+        <message>
+            <source>Polarization resistance</source>
+            <translation>Resistência de polarização</translation>
+        </message>
+        <message>
+            <source>Resistance of the RC pair of each cell (the slow part of the voltage drop)</source>
+            <translation>Resistência do par RC de cada célula (a parte lenta da queda de tensão)</translation>
+        </message>
+        <message>
+            <source>Polarization time constant</source>
+            <translation>Constante de tempo de polarização</translation>
+        </message>
+        <message>
+            <source>Time constant of the RC pair (before the acceleration)</source>
+            <translation>Constante de tempo do par RC (antes da aceleração)</translation>
+        </message>
+        <message>
+            <source>Lithium-ion battery with protection</source>
+            <translation>Bateria de íon-lítio com proteção</translation>
+        </message>
+        <message>
+            <source>Lithium-ion (NMC/LCO) cells, 3.7 V nominal, 4.2 V full, 3.0 V empty; Thevenin model (open-circuit voltage from the state of charge, series resistance and an RC pair) with a time acceleration for chargers; shows the state of charge. No temperature, aging or self-discharge. Protection like a DW01: charging stops above 4.25 V per cell (again below 4.15 V), discharging below 2.5 V (again above 3.0 V)</source>
+            <translation>Células de íon-lítio (NMC/LCO), 3,7 V nominal, 4,2 V cheia, 3,0 V vazia; modelo de Thevenin (tensão de circuito aberto pelo estado de carga, resistência série e um par RC) com aceleração do tempo para carregadores; mostra o estado de carga. Sem temperatura, envelhecimento nem autodescarga. Proteção como a de um DW01: a carga para acima de 4,25 V por célula (volta abaixo de 4,15 V), a descarga abaixo de 2,5 V (volta acima de 3,0 V)</translation>
+        </message>
+        <message>
+            <source>LiFePO4 battery</source>
+            <translation>Bateria LiFePO4</translation>
+        </message>
+        <message>
+            <source>Lithium iron phosphate cells, 3.2 V nominal, 3.65 V full, 2.5 V empty; Thevenin model (open-circuit voltage from the state of charge, series resistance and an RC pair) with a time acceleration for chargers; shows the state of charge. No temperature, aging or self-discharge</source>
+            <translation>Células de lítio-ferro-fosfato, 3,2 V nominal, 3,65 V cheia, 2,5 V vazia; modelo de Thevenin (tensão de circuito aberto pelo estado de carga, resistência série e um par RC) com aceleração do tempo para carregadores; mostra o estado de carga. Sem temperatura, envelhecimento nem autodescarga</translation>
+        </message>
+        <message>
+            <source>LiFePO4 battery with protection</source>
+            <translation>Bateria LiFePO4 com proteção</translation>
+        </message>
+        <message>
+            <source>Lithium iron phosphate cells, 3.2 V nominal, 3.65 V full, 2.5 V empty; Thevenin model (open-circuit voltage from the state of charge, series resistance and an RC pair) with a time acceleration for chargers; shows the state of charge. No temperature, aging or self-discharge. Protection like a DW01: charging stops above 3.75 V per cell (again below 3.6 V), discharging below 2.0 V (again above 2.5 V)</source>
+            <translation>Células de lítio-ferro-fosfato, 3,2 V nominal, 3,65 V cheia, 2,5 V vazia; modelo de Thevenin (tensão de circuito aberto pelo estado de carga, resistência série e um par RC) com aceleração do tempo para carregadores; mostra o estado de carga. Sem temperatura, envelhecimento nem autodescarga. Proteção como a de um DW01: a carga para acima de 3,75 V por célula (volta abaixo de 3,6 V), a descarga abaixo de 2,0 V (volta acima de 2,5 V)</translation>
+        </message>
+        <message>
+            <source>Solar panel 10 W 12 V</source>
+            <translation>Painel solar 10 W 12 V</translation>
         </message>
         <message>
             <source>Photovoltaic module, 36 cells in series, about 9.96 W at 1000 W/m² and 25 °C (Voc 21.6 V, Isc 0.62 A, Vmp 17.5 V, Imp 0.572 A); single-diode model fitted from these values. Irradiance and cell temperature change while running; the symbol shows the power taken as a share of the maximum power point. No partial shading or bypass diodes</source>
@@ -3942,10 +4030,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Imp at STC, below Isc</source>
             <translation>Imp nas STC, abaixo de Isc</translation>
-        </message>
-        <message>
-            <source>Cells in series</source>
-            <translation>Células em série</translation>
         </message>
         <message>
             <source>Number of cells in series (Ns)</source>
@@ -5148,10 +5232,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
             <translation>Ponte de extensômetros: a saída S+ − S- é excitação × sensibilidade × carga / capacidade (1 mV/V: 5 mV na carga máxima com 5 V); amplifique-a, por exemplo com um HX711</translation>
         </message>
         <message>
-            <source>Capacity</source>
-            <translation>Capacidade</translation>
-        </message>
-        <message>
             <source>Rated load</source>
             <translation>Carga nominal</translation>
         </message>
@@ -5390,10 +5470,6 @@ Permitir para este projeto neste computador? Sem isso, a rede das placas fica de
         <message>
             <source>Internal resistance</source>
             <translation>Resistência interna</translation>
-        </message>
-        <message>
-            <source>Series resistance</source>
-            <translation>Resistência em série</translation>
         </message>
         <message>
             <source>Current-controlled current source</source>

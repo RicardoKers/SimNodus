@@ -98,7 +98,7 @@ invalid value is outlined in red and not applied.
 | Category | Parts |
 |---|---|
 | **Passive** | Resistor, capacitor, inductor (ideal); potentiometer; transformer (primary P1-P2, secondary S1-S2) |
-| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, ground |
+| **Sources** | DC voltage source, battery (with internal resistance), DC current source (out of +), adjustable voltage and current sources (turned while running between a lower and an upper limit), voltage- and current-controlled voltage and current sources (VCVS, VCCS, CCVS, CCCS), pulse generator, sine generator, solar panels of 1 W, 5 W, 10 W and 20 W, lithium-ion and LiFePO4 batteries (with or without protection), ground |
 | **Switches & Controls** | SPST switch, SPDT changeover switch, push buttons NO (closed while pressed) and NC (open while pressed) with optional contact bounce; 4x4 matrix keypad; two-axis joystick module |
 | **Instruments** | Voltmeter (1 GΩ input), ammeter (ideal; current into +) |
 | **Semiconductors** | Diode (silicon), Schottky, germanium, Zener, LED (glows with its current, color selectable), NPN and PNP transistors, N- and P-channel MOSFETs (body tied to source) |
@@ -171,6 +171,22 @@ Notes on some parts:
   the maximum. Partial shading, bypass diodes, spectrum and the panel's
   thermal behavior are left out. Example 62 tracks the maximum with a Blue
   Pill and an electronic load.
+- **Lithium batteries:** lithium-ion (NMC/LCO, 3.0-4.2 V per cell) and
+  LiFePO4 (2.5-3.65 V), 1 to 4 cells in series, with a Thevenin model: the
+  open-circuit voltage from the state of charge (typical curves at 25 °C),
+  a series resistance and an RC pair. Set the capacity, the initial state of
+  charge and the **time acceleration**, which divides the capacity and the
+  RC time constant so a charge of hours runs in minutes with the same
+  voltages and currents (120 = an hour in 30 s); the symbol shows the state
+  of charge. The default resistances are those of a 2500 mAh (Li-ion) or
+  1500 mAh (LiFePO4) cell; smaller cells have more. Past 100 % the voltage
+  rises steeply, so an overcharge shows. The versions **with protection**
+  act like a DW01 with two MOSFETs: charging stops above 4.25 V per cell
+  (3.75 V for LiFePO4) until the cell falls to 4.15 V (3.6 V), discharging
+  stops below 2.5 V (2.0 V) until it recovers to 3.0 V (2.5 V); the other
+  direction still passes through a diode. Temperature, aging,
+  self-discharge and the voltage hysteresis are left out. Example 63
+  charges a cell with an LM317 CC/CV charger.
 - **Controlled sources:** the control pins C+ and C- are on the left. A
   voltage-controlled source only senses the voltage between them (1 GΩ); a
   current-controlled source senses the current flowing from C+ to C-, so

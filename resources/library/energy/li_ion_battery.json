@@ -1,0 +1,193 @@
+{
+  "type": "li_ion_battery",
+  "name": "Lithium-ion battery",
+  "category": "Sources",
+  "prefix": "BT",
+  "description": "Lithium-ion (NMC/LCO) cells, 3.7 V nominal, 4.2 V full, 3.0 V empty; Thevenin model (open-circuit voltage from the state of charge, series resistance and an RC pair) with a time acceleration for chargers; shows the state of charge. No temperature, aging or self-discharge",
+  "symbol": {
+    "graphics": [
+      {
+        "line": [
+          -1.6,
+          -1.6,
+          1.6,
+          -1.6
+        ]
+      },
+      {
+        "line": [
+          -0.8,
+          -0.9,
+          0.8,
+          -0.9
+        ]
+      },
+      {
+        "line": [
+          -1.6,
+          0.2,
+          1.6,
+          0.2
+        ]
+      },
+      {
+        "line": [
+          -0.8,
+          0.9,
+          0.8,
+          0.9
+        ]
+      },
+      {
+        "line": [
+          1.4,
+          -2.6,
+          1.4,
+          -2.0
+        ]
+      },
+      {
+        "line": [
+          1.1,
+          -2.3,
+          1.7,
+          -2.3
+        ]
+      },
+      {
+        "line": [
+          0,
+          -4,
+          0,
+          -1.6
+        ]
+      },
+      {
+        "line": [
+          0,
+          0.9,
+          0,
+          4
+        ]
+      },
+      {
+        "text": "Li",
+        "at": [
+          -2.6,
+          -0.4
+        ],
+        "size": 1.1
+      }
+    ],
+    "pins": [
+      {
+        "name": "+",
+        "at": [
+          0,
+          -4
+        ],
+        "dir": "up"
+      },
+      {
+        "name": "-",
+        "at": [
+          0,
+          4
+        ],
+        "dir": "down"
+      }
+    ]
+  },
+  "designator_offset": [
+    3,
+    -2
+  ],
+  "value_offset": [
+    3,
+    2
+  ],
+  "value_parameter": "capacity",
+  "parameters": [
+    {
+      "name": "capacity",
+      "label": "Capacity",
+      "unit": "mAh",
+      "default": "2500",
+      "description": "Capacity of each cell",
+      "min": "1",
+      "max": "100k"
+    },
+    {
+      "name": "cells",
+      "label": "Cells in series",
+      "unit": "",
+      "default": "1",
+      "description": "Cells in series (1S to 4S); voltages and resistances add",
+      "min": "1",
+      "max": "4"
+    },
+    {
+      "name": "soc0",
+      "label": "Initial state of charge",
+      "unit": "%",
+      "default": "50",
+      "description": "State of charge when the run starts",
+      "min": "0",
+      "max": "100"
+    },
+    {
+      "name": "accel",
+      "label": "Time acceleration",
+      "unit": "",
+      "default": "1",
+      "description": "Divides the capacity and the RC time constant, so a charge of hours runs in minutes with the same voltages and currents (1 = real time; 60 = an hour in a minute)",
+      "min": "1",
+      "max": "3600"
+    },
+    {
+      "name": "R0",
+      "label": "Series resistance",
+      "unit": "Ohm",
+      "default": "50m",
+      "description": "Internal resistance of each cell",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "R1",
+      "label": "Polarization resistance",
+      "unit": "Ohm",
+      "default": "30m",
+      "description": "Resistance of the RC pair of each cell (the slow part of the voltage drop)",
+      "min": "1m",
+      "max": "10"
+    },
+    {
+      "name": "tau",
+      "label": "Polarization time constant",
+      "unit": "s",
+      "default": "30",
+      "description": "Time constant of the RC pair (before the acceleration)",
+      "min": "1",
+      "max": "1000"
+    }
+  ],
+  "readout": {
+    "kind": "node",
+    "element": "r_{ref}",
+    "scale": 1,
+    "unit": "% SOC"
+  },
+  "spice": [
+    "V_{ref}_i {node:+} a_{ref} DC 0",
+    "B_{ref}_q 0 q_{ref} I=I(V_{ref}_i)/({capacity}*3.6/{accel})",
+    "C_{ref}_q q_{ref} 0 1",
+    "R_{ref}_q q_{ref} 0 1T",
+    "B_{ref}_s s_{ref} 0 V={soc0}/100+V(q_{ref})",
+    "B_{ref}_e e_{ref} {node:-} V={cells}*(pwl(V(s_{ref}),0,3.0,0.05,3.45,0.1,3.55,0.2,3.62,0.3,3.68,0.4,3.73,0.5,3.78,0.6,3.85,0.7,3.92,0.8,4.0,0.9,4.08,1.0,4.2)+5*max(V(s_{ref})-1,0)-5*max(-V(s_{ref}),0))",
+    "R_{ref}_1 c_{ref} e_{ref} {= cells * R1}",
+    "C_{ref}_1 c_{ref} e_{ref} {= tau / accel / R1 / cells}",
+    "B_{ref}_r r_{ref} 0 V=100*V(s_{ref})",
+    "R_{ref}_0 a_{ref} c_{ref} {= cells * R0}"
+  ]
+}
