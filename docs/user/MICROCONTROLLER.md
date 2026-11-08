@@ -337,9 +337,15 @@ real board: UART0 by default, the USB Serial/JTAG port with **Tools > USB
 CDC On Boot: Enabled** in the Arduino IDE (`Serial0` is then UART0).
 MicroPython's REPL is on the USB Serial/JTAG port.
 
-Uploads take the simulated time they need: at 921600 baud and real-time
-speed, esptool writes 200 KB in about 3 seconds. Thonny and mpremote may
-reset the board when they connect, as they do with a real one.
+Uploads take the simulated time they need. Through UART0 the bytes travel
+at the upload speed, as through the DevKit's USB-serial bridge: at real-time
+speed, the Arduino IDE's Upload of a 300 KB sketch takes about 5 seconds at
+921600 baud (its default) and about 20 seconds at 115200. The USB
+Serial/JTAG port has no baud rate, so the same upload takes about 2 seconds
+there. Through `tcp:PORT`, esptool's RFC 2217 client adds about 0.2 s to
+each of its commands (half a minute for the same upload); a virtual port
+pair does not. Thonny and mpremote may reset the board when they connect, as
+they do with a real one.
 
 ### MicroPython's files
 

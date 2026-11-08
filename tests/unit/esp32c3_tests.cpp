@@ -1212,6 +1212,113 @@ TEST_CASE("esp32c3: download mode answers esptool's SYNC on UART0 and USB Serial
     }
 }
 
+// The baud rate UART0's divider gives from the 40 MHz crystal (its clock in
+// download mode), or 0 for a divider of 0.
+static double uart0_baud(Esp32C3& machine)
+{
+    std::uint32_t clkdiv = 0;
+    machine.bus().read(0x60000014, 4, clkdiv);
+    const double divider = (clkdiv & 0xFFF) + ((clkdiv >> 20) & 0xF) / 16.0;
+    return divider >= 1 ? 40e6 / divider : 0.0;
+}
+
+TEST_CASE("esp32c3: CHANGE_BAUDRATE in download mode moves UART0 to the new speed")
+{
+    std::string error;
+    const auto rom = read_elf(repository / "third_party" / "esp-rom-elfs" / "esp32c3_rev3_rom.elf", error, ElfMachine::Riscv);
+    Esp32C3::Options options;
+    options.strapping = 0x4; // GPIO9 low: download mode
+    Esp32C3 machine(options);
+    REQUIRE(rom && machine.load_rom(*rom, error));
+    machine.reset();
+    machine.run_until_ns(50'000'000);
+    output_bytes(machine, 0);
+    std::string answer;
+    for (int attempt = 0; attempt < 10 && answer.find(sync_answer) == std::string::npos; ++attempt) {
+        machine.send(0, sync_frame());
+        machine.run_until_ns(machine.time_ns() + 100'000'000);
+        answer += output_bytes(machine, 0);
+    }
+    REQUIRE(answer.find(sync_answer) != std::string::npos);
+    CHECK(std::abs(uart0_baud(machine) - 115200) < 1200);
+    machine.run_until_ns(machine.time_ns() + 100'000'000); // the last SYNC answers leave
+    output_bytes(machine, 0);
+
+    // CHANGE_BAUDRATE (0x0F): the new rate, then 0 for the ROM loader.
+    std::string change;
+    for (const int b : {0xC0, 0x00, 0x0F, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x0E, 0x00, 0x00, 0x00, 0x00,
+             0x00, 0xC0}) {
+        change += static_cast<char>(b);
+    }
+    machine.send(0, change);
+    machine.run_until_ns(machine.time_ns() + 20'000'000);
+    CHECK(output_bytes(machine, 0).find(std::string{static_cast<char>(0xC0), 0x01, 0x0F}) != std::string::npos);
+    CHECK(std::abs(uart0_baud(machine) - 921600) < 921600 * 0.01);
+
+    // The next command's bytes arrive at the new rate: a SYNC frame (46
+    // bytes) takes 0.5 ms instead of 4 ms, and the answer comes at once.
+    machine.send(0, sync_frame());
+    machine.run_until_ns(machine.time_ns() + 2'000'000);
+    CHECK(output_bytes(machine, 0).find(sync_answer) != std::string::npos);
+}
+
+TEST_CASE("esp32c3: the crystal's frequency in SYSCLK_CONF sets the flasher stub's baud rate")
+{
+    // The chip reports its 40 MHz crystal in SYSCLK_CONF.CLK_XTAL_FREQ, which
+    // software cannot change; the ROM's ets_get_xtal_freq reads it. esptool's
+    // flasher stub divides by it for CHANGE_BAUDRATE. With 0 there, UART0's
+    // divider became 0 and the port stayed at 115200 baud while esptool sent
+    // at 921600: each 16 KB block of an Arduino IDE upload took 1.4 s instead
+    // of 0.18 s, and past esptool's 3 s timeout whenever the board ran slower
+    // than half of real time.
+    std::string error;
+    const auto rom = read_elf(repository / "third_party" / "esp-rom-elfs" / "esp32c3_rev3_rom.elf", error, ElfMachine::Riscv);
+    Esp32C3::Options options;
+    options.strapping = 0x4;
+    Esp32C3 machine(options);
+    REQUIRE(rom && machine.load_rom(*rom, error));
+    machine.reset();
+    std::uint32_t sysclk = 0;
+    REQUIRE(machine.bus().read(0x600C0058, 4, sysclk));
+    CHECK(((sysclk >> 12) & 0x7F) == 40);
+    REQUIRE(machine.bus().write(0x600C0058, 4, sysclk & ~(0x7Fu << 12)));
+    REQUIRE(machine.bus().read(0x600C0058, 4, sysclk));
+    CHECK(((sysclk >> 12) & 0x7F) == 40); // read-only
+
+    // What the stub does, in internal RAM:
+    //   uart_div_modify(0, (ets_get_xtal_freq() << 4) / 921600); for (;;);
+    const std::uint32_t program[] = {
+        0x3FCDE137, // lui  sp, 0x3fcde
+        0x4004A2B7, // lui  t0, 0x4004a
+        0x84C280E7, // jalr ra, -1972(t0)  ets_get_xtal_freq (0x4004984c)
+        0x00451513, // slli a0, a0, 4
+        0x000E15B7, // lui  a1, 0xe1       921600
+        0x02B555B3, // divu a1, a0, a1
+        0x00000513, // li   a0, 0
+        0x4004C2B7, // lui  t0, 0x4004c
+        0x20C280E7, // jalr ra, 524(t0)    uart_div_modify (0x4004c20c)
+        0x0000006F, // j    .
+    };
+    const std::uint32_t at = 0x40380000;
+    for (std::size_t i = 0; i < std::size(program); ++i) {
+        REQUIRE(machine.bus().write(at + 4 * static_cast<std::uint32_t>(i), 4, program[i]));
+    }
+    machine.cpu().set_pc(at);
+    machine.run_until_ns(1'000'000);
+    REQUIRE(machine.cpu().pc() == at + 36);
+    const double baud = uart0_baud(machine);
+    std::printf("  UART0 after the stub's divider for 921600: %.0f baud\n", baud);
+    CHECK(std::abs(baud - 921600) < 921600 * 0.01);
+
+    // Bytes from the computer arrive one 10.85 us frame apart, not 86.8 us.
+    const std::uint64_t start = machine.time_ns();
+    machine.send(0, "abcd");
+    machine.run_until_ns(start + 50'000);
+    std::uint32_t status = 0;
+    REQUIRE(machine.bus().read(0x6000001C, 4, status));
+    CHECK((status & 0x3FF) == 4);
+}
+
 TEST_CASE("esp32c3: EN held low stops the chip; GPIO9 low at its rise starts download mode")
 {
     auto machine = boot(read_file(firmware("hello_world.bin")));

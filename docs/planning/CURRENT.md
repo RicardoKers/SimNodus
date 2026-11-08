@@ -1,6 +1,6 @@
 # Current state
 
-Updated: 2026-11-06 (E-09 Wi-Fi done on `main`, not released: the ESP32-C3 joins SimNodus's network, reaches the computer and the internet through the gateway; DE9 waits for the owner; release 0.15.0 published: GDB for the AVR chips with avr-gdb, the per-chip debugger message, the `label-conflict` warning). Keep this file short: present state, last results, next
+Updated: 2026-11-08 (SN-270 on `main`, not released: ESP32-C3 uploads through UART0 at the Arduino IDE's 921600 baud are fast and reliable again; E-09 Wi-Fi done on `main`, not released; DE9 waits for the owner; release 0.15.0 published). Keep this file short: present state, last results, next
 steps. Replace it, do not append. History of the first development line
 (2026-08-31 → 2026-10-06) is in
 [archive/2026-10-legacy/CURRENT.md](../archive/2026-10-legacy/CURRENT.md);
@@ -8,6 +8,12 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
 
 ## Where we are
 
+- **SN-270 (2026-11-08, on `main`, not released):** the owner saw Arduino IDE uploads through the
+  DevKit's UART0 run slowly and fail midway. Cause: SYSCLK_CONF.CLK_XTAL_FREQ read 0, so esptool's
+  stub set UART0's divider to 0 on CHANGE_BAUDRATE and the port stayed at 115200 baud (1.4 s per
+  16 KB block against esptool's 3 s timeout). Fixed; through Eterlogic's pair at real-time speed
+  an upload takes about 5 s (was 18 s), 10 in a row passed, and one at 40 % of real time passes.
+  The owner checks it in the GUI with the Arduino IDE.
 - **Release 0.15.0 published on 2026-11-05** (tag `v0.15.0`, GitHub release
   with `SimNodus-0.15.0-windows-x64.zip` and `-setup.exe`), after the owner's tests of the
   2026-11-05 preview (examples 50, 55 and 58 with avr-gdb 7.8) and the

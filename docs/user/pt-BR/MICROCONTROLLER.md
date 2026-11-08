@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 aef96cdba4f8eb18b0d0884284f7c991c8d6997cf46a371b5efd6ddc0282e2eb -->
+<!-- source: MICROCONTROLLER.md sha256 8d5967b02dea036bb5ee48a4ca97cce25f1609366eed16c93c7a7852c652b006 -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -354,9 +354,15 @@ numa placa real: a UART0 por padrão, a porta USB Serial/JTAG com **Ferramentas
 > USB CDC On Boot: Enabled** no Arduino IDE (aí o `Serial0` é a UART0). O REPL
 do MicroPython fica na porta USB Serial/JTAG.
 
-As gravações levam o tempo simulado de que precisam: a 921600 baud e em
-velocidade de tempo real, o esptool grava 200 KB em uns 3 segundos. O Thonny e
-o mpremote podem reiniciar a placa ao conectar, como fazem com uma real.
+As gravações levam o tempo simulado de que precisam. Pela UART0 os bytes
+trafegam na velocidade de gravação, como pela ponte USB-serial do DevKit: em
+velocidade de tempo real, o Upload da IDE do Arduino de um sketch de 300 KB
+leva uns 5 segundos a 921600 baud (o padrão) e uns 20 segundos a 115200. A
+porta USB Serial/JTAG não tem taxa de transmissão, então a mesma gravação leva
+uns 2 segundos por ela. Por `tcp:PORTA`, o cliente RFC 2217 do esptool soma
+uns 0,2 s a cada comando (meio minuto para a mesma gravação); um par de portas
+virtuais não. O Thonny e o mpremote podem reiniciar a placa ao conectar, como
+fazem com uma real.
 
 ### Arquivos do MicroPython
 
