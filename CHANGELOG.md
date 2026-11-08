@@ -7,7 +7,12 @@ All entries describe actual repository changes, not promised simulator capabilit
 ### Added (2026-11-08, E-11 / SN-276, experimental)
 
 - **BLDC motor**, **PMSM motor (sinusoidal)** and **Three-phase half-bridge driver** (Electromechanical), experimental: three windings in star with trapezoidal or sinusoidal back-EMF, open-collector Hall outputs, inertia, friction and a live load; the bridge has IN and EN per phase and gives the average voltage with the microcontroller's step averages. `tools/generate_bldc_parts.py` writes them.
-- Example 64: six-step commutation from the Hall sensors on a Blue Pill (`firmware/bldc_control`, which also does sinusoidal commutation with PB12 to GND and 5 or 20 kHz PWM with PB13 or PB14). It runs at about 0.05x real time: experiment E-11 measured 0.03-0.21x and found the cost in the coupling of the board to the bridge and motor ([results](docs/experiments/E-11-results.md)).
+- Example 64: six-step commutation from the Hall sensors on a Blue Pill (`firmware/bldc_control`, which also does sinusoidal commutation with PB12 to GND and 5 or 20 kHz PWM with PB13 or PB14). It runs at about 0.35x real time; sinusoidal commutation at 10 kHz about in real time ([E-11 results](docs/experiments/E-11-results.md)).
+
+### Changed (2026-11-08, SN-278)
+
+- Faster runs with a board: without exact edges, the firmware's outputs are averaged over at least one maximum step (100 µs), so a step ngspice shortened no longer sees a fast PWM as real switching and the run returns to long steps (ADR 0091 update); ngspice's requests for the boards' pin drivers are resolved once per circuit instead of at every call. Example 64 went from 0.05x to about 0.35x real time, sinusoidal commutation at 10 kHz from 0.12x to 1.16x.
+- The three-phase bridge's EN is a conductance in proportion to its average level and its body diodes are straight segments (fewer steps at each commutation).
 
 ### Fixed (2026-11-08, found in E-11)
 

@@ -1,4 +1,4 @@
-<!-- source: USER_GUIDE.md sha256 8f8f7cbddba3495b3da1c6d529200c46e1de69d277e0d1614c56e7fda515a86f -->
+<!-- source: USER_GUIDE.md sha256 170e22f5b36bdb4c8f1bbecf2a4d387a79e856103db2399bb55fbe91de6388af -->
 # Guia do usuário do SimNodus
 
 O SimNodus é um simulador para sala de aula: você desenha um circuito, aperta
@@ -203,9 +203,10 @@ Observações sobre alguns componentes:
   A B C = 101, 100, 110, 010, 011, 001 para os setores que acionam U+V-,
   U+W-, V+W-, V+U-, W+U-, W+V-. A ponte tem IN (o PWM) e EN (ligada, ou a
   saída aberta) por fase. O exemplo 64 faz a comutação em seis passos pelos
-  sensores Hall numa Blue Pill. Uma placa acionando essas peças roda devagar,
-  cerca de 0,03x a 0,2x do tempo real (experimento E-11); um acoplamento mais
-  rápido está sendo investigado.
+  sensores Hall numa Blue Pill. Velocidade medida com PWM de 10 kHz
+  (experimento E-11): seis passos cerca de 0,35x do tempo real, comutação
+  senoidal cerca de 1x; um PWM de 5 kHz, mais lento que o passo de 100 µs, e
+  as bordas exatas do microcontrolador são bem mais lentos.
 - **Fontes controladas:** os pinos de controle C+ e C- ficam à esquerda. Uma
   fonte controlada por tensão apenas sente a tensão entre eles (1 GΩ); uma
   fonte controlada por corrente sente a corrente que flui de C+ para C-, por

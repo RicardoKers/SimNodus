@@ -1,7 +1,8 @@
 # E-11: BLDC motor speed — results
 
-Date: 2026-11-08. [Plan](E-11-plan.md); task SN-276. Status: **G11a met,
-G11b failed**; decision DE11 waits for the owner.
+Date: 2026-11-08. [Plan](E-11-plan.md); task SN-276, then SN-278. Status:
+**G11a met; G11b failed**, then mostly recovered by SN-278 (below);
+decision DE11 waits for the owner.
 
 ## What was built
 
@@ -69,9 +70,54 @@ of the firmware's pins to this circuit (the per-step exchange of the
 external sources, or ngspice's step control around them), not in either
 model. Profiling it is the next step.
 
+## SN-278: the cause and the fixes
+
+Profiling the session (time points, drive requests and waits, counted per
+run) showed ngspice accepting 78 000 points in 0.5 s of example 64, a 6 µs
+step on average, with the waits for the firmware negligible (0.3 s of
+9.4 s). Three causes, three fixes:
+
+1. **Step averages shorter than the PWM.** The firmware's drive was averaged
+   over each step (ADR 0091). Once ngspice shortened a step, the 10 kHz PWM
+   reached the circuit as real switching, whose edges kept the steps short:
+   the run never recovered, and the cost grew with the PWM frequency. Now,
+   without exact edges, the average covers at least one maximum step (ADR
+   0091 update). 340 000 → 70 000 points for 2 s.
+2. **Switching elements around every commutation.** The bridge's EN switches
+   and exponential body diodes cut the steps at each of the 960 commutations
+   per second. EN is now a conductance in proportion to its (averaged) level,
+   which is also the right average of a leg enabled part of the time, and
+   the diodes are straight segments. 70 000 → 51 000 points. (Smoothing the
+   Hall switches, snubbers and leakage resistors on the open phase were
+   measured and did not help.)
+3. **The cost of each point.** ngspice asked for each external source at
+   every Newton iteration, about 400 calls per point, and each call built a
+   lower-case string and searched two maps: 3.9 s of 10 s. Names are now
+   resolved once per loaded circuit, by ngspice's name pointer. 10.0 → 6.6 s
+   before fix 2, 4.1 s after it.
+
+Repeated matrix (same laptop, 2 s from rest, ratio reported by the session):
+
+| Mode | PWM | Edges averaged | Exact edges (100 µs) | Exact edges (10 µs) |
+|---|---|---|---|---|
+| six-step | 5 kHz | 0.13x | 0.073x | |
+| six-step | 10 kHz | **0.35x** (was 0.049x) | 0.047x | |
+| six-step | 20 kHz | 0.32x (was 0.027x) | 0.025x | 0.023x |
+| sinusoidal | 5 kHz | 0.22x | 0.125x | |
+| sinusoidal | 10 kHz | **1.16x** (was 0.124x) | 0.068x | |
+| sinusoidal | 20 kHz | 0.82x (was 0.073x) | 0.040x | 0.039x |
+
+At 5 kHz the PWM period (200 µs) is longer than the 100 µs step, so its
+ripple reaches the motor as it should and costs steps. G11b (0.5x for every
+averaged run) is still not met for six-step (0.32-0.35x) nor at 5 kHz; it is
+met for sinusoidal commutation at 10 and 20 kHz. Exact edges stay slow, as
+ADR 0093 expects.
+
 ## Recommendation for DE11
 
-Keep the three parts and example 64 **experimental** in the library (they
-work, slowly) and investigate the coupling cost before SN-277 (a new task
-in the backlog); publish the speed in the guide until then. The fix for the
-STM32's watched pins stands on its own.
+Keep the three parts and example 64 **experimental** and go on with
+SN-277 with the measured speeds in the guide: sinusoidal commutation and
+FOC at 10 kHz run about in real time, six-step at about a third of it,
+enough to watch a start and a load step. The fixes of SN-278 (the averaging
+window, the cached source names, the STM32's watched pins) help every board
+and stand on their own.

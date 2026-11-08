@@ -240,11 +240,13 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
    (SN-274, example 62) and the lithium batteries with a charger example
    (SN-275, example 63) are done, unreleased. Experiment E-11 (SN-276,
    [results](../experiments/E-11-results.md)): the BLDC and PMSM motors,
-   the three-phase bridge and example 64 work (G11a) but run at only
-   0.03-0.21x real time (G11b failed); they stay experimental. **DE11 waits
-   for the owner** (recommended: investigate the coupling cost, SN-278,
-   before SN-277). Found on the way and fixed: the STM32's watched pins
-   start low, so a pull-up against a net held low reads low.
+   the three-phase bridge and example 64 work (G11a). SN-278 found why they
+   ran at 0.03-0.21x real time and fixed it for every board (drives averaged
+   over at least one maximum step, ADR 0091 update; source names resolved
+   once): now six-step about 0.35x, sinusoidal at 10 kHz 1.16x; G11b is
+   still not met for six-step. The parts stay experimental. **DE11 waits
+   for the owner** (recommended: go on with SN-277). Also fixed: the STM32's
+   watched pins start low, so a pull-up against a net held low reads low.
 
 ## Known constraints
 

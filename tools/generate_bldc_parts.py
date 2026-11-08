@@ -26,7 +26,10 @@ VM * d behind the on-resistance, d = V(IN) / logic level clamped to 0..1, and
 EN connects it (Hi-Z when low, body diodes to VM and GND). With exact
 microcontroller edges IN is 0 or the logic level and the bridge switches;
 without them IN is the PWM's step average and the bridge gives the average
-voltage (ADR 0091). VM supplies sum(d_k * i_k).
+voltage (ADR 0091). VM supplies sum(d_k * i_k). EN is a conductance in
+proportion to its level and the body diodes are straight segments: switches
+and exponential diodes made ngspice take 6 us steps around every
+commutation (SN-278).
 
 Run from the repository root: python tools/generate_bldc_parts.py
 """
@@ -183,9 +186,13 @@ def bridge():
             f"R_{{ref}}_r{k} o{k}_{{ref}} s{k}_{{ref}} {{Ron}}",
             f"V_{{ref}}_i{k} s{k}_{{ref}} p{k}_{{ref}} DC 0",
             f"B_{{ref}}_c{k} c{k}_{{ref}} 0 V=V({{node:EN{k}}},{{node:GND}})/{{vio}}",
-            f"S_{{ref}}_e{k} p{k}_{{ref}} {{node:OUT{k}}} c{k}_{{ref}} 0 SW_EN3",
-            f"D_{{ref}}_h{k} {{node:OUT{k}}} {{node:VM}} D_BODY3",
-            f"D_{{ref}}_l{k} {{node:GND}} {{node:OUT{k}}} D_BODY3",
+            # EN as a conductance in proportion to its (step-averaged) level: a leg
+            # enabled a fraction x of the time conducts x times as much on average,
+            # and the smooth change keeps ngspice's steps long (SN-278).
+            f"B_{{ref}}_e{k} p{k}_{{ref}} {{node:OUT{k}}} I=V(p{k}_{{ref}},{{node:OUT{k}}})*(1e-9+1000*min(max(V(c{k}_{{ref}}),0),1))",
+            # Body diodes as straight segments (0.6 V, 0.1 ohm): no exponential knee.
+            f"B_{{ref}}_h{k} {{node:OUT{k}}} {{node:VM}} I=10*max(V({{node:OUT{k}}},{{node:VM}})-0.6,0)",
+            f"B_{{ref}}_l{k} {{node:GND}} {{node:OUT{k}}} I=10*max(V({{node:GND}},{{node:OUT{k}}})-0.6,0)",
             f"R_{{ref}}_z{k} {{node:OUT{k}}} {{node:GND}} 10Meg",
         ]
         supply.append(f"V(d{k}_{{ref}})*I(V_{{ref}}_i{k})")
@@ -207,8 +214,6 @@ def bridge():
             number("vio", "Logic level", "V", "3.3", "Input high level (the microcontroller's supply)", "1.8", "5.5"),
             number("Ron", "On-resistance", "Ohm", "250m", "Resistance of each switch when on", "1m", "10"),
         ],
-        "models": [".model SW_EN3 SW(VT=0.5 VH=0.1 RON=1m ROFF=1e9)",
-                   ".model D_BODY3 D(IS=1e-12 N=1.3 RS=0.02)"],
         "spice": lines,
     }
 

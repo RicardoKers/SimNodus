@@ -65,3 +65,27 @@ Measured on 2026-10-16 (Windows laptop, release build, maximum speed):
 A lesson that needs edge shapes inside 100 µs in the analog view, or serial
 frames on the pins (SN-175): then breakpoints only for the nets that need them,
 or rise times, measured as in the table above.
+
+## Update 2026-11-08 (SN-278): at least one maximum step
+
+Without exact edges the drive is now averaged over **(t − max(t − t0,
+maximum step), t]**: never less than one maximum step (100 µs by default)
+before the trial time. A full-length step is averaged exactly as before.
+
+Why: a step that ngspice shortened (after a breakpoint, or in a stiff
+stretch) used to see only its own few microseconds, so a 10 kHz PWM reached
+the circuit as real switching. Its edges kept the steps short, and the run
+never returned to long steps. A Blue Pill driving a three-phase bridge and a
+BLDC motor (experiment E-11) took 6 µs steps on average and ran at 0.05x
+real time; the speed fell with the PWM frequency even though the edges were
+meant to be averaged.
+
+Measured on example 64 (six-step, 10 kHz, 2 s): 340 000 time points before,
+70 000 after this change; with the bridge's EN as a conductance in
+proportion to its level and straight-segment body diodes (same task),
+51 000 points and 0.48x real time. See the
+[E-11 results](../experiments/E-11-results.md).
+
+Consequence: an edge is spread over at least 100 µs even inside a short
+step, which was already the bound of the original decision. With exact
+edges the step-by-step behavior is unchanged.
