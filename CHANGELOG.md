@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Fixed (2026-11-08, SN-270, owner's test of uploads through UART0)
+
+- ESP32-C3: Arduino IDE uploads through the DevKit's UART0 (`uart0_link`) were slow and often failed midway, while USB Serial/JTAG uploads worked. The chip's SYSCLK_CONF register read its crystal frequency (CLK_XTAL_FREQ) as 0, so esptool's flasher stub, which divides by it for CHANGE_BAUDRATE, set UART0's divider to 0 and the port stayed at 115200 baud while esptool sent at 921600. Each 16 KB block then took 1.4 s instead of 0.18 s, and passed esptool's 3 s timeout whenever the board ran slower than half of real time. The register now reports 40 MHz and cannot be written. Measured with the Arduino IDE's esptool 5.3.1 and Eterlogic's virtual port pair, a 300 KB sketch at real-time speed: about 5 s in all at 921600 baud (app at about 1 Mbit/s, was 18 s at 161 kbit/s), 10 uploads in a row without a failure; at 40 % of real time it now succeeds where it failed before; USB Serial/JTAG about 2 s.
+
 ### Added (2026-11-08, owner's test of the Wi-Fi preview)
 
 - ESP32-C3 Wi-Fi: ping through the gateway. An echo request from a board to the internet or to `host.simnodus` is sent by the computer (Windows `IcmpSendEcho`, Linux ICMP datagram sockets; no administrator rights) and the answer comes back to the board; without an answer the ping times out on the board. Arduino's `ConsoleWiFi` ping only resolved the name before.

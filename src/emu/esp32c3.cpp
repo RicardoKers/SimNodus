@@ -1455,6 +1455,9 @@ protected:
         if (offset == 0x048 && (value & (1u << 8))) { // RTC_FASTMEM_CONFIG: RTC_MEM_CRC_START
             value |= 1u << 31; // RTC_MEM_CRC_FINISH at once; the CRC is not computed
         }
+        if (offset == 0x058) {
+            value = (value & ~xtal_field) | (reg(0x058) & xtal_field); // read-only
+        }
         Block::write_word(offset, value);
         if (offset >= 0x028 && offset <= 0x034) { // SYSTEM_CPU_INTR_FROM_CPU_n: sources 50..53
             raise(50 + static_cast<int>((offset - 0x028) / 4), (value & 1) != 0);
@@ -1474,8 +1477,15 @@ protected:
     void on_reset() override
     {
         reg(0x008) = 0x0C; // CPU_PER_CONF reset value (TRM): PLL 480 MHz
-        reg(0x058) = 0x01; // SYSCLK_CONF: XTAL, PRE_DIV_CNT 1 per the reset value
+        // SYSCLK_CONF: XTAL, PRE_DIV_CNT 1 per the reset value, and the
+        // read-only CLK_XTAL_FREQ (bits 18:12) the chip detected: 40 MHz. The
+        // ROM's ets_get_xtal_freq reads it; esptool's flasher stub divides by
+        // it for CHANGE_BAUDRATE (a 0 here left UART0 at 115200 baud).
+        reg(0x058) = 0x01 | (40u << 12);
     }
+
+private:
+    static constexpr std::uint32_t xtal_field = 0x7Fu << 12;
 };
 
 // SHA accelerator, typical (CPU) mode: SHA_START hashes the 64-byte block in
