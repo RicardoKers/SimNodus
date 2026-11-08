@@ -178,8 +178,10 @@ std::vector<EtherPacket> WifiNetwork::ipv4(const EtherPacket& packet, std::uint6
     // gateway's own address (connections to forwarded ports): the gateway.
     const bool local = dst[0] == 192 && dst[1] == 168 && dst[2] == 4 && dst != WifiGateway::computer;
     const bool unicast = dst != broadcast_ip && dst[0] != 0 && dst[0] < 224;
-    if (gateway_ && (b[9] == protocol_udp || b[9] == protocol_tcp) && unicast
-        && (!local || (dst == gateway && b[9] == protocol_tcp))) {
+    const bool echo = b[9] == protocol_icmp && data.size() >= 8 && data[0] == 8;
+    if (gateway_ && unicast
+        && (((b[9] == protocol_udp || b[9] == protocol_tcp) && (!local || (dst == gateway && b[9] == protocol_tcp)))
+            || (echo && !local && dst != gateway))) {
         gateway_->from_station(std::vector<std::uint8_t>(b.begin(), b.begin() + static_cast<std::ptrdiff_t>(total)), now_ns);
         return {};
     }

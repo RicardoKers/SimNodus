@@ -5,18 +5,24 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+// After winsock2.h: the ICMP helper API (iphlpapi).
+#include <iphlpapi.h>
+#include <icmpapi.h>
 #else
 #include <arpa/inet.h>
 #include <cerrno>
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/ip_icmp.h>
+#include <poll.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
 
 #include <cstring>
+#include <thread>
 
 namespace simnodus::emu {
 
@@ -228,6 +234,100 @@ std::optional<HostAddress> host_resolve(const std::string& name)
     std::memcpy(address.data(), &reinterpret_cast<const sockaddr_in*>(result->ai_addr)->sin_addr, 4);
     ::freeaddrinfo(result);
     return address;
+}
+
+namespace {
+
+// One echo request from the computer; true if the answer came within a
+// second.
+bool ping_once(const HostAddress& address, const std::vector<std::uint8_t>& data)
+{
+#ifdef _WIN32
+    const HANDLE icmp = IcmpCreateFile();
+    if (icmp == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    IPAddr to = 0;
+    std::memcpy(&to, address.data(), 4);
+    std::vector<unsigned char> reply(sizeof(ICMP_ECHO_REPLY) + data.size() + 64);
+    std::vector<unsigned char> payload(data.begin(), data.end());
+    const DWORD answers = IcmpSendEcho(icmp, to, payload.empty() ? nullptr : payload.data(),
+        static_cast<WORD>(payload.size()), nullptr, reply.data(), static_cast<DWORD>(reply.size()), 1000);
+    const bool answered = answers > 0 && reinterpret_cast<const ICMP_ECHO_REPLY*>(reply.data())->Status == IP_SUCCESS;
+    IcmpCloseHandle(icmp);
+    return answered;
+#else
+    const int s = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+    if (s < 0) {
+        return false;
+    }
+    // Type 8 (echo request); the kernel sets the identifier.
+    std::vector<std::uint8_t> request{8, 0, 0, 0, 0, 0, 0, 1};
+    request.insert(request.end(), data.begin(), data.end());
+    std::uint32_t sum = 0;
+    for (std::size_t i = 0; i + 1 < request.size(); i += 2) {
+        sum += static_cast<std::uint32_t>((request[i] << 8) | request[i + 1]);
+    }
+    if (request.size() & 1u) {
+        sum += static_cast<std::uint32_t>(request.back() << 8);
+    }
+    while (sum >> 16) {
+        sum = (sum & 0xFFFFu) + (sum >> 16);
+    }
+    const std::uint16_t check = static_cast<std::uint16_t>(~sum);
+    request[2] = static_cast<std::uint8_t>(check >> 8);
+    request[3] = static_cast<std::uint8_t>(check);
+    const sockaddr_in a = socket_address(address, 0);
+    bool answered = false;
+    if (::sendto(s, request.data(), request.size(), 0, reinterpret_cast<const sockaddr*>(&a), sizeof(a)) >= 0) {
+        pollfd wait{s, POLLIN, 0};
+        std::uint8_t reply[1500];
+        while (!answered && ::poll(&wait, 1, 1000) > 0) {
+            const auto n = ::recv(s, reply, sizeof(reply), 0);
+            answered = n >= 8 && reply[0] == 0; // echo reply
+        }
+    }
+    ::close(s);
+    return answered;
+#endif
+}
+
+} // namespace
+
+bool HostPinger::available()
+{
+#ifdef _WIN32
+    const HANDLE icmp = IcmpCreateFile();
+    if (icmp == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    IcmpCloseHandle(icmp);
+    return true;
+#else
+    const int s = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+    if (s < 0) {
+        return false;
+    }
+    ::close(s);
+    return true;
+#endif
+}
+
+void HostPinger::send(const HostAddress& address, const std::vector<std::uint8_t>& data, std::uint64_t tag)
+{
+    std::thread([shared = shared_, address, data, tag] {
+        const bool answered = ping_once(address, data);
+        std::lock_guard lock(shared->mutex);
+        shared->done.push_back({tag, answered});
+    }).detach();
+}
+
+std::vector<HostPinger::Result> HostPinger::take()
+{
+    std::vector<Result> results;
+    std::lock_guard lock(shared_->mutex);
+    results.swap(shared_->done);
+    return results;
 }
 
 } // namespace simnodus::emu

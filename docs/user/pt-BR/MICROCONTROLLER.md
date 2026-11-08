@@ -1,4 +1,4 @@
-<!-- source: MICROCONTROLLER.md sha256 511f76559e597ae059d363cdfc0cb5eb21ccb8143fe72b19df06a856bdbb12d7 -->
+<!-- source: MICROCONTROLLER.md sha256 aef96cdba4f8eb18b0d0884284f7c991c8d6997cf46a371b5efd6ddc0282e2eb -->
 # Microcontrolador: o que é simulado
 
 O SimNodus executa o firmware da **Blue Pill (STM32F103C8)** em seu próprio emulador
@@ -412,7 +412,8 @@ menos que o projeto ligue **Gateway para a rede deste computador** em
 
 - O firmware das placas alcança este computador como `host.simnodus`
   (192.168.4.254), a rede local e a internet, como um aparelho na rede deste
-  computador: páginas web, brokers MQTT, a hora por NTP.
+  computador: páginas web, brokers MQTT, a hora por NTP e o ping (este
+  computador envia o ping e devolve a resposta).
 - **Portas deste computador redirecionadas às placas** deixam o servidor de
   uma placa acessível deste computador: com a porta 8080 redirecionada a
   192.168.4.2:80, um navegador abre `http://127.0.0.1:8080/` enquanto a
@@ -435,7 +436,10 @@ comando peça com `"allow_network": true`.
   placa real.
 - Não há modo ponto de acesso na própria placa (SoftAP), nem ESP-NOW, nem
   WPA3, nem Bluetooth.
-- Um ping de uma placa só alcança o ponto de acesso.
+- Sem o gateway, um ping de uma placa só alcança o ponto de acesso
+  (192.168.4.1). No Linux, pings pelo gateway precisam que
+  `net.ipv4.ping_group_range` inclua o usuário, como a maioria das
+  distribuições configura.
 - Duas execuções sem o gateway dão os mesmos resultados. Com o gateway, a
   rede do computador decide o tempo.
 

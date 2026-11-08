@@ -214,7 +214,11 @@ details of each change are in the [CHANGELOG](../../CHANGELOG.md) and the ADRs.
      gateway off; the first-run confirmation of the gateway), several boards
      on one network, the CLI's `wifi_*` settings and `allow_network`,
      example 60 (a web server), the guides in English and pt-BR, and the
-     gate review with a recommendation for **DE9** (the owner's decision:
+     gate review. The owner tested the preview on 2026-11-08 (two boards as
+     server and client, DHCP and a fixed address, MQTT through a broker on
+     the internet, all from the Arduino IDE); a fixed-IP fault (#294) and
+     ping through the gateway were added after. The recommendation for
+     **DE9** stands (the owner's decision:
      keep the Wi-Fi experimental, ADR 0109, then the board comparisons
      G9b.2, G9b.3 and G9c.3 with the owner's DevKitM-1 and a real access
      point);

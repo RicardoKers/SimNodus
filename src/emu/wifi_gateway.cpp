@@ -34,6 +34,7 @@ namespace simnodus::emu {
 
 namespace {
 
+constexpr std::uint8_t protocol_icmp = 1;
 constexpr std::uint8_t protocol_tcp = 6;
 constexpr std::uint8_t protocol_udp = 17;
 constexpr std::uint16_t listen_port = 1; // lwIP's listener for rewritten flows
@@ -124,6 +125,15 @@ struct WifiGateway::State {
     std::vector<std::pair<WifiForward, std::unique_ptr<HostSocket>>> listeners;
     std::vector<std::vector<std::uint8_t>> out;
     std::uint64_t now_ns = 0;
+    // Pings to the outside: the station's echo request, kept for the reply.
+    struct Ping {
+        Ipv4Address station{};
+        Ipv4Address remote{};
+        std::vector<std::uint8_t> icmp;
+    };
+    HostPinger pinger;
+    std::map<std::uint64_t, Ping> pings;
+    std::uint64_t next_ping = 1;
 };
 
 namespace {
@@ -327,6 +337,17 @@ void WifiGateway::from_station(const std::vector<std::uint8_t>& ip_packet, std::
         if (s.nif.input(p, &s.nif) != ERR_OK) {
             pbuf_free(p);
         }
+    } else if (packet[9] == protocol_icmp) {
+        // An echo request: the computer pings, the answer comes back later.
+        if (packet[header] != 8 || s.pings.size() >= 64) {
+            return;
+        }
+        const std::uint64_t tag = s.next_ping++;
+        State::Ping& ping = s.pings[tag];
+        ping.station = src;
+        ping.remote = dst;
+        ping.icmp.assign(packet.begin() + static_cast<std::ptrdiff_t>(header), packet.end());
+        s.pinger.send(outside(dst), std::vector<std::uint8_t>(ping.icmp.begin() + 8, ping.icmp.end()), tag);
     } else if (packet[9] == protocol_udp) {
         UdpFlow& flow = s.udp[{src, src_port}];
         if (!flow.socket) {
@@ -435,6 +456,29 @@ void WifiGateway::poll(std::uint64_t now_ns)
         }
     }
     s.flows.erase(std::remove_if(s.flows.begin(), s.flows.end(), [](const auto& f) { return f->dead; }), s.flows.end());
+    // Pings that came back: an echo reply from the address the station
+    // pinged; the others time out on the station, as without an answer.
+    for (const HostPinger::Result& result : s.pinger.take()) {
+        const auto ping = s.pings.find(result.tag);
+        if (ping == s.pings.end()) {
+            continue;
+        }
+        if (result.answered) {
+            std::vector<std::uint8_t> icmp = ping->second.icmp;
+            icmp[0] = 0; // echo reply
+            icmp[2] = 0;
+            icmp[3] = 0;
+            set16(&icmp[2], internet_checksum(icmp.data(), icmp.size()));
+            std::vector<std::uint8_t> reply{0x45, 0, 0, 0, 0, 0, 0, 0, 64, protocol_icmp, 0, 0};
+            reply.insert(reply.end(), ping->second.remote.begin(), ping->second.remote.end());
+            reply.insert(reply.end(), ping->second.station.begin(), ping->second.station.end());
+            reply.insert(reply.end(), icmp.begin(), icmp.end());
+            set16(&reply[2], static_cast<std::uint16_t>(reply.size()));
+            fix_checksums(reply);
+            s.out.push_back(std::move(reply));
+        }
+        s.pings.erase(ping);
+    }
     // UDP answers.
     for (auto it = s.udp.begin(); it != s.udp.end();) {
         HostAddress from{};

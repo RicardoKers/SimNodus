@@ -11,7 +11,9 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <mutex>
 #include <string>
+#include <vector>
 
 namespace simnodus::emu {
 
@@ -50,5 +52,33 @@ private:
 
 // The computer's resolver, IPv4 only (blocking).
 std::optional<HostAddress> host_resolve(const std::string& name);
+
+// Pings from the computer for the Wi-Fi gateway: ICMP echo without
+// administrator rights (Windows: IcmpSendEcho; Linux: an ICMP datagram
+// socket, which net.ipv4.ping_group_range must allow). Each ping waits in a
+// thread of its own for up to one second; finished ones are collected.
+class HostPinger {
+public:
+    struct Result {
+        std::uint64_t tag = 0;
+        bool answered = false;
+    };
+
+    // Whether this computer lets the program ping at all.
+    static bool available();
+    // Sends an echo request with `data` to `address`; its result comes back
+    // with `tag`. The waiting thread never blocks the caller.
+    void send(const HostAddress& address, const std::vector<std::uint8_t>& data, std::uint64_t tag);
+    std::vector<Result> take();
+
+private:
+    // Shared with the ping threads, which may outlive the pinger by up to a
+    // second.
+    struct Shared {
+        std::mutex mutex;
+        std::vector<Result> done;
+    };
+    std::shared_ptr<Shared> shared_ = std::make_shared<Shared>();
+};
 
 } // namespace simnodus::emu

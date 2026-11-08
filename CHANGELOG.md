@@ -4,6 +4,10 @@ All entries describe actual repository changes, not promised simulator capabilit
 
 ## Unreleased
 
+### Added (2026-11-08, owner's test of the Wi-Fi preview)
+
+- ESP32-C3 Wi-Fi: ping through the gateway. An echo request from a board to the internet or to `host.simnodus` is sent by the computer (Windows `IcmpSendEcho`, Linux ICMP datagram sockets; no administrator rights) and the answer comes back to the board; without an answer the ping times out on the board. Arduino's `ConsoleWiFi` ping only resolved the name before.
+
 ### Fixed (2026-11-06, owner's test of the Wi-Fi preview)
 
 - ESP32-C3 Wi-Fi: a board with a fixed address (Arduino's `WiFi.config`, MicroPython's `ifconfig`) got no answers through the gateway, so an NTP clock with a fixed IP never set its time: the gateway sent answers only to addresses the DHCP server had leased. The network now learns each board's address from its packets (IP source, ARP), as an access point does.
